@@ -23,5 +23,8 @@ extends Object
     public int hashCode() {
 	return value;
     }
-
+   public String toString()
+   {
+      return "IntSlot[" + value + "]";
+   }
 }
