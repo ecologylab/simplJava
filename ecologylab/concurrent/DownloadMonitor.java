@@ -404,8 +404,11 @@ implements Runnable
 	       for (int i=0; i<numDownloadThreads; i++)
 	       {
 		  Thread thatThread	= downloadThreads[i];
-		  priorities[i]		= thatThread.getPriority();
-		  thatThread.setPriority(Thread.MIN_PRIORITY);
+		  if (thatThread != null)
+		  {
+		     priorities[i]		= thatThread.getPriority();
+		     thatThread.setPriority(Thread.MIN_PRIORITY);
+		  }
 	       }
 	    }
 	    else
