@@ -93,7 +93,10 @@ extends Debug
   {
      return getClassName() + " " + getIndex() + ": " + weight;
   }
-   public boolean gc()
+/**
+ * Free resources associated w this element.
+ */   
+   public boolean recycle()
    {
       return true;
    }
