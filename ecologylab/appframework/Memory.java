@@ -55,7 +55,7 @@ public class Memory
    public static void reclaimQuiet()
    {
       System.gc();
-      System.runFinalization();
+      //System.runFinalization();
       gcCount++;
    }
 /**
