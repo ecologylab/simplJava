@@ -106,7 +106,7 @@ extends Debug
 
 /**
  * Very efficiently forms String representation of url (better than 
- * <code>URL.toExternalForm()</code>). Doesn't include query or anchor.
+ * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include query or anchor.
  */
    public static final String pageString(URL u)
    {
@@ -134,6 +134,28 @@ extends Debug
 
       return new String(result);
    }
+   public static final URL urlRemoveAnchorIfNecessary(URL source)
+   {
+      String anchor			= source.getRef();
+      return (anchor == null) ? source : urlNoAnchor(source);
+   	
+   }
+  public static final URL urlNoAnchor(URL source)
+   {
+      URL result = null;
+      try
+      {
+	 result= new URL(source.getProtocol(), source.getHost(),
+			 source.getPort(), source.getFile());
+      } catch (MalformedURLException e)
+      {
+	 e.printStackTrace();
+	 throw new RuntimeException("Cant form noHashUrl from " +
+				    source.toString());
+      }
+      return result;
+   }
+      
    public static void main(String[] args)
    {
       for (int i=0; i<args.length; i++)
