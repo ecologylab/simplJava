@@ -38,6 +38,7 @@ extends Debug
       long  deltaTime	= now - startTime;
       if (downloadable.isDownloadDone())
 	 return true;
+//      debug("deltaTime="+deltaTime);
       if (deltaTime >= DownloadMonitor.TIMEOUT)
       {
 	 timeout();
@@ -85,6 +86,7 @@ extends Debug
    }
    public String toString()
    {
-      return super.toString() + "["+downloadable.toString() + "]";
+      return super.toString() + "["+downloadable.toString() +" "+
+	 downloadingThread + "]";
    }
 }

@@ -1,6 +1,9 @@
 package cm.generic;
 
 import java.util.*;
+import java.nio.channels.ClosedByInterruptException;
+
+import cm.generic.*;
 
 /**
  * Non-linear flow multiplexor.
@@ -18,13 +21,13 @@ implements Runnable
    static final int	TIMEOUT_SLEEP	= 4000;
    static final int	SHORT_SLEEP	= 50;
 
-//   public static final int HIGH_PRIORITY	= 4;
+   public static final int HIGHER_PRIORITY	= 4;
    public static final int HIGH_PRIORITY	= 3;
    public static final int MID_PRIORITY		= 2;
-   public static final int LOW_PRIORITY		= 2;
+   public static final int LOW_PRIORITY		= 1;
    
-   public final int highThreshold;
-   public final int midThreshold;
+   public final int	highThreshold;
+   public final int	midThreshold;
    
    int			timeouts;
    int			dispatched;
@@ -57,6 +60,8 @@ implements Runnable
    
    static boolean	finished;
    
+   FloatWeightSet		sourceSet;
+
    public DownloadMonitor()
    {
       this(1);
@@ -101,11 +106,18 @@ implements Runnable
 	    {
 	       thatClosure	= 
 		  (DownloadClosure) potentialTimeouts.firstElement();
+//	       debug("checking() "+thatClosure);
+	       
 	       if (thatClosure.timeoutOrComplete(now))
 	       {
 		  potentialTimeouts.remove(0);
 		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
+		  {
+		     println("\n\n");
+		     debug("restarting timeout thread for " +
+			   thatClosure);
 		     restartDownloadThread(thatClosure.downloadingThread);
+		  }
 	       }
 	       else
 		  break;
@@ -120,7 +132,7 @@ implements Runnable
 	    }
 	    else
 	       sleep		= TIMEOUT;
-//	    debug("detectTimeouts() sleeping for " + sleep);
+	    debug(1, "detectTimeouts() sleeping for " + sleep);
 	    Generic.sleep(sleep);
 	 } catch (OutOfMemoryError e)
 	 {
@@ -162,7 +174,7 @@ implements Runnable
 	 if (timeoutThread == null)
 	 {
 	    timeoutThread	= new Thread(this, toString() + "-timeouts");
-	    timeoutThread.setPriority(LOW_PRIORITY);
+	    timeoutThread.setPriority(LOW_PRIORITY+1);
 	    timeoutThread.start(); // to our run method
 	 }
       }
@@ -262,6 +274,7 @@ implements Runnable
    {
       synchronized (toDownload)
       {
+//	 debug("download("+thatDownloadable);
 	 toDownload.addElement(new DownloadClosure(thatDownloadable,
 						   dispatchTarget, this));
 	 if (downloadThreads == null)
@@ -274,36 +287,71 @@ implements Runnable
    {
       int waiting	= toDownload.size();
       int priority;
+
       if (waiting >= midThreshold)
 	 priority	= MID_PRIORITY;
       else if (waiting >= highThreshold)
-	 priority	= HIGH_PRIORITY;
+	 priority	= MID_PRIORITY;
       else
 	 priority	= LOW_PRIORITY;
-      t.setPriority(priority);
+
+      int oldPriority	= t.getPriority();
+      if (priority != oldPriority)
+      {
+	 debug(1, "\tsetPriority("+priority+") "+sourceSet);
+	 t.setPriority(priority);
+      }
       return priority;
    }
    private void restartDownloadThread(Thread t)
    {
-      debug("restartDownloadThread(" + t);
-
+      if (t != null)
+	 t.interrupt();
+/*
+      Thread	oldThread	= t;
       for (int i=0; i<downloadThreads.length; i++)
       {
 	 if (downloadThreads[i] == t)
 	 {
-	    t.stop();
-	    t		= newDownloadThread(i);
-	    downloadThreads[i]	= t;
-	    int priority	= setDownloadPriority(t);
-	    println("\t found thread " + i +
-		    " set new one to priority "+priority);
-	    t.start();
+	    try
+	    {
+	       println("\t stopping " + t);
+	       t.stop();
+	       t.stop();
+	       if (t.isAlive())
+		  println("\tSTOP failed!");
+
+	       t		= newDownloadThread(i, "restarted");
+	       downloadThreads[i]	= t;
+	       int priority	= setDownloadPriority(t);
+	       println("\tSetting new thread to priority "+priority);
+	       t.start();
+	       for (int j=0; j< 10; j++)
+	       {
+	          oldThread.stop();
+	       }
+	    } catch (ThreadDeath e)
+	    {
+	       println("\tThreadDeath while restarting stuck thread!");
+	       e.printStackTrace();
+	       throw e;
+	    }
+	    catch (Throwable e)
+	    {
+	       println("\tEXCEPTION while restarting stuck thread!");
+	       e.printStackTrace();
+	    }
 	 }
       }
+ */
    }
    private Thread newDownloadThread(int i)
    {
-      return new Thread(toString()+"-download "+i)
+      return newDownloadThread(i, "");
+   }
+   private Thread newDownloadThread(int i, String s)
+   {
+      return new Thread(toString()+"-download "+i+" "+s)
 	    {
 	       public void run()
 	       {
@@ -347,7 +395,7 @@ implements Runnable
 	       continue;
 	    thatClosure = (DownloadClosure) toDownload.remove(0);
 	 }
-	 detectPotentialTimeout(thatClosure);
+	 detectPotentialTimeout(thatClosure, Thread.currentThread());
 	 try
 	 {
 //	    debug("performDownload() "+
@@ -356,6 +404,7 @@ implements Runnable
 	       setDownloadPriority(Thread.currentThread());
 
 	    thatClosure.performDownload();
+//	    debug("after performDownload() " + thatClosure);
 	    potentialTimeouts.remove(thatClosure); 
 	    thatClosure.dispatch();
 /*	 } catch (ClosedByInterruptException e)
@@ -364,14 +413,26 @@ implements Runnable
 	    debugA("performDownloads() -- got interrupted.");
 */	 } catch (ThreadDeath e)
 	 { 
-	    break;
+	    debug("ThreadDeath in performDownloads() loop");
+	    e.printStackTrace();
+	    throw e;
+	 } catch (ClosedByInterruptException e)
+	 { 
+	    debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
+	    e.printStackTrace();
+	    thatClosure.ioError();
+
 	 } catch (OutOfMemoryError e)
 	 { 
 	    Memory.recover(e, getClassName() + 
 			   ".performDownloads() trying to recover.");
+	    thatClosure.ioError();
 	 } catch (Throwable e)
 	 {
-	    debugA("performDownloads() -- got exception:");
+	    boolean interrupted		= Thread.interrupted();
+	    String interruptedStr	= interrupted ? " interrupted" : "";
+	    debugA("performDownloads() -- recovering from "+interruptedStr+
+		" exception:");
 	    e.printStackTrace();
 	    thatClosure.ioError();
 	 }
@@ -423,5 +484,9 @@ implements Runnable
    public boolean highNumberWaiting()
    {
       return toDownload.size() > highThreshold;
+   }
+   public void setSourceSet(FloatWeightSet sourceSet)
+   {
+      this.sourceSet		= sourceSet;
    }
 }
