@@ -67,9 +67,12 @@ extends Debug
    }
    /**
     * Only for use by FloatWeightSet.clear(), and delete.
+    * This is used to reset state of this, in cases when the state
+    * of the FloatWeightSet we were part of is being reset some other way,
+    * or if it is being discarded.
     *
     */
-   void clear()
+   public void clear()
    {
    	  index	= NOT_A_MEMBER;
       set	= null;
