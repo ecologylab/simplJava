@@ -7,7 +7,7 @@ JAVA_SRC = Generic.java Files.java Colors.java StringTools.java \
 	   FloatSetElement.java FloatWeightSet.java \
 	   Debug.java Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java \
-	   StringBuffersPool.java
+	   StringBuffersPool.java SyncLinkedList.java
 
 # IntSlot used by Parser, Map
 
