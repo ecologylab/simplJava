@@ -1,7 +1,7 @@
 # current working directory
 DIR	= ecologylab/xml
 
-JAVA_SRC = XmlTools.java ElementState.java
+JAVA_SRC = XmlTools.java ElementState.java XmlTranslationConfig.java
 
 JAVA_ROOT= ../../
 

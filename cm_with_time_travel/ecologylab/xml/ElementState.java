@@ -12,6 +12,8 @@ import org.w3c.dom.*;
 import org.w3c.dom.Attr; 
 import org.xml.sax.*;
 
+import cm.generic.Debug;
+
 /**
  * This class is the heart of the translation framework. All classes which 
  * need to be translated to xml and back MUST extend this class. It has the actual
@@ -20,7 +22,7 @@ import org.xml.sax.*;
  * @author      Madhur Khandelwal
  * @version     0.5
  */
-abstract public class ElementState extends IO
+abstract public class ElementState extends Debug
 {
 	protected String xml = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	

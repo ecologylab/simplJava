@@ -7,7 +7,7 @@ public class StringBuffersPool
 extends Debug
 {
 	public static int DEFAULT_POOL_SIZE	=	64;
-	public Vector bufferPool = new Vector();
+	public Vector bufferPool;
 	
 	int	bufferSize;
 	int	poolSize;
@@ -19,6 +19,7 @@ extends Debug
 	public StringBuffersPool(int bufferSize, int poolSize)
 	{
 	   this.bufferSize	= bufferSize;
+	   bufferPool		= new Vector(poolSize);
 	   for(int i = 0 ; i < poolSize; i++)
 	   {
 	      bufferPool.add(new StringBuffer(bufferSize));

@@ -89,10 +89,10 @@ public class XmlTools extends IO
 	      }
 	  }
             
-      StringBuffer packageName = new StringBuffer(getPackageName(obj));
-      
-      if(packageName != null)
-      	return XmlTools.toString(packageName.append('-').append(result));
+//      StringBuffer packageName = new StringBuffer(getPackageName(obj));
+//      
+//      if(packageName != null)
+//      	return XmlTools.toString(packageName.append('-').append(result));
       
       return XmlTools.toString(result);
    }
@@ -441,24 +441,30 @@ public class XmlTools extends IO
     */
    public static Class getStateClass(String classNameWithPackage)
    {
-   		Class stateClass 		= 	null;
-
-   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
-   		String packageName		=	"";
-   		String stateName		=	classNameWithPackage;
-   		
-   		if(packageNameIndex != -1)
-   		{
-   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
-   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
-   		}
-   		
+	   		Class stateClass 		= 	null;
+//
+//   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
+//	   		String packageName		=	"";
+	   		String stateName		=	classNameWithPackage;
+//   		
+//   		if(packageNameIndex != -1)
+//   		{
+//   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
+//   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
+//   		}
+// 
+		
+//		String packageName	=	XMLTranslationConfig.getFullName(stateName);		  		
    		stateClass				=	(Class)stateClasses.get(stateName);   	   		
    		   		  		   		
    		if(stateClass	==	null)
    		{
-   			String className = packageName;   						
-			className += classNameFromElementName(stateName);
+//   			String className = packageName;   						
+//			className += classNameFromElementName(stateName);
+			String className = classNameFromElementName(stateName);
+			String packageName = XMLTranslationConfig.getPackageName(className);
+			className = packageName + className;
+
 			try
 			{				
 				stateClass	=	Class.forName(className + "State");		

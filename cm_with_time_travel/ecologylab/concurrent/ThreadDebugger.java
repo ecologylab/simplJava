@@ -107,37 +107,8 @@ public class ThreadDebugger extends Debug
 				}
 			}		
 		}	
-	}
+	}		
 	
-	public static void pauseThread(String threadName)
-	{
-		ThreadToDebug ttd = (ThreadToDebug)registeredThreads.get(threadName);				
-		Object mylock = ttd.lock;
-		synchronized (mylock)
-		{
-			try
-			{
-				System.err.println("\nPAUSING THREAD " + threadName);
-				mylock.wait();	
-			}catch (InterruptedException e)
-			{
-			}
-		}			
-	}
-
-	public	static void resumeThread(String threadName)
-	{
-		ThreadToDebug ttd = (ThreadToDebug)registeredThreads.get(threadName);				
-
-		Object mylock = ttd.lock;
-		
-		synchronized (mylock)
-		{
-			System.err.println("\nRESTARTING THREAD " + ttd.thread.getName());					
-			mylock.notify();
-		}				
-	}	
-
 	public	static void resume(ThreadToDebug ttd)
 	{
 		Object mylock = ttd.lock;
