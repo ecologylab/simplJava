@@ -116,12 +116,9 @@ extends Debug
        if (!relativeURLPath.startsWith("http://") && !relativeURLPath.startsWith("ftp://"))
       {
       	try
-		{
-      		Debug.println("Forming relative URL from docBase="+
-      				Generic.docBase());
-      		URL url		= new URL(base, relativeURLPath);
-          	result			= new ParsedURL(url);
-		}
+	{
+	   result	= new ParsedURL(new URL(base, relativeURLPath));
+	}
       	catch (MalformedURLException e)
 		{
       		Debug.println(urlErrorMsg(relativeURLPath, errorDescriptor));
@@ -130,13 +127,36 @@ extends Debug
       return result;
    }
    
-   /* Create ParsedURL with doc base and relative url string. */
+   public static URL getURL(URL base, String path, String error)
+   {
+      // ??? might want to allow this default behaviour ???
+      if (path == null)
+	 return null;
+      try 
+      {
+		//System.err.println("\nGENERIC - base, path, error = \n" + base + "\n" + path);
+		URL newURL = new URL(base,path);
+		//System.err.println("\nNEW URL = " + newURL);
+	 return newURL;
+      } catch (MalformedURLException e) 
+      {
+	 if (error != null)
+	    throw new Error(e + "\n" + error + " " + base + " -> " + path);
+	 return null;
+      }
+   }
+   
+/** 
+ * Create ParsedURL with doc base and relative url string. 
+ */
    public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
    {
    		return Generic.docBase().getRelative(relativeURLPath, errorDescriptor);
    } 
    
-   /* Return url error message string. */
+/**
+ * Return url error message string.
+ */
    static String urlErrorMsg(String webAddr, String errorDescriptor)
    {
       return "CANT open " + errorDescriptor + " " + webAddr +
@@ -615,5 +635,36 @@ extends Debug
          	path		= path.substring(0,lastSlash); 
          return protocol + url.getHost() + portStr + path;
    }
-
+   public boolean equals(Object o)
+   {
+      return (o instanceof ParsedURL) && 
+	 ((ParsedURL) o).url().equals(this.url);
+   }
+   public int hashCode()
+   {
+      return /* (url == null) ? -1 : */ url.hashCode();
+   }
+   String shortString;
+/**
+ * A shorter string for displaing in the modeline for debugging, and
+ * in popup messages.
+ */
+    public String shortString()
+   {
+      String shortString	= this.shortString;
+      if (shortString == null)
+      {
+	 URL url		= this.url;
+	 if (url == null)
+	    shortString		= "null";
+	 else
+	 {
+	    String file		= url.getFile();
+	    shortString		= url.getHost() + "/.../" + 
+	       file.substring(file.lastIndexOf('/') + 1);
+	 }
+	 this.shortString	= shortString;
+      }
+      return shortString;
+   }
 }
