@@ -12,146 +12,205 @@ import java.util.Hashtable;
  */
 public class NameSpace extends IO 
 {
-	/**
-	 * The default package. If an entry for a class is not found in the hashtable,
-	 * this package name is returned.
-	 */
-	private String defaultPackageName = "cm.state.";
-	
-	/**
-	 * This boolean controls whether package names are added to the class names
-	 * in the corresponding XML file. If its false, the package names are not added, otherwise
-	 * every class name is prepended by its package name.
-	 */
-	private boolean emitPackageNames = false;
-	
-	private Hashtable stateClasses	=	new Hashtable();
-	
-	/**
-	 * The hashtable containing the class name to package name mapping.
-	 * the name of the class is the key and the name of package is the value.
-	 */
-	private static final HashMap classPackageMappings = new HashMap();
-	
-	public NameSpace()	
-	{
-		// !!! these lines need to be moved to the studies package !!!
-		addTranslation("studies", "Subject");
-		addTranslation("studies", "SubjectSet");
-	}
-	
-	/**
-	 * Add a translation table entry for an ElementState derived sub-class.
-	 * Assumes that the xmlTag can be derived automatically from the className,
-	 * by translating case-based separators to "_"-based separators.
-	 * 
-	 * @param packageName	Package that the class lives in.
-	 * @param className		Name of the class.
-	 */
-	public void addTranslation(String packageName, String className)
-	{
-	   addTranslation(packageName, className, 
-					  XmlTools.xmlTagFromClassName(className, null,
-												"State", false));
-	}
-	/**
-	 * Add a translation table entry for an ElementState derived sub-class.
-	 * Use this signature when the xmlTag cannot be generated automatically from the className.
-	 * 
-	 * @param packageName	Package that the class lives in.
-	 * @param className		Name of the class.
-	 * @param xmlTag		XML tag that the class maps to.
-	 */
-	public void addTranslation(String packageName, String className,
-			String xmlTag)
-	{
-		classPackageMappings.put(className, packageName+".");
-	}
-	/**
-	 * returns a package name for a corresponding class name
-	 * @param className	the class for which the package names needs to be found out.
-	 * @return	package name of the given class name
-	 */
-	public String getPackageName(String className)
-	{
-		String packageName = (String) classPackageMappings.get(className);
-		
-		return (packageName != null) ? packageName : defaultPackageName;
-	}
-	
-	/**
-	 * Set the default package name for XML tag to ElementState sub-class translations.
-	 * 
-	 * @param packageName	The new default package name.
-	 */
-	public void setDefaultPackageName(String packageName)
-	{
-		defaultPackageName	= packageName + ".";
-	}
-	/**
-	    * creates a <code>Class</code> object from a given element name (aka tag) in the xml.
-	    * Also keeps it in the hashtable, so that when requested for the same class again
-	    * it doesnt have to create one.
-	    * @param xmlTag	name of the state class along with its package name
-	    * @return 						a <code>Class</code> object for the given state class
-	    */
-	   public Class xmlTagToElementStateClass(String xmlTag)
-	   {
-	   		Class stateClass 	= 	null;
-	   		String stateName	=	xmlTag;
-			String packageName	=	"";
-	   		
-			if (emitPackageNames)
-	   		{
-	   			int packageNameIndex=	xmlTag.indexOf("-");
-		   		if(packageNameIndex != -1)
-		   		{
-		   			packageName += 	xmlTag.substring(0, packageNameIndex) + ".";
-		   			stateName	=   xmlTag.substring(packageNameIndex+1); 		
-		   		}
-	   		}
-	//		String packageName	=	NameSpace.getFullName(stateName);		  		
-	   		stateClass			=	(Class) stateClasses.get(stateName);   	   		
-	   		   		  		   		
-	   		if (stateClass == null)
-	   		{
-				String className= XmlTools.classNameFromElementName(stateName);
-				if (!emitPackageNames)
-				{
-					packageName = getPackageName(className);
-					className	= packageName + className;
-				}
-				else
-				{
-					className	= packageName;   						
-					className  += XmlTools.classNameFromElementName(stateName);
-				}
-				try
-				{				
-					stateClass	= Class.forName(className + "State");		
-					stateClasses.put(stateName,stateClass);				
-				}
-				catch (Exception e1)
-				{
-					try
-					{
-						stateClass	=	Class.forName(className);
-						stateClasses.put(stateName, stateClass);
-					}
-					catch (Exception e2)
-					{
-						e2.printStackTrace();
-					}
-				}
-	   		}
-			return stateClass;
-	   }
-    /**
-	 * @return	true if package names should be emitted as part of tags while translating to XML.
-	 * 			This corresponds to quite verbose XML.
-	 */
-	public boolean emitPackageNames()
-	   {
-	   		return emitPackageNames;
-	   }
+   /**
+	* The default package. If an entry for a class is not found in the hashtable,
+	* this package name is returned.
+	*/
+   private String defaultPackageName = "cm.state";
+   
+   /**
+	* This boolean controls whether package names are added to the class names
+	* in the corresponding XML file. If its false, the package names are not added, otherwise
+	* every class name is prepended by its package name.
+	*/
+   private boolean emitPackageNames = false;
+   
+   private HashMap entriesByClassName	= new HashMap();
+   private HashMap entriesByTag			= new HashMap();
+//   private HashMap entriesByClassName	= new HashMap();
+   
+   /**
+	* The hashtable containing the class name to package name mapping.
+	* the name of the class is the key and the name of package is the value.
+	*/
+   private final HashMap classPackageMappings = new HashMap();
+   
+   public NameSpace()	
+   {
+	  // !!! these lines need to be moved to the studies package !!!
+//	  addTranslation("studies", "SubjectState");
+//	  addTranslation("studies", "SubjectSet");
+   }
+   
+   /**
+	* Add a translation table entry for an ElementState derived sub-class.
+	* Assumes that the xmlTag can be derived automatically from the className,
+	* by translating case-based separators to "_"-based separators.
+	* 
+	* @param packageName	Package that the class lives in.
+	* @param className		Name of the class.
+	*/
+   public void addTranslation(String packageName, String className)
+   {
+   	  new NameEntry(packageName, className);
+   }
+   /**
+	* Add a translation table entry for an ElementState derived sub-class.
+	* Use this signature when the xmlTag cannot be generated automatically from the className.
+	* 
+	* @param packageName	Package that the class lives in.
+	* @param className		Name of the class.
+	* @param xmlTag		XML tag that the class maps to.
+	*/
+   public void addTranslation(String packageName, String className,
+							  String xmlTag)
+   {
+//	  debugA("addTranslation: "+ className " : " + packageName);
+	  classPackageMappings.put(className, packageName+".");
+	  new NameEntry(packageName, className);
+   }
+   /**
+	* returns a package name for a corresponding class name
+	* @param className	the class for which the package names needs to be found out.
+	* @return	package name of the given class name
+	*/
+   public String getPackageName(String className)
+   {
+	  String packageName = (String) classPackageMappings.get(className);
+	  
+	  return (packageName != null) ? packageName : defaultPackageName;
+   }
+   /**
+	* Set the default package name for XML tag to ElementState sub-class translations.
+	* 
+	* @param packageName	The new default package name.
+	*/
+   public void setDefaultPackageName(String packageName)
+   {
+	  defaultPackageName	= packageName + ".";
+   }
+   /**
+	* creates a <code>Class</code> object from a given element name (aka tag) in the xml.
+	* Also keeps it in the hashtable, so that when requested for the same class again
+	* it doesnt have to create one.
+	* @param xmlTag	name of the state class along with its package name
+	* @return 						a <code>Class</code> object for the given state class
+	*/
+   public Class xmlTagToClass(String xmlTag)
+   {
+	  NameEntry entry		= (NameEntry) entriesByTag.get(xmlTag);
+
+	  if (entry == null)
+	  {
+		 String className	= XmlTools.classNameFromElementName(xmlTag);
+		 String packageName = defaultPackageName;
+		 entry				= new NameEntry(packageName, className);	
+	  }
+	  return entry.classObj;
+   }
+/**
+ * 
+ */   
+   public String objectToXmlTag(Object object)
+   {
+	  return classToXmlTag(object.getClass());
+   }
+   public String classToXmlTag(Class classObj)
+   {
+	  String className	= classObj.getName();
+	  NameEntry entry	= (NameEntry) entriesByClassName.get(className);
+	  if (entry == null)
+	  {
+		 String packageName = classObj.getPackage().getName();
+		 int index			= className.lastIndexOf('.') + 1;
+		 className			= className.substring(index);
+		 entry				= new NameEntry(packageName, className);	
+	  }
+	  return entry.getTag();
+   }
+   
+   /**
+	* @return	true	If package names should be emitted as part of tags 
+	*  while translating to XML.
+	*					This corresponds to quite verbose XML.
+	*/
+   public boolean emitPackageNames()
+   {
+	  return emitPackageNames;
+   }
+
+   public class NameEntry extends IO
+   {
+	  public final String		packageName;
+	  public final String		className;
+	  public final String		tag;
+
+	  public final String		dottedPackageName;
+	  public final String		tagWithPackage;
+	  public final Class		classObj;
+
+	  
+/**
+ * Create the entry by package name and class name.
+ */
+	  public NameEntry(String packageName, String className)
+	  {
+		 this(packageName, packageName + "." + className,
+			  XmlTools.xmlTagFromClassName(className, "State", false));
+	  }
+	  public NameEntry(String packageName, String wholeClassName, 
+					   String tag)
+	  {
+		 this.packageName		= packageName;
+		 this.className			= wholeClassName;
+		 this.tag				= tag;
+		 String dottedPackageName		= packageName + ".";
+		 this.dottedPackageName	= dottedPackageName;
+		 this.tagWithPackage	= dottedPackageName + tag;
+		 Class classObj			= null;
+		 try
+		 {  
+			classObj			= Class.forName(wholeClassName);
+		 } catch (ClassNotFoundException e)
+		 {
+			// maybe we need to use State
+			try
+			{
+			   classObj			= Class.forName(wholeClassName+"State");
+			} catch (ClassNotFoundException e2)
+			{
+			   debug("couldn't find class object");
+			   e2.printStackTrace();
+			}
+		 }
+		 this.classObj			= classObj;
+
+		 entriesByTag.put(tag, this);
+		 entriesByClassName.put(wholeClassName, this);
+		 if (wholeClassName.endsWith("State"))
+		 {
+			int beforeState		= wholeClassName.length() - 5;
+			String wholeClassNameNoState = 
+			   wholeClassName.substring(0, beforeState);
+//			debug("create entry including " + wholeClassNameNoState);
+			entriesByClassName.put(wholeClassNameNoState, this);
+		 }
+//		 else
+//			debug("create entry");
+	  }
+	  public String getTag()
+	  {
+		 return emitPackageNames() ? tagWithPackage : tag;
+	  }
+	  public String toString()
+	  {
+		 StringBuffer buffy = new StringBuffer(50);
+		 buffy.append("NameEntry[").append(className).
+			append(" <").append(tag).append('>');
+		 if (classObj != null)
+			buffy.append(' ').append(classObj);
+		 buffy.append(']');
+		 return XmlTools.toString(buffy);
+	  }
+   }
 }
