@@ -481,7 +481,7 @@ extends Debug
 										  boolean tossArgsAndHash)
    {
       if ((addressString == null) || (addressString.length() == 0))
-	 return null;
+		 return null;
 //      debugA("addressString="+addressString);
       
 	 if (contextURL != null)
@@ -602,7 +602,7 @@ extends Debug
 		 parsedUrl		= null;
 		 println("ParsedURL.createFromHTML() cant access malformed url:\n\t" +
 				 contextURL +"\n\taddressString = "+ addressString);
-		 e.printStackTrace();
+//		 e.printStackTrace();
       }
             
       return parsedUrl;
