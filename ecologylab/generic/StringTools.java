@@ -116,10 +116,21 @@ extends Debug
       String authority	= u.getAuthority(); // authority is host:port
       String path	= u.getPath();	    // doesn't include query
 
+      int pathLength	= (path == null) ? 0 : path.length();
       // pre-compute length of StringBuffer
-      int length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + path.length();
-
+      int length =0;
+      
+      try
+      {
+	 length	=
+	 protocol.length() + 3 /* :// */ + authority.length() + pathLength;
+   } catch (Exception e)
+   {
+      Debug.println("protocol="+protocol+" authority="+authority+
+		     u.toExternalForm());
+      e.printStackTrace();
+   }
+      
       StringBuffer result = new StringBuffer(length);
       result.append(protocol).append("://").append(authority).append(path);
 

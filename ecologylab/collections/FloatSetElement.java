@@ -91,7 +91,7 @@ extends Debug
    }
   public String toString()
   {
-     return "FloatSetElement " + getIndex() + ": " + weight;
+     return getClassName() + " " + getIndex() + ": " + weight;
   }
    public boolean gc()
    {

@@ -50,6 +50,7 @@ public interface Environment
    public class The
    {
       Environment environment;
+
       boolean		hasQuicktime;
       float		javaVersion	= 1.1f;	// minimum expected
       boolean		hasGL;
@@ -95,6 +96,7 @@ public interface Environment
 	    }
 	 }
 	 
+
       }
       public The(Environment e)
       {

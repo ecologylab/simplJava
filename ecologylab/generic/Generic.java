@@ -177,14 +177,35 @@ public class Generic
       Thread.currentThread().setPriority(priority);
    }
 
+
    public static boolean contains(String in, String toMatch)
    {
       return (in == null) ? false : in.indexOf(toMatch) != -1;
    }
 
    //////////////////////////////////////////////////////////////
-
-
+   public static String round(float f, int powerOfTen)
+   {
+      int factor;
+      switch (powerOfTen)
+      {
+      case 0:
+	 factor	= 1;
+	 break;
+      case 1:
+	 factor	= 10;
+	 break;
+      case 2:
+	 factor	= 100;
+	 break;
+      case 3:
+	 factor	= 1000;
+	 break;
+      default:
+	 factor	= 10000;
+	 break;
+      }
+      return Float.toString(((float) Math.round(f * factor)) / factor);
+   }
    ///////////////////////////////////////////////////////////////////////
-
 }

@@ -278,6 +278,16 @@ public class FloatWeightSet
    }
    ArrayList		maxArrayList;
    
+   public synchronized FloatSetElement maxSelect(int halfGcThreshold)
+   {
+      if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
+	 	gc(halfGcThreshold);
+      Thread.yield();
+      FloatSetElement element	= maxSelect();
+      if (element != null)
+	 	element.delete(-1);
+      return element;
+   }
 /**
  * @return	the maximum in the set. If there are ties, pick
  * randomly among them
