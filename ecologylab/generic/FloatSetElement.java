@@ -13,7 +13,9 @@ public class FloatSetElement
 extends Debug
 // implements SetElement
 {
-   protected int		index		= -1;
+   public static final int	NOT_A_MEMBER	= -1;
+
+   protected int		index		= NOT_A_MEMBER;
 
 /**
  * Cached version of weight. Made accessible for efficiency's sake.
@@ -47,6 +49,10 @@ extends Debug
    {
       set		= setArg;
    }
+   void clearSet()
+   {
+      set		= null;
+   }
 /**
  * Delete and recompute all.
  */
@@ -64,10 +70,11 @@ extends Debug
    {
       if (index != -1)		   // look out for double dip deletes
 	 set.delete(this, recompute);
+      
    }
    synchronized protected void deleteSkel()
    {
-      setIndex(-1);
+      setIndex(NOT_A_MEMBER);
       set	= null;
    }
 /**
@@ -91,7 +98,7 @@ extends Debug
    }
   public String toString()
   {
-     return getClassName() + " " + getIndex() + ": " + weight;
+     return super.toString() + " " + getIndex() + ": " + weight;
   }
 /**
  * Free resources associated w this element.

@@ -62,7 +62,7 @@ extends Debug
 	 return;
       if (el.set != null)
       {
-	 System.out.println("tryed to double insert "+el+ " into "+ this);
+	 debug("tryed to double insert "+el+ " into "+ this);
 	 return;
       }
       if (size == numSlots)
@@ -571,7 +571,11 @@ extends Debug
 	    element + "\n";
       }
 */
-      return result;
+      return super.toString() + result;
+   }
+   public String shortString()
+   {
+      return super.toString() + "[" + size + "]";
    }
    public boolean empty()
    {
