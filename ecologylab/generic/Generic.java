@@ -1,6 +1,6 @@
 package cm.generic;
 
-import java.awt.Color;
+import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
@@ -107,7 +107,7 @@ public class Generic
 	/**
  * Sleep easily, ignoring (unlikely) <code>InterruptedException</code>s.
  */
-   public static void sleep(int time)
+   public static final void sleep(int time)
    {
       try
       {
@@ -167,20 +167,40 @@ public class Generic
       }
    }
 
+/**
+ * Find the path to system files.
+ */
+   public static URL systemPath(String relativePath)
+   {
+      return Environment.the.get().docRelativeURL(relativePath);
+   }
+/**
+ * @return	The version of Java we're using (but not the specific release),
+ *		as in 1.2, 1.3, 1.4,...
+ */
+   public static float javaVersion()
+   {
+      return Environment.the.javaVersion();
+   }
+   public static final void propogateValues(Rectangle src, Rectangle dest)
+   {
+      dest.x		= src.x;
+      dest.y		= src.y;
+      dest.width	= src.width;
+      dest.height	= src.height;
+   }
 
-
-	/**
+/**
  * Set the priority of the current thread.
  */
-   static public void setPriority(int priority)
+   static final public void setPriority(int priority)
    {
       Thread.currentThread().setPriority(priority);
    }
 
-
-   public static boolean contains(String in, String toMatch)
+   public static final boolean contains(String in, String toMatch)
    {
-      return (in == null) ? false : in.indexOf(toMatch) != -1;
+      return StringTools.contains(in, toMatch);
    }
 
    //////////////////////////////////////////////////////////////
