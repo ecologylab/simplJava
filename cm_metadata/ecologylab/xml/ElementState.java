@@ -70,7 +70,7 @@ public class ElementState extends IO
 	 */
 	protected boolean emitParentFields	 = false;
 	
-	protected static final NameSpace nameSpace	= new NameSpace();
+	protected static final NameSpace globalNameSpace	= new NameSpace("global");
 	
 /**
  * This instance of the String Class is used for argument marshalling
@@ -448,9 +448,10 @@ public class ElementState extends IO
 		String tagName		= xmlNode.getNodeName();
 		try
 		{			  
-		   stateClass= nameSpace.xmlTagToClass(tagName);
+		   stateClass= globalNameSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
 		      return translateFromXML(xmlNode, stateClass);
+		   // else, we dont translate this field; we ignore it.
 		}
 		catch (Exception e)
 		{
@@ -572,9 +573,9 @@ public class ElementState extends IO
 			   try
 			   {
 				  Field childField		= stateClass.getField(childFieldName);
-				  println("childField="+childField);
+//				  println("childField="+childField);
 				  Class childClass		= childField.getType();
-				  println("childClass="+childClass);
+//				  println("childClass="+childClass);
 				  ElementState childElementState = 
 					 translateFromXML(childNode, childClass);
 				  elementState.addNestedElement(childField, childElementState);
@@ -872,7 +873,7 @@ public class ElementState extends IO
 	 */
 	public String tag()
 	{
-	   return nameSpace.objectToXmlTag(this);
+	   return globalNameSpace.objectToXmlTag(this);
 	}
 
 	/**
@@ -1045,7 +1046,7 @@ public class ElementState extends IO
 	 */
 	public static void addTranslation(String packageName, String className)
 	{
-		nameSpace.addTranslation(packageName, className);
+		globalNameSpace.addTranslation(packageName, className);
 	}
 
 	/*	
