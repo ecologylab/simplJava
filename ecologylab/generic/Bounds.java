@@ -30,4 +30,16 @@ public class Bounds
       return "Bounds: " + xMin+","+yMin+"->"+xMax+","+yMax;
    }
    
+   public boolean equals(Object other)
+   {
+   		Bounds fb = (Bounds)other;
+   		
+   		if ((fb != null) && (fb.xMin == this.xMin) && (fb.xMax == this.xMax) && (fb.yMin == this.yMin)
+   						&& (fb.yMax == this.yMax))
+   		{
+   			return true;
+   		}
+   		return false;
+   }
+   
 }
