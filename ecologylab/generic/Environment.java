@@ -207,11 +207,7 @@ public interface Environment
  * Find out which browser we're running in.
  */
    int		browser();
-/**
- * Show the user a message in the status bar at the bottom of the
- * browser, or some other comparable place.
- */
-   void		showStatus(String s);
+
 /**
  * Show <code>msg</code> in the browser's status bar.
  * 
@@ -225,41 +221,7 @@ public interface Environment
  * @param	name	The name of the key.
  */
    String	parameter(String name);
-/**
- * Get a boolean parameter from the runtime environment. If the value is the
- * string <code>true</code> or <code>yes</code>, the result is 
- * <code>true</code>; else false.
- * 
- * @param	name	The name of the parameter's key.
- */
-   boolean parameterBool(String name);
    
-/**
- * Get an integer parameter from the runtime environment. The default is 0.
- * 
- * @param	paramName	The name of the parameter's key.
- */
-   public int parameterInt(String paramName);
-   
-/**
- * Get an integer parameter from the runtime environment. 
- * 
- * @param	paramName	The name of the parameter's key.
- * @param	defaultValue	Default integer value, in case param is 
- *				unspecified in the runtime env.
- */
-   public int parameterInt(String paramName, int defaultValue);
-
-/**
- * Get a float parameter from the runtime environment.
- * 
- * @param	paramName	The name of the parameter's key.
- * @param	defaultValue	Default floating point value, in case param is 
- *				unspecified in the runtime env.
- */
-   public float parameterFloat(String paramName, float defaultValue);
-
-
 /**
  * {@link java.applet.Applet#getCodeBase() java.applet.Applet.getCodeBase()}
  * Change type from URL to ParsedURL. 
@@ -275,14 +237,6 @@ public interface Environment
  * @return an URL relative to html document
  */   
 //   URL rel(String relativeURL);
-/**
- * @return an ParsedURL relative to the code base.
- */   
-   ParsedURL codeRelativeURL(String relativeURL);
-/**
- * @return an ParsedURL relative to the code base.
- */   
-   ParsedURL docRelativeURL(String relativeURL);
 
    public static final int	APPLICATION	= -1;
    public static final int	IE		= 0;
