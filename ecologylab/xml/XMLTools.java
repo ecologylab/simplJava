@@ -543,6 +543,8 @@ static String q(String string)
  */
    public static String unescapeXML(String s)
    {
+   	if( s == null )
+   		return null;
 	  int		ampPos		= s.indexOf('&');
 	  
 	  if (ampPos == -1)
