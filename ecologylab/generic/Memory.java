@@ -72,8 +72,9 @@ public class Memory
    public static void recover(Throwable throwable, String msg)
    {
       Memory.reclaimQuiet();
-      System.out.println("Memory.recover()");
-      Memory.reclaim(msg);
+      Debug.println("Memory.recover()");
+      if (msg != null)
+	 Memory.reclaim(msg);
       throwable.printStackTrace();
 //      Thread.dumpStack();
       Debug.println(Memory.threads());
@@ -104,5 +105,26 @@ public class Memory
 	 }
       }
       return result;
+   }
+   static int		outOfMemoryCount;
+   static boolean	processingOutOfMemory;
+   static final int	ENOUGH_OUT_OF_MEMORY_CALLS	= 10;
+   
+/**
+ * @return true if its time to give up!
+ */
+   public static boolean outOfMemory(Throwable throwable)
+   {
+      if (outOfMemoryCount >= ENOUGH_OUT_OF_MEMORY_CALLS)
+	 return true;
+      
+      if (!processingOutOfMemory)
+      {  // dont bother locking, cause we're too desparate
+	 processingOutOfMemory	= true;
+	 outOfMemoryCount++;
+	 Memory.recover(throwable, null);
+	 processingOutOfMemory	= false;
+      }	 
+      return false;
    }
 }
