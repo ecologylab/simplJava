@@ -13,6 +13,8 @@ public class StringTools
 extends Debug
 {
    static final HashMap	oneDotDomains	= new HashMap();
+   public static final String	EMPTY_STRING	= "";
+   
    static final String[]	oneDotDomainStrings = 
    {
       "com", "edu", "gov", "org", "net",
