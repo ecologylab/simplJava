@@ -17,7 +17,7 @@ implements Runnable
    static final int	TIMEOUT		= 40000;
    static final int	TIMEOUT_SLEEP	= TIMEOUT / 3;
    static final int	SHORT_SLEEP	= 50;
-   static final int	PRIORITY	= 2;
+   public static final int	PRIORITY	= 2;
    
    //////////////////// queues for media that gets downloaded /////////////////
 /**
@@ -266,6 +266,8 @@ implements Runnable
 		  stop();
 		  return;	   // interrupt ends us
 	       }
+	    if (toDownload.isEmpty())
+	       continue;
 	    thatClosure = (DownloadClosure) toDownload.remove(0);
 	 }
 	 detectPotentialTimeout(thatClosure);
@@ -310,5 +312,9 @@ implements Runnable
 	 }
 	 downloadThreads		= null;
       }
+   }
+   public int waitingToDownload()
+   {
+      return toDownload.size();
    }
 }
