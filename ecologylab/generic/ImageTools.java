@@ -1,13 +1,5 @@
 package cm.generic;
 
-/**
- * @author madhur
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
- */
 
 import java.io.*;
 import java.awt.image.*;
@@ -18,7 +10,9 @@ import java.util.*;
 import javax.imageio.plugins.jpeg.*;
 import com.sun.image.codec.jpeg.*;
 
-
+/**
+ * A set of lovely convenience methods for writing image files.
+ */
 public class ImageTools 
 extends Debug
 {

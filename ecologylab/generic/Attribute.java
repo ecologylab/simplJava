@@ -8,6 +8,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * A simple name/value pair.
+ */
 public class Attribute implements Attr
 {
    public String name;

@@ -1,7 +1,11 @@
 package cm.generic;
 
-import java.util.*;
+import java.util.ArrayList;
 
+/**
+ * An {@link java.util.ArrayList ArrayList}, extended with convenient
+ * connections to our {@link Debug Debug} methods.
+ */
 public class ArrayListDebug
 extends ArrayList
 {

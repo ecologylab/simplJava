@@ -5,9 +5,7 @@ import java.io.*;
 
 
 /**
- * @author andruid
- * 
- * A developer-friendly base class and tools set for printing debug messages.
+ * A developer-friendly base class and toolset for logging debug messages.
  * 
  * Supports a threshold, aka <code>level</code> with 2 levels of granularity:
  *	1) global	<br>
@@ -21,6 +19,8 @@ import java.io.*;
  *		debug_global_level = 4;
  *	2) 
  *		debug_levels	= "Parser 3; HTMLPage 2; CollageOp 37";
+ * 
+ * @author andruid
  */
 public class Debug 
 {

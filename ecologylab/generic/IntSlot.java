@@ -4,6 +4,8 @@ package cm.generic;
 import java.lang.Object;
 
 /**
+ * Reference version of an int type. Re-writable, unlike java.lang.Integer.
+ * <p/>
  * Object wrapper for int primitive values.
  * Useful for storing in HashMaps, and anywhere else that a reference type is needed.
  */

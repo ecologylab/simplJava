@@ -4,12 +4,12 @@ import java.net.URL;
 import cm.generic.ParsedURL;
 
 /**
- * @author madhur
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
+ * An instance of Environment, which is an application, rather than an applet,
+ * or a servlet.
+ * The Environment mechanism is used to enable the provision of contextual
+ * runtime services in a way that is independent of the deployment structure.
+ * 
+ * @author Andruid
  */
 public class ApplicationEnvironment implements Environment
 {
