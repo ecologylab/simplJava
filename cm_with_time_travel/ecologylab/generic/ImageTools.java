@@ -67,8 +67,8 @@ public class ImageTools
     */
 	public static void createThumbnail(BufferedImage image, String fileName)
 	{
-		final int THUMBNAIL_WIDTH 		= 150;
-		final int THUMBNAIL_HEIGHT		= 250;
+		final int THUMBNAIL_WIDTH 		= 245;
+		final int THUMBNAIL_HEIGHT		= 350;
 		final int THUMBNAIL_QUALITY	= 100;
 		/*
 	    // load image from INFILE

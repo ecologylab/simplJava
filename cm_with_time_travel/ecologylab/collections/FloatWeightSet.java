@@ -368,8 +368,8 @@ extends Debug
       if (threadMaster != null)
       {
 	 debug("pause threads and sleep briefly");
-	 threadMaster.pauseThreads();
-	 Generic.sleep(2000);
+//	 threadMaster.pauseThreads();
+//	 Generic.sleep(2000);
       }
       Thread currentThread	= Thread.currentThread();
       int priority		= currentThread.getPriority();
@@ -414,8 +414,8 @@ extends Debug
       if (threadMaster != null)
       {
 	 debug("unpause threads and sleep briefly");
-	 threadMaster.unpauseThreads();
-	 Generic.sleep(1000);
+//	 threadMaster.unpauseThreads();
+//	 Generic.sleep(1000);
       }
       debug("prune() finished " + duration);
    }
