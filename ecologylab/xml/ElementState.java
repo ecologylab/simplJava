@@ -4,6 +4,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.awt.Color;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.stream.StreamResult;
@@ -42,8 +43,21 @@ abstract public class ElementState extends IO
 	/**
 	 * controls if the public fields of the parent class will be emitted or not. 
 	 */
-	protected boolean emitParentFields = false;
+	protected boolean emitParentFields	 = false;
 	
+	protected static final Class STRING_CLASS;
+	static
+	{
+		Class stringClass	= null;
+		try
+		{
+			stringClass		= Class.forName("java.lang.String");
+		} catch (ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		STRING_CLASS	 = stringClass;
+	}
 	public String tag()
 	{
 		String tagName	= XmlTools.elementNameFromObject(this, "State", compressed);
@@ -516,10 +530,8 @@ abstract public class ElementState extends IO
 		ElementState elementState = null;
 		try
 		{									
-//    		String packageName = XmlTools.getPackageName(this) + ".";
-                		
+    		//String packageName = XmlTools.getPackageName(this) + ".";
 			stateClass = XmlTools.getStateClass(parentNode.getNodeName());
-			
 			elementState	=	(ElementState)stateClass.newInstance();
 		}
 		catch(Exception e)
@@ -528,72 +540,69 @@ abstract public class ElementState extends IO
 				throw new XmlTranslationException("All the classes that are translated MUST " +					"contain an empty constructor");
 			e.printStackTrace();
 		}
-
 		
-		//take the attribute values and fill them up in the object
-		if( parentNode.hasAttributes() )
+		// take the attribute values and fill them up in the object
+		if (parentNode.hasAttributes())
 		{
-			
 			NamedNodeMap attributes = parentNode.getAttributes();
 			
 			for (int i = 0; i < attributes.getLength(); i++) 
 			{
-          	   Node attr = attributes.item(i);
+				Node attr = attributes.item(i);
                
-               if(attr.getNodeValue() != null)
-               {
-	              
-	              //create the method name from the tag name
-	              //for example, for the attr bias, methodName = setBias
-	              String methodName = XmlTools.methodNameFromTagName(attr.getNodeName());
-	              
-	              //search for the method with the name created above 
-	              //for this u have to create an array of class indicating the parameters to the method
-	              //in our case, all the methods have a single parameter, String
-	              //which holds the value of the attribute and then that object is responsible
-	              //for converting it to appropriate type from the string
-	              Class[] parameters = new Class[1];
-	              Method attrMethod = null;
-	              String value = attr.getNodeValue();
-	              
-	              try
-	              {
-		              parameters[0] = Class.forName("java.lang.String");		              
-		              attrMethod = stateClass.getMethod(methodName,parameters);
-	              }
-	              catch(Exception e)
-	              {
-	              	  if(e instanceof NoSuchMethodException)
-	              	  {
-	              	  	String fieldName = XmlTools.fieldNameFromElementName(attr.getNodeName());
-	              	  	if (!elementState.setPrimitiveField(fieldName, value))
-	              	  		throw new
-				   XmlTranslationException("setter method not found for variable " + attr.getNodeName() + " in "+stateClass+
-", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
-						e.printStackTrace();
-	              	  }
-	              }
-	              
-	              //if the method is found
-	              //invoke the method
-	              //fill the String value with the value of the attr node
-	              //args is the array of objects containing the arguments to the method to be invoked
-	              //in our case, methods have only one arg which is the String, "value"
-	              Object[] args = new Object[1];
-	              args[0] = value;
-	              
-	              try
-	              {
-	              		attrMethod.invoke(elementState,args);
-	              }
-	              catch(Exception e)
-	              {
-	              		e.printStackTrace();
-	              }	              
-	              //done, if the control reaches here, the value has been filled	              	              
-               }//end of if
-          	}//end of for loop
-			
+				if(attr.getNodeValue() != null)
+				{
+					
+					String nodeName		 = attr.getNodeName();
+					//create the method name from the tag name
+					//for example, for the attr bias, methodName = setBias
+					String methodName = XmlTools.methodNameFromTagName(nodeName);
+					//search for the method with the name created above 
+					//for this u have to create an array of class indicating the parameters to the method
+					//in our case, all the methods have a single parameter, String
+					//which holds the value of the attribute and then that object is responsible
+					//for converting it to appropriate type from the string
+					String value = attr.getNodeValue();
+					try
+					{
+						Class[] parameters = new Class[1];
+						parameters[0] = STRING_CLASS;
+						Method attrMethod = 
+							stateClass.getMethod(methodName, parameters);
+						// if the method is found, invoke the method
+						// fill the String value with the value of the attr node
+						// args is the array of objects containing arguments to the method to be invoked
+						// in our case, methods have only one arg: the value String
+						Object[] args = new Object[1];
+						args[0]		  = value;
+						try
+						{
+							attrMethod.invoke(elementState,args); // run set method!
+						}
+						catch (InvocationTargetException e)
+						{
+							println("WEIRD: couldnt run set method for " + nodeName +
+									  " even though we found it");
+							e.printStackTrace();
+						}
+						catch (IllegalAccessException e)
+						{
+							println("WEIRD: couldnt run set method for " + nodeName +
+									  " even though we found it");
+							e.printStackTrace();
+						}	              
+					}
+					catch (NoSuchMethodException e)
+					{
+						String fieldName = XmlTools.fieldNameFromElementName(attr.getNodeName());
+						//println("buildStateObject(-> setPrimitive("+fieldName);
+						if (!elementState.setPrimitiveField(fieldName, value))
+							throw new
+								XmlTranslationException("setter method not found for variable " + attr.getNodeName() + " in "+stateClass+
+																", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
+					}
+				}//end of if
+			}//end of for loop
 		}//end of if hasAttributes
 
 		// loop through nested elements, build them, and add them to ourself
@@ -701,37 +710,47 @@ abstract public class ElementState extends IO
 		}
 		return result;
 	}
+	/**
+	 * Set the specified extended primitive field in this, if possible.
+	 * Supported types: 
+	 * String, int, boolean, float, double, long, short, byte, Color.
+	 * <p/>
+	 * Should add support for: Date.
+	 * <p/>
+	 * Note: support for ParsedURL is in CMElementState
+	 * 
+	 * @param field		Field object to set.
+	 * @param fieldValue	String representation of the value.
+	 * 
+	 * @return true if the field is set successfully. false if it seems to not exist.
+	 */
 	protected boolean setPrimitiveField(Field field, String fieldValue)
 	
 	{
 		if ((fieldValue == null) || (fieldValue.length() == 0))
 			return true;
-		Class fieldType	= field.getType();
+		String className	= field.getType().getName();
 		boolean result	= false;
-		if (fieldType.equals("java.lang.String"))
+//		debug("seeking automatic setter |" + className + "|\n\t" + field + " = "+
+//				fieldValue);
+
+		if (className.equals("java.lang.String"))
 		{
 			result		= setField(field, fieldValue);
 		}
-		else if (fieldType.equals("int"))
+		else if (className.equals("int"))
 		{
-			 try
-			 {
-			    int value	= Integer.parseInt(fieldValue);
-				try
-				{
-					field.setInt(this, value);
-				} catch (Exception e)
-				{
-					debug(errorString(field) + "to " + fieldValue);
-					e.printStackTrace();
-				}
-
-			 } catch (NumberFormatException e)
-			 {
-			    debug(errorString(field) + "bad number format: "+fieldValue);
-			 }
+			try
+			{
+				field.setInt(this, Integer.parseInt(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
 		}
-		else if (fieldType.equals("boolean"))
+		else if (className.equals("boolean"))
 		{
 	        String lcValue= fieldValue.toLowerCase();
 	      	boolean value =  lcValue.equals("true") ||
@@ -739,17 +758,85 @@ abstract public class ElementState extends IO
 		    try
 			{
 				field.setBoolean(this, value);
+				result		= true;
 			} catch (Exception e)
 			{
 				debug(errorString(field) + "to " + fieldValue);
 				e.printStackTrace();
 			}
-			
+//			 println("done setting int; result="+result);
 		}
-		else if (fieldType.equals("")) // float
+		else if (className.equals("float")) // float
 		{
-			
+			try
+			{
+				field.setFloat(this, Float.parseFloat(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+//			println("done setting float; result="+result);
 		}
+		else if (className.equals("double"))
+		{
+			try
+			{
+				field.setDouble(this, Double.parseDouble(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+//			println("done setting double; result="+result);
+		}
+		else if (className.equals("long"))
+		{
+			try
+			{
+				field.setLong(this, Long.parseLong(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+			//println("done setting long; result="+result);
+		}
+		else if (className.equals("short"))
+		{
+			try
+			{
+				field.setShort(this, Short.parseShort(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+			//println("done setting short; result="+result);
+		}
+		else if (className.equals("byte"))
+		{
+			try
+			{
+				field.setByte(this, Byte.parseByte(fieldValue));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+			//println("done setting byte; result="+result);
+		}
+		else if (className.equals("java.awt.Color"))
+		{
+			int rgb			= Integer.parseInt(fieldValue, 16);
+			Color color		= new Color(rgb);
+			result			= setField(field, color);
+		}				
 		// URL, (ParsedURL -- in subclass), Color
 		return result;
 	}
