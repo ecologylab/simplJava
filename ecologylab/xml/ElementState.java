@@ -572,7 +572,7 @@ abstract public class ElementState extends IO
  * @param fieldName 	the name of the field to be set
  * @param nestedObj		the state-object which needs to be added to the parent object 
  */
-	void setField(String fieldName, Object nestedObj)
+	protected void setField(String fieldName, Object nestedObj)
 	{
 		try
 		{
@@ -638,7 +638,7 @@ abstract public class ElementState extends IO
 	   setField(fieldName, value);
 	}
 	
-	void createAndCollectElements(Vector attrs,
+	protected void createAndCollectElements(Vector attrs,
 					     String className)
 	{
 	   try
