@@ -42,6 +42,7 @@ public class Debug
       
       // class specific
       String levels	= Generic.parameter("debug_levels");
+      println("Debug.initialize(" + levels);
       if (levels != null)
       {
 	 StringTokenizer tokenizer	= new StringTokenizer(levels,";");
@@ -73,8 +74,12 @@ public class Debug
    }
    public final int level()
    {
+      return level(this);
+   }
+   public static final int level(Object that)
+   {
       int result	= level;
-      IntSlot slot	= (IntSlot) classLevels.get(getClassName());
+      IntSlot slot	= (IntSlot) classLevels.get(getClassName(that));
       if (slot != null)
 	 result		= slot.value;
       return result;
@@ -93,21 +98,14 @@ public class Debug
       if (interactiveDebug)
 	 println(message);
    }
-   public static void printlnI(Object o, String message)
-   {
-      printlnI(o, level, message);
-   }
    public static void println(Object o, String message)
    {
       println(o + "." + message);
    }
-   public static void printlnI(Object o, int messageLevel, String message)
+   public static void printlnI(Object o, String message)
    {
-      printlnI(messageLevel, o + "." + message);
-   }
-   public static void println(Object o, int messageLevel, String message)
-   {
-      println(messageLevel, o + "." + message);
+      if (interactiveDebug)
+	 println(o, message);
    }
    public static void printlnI(String message) 
    {
@@ -126,9 +124,9 @@ public class Debug
  * Print a debug message, starting with the abbreviated class name of
  * the object.
  */
-   public static void printlnA(Object o, String message) 
+   public static void printlnA(Object that, String message) 
    {
-      println(getClassName(o)+"." + message);
+      println(getClassName(that)+"." + message+" " +level(that));
    }
 /**
  * Print a debug message, starting with the abbreviated class name.
@@ -205,6 +203,21 @@ public class Debug
    {
       if (messageLevel <= level())
 	 printlnA(this, message);
+   }
+   public static void println(Object that, int messageLevel, String message)
+   {
+      if (messageLevel <= level(that))
+	 println(that, message);
+   }
+   public static void printlnA(Object that, int messageLevel, String message)
+   {
+      if (messageLevel <= level(that))
+	 printlnA(that, message);
+   }
+   public static void printlnI(Object that, int messageLevel, String message)
+   {
+      if (messageLevel <= level(that))
+	 printlnI(that, message);
    }
    public void debugI(int messageLevel, String message)
    {
