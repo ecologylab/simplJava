@@ -5,9 +5,6 @@
 package cm.generic;
 
 import java.awt.Color;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Date;
 
 /**
  * Tools for manipulating color spaces.

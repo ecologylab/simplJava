@@ -1,7 +1,5 @@
 package cm.generic;
 
-import java.lang.*;
-
 import java.util.Random;
 
 /**
