@@ -27,7 +27,7 @@ DownloadMonitor
    protected Thread makeDownloadThread(int i, String s)
    {
       Thread result = super.makeDownloadThread(i, s);
-      debugA("creating stemmer for " + result);
+      debug("makeDownloadThread() gcreating stemmer for " + result);
       
       addStemmer(result);
 

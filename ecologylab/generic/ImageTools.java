@@ -65,11 +65,11 @@ public class ImageTools
     * given an image
     * it creates a thumbnail out of it
     */
-	public static void createThumbnail(BufferedImage image, String fileName)
+	public static void createThumbnail(BufferedImage image, String fileName, int thumbWidth, int thumbHeight)
 	{
-		final int THUMBNAIL_WIDTH 		= 150;
-		final int THUMBNAIL_HEIGHT		= 250;
-		final int THUMBNAIL_QUALITY	= 100;
+//		final int THUMBNAIL_WIDTH 		= 245;
+//		final int THUMBNAIL_HEIGHT		= 350;
+		final int THUMBNAIL_QUALITY	= 75;
 		/*
 	    // load image from INFILE
 	    Image image = Toolkit.getDefaultToolkit().getImage(args[0]);
@@ -80,8 +80,8 @@ public class ImageTools
 	    int thumbWidth = Integer.parseInt(args[2]);
 	    int thumbHeight = Integer.parseInt(args[3]);*/
 	    
-	    int thumbWidth 	= THUMBNAIL_WIDTH;
-	    int thumbHeight	= THUMBNAIL_HEIGHT;
+//	    int thumbWidth 	= THUMBNAIL_WIDTH;
+//	    int thumbHeight	= THUMBNAIL_HEIGHT;
 	    
 	    double thumbRatio = (double)thumbWidth / (double)thumbHeight;
 	    int imageWidth = image.getWidth(null);
@@ -111,8 +111,9 @@ public class ImageTools
 	    // save thumbnail image to OUTFILE
 	    try
 	    {
-		    BufferedOutputStream out = new BufferedOutputStream(new
-		    FileOutputStream(fileName + "_thumbnail" + ".jpg"));
+		    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(fileName));
+//		    FileOutputStream(fileName + "_thumbnail" + ".jpg"));
+		    
 		    
 		    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 		    JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbImage);

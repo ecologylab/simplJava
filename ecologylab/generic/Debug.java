@@ -225,7 +225,7 @@ public class Debug
  */
    public static String getClassName(Object o)
    {
-      return getClassName(o.getClass());
+      return (o == null) ? "null" : getClassName(o.getClass());
    }
 /**
  * @return  the abbreviated name of this class - without the package qualifier.

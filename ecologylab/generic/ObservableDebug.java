@@ -69,4 +69,8 @@ extends Observable
    {
       AllocationDebugger.finalized(this);
    }
+   public String superString()
+   {
+      return super.toString();
+   }
 }

@@ -7,22 +7,27 @@ import java.lang.reflect.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * This class contains methods which are used during the translation of java objects
  * to xml and back. All the methods are static. The xml files can also be compressed
  * by using the compression variable. For compression to work, the developer should
  * provide a abbreviation table in the format listed in the code.   
+ * 
  * @author      Andruid Kerne
  * @author      Madhur Khandelwal
  * @version     0.5
  */
 public class XmlTools extends IO
+implements CharacterConstants
 {
 	private static Hashtable stateClasses	=	new Hashtable();
 	
@@ -58,35 +63,43 @@ public class XmlTools extends IO
       	className			= className.substring(0, suffixPosition);
       }
 
-      String result = "";
+//    String result
+      StringBuffer result = new StringBuffer(50);
       int classNameLength	= className.length();
       
-      for (int i=0; i<classNameLength; i++)
-      {
-	 	char	c	= className.charAt(i);
-		
-		if ((c >= 'A') && (c <= 'Z') )
-		{
-			if(i == 0)
-				result += Character.toLowerCase(c);
-			else	
-			    result	+= "_" + Character.toLowerCase(c);
-		}
-		else
-		{
-		    result	+= c;
-		}
-      }
+	  if(compression && (encodingTable.get(result) != null))
+	  {
+		  result.append((String)encodingTable.get(result));      	
+	  }
+	  else
+	  {
+	      for (int i=0; i<classNameLength; i++)
+	      {
+		 	char	c	= className.charAt(i);
+			
+			if ((c >= 'A') && (c <= 'Z') )
+			{
+				if(i == 0)
+					result.append(Character.toLowerCase(c));
+				else	
+				    result.append('_').append(Character.toLowerCase(c));
+			}
+			else
+			{
+			    result.append(c);
+			}
+	      }
+	  }
+	  
+	  if(XMLTranslationConfig.addPackageNames)
+	  {
+	  	StringBuffer packageName = new StringBuffer(getPackageName(obj));
       
-      if(compression && (encodingTable.get(result) != null))
-      		result = (String)encodingTable.get(result);
+	  	if(packageName != null)
+	  		return XmlTools.toString(packageName.append('-').append(result));
+	  }
       
-      String packageName = getPackageName(obj);
-      
-      if(packageName != null)
-      	return packageName + "-" + result;
-      
-      return result;
+      return XmlTools.toString(result);
    }
    
  /**
@@ -221,12 +234,22 @@ public class XmlTools extends IO
 				String fieldValue = escapeXML( field.get(obj) + "" );
 				
 				//default values are not emitted, to keep the xml short
-				if(fieldValue.equals(DEFAULT_STRING) || fieldValue.equals(DEFAULT_BOOLEAN) || 
+				if(field.getType().getName().equals("java.lang.String") || 
+						field.getType().getName().equals("java.net.URL") || 
+							field.getType().getName().equals("java.awt.Color"))
+				{
+					if(fieldValue.equals(DEFAULT_STRING))
+						return "";
+				}
+				else if(fieldValue.equals(DEFAULT_BOOLEAN) || 
 				   fieldValue.equals(DEFAULT_FLOAT) || fieldValue.equals(DEFAULT_INT))
 				{
 					return "";
 				}
-				return " " + attrNameFromField(field, false) + " = " + "\"" + fieldValue + "\"" + " ";
+				StringBuffer result = new StringBuffer(50);
+				result.append(" ").append(attrNameFromField(field, false)).append(" = ").append("\"").append(fieldValue).append("\"").append(" ");
+				
+				return XmlTools.toString(result);
 				
 			}
 			catch(Exception e)
@@ -430,29 +453,43 @@ public class XmlTools extends IO
     */
    public static Class getStateClass(String classNameWithPackage)
    {
-	   		Class stateClass 		= 	null;
-//
-//   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
-//	   		String packageName		=	"";
-	   		String stateName		=	classNameWithPackage;
-//   		
-//   		if(packageNameIndex != -1)
-//   		{
-//   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
-//   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
-//   		}
-// 
+   		Class stateClass 		= 	null;
+   		
+   		String stateName		=	classNameWithPackage;
+
+		String packageName		=	"";
+   		
+		if(XMLTranslationConfig.addPackageNames)
+   		{
+   			int packageNameIndex	=	classNameWithPackage.indexOf("-");
+	   		if(packageNameIndex != -1)
+	   		{
+	   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
+	   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
+	   		}
+   		}
+
+	   	//	IO.println("state class name: " + stateName);
+
 		
 //		String packageName	=	XMLTranslationConfig.getFullName(stateName);		  		
    		stateClass				=	(Class)stateClasses.get(stateName);   	   		
    		   		  		   		
    		if(stateClass	==	null)
    		{
-//   			String className = packageName;   						
-//			className += classNameFromElementName(stateName);
 			String className = classNameFromElementName(stateName);
-			String packageName = XMLTranslationConfig.getPackageName(className);
-			className = packageName + className;
+			
+			if(!XMLTranslationConfig.addPackageNames)
+			{
+				packageName = XMLTranslationConfig.getPackageName(className);
+				className = packageName + className;
+			}
+			else
+			{
+				className = packageName;   						
+				className += classNameFromElementName(stateName);
+				
+			}
 
 			try
 			{				
@@ -474,47 +511,24 @@ public class XmlTools extends IO
    		}
 		return stateClass;
    }
+   
+   /**
+	* Use this method to efficiently get a <code>String</code> from a
+	* <code>StringBuffer</code> on those occassions when you plan to keep
+	* using the <code>StringBuffer</code>, and want an efficiently made copy.
+	* In those cases, <i>much</i> better than 
+	* <code>new String(StringBuffer)</code>
+	*/
+	  public static final String toString(StringBuffer buffer)
+	  {
+		 return buffer.substring(0);
+	  }
+	  
+	  public static String xmlHeader()
+	  {
+		return "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
+	  }
 
-//   public static Class getStateClass(String classNameWithPackage)
-//   {
-//   		Class stateClass 		= 	null;
-//
-//   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
-//   		String packageName		=	"";
-//   		String stateName		=	classNameWithPackage;
-//   		
-//   		if(packageNameIndex != -1)
-//   		{
-//   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
-//   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
-//   		}
-//   		
-//   		stateClass				=	(Class)stateClasses.get(stateName);   	   		
-//   		   		  		   		
-//   		if(stateClass	==	null)
-//   		{
-//   			String className = packageName;   						
-//			className += classNameFromElementName(stateName);
-//			try
-//			{				
-//				stateClass	=	Class.forName(className + "State");		
-//				stateClasses.put(stateName,stateClass);				
-//			}
-//			catch(Exception e1)
-//			{
-//				try
-//				{
-//					stateClass	=	Class.forName(className);	
-//					stateClasses.put(stateName, stateClass);					
-//				}
-//				catch(Exception e2)
-//				{
-//					e2.printStackTrace();
-//				}
-//			}
-//   		}
-//		return stateClass;
-//   }
    
    static final int ISO_LATIN1_START	= 128;
 	/**
@@ -579,14 +593,48 @@ public class XmlTools extends IO
                 case '>':
                     sb.append("&gt;");
                 	break;
+                case TAB:
+                case LF:
+                case CR:
+     		       sb.append(c);
+     		       break;
                 default: 
-		   if (c >= ISO_LATIN1_START)
-		      sb.append("&#"+Integer.toString(c) + ";");
-		    else
-		       sb.append(c);
+				   if (c >= 0x20) 
+				   {
+				   		if (c >= ISO_LATIN1_START)
+							sb.append("&#"+Integer.toString(c) + ";");
+				   		else
+				      		sb.append(c);
+		           }
             }
         }
         return sb.toString();
+    }
+    
+   /**
+    * generate a DOM tree from a given String in the XML form.
+    * @param contents	the string for which the DOM needs to be constructed.
+    * @return			the DOM tree representing the XML string.
+    */
+    public static Document getDocument(String contents)
+    {
+		Document doc = null;
+		try 
+		{
+			StringBufferInputStream s       =     new StringBufferInputStream(contents);
+			DocumentBuilderFactory f        =     DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder         =     f.newDocumentBuilder();
+			doc = builder.parse(s);
+		} catch (FactoryConfigurationError e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return doc;
     }
 	
 	/**
@@ -609,7 +657,7 @@ public class XmlTools extends IO
         }
         catch(Exception e)
         {
-                e.printStackTrace();
+             e.printStackTrace();
         }
     }   
 
