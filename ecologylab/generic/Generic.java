@@ -214,7 +214,16 @@ public class Generic
  */
    static final public void setPriority(int priority)
    {
-      Thread.currentThread().setPriority(priority);
+      setPriority(Thread.currentThread(), priority);
+   }
+/**
+ * Set the priority of the current thread.
+ */
+   static final public void setPriority(Thread t, int priority)
+   {
+      int oldPriority	= t.getPriority();
+      if (oldPriority != priority)
+	 t.setPriority(priority);
    }
 
    public static final boolean contains(String in, String toMatch)
