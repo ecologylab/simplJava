@@ -37,6 +37,34 @@ implements CharacterConstants
 	//abbreviation table for storing the xml in a compressed form
 	private static String[][] elementAbbreviations;
 
+	static HashMap	entityTable				= new HashMap();
+
+	static final String entities[]=
+	{
+	   "nbsp", "iexcl", "cent", "pound", "curren", "yen", "brvbar",
+	   "sect", "uml", "copy", "ordf", "laquo", "not", "shy", "reg",
+	   "macr", "deg", "plusmn", "sup2", "sup3", "acute", "micro", "para",
+	   "middot", "ccedil", "sup1", "ordm", "raquo", "frac14", "frac12",
+	   "frac34", "iquest", "Agrave", "Aacute", "Acirc", "Atilde", "Auml",
+	   "Aring", "AElig", "Ccedil", "Egrave", "Eacute", "Ecirc", "Euml",
+	   "Igrave", "Iacute", "Icirc", "Iuml", "ETH", "Ntilde", "Ograve",
+	   "Oacute", "Ocirc", "Otilde", "Ouml", "times", "Oslash", "Ugrave",
+	   "Uacute", "Ucirc", "Uuml", "Yacute", "THORN", "szlig", "agrave",
+	   "aacute", "acirc", "atilde", "auml", "aring", "aelig", "ccedil",
+	   "egrave", "eacute", "ecirc", "euml", "igrave", "iacute", "icirc",
+	   "iuml", "eth", "ntilde", "ograve", "oacute", "ocirc", "otilde",
+	   "ouml", "divide", "oslash", "ugrave", "uacute", "ucirc", "uuml",
+	   "yacute", "thorn" 
+	};
+
+	static
+	{
+      for (char i = 0; i != entities.length; i++)
+		 entityTable.put(entities[i], new Character((char) (i + 160)));
+      entityTable.put("amp", new Character('&'));
+      entityTable.put("quot", new Character('"'));
+   }
+	
 /**
  * This method generates a name for the xml tag given a reference type java object.
  * This is used during the translation of Java to xml. 
@@ -51,8 +79,24 @@ implements CharacterConstants
    public static String xmlTagFromObject(Object obj, 
    										 String suffix, boolean compression)
    {
-      String className	= 	getClassName(obj.getClass());
-	  return xmlTagFromClassName(className, suffix, compression);
+	  return getXmlTagName(obj.getClass(), suffix, compression);
+   }
+/**
+ * This method generates a name for the xml tag given a reference type java object.
+ * This is used during the translation of Java to xml. 
+ * Part of this is to translate mixed case class name word separation into
+ * "_" word separtion.
+ * 
+ * @param thatClass		Class object to translate.
+ * @param suffix		string to remove from class name, null if nothing to be removed
+ * @param compression	if the name of the element should be abbreviated
+ * @return				name of the xml tag (element)
+ */	
+   public static String getXmlTagName(Class thatClass, 
+									  String suffix, boolean compression)
+   {
+      String className	= 	getClassName(thatClass);
+	  return getXmlTagName(className, suffix, compression);
    }
 	
 /**
@@ -66,7 +110,7 @@ implements CharacterConstants
  * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
-   public static String xmlTagFromClassName(String className,
+   public static String getXmlTagName(String className,
    											String suffix, boolean compression)
    {
       if ((suffix != null) && (className.endsWith(suffix)))
@@ -483,6 +527,39 @@ static String q(String string)
 
    
    static final int ISO_LATIN1_START	= 128;
+   public static String unescapeXML(String s)
+   {
+	  int		ampPos		= s.indexOf('&');
+	  
+	  if (ampPos == -1)
+		 return s;
+	  
+	  int		entityPos		= ampPos + 1;
+	  int		semicolonPos	= s.indexOf(';', entityPos);
+	  
+	  if (semicolonPos == -1)
+		 return s;
+	  
+	  String entityCandidate	= s.substring(entityPos, semicolonPos);
+	  String result				= s.substring(0, ampPos);
+	  Character lookup			= (Character) entityTable.get(entityCandidate);
+	  if (lookup != null)
+		 result				   += lookup.charValue();
+	  else
+		 result				   += entityCandidate;
+	  
+	  semicolonPos++;
+	  int length				= s.length();
+	  if (semicolonPos > length)
+	  {
+		 String rest				= s.substring(semicolonPos);
+		 if ((semicolonPos + 3) < s.length())
+			result				   += unescapeXML(rest);
+		 else
+			result				   += rest;
+	  }
+	  return  result;
+   }
 	/**
 	* Replaces characters that may be confused by a HTML
 	* parser with their equivalent character entity references.
