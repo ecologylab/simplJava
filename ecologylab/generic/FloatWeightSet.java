@@ -28,6 +28,10 @@ extends Debug
 
    FloatSetElement	sentinel	= new FloatSetElement();
    
+   ThreadMaster	threadMaster;
+
+   static final int PRUNE_PRIORITY	= 1;
+   
 /**
  * size of last used element in array
  */
@@ -43,6 +47,12 @@ extends Debug
 
    public FloatWeightSet(int initialSize)
    {
+      this(initialSize, null);
+   }
+   public FloatWeightSet(int initialSize, ThreadMaster threadMaster)
+   {
+      this.threadMaster	= threadMaster;
+
       size		= 0;
       alloc(initialSize + 4);
       sentinel.weight	= 0.0f;
@@ -189,22 +199,27 @@ extends Debug
       return (size > 1) && (sum > 3.0E-45f) && (sum != Float.NaN) &&
 	 (sum != Float.POSITIVE_INFINITY);
    }
+   protected boolean needPrune(int desiredSize)
+   {
+//      return (desiredSize > 0) && (size >= (5 * desiredSize / 4));
+      return (size >= (desiredSize + 20));
+   }
 /**
  * gc() if necessary. Yield, then syncRecompute(). 
  * Then do weighted randomSelect(). 
  * After the selection, delete the item from the set.
  * 
- * @param	halfGcThreshold -- 
- * 		If size of the set >= 2 * halfGcThreshold, gc() down
- *		to halfGcThreshold.
+ * @param	desiredSize -- 
+ * 		If size of the set >= 2 * desiredSize, gc() down
+ *		to desiredSize.
  *		If 0, never gc.
  * 
  * @return	Selected	
  */
-   public synchronized FloatSetElement randomSelect(int halfGcThreshold)
+   public synchronized FloatSetElement randomSelect(int desiredSize)
    {
-      if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
-	 prune(halfGcThreshold);
+      if (needPrune(desiredSize))
+	 prune(desiredSize);
 //      Thread.yield(); // [very slow!]
       boolean ok	= syncRecompute();
 //      Thread.yield();
@@ -282,10 +297,10 @@ extends Debug
    }
    ArrayList		maxArrayList;
    
-   public synchronized FloatSetElement maxSelect(int halfGcThreshold)
+   public synchronized FloatSetElement maxSelect(int desiredSize)
    {
-      if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
-	 	prune(halfGcThreshold);
+      if (needPrune(desiredSize))
+	 prune(desiredSize);
       Thread.yield();
       FloatSetElement element	= maxSelect();
       if (element == sentinel)
@@ -348,29 +363,39 @@ extends Debug
    {
       if (size <= numToKeep)
 	 return;
-      debug("prune(keeping "+numToKeep+")");
-      
+      long startTime	= System.currentTimeMillis();
+      debug("prune("+ size +" > "+ numToKeep+")");
+      if (threadMaster != null)
+      {
+	 debug("pause threads and sleep briefly");
+	 threadMaster.pauseThreads();
+	 Generic.sleep(2000);
+      }
+      Thread currentThread	= Thread.currentThread();
+      int priority		= currentThread.getPriority();
+      if (PRUNE_PRIORITY < priority)
+	 currentThread.setPriority(PRUNE_PRIORITY);
       //------------------ update weights ------------------//
       for (int i=0; i!=size; i++)
 	 elements[i].getWeight();
       //------------------ sort in inverse order ------------------//
-//      System.out.println("gc() after update: " + size);
-      insertionSort(elements, size);
-//      System.out.println("gc() after sort: " + size);
+//      println("gc() after update: " + size);
+//      insertionSort(elements, size);
+      quickSort(elements, 0, size-1, false);
+//      println("gc() after sort: " + size);
       String before	= "prune(): " + size  + ", " + Memory.usage();
 
       //-------------- lowest weight elements are on top -------------//
       int wontGo	= 0;
       for (int i=1; i!=numToKeep; i++)
 	 elements[i].setIndex(i);  // renumber cref index
-//      System.out.println("gc() after renumber: " + size);
+//      println("gc() after renumber: " + size);
       int oldSize	= size;
       size	= numToKeep;
       for (int i=numToKeep; i!=oldSize; i++)
       {
 	 if (i >= elements.length)
-	    System.out.println("FloatWeightSet.SHOCK i="+i + " size="+size+
-			       " numSlots="+numSlots);
+	    debug(".SHOCK i="+i + " size="+size+ " numSlots="+numSlots);
 	 FloatSetElement thatElement	= elements[i];
 	 if (thatElement != null)
 	 {
@@ -383,6 +408,16 @@ extends Debug
 	       insert(thatElement); // put it back in the right place!
 	 }
       }
+      long duration = System.currentTimeMillis() - startTime;
+      if (PRUNE_PRIORITY < priority)
+	 currentThread.setPriority(priority);
+      if (threadMaster != null)
+      {
+	 debug("unpause threads and sleep briefly");
+	 threadMaster.unpauseThreads();
+	 Generic.sleep(1000);
+      }
+      debug("prune() finished " + duration);
    }
 //      System.out.println("Before sort :\n"+ this);
       // sentinel always in position 0 -- avoid it!!!
