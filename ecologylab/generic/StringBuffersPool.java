@@ -27,15 +27,14 @@ public class StringBuffersPool
 	
 	public StringBuffer nextBuffer()
 	{
-	   int freeIndex = bufferPool.size() - 1;
-	   
-	   if (freeIndex == -1)
+	   synchronized (bufferPool)
 	   {
-	      return (new StringBuffer(bufferSize));
+	      int freeIndex = bufferPool.size() - 1;
+	      if (freeIndex == -1)
+		 return (new StringBuffer(bufferSize));
+	      StringBuffer b = (StringBuffer) bufferPool.remove(freeIndex);
+	      return b;
 	   }
-	   StringBuffer b = (StringBuffer)bufferPool.get(freeIndex);
-	   bufferPool.removeElementAt(freeIndex);
-	   return b;
 	}
 	
 	public void release(StringBuffer b)
