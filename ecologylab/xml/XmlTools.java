@@ -20,7 +20,7 @@ import ecologylab.types.*;
 
 /**
  * This class contains methods which are used during the translation of java objects
- * to xml and back. All the methods are static. The xml files can also be compressed
+ * to XML and back. All the methods are static. The XML files can also be compressed
  * by using the compression variable. For compression to work, the developer should
  * provide a abbreviation table in the format listed in the code.   
  * 
@@ -33,14 +33,6 @@ implements CharacterConstants
 {
 	private static Hashtable encodingTable 	=	new Hashtable();
 	private static Hashtable decodingTable	=	new Hashtable();
-	
-	//the variables for each of the types String, boolean, int, float, url will not be
-	//emitted if they contain the following default values
-	private static String DEFAULT_STRING 	= 	"null";
-	private static String DEFAULT_BOOLEAN 	= 	"false";
-	private static String DEFAULT_INT 		= 	"0";
-	private static String DEFAULT_FLOAT		= 	"1.0";
-	private static String DEFAULT_URL		= 	"null";		
 	
 	//abbreviation table for storing the xml in a compressed form
 	private static String[][] elementAbbreviations;
@@ -56,11 +48,11 @@ implements CharacterConstants
  * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
-   public static String xmlTagFromObject(Object obj, String packageName,
+   public static String xmlTagFromObject(Object obj, 
    										 String suffix, boolean compression)
    {
       String className	= 	getClassName(obj.getClass());
-	  return xmlTagFromClassName(className, packageName, suffix, compression);
+	  return xmlTagFromClassName(className, suffix, compression);
    }
 	
 /**
@@ -74,7 +66,7 @@ implements CharacterConstants
  * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
-   public static String xmlTagFromClassName(String className, String packageName,
+   public static String xmlTagFromClassName(String className,
    											String suffix, boolean compression)
    {
       if ((suffix != null) && (className.endsWith(suffix)))
@@ -84,10 +76,7 @@ implements CharacterConstants
       }
 
       StringBuffer result = new StringBuffer(50);
-	  if (packageName != null)
-		 result.append(packageName).append('-');
 
-	  int classNameLength	= className.length();
       
 	  if (compression && (encodingTable.get(result) != null))
 	  {
@@ -96,21 +85,20 @@ implements CharacterConstants
 	  else
 	  {   // translate mixed case class name word separation into
 	  	  // _ word separtion
+		 int classNameLength	= className.length();
 	      for (int i=0; i<classNameLength; i++)
 	      {
 		 	char	c	= className.charAt(i);
 			
 			if ((c >= 'A') && (c <= 'Z') )
 			{
-				if(i == 0)
-					result.append(Character.toLowerCase(c));
-				else	
-				    result.append('_').append(Character.toLowerCase(c));
+			   char lc = Character.toLowerCase(c);
+				if (i > 0)
+					result.append('_');
+			   result.append(lc);
 			}
 			else
-			{
 			    result.append(c);
-			}
 	      }
 	  }
       return XmlTools.toString(result);
@@ -227,13 +215,10 @@ implements CharacterConstants
 		
 		for(int i = 0; i < elementName.length(); i++)
 		{
-			if(i == 0)
-			{
-				char c = elementName.charAt(i);
-				result += Character.toLowerCase(c);
-			}
-			else
-				result += elementName.charAt(i);
+			char c = elementName.charAt(i);
+			if (i == 0)
+				c		= Character.toLowerCase(c);
+			result += c;
 		}
    		return result;
 	}
@@ -269,30 +254,23 @@ implements CharacterConstants
 			//take the field, generate tags and attach name value pair
 			try
 			{
-				String fieldValue				 = escapeXML( field.get(obj) + "" );
-				String fieldTypeName			 = field.getType().getName();
-				//default values are not emitted, to keep the xml short
-				if (fieldTypeName.equals("java.lang.String") || 
-					 fieldTypeName.equals("java.net.URL") || 
-					 fieldTypeName.equals("java.awt.Color"))
-				{
-					if(fieldValue.equals(DEFAULT_STRING))
-						return "";
-				}
-				else if(fieldValue.equals(DEFAULT_BOOLEAN) || 
-				   fieldValue.equals(DEFAULT_FLOAT) || fieldValue.equals(DEFAULT_INT))
-				{
-					return "";
-				}
-				StringBuffer result = new StringBuffer(50);
-				result.append(" ").append(attrNameFromField(field, false)).append(" = ").append("\"").append(fieldValue).append("\"").append(" ");
+			   Type type		= TypeRegistry.getType(field);
+			   String fieldValue= escapeXML(type.toString(obj, field));
+			   if (type.isDefaultValue(fieldValue))
+				  return "";
+			   
+			   StringBuffer result = new StringBuffer(50);
+			   result.append(' ').append(attrNameFromField(field, false))
+				  .append("=\"").append(fieldValue).append('"');
 				
-				return XmlTools.toString(result);
+//			   println("generateNameVal() = "+result);
+			   return XmlTools.toString(result);
 				
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
-				e.printStackTrace();
+			   println("generateNameVal("+field+", "+obj+" ERROR");
+			   e.printStackTrace();
 			}
 		}
 		return "";
@@ -404,9 +382,13 @@ implements CharacterConstants
 	   return getClassName(o);
 	}
 	
-   static String q(String s)
+/**
+ * @param string
+ * @return	The string wrapped in double quote marks.
+ */
+static String q(String string)
    {
-      return "\""+ s + "\" ";
+      return "\""+ string + "\" ";
    }
    
    public static String nameVal(String label, String val)
@@ -631,64 +613,6 @@ implements CharacterConstants
         }
     }   
 
-	/**
-	 * Sets the default value for the boolean types so that boolean types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param booleanVal	the default value of boolean type
-	 */
-	public static void setDEFAULT_BOOLEAN(boolean booleanVal) 
-	{
-		if(booleanVal == true)
-			DEFAULT_BOOLEAN = "true";
-		else
-			DEFAULT_BOOLEAN = "false";
-	}
-
-	/**
-	 * Sets the default value for the float types so that float types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param floatVal	the default value of float type
-	 */
-	public static void setDEFAULT_FLOAT(float floatVal) 
-	{
-		DEFAULT_FLOAT = floatVal + "";
-	}
-
-	/**
-	 * Sets the default value for the integer types so that integer types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param intVal	the default value of int type
-	 */
-	public static void setDEFAULT_INT(int intVal) 
-	{
-		DEFAULT_INT = intVal + "";
-	}
-	
-	/**
-	 * Sets the default value for the string types so that boolean types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param stringVal	the default value of string type
-	 */
-	public static void setDEFAULT_STRING(String stringVal) 
-	{
-		DEFAULT_STRING = stringVal;
-	}
-	
-	/**
-	 * Sets the default value for the URL types so that URL types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param urlVal	the default value of URL type
-	 */
-	public static void setDEFAULT_URL(String urlVal) 
-	{
-		DEFAULT_URL = urlVal;
-	}
-	
 	/**
 	 * This method needs to be called when the users want compression of the generated xml
 	 * files. The compression is achieved by using abbreviated tag names instead of using 
