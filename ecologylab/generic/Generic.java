@@ -54,8 +54,7 @@ public class Generic
       }
    }
 
-
-	/**
+/**
  * Form a URL easily, without perhaps throwing an exception.
  */
    public static URL getURL(URL base, String path, String error)
@@ -68,7 +67,9 @@ public class Generic
 	 return new URL(base, path);
       } catch (MalformedURLException e) 
       {
-	 throw new Error(e + "\n" + error + " " + path);
+	 if (error != null)
+	    throw new Error(e + "\n" + error + " " + base + " -> " + path);
+	 return null;
       }
    }
 

@@ -20,6 +20,10 @@ public class Debug
  * @param	messageLevel. If less than or equal to the static level,
  * message will get logged. Otherwise, the statement will be ignored.
  */
+   public static void println(int messageLevel, String message) 
+   {
+      println(message, messageLevel);
+   }
    public static void println(String message, int messageLevel) 
    {
       if (messageLevel <= level)
@@ -59,6 +63,10 @@ public class Debug
    public static void println(String message) 
    {
       System.out.println(message);
+   }
+   public static void print(String message) 
+   {
+      System.out.print(message);
    }
    public static void printlnA(Object o, String message) 
    {

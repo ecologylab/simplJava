@@ -92,6 +92,10 @@ public interface Environment
  */
    int		runtimeEnv();
 /**
+ * Find out which browser we're running in.
+ */
+   int		browser();
+/**
  * Show the user a message in the status bar at the bottom of the
  * browser, or some other comparable place.
  */
@@ -156,11 +160,20 @@ public interface Environment
 /**
  * @return an URL relative to html document
  */   
-   public URL rel(String relativeURL);
+   URL rel(String relativeURL);
+/**
+ * @return an URL relative to the code base.
+ */   
+   URL codeRelativeURL(String relativeURL);
+/**
+ * @return an URL relative to the code base.
+ */   
+   URL docRelativeURL(String relativeURL);
 
    public static final int	APPLICATION	= -1;
    public static final int	IE		= 0;
    public static final int	NS		= 1;
    public static final int	PLUGIN		= 2;
 
+   public void go(URL u, String frame);
 }

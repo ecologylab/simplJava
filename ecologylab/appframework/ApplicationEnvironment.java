@@ -95,4 +95,31 @@ public class ApplicationEnvironment implements Environment
 		return Generic.getURL(relativeURL, "relative URL turned into absolute???");
 	}
 
+	public URL codeRelativeURL(String relativeURL)
+	{
+	   String err =
+	      "Cant find " + relativeURL +" relative to "+codeBase.toExternalForm()+" ";
+	   return Generic.getURL(codeBase, relativeURL, err);
+	}
+	
+/**
+ * @return an URL relative to the code base.
+ */   
+	public URL docRelativeURL(String relativeURL)
+	{
+	   String err =
+	      "Cant find " + relativeURL + " relative to "+docBase.toExternalForm()+" ";
+	   return Generic.getURL(docBase, relativeURL, err);
+	}
+	
+
+	public void go(URL u, String frame)
+	{
+	}
+	
+	URL docBase, codeBase;
+	public int browser()
+	{
+	   return APPLICATION;
+	}
 }
