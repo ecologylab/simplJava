@@ -202,7 +202,7 @@ extends Debug
    public synchronized FloatSetElement randomSelect(int halfGcThreshold)
    {
       if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
-	 gc(halfGcThreshold);
+	 prune(halfGcThreshold);
 //      Thread.yield(); // [very slow!]
       boolean ok	= syncRecompute();
 //      Thread.yield();
@@ -283,7 +283,7 @@ extends Debug
    public synchronized FloatSetElement maxSelect(int halfGcThreshold)
    {
       if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
-	 	gc(halfGcThreshold);
+	 	prune(halfGcThreshold);
       Thread.yield();
       FloatSetElement element	= maxSelect();
       if (element == sentinel)
@@ -338,14 +338,15 @@ extends Debug
       return result;
    }
 /**
- * Delete lowest-weighted elements.
- * @param	numToKeep -- size for the set after gc is done.
+ * Delete lowest-weighted elements, in case this collection has grown too big.
+ * (After all, we can't have the INFINITELY LARGE collections we'd really like.)
+ * @param	numToKeep -- size for the set after pruning is done.
  */
-   public synchronized void gc(int numToKeep)
+   public synchronized void prune(int numToKeep)
    {
       if (size <= numToKeep)
 	 return;
-      debug("gc(keeping "+numToKeep+")");
+      debug("prune(keeping "+numToKeep+")");
       
       //------------------ update weights ------------------//
       for (int i=0; i!=size; i++)
@@ -354,7 +355,7 @@ extends Debug
 //      System.out.println("gc() after update: " + size);
       insertionSort(elements, size);
 //      System.out.println("gc() after sort: " + size);
-      String before	= "gc(): " + size  + ", " + Memory.usage();
+      String before	= "prune(): " + size  + ", " + Memory.usage();
 
       //-------------- lowest weight elements are on top -------------//
       int wontGo	= 0;
@@ -380,10 +381,6 @@ extends Debug
 	       insert(thatElement); // put it back in the right place!
 	 }
       }
-//      System.gc();
-//      System.runFinalization();
-//      System.out.println(before + " -> " + size  + ", " + Memory.usage() +
-//			 ":\n" + this);
    }
 //      System.out.println("Before sort :\n"+ this);
       // sentinel always in position 0 -- avoid it!!!
