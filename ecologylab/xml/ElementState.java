@@ -12,9 +12,6 @@ import org.w3c.dom.*;
 import org.w3c.dom.Attr; 
 import org.xml.sax.*;
 
-import cm.generic.Attribute;
-
-
 /**
  * This class is the heart of the translation framework. All classes which 
  * need to be translated to xml and back MUST extend this class. It has the actual
