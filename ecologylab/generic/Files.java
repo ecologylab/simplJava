@@ -364,12 +364,11 @@ extends Debug
       try
       {  
 	 writer.write(toWrite);
-//	 Debug.println("writeLine: " + toWrite);
 	 writer.newLine();
       }
 	 catch(IOException e) {ok = false;}
       if (!ok)
-      	 Debug.println(writeErrorString + writer);
+      	 System.err.println(writeErrorString + writer);
       return ok;
    }
    
