@@ -1,7 +1,7 @@
 # current working directory
 DIR	= cm/generic
 
-JAVA_SRC = Generic.java Attribute.java Debug.java \
+JAVA_SRC = Generic.java Attribute.java Debug.java ThreadMaster.java \
 	   Files.java Colors.java ObservableDebug.java StringTools.java \
 	   DispatchTarget.java Monitor.java ImageTools.java \
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
@@ -10,7 +10,8 @@ JAVA_SRC = Generic.java Attribute.java Debug.java \
 	   FloatSetElement.java FloatWeightSet.java \
 	   Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java \
-	   StringBuffersPool.java SyncLinkedList.java
+	   StringBuffersPool.java SyncLinkedList.java \
+	   ThreadDebugger.java
 
 # IntSlot used by Parser, Map
 
@@ -35,5 +36,7 @@ g:	Generic.class
 	java -classpath "$(CLASSPATH)" cm.generic.Generic
 
 st:	StringTools.class
-	java -classpath "$(CLASSPATH)" cm.generic.StringTools http://www.nytimes.com http://csdl.tamu.edu/~andruid/courses http://csdl.tamu.edu/~andruid/courses/informedia/content.html http://csdl.tamu.edu/~andruid/courses/informedia/content.html?foo=bar http://csdl.tamu.edu/~andruid/courses/informedia/content.html#too
+	java -classpath "$(CLASSPATH)" cm.generic.StringTools thisIsTheTime foo fooBar andAway FFFF
+
+#	java -classpath "$(CLASSPATH)" cm.generic.StringTools http://www.nytimes.com http://csdl.tamu.edu/~andruid/courses http://csdl.tamu.edu/~andruid/courses/informedia/content.html http://csdl.tamu.edu/~andruid/courses/informedia/content.html?foo=bar http://csdl.tamu.edu/~andruid/courses/informedia/content.html#too
 
