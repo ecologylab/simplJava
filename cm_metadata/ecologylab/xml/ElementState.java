@@ -534,8 +534,20 @@ abstract public class ElementState extends IO
 		for(int i = 0; i < childElements.getLength(); i++)
 		{
 			Node thisChild = childElements.item(i);
+			int nodeType	= thisChild.getNodeType();
 			
-			if (thisChild.getNodeType() != Node.TEXT_NODE)
+			boolean attrWasSet = false;
+			if (nodeType == Node.ELEMENT_NODE)
+			{
+				NodeList childsChildNodes = thisChild.getChildNodes();
+				if ((childsChildNodes.getLength() == 1) && 
+					(childsChildNodes.item(0).getNodeType() == Node.TEXT_NODE))
+					{
+						attrWasSet = true;
+						setStateObjectAttribute(elementState, stateClass, childsChildNodes.item(0).getNodeValue());
+					}
+			}
+			if (!attrWasSet)
 				elementState.addElement(buildStateObject(thisChild));
 		}
 				
@@ -543,6 +555,48 @@ abstract public class ElementState extends IO
 		
 	}//end of buildStateObject
 	
+	
+	void setStateObjectAttribute(ElementState stateObj, Class stateClass, String value)
+	{
+	    String fieldName = XmlTools.fieldNameFromObject(stateObj);
+	    String methodName = XmlTools.methodNameFromTagName(fieldName);
+
+        //search for the method with the name created above 
+        //for this you have to create an array of class indicating the parameters to the method
+        //in our case, all the methods have a single parameter, String
+        //which holds the value of the attribute and then that object is responsible
+        //for converting it to appropriate type from the string
+        Class[] parameters = new Class[1];
+        Method attrMethod = null;
+        
+        try
+        {
+            parameters[0] = Class.forName("java.lang.String");		              
+            attrMethod = stateClass.getMethod(methodName,parameters);
+        }
+        catch(Exception e)
+        {
+				e.printStackTrace();
+        }
+        
+        //if the method is found
+        //invoke the method
+        //fill the String value with the value of the attr node
+        //args is the array of objects containing the arguments to the method to be invoked
+        //in our case, methods have only one arg which is the String, "value"
+        Object[] args = new Object[1];
+        args[0] = value;
+        
+        try
+        {
+        		attrMethod.invoke(stateObj,args);
+        }
+        catch(Exception e)
+        {
+        		e.printStackTrace();
+        }	              
+        //done, if the control reaches here, the value has been filled		 
+	}
 	/**
 	 * This method MUST be overridden by all the state-objects which have 
 	 * collections (e.g Vector, Hashtable etc.) of other state-objects inside of them. 
@@ -712,5 +766,18 @@ abstract public class ElementState extends IO
 	{
 		if(value.equals("true"))
 			compressed	=	true;
+	}
+	
+	public void main()
+	{
+	 try{
+		
+		  ElementState RssFeed = buildStateObject("h:/slashdot.xml");
+		}
+	 catch (Exception e)
+		{
+		  e.printStackTrace();
+		}
+
 	}
 }
