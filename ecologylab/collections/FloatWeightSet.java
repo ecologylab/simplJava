@@ -4,6 +4,8 @@
  */
 package cm.generic;
 
+import java.util.*;
+
 /**
  * Provides the facility of efficient weighted random selection from a set
  * elements, each of whicn includes a characterizing floating point weight.
@@ -271,6 +273,47 @@ public class FloatWeightSet
       }
 //     System.out.println("randomSelect() " + pick + " => " + result + " from:");
 //     System.out.println(this);
+      return result;
+   }
+   ArrayList		maxArrayList;
+   
+/**
+ * @return	the maximum in the set. If there are ties, pick
+ * randomly among them
+ */
+   public synchronized FloatSetElement maxSelect()
+   {
+      int size			= this.size;
+      if (maxArrayList == null)
+      {
+	 int arrayListSize	= size / 4;
+	 if (arrayListSize > 1024)
+	    arrayListSize	= 1024;
+	 maxArrayList		= new ArrayList(arrayListSize);
+      }
+      else
+	 maxArrayList.clear();
+      
+      int maxIndex		= MathTools.random(size);
+      FloatSetElement result	= elements[maxIndex];
+      float maxWeight		= result.getWeight();
+      for (int i=0; i<size; i++)
+      {
+	 FloatSetElement thatElement	= elements[i];
+	 float thatWeight	= thatElement.getWeight();
+	 if (thatWeight > maxWeight)
+	 {
+	    result		= thatElement;
+	    maxWeight		= thatWeight;
+	    maxIndex		= i;
+	 }
+	 else if (thatWeight == maxWeight)
+	    maxArrayList.add(thatElement);
+      }
+      int numMax		= maxArrayList.size();
+      if (numMax > 1)
+	 result			=
+	    (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
       return result;
    }
 /**
