@@ -180,15 +180,16 @@ extends Debug
       int pathLength	= (path == null) ? 0 : path.length();
       int queryLength	= (query == null) ? 0: query.length();
       int anchorLength	= (anchor == null) ? 0: anchor.length();
-      
+      int authorityLength	= (authority == null) ? 0: authority.length();
+
       // pre-compute length of StringBuffer
       int length =0;
       
       try
       {
 	 length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + pathLength + 1 /* ? */ + queryLength + 1 /* # */
-	  + anchorLength;
+	 protocol.length() + 3 /* :// */ + authorityLength + pathLength
+	    + 1 /* ? */ + queryLength + 1 /* # */ + anchorLength;
    } catch (Exception e)
    {
       Debug.println("protocol="+protocol+" authority="+authority+
@@ -197,15 +198,18 @@ extends Debug
    }
       
       StringBuffer result = new StringBuffer(length);
-      result.append(protocol).append("://").append(authority).append(path);
+      result.append(protocol).append("://");
+      if (authority != null)
+	 result.append(authority);
+      if (path != null)
+	 result.append(path);
       if(query != null)
-      result.append("?").append(query);
+	 result.append("?").append(query);
       if(anchor != null)
-      result.append("#").append(anchor);
+	 result.append("#").append(anchor);
 
       return new String(result);
    }
-   
    
    public static final URL urlRemoveAnchorIfNecessary(URL source)
    {
