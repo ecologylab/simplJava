@@ -226,16 +226,12 @@ abstract public class ElementState extends IO
 		}
 	}
 	
-	boolean isExtendedPrimitive(Class thatFieldType)
+	protected boolean isExtendedPrimitive(Class thatFieldType)
 	{
-		if(thatFieldType.isPrimitive() || 
+		return thatFieldType.isPrimitive() || 
 		   thatFieldType.getName() == "java.lang.String" ||
 		   thatFieldType.getName() == "java.net.URL" ||
-		   thatFieldType.getName() == "java.awt.Color")
-			
-			return true;
-		
-		return false;
+		   thatFieldType.getName() == "java.awt.Color";
 	}
 	
 /**
@@ -264,8 +260,14 @@ abstract public class ElementState extends IO
 			{
 				filePath	=	filePath.substring(0,filePath.indexOf(".xml"));
 			}
-			if(prettyXml)
-				XmlTools.writePrettyXml(xml, new StreamResult(new File(xmlFileName)));
+		 if(false)
+		 {
+//				XmlTools.writePrettyXml(xml, new StreamResult(new File(xmlFileName)));
+		    
+		    XmlTools.writePrettyXml(xml, new StreamResult(new
+								  File(xmlFileName)));
+		 }
+		 
 			else
 			{
 				FileOutputStream out = new FileOutputStream(new File(xmlFileName));
@@ -616,7 +618,7 @@ abstract public class ElementState extends IO
 		return null;
 	}
 	
-	void fillAttributeValues(Vector attributeVector)
+	protected void fillAttributeValues(Vector attributeVector)
 	{
 	   int n = attributeVector.size();
 	   for (int i=0; i<n; i++)
