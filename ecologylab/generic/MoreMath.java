@@ -78,25 +78,26 @@ public class MoreMath
 	else
 	     return (float)(Math.pow(a, Math.log(b) / Math.log(0.5)));
      }
-
 /**
- * push a towards middle (b < .5), or extrema (b > .5)
+ * push a towards middle (b < .5), or extrema (b > .5).
+ * 
+ * could also be called "contrast".
  */
    public static float gain(float a, float b)
-     {
-	float p;
+   {
+      float p;
 
-	if (a < .001f)
-	     return 0;
-	else if (a > .999)
-	     return 1;
-	b = (b < .001f) ? .001f : (b > .999f) ? .999f : b;
-	p = (float) (Math.log(1 - b) / Math.log(0.5f));
-	if (a < 0.5f)
-	     return (float) (Math.pow(2 * a, p) / 2);
-	else
-	     return (float) (1 - Math.pow(2 * (1. - a), p) / 2);
-     }
+      if (a < .001f)
+	 return 0;
+      else if (a > .999)
+	 return 1;
+      b = (b < .001f) ? .001f : (b > .999f) ? .999f : b;
+      p = (float) (Math.log(1 - b) / Math.log(0.5f));
+      if (a < 0.5f)
+	 return (float) (Math.pow(2 * a, p) / 2);
+      else
+	 return (float) (1 - Math.pow(2 * (1 - a), p) / 2);
+   }
    public static float randGain(float factor)
 	{ return MoreMath.gain(random(), factor); }
    public static float randBias(float factor)

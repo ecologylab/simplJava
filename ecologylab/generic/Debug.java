@@ -60,14 +60,30 @@ public class Debug
    {
       System.out.println(message);
    }
+   public static void printlnA(Object o, String message) 
+   {
+      println(getClass(o)+"." + message);
+   }
    public static String getClass(Object o)
    {
       String c	= o.getClass().toString();
       return c.substring(c.lastIndexOf(".") + 1);
    }
+   public String toString()
+   {
+      return getClassAbrev();
+   }
+   public String getClassAbrev()
+   {
+      return getClass(this);
+   }
    public void debug(String message)
    {
       println(this, message);
+   }
+   public void debugA(String message)
+   {
+      printlnA(this, message);
    }
    public void debugI(String message)
    {
