@@ -184,6 +184,7 @@ implements Runnable
    {
       synchronized (potentialTimeouts)
       {
+	 finished		= false;
 	 if (timeoutThread == null)
 	 {
 	    timeoutThread	= new Thread(this, toString() + "-timeouts");
@@ -223,6 +224,7 @@ implements Runnable
       if (dispatchThread == null)
       {
 //	 debug("startDispatcHMonitor()");
+	 finished		= false;
 	 dispatchThread	= new Thread(toString() + "-dispatching")
 	 {
 	    // !!! if its not in its own thread, the java.awt imaging sys
@@ -370,6 +372,7 @@ implements Runnable
    {
       if (downloadThreads == null)
       {
+	 finished		= false;
 	 downloadThreads	= new Thread[numDownloadThreads];
 	 priorities		= new int[numDownloadThreads];
 	 for (int i=0; i<numDownloadThreads; i++)
