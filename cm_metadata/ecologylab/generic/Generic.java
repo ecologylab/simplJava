@@ -420,6 +420,25 @@ public class Generic
 	 return threadGroup;
       }
    }
+/**
+ * @return the int represented by <code>input</code>. 
+ * Silently defaults to <code>defaultVal</code>, <code>input</code> is
+ * not in good form. 
+ */
+   public static final int parseInt(String input, int defaultVal)
+   {
+	  if (input != null)
+	  {
+		 try
+		 {
+			defaultVal	= Integer.parseInt(input);
+		 } catch (NumberFormatException e)
+		 {
+		 }
+	  }
+      return defaultVal;
+   }
+
    public static void main(String[] s)
    {
       Debug.println(round(LN_EMPTY_WEIGHT, 2));
