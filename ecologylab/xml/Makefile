@@ -1,8 +1,7 @@
 # current working directory
 DIR	= ecologylab/xml
 
-JAVA_SRC = CharacterConstants.java
-# XmlTools.java ElementState.java 
+JAVA_SRC = CharacterConstants.java XmlTools.java ElementState.java 
 
 JAVA_ROOT= ../../
 
