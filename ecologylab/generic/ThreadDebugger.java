@@ -24,6 +24,8 @@ public class ThreadDebugger extends Debug
 	static     Box verticalBox = new Box(BoxLayout.Y_AXIS);
 	static     ActionListener threadToggler;
 	
+	static	WindowObservable windowObservable = new WindowObservable();
+
 	static
 	{
 		nThreads = 0;	
@@ -56,7 +58,8 @@ public class ThreadDebugger extends Debug
 		threadControlFrame.getContentPane().add(threadControlPanel);
 		threadControlFrame.pack();
 		setPosition();		
-//		threadControlFrame.setVisible(true);		
+
+		threadControlFrame.addWindowListener(windowObservable);
 	}	
 	
 	public ThreadDebugger()
@@ -156,43 +159,73 @@ public class ThreadDebugger extends Debug
 	{
 		threadControlFrame.setVisible(true);	
 	}
-	
 	public static void hide()
 	{
 		threadControlFrame.setVisible(false);	
 	}
+
+	public static void addObserver(Observer o)
+	{
+	   windowObservable.addObserver(o);
+	}
+
+	static class WindowObservable extends ObservableDebug
+	   implements WindowListener
+	{
+	   public void windowClosing(WindowEvent e)
+	   {
+	      println("ThreadDebugger.windowClosing()");
+	      setChanged();
+	      notifyObservers("thread_debugger_close");
+	   }
+	   public void windowOpened(WindowEvent e)
+	   {
+	   }
+	   public void windowClosed(WindowEvent e)
+	   {
+	   }
+	   public void windowIconified(WindowEvent e)
+	   {
+	   }
+	   public void windowDeiconified(WindowEvent e)
+	   {
+	   }
+	   public void windowActivated(WindowEvent e)
+	   {
+	   }
+	   public void windowDeactivated(WindowEvent e)
+	   {
+	   }
+	}
 }	
 
-	class ThreadToDebug
-	{
-		Object	lock	= new Object();
-		JButton	button;
-		Thread	thread;
-		boolean paused = false;
-		
-		ThreadToDebug(Thread thread)
-		{
-			this.thread	= thread;
-			button = new JButton("Pause " + thread.getName());
-			button.addActionListener(ThreadDebugger.threadToggler);						
-		}
-	
-		public	boolean toggleAndReturnNewState()
-		{
-			// System.err.println("\nChanged button = " + button.getText());	
-			// System.err.println("\nOriginal state = " + paused);
+class ThreadToDebug
+{
+   Object	lock	= new Object();
+   JButton	button;
+   Thread	thread;
+   boolean paused = false;
+   
+   ThreadToDebug(Thread thread)
+   {
+      this.thread	= thread;
+      button = new JButton("Pause " + thread.getName());
+      button.addActionListener(ThreadDebugger.threadToggler);						
+   }
+   
+   public	boolean toggleAndReturnNewState()
+   {
+      paused = !paused;
+      
+      if (!paused)
+      {
+	 button.setText("Pause " + thread.getName());
+      }
+      else
+      {
+	 button.setText("Start " + thread.getName());			
+      }
+      return paused;						
+   }		
+}
 
-			paused = !paused;
-						
-			if (!paused)
-			{
-				button.setText("Pause " + thread.getName());
-			}
-			else
-			{
-				button.setText("Start " + thread.getName());			
-			}
-			return paused;						
-		}		
-	}
-	
