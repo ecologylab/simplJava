@@ -201,9 +201,10 @@ public class FloatWeightSet
    {
       if ((halfGcThreshold > 0) && (size >= 2 * halfGcThreshold))
 	 gc(halfGcThreshold);
-      Thread.yield();
+//      Thread.yield(); // [very slow!]
       boolean ok	= syncRecompute();
 //      Thread.yield();
+      Generic.sleep(10);
       FloatSetElement element	= null;
       if (ok)
 	 element	= randomSelect();
