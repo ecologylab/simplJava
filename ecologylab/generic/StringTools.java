@@ -46,7 +46,10 @@ extends Debug
    }
    public static final String domain(URL url)
    {
-      return domain(url.getHost());
+      if (url.getProtocol().equals("file"))
+	 return "filesystem.local";
+      else
+	 return domain(url.getHost());
    }
 /**
  * Useful for finding common domains.
@@ -250,9 +253,11 @@ extends Debug
  */
    
 /**
- * For example, input "isFileName", output "is file name"
+ * Parse file name or variable name spellings, to convert to a set of words.
  * 
- * @return 
+ * @param in	 input <code>String</code>, for example: "isFileName".
+ *
+ * @return An array of <code>String</code>s, for example: "is", "file", "name".
  */   
    public static String[] seperateLowerUpperCase(String in)
    {
