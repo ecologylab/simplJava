@@ -36,6 +36,10 @@ extends Observable
    {
       return Debug.getClassName(this);
    }
+   public static void print(String message) 
+   {
+      Debug.print(message);
+   }
    public static void println(String message)
    {   	
       Debug.println(message);
