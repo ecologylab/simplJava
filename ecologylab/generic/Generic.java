@@ -172,7 +172,7 @@ public class Generic
  */
    public static URL systemPath(String relativePath)
    {
-      return Environment.the.get().docRelativeURL(relativePath);
+      return Environment.the.get().codeRelativeURL(relativePath);
    }
 /**
  * @return	The version of Java we're using (but not the specific release),
