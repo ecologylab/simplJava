@@ -237,33 +237,56 @@ extends Debug
       }
       return result;
    }
-      
+/*      
    public static void main(String[] args)
    {
       for (int i=0; i<args.length; i++)
 	 println(pageString(Generic.getURL(args[i], "oops " + i)));
 	 
    }
+ */
    
 /**
  * For example, input "isFileName", output "is file name"
+ * 
+ * @return 
  */   
-   public static String seperateLowerUpperCase(String in)
+   public static String[] seperateLowerUpperCase(String in)
    {
-   	 String out="";
-   	 int n = in.length();
-   	 for (int i=0; i<n; i++)
-   	 {
-   	 	char thisChar = in.charAt(i);
-   	 	if (Character.isUpperCase(thisChar))
-   	 	{   	 		
-   	 		thisChar = Character.toLowerCase(thisChar);
-   	 		out +=" " + thisChar;
-   	 	}
-   	 	else
-   	 	out +=thisChar;
-   	 }
-   	 return out;
+      int n = in.length();
+      // pass 1 -- just find out how many transitions there are?
+      int numWords = 1;
+      for (int i=0; i<n; i++)
+      {
+	 char thisChar = in.charAt(i);
+	 if (Character.isUpperCase(thisChar) && (i != 0))
+	    numWords++;
+      }
+      // pass 2 -- create the result set and fill it in
+      String result[]	= new String[numWords];
+      int bufferIndex = 0;
+      int resultIndex = 0;
+      int transition  = 0;
+      char[] buffer = new char[n];
+      for (int i=0; i<n; i++)
+      {
+	 char thisChar = in.charAt(i);
+	 if (Character.isUpperCase(thisChar))
+	 {
+	    thisChar = Character.toLowerCase(thisChar);
+	    if (i > 0)
+	    {
+	       result[resultIndex++]	= 
+		  new String(buffer, transition, (i - transition));
+			     in.substring(transition, i);
+//			     result[resultIndex++]	= in.substring(transition, i);
+			     transition				= i;
+			  }
+	    }
+	    buffer[i]	= thisChar;
+  	 }
+  	 result[resultIndex]= new String(buffer, transition, (n - transition));
+   	 return result;
    }
 /**
  * Remove all instances of @param c from @arg string
@@ -283,6 +306,17 @@ extends Debug
 	    string	= string.substring(0,index) +string.substring(index+1);
       }
       return string;
+   }
+   public static void main(String[] s)
+   {
+   		for (int i=0; i<s.length; i++)
+   		{
+		   String[] result = seperateLowerUpperCase(s[i]);
+		   System.out.print(s[i] + " -> " );
+		   for (int j=0; j<result.length; j++)
+		      System.out.print(result[j] + " ");
+		   System.out.println();
+		}   	
    }
 }
 
