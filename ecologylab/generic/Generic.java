@@ -152,12 +152,15 @@ public class Generic
 
 /**
  * Find the path to system files.
+ * Change return value from URL to ParsedURL.
  */
    public static ParsedURL systemPath(String relativePath)
    {
       return Environment.the.get().codeRelativeURL(relativePath);
    }
    public static final String SEP	= "/";
+   
+   /* Change return value from URL to ParsedURL. */
    public static ParsedURL systemPhotoPath(String relativePath)
    {
       String photoPathParam	= parameter("photo_path");
@@ -339,8 +342,10 @@ public class Generic
       }
       return result;
    }
+   /* Change return value from URL to ParsedURL. */
    public static ParsedURL docBase()
    {
+   	  /* docBase() method also returns ParsedURL. */
       return Environment.the.get().docBase();
    }
    public static void raisePriority(int priority)

@@ -119,6 +119,7 @@ extends Debug
    }
    public static BufferedReader openWebReader(String webAddr)
    {
+   	  /* get ParsedURL from url string. */
       ParsedURL purl = ParsedURL.getRelativeOrAbsolute(webAddr, "");
       return openReader(purl.url());
    }

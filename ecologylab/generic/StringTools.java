@@ -357,6 +357,7 @@ extends Debug
 
    public static void main(String[] s)
    {
+   	  /* create ParsedURL from url string. */
       ParsedURL u = ParsedURL.getAbsolute("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
 //      println(removePunctuation("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif"));
       println(u.removePunctuation());

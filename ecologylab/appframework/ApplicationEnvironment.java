@@ -77,6 +77,7 @@ public class ApplicationEnvironment implements Environment
 
 	/**
 	 * @see cm.generic.Environment#codeBase()
+	 * Change return value from URL to ParsedURL. 
 	 */
 	public ParsedURL codeBase() {
 		return null;
@@ -84,21 +85,24 @@ public class ApplicationEnvironment implements Environment
 
 	/**
 	 * @see cm.generic.Environment#docBase()
+	 * Change return value from URL to ParsedURL. 
 	 */
 	public ParsedURL docBase() {
 		return null;
 	}
-
+	
+	/* Change return value from URL to ParsedURL. */
 	public ParsedURL codeRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL +" relative to "
 	      + codeBase.noAnchorNoQueryPageString()+" ";
+	   /* get ParsedURL from url string and code base. */
 	   ParsedURL purl = ParsedURL.getRelative(codeBase.url(), relativeURL, err);
 	   return purl;
 	}
 	
 /**
- * @return an URL relative to the code base.
+ * @return a ParsedURL relative to the code base.
  */   
 	public ParsedURL docRelativeURL(String relativeURL)
 	{
@@ -112,7 +116,7 @@ public class ApplicationEnvironment implements Environment
 	public void go(URL u, String frame)
 	{
 	}
-	
+	/* Change type from URL to ParsedURL. */
 	ParsedURL docBase, codeBase;
 	public int browser()
 	{

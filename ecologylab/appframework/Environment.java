@@ -242,10 +242,12 @@ public interface Environment
 
 /**
  * {@link java.applet.Applet#getCodeBase() java.applet.Applet.getCodeBase()}
+ * Change type from URL to ParsedURL. 
  */
     ParsedURL codeBase();
 /**
  * {@link java.applet.Applet#getDocumentBase() java.applet.Applet.getDocBase()}
+ * Change type from URL to ParsedURL.
  */
     ParsedURL docBase();
 
