@@ -53,4 +53,8 @@ extends Observable
    {
       Debug.println(className, messageLevel, message);
    }
+   public boolean show(int messageLevel)
+   {
+      return Debug.show(this, messageLevel);
+   }
 }
