@@ -243,7 +243,29 @@ abstract public class ElementState extends IO
 			fields[i]	=	(Field)refTypes.elementAt(j++);			
 		}
 	}
+   public static final HashMap buildHashMapFromStrings(String[] strings)
+   {
+      HashMap hashMap	= new HashMap(strings.length);
+      buildMapFromStrings(hashMap, strings);
+      return hashMap;
+   }
+   public static final void buildMapFromStrings(Map map, String[] strings)
+   {
+      for (int i=0; i<strings.length; i++)
+      {
+	 String thatString	= strings[i];
+	 map.put(thatString, thatString);
+      }
+   }
 	
+	static final String[] collectionTypeStrings = 
+	{
+	   "java.util.Vector", "java.util.Hashtable",
+	   "java.util.HashMap, java.util.ArrayList", 
+	   "LinkedHashMap", "LinkedHashSet",
+	};
+	static final HashMap collectionTypes = 
+	   buildHashMapFromStrings(collectionTypeStrings);
 	/**
 	 * determines if a field is of type collection
 	 * @param thatFieldType
@@ -252,8 +274,8 @@ abstract public class ElementState extends IO
 	protected boolean isCollection(Class thatFieldType)
 	{
 	   String thatFieldTypeName = thatFieldType.getName();
-	   return (thatFieldTypeName == "java.util.Vector") ||
-	      (thatFieldTypeName == "java.util.Hashtable");
+	   return (thatFieldTypeName != null) &&
+	      collectionTypes.containsKey(thatFieldTypeName);
 	}
 	
 	/**
