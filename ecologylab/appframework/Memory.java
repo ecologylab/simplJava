@@ -23,25 +23,33 @@ public class Memory
    public static boolean	isMicroshaftVM;
    
    static StringBuffer buffy = new StringBuffer(256);
+/**
+ * Prod the garbage collector, and print a message about memory status.
+ */
    public static void reclaim()
    {
       reclaim("");
    }
+/**
+ * Prod the garbage collector, and print a message about memory status.
+ * 
+ * @param		Part of the message to be printed, to identify call site.
+ */
    public static void reclaim(String s)
    {
       try
       {
-	 StringTools.clear(buffy);
-	 buffy.append("\nMemory.reclaim(")
-	    .append(Thread.currentThread().getName())
-	       .append(".gc(").append(s).append("): ").append(usage());
-	 reclaimQuiet();
-	 buffy.append(" -> ").append(usage()).append(" #").append(gcCount)
-	    .append("\n");
-	 System.out.println(buffy);
+		 StringTools.clear(buffy);
+		 buffy.append("\nMemory.reclaim(")
+			.append(Thread.currentThread().getName())
+			   .append(".gc(").append(s).append("): ").append(usage());
+		 reclaimQuiet();
+		 buffy.append(" -> ").append(usage()).append(" #").append(gcCount)
+			.append("\n");
+		 Debug.println(buffy);
       } catch (Exception e)
       {
-	 e.printStackTrace();
+		 e.printStackTrace();
       }
    }
    public static void reclaimQuiet()
@@ -59,12 +67,12 @@ public class Memory
    {
       for (int i=0; i!=5; i++)
       {
-	 boolean danger	= (runtime.freeMemory() < DANGER_THRESHOLD)
-	    && (!isMicroshaftVM || (Math.random() > .9));
-	 if (danger)
-	    reclaimQuiet();
-	 else
-	    break;
+		 boolean danger	= (runtime.freeMemory() < DANGER_THRESHOLD)
+			&& (!isMicroshaftVM || (Math.random() > .9));
+		 if (danger)
+			reclaimQuiet();
+		 else
+			break;
       }
       return runtime.freeMemory() < DANGER_THRESHOLD;
    }
@@ -74,9 +82,9 @@ public class Memory
       Memory.reclaimQuiet();
       Debug.println("Memory.recover()");
       if (msg != null)
-	 Memory.reclaim(msg);
+		 Memory.reclaim(msg);
       throwable.printStackTrace();
-//      Thread.dumpStack();
+	  //      Thread.dumpStack();
       Debug.println(Memory.threads());
       Debug.println("");
    }
@@ -97,12 +105,12 @@ public class Memory
       String result	= count + " Threads ACTIVE\n";
       for (int i=0; i!=count; i++)
       {
-	 Thread t	= threads[i];
-	 if (t != null)
-	 {
-//	    String alive = t.isAlive() ? "alive" : "dead";
-	    result		+= threads[i].getName() + "\n";
-	 }
+		 Thread t	= threads[i];
+		 if (t != null)
+		 {
+			//	    String alive = t.isAlive() ? "alive" : "dead";
+			result		+= threads[i].getName() + "\n";
+		 }
       }
       return result;
    }
@@ -110,20 +118,20 @@ public class Memory
    static boolean	processingOutOfMemory;
    static final int	ENOUGH_OUT_OF_MEMORY_CALLS	= 10;
    
-/**
- * @return true if its time to give up!
- */
+   /**
+	* @return true if its time to give up!
+	*/
    public static boolean outOfMemory(Throwable throwable)
    {
       if (outOfMemoryCount >= ENOUGH_OUT_OF_MEMORY_CALLS)
-	 return true;
+		 return true;
       
       if (!processingOutOfMemory)
       {  // dont bother locking, cause we're too desparate
-	 processingOutOfMemory	= true;
-	 outOfMemoryCount++;
-	 Memory.recover(throwable, null);
-	 processingOutOfMemory	= false;
+		 processingOutOfMemory	= true;
+		 outOfMemoryCount++;
+		 Memory.recover(throwable, null);
+		 processingOutOfMemory	= false;
       }	 
       return false;
    }
