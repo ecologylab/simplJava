@@ -40,6 +40,7 @@ package cm.media.text;
 import java.io.*;
 import java.lang.StringBuffer;
 
+import cm.generic.*;
 
 /**
   * Stemmer, implementing the Porter Stemming Algorithm
@@ -52,6 +53,7 @@ import java.lang.StringBuffer;
   */
 
 public class NewPorterStemmer
+extends Debug
 {  
    //private char[] b;
    private StringBuffer b;
@@ -110,11 +112,6 @@ public class NewPorterStemmer
       reset();
 
       int wLen	= s.length();
-      int last	= wLen - 1;
-      
-      if (s.charAt(last) == 's')
-	 wLen--;		   // drop ending s -- get rid of plural
-      
       b.setLength(wLen);
 
       for (int c = 0; c < wLen; c++)      
