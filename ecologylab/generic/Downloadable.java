@@ -1,11 +1,14 @@
 package cm.generic;
 
+import java.io.*;
+
 public interface Downloadable
 {
 /**
  * Called to start download.
  */
-   public void performDownload();
+   public void performDownload()
+      throws IOException;
 /**
  * Called to inquire on the status of a download.<br>
  * @return	true if the download is complete.
