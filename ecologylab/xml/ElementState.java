@@ -443,16 +443,35 @@ abstract public class ElementState extends IO
 	public static ElementState translateFromXML(Node xmlNode)
 	   throws XmlTranslationException
 	{
-	   // form the new object derived from ElementState
+	   // find the class for the new object derived from ElementState
 		Class stateClass				= null;
-		ElementState elementState		= null;
 		try
 		{			  
 		   String tagName		= xmlNode.getNodeName();
  			stateClass= nameSpace.xmlTagToClass(tagName);
 			if (stateClass == null)
-			   throw new XmlTranslationException("Cant find class object for" +
-												 tagName);
+			{
+			   println("XML Translation WARNING: Cant find class object for" + tagName
+			   		+ "\nIgnored.");
+			   return null;
+			}
+		   return translateFromXML(xmlNode, stateClass);
+		}
+		catch (Exception e)
+		{
+		   throw new XmlTranslationException("All ElementState subclasses"
+							       + "MUST contain an empty constructor, but "+
+								   stateClass+" doesn't seem to.");
+		}
+	 }		
+
+	public static ElementState translateFromXML(Node xmlNode, Class stateClass)
+	   throws XmlTranslationException
+	{
+	   // form the new object derived from ElementState
+		ElementState elementState		= null;
+		try
+		{			  
 			elementState	=	(ElementState) stateClass.newInstance();
 		}
 		catch (Exception e)
@@ -465,24 +484,24 @@ abstract public class ElementState extends IO
 		// translate attribtues
 		if (xmlNode.hasAttributes())
 		{
-			NamedNodeMap attributes = xmlNode.getAttributes();
+			NamedNodeMap xmlNodeAttributes = xmlNode.getAttributes();
 			
-			for (int i = 0; i < attributes.getLength(); i++) 
+			for (int i = 0; i < xmlNodeAttributes.getLength(); i++) 
 			{
-				Node attr = attributes.item(i);
+				Node xmlAttr = xmlNodeAttributes.item(i);
                
-				if (attr.getNodeValue() != null)
+				if (xmlAttr.getNodeValue() != null)
 				{
-					String nodeName		= attr.getNodeName();
+					String xmlAttrName	= xmlAttr.getNodeName();
 					//create the method name from the tag name
 					//for example, for the attr bias, methodName = setBias
-					String methodName	= XmlTools.methodNameFromTagName(nodeName);
+					String methodName	= XmlTools.methodNameFromTagName(xmlAttrName);
 					//search for the method with the name created above 
 					//for this u have to create an array of class indicating the parameters to the method
 					//in our case, all the methods have a single parameter, String
 					//which holds the value of the attribute and then that object is responsible
 					//for converting it to appropriate type from the string
-					String value		= attr.getNodeValue();
+					String value		= xmlAttr.getNodeValue();
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -500,25 +519,25 @@ abstract public class ElementState extends IO
 						}
 						catch (InvocationTargetException e)
 						{
-							println("WEIRD: couldnt run set method for " + nodeName +
+							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
 						}
 						catch (IllegalAccessException e)
 						{
-							println("WEIRD: couldnt run set method for " + nodeName +
+							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
 						}	              
 					}
 					catch (NoSuchMethodException e)
 					{
-						String fieldName = XmlTools.fieldNameFromElementName(attr.getNodeName());
+						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
 //						debug("buildFromXML(-> setPrimitive("+fieldName,value);
 						if (!elementState.setField(fieldName, value))
 							throw new
-								XmlTranslationException("Set method missing and automatic set failing for variable " + attr.getNodeName() + " in "+stateClass+
-																", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
+							   XmlTranslationException("Set method missing and automatic set failing for variable " + xmlAttr.getNodeName() + " in "+stateClass+
+																", please create a method that takes a String as parameter and sets the value of " + xmlAttr.getNodeName());
 					}
 				} // end if non-null attribute
 			} // end of for attribute processing loop
@@ -527,14 +546,48 @@ abstract public class ElementState extends IO
 		// translate nested elements (aka children):
 		// loop through them, recursively build them, and add them to ourself
 		NodeList childNodes	= xmlNode.getChildNodes();
-		for (int i = 0; i < childNodes.getLength(); i++)
+		int numChilds		= childNodes.getLength();
+	
+		if (numChilds == 1)
+		{
+		   // is it a single text node?
+			Node firstNode	= childNodes.item(0);
+			if (firstNode.getNodeType() == Node.TEXT_NODE)
+				// create ElementStateTextNode here
+				;
+		}
+		for (int i = 0; i < numChilds; i++)
 		{
 			Node childNode		= childNodes.item(i);
 			
 			if (childNode.getNodeType() != Node.TEXT_NODE)
 			{
-			   ElementState childElementState = translateFromXML(childNode);
-			   elementState.addNestedElement(childElementState);
+			   // look for instance variable name corresponding to
+			   // childNode's tag in this. Get the class of that.
+			   String childTag			= childNode.getNodeName();
+			   String childFieldName	= 
+				  XmlTools.classNameFromElementName(childTag);
+			   try
+			   {
+				  Field childField		= stateClass.getField(childFieldName);
+				  Class childClass		= childField.getType();
+				  ElementState childElementState = 
+					 translateFromXML(childNode, childClass);
+				  elementState.addNestedElement(childField, childElementState);
+				  
+			   } catch (NoSuchFieldException e)
+			   {
+				  // must be part of a collection, or a field we dont know about
+			   	  // anyway, its not not a named field
+				  ElementState childElementState = translateFromXML(childNode);
+				  if (childElementState != null)
+				  	elementState.addNestedElement(childElementState);
+				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
+			   }
+			}
+			else if (numChilds == 1) // we could get rid of this to be even more general!
+			{
+				elementState.setTextNodeString(childNode.getNodeValue());
 			}
 //			else
 //			   parentStateObj.setAttribute(this.className,
@@ -862,18 +915,48 @@ abstract public class ElementState extends IO
 		try
 		{
 			Field field = getClass().getField(fieldName);
+			addNestedElement(field, elementState);
+		}
+		catch (Exception e)
+		{
+		   debug("ERROR: Can't find a field called " + fieldName);
+		}
+	}
+
+	/**
+	 * Used to add a nested object to <code>this ElementState</code> object.
+	 * 
+	 * This method MUST be overridden by all derived ElementState super classes
+	 * that function as collections (e.g., via Vector, Hashtable etc.) of other
+	 * ElementState derivatives.
+	 * In those cases, it is used to add the nested derived elements inside
+	 * to the collection. This method is called during translateFromXML(...).
+	 *
+	 * @param elementState	the nested state-object to be added
+	 */
+	protected void addNestedElement(Field field, ElementState elementState)
+		throws XmlTranslationException
+	{
+//		debug("<<<<<<<<<<<<<<<<<<<<<<<<fieldName is: " + fieldName);
+		try
+		{
 			field.set(this,elementState);
 		}
 		catch (Exception e)
 		{
 		   throw new XmlTranslationException(
-					"Classes based on collections such as " +
-					"Vector and Hashtable MUST define method addElement(), " +
-					"to add nested objects to the collection.\n"+
-					this +" doesn't seem to." );
+					"Object / Field set mismatch -- unexpected. This should never happen.\n"+
+					field +" , " + this);
 		}
 	}
 	
+	String textNodeString;
+	
+	public void setTextNodeString(String textNodeString)
+	{
+	   this.textNodeString		= textNodeString;
+	}
+
 	/////////////////////////// other methods //////////////////////////
 
 	/**
