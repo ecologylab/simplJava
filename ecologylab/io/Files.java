@@ -2,6 +2,7 @@ package cm.generic;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 public class Files
 extends Debug
@@ -116,29 +117,66 @@ extends Debug
    {
       return openReader(newFile(fileName));
    }
-   
+   public static BufferedReader openWebReader(String webAddr)
+   {
+      URL url = Generic.getURL(webAddr, "");
+      return openReader(url);
+   }
    public static BufferedReader openReader(File file)
    {
       boolean ok	= file.canRead();
-      BufferedReader reader = null;
       if (!ok)
       {
-	 Debug.println("Can't read file " + file.getAbsolutePath());
+	 println("Can't read file " + file.getAbsolutePath());
+	 return null;
       }
-      else
+      println(3, "Input file: " + file);
+      FileReader fileReader = null;
+      try
       {
-	 try
-	 {  
-	    reader	= new BufferedReader(new FileReader(file));
-	    println(3, "Input file: ");
-	    println(3, indent + file + "");
-	 }		
-	 catch(IOException e)
-	 {
-	    Debug.println(readErrorString + file);
-	 }
+	 fileReader	= new FileReader(file);
+	 return openReader(fileReader);
+      } catch (FileNotFoundException e)
+      {
+	 println("Can't find file " + file.getAbsolutePath());
+	 return null;
       }
-      return reader;
+   }
+   public static InputStream openStream(URL url)
+   {
+      InputStream inStream		= null;
+      try 
+      {
+	 URLConnection connection	= url.openConnection();
+	 inStream			= connection.getInputStream();
+      }
+      catch (FileNotFoundException e)
+      { 
+	 println("Can't open because FileNotFoundException: " + url);
+      }
+      catch (IOException e)
+      { 
+	 println("Can't open because IOException: " + url);
+      }
+      catch (Exception e)	   // catch all exceptions, including security
+      { 
+	 println("Can't open " + url);
+	 e.printStackTrace();
+      }
+      return inStream;
+   }
+   public static BufferedReader openReader(URL url)
+   {
+      InputStream inStream	= openStream(url);
+      return (inStream == null) ? null : openReader(inStream);
+   }
+   public static BufferedReader openReader(InputStream inStream)
+   {
+      return openReader(new InputStreamReader(inStream));
+   }
+   public static BufferedReader openReader(InputStreamReader inputStreamReader)
+   {
+      return new BufferedReader(inputStreamReader);
    }
    
    public boolean openRead(File inputFile)
@@ -626,6 +664,27 @@ extends Debug
    }
    public static void main(String[] s)
    {
-      println(removeExtension(new File("c:/temp/foo.xml")).toString());
+//      println(removeExtension(new File("c:/temp/foo.xml")).toString());
+      BufferedReader reader = openWebReader(s[0]);
+      String thatLine = null;
+      while (( thatLine=Files.readLine(reader)) != null)
+      {
+	 println("read from URL " + thatLine);
+      }
+      closeReader(reader);
+   }
+
+   public static void main2(String[] args) throws Exception 
+   {
+      URL yahoo = new URL("http://www.yahoo.com/");
+      BufferedReader in = 
+	 new BufferedReader(new InputStreamReader(yahoo.openStream()));
+
+      String inputLine;
+
+      while ((inputLine = in.readLine()) != null)
+	 System.out.println(inputLine);
+
+      in.close();
    }
 }
