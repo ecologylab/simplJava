@@ -1198,6 +1198,7 @@ public class ElementState extends IO
 	public String getTextNode()
 	{
 		return textNodeString;
+//		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
 	}
 	/////////////////////////// other methods //////////////////////////
 
