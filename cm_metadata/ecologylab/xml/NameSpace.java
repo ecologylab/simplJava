@@ -180,7 +180,8 @@ public class NameSpace extends IO
 			} catch (ClassNotFoundException e2)
 			{
 			   debug("WARNING: couldn't find class object");
-			   return;
+				 this.classObj			= classObj;
+				 return;
 			}
 		 }
 		 this.classObj			= classObj;
