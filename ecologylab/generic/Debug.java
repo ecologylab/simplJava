@@ -101,6 +101,7 @@ public class Debug
 	 result		= slot.value;
       return result;
    }
+   
 /**
  * @param	messageLevel. If less than or equal to the static level,
  * message will get logged. Otherwise, the statement will be ignored.
@@ -108,12 +109,6 @@ public class Debug
    public static void println(int messageLevel, String message) 
    {
       if (messageLevel <= level)
-	 println(message);
-   }
-   public static void println(String className,
-			      int messageLevel, String message) 
-   {
-      if (messageLevel <= level(className))
 	 println(message);
    }
    public static void printlnI(int messageLevel, String message) 
@@ -128,6 +123,10 @@ public class Debug
    public static void println(Object o, String message)
    {
       println(o + "." + message);
+   }
+   public static void println(String className, String message)
+   {
+      println(className + "." + message);
    }
    public static void printlnI(Object o, String message)
    {
@@ -334,6 +333,12 @@ public class Debug
    {
       if (messageLevel <= level(that))
 	 println(that, message);
+   }
+   public static void println(String className,
+			      int messageLevel, String message) 
+   {
+      if (messageLevel <= level(className))
+	 println(message);
    }
    public static void printlnA(Object that, int messageLevel, String message)
    {
