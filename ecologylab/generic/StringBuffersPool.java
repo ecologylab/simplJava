@@ -6,33 +6,40 @@ import cm.media.html.*;
 
 public class StringBuffersPool 
 {
-	public static int POOL_SIZE	=	64;
-	public static Vector bufferPool = new Vector();
+	public static int DEFAULT_POOL_SIZE	=	64;
+	public Vector bufferPool = new Vector();
 	
-	static
+	int	bufferSize;
+	int	poolSize;
+	
+	public StringBuffersPool(int bufferSize)
 	{
-		
-		for(int i = 0 ; i < POOL_SIZE ; i++)
-		{
-			bufferPool.add(new StringBuffer(Scan.BUFFER_SIZE));
-		}	
+	   this(bufferSize, DEFAULT_POOL_SIZE);
+	}
+	public StringBuffersPool(int bufferSize, int poolSize)
+	{
+	   this.bufferSize	= bufferSize;
+	   for(int i = 0 ; i < poolSize; i++)
+	   {
+	      bufferPool.add(new StringBuffer(bufferSize));
+	   }	
 	}
 	
-	public static StringBuffer nextBuffer()
+	public StringBuffer nextBuffer()
 	{
-		int freeIndex = bufferPool.size() - 1;
-		
-		if (freeIndex == -1)
-		{
-			return (new StringBuffer(Scan.BUFFER_SIZE));
-		}
-		StringBuffer b = (StringBuffer)bufferPool.get(freeIndex);
-		bufferPool.removeElementAt(freeIndex);
-		return b;
+	   int freeIndex = bufferPool.size() - 1;
+	   
+	   if (freeIndex == -1)
+	   {
+	      return (new StringBuffer(bufferSize));
+	   }
+	   StringBuffer b = (StringBuffer)bufferPool.get(freeIndex);
+	   bufferPool.removeElementAt(freeIndex);
+	   return b;
 	}
 	
-	public static void release(StringBuffer b)
+	public void release(StringBuffer b)
 	{
-		bufferPool.add(b);		
+	   bufferPool.add(b);		
 	}
 }
