@@ -179,8 +179,8 @@ public class NameSpace extends IO
 			   classObj			= Class.forName(wholeClassName+"State");
 			} catch (ClassNotFoundException e2)
 			{
-			   debug("couldn't find class object");
-			   e2.printStackTrace();
+			   debug("WARNING: couldn't find class object");
+			   return;
 			}
 		 }
 		 this.classObj			= classObj;
