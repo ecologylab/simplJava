@@ -3,7 +3,7 @@ DIR	= cm/generic
 
 JAVA_SRC = Generic.java Attribute.java Debug.java \
 	   Files.java Colors.java ObservableDebug.java StringTools.java \
-	   DispatchTarget.java \
+	   DispatchTarget.java Monitor.java \
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
 	   Environment.java ApplicationEnvironment.java \
 	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
@@ -28,11 +28,8 @@ nsjar:		all
 
 sunjar:		all
 
-mm:	MoreMath.class
-	java -classpath $(CLASSPATH) blocks.MoreMath
-
-fws:	FloatWeightSet.class
-	java -classpath $(CLASSPATH) blocks.FloatWeightSet
+f:	Files.class
+	java -classpath "$(CLASSPATH)" cm.generic.Files
 
 st:	StringTools.class
 	java -classpath "$(CLASSPATH)" cm.generic.StringTools http://www.nytimes.com http://csdl.tamu.edu/~andruid/courses http://csdl.tamu.edu/~andruid/courses/informedia/content.html http://csdl.tamu.edu/~andruid/courses/informedia/content.html?foo=bar http://csdl.tamu.edu/~andruid/courses/informedia/content.html#too
