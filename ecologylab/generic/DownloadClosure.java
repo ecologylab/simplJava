@@ -9,15 +9,22 @@ extends Debug
    Downloadable		downloadable;
    long			startTime;
    DispatchTarget	dispatchTarget;
+   DownloadMonitor	downloadMonitor;
+   
+   Thread		downloadingThread;
 
+   boolean		timeoutResolved;
+   
    private boolean	timeout;
    private boolean	dispatched;
    private boolean	ioError;
 
-   DownloadClosure(Downloadable downloadable, DispatchTarget dispatchTarget)
+   DownloadClosure(Downloadable downloadable, DispatchTarget dispatchTarget,
+		   DownloadMonitor downloadMonitor)
    {
       this.downloadable		= downloadable;
       this.dispatchTarget	= dispatchTarget;
+      this.downloadMonitor	= downloadMonitor;
    }
    void startingNow()
    {
@@ -46,9 +53,15 @@ extends Debug
    }
    private synchronized void timeout()
    {
+      downloadMonitor.timeouts++;
       timeout			= true;
-      downloadable.handleTimeout();
+      timeoutResolved		= downloadable.handleTimeout();
       dispatch();
+   }
+   void performDownload()
+      throws java.io.IOException
+   {
+      downloadable.performDownload();
    }
    public synchronized void dispatch()
    {
@@ -56,8 +69,17 @@ extends Debug
       {
 //	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
 	 dispatched		= true;
+	 downloadMonitor.dispatched++;
 	 if (dispatchTarget != null)
 	    dispatchTarget.delivery(downloadable);
       }
+   }
+   public boolean timedOut()
+   {
+      return timeout;
+   }
+   public String toString()
+   {
+      return super.toString() + "["+downloadable.toString() + "]";
    }
 }

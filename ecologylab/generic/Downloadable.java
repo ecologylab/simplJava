@@ -16,8 +16,12 @@ public interface Downloadable
    public boolean isDownloadDone();
 /**
  * Called in case a timeout happens.
+ * 
+ * @return	true, if the object is able to abort the download and
+ * release resources.
+ * @return	false if its stuck.
  */
-   public void handleTimeout();
+   public boolean handleTimeout();
 /**
  * Called in case an IO error happens.
  */

@@ -15,10 +15,21 @@ extends Debug
 implements Runnable
 {
    static final int	TIMEOUT		= 40000;
-   static final int	TIMEOUT_SLEEP	= TIMEOUT / 3;
+   static final int	TIMEOUT_SLEEP	= 3000;
    static final int	SHORT_SLEEP	= 50;
-   public static final int	PRIORITY	= 2;
+
+   public static final int HIGH_PRIORITY	= 4;
+   public static final int MID_PRIORITY		= 3;
+   public static final int LOW_PRIORITY		= 2;
    
+   public static final int HIGH_THRESHOLD	= 9;
+   public static final int MID_THRESHOLD	= 5;
+   
+   int			timeouts;
+   int			dispatched;
+
+   boolean		getUrgent;
+
    //////////////////// queues for media that gets downloaded /////////////////
 /**
  * This is the queue of DownloadClosures waiting to be downloaded.
@@ -28,7 +39,7 @@ implements Runnable
  * This is the queue of media that we start to download.
  * This queue drives potential timeout dispatches.
  */
-   Vector		downloading	= new Vector(30);
+   Vector		potentialTimeouts	= new Vector(30);
 /**
  * This is the queue of media that finish downloading.
  * This queue drives normal dispatch to <code>DispatchTarget</code>s, when
@@ -51,12 +62,19 @@ implements Runnable
    }
    public DownloadMonitor(int numDownloadThreads)
    {
-      this("", numDownloadThreads);
+      this("", numDownloadThreads, false);
    }
    public DownloadMonitor(String name, int numDownloadThreads)
    {
+      this (name, numDownloadThreads, false);
+   }
+   public DownloadMonitor(String name, int numDownloadThreads, 
+			  boolean getUrgent)
+   {
       this.numDownloadThreads	= numDownloadThreads;
       this.name			= name;
+      this.getUrgent		= getUrgent;
+      
       finished			= false;
       debug("constructor()");
    }
@@ -76,12 +94,16 @@ implements Runnable
 	 try
 	 {
 	    long now	= System.currentTimeMillis();
-	    while (!downloading.isEmpty())
+	    while (!potentialTimeouts.isEmpty())
 	    {
 	       DownloadClosure thatClosure	= 
-		  (DownloadClosure) downloading.firstElement();
+		  (DownloadClosure) potentialTimeouts.firstElement();
 	       if (thatClosure.timeoutOrComplete(now))
-		  downloading.remove(0);
+	       {
+		  potentialTimeouts.remove(0);
+		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
+		     restartDownloadThread(thatClosure.downloadingThread);
+	       }
 	       else
 		  break;
 	    }
@@ -102,25 +124,32 @@ implements Runnable
    public DownloadClosure detectPotentialTimeout(Downloadable thatMedia,
 					       DispatchTarget dispatchTarget)
    {
-      DownloadClosure closure = new DownloadClosure(thatMedia,  dispatchTarget);
+      DownloadClosure closure = 
+	 new DownloadClosure(thatMedia,  dispatchTarget, this);
       detectPotentialTimeout(closure);
       return closure;
+   }
+   protected void detectPotentialTimeout(DownloadClosure closure,
+					 Thread downloadingThread)
+   {
+      closure.downloadingThread	= downloadingThread;
+      detectPotentialTimeout(closure);
    }
    protected void detectPotentialTimeout(DownloadClosure closure)
    {
       closure.startingNow();
-      downloading.addElement(closure);
+      potentialTimeouts.addElement(closure);
       if (timeoutThread == null)
 	 startTimeoutMonitor();
    }
    private void startTimeoutMonitor()
    {
-      synchronized (downloading)
+      synchronized (potentialTimeouts)
       {
 	 if (timeoutThread == null)
 	 {
 	    timeoutThread	= new Thread(this, toString() + "-timeouts");
-	    timeoutThread.setPriority(PRIORITY);
+	    timeoutThread.setPriority(LOW_PRIORITY);
 	    timeoutThread.start(); // to our run method
 	 }
       }
@@ -137,8 +166,8 @@ implements Runnable
    {
 //    debug("dispatch("+thatDownloadable);
       DownloadClosure	downloadClosure = 
-	 new DownloadClosure(thatDownloadable, dispatchTarget);
-      downloading.remove(downloadClosure);
+	 new DownloadClosure(thatDownloadable, dispatchTarget, this);
+      potentialTimeouts.remove(downloadClosure);
       synchronized (toDispatch)
       {
 //	 debug("dispatch(in synch"+thatDownloadable);
@@ -166,7 +195,7 @@ implements Runnable
 	       performDispatches();
 	    }
 	 };
-	 dispatchThread.setPriority(PRIORITY);
+	 dispatchThread.setPriority(LOW_PRIORITY);
 	 dispatchThread.start();
       }
    }
@@ -186,10 +215,10 @@ implements Runnable
 //		  debug("dispatchDownloads() notified");
 	       } catch (InterruptedException e)
 	       {
-//		  e.printStackTrace();
-		  stop();
-		  return;	   // interrupt ends us
+		  // interrupt means stop
 	       }
+	    if (finished)
+	       break;
 	    thatClosure = (DownloadClosure) toDispatch.remove(0);
 	 }
 	 // must be outside the lock on toDispatch!
@@ -221,12 +250,53 @@ implements Runnable
       synchronized (toDownload)
       {
 	 toDownload.addElement(new DownloadClosure(thatDownloadable,
-						 dispatchTarget));
+						   dispatchTarget, this));
 	 if (downloadThreads == null)
 	    startDownloadMonitor();
 	 else
 	    toDownload.notify();
       }
+   }
+   private int setDownloadPriority(Thread t)
+   {
+      int waiting	= toDownload.size();
+      int priority;
+      if (waiting >= MID_THRESHOLD)
+	 priority	= MID_PRIORITY;
+      else if (waiting >= HIGH_THRESHOLD)
+	 priority	= HIGH_PRIORITY;
+      else
+	 priority	= LOW_PRIORITY;
+      t.setPriority(priority);
+      return priority;
+   }
+   private void restartDownloadThread(Thread t)
+   {
+      debug("restartDownloadThread(" + t);
+
+      for (int i=0; i<downloadThreads.length; i++)
+      {
+	 if (downloadThreads[i] == t)
+	 {
+	    t.stop();
+	    t		= newDownloadThread(i);
+	    downloadThreads[i]	= t;
+	    int priority	= setDownloadPriority(t);
+	    println("\t found thread " + i +
+		    " set new one to priority "+priority);
+	    t.start();
+	 }
+      }
+   }
+   private Thread newDownloadThread(int i)
+   {
+      return new Thread(toString()+"-download "+i)
+	    {
+	       public void run()
+	       {
+		  performDownloads();
+	       }
+	    };
    }
    private void startDownloadMonitor()
    {
@@ -235,15 +305,9 @@ implements Runnable
 	 downloadThreads	= new Thread[numDownloadThreads];
 	 for (int i=0; i<numDownloadThreads; i++)
 	 {
-	    Thread thatThread	= new Thread(toString()+"-downloading "+i)
-	    {
-	       public void run()
-	       {
-		  performDownloads();
-	       }
-	    };
+	    Thread thatThread	= newDownloadThread(i);
 	    downloadThreads[i]	= thatThread;
-	    thatThread.setPriority(PRIORITY);
+	    thatThread.setPriority(LOW_PRIORITY);
 	    thatThread.start();
 	 }
       }
@@ -262,10 +326,10 @@ implements Runnable
 		  toDownload.wait();
 	       } catch (InterruptedException e)
 	       {
-//		  e.printStackTrace();
-		  stop();
-		  return;	   // interrupt ends us
+		  // interrupt means stop
 	       }
+	    if (finished)
+	       break;
 	    if (toDownload.isEmpty())
 	       continue;
 	    thatClosure = (DownloadClosure) toDownload.remove(0);
@@ -275,16 +339,23 @@ implements Runnable
 	 {
 //	    debug("performDownload() "+
 //		  thatClosure.downloadable+" "+ Thread.currentThread());
-	    thatClosure.downloadable.performDownload();
-	    downloading.remove(thatClosure);
+	    if (getUrgent)
+	       setDownloadPriority(Thread.currentThread());
+
+	    thatClosure.performDownload();
+	    potentialTimeouts.remove(thatClosure); 
 	    thatClosure.dispatch();
-	 } catch (OutOfMemoryError e)
+/*	 } catch (ClosedByInterruptException e)
+	 {
+	    // interrupt means timeout or stop
+	    debugA("performDownloads() -- got interrupted.");
+*/	 } catch (OutOfMemoryError e)
 	 { 
 	    Memory.recover(e, getClassName() + 
 			   ".performDownloads() trying to recover.");
 	 } catch (Throwable e)
 	 {
-	    debugA(".dispatch -- got exception:");
+	    debugA("performDownloads() -- got exception:");
 	    e.printStackTrace();
 	    thatClosure.ioError();
 	 }
@@ -295,6 +366,13 @@ implements Runnable
    {
       return super.toString() + "["+ name + "]";
    }
+   public static void notifyAll(Object o)
+   {
+      synchronized (o)
+      {
+	 o.notifyAll();
+      }
+   }
 /**
  * Stop our threads.
  */
@@ -302,6 +380,11 @@ implements Runnable
    {
 //      debug("stop()");
       finished			= true;
+
+      notifyAll(toDispatch);
+      notifyAll(potentialTimeouts);
+      notifyAll(toDownload);
+
       timeoutThread		= null;
       dispatchThread		= null;
       if (downloadThreads != null)
@@ -316,5 +399,12 @@ implements Runnable
    public int waitingToDownload()
    {
       return toDownload.size();
+   }
+/**
+ * @return	true if we're backed up with unresloved downloads.
+ */
+   public boolean highNumberWaiting()
+   {
+      return toDownload.size() > HIGH_THRESHOLD;
    }
 }
