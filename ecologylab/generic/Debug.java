@@ -110,6 +110,12 @@ public class Debug
       if (messageLevel <= level)
 	 println(message);
    }
+   public static void println(String className,
+			      int messageLevel, String message) 
+   {
+      if (messageLevel <= level(className))
+	 println(message);
+   }
    public static void printlnI(int messageLevel, String message) 
    {
       if (interactive)
@@ -256,6 +262,10 @@ public class Debug
    public String toString()
    {
       return getClassName(this);
+   }
+   public static String toString(Object o)
+   {
+      return getClassName(o);
    }
 /**
  * Print a debug message that starts with this.toString().
