@@ -4,6 +4,8 @@
  */
 package cm.generic;
 
+import java.net.*;
+
 /**
  * With an eye toward browser/application portability this interface
  * begins to constitute a transparrent wrapper that provides services
@@ -35,7 +37,7 @@ package cm.generic;
  * 
  * Services are then available globally through syntax such as:
  * <blockquote><pre>
- *       Environment.The.get().parameter("bgcolor");
+ *       Environment.the.get().parameter("bgcolor");
  * </pre></blockquote>
  */
 public interface Environment
@@ -63,6 +65,25 @@ public interface Environment
       {
 	 return environment;
       }
+/**
+ * Get a float parameter from the runtime environment.
+ * 
+ * @param	name		The name of the parameter's key.
+ * @param	defaultValue	Default floating point value, in case param is 
+ *				unspecified in the runtime env.
+ */
+   public float parameterFloat(String paramName, float defaultValue)
+   {
+      String paramValue	= environment.parameter(paramName);
+      float result	= defaultValue;
+      if (paramValue != null)
+      {
+	 float parsedValue	= Generic.parseFloat(paramValue);
+	 if (!Float.isNaN(parsedValue))
+	    result	= parsedValue;
+      }
+      return result;
+   }
    };
    static The the	= new The();
 
@@ -75,6 +96,13 @@ public interface Environment
  * browser, or some other comparable place.
  */
    void		showStatus(String s);
+/**
+ * Show <code>msg</code> in the browser's status bar.
+ * 
+ * Short form, with for (@link java.cm.applet.Applet#showStatus).
+ * Also more robust: avoids breaking when <code>msg</code> is null.
+ */
+   public void status(String msg);
 
 /**
  * Get a parameter or property, based on a key. Implements a name/value pair.
@@ -115,8 +143,24 @@ public interface Environment
  */
    public float parameterFloat(String paramName, float defaultValue);
 
+
+/**
+ * {@link java.applet.Applet#getCodeBase() java.applet.Applet.getCodeBase()}
+ */
+    URL codeBase();
+/**
+ * {@link java.applet.Applet#getDocBase() java.applet.Applet.getDocBase()}
+ */
+    URL docBase();
+
+/**
+ * @return an URL relative to html document
+ */   
+   public URL rel(String relativeURL);
+
    public static final int	APPLICATION	= -1;
    public static final int	IE		= 0;
    public static final int	NS		= 1;
    public static final int	PLUGIN		= 2;
+
 }

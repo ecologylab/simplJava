@@ -5,6 +5,9 @@
 package cm.generic;
 
 import java.awt.Color;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
 
 /**
  * Tools for manipulating color spaces.
@@ -12,6 +15,22 @@ import java.awt.Color;
 public class Palette
 {
    static float	delta  = .085f;
+
+   static final String colorNames[] =
+   {
+      "blue", "black", "cyan", "darkGray", "gray",
+      "green", "lightGray", "magenta", "orange",
+      "pink", "red", "white", "yellow",
+   };
+
+
+   static final Color colors[] =
+   {
+      Color.blue, Color.black, Color.cyan, Color.darkGray, Color.gray,
+      Color.green, Color.lightGray, Color.magenta, Color.orange, 
+      Color.pink, Color.red, Color.white, Color.yellow,
+   };
+
    
    Palette(){}
 
@@ -299,6 +318,33 @@ public class Palette
    
    public static Color hsb(float hue, float saturation, float brightness)
      { return new Color(Color.HSBtoRGB(hue, saturation, brightness)); }
+
+   static public Color hexToColor(String s)
+   {
+      Color result = Color.white;
+      boolean change = false;
+      for (int i=0; i!=colors.length; i++)
+	 if (s.equalsIgnoreCase(colorNames[i]))
+	 {
+	    result	= colors[i];
+	    change	= true;
+	    break;
+	 }
+      if (!change)
+      {
+	 int j	= s.indexOf("#") + 1;
+	 if (j > -1)
+	 {
+	    s		= s.substring(j);
+	    result	= new Color(Integer.parseInt(s,16));
+	 }
+      }
+      return result;
+   }
+   
+
+
+
 //   { return Color.getHSBColor(hue, saturation, brightness); }
 
 
