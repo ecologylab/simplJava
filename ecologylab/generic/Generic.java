@@ -1,6 +1,8 @@
 package cm.generic;
 
 import java.awt.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.net.*;
 import java.io.*;
@@ -246,6 +248,12 @@ public class Generic
       buildMapFromStrings(hashMap, strings);
       return hashMap;
    }
+   public static final HashMap buildHashMap(String[][] entries)
+   {
+      HashMap hashMap	= new HashMap(entries.length);
+      buildMap(hashMap, entries);
+      return hashMap;
+   }
    public static final void buildMapFromStrings(Map map, String[] strings)
    {
       for (int i=0; i<strings.length; i++)
@@ -254,6 +262,38 @@ public class Generic
 	 map.put(thatString, thatString);
       }
    }
+   public static final void buildMap(Map map, String[][] entries)
+   {
+      for (int i=0; i<entries.length; i++)
+      {
+	 String[] thatEntry	= entries[i];
+	 String thatKey		= thatEntry[0];
+	 String thatValue	= thatEntry[1];
+	 map.put(thatKey, thatValue);
+      }
+   }
+   
+   // The keys come from the String[], the values are corresponding number start with 0
+   public static final HashMap buildNumberHashMapFromStrings(String[] strings)
+   {
+      HashMap hashMap	= new HashMap(strings.length);
+      buildNumberMapFromStrings(hashMap, strings);
+      return hashMap;
+   }
+   
+   // The keys come from the String[], the values are corresponding number start with 0
+   public static final void buildNumberMapFromStrings(Map map, String[] strings)
+   {
+      for (int i=0; i<strings.length; i++)
+      {
+	 String thatString	= strings[i];
+	 Integer integer = new Integer(i);
+	 map.put(thatString, integer);
+      }
+   }
+   
+   
+   
    public static final void stringIntMapEntry(Map map,
 					      String string, int integer)
    {
