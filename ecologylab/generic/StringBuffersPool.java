@@ -2,9 +2,9 @@ package cm.generic;
 
 
 import java.util.*;
-import cm.media.html.*;
 
-public class StringBuffersPool 
+public class StringBuffersPool
+extends Debug
 {
 	public static int DEFAULT_POOL_SIZE	=	64;
 	public Vector bufferPool = new Vector();
@@ -31,7 +31,10 @@ public class StringBuffersPool
 	   {
 	      int freeIndex = bufferPool.size() - 1;
 	      if (freeIndex == -1)
+	      {
+		 debug("extending pool??!");
 		 return (new StringBuffer(bufferSize));
+	      }
 	      StringBuffer b = (StringBuffer) bufferPool.remove(freeIndex);
 	      return b;
 	   }
