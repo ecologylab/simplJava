@@ -33,6 +33,7 @@ implements Runnable
    int			dispatched;
 
    boolean		getUrgent;
+   boolean		paused;
 
    //////////////////// queues for media that gets downloaded /////////////////
 /**
@@ -54,6 +55,7 @@ implements Runnable
    Thread		timeoutThread;
    Thread		dispatchThread	= null;
    Thread[]		downloadThreads;
+   int[]		priorities;
    
    int			numDownloadThreads;
    String		name;
@@ -225,6 +227,20 @@ implements Runnable
       }
    }
 
+   public static void wait(Object toLock)
+   {
+      synchronized (toLock)
+      {
+	 try
+	 {
+	    toLock.wait();
+//	    debug("dispatchDownloads() notified");
+	 } catch (InterruptedException e)
+	 {
+	    // interrupt means stop
+	 }
+      }
+   }
    void performDispatches()
    {
       while (!finished)
@@ -232,16 +248,10 @@ implements Runnable
 	 DownloadClosure thatClosure;
 	 synchronized (toDispatch)
 	 {
+	    if (paused)
+	       wait(toDispatch);
 	    if (toDispatch.isEmpty())
-	       try
-	       {
-//		  debug("dispatchDownloads() wait()");
-		  toDispatch.wait();
-//		  debug("dispatchDownloads() notified");
-	       } catch (InterruptedException e)
-	       {
-		  // interrupt means stop
-	       }
+	       wait(toDispatch);
 	    if (finished)
 	       break;
 	    thatClosure = (DownloadClosure) toDispatch.remove(0);
@@ -364,12 +374,50 @@ implements Runnable
       if (downloadThreads == null)
       {
 	 downloadThreads	= new Thread[numDownloadThreads];
+	 priorities		= new int[numDownloadThreads];
 	 for (int i=0; i<numDownloadThreads; i++)
 	 {
 	    Thread thatThread	= newDownloadThread(i);
 	    downloadThreads[i]	= thatThread;
 	    thatThread.setPriority(LOW_PRIORITY);
 	    thatThread.start();
+	 }
+      }
+   }
+   public void pause()
+   {
+      pause(true);
+   }
+   public void unpause()
+   {
+      pause(false);
+   }
+   public void pause(boolean paused)
+   {
+      synchronized (toDownload)
+      {
+	 synchronized (toDispatch)
+	 {
+	    debug(4, "pause("+paused);
+	    this.paused	= paused;
+
+	    if (paused)
+	    {
+	       for (int i=0; i<numDownloadThreads; i++)
+	       {
+		  Thread thatThread	= downloadThreads[i];
+		  priorities[i]		= thatThread.getPriority();
+		  thatThread.setPriority(Thread.MIN_PRIORITY);
+	       }
+	    }
+	    else
+	    {
+	       for (int i=0; i<numDownloadThreads; i++)
+	       {
+		  // restore priorities
+		  downloadThreads[i].setPriority(priorities[i]);
+	       }
+	    }
 	 }
       }
    }
@@ -380,15 +428,10 @@ implements Runnable
 	 DownloadClosure thatClosure;
 	 synchronized (toDownload)
 	 {
+	    if (paused)
+	       wait(toDownload);
 	    if (toDownload.isEmpty())
-	       try
-	       {
-//		  debug("performDownloads() wait() " + Thread.currentThread());
-		  toDownload.wait();
-	       } catch (InterruptedException e)
-	       {
-		  // interrupt means stop
-	       }
+	       wait(toDownload);
 	    if (finished)
 	       break;
 	    if (toDownload.isEmpty())
