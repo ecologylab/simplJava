@@ -190,6 +190,12 @@ extends Debug
    {
       return openWriter(newFile(oFileName));
    }
+   
+   public static BufferedWriter openWriter(String oFileName, boolean append)
+   {
+      return openWriter(newFile(oFileName), 1, append);
+   }
+   
    public static BufferedWriter openWriter(File oFile)
    {
       return openWriter(oFile, 1);
@@ -220,6 +226,9 @@ extends Debug
    }
    public static BufferedWriter openWriter(File oFile, int debugLevel)
    {
+   	  if(oFile==null)
+   	  return null;
+   	  
       BufferedWriter writer	= null;
 
       String	oFileFullPath	= oFile.getAbsolutePath();
@@ -239,6 +248,31 @@ extends Debug
 	 }
       return writer;
    }
+   
+   public static BufferedWriter openWriter(File oFile, int debugLevel, boolean append)
+   {
+   	  if(oFile==null)
+   	  return null;
+      BufferedWriter writer	= null;
+
+      String	oFileFullPath	= oFile.getAbsolutePath();
+
+      println("Files.openWriter(" + oFileFullPath);
+      
+//      if (makePath(oFile)) // maybe create directories along the path
+	 try
+	 {  
+	    writer	= new BufferedWriter (new FileWriter(oFile, append));
+	    println("\tOutput file: ");
+	    println(indent + indent + oFileFullPath);
+	 }		
+	 catch(IOException e)
+	 {
+	    Debug.println(writeErrorString + oFileFullPath);
+	 }
+      return writer;
+   }
+   
    public static FileInputStream openInStream(File inFile)
    {
       FileInputStream	stream	= null;
@@ -272,6 +306,7 @@ extends Debug
 	 }
       return outStream;
    }
+      
 
    public String readLine()
    {
@@ -336,7 +371,19 @@ extends Debug
       return ok;
    }
    
-
+	public static boolean flush(BufferedWriter writer)
+	{
+		boolean result	= false;
+		try
+		{
+			writer.flush();
+			result		= true;
+		} catch (IOException e)
+		{
+			
+		}
+		return result;
+	}
    public void rename(String finalName)
    { 
       File newFile	= newFile(finalName); 
