@@ -10,6 +10,7 @@ import java.awt.Color;
  * Tools for manipulating color spaces.
  */
 public class Palette
+extends Debug
 {
    static float	delta  = .085f;
 
@@ -62,7 +63,9 @@ public class Palette
    public static Color hsvColor(float h, float s, float v)
    {
       int rgb[] = rgb(h,s,v);
-      return new Color(rgb[0], rgb[1], rgb[2]);
+	  Color result = new Color(rgb[0], rgb[1], rgb[2]);
+	 //println("Palette.hsvColor("+h+","+s+","+v+") = " + result);
+      return result;
    }
 
    // hsv to rgb
