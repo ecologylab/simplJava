@@ -356,7 +356,8 @@ public class Generic
       {
 	 raiseMaxPriority(t, priority);
 	 t.setPriority(priority);
-	 Debug.println("\nraisingPriority to " + priority +" -> "+t.getPriority());
+	 Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
+		       t.getPriority());
       }
    }
    public static void raiseMaxPriority(int priority)
