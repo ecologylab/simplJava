@@ -163,12 +163,13 @@ public class NameSpace extends IO
  */
 	  public NameEntry(String packageName, String className)
 	  {
-		 this(packageName, packageName + "." + className,
+		 this(packageName, className,
 			  XmlTools.xmlTagFromClassName(className, "State", false));
 	  }
-	  public NameEntry(String packageName, String wholeClassName, 
+	  public NameEntry(String packageName, String className, 
 					   String tag)
 	  {
+	  	 String wholeClassName	= packageName + "." + className;
 		 this.packageName		= packageName;
 		 this.className			= wholeClassName;
 		 this.tag				= tag;
@@ -184,6 +185,7 @@ public class NameSpace extends IO
 			// maybe we need to use State
 			try
 			{
+//			   debug("trying " + wholeClassName+"State");
 			   classObj			= Class.forName(wholeClassName+"State");
 			} catch (ClassNotFoundException e2)
 			{
