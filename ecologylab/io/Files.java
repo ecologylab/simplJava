@@ -795,4 +795,38 @@ extends Debug
 	   		e.printStackTrace();
 	   }
 	}
+     
+   public static File[] getDirectoryListingXML(File dir)
+   {
+   	File[] fileList;
+   	
+   	
+   	java.io.FileFilter XMLfilter = new XMLFileFilter();
+   
+    
+   	if (dir.isDirectory())
+   	    fileList = dir.listFiles(XMLfilter);
+   	else
+   		fileList = null;
+   	
+   	return fileList;
+   }
+   
+   
+   
 }
+
+class XMLFileFilter implements java.io.FileFilter {
+    
+   	public XMLFileFilter()
+   	{
+   	
+   	}
+   	public boolean accept(File file) {
+        if (file.isDirectory()) return true;
+        String name = file.getName().toLowerCase();
+        return name.endsWith("xml");
+    }//end accept
+    
+   }//end class HTMLFileFilter
+   
