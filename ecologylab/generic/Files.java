@@ -407,7 +407,8 @@ extends Debug
       catch(IOException e) 
       {
 	 ok		= false; 
-	 Debug.println(writeErrorMsg(e, writer));
+	 // dont use Debug, to avoid infinite loops!!!
+	 System.err.println(writeErrorMsg(e, writer));
       }
       return ok;
    }
