@@ -73,6 +73,7 @@ implements CharacterConstants
       entityTable.put("lt", new Character('<'));
       entityTable.put("gt", new Character('>'));
       entityTable.put("apos", new Character('\''));
+      entityTable.put("nbsp", new Character(' '));
    }
 	
 /**
@@ -543,14 +544,19 @@ static String q(String string)
  */
    public static String unescapeXML(String s)
    {
-   	if( s == null )
-   		return null;
+	  if( s == null )
+	   	 return null;
 	  int		ampPos		= s.indexOf('&');
+	  
+	  
 	  
 	  if (ampPos == -1)
 		 return s;
 	  else
-	  	return unescapeXML(new StringBuffer(s), 0).toString();
+	  {
+//	  	println("unescapeXML( found amp " + s);
+	  	return unescapeXML(new StringBuffer(s), ampPos).toString();
+	  }
    }
 	
 /**
@@ -567,7 +573,7 @@ static String q(String string)
 	  int		entityPos		= ampPos + 1;
 	  int		semicolonPos	= sb.indexOf(";", entityPos);
 	  
-	  if (semicolonPos == -1)
+	  if ((semicolonPos == -1) || (semicolonPos - ampPos > 7))
 		 return sb;
 	  
 	  // find position of & followed by ;
@@ -585,12 +591,10 @@ static String q(String string)
 	  
 	  String encoded = sb.substring(entityPos, semicolonPos);
 	  Character lookup = (Character)entityTable.get(encoded);
-	  
-	  if( semicolonPos+1 < sb.length() )
-	  {		
-	  		if( lookup != null )
-	  			sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
-
+	  println("unescapeXML: from " +encoded + " -> " + lookup);
+	  if ((semicolonPos+1 < sb.length()) && (lookup != null))
+	  {
+		  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
 	  }	  
 	  return unescapeXML(sb, semicolonPos+1);
 	  
