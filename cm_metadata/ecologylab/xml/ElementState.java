@@ -560,8 +560,8 @@ public class ElementState extends IO
 		for (int i = 0; i < numChilds; i++)
 		{
 			Node childNode		= childNodes.item(i);
-			
-			if (childNode.getNodeType() != Node.TEXT_NODE)
+			short childNodeType		= childNode.getNodeType();
+			if ((childNodeType != Node.TEXT_NODE) && (childNodeType != Node.CDATA_SECTION_NODE))
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
@@ -592,13 +592,11 @@ public class ElementState extends IO
 			}
 			else if (numChilds == 1) // we could get rid of this to be even more general!
 			{
-				elementState.setTextNodeString(childNode.getNodeValue());
+				String text	= childNode.getNodeValue();;
+				if (text != null)
+					elementState.setTextNodeString(text);
 			}
-//			else
-//			   parentStateObj.setAttribute(this.className,
-//						       thisChild.getValue());
 		}
-				
 		return elementState;
 		
 	}
