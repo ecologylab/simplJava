@@ -25,7 +25,9 @@ public class Type extends IO
 //	int		index;
 	boolean	isPrimitive;
 	
-	private static final HashMap allTypes	  = new HashMap(32);
+	private static final HashMap allTypes		= new HashMap(32);
+
+	public static final String NULL_STRING		= "null";
 
 	public Type(String className, /* int index, */ boolean isPrimitive)
 	{
@@ -132,4 +134,41 @@ public class Type extends IO
 		return !isPrimitive;
 	}
 
+/**
+ * The string representation for a Field of this type
+ * 
+ * Default implementation uses the Object's toString() method.
+ * This is usually going to be wrong.
+ */
+	public String toString(Object object, Field field)
+	{
+	   String result	= "COULDNT CONVERT!";
+	   try
+	   {
+		  Object fieldObj	= field.get(object);
+		  if (fieldObj == null)
+			 result			= NULL_STRING;
+		  else
+			 result			= fieldObj.toString();
+	   } catch (Exception e)
+	   {
+		  e.printStackTrace();
+	   }
+	   return result;
+	}
+
+/**
+ * The default value for this type, as a String.
+ * This value is the one that translateToXML(...) wont bother emitting.
+ * 
+ * In this case, "null".
+ */
+	public String defaultValue()
+	{
+	   return NULL_STRING;
+	}
+	public boolean isDefaultValue(String value)
+	{
+	   return defaultValue().equals(value);
+	}
 }

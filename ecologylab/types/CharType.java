@@ -43,4 +43,30 @@ public class CharType extends Type
 		}
 		return result;
 	}
+/**
+ * The string representation for a Field of this type
+ */
+	public String toString(Object object, Field field)
+	{
+	   String result	= "COULDN'T CONVERT!";
+	   try
+	   {
+		  result		= Character.toString(field.getChar(object));
+	   } catch (Exception e)
+	   {
+		  e.printStackTrace();
+	   }
+	   return result;
+	}
+
+/**
+ * The default value for this type, as a String.
+ * This value is the one that translateToXML(...) wont bother emitting.
+ * 
+ * In this case, "false".
+ */
+	public String defaultValue()
+	{
+	   return " ";
+	}
 }

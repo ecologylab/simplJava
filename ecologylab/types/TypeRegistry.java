@@ -1,5 +1,6 @@
 package ecologylab.types;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 import ecologylab.xml.IO;
@@ -56,13 +57,17 @@ public class TypeRegistry extends IO
 		return result;
 	}
 
-	public static final Type getType(String className)
+	public static Type getType(Field field)
 	{
-	   return (Type) allTypes.get(className);
+	   return getType(field.getType());
 	}
 	public static Type getType(Class thatClass)
 	{
 	   return getType(thatClass.getName());
+	}
+	public static final Type getType(String className)
+	{
+	   return (Type) allTypes.get(className);
 	}
 	public static boolean contains(Class thatClass)
 	{

@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Describe class functionality here.
+ * Type system entry for {@link java.net.URL URL}.
  * 
  * @author andruid
  */
