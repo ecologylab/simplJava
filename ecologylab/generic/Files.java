@@ -7,12 +7,14 @@ public class Files
 extends Debug
 {
    // to update, add entry here, and below in deriveLang()
-   public static final int html=0;
-   public static final int java=1;
-   public static final int javascript=2;
-   public static final int asp=3;
-   public static final int css=4;
-   public static final int exe=5;
+   public static final int NONE		= -1;
+   public static final int UNKNOWN	= -1024;
+   public static final int HTML		= 0;
+   public static final int JAVA		= 1;
+   public static final int JAVASCRIPT	= 2;
+   public static final int ASP		= 3;
+   public static final int CSS		= 4;
+   public static final int EXE		= 5;
    
    public File		outFile, inFile;
    public BufferedReader	fileReader;
@@ -551,7 +553,7 @@ extends Debug
    }
    public static String getExtension(String fName)
    {
-      String ext= "";
+      String ext= null;
       int dot	= fName.lastIndexOf(".");
       if ((dot >= 0) && (dot < fName.length()-1))
 	 ext	= fName.substring(dot+1);
@@ -559,21 +561,28 @@ extends Debug
    }
    public static int deriveLang(String fName)
    {
-      int lang	= 0;
+      int lang;
       String ext = getExtension(fName);
       println(4,"deriveLang got extension='"+ext+"'");
-      if (ext.equalsIgnoreCase("html") || ext.equalsIgnoreCase("htm"))
-	 lang	= html;
-      else if (ext.equalsIgnoreCase("java"))
-	 lang	= java;
-      else if (ext.equalsIgnoreCase("js"))
-	 lang	= javascript;
-      else if (ext.equalsIgnoreCase("asp"))
-	 lang	= asp;
-      else if (ext.equalsIgnoreCase("css"))
-	 lang	= css;
-      else if (ext.equalsIgnoreCase("exe"))
-	 lang	= exe;
+      if (ext == null)
+	 lang	= HTML;
+      {
+	 ext	= ext.toLowerCase();
+	 if (ext.equals("html") || ext.equals("htm"))
+	    lang	= HTML;
+	 else if (ext.equals("java"))
+	    lang	= JAVA;
+	 else if (ext.equals("js"))
+	    lang	= JAVASCRIPT;
+	 else if (ext.equals("asp"))
+	    lang	= ASP;
+	 else if (ext.equals("css"))
+	    lang	= CSS;
+	 else if (ext.equals("exe"))
+	    lang	= EXE;
+	 else
+	    lang	= UNKNOWN;
+      }
       return lang;
    }
    public static String unix(File f)
@@ -599,8 +608,25 @@ extends Debug
       }
       return false;
    }
+   public static File removeExtension(File f)
+   {
+      return removeExtension(f.getPath());
+   }
+   public static File removeExtension(String path)
+   {
+      File result;
+      int lastDot	= path.lastIndexOf(".");
+      if (lastDot > 0)
+      {
+	 path		= path.substring(0, lastDot);
+	 result		= new File(path);
+      }
+      else
+	 result		= new File(path);
+      return result;
+   }
    public static void main(String[] s)
    {
-      copy(newFile(s[0]), newFile(s[1]));
+      println(removeExtension(new File("c:/temp/foo.xml")).toString());
    }
 }
