@@ -25,21 +25,15 @@ public class Bounds
       xMax	= oldBounds.xMax;
       yMax	= oldBounds.yMax;
    }
-   public String toString()
-   {
-      return "Bounds: " + xMin+","+yMin+"->"+xMax+","+yMax;
-   }
-   
    public boolean equals(Object other)
    {
-   		Bounds fb = (Bounds)other;
-   		
-   		if ((fb != null) && (fb.xMin == this.xMin) && (fb.xMax == this.xMax) && (fb.yMin == this.yMin)
-   						&& (fb.yMax == this.yMax))
-   		{
-   			return true;
-   		}
-   		return false;
+      Bounds fb = (Bounds)other;
+      
+      return ((fb != null) && (fb.xMin == this.xMin) && (fb.xMax == this.xMax)
+	      && (fb.yMin == this.yMin) && (fb.yMax == this.yMax));
    }
-   
+    public String toString()
+   {
+      return "Bounds[" + xMin+","+yMin+"; "+xMax+","+yMax +"]";
+   }
 }
