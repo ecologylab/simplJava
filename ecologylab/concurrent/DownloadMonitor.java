@@ -3,8 +3,6 @@ package cm.generic;
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
 
-import cm.generic.*;
-
 /**
  * Non-linear flow multiplexor.
  * Tracks downloads of <code>Downloadable</code> objects.
@@ -14,7 +12,7 @@ import cm.generic.*;
  * state in the <code>bad</code> slot, and dispatches, as well.
  */
 public class DownloadMonitor
-extends ObservableDebug
+extends Monitor
 implements Runnable
 {
    static final int	TIMEOUT		= 25000;
@@ -227,20 +225,6 @@ implements Runnable
       }
    }
 
-   public static void wait(Object toLock)
-   {
-      synchronized (toLock)
-      {
-	 try
-	 {
-	    toLock.wait();
-//	    debug("dispatchDownloads() notified");
-	 } catch (InterruptedException e)
-	 {
-	    // interrupt means stop
-	 }
-      }
-   }
    void performDispatches()
    {
       while (!finished)
@@ -391,6 +375,7 @@ implements Runnable
    public void unpause()
    {
       pause(false);
+      notifyAll(toDownload);
    }
    public void pause(boolean paused)
    {
@@ -482,13 +467,6 @@ implements Runnable
    public String toString()
    {
       return super.toString() + "["+ name + "]";
-   }
-   public static void notifyAll(Object o)
-   {
-      synchronized (o)
-      {
-	 o.notifyAll();
-      }
    }
 /**
  * Stop our threads.
