@@ -4,12 +4,6 @@
  */
 package cm.generic;
 
-import java.lang.*;
-import java.io.*;
-import java.awt.*;
-import java.net.*;
-import java.applet.*;
-
 /**
  * DispatchTarget is for Client, a component that takes a delivery (is dispatched
  to) when some "task" (such as the downloading of an image) completes.
