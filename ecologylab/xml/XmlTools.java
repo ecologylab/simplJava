@@ -430,24 +430,30 @@ public class XmlTools extends IO
     */
    public static Class getStateClass(String classNameWithPackage)
    {
-   		Class stateClass 		= 	null;
-
-   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
-   		String packageName		=	"";
-   		String stateName		=	classNameWithPackage;
-   		
-   		if(packageNameIndex != -1)
-   		{
-   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
-   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
-   		}
-   		
+	   		Class stateClass 		= 	null;
+//
+//   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
+//	   		String packageName		=	"";
+	   		String stateName		=	classNameWithPackage;
+//   		
+//   		if(packageNameIndex != -1)
+//   		{
+//   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
+//   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
+//   		}
+// 
+		
+//		String packageName	=	XMLTranslationConfig.getFullName(stateName);		  		
    		stateClass				=	(Class)stateClasses.get(stateName);   	   		
    		   		  		   		
    		if(stateClass	==	null)
    		{
-   			String className = packageName;   						
-			className += classNameFromElementName(stateName);
+//   			String className = packageName;   						
+//			className += classNameFromElementName(stateName);
+			String className = classNameFromElementName(stateName);
+			String packageName = XMLTranslationConfig.getPackageName(className);
+			className = packageName + className;
+
 			try
 			{				
 				stateClass	=	Class.forName(className + "State");		
@@ -468,6 +474,47 @@ public class XmlTools extends IO
    		}
 		return stateClass;
    }
+
+//   public static Class getStateClass(String classNameWithPackage)
+//   {
+//   		Class stateClass 		= 	null;
+//
+//   		int packageNameIndex	=	classNameWithPackage.indexOf("-");
+//   		String packageName		=	"";
+//   		String stateName		=	classNameWithPackage;
+//   		
+//   		if(packageNameIndex != -1)
+//   		{
+//   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
+//   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
+//   		}
+//   		
+//   		stateClass				=	(Class)stateClasses.get(stateName);   	   		
+//   		   		  		   		
+//   		if(stateClass	==	null)
+//   		{
+//   			String className = packageName;   						
+//			className += classNameFromElementName(stateName);
+//			try
+//			{				
+//				stateClass	=	Class.forName(className + "State");		
+//				stateClasses.put(stateName,stateClass);				
+//			}
+//			catch(Exception e1)
+//			{
+//				try
+//				{
+//					stateClass	=	Class.forName(className);	
+//					stateClasses.put(stateName, stateClass);					
+//				}
+//				catch(Exception e2)
+//				{
+//					e2.printStackTrace();
+//				}
+//			}
+//   		}
+//		return stateClass;
+//   }
    
    static final int ISO_LATIN1_START	= 128;
 	/**
