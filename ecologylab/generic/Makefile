@@ -1,12 +1,13 @@
 # current working directory
 DIR	= cm/generic
 
-JAVA_SRC = Generic.java Files.java \
+JAVA_SRC = Generic.java Files.java Colors.java StringTools.java \
 	   Environment.java ApplicationEnvironment.java DispatchTarget.java \
 	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
 	   FloatSetElement.java FloatWeightSet.java \
 	   Debug.java Memory.java StringInputStream.java  Convenience.java\
-	   StringInputStream.java Displacement1D.java Line2D.java
+	   StringInputStream.java Displacement1D.java Line2D.java \
+	   StringBuffersPool.java
 
 # IntSlot used by Parser, Map
 
@@ -22,9 +23,14 @@ cabsign:	all
 
 nsjar:		all
 
+sunjar:		all
+
 mm:	MoreMath.class
 	java -classpath $(CLASSPATH) blocks.MoreMath
 
 fws:	FloatWeightSet.class
 	java -classpath $(CLASSPATH) blocks.FloatWeightSet
+
+st:	StringTools.class
+	java -classpath "$(CLASSPATH)" cm.generic.StringTools http://www.nytimes.com http://csdl.tamu.edu/~andruid/courses http://csdl.tamu.edu/~andruid/courses/informedia/content.html http://csdl.tamu.edu/~andruid/courses/informedia/content.html?foo=bar http://csdl.tamu.edu/~andruid/courses/informedia/content.html#too
 
