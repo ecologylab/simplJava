@@ -91,8 +91,12 @@ public class Debug
    }
    public static final int level(Object that)
    {
+      return level(getClassName(that));
+   }
+   public static final int level(String className)
+   {
       int result	= level;
-      IntSlot slot	= (IntSlot) classLevels.get(getClassName(that));
+      IntSlot slot	= (IntSlot) classLevels.get(className);
       if (slot != null)
 	 result		= slot.value;
       return result;
@@ -291,6 +295,17 @@ public class Debug
       printlnI(this, message.toString());
    }
 /**
+ * Evaluates the same conditional as Debug usually does implicitly, for explicit use in special static Debug printing scenarios.
+ **/
+   public static boolean show(Object that, int messageLevel)
+   {
+      return messageLevel <= level(that);
+   }
+   public boolean show(int messageLevel)
+   {
+      return show(this, messageLevel);
+   }
+   /**
  * Print a debug message that starts with the abbreviated class name of this,
  * but only if messageLevel is greater than the debug <code>level</code> for
  * this class (see above).
