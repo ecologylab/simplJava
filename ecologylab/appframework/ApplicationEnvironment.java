@@ -1,6 +1,7 @@
 package cm.generic;
 
 import java.net.URL;
+import cm.generic.ParsedURL;
 
 /**
  * @author madhur
@@ -77,39 +78,34 @@ public class ApplicationEnvironment implements Environment
 	/**
 	 * @see cm.generic.Environment#codeBase()
 	 */
-	public URL codeBase() {
+	public ParsedURL codeBase() {
 		return null;
 	}
 
 	/**
 	 * @see cm.generic.Environment#docBase()
 	 */
-	public URL docBase() {
+	public ParsedURL docBase() {
 		return null;
 	}
 
-	/**
-	 * @see cm.generic.Environment#rel(String)
-	 */
-	public URL rel(String relativeURL) {
-		return Generic.getURL(relativeURL, "relative URL turned into absolute???");
-	}
-
-	public URL codeRelativeURL(String relativeURL)
+	public ParsedURL codeRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL +" relative to "
-	      + StringTools.noAnchorNoQueryPageString(codeBase)+" ";
-	   return Generic.getURL(codeBase, relativeURL, err);
+	      + codeBase.noAnchorNoQueryPageString()+" ";
+	   ParsedURL purl = ParsedURL.getRelative(codeBase.url(), relativeURL, err);
+	   return purl;
 	}
 	
 /**
  * @return an URL relative to the code base.
  */   
-	public URL docRelativeURL(String relativeURL)
+	public ParsedURL docRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL + " relative to "
-	      + StringTools.noAnchorNoQueryPageString(docBase)+" ";
-	   return Generic.getURL(docBase, relativeURL, err);
+	      + docBase.noAnchorNoQueryPageString()+" ";
+	   ParsedURL purl = ParsedURL.getRelative(docBase.url(), relativeURL, err);
+	   return purl;
 	}
 	
 
@@ -117,7 +113,7 @@ public class ApplicationEnvironment implements Environment
 	{
 	}
 	
-	URL docBase, codeBase;
+	ParsedURL docBase, codeBase;
 	public int browser()
 	{
 	   return APPLICATION;
