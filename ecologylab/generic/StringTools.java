@@ -261,4 +261,24 @@ extends Debug
    	 }
    	 return out;
    }
+/**
+ * Remove all instances of @param c from @arg string
+ */   
+   public static String remove(String string, char c)
+   {
+      int index;
+      
+      while ((index = string.indexOf(c)) > -1)
+      {
+	 int length	= string.length();
+	 if (index == 0)
+	    string	= string.substring(1);
+	 else if (index == (length - 1))
+	    string	= string.substring(0, length-1);
+	 else
+	    string	= string.substring(0,index) +string.substring(index+1);
+      }
+      return string;
+   }
 }
+
