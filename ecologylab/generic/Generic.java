@@ -170,27 +170,6 @@ public class Generic
    }
 
 
-	/**
- * Form a URL easily, without perhaps throwing an exception.
- */
-   public static URL getURL(String path, String error)
-   {
-      // ??? might want to allow this default behaviour ???
-      if (path == null)
-	 return null;
-      try 
-      {
-	 	// System.err.println("\nGENERIC - path, error = \n" +  path + "\n" + error);
-		URL newURL = new URL(path);
-		// System.err.println("\nNEW URL = " + newURL);
-	
-	 return newURL;
-      } catch (MalformedURLException e) 
-      {
-	 throw new Error(e + "\n" + error + " " + path);
-      }
-   }
-
 /**
  * Find the path to system files.
  */
@@ -302,28 +281,79 @@ public class Generic
    //////////////////////////////////////////////////////////////
    public static String round(float f, int powerOfTen)
    {
-      int factor;
-      switch (powerOfTen)
+      if (Float.isNaN(f))
+	 return "NaN";
+      int i = (int) f;
+      if ((f - i) == 0)
       {
-      case 0:
-	 factor	= 1;
-	 break;
-      case 1:
-	 factor	= 10;
-	 break;
-      case 2:
-	 factor	= 100;
-	 break;
-      case 3:
-	 factor	= 1000;
-	 break;
-      default:
-	 factor	= 10000;
-	 break;
+	 return Integer.toString(i);
       }
-      return Float.toString(((float) Math.round(f * factor)) / factor);
+      String input = Float.toString(f);
+//    Debug.println("input="+input+" powerOfTen="+powerOfTen);
+      int end = input.length();
+      int dot = input.indexOf('.');
+      int exp = input.indexOf('E');
+      int endFigs = (exp <= 0) ? end : exp;
+      int figs = endFigs - dot;
+//    Debug.println("dot="+dot+" exp="+exp+" figs="+figs+" endFigs="+endFigs);
+      String result = input;
+      if (figs > powerOfTen)
+      {
+	 result = input.substring(0, dot+powerOfTen+1);
+	 if (exp > 0)
+	    result += input.substring(exp);
+      }
+      return result ;
    }
    ///////////////////////////////////////////////////////////////////////
+   public static URL getURLAbsolute(String webAddr, String errorDescriptor)
+   {
+      URL url	= null;
+      try
+      {
+	 url		= new URL(webAddr);
+      }
+      catch (MalformedURLException e)
+      {
+	 Debug.println(urlErrorMsg(webAddr, errorDescriptor));
+      }
+      return url;
+   }
+   
+/**
+ * Creates an absolute URL, if the String parameter looks like that,
+ * or one that's relative to docBase, if it looks a relative URL.
+ */
+   public static URL getURL(String webAddr, String errorDescriptor)
+   {
+      if (webAddr == null)
+	 return null;
+      
+      URL url	= null;
+      if (!webAddr.startsWith("http://") && !webAddr.startsWith("ftp://"))
+      {
+	 try
+	 {
+	    Debug.println("Forming relative URL from docBase="+
+			  Generic.docBase());
+	    url		= new URL(Generic.docBase(), webAddr);
+	 }
+	 catch (MalformedURLException e)
+	 {
+	    Debug.println(urlErrorMsg(webAddr, errorDescriptor));
+	 }
+      }      
+      else
+      {
+	 url		= getURLAbsolute(webAddr, errorDescriptor);
+      }
+      return url;
+   }
+   static String urlErrorMsg(String webAddr, String errorDescriptor)
+   {
+      return "CANT open " + errorDescriptor + " " + webAddr +
+	      " because it doesn't look like a web address.";
+   }
 /**
  * Get the IP number for the user's machine.
  * returns:	the ip number as a string, or unknown if JDK 1.0x or
@@ -372,4 +402,12 @@ public class Generic
    {
       return Environment.the.get().docBase();
    }
+   public static void main(String[] s)
+   {
+      Debug.println(round(LN_EMPTY_WEIGHT, 2));
+      Debug.println(round(.334455f, 3));
+      Debug.println(round(-.334455f, 3));
+      Debug.println(round(22, 3));
+   }
+   static final float	LN_EMPTY_WEIGHT	= Float.MAX_VALUE / 1000;
 }
