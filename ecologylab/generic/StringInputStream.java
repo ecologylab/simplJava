@@ -122,7 +122,7 @@ extends InputStream
    }
     public int available() throws IOException
     {
-       Debug.println("StringBufferInputStream.available()");
+//     Debug.println("StringBufferInputStream.available()");
        return count - pos;
     }
 

@@ -3,7 +3,7 @@ DIR	= cm/generic
 
 JAVA_SRC = Generic.java Files.java \
 	   Environment.java ApplicationEnvironment.java DispatchTarget.java \
-	   MoreMath.java Palette.java DLL.java IntSlot.java Bounds.java \
+	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
 	   FloatSetElement.java FloatWeightSet.java \
 	   Debug.java Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java

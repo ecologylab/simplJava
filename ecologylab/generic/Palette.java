@@ -309,7 +309,7 @@ public class Palette
       // ??? could perhaps make it smaller w shifts and &&
       Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), hsb);
 //      System.out.println("Palette.nearby() " + hsb);
-      changer = (hsb[HSorB] + MoreMath.pM(MoreMath.randGain(.35f), factor)
+      changer = (hsb[HSorB] + MathTools.pM(MathTools.randGain(.35f), factor)
 		 + 1.0f)
 	        % 1.0f;
       hsb[HSorB] = changer;
