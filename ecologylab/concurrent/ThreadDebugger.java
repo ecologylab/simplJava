@@ -78,7 +78,8 @@ public class ThreadDebugger extends Debug
 			ThreadToDebug ttdTemp = new ThreadToDebug(t);
 			registeredThreads.put(t.getName(),ttdTemp);				
 			nThreads++;
-			System.err.println("\nAdding new thread: COUNT = " + nThreads);
+			println("ThreadDebugger.register("+t+" COUNT = " + 
+				nThreads);
 			verticalBox.add(ttdTemp.button);
 			threadControlFrame.pack();
 			setPosition();			
