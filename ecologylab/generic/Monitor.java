@@ -1,5 +1,8 @@
 package cm.generic;
 
+/**
+ * Generic facilities for concurrent programming.
+ */
 public class Monitor
 extends ObservableDebug
 {
