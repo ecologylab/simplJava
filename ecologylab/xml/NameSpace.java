@@ -116,22 +116,36 @@ public class NameSpace extends IO
 	  return entry.classObj;
    }
 /**
+ * Find an appropriate XML tag name, based on the type of the object passed.
  * 
+ * @param object	Object whose type becomes the basis for the tag name we derive.
  */   
    public String objectToXmlTag(Object object)
    {
 	  return classToXmlTag(object.getClass());
    }
+   /**
+    * Find an appropriate XML tag name, based on the class object passed.
+    * 
+    * @param classObj	The type which becomes the basis for the tag name we derive.
+    */   
    public String classToXmlTag(Class classObj)
    {
 	  String className	= classObj.getName();
 	  NameEntry entry	= (NameEntry) entriesByClassName.get(className);
 	  if (entry == null)
 	  {
-		 String packageName = classObj.getPackage().getName();
-		 int index			= className.lastIndexOf('.') + 1;
-		 className			= className.substring(index);
-		 entry				= new NameEntry(packageName, className);	
+	  	 synchronized (this) 
+	  	 {
+	  	 	 entry	= (NameEntry) entriesByClassName.get(className);
+	  	 	 if (entry == null)
+	  	 	 {
+				 String packageName = classObj.getPackage().getName();
+				 int index			= className.lastIndexOf('.') + 1;
+				 className			= className.substring(index);
+				 entry				= new NameEntry(packageName, className);
+	  	 	 }
+	  	 }
 	  }
 	  return entry.getTag();
    }
@@ -164,7 +178,7 @@ public class NameSpace extends IO
 	  public NameEntry(String packageName, String className)
 	  {
 		 this(packageName, className,
-			  XmlTools.xmlTagFromClassName(className, "State", false));
+			  XmlTools.getXmlTagName(className, "State", false));
 	  }
 	  public NameEntry(String packageName, String className, 
 					   String tag)
