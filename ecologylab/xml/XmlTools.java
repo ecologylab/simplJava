@@ -115,13 +115,38 @@ implements CharacterConstants
    }
 
    /**
-   * This method generates a name for the attribute given a field name, 
-   * which is a primitive java type. It is used during translation of xml to Java. Using
-   * this class name the appropriate class is instantiated using reflection.  
-   * @param elementName		the name of the xml element or tag
+   * This method generates a name for an ElementState object, given an XML element name. 
+   * It is used during translation of XML to Java. Using
+   * the returned class name, the appropriate class can be instantiated using reflection.  
+   * @param elementName		the name of the XML element
    * @return				the name of the Java class corresponding to the elementName
    */   
    public static String classNameFromElementName(String elementName)
+   {
+   		return javaNameFromElementName(elementName, true);
+   }
+   /**
+    * This method generates a name for an ElementState object, given an XML attribute name. 
+    * It is used during translation of XML to Java. Using
+    * the returned class name, the appropriate class can be instantiated using reflection.  
+    * @param elementName	the name of the XML element attribute
+    * @return				the name of the Java class corresponding to the elementName
+    */   
+   public static String fieldNameFromElementName(String elementName)
+   {
+   		return javaNameFromElementName(elementName, false);
+   }
+   /**
+    * Generate the name of a Java class (capitalized) or field (starts with lower case), given
+    * the name of an XML tag or attribute.
+    * Used during translation of XML to Java.
+    * 
+    * @param elementName
+    * @param capsOn			first letter of output should be capitalized.
+    * @param elementName		the name of the xml element or tag
+    * @return				the name of the Java class corresponding to the elementName
+    */
+   public static String javaNameFromElementName(String elementName, boolean capsOn)
    {
 		if(ElementState.compressed && (decodingTable.get(elementName) != null))
 		{
@@ -129,7 +154,6 @@ implements CharacterConstants
 		}
    		
    		String result = "";
-   		boolean capsOn = true;
    		
    		for(int i = 0; i < elementName.length(); i++)
    		{
