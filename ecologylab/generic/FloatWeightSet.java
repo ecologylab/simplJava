@@ -565,7 +565,7 @@ extends Debug
    }
    public String shortString()
    {
-      return super.toString() + "[" + size + "]";
+      return super.toString() + "[" + size() + "]";
    }
    public boolean empty()
    {
