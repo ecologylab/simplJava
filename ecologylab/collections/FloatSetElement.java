@@ -10,6 +10,7 @@ package cm.generic;
  * Basic implementation of SetElement for cases when you can inherit from here
  **/
 public class FloatSetElement
+extends Debug
 // implements SetElement
 {
    protected int		index		= -1;

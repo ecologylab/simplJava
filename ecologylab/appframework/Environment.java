@@ -50,8 +50,33 @@ public interface Environment
    public class The
    {
       Environment environment;
+      boolean		hasQuicktime;
+      float		javaVersion	= 1.1f;	// minimum expected
+      
       public The()
       {
+	 try
+	 {
+	    Class.forName("quicktime.std.movies.Movie");
+	    hasQuicktime	= true;
+	 } catch (ClassNotFoundException e)
+	 {
+	 }
+	 try
+	 {
+	    Class.forName("javax.xml.transform.dom.DOMSource");
+	    javaVersion		= 1.4f;
+	 } catch (ClassNotFoundException e)
+	 {
+	    try
+	    {
+	       Class.forName("java.util.HashMap");
+	       javaVersion		= 1.2f;
+	    } catch (ClassNotFoundException e2)
+	    {
+	    }
+	 }
+	 
       }
       public The(Environment e)
       {
@@ -64,6 +89,14 @@ public interface Environment
       public Environment get()
       {
 	 return environment;
+      }
+      public float javaVersion()
+      {
+	 return javaVersion;
+      }
+      public boolean hasQuicktime()
+      {
+	 return hasQuicktime;
       }
 /**
  * Get a float parameter from the runtime environment.

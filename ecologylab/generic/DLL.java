@@ -3,11 +3,13 @@
  * CONFIDENTIAL. Use is subject to license terms.
  */
 package cm.generic;
+import java.awt.*;
 
 /**
  * Doubly linked list of GUI components. Maintains family tree.
  */
 public class DLL
+extends Debug
 {
    private DLL			prevSib;
    private DLL			nextSib;
@@ -33,6 +35,13 @@ public class DLL
  */
    public void addToEnd(DLL sibs)
    {
+   		if (sibs == this)
+   		{
+   			debug("ERROR!!!! adding to end of self!!!!");
+   			Toolkit.getDefaultToolkit().beep();
+   			Thread.dumpStack();
+   		}
+   		
       nextSib	= sibs;		   // ??? should this be setNext(sibs) -- sync
 //      setNext(sibs);
       sibs.setPrev(this);

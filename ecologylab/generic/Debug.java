@@ -76,6 +76,13 @@ public class Debug
    {
       println(getClassName(o)+"." + message);
    }
+/**
+ * Print a debug message, starting with the abbreviated class name.
+ */
+   public static void printlnA(Class c, String message) 
+   {
+      println(getClassName(c)+"." + message);
+   }
 
 /**
  * @return   the abbreviated name of the class - without the package qualifier.
@@ -92,9 +99,16 @@ public class Debug
    {
       return getClassName(o.getClass());
    }
+/**
+ * @return  the abbreviated name of this class - without the package qualifier.
+ */
+   public String getClassName()
+   {
+      return getClassName(this);
+   }
    public String toString()
    {
-      return getClassAbbrev();
+      return getClassName(this);
    }
 /**
  * Print a debug message that starts with this.toString().

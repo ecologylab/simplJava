@@ -64,7 +64,10 @@ public class Generic
 	 return null;
       try 
       {
-	 return new URL(base, path);
+		//System.err.println("\nGENERIC - base, path, error = \n" + base + "\n" + path);
+		URL newURL = new URL(base,path);
+		//System.err.println("\nNEW URL = " + newURL);
+	 return newURL;
       } catch (MalformedURLException e) 
       {
 	 if (error != null)
@@ -84,7 +87,11 @@ public class Generic
 	 return null;
       try 
       {
-	 return new URL(path);
+	 	// System.err.println("\nGENERIC - path, error = \n" +  path + "\n" + error);
+		URL newURL = new URL(path);
+		// System.err.println("\nNEW URL = " + newURL);
+	
+	 return newURL;
       } catch (MalformedURLException e) 
       {
 	 throw new Error(e + "\n" + error + " " + path);
