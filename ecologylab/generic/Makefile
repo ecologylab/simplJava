@@ -3,7 +3,7 @@ DIR	= cm/generic
 
 JAVA_SRC = Generic.java Attribute.java Debug.java \
 	   Files.java Colors.java ObservableDebug.java StringTools.java \
-	   DispatchTarget.java Monitor.java \
+	   DispatchTarget.java Monitor.java ImageTools.java \
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
 	   Environment.java ApplicationEnvironment.java \
 	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
@@ -29,7 +29,10 @@ nsjar:		all
 sunjar:		all
 
 f:	Files.class
-	java -classpath "$(CLASSPATH)" cm.generic.Files
+	java -classpath "$(CLASSPATH)" cm.generic.Files http://csdl.tamu.edu
+
+g:	Generic.class
+	java -classpath "$(CLASSPATH)" cm.generic.Generic
 
 st:	StringTools.class
 	java -classpath "$(CLASSPATH)" cm.generic.StringTools http://www.nytimes.com http://csdl.tamu.edu/~andruid/courses http://csdl.tamu.edu/~andruid/courses/informedia/content.html http://csdl.tamu.edu/~andruid/courses/informedia/content.html?foo=bar http://csdl.tamu.edu/~andruid/courses/informedia/content.html#too
