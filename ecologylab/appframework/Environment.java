@@ -52,6 +52,8 @@ public interface Environment
       Environment environment;
       boolean		hasQuicktime;
       float		javaVersion	= 1.1f;	// minimum expected
+      boolean		hasGL;
+      boolean		hasAgile2D;
       
       public The()
       {
@@ -59,6 +61,22 @@ public interface Environment
 	 {
 	    Class.forName("quicktime.std.movies.Movie");
 	    hasQuicktime	= true;
+	 } catch (ClassNotFoundException e)
+	 {
+	 }
+	 try
+	 {
+	    Class.forName("gl4java.awt.GLCanvas");
+	    hasGL		= true;
+	    Debug.println("has gl4Java!");
+	    try
+	    {
+	       Class.forName("agile2D.AgileJFrame ");
+	       hasAgile2D	= true;
+	       Debug.println("has agile 2d");
+	    } catch (ClassNotFoundException e)
+	    {
+	    }
 	 } catch (ClassNotFoundException e)
 	 {
 	 }
