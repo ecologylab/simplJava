@@ -148,38 +148,17 @@ public class Generic
       }
    }
 
-/**
- * Form a URL easily, without perhaps throwing an exception.
- */
-   public static URL getURL(URL base, String path, String error)
-   {
-      // ??? might want to allow this default behaviour ???
-      if (path == null)
-	 return null;
-      try 
-      {
-		//System.err.println("\nGENERIC - base, path, error = \n" + base + "\n" + path);
-		URL newURL = new URL(base,path);
-		//System.err.println("\nNEW URL = " + newURL);
-	 return newURL;
-      } catch (MalformedURLException e) 
-      {
-	 if (error != null)
-	    throw new Error(e + "\n" + error + " " + base + " -> " + path);
-	 return null;
-      }
-   }
 
 
 /**
  * Find the path to system files.
  */
-   public static URL systemPath(String relativePath)
+   public static ParsedURL systemPath(String relativePath)
    {
       return Environment.the.get().codeRelativeURL(relativePath);
    }
    public static final String SEP	= "/";
-   public static URL systemPhotoPath(String relativePath)
+   public static ParsedURL systemPhotoPath(String relativePath)
    {
       String photoPathParam	= parameter("photo_path");
       if (photoPathParam == null)
@@ -315,60 +294,7 @@ public class Generic
       }
       return result ;
    }
-   ///////////////////////////////////////////////////////////////////////
-   public static URL getURLAbsolute(String webAddr, String errorDescriptor)
-   {
-      URL url	= null;
-      try
-      {
-	 url		= new URL(webAddr);
-      }
-      catch (MalformedURLException e)
-      {
-	 Debug.println(urlErrorMsg(webAddr, errorDescriptor));
-      }
-      return url;
-   }
-   
-   public static URL getURL(String webAddr)
-   {
-      return getURL(webAddr, "");
-   }
-   
-/**
- * Creates an absolute URL, if the String parameter looks like that,
- * or one that's relative to docBase, if it looks a relative URL.
- */
-   public static URL getURL(String webAddr, String errorDescriptor)
-   {
-      if (webAddr == null)
-	 return null;
-      
-      URL url	= null;
-      if (!webAddr.startsWith("http://") && !webAddr.startsWith("ftp://"))
-      {
-	 try
-	 {
-	    Debug.println("Forming relative URL from docBase="+
-			  Generic.docBase());
-	    url		= new URL(Generic.docBase(), webAddr);
-	 }
-	 catch (MalformedURLException e)
-	 {
-	    Debug.println(urlErrorMsg(webAddr, errorDescriptor));
-	 }
-      }      
-      else
-      {
-	 url		= getURLAbsolute(webAddr, errorDescriptor);
-      }
-      return url;
-   }
-   static String urlErrorMsg(String webAddr, String errorDescriptor)
-   {
-      return "CANT open " + errorDescriptor + " " + webAddr +
-	      " because it doesn't look like a web address.";
-   }
+
 /**
  * Get the IP number for the user's machine.
  * returns:	the ip number as a string, or unknown if JDK 1.0x or
@@ -413,7 +339,7 @@ public class Generic
       }
       return result;
    }
-   public static URL docBase()
+   public static ParsedURL docBase()
    {
       return Environment.the.get().docBase();
    }
