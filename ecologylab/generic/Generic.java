@@ -141,6 +141,7 @@ public class Generic
       catch (InterruptedException e)
       {
 	 Debug.println("Sleep was interrupted -- clearing if possible.\n" + e);
+	 e.printStackTrace();
 	 // in jdk 1.1x clears the interrupt
 	 // !!! (undocumented) !!! (see Thread src)
 	 Thread.interrupted();	
@@ -402,6 +403,75 @@ public class Generic
    {
       return Environment.the.get().docBase();
    }
+   public static void raisePriority(int priority)
+   {
+      Thread t	= Thread.currentThread();
+      int oldPriority	= t.getPriority();
+      if (oldPriority < priority)
+      {
+	 raiseMaxPriority(t, priority);
+	 t.setPriority(priority);
+	 Debug.println("\nraisingPriority to " + priority +" -> "+t.getPriority());
+      }
+   }
+   public static void raiseMaxPriority(int priority)
+   {
+      raiseMaxPriority(Thread.currentThread(), priority);
+   }
+   public static void raiseMaxPriority(Thread thread, int priority)
+   {
+      raiseMaxPriority(thread.getThreadGroup(), priority);
+   }
+   public static void raiseMaxPriority(ThreadGroup threadGroup, int priority)
+   {
+      int oldMaxPriority	= threadGroup.getMaxPriority();
+      if (oldMaxPriority < priority)
+      {
+	 ThreadGroup parent	= threadGroup.getParent();
+	 if (parent != null)
+	    raiseMaxPriority(parent, priority); // recurse
+      
+	 threadGroup.setMaxPriority(priority);
+	 Debug.println("\nraisingMaxPriority to " + priority+"->"+
+		       threadGroup.getMaxPriority()+    
+		       " "+threadGroup+ " "+parent);
+      }
+   }
+   public static ThreadGroup findThreadGroup(int priority)
+   {
+      return findThreadGroup(Thread.currentThread(), priority);
+   }
+   public static ThreadGroup findThreadGroup(Thread thread, 
+					     int priority)
+   {
+      return findThreadGroup(thread.getThreadGroup(), priority);
+   }
+   public static ThreadGroup findThreadGroup(ThreadGroup threadGroup, 
+					     int priority)
+   {
+      int maxPriority	= threadGroup.getMaxPriority();
+      if (maxPriority < priority)
+      {
+	 ThreadGroup parent	= null;
+	 try
+	 {
+	    parent = threadGroup.getParent();
+	 } catch (java.security.AccessControlException e)
+	 {  // (damn macintosh!)
+	    Debug.println("ERROR manipulating thread groups!");
+	    e.printStackTrace();
+	 }
+	 if (parent != null)
+	    return findThreadGroup(parent, priority); // recurse
+	 else
+	    return null;
+      }
+      else
+      {
+	 Debug.println("found " + threadGroup+"  w maxPriority="+maxPriority);
+	 return threadGroup;
+      }
+   }
    public static void main(String[] s)
    {
       Debug.println(round(LN_EMPTY_WEIGHT, 2));
@@ -410,4 +480,8 @@ public class Generic
       Debug.println(round(22, 3));
    }
    static final float	LN_EMPTY_WEIGHT	= Float.MAX_VALUE / 1000;
+   public static void go(URL u)
+   {
+      Environment.the.get().go(u, Environment.the.frame());
+   }
 }
