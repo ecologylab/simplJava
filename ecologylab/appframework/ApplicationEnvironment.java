@@ -48,34 +48,6 @@ public class ApplicationEnvironment implements Environment
 	}
 
 	/**
-	 * @see cm.generic.Environment#parameterBool(String)
-	 */
-	public boolean parameterBool(String name) {
-		return false;
-	}
-
-	/**
-	 * @see cm.generic.Environment#parameterInt(String)
-	 */
-	public int parameterInt(String paramName) {
-		return 0;
-	}
-
-	/**
-	 * @see cm.generic.Environment#parameterInt(String, int)
-	 */
-	public int parameterInt(String paramName, int defaultValue) {
-		return 0;
-	}
-
-	/**
-	 * @see cm.generic.Environment#parameterFloat(String, float)
-	 */
-	public float parameterFloat(String paramName, float defaultValue) {
-		return 0;
-	}
-
-	/**
 	 * @see cm.generic.Environment#codeBase()
 	 * Change return value from URL to ParsedURL. 
 	 */
@@ -89,27 +61,6 @@ public class ApplicationEnvironment implements Environment
 	 */
 	public ParsedURL docBase() {
 		return null;
-	}
-	
-	/* Change return value from URL to ParsedURL. */
-	public ParsedURL codeRelativeURL(String relativeURL)
-	{
-	   String err = "Cant find " + relativeURL +" relative to "
-	      + codeBase.noAnchorNoQueryPageString()+" ";
-	   /* get ParsedURL from url string and code base. */
-	   ParsedURL purl = ParsedURL.getRelative(codeBase.url(), relativeURL, err);
-	   return purl;
-	}
-	
-/**
- * @return a ParsedURL relative to the code base.
- */   
-	public ParsedURL docRelativeURL(String relativeURL)
-	{
-	   String err = "Cant find " + relativeURL + " relative to "
-	      + docBase.noAnchorNoQueryPageString()+" ";
-	   ParsedURL purl = ParsedURL.getRelative(docBase.url(), relativeURL, err);
-	   return purl;
 	}
 	
 
