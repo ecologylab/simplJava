@@ -51,75 +51,50 @@ public interface Environment
    {
       Environment environment;
 
-      boolean		hasQuicktime;
       float		javaVersion	= 1.1f;	// minimum expected
-      boolean		hasGL;
-      boolean		hasAgile2D;
       boolean		hasXML;
-      boolean      hasServlet;
+      boolean		hasServlet;
+      boolean		checkedForServlet;
+      boolean		hasQuicktime;
+      boolean		checkedForQuicktime;
+      
+      boolean		hasGL;
+      boolean		checkedForGL;
+      boolean		hasAgile2D;
+      boolean		checkedForAgile2D;
+
+      String		frame;
+      
       public The()
       {
-	 try
-	 {
-	    Class.forName("javax.servlet.http.HttpServlet");
-	    hasServlet	= true;
-	 } catch (ClassNotFoundException e)
-	 {
-	 }
-      	
-	 try
-	 {
-	    Class.forName("quicktime.std.movies.Movie");
-	    hasQuicktime	= true;
-	 } catch (ClassNotFoundException e)
-	 {
-	 }
+	 String sysJavaVersion	= System.getProperty("java.version");
+	 String floatableJavaVersion = StringTools.remove(sysJavaVersion,'_');
 
+	 int firstDot		= floatableJavaVersion.indexOf('.');
+	 int lastDot		= floatableJavaVersion.lastIndexOf('.');
+	 if (firstDot != lastDot)
+	 {
+	    String toFirstDot	= floatableJavaVersion.substring(0,firstDot+1);
+	    String afterFirstDot= floatableJavaVersion.substring(firstDot+1);
+	    afterFirstDot	= StringTools.remove(afterFirstDot,'.');
+	    floatableJavaVersion= toFirstDot + afterFirstDot;
+	 }
 	 try
 	 {
-	    Class.forName("gl4java.awt.GLCanvas");
-	    hasGL		= true;
-	    Debug.println("has gl4Java!");
-	    try
-	    {
-	       Class.forName("agile2D.AgileJFrame ");
-	       hasAgile2D	= true;
-	       Debug.println("has agile 2d");
-	    } catch (ClassNotFoundException e)
-	    {
-	    }
-	 } catch (ClassNotFoundException e)
-	 {
+	    javaVersion		= Float.parseFloat(floatableJavaVersion);
 	 }
+	 catch (NumberFormatException e)
+	 {
+	    debug("PROBLEM parsing javaVersion = " + floatableJavaVersion);
+	    e.printStackTrace();
+	 }
+	 debug("javaVersion="+ sysJavaVersion+" -> "+ javaVersion);
+	 
+	 if (javaVersion >= 1.4f)
+	    hasXML		= true;
+	 else
+	    hasXML		= checkFor("org.w3c.dom.Node");
 
-	 try
-	 {
-	    Class.forName("javax.xml.transform.dom.DOMSource");
-	    javaVersion		= 1.4f;
-	 } catch (ClassNotFoundException e4)
-	 {
-	    try
-	    {
-	       Class.forName("java.awt.font.TextMeasurer");
-	       javaVersion		= 1.3f;
-	    } catch (ClassNotFoundException e3)
-	    {
-	       try
-	       {
-		  Class.forName("java.util.HashMap");
-		  javaVersion		= 1.2f;
-	       } catch (ClassNotFoundException e2)
-	       {
-	       }
-	    }
-	 }
-	 try
-	 {
-	    Class.forName("org.w3c.dom.Node");
-	    hasXML	= true;
-	 } catch (ClassNotFoundException e2)
-	 {
-	 }
 	 debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
       }
       public The(Environment e)
@@ -129,6 +104,7 @@ public interface Environment
       public void set(Environment e)
       {
 	 environment	= e;
+	 frame		= e.parameter("frame");
       }
       public Environment get()
       {
@@ -144,23 +120,47 @@ public interface Environment
       }
       public boolean hasQuicktime()
       {
+	 if (!checkedForQuicktime)
+	    hasQuicktime	= checkFor("quicktime.std.movies.Movie");
 	 return hasQuicktime;
       }
       public boolean hasAgile2D()
       {
+	 if (!checkedForAgile2D)
+	    hasAgile2D	= checkFor("agile2D.AgileJFrame");
 	 return hasAgile2D;
       }
       public boolean hasGL()
       {
+	 if (!checkedForGL)
+	    hasGL	= checkFor("gl4java.awt.GLCanvas");
 	 return hasGL;
       }
       public boolean hasXML()
       {
 	 return hasXML;
       }
-     public boolean hasServlet()
+      public boolean hasServlet()
       {
+	 if (!checkedForServlet)
+	    hasServlet	= checkFor("javax.servlet.http.HttpServlet");
 	 return hasServlet;
+      }
+      public static boolean checkFor(String className)
+      {
+	 boolean result	= false;
+	 try
+	 {
+	    Class.forName(className);
+	    result	= true;
+	 } catch (ClassNotFoundException e)
+	 {
+	 }
+	 return result;
+      }
+      public String frame()
+      {
+	 return frame;
       }
 /**
  * Get a float parameter from the runtime environment.
