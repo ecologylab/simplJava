@@ -1,6 +1,8 @@
 package cm.generic;
 
 import java.util.*;
+import java.io.*;
+
 
 /**
  * @author andruid
@@ -33,7 +35,14 @@ public class Debug
  */
    private static boolean	interactive;
    
+   private static boolean	logToFile = false;
+   
    static final HashMap		classAbbrevNames	= new HashMap();
+   static final HashMap		packageNames	= new HashMap();
+   
+   private static int			sinceFlush;
+   static final int FLUSH_FREQUENCY	= 10;
+   
 /**
  * Holds class specific debug levels.
  */
@@ -125,12 +134,24 @@ public class Debug
       System.out.println();
    }
    public static void println(String message) 
-   {
-      System.out.println(message);
+   {   	
+   	  if (logToFile)
+   	  {
+   	    Files.writeLine(writer, message);
+   	    if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
+   	    	Files.flush(writer);	     	   
+   	  }  
+   	  else
+      System.err.println(message);
    }
    public static void print(String message) 
    {
-      System.out.print(message);
+   	  if (logToFile)
+   	  {
+   	    Files.writeLine(writer, message);   	  
+   	  }  
+   	  else
+      System.err.print(message);
    }
 /**
  * Print a debug message, starting with the abbreviated class name of
@@ -168,6 +189,40 @@ public class Debug
 /**
  * @return   the abbreviated name of the class - without the package qualifier.
  */
+   public static String getPackageName(Class thatClass)
+   {
+      String className	= thatClass.toString();
+      //System.out.println("thatClass.toString() is " + thatClass.toString());
+      String packageName = null;
+      if(packageNames.containsKey(className))
+      {
+         packageName	= (String) packageNames.get(className);
+      }
+      else
+      {
+      	  packageName	= className.substring(6, className.lastIndexOf("."));
+		 synchronized (packageNames)
+		 {
+		    packageNames.put(className, packageName);
+		 }
+      }
+      /*
+      String packageName	= (String) packageNames.get(className);
+      if (packageName == null)
+      {
+	 packageName	= className.substring(0, className.lastIndexOf("."));
+	 synchronized (packageNames)
+	 {
+	    packageNames.put(className, packageName);
+	 }
+	 }
+	 */
+      
+      return packageName;
+   }
+/**
+ * @return   the abbreviated name of the class - without the package qualifier.
+ */
    public static String getClassName(Object o)
    {
       return getClassName(o.getClass());
@@ -178,6 +233,21 @@ public class Debug
    public String getClassName()
    {
       return getClassName(this);
+   }
+   
+/**
+ * @return   the package name of the class - without the package qualifier.
+ */
+   public static String getPackageName(Object o)
+   {
+      return getPackageName(o.getClass());
+   }
+/**
+ * @return  the package name of this class - without the package qualifier.
+ */
+   public String getPackageName()
+   {
+      return getPackageName(this);
    }
    public String toString()
    {
@@ -190,6 +260,7 @@ public class Debug
    {
       println(this, message);
    }
+    
 /**
  * Print a debug message that starts with this.toString().
  */
@@ -267,7 +338,25 @@ public class Debug
       Environment.the.get().status(msg);
       println(msg);
    }
+   
+   private static BufferedWriter	writer;
 
+   public static void setLoggingFile(String loggingFilePath)  
+	{
+						
+		writer		= Files.openWriter(loggingFilePath);
+		if (writer == null)
+			println("Debug.setLoggingFile() CANT OPEN LOGGING FILE: " + loggingFilePath);
+		else
+			logToFile	= true;	    	   			
+	}
+
+   public static void closeLoggingFile()
+   {
+      Files.closeWriter(writer);
+   }
+	
+	
 /**
  * @return	state of the global flag for printing "interactive" debug
  *		statements.
@@ -275,5 +364,10 @@ public class Debug
    public static boolean getInteractive()
    {
       return interactive;
+   }
+   
+   public static boolean logToFile()
+   {
+   	 return  logToFile;
    }
 }
