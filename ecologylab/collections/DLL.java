@@ -47,6 +47,24 @@ extends Debug
       sibs.setPrev(this);
    }
 /**
+ * Prepend sibs to the start of this.
+ * 
+ * @param sibs	DLL for object added before this.
+ */
+   public void addAtBeginning(DLL sibs)
+   {
+   		if (sibs == this)
+   		{
+   			debug("ERROR!!!! adding to end of self!!!!");
+   			Toolkit.getDefaultToolkit().beep();
+   			Thread.dumpStack();
+   		}
+   		
+      prevSib	= sibs;		   // ??? should this be setNext(sibs) -- sync
+//      setNext(sibs);
+      sibs.setNext(this);
+   }
+/**
  * Remove I and I from the dll of sibs.
  */
    public synchronized void remove()
