@@ -31,7 +31,7 @@ public class Memory
    {
       try
       {
-	 buffy.setLength(0);
+	 StringTools.clear(buffy);
 	 buffy.append("\nMemory.reclaim(")
 	    .append(Thread.currentThread().getName())
 	       .append(".gc(").append(s).append("): ").append(usage());

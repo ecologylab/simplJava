@@ -379,5 +379,19 @@ extends Debug
 		   System.out.println();
 		}   	
    }
+/**
+ * Reset the StringBuffer, so that is empty and ready for reuse.
+ * Do this with a minimum of overhead, given the latest vagaries of the
+ * JDK implementation.
+ */
+   public static final void clear(StringBuffer buffy)
+   {
+      // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
+      // a tiny buffer, so use this weirdness, which looks like the 
+      // most reasonable option
+      int length	= buffy.length();
+      if (length > 0)
+	 buffy.delete(0, length);
+   }
 }
 
