@@ -475,7 +475,7 @@ implements Runnable
 	    boolean interrupted		= Thread.interrupted();
 	    String interruptedStr	= interrupted ? " interrupted" : "";
 	    debugA("performDownloads() -- recovering from "+interruptedStr+
-		" exception:");
+		" exception on " + thatClosure + ":");
 	    e.printStackTrace();
 	    thatClosure.ioError();
 	 }
