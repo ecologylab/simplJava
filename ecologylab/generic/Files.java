@@ -224,14 +224,14 @@ extends Debug
 
       String	oFileFullPath	= oFile.getAbsolutePath();
 
-      //Env.println("trying to open writer: " + oFileFullPath +
-      // " w dir="+ oFileDir);
-      if (makePath(oFile)) // maybe create directories along the path
+      println("Files.openWriter(" + oFileFullPath);
+      
+//      if (makePath(oFile)) // maybe create directories along the path
 	 try
 	 {  
 	    writer	= new BufferedWriter (new FileWriter(oFile));
-	    println(3, "Output file: ");
-	    println(3, indent + oFileFullPath);
+	    println("\tOutput file: ");
+	    println(indent + indent + oFileFullPath);
 	 }		
 	 catch(IOException e)
 	 {
@@ -327,7 +327,7 @@ extends Debug
       try
       {  
 	 writer.write(toWrite);
-//	 Env.println("writeLine writing new lineeeeeeeeeeeeeeeeeeeee");
+	Debug.println("writeLine: " + toWrite);
 	 writer.newLine();
       }
 	 catch(IOException e) {ok = false;}
