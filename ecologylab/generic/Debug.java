@@ -102,6 +102,10 @@ public class Debug
       if (interactive)
 	 println(message);
    }
+   public static void println(Object o, StringBuffer message)
+   {
+      println(o, message.toString());
+   }
    public static void println(Object o, String message)
    {
       println(o + "." + message);
@@ -115,6 +119,10 @@ public class Debug
    {
       if (interactive)
 	 println(message);
+   }
+   public static void println(StringBuffer message) 
+   {
+      System.out.println();
    }
    public static void println(String message) 
    {
@@ -183,15 +191,33 @@ public class Debug
       println(this, message);
    }
 /**
+ * Print a debug message that starts with this.toString().
+ */
+   public void debug(StringBuffer message)
+   {
+      println(this, message);
+   }
+/**
  * Print a debug message that starts with the abbreviated class name of this.
  */
    public void debugA(String message)
    {
       printlnA(this, message);
    }
+/**
+ * Print a debug message that starts with the abbreviated class name of this.
+ */
+   public void debugA(StringBuffer message)
+   {
+      printlnA(this, message.toString());
+   }
    public void debugI(String message)
    {
       printlnI(this, message);
+   }
+   public void debugI(StringBuffer message)
+   {
+      printlnI(this, message.toString());
    }
 /**
  * Print a debug message that starts with the abbreviated class name of this,
