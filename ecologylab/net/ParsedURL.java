@@ -500,6 +500,7 @@ extends Debug
 		 return null;
 //      debugA("addressString="+addressString);
       
+      URL base = null;
 	 if (contextURL != null)
 	 {
 		 String urlString = contextURL.toString();	 				 
@@ -511,11 +512,16 @@ extends Debug
 		 	String lastPart = urlString.substring(urlString.lastIndexOf("/"), urlString.length());
 		 		
 		 	if(lastPart.indexOf(".")!=-1)	 	
-		 	lastPart =  urlString.substring(urlString.lastIndexOf(".")+1);	 		 	
+		 		lastPart =  urlString.substring(urlString.lastIndexOf(".")+1);	 
+
 		 	if ((!imgMimes.containsKey(lastPart))&&(!htmlMimes.containsKey(lastPart)))		 	
-				// use new ParsedURL constructor.
+		 	{
 		 		contextURL = getAbsolute(urlString, "").url();
-	
+		 	}
+		 	else
+		 	{	// This is for the case that the contextURL forms with specified file name. 
+		 		base	= getAbsolute(urlString.substring(0, urlString.lastIndexOf('/')), "").url();
+		 	}
 		 }
 	 }
       URL newUrl = null;
@@ -552,7 +558,8 @@ extends Debug
 
       char argDelim	= '?';
       // url string always keep hash string.
-      String urlWithHash = null;
+      String hashString = null;
+      URL hashUrl = null;
       if (fromSearchPage)
       {
 		 // handle embedded http://
@@ -572,11 +579,10 @@ extends Debug
       {
 		 // 1) peel off hash
 		 int hashPos	= addressString.indexOf('#'); 
-		 String hashString= StringTools.EMPTY_STRING;
+//		 String hashString= StringTools.EMPTY_STRING;
+
 		 if (hashPos > -1)
 		 {
-		 	// kept this url to have hashurl for the navigation
-		 	urlWithHash = addressString;
 		    hashString	= addressString.substring(hashPos);
 		    addressString		= addressString.substring(0, hashPos);
 		 }
@@ -605,23 +611,32 @@ extends Debug
 		    addressString	       += argString;
 	     if( !tossHash)
 	      	addressString	       += hashString;
-	     	    
+    
      }
       
       ParsedURL parsedUrl;
       try
       {
-		 if (contextURL == null)	   
+		 if (contextURL == null)
+		 {
 			newUrl = new URL(addressString);
+			if( tossHash && (hashString!=""))
+				hashUrl = new URL(addressString+hashString);
+		 }
+		 else if( addressString.startsWith("#") )
+		 {
+			newUrl = new URL(contextURL, addressString);
+			if( tossHash && (hashString!=""))
+				hashUrl = new URL(contextURL, (addressString+hashString));
+		 }
 		 else
 		 {
-			newUrl = new URL(contextURL, addressString);	       
+		 	newUrl = new URL(base, addressString);
+		 	if( tossHash && (hashString!=""))
+		 		hashUrl = new URL(base, addressString);
 		 }
 		 parsedUrl		= new ParsedURL(newUrl);
-
-		 // Save hash url string in the ParsedURL for the navigation.
-		 if( urlWithHash != null )
-		 	parsedUrl.hashUrl = new URL(urlWithHash);
+		 parsedUrl.hashUrl = hashUrl;
       }
       catch (MalformedURLException e)
       {
