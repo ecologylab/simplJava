@@ -81,10 +81,12 @@ extends Debug
       }
       // start insert
       el.setSet(this);
+/* andruid -- for now, i think this gets done by sync... 6/03
       float weight			= el.getWeight();
       // finish insert
       if (size > 0)
 	 incrementalSums[size]		= incrementalSums[size - 1] + weight;
+ */
       elements[size]			= el;
       el.setIndex(size++);
    }
