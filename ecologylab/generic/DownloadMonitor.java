@@ -14,7 +14,7 @@ public class DownloadMonitor
 extends ObservableDebug
 implements Runnable
 {
-   static final int	TIMEOUT		= 40000;
+   static final int	TIMEOUT		= 25000;
    static final int	TIMEOUT_SLEEP	= 4000;
    static final int	SHORT_SLEEP	= 50;
 
@@ -104,8 +104,8 @@ implements Runnable
 	       if (thatClosure.timeoutOrComplete(now))
 	       {
 		  potentialTimeouts.remove(0);
-//		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
-//		     restartDownloadThread(thatClosure.downloadingThread);
+		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
+		     restartDownloadThread(thatClosure.downloadingThread);
 	       }
 	       else
 		  break;
@@ -285,7 +285,7 @@ implements Runnable
    }
    private void restartDownloadThread(Thread t)
    {
-//      debug("restartDownloadThread(" + t);
+      debug("restartDownloadThread(" + t);
 
       for (int i=0; i<downloadThreads.length; i++)
       {
