@@ -12,6 +12,8 @@ import org.w3c.dom.*;
 import org.w3c.dom.Attr; 
 import org.xml.sax.*;
 
+import cm.generic.Attribute;
+
 
 /**
  * This class is the heart of the translation framework. All classes which 
@@ -628,7 +630,7 @@ abstract public class ElementState extends IO
 	      fillValues((Attr) vector.elementAt(i));
 	}
 	
-	void fillValues(Attr attr)
+	protected void fillValues(Attr attr)
 	{	  
 	  setField(attr.getName(), attr.getValue());
 	}
@@ -702,7 +704,7 @@ abstract public class ElementState extends IO
 	   }    	
 	}
  
-	void add(ElementState elementToAdd)
+	protected void add(ElementState elementToAdd)
 	{
 	}
 	
