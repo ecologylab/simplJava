@@ -68,8 +68,7 @@ extends Debug
       if (size == numSlots)
       {	 // start housekeeping if we need more space
 	 int		allocSize	= 2 * size;
-	 System.out.println("FloatWeightSet.insert() alloc from " +
-			    size + " -> " + allocSize + " slots for "+ this);
+	 debug("insert() alloc from " + size + " -> " + allocSize + " slots");
 	 float		newSums[]	= new float[allocSize];;
 	 FloatSetElement newElements[]	= new FloatSetElement[allocSize];
 	 numSlots			= allocSize;
@@ -157,7 +156,7 @@ extends Debug
 	 FloatSetElement element= elements[i];
 	 if (element == null)
 	 {
-	    String errorScene	="\nFloatWeightSet.recompute() error at i=" +
+	    String errorScene	="recompute() ERROR at i=" +
 	       i + " w beyond=" + beyond + " in " + this;
 	    System.out.println(errorScene + ".\nTrying to heal thyself.");
 	    FloatSetElement lastElement	= elements[--beyond];
@@ -180,9 +179,9 @@ extends Debug
       }
       } catch (Exception e)
       {
-	 String errorScene	="\nFloatWeightSet.recompute() error at i=" +
+	 String errorScene	="\recompute() ERROR at i=" +
 	    i + " w beyond=" + beyond + " in " + this;
-	 System.out.println(errorScene);
+	 debug(errorScene);
 	 e.printStackTrace();
       }
       return (size > 1) && (sum > 3.0E-45f) && (sum != Float.NaN) &&
@@ -346,8 +345,7 @@ extends Debug
    {
       if (size <= numToKeep)
 	 return;
-      System.out.println("\n\n\nFloatWeightSet.gc("+numToKeep+") of " +
-			 size);
+      debug("gc(keeping "+numToKeep+")");
       
       //------------------ update weights ------------------//
       for (int i=0; i!=size; i++)
@@ -554,14 +552,6 @@ extends Debug
    }
    public String toString()
    {
-      String result	= size + " elements";
-      if (!empty())
-      {
-	 FloatSetElement element = elements[2];
-	 if (element != null)
-	    result	+= " of " + element.getClass();
-      }
-      result		+= ".\n";
 /*
       for (int i=0; i!=size; i++)
       {
@@ -571,7 +561,7 @@ extends Debug
 	    element + "\n";
       }
 */
-      return super.toString() + result;
+      return shortString();
    }
    public String shortString()
    {
