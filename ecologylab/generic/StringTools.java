@@ -4,6 +4,7 @@ import java.lang.*;
 import java.net.*;
 import java.util.*;
 
+
 /**
  * @author andruid
  *
@@ -108,7 +109,7 @@ extends Debug
  * Very efficiently forms String representation of url (better than 
  * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include query or anchor.
  */
-   public static final String pageString(URL u)
+   public static final String noAnchorNoQueryPageString(URL u)
    {
       String protocol	= u.getProtocol();
       String authority	= u.getAuthority(); // authority is host:port
@@ -134,13 +135,86 @@ extends Debug
 
       return new String(result);
    }
+   
+   
+   public static final String noAnchorPageString(URL u)
+   {
+      String protocol	= u.getProtocol();
+      String authority	= u.getAuthority(); // authority is host:port
+      String path	= u.getPath();	    // doesn't include query
+      String query  = u.getQuery();
+
+      int pathLength	= (path == null) ? 0 : path.length();
+      int queryLength	= (query == null) ? 0: query.length();
+      
+      // pre-compute length of StringBuffer
+      int length =0;
+      
+      try
+      {
+	 length	=
+	 protocol.length() + 3 /* :// */ + authority.length() + pathLength + 1/* ? */ + queryLength;
+   } catch (Exception e)
+   {
+      Debug.println("protocol="+protocol+" authority="+authority+
+		     u.toExternalForm());
+      e.printStackTrace();
+   }
+      
+      StringBuffer result = new StringBuffer(length);
+      result.append(protocol).append("://").append(authority).append(path);
+      if(query != null)
+      result.append("?").append(query);
+
+      return new String(result);
+   }
+
+   public static final String pageString(URL u)
+   {
+      String protocol	= u.getProtocol();
+      String authority	= u.getAuthority(); // authority is host:port
+      String path	= u.getPath();	    // doesn't include query
+      String query  = u.getQuery();
+      String anchor = u.getRef();
+
+      int pathLength	= (path == null) ? 0 : path.length();
+      int queryLength	= (query == null) ? 0: query.length();
+      int anchorLength	= (anchor == null) ? 0: anchor.length();
+      
+      // pre-compute length of StringBuffer
+      int length =0;
+      
+      try
+      {
+	 length	=
+	 protocol.length() + 3 /* :// */ + authority.length() + pathLength + 1 /* ? */ + queryLength + 1 /* # */
+	  + anchorLength;
+   } catch (Exception e)
+   {
+      Debug.println("protocol="+protocol+" authority="+authority+
+		     u.toExternalForm());
+      e.printStackTrace();
+   }
+      
+      StringBuffer result = new StringBuffer(length);
+      result.append(protocol).append("://").append(authority).append(path);
+      if(query != null)
+      result.append("?").append(query);
+      if(anchor != null)
+      result.append("#").append(anchor);
+
+      return new String(result);
+   }
+   
+   
    public static final URL urlRemoveAnchorIfNecessary(URL source)
    {
       String anchor			= source.getRef();
       return (anchor == null) ? source : urlNoAnchor(source);
    	
    }
-  public static final URL urlNoAnchor(URL source)
+   
+   public static final URL urlNoAnchor(URL source)
    {
       URL result = null;
       try
@@ -161,5 +235,26 @@ extends Debug
       for (int i=0; i<args.length; i++)
 	 println(pageString(Generic.getURL(args[i], "oops " + i)));
 	 
+   }
+   
+/**
+ * For example, input "isFileName", output "is file name"
+ */   
+   public static String seperateLowerUpperCase(String in)
+   {
+   	 String out="";
+   	 int n = in.length();
+   	 for (int i=0; i<n; i++)
+   	 {
+   	 	char thisChar = in.charAt(i);
+   	 	if (Character.isUpperCase(thisChar))
+   	 	{   	 		
+   	 		thisChar = Character.toLowerCase(thisChar);
+   	 		out +=" " + thisChar;
+   	 	}
+   	 	else
+   	 	out +=thisChar;
+   	 }
+   	 return out;
    }
 }
