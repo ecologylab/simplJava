@@ -39,6 +39,8 @@ extends Debug
 
    static final int	TOO_SMALL_TO_QUICKSORT	= 10;
 
+   public static final int	NO_RECOMPUTE	= -1;
+
    public FloatWeightSet(int initialSize)
    {
       size		= 0;
