@@ -1,8 +1,9 @@
 package cm.generic;
 
+import cm.media.text.NewPorterStemmer;
+
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
-
 
 /**
  * Non-linear flow multiplexor.
@@ -57,6 +58,8 @@ implements Runnable
  */
    Vector		toDispatch	= new Vector(30);
 
+   static HashMap	stemmersHash	= new HashMap();
+   
    Thread		timeoutThread;
    Thread		dispatchThread	= null;
    Thread[]		downloadThreads;
@@ -592,5 +595,18 @@ implements Runnable
    {
       this.hurry	= hurry;
       debug("setHurry("+hurry);
+   }
+
+   public static NewPorterStemmer getStemmer()
+   {
+      Thread currentThread		= Thread.currentThread();
+      NewPorterStemmer stemmer		= 
+	 (NewPorterStemmer) stemmersHash.get(currentThread);
+      if (stemmer == null)
+      {
+	 stemmer			= new NewPorterStemmer();
+	 stemmersHash.put(currentThread, stemmer);
+      }
+      return stemmer;
    }
 }
