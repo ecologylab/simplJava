@@ -23,6 +23,7 @@ import org.xml.sax.*;
  * @version     0.5
  */
 abstract public class ElementState extends IO
+implements Types
 {
 	/**
 	 * xml header
@@ -45,6 +46,16 @@ abstract public class ElementState extends IO
 	 */
 	protected boolean emitParentFields	 = false;
 	
+	
+/**
+ * Maps Strings that represent classes to integers.
+ * These integers, some of which are defined in the interface 
+ * {@link Types Types}. Type to integer mappings that are defined in
+ * this class use positive integers. All other extended types should
+ * use negative integers.
+ */	
+	protected static final HashMap settableTypes	  = new HashMap(32);
+	
 	protected static final Class STRING_CLASS;
 	static
 	{
@@ -57,6 +68,20 @@ abstract public class ElementState extends IO
 			e.printStackTrace();
 		}
 		STRING_CLASS	 = stringClass;
+
+		mapTypeToInt("java.lang.String", TYPE_STRING);
+		mapTypeToInt("int", TYPE_INT);
+		mapTypeToInt("boolean", TYPE_BOOLEAN);
+		mapTypeToInt("float", TYPE_FLOAT);
+		mapTypeToInt("double", TYPE_DOUBLE);
+		mapTypeToInt("long", TYPE_LONG);
+		mapTypeToInt("short", TYPE_SHORT);
+		mapTypeToInt("byte",  TYPE_BYTE);
+		mapTypeToInt("char", TYPE_CHAR);
+		mapTypeToInt("java.awt.Color", TYPE_COLOR);
+
+//		mapTypeToInt("java.awt.Date", TYPE_DATE);
+
 	}
 	public String tag()
 	{
@@ -719,27 +744,61 @@ abstract public class ElementState extends IO
 	 * <p/>
 	 * Note: support for ParsedURL is in CMElementState
 	 * 
+	 * @param typeIndex	The integer value mapped to the type of field.
 	 * @param field		Field object to set.
 	 * @param fieldValue	String representation of the value.
 	 * 
-	 * @return true if the field is set successfully. false if it seems to not exist.
+	 * @return true if the field is set successfully. false if we have no
+	 * builtin setter for it.
 	 */
-	protected boolean setPrimitiveField(Field field, String fieldValue)
+	protected boolean setExtendedPrimitiveField(int typeIndex,
+															  Field field, String fieldValue)
+	{
+		return false;
+	}
 	
+	/**
+	 * Set the specified extended primitive field in this, if possible.
+	 * Supported types: 
+	 * String, int, boolean, float, double, long, short, byte, Color.
+	 * <p/>
+	 * Should add support for: Date.
+	 * <p/>
+	 * Note: support for ParsedURL is in CMElementState
+	 * 
+	 * @param field		Field object to set.
+	 * @param fieldValue	String representation of the value.
+	 * 
+	 * @return true		if the field is set successfully, or if no fieldValue
+	 *							is actually passed in.. 
+	 *			  false		if we have no builtin setter for the field's type.
+	 */
+	protected final boolean setPrimitiveField(Field field, String fieldValue)
 	{
 		if ((fieldValue == null) || (fieldValue.length() == 0))
-			return true;
-		String className	= field.getType().getName();
-		boolean result	= false;
-//		debug("seeking automatic setter |" + className + "|\n\t" + field + " = "+
+			return false;
+		String typeName			  = field.getType().getName();
+		Integer typeIntegerObj	  = (Integer) settableTypes.get(typeName);
+		if (typeIntegerObj == null)
+			return false;				  // no settable mapping for this type
+		
+		int typeIndex				  = typeIntegerObj.intValue();
+		
+		if (typeIndex < 0)
+			return setExtendedPrimitiveField(typeIndex, field, fieldValue);
+
+//		debug("seeking automatic setter |" + typeName + "|\n\t" + field + " = "+
 //				fieldValue);
 
-		if (className.equals("java.lang.String"))
+		// one of our built-in types, or unknown
+
+		boolean	 result	= false;
+		switch (typeIndex)
 		{
+		case TYPE_STRING:
 			result		= setField(field, fieldValue);
-		}
-		else if (className.equals("int"))
-		{
+			break;
+		case TYPE_INT:
 			try
 			{
 				field.setInt(this, Integer.parseInt(fieldValue));
@@ -749,13 +808,12 @@ abstract public class ElementState extends IO
 				debug(errorString(field) + "to " + fieldValue);
 				e.printStackTrace();
 			}
-		}
-		else if (className.equals("boolean"))
-		{
-	        String lcValue= fieldValue.toLowerCase();
-	      	boolean value =  lcValue.equals("true") ||
-		 					 lcValue.equalsIgnoreCase("yes") || (lcValue.equals("1"));
-		    try
+			break;
+		case TYPE_BOOLEAN:
+			String lcValue= fieldValue.toLowerCase();
+			boolean value =  lcValue.equals("true") ||
+				lcValue.equalsIgnoreCase("yes") || (lcValue.equals("1"));
+			try
 			{
 				field.setBoolean(this, value);
 				result		= true;
@@ -764,10 +822,8 @@ abstract public class ElementState extends IO
 				debug(errorString(field) + "to " + fieldValue);
 				e.printStackTrace();
 			}
-//			 println("done setting int; result="+result);
-		}
-		else if (className.equals("float")) // float
-		{
+			break;
+		case TYPE_FLOAT:
 			try
 			{
 				field.setFloat(this, Float.parseFloat(fieldValue));
@@ -778,9 +834,8 @@ abstract public class ElementState extends IO
 				e.printStackTrace();
 			}
 //			println("done setting float; result="+result);
-		}
-		else if (className.equals("double"))
-		{
+			break;
+		case TYPE_DOUBLE:
 			try
 			{
 				field.setDouble(this, Double.parseDouble(fieldValue));
@@ -791,9 +846,8 @@ abstract public class ElementState extends IO
 				e.printStackTrace();
 			}
 //			println("done setting double; result="+result);
-		}
-		else if (className.equals("long"))
-		{
+			break;
+		case TYPE_LONG:
 			try
 			{
 				field.setLong(this, Long.parseLong(fieldValue));
@@ -804,9 +858,8 @@ abstract public class ElementState extends IO
 				e.printStackTrace();
 			}
 			//println("done setting long; result="+result);
-		}
-		else if (className.equals("short"))
-		{
+			break;
+		case TYPE_SHORT:
 			try
 			{
 				field.setShort(this, Short.parseShort(fieldValue));
@@ -817,9 +870,8 @@ abstract public class ElementState extends IO
 				e.printStackTrace();
 			}
 			//println("done setting short; result="+result);
-		}
-		else if (className.equals("byte"))
-		{
+			break;
+		case TYPE_BYTE:
 			try
 			{
 				field.setByte(this, Byte.parseByte(fieldValue));
@@ -830,16 +882,65 @@ abstract public class ElementState extends IO
 				e.printStackTrace();
 			}
 			//println("done setting byte; result="+result);
-		}
-		else if (className.equals("java.awt.Color"))
-		{
+			break;
+		case TYPE_CHAR:
+			try
+			{
+				field.setChar(this, fieldValue.charAt(0));
+				result		= true;
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+			//println("done setting byte; result="+result);
+			break;
+		case TYPE_COLOR:
 			int rgb			= Integer.parseInt(fieldValue, 16);
 			Color color		= new Color(rgb);
 			result			= setField(field, color);
-		}				
-		// URL, (ParsedURL -- in subclass), Color
+			break;
+//		case TYPE_DATE:
+//			break;
+		default:							  // a positive int we dont know about :-(
+			debug("cant find setter for " + field + " w index="+typeIndex+
+					" value="+fieldValue);
+			break;
+		}
 		return result;
 	}
+
+/**
+ * Assign an integer to a type. 
+ * Used by setPrimitiveField().
+ * <br/>
+ * Type to integer mappings that are defined in
+ * this class use positive integers. All other extended types should
+ * use negative integers.
+ * 
+ * @param typeName		the String that represents the type's name
+ * @param typeValue		the integer that represents the type's value
+ * 
+ * @return true if this is a new typeName
+ * @return false if this new typeName was already assigned, in which case,
+ * this method has no effect.
+ */
+	public static boolean mapTypeToInt(String typeName, int typeValue)
+	{ 
+		boolean result;
+		synchronized (settableTypes)
+		{
+			result	= !settableTypes.containsKey(typeName);
+			if (result)
+				settableTypes.put(typeName, new Integer(typeValue));
+			else
+				println("mapTypeToInt() ERROR! Cant redefine int mapping for "+
+						  typeName);
+		}
+		return result;
+	}
+
+
 	private static String errorString(Field f)
 	{
 		return "Error setting field " + f.getName() + " ";
