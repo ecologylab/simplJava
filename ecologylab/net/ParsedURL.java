@@ -114,16 +114,17 @@ extends Debug
       
       ParsedURL result	= null;
        if (!relativeURLPath.startsWith("http://") && !relativeURLPath.startsWith("ftp://"))
-      {
-      	try
-	{
-	   result	= new ParsedURL(new URL(base, relativeURLPath));
-	}
-      	catch (MalformedURLException e)
-		{
-      		Debug.println(urlErrorMsg(relativeURLPath, errorDescriptor));
-		}
-      }      
+       {
+	  try
+	  {
+	     result	= new ParsedURL(new URL(base, relativeURLPath));
+	  }
+	  catch (MalformedURLException e)
+	  {
+	     Debug.println(urlErrorMsg(relativeURLPath, errorDescriptor));
+	  }
+       }      
+      
       return result;
    }
    
@@ -227,7 +228,7 @@ extends Debug
 /**
  * @return	The suffix of the filename, in whatever case is found in the input string.
  */
-  public String suffix(String lc)
+  public static String suffix(String lc)
    {
       int afterDot	= lc.lastIndexOf('.') + 1;
       int lastSlash	= lc.lastIndexOf('/');
@@ -236,13 +237,7 @@ extends Debug
 	    : lc.substring(afterDot);
       return result;
    }
-/*
-   public String toString()
-   {
-//      return super.toString() + "[" +string() + "]";
-      return string();
-   }
-*/   
+
   /**
    * Uses lazy evaluation to minimize storage allocation.
    * 
@@ -286,7 +281,10 @@ extends Debug
     */
    public String noAnchorNoQueryPageString()
    {
-   	return StringTools.noAnchorNoQueryPageString(url);
+      if ((url.getRef() == null) && (url.getQuery() == null))
+	 return toString();
+      else
+	 return StringTools.noAnchorNoQueryPageString(url);
    }
    
    /*
@@ -303,22 +301,6 @@ extends Debug
    {
    	  return lc().endsWith(s);
  //     return suffix().equals(s);
-   }
-
-   /* 
-    * @return ParsedURL from relative url string.
-    */
-   public ParsedURL relativeURL(String s)
-   {
-      return relativeURL( s, null, false, false);
-   }
-   
-   /*
-    * return ParsedURL from relative url string.
-    */
-   public ParsedURL relativeURL(String s, boolean fromSearchPage)
-   {
-      return relativeURL(s, null, false, fromSearchPage);      
    }
 
    final static String unsupportedMimeStrings[]	=
@@ -346,6 +328,13 @@ extends Debug
    static final HashMap unsupportedProtocols = 
       Generic.buildHashMapFromStrings(unsupportedProtocolStrings);
 
+   static final String[] supportedProtocolStrings = 
+   {
+      "http", "ftp",
+   };
+   static final HashMap supportedProtocols = 
+      Generic.buildHashMapFromStrings(supportedProtocolStrings);
+
    static final String[] imgMimeStrings	=
    {
       "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", 
@@ -360,23 +349,82 @@ extends Debug
    static final HashMap htmlMimes = 
       Generic.buildHashMapFromStrings(htmlMimeStrings);
 
-   /**
-    * @param	search -- does
-    * skipSlashifying	Slashifying is generally necessary to
-    * make links to directories work (when they dont end in /).
-    * This breaks Yahoo search, so we can parameterize it.
-    * Also peels off all arguments cause search engines like to add their
-    * own. ??? this is a disaster for creatingmedia.com when its listed ???
-    * When this comes up, consider putting in a special exception, or
-    * look real hard at the structure of them URLs!!!
-    */
-   public ParsedURL relativeURL(String s, String errorIdString,
-			    boolean search, boolean tossArgsAndHash)
+
+/**
+ * Called while processing (parsing) HTML.
+ * Used to create new <code>ParsedURL</code>s from urlStrings in
+ * response to such as the <code>a</code> element's <code>href</code>
+ * attribute, the <code>img</code> element's <code>src</code> attribute,
+ * etc.
+ * <p>
+ * Does processing of some fancy stuff, like, in the case of
+ * <code>javascript:</code> URLs, it mines them for embedded absolute
+ * URLs, if possible, and uses only those embedded URLs.
+ * 
+ * @param addressString	This may be specify a relative or absolute url.
+ * 
+ * @return	The resulting ParsedURL. It may be null. It will never have 
+ *		protocol <code>javascript:</code>.
+ */
+   public ParsedURL createFromHTML(String addressString)
    {
-      if ((s == null) || (s.length() == 0))
+      return createFromHTML( addressString, false, false);
+   }
+/**
+ * Called while processing (parsing) HTML.
+ * Used to create new <code>ParsedURL</code>s from urlStrings in
+ * response to such as the <code>a</code> element's <code>href</code>
+ * attribute, the <code>img</code> element's <code>src</code> attribute,
+ * etc.
+ * <p>
+ * Does processing of some fancy stuff, like, in the case of
+ * <code>javascript:</code> URLs, it mines them for embedded absolute
+ * URLs, if possible, and uses only those embedded URLs.
+ * 
+ * @param addressString	This may be specify a relative or absolute url.
+ * 
+ * @param fromSearchPage If false, then add <code>/</code> to the end
+ * of the URL if it seems to be a directory.
+ * 
+ * @return	The resulting ParsedURL. It may be null. It will never have 
+ *		protocol <code>javascript:</code>.
+ */
+   public ParsedURL createFromHTML(String addressString, 
+				   boolean fromSearchPage)
+   {
+      return createFromHTML(addressString, fromSearchPage, false);      
+   }
+
+/**
+ * Called while processing (parsing) HTML.
+ * Used to create new <code>ParsedURL</code>s from urlStrings in
+ * response to such as the <code>a</code> element's <code>href</code>
+ * attribute, the <code>img</code> element's <code>src</code> attribute,
+ * etc.
+ * <p>
+ * Does processing of some fancy stuff, like, in the case of
+ * <code>javascript:</code> URLs, it mines them for embedded absolute
+ * URLs, if possible, and uses only those embedded URLs.
+ * 
+ * @param addressString	This may be specify a relative or absolute url.
+ * 
+ * @param fromSearchPage If false, then add <code>/</code> to the end
+ * of the URL if it seems to be a directory.
+ * 
+ * @param tossArgsAndHash if true, eliminate everything after <code>?</code>
+ * and <code>#</code> in the URL.
+ * 
+ * @return	The resulting ParsedURL. It may be null. It will never have 
+ *		protocol <code>javascript:</code>.
+ */
+   public ParsedURL createFromHTML(String addressString, 
+				   boolean fromSearchPage, 
+				   boolean tossArgsAndHash)
+   {
+      if ((addressString == null) || (addressString.length() == 0))
 	 return null;
 	 
-	 if(url!=null)
+	 if (url!=null)
 	 {
 		 String urlString = url.toString();	 				 
 	
@@ -388,17 +436,14 @@ extends Debug
 		 		
 		 	if(lastPart.indexOf(".")!=-1)	 	
 		 	lastPart =  urlString.substring(urlString.lastIndexOf(".")+1);	 		 	
-		 	
 		 	if ((!imgMimes.containsKey(lastPart))&&(!htmlMimes.containsKey(lastPart)))		 	
 				// use new ParsedURL constructor.
 		 		url = getAbsolute(urlString, "").url();
 	
 		 }
 	 }
-	 
-      
       URL newUrl = null;
-      String	lc	= s.toLowerCase();
+      String	lc	= addressString.toLowerCase();
       boolean javascript	= lc.startsWith("javascript:");
       // special: seeking to data mine urls from javascript quoted strings
       if (javascript)
@@ -412,7 +457,7 @@ extends Debug
 //			 " http="+http+" html="+html);
 		 if ((http > -1) && (html > -1) && (http < html))
 		 {
-		    s		= s.substring(http, html + 5);
+		    addressString= addressString.substring(http, html + 5);
 //		    println("Container.newURL fixed javascript:= " + s);
 		    lc		= lc.substring(http, html + 5);
 		    javascript	= false;
@@ -424,66 +469,64 @@ extends Debug
 		 // or suffix is htmlMime or imgMime.
       }
       if (javascript)
-      {
-	 // println("rejecting " + s); 
-		 return null;
-      }
+	 return null;
+
       // used to check for mime here!!! now we do that where the crawler is 
       // if !crawlable(lc) ...
 
       // handle embedded http://
-      int lastHttp	= s.lastIndexOf("http://");
+      int lastHttp	= addressString.lastIndexOf("http://");
       char argDelim	= '?';
       if (lastHttp > 0)
       {
 	 // this is search engine crap
-	 s		= s.substring(lastHttp);
+	 addressString		= addressString.substring(lastHttp);
 	 // handle any embedded args (for google mess)
 	 argDelim		= '&';
       }
-      if (!search)
+      if (!fromSearchPage)
       {
 	 // 1) peel off hash
-	 int hashPos	= s.indexOf('#'); 
+	 int hashPos	= addressString.indexOf('#'); 
 	 String hashString= StringTools.EMPTY_STRING;
 	 if (hashPos > -1)
 	 {
-	    hashString	= s.substring(hashPos);
-	    s		= s.substring(0, hashPos);
+	    hashString	= addressString.substring(hashPos);
+	    addressString		= addressString.substring(0, hashPos);
 	 }
 	 // 2) peel off args
-	 int argPos	= s.indexOf(argDelim);
+	 int argPos	= addressString.indexOf(argDelim);
 	 String argString	= StringTools.EMPTY_STRING;
 	 if (argPos > -1)
 	 {
-	    argString	= s.substring(argPos);
-	    s		= s.substring(0, argPos);
+	    argString	= addressString.substring(argPos);
+	    addressString		= addressString.substring(0, argPos);
 	 }
 	 else
 	 {
 	    // 3) if what's left is a directory (w/o a mime type),add slash
-	    int endingSlash	= s.lastIndexOf('/');
-	    int lastChar	= s.length() - 1;
+	    int endingSlash	= addressString.lastIndexOf('/');
+	    int lastChar	= addressString.length() - 1;
 	    if (endingSlash == -1)
 	       endingSlash++;
 	    if ((lastChar > 0) &&
 		(lastChar != endingSlash) &&
-		(s.substring(endingSlash).indexOf('.') == -1))
-	       s	       += '/';
+		(addressString.substring(endingSlash).indexOf('.') == -1))
+	       addressString	       += '/';
 	 }
 	 if (!tossArgsAndHash)
 	    // 4) put back what we peeled off
-	    s	       += argString + hashString;
+	    addressString	       += argString + hashString;
       }
       
       ParsedURL parsedUrl;
       try
       {
 	 if (url == null)	   
-	    newUrl = new URL(s);
+	    newUrl = new URL(addressString);
 	 else
 	 {
-	    newUrl = new URL(url, s);	       
+	    newUrl = new URL(url, addressString);	       
 	 }	      
 	 
 	 parsedUrl		= new ParsedURL(newUrl);	 
@@ -491,8 +534,8 @@ extends Debug
       catch (MalformedURLException e)
       {
 	 parsedUrl		= null;
-	 println("Container.parseURL() cant access this malformed url:\n\t" +
-	      url +"/"+ s + "\n\t" + e + "\n");
+	 debugA("cant access malformed url:\n\t" +
+	      url +"/"+ addressString + "\n\t" + e + "\n");
       }
             
       return parsedUrl;
@@ -526,63 +569,31 @@ extends Debug
    
   
    /**
-    * NB: this should be using ParsedURL!
-    * 
     * @param lc	String form of a url, already converted to lower case.
     * 
     * @return true if this seems to be a web addr we can crawl to.
     * 			(currently that means html).
     **/
-   	public boolean crawlableLc()
+   public boolean crawlable()
     {
-        if (!protocolIsSupported(url.getProtocol()))
-         	return false;
- 
-        if( lc == null )
-        	lc = lc();
-  
-         // check for an unsupported mime extension so we dont
-         // useless binary data    
-        int lastSlash	= lc.lastIndexOf("/");
-        if (lastSlash == -1)
-         	lastSlash	= 0;
-        String fileName	= lc.substring(lastSlash);
-        int dot		= fileName.lastIndexOf(".");
-//       println("crawlable()lastSlash="+lastSlash+" dot="+dot+ fileName+" "+lc);
-   	  	boolean result	= true;
-         if (dot > 0)
-         {
-         	String mime	= fileName.substring(dot + 1);
-         	result		= !unsupportedMimes.containsKey(mime);	 
-         }
-         return result;
-     }  
+       return protocolIsSupported() && !unsupportedMimes.containsKey(suffix());
+    }  
 
    	/*
    	 * check whether the protocol is supported or not from unsupportedProtocols.
    	 */
-   public boolean protocolIsSupported(String urlPath)
-      {
-         boolean result	= true;
-         int separator	= urlPath.indexOf("://");
-         if (separator == -1)
-         	separator	= urlPath.indexOf(":");
-         if (separator > 0)			    // if not a relative path
-         {
-         	String protocol	= urlPath.substring(0, separator);
-//   	 println("Container.protocolIsSupported.(testing " + protocol);
-         	result		= !unsupportedProtocols.containsKey(protocol);
-         }
-         return result;
-      }
+   public boolean protocolIsSupported()
+   {
+      return
+	 (url != null) && supportedProtocols.containsKey(url.getProtocol());
+   }
    
    /**
     * @param	suffix	file name suffix in lower case.
     */
     public  boolean isImg()
     {
-    	if( suffix == null )
-    		suffix = suffix();
+       suffix = suffix();
         return (suffix != null) && (suffix.length() != 0) && 
 		 	imgMimes.containsKey(suffix);
     }
@@ -592,8 +603,7 @@ extends Debug
     */
    public boolean isHTML()
       {
-   		if( suffix == null )
-   			suffix = suffix();
+	 suffix = suffix();
         return htmlMimes.containsKey(suffix);
       }
    
@@ -603,8 +613,7 @@ extends Debug
     */
    public boolean isUnsupported()
     {
-   		if( suffix == null )
-   			suffix = suffix();
+       suffix = suffix();
         return unsupportedMimes.containsKey(suffix);
     }
    
@@ -621,9 +630,6 @@ extends Debug
     */
    public String directoryString()
    {
-         int port		= url.getPort();
-         String portStr	= (port == -1) ? "" : ":" + port;
-         String protocol	= url.getProtocol() + "://";
          String path	= url.getFile();
          int	args		= path.indexOf("?");
 
@@ -633,7 +639,20 @@ extends Debug
          int	lastDot		= path.lastIndexOf(".");
          if (lastDot > lastSlash)
          	path		= path.substring(0,lastSlash); 
-         return protocol + url.getHost() + portStr + path;
+
+         int portNum		= url.getPort();
+         String port		= (portNum == -1) ? "" : ":" + portNum;
+	 String host		= url.getHost();
+         String protocol	= url.getProtocol();
+
+	 int stringLength	= protocol.length() + 3 + host.length()
+	    + port.length() + path.length();
+
+	 StringBuffer buffy	= new StringBuffer(stringLength);
+	 buffy.append(protocol).append("://").append(host).
+	    append(port).append(path);
+
+         return buffy.toString();  // dont copy; wont reuse buffy
    }
    public boolean equals(Object o)
    {
