@@ -175,25 +175,7 @@ public interface Environment
       {
 	 return frame;
       }
-/**
- * Get a float parameter from the runtime environment.
- * 
- * @param	paramName	The name of the parameter's key.
- * @param	defaultValue	Default floating point value, in case param is 
- *				unspecified in the runtime env.
- */
-   public float parameterFloat(String paramName, float defaultValue)
-   {
-      String paramValue	= environment.parameter(paramName);
-      float result	= defaultValue;
-      if (paramValue != null)
-      {
-	 float parsedValue	= Generic.parseFloat(paramValue);
-	 if (!Float.isNaN(parsedValue))
-	    result	= parsedValue;
-      }
-      return result;
-   }
+
    };
    static The the	= new The();
 
@@ -261,24 +243,24 @@ public interface Environment
 /**
  * {@link java.applet.Applet#getCodeBase() java.applet.Applet.getCodeBase()}
  */
-    URL codeBase();
+    ParsedURL codeBase();
 /**
  * {@link java.applet.Applet#getDocumentBase() java.applet.Applet.getDocBase()}
  */
-    URL docBase();
+    ParsedURL docBase();
 
 /**
  * @return an URL relative to html document
  */   
-   URL rel(String relativeURL);
+//   URL rel(String relativeURL);
 /**
- * @return an URL relative to the code base.
+ * @return an ParsedURL relative to the code base.
  */   
-   URL codeRelativeURL(String relativeURL);
+   ParsedURL codeRelativeURL(String relativeURL);
 /**
- * @return an URL relative to the code base.
+ * @return an ParsedURL relative to the code base.
  */   
-   URL docRelativeURL(String relativeURL);
+   ParsedURL docRelativeURL(String relativeURL);
 
    public static final int	APPLICATION	= -1;
    public static final int	IE		= 0;
