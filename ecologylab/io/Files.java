@@ -327,7 +327,7 @@ extends Debug
       try
       {  
 	 writer.write(toWrite);
-	Debug.println("writeLine: " + toWrite);
+//	 Debug.println("writeLine: " + toWrite);
 	 writer.newLine();
       }
 	 catch(IOException e) {ok = false;}
