@@ -19,7 +19,7 @@ public class ThreadDebugger extends Debug
 	
 	static 	int nThreads;
 
-	static     JFrame threadControlFrame = new JFrame("Toggle Threads");
+	static     JFrame threadControlFrame = new JFrame("Thread Debugger");
 	static     JPanel threadControlPanel =  new JPanel();
 	static     Box verticalBox = new Box(BoxLayout.Y_AXIS);
 	static     ActionListener threadToggler;
@@ -56,7 +56,7 @@ public class ThreadDebugger extends Debug
 		threadControlFrame.getContentPane().add(threadControlPanel);
 		threadControlFrame.pack();
 		setPosition();		
-		threadControlFrame.setVisible(true);		
+//		threadControlFrame.setVisible(true);		
 	}	
 	
 	public ThreadDebugger()
