@@ -162,10 +162,18 @@ extends Debug
    /* cons(i) is true <=> b[i] is a consonant. */
 
    private final boolean cons(int i)
-   {  switch (b.charAt(i))
-      {  case 'a': case 'e': case 'i': case 'o': case 'u': return false;
+   {  
+      try
+      {
+	 switch (b.charAt(i))
+	 {  case 'a': case 'e': case 'i': case 'o': case 'u': return false;
          case 'y': return (i==0) ? true : !cons(i-1);
          default: return true;
+	 }
+      } catch (StringIndexOutOfBoundsException e)
+      {
+	 debug("cons("+i+") ERROR b="+b);
+	 throw e;
       }
    }
 
