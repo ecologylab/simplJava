@@ -235,6 +235,10 @@ extends Debug
    {
       return openWriter(newFile(oFileName), 1, append);
    }
+   public static BufferedWriter openWriter(File oFile, boolean append)
+   {
+      return openWriter(oFile, 1, append);
+   }
    
    public static BufferedWriter openWriter(File oFile)
    {
