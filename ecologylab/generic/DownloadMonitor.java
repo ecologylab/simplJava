@@ -383,7 +383,7 @@ implements Runnable
    
    protected Thread makeDownloadThread(int i, String s)
    {
-      debug("makeDownloadThread()");
+//      debug("makeDownloadThread()");
 	  return new Thread(toString()+"-download "+i+" "+s)
 	  {
 	 public void run()
