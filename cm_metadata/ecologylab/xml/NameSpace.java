@@ -12,11 +12,12 @@ import java.util.Hashtable;
  */
 public class NameSpace extends IO 
 {
+   protected String		name;
    /**
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
 	*/
-   private String defaultPackageName = "cm.state";
+   private String		defaultPackageName = "cm.state";
    
    /**
 	* This boolean controls whether package names are added to the class names
@@ -35,11 +36,12 @@ public class NameSpace extends IO
 	*/
    private final HashMap classPackageMappings = new HashMap();
    
-   public NameSpace()	
+   public NameSpace(String name)
    {
 	  // !!! these lines need to be moved to the studies package !!!
 //	  addTranslation("studies", "SubjectState");
 //	  addTranslation("studies", "SubjectSet");
+	  this.name	= name;
    }
    
    /**
@@ -104,7 +106,12 @@ public class NameSpace extends IO
 	  {
 		 String className	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
-		 entry				= new NameEntry(packageName, className);	
+		 entry				= new NameEntry(packageName, className, xmlTag);
+	  }
+	  else if (entry.empty)
+	  {
+//		 debug("using memorized no mapping for " + xmlTag);
+		 return null;
 	  }
 	  return entry.classObj;
    }
@@ -149,6 +156,7 @@ public class NameSpace extends IO
 	  public final String		tagWithPackage;
 	  public final Class		classObj;
 
+	  boolean					empty;
 	  
 /**
  * Create the entry by package name and class name.
@@ -179,9 +187,11 @@ public class NameSpace extends IO
 			   classObj			= Class.forName(wholeClassName+"State");
 			} catch (ClassNotFoundException e2)
 			{
-			   debug("WARNING: couldn't find class object");
-				 this.classObj			= classObj;
-				 return;
+			   debug("WARNING: can't find class object, create empty entry.");
+
+//			   this.classObj			= classObj;
+			   this.empty				= true;
+//			   return;
 			}
 		 }
 		 this.classObj			= classObj;
@@ -213,5 +223,9 @@ public class NameSpace extends IO
 		 buffy.append(']');
 		 return XmlTools.toString(buffy);
 	  }
+   }
+   public String toString()
+   {
+      return "NameSpace";
    }
 }
