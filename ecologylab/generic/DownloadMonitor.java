@@ -436,6 +436,7 @@ implements Runnable
 	    }
 	    else
 	    {
+	       int[] priorities		= this.priorities; // avoid race
 	       if (downloadThreads != null)
 	       {
 		  for (int i=0; i<numDownloadThreads; i++)
