@@ -119,8 +119,8 @@ extends Debug
    }
    public static BufferedReader openWebReader(String webAddr)
    {
-      URL url = Generic.getURL(webAddr, "");
-      return openReader(url);
+      ParsedURL purl = ParsedURL.getRelativeOrAbsolute(webAddr, "");
+      return openReader(purl.url());
    }
    public static BufferedReader openReader(File file)
    {
