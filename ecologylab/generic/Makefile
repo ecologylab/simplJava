@@ -1,14 +1,14 @@
 # current working directory
 DIR	= cm/generic
 
-JAVA_SRC = Generic.java Attribute.java \
-	   Files.java Colors.java StringTools.java \
+JAVA_SRC = Generic.java Attribute.java Debug.java \
+	   Files.java Colors.java ObservableDebug.java StringTools.java \
 	   DispatchTarget.java \
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
 	   Environment.java ApplicationEnvironment.java \
 	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
 	   FloatSetElement.java FloatWeightSet.java \
-	   Debug.java Memory.java StringInputStream.java  Convenience.java\
+	   Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java \
 	   StringBuffersPool.java SyncLinkedList.java
 
