@@ -111,8 +111,9 @@ public class ImageTools
 	    // save thumbnail image to OUTFILE
 	    try
 	    {
-		    BufferedOutputStream out = new BufferedOutputStream(new
-		    FileOutputStream(fileName + "_thumbnail" + ".jpg"));
+		    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(fileName));
+//		    FileOutputStream(fileName + "_thumbnail" + ".jpg"));
+		    
 		    
 		    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
 		    JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbImage);
