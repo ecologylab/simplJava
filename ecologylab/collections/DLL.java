@@ -60,12 +60,22 @@ extends Debug
 //      object	= null;		   // encourage gc
    }
 /**
- * Remove the relations of this node, while it is being deleted.
+ * Remove the relations of this node, while it is being manipulated in
+ * the midst of mergeSort().
  */
    public void clear()
    {
       prevSib	= null;
       nextSib	= null;
+//      remove();
+      object	= null;
+   }
+/**
+ * Remove the relations of this node, while it is being deleted.
+ */
+   public void clearStronger()
+   {
+      remove();
       object	= null;
    }
 /**
