@@ -423,7 +423,8 @@ extends Debug
    {
       if ((addressString == null) || (addressString.length() == 0))
 	 return null;
-	 
+//      debugA("addressString="+addressString);
+      
 	 if (url!=null)
 	 {
 		 String urlString = url.toString();	 				 
@@ -474,17 +475,23 @@ extends Debug
       // used to check for mime here!!! now we do that where the crawler is 
       // if !crawlable(lc) ...
 
-      // handle embedded http://
-      int lastHttp	= addressString.lastIndexOf("http://");
       char argDelim	= '?';
-      if (lastHttp > 0)
+      if (fromSearchPage)
       {
-	 // this is search engine crap
-	 addressString		= addressString.substring(lastHttp);
-	 // handle any embedded args (for google mess)
-	 argDelim		= '&';
+	 // handle embedded http://
+	 int lastHttp	= addressString.lastIndexOf("http://");
+	 // usually ? but could be &
+	 if (lastHttp > 0)
+	 {
+	    // this is search engine crap
+	    addressString		= addressString.substring(lastHttp);
+//	    debugA("now addressString="+addressString);
+	    // handle any embedded args (for google mess)
+	    argDelim		= '&';
+	 }
       }
-      if (!fromSearchPage)
+//      if (!fromSearchPage)
+      else
       {
 	 // 1) peel off hash
 	 int hashPos	= addressString.indexOf('#'); 
@@ -534,8 +541,9 @@ extends Debug
       catch (MalformedURLException e)
       {
 	 parsedUrl		= null;
-	 debugA("cant access malformed url:\n\t" +
-	      url +"/"+ addressString + "\n\t" + e + "\n");
+	 debug("createFromHTML() cant access malformed url:\n\t" +
+	      url +"\n\taddressString = "+ addressString);
+	 e.printStackTrace();
       }
             
       return parsedUrl;
