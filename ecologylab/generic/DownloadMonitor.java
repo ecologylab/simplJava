@@ -401,13 +401,16 @@ implements Runnable
 
 	    if (paused)
 	    {
-	       for (int i=0; i<numDownloadThreads; i++)
+	       if (downloadThreads != null)
 	       {
-		  Thread thatThread	= downloadThreads[i];
-		  if (thatThread != null)
+		  for (int i=0; i<numDownloadThreads; i++)
 		  {
-		     priorities[i]		= thatThread.getPriority();
-		     thatThread.setPriority(Thread.MIN_PRIORITY);
+		     Thread thatThread	= downloadThreads[i];
+		     if (thatThread != null)
+		     {
+			priorities[i]		= thatThread.getPriority();
+			thatThread.setPriority(Thread.MIN_PRIORITY);
+		     }
 		  }
 	       }
 	    }
