@@ -421,13 +421,43 @@ extends Debug
 				   boolean fromSearchPage, 
 				   boolean tossArgsAndHash)
    {
+	  return createFromHTML(url(), addressString, fromSearchPage, 
+							tossArgsAndHash);
+   }
+/**
+ * Called while processing (parsing) HTML.
+ * Used to create new <code>ParsedURL</code>s from urlStrings in
+ * response to such as the <code>a</code> element's <code>href</code>
+ * attribute, the <code>img</code> element's <code>src</code> attribute,
+ * etc.
+ * <p>
+ * Does processing of some fancy stuff, like, in the case of
+ * <code>javascript:</code> URLs, it mines them for embedded absolute
+ * URLs, if possible, and uses only those embedded URLs.
+ * 
+ * @param addressString	This may be specify a relative or absolute url.
+ * 
+ * @param fromSearchPage If false, then add <code>/</code> to the end
+ * of the URL if it seems to be a directory.
+ * 
+ * @param tossArgsAndHash if true, eliminate everything after <code>?</code>
+ * and <code>#</code> in the URL.
+ * 
+ * @return	The resulting ParsedURL. It may be null. It will never have 
+ *		protocol <code>javascript:</code>.
+ */
+   public static ParsedURL createFromHTML(URL contextURL,
+										  String addressString, 
+										  boolean fromSearchPage, 
+										  boolean tossArgsAndHash)
+   {
       if ((addressString == null) || (addressString.length() == 0))
 	 return null;
 //      debugA("addressString="+addressString);
       
-	 if (url!=null)
+	 if (contextURL != null)
 	 {
-		 String urlString = url.toString();	 				 
+		 String urlString = contextURL.toString();	 				 
 	
 		 //if the base url is a folder but not ended with "/", we need to add one "/"
 		 if ((urlString.charAt(urlString.length()-1))!='/')
@@ -439,7 +469,7 @@ extends Debug
 		 	lastPart =  urlString.substring(urlString.lastIndexOf(".")+1);	 		 	
 		 	if ((!imgMimes.containsKey(lastPart))&&(!htmlMimes.containsKey(lastPart)))		 	
 				// use new ParsedURL constructor.
-		 		url = getAbsolute(urlString, "").url();
+		 		contextURL = getAbsolute(urlString, "").url();
 	
 		 }
 	 }
@@ -529,21 +559,21 @@ extends Debug
       ParsedURL parsedUrl;
       try
       {
-	 if (url == null)	   
-	    newUrl = new URL(addressString);
-	 else
-	 {
-	    newUrl = new URL(url, addressString);	       
-	 }	      
-	 
-	 parsedUrl		= new ParsedURL(newUrl);	 
+		 if (contextURL == null)	   
+			newUrl = new URL(addressString);
+		 else
+		 {
+			newUrl = new URL(contextURL, addressString);	       
+		 }	      
+		 
+		 parsedUrl		= new ParsedURL(newUrl);	 
       }
       catch (MalformedURLException e)
       {
-	 parsedUrl		= null;
-	 debug("createFromHTML() cant access malformed url:\n\t" +
-	      url +"\n\taddressString = "+ addressString);
-	 e.printStackTrace();
+		 parsedUrl		= null;
+		 println("ParsedURL.createFromHTML() cant access malformed url:\n\t" +
+				 contextURL +"\n\taddressString = "+ addressString);
+		 e.printStackTrace();
       }
             
       return parsedUrl;
