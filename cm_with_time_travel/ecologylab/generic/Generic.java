@@ -47,7 +47,7 @@ public class Generic
 /**
  * Get an integer parameter from the runtime environment. The default is 0.
  * 
- * @param	name	The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  */
    public static int parameterInt(String paramName)
    { return parameterInt(paramName, 0); }
@@ -55,7 +55,7 @@ public class Generic
 /**
  * Get an integer parameter from the runtime environment. 
  * 
- * @param	name		The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default integer value, in case param is 
  *				unspecified in the runtime env.
  */
@@ -76,7 +76,7 @@ public class Generic
 /**
  * Get a float parameter from the runtime environment.
  * 
- * @param	name		The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default floating point value, in case param is 
  *				unspecified in the runtime env.
  */

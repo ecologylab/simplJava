@@ -10,7 +10,7 @@ package cm.generic;
 public interface MergeD
 {
 /**
- * Descending merge operation for descending merge sort.
+ * Descending merge operation for merge sort descending.
  * 
  * @param	both input lists assumed to already be in descending
  *		sorted order.

@@ -129,7 +129,9 @@ public class MathTools
 
 /**
  * random plus or minus
- * @param	op is 0 to 1
+ * @param factor the magnitude of the desired result.
+ * 
+ * @return	a random number in the interval [-factor, factor].
  */
    public static float randPM(float factor) 
      { return pM(random(), factor);}

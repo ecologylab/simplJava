@@ -230,7 +230,14 @@ implements CharacterConstants
 				String fieldValue = escapeXML( field.get(obj) + "" );
 				
 				//default values are not emitted, to keep the xml short
-				if(fieldValue.equals(DEFAULT_STRING) || fieldValue.equals(DEFAULT_BOOLEAN) || 
+				if(field.getType().getName().equals("java.lang.String") || 
+						field.getType().getName().equals("java.net.URL") || 
+							field.getType().getName().equals("java.awt.Color"))
+				{
+					if(fieldValue.equals(DEFAULT_STRING))
+						return "";
+				}
+				else if(fieldValue.equals(DEFAULT_BOOLEAN) || 
 				   fieldValue.equals(DEFAULT_FLOAT) || fieldValue.equals(DEFAULT_INT))
 				{
 					return "";

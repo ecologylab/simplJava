@@ -31,7 +31,7 @@ extends Debug
 /**
  * Add sibs to the end of this.
  * 
- * @param	DLL for object added to the end of this.
+ * @param sibs	DLL for object added to the end of this.
  */
    public void addToEnd(DLL sibs)
    {
