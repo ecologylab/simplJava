@@ -178,7 +178,7 @@ public interface Environment
 /**
  * Get a float parameter from the runtime environment.
  * 
- * @param	name		The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default floating point value, in case param is 
  *				unspecified in the runtime env.
  */
@@ -235,14 +235,14 @@ public interface Environment
 /**
  * Get an integer parameter from the runtime environment. The default is 0.
  * 
- * @param	name	The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  */
    public int parameterInt(String paramName);
    
 /**
  * Get an integer parameter from the runtime environment. 
  * 
- * @param	name		The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default integer value, in case param is 
  *				unspecified in the runtime env.
  */
@@ -251,7 +251,7 @@ public interface Environment
 /**
  * Get a float parameter from the runtime environment.
  * 
- * @param	name		The name of the parameter's key.
+ * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default floating point value, in case param is 
  *				unspecified in the runtime env.
  */

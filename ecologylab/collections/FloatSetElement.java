@@ -61,8 +61,7 @@ extends Debug
       delete(1);
    }
 /**
- * @param	recompute:
- * 			-1 for absolutely no recompute
+ * @param recompute	-1 for absolutely no recompute
  * 			 0 for recompute upwards from el
  * 			 1 for recompute all
  */

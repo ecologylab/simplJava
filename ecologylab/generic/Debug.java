@@ -108,7 +108,7 @@ public class Debug
    }
    
 /**
- * @param	messageLevel. If less than or equal to the static level,
+ * @param	messageLevel If less than or equal to the static level,
  * message will get logged. Otherwise, the statement will be ignored.
  */
    public static void println(int messageLevel, String message) 

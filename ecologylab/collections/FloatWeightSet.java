@@ -106,11 +106,10 @@ extends Debug
  * Perhaps recompute incremental sums for randomSelect() integrity.
  * Includes ensuring we cant pick el again.
  * 
- * @parm	The SetElement element to delete.
- * @param	recompute:
- * 			-1 for absolutely no recompute
- * 			 0 for recompute upwards from el
- * 			 1 for recompute all
+ * @param el		The SetElement element to delete.
+ * @param recompute	-1 for absolutely no recompute.
+ * 			 0 for recompute upwards from el.
+ * 			 1 for recompute all.
  **/
    public synchronized void delete(FloatSetElement el, int recompute)
    {
