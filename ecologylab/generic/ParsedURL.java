@@ -498,8 +498,7 @@ extends Debug
    {
       if ((addressString == null) || (addressString.length() == 0))
 		 return null;
-//      debugA("addressString="+addressString);
-      
+//      debugA("addressString="+addressString);    
       URL base = null;
 	 if (contextURL != null)
 	 {
@@ -558,7 +557,7 @@ extends Debug
 
       char argDelim	= '?';
       // url string always keep hash string.
-      String hashString = null;
+      String hashString = StringTools.EMPTY_STRING;
       URL hashUrl = null;
       if (fromSearchPage)
       {
@@ -629,7 +628,7 @@ extends Debug
 			if( tossHash && (hashString!=""))
 				hashUrl = new URL(contextURL, (addressString+hashString));
 		 }
-		 else
+		 else if( base != null)
 		 {
 		 	newUrl = new URL(base, addressString);
 		 	if( tossHash && (hashString!=""))
@@ -687,7 +686,7 @@ extends Debug
        return protocolIsSupported() && !unsupportedMimes.containsKey(suffix());
     }  
 
-   	/*
+   	/**
    	 * check whether the protocol is supported or not from unsupportedProtocols.
    	 */
    public boolean protocolIsSupported()
