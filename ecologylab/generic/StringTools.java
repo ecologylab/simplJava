@@ -1,6 +1,5 @@
 package cm.generic;
 
-import java.lang.*;
 import java.net.*;
 import java.util.*;
 
@@ -15,7 +14,7 @@ extends Debug
 {
    static final String[]	oneDotDomainStrings = 
    {
-      "com", "edu", "gov", "org", "net",
+      "com", "edu", "gov", "org", "net", "tv",
    };
    static final HashMap	oneDotDomains	= 
       Generic.buildHashMapFromStrings(oneDotDomainStrings);
@@ -101,6 +100,10 @@ extends Debug
       return buffer.substring(0);
    }
    public static final boolean contains(String in, String toMatch)
+   {
+      return (in == null) ? false : in.indexOf(toMatch) != -1;
+   }
+   public static final boolean contains(String in, char toMatch)
    {
       return (in == null) ? false : in.indexOf(toMatch) != -1;
    }
@@ -278,15 +281,14 @@ extends Debug
 	    {
 	       result[resultIndex++]	= 
 		  new String(buffer, transition, (i - transition));
-			     in.substring(transition, i);
-//			     result[resultIndex++]	= in.substring(transition, i);
-			     transition				= i;
-			  }
+//	       result[resultIndex++]	= in.substring(transition, i);
+	       transition		= i;
 	    }
-	    buffer[i]	= thisChar;
-  	 }
-  	 result[resultIndex]= new String(buffer, transition, (n - transition));
-   	 return result;
+	 }
+	 buffer[i]	= thisChar;
+      }
+      result[resultIndex]= new String(buffer, transition, (n - transition));
+      return result;
    }
 /**
  * Remove all instances of @param c from @arg string
@@ -307,7 +309,61 @@ extends Debug
       }
       return string;
    }
+   public static final String FIND_PUNCTUATION_REGEX = 
+      "(:)|(\\d)|(\\.)|(/++)|(=)|(\\?)|(\\-)|(\\+)|(_)|(%)|(\\,)";        
+/**
+ * Use RegEx to turn punctuation into space delimiters.
+ */
+   public static String removePunctuation(String s)
+   {
+      int length		= s.length();
+      StringBuffer buffy	= new StringBuffer(length);
+      
+      boolean	wasSpace	= true;
+      
+      for (int i=0; i<length; i++)
+      {
+	 char c			= s.charAt(i);
+	 if (Character.isLetter(c))
+	 {
+	    buffy.append(c);
+	    wasSpace		= false;
+	 }
+	 else
+	 {
+	    if (!wasSpace)
+//	       buffy.append('-');
+	       buffy.append(' ');
+	    wasSpace		= true;
+	 }
+      }
+      return new String(buffy);
+   }
+   
+   public static String removePunctuation2(String s)
+   {
+      return s.replaceAll(FIND_PUNCTUATION_REGEX, " ");
+   }
+
+   public static String removePunctuation(URL u)
+   {
+      // we don't use the protocol and host:port part in url
+      return removePunctuation(u.getPath());
+   }
+   public static String[] wordsFromURL(URL u)
+   {
+      String withoutPunctuation = StringTools.removePunctuation(u);
+      return StringTools.seperateLowerUpperCase(withoutPunctuation);
+   }
+   
+
    public static void main(String[] s)
+   {
+      URL u = Generic.getURL("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
+//      println(removePunctuation("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif"));
+      println(removePunctuation(u));
+   }
+   public static void main2(String[] s)
    {
    		for (int i=0; i<s.length; i++)
    		{
