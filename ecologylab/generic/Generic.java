@@ -199,6 +199,10 @@ public class Generic
    {
       return Environment.the.javaVersion();
    }
+   public static boolean hasXML()
+   {
+      return Environment.the.hasXML();
+   }
    public static final void propogateValues(Rectangle src, Rectangle dest)
    {
       dest.x		= src.x;
