@@ -554,6 +554,7 @@ abstract public class ElementState extends IO
 	              //for converting it to appropriate type from the string
 	              Class[] parameters = new Class[1];
 	              Method attrMethod = null;
+	              String value = attr.getNodeValue();
 	              
 	              try
 	              {
@@ -563,10 +564,14 @@ abstract public class ElementState extends IO
 	              catch(Exception e)
 	              {
 	              	  if(e instanceof NoSuchMethodException)
-	              	  	throw new
+	              	  {
+	              	  	String fieldName = XmlTools.fieldNameFromElementName(attr.getNodeName());
+	              	  	if (!elementState.setPrimitiveField(fieldName, value))
+	              	  		throw new
 				   XmlTranslationException("setter method not found for variable " + attr.getNodeName() + " in "+stateClass+
 ", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
 						e.printStackTrace();
+	              	  }
 	              }
 	              
 	              //if the method is found
@@ -574,7 +579,6 @@ abstract public class ElementState extends IO
 	              //fill the String value with the value of the attr node
 	              //args is the array of objects containing the arguments to the method to be invoked
 	              //in our case, methods have only one arg which is the String, "value"
-	              String value = attr.getNodeValue();
 	              Object[] args = new Object[1];
 	              args[0] = value;
 	              
@@ -640,37 +644,119 @@ abstract public class ElementState extends IO
  * @param fieldName 	the name of the field to be set
  * @param nestedObj		the state-object which needs to be added to the parent object 
  */
-	protected void setField(String fieldName, Object nestedObj)
+	protected boolean setField(String fieldName, Object nestedObj)
 	{
+		boolean result	= false;
 		try
 		{
 			Field field = getClass().getField(fieldName);
-			setField(field, nestedObj);
+			result		= setField(field, nestedObj);
 		}
 		catch(Exception e)
 		{
 			e.printStackTrace();
 		}
-	   
+		return result;
 	}
 /**
  * Set the field represented by @param field in <code>this</code> to the
  * value of @param nestedObj. 
  */
-	void setField(Field field, Object nestedObj)
+	protected boolean setField(Field field, Object nestedObj)
 	{
+		boolean result	= false;
 		try
 		{
 			field.set(this, nestedObj); 
+			result		= true;
 		} catch (IllegalAccessException e)
 		{
 			Class fieldType	= field.getType();
 			println("IllegalAccessException setting field " +
 					fieldType.getName() + " in " +
 					nestedObj);
-		}					
+		}		
+		return result;
 	}
+	/**
+	 * Set the specified extended primitive field in this, if possible.
+	 * 
+	 * @param fieldName		name of the field to set.
+	 * @param fieldValue	String representation of the value.
+	 * 
+	 * @return true if the field is set successfully. false if it seems to not exist.
+	 */
+	protected boolean setPrimitiveField(String fieldName, String fieldValue)
 	
+	{
+		boolean result	= false;
+		try
+		{
+			Field field = getClass().getField(fieldName);
+			result		= setPrimitiveField(field, fieldValue);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		return result;
+	}
+	protected boolean setPrimitiveField(Field field, String fieldValue)
+	
+	{
+		if ((fieldValue == null) || (fieldValue.length() == 0))
+			return true;
+		Class fieldType	= field.getType();
+		boolean result	= false;
+		if (fieldType.equals("java.lang.String"))
+		{
+			result		= setField(field, fieldValue);
+		}
+		else if (fieldType.equals("int"))
+		{
+			 try
+			 {
+			    int value	= Integer.parseInt(fieldValue);
+				try
+				{
+					field.setInt(this, value);
+				} catch (Exception e)
+				{
+					debug(errorString(field) + "to " + fieldValue);
+					e.printStackTrace();
+				}
+
+			 } catch (NumberFormatException e)
+			 {
+			    debug(errorString(field) + "bad number format: "+fieldValue);
+			 }
+		}
+		else if (fieldType.equals("boolean"))
+		{
+	        String lcValue= fieldValue.toLowerCase();
+	      	boolean value =  lcValue.equals("true") ||
+		 					 lcValue.equalsIgnoreCase("yes") || (lcValue.equals("1"));
+		    try
+			{
+				field.setBoolean(this, value);
+			} catch (Exception e)
+			{
+				debug(errorString(field) + "to " + fieldValue);
+				e.printStackTrace();
+			}
+			
+		}
+		else if (fieldType.equals("")) // float
+		{
+			
+		}
+		// URL, (ParsedURL -- in subclass), Color
+		return result;
+	}
+	private static String errorString(Field f)
+	{
+		return "Error setting field " + f.getName() + " ";
+	}
 	/**
 	 * This method MUST be overridden by all the state-objects which have 
 	 * collections (e.g Vector, Hashtable etc.) of other state-objects inside of them. 
@@ -769,7 +855,6 @@ abstract public class ElementState extends IO
 		  }
 	   }    	
 	}
- 
 	protected void add(ElementState elementToAdd)
 	{
 	}
