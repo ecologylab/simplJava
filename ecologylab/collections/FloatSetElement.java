@@ -32,7 +32,6 @@ extends Debug
    {
       weight	= initial;
    }
-   
    public float getWeight()
    {
       return weight;
@@ -49,16 +48,12 @@ extends Debug
    {
       set		= setArg;
    }
-   void clearSet()
-   {
-      set		= null;
-   }
 /**
  * Delete and recompute all.
  */
    public void delete()
    {
-      delete(1);
+      delete(FloatWeightSet.NO_RECOMPUTE);
    }
 /**
  * @param recompute	-1 for absolutely no recompute
@@ -68,12 +63,25 @@ extends Debug
    public synchronized void delete(int recompute)
    {
       if ((set != null) && (index != NOT_A_MEMBER))//prevent double dip deletes
-	 set.delete(this, recompute);
-      
+      	set.delete(this, recompute);
    }
-   synchronized protected void deleteSkel()
+   /**
+    * Only for use by FloatWeightSet.clear(), and delete.
+    *
+    */
+   void clear()
    {
-      setIndex(NOT_A_MEMBER);
+   	  index	= NOT_A_MEMBER;
+      set	= null;
+   }
+   
+   /**
+    * A synchronized version of clear(), for use in FloatWeightSet.prune().
+    *
+    */
+   synchronized void clearSynch()
+   {
+      index	= NOT_A_MEMBER;
       set	= null;
    }
 /**
