@@ -91,6 +91,18 @@ public class ElementState extends IO
 		STRING_CLASS	 = stringClass;
 	}
 
+/**
+ * For each class, for each field name of type ElementState, store the
+ * open tag. Also do the same for this class.
+ */
+	static HashMap		eStateToFieldNameOrClassToOpenTagMapMap = new HashMap();
+
+	HashMap				fieldNameOrClassToTagMap;
+	
+	public ElementState()
+	{
+	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
+	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
@@ -206,18 +218,65 @@ public class ElementState extends IO
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private String translateToXML(boolean compression, boolean doRecursiveDescent, int nodeNumber)
+	protected String translateToXML(boolean compression, boolean doRecursiveDescent, int nodeNumber)
+		throws XmlTranslationException
+	{
+	   
+	   return translateToXML(compression, doRecursiveDescent, nodeNumber,
+							 getTagMapEntry(getClass(), compression));
+	}
+	
+	/**
+	 * Translates a tree of ElementState objects into an equivalent XML string.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements
+	 * -- if doRecursiveDescent is true).
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @param compression			true to compress the xml while emitting.
+	
+	 * @param doRecursiveDescent	true for recursive descent parsing.
+	 * 								false to parse just 1 level of attributes.
+	 * 										In this case, only the open tag w attributes is generated.
+	 * 										There is no close.
+	 * @param nodeNumber			counts the depth of recursive descent.
+	 * 
+	 * @return 						the generated xml string
+	 * 
+	 * @throws XmlTranslationException if there is a problem with the 
+	 * structure. Specifically, in each ElementState object, fields for 
+	 * attributes must be declared
+	 * before all fields for nested elements (those derived from ElementState).
+	 * If there is any public field which is not derived from ElementState
+	 * declared after the declaration for 1 or more ElementState instance
+	 * variables, this exception will be thrown.
+	 */
+	protected String translateToXML(boolean compression, 
+									boolean doRecursiveDescent, 
+									int nodeNumber, TagMapEntry tagMapEntry)
 		throws XmlTranslationException
 	{
 		compressed = compression;
 		String result	= "";
-		result += startOpenTag();
+		result += tagMapEntry.startOpenTag;
 		
 		//emit compresseion = true only for the top node, so this dirty hack
 		//so if the nodeNumber is 1 (top node) then emit the compression attribute
-		if (compressed && (nodeNumber == TOP_LEVEL_NODE))
+		if (compression && (nodeNumber == TOP_LEVEL_NODE))
 		{
-			String compressionAttr = " " + "compressed" + " = " + "\"" + compressed + "\"" + " ";
+			String compressionAttr = " " + "compression" + " = " + "\"" + compression + "\"" + " ";
 			result += compressionAttr;
 		}
 		nodeNumber++;
@@ -301,17 +360,29 @@ public class ElementState extends IO
 										"objects of class derived from ElementState but " +
 										thatReferenceObject +" contains some that aren't.");
 							}
-							result += element.translateToXML(compressed, true, nodeNumber);		
+							result += element.translateToXML(compression, true, nodeNumber);		
 						}
 					}
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
 						ElementState thatElementState	= (ElementState) thatReferenceObject;
-						//if the field has already been emitted in the parent object, no need of emitting here
-						//so we emit ONLY IF the field is in the *same* object, NOT the parent object
-						if (thatField.getDeclaringClass().getName() == getClass().getName())
+						String fieldName		= thatField.getName();
+						// if the field type is the same type of the instance (that is, if no subclassing),
+						// then use the field name to determine the XML tag name.
+						// if the field object is an instance of a subclass that extends the declared type of the
+						// field, use the instance's type to determine the XML tag name.
+						Class thatClass			= thatElementState.getClass();
+//						debug("checking: " + thatReferenceObject+" w " + thatClass+", " + thatField.getType());
+						if (thatClass == thatField.getType())
+						   result += 
+							  thatElementState.translateToXML(compression, true, nodeNumber,
+									  getTagMapEntry(fieldName, compression));
+						else
 						{
-							result += thatElementState.translateToXML(compressed, true, nodeNumber);			
+//						   debug("derived class -- using class name for " + thatClass);
+						   result +=
+							  thatElementState.translateToXML(compression, true, nodeNumber,
+									  getTagMapEntry(thatClass, compression));
 						}
 					}
 				} //end of doRecursiveDescent
@@ -321,7 +392,7 @@ public class ElementState extends IO
 			if (!doRecursiveDescent)
 				result += ">"; // dont close it
 			else if (processingNestedElements)
-				result	+= closeTag();
+				result	+= tagMapEntry.closeTag;
 			else
 				result	+= "/>";	// simple element w attrs but no embedded elements
 				
@@ -866,34 +937,140 @@ public class ElementState extends IO
 	
 	//////////////// helper methods used by translateToXML() //////////////////
 
+/**
+ * Get the map for translating field names to startOpenTags for this.
+ * We have to create a HashMap to do this, instead of using a static,
+ * because all relevant objects are subclassed from <code>ElementState</code>,
+ * so a static declaration wouldn't actually be class wide.
+ */
+	private HashMap getFieldNamesToOpenTagsMap()
+	{
+	   Class thisClass= getClass();
+	   HashMap result = (HashMap) eStateToFieldNameOrClassToOpenTagMapMap.get(thisClass);
+	   // stay out of the synchronized block most of the time
+	   if (result == null)
+	   {
+		  synchronized (eStateToFieldNameOrClassToOpenTagMapMap)
+		  {
+			 result = (HashMap) eStateToFieldNameOrClassToOpenTagMapMap.get(thisClass);
+			 if (result == null)
+			 {
+				result	= new HashMap();
+				eStateToFieldNameOrClassToOpenTagMapMap.put(thisClass, result);
+			 }
+		  }
+	   }
+	   return result;
+	}
 	/**
 	 * @return	the XML element name, or <i>tag</i>, that maps to this ElementState derived class.
 	 */
-	public String tag()
+	public String tagName()
 	{
 	   return globalNameSpace.objectToXmlTag(this);
 	}
 
 	/**
-	 * @return	Most of an open tag for the XML element name, that maps to this 
-	 * ElementState derived class. However, the final close > is not emitted here,
+	 * Translate the name of this ElementState derived class into an
+	 * appropriate tag name. Use the tag name to form most of an open
+	 * tag for an XML element.
+	 * </p>
+	 * However, the final close > is not emitted here,
 	 * so attributes can be appended.
+	 *
+	 * @return	Most of an open tag for the XML element.
 	 */
 	public String startOpenTag()
 	{	
-		String openTagName	= "<" + this.tag();
-		return openTagName;
+	   return "<" + this.tagName();
 	}
 	/**
-	 * @return	A close tag for the XML element name, that maps to this
-	 * ElementState derived class.
+	 * Translate the name of this ElementState derived class into an
+	 * appropriate tag name. Use the tag name to form a close tag for 
+	 * an XML element.
+	 *
+	 * @return	Most of an open tag for the XML element.
 	 */
 	public String closeTag()
 	{
-		String closeTagName = "</" + this.tag() + ">";
-		return closeTagName;
+		return "</" + this.tagName() + ">";
 	}
 
+	/**
+	 * Translate a supplied field name into an appropriate tag name. 
+	 * Use the tag name to form most of an open tag for an XML element.
+	 * </p>
+	 * However, the final close > is not emitted here,
+	 * so attributes can be appended.
+	 *
+	 * @return	Most of an open tag for the XML element.
+	 */
+	public String startOpenTag(String fieldName, boolean compression)
+	{	
+	   return getTagMapEntry(fieldName, compression).startOpenTag;
+	}
+	/**
+	 * Translate a supplied field name into an appropriate tag name. 
+	 * Use the tag name to form a close tag for an XML element.
+	 * </p>
+	 * However, the final close > is not emitted here,
+	 * so attributes can be appended.
+	 *
+	 * @return	Most of an open tag for the XML element.
+	 */
+	public String closeTag(String fieldName, boolean compression)
+	{	
+	   return getTagMapEntry(fieldName, compression).closeTag;
+	}
+
+/**
+ * Get a tag translation object that corresponds to the fieldName,
+ * with this class. If necessary, form that tag translation object,
+ * and cache it.
+ */
+	private TagMapEntry getTagMapEntry(String fieldName, boolean compression)
+	{
+	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(fieldName);
+	   if (result == null)
+	   {
+		  synchronized (fieldNameOrClassToTagMap)
+		  {
+			 result		= (TagMapEntry) fieldNameOrClassToTagMap.get(fieldName);
+			 if (result == null)
+			 {
+				String tagName	= XmlTools.getXmlTagName(fieldName, "State", compression);
+				result	= new TagMapEntry(tagName);
+				debug(tagName.toString());
+				fieldNameOrClassToTagMap.put(fieldName, result);
+			 }
+		  }
+	   }
+	   return result;
+	}
+/**
+ * Get a tag translation object that corresponds to the fieldName,
+ * with this class. If necessary, form that tag translation object,
+ * and cache it.
+ */
+	private TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
+	{
+	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(thatClass);
+	   if (result == null)
+	   {
+		  synchronized (fieldNameOrClassToTagMap)
+		  {
+			 result		= (TagMapEntry) fieldNameOrClassToTagMap.get(thatClass);
+			 if (result == null)
+			 {
+				String tagName	= XmlTools.getXmlTagName(thatClass, "State", compression);
+				result	= new TagMapEntry(tagName);
+				fieldNameOrClassToTagMap.put(thatClass, result);
+				debug(tagName.toString());
+			 }
+		  }
+	   }
+	   return result;
+	}
 	/**
 	 * Reorders fields so that all primitive types occur first and then the reference types.
 	 * 
@@ -1047,6 +1224,21 @@ public class ElementState extends IO
 		globalNameSpace.addTranslation(packageName, className);
 	}
 
+	class TagMapEntry
+	{
+	   final String startOpenTag;
+	   final String closeTag;
+	   
+	   TagMapEntry(String tagName)
+	   {
+		  startOpenTag	= "<" + tagName;
+		  closeTag		= "</" + tagName + ">";
+	   }
+	   public String toString()
+	   {
+	   		return "TagMapEntry" + closeTag;
+	   }
+	}
 	/*	
 	void fillValues(Vector vector)
 	{
