@@ -361,6 +361,10 @@ abstract public class ElementState extends IO
 	{
 		return buildDOM(fileURL.toString());
 	}
+	protected Document buildDOM(File file)
+	{
+		return buildDOM(file.toString());
+	}
 	
 	/**
 	 * This method creates a DOM from a given file.
