@@ -98,7 +98,7 @@ public class ApplicationEnvironment implements Environment
 	public URL codeRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL +" relative to "
-	      + StringTools.pageString(codeBase)+" ";
+	      + StringTools.noAnchorNoQueryPageString(codeBase)+" ";
 	   return Generic.getURL(codeBase, relativeURL, err);
 	}
 	
@@ -108,7 +108,7 @@ public class ApplicationEnvironment implements Environment
 	public URL docRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL + " relative to "
-	      + StringTools.pageString(docBase)+" ";
+	      + StringTools.noAnchorNoQueryPageString(docBase)+" ";
 	   return Generic.getURL(docBase, relativeURL, err);
 	}
 	
