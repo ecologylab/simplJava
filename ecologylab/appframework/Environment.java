@@ -56,9 +56,17 @@ public interface Environment
       boolean		hasGL;
       boolean		hasAgile2D;
       boolean		hasXML;
-      
+      boolean      hasServlet;
       public The()
       {
+	 try
+	 {
+	    Class.forName("javax.servlet.http.HttpServlet");
+	    hasServlet	= true;
+	 } catch (ClassNotFoundException e)
+	 {
+	 }
+      	
 	 try
 	 {
 	    Class.forName("quicktime.std.movies.Movie");
@@ -149,6 +157,10 @@ public interface Environment
       public boolean hasXML()
       {
 	 return hasXML;
+      }
+     public boolean hasServlet()
+      {
+	 return hasServlet;
       }
 /**
  * Get a float parameter from the runtime environment.
