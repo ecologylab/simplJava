@@ -177,6 +177,12 @@ public interface Environment
 	    result	= true;
 	 } catch (ClassNotFoundException e)
 	 {
+	    println("Environment.checkFor("+className+") caught exception "+e);
+//	    e.printStackTrace();
+	 } catch (Error e)
+	 {
+	    println("Environment.checkFor("+className+") caught error");
+	    e.printStackTrace();
 	 }
 	 return result;
       }
