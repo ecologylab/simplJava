@@ -285,6 +285,9 @@ public class FloatWeightSet
    public synchronized FloatSetElement maxSelect()
    {
       int size			= this.size;
+      if (size <= 1)		// degenerate case
+	 return null;
+
       if (maxArrayList == null)
       {
 	 int arrayListSize	= size / 4;
