@@ -442,7 +442,7 @@ implements Runnable
 		  {
 		     // restore priorities
 		     Thread t	= downloadThreads[i];
-		     if (t != null)
+		     if ((t != null) && (priorities != null))
 			t.setPriority(priorities[i]);
 		  }
 	       }
