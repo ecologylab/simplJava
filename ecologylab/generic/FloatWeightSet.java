@@ -374,7 +374,7 @@ extends Debug
 	    elements[i]	= null;	   // its deleted or moved; null either way
 //	    thatElement.setSet(null); // make sure its treated as not here
 	    thatElement.setIndex(-1); // during gc() excursion
-	    if (thatElement.gc())  // ??? create recursive havoc ??? FIX THIS!
+	    if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
 	       thatElement.deleteSkel();
 	    else
 	       insert(thatElement); // put it back in the right place!
@@ -588,5 +588,10 @@ extends Debug
       set.syncRecompute();
       for (int i=0; i!= 10; i++)
 	 System.out.println(set.randomSelect());
+   }
+   
+   public Object elementAt(int i)
+   {
+   	  return elements[i];
    }
 }
