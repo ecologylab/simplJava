@@ -87,12 +87,17 @@ extends Debug
       	return null;
       
       // if its a relative address string, make it that way
+      
+ /*     
+  * @DANIEL PATTERN
       ParsedURL result	= getRelativeToDocBase(webAddr, errorDescriptor);
       // otherwise, try forming it absolutely
       if (result == null)
       {
       	result		= getAbsolute(webAddr, errorDescriptor);
       }
+*/     
+	 ParsedURL result = getAbsolute(webAddr, errorDescriptor);
       return result;
    }
    
