@@ -620,6 +620,7 @@ public class ElementState extends IO
 		NodeList childNodes	= xmlNode.getChildNodes();
 		int numChilds		= childNodes.getLength();
 	
+		// TODO -- why this block??
 		if (numChilds == 1)
 		{
 		   // is it a single text node?
