@@ -127,14 +127,14 @@ extends Debug
       
       try
       {
-	 length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + pathLength;
-   } catch (Exception e)
-   {
-      Debug.println("protocol="+protocol+" authority="+authority+
+      	length	=
+      		protocol.length() + 3 /* :// */ + authority.length() + pathLength;
+      } catch (Exception e)
+	  {
+      	Debug.println("protocol="+protocol+" authority="+authority+
 		     u.toExternalForm());
-      e.printStackTrace();
-   }
+      	e.printStackTrace();
+	  }
       
       StringBuffer result = new StringBuffer(length);
       result.append(protocol).append("://").append(authority).append(path);
@@ -219,8 +219,10 @@ extends Debug
    
    public static final URL urlRemoveAnchorIfNecessary(URL source)
    {
-      String anchor			= source.getRef();
-      return (anchor == null) ? source : urlNoAnchor(source);
+//Below operation is already in the urlNoAnchor();      
+//   	String anchor			= source.getRef();
+//      return (anchor == null) ? source : urlNoAnchor(source);
+   		return urlNoAnchor(source);
    	
    }
    
@@ -231,6 +233,9 @@ extends Debug
       if(source==null)
       return result;
       
+      if (source.getRef() == null)
+      	return source;
+      		
       try
       {
 	 result= new URL(source.getProtocol(), source.getHost(),
@@ -317,7 +322,7 @@ extends Debug
    public static final String FIND_PUNCTUATION_REGEX = 
       "(:)|(\\d)|(\\.)|(/++)|(=)|(\\?)|(\\-)|(\\+)|(_)|(%)|(\\,)";        
 /**
- * Use RegEx to turn punctuation into space delimiters.
+ * Turn punctuation into space delimiters.
  */
    public static String removePunctuation(String s)
    {
@@ -350,23 +355,11 @@ extends Debug
       return s.replaceAll(FIND_PUNCTUATION_REGEX, " ");
    }
 
-   public static String removePunctuation(URL u)
-   {
-      // we don't use the protocol and host:port part in url
-      return removePunctuation(u.getPath());
-   }
-   public static String[] wordsFromURL(URL u)
-   {
-      String withoutPunctuation = StringTools.removePunctuation(u);
-      return StringTools.seperateLowerUpperCase(withoutPunctuation);
-   }
-   
-
    public static void main(String[] s)
    {
-      URL u = Generic.getURL("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
+      ParsedURL u = ParsedURL.getAbsolute("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
 //      println(removePunctuation("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif"));
-      println(removePunctuation(u));
+      println(u.removePunctuation());
    }
    public static void main2(String[] s)
    {
