@@ -155,7 +155,8 @@ implements Runnable
 	    Generic.sleep(sleep);
 	 } catch (OutOfMemoryError e)
 	 {
-	    Memory.recover(e, getClassName() + ".run() trying to recover.");
+	    if (Memory.outOfMemory(e))
+	       finished		= true;
 	 }
       }
       timeoutThread	= null;
@@ -267,8 +268,8 @@ implements Runnable
 	    thatClosure.dispatch();
 	 } catch (OutOfMemoryError e)
 	 { 
-	    Memory.recover(e, getClassName() + 
-			   ".performDispatches() trying to recover.");
+	    if (Memory.outOfMemory(e))
+	       finished		= true;
 	 } catch (Throwable e)
 	 {
 	    debugA(".dispatch -- got exception:");
@@ -435,10 +436,15 @@ implements Runnable
 	    }
 	    else
 	    {
-	       for (int i=0; i<numDownloadThreads; i++)
+	       if (downloadThreads != null)
 	       {
-		  // restore priorities
-		  downloadThreads[i].setPriority(priorities[i]);
+		  for (int i=0; i<numDownloadThreads; i++)
+		  {
+		     // restore priorities
+		     Thread t	= downloadThreads[i];
+		     if (t != null)
+			t.setPriority(priorities[i]);
+		  }
 	       }
 	    }
 	 }
@@ -494,9 +500,10 @@ implements Runnable
 
 	 } catch (OutOfMemoryError e)
 	 { 
-	    Memory.recover(e, getClassName() + 
-			   ".performDownloads() trying to recover.");
-	    thatClosure.ioError();
+	    if (Memory.outOfMemory(e))
+	       finished		= true;	// give up!
+	    else
+	       thatClosure.ioError();
 	 } catch (Throwable e)
 	 {
 	    boolean interrupted		= Thread.interrupted();
