@@ -19,7 +19,11 @@ DownloadMonitor
    {
       super(name, numDownloadThreads, getUrgent);
    }
-
+   public TextDownloadMonitor(String name, int numDownloadThreads, 
+			  int priorityBoost, boolean getUrgent)
+   {
+      super(name, numDownloadThreads, priorityBoost, getUrgent);
+   }
    protected Thread makeDownloadThread(int i, String s)
    {
       Thread result = super.makeDownloadThread(i, s);
