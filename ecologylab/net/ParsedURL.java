@@ -27,6 +27,7 @@ extends Debug
    /* domain value string of the ulr */
    protected String	domain = null;
    
+   /* ParsedURL Constructor */
    public ParsedURL()
    {
    }
@@ -38,14 +39,15 @@ extends Debug
    
    /* 
     * Constructor with a url string parameter. 
-    * get absolute URL with getURLAbsolute() method. 
+    * get absolute URL with getAbsolute() method. 
     */
-   /*
+/*
    public ParsedURL(String urlString)
    {
+   	    // The second parameter of getAbolute method is error description. 
    		this.url = getAbsolute(urlString, "").url();
    }
-   */
+*/
    ///////////////////////////////////////////////////////////////////////
    
    /* 
@@ -128,30 +130,13 @@ extends Debug
       return result;
    }
    
-   public static URL getURL(URL base, String path, String error)
-   {
-      // ??? might want to allow this default behaviour ???
-      if (path == null)
-	 return null;
-      try 
-      {
-		//System.err.println("\nGENERIC - base, path, error = \n" + base + "\n" + path);
-		URL newURL = new URL(base,path);
-		//System.err.println("\nNEW URL = " + newURL);
-	 return newURL;
-      } catch (MalformedURLException e) 
-      {
-	 if (error != null)
-	    throw new Error(e + "\n" + error + " " + base + " -> " + path);
-	 return null;
-      }
-   }
-   
+   /* Create ParsedURL with doc base and relative url string. */
    public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
    {
    		return Generic.docBase().getRelative(relativeURLPath, errorDescriptor);
    } 
    
+   /* Return url error message string. */
    static String urlErrorMsg(String webAddr, String errorDescriptor)
    {
       return "CANT open " + errorDescriptor + " " + webAddr +
@@ -238,9 +223,11 @@ extends Debug
       return string();
    }
 */   
-   /*
-    * @return URL 
-    */
+  /**
+   * Uses lazy evaluation to minimize storage allocation.
+   * 
+   * @return	the URL.
+   */
    public final URL url()
    {
    	if( url == null )
@@ -248,8 +235,10 @@ extends Debug
    	return url;
    }
    
-   /*
-    * Return no anchor ParsedURL.
+   /**
+    * Uses lazy evaluation to minimize storage allocation.
+    * 
+    * @return	the ParsedURL.
     */
    public ParsedURL noAnchorParsedURL()
    {
@@ -259,8 +248,10 @@ extends Debug
       return new ParsedURL(StringTools.urlNoAnchor(url));
    }
    
-   /*
-    * Return no anchor URL.
+   /**
+    * Uses lazy evaluation to minimize storage allocation.
+    * 
+    * @return	the no anchor URL.
     */
    public URL noAnchorURL()
    {
@@ -294,11 +285,17 @@ extends Debug
  //     return suffix().equals(s);
    }
 
+   /* 
+    * @return ParsedURL from relative url string.
+    */
    public ParsedURL relativeURL(String s)
    {
       return relativeURL( s, null, false, false);
    }
    
+   /*
+    * return ParsedURL from relative url string.
+    */
    public ParsedURL relativeURL(String s, boolean fromSearchPage)
    {
       return relativeURL(s, null, false, fromSearchPage);      
@@ -312,8 +309,8 @@ extends Debug
       "aif", "aiff", "aifc", "au", "mp3", "wav", "ra", "ram", 
       "wm", "wma", "wmf", "wmp", "wms", "wmv", "wmx", "wmz",
       "avi", "mov", "mpa", "mpeg", "mpg", "ppj",
-      "swf", "spl", 
-//	delete "pdf" Eunyee
+      "swf", "spl", "pdf",
+// "pdf" will be deleted by Eunyee
 //	  "swf", "sql",  
       "qdb", 
       "cab", "chm", "gzip", "hqx", "jar", "lzh", "tar", "zip", 
