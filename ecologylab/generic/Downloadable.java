@@ -8,7 +8,7 @@ public interface Downloadable
  * Called to start download.
  */
    public void performDownload()
-      throws IOException;
+      throws Exception;
 /**
  * Called to inquire on the status of a download.<br>
  * @return	true if the download is complete.

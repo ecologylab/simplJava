@@ -407,11 +407,7 @@ implements Runnable
 //	    debug("after performDownload() " + thatClosure);
 	    potentialTimeouts.remove(thatClosure); 
 	    thatClosure.dispatch();
-/*	 } catch (ClosedByInterruptException e)
-	 {
-	    // interrupt means timeout or stop
-	    debugA("performDownloads() -- got interrupted.");
-*/	 } catch (ThreadDeath e)
+	 } catch (ThreadDeath e)
 	 { 
 	    debug("ThreadDeath in performDownloads() loop");
 	    e.printStackTrace();

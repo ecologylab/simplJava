@@ -64,7 +64,7 @@ extends Debug
       dispatch();
    }
    void performDownload()
-      throws java.io.IOException
+      throws Exception
    {
       downloadingThread		= Thread.currentThread();
       downloadable.performDownload();
