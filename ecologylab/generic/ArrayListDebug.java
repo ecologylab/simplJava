@@ -73,8 +73,8 @@ extends ArrayList
    {
       return super.toString();
    }
-   protected final void finalize()
-   {
-      AllocationDebugger.finalized(this);
-   }
+//   protected final void finalize()
+//   {
+//      AllocationDebugger.finalized(this);
+//  }
 }

@@ -399,8 +399,8 @@ public class Debug
    {
    	 return  logToFile;
    }
-   protected void finalize()
-   {
-      AllocationDebugger.finalized(this);
-   }
+//   protected void finalize()
+//   {
+//      AllocationDebugger.finalized(this);
+//   }
 }
