@@ -124,8 +124,11 @@ extends Debug
       
       try
       {
-	 length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + pathLength;
+     if(protocol != null && authority != null)
+	 {
+     	length	=
+     		protocol.length() + 3 /* :// */ + authority.length() + pathLength;
+	 }
    } catch (Exception e)
    {
       Debug.println("protocol="+protocol+" authority="+authority+
