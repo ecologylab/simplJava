@@ -17,6 +17,7 @@ extends ObservableDebug
 	 } catch (InterruptedException e)
 	 {
 	    // interrupt means stop
+	    e.printStackTrace();
 	 }
       }
    }
@@ -26,6 +27,13 @@ extends ObservableDebug
       synchronized (lock)
       {
 	 lock.notifyAll();
+      }
+   }
+   public static void notify(Object lock)
+   {
+      synchronized (lock)
+      {
+	 lock.notify();
       }
    }
 }
