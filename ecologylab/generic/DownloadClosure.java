@@ -45,6 +45,10 @@ extends Debug
       }
       return false;
    }
+   int deltaTime(long now)
+   {
+      return (int) (now - startTime);
+   }
    synchronized void ioError()
    {
       ioError			= true;
@@ -61,6 +65,7 @@ extends Debug
    void performDownload()
       throws java.io.IOException
    {
+      downloadingThread		= Thread.currentThread();
       downloadable.performDownload();
    }
    public synchronized void dispatch()

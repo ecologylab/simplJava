@@ -11,19 +11,20 @@ import java.util.*;
  * state in the <code>bad</code> slot, and dispatches, as well.
  */
 public class DownloadMonitor
-extends Debug
+extends ObservableDebug
 implements Runnable
 {
    static final int	TIMEOUT		= 40000;
-   static final int	TIMEOUT_SLEEP	= 3000;
+   static final int	TIMEOUT_SLEEP	= 4000;
    static final int	SHORT_SLEEP	= 50;
 
-   public static final int HIGH_PRIORITY	= 4;
-   public static final int MID_PRIORITY		= 3;
+//   public static final int HIGH_PRIORITY	= 4;
+   public static final int HIGH_PRIORITY	= 3;
+   public static final int MID_PRIORITY		= 2;
    public static final int LOW_PRIORITY		= 2;
    
-   public static final int HIGH_THRESHOLD	= 9;
-   public static final int MID_THRESHOLD	= 5;
+   public final int highThreshold;
+   public final int midThreshold;
    
    int			timeouts;
    int			dispatched;
@@ -75,8 +76,9 @@ implements Runnable
       this.name			= name;
       this.getUrgent		= getUrgent;
       
+      highThreshold		= numDownloadThreads * 2;
+      midThreshold		= numDownloadThreads + 1;
       finished			= false;
-      debug("constructor()");
    }
 
    public void run()
@@ -94,21 +96,32 @@ implements Runnable
 	 try
 	 {
 	    long now	= System.currentTimeMillis();
+	    DownloadClosure thatClosure	= null;
 	    while (!potentialTimeouts.isEmpty())
 	    {
-	       DownloadClosure thatClosure	= 
+	       thatClosure	= 
 		  (DownloadClosure) potentialTimeouts.firstElement();
 	       if (thatClosure.timeoutOrComplete(now))
 	       {
 		  potentialTimeouts.remove(0);
-		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
-		     restartDownloadThread(thatClosure.downloadingThread);
+//		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
+//		     restartDownloadThread(thatClosure.downloadingThread);
 	       }
 	       else
 		  break;
 	    }
-//	    debug("sleeping");
-	    Generic.sleep(TIMEOUT_SLEEP);
+	    int sleep;	    
+	    if (thatClosure != null)
+	    {
+	       int thatDue	= TIMEOUT - thatClosure.deltaTime(now);
+//	       debug("detectTimeouts() deltaTime="+thatClosure.deltaTime(now)+
+//		     " thatDue="+thatDue);
+	       sleep	= (thatDue > TIMEOUT_SLEEP) ? thatDue : TIMEOUT_SLEEP;
+	    }
+	    else
+	       sleep		= TIMEOUT;
+//	    debug("detectTimeouts() sleeping for " + sleep);
+	    Generic.sleep(sleep);
 	 } catch (OutOfMemoryError e)
 	 {
 	    Memory.recover(e, getClassName() + ".run() trying to recover.");
@@ -184,7 +197,7 @@ implements Runnable
       
       if (dispatchThread == null)
       {
-	 debug("startDispatcHMonitor()");
+//	 debug("startDispatcHMonitor()");
 	 dispatchThread	= new Thread(toString() + "-dispatching")
 	 {
 	    // !!! if its not in its own thread, the java.awt imaging sys
@@ -261,9 +274,9 @@ implements Runnable
    {
       int waiting	= toDownload.size();
       int priority;
-      if (waiting >= MID_THRESHOLD)
+      if (waiting >= midThreshold)
 	 priority	= MID_PRIORITY;
-      else if (waiting >= HIGH_THRESHOLD)
+      else if (waiting >= highThreshold)
 	 priority	= HIGH_PRIORITY;
       else
 	 priority	= LOW_PRIORITY;
@@ -272,7 +285,7 @@ implements Runnable
    }
    private void restartDownloadThread(Thread t)
    {
-      debug("restartDownloadThread(" + t);
+//      debug("restartDownloadThread(" + t);
 
       for (int i=0; i<downloadThreads.length; i++)
       {
@@ -349,7 +362,10 @@ implements Runnable
 	 {
 	    // interrupt means timeout or stop
 	    debugA("performDownloads() -- got interrupted.");
-*/	 } catch (OutOfMemoryError e)
+*/	 } catch (ThreadDeath e)
+	 { 
+	    break;
+	 } catch (OutOfMemoryError e)
 	 { 
 	    Memory.recover(e, getClassName() + 
 			   ".performDownloads() trying to recover.");
@@ -361,6 +377,7 @@ implements Runnable
 	 }
 	 Generic.sleep(SHORT_SLEEP);
       }  // while (!finished)
+      debug("exiting -- "+Thread.currentThread());
    }
    public String toString()
    {
@@ -405,6 +422,6 @@ implements Runnable
  */
    public boolean highNumberWaiting()
    {
-      return toDownload.size() > HIGH_THRESHOLD;
+      return toDownload.size() > highThreshold;
    }
 }
