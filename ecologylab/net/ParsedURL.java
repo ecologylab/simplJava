@@ -16,9 +16,17 @@ import java.util.*;
 public class ParsedURL
 extends Debug
 {
+	/**
+	 * this is the no hash url, that is, the one with # and anything after it stripped out.
+	 */
    protected URL		url = null;
-   // URL string with hash.
+   /**
+    * URL string with hash.
+    */
    protected URL		hashUrl = null;
+   
+   protected URL		directory = null;
+   
    protected String	string = null;
    
    /* lower case of the url string */
@@ -32,14 +40,27 @@ extends Debug
    
    File		file;
    
-   /* ParsedURL Constructor */
-   public ParsedURL()
-   {
-   }
-   
    public ParsedURL(URL url)
    {
-      this.url	= url;     
+      String hash = url.getRef();
+      if (hash == null)
+      {
+      	 this.url		= url;
+      	 this.hashUrl	= url;
+      }
+      else
+      {
+      	this.hashUrl	= url;
+      	try 
+		{
+			// form no hash url (toss hash)
+			this.url		= new URL(url.getProtocol(), url.getHost(), url.getPort(), url.getFile());
+		} catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+      }
    }
    
    public ParsedURL(File file)
@@ -131,14 +152,14 @@ extends Debug
       ParsedURL result	= null;
        if (!relativeURLPath.startsWith("http://") && !relativeURLPath.startsWith("ftp://"))
        {
-	  try
-	  {
-	     result	= new ParsedURL(new URL(base, relativeURLPath));
-	  }
-	  catch (MalformedURLException e)
-	  {
-	     Debug.println(urlErrorMsg(relativeURLPath, errorDescriptor));
-	  }
+		  try
+		  {
+		     result	= new ParsedURL(new URL(base, relativeURLPath));
+		  }
+		  catch (MalformedURLException e)
+		  {
+		     println(urlErrorMsg(relativeURLPath, errorDescriptor));
+		  }
        }      
       
       return result;
@@ -148,18 +169,18 @@ extends Debug
    {
       // ??? might want to allow this default behaviour ???
       if (path == null)
-	 return null;
+      	return null;
       try 
       {
 		//System.err.println("\nGENERIC - base, path, error = \n" + base + "\n" + path);
 		URL newURL = new URL(base,path);
 		//System.err.println("\nNEW URL = " + newURL);
-	 return newURL;
+		return newURL;
       } catch (MalformedURLException e) 
       {
-	 if (error != null)
-	    throw new Error(e + "\n" + error + " " + base + " -> " + path);
-	 return null;
+		 if (error != null)
+		    throw new Error(e + "\n" + error + " " + base + " -> " + path);
+		 return null;
       }
    }
    
@@ -223,12 +244,67 @@ extends Debug
       String result	= suffix;
       if (result == null)
       {
-      	result		= suffix(lc());
-      	suffix		= result;
+      	String path = url.getPath();
+      	if (path != null)
+      	{
+      		result		= suffix(path.toLowerCase());
+      	}
+      	//TODO make sure that there isnt code somewhere testing suffix for null!
+      	if (result == null)
+      		result	= "";
+        suffix		= result;
       }
       return result;
    }
-   
+   public URL directory()
+   {
+   		URL result = this.directory;
+   		if (result == null)
+   		{
+   			String suffix	= suffix();
+			try 
+			{
+				String path		= url.getPath();
+				String args		= url.getQuery();
+				String protocol	= url.getProtocol();
+				String host		= url.getHost();
+				int port		= url.getPort();
+				if (suffix.length() == 0)
+				{
+					if (path.length() == 0)
+						result	= new URL(protocol, host, port, "/");
+					else
+					{
+						if ((args == null) || (args.length() == 0))
+							result	= new URL(protocol, host, port, path + "/");
+						else // this is a tricky executable with no suffix
+						{
+							// result = null;
+						}
+					}
+				}
+				// else
+				if (result == null)
+				{	// you have a suffix, so we need to trim off the filename
+					int lastSlashIndex = path.lastIndexOf('/');
+					if (lastSlashIndex == -1)
+						// suffix, but not within any subdirectory
+						result	= new URL(protocol, host, port, "/");
+					else
+					{
+						String pathThroughLastSlash = path.substring(0, lastSlashIndex+1);
+						result	= new URL(protocol, host, port, pathThroughLastSlash);
+					}
+					
+				}
+			} catch (MalformedURLException e)
+			{
+				debug("Unexpected ERROR forming directory.");
+				e.printStackTrace();
+			}
+  		}
+   		return result;
+   }
    /**
     * Uses lazy evaluation to minimize storage allocation.
     * 
@@ -251,8 +327,7 @@ extends Debug
    {
       int afterDot	= lc.lastIndexOf('.') + 1;
       int lastSlash	= lc.lastIndexOf('/');
-      String result	= 
-	 ((afterDot == 0) || (afterDot < lastSlash)) ? "" 
+      String result	= ((afterDot == 0) || (afterDot < lastSlash)) ? "" 
 	    : lc.substring(afterDot);
       return result;
    }
@@ -409,7 +484,7 @@ extends Debug
  */
    public ParsedURL createFromHTML(String addressString)
    {
-      return createFromHTML( addressString, false, false);
+      return createFromHTML(addressString, false);
    }
 /**
  * Called while processing (parsing) HTML.
@@ -433,37 +508,20 @@ extends Debug
    public ParsedURL createFromHTML(String addressString, 
 				   boolean fromSearchPage)
    {
-      return createFromHTML(addressString, fromSearchPage, false);      
+      return createFromHTML(this, addressString, fromSearchPage);      
    }
-
-/**
- * Called while processing (parsing) HTML.
- * Used to create new <code>ParsedURL</code>s from urlStrings in
- * response to such as the <code>a</code> element's <code>href</code>
- * attribute, the <code>img</code> element's <code>src</code> attribute,
- * etc.
- * <p>
- * Does processing of some fancy stuff, like, in the case of
- * <code>javascript:</code> URLs, it mines them for embedded absolute
- * URLs, if possible, and uses only those embedded URLs.
- * 
- * @param addressString	This may be specify a relative or absolute url.
- * 
- * @param fromSearchPage If false, then add <code>/</code> to the end
- * of the URL if it seems to be a directory.
- * 
- * @param tossArgsAndHash if true, eliminate everything after <code>?</code>
- * and <code>#</code> in the URL.
- * 
- * @return	The resulting ParsedURL. It may be null. It will never have 
- *		protocol <code>javascript:</code>.
- */
-   public ParsedURL createFromHTML(String addressString, 
-				   boolean fromSearchPage, 
-				   boolean tossArgsAndHash)
+   protected static ParsedURL get(URL url, String addressString)
    {
-	  return createFromHTML(url(), addressString, fromSearchPage, 
-							tossArgsAndHash, tossArgsAndHash);
+   	  try 
+	  {
+		return new ParsedURL(new URL(url, addressString));
+	  } catch (MalformedURLException e) 
+	  {
+		 println("ParsedURL.get() cant access malformed url:\n\t" +
+		 		url +"\n\taddressString = "+ addressString);
+		 e.printStackTrace();
+	  }
+	  return null;
    }
 /**
  * Called while processing (parsing) HTML.
@@ -490,49 +548,31 @@ extends Debug
  * @return	The resulting ParsedURL. It may be null. It will never have 
  *		protocol <code>javascript:</code>.
  */
-   public static ParsedURL createFromHTML(URL contextURL,
+   public static ParsedURL createFromHTML(ParsedURL contextPURL,
 										  String addressString, 
-										  boolean fromSearchPage, 
-										  boolean tossHash,
-										  boolean tossArgs)
+										  boolean fromSearchPage)
    {
       if ((addressString == null) || (addressString.length() == 0))
 		 return null;
+      if( addressString.startsWith("#") )
+      {
+			return get(contextPURL.url(), addressString);
+      }
 //      debugA("addressString="+addressString);    
-      URL base = null;
-	 if (contextURL != null)
-	 {
-		 String urlString = contextURL.toString();	 				 
-	
-		 //if the base url is a folder but not ended with "/", we need to add one "/"
-		 if ((urlString.charAt(urlString.length()-1))!='/')
-		 {
-		 	//println(utlString.lastIndexOf('/')+ " : " + utlString.length());
-		 	String lastPart = urlString.substring(urlString.lastIndexOf("/"), urlString.length());
-		 		
-		 	if(lastPart.indexOf(".")!=-1)	 	
-		 		lastPart =  urlString.substring(urlString.lastIndexOf(".")+1);	 
-
-		 	if ((!imgMimes.containsKey(lastPart))&&(!htmlMimes.containsKey(lastPart)))		 	
-		 	{
-		 		contextURL = getAbsolute(urlString, "").url();
-		 	}
-		 	else
-		 	{	// This is for the case that the contextURL forms with specified file name. 
-		 		base	= getAbsolute(urlString.substring(0, urlString.lastIndexOf('/')), "").url();
-		 	}
-		 }
-	 }
+      URL base = (contextPURL != null)  ? contextPURL.directory() : null;
       URL newUrl = null;
+
       String	lc	= addressString.toLowerCase();
       boolean javascript	= lc.startsWith("javascript:");
-      // special: seeking to data mine urls from javascript quoted strings
+      
+      // mine urls from javascript quoted strings
       if (javascript)
       {
 		 // !!! Could do an even better job here of mining quoted
 		 // !!! javascript strings.
 	//	 println("Container.newURL("+s);
 		 int http	= lc.lastIndexOf("http://");
+		 // TODO learn to mine PDFs as well as html!!
 		 int html	= lc.lastIndexOf(".html");
 //		 println("Container.newURL() checking javascript url:="+s+
 //			 " http="+http+" html="+html);
@@ -552,9 +592,6 @@ extends Debug
       if (javascript)
       	return null;
 
-      // used to check for mime here!!! now we do that where the crawler is 
-      // if !crawlable(lc) ...
-
       char argDelim	= '?';
       // url string always keep hash string.
       String hashString = StringTools.EMPTY_STRING;
@@ -573,9 +610,9 @@ extends Debug
 		    argDelim		= '&';
 		 }
       }
-//      if (!fromSearchPage)
       else
       {
+      	// TODO do we really need to do any of this???????????????????????
 		 // 1) peel off hash
 		 int hashPos	= addressString.indexOf('#'); 
 //		 String hashString= StringTools.EMPTY_STRING;
@@ -605,47 +642,21 @@ extends Debug
 			(addressString.substring(endingSlash).indexOf('.') == -1))
 		       addressString	       += '/';
 		 }
-		 if (!tossArgs)
-		    // 4) put back what we peeled off
-		    addressString	       += argString;
-	     if( !tossHash)
-	      	addressString	       += hashString;
+	    // 4) put back what we peeled off
+	    addressString	       += argString;
+      	addressString	       += hashString;
     
      }
       
-      ParsedURL parsedUrl;
-      try
-      {
-		 if (contextURL == null)
-		 {
-			newUrl = new URL(addressString);
-			if( tossHash && (hashString!=""))
-				hashUrl = new URL(addressString+hashString);
-		 }
-		 else if( addressString.startsWith("#") )
-		 {
-			newUrl = new URL(contextURL, addressString);
-			if( tossHash && (hashString!=""))
-				hashUrl = new URL(contextURL, (addressString+hashString));
-		 }
-		 else if( base != null)
-		 {
-		 	newUrl = new URL(base, addressString);
-		 	if( tossHash && (hashString!=""))
-		 		hashUrl = new URL(base, addressString);
-		 }
-		 parsedUrl		= new ParsedURL(newUrl);
-		 parsedUrl.hashUrl = hashUrl;
-      }
-      catch (MalformedURLException e)
-      {
-		 parsedUrl		= null;
-		 println("ParsedURL.createFromHTML() cant access malformed url:\n\t" +
-				 contextURL +"\n\taddressString = "+ addressString);
-//		 e.printStackTrace();
-      }
+     ParsedURL parsedUrl;
+	 if (contextPURL == null)
+	 {
+	 	parsedUrl = getAbsolute(addressString, "in createFromHTML()");
+	 }
+	 else
+	 	parsedUrl = get(contextPURL.directory(), addressString);
             
-      return parsedUrl;
+     return parsedUrl;
    }
 /**
  * 
@@ -804,16 +815,16 @@ extends Debug
       String shortString	= this.shortString;
       if (shortString == null)
       {
-	 URL url		= this.url;
-	 if (url == null)
-	    shortString		= "null";
-	 else
-	 {
-	    String file		= url.getFile();
-	    shortString		= url.getHost() + "/.../" + 
-	       file.substring(file.lastIndexOf('/') + 1);
-	 }
-	 this.shortString	= shortString;
+		 URL url		= this.url;
+		 if (url == null)
+		    shortString		= "null";
+		 else
+		 {
+		    String file		= url.getFile();
+		    shortString		= url.getHost() + "/.../" + 
+		       file.substring(file.lastIndexOf('/') + 1);
+		 }
+		 this.shortString	= shortString;
       }
       return shortString;
    }
