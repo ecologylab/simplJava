@@ -65,6 +65,10 @@ extends Observable
    {
       return Debug.show(this, messageLevel);
    }
+   public String superString()
+   {
+      return super.toString();
+   }
    protected final void finalize()
    {
       AllocationDebugger.finalized(this);

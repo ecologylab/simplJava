@@ -1,5 +1,7 @@
 package cm.generic;
 
+import cm.media.text.NewPorterStemmer;
+
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
 
@@ -57,6 +59,8 @@ implements Runnable
  */
    Vector		toDispatch	= new Vector(30);
 
+   static HashMap	stemmersHash	= new HashMap();
+   
    Thread		timeoutThread;
    Thread		dispatchThread	= null;
    Thread[]		downloadThreads;
@@ -360,16 +364,6 @@ implements Runnable
       }
  */
    }
-   protected Thread makeDownloadThread(int i, String s)
-   {
-      return new Thread(toString()+"-download "+i+" "+s)
-      {
-	 public void run()
-	 {			  	
-	    performDownloads();
-	 }
-      };
-   }
    private Thread newDownloadThread(int i)
    {
       return newDownloadThread(i, "");
@@ -384,9 +378,19 @@ implements Runnable
 	       }
 	    };
 	   */
-      Thread newDownload = makeDownloadThread(i, s);
-      
-      return newDownload; 
+      return makeDownloadThread(i, s);
+   }
+   
+   protected Thread makeDownloadThread(int i, String s)
+   {
+//      debug("makeDownloadThread()");
+	  return new Thread(toString()+"-download "+i+" "+s)
+	  {
+	 public void run()
+	 {			  	
+		performDownloads();
+	 }
+	  };
    }
 
    private void startDownloadMonitor()
@@ -401,6 +405,7 @@ implements Runnable
 	    Thread thatThread	= newDownloadThread(i);
 	    downloadThreads[i]	= thatThread;
 	    thatThread.setPriority(lowPriority);
+	    priorities[i]	= lowPriority;
 	    ThreadDebugger.registerMyself(thatThread);
 	    thatThread.start();
 	 }
@@ -448,8 +453,11 @@ implements Runnable
 		  {
 		     // restore priorities
 		     Thread t	= downloadThreads[i];
-		     if (t != null)
+		     if ((t != null) && (priorities != null))
+		     {
+			debug("restore priority to " + priorities[i]);
 			t.setPriority(priorities[i]);
+		     }
 		  }
 	       }
 	    }
@@ -598,5 +606,18 @@ implements Runnable
    {
       this.hurry	= hurry;
       debug("setHurry("+hurry);
+   }
+
+   public static NewPorterStemmer getStemmer()
+   {
+      Thread currentThread		= Thread.currentThread();
+      NewPorterStemmer stemmer		= 
+	 (NewPorterStemmer) stemmersHash.get(currentThread);
+      if (stemmer == null)
+      {
+	 stemmer			= new NewPorterStemmer();
+	 stemmersHash.put(currentThread, stemmer);
+      }
+      return stemmer;
    }
 }

@@ -5,11 +5,22 @@
 package cm.generic;
 
 /**
- * DispatchTarget is for Client, a component that takes a delivery (is dispatched
- to) when some "task" (such as the downloading of an image) completes.
+ * DispatchTarget is a mechanism that enables non-linear flows of control around
+ * asynchronous tasks such as networked I/O.
+ * <p/>
+ * In such cases, when an object makes a call to initiate an asynchronous operation,
+ * it passes itself to the service provider, as a <code>DispatchTarget</code>.
+ * Usually the result will be an immediate return, followed by a call to the
+ * <code>delivery</code> method at some later point in time. Usually, the service provider
+ * must guarantee that it will make such calls, even in cases of error.
  */
 public interface DispatchTarget
 {
+	/**
+	 * Called, probably later asynchronously, when the requested service is complete.
+	 * 
+	 * @param o -- enables an argument of any type to be passed back.
+	 */
    // notification to the Client that event id is complete
    public void delivery(Object o);
 }

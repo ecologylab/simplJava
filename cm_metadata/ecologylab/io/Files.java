@@ -3,6 +3,7 @@ package cm.generic;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.nio.channels.FileChannel;
 
 public class Files
 extends Debug
@@ -708,4 +709,69 @@ extends Debug
       return "Error ["+e.getMessage() +"] writing to file " + path;
 
    }
+   /**
+    * removes all the files in a given directory
+    * @param dir	the dir to be cleared
+    */
+   public static void clearDir(File dir) 
+   {
+	    if (dir.isDirectory()) 
+	    {
+	        String[] children = dir.list();
+	        for (int i=0; i<children.length; i++) 
+	        {
+	        	new File(dir, children[i]).delete();
+	        }
+	    }
+   }
+
+   /**
+    * copies all the files of a particular type from the src dir to the dest dir
+    * @param srcDir	source dir
+    * @param dstDir destination dir
+    * @param fileType type of the file, for example jpg for jpeg files
+    * 		 if fileType is null, all the files are copied
+    */
+   public static void copyFiles(File srcDir, File dstDir, String fileType) 
+   {
+	    if (srcDir.isDirectory()) 
+	    {
+	        String[] children = srcDir.list();
+	        for (int i=0; i<children.length; i++) 
+	        {
+	        	if(fileType != null)
+	        	{
+	        		//copy only if the file is of the specified type
+	        		if(children[i].endsWith(fileType))
+	        			copyFile(new File(srcDir, children[i]), new File(dstDir, children[i]));
+	        	}
+	        	else
+	        	{
+	        		copyFile(new File(srcDir, children[i]), new File(dstDir, children[i]));
+	        	}
+	        }
+	    } 
+   }
+
+   public static void copyFile(File srcFile, File dstFile)
+   {
+	   try 
+	   {
+		    // Create channel on the source
+		    FileChannel srcChannel = new FileInputStream(srcFile).getChannel();
+		
+		    // Create channel on the destination
+		    FileChannel dstChannel = new FileOutputStream(dstFile).getChannel();
+		
+		    // Copy file contents from source to destination
+		    dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+		
+		    // Close the channels
+		    srcChannel.close();
+		    dstChannel.close();
+	   } catch (IOException e) 
+	   {
+	   		e.printStackTrace();
+	   }
+	}
 }

@@ -356,7 +356,8 @@ public class Generic
       {
 	 raiseMaxPriority(t, priority);
 	 t.setPriority(priority);
-	 Debug.println("\nraisingPriority to " + priority +" -> "+t.getPriority());
+	 Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
+		       t.getPriority());
       }
    }
    public static void raiseMaxPriority(int priority)
@@ -428,5 +429,10 @@ public class Generic
    public static void go(URL u)
    {
       Environment.the.get().go(u, Environment.the.frame());
+   }
+   
+   public static void beep()
+   {
+   		Toolkit.getDefaultToolkit().beep();
    }
 }

@@ -13,7 +13,7 @@ import java.io.*;
 public class IO 
 {
 	static final char	sep					= File.separatorChar;
-	static public final String	indent		= "\t";   
+	static final String	indent		= "\t";   
 	static String		writeErrorString 	= "Error writing to file ";
 	BufferedWriter		fileWriter;
 

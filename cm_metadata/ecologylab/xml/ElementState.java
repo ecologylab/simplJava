@@ -15,18 +15,34 @@ import org.xml.sax.*;
 /**
  * This class is the heart of the translation framework. All classes which 
  * need to be translated to xml and back MUST extend this class. It has the actual
- * methods which emit the xml and build the java class back from xml.     
+ * methods which emit the xml and build the java class back from xml.    
+ *  
  * @author      Andruid Kerne
  * @author      Madhur Khandelwal
  * @version     0.5
  */
 abstract public class ElementState extends IO
 {
+	/**
+	 * xml header
+	 */
 	protected String xml = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	
-	public static boolean compressed = false;
+	/**
+	 * whether the generated XML should be in compressed form or not
+	 */
+	protected static boolean compressed = false;
 	int nodeNumber = 1;
+	
+	/**
+	 * package name of the class
+	 */ 
 	protected String	packageName;
+	
+	/**
+	 * controls if the public fields of the parent class will be emitted or not. 
+	 */
+	protected boolean emitParentFields = false;
 	
 	public String tag()
 	{
@@ -105,8 +121,15 @@ abstract public class ElementState extends IO
 					
 					//emit only if the field is present in this classs
 					//parent class fields should not be emitted, coz thats confusing
-					if(thatField.getDeclaringClass().getName() == getClass().getName())		
-						result	+= XmlTools.generateNameVal(thatField, this);
+				    if(!emitParentFields)
+				    {
+						if(thatField.getDeclaringClass().getName() == getClass().getName())		
+							result	+= XmlTools.generateNameVal(thatField, this);
+				    }
+				    else
+				    {
+				    	result	+= XmlTools.generateNameVal(thatField, this);
+				    }
 				}
 								
 				else if (doRecursiveDescent)	// recursive descent
@@ -131,16 +154,14 @@ abstract public class ElementState extends IO
 					}
 					
 					//if these conditions are true, the object is a Collection
-					if (thatFieldType.getName() == "java.util.Vector" ||
-					    thatFieldType.getName() == "java.util.Hashtable"
-					    )
+					if (isCollection(thatFieldType))
 					{
 					
 						//if the object is a collection, we handle it in a different way
 						//basically iterate thru the collection and emit Xml from each element
 						Collection elements = getCollection();
 						if(elements == null)
-							throw new XmlTranslationException("Class containing collections such as " +								"Vector and Hashtable MUST define a method called " +								"getCollection() which returns a type Collection");
+							throw new XmlTranslationException("Class containing collections such as " +								"Vector and Hashtable MUST define a method called " +								"getCollection() which returns a type Collection");
 
 						Iterator elementIterator = elements.iterator();
 					
@@ -151,7 +172,7 @@ abstract public class ElementState extends IO
 								element = (ElementState)elementIterator.next();
 							}catch(ClassCastException e)
 							{
-								throw new XmlTranslationException("Collections MUST " +									"contain objects of class derived from \"ElementState\" ");
+								throw new XmlTranslationException("Collections MUST " +									"contain objects of class derived from \"ElementState\" ");
 							}
 							
 							result += element.emitXml(compressed, true, nodeNumber);		
@@ -223,6 +244,24 @@ abstract public class ElementState extends IO
 		}
 	}
 	
+	/**
+	 * determines if a field is of type collection
+	 * @param thatFieldType
+	 * @return
+	 */
+	protected boolean isCollection(Class thatFieldType)
+	{
+	   String thatFieldTypeName = thatFieldType.getName();
+	   return (thatFieldTypeName == "java.util.Vector") ||
+	      (thatFieldTypeName == "java.util.Hashtable");
+	}
+	
+	/**
+	 * determines if the field is to considered as a primitive type.
+	 * i.e. if you want to emit this field as an XML attribute, rather than an element
+	 * @param thatFieldType
+	 * @return
+	 */
 	protected boolean isExtendedPrimitive(Class thatFieldType)
 	{
 		return thatFieldType.isPrimitive() || 
@@ -257,10 +296,8 @@ abstract public class ElementState extends IO
 			{
 				filePath	=	filePath.substring(0,filePath.indexOf(".xml"));
 			}
-		 if(false)
+		 if(prettyXml)
 		 {
-//				XmlTools.writePrettyXml(xml, new StreamResult(new File(xmlFileName)));
-		    
 		    XmlTools.writePrettyXml(xml, new StreamResult(new
 								  File(xmlFileName)));
 		 }
@@ -323,6 +360,10 @@ abstract public class ElementState extends IO
 	protected Document buildDOM(URL fileURL)
 	{
 		return buildDOM(fileURL.toString());
+	}
+	protected Document buildDOM(File file)
+	{
+		return buildDOM(file.toString());
 	}
 	
 	/**
@@ -462,7 +503,7 @@ abstract public class ElementState extends IO
 		catch(Exception e)
 		{
 			if(e instanceof InstantiationException)
-				throw new XmlTranslationException("All the classes that are translated MUST " +					"contain an empty constructor");
+				throw new XmlTranslationException("All the classes that are translated MUST " +					"contain an empty constructor");
 			e.printStackTrace();
 		}
 
@@ -500,8 +541,9 @@ abstract public class ElementState extends IO
 	              catch(Exception e)
 	              {
 	              	  if(e instanceof NoSuchMethodException)
-	              	  	throw new XmlTranslationException("setter method not found for variable " + attr.getNodeName() +
-	              	  							", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
+	              	  	throw new
+				   XmlTranslationException("setter method not found for variable " + attr.getNodeName() + " in "+stateClass+
+", please create a method that takes a String as parameter and sets the value of " + attr.getNodeName());
 						e.printStackTrace();
 	              }
 	              
@@ -536,6 +578,9 @@ abstract public class ElementState extends IO
 			
 			if (thisChild.getNodeType() != Node.TEXT_NODE)
 				elementState.addElement(buildStateObject(thisChild));
+//			else
+//			   parentStateObj.setAttribute(this.className,
+//						       thisChild.getValue());
 		}
 				
 		return elementState;
@@ -552,7 +597,7 @@ abstract public class ElementState extends IO
 	protected void addElement(ElementState elementState) throws XmlTranslationException
 	{
 		String fieldName = XmlTools.fieldNameFromObject(elementState);
-				
+//		IO.println("<<<<<<<<<<<<<<<<<<<<<<<<fieldName is: " + fieldName);		
 		try
 		{
 			Field field = getClass().getField(fieldName);

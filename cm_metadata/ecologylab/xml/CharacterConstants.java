@@ -1,16 +1,7 @@
-/*
- * Created on Jun 29, 2004
- *
- * TODO To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
 package ecologylab.xml;
 
 /**
- * @author madhur
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * Character Constants for which extra care needs to be taken while parsing.
  */
 public interface CharacterConstants 
 {

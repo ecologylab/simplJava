@@ -62,7 +62,7 @@ extends Debug
                j, k;
 
    private boolean dirty = false;
-   private static final int INC = 100;
+   private static final int INC = 256;
                      /* unit of size whereby b is increased */
    public NewPorterStemmer()
    {     	 
