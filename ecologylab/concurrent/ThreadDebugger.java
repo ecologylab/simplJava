@@ -158,10 +158,12 @@ public class ThreadDebugger extends Debug
 	}
 	public static void show()
 	{
+	   println("ThreadDebugger.show()");
 		threadControlFrame.setVisible(true);	
 	}
 	public static void hide()
 	{
+	   println("ThreadDebugger.hide()");
 		threadControlFrame.setVisible(false);	
 	}
 
