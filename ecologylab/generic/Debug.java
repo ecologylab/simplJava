@@ -237,6 +237,9 @@ public class Debug
    public static void toggleInteractive()
    {
       interactive	= !interactive;
+      String msg	= "Toggle interactive debug to " + interactive;
+      Environment.the.get().status(msg);
+      println(msg);
    }
 
 /**
