@@ -17,6 +17,8 @@ public class ParsedURL
 extends Debug
 {
    protected URL		url = null;
+   // URL string with hash.
+   protected URL		hashUrl = null;
    protected String	string = null;
    
    /* lower case of the url string */
@@ -262,9 +264,19 @@ extends Debug
    */
    public final URL url()
    {
-   	if( url == null )
-   		return null;
-   	return url;
+	   	if( url == null )
+	   		return null;
+	   	return url;
+   }
+   
+   public final URL hashUrl()
+   {
+
+   		if( hashUrl == null )
+   			return url();
+   		else
+   			return hashUrl;
+
    }
    
    /**
@@ -451,7 +463,7 @@ extends Debug
 				   boolean tossArgsAndHash)
    {
 	  return createFromHTML(url(), addressString, fromSearchPage, 
-							tossArgsAndHash);
+							tossArgsAndHash, tossArgsAndHash);
    }
 /**
  * Called while processing (parsing) HTML.
@@ -469,8 +481,11 @@ extends Debug
  * @param fromSearchPage If false, then add <code>/</code> to the end
  * of the URL if it seems to be a directory.
  * 
- * @param tossArgsAndHash if true, eliminate everything after <code>?</code>
- * and <code>#</code> in the URL.
+ * @param tossHash if true, eliminate everything after 
+ *  <code>#</code> in the URL.
+ * 
+ * @param tossArgs if true, eliminate everything after <code>&</code>
+ * in the URL.
  * 
  * @return	The resulting ParsedURL. It may be null. It will never have 
  *		protocol <code>javascript:</code>.
@@ -478,7 +493,8 @@ extends Debug
    public static ParsedURL createFromHTML(URL contextURL,
 										  String addressString, 
 										  boolean fromSearchPage, 
-										  boolean tossArgsAndHash)
+										  boolean tossHash,
+										  boolean tossArgs)
    {
       if ((addressString == null) || (addressString.length() == 0))
 		 return null;
@@ -529,61 +545,68 @@ extends Debug
 		 // or suffix is htmlMime or imgMime.
       }
       if (javascript)
-	 return null;
+      	return null;
 
       // used to check for mime here!!! now we do that where the crawler is 
       // if !crawlable(lc) ...
 
       char argDelim	= '?';
+      // url string always keep hash string.
+      String urlWithHash = null;
       if (fromSearchPage)
       {
-	 // handle embedded http://
-	 int lastHttp	= addressString.lastIndexOf("http://");
-	 // usually ? but could be &
-	 if (lastHttp > 0)
-	 {
-	    // this is search engine crap
-	    addressString		= addressString.substring(lastHttp);
-//	    debugA("now addressString="+addressString);
-	    // handle any embedded args (for google mess)
-	    argDelim		= '&';
-	 }
+		 // handle embedded http://
+		 int lastHttp	= addressString.lastIndexOf("http://");
+		 // usually ? but could be &
+		 if (lastHttp > 0)
+		 {
+		    // this is search engine crap
+		    addressString		= addressString.substring(lastHttp);
+	//	    debugA("now addressString="+addressString);
+		    // handle any embedded args (for google mess)
+		    argDelim		= '&';
+		 }
       }
 //      if (!fromSearchPage)
       else
       {
-	 // 1) peel off hash
-	 int hashPos	= addressString.indexOf('#'); 
-	 String hashString= StringTools.EMPTY_STRING;
-	 if (hashPos > -1)
-	 {
-	    hashString	= addressString.substring(hashPos);
-	    addressString		= addressString.substring(0, hashPos);
-	 }
-	 // 2) peel off args
-	 int argPos	= addressString.indexOf(argDelim);
-	 String argString	= StringTools.EMPTY_STRING;
-	 if (argPos > -1)
-	 {
-	    argString	= addressString.substring(argPos);
-	    addressString		= addressString.substring(0, argPos);
-	 }
-	 else
-	 {
-	    // 3) if what's left is a directory (w/o a mime type),add slash
-	    int endingSlash	= addressString.lastIndexOf('/');
-	    int lastChar	= addressString.length() - 1;
-	    if (endingSlash == -1)
-	       endingSlash++;
-	    if ((lastChar > 0) &&
-		(lastChar != endingSlash) &&
-		(addressString.substring(endingSlash).indexOf('.') == -1))
-	       addressString	       += '/';
-	 }
-	 if (!tossArgsAndHash)
-	    // 4) put back what we peeled off
-	    addressString	       += argString + hashString;
-      }
+		 // 1) peel off hash
+		 int hashPos	= addressString.indexOf('#'); 
+		 String hashString= StringTools.EMPTY_STRING;
+		 if (hashPos > -1)
+		 {
+		 	// kept this url to have hashurl for the navigation
+		 	urlWithHash = addressString;
+		    hashString	= addressString.substring(hashPos);
+		    addressString		= addressString.substring(0, hashPos);
+		 }
+		 // 2) peel off args
+		 int argPos	= addressString.indexOf(argDelim);
+		 String argString	= StringTools.EMPTY_STRING;
+		 if (argPos > -1)
+		 {
+		    argString	= addressString.substring(argPos);
+		    addressString		= addressString.substring(0, argPos);
+		 }
+		 else
+		 {
+		    // 3) if what's left is a directory (w/o a mime type),add slash
+		    int endingSlash	= addressString.lastIndexOf('/');
+		    int lastChar	= addressString.length() - 1;
+		    if (endingSlash == -1)
+		       endingSlash++;
+		    if ((lastChar > 0) &&
+			(lastChar != endingSlash) &&
+			(addressString.substring(endingSlash).indexOf('.') == -1))
+		       addressString	       += '/';
+		 }
+		 if (!tossArgs)
+		    // 4) put back what we peeled off
+		    addressString	       += argString;
+	     if( !tossHash)
+	      	addressString	       += hashString;
+	     	    
+     }
       
       ParsedURL parsedUrl;
       try
@@ -593,9 +616,12 @@ extends Debug
 		 else
 		 {
 			newUrl = new URL(contextURL, addressString);	       
-		 }	      
-		 
-		 parsedUrl		= new ParsedURL(newUrl);	 
+		 }
+		 parsedUrl		= new ParsedURL(newUrl);
+
+		 // Save hash url string in the ParsedURL for the navigation.
+		 if( urlWithHash != null )
+		 	parsedUrl.hashUrl = new URL(urlWithHash);
       }
       catch (MalformedURLException e)
       {
