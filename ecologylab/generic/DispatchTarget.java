@@ -16,6 +16,11 @@ package cm.generic;
  */
 public interface DispatchTarget
 {
+	/**
+	 * Called, probably later asynchronously, when the requested service is complete.
+	 * 
+	 * @param o -- enables an argument of any type to be passed back.
+	 */
    // notification to the Client that event id is complete
    public void delivery(Object o);
 }
