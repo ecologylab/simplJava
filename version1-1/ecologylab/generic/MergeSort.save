@@ -1,0 +1,43 @@
+   public DLL mergeSortDescending(MergeD mergeD, DLL zSibs)
+   {
+      DLL c		= this;
+      int n		= 1;
+      DLL head		= new DLL(null);
+      head.setNext(c);
+      DLL a;
+      do 
+      {
+	 DLL todo	= head.next();
+	 c		= head;
+	 int toMove	= n - 1;
+	 System.out.println("\nstart inner loop moving " + toMove);
+	 do
+	 {
+	    // merge lists of size n
+	    DLL t	= todo;
+	    a		= t;
+	    for (int i=1; i<toMove; i++)
+	       t	= t.next();
+	    DLL b	= t.next();
+	    t.setNext(zSibs);
+	    t		= b;
+	    for (int i=1; i<toMove; i++)
+	       t	= t.next();
+	    todo	= t.next();
+	    t.setNext(zSibs);
+	    System.out.println("mergeDescending(a: ");
+	    engine.Piece.printPieces(a, zSibs);
+	    System.out.println("mergeDescending(b: ");
+	    engine.Piece.printPieces(b, zSibs);
+	    c.setNext(mergeD.mergeDescending(a,b));
+	    System.out.println("returns: ");
+	    engine.Piece.printPieces(c.next(), zSibs);
+	    int twoN	= n + n;
+	    for (int i=1; i<twoN; i++)
+	       c	= c.next();
+	 } while (todo != zSibs);
+	 n	       += n;
+      } while (a != head);
+
+      return head.next();
+   }
