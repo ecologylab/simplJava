@@ -241,7 +241,15 @@ extends Debug
    {  int l = s.length();
       int o = k-l+1;
       if (o < 0) return false;
-      for (int i = 0; i < l; i++) if (b.charAt(o+i) != s.charAt(i)) return false;
+      int oTracker = o;
+      int bLength	= b.length();
+      for (int i = 0; i < l; i++) 
+      {
+	 if (oTracker++ >= bLength)
+	    return false;
+	 if (b.charAt(o+i) != s.charAt(i)) 
+	    return false;
+      }
       j = k-l;
       return true;
    }

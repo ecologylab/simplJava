@@ -5,6 +5,7 @@ import cm.media.text.NewPorterStemmer;
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
 
+
 /**
  * Non-linear flow multiplexor.
  * Tracks downloads of <code>Downloadable</code> objects.
@@ -385,6 +386,17 @@ implements Runnable
 	       }
 	   };
 	   return newDownload; 
+   }
+   
+   protected Thread makeDownloadThread(int i, String s)
+   {
+	  return new Thread(toString()+"-download "+i+" "+s)
+	  {
+	 public void run()
+	 {			  	
+		performDownloads();
+	 }
+	  };
    }
 
    private void startDownloadMonitor()

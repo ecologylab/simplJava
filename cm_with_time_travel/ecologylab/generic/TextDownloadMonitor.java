@@ -29,6 +29,7 @@ DownloadMonitor
 
       return result;
    }
+   
    public static void addStemmer()
    {
       addStemmer(Thread.currentThread());

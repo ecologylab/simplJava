@@ -498,4 +498,9 @@ public class Generic
    {
       Environment.the.get().go(u, Environment.the.frame());
    }
+   
+   public static void beep()
+   {
+   		Toolkit.getDefaultToolkit().beep();
+   }
 }
