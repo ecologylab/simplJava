@@ -444,12 +444,16 @@ abstract public class ElementState extends IO
 	   throws XmlTranslationException
 	{
 	   // form the new object derived from ElementState
-		Class stateClass = null;
-		ElementState elementState = null;
+		Class stateClass				= null;
+		ElementState elementState		= null;
 		try
 		{			  
- 			stateClass= nameSpace.xmlTagToElementStateClass(xmlNode.getNodeName());
-			elementState	=	(ElementState)stateClass.newInstance();
+		   String tagName		= xmlNode.getNodeName();
+ 			stateClass= nameSpace.xmlTagToClass(tagName);
+			if (stateClass == null)
+			   throw new XmlTranslationException("Cant find class object for" +
+												 tagName);
+			elementState	=	(ElementState) stateClass.newInstance();
 		}
 		catch (Exception e)
 		{
@@ -752,12 +756,7 @@ abstract public class ElementState extends IO
 	 */
 	public String tag()
 	{
-		String packageName	= null;
-		if (nameSpace.emitPackageNames())
-			packageName	= XmlTools.getPackageName(this);
-
-		String tagName	= XmlTools.xmlTagFromObject(this, packageName, "State", compressed);
-		return tagName;
+	   return nameSpace.objectToXmlTag(this);
 	}
 
 	/**
@@ -832,7 +831,7 @@ abstract public class ElementState extends IO
 		try
 		{
 		   Field field			= getClass().getField(fieldName);
-		   Type fieldType		= TypeRegistry.getType(field.getType());
+		   Type fieldType		= TypeRegistry.getType(field);
 		   if (fieldType != null)
 			  result			= fieldType.setField(this, field, fieldValue);
 		}
