@@ -21,6 +21,7 @@ import java.util.*;
  * Seems no operations can safely occur concurrently.
  **/
 public class FloatWeightSet
+extends Debug
 {
    protected 	float			incrementalSums[];
    protected 	FloatSetElement		elements[];
@@ -284,8 +285,13 @@ public class FloatWeightSet
 	 	gc(halfGcThreshold);
       Thread.yield();
       FloatSetElement element	= maxSelect();
-      if (element != null)
-	 	element.delete(-1);
+      if (element == sentinel)
+      {  // defensive programming
+	 debug("maxSelect() ERROR chose sentinel??????!!! size="+ size);
+	 Thread.dumpStack();
+      }
+      else if (element != null)
+	 element.delete(-1);
       return element;
    }
 /**
@@ -308,10 +314,10 @@ public class FloatWeightSet
       else
 	 maxArrayList.clear();
       
-      int maxIndex		= MathTools.random(size);
+      int maxIndex		= MathTools.random(size-1) + 1;
       FloatSetElement result	= elements[maxIndex];
       float maxWeight		= result.getWeight();
-      for (int i=0; i<size; i++)
+      for (int i=1; i<size; i++)
       {
 	 FloatSetElement thatElement	= elements[i];
 	 float thatWeight	= thatElement.getWeight();
