@@ -1,5 +1,7 @@
 package cm.generic;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import cm.generic.ParsedURL;
 
@@ -49,18 +51,22 @@ public class ApplicationEnvironment implements Environment
 
 	/**
 	 * @see cm.generic.Environment#codeBase()
-	 * Change return value from URL to ParsedURL. 
+	 * return the current working directory of the application
+	 * which is "c:\web\code\java\cm"
 	 */
 	public ParsedURL codeBase() {
-		return null;
+			ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
+			return purl;
 	}
 
 	/**
 	 * @see cm.generic.Environment#docBase()
-	 * Change return value from URL to ParsedURL. 
+	 * return the current working directory of the application
+	 * which is "c:\web\code\java\cm"
 	 */
 	public ParsedURL docBase() {
-		return null;
+		ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
+		return purl;
 	}
 	
 
