@@ -1194,7 +1194,7 @@ public class ElementState extends IO
 	
 	public void setTextNodeString(String textNodeString)
 	{
-	   this.textNodeString		= textNodeString;
+	   this.textNodeString		= XmlTools.unescapeXML(textNodeString);
 	}
 	public String getTextNode()
 	{
