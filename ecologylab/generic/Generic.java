@@ -158,7 +158,8 @@ public class Generic
  */
    public static ParsedURL systemPath(String relativePath)
    {
-      return Environment.the.get().codeRelativeURL(relativePath);
+   	  return Environment.the.get().codeBase().getRelative(relativePath, "forming system path");
+//      return Environment.the.get().codeRelativeURL(relativePath);
    }
    public static final String SEP	= "/";
    
