@@ -1,7 +1,7 @@
 # current working directory
 DIR	= cm/generic
 
-JAVA_SRC = Generic.java AllocationDebugger.java Attribute.java Debug.java \
+JAVA_SRC = ParsedURL.java Generic.java AllocationDebugger.java Attribute.java Debug.java \
 	   ThreadMaster.java Files.java Colors.java ObservableDebug.java \
 	   StringTools.java DispatchTarget.java Monitor.java ImageTools.java \
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
