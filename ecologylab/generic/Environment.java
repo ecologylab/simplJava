@@ -47,7 +47,7 @@ public interface Environment
  * {@link Environment Environment}, and simple methods for getting and setting
  * this reference.
  */
-   public class The
+   public class The extends Debug
    {
       Environment environment;
 
@@ -55,6 +55,7 @@ public interface Environment
       float		javaVersion	= 1.1f;	// minimum expected
       boolean		hasGL;
       boolean		hasAgile2D;
+      boolean		hasXML;
       
       public The()
       {
@@ -65,6 +66,7 @@ public interface Environment
 	 } catch (ClassNotFoundException e)
 	 {
 	 }
+
 	 try
 	 {
 	    Class.forName("gl4java.awt.GLCanvas");
@@ -81,22 +83,36 @@ public interface Environment
 	 } catch (ClassNotFoundException e)
 	 {
 	 }
+
 	 try
 	 {
 	    Class.forName("javax.xml.transform.dom.DOMSource");
 	    javaVersion		= 1.4f;
-	 } catch (ClassNotFoundException e)
+	 } catch (ClassNotFoundException e4)
 	 {
 	    try
 	    {
-	       Class.forName("java.util.HashMap");
-	       javaVersion		= 1.2f;
-	    } catch (ClassNotFoundException e2)
+	       Class.forName("java.awt.font.TextMeasurer");
+	       javaVersion		= 1.3f;
+	    } catch (ClassNotFoundException e3)
 	    {
+	       try
+	       {
+		  Class.forName("java.util.HashMap");
+		  javaVersion		= 1.2f;
+	       } catch (ClassNotFoundException e2)
+	       {
+	       }
 	    }
 	 }
-	 
-
+	 try
+	 {
+	    Class.forName("org.w3c.dom.Node");
+	    hasXML	= true;
+	 } catch (ClassNotFoundException e2)
+	 {
+	 }
+	 debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
       }
       public The(Environment e)
       {
@@ -110,6 +126,10 @@ public interface Environment
       {
 	 return environment;
       }
+/**
+ * @return	The version of Java we're using (but not the specific release),
+ *		as in 1.2, 1.3, 1.4,...
+ */
       public float javaVersion()
       {
 	 return javaVersion;
@@ -117,6 +137,18 @@ public interface Environment
       public boolean hasQuicktime()
       {
 	 return hasQuicktime;
+      }
+      public boolean hasAgile2D()
+      {
+	 return hasAgile2D;
+      }
+      public boolean hasGL()
+      {
+	 return hasGL;
+      }
+      public boolean hasXML()
+      {
+	 return hasXML;
       }
 /**
  * Get a float parameter from the runtime environment.
