@@ -149,10 +149,13 @@ extends Debug
    
 /** 
  * Create ParsedURL with doc base and relative url string. 
+ * 
+ * @return null if the docBase is null.
  */
    public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
    {
-   		return Generic.docBase().getRelative(relativeURLPath, errorDescriptor);
+   		ParsedURL docBase = Generic.docBase();
+   		return (docBase == null) ? null : docBase.getRelative(relativeURLPath, errorDescriptor);
    } 
    
 /**
