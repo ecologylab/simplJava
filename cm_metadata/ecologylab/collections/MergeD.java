@@ -10,12 +10,12 @@ package cm.generic;
 public interface MergeD
 {
 /**
- * Descending merge operation for descending merge sort.
+ * Descending merge operation for merge sort descending.
  * 
- * @param	both input lists assumed to already be in descending
- *		sorted order.
+ * @param list1 input, assumed to already be in descending sorted order.
+ * @param list2 input, assumed to already be in descending sorted order.
  * 
  * @return	The 2 {@link DLL DLL}s merged, in descending order.
  */
-   public DLL mergeDescending(DLL a, DLL b);
+   public DLL mergeDescending(DLL list1, DLL list2);
 }

@@ -46,7 +46,10 @@ extends Debug
    }
    public static final String domain(URL url)
    {
-      return domain(url.getHost());
+      if (url.getProtocol().equals("file"))
+	 return "filesystem.local";
+      else
+	 return domain(url.getHost());
    }
 /**
  * Useful for finding common domains.
@@ -124,14 +127,14 @@ extends Debug
       
       try
       {
-	 length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + pathLength;
-   } catch (Exception e)
-   {
-      Debug.println("protocol="+protocol+" authority="+authority+
+      	length	=
+      		protocol.length() + 3 /* :// */ + authority.length() + pathLength;
+      } catch (Exception e)
+	  {
+      	Debug.println("protocol="+protocol+" authority="+authority+
 		     u.toExternalForm());
-      e.printStackTrace();
-   }
+      	e.printStackTrace();
+	  }
       
       StringBuffer result = new StringBuffer(length);
       result.append(protocol).append("://").append(authority).append(path);
@@ -216,8 +219,10 @@ extends Debug
    
    public static final URL urlRemoveAnchorIfNecessary(URL source)
    {
-      String anchor			= source.getRef();
-      return (anchor == null) ? source : urlNoAnchor(source);
+//Below operation is already in the urlNoAnchor();      
+//   	String anchor			= source.getRef();
+//      return (anchor == null) ? source : urlNoAnchor(source);
+   		return urlNoAnchor(source);
    	
    }
    
@@ -228,6 +233,9 @@ extends Debug
       if(source==null)
       return result;
       
+      if (source.getRef() == null)
+      	return source;
+      		
       try
       {
 	 result= new URL(source.getProtocol(), source.getHost(),
@@ -250,9 +258,11 @@ extends Debug
  */
    
 /**
- * For example, input "isFileName", output "is file name"
+ * Parse file name or variable name spellings, to convert to a set of words.
  * 
- * @return 
+ * @param in	 input <code>String</code>, for example: "isFileName".
+ *
+ * @return An array of <code>String</code>s, for example: "is", "file", "name".
  */   
    public static String[] seperateLowerUpperCase(String in)
    {
@@ -312,7 +322,7 @@ extends Debug
    public static final String FIND_PUNCTUATION_REGEX = 
       "(:)|(\\d)|(\\.)|(/++)|(=)|(\\?)|(\\-)|(\\+)|(_)|(%)|(\\,)";        
 /**
- * Use RegEx to turn punctuation into space delimiters.
+ * Turn punctuation into space delimiters.
  */
    public static String removePunctuation(String s)
    {
@@ -345,23 +355,12 @@ extends Debug
       return s.replaceAll(FIND_PUNCTUATION_REGEX, " ");
    }
 
-   public static String removePunctuation(URL u)
-   {
-      // we don't use the protocol and host:port part in url
-      return removePunctuation(u.getPath());
-   }
-   public static String[] wordsFromURL(URL u)
-   {
-      String withoutPunctuation = StringTools.removePunctuation(u);
-      return StringTools.seperateLowerUpperCase(withoutPunctuation);
-   }
-   
-
    public static void main(String[] s)
    {
-      URL u = Generic.getURL("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
+   	  /* create ParsedURL from url string. */
+      ParsedURL u = ParsedURL.getAbsolute("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif", "foo");
 //      println(removePunctuation("http://www.bbc.co.uk/eastenders/images/navigation/icon_bbc_one.gif"));
-      println(removePunctuation(u));
+      println(u.removePunctuation());
    }
    public static void main2(String[] s)
    {
@@ -373,6 +372,20 @@ extends Debug
 		      System.out.print(result[j] + " ");
 		   System.out.println();
 		}   	
+   }
+/**
+ * Reset the StringBuffer, so that is empty and ready for reuse.
+ * Do this with a minimum of overhead, given the latest vagaries of the
+ * JDK implementation.
+ */
+   public static final void clear(StringBuffer buffy)
+   {
+      // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
+      // a tiny buffer, so use this weirdness, which looks like the 
+      // most reasonable option
+      int length	= buffy.length();
+      if (length > 0)
+	 buffy.delete(0, length);
    }
 }
 

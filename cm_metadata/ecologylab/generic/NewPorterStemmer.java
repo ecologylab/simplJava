@@ -163,18 +163,11 @@ extends Debug
 
    private final boolean cons(int i)
    {  
-      try
-      {
 	 switch (b.charAt(i))
 	 {  case 'a': case 'e': case 'i': case 'o': case 'u': return false;
          case 'y': return (i==0) ? true : !cons(i-1);
          default: return true;
 	 }
-      } catch (StringIndexOutOfBoundsException e)
-      {
-	 debug("cons("+i+") ERROR b="+b);
-	 throw e;
-      }
    }
 
    /* m() measures the number of consonant sequences between 0 and j. if c is
@@ -249,7 +242,15 @@ extends Debug
    {  int l = s.length();
       int o = k-l+1;
       if (o < 0) return false;
-      for (int i = 0; i < l; i++) if (b.charAt(o+i) != s.charAt(i)) return false;
+      int oTracker = o;
+      int bLength	= b.length();
+      for (int i = 0; i < l; i++) 
+      {
+	 if (oTracker++ >= bLength)
+	    return false;
+	 if (b.charAt(o+i) != s.charAt(i)) 
+	    return false;
+      }
       j = k-l;
       return true;
    }

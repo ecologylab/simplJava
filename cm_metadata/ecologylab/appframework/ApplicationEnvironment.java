@@ -1,6 +1,7 @@
 package cm.generic;
 
 import java.net.URL;
+import cm.generic.ParsedURL;
 
 /**
  * @author madhur
@@ -76,48 +77,47 @@ public class ApplicationEnvironment implements Environment
 
 	/**
 	 * @see cm.generic.Environment#codeBase()
+	 * Change return value from URL to ParsedURL. 
 	 */
-	public URL codeBase() {
+	public ParsedURL codeBase() {
 		return null;
 	}
 
 	/**
 	 * @see cm.generic.Environment#docBase()
+	 * Change return value from URL to ParsedURL. 
 	 */
-	public URL docBase() {
+	public ParsedURL docBase() {
 		return null;
 	}
-
-	/**
-	 * @see cm.generic.Environment#rel(String)
-	 */
-	public URL rel(String relativeURL) {
-		return Generic.getURL(relativeURL, "relative URL turned into absolute???");
-	}
-
-	public URL codeRelativeURL(String relativeURL)
+	
+	/* Change return value from URL to ParsedURL. */
+	public ParsedURL codeRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL +" relative to "
-	      + StringTools.noAnchorNoQueryPageString(codeBase)+" ";
-	   return Generic.getURL(codeBase, relativeURL, err);
+	      + codeBase.noAnchorNoQueryPageString()+" ";
+	   /* get ParsedURL from url string and code base. */
+	   ParsedURL purl = ParsedURL.getRelative(codeBase.url(), relativeURL, err);
+	   return purl;
 	}
 	
 /**
- * @return an URL relative to the code base.
+ * @return a ParsedURL relative to the code base.
  */   
-	public URL docRelativeURL(String relativeURL)
+	public ParsedURL docRelativeURL(String relativeURL)
 	{
 	   String err = "Cant find " + relativeURL + " relative to "
-	      + StringTools.noAnchorNoQueryPageString(docBase)+" ";
-	   return Generic.getURL(docBase, relativeURL, err);
+	      + docBase.noAnchorNoQueryPageString()+" ";
+	   ParsedURL purl = ParsedURL.getRelative(docBase.url(), relativeURL, err);
+	   return purl;
 	}
 	
 
 	public void go(URL u, String frame)
 	{
 	}
-	
-	URL docBase, codeBase;
+	/* Change type from URL to ParsedURL. */
+	ParsedURL docBase, codeBase;
 	public int browser()
 	{
 	   return APPLICATION;

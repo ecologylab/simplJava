@@ -119,8 +119,9 @@ extends Debug
    }
    public static BufferedReader openWebReader(String webAddr)
    {
-      URL url = Generic.getURL(webAddr, "");
-      return openReader(url);
+   	  /* get ParsedURL from url string. */
+      ParsedURL purl = ParsedURL.getRelativeOrAbsolute(webAddr, "");
+      return openReader(purl.url());
    }
    public static BufferedReader openReader(File file)
    {
@@ -234,6 +235,10 @@ extends Debug
    public static BufferedWriter openWriter(String oFileName, boolean append)
    {
       return openWriter(newFile(oFileName), 1, append);
+   }
+   public static BufferedWriter openWriter(File oFile, boolean append)
+   {
+      return openWriter(oFile, 1, append);
    }
    
    public static BufferedWriter openWriter(File oFile)

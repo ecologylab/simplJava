@@ -43,6 +43,8 @@ extends Debug
 	
 	public void release(StringBuffer b)
 	{
+//	   b.setLength(0); // UGH! actually reallocates due to Sun stupidity!
+	   b.delete(0, b.length());
 	   bufferPool.add(b);		
 	}
 }
