@@ -330,6 +330,11 @@ public class Generic
       return url;
    }
    
+   public static URL getURL(String webAddr)
+   {
+      return getURL(webAddr, "");
+   }
+   
 /**
  * Creates an absolute URL, if the String parameter looks like that,
  * or one that's relative to docBase, if it looks a relative URL.
