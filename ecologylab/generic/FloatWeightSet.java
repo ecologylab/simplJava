@@ -106,7 +106,7 @@ extends Debug
       if ((size == 0) || (index < 0))
 	 return;
       // ???!!!      return NaN;
-      float finalWeight	= el.getWeight();
+//      float finalWeight	= el.getWeight();
       int lastIndex	= --size;
       if (index != lastIndex)	// if not the last element
       {
