@@ -557,7 +557,7 @@ static String q(String string)
  */
     public static StringBuffer unescapeXML(StringBuffer sb, int startPos)
    {
-	  int		ampPos		= sb.indexOf("&");
+	  int		ampPos		= sb.indexOf("&", startPos);
 	  
 	  if (ampPos == -1)
 		 return sb;
@@ -581,6 +581,17 @@ static String q(String string)
 	  // then call recursively, setting the startPos index to after the last
 	  // entity that we found
 	  
+	  String encoded = sb.substring(entityPos, semicolonPos);
+	  Character lookup = (Character)entityTable.get(encoded);
+	  
+	  if( semicolonPos+1 < sb.length() )
+	  {		
+	  		if( lookup != null )
+	  			sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
+
+	  }	  
+	  return unescapeXML(sb, semicolonPos+1);
+	  
 /*	  String entityCandidate	= sb.substring(entityPos, semicolonPos);
 	  String result				= sb.substring(0, ampPos);
 	  Character lookup			= (Character) entityTable.get(entityCandidate);
@@ -601,7 +612,6 @@ static String q(String string)
 	  }
 	  return  result;
  */	  
-	  return sb;
    }
 	/**
 	* Replaces characters that may be confused by a HTML
