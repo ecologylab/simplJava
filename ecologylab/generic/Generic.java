@@ -4,6 +4,8 @@ import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.net.*;
+import java.io.*;
 
 /**
  * @author andruid
@@ -284,4 +286,48 @@ public class Generic
       return Float.toString(((float) Math.round(f * factor)) / factor);
    }
    ///////////////////////////////////////////////////////////////////////
+/**
+ * Get the IP number for the user's machine.
+ * returns:	the ip number as a string, or unknown if JDK 1.0x or
+ * other error (like security).
+ * !!! for error cases, could create somewhat elaborate scheme to synthesize
+ * some kind of id from a cookie, but current usage is just for the study --
+ * doesnt need to be perfect. nb: getting ip addr on server side
+ * isn't adequate cause proxy servers are so popular w mongo isps like aol!!!
+ */
+   public static String getLocalIp(URL remote)
+   {
+      String result	= null;
+
+      try
+      {
+	 InetAddress server = InetAddress.getByName(remote.getHost());
+      
+//	 println("getByName() = " + server);
+	 
+	 Socket socket	= new Socket(server, 80);
+
+	 try
+	 {
+	    InetAddress localHost	= socket.getLocalAddress();
+	    result		= localHost.getHostAddress();
+	 } catch (Exception e)
+	 {
+	    // no such method in JDK 1.0x: getLocalAddress()
+	    if (!(e instanceof NoSuchMethodException))
+	       Debug.println("UserStudy.getLocalIp() unknown error: " +
+				  e);
+	    result		= "unknown";
+	 }
+//	 println("localHost=" + result);
+	 socket.close();
+      } catch (UnknownHostException e)
+      {
+	 Debug.println("getByName() failed.\n" + e);
+      } catch (IOException e)
+      {
+	 Debug.println("new Socket() failed.\n" + e);
+      }
+      return result;
+   }
 }
