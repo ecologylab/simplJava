@@ -567,8 +567,8 @@ public class ElementState extends IO
 			   String childTag			= childNode.getNodeName();
 			   String childFieldName	= 
 				  XmlTools.fieldNameFromElementName(childTag);
-			   println("childFieldName="+childFieldName +" in "+
-				   stateClass);
+//			   println("childFieldName="+childFieldName +" in "+
+//				   stateClass);
 			   try
 			   {
 				  Field childField		= stateClass.getField(childFieldName);
