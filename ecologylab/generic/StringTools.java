@@ -217,6 +217,10 @@ extends Debug
    public static final URL urlNoAnchor(URL source)
    {
       URL result = null;
+      
+      if(source==null)
+      return result;
+      
       try
       {
 	 result= new URL(source.getProtocol(), source.getHost(),
