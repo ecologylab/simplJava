@@ -5,34 +5,38 @@ import java.util.*;
 public class ObservableDebug
 extends Observable
 {
-   public void debug(String message)
+   protected ObservableDebug()
+   {
+      AllocationDebugger.constructed(this);
+   }
+   public final void debug(String message)
    {
       Debug.println(this, message);
    }
-   public void debugA(String message)
+   public final void debugA(String message)
    {
       Debug.printlnA(this, message);
    }
-   public void debugI(String message)
+   public final void debugI(String message)
    {
       Debug.printlnI(this, message);
    }
 
-   public void debug(int messageLevel, String message)
+   public final void debug(int messageLevel, String message)
    {
       Debug.println(this, messageLevel, message);
    }
    
-   public void debugA(int level, String message)
+   public final void debugA(int level, String message)
    {
       Debug.printlnA(this, level, message);
    }
-   public void debugI(int level, String message)
+   public final void debugI(int level, String message)
    {
       Debug.printlnI(this, level, message);
    }
    
-   public String getClassName()
+   public final String getClassName()
    {
       return Debug.getClassName(this);
    }
@@ -57,7 +61,7 @@ extends Observable
    {
       Debug.println(className, messageLevel, message);
    }
-   public boolean show(int messageLevel)
+   public final boolean show(int messageLevel)
    {
       return Debug.show(this, messageLevel);
    }

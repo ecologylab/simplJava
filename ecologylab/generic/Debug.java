@@ -85,6 +85,11 @@ public class Debug
 	 }
       }
    }
+   protected Debug()
+   {
+      AllocationDebugger.constructed(this);
+   }
+
    public final int level()
    {
       return level(this);
@@ -203,7 +208,7 @@ public class Debug
    {
       //System.out.println("thatClass.toString() is " + thatClass.toString());
       String packageName = (String) packageNames.get(thatClass);
-      if (packageNames == null)
+      if (packageName == null)
       {
 	 String className	= thatClass.toString();
       	  packageName	= className.substring(6, className.lastIndexOf("."));
@@ -248,6 +253,10 @@ public class Debug
    {
       return getClassName(this);
    }
+   public String superString()
+   {
+      return super.toString();
+   }
    public static String toString(Object o)
    {
       return getClassName(o);
@@ -255,7 +264,7 @@ public class Debug
 /**
  * Print a debug message that starts with this.toString().
  */
-   public void debug(String message)
+   public final void debug(String message)
    {
       println(this, message);
    }
@@ -263,36 +272,36 @@ public class Debug
 /**
  * Print a debug message that starts with this.toString().
  */
-   public void debug(StringBuffer message)
+   public final void debug(StringBuffer message)
    {
       println(this, message);
    }
 /**
  * Print a debug message that starts with the abbreviated class name of this.
  */
-   public void debugA(String message)
+   public final void debugA(String message)
    {
       printlnA(this, message);
    }
 /**
  * Print a debug message that starts with the abbreviated class name of this.
  */
-   public void debugA(StringBuffer message)
+   public final void debugA(StringBuffer message)
    {
       printlnA(this, message.toString());
    }
-   public void debugI(String message)
+   public final void debugI(String message)
    {
       printlnI(this, message);
    }
-   public void debugI(StringBuffer message)
+   public final void debugI(StringBuffer message)
    {
       printlnI(this, message.toString());
    }
 /**
  * Evaluates the same conditional as Debug usually does implicitly, for explicit use in special static Debug printing scenarios.
  **/
-   public static boolean show(Object that, int messageLevel)
+   public static final boolean show(Object that, int messageLevel)
    {
       return messageLevel <= level(that);
    }
@@ -305,50 +314,53 @@ public class Debug
  * but only if messageLevel is greater than the debug <code>level</code> for
  * this class (see above).
  */
-   public void debug(int messageLevel, String message)
+   public final void debug(int messageLevel, String message)
    {
 //      if (show(messageLevel))
       if (messageLevel <= level())
 	 println(this, message);
    }
-   public void debugA(int messageLevel, String message)
+   public final void debugA(int messageLevel, String message)
    {
       if (messageLevel <= level())
 	 printlnA(this, message);
    }
-   public static void println(Object that, int messageLevel, String message)
+   public static final void println(Object that, int messageLevel,
+				    String message)
    {
       if (messageLevel <= level(that))
 	 println(that, message);
    }
-   public static void println(String className,
+   public static final void println(String className,
 			      int messageLevel, String message) 
    {
       if (messageLevel <= level(className))
 	 println(message);
    }
-   public static void printlnA(Object that, int messageLevel, String message)
+   public static final void printlnA(Object that, int messageLevel, 
+				     String message)
    {
       if (messageLevel <= level(that))
 	 printlnA(that, message);
    }
-   public static void printlnI(Object that, int messageLevel, String message)
+   public static final void printlnI(Object that, int messageLevel, 
+				     String message)
    {
       if (messageLevel <= level(that))
 	 printlnI(that, message);
    }
-   public void debugI(int messageLevel, String message)
+   public final void debugI(int messageLevel, String message)
    {
       if (messageLevel <= level())
 	 printlnI(this, message);
    }
-   public static void debug(Object o, String message, Exception e)
+   public static final void debug(Object o, String message, Exception e)
    {
       println(o, message);
       e.printStackTrace();
    }
 
-   public static void toggleInteractive()
+   public static final void toggleInteractive()
    {
       interactive	= !interactive;
       String msg	= "Toggle interactive debug to " + interactive;
@@ -358,7 +370,7 @@ public class Debug
    
    private static BufferedWriter	writer;
 
-   public static void setLoggingFile(String loggingFilePath)  
+   public static final void setLoggingFile(String loggingFilePath)  
 	{
 						
 		writer		= Files.openWriter(loggingFilePath);
@@ -386,5 +398,9 @@ public class Debug
    public static boolean logToFile()
    {
    	 return  logToFile;
+   }
+   protected void finalize()
+   {
+      AllocationDebugger.finalized(this);
    }
 }
