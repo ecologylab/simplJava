@@ -68,27 +68,44 @@ public class Debug
    {
       System.out.print(message);
    }
+/**
+ * Print a debug message, starting with the abbreviated class name of
+ * the object.
+ */
    public static void printlnA(Object o, String message) 
    {
-      println(getClass(o)+"." + message);
+      println(getClassName(o)+"." + message);
    }
-   public static String getClass(Object o)
+
+/**
+ * @return   the abbreviated name of the class - without the package qualifier.
+ */
+   public static String getClassName(Class thatClass)
    {
-      String c	= o.getClass().toString();
+      String c	= thatClass.toString();
       return c.substring(c.lastIndexOf(".") + 1);
+   }
+/**
+ * @return   the abbreviated name of the class - without the package qualifier.
+ */
+   public static String getClassName(Object o)
+   {
+      return getClassName(o.getClass());
    }
    public String toString()
    {
-      return getClassAbrev();
+      return getClassAbbrev();
    }
-   public String getClassAbrev()
-   {
-      return getClass(this);
-   }
+/**
+ * Print a debug message that starts with this.toString().
+ */
    public void debug(String message)
    {
       println(this, message);
    }
+/**
+ * Print a debug message that starts with the abbreviated class name of this.
+ */
    public void debugA(String message)
    {
       printlnA(this, message);
@@ -97,6 +114,10 @@ public class Debug
    {
       printlnI(this, message);
    }
+/**
+ * Print a debug message that starts with the abbreviated class name of this,
+ * but only if messageLevel is greater than <code>level</code> (see above).
+ */
    public void debug(String message, int messageLevel)
    {
       println(this, message, messageLevel);
