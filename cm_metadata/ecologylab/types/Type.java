@@ -4,7 +4,6 @@
 package ecologylab.types;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 
 import ecologylab.xml.*;
 
@@ -25,8 +24,6 @@ public class Type extends IO
 //	int		index;
 	boolean	isPrimitive;
 	
-	private static final HashMap allTypes		= new HashMap(32);
-
 	public static final String NULL_STRING		= "null";
 
 	public Type(String className, /* int index, */ boolean isPrimitive)
