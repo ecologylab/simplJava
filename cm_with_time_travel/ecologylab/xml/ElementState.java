@@ -12,7 +12,6 @@ import org.w3c.dom.*;
 import org.w3c.dom.Attr; 
 import org.xml.sax.*;
 
-
 /**
  * This class is the heart of the translation framework. All classes which 
  * need to be translated to xml and back MUST extend this class. It has the actual
@@ -69,16 +68,19 @@ abstract public class ElementState extends IO
 	 */
 	String emitXml(boolean compression, boolean doRecursiveDescent, int nodeNumber) throws XmlTranslationException
 	{
+		int STRING_BUFFER_CAPCITY = 2000;
+		StringBuffer result = new StringBuffer(STRING_BUFFER_CAPCITY);
+
 		compressed = compression;
-		String result	= "";
-		result += startOpenTag();
+//		String result	= "";
+		result.append(startOpenTag());
 		
 		//emit compresseion = true only for the top node, so this dirty hack
 		//so if the nodeNumber is 1 (top node) then emit the compression attribute
 		if(nodeNumber == 1 && compressed)
 		{
 			String compressionAttr = " " + "compressed" + " = " + "\"" + compressed + "\"" + " ";
-			result += compressionAttr;
+			result.append(compressionAttr);
 		}
 		nodeNumber++;
 		
@@ -107,7 +109,7 @@ abstract public class ElementState extends IO
 					//emit only if the field is present in this classs
 					//parent class fields should not be emitted, coz thats confusing
 					if(thatField.getDeclaringClass().getName() == getClass().getName())		
-						result	+= XmlTools.generateNameVal(thatField, this);
+						result.append(XmlTools.generateNameVal(thatField, this));
 				}
 								
 				else if (doRecursiveDescent)	// recursive descent
@@ -116,7 +118,7 @@ abstract public class ElementState extends IO
 					
 					if (!hasRecursiveElements)
 					{	// found *first* recursive element
-						result	+= ">";	// close element tag behind attributes
+						result.append(">");	// close element tag behind attributes
 						hasRecursiveElements	= true;
 					}
 
@@ -155,7 +157,7 @@ abstract public class ElementState extends IO
 								throw new XmlTranslationException("Collections MUST " +									"contain objects of class derived from \"ElementState\" ");
 							}
 							
-							result += element.emitXml(compressed, true, nodeNumber);		
+							result.append(element.emitXml(compressed, true, nodeNumber));		
 						}
 						
 						isCollection = true;
@@ -170,7 +172,7 @@ abstract public class ElementState extends IO
 							//so we emit ONLY IF the field is in the *same* object, NOT the parent object
 							if(thatField.getDeclaringClass().getName() == getClass().getName())
 							{
-								result += thatElementState.emitXml(compressed, true, nodeNumber);			
+								result.append(thatElementState.emitXml(compressed, true, nodeNumber));			
 							}
 						}
 					}//end of isCollection
@@ -178,17 +180,18 @@ abstract public class ElementState extends IO
 			}//end of for loop
 			
 			if (!doRecursiveDescent)
-				result += ">"; // dont close it
+				result.append(">"); // dont close it
 			else if (hasRecursiveElements)
-				result	+= closeTag();
+				result.append(closeTag());
 			else
-				result	+= "/>";	// simple element w attrs but no embedded elements
+				result.append("/>");	// simple element w attrs but no embedded elements
 				
 		} catch (SecurityException e)
 		{
 			e.printStackTrace();
 		}
-		return result;
+		
+		return XmlTools.toString(result);
 	}
 	
 	/**
@@ -244,11 +247,13 @@ abstract public class ElementState extends IO
  */	
 	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression) throws XmlTranslationException
 	{
+		int STRING_BUFFER_CAPCITY = 50000;
+		StringBuffer xml = new StringBuffer(STRING_BUFFER_CAPCITY);
 		//initialize the xml string 
-		xml = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
+		xml.append("<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>");
 
 		//generate the xml of the taken snap		
-		xml += emitXml(compression);
+		xml.append(emitXml(compression));
 		
 		//write the Xml in the file		
 		try
@@ -263,7 +268,7 @@ abstract public class ElementState extends IO
 				filePath	=	filePath.substring(0,filePath.indexOf(".xml"));
 			}
 			if(prettyXml)
-				XmlTools.writePrettyXml(xml, new StreamResult(new File(xmlFileName)));
+				XmlTools.writePrettyXml(XmlTools.toString(xml), new StreamResult(new File(xmlFileName)));
 			else
 			{
 				FileOutputStream out = new FileOutputStream(new File(xmlFileName));
@@ -562,7 +567,7 @@ abstract public class ElementState extends IO
 			if(e instanceof NoSuchFieldException)
 				throw new XmlTranslationException("Class containing collections such as " +
 					"Vector and Hashtable MUST define a method called " +
-					"addElement() which adds a given object to the collection");
+					"addElement() which adds a given object to the collection " + "here for field name = " + fieldName + "classanme" + getClass().getName());
 			e.printStackTrace();
 		}
 	}

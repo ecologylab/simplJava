@@ -7,11 +7,14 @@ import java.lang.reflect.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * This class contains methods which are used during the translation of java objects
@@ -58,35 +61,40 @@ public class XmlTools extends IO
       	className			= className.substring(0, suffixPosition);
       }
 
-      String result = "";
+//    String result
+      StringBuffer result = new StringBuffer(50);
       int classNameLength	= className.length();
       
-      for (int i=0; i<classNameLength; i++)
-      {
-	 	char	c	= className.charAt(i);
-		
-		if ((c >= 'A') && (c <= 'Z') )
-		{
-			if(i == 0)
-				result += Character.toLowerCase(c);
-			else	
-			    result	+= "_" + Character.toLowerCase(c);
-		}
-		else
-		{
-		    result	+= c;
-		}
-      }
-      
-      if(compression && (encodingTable.get(result) != null))
-      		result = (String)encodingTable.get(result);
-      
-      String packageName = getPackageName(obj);
+	  if(compression && (encodingTable.get(result) != null))
+	  {
+		  result.append((String)encodingTable.get(result));      	
+	  }
+	  else
+	  {
+	      for (int i=0; i<classNameLength; i++)
+	      {
+		 	char	c	= className.charAt(i);
+			
+			if ((c >= 'A') && (c <= 'Z') )
+			{
+				if(i == 0)
+					result.append(Character.toLowerCase(c));
+				else	
+				    result.append('_').append(Character.toLowerCase(c));
+			}
+			else
+			{
+			    result.append(c);
+			}
+	      }
+	  }
+            
+      StringBuffer packageName = new StringBuffer(getPackageName(obj));
       
       if(packageName != null)
-      	return packageName + "-" + result;
+      	return XmlTools.toString(packageName.append('-').append(result));
       
-      return result;
+      return XmlTools.toString(result);
    }
    
  /**
@@ -226,7 +234,10 @@ public class XmlTools extends IO
 				{
 					return "";
 				}
-				return " " + attrNameFromField(field, false) + " = " + "\"" + fieldValue + "\"" + " ";
+				StringBuffer result = new StringBuffer(50);
+				result.append(" ").append(attrNameFromField(field, false)).append(" = ").append("\"").append(fieldValue).append("\"").append(" ");
+//				return " " + attrNameFromField(field, false) + " = " + "\"" + fieldValue + "\"" + " ";
+				return XmlTools.toString(result);
 				
 			}
 			catch(Exception e)
@@ -469,6 +480,24 @@ public class XmlTools extends IO
 		return stateClass;
    }
    
+   /**
+	* Use this method to efficiently get a <code>String</code> from a
+	* <code>StringBuffer</code> on those occassions when you plan to keep
+	* using the <code>StringBuffer</code>, and want an efficiently made copy.
+	* In those cases, <i>much</i> better than 
+	* <code>new String(StringBuffer)</code>
+	*/
+	  public static final String toString(StringBuffer buffer)
+	  {
+		 return buffer.substring(0);
+	  }
+	  
+	  public static String xmlHeader()
+	  {
+		return "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
+	  }
+
+   
    static final int ISO_LATIN1_START	= 128;
 	/**
 	* Replaces characters that may be confused by a HTML
@@ -540,6 +569,28 @@ public class XmlTools extends IO
             }
         }
         return sb.toString();
+    }
+    
+    public static Document getDocument(String contents)
+    {
+		Document doc = null;
+		try 
+		{
+			StringBufferInputStream s       =     new StringBufferInputStream(contents);
+			DocumentBuilderFactory f        =     DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder         =     f.newDocumentBuilder();
+			doc = builder.parse(s);
+		} catch (FactoryConfigurationError e) {
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return doc;
     }
 	
 	/**

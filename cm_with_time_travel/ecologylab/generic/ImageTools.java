@@ -69,7 +69,7 @@ public class ImageTools
 	{
 		final int THUMBNAIL_WIDTH 		= 245;
 		final int THUMBNAIL_HEIGHT		= 350;
-		final int THUMBNAIL_QUALITY	= 100;
+		final int THUMBNAIL_QUALITY	= 75;
 		/*
 	    // load image from INFILE
 	    Image image = Toolkit.getDefaultToolkit().getImage(args[0]);
