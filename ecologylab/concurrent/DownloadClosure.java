@@ -52,9 +52,9 @@ extends Debug
    }
    public synchronized void dispatch()
    {
-//      debug("dispatch()" + !dispatched+" "+downloadable);
       if (!dispatched)
       {
+//	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
 	 dispatched		= true;
 	 if (dispatchTarget != null)
 	    dispatchTarget.delivery(downloadable);
