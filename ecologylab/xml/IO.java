@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.io.*;
+import java.lang.reflect.Field;
 
 /**
  * This class contains methods for doing all the I/O required. It has facilities
@@ -23,6 +24,10 @@ public class IO
    public void debug(String message)
    {
 	  println(this, message);
+   }
+   public void debugA(String message)
+   {
+	  println(getClass()+"."+ message);
    }
 
    public static void debug(Object o, String message, Exception e)
@@ -172,4 +177,8 @@ public class IO
 	  }
 	  return ok;
    }
+	public static String errorString(Field f)
+	{
+	   return "Error setting field " + f.getName() + " ";
+	}
 }
