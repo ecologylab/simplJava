@@ -1,8 +1,6 @@
 package cm.generic;
 
 import java.awt.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import java.net.*;
 import java.io.*;
@@ -329,5 +327,9 @@ public class Generic
 	 Debug.println("new Socket() failed.\n" + e);
       }
       return result;
+   }
+   public static URL docBase()
+   {
+      return Environment.the.get().docBase();
    }
 }
