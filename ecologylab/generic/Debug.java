@@ -26,8 +26,12 @@ public class Debug
  * Global hi watermark. debug() messages with a level less than or equal
  *  to this will get printed out.
  */
-   public static int		level	= 5;
-   public static boolean	interactiveDebug;
+   private static int		level	= 5;
+/**
+ * Global flag for printing "interactive debug" statements.
+ * See also {@link #debugI(String) debugI()}.
+ */
+   private static boolean	interactive;
    
    static final HashMap		classAbbrevNames	= new HashMap();
 /**
@@ -42,7 +46,7 @@ public class Debug
       
       // class specific
       String levels	= Generic.parameter("debug_levels");
-      println("Debug.initialize(" + levels);
+      println("Debug.initialize(" + Debug.level+", "+ levels+")");
       if (levels != null)
       {
 	 StringTokenizer tokenizer	= new StringTokenizer(levels,";");
@@ -95,7 +99,7 @@ public class Debug
    }
    public static void printlnI(int messageLevel, String message) 
    {
-      if (interactiveDebug)
+      if (interactive)
 	 println(message);
    }
    public static void println(Object o, String message)
@@ -104,12 +108,12 @@ public class Debug
    }
    public static void printlnI(Object o, String message)
    {
-      if (interactiveDebug)
+      if (interactive)
 	 println(o, message);
    }
    public static void printlnI(String message) 
    {
-      if (interactiveDebug)
+      if (interactive)
 	 println(message);
    }
    public static void println(String message) 
@@ -126,7 +130,7 @@ public class Debug
  */
    public static void printlnA(Object that, String message) 
    {
-      println(getClassName(that)+"." + message+" " +level(that));
+      println(getClassName(that)+"." + message/* +" " +level(that) */);
    }
 /**
  * Print a debug message, starting with the abbreviated class name.
@@ -232,6 +236,15 @@ public class Debug
 
    public static void toggleInteractive()
    {
-      interactiveDebug	= !interactiveDebug;
+      interactive	= !interactive;
+   }
+
+/**
+ * @return	state of the global flag for printing "interactive" debug
+ *		statements.
+ */
+   public static boolean getInteractive()
+   {
+      return interactive;
    }
 }
