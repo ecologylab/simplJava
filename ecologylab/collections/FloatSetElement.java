@@ -68,7 +68,7 @@ extends Debug
  */
    public synchronized void delete(int recompute)
    {
-      if (index != NOT_A_MEMBER) // prevent double dip deletes
+      if ((set != null) && (index != NOT_A_MEMBER))//prevent double dip deletes
 	 set.delete(this, recompute);
       
    }
