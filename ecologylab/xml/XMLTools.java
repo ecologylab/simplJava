@@ -59,10 +59,20 @@ implements CharacterConstants
 
 	static
 	{
+      // special spellings
       for (char i = 0; i != entities.length; i++)
 		 entityTable.put(entities[i], new Character((char) (i + 160)));
+      
+      // syntax such as &#38;
+      for (char i = 0; i != 255; i++)
+		 entityTable.put("#"+i, new Character(i));
+      
+      // defined in the XML 1.0 spec: "predefined entities"
       entityTable.put("amp", new Character('&'));
       entityTable.put("quot", new Character('"'));
+      entityTable.put("lt", new Character('<'));
+      entityTable.put("gt", new Character('>'));
+      entityTable.put("apos", new Character('\''));
    }
 	
 /**
@@ -527,21 +537,52 @@ static String q(String string)
 
    
    static final int ISO_LATIN1_START	= 128;
+/**
+ * Translate XML named entity special characters into their Unicode char
+ * equivalents.
+ */
    public static String unescapeXML(String s)
    {
 	  int		ampPos		= s.indexOf('&');
 	  
 	  if (ampPos == -1)
 		 return s;
+	  else
+	  	return unescapeXML(new StringBuffer(s), 0).toString();
+   }
+	
+/**
+ * Translate XML named entity special characters into their Unicode char
+ * equivalents.
+ */
+    public static StringBuffer unescapeXML(StringBuffer sb, int startPos)
+   {
+	  int		ampPos		= sb.indexOf("&");
+	  
+	  if (ampPos == -1)
+		 return sb;
 	  
 	  int		entityPos		= ampPos + 1;
-	  int		semicolonPos	= s.indexOf(';', entityPos);
+	  int		semicolonPos	= sb.indexOf(";", entityPos);
 	  
 	  if (semicolonPos == -1)
-		 return s;
+		 return sb;
 	  
-	  String entityCandidate	= s.substring(entityPos, semicolonPos);
-	  String result				= s.substring(0, ampPos);
+	  // find position of & followed by ;
+	  
+	  // lookup entity in the middle of that in the HashMap
+	  // if you find a match, do a replacement *in place*
+	  
+	  // this includes shifting the rest of the string up, and 
+	  
+	  // resetting the length of the StringBuffer to be shorter 
+	  // (since the entity is always longer than the char it maps to)
+	  
+	  // then call recursively, setting the startPos index to after the last
+	  // entity that we found
+	  
+/*	  String entityCandidate	= sb.substring(entityPos, semicolonPos);
+	  String result				= sb.substring(0, ampPos);
 	  Character lookup			= (Character) entityTable.get(entityCandidate);
 	  if (lookup != null)
 		 result				   += lookup.charValue();
@@ -549,16 +590,18 @@ static String q(String string)
 		 result				   += entityCandidate;
 	  
 	  semicolonPos++;
-	  int length				= s.length();
+	  int length				= sb.length();
 	  if (semicolonPos > length)
 	  {
-		 String rest				= s.substring(semicolonPos);
-		 if ((semicolonPos + 3) < s.length())
+		 String rest				= sb.substring(semicolonPos);
+		 if ((semicolonPos + 3) < sb.length())
 			result				   += unescapeXML(rest);
 		 else
 			result				   += rest;
 	  }
 	  return  result;
+ */	  
+	  return sb;
    }
 	/**
 	* Replaces characters that may be confused by a HTML
