@@ -90,15 +90,21 @@ public class Generic
       }
       return result;
    }
-   public static final String parameter(String paramName)
-   {
-
-      return Environment.the.get().parameter(paramName);
-   }
    public static Color parameterColor(String param)
    {	
       String s = parameter(param);
       return (s != null) ? Palette.hexToColor(s) : null;
+   }
+
+   public static final String parameter(String paramName)
+   {
+      return Environment.the.get().parameter(paramName);
+   }
+
+
+   public static void status(String msg)
+   {
+      Environment.the.get().status(msg);
    }
 
 /**
@@ -132,8 +138,7 @@ public class Generic
       }
       catch (InterruptedException e)
       {
-//	 System.out.println("Sleep was interrupted -- clearing if possible.\n"
-//			    + e);
+	 Debug.println("Sleep was interrupted -- clearing if possible.\n" + e);
 	 // in jdk 1.1x clears the interrupt
 	 // !!! (undocumented) !!! (see Thread src)
 	 Thread.interrupted();	
