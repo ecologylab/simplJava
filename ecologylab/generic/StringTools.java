@@ -2,6 +2,7 @@ package cm.generic;
 
 import java.lang.*;
 import java.net.*;
+import java.util.*;
 
 /**
  * @author andruid
@@ -11,6 +12,19 @@ import java.net.*;
 public class StringTools
 extends Debug
 {
+   static final HashMap	oneDotDomains	= new HashMap();
+   static final String[]	oneDotDomainStrings = 
+   {
+      "com", "edu", "gov", "org", "net",
+   };
+   static
+   {
+      for (int i=0; i<oneDotDomainStrings.length; i++)
+      {
+	 String thatDomain	= oneDotDomainStrings[i];
+	 oneDotDomains.put(thatDomain, thatDomain);
+      }
+   }
 /**
  * Changes the StringBuffer to lower case, in place, without any new storage
  * allocation.
@@ -30,6 +44,52 @@ extends Debug
 	 }
       }
    }
+   public static final boolean sameDomain(URL url1, URL url2)
+   {
+      return domain(url1).equals(domain(url2));
+   }
+   public static final String domain(URL url)
+   {
+      return domain(url.getHost());
+   }
+/**
+ * Useful for finding common domains.
+ */
+   public static final String domain(String urlString)
+   {
+      int end	= urlString.length() - 1;
+      int domainStartingDot	= 0;
+      boolean foundFirstDot	= false;
+      boolean foundSecondDot	= false;
+      boolean international	= false;
+      String result	= urlString;
+      for (int i=end; i>0; i--)
+      {
+	 if (urlString.charAt(i) == '.')
+	 {
+	    if (foundFirstDot)
+	    {
+	       if (international && !foundSecondDot)
+	       {
+		  foundSecondDot	= true;
+	       }
+	       else
+	       {
+		  domainStartingDot	= i + 1;
+		  break;
+	       }
+	    }
+	    else
+	    {
+	       foundFirstDot	= true;
+	       String suffix	= urlString.substring(i+1);
+	       international	= !oneDotDomains.containsKey(suffix);
+	    }
+	 }
+      }
+      return urlString.substring(domainStartingDot, end + 1);
+   }
+   
 /**
  * Use this method to efficiently get a <code>String</code> from a
  * <code>StringBuffer</code> on those occassions when you plan to keep
