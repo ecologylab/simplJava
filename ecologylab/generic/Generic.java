@@ -3,7 +3,7 @@ package cm.generic;
 import java.awt.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Date;
+import java.util.*;
 
 /**
  * @author andruid
@@ -29,6 +29,17 @@ public class Generic
       if (result)
 	 result		=  value.equalsIgnoreCase("true") ||
 	    value.equalsIgnoreCase("yes") || (value.equals("1"));
+      return result;
+   }
+   public static boolean parameterBool(String name, boolean defaultValue)
+   {
+      String param	= parameter(name);
+      boolean result;
+      if (param != null)
+	 result		=  param.equalsIgnoreCase("true") ||
+	    param.equalsIgnoreCase("yes") || (param.equals("1"));
+      else
+	 result		= defaultValue;
       return result;
    }
 /**
@@ -224,6 +235,25 @@ public class Generic
       return StringTools.contains(in, toMatch);
    }
 
+   public static final HashMap buildHashMapFromStrings(String[] strings)
+   {
+      HashMap hashMap	= new HashMap(strings.length);
+      buildMapFromStrings(hashMap, strings);
+      return hashMap;
+   }
+   public static final void buildMapFromStrings(Map map, String[] strings)
+   {
+      for (int i=0; i<strings.length; i++)
+      {
+	 String thatString	= strings[i];
+	 map.put(thatString, thatString);
+      }
+   }
+   public static final void stringIntMapEntry(Map map,
+					      String string, int integer)
+   {
+      map.put(string, new IntSlot(integer));
+   }
    //////////////////////////////////////////////////////////////
    public static String round(float f, int powerOfTen)
    {
