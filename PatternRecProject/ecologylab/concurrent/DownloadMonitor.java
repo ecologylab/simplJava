@@ -525,6 +525,7 @@ implements Runnable
 	    debugA("performDownloads() -- recovering from "+interruptedStr+
 		" exception on " + thatClosure + ":");
 	    e.printStackTrace();
+	 
 	    thatClosure.ioError();
 	 }
 	 finally

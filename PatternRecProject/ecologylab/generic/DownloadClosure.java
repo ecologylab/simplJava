@@ -67,6 +67,7 @@ extends Debug
       throws Exception
    {
       downloadingThread		= Thread.currentThread();
+      System.out.println("preforming download on " + downloadable.getClass().getName());
       downloadable.performDownload();
    }
    public synchronized void dispatch()
