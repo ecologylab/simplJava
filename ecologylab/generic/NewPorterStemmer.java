@@ -53,19 +53,32 @@ import java.lang.StringBuffer;
 
 public class NewPorterStemmer
 {  
-	//private char[] b;
+   //private char[] b;
    private StringBuffer b;
    private int i,     /* offset into b */
                i_end, /* offset to end of stemmed word */
                j, k;
-   private static final int INC = 50;
+
+   private boolean dirty = false;
+   private static final int INC = 100;
                      /* unit of size whereby b is increased */
    public NewPorterStemmer()
    {     	 
-   	 b = new StringBuffer(INC);
-     i = 0;
-     i_end = 0;
+      b = new StringBuffer(INC);
+      i = 0;
+      i_end = 0;
    }
+
+  /** 
+   * reset() resets the stemmer so it can stem another word.  If you invoke
+   * the stemmer by calling add(char) and then stem(), you must call reset()
+   * before starting another word.
+   */
+  public void reset() 
+  { 
+     i = 0; 
+     dirty = false; 
+  }
 
    /**
     * Add a character to the word being stemmed.  When you are finished
@@ -93,25 +106,49 @@ public class NewPorterStemmer
       
    }
    public void add(String s)
+   {    
+      reset();
+
+      int wLen	= s.length();
+      int last	= wLen - 1;
+      
+      if (s.charAt(last) == 's')
+	 wLen--;		   // drop ending s -- get rid of plural
+      
+      b.setLength(wLen);
+
+      for (int c = 0; c < wLen; c++)      
+	 b.setCharAt(i++, s.charAt(c));
+   }
+/*
+   public void add(String s)
    {
       add(s.toCharArray(), s.length());
    }
+ */
    /**
     * After a word has been stemmed, it can be retrieved by toString(),
     * or a reference to the internal buffer can be retrieved by getResultBuffer
     * and getResultLength (which is generally more efficient.)
     */
-   public String toString() { 
-   	//return new String(b,0,i_end); 
-   	return b.substring(0, i_end);
-   	}
+   public String toString() 
+   { 
+      // force ArrayCopy here, otherwise StringBuffer gets shared and SLOW
+      return b.substring(0, i_end); 
+//      return new String(b,0,i_end); 
+   }
 
    public String stem(String s)
    {         	   	
+/*
    	  NewPorterStemmer stemmer = new NewPorterStemmer();
       stemmer.add(s); 
       stemmer.stem();     
       return stemmer.toString();      
+ */
+      add(s);
+      stem();
+      return toString();      
    }
    /**
     * Returns the length of the word resulting from the stemming process.
@@ -220,6 +257,7 @@ public class NewPorterStemmer
       int o = j+1;
       for (int i = 0; i < l; i++) b.setCharAt(o+i, s.charAt(i));
       k = j+l;
+      dirty = true;
    }
 
    /* r(s) is used further down. */
@@ -272,13 +310,22 @@ public class NewPorterStemmer
 
    /* step2() turns terminal y to i when there is another vowel in the stem. */
 
-   private final void step2() { if (ends("y") && vowelinstem()) b.setCharAt(k,'i'); }
+   private final void step2() 
+   { 
+      if (ends("y") && vowelinstem()) 
+	 b.setCharAt(k,'i'); 
+      dirty = true;
+   }
    /* step3() maps double suffices to single ones. so -ization ( = -ize plus
       -ation) maps to -ize etc. note that the string before the suffix must give
       m() > 0. */
 
-   private final void step3() { if (k == 0) return; /* For Bug 1 */ switch (b.charAt(k-1))
-   {
+   private final void step3() 
+   { 
+      if (k == 0) 
+	 return; /* For Bug 1 */ 
+      switch (b.charAt(k-1))
+      {
        case 'a': if (ends("ational")) { r("ate"); break; }
                  if (ends("tional")) { r("tion"); break; }
                  break;
@@ -307,12 +354,15 @@ public class NewPorterStemmer
                  if (ends("biliti")) { r("ble"); break; }
                  break;
        case 'g': if (ends("logi")) { r("log"); break; }
-   } }
+      }
+   }
 
    /* step4() deals with -ic-, -full, -ness etc. similar strategy to step3. */
 
-   private final void step4() { switch (b.charAt(k))
-   {
+   private final void step4() 
+   { 
+      switch (b.charAt(k))
+      {
        case 'e': if (ends("icate")) { r("ic"); break; }
                  if (ends("ative")) { r(""); break; }
                  if (ends("alize")) { r("al"); break; }
@@ -324,48 +374,100 @@ public class NewPorterStemmer
                  break;
        case 's': if (ends("ness")) { r(""); break; }
                  break;
-   } }
+      }
+   }
 
    /* step5() takes off -ant, -ence etc., in context <c>vcvc<v>. */
 
    private final void step5()
-   {   if (k == 0) return; /* for Bug 1 */ switch (b.charAt(k-1))
-       {  case 'a': if (ends("al")) break; return;
-          case 'c': if (ends("ance")) break;
-                    if (ends("ence")) break; return;
-          case 'e': if (ends("er")) break; return;
-          case 'i': if (ends("ic")) break; return;
-          case 'l': if (ends("able")) break;
-                    if (ends("ible")) break; return;
-          case 'n': if (ends("ant")) break;
-                    if (ends("ement")) break;
-                    if (ends("ment")) break;
-                    /* element etc. not stripped before the m */
-                    if (ends("ent")) break; return;
-          case 'o': if (ends("ion") && j >= 0 && (b.charAt(j) == 's' || b.charAt(j) == 't')) break;
-                                    /* j >= 0 fixes Bug 2 */
-                    if (ends("ou")) break; return;
-                    /* takes care of -ous */
-          case 's': if (ends("ism")) break; return;
-          case 't': if (ends("ate")) break;
-                    if (ends("iti")) break; return;
-          case 'u': if (ends("ous")) break; return;
-          case 'v': if (ends("ive")) break; return;
-          case 'z': if (ends("ize")) break; return;
-          default: return;
-       }
-       if (m() > 1) k = j;
+   {
+      if (k == 0) 
+	 return; /* for Bug 1 */ 
+      switch (b.charAt(k-1))
+      {  
+      case 'a': 
+	 if (ends("al")) 
+	    break; 
+	 return;
+      case 'c': 
+	 if (ends("ance")) 
+	    break;
+	 if (ends("ence")) 
+	    break; 
+	 return;
+      case 'e': 
+	 if (ends("er")) 
+	    break; 
+	 return;
+      case 'i': 
+	 if (ends("ic")) 
+	    break; 
+	 return;
+      case 'l': 
+	 if (ends("able")) 
+	    break;
+	 if (ends("ible")) 
+	    break; 
+	 return;
+      case 'n': 
+	 if (ends("ant")) 
+	    break;
+	 if (ends("ement")) 
+	    break;
+	 if (ends("ment")) 
+	    break;
+	 /* element etc. not stripped before the m */
+	 if (ends("ent")) 
+	    break; 
+	 return;
+      case 'o': 
+	 if (ends("ion") && j >= 0 && 
+	     (b.charAt(j) == 's' || b.charAt(j) == 't')) 
+	    break;		   /* j >= 0 fixes Bug 2 */
+	 if (ends("ou")) 
+	    break; 
+	 return;
+	 /* takes care of -ous */
+      case 's': 
+	 if (ends("ism")) 
+	    break; 
+	 return;
+      case 't': 
+	 if (ends("ate")) 
+	    break;
+	 if (ends("iti")) 
+	    break; 
+	 return;
+      case 'u': 
+	 if (ends("ous")) 
+	    break; 
+	 return;
+      case 'v': 
+	 if (ends("ive")) 
+	    break; 
+	 return;
+      case 'z': 
+	 if (ends("ize"))
+	    break; 
+	 return;
+      default: return;
+      }
+      if (m() > 1) 
+	 k = j;
    }
 
    /* step6() removes a final -e if m() > 1. */
 
    private final void step6()
-   {  j = k;
+   {  
+      j = k;
       if (b.charAt(k) == 'e')
       {  int a = m();
-         if (a > 1 || a == 1 && !cvc(k-1)) k--;
+         if (a > 1 || a == 1 && !cvc(k-1)) 
+	    k--;
       }
-      if (b.charAt(k) == 'l' && doublec(k) && m() > 1) k--;
+      if (b.charAt(k) == 'l' && doublec(k) && m() > 1) 
+	 k--;
    }
 
    /** Stem the word placed into the Stemmer buffer through calls to add().
