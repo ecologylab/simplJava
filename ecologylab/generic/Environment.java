@@ -238,7 +238,7 @@ public interface Environment
  */
     URL codeBase();
 /**
- * {@link java.applet.Applet#getDocBase() java.applet.Applet.getDocBase()}
+ * {@link java.applet.Applet#getDocumentBase() java.applet.Applet.getDocBase()}
  */
     URL docBase();
 
