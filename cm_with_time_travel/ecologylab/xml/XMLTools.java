@@ -26,6 +26,7 @@ import org.xml.sax.SAXException;
  * @version     0.5
  */
 public class XmlTools extends IO
+implements CharacterConstants
 {
 	private static Hashtable stateClasses	=	new Hashtable();
 	
@@ -567,11 +568,19 @@ public class XmlTools extends IO
                 case '>':
                     sb.append("&gt;");
                 	break;
+                case TAB:
+                case LF:
+                case CR:
+     		       sb.append(c);
+     		       break;
                 default: 
-		   if (c >= ISO_LATIN1_START)
-		      sb.append("&#"+Integer.toString(c) + ";");
-		    else
-		       sb.append(c);
+				   if (c >= 0x20) 
+				   {
+				   		if (c >= ISO_LATIN1_START)
+							sb.append("&#"+Integer.toString(c) + ";");
+				   		else
+				      		sb.append(c);
+		           }
             }
         }
         return sb.toString();
@@ -619,7 +628,7 @@ public class XmlTools extends IO
         }
         catch(Exception e)
         {
-           e.printStackTrace();
+             e.printStackTrace();
         }
     }   
 
