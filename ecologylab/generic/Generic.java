@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Date;
 
 /**
- * @author madhur+andruid
+ * @author andruid
  *
  * To change this generated comment edit the template variable "typecomment":
  * Window>Preferences>Java>Templates.
@@ -22,7 +22,7 @@ public class Generic
  * 
  * @param	name	The name of the parameter's key.
  */
-   public boolean parameterBool(String name)
+   public static boolean parameterBool(String name)
    {
       String value	= parameter(name);
       boolean result	= value != null;
@@ -36,7 +36,7 @@ public class Generic
  * 
  * @param	name	The name of the parameter's key.
  */
-   public int parameterInt(String paramName)
+   public static int parameterInt(String paramName)
    { return parameterInt(paramName, 0); }
    
 /**
@@ -46,7 +46,7 @@ public class Generic
  * @param	defaultValue	Default integer value, in case param is 
  *				unspecified in the runtime env.
  */
-   public int parameterInt(String paramName, int defaultValue)
+   public static int parameterInt(String paramName, int defaultValue)
    {
       String paramValue	= parameter(paramName);
       int result	= defaultValue;
@@ -84,6 +84,12 @@ public class Generic
 
       return Environment.the.get().parameter(paramName);
    }
+   public static Color parameterColor(String param)
+   {	
+      String s = parameter(param);
+      return (s != null) ? Palette.hexToColor(s) : null;
+   }
+
 /**
  * Turn a string into a float.
  * 
@@ -174,6 +180,17 @@ public class Generic
    {
       return Environment.the.get().codeRelativeURL(relativePath);
    }
+   public static final String SEP	= "/";
+   public static URL systemPhotoPath(String relativePath)
+   {
+      String photoPathParam	= parameter("photo_path");
+      if (photoPathParam == null)
+	 throw new RuntimeException("Generic configuration ERROR! Startup parameter photo_path is not defined.");
+      String sep = photoPathParam.endsWith(SEP) || relativePath.startsWith(SEP)
+	 ? "" : SEP;
+      return systemPath(photoPathParam + sep + relativePath);
+   }
+
 /**
  * @return	The version of Java we're using (but not the specific release),
  *		as in 1.2, 1.3, 1.4,...
