@@ -420,6 +420,25 @@ public class Generic
 	 return threadGroup;
       }
    }
+/**
+ * @return the int represented by <code>input</code>. 
+ * Silently defaults to <code>defaultVal</code>, <code>input</code> is
+ * not in good form. 
+ */
+   public static final int parseInt(String input, int defaultVal)
+   {
+	  if (input != null)
+	  {
+		 try
+		 {
+			defaultVal	= Integer.parseInt(input);
+		 } catch (NumberFormatException e)
+		 {
+		 }
+	  }
+      return defaultVal;
+   }
+
    public static void main(String[] s)
    {
       Debug.println(round(LN_EMPTY_WEIGHT, 2));
@@ -436,5 +455,29 @@ public class Generic
    public static void beep()
    {
    		Toolkit.getDefaultToolkit().beep();
+   }
+
+/**
+ * Find the first object equal to the one passed in as the second argument,
+ * within the List that is the first argument. 
+ * 
+ * @param list		The list to search.
+ * @param object	The object to look for. Must not be null.
+ * 
+ * @return		The equal object from the list, if there is one, or null.
+ */
+   static public Object findEqual(java.util.List list, Object object)
+   {
+	  synchronized (list)
+	  {
+		 int size		= list.size();
+		 for (int i=0; i<size; i++)
+		 {
+			Object that	= list.get(i);
+			if (that.equals(object))
+			   return that;
+		 }
+	  }
+	  return null;
    }
 }

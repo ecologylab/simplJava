@@ -12,7 +12,15 @@ import java.lang.reflect.Field;
  */
 public class StringType extends Type
 {
-	public StringType()
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("java.lang.String")</code>.
+ * 
+ */
+	protected StringType()
 	{
 		super("java.lang.String", /*TYPE_STRING, */ false);
 	}

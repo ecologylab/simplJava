@@ -20,6 +20,14 @@ extends Object
 	value = b;
      }
     /**
+ * 
+ */
+public IntSlot() 
+{
+	
+	// TODO Auto-generated constructor stub
+}
+	/**
      * Returns a hashcode for this Integer.
      *
      * @return  a hash code value for this object. 

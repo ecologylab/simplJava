@@ -12,7 +12,15 @@ import java.lang.reflect.Field;
  */
 public class ShortType extends Type 
 {
-	public ShortType()
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("short")</code>.
+ * 
+ */
+	protected ShortType()
 	{
 		super("short", true);
 	}

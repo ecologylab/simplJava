@@ -12,7 +12,8 @@ import java.lang.reflect.Field;
  */
 public class LongType extends Type 
 {
-	public LongType()
+
+    protected LongType()
 	{
 		super("long", true);
 	}

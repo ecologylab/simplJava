@@ -21,12 +21,20 @@ public interface Colors
 
    public static final float	YELLOW	= 60.0f/360.0f;
    public static final float	RED	= 0/360.0f;
-   public static final float	GREEN	= 120.0f/360.0f;
+/**
+ * would be 120 degrees, but we've cheated up toward cyan a bit for 
+ * harmony.
+ */   
+   public static final float	GREEN	= 130.0f/360.0f;
    public static final float	ORANGE	= 30.0f/360.0f;
    public static final float	MAGENTA	= 312.0f/360.0f;
 //   public static final float	MAGENTA	= 300.0f/360.0f;
    public static final float	PURPLE	= 280.0f/360.0f;
-   public static final float	BLUE	= 248.0f/360.0f;
+/**
+ * would be 240 degrees, but we've cheated down toward cyan a bit for 
+ * legibility.
+ */   
+   public static final float	BLUE	= 215.0f/360.0f;
    public static final float	YELLOW_GREEN	= 90.0f/360.0f;
    public static final float	RED_ORANGE	= 15.0f/360.0f;
    public static final float	BLUE_MAGENTA	= 270.0f/360.0f;

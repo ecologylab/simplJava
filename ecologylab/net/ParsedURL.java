@@ -4,6 +4,7 @@
 
 package cm.generic;
 
+import java.io.File;
 import java.net.*;
 import java.util.*;
 
@@ -27,6 +28,8 @@ extends Debug
    /* domain value string of the ulr */
    protected String	domain = null;
    
+   File		file;
+   
    /* ParsedURL Constructor */
    public ParsedURL()
    {
@@ -37,6 +40,17 @@ extends Debug
       this.url	= url;     
    }
    
+   public ParsedURL(File file)
+   {
+   		try
+		{
+			this.url	= new URL("file://"+file.getAbsolutePath());
+		} catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+   		this.file	= file;
+   }
    /* 
     * Constructor with a url string parameter. 
     * get absolute URL with getAbsolute() method. 
@@ -351,6 +365,18 @@ extends Debug
    };
    static final HashMap htmlMimes = 
       Generic.buildHashMapFromStrings(htmlMimeStrings);
+   static final String[] pdfMimeStrings		=
+   {
+   		"pdf"
+   };
+   static final HashMap pdfMimes =
+   	  Generic.buildHashMapFromStrings(pdfMimeStrings);
+   static final String[] rssMimeStrings		=
+   {
+   		"rss", "xml"
+   };
+   static final HashMap rssMimes =
+   	  Generic.buildHashMapFromStrings(rssMimeStrings);
 
 
 /**
@@ -455,7 +481,7 @@ extends Debug
 										  boolean tossArgsAndHash)
    {
       if ((addressString == null) || (addressString.length() == 0))
-	 return null;
+		 return null;
 //      debugA("addressString="+addressString);
       
 	 if (contextURL != null)
@@ -576,7 +602,7 @@ extends Debug
 		 parsedUrl		= null;
 		 println("ParsedURL.createFromHTML() cant access malformed url:\n\t" +
 				 contextURL +"\n\taddressString = "+ addressString);
-		 e.printStackTrace();
+//		 e.printStackTrace();
       }
             
       return parsedUrl;
@@ -647,6 +673,30 @@ extends Debug
 	 suffix = suffix();
         return htmlMimes.containsKey(suffix);
       }
+   
+   public boolean isPDF()
+   {
+   		suffix = suffix();
+   		return pdfMimes.containsKey(suffix);
+   }
+   
+   public boolean isRSS()
+   {
+   		suffix = suffix();
+   		return rssMimes.containsKey(suffix);
+   }
+   
+   public String mimeType()
+   {
+   		if( isHTML() )
+   			return "text/html";
+   		else if( isPDF() )
+   			return "application/pdf";
+   		else if( isRSS() )
+   			return "xml/rss";
+   		else
+   			return null;
+   }
    
    /*
     * Check the suffix whether it is in the unsupportedMimes or not. 
@@ -727,4 +777,22 @@ extends Debug
       }
       return shortString;
    }
+    
+    /**
+     * True if this ParsedURL represents an entity on the local file system.
+     * @return
+     */
+    public boolean isFile()
+    {
+    	return file != null;
+    }
+    
+    /**
+     * @return The file system object associated with this, if this is an entity on
+     * the local file system, or null, otherwise.
+     */
+    public File file()
+    {
+    	return file;
+    }
 }

@@ -26,7 +26,14 @@ public class Type extends IO
 	
 	public static final String NULL_STRING		= "null";
 
-	public Type(String className, /* int index, */ boolean isPrimitive)
+/**
+ * Constructor is protected because there should only be 1 instance
+ * that gets re-used, for each type.
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("type-string")</code>.
+ * 
+ */
+	protected Type(String className, /* int index, */ boolean isPrimitive)
 	{
 		this.className		= className;
 //		this.index			= index;

@@ -45,7 +45,7 @@ import ecologylab.types.*;
  * @author      Madhur Khandelwal
  * @version     0.9
  */
-abstract public class ElementState extends IO
+public class ElementState extends IO
 {
 	/**
 	 * xml header
@@ -70,7 +70,7 @@ abstract public class ElementState extends IO
 	 */
 	protected boolean emitParentFields	 = false;
 	
-	protected static final NameSpace nameSpace	= new NameSpace();
+	protected static final NameSpace globalNameSpace	= new NameSpace("global");
 	
 /**
  * This instance of the String Class is used for argument marshalling
@@ -445,24 +445,24 @@ abstract public class ElementState extends IO
 	{
 	   // find the class for the new object derived from ElementState
 		Class stateClass				= null;
+		String tagName		= xmlNode.getNodeName();
 		try
 		{			  
-		   String tagName		= xmlNode.getNodeName();
- 			stateClass= nameSpace.xmlTagToClass(tagName);
-			if (stateClass == null)
-			{
-			   println("XML Translation WARNING: Cant find class object for" + tagName
-			   		+ "\nIgnored.");
-			   return null;
-			}
-		   return translateFromXML(xmlNode, stateClass);
+		   stateClass= globalNameSpace.xmlTagToClass(tagName);
+		   if (stateClass != null)
+		      return translateFromXML(xmlNode, stateClass);
+		   // else, we dont translate this field; we ignore it.
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException("All ElementState subclasses"
-							       + "MUST contain an empty constructor, but "+
-								   stateClass+" doesn't seem to.");
+		   println("XML Translation WARNING: Cant find class object for" + tagName
+			   + "\nIgnored.");
+//		   e.printStackTrace();
+//		   throw new XmlTranslationException("All ElementState subclasses"
+//							       + "MUST contain an empty constructor, but "+
+//								   stateClass+" doesn't seem to.");
 		}
+		return null;
 	 }		
 
 	public static ElementState translateFromXML(Node xmlNode, Class stateClass)
@@ -534,10 +534,11 @@ abstract public class ElementState extends IO
 					{
 						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
 //						debug("buildFromXML(-> setPrimitive("+fieldName,value);
-						if (!elementState.setField(fieldName, value))
-							throw new
-							   XmlTranslationException("Set method missing and automatic set failing for variable " + xmlAttr.getNodeName() + " in "+stateClass+
-																", please create a method that takes a String as parameter and sets the value of " + xmlAttr.getNodeName());
+						elementState.setField(fieldName, value);
+//						if (!elementState.setField(fieldName, value))
+//							throw new
+//							   XmlTranslationException("Set method missing and automatic set failing for variable " + xmlAttr.getNodeName() + " in "+stateClass+
+// ", please create a method that takes a String as parameter and sets the value of " + xmlAttr.getNodeName());
 					}
 				} // end if non-null attribute
 			} // end of for attribute processing loop
@@ -559,18 +560,22 @@ abstract public class ElementState extends IO
 		for (int i = 0; i < numChilds; i++)
 		{
 			Node childNode		= childNodes.item(i);
-			
-			if (childNode.getNodeType() != Node.TEXT_NODE)
+			short childNodeType		= childNode.getNodeType();
+			if ((childNodeType != Node.TEXT_NODE) && (childNodeType != Node.CDATA_SECTION_NODE))
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
 			   String childTag			= childNode.getNodeName();
 			   String childFieldName	= 
-				  XmlTools.classNameFromElementName(childTag);
+				  XmlTools.fieldNameFromElementName(childTag);
+//			   println("childFieldName="+childFieldName +" in "+
+//				   stateClass);
 			   try
 			   {
 				  Field childField		= stateClass.getField(childFieldName);
+//				  println("childField="+childField);
 				  Class childClass		= childField.getType();
+//				  println("childClass="+childClass);
 				  ElementState childElementState = 
 					 translateFromXML(childNode, childClass);
 				  elementState.addNestedElement(childField, childElementState);
@@ -587,13 +592,11 @@ abstract public class ElementState extends IO
 			}
 			else if (numChilds == 1) // we could get rid of this to be even more general!
 			{
-				elementState.setTextNodeString(childNode.getNodeValue());
+				String text	= childNode.getNodeValue();;
+				if (text != null)
+					elementState.setTextNodeString(text);
 			}
-//			else
-//			   parentStateObj.setAttribute(this.className,
-//						       thisChild.getValue());
 		}
-				
 		return elementState;
 		
 	}
@@ -607,7 +610,7 @@ abstract public class ElementState extends IO
 	 * 
 	 * @return			the Document object
 	 */
-	static protected Document buildDOM(URL url)
+	static public Document buildDOM(URL url)
 	{
 		return buildDOM(url.toString());
 	}
@@ -618,7 +621,7 @@ abstract public class ElementState extends IO
 	 * 
 	 * @return			the Document object
 	 */
-	static protected Document buildDOM(File file)
+	static public Document buildDOM(File file)
 	{
 		return buildDOM(file.toString());
 	}
@@ -630,7 +633,7 @@ abstract public class ElementState extends IO
 	 * 
 	 * @return					the Document object
 	 */
-	static protected Document buildDOM(String xmlFileOrURLName)
+	static public Document buildDOM(String xmlFileOrURLName)
 	{		       
 		Document document	= null;
 		try
@@ -645,6 +648,65 @@ abstract public class ElementState extends IO
 		catch (SAXParseException spe) {
 			// Error generated by the parser
 		    println(xmlFileOrURLName + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
+		    println("   " + spe.getMessage());
+		  
+		    // Use the contained exception, if any
+		    Exception  x = spe;
+		    if (spe.getException() != null)
+		   	   x = spe.getException();
+		    x.printStackTrace();
+	  	}
+	  	
+	  	catch (SAXException sxe) {
+		    // Error generated during parsing
+		    Exception  x = sxe;
+		    if (sxe.getException() != null)
+		      x = sxe.getException();
+		    x.printStackTrace();
+	   	}
+	   	
+	   	catch (ParserConfigurationException pce) {
+		    // Parser with specified options can't be built
+		    pce.printStackTrace();
+	   	}
+	   	
+	   	catch (IOException ioe) {
+		    // I/O error
+		    ioe.printStackTrace();
+	  	}
+	  	
+	  	catch(FactoryConfigurationError fce){
+	  		fce.printStackTrace();
+	  	}
+	  	catch(Exception e){
+	  		e.printStackTrace();
+	  	}
+		return document;
+	}
+
+	/**
+	 * This method creates a DOM Document from the XML file at a given URI,
+	 * which could be a local file or a URL.
+	 *
+	 * @param xmlFileOrURLName	the path to the XML from which the DOM is to be created
+	 * 
+	 * @return					the Document object
+	 */
+	static public Document buildDOM(InputStream inStream)
+	{		       
+		Document document	= null;
+		try
+		{
+    	  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    	  DocumentBuilder builder = factory.newDocumentBuilder();
+    	  createErrorHandler(builder);
+    	  
+  		  document = builder.parse(inStream);
+		} 
+		
+		catch (SAXParseException spe) {
+			// Error generated by the parser
+		    println(inStream + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
 		    println("   " + spe.getMessage());
 		  
 		    // Use the contained exception, if any
@@ -809,7 +871,7 @@ abstract public class ElementState extends IO
 	 */
 	public String tag()
 	{
-	   return nameSpace.objectToXmlTag(this);
+	   return globalNameSpace.objectToXmlTag(this);
 	}
 
 	/**
@@ -890,8 +952,8 @@ abstract public class ElementState extends IO
 		}
 		catch (NoSuchFieldException e)
 		{
-			debug("setField() ERROR("+fieldName+", "+ fieldValue+")");
-			e.printStackTrace();
+			debug("ERROR no such field to set "+fieldName+" = "+
+			      fieldValue);
 		}
 		return result;
 	}
@@ -956,7 +1018,10 @@ abstract public class ElementState extends IO
 	{
 	   this.textNodeString		= textNodeString;
 	}
-
+	public String getTextNode()
+	{
+		return textNodeString;
+	}
 	/////////////////////////// other methods //////////////////////////
 
 	/**
@@ -979,7 +1044,7 @@ abstract public class ElementState extends IO
 	 */
 	public static void addTranslation(String packageName, String className)
 	{
-		nameSpace.addTranslation(packageName, className);
+		globalNameSpace.addTranslation(packageName, className);
 	}
 
 	/*	

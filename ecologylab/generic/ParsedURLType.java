@@ -12,6 +12,14 @@ import ecologylab.types.Type;
  */
 public class ParsedURLType extends Type
 {
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("cm.generic.ParsedURL")</code>.
+ * 
+ */
 	public ParsedURLType()
 	{
 		super("cm.generic.ParsedURL", /*TYPE_PARSED_URL, */ false);

@@ -51,7 +51,7 @@ public class TypeRegistry extends IO
 			if (result)
 				allTypes.put(typeName, type);
 			else
-				println("mapTypeToInt() ERROR! Cant redefine int mapping for "+
+				println("TypeRegistry.register() ERROR! Cant redefine int mapping for "+
 						  typeName);
 		}
 		return result;
