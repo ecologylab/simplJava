@@ -12,21 +12,15 @@ import java.util.*;
 public class StringTools
 extends Debug
 {
-   static final HashMap	oneDotDomains	= new HashMap();
-   public static final String	EMPTY_STRING	= "";
-   
    static final String[]	oneDotDomainStrings = 
    {
       "com", "edu", "gov", "org", "net",
    };
-   static
-   {
-      for (int i=0; i<oneDotDomainStrings.length; i++)
-      {
-	 String thatDomain	= oneDotDomainStrings[i];
-	 oneDotDomains.put(thatDomain, thatDomain);
-      }
-   }
+   static final HashMap	oneDotDomains	= 
+      Generic.buildHashMapFromStrings(oneDotDomainStrings);
+
+   public static final String	EMPTY_STRING	= "";
+   
 /**
  * Changes the StringBuffer to lower case, in place, without any new storage
  * allocation.
@@ -59,6 +53,8 @@ extends Debug
  */
    public static final String domain(String urlString)
    {
+      if ((urlString == null) || (urlString.length() == 0))
+	 return null;
       int end	= urlString.length() - 1;
       int domainStartingDot	= 0;
       boolean foundFirstDot	= false;
