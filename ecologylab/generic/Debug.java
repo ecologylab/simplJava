@@ -37,8 +37,8 @@ public class Debug
    
    private static boolean	logToFile = false;
    
-   static final HashMap		classAbbrevNames	= new HashMap();
-   static final HashMap		packageNames	= new HashMap();
+   private static final HashMap	classAbbrevNames	= new HashMap();
+   private static final HashMap	packageNames	= new HashMap();
    
    private static int			sinceFlush;
    static final int FLUSH_FREQUENCY	= 10;
@@ -183,14 +183,15 @@ public class Debug
  */
    public static String getClassName(Class thatClass)
    {
-      String fullName	= thatClass.toString();
-      String abbrevName	= (String) classAbbrevNames.get(fullName);
+//      String abbrevName	= (String) classAbbrevNames.get(fullName);
+      String abbrevName	= (String) classAbbrevNames.get(thatClass);
       if (abbrevName == null)
       {
+	 String fullName	= thatClass.toString();
 	 abbrevName	= fullName.substring(fullName.lastIndexOf(".") + 1);
 	 synchronized (classAbbrevNames)
 	 {
-	    classAbbrevNames.put(fullName, abbrevName);
+	    classAbbrevNames.put(thatClass, abbrevName);
 	 }
       }
       return abbrevName;
@@ -200,33 +201,18 @@ public class Debug
  */
    public static String getPackageName(Class thatClass)
    {
-      String className	= thatClass.toString();
       //System.out.println("thatClass.toString() is " + thatClass.toString());
-      String packageName = null;
-      if(packageNames.containsKey(className))
+      String packageName = (String) packageNames.get(thatClass);
+      if (packageNames == null)
       {
-         packageName	= (String) packageNames.get(className);
-      }
-      else
-      {
+	 String className	= thatClass.toString();
       	  packageName	= className.substring(6, className.lastIndexOf("."));
 		 synchronized (packageNames)
 		 {
-		    packageNames.put(className, packageName);
+		    packageNames.put(thatClass, packageName);
+//		    packageNames.put(className, packageName);
 		 }
       }
-      /*
-      String packageName	= (String) packageNames.get(className);
-      if (packageName == null)
-      {
-	 packageName	= className.substring(0, className.lastIndexOf("."));
-	 synchronized (packageNames)
-	 {
-	    packageNames.put(className, packageName);
-	 }
-	 }
-	 */
-      
       return packageName;
    }
 /**
@@ -321,6 +307,7 @@ public class Debug
  */
    public void debug(int messageLevel, String message)
    {
+//      if (show(messageLevel))
       if (messageLevel <= level())
 	 println(this, message);
    }
