@@ -574,6 +574,9 @@ abstract public class ElementState extends IO
 			
 			if (thisChild.getNodeType() != Node.TEXT_NODE)
 				elementState.addElement(buildStateObject(thisChild));
+//			else
+//			   parentStateObj.setAttribute(this.className,
+//						       thisChild.getValue());
 		}
 				
 		return elementState;
