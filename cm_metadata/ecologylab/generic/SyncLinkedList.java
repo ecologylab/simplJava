@@ -2,6 +2,10 @@ package cm.generic;
 
 import java.util.*;
 
+/**
+ * A synchronized version of {@link java.util.LinkedList LinkedList},
+ * because they didn't seem to provided a nice one.
+ */
 public class SyncLinkedList
 implements List
 {

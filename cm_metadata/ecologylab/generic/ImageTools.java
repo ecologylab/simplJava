@@ -1,13 +1,5 @@
 package cm.generic;
 
-/**
- * @author madhur
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
- */
 
 import java.io.*;
 import java.awt.image.*;
@@ -18,14 +10,32 @@ import java.util.*;
 import javax.imageio.plugins.jpeg.*;
 import com.sun.image.codec.jpeg.*;
 
-
+/**
+ * A set of lovely convenience methods for writing image files.
+ */
 public class ImageTools 
+extends Debug
 {
-    // Reads the jpeg image in infile, compresses the image,
-    // and writes it back out to outfile.
-    // compressionQuality ranges between 0 and 1,
-    // 0-lowest, 1-highest.
-    public static void writeJpegFile(RenderedImage rendImage, File outfile, float compressionQuality) 
+/**
+ * Take the RenderedImage passed in, compress it,
+ * and writes it to a file created from outfileName.
+ * 
+ * @param compressionQuality ranges between 0 and 1, 0-lowest, 1-highest.
+ */
+   public static void writeJpegFile(RenderedImage rendImage, 
+				    String outfileName, 
+				    float compressionQuality)
+   {
+      writeJpegFile(rendImage, new File(outfileName), compressionQuality);
+   }
+/**
+ * Take the RenderedImage passed in, compress it,
+ * and writes it to outfile.
+ * 
+ * @param compressionQuality ranges between 0 and 1, 0-lowest, 1-highest.
+ */
+    public static void writeJpegFile(RenderedImage rendImage, 
+				     File outfile, float compressionQuality)
     {
         try 
         {
@@ -61,76 +71,55 @@ public class ImageTools
         }
     }
     
-    /**
-    * given an image
-    * it creates a thumbnail out of it
+   /**
+    * Scale the image, then write a jpeg.
     */
-	public static void createThumbnail(BufferedImage image, String fileName)
+/**
+ * Take the RenderedImage passed in, compress it,
+ * and writes it to a file created from outfileName.
+ * 
+ * @param compressionQuality ranges between 0 and 1, 0-lowest, 1-highest.
+ */
+	public static void writeJpegFile(BufferedImage image, 
+					 String fileName, 
+					 float compressionQuality,
+					 int width, int height)
 	{
-		final int THUMBNAIL_WIDTH 		= 150;
-		final int THUMBNAIL_HEIGHT		= 250;
-		final int THUMBNAIL_QUALITY	= 100;
-		/*
-	    // load image from INFILE
-	    Image image = Toolkit.getDefaultToolkit().getImage(args[0]);
-	    MediaTracker mediaTracker = new MediaTracker(new Frame());
-	    mediaTracker.addImage(image, 0);
-	    mediaTracker.waitForID(0);
-	    // determine thumbnail size from WIDTH and HEIGHT
-	    int thumbWidth = Integer.parseInt(args[2]);
-	    int thumbHeight = Integer.parseInt(args[3]);*/
+//		final int THUMBNAIL_WIDTH 		= 245;
+//		final int THUMBNAIL_HEIGHT		= 350;
 	    
-	    int thumbWidth 	= THUMBNAIL_WIDTH;
-	    int thumbHeight	= THUMBNAIL_HEIGHT;
+//	    int width 	= THUMBNAIL_WIDTH;
+//	    int height	= THUMBNAIL_HEIGHT;
 	    
-	    double thumbRatio = (double)thumbWidth / (double)thumbHeight;
-	    int imageWidth = image.getWidth(null);
-	    int imageHeight = image.getHeight(null);
-	    double imageRatio = (double)imageWidth / (double)imageHeight;
+	    float thumbRatio	= (float)width / (float)height;
+	    int imageWidth	= image.getWidth(null);
+	    int imageHeight	= image.getHeight(null);
+	    float imageRatio	= (float)imageWidth / (float)imageHeight;
 	    
 	    if (thumbRatio < imageRatio) 
 	    {
-	      thumbHeight = (int)(thumbWidth / imageRatio);
+	      height = (int)(width / imageRatio);
 	    } 
 	    else 
 	    {
-	      thumbWidth = (int)(thumbHeight * imageRatio);
+	      width = (int)(height * imageRatio);
 	    }
+	    println("writeThumbnail("+width+","+height+
+		    " type="+image.getType());
+
 	    // draw original image to thumbnail image object and
 	    // scale it to the new size on-the-fly
-	    BufferedImage thumbImage = new BufferedImage(thumbWidth, 
-	      thumbHeight, BufferedImage.TYPE_INT_RGB);
+	    BufferedImage scaledImage = new BufferedImage(width, 
+	      height, image.getType());
 	      
-	    Graphics2D graphics2D = thumbImage.createGraphics();
+	    Graphics2D graphics2D = scaledImage.createGraphics();
 	    
 	    graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
 	      RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 	      
-	    graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
+	    graphics2D.drawImage(image, 0, 0, width, height, null);
 	    
-	    // save thumbnail image to OUTFILE
-	    try
-	    {
-		    BufferedOutputStream out = new BufferedOutputStream(new
-		    FileOutputStream(fileName + "_thumbnail" + ".jpg"));
-		    
-		    JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-		    JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbImage);
-		      
-		    int quality =  THUMBNAIL_QUALITY;
-		    
-		    quality = Math.max(0, Math.min(quality, 100));
-		    param.setQuality((float)quality / 100.0f, false);
-		    encoder.setJPEGEncodeParam(param);
-		    
-	    	encoder.encode(thumbImage);
-	    }
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	    System.out.println("Done.");
-
+	    writeJpegFile(scaledImage, fileName, compressionQuality);
   	}
 
     

@@ -2,6 +2,9 @@ package cm.generic;
 
 import java.lang.Object;
 
+/**
+ * Reference version of a boolean type. Re-writable, unlike java.lang.Boolean.
+ */
 public class BooleanSlot
 extends Object
 {

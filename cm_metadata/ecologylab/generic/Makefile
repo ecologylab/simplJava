@@ -7,7 +7,7 @@ JAVA_SRC = ParsedURL.java Generic.java AllocationDebugger.java Attribute.java De
 	   Downloadable.java DownloadClosure.java DownloadMonitor.java \
 	   Environment.java ApplicationEnvironment.java \
 	   MathTools.java Palette.java DLL.java IntSlot.java Bounds.java \
-	   FloatSetElement.java FloatWeightSet.java \
+	   ParsedURLType.java FloatSetElement.java FloatWeightSet.java \
 	   Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java \
 	   StringBuffersPool.java SyncLinkedList.java \

@@ -3,6 +3,9 @@ package cm.generic;
 
 import java.util.*;
 
+/**
+ * A pool of reusable {@link java.lang.StringBuffer StringBuffer}s.
+ */
 public class StringBuffersPool
 extends Debug
 {

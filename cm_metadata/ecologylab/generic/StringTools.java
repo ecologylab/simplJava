@@ -5,9 +5,9 @@ import java.util.*;
 
 
 /**
- * @author andruid
- *
- * Methods for manipulating </ode>String</code> and <code>StringBuffer</code>s.
+ * A set of lovely convenience methods for doing operations on 
+ * {@link java.lang.String String} s and 
+ * {@link java.lang.StringBuffer StringBuffer}s.
  */
 public class StringTools
 extends Debug

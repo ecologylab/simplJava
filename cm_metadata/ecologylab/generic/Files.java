@@ -5,6 +5,9 @@ import java.util.*;
 import java.net.*;
 import java.nio.channels.FileChannel;
 
+/**
+ * A set of lovely convenience methods for doing operations on local files.
+ */
 public class Files
 extends Debug
 {
@@ -42,13 +45,31 @@ extends Debug
       inFile	= newFile(inFileName);
    }
 /**
+ * Create a new File object.
+ * 
  * More robust than just calling the File constructor, cause it
  * converts all slashes to the direction native for the platform.
  */
    public static File newFile(String inFileName)
    {
-      return newFile(null, inFileName);
+      return newFile((File) null, inFileName);
    }
+/**
+ * Create a new File object.
+ * 
+ * More robust than just calling the File constructor, cause it
+ * converts all slashes to the direction native for the platform.
+ */
+   public static File newFile(String contextName, String inFileName)
+   {
+	  return newFile(newFile(contextName), inFileName);
+   }
+/**
+ * Create a new File object.
+ * 
+ * More robust than just calling the File constructor, cause it
+ * converts all slashes to the direction native for the platform.
+ */
    public static File newFile(File context, String inFileName)
    {
       // one of the replaces should do something;

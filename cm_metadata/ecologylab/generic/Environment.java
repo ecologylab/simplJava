@@ -64,7 +64,9 @@ public interface Environment
       boolean		checkedForGL;
       boolean		hasAgile2D;
       boolean		checkedForAgile2D;
-
+      boolean		checkedForMultivalent;
+      boolean		hasMultivalent;
+      
       String		frame;
       
       public The()
@@ -143,6 +145,13 @@ public interface Environment
 	    hasAgile2D	= checkFor("agile2D.AgileJFrame");
 	 return hasAgile2D;
       }
+      public boolean hasMultivalent()
+      {
+	 if (!checkedForMultivalent)
+	    hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
+	 debug("hasMultivalent() = "+hasMultivalent);
+	 return hasMultivalent;
+      }
       public boolean hasGL()
       {
 	 if (!checkedForGL)
@@ -168,6 +177,12 @@ public interface Environment
 	    result	= true;
 	 } catch (ClassNotFoundException e)
 	 {
+	    println("Environment.checkFor("+className+") caught exception "+e);
+//	    e.printStackTrace();
+	 } catch (Error e)
+	 {
+	    println("Environment.checkFor("+className+") caught error");
+	    e.printStackTrace();
 	 }
 	 return result;
       }
@@ -177,7 +192,12 @@ public interface Environment
       }
 
    };
-   static The the	= new The();
+/**
+ * Each running entity (be it an applet or an application),
+ * should have one and only one instance of an Environment.
+ * "the" is that singleton instance.
+ */
+   static final The the	= new The();
 
 /**
  * Find out which java runtime we're operating in.

@@ -2,7 +2,7 @@
 DIR	= ecologylab/xml
 
 JAVA_SRC = CharacterConstants.java IO.java XmlTranslationException.java \
-	XmlTools.java ElementState.java XMLTranslationConfig.java
+	NameSpace.java XmlTools.java ElementState.java 
 
 JAVA_ROOT= ../../
 

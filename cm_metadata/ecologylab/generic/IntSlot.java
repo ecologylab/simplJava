@@ -1,9 +1,14 @@
 // Copyright 1996 by Creating Media.  All rights reserved.
-// stuck here from blocks as a convenience for minimal packaging 7/6/96
 package cm.generic;
 
 import java.lang.Object;
 
+/**
+ * Reference version of an int type. Re-writable, unlike java.lang.Integer.
+ * <p/>
+ * Object wrapper for int primitive values.
+ * Useful for storing in HashMaps, and anywhere else that a reference type is needed.
+ */
 public class IntSlot
 extends Object
 {

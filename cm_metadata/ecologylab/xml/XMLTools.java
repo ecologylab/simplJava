@@ -16,9 +16,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import ecologylab.types.*;
+
 /**
  * This class contains methods which are used during the translation of java objects
- * to xml and back. All the methods are static. The xml files can also be compressed
+ * to XML and back. All the methods are static. The XML files can also be compressed
  * by using the compression variable. For compression to work, the developer should
  * provide a abbreviation table in the format listed in the code.   
  * 
@@ -26,21 +28,11 @@ import org.xml.sax.SAXException;
  * @author      Madhur Khandelwal
  * @version     0.5
  */
-public class XmlTools extends IO
+public class XmlTools extends TypeRegistry
 implements CharacterConstants
 {
-	private static Hashtable stateClasses	=	new Hashtable();
-	
 	private static Hashtable encodingTable 	=	new Hashtable();
 	private static Hashtable decodingTable	=	new Hashtable();
-	
-	//the variables for each of the types String, boolean, int, float, url will not be
-	//emitted if they contain the following default values
-	private static String DEFAULT_STRING 	= 	"null";
-	private static String DEFAULT_BOOLEAN 	= 	"false";
-	private static String DEFAULT_INT 		= 	"0";
-	private static String DEFAULT_FLOAT		= 	"1.0";
-	private static String DEFAULT_URL		= 	"null";		
 	
 	//abbreviation table for storing the xml in a compressed form
 	private static String[][] elementAbbreviations;
@@ -48,57 +40,67 @@ implements CharacterConstants
 /**
  * This method generates a name for the xml tag given a reference type java object.
  * This is used during the translation of Java to xml. 
- * @param obj			name of a java reference type object 
+ * Part of this is to translate mixed case class name word separation into
+ * "_" word separtion.
+ * 
+ * @param obj			a java reference type object 
  * @param suffix		string to remove from class name, null if nothing to be removed
  * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
-   public static String elementNameFromObject(Object obj, String suffix, boolean compression)
+   public static String xmlTagFromObject(Object obj, 
+   										 String suffix, boolean compression)
    {
-      String className	= 	getClassName(obj.getClass());            
-      
+      String className	= 	getClassName(obj.getClass());
+	  return xmlTagFromClassName(className, suffix, compression);
+   }
+	
+/**
+ * This method generates a name for the xml tag given a reference type java object.
+ * This is used during the translation of Java to xml. 
+ * Part of this is to translate mixed case class name word separation into
+ * "_" word separtion.
+ * 
+ * @param className		class name of a java reference type object 
+ * @param suffix		string to remove from class name, null if nothing to be removed
+ * @param compression	if the name of the element should be abbreviated
+ * @return				name of the xml tag (element)
+ */	
+   public static String xmlTagFromClassName(String className,
+   											String suffix, boolean compression)
+   {
       if ((suffix != null) && (className.endsWith(suffix)))
       {
       	int suffixPosition	= className.lastIndexOf(suffix);
       	className			= className.substring(0, suffixPosition);
       }
 
-//    String result
       StringBuffer result = new StringBuffer(50);
-      int classNameLength	= className.length();
+
       
-	  if(compression && (encodingTable.get(result) != null))
+	  if (compression && (encodingTable.get(result) != null))
 	  {
 		  result.append((String)encodingTable.get(result));      	
 	  }
 	  else
-	  {
+	  {   // translate mixed case class name word separation into
+	  	  // _ word separtion
+		 int classNameLength	= className.length();
 	      for (int i=0; i<classNameLength; i++)
 	      {
 		 	char	c	= className.charAt(i);
 			
 			if ((c >= 'A') && (c <= 'Z') )
 			{
-				if(i == 0)
-					result.append(Character.toLowerCase(c));
-				else	
-				    result.append('_').append(Character.toLowerCase(c));
+			   char lc = Character.toLowerCase(c);
+				if (i > 0)
+					result.append('_');
+			   result.append(lc);
 			}
 			else
-			{
 			    result.append(c);
-			}
 	      }
 	  }
-	  
-	  if(XMLTranslationConfig.addPackageNames)
-	  {
-	  	StringBuffer packageName = new StringBuffer(getPackageName(obj));
-      
-	  	if(packageName != null)
-	  		return XmlTools.toString(packageName.append('-').append(result));
-	  }
-      
       return XmlTools.toString(result);
    }
    
@@ -115,23 +117,47 @@ implements CharacterConstants
    }
 
    /**
-   * This method generates a name for the attribute given a field name, 
-   * which is a primitive java type. It is used during translation of xml to Java. Using
-   * this class name the appropriate class is instantiated using reflection.  
-   * @param elementName		the name of the xml element or tag
+   * This method generates a name for an ElementState object, given an XML element name. 
+   * It is used during translation of XML to Java. Using
+   * the returned class name, the appropriate class can be instantiated using reflection.  
+   * @param elementName		the name of the XML element
    * @return				the name of the Java class corresponding to the elementName
    */   
    public static String classNameFromElementName(String elementName)
    {
-		if(ElementState.compressed && (decodingTable.get(elementName) != null))
+   		return javaNameFromElementName(elementName, true);
+   }
+   /**
+    * This method generates a name for an ElementState object, given an XML attribute name. 
+    * It is used during translation of XML to Java. Using
+    * the returned class name, the appropriate class can be instantiated using reflection.  
+    * @param elementName	the name of the XML element attribute
+    * @return				the name of the Java class corresponding to the elementName
+    */   
+   public static String fieldNameFromElementName(String elementName)
+   {
+   		return javaNameFromElementName(elementName, false);
+   }
+   /**
+    * Generate the name of a Java class (capitalized) or field (starts with lower case), given
+    * the name of an XML tag or attribute.
+    * Used during translation of XML to Java.
+    * 
+    * @param elementName
+    * @param capsOn			true if the first letter of output should be capitalized.
+    * @param elementName	the name of the XML element or tag
+    * @return				the name of the Java class corresponding to the elementName
+    */
+   public static String javaNameFromElementName(String elementName, boolean capsOn)
+   {
+		if (ElementState.compressed && (decodingTable.get(elementName) != null))
 		{
 			elementName = (String)decodingTable.get(elementName);
 		}
    		
    		String result = "";
-   		boolean capsOn = true;
    		
-   		for(int i = 0; i < elementName.length(); i++)
+   		for (int i = 0; i < elementName.length(); i++)
    		{
    			char c = elementName.charAt(i);
   			
@@ -189,13 +215,10 @@ implements CharacterConstants
 		
 		for(int i = 0; i < elementName.length(); i++)
 		{
-			if(i == 0)
-			{
-				char c = elementName.charAt(i);
-				result += Character.toLowerCase(c);
-			}
-			else
-				result += elementName.charAt(i);
+			char c = elementName.charAt(i);
+			if (i == 0)
+				c		= Character.toLowerCase(c);
+			result += c;
 		}
    		return result;
 	}
@@ -231,30 +254,23 @@ implements CharacterConstants
 			//take the field, generate tags and attach name value pair
 			try
 			{
-				String fieldValue = escapeXML( field.get(obj) + "" );
+			   Type type		= TypeRegistry.getType(field);
+			   String fieldValue= escapeXML(type.toString(obj, field));
+			   if (type.isDefaultValue(fieldValue))
+				  return "";
+			   
+			   StringBuffer result = new StringBuffer(50);
+			   result.append(' ').append(attrNameFromField(field, false))
+				  .append("=\"").append(fieldValue).append('"');
 				
-				//default values are not emitted, to keep the xml short
-				if(field.getType().getName().equals("java.lang.String") || 
-						field.getType().getName().equals("java.net.URL") || 
-							field.getType().getName().equals("java.awt.Color"))
-				{
-					if(fieldValue.equals(DEFAULT_STRING))
-						return "";
-				}
-				else if(fieldValue.equals(DEFAULT_BOOLEAN) || 
-				   fieldValue.equals(DEFAULT_FLOAT) || fieldValue.equals(DEFAULT_INT))
-				{
-					return "";
-				}
-				StringBuffer result = new StringBuffer(50);
-				result.append(" ").append(attrNameFromField(field, false)).append(" = ").append("\"").append(fieldValue).append("\"").append(" ");
-				
-				return XmlTools.toString(result);
+//			   println("generateNameVal() = "+result);
+			   return XmlTools.toString(result);
 				
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
-				e.printStackTrace();
+			   println("generateNameVal("+field+", "+obj+" ERROR");
+			   e.printStackTrace();
 			}
 		}
 		return "";
@@ -292,11 +308,11 @@ implements CharacterConstants
   * same class, the package name can be retrieved quickly from the hashtable. 
   * Used while generating Java class from xml. 
   * @param	thatClass   the <code>Class</code> type of an object
-  * @return   			the package name of the class 
+  * @return   			the package name of the class, with an extra "." at the end.
   */
 	public static String getPackageName(Class thatClass)
 	{
-	   String className	= thatClass.toString();
+	   String className	= thatClass.getName();
 	   String packageName = null;
 	   if(packageNames.containsKey(className))
 	   {
@@ -307,7 +323,7 @@ implements CharacterConstants
 	   	  if(thatClass.getPackage() != null)
 		  {	   	  
 //			  packageName	= 	className.substring(6, className.lastIndexOf("."));
-			  packageName	=	thatClass.getPackage().getName();
+			  packageName	=	thatClass.getPackage().getName() + ".";
 			  synchronized (packageNames)
 			  {
 				 packageNames.put(className, packageName);
@@ -366,9 +382,13 @@ implements CharacterConstants
 	   return getClassName(o);
 	}
 	
-   static String q(String s)
+/**
+ * @param string
+ * @return	The string wrapped in double quote marks.
+ */
+static String q(String string)
    {
-      return "\""+ s + "\" ";
+      return "\""+ string + "\" ";
    }
    
    public static String nameVal(String label, String val)
@@ -442,74 +462,6 @@ implements CharacterConstants
 			 }
 		 }
       }
-   }
-   
-   /**
-    * creates a <code>Class</code> object from a given element name in the xml.
-    * Also keeps it in the hashtable, so that when requested for the same class again
-    * it doesnt have to create one.
-    * @param classNameWithPackage	name of the state class along with its package name
-    * @return 						a <code>Class</code> object for the given state class
-    */
-   public static Class getStateClass(String classNameWithPackage)
-   {
-   		Class stateClass 		= 	null;
-   		
-   		String stateName		=	classNameWithPackage;
-
-		String packageName		=	"";
-   		
-		if(XMLTranslationConfig.addPackageNames)
-   		{
-   			int packageNameIndex	=	classNameWithPackage.indexOf("-");
-	   		if(packageNameIndex != -1)
-	   		{
-	   			packageName += 	classNameWithPackage.substring(0, packageNameIndex) + ".";
-	   			stateName	=   classNameWithPackage.substring(packageNameIndex+1); 		
-	   		}
-   		}
-
-	   	//	IO.println("state class name: " + stateName);
-
-		
-//		String packageName	=	XMLTranslationConfig.getFullName(stateName);		  		
-   		stateClass				=	(Class)stateClasses.get(stateName);   	   		
-   		   		  		   		
-   		if(stateClass	==	null)
-   		{
-			String className = classNameFromElementName(stateName);
-			
-			if(!XMLTranslationConfig.addPackageNames)
-			{
-				packageName = XMLTranslationConfig.getPackageName(className);
-				className = packageName + className;
-			}
-			else
-			{
-				className = packageName;   						
-				className += classNameFromElementName(stateName);
-				
-			}
-
-			try
-			{				
-				stateClass	=	Class.forName(className + "State");		
-				stateClasses.put(stateName,stateClass);				
-			}
-			catch(Exception e1)
-			{
-				try
-				{
-					stateClass	=	Class.forName(className);	
-					stateClasses.put(stateName, stateClass);					
-				}
-				catch(Exception e2)
-				{
-					e2.printStackTrace();
-				}
-			}
-   		}
-		return stateClass;
    }
    
    /**
@@ -662,64 +614,6 @@ implements CharacterConstants
     }   
 
 	/**
-	 * Sets the default value for the boolean types so that boolean types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param booleanVal	the default value of boolean type
-	 */
-	public static void setDEFAULT_BOOLEAN(boolean booleanVal) 
-	{
-		if(booleanVal == true)
-			DEFAULT_BOOLEAN = "true";
-		else
-			DEFAULT_BOOLEAN = "false";
-	}
-
-	/**
-	 * Sets the default value for the float types so that float types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param floatVal	the default value of float type
-	 */
-	public static void setDEFAULT_FLOAT(float floatVal) 
-	{
-		DEFAULT_FLOAT = floatVal + "";
-	}
-
-	/**
-	 * Sets the default value for the integer types so that integer types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param intVal	the default value of int type
-	 */
-	public static void setDEFAULT_INT(int intVal) 
-	{
-		DEFAULT_INT = intVal + "";
-	}
-	
-	/**
-	 * Sets the default value for the string types so that boolean types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param stringVal	the default value of string type
-	 */
-	public static void setDEFAULT_STRING(String stringVal) 
-	{
-		DEFAULT_STRING = stringVal;
-	}
-	
-	/**
-	 * Sets the default value for the URL types so that URL types containing
-	 * this value will NOT be emitted. Since they are default, they can be populated
-	 * automatically when generating Java object from the xml.
-	 * @param urlVal	the default value of URL type
-	 */
-	public static void setDEFAULT_URL(String urlVal) 
-	{
-		DEFAULT_URL = urlVal;
-	}
-	
-	/**
 	 * This method needs to be called when the users want compression of the generated xml
 	 * files. The compression is achieved by using abbreviated tag names instead of using 
 	 * the name of the file as the tag name. Normally if the name of the class is Foo, the 
@@ -755,5 +649,65 @@ implements CharacterConstants
 				  throw new RuntimeException("duplicate code: " + thisEntry[1]);
 			  decodingTable.put(thisEntry[1], thisEntry[0]);
 		}
+	}
+	/**
+	 * @param field
+	 * 
+	 * @return	true if the class name and variable name for the field are equivalent.
+	 * This is the case when the variable name is capitalized, it equals the class name.
+	 */
+	public static boolean equivalentClassAndVarNames(Field field)
+	{
+	   boolean result	= false;
+	   
+	   String className	= field.getType().getName();
+	   String varName	= field.getName();
+	   int classLength	= className.length();
+	   if (classLength == varName.length())
+	   {
+		  char classStart	= className.charAt(0);
+		  char varStart	= varName.charAt(0);
+		  if (classStart == Character.toUpperCase(varStart))
+		  {
+			 result = className.regionMatches(1, varName, 1, classLength - 1);
+		  }
+	   }
+	   return result;
+	}
+	/**
+	 * @param object	which might be representable as a collection. Must not be null.
+	 * 
+	 * @return	if the Object passed in is of Collection or Map type, 
+	 * 			return a Collection representing it. <br/>
+	 * 			else
+	 * 			return null.
+	 */
+	public static Collection getCollection(Object object)
+	{
+		Collection result	= null;
+		if (object instanceof Collection)
+			result			= (Collection) object;
+		else if (object instanceof Map)
+			result			= ((Map) object).values();
+		
+		return result;
+	}
+
+	/**
+	 * During translation to XML, uses a field's type to determine
+	 * if the field is one that is emitted directly as an attribute.
+	 * 
+	 * Also useful during other translation processes to determine 
+	 * if the field is one that would be emitted directly as an attribute,
+	 * because such fields require minimal processing.
+	 * 
+	 * @param field The field which might be emittable as an attribute.
+	 * 
+	 * @return		true if the field's type is contained within the 
+	 * 				{@link cm.types.TypeRegistry TypeRegistry}
+	 */
+	public static boolean emitFieldAsAttribute(Field field)
+	{
+	   return TypeRegistry.contains(field.getType());
 	}
 }

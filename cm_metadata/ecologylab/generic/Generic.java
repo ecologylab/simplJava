@@ -8,12 +8,14 @@ import java.net.*;
 import java.io.*;
 
 /**
+ * A set of generic convenience methods for doing things like getting
+ * typed parameters from the envionment, getting other stuff from
+ * the environment, building HashMaps from arrays, manipulating threads,
+ * ... While some of these functionalities constitute a nice set of static
+ * covers for facilities provided by {@link Environment Environment},
+ * this class can be viewed as a kitchen sink of useful static methods.
+ * 
  * @author andruid
- *
- * To change this generated comment edit the template variable "typecomment":
- * Window>Preferences>Java>Templates.
- * To enable and disable the creation of type comments go to
- * Window>Preferences>Java>Code Generation.
  */
 public class Generic 
 {

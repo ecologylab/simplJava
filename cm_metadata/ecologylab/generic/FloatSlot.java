@@ -2,6 +2,9 @@ package cm.generic;
 
 import java.lang.Object;
 
+/**
+ * Reference version of a float type. Re-writable, unlike java.lang.Float.
+ */
 public class FloatSlot
 extends Object
 {
