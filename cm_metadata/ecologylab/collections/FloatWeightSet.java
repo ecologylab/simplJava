@@ -294,8 +294,12 @@ extends Debug
 //     System.out.println(this);
       return result;
    }
-   ArrayList		maxArrayList;
+   protected ArrayList		maxArrayList;
    
+   public ArrayList maxArrayList()
+   {
+   		return maxArrayList;
+   }
    public synchronized FloatSetElement maxSelect(int desiredSize)
    {
       if (needPrune(desiredSize))
@@ -319,40 +323,48 @@ extends Debug
    {
       int size			= this.size;
       if (size <= 1)		// degenerate case
-	 return null;
+      	return null;
 
       if (maxArrayList == null)
       {
-	 int arrayListSize	= size / 4;
-	 if (arrayListSize > 1024)
-	    arrayListSize	= 1024;
-	 maxArrayList		= new ArrayList(arrayListSize);
+		 int arrayListSize	= size / 4;
+		 if (arrayListSize > 1024)
+		    arrayListSize	= 1024;
+		 maxArrayList		= new ArrayList(arrayListSize);
       }
       else
-	 maxArrayList.clear();
+      	maxArrayList.clear();
       
       int maxIndex		= MathTools.random(size-1) + 1;
       FloatSetElement result	= elements[maxIndex];
       float maxWeight		= result.getWeight();
       for (int i=1; i<size; i++)
       {
-	 FloatSetElement thatElement	= elements[i];
-	 float thatWeight	= thatElement.getWeight();
-	 if (thatWeight > maxWeight)
-	 {
-	    result		= thatElement;
-	    maxWeight		= thatWeight;
-	    maxIndex		= i;
-	 }
-	 else if (thatWeight == maxWeight)
-	    maxArrayList.add(thatElement);
+		 FloatSetElement thatElement	= elements[i];
+		 float thatWeight	= thatElement.getWeight();
+		 if (thatWeight > maxWeight)
+		 {
+		    maxArrayList.clear();
+		 	result		= thatElement;
+		    maxWeight		= thatWeight;
+		    maxIndex		= i;
+		    maxArrayList.add(thatElement);
+		 }
+		 else if (thatWeight == maxWeight)
+		 {
+		 	maxArrayList.add(thatElement);
+		 }
       }
+      
       int numMax		= maxArrayList.size();
+      // System.err.println("\nMAX_WEIGHT = " + maxWeight);
       if (numMax > 1)
 	 result			=
 	    (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
       return result;
    }
+   
+   
 /**
  * Delete lowest-weighted elements, in case this collection has grown too big.
  * (After all, we can't have the INFINITELY LARGE collections we'd really like.)
