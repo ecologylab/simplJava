@@ -24,6 +24,10 @@ implements Runnable
    public static final int MID_PRIORITY		= 2;
    public static final int LOW_PRIORITY		= 1;
    
+   int			lowPriority;
+   int			midPriority;
+   int			highPriority;
+
    public final int	highThreshold;
    public final int	midThreshold;
    
@@ -77,6 +81,11 @@ implements Runnable
    public DownloadMonitor(String name, int numDownloadThreads, 
 			  boolean getUrgent)
    {
+      this(name, numDownloadThreads, 0, getUrgent);
+   }
+   public DownloadMonitor(String name, int numDownloadThreads, 
+			  int priorityBoost, boolean getUrgent)
+   {
       this.numDownloadThreads	= numDownloadThreads;
       this.name			= name;
       this.getUrgent		= getUrgent;
@@ -84,6 +93,10 @@ implements Runnable
       highThreshold		= numDownloadThreads * 2;
       midThreshold		= numDownloadThreads + 1;
       finished			= false;
+
+      lowPriority		= LOW_PRIORITY + priorityBoost;
+      midPriority		= MID_PRIORITY + priorityBoost;
+      highPriority		= HIGH_PRIORITY + priorityBoost;
    }
 
    public void run()
@@ -174,7 +187,7 @@ implements Runnable
 	 if (timeoutThread == null)
 	 {
 	    timeoutThread	= new Thread(this, toString() + "-timeouts");
-	    timeoutThread.setPriority(LOW_PRIORITY+1);
+	    timeoutThread.setPriority(lowPriority+1);
 	    timeoutThread.start(); // to our run method
 	 }
       }
@@ -220,7 +233,7 @@ implements Runnable
 	       performDispatches();
 	    }
 	 };
-	 dispatchThread.setPriority(LOW_PRIORITY);
+	 dispatchThread.setPriority(lowPriority);
 	 dispatchThread.start();
       }
    }
@@ -283,11 +296,11 @@ implements Runnable
       int priority;
 
       if (waiting >= midThreshold)
-	 priority	= MID_PRIORITY;
+	 priority	= midPriority;
       else if (waiting >= highThreshold)
-	 priority	= MID_PRIORITY;
+	 priority	= midPriority;
       else
-	 priority	= LOW_PRIORITY;
+	 priority	= lowPriority;
 
       int oldPriority	= t.getPriority();
       if (priority != oldPriority)
@@ -363,7 +376,7 @@ implements Runnable
 	 {
 	    Thread thatThread	= newDownloadThread(i);
 	    downloadThreads[i]	= thatThread;
-	    thatThread.setPriority(LOW_PRIORITY);
+	    thatThread.setPriority(lowPriority);
 	    thatThread.start();
 	 }
       }
@@ -502,8 +515,24 @@ implements Runnable
    {
       return toDownload.size() > highThreshold;
    }
+   public boolean midNumberWaiting()
+   {
+      return toDownload.size() > midThreshold;
+   }
    public void setSourceSet(FloatWeightSet sourceSet)
    {
       this.sourceSet		= sourceSet;
+   }
+   public int lowPriority()
+   {
+      return lowPriority;
+   }
+   public int midPriority()
+   {
+      return midPriority;
+   }
+   public int highPriority()
+   {
+      return highPriority;
    }
 }
