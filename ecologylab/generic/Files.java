@@ -284,7 +284,7 @@ extends Debug
 	 }		
 	 catch(IOException e)
 	 {
-	    Debug.println(writeErrorString + oFileFullPath);
+	    Debug.println(writeErrorMsg(e, oFileFullPath));
 	 }
       return writer;
    }
@@ -308,7 +308,7 @@ extends Debug
 	 }		
 	 catch(IOException e)
 	 {
-	    Debug.println(writeErrorString + oFileFullPath);
+	    Debug.println(writeErrorMsg(e, oFileFullPath));
 	 }
       return writer;
    }
@@ -342,7 +342,7 @@ extends Debug
 	 }		
 	 catch(IOException e)
 	 {
-	    Debug.println(writeErrorString + oFileFullPath + e);
+	    Debug.println(writeErrorMsg(e, oFileFullPath));
 	 }
       return outStream;
    }
@@ -374,16 +374,16 @@ extends Debug
    {
       if ((toWrite == null) || (toWrite.equals("")))
 	 return true;
-      boolean	ok		= true;
+      boolean	ok	= true;
       try
       {  
-//	 Env.println("BufferedWriter " + writer + " toWrite=" +
-//			    toWrite);
 	 writer.write(toWrite);
       }
-	 catch(IOException e) {ok = false; Debug.println(e + "");}
-      if (!ok)
-      	 Debug.println(writeErrorString + writer);
+      catch(IOException e) 
+      {
+	 ok		= false; 
+	 Debug.println(writeErrorMsg(e, writer));
+      }
       return ok;
    }
 
@@ -404,9 +404,11 @@ extends Debug
 	 writer.write(toWrite);
 	 writer.newLine();
       }
-	 catch(IOException e) {ok = false;}
-      if (!ok)
-      	 System.err.println(writeErrorString + writer);
+      catch(IOException e) 
+      {
+	 ok		= false; 
+	 Debug.println(writeErrorMsg(e, writer));
+      }
       return ok;
    }
    
@@ -686,5 +688,18 @@ extends Debug
 	 System.out.println(inputLine);
 
       in.close();
+   }
+   public static String writeErrorMsg(Throwable e, Object o)
+   {
+      return writeErrorMsg(e, o.toString());
+   }
+   public static String writeErrorMsg(Throwable e, File f)
+   {
+      return writeErrorMsg(e, f.getAbsolutePath());
+   }
+   public static String writeErrorMsg(Throwable e, String path)
+   {
+      return "Error ["+e.getMessage() +"] writing to file " + path;
+
    }
 }
