@@ -3,6 +3,7 @@ package cm.generic;
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
 
+
 /**
  * Non-linear flow multiplexor.
  * Tracks downloads of <code>Downloadable</code> objects.
@@ -19,6 +20,7 @@ implements Runnable
    static final int	TIMEOUT_SLEEP	= 4000;
    static final int	SHORT_SLEEP	= 50;
 
+   public static final int TIMEOUT_PRIORITY	= 4;
    public static final int HIGHER_PRIORITY	= 4;
    public static final int HIGH_PRIORITY	= 3;
    public static final int MID_PRIORITY		= 2;
@@ -33,7 +35,8 @@ implements Runnable
    
    int			timeouts;
    int			dispatched;
-
+   int			pending;
+   
    boolean		getUrgent;
    boolean		paused;
 
@@ -46,7 +49,7 @@ implements Runnable
  * This is the queue of media that we start to download.
  * This queue drives potential timeout dispatches.
  */
-   Vector		potentialTimeouts	= new Vector(30);
+   private Vector	potentialTimeouts	= new Vector(30);
 /**
  * This is the queue of media that finish downloading.
  * This queue drives normal dispatch to <code>DispatchTarget</code>s, when
@@ -119,17 +122,20 @@ implements Runnable
 	    {
 	       thatClosure	= 
 		  (DownloadClosure) potentialTimeouts.firstElement();
-//	       debug("checking() "+thatClosure);
+	       debug("checking() "+thatClosure);
 	       
-	       if (thatClosure.timeoutOrComplete(now))
+	       if (thatClosure.timeoutOrComplete(now)) // does Downloable work
 	       {
-		  potentialTimeouts.remove(0);
-		  if (thatClosure.timedOut() && !thatClosure.timeoutResolved)
+		  if (potentialTimeouts.removeElement(thatClosure))
 		  {
-		     println("\n\n");
-		     debug("restarting timeout thread for " +
-			   thatClosure);
-		     restartDownloadThread(thatClosure.downloadingThread);
+		     if (thatClosure.timedOut() && 
+			 !thatClosure.timeoutResolved)
+		     {
+			println("\n\n");
+			debug("restarting timeout thread for " + thatClosure);
+			// hopefully we dont need this because its awkward
+			kickDownloadThread(thatClosure.downloadingThread);
+		     }
 		  }
 	       }
 	       else
@@ -188,7 +194,7 @@ implements Runnable
 	 if (timeoutThread == null)
 	 {
 	    timeoutThread	= new Thread(this, toString() + "-timeouts");
-	    timeoutThread.setPriority(lowPriority+1);
+	    timeoutThread.setPriority(TIMEOUT_PRIORITY);
 	    timeoutThread.start(); // to our run method
 	 }
       }
@@ -304,18 +310,17 @@ implements Runnable
       else
 	 priority	= lowPriority;
 
-      int oldPriority	= t.getPriority();
-      if (priority != oldPriority)
-      {
-	 debug(1, "\tsetPriority("+priority+") "+sourceSet);
-	 t.setPriority(priority);
-      }
+      Generic.setPriority(t, priority);
+
       return priority;
    }
-   private void restartDownloadThread(Thread t)
+   private void kickDownloadThread(Thread t)
    {
+/* put this back?! after fixing race condition. It is incompatible
+   with ThreadStateDebugger
       if (t != null)
 	 t.interrupt();
+ */
 /*
       Thread	oldThread	= t;
       for (int i=0; i<downloadThreads.length; i++)
@@ -360,14 +365,24 @@ implements Runnable
    }
    private Thread newDownloadThread(int i, String s)
    {
-      return new Thread(toString()+"-download "+i+" "+s)
+      /*return new Thread(toString()+"-download "+i+" "+s)
 	    {
 	       public void run()
 	       {
 		  performDownloads();
 	       }
 	    };
+	   */
+	   Thread newDownload = new Thread(toString()+"-download "+i+" "+s)
+	   {
+	       public void run()
+	       {			  	
+			  performDownloads();
+	       }
+	   };
+	   return newDownload; 
    }
+
    private void startDownloadMonitor()
    {
       if (downloadThreads == null)
@@ -380,6 +395,7 @@ implements Runnable
 	    Thread thatThread	= newDownloadThread(i);
 	    downloadThreads[i]	= thatThread;
 	    thatThread.setPriority(lowPriority);
+	    ThreadDebugger.registerMyself(thatThread);
 	    thatThread.start();
 	 }
       }
@@ -430,8 +446,11 @@ implements Runnable
    }
    void performDownloads()
    {
+      Thread downloadThread = Thread.currentThread();
+
       while (!finished)
       {
+
 	 DownloadClosure thatClosure;
 	 synchronized (toDownload)
 	 {
@@ -450,13 +469,18 @@ implements Runnable
 	 {
 //	    debug("performDownload() "+
 //		  thatClosure.downloadable+" "+ Thread.currentThread());
-	    if (getUrgent)
-	       setDownloadPriority(Thread.currentThread());
 
+	    // ??? i dont understand this -- andruid 12/18
+//	    if (getUrgent)
+//	       setDownloadPriority(Thread.currentThread());
+
+	    pending++;
+	    ThreadDebugger.waitIfPaused(downloadThread);
 	    thatClosure.performDownload();
 //	    debug("after performDownload() " + thatClosure);
 	    potentialTimeouts.remove(thatClosure); 
 	    thatClosure.dispatch();
+
 	 } catch (ThreadDeath e)
 	 { 
 	    debug("ThreadDeath in performDownloads() loop");
@@ -482,7 +506,14 @@ implements Runnable
 	    e.printStackTrace();
 	    thatClosure.ioError();
 	 }
-	 Generic.sleep(SHORT_SLEEP);
+	 finally
+	 {
+	    pending--;
+	 }
+	 if (hurry)
+	    Generic.sleep(SHORT_SLEEP);
+	 else
+	    Generic.sleep(400 + MathTools.random(100));
       }  // while (!finished)
       debug("exiting -- "+Thread.currentThread());
    }
@@ -543,5 +574,16 @@ implements Runnable
    public int highPriority()
    {
       return highPriority;
+   }
+   public int pending()
+   {
+      return pending;
+   }
+
+   boolean hurry;
+   public void setHurry(boolean hurry)
+   {
+      this.hurry	= hurry;
+      debug("setHurry("+hurry);
    }
 }
