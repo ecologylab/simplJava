@@ -41,7 +41,8 @@ implements Runnable
    Thread[]		downloadThreads;
    
    int			numDownloadThreads;
-
+   String		name;
+   
    static boolean	finished;
    
    public DownloadMonitor()
@@ -50,8 +51,14 @@ implements Runnable
    }
    public DownloadMonitor(int numDownloadThreads)
    {
+      this("", numDownloadThreads);
+   }
+   public DownloadMonitor(String name, int numDownloadThreads)
+   {
       this.numDownloadThreads	= numDownloadThreads;
+      this.name			= name;
       finished			= false;
+      debug("constructor()");
    }
 
    public void run()
@@ -112,7 +119,7 @@ implements Runnable
       {
 	 if (timeoutThread == null)
 	 {
-	    timeoutThread	= new Thread(this, "DownloadMonitor-timeouts");
+	    timeoutThread	= new Thread(this, toString() + "-timeouts");
 	    timeoutThread.setPriority(PRIORITY);
 	    timeoutThread.start(); // to our run method
 	 }
@@ -129,11 +136,13 @@ implements Runnable
 			DispatchTarget dispatchTarget)
    {
 //    debug("dispatch("+thatDownloadable);
+      DownloadClosure	downloadClosure = 
+	 new DownloadClosure(thatDownloadable, dispatchTarget);
+      downloading.remove(downloadClosure);
       synchronized (toDispatch)
       {
 //	 debug("dispatch(in synch"+thatDownloadable);
-	 toDispatch.addElement(new DownloadClosure(thatDownloadable,
-						 dispatchTarget));
+	 toDispatch.addElement(downloadClosure);
 	 if (dispatchThread == null)
 	    startDispatchMonitor();
 	 else
@@ -147,7 +156,7 @@ implements Runnable
       if (dispatchThread == null)
       {
 	 debug("startDispatcHMonitor()");
-	 dispatchThread	= new Thread("DownloadMonitor-dispatching")
+	 dispatchThread	= new Thread(toString() + "-dispatching")
 	 {
 	    // !!! if its not in its own thread, the java.awt imaging sys
 	    // can get messed up.
@@ -177,7 +186,7 @@ implements Runnable
 //		  debug("dispatchDownloads() notified");
 	       } catch (InterruptedException e)
 	       {
-		  e.printStackTrace();
+//		  e.printStackTrace();
 		  stop();
 		  return;	   // interrupt ends us
 	       }
@@ -187,6 +196,10 @@ implements Runnable
 	 try
 	 {
 	    thatClosure.dispatch();
+	 } catch (OutOfMemoryError e)
+	 { 
+	    Memory.recover(e, getClassName() + 
+			   ".performDispatches() trying to recover.");
 	 } catch (Throwable e)
 	 {
 	    debugA(".dispatch -- got exception:");
@@ -222,7 +235,7 @@ implements Runnable
 	 downloadThreads	= new Thread[numDownloadThreads];
 	 for (int i=0; i<numDownloadThreads; i++)
 	 {
-	    Thread thatThread	= new Thread("DownloadMonitor-downloading "+i)
+	    Thread thatThread	= new Thread(toString()+"-downloading "+i)
 	    {
 	       public void run()
 	       {
@@ -245,29 +258,40 @@ implements Runnable
 	    if (toDownload.isEmpty())
 	       try
 	       {
-//		  debug("dispatchDownloads() wait()");
+//		  debug("performDownloads() wait() " + Thread.currentThread());
 		  toDownload.wait();
 	       } catch (InterruptedException e)
 	       {
-		  e.printStackTrace();
+//		  e.printStackTrace();
 		  stop();
 		  return;	   // interrupt ends us
 	       }
-	    thatClosure = (DownloadClosure) toDispatch.remove(0);
+	    thatClosure = (DownloadClosure) toDownload.remove(0);
 	 }
 	 detectPotentialTimeout(thatClosure);
 	 try
 	 {
+//	    debug("performDownload() "+
+//		  thatClosure.downloadable+" "+ Thread.currentThread());
 	    thatClosure.downloadable.performDownload();
+	    downloading.remove(thatClosure);
 	    thatClosure.dispatch();
+	 } catch (OutOfMemoryError e)
+	 { 
+	    Memory.recover(e, getClassName() + 
+			   ".performDownloads() trying to recover.");
 	 } catch (Throwable e)
 	 {
 	    debugA(".dispatch -- got exception:");
-	    thatClosure.ioError();
 	    e.printStackTrace();
+	    thatClosure.ioError();
 	 }
 	 Generic.sleep(SHORT_SLEEP);
       }  // while (!finished)
+   }
+   public String toString()
+   {
+      return super.toString() + "["+ name + "]";
    }
 /**
  * Stop our threads.
@@ -275,8 +299,16 @@ implements Runnable
    public void stop()
    {
 //      debug("stop()");
-      finished	= true;
-      timeoutThread	= null;
-      dispatchThread	= null;
+      finished			= true;
+      timeoutThread		= null;
+      dispatchThread		= null;
+      if (downloadThreads != null)
+      {
+	 for (int i=0; i<downloadThreads.length; i++)
+	 {
+	    downloadThreads[i]	= null;
+	 }
+	 downloadThreads		= null;
+      }
    }
 }
