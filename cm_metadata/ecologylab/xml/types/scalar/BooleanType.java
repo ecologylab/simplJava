@@ -12,7 +12,15 @@ import java.lang.reflect.Field;
  */
 public class BooleanType extends Type 
 {
-	public BooleanType()
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("boolean")</code>.
+ * 
+ */
+	protected BooleanType()
 	{
 		super("boolean", true);
 	}

@@ -12,7 +12,15 @@ import java.lang.reflect.Field;
  */
 public class CharType extends Type 
 {
-	public CharType()
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("char")</code>.
+ * 
+ */
+	protected CharType()
 	{
 		super("char", true);
 	}

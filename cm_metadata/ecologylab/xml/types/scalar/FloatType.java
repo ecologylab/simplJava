@@ -12,7 +12,15 @@ import java.lang.reflect.Field;
  */
 public class FloatType extends Type 
 {
-	public FloatType()
+/**
+ * This constructor should only be called once per session, through
+ * a static initializer, typically in TypeRegistry.
+ * <p>
+ * To get the instance of this type object for use in translations, call
+ * <code>TypeRegistry.get("float")</code>.
+ * 
+ */
+	protected FloatType()
 	{
 		super("float", true);
 	}
