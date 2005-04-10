@@ -415,9 +415,7 @@ extends Debug
       "aif", "aiff", "aifc", "au", "mp3", "wav", "ra", "ram", 
       "wm", "wma", "wmf", "wmp", "wms", "wmv", "wmx", "wmz",
       "avi", "mov", "mpa", "mpeg", "mpg", "ppj",
-      "swf", "spl", "pdf",
-// "pdf" will be deleted by Eunyee
-//	  "swf", "sql",  
+      "swf", "spl",   
       "qdb", 
       "cab", "chm", "gzip", "hqx", "jar", "lzh", "tar", "zip", 
       "xml", "xsl",
@@ -574,14 +572,33 @@ extends Debug
 		 int http	= lc.lastIndexOf("http://");
 		 // TODO learn to mine PDFs as well as html!!
 		 int html	= lc.lastIndexOf(".html");
+		 int pdf	= lc.lastIndexOf(".pdf");
 //		 println("Container.newURL() checking javascript url:="+s+
 //			 " http="+http+" html="+html);
-		 if ((http > -1) && (html > -1) && (http < html))
+		 if (http > -1)
+		 {  // seek absolute web addrs
+		 	if ((html > -1) && (http < html))
+		 	{
+		 		int end		= html + 5;
+			    addressString= addressString.substring(http, end);
+			    //println("Container.newURL fixed javascript:= " + s);
+			    lc		= lc.substring(http, end);
+			    javascript	= false;
+		 	}
+		 	else if ((pdf > -1) && (http < pdf))
+		 	{
+		 		int end = pdf + 4;
+			    addressString= addressString.substring(http, end);
+			    //println("Container.newURL fixed javascript:= " + s);
+			    lc		= lc.substring(http, end);
+			    javascript	= false;
+		 	}
+		 }
+		 else
 		 {
-		    addressString= addressString.substring(http, html + 5);
-//		    println("Container.newURL fixed javascript:= " + s);
-		    lc		= lc.substring(http, html + 5);
-		    javascript	= false;
+		 	// seek relative addresses
+		 	
+		 	// need to find the bounds of a quoted string, if there is one
 		 }
 		 // !!! What we should really do here is find quoted strings
 		 // (usually with single quote, but perhaps double as well)
