@@ -99,6 +99,11 @@ public class ElementState extends IO
 
 	HashMap				fieldNameOrClassToTagMap;
 	
+	/**
+	 * Use for resolving getElementById()
+	 */
+	HashMap				elementByIdMap;
+	
 	public ElementState()
 	{
 	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
@@ -392,9 +397,29 @@ public class ElementState extends IO
 			if (!doRecursiveDescent)
 				result += ">"; // dont close it
 			else if (processingNestedElements)
+			{
+				//TODO emit text node
+				String textNode = this.getTextNodeString();
+				if ( textNode != null)
+				{
+					result += textNode;
+				}
 				result	+= tagMapEntry.closeTag;
+			}
 			else
-				result	+= "/>";	// simple element w attrs but no embedded elements
+			{
+				String textNode = this.getTextNodeString();
+				if ( textNode != null)
+				{	
+					result += ">";
+					result += textNode;
+					result	+= tagMapEntry.closeTag;
+				}
+				else
+				{
+					result	+= "/>";	// simple element w attrs but no embedded elements and no text node
+				}
+			}
 				
 		} catch (SecurityException e)
 		{
@@ -550,7 +575,15 @@ public class ElementState extends IO
 		{			  
 		   stateClass= globalNameSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
-		      return translateFromXML(xmlNode, stateClass);
+		   {
+		   	  ElementState rootState = getElementState(stateClass);
+		   	  if (rootState != null)
+		   	  {
+		   	  	 rootState.elementByIdMap		= new HashMap();
+		   	  	 rootState.translateFromXML(xmlNode, stateClass);
+		   	  	 return rootState;
+		   	  }
+		   }
 		   // else, we dont translate this field; we ignore it.
 		}
 		catch (Exception e)
@@ -564,11 +597,20 @@ public class ElementState extends IO
 		}
 		return null;
 	 }		
-
-	public static ElementState translateFromXML(Node xmlNode, Class stateClass)
+/**
+ * Get an instance of an ElementState based Class object.
+ * 
+ * @param stateClass		Must be derived from ElementState. The type of the object to translate in to.
+ * 
+ * @return				The ElementState subclassed object.
+ * 
+ * @throws XmlTranslationException	If its not an ElementState Class object, or
+ *  if that class lacks a constructor that takes no paramebers.
+ */
+	public static ElementState getElementState(Class stateClass)
 	   throws XmlTranslationException
 	{
-	   // form the new object derived from ElementState
+		   // form the new object derived from ElementState
 		ElementState elementState		= null;
 		try
 		{			  
@@ -580,7 +622,34 @@ public class ElementState extends IO
 							       + "MUST contain an empty constructor, but "+
 								   stateClass+" doesn't seem to.");
 		}
-		
+		return elementState;
+	}
+    /**
+     * A recursive method.
+     * Typically, this method is initially passed the root Node of an XML DOM,
+     * from which it builds a tree of equivalent ElementState objects.
+     * It does this by recursively calling itself for each node/subtree of ElementState objects.
+     * 
+     * The method translates any tree of DOM into a tree of Java objects, each of which is 
+     * an instance of a subclass of ElementState.
+     * The operation of the method is predicated on the existence of a tree of classes derived
+     * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+     * 
+     * Before calling the version of this method with this signature,
+     * the programmer needs to create a DOM from the XML file, and access the root Node.
+     * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+     * 
+     * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+     * 
+     * This method used to be called builtStateObject(...).
+     * 
+     * @param stateClass		Must be derived from ElementState. The type of the object to translate in to.
+     * @param xmlNode	the root node of the DOM tree that needs to be translated.
+     * @return 				the parent ElementState object of the corresponding Java tree.
+     */
+	public void translateFromXML(Node xmlNode, Class stateClass)
+	   throws XmlTranslationException
+	{
 		// translate attribtues
 		if (xmlNode.hasAttributes())
 		{
@@ -615,7 +684,7 @@ public class ElementState extends IO
 						args[0]		  = value;
 						try
 						{
-							attrMethod.invoke(elementState,args); // run set method!
+							attrMethod.invoke(this,args); // run set method!
 						}
 						catch (InvocationTargetException e)
 						{
@@ -628,13 +697,15 @@ public class ElementState extends IO
 							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
-						}	              
+						}	  
+						if (xmlAttrName.equals("id"))
+							this.elementByIdMap.put(value, this);
 					}
 					catch (NoSuchMethodException e)
 					{
 						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
 //						debug("buildFromXML(-> setPrimitive("+fieldName,value);
-						elementState.setField(fieldName, value);
+						setField(fieldName, value);
 //						if (!elementState.setField(fieldName, value))
 //							throw new
 //							   XmlTranslationException("Set method missing and automatic set failing for variable " + xmlAttr.getNodeName() + " in "+stateClass+
@@ -677,9 +748,11 @@ public class ElementState extends IO
 //				  println("childField="+childField);
 				  Class childClass		= childField.getType();
 //				  println("childClass="+childClass);
-				  ElementState childElementState = 
-					 translateFromXML(childNode, childClass);
-				  elementState.addNestedElement(childField, childElementState);
+				  ElementState childElementState = getElementState(childClass);
+				  childElementState.elementByIdMap	= this.elementByIdMap;
+				  
+				  childElementState.translateFromXML(childNode, childClass);
+				  addNestedElement(childField, childElementState);
 				  
 			   } catch (NoSuchFieldException e)
 			   {
@@ -687,7 +760,7 @@ public class ElementState extends IO
 			   	  // anyway, its not not a named field
 				  ElementState childElementState = translateFromXML(childNode);
 				  if (childElementState != null)
-				  	elementState.addNestedElement(childElementState);
+				  	addNestedElement(childElementState);
 				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
 			   }
 			}
@@ -695,11 +768,9 @@ public class ElementState extends IO
 			{
 				String text	= childNode.getNodeValue();;
 				if (text != null)
-					elementState.setTextNodeString(text);
+					setTextNodeString(text);
 			}
 		}
-		return elementState;
-		
 	}
 	
 
@@ -1281,7 +1352,7 @@ public class ElementState extends IO
 	{
 	   this.textNodeString		= XmlTools.unescapeXML(textNodeString);
 	}
-	public String getTextNode()
+	public String getTextNodeString()
 	{
 		return textNodeString;
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
