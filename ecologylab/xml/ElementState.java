@@ -671,6 +671,9 @@ public class ElementState extends IO
 					//which holds the value of the attribute and then that object is responsible
 					//for converting it to appropriate type from the string
 					String value		= xmlAttr.getNodeValue();
+					if (xmlAttrName.equals("id"))
+						this.elementByIdMap.put(value, this);
+					
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -698,8 +701,7 @@ public class ElementState extends IO
 									  " even though we found it");
 							e.printStackTrace();
 						}	  
-						if (xmlAttrName.equals("id"))
-							this.elementByIdMap.put(value, this);
+						
 					}
 					catch (NoSuchMethodException e)
 					{
