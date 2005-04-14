@@ -1397,6 +1397,11 @@ public class ElementState extends IO
 	   		return "TagMapEntry" + closeTag;
 	   }
 	}
+	
+	public ElementState getElementStateById(String id)
+	{
+		return (ElementState) this.elementByIdMap.get(id);
+	}
 	/*	
 	void fillValues(Vector vector)
 	{
