@@ -1,4 +1,4 @@
-package xml;
+package ecologylab.xml;
 
 import java.lang.reflect.*;
 import java.util.*;
