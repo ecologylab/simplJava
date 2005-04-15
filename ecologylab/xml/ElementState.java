@@ -618,9 +618,9 @@ public class ElementState extends IO
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException("All ElementState subclasses"
+		   throw new XmlTranslationException("All ElementState subclasses "
 							       + "MUST contain an empty constructor, but "+
-								   stateClass+" doesn't seem to.");
+								   stateClass+" doesn't seem to. Exception message: " + e.getMessage());
 		}
 		return elementState;
 	}
@@ -671,11 +671,9 @@ public class ElementState extends IO
 					//which holds the value of the attribute and then that object is responsible
 					//for converting it to appropriate type from the string
 					String value		= xmlAttr.getNodeValue();
-						
-						if (xmlAttrName.equals("id"))
-						{
-							this.elementByIdMap.put(value, this);
-						}
+					if (xmlAttrName.equals("id"))
+						this.elementByIdMap.put(value, this);
+					
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -702,8 +700,8 @@ public class ElementState extends IO
 							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
-						}	 
-
+						}	  
+						
 					}
 					catch (NoSuchMethodException e)
 					{
@@ -724,21 +722,10 @@ public class ElementState extends IO
 		NodeList childNodes	= xmlNode.getChildNodes();
 		int numChilds		= childNodes.getLength();
 	
-		// TODO -- why this block??
-		if (numChilds == 1)
-		{
-		   // is it a single text node?
-			Node firstNode	= childNodes.item(0);
-			if (firstNode.getNodeType() == Node.TEXT_NODE)
-			{
-				// create ElementStateTextNode here
-				this.setTextNodeString(firstNode.getNodeValue());
-			}
-		}
 		for (int i = 0; i < numChilds; i++)
 		{
 			Node childNode		= childNodes.item(i);
-			short childNodeType		= childNode.getNodeType();
+			short childNodeType	= childNode.getNodeType();
 			if ((childNodeType != Node.TEXT_NODE) && (childNodeType != Node.CDATA_SECTION_NODE))
 			{
 			   // look for instance variable name corresponding to
@@ -765,16 +752,17 @@ public class ElementState extends IO
 				  // must be part of a collection, or a field we dont know about
 			   	  // anyway, its not not a named field
 			   	  
-
 				  String tagName		= childNode.getNodeName();
-			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);				  
-				  
-				  ElementState childElementState = getElementState(childStateClass);
+			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);
+			  	  
+			  	  
+			  	  ElementState childElementState = getElementState(childStateClass);
 				  childElementState.elementByIdMap	= this.elementByIdMap;
 				  
 				  childElementState.translateFromXML(childNode, childStateClass);
 		
 				  if (childElementState != null)
+				  	// ! notice this signature is different from the addNestedElement() above !
 				  	addNestedElement(childElementState);
 				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
 			   }
@@ -1413,26 +1401,14 @@ public class ElementState extends IO
 	   }
 	}
 	
+	/**
+	 * The DOM classic accessor method.
+	 * 
+	 * @return element in the tree rooted from this, whose id attrribute is as in the parameter.
+	 * 
+	 */
 	public ElementState getElementStateById(String id)
 	{
 		return (ElementState) this.elementByIdMap.get(id);
 	}
-	/*	
-	void fillValues(Vector vector)
-	{
-	   int n = vector.size();
-	   for (int i=0; i<n; i++)
-	      fillValues((Attr) vector.elementAt(i));
-	}
-	
-	protected void fillValues(Attr attr)
-	{	  
-	  setField(attr.getName(), attr.getValue());
-	}
-	
-	void fillValues(String fieldName, String value)
-	{	   
-	   setField(fieldName, value);
-	}
-*/	
 }
