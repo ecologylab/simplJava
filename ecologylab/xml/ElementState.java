@@ -1,4 +1,4 @@
-package ecologylab.xml;
+package xml;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -671,9 +671,11 @@ public class ElementState extends IO
 					//which holds the value of the attribute and then that object is responsible
 					//for converting it to appropriate type from the string
 					String value		= xmlAttr.getNodeValue();
-					if (xmlAttrName.equals("id"))
-						this.elementByIdMap.put(value, this);
-					
+						
+						if (xmlAttrName.equals("id"))
+						{
+							this.elementByIdMap.put(value, this);
+						}
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -700,8 +702,8 @@ public class ElementState extends IO
 							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
-						}	  
-						
+						}	 
+
 					}
 					catch (NoSuchMethodException e)
 					{
@@ -728,8 +730,10 @@ public class ElementState extends IO
 		   // is it a single text node?
 			Node firstNode	= childNodes.item(0);
 			if (firstNode.getNodeType() == Node.TEXT_NODE)
+			{
 				// create ElementStateTextNode here
-				;
+				this.setTextNodeString(firstNode.getNodeValue());
+			}
 		}
 		for (int i = 0; i < numChilds; i++)
 		{
@@ -760,7 +764,16 @@ public class ElementState extends IO
 			   {
 				  // must be part of a collection, or a field we dont know about
 			   	  // anyway, its not not a named field
-				  ElementState childElementState = translateFromXML(childNode);
+			   	  
+
+				  String tagName		= childNode.getNodeName();
+			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);				  
+				  
+				  ElementState childElementState = getElementState(childStateClass);
+				  childElementState.elementByIdMap	= this.elementByIdMap;
+				  
+				  childElementState.translateFromXML(childNode, childStateClass);
+		
 				  if (childElementState != null)
 				  	addNestedElement(childElementState);
 				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
