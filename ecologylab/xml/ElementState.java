@@ -108,6 +108,13 @@ public class ElementState extends IO
 	{
 	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
 	}
+/**
+ * Emit XML header, then the object's XML.
+ */
+	public String translateToXMLWithHeader(boolean compression) throws XmlTranslationException
+	{
+	   return XML_FILE_HEADER + translateToXML(compression);
+	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
@@ -588,9 +595,9 @@ public class ElementState extends IO
 		}
 		catch (Exception e)
 		{
-		   println("XML Translation WARNING: Cant find class object for" + tagName
-			   + "\nIgnored.");
-//		   e.printStackTrace();
+		   println("XML Translation WARNING: Cant find class object for " + tagName
+			   + ": Ignored. " + e.getMessage());
+		   //e.printStackTrace();
 //		   throw new XmlTranslationException("All ElementState subclasses"
 //							       + "MUST contain an empty constructor, but "+
 //								   stateClass+" doesn't seem to.");
@@ -755,21 +762,23 @@ public class ElementState extends IO
 				  String tagName		= childNode.getNodeName();
 			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);
 			  	  
-			  	  
-			  	  ElementState childElementState = getElementState(childStateClass);
-				  childElementState.elementByIdMap	= this.elementByIdMap;
-				  
-				  childElementState.translateFromXML(childNode, childStateClass);
-		
-				  if (childElementState != null)
-				  	// ! notice this signature is different from the addNestedElement() above !
-				  	addNestedElement(childElementState);
+			  	  if (childStateClass != null)
+			  	  {
+				  	  ElementState childElementState = getElementState(childStateClass);
+					  childElementState.elementByIdMap	= this.elementByIdMap;
+					  
+					  childElementState.translateFromXML(childNode, childStateClass);
+			
+					  if (childElementState != null)
+					  	// ! notice this signature is different from the addNestedElement() above !
+					  	addNestedElement(childElementState);
+			  	  }
 				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
 			   }
 			}
 			else if (numChilds == 1) // we could get rid of this to be even more general!
 			{
-				String text	= childNode.getNodeValue();;
+				String text	= childNode.getNodeValue();
 				if (text != null)
 					setTextNodeString(text);
 			}
@@ -1014,7 +1023,7 @@ public class ElementState extends IO
 	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression)
 		throws XmlTranslationException
 	{
-		final String xml = XML_FILE_HEADER + translateToXML(compression);
+		final String xml = translateToXMLWithHeader(compression);
 
 		//write the Xml in the file		
 		try
