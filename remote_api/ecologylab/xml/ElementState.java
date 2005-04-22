@@ -99,9 +99,21 @@ public class ElementState extends IO
 
 	HashMap				fieldNameOrClassToTagMap;
 	
+	/**
+	 * Use for resolving getElementById()
+	 */
+	HashMap				elementByIdMap;
+	
 	public ElementState()
 	{
 	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
+	}
+/**
+ * Emit XML header, then the object's XML.
+ */
+	public String translateToXMLWithHeader(boolean compression) throws XmlTranslationException
+	{
+	   return XML_FILE_HEADER + translateToXML(compression);
 	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
@@ -392,9 +404,29 @@ public class ElementState extends IO
 			if (!doRecursiveDescent)
 				result += ">"; // dont close it
 			else if (processingNestedElements)
+			{
+				//TODO emit text node
+				String textNode = this.getTextNodeString();
+				if ( textNode != null)
+				{
+					result += textNode;
+				}
 				result	+= tagMapEntry.closeTag;
+			}
 			else
-				result	+= "/>";	// simple element w attrs but no embedded elements
+			{
+				String textNode = this.getTextNodeString();
+				if ( textNode != null)
+				{	
+					result += ">";
+					result += textNode;
+					result	+= tagMapEntry.closeTag;
+				}
+				else
+				{
+					result	+= "/>";	// simple element w attrs but no embedded elements and no text node
+				}
+			}
 				
 		} catch (SecurityException e)
 		{
@@ -453,7 +485,6 @@ public class ElementState extends IO
 	 * @param fileName	the name of the XML file that needs to be translated.
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
-
 	public static ElementState translateFromXML(String fileName)
 		throws XmlTranslationException
 	{
@@ -463,6 +494,36 @@ public class ElementState extends IO
 			result			= translateFromXML(document);
 		return result;
 	}
+	
+	/**
+	 * Given an XML-formatted String, 
+	 * builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param fileName	the name of the XML file that needs to be translated.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXMLString(String xmlString)
+		throws XmlTranslationException
+	{
+		Document document	= buildDOMFromXMLString(xmlString);
+		ElementState result	= null;
+		if (document != null)
+			result			= translateFromXML(document);
+		return result;
+	}	
 	
 	/**
 	 * Given the Document object for an XML DOM, builds a tree of equivalent ElementState objects.
@@ -521,25 +582,42 @@ public class ElementState extends IO
 		{			  
 		   stateClass= globalNameSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
-		      return translateFromXML(xmlNode, stateClass);
+		   {
+		   	  ElementState rootState = getElementState(stateClass);
+		   	  if (rootState != null)
+		   	  {
+		   	  	 rootState.elementByIdMap		= new HashMap();
+		   	  	 rootState.translateFromXML(xmlNode, stateClass);
+		   	  	 return rootState;
+		   	  }
+		   }
 		   // else, we dont translate this field; we ignore it.
 		}
 		catch (Exception e)
 		{
-		   println("XML Translation WARNING: Cant find class object for" + tagName
-			   + "\nIgnored.");
-//		   e.printStackTrace();
+		   println("XML Translation WARNING: Cant find class object for " + tagName
+			   + ": Ignored. " + e.getMessage());
+		   //e.printStackTrace();
 //		   throw new XmlTranslationException("All ElementState subclasses"
 //							       + "MUST contain an empty constructor, but "+
 //								   stateClass+" doesn't seem to.");
 		}
 		return null;
 	 }		
-
-	public static ElementState translateFromXML(Node xmlNode, Class stateClass)
+/**
+ * Get an instance of an ElementState based Class object.
+ * 
+ * @param stateClass		Must be derived from ElementState. The type of the object to translate in to.
+ * 
+ * @return				The ElementState subclassed object.
+ * 
+ * @throws XmlTranslationException	If its not an ElementState Class object, or
+ *  if that class lacks a constructor that takes no paramebers.
+ */
+	public static ElementState getElementState(Class stateClass)
 	   throws XmlTranslationException
 	{
-	   // form the new object derived from ElementState
+		   // form the new object derived from ElementState
 		ElementState elementState		= null;
 		try
 		{			  
@@ -547,11 +625,38 @@ public class ElementState extends IO
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException("All ElementState subclasses"
+		   throw new XmlTranslationException("All ElementState subclasses "
 							       + "MUST contain an empty constructor, but "+
-								   stateClass+" doesn't seem to.");
+								   stateClass+" doesn't seem to. Exception message: " + e.getMessage());
 		}
-		
+		return elementState;
+	}
+    /**
+     * A recursive method.
+     * Typically, this method is initially passed the root Node of an XML DOM,
+     * from which it builds a tree of equivalent ElementState objects.
+     * It does this by recursively calling itself for each node/subtree of ElementState objects.
+     * 
+     * The method translates any tree of DOM into a tree of Java objects, each of which is 
+     * an instance of a subclass of ElementState.
+     * The operation of the method is predicated on the existence of a tree of classes derived
+     * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+     * 
+     * Before calling the version of this method with this signature,
+     * the programmer needs to create a DOM from the XML file, and access the root Node.
+     * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+     * 
+     * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+     * 
+     * This method used to be called builtStateObject(...).
+     * 
+     * @param stateClass		Must be derived from ElementState. The type of the object to translate in to.
+     * @param xmlNode	the root node of the DOM tree that needs to be translated.
+     * @return 				the parent ElementState object of the corresponding Java tree.
+     */
+	public void translateFromXML(Node xmlNode, Class stateClass)
+	   throws XmlTranslationException
+	{
 		// translate attribtues
 		if (xmlNode.hasAttributes())
 		{
@@ -573,6 +678,9 @@ public class ElementState extends IO
 					//which holds the value of the attribute and then that object is responsible
 					//for converting it to appropriate type from the string
 					String value		= xmlAttr.getNodeValue();
+					if (xmlAttrName.equals("id"))
+						this.elementByIdMap.put(value, this);
+					
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -586,7 +694,7 @@ public class ElementState extends IO
 						args[0]		  = value;
 						try
 						{
-							attrMethod.invoke(elementState,args); // run set method!
+							attrMethod.invoke(this,args); // run set method!
 						}
 						catch (InvocationTargetException e)
 						{
@@ -599,13 +707,14 @@ public class ElementState extends IO
 							println("WEIRD: couldnt run set method for " + xmlAttrName +
 									  " even though we found it");
 							e.printStackTrace();
-						}	              
+						}	  
+						
 					}
 					catch (NoSuchMethodException e)
 					{
 						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
 //						debug("buildFromXML(-> setPrimitive("+fieldName,value);
-						elementState.setField(fieldName, value);
+						setField(fieldName, value);
 //						if (!elementState.setField(fieldName, value))
 //							throw new
 //							   XmlTranslationException("Set method missing and automatic set failing for variable " + xmlAttr.getNodeName() + " in "+stateClass+
@@ -620,19 +729,10 @@ public class ElementState extends IO
 		NodeList childNodes	= xmlNode.getChildNodes();
 		int numChilds		= childNodes.getLength();
 	
-		// TODO -- why this block??
-		if (numChilds == 1)
-		{
-		   // is it a single text node?
-			Node firstNode	= childNodes.item(0);
-			if (firstNode.getNodeType() == Node.TEXT_NODE)
-				// create ElementStateTextNode here
-				;
-		}
 		for (int i = 0; i < numChilds; i++)
 		{
 			Node childNode		= childNodes.item(i);
-			short childNodeType		= childNode.getNodeType();
+			short childNodeType	= childNode.getNodeType();
 			if ((childNodeType != Node.TEXT_NODE) && (childNodeType != Node.CDATA_SECTION_NODE))
 			{
 			   // look for instance variable name corresponding to
@@ -648,29 +748,41 @@ public class ElementState extends IO
 //				  println("childField="+childField);
 				  Class childClass		= childField.getType();
 //				  println("childClass="+childClass);
-				  ElementState childElementState = 
-					 translateFromXML(childNode, childClass);
-				  elementState.addNestedElement(childField, childElementState);
+				  ElementState childElementState = getElementState(childClass);
+				  childElementState.elementByIdMap	= this.elementByIdMap;
+				  
+				  childElementState.translateFromXML(childNode, childClass);
+				  addNestedElement(childField, childElementState);
 				  
 			   } catch (NoSuchFieldException e)
 			   {
 				  // must be part of a collection, or a field we dont know about
 			   	  // anyway, its not not a named field
-				  ElementState childElementState = translateFromXML(childNode);
-				  if (childElementState != null)
-				  	elementState.addNestedElement(childElementState);
+			   	  
+				  String tagName		= childNode.getNodeName();
+			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);
+			  	  
+			  	  if (childStateClass != null)
+			  	  {
+				  	  ElementState childElementState = getElementState(childStateClass);
+					  childElementState.elementByIdMap	= this.elementByIdMap;
+					  
+					  childElementState.translateFromXML(childNode, childStateClass);
+			
+					  if (childElementState != null)
+					  	// ! notice this signature is different from the addNestedElement() above !
+					  	addNestedElement(childElementState);
+			  	  }
 				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
 			   }
 			}
 			else if (numChilds == 1) // we could get rid of this to be even more general!
 			{
-				String text	= childNode.getNodeValue();;
+				String text	= childNode.getNodeValue();
 				if (text != null)
-					elementState.setTextNodeString(text);
+					setTextNodeString(text);
 			}
 		}
-		return elementState;
-		
 	}
 	
 
@@ -814,6 +926,62 @@ public class ElementState extends IO
 	  	}
 		return document;
 	}
+	/**
+	 * This method creates a DOM Document from an XML-formatted String.
+	 *
+	 * @param xmlString	the XML-formatted String from which the DOM is to be created
+	 * 
+	 * @return					the Document object
+	 */
+	static public Document buildDOMFromXMLString(String xmlString) {
+        Document document = null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                    .newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            createErrorHandler(builder);
+
+            builder.parse(new ByteArrayInputStream(xmlString.getBytes()));
+        }
+
+        catch (SAXParseException spe) {
+            // Error generated by the parser
+            println(xmlString + ":\n** Parsing error" + ", line "
+                    + spe.getLineNumber() + ", uri " + spe.getSystemId());
+            println("   " + spe.getMessage());
+
+            // Use the contained exception, if any
+            Exception x = spe;
+            if (spe.getException() != null)
+                x = spe.getException();
+            x.printStackTrace();
+        }
+
+        catch (SAXException sxe) {
+            // Error generated during parsing
+            Exception x = sxe;
+            if (sxe.getException() != null)
+                x = sxe.getException();
+            x.printStackTrace();
+        }
+
+        catch (ParserConfigurationException pce) {
+            // Parser with specified options can't be built
+            pce.printStackTrace();
+        }
+
+        catch (IOException ioe) {
+            // I/O error
+            ioe.printStackTrace();
+        }
+
+        catch (FactoryConfigurationError fce) {
+            fce.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return document;
+    }
 
   	static private void createErrorHandler(final DocumentBuilder builder){
   		
@@ -855,7 +1023,7 @@ public class ElementState extends IO
 	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression)
 		throws XmlTranslationException
 	{
-		final String xml = XML_FILE_HEADER + translateToXML(compression);
+		final String xml = translateToXMLWithHeader(compression);
 
 		//write the Xml in the file		
 		try
@@ -1196,7 +1364,7 @@ public class ElementState extends IO
 	{
 	   this.textNodeString		= XmlTools.unescapeXML(textNodeString);
 	}
-	public String getTextNode()
+	public String getTextNodeString()
 	{
 		return textNodeString;
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
@@ -1241,22 +1409,15 @@ public class ElementState extends IO
 	   		return "TagMapEntry" + closeTag;
 	   }
 	}
-	/*	
-	void fillValues(Vector vector)
+	
+	/**
+	 * The DOM classic accessor method.
+	 * 
+	 * @return element in the tree rooted from this, whose id attrribute is as in the parameter.
+	 * 
+	 */
+	public ElementState getElementStateById(String id)
 	{
-	   int n = vector.size();
-	   for (int i=0; i<n; i++)
-	      fillValues((Attr) vector.elementAt(i));
+		return (ElementState) this.elementByIdMap.get(id);
 	}
-	
-	protected void fillValues(Attr attr)
-	{	  
-	  setField(attr.getName(), attr.getValue());
-	}
-	
-	void fillValues(String fieldName, String value)
-	{	   
-	   setField(fieldName, value);
-	}
-*/	
 }
