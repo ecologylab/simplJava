@@ -64,8 +64,10 @@ implements CharacterConstants
 		 entityTable.put(entities[i], new Character((char) (i + 160)));
       
       // syntax such as &#38;
-      for (char i = 0; i != 255; i++)
-		 entityTable.put("#"+i, new Character(i));
+      for (int i = 0; i != 255; i++)
+      {
+		 entityTable.put("#"+(int)i, new Character((char)i));
+      }
       
       // defined in the XML 1.0 spec: "predefined entities"
       entityTable.put("amp", new Character('&'));
@@ -589,9 +591,11 @@ static String q(String string)
 	  // then call recursively, setting the startPos index to after the last
 	  // entity that we found
 	  
-	  String encoded = sb.substring(entityPos, semicolonPos);
+	  String temp = sb.substring(entityPos+1, semicolonPos);
+	  String encoded = "#"+Integer.valueOf(temp).toString();
 	  Character lookup = (Character)entityTable.get(encoded);
-	  println("unescapeXML: from " +encoded + " -> " + lookup);
+	  println("unescapeXML: from " +encoded + " -> " + lookup );
+
 	  if ((semicolonPos+1 < sb.length()) && (lookup != null))
 	  {
 		  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
