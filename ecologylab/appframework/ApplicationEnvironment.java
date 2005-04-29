@@ -1,8 +1,13 @@
 package cm.generic;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
+
 import cm.generic.ParsedURL;
 
 /**
@@ -15,9 +20,30 @@ import cm.generic.ParsedURL;
  */
 public class ApplicationEnvironment implements Environment
 {
+	public static Properties properties;
+	
 	public ApplicationEnvironment()
 	{
-	   Environment.the.set(this);
+	   properties = new Properties();
+	}
+	
+	public ApplicationEnvironment(String filename) {
+		properties = new Properties();
+		loadProperties(filename);
+	}
+	
+	public void loadProperties(String filename)
+	{
+		try {
+			properties.load(new FileInputStream(new File(filename)));
+			Environment.the.set(this);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
     /**
      * @see cm.generic.Environment#runtimeEnv()
@@ -46,7 +72,7 @@ public class ApplicationEnvironment implements Environment
 	 * @see cm.generic.Environment#parameter(String)
 	 */
 	public String parameter(String name) {
-		return null;
+		return properties.getProperty(name);
 	}
 
 	/**
