@@ -591,8 +591,14 @@ static String q(String string)
 	  // then call recursively, setting the startPos index to after the last
 	  // entity that we found
 	  
-	  String temp = sb.substring(entityPos+1, semicolonPos);
-	  String encoded = "#"+Integer.valueOf(temp).toString();
+	  String encoded = sb.substring(entityPos, semicolonPos);
+
+	  if( encoded.startsWith("#") )
+	  {
+	  	String temp = encoded.substring(1);
+	  	encoded = "#"+Integer.valueOf(temp).toString();
+	  }
+	  	
 	  Character lookup = (Character)entityTable.get(encoded);
 	  println("unescapeXML: from " +encoded + " -> " + lookup );
 
