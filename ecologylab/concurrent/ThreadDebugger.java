@@ -15,7 +15,8 @@ import java.awt.*;
  */
 public class ThreadDebugger extends Debug
 {
-	static     Hashtable registeredThreads = new Hashtable();
+	static     Hashtable 	threadEntriesByName		= new Hashtable();
+	static     HashMap 		threadEntriesByThread	= new HashMap();
 	
 	static 	int nThreads;
 
@@ -38,7 +39,7 @@ public class ThreadDebugger extends Debug
   				// ignore "start " / "pause " - we have the thread name as the key into the hashtable
   				
 		 	 	String threadName = action.substring(6,action.length());
-				ThreadToDebug ttd = (ThreadToDebug)registeredThreads.get(threadName);	
+				ThreadEntry ttd = (ThreadEntry)threadEntriesByName.get(threadName);	
 				if (ttd == null)
 				{
 					// System.err.println("\nthreadName = " + threadName);
@@ -67,44 +68,46 @@ public class ThreadDebugger extends Debug
 		System.err.println("\nThreadDebugger constructor");
 	}
 	
-	public static void registerMyself(Thread t)
+	public static void registerMyself(Thread thread)
 	{
-		synchronized (registeredThreads)
+		synchronized (threadEntriesByName)
 		{
-			if (registeredThreads.get(t.getName()) != null)
+			final String threadName = thread.getName();
+			if (threadEntriesByName.get(threadName) != null)
 			{
 				return;	
 			}
-			ThreadToDebug ttdTemp = new ThreadToDebug(t);
-			registeredThreads.put(t.getName(),ttdTemp);				
+			ThreadEntry threadEntry = new ThreadEntry(thread);
+			threadEntriesByName.put(threadName, threadEntry);	
+			threadEntriesByThread.put(thread, threadEntry);
 			nThreads++;
-			println("ThreadDebugger.register("+t+" COUNT = " + 
+			println("ThreadDebugger.register("+thread+" COUNT = " + 
 				nThreads);
-			verticalBox.add(ttdTemp.button);
+			verticalBox.add(threadEntry.button);
 			threadControlFrame.pack();
 			setPosition();			
 		}
 	}
 	
-	public	static boolean toggleAndReturnNewState(ThreadToDebug ttd)
+	public	static boolean toggleAndReturnNewState(ThreadEntry threadEntry)
 	{
-		ttd.button.setBackground(Color.yellow);
-		return ttd.toggleAndReturnNewState();
+		threadEntry.button.setBackground(Color.yellow);
+		return threadEntry.toggleAndReturnNewState();
 	}
 		
-	public static void waitIfPaused(Thread t)
+	public static void waitIfPaused(Thread thread)
 	{
-		ThreadToDebug ttd = (ThreadToDebug)registeredThreads.get(t.getName());				
-		Object mylock = ttd.lock;
+		ThreadEntry threadEntry = (ThreadEntry)threadEntriesByThread.get(thread);				
+		Object mylock = threadEntry.lock;
 		synchronized (mylock)
 		{
-			boolean paused = ttd.paused;
+			boolean paused = threadEntry.paused;
 			if (paused)
 			{
 				try
 				{
-					System.err.println("\nPAUSING THREAD " + t.getName());
-					ttd.button.setBackground(Color.red);
+					println("\nPAUSING THREAD " + thread.getName());
+					threadEntry.button.setBackground(Color.red);
 					mylock.wait();	
 				}catch (InterruptedException e)
 				{
@@ -113,21 +116,22 @@ public class ThreadDebugger extends Debug
 		}	
 	}		
 	
-	public	static void resume(ThreadToDebug ttd)
+	public	static void resume(ThreadEntry threadEntry)
 	{
-		Object mylock = ttd.lock;
+		Object mylock = threadEntry.lock;
 		
 		synchronized (mylock)
 		{
-			System.err.println("\nRESTARTING THREAD " + ttd.thread.getName());					
+			println("\nRESTARTING THREAD " + threadEntry.thread.getName());					
 			mylock.notify();
-			ttd.button.setBackground(Color.green);
+			threadEntry.button.setBackground(Color.green);
 		}				
 	}	
 	
-	public static void removeMyself(Thread t)
+	public static void removeMyself(Thread thread)
 	{
-		ThreadToDebug removedTtd = (ThreadToDebug)registeredThreads.remove(t.getName());
+		ThreadEntry removedTtd = (ThreadEntry)threadEntriesByThread.remove(thread.getName());
+		threadEntriesByName.remove(thread);
 		verticalBox.remove(removedTtd.button);
 		threadControlFrame.pack();						
 		setPosition();
@@ -201,15 +205,20 @@ public class ThreadDebugger extends Debug
 	   }
 	}
 }	
+/**
+ * An entry in the Hash of debuggable threads.
+ * 
+ * @author andruid
+ */
 
-class ThreadToDebug
+class ThreadEntry
 {
    Object	lock	= new Object();
    JButton	button;
    Thread	thread;
    boolean paused = false;
    
-   ThreadToDebug(Thread thread)
+   ThreadEntry(Thread thread)
    {
       this.thread	= thread;
       button = new JButton("Pause " + thread.getName());
