@@ -11,7 +11,7 @@ JAVA_SRC = ParsedURL.java Generic.java AllocationDebugger.java Attribute.java De
 	   Memory.java StringInputStream.java  Convenience.java\
 	   StringInputStream.java Displacement1D.java Line2D.java \
 	   StringBuffersPool.java SyncLinkedList.java \
-	   ThreadDebugger.java TextDownloadMonitor.java
+	   ThreadDebugger.java TextDownloadMonitor.java SwingTools.java
 
 # IntSlot used by Parser, Map
 
