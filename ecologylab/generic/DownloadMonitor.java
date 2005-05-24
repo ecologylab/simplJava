@@ -1,6 +1,5 @@
-package cm.generic;
+package ecologylab.generic;
 
-import cm.media.text.NewPorterStemmer;
 
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;

@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Implement this class in an object that knows about many other threads.

@@ -1,6 +1,4 @@
-package cm.generic;
-
-import cm.media.text.NewPorterStemmer;
+package ecologylab.generic;
 
 import java.util.*;
 

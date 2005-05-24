@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Closure that keeps state about a download, as it progresses.

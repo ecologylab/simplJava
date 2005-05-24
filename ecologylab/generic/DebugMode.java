@@ -2,7 +2,7 @@
  * Interace for implementing an interactive console input debug mode for
  * any class.
  */
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Interace for implementing an interactive console input debug mode for

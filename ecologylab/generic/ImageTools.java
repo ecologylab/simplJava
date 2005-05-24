@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 
 import java.io.*;
@@ -8,7 +8,6 @@ import javax.imageio.*;
 import javax.imageio.stream.*;
 import java.util.*;
 import javax.imageio.plugins.jpeg.*;
-import com.sun.image.codec.jpeg.*;
 
 /**
  * A set of lovely convenience methods for writing image files.

@@ -1,4 +1,4 @@
-package cm.media.text;
+package ecologylab.generic;
 /*
 
    Porter stemmer in Java. The original paper is in
@@ -39,8 +39,6 @@ package cm.media.text;
 
 import java.io.*;
 import java.lang.StringBuffer;
-
-import cm.generic.*;
 
 /**
   * Stemmer, implementing the Porter Stemming Algorithm

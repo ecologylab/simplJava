@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004 at the Interface Ecology Lab.
  */
-package cm.generic;
+package ecologylab.generic;
 
 import ecologylab.types.Type;
 

@@ -2,7 +2,7 @@
  * Modified by Eunyee Koh
  */
 
-package cm.generic;
+package ecologylab.generic;
 
 import java.io.File;
 import java.net.*;

@@ -1,7 +1,6 @@
-package cm.generic;
+package ecologylab.generic;
 
 import java.awt.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.net.*;

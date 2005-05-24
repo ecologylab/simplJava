@@ -1,10 +1,10 @@
-package cm.history;
+package cf.history;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import cm.generic.*;
+import ecologylab.generic.*;
 /**
  * Utility class for managing memory mapped buffers. 
  * 

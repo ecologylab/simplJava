@@ -3,7 +3,7 @@
  * Copyright 1996-2002 by Andruid Kerne. 
  * Use freely without profit, so long as this notice is included intact.
  */
-package cm.generic;
+package ecologylab.generic;
 
 import java.lang.Math;
 import java.util.Vector;

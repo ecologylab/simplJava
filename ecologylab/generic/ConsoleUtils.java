@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Little group of utilities for making console debugging a little easier.

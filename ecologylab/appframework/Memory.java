@@ -2,7 +2,7 @@
  * Copyright 1996-2002 by Andruid Kerne. All rights reserved.
  * CONFIDENTIAL. Use is subject to license terms.
  */
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Utility routines related to memory management, used to watch the
@@ -99,9 +99,9 @@ public class Memory
    public static String threads()
    {
       Thread current	= Thread.currentThread();
-      int count		= current.activeCount();
+      int count		= Thread.activeCount();
       Thread[] threads = new Thread[count];
-      current.enumerate(threads);
+      Thread.enumerate(threads);
       String result	= count + " Threads ACTIVE\n";
       for (int i=0; i!=count; i++)
       {

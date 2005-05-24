@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * defines a displacement in one dimension, of the form:

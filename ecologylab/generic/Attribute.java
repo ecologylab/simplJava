@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;

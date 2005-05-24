@@ -1,5 +1,5 @@
 // Copyright 1996 by Creating Media.  All rights reserved.
-package cm.generic;
+package ecologylab.generic;
 
 import java.lang.Object;
 

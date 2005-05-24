@@ -1,4 +1,4 @@
-package cm.generic;
+package ecologylab.generic;
 
 /**
  * Generic facilities for concurrent programming.

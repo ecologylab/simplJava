@@ -1,14 +1,13 @@
-package cm.generic;
+package ecologylab.generic;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import cm.generic.ParsedURL;
+import ecologylab.generic.ParsedURL;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,
@@ -46,13 +45,13 @@ public class ApplicationEnvironment implements Environment
 		}
 	}
     /**
-     * @see cm.generic.Environment#runtimeEnv()
+     * @see ecologylab.generic.Environment#runtimeEnv()
      */
     public int runtimeEnv()
     { return APPLICATION;}
     
     /**
-     * @see cm.generic.Environment#showStatus(String)
+     * @see ecologylab.generic.Environment#showStatus(String)
      */
     public void showStatus(String s) 
     {
@@ -60,7 +59,7 @@ public class ApplicationEnvironment implements Environment
     }
 
 	/**
-	 * @see cm.generic.Environment#status(String)
+	 * @see ecologylab.generic.Environment#status(String)
 	 */
 	public void status(String msg) 
 	{
@@ -69,14 +68,14 @@ public class ApplicationEnvironment implements Environment
 	}
 
 	/**
-	 * @see cm.generic.Environment#parameter(String)
+	 * @see ecologylab.generic.Environment#parameter(String)
 	 */
 	public String parameter(String name) {
 		return properties.getProperty(name);
 	}
 
 	/**
-	 * @see cm.generic.Environment#codeBase()
+	 * @see ecologylab.generic.Environment#codeBase()
 	 * return the current working directory of the application
 	 * which is "c:\web\code\java\cm"
 	 */
@@ -86,7 +85,7 @@ public class ApplicationEnvironment implements Environment
 	}
 
 	/**
-	 * @see cm.generic.Environment#docBase()
+	 * @see ecologylab.generic.Environment#docBase()
 	 * return the current working directory of the application
 	 * which is "c:\web\code\java\cm"
 	 */

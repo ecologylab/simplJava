@@ -1,6 +1,4 @@
-package cm.generic;
-
-import java.io.*;
+package ecologylab.generic;
 
 public interface Downloadable
 {
