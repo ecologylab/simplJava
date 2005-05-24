@@ -668,10 +668,10 @@ extends Debug
    {
       BufferedReader reader = openReader(f);
       for (String line=Files.readLine(reader); line!=null;
-	   line=Files.readLine(reader))
+		   line=Files.readLine(reader))
       {
-	 if (line.indexOf(s) > -1)
-	    return true;
+		 if (line.indexOf(s) > -1)
+			return true;
       }
       return false;
    }
@@ -682,14 +682,15 @@ extends Debug
    public static File removeExtension(String path)
    {
       File result;
-      int lastDot	= path.lastIndexOf(".");
-      if (lastDot > 0)
+      int lastDot	= path.lastIndexOf('.');
+	  int lastSlash = path.lastIndexOf(sep);
+      if (lastDot > lastSlash)
       {
-	 path		= path.substring(0, lastDot);
-	 result		= new File(path);
+		 path		= path.substring(0, lastDot);
+		 result		= new File(path);
       }
       else
-	 result		= new File(path);
+		 result		= new File(path);
       return result;
    }
    public static void main(String[] s)
@@ -699,7 +700,7 @@ extends Debug
       String thatLine = null;
       while (( thatLine=Files.readLine(reader)) != null)
       {
-	 println("read from URL " + thatLine);
+		 println("read from URL " + thatLine);
       }
       closeReader(reader);
    }
