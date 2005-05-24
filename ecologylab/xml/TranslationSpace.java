@@ -1,7 +1,6 @@
 package ecologylab.xml;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * This class contains the package information for the classes that are converted

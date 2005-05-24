@@ -3,8 +3,6 @@
  */
 package ecologylab.types;
 
-import java.lang.reflect.Field;
-
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
  * 
