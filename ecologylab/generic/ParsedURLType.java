@@ -22,7 +22,7 @@ public class ParsedURLType extends Type
  */
 	public ParsedURLType()
 	{
-		super("cm.generic.ParsedURL", /*TYPE_PARSED_URL, */ false);
+		super("ecologylab.generic.ParsedURL", /*TYPE_PARSED_URL, */ false);
 	}
 
 	/**
