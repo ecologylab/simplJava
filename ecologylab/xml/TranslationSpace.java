@@ -16,7 +16,7 @@ public class NameSpace extends IO
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
 	*/
-   private String		defaultPackageName = "cm.state";
+   private String		defaultPackageName = "cf.state";
    
    /**
 	* This boolean controls whether package names are added to the class names
