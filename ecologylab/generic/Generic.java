@@ -207,7 +207,7 @@ public class Generic
    {
       int oldPriority	= t.getPriority();
       if (oldPriority != priority)
-	 t.setPriority(priority);
+      	 t.setPriority(priority);
    }
 
    public static final boolean contains(String in, String toMatch)
