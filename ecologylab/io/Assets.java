@@ -34,6 +34,13 @@ public class Assets
 		Assets.cacheRoot = cacheRoot;
 	}
 	
+	/**
+	 * Given a relative path, return a file reference to this path
+	 * from the cache root.
+	 * 
+	 * @param relativePath	A string representing the relative file path.
+	 * @return	A file reference to the requested path
+	 */
 	public static File getAsset(String relativePath)
 	{
 		if (cacheRoot == null)
@@ -41,4 +48,22 @@ public class Assets
 		
 		return new File(cacheRoot.getAbsolutePath() + File.separatorChar + relativePath);
 	}
+	
+	public static File getAndPerhapsCreateAsset(String relativePath)
+	{
+		File theAsset = getAsset(relativePath);
+		
+		if (!theAsset.exists())
+		{
+			File currentAsset = theAsset;
+			while (currentAsset != null && !currentAsset.exists())
+			{
+				currentAsset.mkdir();
+				currentAsset = currentAsset.getParentFile();
+			}
+		}
+		
+		return theAsset;
+	}
+	
 }
