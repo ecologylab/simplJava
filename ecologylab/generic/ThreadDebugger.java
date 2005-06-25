@@ -97,7 +97,7 @@ public class ThreadDebugger extends Debug
 		
 	public static void waitIfPaused(Thread thread)
 	{
-		ThreadEntry threadEntry = (ThreadEntry)threadEntriesByThread.get(thread);				
+		ThreadEntry threadEntry = (ThreadEntry)threadEntriesByThread.get(thread);
 		Object mylock = threadEntry.lock;
 		synchronized (mylock)
 		{
@@ -135,6 +135,17 @@ public class ThreadDebugger extends Debug
 		verticalBox.remove(removedTtd.button);
 		threadControlFrame.pack();						
 		setPosition();
+	}
+	
+	/**
+	 * Clear all the thread collections -- eunyee
+	 *
+	 */
+	public static void clear()
+	{
+		threadEntriesByName.clear();
+		threadEntriesByThread.clear();
+		nThreads = 0;
 	}
 	
 	static int xOriginal, yOriginal;
