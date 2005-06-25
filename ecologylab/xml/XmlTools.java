@@ -856,4 +856,17 @@ static String q(String string)
 	{
 	   return TypeRegistry.contains(field.getType());
 	}
+	/**
+	 * Wrap the passed in argument in HTML tags, so it can be parsed as XML.
+	 * 
+	 * @param htmlFragmentString	A piece of valid XHTML.
+	 * 
+	 * @return
+	 */
+	public static String wrapInHTMLTags(String htmlFragmentString)
+	{
+		StringBuffer buffy	= new StringBuffer(htmlFragmentString.length() + 13);
+		return 
+		  buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
+	}
 }
