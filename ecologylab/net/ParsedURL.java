@@ -664,7 +664,14 @@ extends Debug
       	addressString	       += hashString;
     
      }
-      
+     int protocolEnd			= addressString.indexOf(":");
+     if (protocolEnd != -1)
+     {
+     	// this is an absolute URL; check for supported protocol
+     	String protocol			= addressString.substring(0, protocolEnd);
+     	if (protocolIsUnsupported(protocol))
+     		return null;
+     }
      ParsedURL parsedUrl;
 	 if (contextPURL == null)
 	 {
@@ -714,19 +721,46 @@ extends Debug
        return protocolIsSupported() && !unsupportedMimes.containsKey(suffix());
     }  
 
-   	/**
-   	 * check whether the protocol is supported or not from unsupportedProtocols.
-   	 */
+   /**
+	* Check whether the protocol is supported or not.
+	* Currently, only http and ftp are.
+	*/
    public boolean protocolIsSupported()
    {
-      return
-	 (url != null) && supportedProtocols.containsKey(url.getProtocol());
+      return (url != null) && protocolIsSupported(url.getProtocol());
+   }
+   
+   /**
+	* Check whether the protocol is supported or not.
+	* Currently, only http and ftp are.
+	*/
+   public static boolean protocolIsSupported(String protocol)
+   {
+      return supportedProtocols.containsKey(protocol);
+   }
+   
+   /**
+	* Check whether the protocol is supported or not.
+	* Currently, only http and ftp are.
+	*/
+   public boolean protocolIsUnsupported()
+   {
+      return (url != null) && protocolIsUnsupported(url.getProtocol());
+   }
+   
+   /**
+	* Check whether the protocol is supported or not.
+	* Currently, only http and ftp are.
+	*/
+   public static boolean protocolIsUnsupported(String protocol)
+   {
+      return unsupportedProtocols.containsKey(protocol);
    }
    
    /**
     * @param	suffix	file name suffix in lower case.
     */
-    public  boolean isImg()
+    public boolean isImg()
     {
        suffix = suffix();
         return (suffix != null) && (suffix.length() != 0) && 
