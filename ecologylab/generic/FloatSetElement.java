@@ -23,7 +23,7 @@ extends Debug
  */
    public float			weight;
 
-   protected FloatWeightSet	set;
+   protected BasicFloatSet	set;
 
    public FloatSetElement()
    {
@@ -44,26 +44,34 @@ extends Debug
    {
       index	= newIndex;
    }
-   public void setSet(FloatWeightSet setArg)
+   public void setSet(BasicFloatSet setArg)
    {
       set		= setArg;
    }
 /**
- * Delete and recompute all.
+ * Delete in the most expedient manner possible.
  */
    public void delete()
    {
-      delete(FloatWeightSet.NO_RECOMPUTE);
+      if (set != null)
+      	 set.delete(this, BasicFloatSet.NO_RECOMPUTE);
    }
 /**
- * @param recompute	-1 for absolutely no recompute
+ * Delete the element from the set.
+ * This means changing the set's structure, and also changing slots in 
+ * this to reflect its lack of membership.
+ * 
+ * @param recompute	-1 for absolutely no recomputation of the set's internal structures.
  * 			 0 for recompute upwards from el
  * 			 1 for recompute all
  */
    public synchronized void delete(int recompute)
    {
       if ((set != null) && (index != NOT_A_MEMBER))//prevent double dip deletes
+      {
       	set.delete(this, recompute);
+        clear();
+      }
    }
    /**
     * Only for use by FloatWeightSet.clear(), and delete.

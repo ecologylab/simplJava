@@ -22,7 +22,7 @@ import java.util.*;
  * There are a bunch of synchronized methods to affect this.
  **/
 public class FloatWeightSet
-extends Debug
+extends Debug implements BasicFloatSet
 {
 /**
  * An array representation of the members of the set.
@@ -65,15 +65,6 @@ extends Debug
    protected ArrayList		maxArrayList;
 
    /**
-    * A flag that may be passed to the delete method.
-    */
-   public static final int	NO_RECOMPUTE	= -1;
-   /**
-    * A flag that may be passed to the delete method.
-    */
-   public static final int	RECOMPUTE		= 1;
-
-/**
  * For managing sort operations
  */   
    static final int			TOO_SMALL_TO_QUICKSORT	= 10;
@@ -138,11 +129,11 @@ extends Debug
    {
       if (el == null)
 		 return;
-//      if (el.set != null)
-//      {
-//		 debug("tryed to double insert "+el+ " into "+ this);
+      if (el.set != null)
+      {
+		 debug("ERROR: tryed to double insert "+el+ " into this.\nIgnored.");
 //		 return;
-//      }
+      }
       if (size == numSlots)
       {	 // start housekeeping if we need more space
 		 int		allocSize	= 2 * size;
@@ -169,7 +160,7 @@ extends Debug
 	* Perhaps recompute incremental sums for randomSelect() integrity.
 	* Includes ensuring we cant pick el again.
 	* 
-	* @param el		The SetElement element to delete.
+	* @param el			The FloatSetElement element to delete.
 	* @param recompute	-1 for absolutely no recompute.
 	* 			 0 for recompute upwards from el.
 	* 			 1 for recompute all.
@@ -201,11 +192,10 @@ extends Debug
 		 }
 		 if (recompute != NO_RECOMPUTE)
 		 {
-			int recomputeIndex	= (recompute == 0) ? 0 : index;
+			int recomputeIndex	= (recompute == RECOMPUTE_ALL) ? 0 : index;
 			syncRecompute(recomputeIndex);
 		 }
       }
-      el.clear();
    }
    protected boolean needPrune(int desiredSize)
    {
@@ -539,15 +529,33 @@ extends Debug
    {
       return super.toString() + "[" + size() + "]";
    }
+   /**
+	* Check to see if the set has any elements.
+	* @return
+	*/
    public boolean isEmpty()
    {
       return size <= 1;
    }
-   public Object elementAt(int i)
+   /**
+    * Get the ith element in the set.
+    * 
+    * @param i
+    * @return
+    */
+   public FloatSetElement getElement(int i)
    {
    	  return elements[i];
    }
-
+   /**
+    * Get the last element in the set, or null if the set is empty.
+    * 
+    * @return
+    */
+   public FloatSetElement lastElement()
+   {
+   	  return (size == 0) ? null : elements[size - 1];
+   }
 
 
 ///////////////////// stuff for fast weighted randomSelect() ////////////////
