@@ -1385,6 +1385,11 @@ public class ElementState extends IO
 	
 	/**
 	 * Add a package name to className mapping to the translation table in the NameSpace.
+	 * <br/><br/>Example:<br/><code>
+	 * 	  addTranslation("cf.history", "KeyframeState");<br/>
+	 *    addTranslation("cf.history", "KeyframeTimeStampSet");<br/></code>
+	 * <br/>
+	 * The class name will be translated into an xml tag name, using the usual rules.
 	 * 
 	 * @param packageName
 	 * @param className
@@ -1393,6 +1398,16 @@ public class ElementState extends IO
 	{
 		globalNameSpace.addTranslation(packageName, className);
 	}
+   /**
+	* Set the default package name for XML tag to ElementState sub-class translations,
+	* for the global name space.
+	* 
+	* @param packageName	The new default package name.
+	*/
+   public void setDefaultPackageName(String packageName)
+   {
+	  globalNameSpace.setDefaultPackageName(packageName);
+   }
 
 	class TagMapEntry
 	{
