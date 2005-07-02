@@ -98,22 +98,25 @@ public class ThreadDebugger extends Debug
 	public static void waitIfPaused(Thread thread)
 	{
 		ThreadEntry threadEntry = (ThreadEntry)threadEntriesByThread.get(thread);
-		Object mylock = threadEntry.lock;
-		synchronized (mylock)
-		{
-			boolean paused = threadEntry.paused;
-			if (paused)
+		if( threadEntry != null)
+		{	
+			Object mylock = threadEntry.lock;
+			synchronized (mylock)
 			{
-				try
+				boolean paused = threadEntry.paused;
+				if (paused)
 				{
-					println("\nPAUSING THREAD " + thread.getName());
-					threadEntry.button.setBackground(Color.red);
-					mylock.wait();	
-				}catch (InterruptedException e)
-				{
-				}
-			}		
-		}	
+					try
+					{
+						println("\nPAUSING THREAD " + thread.getName());
+						threadEntry.button.setBackground(Color.red);
+						mylock.wait();	
+					}catch (InterruptedException e)
+					{
+					}
+				}		
+			}	
+		}
 	}		
 	
 	public	static void resume(ThreadEntry threadEntry)
