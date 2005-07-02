@@ -67,10 +67,8 @@ public class Memory
    {
       for (int i=0; i!=5; i++)
       {
-		 boolean danger	= (runtime.freeMemory() < DANGER_THRESHOLD)
-			&& (!isMicroshaftVM || (Math.random() > .9));
-		 if (danger)
-			reclaimQuiet();
+		 if (runtime.freeMemory() < DANGER_THRESHOLD)
+			reclaim();
 		 else
 			break;
       }
