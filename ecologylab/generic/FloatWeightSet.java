@@ -49,6 +49,24 @@ extends Debug implements BasicFloatSet
    static final int PRUNE_PRIORITY	= 1;
    
    /**
+    * Sets should get pruned when their size is this much larger than
+    * what the caller originally specified.
+    */
+   static final int PRUNE_LEVEL = 0;
+   
+   /**
+    * This many extra slots will be allocated in the set, to enable insertions()
+    * prior to a prune(), without reallocation.
+    */
+   protected final int	extraAllocation;
+   
+   /**
+    * Allocate this many extra slots, to avoid needing to alloc due to synch
+    * issues between insert & prune.
+    */
+   static final int EXTRA_ALLOCATION = 256;
+   
+   /**
 	* size of last used element in array
 	*/
    protected int	size; 
@@ -56,6 +74,11 @@ extends Debug implements BasicFloatSet
 	* size of the array. (Some upper slots are likely unused.)
 	*/
    int				numSlots;
+   
+   /**
+    * Maximum size to let this grow to, before needPrune() will return true.
+    */
+   protected int	maxSize;
 
 /**
  * When there is more than one maximum found by maxSelect(), this ArrayList
@@ -90,19 +113,32 @@ extends Debug implements BasicFloatSet
    {
 	  this(initialSize, threadMaster, false);
    }
+   public FloatWeightSet(int initialSize, ThreadMaster threadMaster, 
+						 boolean supportWeightedRandomSelect)
+   {
+	  this(initialSize, EXTRA_ALLOCATION, threadMaster, 
+						 supportWeightedRandomSelect);
+   }
+   
 /**
  * Create a set, with data structures to support the stated initial
  * size, and a threadMaster that may pause use before expensive operations.
  * This set may support weightedRandomSelect().
  */
-   public FloatWeightSet(int initialSize, ThreadMaster threadMaster, boolean supportWeightedRandomSelect)
+   public FloatWeightSet(int initialSize, int extraAllocation,
+						 ThreadMaster threadMaster, 
+						 boolean supportWeightedRandomSelect)
    {
       this.threadMaster	= threadMaster;
+	  this.extraAllocation		= extraAllocation;
 
       size		= 0;
-      alloc(initialSize + 4, supportWeightedRandomSelect);
+      maxSize	= initialSize;
+      
+      alloc(initialSize + PRUNE_LEVEL + EXTRA_ALLOCATION, supportWeightedRandomSelect);
       sentinel.weight	= 0.0f;
       insert(sentinel);
+      debug("constructed w " + numSlots);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
    {
@@ -197,16 +233,44 @@ extends Debug implements BasicFloatSet
 		 }
       }
    }
+   public boolean pruneIfNeeded()
+   {
+   	  int maxSize	 = this.maxSize;
+   	  boolean result = needPrune(maxSize);
+   	  if (result)
+   	  	 prune(maxSize);
+   	  return result;
+   }
    protected boolean needPrune(int desiredSize)
    {
 	  //      return (desiredSize > 0) && (size >= (5 * desiredSize / 4));
-      return (size >= (desiredSize + 20));
+      return (size >= (desiredSize + PRUNE_LEVEL));
    }
 
    public ArrayList maxArrayList()
    {
 	  return maxArrayList;
    }
+   
+   /**
+    * Prune to the set's specified maxSize, if necessary, then do a maxSelect().
+    * The reason for doing these operations together is because both require sorting.
+    * 
+    * @return	element in the set with the highest weight, or in case of a tie,
+    * 			a random pick of those.
+    */
+   public synchronized FloatSetElement pruneAndMaxSelect()
+   {
+   	  return maxSelect(maxSize);
+   }
+   /**
+    * Prune to the specified desired size, if necessary, then do a maxSelect().
+    * The reason for doing these operations together is because both require sorting.
+    * 
+    * @param desiredSize
+    * @return	element in the set with the highest weight, or in case of a tie,
+    * 			a random pick of those.
+    */
    public synchronized FloatSetElement maxSelect(int desiredSize)
    {
       if (needPrune(desiredSize))
@@ -632,6 +696,31 @@ extends Debug implements BasicFloatSet
 	* 
 	* @return	Selected	
 	*/
+
+   /**
+    * Prune to the set's specified maxSize, if necessary, then do a
+    * weightedRandomSelect().
+    * The reason for doing these operations together is because both require 
+    * structural recomputation, specifically getting the current weights for
+    * all elements.
+    * 
+    * @return	element in the set with the highest weight, or in case of a tie,
+    * 			a random pick of those.
+    */
+   public synchronized FloatSetElement pruneAndWeightedRandomSelect()
+   {
+   	  return weightedRandomSelect(maxSize);
+   }
+   /**
+    * Prune to the specified desired size, if necessary, then do a 
+    * weightedRandomSelect().
+    * The reason for doing these operations together is because both require 
+    * structural recomputation, specifically getting the current weights for
+    * all elements.
+    * 
+    * @param desiredSize
+    * @return	an element from the set.
+    */
    public synchronized FloatSetElement weightedRandomSelect(int desiredSize)
    {
       if (needPrune(desiredSize))
@@ -726,4 +815,13 @@ extends Debug implements BasicFloatSet
 		 println(set.weightedRandomSelect().toString());
    }
    
+/**
+ * Set the maximum size this should grow to before pruning.
+ * 
+ * @param maxSize The maxSize to set.
+ */
+   public void setMaxSize(int maxSize)
+   {
+	  this.maxSize = maxSize;
+   }
 }
