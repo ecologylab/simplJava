@@ -104,4 +104,19 @@ public class ApplicationEnvironment implements Environment
 	{
 	   return APPLICATION;
 	}
+	
+	/**
+	 * Returns the environment's current 
+	 * max memory settings (based on command-line parameters in the 
+	 * java control panel)
+	 * 
+	 * @return The maximum amount of memory that can be allocated to the JVM
+	 * in megabytes.
+	 */
+	public static int getMaxMemory()
+	{
+		long maxMemory		= Runtime.getRuntime().maxMemory();
+	    // report in megabytes
+	    return				  (int)(maxMemory / (1024 * 1024));
+	}
 }
