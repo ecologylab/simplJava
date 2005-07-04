@@ -67,7 +67,7 @@ extends Debug
    {
    		try
 		{
-			this.url	= new URL("file://"+file.getAbsolutePath());
+			this.url	= new URL("file:///"+file.getAbsolutePath());
 		} catch (MalformedURLException e)
 		{
 			e.printStackTrace();
