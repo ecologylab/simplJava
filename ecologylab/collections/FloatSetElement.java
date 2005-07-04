@@ -53,8 +53,7 @@ extends Debug
  */
    public void delete()
    {
-      if (set != null)
-      	 set.delete(this, BasicFloatSet.NO_RECOMPUTE);
+      delete(BasicFloatSet.NO_RECOMPUTE);
    }
 /**
  * Delete the element from the set.
