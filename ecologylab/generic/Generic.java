@@ -181,6 +181,13 @@ public class Generic
    {
       return Environment.the.javaVersion();
    }
+   /**
+    * @return The version of Java we're using (with the specific release)
+    */
+   public static String javaVersionFull()
+   {
+	   return System.getProperty("java.version");
+   }
    public static boolean hasXML()
    {
       return Environment.the.hasXML();
@@ -494,5 +501,23 @@ public class Generic
 		long maxMemory		= Runtime.getRuntime().maxMemory();
 	    // report in megabytes
 	    return				  (int)(maxMemory / (1024 * 1024));
+	}
+	
+	/**
+	 * Creates a new ParsedURL from a string and returns null if unsuccessful
+	 * 
+	 * @param address The address string representation
+	 * @return The new ParsedURL
+	 */
+	public static ParsedURL getParsedURLFromString(String address)
+	{
+		try
+		{
+			return new ParsedURL(new URL(address));
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 }
