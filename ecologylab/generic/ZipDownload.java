@@ -3,6 +3,8 @@
  */
 package ecologylab.generic;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,10 +12,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+
+import ecologylab.gui.AWTBridge;
+import ecologylab.gui.Status;
 
 /**
  * Class implementing DownloadLoadable to allow for the downloading and writing
@@ -29,22 +35,34 @@ implements Downloadable, DispatchTarget
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
+	Status		status;
+	boolean		keepStatus			= false;
 	
 	boolean		downloaded 			= false;
 	boolean 	downloadStarted 	= false;
 	boolean 	aborted				= false;
 	boolean		extractWhenComplete = false;
+	int			fileSize			= -1;
 	
 	InputStream inputStream = null;
 	
 	private static final int BUFFER_SIZE	= 8192;
 	
-	public ZipDownload(ParsedURL zipSource, File zipTarget)
+	public ZipDownload(ParsedURL zipSource, File zipTarget, Status status)
 	{
 		super();
 		
 		this.zipSource 				= zipSource;
 		this.zipTarget	 			= zipTarget;
+		this.status					= status;
+		
+		if (status != null)
+			keepStatus = true;
+	}
+	
+	public ZipDownload(ParsedURL zipSource, File zipTarget)
+	{
+		this(zipSource, zipTarget, null);
 	}
 	
 	/**
@@ -75,6 +93,45 @@ implements Downloadable, DispatchTarget
 			return;
 		
 		downloadStarted = true;
+		
+		//this gets the stream and sets the member field 'fileSize'
+		inputStream = getInputStream(zipTarget);
+		
+		  //actually read and write the zip
+		  OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(zipTarget));
+		  byte zipBytes[] = new byte[BUFFER_SIZE];
+		  
+		  //Read data from the source file and write it out to the zip file
+          int count 		= 0;
+          int lastTenth 	= 1;
+          int incrementSize = fileSize/10;
+          //int i=0;
+          while(( count = inputStream.read(zipBytes, 0, BUFFER_SIZE)) != -1 )
+          {
+        	  if (status != null)
+        	  {
+        		  //Our status will be in 10% increments
+        		  if (count >=  incrementSize*(lastTenth))
+        			  status.displayStatus("Downloading zip file " + zipTarget.getName(),
+        				  					1, count/10, incrementSize);
+        		  
+        		  //can't just increment because we maybe skip/hit 1/10ths due to 
+        		  //faster/slower transfer rates, traffic, etc.
+        		  lastTenth = (int) Math.floor(((double)count/fileSize)*10);
+        	  }
+        	  outputStream.write(zipBytes, 0, count);
+          }
+		  
+          outputStream.close();
+          inputStream.close();
+          
+          if (extractWhenComplete)
+        	  extractZipFile(zipTarget);
+	}
+	
+	public BufferedInputStream getInputStream(File zipTarget)
+	throws Exception
+	{
 		URLConnection	urlConnection;
 		
 		if (zipTarget.isDirectory())
@@ -114,7 +171,8 @@ implements Downloadable, DispatchTarget
 			  }
 			  try
 			  {
-			  	urlConnection.connect();
+				urlConnection.connect();
+				fileSize = urlConnection.getContentLength();
 			  	inputStream	= urlConnection.getInputStream();
 			  } 
 			  catch (FileNotFoundException e)
@@ -128,23 +186,8 @@ implements Downloadable, DispatchTarget
 		  	System.err.println("Cant open InputStream for " + aborted+" "+zipSource);
 		  	throw new Exception("ZipDownload: IOException");
 		  }
-		
-		  //actually read and write the zip
-		  OutputStream outputStream = new FileOutputStream(zipTarget);
-		  byte zipBytes[] = new byte[BUFFER_SIZE];
 		  
-		  //Read data from the source file and write it out to the zip file
-          int count;
-          while(( count = inputStream.read(zipBytes, 0, BUFFER_SIZE)) != -1 )
-          {
-            outputStream.write(zipBytes, 0, count);
-          }
-		  
-          outputStream.close();
-          inputStream.close();
-          
-          if (extractWhenComplete)
-        	  extractZipFile(zipTarget);
+		  return new BufferedInputStream(inputStream);
 	}
 
 	public boolean isDownloadDone() 
@@ -233,7 +276,7 @@ implements Downloadable, DispatchTarget
 			
 			//give the user some feedback on how long this takes.
 			currentEntry++;
-			// TODO need some feedback, but can't get reference to a GUI!!!
+			Generic.status("Zip file extracted: " + destFile);
 		}
 		
 		System.out.println("Finished extracting Zip file: " + zipSource);

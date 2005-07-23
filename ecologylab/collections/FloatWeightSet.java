@@ -64,7 +64,7 @@ extends Debug implements BasicFloatSet
     * Allocate this many extra slots, to avoid needing to alloc due to synch
     * issues between insert & prune.
     */
-   static final int EXTRA_ALLOCATION = 256;
+   public static final int EXTRA_ALLOCATION = 256;
    
    /**
 	* size of last used element in array
@@ -823,5 +823,53 @@ extends Debug implements BasicFloatSet
    public void setMaxSize(int maxSize)
    {
 	  this.maxSize = maxSize;
+   }
+   
+   //				Accessors for MediaSetState
+   ////////////////////////////////////////////////////////
+   public FloatSetElement[] elements()
+   {
+	   return elements;
+   }
+   public void setElements(FloatSetElement[] newElements)
+   {
+	   elements = newElements;
+   }
+   public float[] incrementalSums()
+   {
+	   return incrementalSums;
+   }
+   public void setIncrementalSums(float[] newIncrementalSums)
+   {
+	   incrementalSums = newIncrementalSums;
+   }
+   public FloatSetElement sentinel()
+   {
+	   return sentinel;
+   }
+   public void setSentinel(FloatSetElement newSentinel)
+   {
+	   sentinel = newSentinel;
+   }
+   public int numSlots()
+   {
+	   return numSlots;
+   }
+   public void setNumSlots(int newNumSlots)
+   {
+	   numSlots = newNumSlots;
+   }
+   public void setSize(int newSize)
+   {
+	   size = newSize;
+   }
+   public void initializeStructure(int size)
+   {
+	   alloc(size, true);
+   }
+   
+   public int getMaxSize()
+   {
+	   return maxSize;
    }
 }

@@ -21,6 +21,7 @@ import ecologylab.generic.DownloadMonitor;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ParsedURL;
 import ecologylab.generic.ZipDownload;
+import ecologylab.gui.Status;
 
 /**
  * Used to manage cachable assets
@@ -123,6 +124,11 @@ public class Assets
 		return theAsset;
 	}
 	
+	public static void downloadZip(ParsedURL sourceZip, File targetFile)
+	{
+		downloadZip(sourceZip, targetFile, null);
+	}
+	
 	/**
 	 * Convenience function to allow downloading and uncompressing of a 
 	 * zip file from a source to a target location with minimal effort.
@@ -130,8 +136,10 @@ public class Assets
 	 * @param source The location of the zip file to download and uncompress.
 	 * @param target The location where the zip file should be uncompressed. This
 	 * will be created if it doesn't exist.
+	 * @param status The Status object that provides a source of state change visiblity;
+	 * can be null.
 	 */
-	public static void downloadZip(ParsedURL sourceZip, File targetFile)
+	public static void downloadZip(ParsedURL sourceZip, File targetFile, Status status)
 	{
 		ZipFile zipFile			=   null;
 	   	Enumeration entries		=   null;
@@ -151,7 +159,7 @@ public class Assets
 			}
 			else
 			{
-				ZipDownload zipDownload = new ZipDownload(sourceZip, targetFile);
+				ZipDownload zipDownload = new ZipDownload(sourceZip, targetFile, status);
 				zipDownload.downloadAndWrite(true);
 				//zipFile = new ZipFile(sourceZip.url().toString());
 				return;
