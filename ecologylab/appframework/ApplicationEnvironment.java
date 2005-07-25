@@ -17,24 +17,60 @@ import ecologylab.generic.ParsedURL;
  * 
  * @author Andruid
  */
-public class ApplicationEnvironment implements Environment
+public class ApplicationEnvironment
+extends Debug
+implements Environment
 {
 	public static Properties properties;
+	
+	ParsedURL	codeBase;
+	ParsedURL	docBase;
+
 	
 	public ApplicationEnvironment()
 	{
 	   properties = new Properties();
 	}
 	
-	public ApplicationEnvironment(String filename) {
-		properties = new Properties();
-		loadProperties(filename);
+	/**
+	 * 
+	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 */
+	public ApplicationEnvironment(Class baseClass, String propertiesFileRelativePath) 
+	{
+		// setup codeBase
+		Package basePackage		= baseClass.getPackage();
+		String packageName		= basePackage.getName();
+		int numDirs				= 1;
+		while (true)
+		{
+			int dot=packageName.indexOf('.');
+			if (dot == -1)
+				break;
+			numDirs++;
+			packageName	=	packageName.substring(dot+1);
+		}
+		File path				= new File(System.getProperty("user.dir"));
+		for (int i=0; i<numDirs; i++)
+		{
+			String parent		= path.getParent();
+			path				= new File(parent);
+		}
+		codeBase				= new ParsedURL(path);
+
+
+		String propertyFilePath	= path + "/" + propertiesFileRelativePath;
+		println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
+		loadProperties(path, propertiesFileRelativePath);
 	}
 	
-	public void loadProperties(String filename)
+	public void loadProperties(File path, String filename)
 	{
-		try {
-			properties.load(new FileInputStream(new File(filename)));
+		try 
+		{
+			properties = new Properties();
+
+			properties.load(new FileInputStream(new File(path, filename)));
 			Environment.the.set(this);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -76,12 +112,11 @@ public class ApplicationEnvironment implements Environment
 
 	/**
 	 * @see ecologylab.generic.Environment#codeBase()
-	 * return the current working directory of the application
-	 * which is "c:\web\code\java\cm"
+	 * return the path to root of the
 	 */
-	public ParsedURL codeBase() {
-			ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
-			return purl;
+	public ParsedURL codeBase() 
+	{
+		return codeBase;
 	}
 
 	/**
@@ -98,8 +133,7 @@ public class ApplicationEnvironment implements Environment
 	public void go(URL u, String frame)
 	{
 	}
-	/* Change type from URL to ParsedURL. */
-	ParsedURL docBase, codeBase;
+
 	public int browser()
 	{
 	   return APPLICATION;
