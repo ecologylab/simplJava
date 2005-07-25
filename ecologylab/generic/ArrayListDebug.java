@@ -11,7 +11,13 @@ extends ArrayList
 {
    protected ArrayListDebug()
    {
-      AllocationDebugger.constructed(this);
+	  super();
+//      AllocationDebugger.constructed(this);
+   }
+   protected ArrayListDebug(int initialCapacity)
+   {
+	  super(initialCapacity);
+//      AllocationDebugger.constructed(this);
    }
    public final void debug(String message)
    {
