@@ -339,8 +339,6 @@ extends Debug
    */
    public final URL url()
    {
-	   	if( url == null )
-	   		return null;
 	   	return url;
    }
    
@@ -847,10 +845,11 @@ extends Debug
 
          return buffy.toString();  // dont copy; wont reuse buffy
    }
-   public boolean equals(Object o)
+   public boolean equals(Object other)
    {
-      return (o instanceof ParsedURL) && 
-	 ((ParsedURL) o).url().equals(this.url);
+	  URL url = this.url;
+      return (other instanceof ParsedURL) && // (url != null) &&
+		 url.equals(((ParsedURL) other).url);
    }
    public int hashCode()
    {
