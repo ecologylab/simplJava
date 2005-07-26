@@ -352,32 +352,6 @@ extends Debug
 
    }
    
-   /**
-    * Uses lazy evaluation to minimize storage allocation.
-    * 
-    * @return	the ParsedURL.
-    */
-   public ParsedURL noAnchorParsedURL()
-   {
-      if (url.getRef() == null)
-      	return this;
-      // else
-      return new ParsedURL(StringTools.urlNoAnchor(url));
-   }
-   
-   /**
-    * Uses lazy evaluation to minimize storage allocation.
-    * 
-    * @return	the no anchor URL.
-    */
-   public URL noAnchorURL()
-   {
-    if (url.getRef() == null)
-   	 return this.url();
-         // else
-    return StringTools.urlNoAnchor(url);   	
-   }
-   
    /*
     * return noAnchor no query page string 
     */
