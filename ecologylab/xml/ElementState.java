@@ -52,6 +52,7 @@ public class ElementState extends IO
 	 */
 	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	
+	static protected final int		ESTIMATE_CHARS_PER_FIELD	= 80;
 	/**
 	 * whether the generated XML should be in compressed form or not
 	 */
@@ -281,17 +282,9 @@ public class ElementState extends IO
 		throws XmlTranslationException
 	{
 		compressed = compression;
-		String result	= "";
-		result += tagMapEntry.startOpenTag;
-		
-		//emit compresseion = true only for the top node, so this dirty hack
-		//so if the nodeNumber is 1 (top node) then emit the compression attribute
-		if (compression && (nodeNumber == TOP_LEVEL_NODE))
-		{
-			String compressionAttr = " " + "compression" + " = " + "\"" + compression + "\"" + " ";
-			result += compressionAttr;
-		}
 		nodeNumber++;
+		
+		StringBuffer	buffy			= null;
 		
 		try
 		{
@@ -301,7 +294,21 @@ public class ElementState extends IO
 			boolean	processingNestedElements= false;
 			
 			String className			= getClass().getName();
-			for (int i=0; i<fields.length; i++)
+			int	numFields				= fields.length;
+			
+			buffy		= new StringBuffer(numFields * ESTIMATE_CHARS_PER_FIELD);
+			
+			buffy.append(tagMapEntry.startOpenTag);
+			
+			//emit compresseion = true only for the top node, so this dirty hack
+			//so if the nodeNumber is 1 (top node) then emit the compression attribute
+			if (compression && (nodeNumber == TOP_LEVEL_NODE))
+			{
+				String compressionAttr = " " + "compression" + " = " + "\"" + compression + "\"" + " ";
+				buffy.append(compressionAttr);
+			}
+
+			for (int i=0; i<numFields; i++)
 			{
 				// iterate through fields
 				Field thatField			= fields[i];
@@ -331,13 +338,13 @@ public class ElementState extends IO
 					// parent class fields should not be emitted,
 					// coz thats confusing
 					if (fieldIsFromDeclaringClass || emitParentFields)
-						result	+= XmlTools.generateNameVal(thatField, this);
+						buffy.append(XmlTools.generateNameVal(thatField, this));
 				}
 				else if (doRecursiveDescent)	// recursive descent
 				{	
 					if (!processingNestedElements)
 					{	// found *first* recursive element
-						result	+= ">";	// close element tag behind attributes
+						buffy.append('>');	// close element tag behind attributes
 						processingNestedElements	= true;
 					}
 					Object thatReferenceObject = null;
@@ -372,7 +379,7 @@ public class ElementState extends IO
 										"objects of class derived from ElementState but " +
 										thatReferenceObject +" contains some that aren't.");
 							}
-							result += element.translateToXML(compression, true, nodeNumber);		
+							buffy.append(element.translateToXML(compression, true, nodeNumber));		
 						}
 					}
 					else if (thatReferenceObject instanceof ElementState)
@@ -386,15 +393,15 @@ public class ElementState extends IO
 						Class thatClass			= thatElementState.getClass();
 //						debug("checking: " + thatReferenceObject+" w " + thatClass+", " + thatField.getType());
 						if (thatClass == thatField.getType())
-						   result += 
+							buffy.append( 
 							  thatElementState.translateToXML(compression, true, nodeNumber,
-									  getTagMapEntry(fieldName, compression));
+									  getTagMapEntry(fieldName, compression)));
 						else
 						{
 //						   debug("derived class -- using class name for " + thatClass);
-						   result +=
+							buffy.append(
 							  thatElementState.translateToXML(compression, true, nodeNumber,
-									  getTagMapEntry(thatClass, compression));
+									  getTagMapEntry(thatClass, compression)));
 						}
 					}
 				} //end of doRecursiveDescent
@@ -402,29 +409,27 @@ public class ElementState extends IO
 			
 			// end the element (or, at least, our contribution to it)
 			if (!doRecursiveDescent)
-				result += ">"; // dont close it
+				buffy.append('>'); // dont close it
 			else if (processingNestedElements)
 			{
 				//TODO emit text node
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{
-					result += textNode;
+					buffy.append(textNode);
 				}
-				result	+= tagMapEntry.closeTag;
+				buffy.append(tagMapEntry.closeTag);
 			}
 			else
 			{
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{	
-					result += ">";
-					result += textNode;
-					result	+= tagMapEntry.closeTag;
+					buffy.append('>').append(textNode).append(tagMapEntry.closeTag);
 				}
 				else
 				{
-					result	+= "/>";	// simple element w attrs but no embedded elements and no text node
+					buffy.append("/>");	// simple element w attrs but no embedded elements and no text node
 				}
 			}
 				
@@ -432,7 +437,7 @@ public class ElementState extends IO
 		{
 			e.printStackTrace();
 		}
-		return result;
+		return (buffy == null) ? "" : buffy.toString();
 	}
 	
 	/**
