@@ -41,25 +41,22 @@ implements Environment
 		// setup codeBase
 		Package basePackage		= baseClass.getPackage();
 		String packageName		= basePackage.getName();
-		int numDirs				= 1;
-		while (true)
-		{
-			int dot=packageName.indexOf('.');
-			if (dot == -1)
-				break;
-			numDirs++;
-			packageName	=	packageName.substring(dot+1);
-		}
+		String packageNameAsPath= packageName.replace('.', Files.sep);
+
 		File path				= new File(System.getProperty("user.dir"));
-		for (int i=0; i<numDirs; i++)
+		String pathString		= path.getAbsolutePath();
+		
+		println("looking for " + packageNameAsPath +" in " + pathString);
+
+		int packageIndex		= pathString.lastIndexOf(packageNameAsPath);
+		if (packageIndex != -1)
 		{
-			String parent		= path.getParent();
-			path				= new File(parent);
+			pathString			= pathString.substring(0, packageIndex);
+			path				= new File(pathString);
 		}
+
 		codeBase				= new ParsedURL(path);
 
-
-		String propertyFilePath	= path + "/" + propertiesFileRelativePath;
 		println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
 		loadProperties(path, propertiesFileRelativePath);
 	}
