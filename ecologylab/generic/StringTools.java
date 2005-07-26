@@ -231,20 +231,20 @@ extends Debug
       URL result = null;
       
       if(source==null)
-      return result;
+    	  return result;
       
       if (source.getRef() == null)
-      	return source;
+    	  return source;
       		
       try
       {
-	 result= new URL(source.getProtocol(), source.getHost(),
-			 source.getPort(), source.getFile());
+		 result= new URL(source.getProtocol(), source.getHost(),
+				 source.getPort(), source.getFile());
       } catch (MalformedURLException e)
       {
-	 e.printStackTrace();
-	 throw new RuntimeException("Cant form noHashUrl from " +
-				    source.toString());
+		 e.printStackTrace();
+		 throw new RuntimeException("Cant form noHashUrl from " +
+					    source.toString());
       }
       return result;
    }
