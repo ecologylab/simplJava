@@ -31,7 +31,7 @@ public class ZipDownload
 implements Downloadable, DispatchTarget
 {
 	
-	static DownloadMonitor downloadMonitor = new DownloadMonitor();
+	static DownloadMonitor downloadMonitor = new DownloadMonitor("Zip DownloadMonitor", 0);
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
