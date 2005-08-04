@@ -38,7 +38,6 @@ implements Runnable
    int			dispatched;
    int			pending;
    
-   boolean		getUrgent;
    boolean		paused;
 
    //////////////////// queues for media that gets downloaded /////////////////
@@ -72,29 +71,15 @@ implements Runnable
    
    FloatWeightSet		sourceSet;
 
-   public DownloadMonitor()
-   {
-      this(1);
-   }
-   public DownloadMonitor(int numDownloadThreads)
-   {
-      this("", numDownloadThreads, false);
-   }
    public DownloadMonitor(String name, int numDownloadThreads)
    {
-      this (name, numDownloadThreads, false);
+      this(name, numDownloadThreads, 0);
    }
    public DownloadMonitor(String name, int numDownloadThreads, 
-			  boolean getUrgent)
-   {
-      this(name, numDownloadThreads, 0, getUrgent);
-   }
-   public DownloadMonitor(String name, int numDownloadThreads, 
-			  int priorityBoost, boolean getUrgent)
+			  int priorityBoost)
    {
       this.numDownloadThreads	= numDownloadThreads;
       this.name			= name;
-      this.getUrgent		= getUrgent;
       
       highThreshold		= numDownloadThreads * 2;
       midThreshold		= numDownloadThreads + 1;

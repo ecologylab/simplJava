@@ -13,14 +13,9 @@ DownloadMonitor
    static HashMap	stemmersHash	= new HashMap();
    
    public TextDownloadMonitor(String name, int numDownloadThreads, 
-			  boolean getUrgent)
+			  int priorityBoost)
    {
-      super(name, numDownloadThreads, getUrgent);
-   }
-   public TextDownloadMonitor(String name, int numDownloadThreads, 
-			  int priorityBoost, boolean getUrgent)
-   {
-      super(name, numDownloadThreads, priorityBoost, getUrgent);
+      super(name, numDownloadThreads, priorityBoost);
    }
    protected Thread makeDownloadThread(int i, String s)
    {
