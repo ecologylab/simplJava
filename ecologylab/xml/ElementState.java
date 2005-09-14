@@ -462,14 +462,43 @@ public class ElementState extends IO
 	 */
 
 	public static ElementState translateFromXML(URL xmlDocumentURL)
-		throws XmlTranslationException
-	{
-		Document document	= buildDOM(xmlDocumentURL);
-		ElementState result	= null;
-		if (document != null)
-			result			= translateFromXML(document);
-		return result;
-	}
+	throws XmlTranslationException
+{
+	Document document	= buildDOM(xmlDocumentURL);
+	ElementState result	= null;
+	if (document != null)
+		result			= translateFromXML(document);
+	return result;
+}
+	/**
+	 * Given the URL of a valid XML document,
+	 * reads the document and builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlFile		the path to the XML document that needs to be translated.
+	 * @return 					the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXML(File xmlFile)
+	throws XmlTranslationException
+{
+	Document document	= buildDOM(xmlFile);
+	ElementState result	= null;
+	if (document != null)
+		result			= translateFromXML(document);
+	return result;
+}
 	/**
 	 * Given the name of a valid XML file,
 	 * reads the file and builds a tree of equivalent ElementState objects.
