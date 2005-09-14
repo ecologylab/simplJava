@@ -228,15 +228,18 @@ extends Debug
 	   File result		= USER_DIR;
 	   if (result == null)
 	   {
-		  if ((PropertiesAndDirectories.os() == WINDOWS) && 
-			  System.getProperty("http.agent").startsWith("Mozilla"))
+	   	  String httpAgent	= System.getProperty("http.agent");
+	   	  if (httpAgent == null)
+	   	  	result	= Files.newFile(sysProperty("user.home"));
+		  else if ((PropertiesAndDirectories.os() == WINDOWS) && 
+			  (httpAgent.startsWith("Mozilla")))
 		  {
 			 File appDataDir	= applicationDataDir();
 			 result	= Files.newFile(appDataDir.getParent(), "My Documents");
 		  }
 		  else
 			 result	= Files.newFile(sysProperty("user.dir"));
-		  
+
 		  if (result == null)
 			  result = Files.newFile(sysProperty("user.home"));
 
