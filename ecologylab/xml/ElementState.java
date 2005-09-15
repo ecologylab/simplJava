@@ -1,17 +1,37 @@
 package ecologylab.xml;
 
-import java.lang.reflect.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Vector;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
-import ecologylab.types.*;
+import ecologylab.types.Type;
+import ecologylab.types.TypeRegistry;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code>
@@ -462,14 +482,14 @@ public class ElementState extends IO
 	 */
 
 	public static ElementState translateFromXML(URL xmlDocumentURL)
-	throws XmlTranslationException
-{
-	Document document	= buildDOM(xmlDocumentURL);
-	ElementState result	= null;
-	if (document != null)
-		result			= translateFromXML(document);
-	return result;
-}
+		throws XmlTranslationException
+	{
+		Document document	= buildDOM(xmlDocumentURL);
+		ElementState result	= null;
+		if (document != null)
+			result			= translateFromXML(document);
+		return result;
+	}
 	/**
 	 * Given the URL of a valid XML document,
 	 * reads the document and builds a tree of equivalent ElementState objects.
