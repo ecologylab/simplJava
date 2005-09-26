@@ -1,6 +1,5 @@
 package ecologylab.generic;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,7 +10,7 @@ import org.w3c.dom.NodeList;
 /**
  * A simple name/value pair.
  */
-public class Attribute implements Attr
+public class Attribute
 {
    public String name;
    public String value;
