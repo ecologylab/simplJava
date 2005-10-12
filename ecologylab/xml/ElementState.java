@@ -645,12 +645,19 @@ public class ElementState extends IO
 		   	  	 return rootState;
 		   	  }
 		   }
-		   // else, we dont translate this field; we ignore it.
+		   else
+		   {
+			   // else, we dont translate this field; we ignore it.
+			   println("XML Translation WARNING: Cant find class object for XML element <"
+					   + tagName + ">: Ignored. ");
+		   }
 		}
 		catch (Exception e)
 		{
-		   println("XML Translation WARNING: Cant find class object for " + tagName
-			   + ": Ignored. " + e.getMessage());
+		   StackTraceElement stackTrace[] = e.getStackTrace();
+		   println("XML Translation WARNING: Exception while trying to translate XML element <" 
+				   + tagName+ "> class="+stateClass + ". Ignored.\nThe exception was " 
+				   + e.getMessage() + " from " +stackTrace[0]);
 		   //e.printStackTrace();
 //		   throw new XmlTranslationException("All ElementState subclasses"
 //							       + "MUST contain an empty constructor, but "+
@@ -679,9 +686,9 @@ public class ElementState extends IO
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException("All ElementState subclasses "
-							       + "MUST contain an empty constructor, but "+
-								   stateClass+" doesn't seem to. Exception message: " + e.getMessage());
+		   if (e instanceof NullPointerException)
+			   println(e.toString());
+		   throw new XmlTranslationException("Instantiation ERROR:", e);
 		}
 		return elementState;
 	}
@@ -1408,7 +1415,7 @@ public class ElementState extends IO
 		{
 		   throw new XmlTranslationException(
 					"Object / Field set mismatch -- unexpected. This should never happen.\n"+
-					field +" , " + this);
+					field +" , " + this, e);
 		}
 	}
 	
