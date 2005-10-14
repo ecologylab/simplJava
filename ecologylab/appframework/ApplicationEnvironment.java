@@ -67,7 +67,9 @@ implements Environment
 		{
 			properties = new Properties();
 
-			properties.load(new FileInputStream(new File(path, filename)));
+			File file = new File(path, filename);
+			println("Property file located at:"+file);
+			properties.load(new FileInputStream(file));
 			Environment.the.set(this);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
