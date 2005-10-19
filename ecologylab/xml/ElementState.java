@@ -125,6 +125,8 @@ public class ElementState extends IO
 	 */
 	HashMap				elementByIdMap;
 	
+	NameSpace			nameSpace		= globalNameSpace;
+	
 	public ElementState()
 	{
 	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
@@ -1495,5 +1497,10 @@ public class ElementState extends IO
 	public ElementState getElementStateById(String id)
 	{
 		return (ElementState) this.elementByIdMap.get(id);
+	}
+	
+	public void setNameSpace(NameSpace nameSpace)
+	{
+		this.nameSpace	= nameSpace;
 	}
 }
