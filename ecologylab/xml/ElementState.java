@@ -1270,7 +1270,7 @@ public class ElementState extends IO
 			 {
 				String tagName	= XmlTools.getXmlTagName(fieldName, "State", compression);
 				result	= new TagMapEntry(tagName);
-				debug(tagName.toString());
+//				debug(tagName.toString());
 				fieldNameOrClassToTagMap.put(fieldName, result);
 			 }
 		  }
