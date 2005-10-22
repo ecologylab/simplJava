@@ -870,4 +870,24 @@ extends Debug
     {
     	return file;
     }
+    
+    /**
+     * Form a new ParsedURL from this, and the args passed in. 
+     * A question mark is appended to the String form of this, and then args are appended.
+     * 
+     * @param args
+     * @return
+     */
+    public ParsedURL withArgs(String args)
+    {
+    	try 
+    	{
+			URL url		= new URL(toString() + "?" + args);
+			return new ParsedURL(url);
+		} catch (MalformedURLException e)
+		{
+	    	return null;
+		}
+
+    }
 }
