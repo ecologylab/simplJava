@@ -30,8 +30,8 @@ public class Generic
       String value	= parameter(name);
       boolean result	= value != null;
       if (result)
-	 result		=  value.equalsIgnoreCase("true") ||
-	    value.equalsIgnoreCase("yes") || (value.equals("1"));
+		 result		=  value.equalsIgnoreCase("true") ||
+			value.equalsIgnoreCase("yes") || (value.equals("1"));
       return result;
    }
    public static boolean parameterBool(String name, boolean defaultValue)
@@ -39,10 +39,10 @@ public class Generic
       String param	= parameter(name);
       boolean result;
       if (param != null)
-	 result		=  param.equalsIgnoreCase("true") ||
-	    param.equalsIgnoreCase("yes") || (param.equals("1"));
+		 result		=  param.equalsIgnoreCase("true") ||
+			param.equalsIgnoreCase("yes") || (param.equals("1"));
       else
-	 result		= defaultValue;
+		 result		= defaultValue;
       return result;
    }
 /**
@@ -65,13 +65,13 @@ public class Generic
       String paramValue	= parameter(paramName);
       int result	= defaultValue;
       if (paramValue != null)
-	 try
-	 {
-	    result	= Integer.parseInt(paramValue);
-	 } catch (NumberFormatException e)
-	 {
-	    Debug.println("bad number format: "+paramName+"="+paramValue);
-	 }
+		 try
+		 {
+			result	= Integer.parseInt(paramValue);
+		 } catch (NumberFormatException e)
+		 {
+			Debug.println("bad number format: "+paramName+"="+paramValue);
+		 }
       return result;
    }
 /**
@@ -87,9 +87,9 @@ public class Generic
       float result	= defaultValue;
       if (paramValue != null)
       {
-	 float parsedValue	= Generic.parseFloat(paramValue);
-	 if (!Float.isNaN(parsedValue))
-	    result	= parsedValue;
+		 float parsedValue	= Generic.parseFloat(paramValue);
+		 if (!Float.isNaN(parsedValue))
+			result	= parsedValue;
       }
       return result;
    }
@@ -120,11 +120,11 @@ public class Generic
       float result;
       try
       {
-	 Double fObj	= Double.valueOf(floatString);
-	 result		= fObj.floatValue();
+		 Double fObj	= Double.valueOf(floatString);
+		 result		= fObj.floatValue();
       } catch (NumberFormatException e)
       {
-	 result		= Float.NaN;
+		 result		= Float.NaN;
       }
       return result;
    }
@@ -137,15 +137,15 @@ public class Generic
    {
       try
       {
-	 Thread.sleep(time);
+		 Thread.sleep(time);
       }
       catch (InterruptedException e)
       {
-	 Debug.println("Sleep was interrupted -- clearing if possible.\n" + e);
-	 e.printStackTrace();
-	 // in jdk 1.1x clears the interrupt
-	 // !!! (undocumented) !!! (see Thread src)
-	 Thread.interrupted();	
+		 Debug.println("Sleep was interrupted -- clearing if possible.\n" + e);
+		 e.printStackTrace();
+		 // in jdk 1.1x clears the interrupt
+		 // !!! (undocumented) !!! (see Thread src)
+		 Thread.interrupted();	
       }
    }
 
@@ -167,9 +167,9 @@ public class Generic
    {
       String photoPathParam	= parameter("photo_path");
       if (photoPathParam == null)
-	 throw new RuntimeException("Generic configuration ERROR! Startup parameter photo_path is not defined.");
+		 throw new RuntimeException("Generic configuration ERROR! Startup parameter photo_path is not defined.");
       String sep = photoPathParam.endsWith(SEP) || relativePath.startsWith(SEP)
-	 ? "" : SEP;
+		 ? "" : SEP;
       return systemPath(photoPathParam + sep + relativePath);
    }
 
@@ -238,18 +238,18 @@ public class Generic
    {
       for (int i=0; i<strings.length; i++)
       {
-	 String thatString	= strings[i];
-	 map.put(thatString, thatString);
+		 String thatString	= strings[i];
+		 map.put(thatString, thatString);
       }
    }
    public static final void buildMap(Map map, String[][] entries)
    {
       for (int i=0; i<entries.length; i++)
       {
-	 String[] thatEntry	= entries[i];
-	 String thatKey		= thatEntry[0];
-	 String thatValue	= thatEntry[1];
-	 map.put(thatKey, thatValue);
+		 String[] thatEntry	= entries[i];
+		 String thatKey		= thatEntry[0];
+		 String thatValue	= thatEntry[1];
+		 map.put(thatKey, thatValue);
       }
    }
    
@@ -266,13 +266,11 @@ public class Generic
    {
       for (int i=0; i<strings.length; i++)
       {
-	 String thatString	= strings[i];
-	 Integer integer = new Integer(i);
-	 map.put(thatString, integer);
+		 String thatString	= strings[i];
+		 Integer integer = new Integer(i);
+		 map.put(thatString, integer);
       }
    }
-   
-   
    
    public static final void stringIntMapEntry(Map map,
 					      String string, int integer)
@@ -283,26 +281,26 @@ public class Generic
    public static String round(float f, int powerOfTen)
    {
       if (Float.isNaN(f))
-	 return "NaN";
+		 return "NaN";
       int i = (int) f;
       if ((f - i) == 0)
       {
-	 return Integer.toString(i);
+		 return Integer.toString(i);
       }
       String input = Float.toString(f);
-//    Debug.println("input="+input+" powerOfTen="+powerOfTen);
+	  //    Debug.println("input="+input+" powerOfTen="+powerOfTen);
       int end = input.length();
       int dot = input.indexOf('.');
       int exp = input.indexOf('E');
       int endFigs = (exp <= 0) ? end : exp;
       int figs = endFigs - dot;
-//    Debug.println("dot="+dot+" exp="+exp+" figs="+figs+" endFigs="+endFigs);
+	  //    Debug.println("dot="+dot+" exp="+exp+" figs="+figs+" endFigs="+endFigs);
       String result = input;
       if (figs > powerOfTen)
       {
-	 result = input.substring(0, dot+powerOfTen+1);
-	 if (exp > 0)
-	    result += input.substring(exp);
+		 result = input.substring(0, dot+powerOfTen+1);
+		 if (exp > 0)
+			result += input.substring(exp);
       }
       return result ;
    }
@@ -322,32 +320,32 @@ public class Generic
 
       try
       {
-	 InetAddress server = InetAddress.getByName(remote.getHost());
-      
-//	 println("getByName() = " + server);
-	 
-	 Socket socket	= new Socket(server, 80);
+		 InetAddress server = InetAddress.getByName(remote.getHost());
+		 
+		 //	 println("getByName() = " + server);
+		 
+		 Socket socket	= new Socket(server, 80);
 
-	 try
-	 {
-	    InetAddress localHost	= socket.getLocalAddress();
-	    result		= localHost.getHostAddress();
-	 } catch (Exception e)
-	 {
-	    // no such method in JDK 1.0x: getLocalAddress()
-	    if (!(e instanceof NoSuchMethodException))
-	       Debug.println("UserStudy.getLocalIp() unknown error: " +
-				  e);
-	    result		= "unknown";
-	 }
-//	 println("localHost=" + result);
-	 socket.close();
+		 try
+		 {
+			InetAddress localHost	= socket.getLocalAddress();
+			result		= localHost.getHostAddress();
+		 } catch (Exception e)
+		 {
+			// no such method in JDK 1.0x: getLocalAddress()
+			if (!(e instanceof NoSuchMethodException))
+			   Debug.println("UserStudy.getLocalIp() unknown error: " +
+							 e);
+			result		= "unknown";
+		 }
+		 //	 println("localHost=" + result);
+		 socket.close();
       } catch (UnknownHostException e)
       {
-	 Debug.println("getByName() failed.\n" + e);
+		 Debug.println("getByName() failed.\n" + e);
       } catch (IOException e)
       {
-	 Debug.println("new Socket() failed.\n" + e);
+		 Debug.println("new Socket() failed.\n" + e);
       }
       return result;
    }
@@ -363,10 +361,10 @@ public class Generic
       int oldPriority	= t.getPriority();
       if (oldPriority < priority)
       {
-	 raiseMaxPriority(t, priority);
-	 t.setPriority(priority);
-	 Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
-		       t.getPriority());
+		 raiseMaxPriority(t, priority);
+		 t.setPriority(priority);
+		 Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
+					   t.getPriority());
       }
    }
    public static void raiseMaxPriority(int priority)
@@ -382,14 +380,14 @@ public class Generic
       int oldMaxPriority	= threadGroup.getMaxPriority();
       if (oldMaxPriority < priority)
       {
-	 ThreadGroup parent	= threadGroup.getParent();
-	 if (parent != null)
-	    raiseMaxPriority(parent, priority); // recurse
-      
-	 threadGroup.setMaxPriority(priority);
-	 Debug.println("\nraisingMaxPriority to " + priority+"->"+
-		       threadGroup.getMaxPriority()+    
-		       " "+threadGroup+ " "+parent);
+		 ThreadGroup parent	= threadGroup.getParent();
+		 if (parent != null)
+			raiseMaxPriority(parent, priority); // recurse
+		 
+		 threadGroup.setMaxPriority(priority);
+		 Debug.println("\nraisingMaxPriority to " + priority+"->"+
+					   threadGroup.getMaxPriority()+    
+					   " "+threadGroup+ " "+parent);
       }
    }
    public static ThreadGroup findThreadGroup(int priority)
@@ -407,24 +405,24 @@ public class Generic
       int maxPriority	= threadGroup.getMaxPriority();
       if (maxPriority < priority)
       {
-	 ThreadGroup parent	= null;
-	 try
-	 {
-	    parent = threadGroup.getParent();
-	 } catch (java.security.AccessControlException e)
-	 {  // (damn macintosh!)
-	    Debug.println("ERROR manipulating thread groups!");
-	    e.printStackTrace();
-	 }
-	 if (parent != null)
-	    return findThreadGroup(parent, priority); // recurse
-	 else
-	    return null;
+		 ThreadGroup parent	= null;
+		 try
+		 {
+			parent = threadGroup.getParent();
+		 } catch (java.security.AccessControlException e)
+		 {  // (damn macintosh!)
+			Debug.println("ERROR manipulating thread groups!");
+			e.printStackTrace();
+		 }
+		 if (parent != null)
+			return findThreadGroup(parent, priority); // recurse
+		 else
+			return null;
       }
       else
       {
-	 Debug.println("found " + threadGroup+"  w maxPriority="+maxPriority);
-	 return threadGroup;
+		 Debug.println("found " + threadGroup+"  w maxPriority="+maxPriority);
+		 return threadGroup;
       }
    }
 /**
@@ -454,14 +452,14 @@ public class Generic
       Debug.println(round(22, 3));
    }
    static final float	LN_EMPTY_WEIGHT	= Float.MAX_VALUE / 1000;
-   public static void go(URL u)
+   public static void go(ParsedURL purl)
    {
-      Environment.the.get().go(u, Environment.the.frame());
+      Environment.the.get().go(purl, Environment.the.frame());
    }
    
    public static void beep()
    {
-   		Toolkit.getDefaultToolkit().beep();
+	  Toolkit.getDefaultToolkit().beep();
    }
 
 /**
@@ -520,4 +518,13 @@ public class Generic
 			return null;
 		}
 	}
+    /**
+     * Called at the end of an invocation. Calls System.exit(code).
+     * 
+     * @param	code -- 0 for normal. other values are application specific.
+     */
+    public static void exit(int code)
+    {
+	   Environment.the.get().exit(code);   	
+    }
 }

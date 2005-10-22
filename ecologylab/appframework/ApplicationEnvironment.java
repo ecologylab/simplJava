@@ -129,12 +129,39 @@ implements Environment
 	}
 	
 
-	public void go(URL u, String frame)
+	public void go(ParsedURL purl, String frame)
 	{
+		int os		= PropertiesAndDirectories.os();
+		String cmd	= "";
+		switch (os)
+		{
+		case PropertiesAndDirectories.WINDOWS:
+			cmd	= "C:\\Program Files\\Mozilla Firefox\\firefox " + purl;
+			try {
+					Process p = Runtime.getRuntime().exec(cmd);
+				} catch (IOException e)
+				{
+					println("problems in go(); caught exception: ");
+					e.printStackTrace();
+				}
+			break;
+		default:
+			println("go(ParsedURL) not supported for os " + os);
+			break;				
+		}
 	}
 
 	public int browser()
 	{
 	   return APPLICATION;
 	}
+    /**
+     * Called at the end of an invocation. Calls System.exit(code).
+     * 
+     * @param	code -- 0 for normal. other values are application specific.
+     */
+    public void exit(int code)
+    {
+    	System.exit(code);
+    }
 }

@@ -51,7 +51,7 @@ public interface Environment
    {
       Environment environment;
 
-      float		javaVersion	= 1.1f;	// minimum expected
+      float			javaVersion	= 1.1f;	// minimum expected
       boolean		javaIsBeta;
       
       boolean		hasXML;
@@ -71,55 +71,55 @@ public interface Environment
       
       public The()
       {
-	 String sysJavaVersion	= System.getProperty("java.version");
-	 String floatableJavaVersion = StringTools.remove(sysJavaVersion,'_');
+		 String sysJavaVersion	= System.getProperty("java.version");
+		 String floatableJavaVersion = StringTools.remove(sysJavaVersion,'_');
 
-	 int firstDot		= floatableJavaVersion.indexOf('.');
-	 int lastDot		= floatableJavaVersion.lastIndexOf('.');
-	 if (firstDot != lastDot)
-	 {
-	    String toFirstDot	= floatableJavaVersion.substring(0,firstDot+1);
-	    String afterFirstDot= floatableJavaVersion.substring(firstDot+1);
-	    afterFirstDot	= StringTools.remove(afterFirstDot,'.');
-	    floatableJavaVersion= toFirstDot + afterFirstDot;
-	 }
-	 int dashBeta		= floatableJavaVersion.indexOf("-beta");
-	 
-	 if (dashBeta != -1)
-	 {
-	    floatableJavaVersion= floatableJavaVersion.substring(0,dashBeta);
-	    javaIsBeta		= true;
-	 }
-	 try
-	 {
-	    javaVersion		= Float.parseFloat(floatableJavaVersion);
-	 }
-	 catch (NumberFormatException e)
-	 {
-	    debug("PROBLEM parsing javaVersion = " + floatableJavaVersion);
-	    e.printStackTrace();
-	 }
-	 debug("javaVersion="+ sysJavaVersion+" -> "+ javaVersion);
-	 
-	 if (javaVersion >= 1.4f)
-	    hasXML		= true;
-	 else
-	    hasXML		= checkFor("org.w3c.dom.Node");
+		 int firstDot		= floatableJavaVersion.indexOf('.');
+		 int lastDot		= floatableJavaVersion.lastIndexOf('.');
+		 if (firstDot != lastDot)
+		 {
+			String toFirstDot	= floatableJavaVersion.substring(0,firstDot+1);
+			String afterFirstDot= floatableJavaVersion.substring(firstDot+1);
+			afterFirstDot	= StringTools.remove(afterFirstDot,'.');
+			floatableJavaVersion= toFirstDot + afterFirstDot;
+		 }
+		 int dashBeta		= floatableJavaVersion.indexOf("-beta");
+		 
+		 if (dashBeta != -1)
+		 {
+			floatableJavaVersion= floatableJavaVersion.substring(0,dashBeta);
+			javaIsBeta		= true;
+		 }
+		 try
+		 {
+			javaVersion		= Float.parseFloat(floatableJavaVersion);
+		 }
+		 catch (NumberFormatException e)
+		 {
+			debug("PROBLEM parsing javaVersion = " + floatableJavaVersion);
+			e.printStackTrace();
+		 }
+		 debug("javaVersion="+ sysJavaVersion+" -> "+ javaVersion);
+		 
+		 if (javaVersion >= 1.4f)
+			hasXML		= true;
+		 else
+			hasXML		= checkFor("org.w3c.dom.Node");
 
-	 debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
+		 debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
       }
       public The(Environment e)
       {
-	 set(e);
+		 set(e);
       }
       public void set(Environment e)
       {
-	 environment	= e;
-	 frame		= e.parameter("frame");
+		 environment	= e;
+		 frame			= e.parameter("frame");
       }
       public Environment get()
       {
-	 return environment;
+		 return environment;
       }
 /**
  * @return	The version of Java we're using (but not the specific release),
@@ -127,68 +127,68 @@ public interface Environment
  */
       public float javaVersion()
       {
-	 return javaVersion;
+		 return javaVersion;
       }
       public boolean javaIsBeta()
       {
-	 return javaIsBeta;
+		 return javaIsBeta;
       }
       public boolean hasQuicktime()
       {
-	 if (!checkedForQuicktime)
-	    hasQuicktime	= checkFor("quicktime.std.movies.Movie");
-	 return hasQuicktime;
+		 if (!checkedForQuicktime)
+			hasQuicktime	= checkFor("quicktime.std.movies.Movie");
+		 return hasQuicktime;
       }
       public boolean hasAgile2D()
       {
-	 if (!checkedForAgile2D)
-	    hasAgile2D	= checkFor("agile2D.AgileJFrame");
-	 return hasAgile2D;
+		 if (!checkedForAgile2D)
+			hasAgile2D	= checkFor("agile2D.AgileJFrame");
+		 return hasAgile2D;
       }
       public boolean hasMultivalent()
       {
-	 if (!checkedForMultivalent)
-	    hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
-	 debug("hasMultivalent() = "+hasMultivalent);
-	 return hasMultivalent;
+		 if (!checkedForMultivalent)
+			hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
+		 debug("hasMultivalent() = "+hasMultivalent);
+		 return hasMultivalent;
       }
       public boolean hasGL()
       {
-	 if (!checkedForGL)
-	    hasGL	= checkFor("gl4java.awt.GLCanvas");
-	 return hasGL;
+		 if (!checkedForGL)
+			hasGL	= checkFor("gl4java.awt.GLCanvas");
+		 return hasGL;
       }
       public boolean hasXML()
       {
-	 return hasXML;
+		 return hasXML;
       }
       public boolean hasServlet()
       {
-	 if (!checkedForServlet)
-	    hasServlet	= checkFor("javax.servlet.http.HttpServlet");
-	 return hasServlet;
+		 if (!checkedForServlet)
+			hasServlet	= checkFor("javax.servlet.http.HttpServlet");
+		 return hasServlet;
       }
       public static boolean checkFor(String className)
       {
-	 boolean result	= false;
-	 try
-	 {
-	    Class.forName(className);
-	    result	= true;
-	 } catch (ClassNotFoundException e)
-	 {
-	    println("Environment.checkFor("+className+") caught exception "+e);
-//	    e.printStackTrace();
-	 } catch (Error e)
-	 {
-	    println("Environment.checkFor("+className+") caught error");
-	    e.printStackTrace();
-	 }
-	 return result;
+		 boolean result	= false;
+		 try
+		 {
+			Class.forName(className);
+			result	= true;
+		 } catch (ClassNotFoundException e)
+		 {
+			println("Environment.checkFor("+className+") caught exception "+e);
+			//	    e.printStackTrace();
+		 } catch (Error e)
+		 {
+			println("Environment.checkFor("+className+") caught error");
+			e.printStackTrace();
+		 }
+		 return result;
       }
       public String frame()
       {
-	 return frame;
+		 return frame;
       }
 
    };
@@ -232,6 +232,13 @@ public interface Environment
  * Change type from URL to ParsedURL.
  */
     ParsedURL docBase();
+    
+    /**
+     * Called at the end of an invocation.
+     *
+     * @param	code -- 0 for normal. other values are application specific.
+     */
+    void exit(int code);
 
 /**
  * @return an URL relative to html document
@@ -243,5 +250,5 @@ public interface Environment
    public static final int	NS		= 1;
    public static final int	PLUGIN		= 2;
 
-   public void go(URL u, String frame);
+   public void go(ParsedURL purl, String frame);
 }
