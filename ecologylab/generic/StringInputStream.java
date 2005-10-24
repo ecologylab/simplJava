@@ -66,58 +66,62 @@ extends InputStream
      * @return     the next byte of data, or <code>-1</code> if the end of the
      *             stream is reached.
      */
-    public synchronized int read() {
+    public synchronized int read() 
+	{
 //      Debug.println("StringInputStream.read(");
-	return (pos < count) ? (int)buffer.charAt(pos++) : -1;
+	   return (pos < count) ? (int)buffer.charAt(pos++) : -1;
 //	return (pos < count) ? ((int)(buffer.charAt(pos++)) & 0xFFFF) : -1;
     }
 
    public synchronized int read(byte buf[], int off, int len)
    {
-//      Debug.println("StringInputStream.read(" + len);
+	  //      Debug.println("StringInputStream.read(" + len);
       if (buf == null)
       {
-	 throw new NullPointerException();
+		 throw new NullPointerException();
       } else if ((off < 0) || (off > buf.length) || (len < 0) ||
-		 ((off + len) > buf.length) || ((off + len) < 0)) {
-	 throw new IndexOutOfBoundsException();
+				 ((off + len) > buf.length) || ((off + len) < 0)) {
+		 throw new IndexOutOfBoundsException();
       }
-      if (pos >= count) {
-	 return -1;
+      if (pos >= count) 
+	  {
+		 return -1;
       }
-      if (pos + len > count) {
-	 len = count - pos;
+      if (pos + len > count) 
+	  {
+		 len = count - pos;
       }
-      if (len <= 0) {
-	 return 0;
+      if (len <= 0) 
+	  {
+		 return 0;
       }
       String	s = buffer;
       int cnt = len;
       while (--cnt >= 0)
       {
-	 char thisChar = s.charAt(pos++);
-	 // little endian reverses the byte order
-	 byte b1	  = (byte) (thisChar & 0xff);
-	 byte b2	  = (byte) (thisChar >> 8);
-	 switch (outputFormat)
-	 {
-	 case UTF8:
-	    buf[off++] = b1;
-	    b2	       = 0;
-	    break;
-	 case UTF16_LE:
-	    buf[off++] = b1;
-	    buf[off++] = b2;
-	    break;
-	 case UTF16_BE:
-	    buf[off++] = b2;
-	    buf[off++] = b1;
-	    break;
-	 }	    
-//	 Debug.println(pos + " " + thisChar + " " + b1 + " " + b2);
+		 char thisChar = s.charAt(pos++);
+		 // little endian reverses the byte order
+		 byte b1	  = (byte) (thisChar & 0xff);
+		 byte b2	  = (byte) (thisChar >> 8);
+		 switch (outputFormat)
+		 {
+		 case UTF8:
+			buf[off++] = b1;
+			b2	       = 0;
+			break;
+		 case UTF16_LE:
+			buf[off++] = b1;
+			buf[off++] = b2;
+			break;
+		 case UTF16_BE:
+			buf[off++] = b2;
+			buf[off++] = b1;
+			break;
+		 }	    
+		 //	 Debug.println(pos + " " + thisChar + " " + b1 + " " + b2);
       }
       if (outputFormat != UTF8)
-	 len	       *= 2;
+		 len	       *= 2;
       return len;
    }
     public int available() throws IOException
