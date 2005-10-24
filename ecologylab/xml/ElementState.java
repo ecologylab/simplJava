@@ -30,6 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import ecologylab.generic.StringInputStream;
 import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
@@ -70,7 +71,8 @@ public class ElementState extends IO
 	/**
 	 * xml header
 	 */
-	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
+	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>\n";
+//	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	
 	static protected final int		ESTIMATE_CHARS_PER_FIELD	= 80;
 	/**
@@ -487,10 +489,7 @@ public class ElementState extends IO
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(xmlDocumentURL);
-		ElementState result	= null;
-		if (document != null)
-			result			= translateFromXML(document);
-		return result;
+		return (document == null) ? null : translateFromXML(document);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -545,10 +544,7 @@ public class ElementState extends IO
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(fileName);
-		ElementState result	= null;
-		if (document != null)
-			result			= translateFromXML(document);
-		return result;
+		return (document == null) ? null : translateFromXML(document);
 	}
 	
 	/**
@@ -568,18 +564,77 @@ public class ElementState extends IO
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param fileName	the name of the XML file that needs to be translated.
+	 * @param xmlStream	An InputStream to the XML that needs to be translated.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXML(InputStream xmlStream)
+		throws XmlTranslationException
+	{
+		Document document	= buildDOM(xmlStream);
+		return (document == null) ? null : translateFromXML(document);
+	}	
+	
+	/**
+	 * Given an XML-formatted String, 
+	 * builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlString	the actual XML that needs to be translated.
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXMLString(String xmlString, 
+													  int charsetType)
+		throws XmlTranslationException
+	{
+	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
+	   return (document == null) ? null : translateFromXML(document);
+	}
+	
+	/**
+	 * Given an XML-formatted String, uses charset type UTF-8 to create
+	 * a stream, and build a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlString	the actual XML that needs to be translated.
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString)
 		throws XmlTranslationException
 	{
-		Document document	= buildDOMFromXMLString(xmlString);
-		ElementState result	= null;
-		if (document != null)
-			result			= translateFromXML(document);
-		return result;
-	}	
+
+	   xmlString = XML_FILE_HEADER + xmlString;
+	   Document document	= buildDOMFromXMLString(xmlString, 
+													StringInputStream.UTF8);
+	   return (document == null) ? null : translateFromXML(document);
+	}
 	
 	/**
 	 * Given the Document object for an XML DOM, builds a tree of equivalent ElementState objects.
@@ -993,58 +1048,19 @@ public class ElementState extends IO
 	 * This method creates a DOM Document from an XML-formatted String.
 	 *
 	 * @param xmlString	the XML-formatted String from which the DOM is to be created
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
 	 * 
 	 * @return					the Document object
 	 */
-	static public Document buildDOMFromXMLString(String xmlString) {
-        Document document = null;
-        try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory
-                    .newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            createErrorHandler(builder);
+	static public Document buildDOMFromXMLString(String xmlString,
+												 int charsetType)
+    {
+	   InputStream xmlStream =
+		  new StringInputStream(xmlString, charsetType);
 
-            builder.parse(new ByteArrayInputStream(xmlString.getBytes()));
-        }
-
-        catch (SAXParseException spe) {
-            // Error generated by the parser
-            println(xmlString + ":\n** Parsing error" + ", line "
-                    + spe.getLineNumber() + ", uri " + spe.getSystemId());
-            println("   " + spe.getMessage());
-
-            // Use the contained exception, if any
-            Exception x = spe;
-            if (spe.getException() != null)
-                x = spe.getException();
-            x.printStackTrace();
-        }
-
-        catch (SAXException sxe) {
-            // Error generated during parsing
-            Exception x = sxe;
-            if (sxe.getException() != null)
-                x = sxe.getException();
-            x.printStackTrace();
-        }
-
-        catch (ParserConfigurationException pce) {
-            // Parser with specified options can't be built
-            pce.printStackTrace();
-        }
-
-        catch (IOException ioe) {
-            // I/O error
-            ioe.printStackTrace();
-        }
-
-        catch (FactoryConfigurationError fce) {
-            fce.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return document;
-    }
+	   return buildDOM(xmlStream);
+	}
 
   	static private void createErrorHandler(final DocumentBuilder builder){
   		
