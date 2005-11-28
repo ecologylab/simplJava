@@ -102,51 +102,51 @@ implements Runnable
    {
       while (!finished)
       {
-	 try
-	 {
-	    long now	= System.currentTimeMillis();
-	    DownloadClosure thatClosure	= null;
-	    while (!potentialTimeouts.isEmpty())
-	    {
-	       thatClosure	= 
-		  (DownloadClosure) potentialTimeouts.firstElement();
-	       debug("checking() "+thatClosure);
-	       
-	       if (thatClosure.timeoutOrComplete(now)) // does Downloable work
-	       {
-		  if (potentialTimeouts.removeElement(thatClosure))
-		  {
-		     if (thatClosure.timedOut() && 
-			 !thatClosure.timeoutResolved)
-		     {
-			println("\n\n");
-			debug("restarting timeout thread for " + thatClosure);
-			// hopefully we dont need this because its awkward
-			kickDownloadThread(thatClosure.downloadingThread);
-		     }
-		  }
-	       }
-	       else
-		  break;
-	    }
-	    int sleep;	    
-	    if (thatClosure != null)
-	    {
-	       int thatDue	= TIMEOUT - thatClosure.deltaTime(now);
-//	       debug("detectTimeouts() deltaTime="+thatClosure.deltaTime(now)+
-//		     " thatDue="+thatDue);
-	       sleep	= (thatDue > TIMEOUT_SLEEP) ? thatDue : TIMEOUT_SLEEP;
-	    }
-	    else
-	       sleep		= TIMEOUT;
-	    debug(1, "detectTimeouts() sleeping for " + sleep);
-	    Generic.sleep(sleep);
-	 } catch (OutOfMemoryError e)
-	 {
-	    if (Memory.outOfMemory(e))
-	       finished		= true;
-	 }
-      }
+		 try
+		 {
+			long now	= System.currentTimeMillis();
+			DownloadClosure thatClosure	= null;
+			while (!potentialTimeouts.isEmpty())
+			{
+			   thatClosure	= 
+				  (DownloadClosure) potentialTimeouts.firstElement();
+			   debug("checking() "+thatClosure);
+			   
+			   if (thatClosure.timeoutOrComplete(now)) // does Downloable work
+			   {
+				  if (potentialTimeouts.removeElement(thatClosure))
+				  {
+					 if (thatClosure.timedOut() && 
+						 !thatClosure.timeoutResolved)
+					 {
+						println("\n\n");
+						debug("restarting timeout thread for " + thatClosure);
+						// hopefully we dont need this because its awkward
+						kickDownloadThread(thatClosure.downloadingThread);
+					 }
+				  }
+			   }
+			   else
+				  break;
+			}
+			int sleep;	    
+			if (thatClosure != null)
+			{
+			   int thatDue	= TIMEOUT - thatClosure.deltaTime(now);
+			   //	       debug("detectTimeouts() deltaTime="+thatClosure.deltaTime(now)+
+			   //		     " thatDue="+thatDue);
+			   sleep	= (thatDue > TIMEOUT_SLEEP) ? thatDue : TIMEOUT_SLEEP;
+			}
+			else
+			   sleep		= TIMEOUT;
+			//debug(1, "detectTimeouts() sleeping for " + sleep);
+			Generic.sleep(sleep);
+		 } catch (OutOfMemoryError e)
+		 {
+			if (Memory.outOfMemory(e))
+			   finished		= true;
+		 }
+	  }
       timeoutThread	= null;
    }
 /**
@@ -158,7 +158,7 @@ implements Runnable
 					       DispatchTarget dispatchTarget)
    {
       DownloadClosure closure = 
-	 new DownloadClosure(thatMedia,  dispatchTarget, this);
+		 new DownloadClosure(thatMedia,  dispatchTarget, this);
       detectPotentialTimeout(closure);
       return closure;
    }
@@ -173,19 +173,19 @@ implements Runnable
       closure.startingNow();
       potentialTimeouts.addElement(closure);
       if (timeoutThread == null)
-	 startTimeoutMonitor();
+		 startTimeoutMonitor();
    }
    private void startTimeoutMonitor()
    {
       synchronized (potentialTimeouts)
       {
-	 finished		= false;
-	 if (timeoutThread == null)
-	 {
-	    timeoutThread	= new Thread(this, toString() + "-timeouts");
-	    timeoutThread.setPriority(TIMEOUT_PRIORITY);
-	    timeoutThread.start(); // to our run method
-	 }
+		 finished		= false;
+		 if (timeoutThread == null)
+		 {
+			timeoutThread	= new Thread(this, toString() + "-timeouts");
+			timeoutThread.setPriority(TIMEOUT_PRIORITY);
+			timeoutThread.start(); // to our run method
+		 }
       }
    }
 
@@ -198,40 +198,40 @@ implements Runnable
    public void dispatch(Downloadable thatDownloadable,
 			DispatchTarget dispatchTarget)
    {
-//    debug("dispatch("+thatDownloadable);
+	  //    debug("dispatch("+thatDownloadable);
       DownloadClosure	downloadClosure = 
-	 new DownloadClosure(thatDownloadable, dispatchTarget, this);
+		 new DownloadClosure(thatDownloadable, dispatchTarget, this);
       potentialTimeouts.remove(downloadClosure);
       synchronized (toDispatch)
       {
-//	 debug("dispatch(in synch"+thatDownloadable);
-	 toDispatch.addElement(downloadClosure);
-	 if (dispatchThread == null)
-	    startDispatchMonitor();
-	 else
-	    toDispatch.notify();
+		 //	 debug("dispatch(in synch"+thatDownloadable);
+		 toDispatch.addElement(downloadClosure);
+		 if (dispatchThread == null)
+			startDispatchMonitor();
+		 else
+			toDispatch.notify();
       }
    }
    private void startDispatchMonitor()
    {
-//      finished		= false;
+	  //      finished		= false;
       
       if (dispatchThread == null)
       {
-//	 debug("startDispatcHMonitor()");
-	 finished		= false;
-	 dispatchThread	= new Thread(toString() + "-dispatching")
-	 {
-	    // !!! if its not in its own thread, the java.awt imaging sys
-	    // can get messed up.
-	    // dont let imageUpdate threads call the client!
-	    public void run()
-	    {
-	       performDispatches();
-	    }
-	 };
-	 dispatchThread.setPriority(lowPriority);
-	 dispatchThread.start();
+		 //	 debug("startDispatcHMonitor()");
+		 finished		= false;
+		 dispatchThread	= new Thread(toString() + "-dispatching")
+		 {
+			// !!! if its not in its own thread, the java.awt imaging sys
+			// can get messed up.
+			// dont let imageUpdate threads call the client!
+			public void run()
+			{
+			   performDispatches();
+			}
+		 };
+		 dispatchThread.setPriority(lowPriority);
+		 dispatchThread.start();
       }
    }
 
@@ -239,31 +239,31 @@ implements Runnable
    {
       while (!finished)
       {
-	 DownloadClosure thatClosure;
-	 synchronized (toDispatch)
-	 {
-	    if (paused)
-	       wait(toDispatch);
-	    if (toDispatch.isEmpty())
-	       wait(toDispatch);
-	    if (finished)
-	       break;
-	    thatClosure = (DownloadClosure) toDispatch.remove(0);
-	 }
-	 // must be outside the lock on toDispatch!
-	 try
-	 {
-	    thatClosure.dispatch();
-	 } catch (OutOfMemoryError e)
-	 { 
-	    if (Memory.outOfMemory(e))
-	       finished		= true;
-	 } catch (Throwable e)
-	 {
-	    debugA(".dispatch -- got exception:");
-	    e.printStackTrace();
-	 }
-	 Generic.sleep(SHORT_SLEEP);
+		 DownloadClosure thatClosure;
+		 synchronized (toDispatch)
+		 {
+			if (paused)
+			   wait(toDispatch);
+			if (toDispatch.isEmpty())
+			   wait(toDispatch);
+			if (finished)
+			   break;
+			thatClosure = (DownloadClosure) toDispatch.remove(0);
+		 }
+		 // must be outside the lock on toDispatch!
+		 try
+		 {
+			thatClosure.dispatch();
+		 } catch (OutOfMemoryError e)
+		 { 
+			if (Memory.outOfMemory(e))
+			   finished		= true;
+		 } catch (Throwable e)
+		 {
+			debugA(".dispatch -- got exception:");
+			e.printStackTrace();
+		 }
+		 Generic.sleep(SHORT_SLEEP);
       }  // while (!finished)
    }
 
@@ -278,13 +278,13 @@ implements Runnable
    {
       synchronized (toDownload)
       {
-//	 debug("download("+thatDownloadable);
-	 toDownload.addElement(new DownloadClosure(thatDownloadable,
-						   dispatchTarget, this));
-	 if (downloadThreads == null)
-	    startDownloadMonitor();
-	 else
-	    toDownload.notify();
+		 //	 debug("download("+thatDownloadable);
+		 toDownload.addElement(new DownloadClosure(thatDownloadable,
+												   dispatchTarget, this));
+		 if (downloadThreads == null)
+			startDownloadMonitor();
+		 else
+			toDownload.notify();
       }
    }
    private int setDownloadPriority(Thread t)
@@ -293,11 +293,11 @@ implements Runnable
       int priority;
 
       if (waiting >= midThreshold)
-	 priority	= midPriority;
+		 priority	= midPriority;
       else if (waiting >= highThreshold)
-	 priority	= midPriority;
+		 priority	= midPriority;
       else
-	 priority	= lowPriority;
+		 priority	= lowPriority;
 
       Generic.setPriority(t, priority);
 
@@ -367,13 +367,13 @@ implements Runnable
    
    protected Thread makeDownloadThread(int i, String s)
    {
-//      debug("makeDownloadThread()");
+	  //      debug("makeDownloadThread()");
 	  return new Thread(toString()+"-download "+i+" "+s)
 	  {
-	 public void run()
-	 {			  	
-		performDownloads();
-	 }
+		 public void run()
+		 {			  	
+			performDownloads();
+		 }
 	  };
    }
 
@@ -381,18 +381,18 @@ implements Runnable
    {
       if (downloadThreads == null)
       {
-	 finished		= false;
-	 downloadThreads	= new Thread[numDownloadThreads];
-	 priorities		= new int[numDownloadThreads];
-	 for (int i=0; i<numDownloadThreads; i++)
-	 {
-	    Thread thatThread	= newDownloadThread(i);
-	    downloadThreads[i]	= thatThread;
-	    thatThread.setPriority(lowPriority);
-	    priorities[i]	= lowPriority;
-	    ThreadDebugger.registerMyself(thatThread);
-	    thatThread.start();
-	 }
+		 finished		= false;
+		 downloadThreads	= new Thread[numDownloadThreads];
+		 priorities		= new int[numDownloadThreads];
+		 for (int i=0; i<numDownloadThreads; i++)
+		 {
+			Thread thatThread	= newDownloadThread(i);
+			downloadThreads[i]	= thatThread;
+			thatThread.setPriority(lowPriority);
+			priorities[i]	= lowPriority;
+			ThreadDebugger.registerMyself(thatThread);
+			thatThread.start();
+		 }
       }
    }
    public void pause()
@@ -408,44 +408,44 @@ implements Runnable
    {
       synchronized (toDownload)
       {
-	 synchronized (toDispatch)
-	 {
-	    debug(4, "pause("+paused);
-	    this.paused	= paused;
+		 synchronized (toDispatch)
+		 {
+			debug(4, "pause("+paused);
+			this.paused	= paused;
 
-	    if (paused)
-	    {
-	       if (downloadThreads != null)
-	       {
-		  for (int i=0; i<numDownloadThreads; i++)
-		  {
-		     Thread thatThread	= downloadThreads[i];
-		     if (thatThread != null)
-		     {
-			priorities[i]		= thatThread.getPriority();
-			thatThread.setPriority(Thread.MIN_PRIORITY);
-		     }
-		  }
-	       }
-	    }
-	    else
-	    {
-	       int[] priorities		= this.priorities; // avoid race
-	       if (downloadThreads != null)
-	       {
-		  for (int i=0; i<numDownloadThreads; i++)
-		  {
-		     // restore priorities
-		     Thread t	= downloadThreads[i];
-		     if ((t != null) && (priorities != null))
-		     {
-			debug("restore priority to " + priorities[i]);
-			t.setPriority(priorities[i]);
-		     }
-		  }
-	       }
-	    }
-	 }
+			if (paused)
+			{
+			   if (downloadThreads != null)
+			   {
+				  for (int i=0; i<numDownloadThreads; i++)
+				  {
+					 Thread thatThread	= downloadThreads[i];
+					 if (thatThread != null)
+					 {
+						priorities[i]		= thatThread.getPriority();
+						thatThread.setPriority(Thread.MIN_PRIORITY);
+					 }
+				  }
+			   }
+			}
+			else
+			{
+			   int[] priorities		= this.priorities; // avoid race
+			   if (downloadThreads != null)
+			   {
+				  for (int i=0; i<numDownloadThreads; i++)
+				  {
+					 // restore priorities
+					 Thread t	= downloadThreads[i];
+					 if ((t != null) && (priorities != null))
+					 {
+						debug("restore priority to " + priorities[i]);
+						t.setPriority(priorities[i]);
+					 }
+				  }
+			   }
+			}
+		 }
       }
    }
    void performDownloads()
@@ -455,70 +455,70 @@ implements Runnable
       while (!finished)
       {
 
-	 DownloadClosure thatClosure;
-	 synchronized (toDownload)
-	 {
-	    if (paused)
-	       wait(toDownload);
-	    if (toDownload.isEmpty())
-	       wait(toDownload);
-	    if (finished)
-	       break;
-	    if (toDownload.isEmpty())
-	       continue;
-	    thatClosure = (DownloadClosure) toDownload.remove(0);
-	 }
-	 detectPotentialTimeout(thatClosure, Thread.currentThread());
-	 try
-	 {
-//	    debug("performDownload() "+
-//		  thatClosure.downloadable+" "+ Thread.currentThread());
+		 DownloadClosure thatClosure;
+		 synchronized (toDownload)
+		 {
+			if (paused)
+			   wait(toDownload);
+			if (toDownload.isEmpty())
+			   wait(toDownload);
+			if (finished)
+			   break;
+			if (toDownload.isEmpty())
+			   continue;
+			thatClosure = (DownloadClosure) toDownload.remove(0);
+		 }
+		 detectPotentialTimeout(thatClosure, Thread.currentThread());
+		 try
+		 {
+			//	    debug("performDownload() "+
+			//		  thatClosure.downloadable+" "+ Thread.currentThread());
 
-	    // ??? i dont understand this -- andruid 12/18
-//	    if (getUrgent)
-//	       setDownloadPriority(Thread.currentThread());
+			// ??? i dont understand this -- andruid 12/18
+			//	    if (getUrgent)
+			//	       setDownloadPriority(Thread.currentThread());
 
-	    pending++;
-	    ThreadDebugger.waitIfPaused(downloadThread);
-	    thatClosure.performDownload();
-//	    debug("after performDownload() " + thatClosure);
-	    potentialTimeouts.remove(thatClosure); 
-	    thatClosure.dispatch();
+			pending++;
+			ThreadDebugger.waitIfPaused(downloadThread);
+			thatClosure.performDownload();
+			//	    debug("after performDownload() " + thatClosure);
+			potentialTimeouts.remove(thatClosure); 
+			thatClosure.dispatch();
 
-	 } catch (ThreadDeath e)
-	 { 
-	    debug("ThreadDeath in performDownloads() loop");
-	    e.printStackTrace();
-	    throw e;
-	 } catch (ClosedByInterruptException e)
-	 { 
-	    debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
-	    e.printStackTrace();
-	    thatClosure.ioError();
+		 } catch (ThreadDeath e)
+		 { 
+			debug("ThreadDeath in performDownloads() loop");
+			e.printStackTrace();
+			throw e;
+		 } catch (ClosedByInterruptException e)
+		 { 
+			debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
+			e.printStackTrace();
+			thatClosure.ioError();
 
-	 } catch (OutOfMemoryError e)
-	 { 
-	    if (Memory.outOfMemory(e))
-	       finished		= true;	// give up!
-	    else
-	       thatClosure.ioError();
-	 } catch (Throwable e)
-	 {
-	    boolean interrupted		= Thread.interrupted();
-	    String interruptedStr	= interrupted ? " interrupted" : "";
-	    debugA("performDownloads() -- recovering from "+interruptedStr+
-		" exception on " + thatClosure + ":");
-	    e.printStackTrace();
-	    thatClosure.ioError();
-	 }
-	 finally
-	 {
-	    pending--;
-	 }
-	 if (hurry)
-	    Generic.sleep(SHORT_SLEEP);
-	 else
-	    Generic.sleep(400 + MathTools.random(100));
+		 } catch (OutOfMemoryError e)
+		 { 
+			if (Memory.outOfMemory(e))
+			   finished		= true;	// give up!
+			else
+			   thatClosure.ioError();
+		 } catch (Throwable e)
+		 {
+			boolean interrupted		= Thread.interrupted();
+			String interruptedStr	= interrupted ? " interrupted" : "";
+			debugA("performDownloads() -- recovering from "+interruptedStr+
+				   " exception on " + thatClosure + ":");
+			e.printStackTrace();
+			thatClosure.ioError();
+		 }
+		 finally
+		 {
+			pending--;
+		 }
+		 if (hurry)
+			Generic.sleep(SHORT_SLEEP);
+		 else
+			Generic.sleep(400 + MathTools.random(100));
       }  // while (!finished)
       debug("exiting -- "+Thread.currentThread());
    }
@@ -531,7 +531,7 @@ implements Runnable
  */
    public void stop()
    {
-//      debug("stop()");
+	  //      debug("stop()");
       finished			= true;
 
       notifyAll(toDispatch);
@@ -542,11 +542,11 @@ implements Runnable
       dispatchThread		= null;
       if (downloadThreads != null)
       {
-	 for (int i=0; i<downloadThreads.length; i++)
-	 {
-	    downloadThreads[i]	= null;
-	 }
-	 downloadThreads		= null;
+		 for (int i=0; i<downloadThreads.length; i++)
+		 {
+			downloadThreads[i]	= null;
+		 }
+		 downloadThreads		= null;
       }
    }
    public int waitingToDownload()
@@ -596,11 +596,11 @@ implements Runnable
    {
       Thread currentThread		= Thread.currentThread();
       NewPorterStemmer stemmer		= 
-	 (NewPorterStemmer) stemmersHash.get(currentThread);
+		 (NewPorterStemmer) stemmersHash.get(currentThread);
       if (stemmer == null)
       {
-	 stemmer			= new NewPorterStemmer();
-	 stemmersHash.put(currentThread, stemmer);
+		 stemmer			= new NewPorterStemmer();
+		 stemmersHash.put(currentThread, stemmer);
       }
       return stemmer;
    }
