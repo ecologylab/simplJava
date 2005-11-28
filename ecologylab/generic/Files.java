@@ -796,38 +796,57 @@ extends Debug
 	   		e.printStackTrace();
 	   }
 	}
-     
-   public static File[] getDirectoryListingXML(File dir)
+   /**
+    * Get the XML files in the directory.
+    * 
+    * @param directoryPath		The file system parth for the directory.
+	* 
+    * @return	Array of File objects that constitute an ls *.xml for the
+	*			directory.
+    */
+   public static File[] getXMLFiles(String directoryPath)
    {
-   	File[] fileList;
-   	
-   	
-   	java.io.FileFilter XMLfilter = new XMLFileFilter();
-   
-    
-   	if (dir.isDirectory())
-   	    fileList = dir.listFiles(XMLfilter);
-   	else
-   		fileList = null;
-   	
-   	return fileList;
+	  return getXMLFiles(new File(directoryPath));
    }
-   
-   
-   
+   /**
+    * Get the XML files in the directory.
+    * 
+    * @param directory File object for the directory
+	* 
+    * @return	Array of File objects that constitute an ls *.xml for the
+	*			directory.
+    */
+   public static File[] getXMLFiles(File directory)
+   {
+	  java.io.FileFilter XMLfilter = XMLFileFilter.get();
+	  
+	  return directory.isDirectory() ? directory.listFiles(XMLfilter) : null;
+   }
 }
 
-class XMLFileFilter implements java.io.FileFilter {
-    
+class XMLFileFilter implements java.io.FileFilter 
+{
+	static XMLFileFilter singleton;
+	
+	static XMLFileFilter get()
+	{
+		XMLFileFilter result = singleton;
+		if (result == null)
+		{
+			result	= new XMLFileFilter();
+			singleton	= result;
+		}
+		return result;
+	}
    	public XMLFileFilter()
    	{
    	
    	}
-   	public boolean accept(File file) {
+   	public boolean accept(File file) 
+   	{
         if (file.isDirectory()) return true;
         String name = file.getName().toLowerCase();
         return name.endsWith("xml");
-    }//end accept
-    
+    }
    }//end class HTMLFileFilter
    
