@@ -33,7 +33,23 @@ implements Environment
 	}
 	
 	/**
-	 * 
+	 * Create an ApplicationEnvironment.
+	 * Load Properties from a properties file found in the config/ directory.
+	 * If there is a 0th command line argument, that is the name of the
+	 * properties file. Otherwise, the properties come from
+	 * config/interface/params.txt.
+	 *  
+	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 */
+	public ApplicationEnvironment(Class baseClass, String args[])
+	{
+	   this(baseClass, paramaterFileRelativeFromArg0(args));
+	}
+	
+	/**
+	 * Create an ApplicationEnvironment.
+	 * Load properties from the properties file specified here.
+	 *  
 	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
 	 */
 	public ApplicationEnvironment(Class baseClass, String propertiesFileRelativePath) 
@@ -164,4 +180,23 @@ implements Environment
     {
     	System.exit(code);
     }
+    
+    //---------------------- not Environment Code - other -----------------------------------
+	/**
+	 * Form the parameter file path.
+	 * Use the 0th argument if there is one, to find a file in config.
+	 * If not, use config/interface/paramts.txt.
+	 * 
+	 * @param args
+	 * @return
+	 */
+	public static String paramaterFileRelativeFromArg0(String[] args) 
+	{
+		String paramFileName	= 
+			(args.length >= 1) ? args[0] : "interface/params.txt";
+		 
+		 String paramFileRelPath= "config/" + paramFileName;
+		return paramFileRelPath;
+	}
+
 }
