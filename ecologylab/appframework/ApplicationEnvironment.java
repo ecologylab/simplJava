@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Properties;
 
 import ecologylab.generic.ParsedURL;
+import ecologylab.generic.AssetsCache.Assets;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,
@@ -27,6 +27,9 @@ implements Environment
 	ParsedURL	docBase;
 
 	
+/**
+ * This constructor is not recommended!
+ */
 	public ApplicationEnvironment()
 	{
 	   properties = new Properties();
@@ -41,20 +44,54 @@ implements Environment
 	 *  
 	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
 	 */
+	public ApplicationEnvironment(String args[])
+	{
+	   this(null, args);
+	}
+	/**
+	 * Create an ApplicationEnvironment.
+	 * Get the base for finding the path to the "codeBase" by using the
+	 * package path of the baseClass passed in.
+	 * <p/>
+	 * Load Properties from a properties file found in the config/ directory.
+	 * If there is a 0th command line argument, that is the name of the
+	 * properties file. Otherwise, the properties come from
+	 * config/interface/params.txt.
+	 * <p/>
+	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 *  
+	 * @param baseClass			Used for computing codeBase property.
+	 * @param args				The following command line parameters are recognized:
+	 * 								0: parameter file name (found in user.dir/config/)
+	 * 								1: graphics_device (screen number)
+	 * 								2: screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 */
 	public ApplicationEnvironment(Class baseClass, String args[])
 	{
-	   this(baseClass, paramaterFileRelativeFromArg0(args));
+	   this(baseClass, paramaterFileRelativeFromArg0(args), 
+			   ((args.length >= 2) ? args[1] : null),
+			   ((args.length >= 3) ? args[2] : null));
 	}
 	
 	/**
 	 * Create an ApplicationEnvironment.
 	 * Load properties from the properties file specified here.
-	 *  
+	 * <p/>
+	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 * 
+	 * @param baseClass			Used for computing codeBase property.
 	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 * @param graphicsDev		graphics_device (screen number) to display window. count from 0.
+	 * @param screenSize		used in TopLevel --
+	 * 								1 - quarter; 2 - almost half; 3; near full; 4 full
 	 */
-	public ApplicationEnvironment(Class baseClass, String propertiesFileRelativePath) 
+	public ApplicationEnvironment(Class baseClass, String propertiesFileRelativePath, 
+			String graphicsDev, String screenSize) 
 	{
 		// setup codeBase
+		if (baseClass == null)
+			baseClass			= this.getClass();
 		Package basePackage		= baseClass.getPackage();
 		String packageName		= basePackage.getName();
 		String packageNameAsPath= packageName.replace('.', Files.sep);
@@ -75,6 +112,14 @@ implements Environment
 
 		println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
 		loadProperties(path, propertiesFileRelativePath);
+		
+		if (graphicsDev != null)
+			setProperty("graphics_device", graphicsDev);
+
+		if (screenSize != null)
+			setProperty("screen_size", screenSize);
+		
+		Assets.setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
 	}
 	
 	public void loadProperties(File path, String filename)
@@ -94,6 +139,11 @@ implements Environment
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void setProperty(String propertyName, String propertyValue)
+	{
+		properties.setProperty(propertyName, propertyValue);
 	}
     /**
      * @see ecologylab.generic.Environment#runtimeEnv()
