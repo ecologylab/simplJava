@@ -44,9 +44,9 @@ implements Environment
 	 *  
 	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
 	 */
-	public ApplicationEnvironment(String args[])
+	public ApplicationEnvironment(String applicationName, String args[])
 	{
-	   this(null, args);
+	   this(null, applicationName, args);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -67,9 +67,9 @@ implements Environment
 	 * 								2: screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 */
-	public ApplicationEnvironment(Class baseClass, String args[])
+	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
 	{
-	   this(baseClass, paramaterFileRelativeFromArg0(args), 
+	   this(baseClass, applicationName, paramaterFileRelativeFromArg0(args),
 			   ((args.length >= 2) ? args[1] : null),
 			   ((args.length >= 3) ? args[2] : null));
 	}
@@ -86,7 +86,7 @@ implements Environment
 	 * @param screenSize		used in TopLevel --
 	 * 								1 - quarter; 2 - almost half; 3; near full; 4 full
 	 */
-	public ApplicationEnvironment(Class baseClass, String propertiesFileRelativePath, 
+	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
 			String graphicsDev, String screenSize) 
 	{
 		// setup codeBase
@@ -119,6 +119,7 @@ implements Environment
 		if (screenSize != null)
 			setProperty("screen_size", screenSize);
 		
+		PropertiesAndDirectories.setApplicationName(applicationName);
 		Assets.setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
 	}
 	
