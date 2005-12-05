@@ -149,8 +149,27 @@ public class Generic
       }
    }
 
-
-
+   public static ParsedURL codeBase()
+   {
+	   return Environment.the.get().codeBase();
+   }
+   
+   static ParsedURL configDir;
+   
+   public static ParsedURL configDir()
+   {
+	   ParsedURL result	= configDir;
+	   if (result == null)
+	   {
+		   result		= ParsedURL.getRelativeToCodeBase("config/", "Error forming config dir.");
+		   configDir	= result;
+	   }
+	   return result;
+   }
+   public static ParsedURL configPath(String relativePath)
+   {
+	   return configDir().getRelative(relativePath, "Error forming config directory path.");
+   }
 /**
  * Find the path to system files.
  * Change return value from URL to ParsedURL.
