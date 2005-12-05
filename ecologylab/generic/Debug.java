@@ -28,7 +28,7 @@ public class Debug
  * Global hi watermark. debug() messages with a level less than or equal
  *  to this will get printed out.
  */
-   private static int		level	= 5;
+   private static int level	= 0;
 /**
  * Global flag for printing "interactive debug" statements.
  * See also {@link #debugI(String) debugI()}.
@@ -50,9 +50,8 @@ public class Debug
 
    public static void initialize()
    {
-      // global
-      Debug.level	= Generic.parameterInt("debug_global_level", 0);
-      
+	  // global
+	  level	= Generic.parameterInt("debug_global_level", 0);
       // class specific
       String levels	= Generic.parameter("debug_levels");
       println("Debug.initialize(" + Debug.level+", "+ levels+")");
@@ -64,20 +63,20 @@ public class Debug
 	    {
 	       while (tokenizer.hasMoreTokens())
 	       {
-		  String thisSpec		= tokenizer.nextToken();
-		  StringTokenizer specTokenizer= new StringTokenizer(thisSpec);
-		  try
-		  {
-		     String thisClassName	= specTokenizer.nextToken();
-		     int thisLevel		=
-			Integer.parseInt(specTokenizer.nextToken());
-		     Debug.println("Debug.level\t" + thisClassName + "\t" +
-				   thisLevel);
-		     classLevels.put(thisClassName,
-				     new IntSlot(thisLevel));
-		  } catch (Exception e)
-		  {
-		  }
+			  String thisSpec		= tokenizer.nextToken();
+			  StringTokenizer specTokenizer= new StringTokenizer(thisSpec);
+			  try
+			  {
+				 String thisClassName	= specTokenizer.nextToken();
+				 int thisLevel		=
+					Integer.parseInt(specTokenizer.nextToken());
+				 Debug.println("Debug.level\t" + thisClassName + "\t" +
+							   thisLevel);
+				 classLevels.put(thisClassName,
+								 new IntSlot(thisLevel));
+			  } catch (Exception e)
+			  {
+			  }
 	       }
 	    } catch (NoSuchElementException e)
 	    {
@@ -103,7 +102,7 @@ public class Debug
       int result	= level;
       IntSlot slot	= (IntSlot) classLevels.get(className);
       if (slot != null)
-	 result		= slot.value;
+		 result		= slot.value;
       return result;
    }
    
@@ -114,12 +113,12 @@ public class Debug
    public static void println(int messageLevel, String message) 
    {
       if (messageLevel <= level)
-	 println(message);
+		 println(message);
    }
    public static void printlnI(int messageLevel, String message) 
    {
       if (interactive)
-	 println(message);
+		 println(message);
    }
    public static void println(Object o, StringBuffer message)
    {
@@ -136,12 +135,12 @@ public class Debug
    public static void printlnI(Object o, String message)
    {
       if (interactive)
-	 println(o, message);
+		 println(o, message);
    }
    public static void printlnI(String message) 
    {
       if (interactive)
-	 println(message);
+		 println(message);
    }
    public static void println(StringBuffer message) 
    {
@@ -151,21 +150,21 @@ public class Debug
    {   	
    	  if (logToFile)
    	  {
-   	    Files.writeLine(writer, message);
-   	    if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
+		 Files.writeLine(writer, message);
+		 if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
    	    	Files.flush(writer);	     	   
    	  }  
    	  else
-      System.err.println(message);
+		 System.err.println(message);
    }
    public static void print(String message) 
    {
    	  if (logToFile)
    	  {
-   	    Files.writeLine(writer, message);   	  
+		 Files.writeLine(writer, message);   	  
    	  }  
    	  else
-      System.err.print(message);
+		 System.err.print(message);
    }
 /**
  * Print a debug message, starting with the abbreviated class name of
@@ -188,16 +187,16 @@ public class Debug
  */
    public static String getClassName(Class thatClass)
    {
-//      String abbrevName	= (String) classAbbrevNames.get(fullName);
+	  //      String abbrevName	= (String) classAbbrevNames.get(fullName);
       String abbrevName	= (String) classAbbrevNames.get(thatClass);
       if (abbrevName == null)
       {
-	 String fullName	= thatClass.toString();
-	 abbrevName	= fullName.substring(fullName.lastIndexOf(".") + 1);
-	 synchronized (classAbbrevNames)
-	 {
-	    classAbbrevNames.put(thatClass, abbrevName);
-	 }
+		 String fullName	= thatClass.toString();
+		 abbrevName	= fullName.substring(fullName.lastIndexOf(".") + 1);
+		 synchronized (classAbbrevNames)
+		 {
+			classAbbrevNames.put(thatClass, abbrevName);
+		 }
       }
       return abbrevName;
    }
@@ -210,12 +209,12 @@ public class Debug
       String packageName = (String) packageNames.get(thatClass);
       if (packageName == null)
       {
-	 String className	= thatClass.toString();
-      	  packageName	= className.substring(6, className.lastIndexOf("."));
+		 String className	= thatClass.toString();
+		 packageName	= className.substring(6, className.lastIndexOf("."));
 		 synchronized (packageNames)
 		 {
 		    packageNames.put(thatClass, packageName);
-//		    packageNames.put(className, packageName);
+			//		    packageNames.put(className, packageName);
 		 }
       }
       return packageName;
@@ -318,41 +317,41 @@ public class Debug
    {
 //      if (show(messageLevel))
       if (messageLevel <= level())
-	 println(this, message);
+		 println(this, message);
    }
    public final void debugA(int messageLevel, String message)
    {
       if (messageLevel <= level())
-	 printlnA(this, message);
+		 printlnA(this, message);
    }
    public static final void println(Object that, int messageLevel,
 				    String message)
    {
       if (messageLevel <= level(that))
-	 println(that, message);
+		 println(that, message);
    }
    public static final void println(String className,
 			      int messageLevel, String message) 
    {
       if (messageLevel <= level(className))
-	 println(message);
+		 println(message);
    }
    public static final void printlnA(Object that, int messageLevel, 
 				     String message)
    {
       if (messageLevel <= level(that))
-	 printlnA(that, message);
+		 printlnA(that, message);
    }
    public static final void printlnI(Object that, int messageLevel, 
 				     String message)
    {
       if (messageLevel <= level(that))
-	 printlnI(that, message);
+		 printlnI(that, message);
    }
    public final void debugI(int messageLevel, String message)
    {
       if (messageLevel <= level())
-	 printlnI(this, message);
+		 printlnI(this, message);
    }
    public static final void debug(Object o, String message, Exception e)
    {
@@ -371,20 +370,18 @@ public class Debug
    private static BufferedWriter	writer;
 
    public static final void setLoggingFile(String loggingFilePath)  
-	{
-						
-		writer		= Files.openWriter(loggingFilePath);
-		if (writer == null)
-			println("Debug.setLoggingFile() CANT OPEN LOGGING FILE: " + loggingFilePath);
-		else
-			logToFile	= true;	    	   			
-	}
+   {
+	  writer		= Files.openWriter(loggingFilePath);
+	  if (writer == null)
+		 println("Debug.setLoggingFile() CANT OPEN LOGGING FILE: " + loggingFilePath);
+	  else
+		 logToFile	= true;	    	   			
+   }
 
    public static void closeLoggingFile()
    {
       Files.closeWriter(writer);
    }
-	
 	
 /**
  * @return	state of the global flag for printing "interactive" debug
@@ -397,7 +394,7 @@ public class Debug
    
    public static boolean logToFile()
    {
-   	 return  logToFile;
+	  return  logToFile;
    }
 //   protected void finalize()
 //   {
