@@ -4,24 +4,23 @@
 package ecologylab.generic.AssetsCache;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Enumeration;
-import java.util.zip.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.DownloadMonitor;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ParsedURL;
 import ecologylab.generic.ZipDownload;
 import ecologylab.gui.Status;
+import ecologylab.media.IIOPhoto;
 
 /**
  * Used to manage cachable assets
@@ -29,6 +28,7 @@ import ecologylab.gui.Status;
  * @author blake
  */
 public class Assets
+extends Debug
 {
 	static File cacheRoot = null;
 	
@@ -214,5 +214,66 @@ public class Assets
 	  in.close();
 	  out.close();
 	}
+	
+	static final String interfaceSubDir	= Generic.parameter("userinterface");
+	
+	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget)
+	   {
+		   boolean isCached = false;
+		   IIOPhoto result		= null;
+		   if (imagePath != null)
+		   {
+			   ParsedURL parsedPixelBasedURL	= null;
+			   if(!imagePath.startsWith("file:///"))
+			   {
+				   File cachedFile = 
+					   new File (Assets.getAsset(INTERFACE, Generic.parameter("userinterface")), 
+						   						imagePath);
+//				 used a cached copy if available
+				   if (cachedFile.canRead())
+				   {
+					   System.out.println("Cache read: " + cachedFile);
+					   parsedPixelBasedURL		= new ParsedURL(cachedFile);
+					   isCached = true;
+				   }
+				   else
+				   {
+					   parsedPixelBasedURL = Generic.systemPhotoPath(imagePath);
+				   }
+				}
+				else
+				{
+					parsedPixelBasedURL =  ParsedURL.getRelativeOrAbsolute(imagePath, 
+							"getPixelBased()");
+				}
+			 if (parsedPixelBasedURL != null)
+			 {
+			    try
+			    {
+			    	result	= new IIOPhoto(parsedPixelBasedURL, dispatchTarget);
+			    }
+				catch (NullPointerException e)
+			    {
+			    	println("getPixelBased() ERROR: returning null.");
+			    	e.printStackTrace();	
+					return null;
+			    }
+		//	    result.checkForTimeout	= checkForTimeout;
+		//	    debug("getPixelBased(download() "+pixelBasedString+") ->"+ pixelBasedURL);
+			    result.download();
+				if (!isCached) //cache the picture if it isn't already
+				{
+					result.cacheImage(
+							Generic.parameter("userinterface") 	+
+							File.separator						+
+							imagePath);
+				}
+			 }
+			 else
+				 println("getCachedIIOPhoto( Couldn't find param "+imagePath);
+	     }
+		 return result;
+	   }
+
 }
 
