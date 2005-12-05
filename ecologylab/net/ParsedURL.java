@@ -63,11 +63,21 @@ extends Debug
       }
    }
    
+   /**
+    * Create a ParsedURL from a file.
+    * If the file is a directory, append "/" to the path, so that relative URLs
+    * will be formed properly later.
+    * 
+    * @param file
+    */
    public ParsedURL(File file)
    {
    		try
 		{
-			this.url	= new URL("file:///"+file.getAbsolutePath());
+   			String urlString = "file:///"+file.getAbsolutePath();
+   			if (file.isDirectory())
+   				urlString	+= "/";
+			this.url	= new URL(urlString);
 		} catch (MalformedURLException e)
 		{
 			e.printStackTrace();
@@ -154,7 +164,8 @@ extends Debug
        {
 		  try
 		  {
-		     result	= new ParsedURL(new URL(base, relativeURLPath));
+			 URL resultURL	= new URL(base, relativeURLPath);
+		     result	= new ParsedURL(resultURL);
 		  }
 		  catch (MalformedURLException e)
 		  {
@@ -193,6 +204,17 @@ extends Debug
    {
    		ParsedURL docBase = Generic.docBase();
    		return (docBase == null) ? null : docBase.getRelative(relativeURLPath, errorDescriptor);
+   } 
+   
+/** 
+ * Create ParsedURL using the codeBase(), and a relative url string. 
+ * 
+ * @return null if the codeBase is null.
+ */
+   public static ParsedURL getRelativeToCodeBase(String relativeURLPath, String errorDescriptor)
+   {
+	  ParsedURL codeBase = Generic.codeBase();
+	  return (codeBase == null) ? null : codeBase.getRelative(relativeURLPath, errorDescriptor);
    } 
    
 /**
