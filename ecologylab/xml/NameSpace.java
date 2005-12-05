@@ -88,7 +88,7 @@ public class NameSpace extends IO
 	*/
    public void setDefaultPackageName(String packageName)
    {
-	  defaultPackageName	= packageName + ".";
+	  defaultPackageName	= packageName;
    }
    /**
 	* creates a <code>Class</code> object from a given element name (aka tag) in the xml.
