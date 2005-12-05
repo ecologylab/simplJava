@@ -99,14 +99,14 @@ public interface Environment
 			debug("PROBLEM parsing javaVersion = " + floatableJavaVersion);
 			e.printStackTrace();
 		 }
-		 debug("javaVersion="+ sysJavaVersion+" -> "+ javaVersion);
+		 //debug("javaVersion="+ sysJavaVersion+" -> "+ javaVersion);
 		 
 		 if (javaVersion >= 1.4f)
 			hasXML		= true;
 		 else
 			hasXML		= checkFor("org.w3c.dom.Node");
 
-		 debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
+		 //debug("javaVersion=" + javaVersion+" hasXML="+hasXML);
       }
       public The(Environment e)
       {
@@ -115,7 +115,6 @@ public interface Environment
       public void set(Environment e)
       {
 		 environment	= e;
-		 frame			= e.parameter("frame");
       }
       public Environment get()
       {
@@ -188,6 +187,12 @@ public interface Environment
       }
       public String frame()
       {
+    	 String result	= frame;
+    	 if (result == null)
+    	 {
+    		 result			= environment.parameter("frame");
+    		 frame			= result;
+    	 }
 		 return frame;
       }
 
