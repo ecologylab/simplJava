@@ -13,7 +13,8 @@ import ecologylab.generic.AssetsCache.Assets;
  * An instance of Environment, which is an application, rather than an applet,
  * or a servlet.
  * The Environment mechanism is used to enable the provision of contextual
- * runtime services in a way that is independent of the deployment structure.
+ * runtime configuration parameter services in a way that is 
+ * independent of the deployment structure.
  * 
  * @author Andruid
  */
@@ -21,18 +22,47 @@ public class ApplicationEnvironment
 extends Debug
 implements Environment
 {
-	public static Properties properties;
+	/**
+	 * Holds properties for use in servicing parameter(String) requests.
+	 */
+	private static Properties properties;
 	
+	/**
+	 * Used for forming codeBase relative ParsedURLs.
+	 * A simulation of the property available in applets.
+	 * The codebase is the address where the java code comes from.
+	 */
 	ParsedURL	codeBase;
+	/**
+	 * Used for forming codeBase relative ParsedURLs.
+	 * A simulation of the property available in applets.
+	 * The docbase is the address where the launching HTML file comes from.
+	 */
 	ParsedURL	docBase;
 
 	
 /**
- * This constructor is not recommended!
+ * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
+ * <p/>
+ * @deprecated		This constructor is not recommended!
+ * 					Build your application to extend this class.
+ * 					Use one of the other constructors.
  */
 	public ApplicationEnvironment()
 	{
 	   properties = new Properties();
+	   Environment.the.set(this);
+	}
+	/**
+	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
+	 * <p/>
+	 * No command line argument is processed. No properties file is loaded.
+	 *  
+	 * @param applicationName	Name of the application. Used to set the applicationName, applicationDir, and .
+	 */
+	public ApplicationEnvironment(String applicationName)
+	{
+	   this(null, applicationName, null, null, null);
 	}
 	
 	/**
@@ -89,6 +119,8 @@ implements Environment
 	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
 			String graphicsDev, String screenSize) 
 	{
+		Environment.the.set(this);
+
 		// setup codeBase
 		if (baseClass == null)
 			baseClass			= this.getClass();
@@ -96,7 +128,8 @@ implements Environment
 		String packageName		= basePackage.getName();
 		String packageNameAsPath= packageName.replace('.', Files.sep);
 
-		File path				= new File(System.getProperty("user.dir"));
+		String pathName			= System.getProperty("user.dir") + Files.sep;
+		File path				= new File(pathName);
 		String pathString		= path.getAbsolutePath();
 		
 		println("looking for " + packageNameAsPath +" in " + pathString);
@@ -105,13 +138,18 @@ implements Environment
 		if (packageIndex != -1)
 		{
 			pathString			= pathString.substring(0, packageIndex);
-			path				= new File(pathString);
+			path				= new File(pathString + Files.sep);
 		}
 
 		codeBase				= new ParsedURL(path);
-
-		println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
-		loadProperties(path, propertiesFileRelativePath);
+		println("codeBase="+codeBase);
+		if (propertiesFileRelativePath != null)
+		{
+			println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
+			loadProperties(path, propertiesFileRelativePath);
+		}
+		else
+			properties			= new Properties();
 		
 		if (graphicsDev != null)
 			setProperty("graphics_device", graphicsDev);
@@ -130,14 +168,13 @@ implements Environment
 			properties = new Properties();
 
 			File file = new File(path, filename);
-			println("Property file located at:"+file);
+			println("Loading Properties file from: "+file);
 			properties.load(new FileInputStream(file));
-			Environment.the.set(this);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+		} catch (FileNotFoundException e)
+		{
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 	}
@@ -172,7 +209,8 @@ implements Environment
 	/**
 	 * @see ecologylab.generic.Environment#parameter(String)
 	 */
-	public String parameter(String name) {
+	public String parameter(String name)
+	{
 		return properties.getProperty(name);
 	}
 
@@ -246,7 +284,7 @@ implements Environment
 		String paramFileName	= 
 			(args.length >= 1) ? args[0] : "interface/params.txt";
 		 
-		 String paramFileRelPath= "config/" + paramFileName;
+		String paramFileRelPath= "config/" + paramFileName;
 		return paramFileRelPath;
 	}
 
