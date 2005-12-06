@@ -32,4 +32,13 @@ public class ArrayListState extends ElementState
    	{
    		set.clear();
    	}
+   	
+   	/**
+   	 * Get the number of elements in the set.
+   	 * @return
+   	 */
+   	public int size()
+   	{
+   		return set.size();
+   	}
 }
