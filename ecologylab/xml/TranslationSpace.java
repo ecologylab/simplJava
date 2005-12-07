@@ -23,17 +23,18 @@ public class NameSpace extends IO
 	* in the corresponding XML file. If its false, the package names are not added, otherwise
 	* every class name is prepended by its package name.
 	*/
-   private boolean emitPackageNames = false;
+   private boolean			emitPackageNames	= false;
    
-   private HashMap entriesByClassName	= new HashMap();
-   private HashMap entriesByTag			= new HashMap();
-//   private HashMap entriesByClassName	= new HashMap();
+   private HashMap			entriesByClassName	= new HashMap();
+   private HashMap			entriesByTag		= new HashMap();
+   
+   private static HashMap	allNameSpaces		= new HashMap();
    
    /**
 	* The hashtable containing the class name to package name mapping.
 	* the name of the class is the key and the name of package is the value.
 	*/
-   private final HashMap classPackageMappings = new HashMap();
+   private final HashMap classPackageMappings	= new HashMap();
    
    public NameSpace(String name)
    {
@@ -41,6 +42,7 @@ public class NameSpace extends IO
 //	  addTranslation("studies", "SubjectState");
 //	  addTranslation("studies", "SubjectSet");
 	  this.name	= name;
+	  allNameSpaces.put(name, this);
    }
    
    /**
@@ -241,6 +243,16 @@ public class NameSpace extends IO
    }
    public String toString()
    {
-      return "NameSpace";
+      return "NameSpace[" + name +"]";
+   }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * 
+    * @param name
+    * @return
+    */
+   public static NameSpace lookup(String name)
+   {
+	   return (NameSpace) allNameSpaces.get(name);
    }
 }
