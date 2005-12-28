@@ -719,29 +719,18 @@ static String q(String string)
     }
     
    /**
-    * generate a DOM tree from a given String in the XML form.
+    * Generate a DOM tree from a given String in the XML form.
+    * <p/>
+    * Uses the deprecated StringBufferInputStream class.
+    * 
     * @param contents	the string for which the DOM needs to be constructed.
     * @return			the DOM tree representing the XML string.
+    * 
+    * @deprecated
     */
     public static Document getDocument(String contents)
     {
-		Document doc = null;
-		try 
-		{
-			StringBufferInputStream s       =     new StringBufferInputStream(contents);
-			DocumentBuilderFactory f        =     DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder         =     f.newDocumentBuilder();
-			doc = builder.parse(s);
-		} catch (FactoryConfigurationError e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return doc;
+		return ElementState.buildDOM(new StringBufferInputStream(contents));
     }
 	
 	/**
