@@ -677,7 +677,7 @@ extends Debug
    }
    public static File removeExtension(File f)
    {
-      return removeExtension(f.getPath());
+      return (f.getName().indexOf('.') == -1) ? f : removeExtension(f.getPath());
    }
    public static File removeExtension(String path)
    {
