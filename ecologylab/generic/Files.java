@@ -775,6 +775,12 @@ extends Debug
 	    } 
    }
 
+   /**
+    * Copy a file -- binary or character data.
+    * 
+    * @param srcFile
+    * @param dstFile
+    */
    public static void copyFile(File srcFile, File dstFile)
    {
 	   try 
