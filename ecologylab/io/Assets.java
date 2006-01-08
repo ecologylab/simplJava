@@ -148,7 +148,7 @@ extends Debug
 	   	if (!targetFile.getParentFile().exists())
 	   		targetFile.getParentFile().mkdirs();
 	   	   
-	   	System.out.println("zip URL: " + sourceZip);
+	   	println("zip URL: " + sourceZip);
 		try
 		{    	           	            
 			if (sourceZip.toString().startsWith("file://"))
@@ -232,7 +232,7 @@ extends Debug
 //				 used a cached copy if available
 				   if (cachedFile.canRead())
 				   {
-					   System.out.println("Cache read: " + cachedFile);
+					   println("Cache read: " + cachedFile);
 					   parsedPixelBasedURL		= new ParsedURL(cachedFile);
 					   isCached = true;
 				   }
@@ -260,6 +260,7 @@ extends Debug
 			    }
 		//	    result.checkForTimeout	= checkForTimeout;
 		//	    debug("getPixelBased(download() "+pixelBasedString+") ->"+ pixelBasedURL);
+				result.downloadWithHighPriority();
 			    result.download();
 				if (!isCached) //cache the picture if it isn't already
 				{
