@@ -91,7 +91,7 @@ public class ElementState extends IO
 	 * controls if the public fields of a parent class (= super class)
 	 * will be emitted or not, during translation to XML.
 	 */
-	protected boolean emitParentFields	 = false;
+	protected boolean emitParentFields	 = true;
 	
 	private static final NameSpace globalNameSpace	= new NameSpace("global");
 	
@@ -1079,7 +1079,7 @@ public class ElementState extends IO
 			   	  // anyway, its not not a named field
 			   	  
 				  String tagName		= childNode.getNodeName();
-			  	  Class childStateClass= globalNameSpace.xmlTagToClass(tagName);
+			  	  Class childStateClass= nameSpace.xmlTagToClass(tagName);
 			  	  
 			  	  if (childStateClass != null)
 			  	  {
@@ -1412,9 +1412,10 @@ public class ElementState extends IO
 	   return result;
 	}
 	/**
+	 * @param nameSpace TODO
 	 * @return	the XML element name, or <i>tag</i>, that maps to this ElementState derived class.
 	 */
-	public String tagName()
+	public String tagName(NameSpace nameSpace)
 	{
 	   return globalNameSpace.objectToXmlTag(this);
 	}
@@ -1429,10 +1430,22 @@ public class ElementState extends IO
 	 *
 	 * @return	Most of an open tag for the XML element.
 	 */
-	public String startOpenTag()
+	public String startOpenTag(NameSpace nameSpace)
 	{	
-	   return "<" + this.tagName();
+	   return "<" + this.tagName(nameSpace);
 	}
+	/**
+	 * Translate the name of this ElementState derived class into an
+	 * appropriate tag name. Use the tag name to form a close tag for 
+	 * an XML element.
+	 *
+	 * @return	Most of an open tag for the XML element.
+	 */
+	public String closeTag(NameSpace nameSpace)
+	{
+		return "</" + this.tagName(nameSpace) + ">";
+	}
+
 	/**
 	 * Translate the name of this ElementState derived class into an
 	 * appropriate tag name. Use the tag name to form a close tag for 
@@ -1442,9 +1455,9 @@ public class ElementState extends IO
 	 */
 	public String closeTag()
 	{
-		return "</" + this.tagName() + ">";
+		return closeTag(globalNameSpace);
 	}
-
+	
 	/**
 	 * Translate a supplied field name into an appropriate tag name. 
 	 * Use the tag name to form most of an open tag for an XML element.

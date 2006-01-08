@@ -36,6 +36,11 @@ public class NameSpace extends IO
 	*/
    private final HashMap classPackageMappings	= new HashMap();
    
+   /**
+    * Create a new NameSpace.
+    * 
+    * @param name
+    */
    public NameSpace(String name)
    {
 	  // !!! these lines need to be moved to the studies package !!!
@@ -44,7 +49,17 @@ public class NameSpace extends IO
 	  this.name	= name;
 	  allNameSpaces.put(name, this);
    }
-   
+   /**
+    * Create a new NameSpace, with a new default packge.
+    * 
+    * @param name
+    * @param defaultPackgeName
+    */
+   public NameSpace(String name, String defaultPackgeName)
+   {
+	   this(name);
+	   this.setDefaultPackageName(defaultPackgeName);
+   }
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
 	* Assumes that the xmlTag can be derived automatically from the className,
@@ -200,11 +215,12 @@ public class NameSpace extends IO
 			// maybe we need to use State
 			try
 			{
-//			   debug("trying " + wholeClassName+"State");
+			   //debug("trying " + wholeClassName+"State");
 			   classObj			= Class.forName(wholeClassName+"State");
 			} catch (ClassNotFoundException e2)
 			{
 			   debug("WARNING: can't find class object, create empty entry.");
+			   //Thread.dumpStack();
 
 //			   this.classObj			= classObj;
 			   this.empty				= true;
@@ -254,5 +270,42 @@ public class NameSpace extends IO
    public static NameSpace lookup(String name)
    {
 	   return (NameSpace) allNameSpaces.get(name);
+   }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * Otherwise, create a new one with this name, and return it.
+    * 
+    * @param name
+    * @return
+    */
+   public static NameSpace get(String name)
+   {
+	   NameSpace result	= lookup(name);
+	   return (result != null) ? result : new NameSpace(name);
+   }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
+    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
+    * 
+    * @param name
+    * @return
+    */
+   public static NameSpace get(String name, String defaultPackageName)
+   {
+	   NameSpace result	= lookup(name);
+	   if (result != null)
+	   {
+		   String resultDefaultPackageName = result.defaultPackageName;
+		   if (!resultDefaultPackageName.equals(defaultPackageName))
+			   throw new RuntimeException("NameSpace ERROR: Existing NameSpace " + name +
+					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
+	   }
+	   else
+	   {
+		   result	= new NameSpace(name, defaultPackageName);
+	   }
+	   return result;
    }
 }
