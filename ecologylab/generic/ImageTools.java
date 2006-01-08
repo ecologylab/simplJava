@@ -103,8 +103,8 @@ extends Debug
 	    {
 	      width = (int)(height * imageRatio);
 	    }
-	    println("writeThumbnail("+width+","+height+
-		    " type="+image.getType());
+	    //println("writeThumbnail("+width+","+height+
+		//    " type="+image.getType());
 
 	    // draw original image to thumbnail image object and
 	    // scale it to the new size on-the-fly
