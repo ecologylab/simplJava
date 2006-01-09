@@ -87,12 +87,6 @@ public class ElementState extends IO
 	 */ 
 	protected String	packageName;
 	
-	/**
-	 * controls if the public fields of a parent class (= super class)
-	 * will be emitted or not, during translation to XML.
-	 */
-	protected boolean emitParentFields	 = true;
-	
 	private static final NameSpace globalNameSpace	= new NameSpace("global");
 	
 /**
@@ -364,7 +358,7 @@ public class ElementState extends IO
 					// emit only if the field is present in this classs
 					// parent class fields should not be emitted,
 					// coz thats confusing
-					if (fieldIsFromDeclaringClass || emitParentFields)
+					if (fieldIsFromDeclaringClass || emitParentFields())
 						buffy.append(XmlTools.generateNameVal(thatField, this));
 				}
 				else if (doRecursiveDescent)	// recursive descent
@@ -1747,5 +1741,18 @@ public class ElementState extends IO
 	protected HashMap fieldsAsElementWithOneTextChild()
 	{
 		return null;
+	}
+	
+	/**
+	 * Controls if the public fields of a parent class (= super class)
+	 * will be emitted or not, during translation to XML.
+	 * <p/>
+	 * Override this to change the behavior in subclasses.
+	 * 
+	 * @return		true by default.
+	 */
+	protected boolean emitParentFields()
+	{
+		return true;
 	}
 }
