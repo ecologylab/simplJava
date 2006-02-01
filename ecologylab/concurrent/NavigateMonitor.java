@@ -42,6 +42,8 @@ public class NavigateMonitor extends Thread
 		 try
 		 {  
 			wait();
+			// does the actual navigate
+			//TODO blake -- change here!
 			Generic.go(purl);
 		 } catch (InterruptedException e)
 		 {
