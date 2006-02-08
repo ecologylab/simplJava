@@ -281,11 +281,7 @@ implements Environment
 	 */
 	public static String paramaterFileRelativeFromArg0(String[] args) 
 	{
-		String paramFileName	= 
-			(args.length >= 1) ? args[0] : "interface/params.txt";
-		 
-		String paramFileRelPath= "config/" + paramFileName;
-		return paramFileRelPath;
+		return (args.length >= 1) ? "config/" + args[0] : null;
 	}
 
 }
