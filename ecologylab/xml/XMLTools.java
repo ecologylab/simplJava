@@ -197,8 +197,8 @@ implements CharacterConstants
     * This method generates a name for an ElementState object, given an XML attribute name. 
     * It is used during translation of XML to Java. Using
     * the returned class name, the appropriate class can be instantiated using reflection.  
-    * @param elementName	the name of the XML element attribute
-    * @return				the name of the Java class corresponding to the elementName
+ * @param elementName	the name of the XML element attribute
+ * @return				the name of the Java class corresponding to the elementName
     */   
    public static String fieldNameFromElementName(String elementName)
    {

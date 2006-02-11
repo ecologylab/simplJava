@@ -347,6 +347,19 @@ public class ElementState extends IO
 					// false if from a parent / super class
 					boolean fieldIsFromDeclaringClass= 
 						declaringClassName.equals(className);
+					
+					  HashMap fieldsAsElementWithOneTextChild	= fieldsAsElementWithOneTextChild();
+					  if (fieldsAsElementWithOneTextChild != null)
+					  {
+						  String thatFieldName			= thatField.getName();
+						  if (fieldsAsElementWithOneTextChild.get(thatFieldName) != null)
+						  {
+							  Type type		= TypeRegistry.getType(thatField);
+							  String value	= XmlTools.escapeXML(type.toString(this, thatField));
+							  buffy.append(tagMapEntry.startOpenTag).append('>')
+							    .append(value).append(tagMapEntry.closeTag);
+						  }
+					  }
 
 					//TODO is field one that we are supposed to translate
 					// as a nested element with a with a single 
@@ -1045,7 +1058,15 @@ public class ElementState extends IO
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
+			   NameSpace nameSpaceForTranslation	= nameSpace;
 			   String childTag			= childNode.getNodeName();
+			   int colonIndex			= childTag.indexOf(':');
+			   if (colonIndex > 0)
+			   {
+				   String nameSpaceName	= childTag.substring(0, colonIndex);
+				   nameSpaceForTranslation	= NameSpace.get(nameSpaceName);
+				   childTag				= childTag.substring(colonIndex+1);
+			   }
 			   String childFieldName	= 
 				  XmlTools.fieldNameFromElementName(childTag);
 //			   println("childFieldName="+childFieldName +" in "+
@@ -1058,11 +1079,46 @@ public class ElementState extends IO
 				  //TODO does the tag correspond to an element with one text child,
 				  // which we are supposed to squirt directly into a field, rather than into
 				  // a nested element?
+				  HashMap fieldsAsElementWithOneTextChild	= fieldsAsElementWithOneTextChild();
+				  if (fieldsAsElementWithOneTextChild != null)
+				  {
+					  if (fieldsAsElementWithOneTextChild.get(childFieldName) != null)
+					  {
+						  // get the text element child
+						  Node textElementChild		= childNode.getFirstChild();
+						  if (textElementChild != null)
+						  {
+							  String textNodeValue	= textElementChild.getNodeValue();
+							  debug("setting special text node " +childFieldName +"="+textNodeValue);
+							  this.setField(childField, textNodeValue);
+/*
+							  short childsChildNodeType	= childNode.getNodeType();
+							  switch (childsChildNodeType)
+							  {
+							  case Node.TEXT_NODE:
+							  case Node.CDATA_SECTION_NODE:
+								  String textNodeValue	= textElementChild.getNodeValue();
+								  debug("setting special text node childField="+textNodeValue);
+								  this.setField(childField, textNodeValue);
+								  break;
+							  default:
+								  debug("ERROR: didn't find text node child where specified for " + childFieldName);
+								  break;
+							  }
+							  */
+						  }
+						  else
+						  {
+							  debug("ERROR: didn't find text node child where specified for " + childFieldName);
+						  }
+						  continue;						  
+					  }
+				  }
 //				  println("childClass="+childClass);
 				  ElementState childElementState = getElementState(childClass);
 				  childElementState.elementByIdMap	= this.elementByIdMap;
 				  
-				  childElementState.translateFromXML(childNode, childClass, nameSpace);
+				  childElementState.translateFromXML(childNode, childClass, nameSpaceForTranslation);
 				  addNestedElement(childField, childElementState);
 				  
 			   } catch (NoSuchFieldException e)
@@ -1579,15 +1635,21 @@ public class ElementState extends IO
 		try
 		{
 		   Field field			= getClass().getField(fieldName);
-		   Type fieldType		= TypeRegistry.getType(field);
-		   if (fieldType != null)
-			  result			= fieldType.setField(this, field, fieldValue);
+		   result = setField(field, fieldValue);
 		}
 		catch (NoSuchFieldException e)
 		{
 			debug("ERROR no such field to set "+fieldName+" = "+
 			      fieldValue);
 		}
+		return result;
+	}
+	protected boolean setField(Field field, String fieldValue)
+	{
+		boolean result		= false;
+		Type fieldType		= TypeRegistry.getType(field);
+		if (fieldType != null)
+			result			= fieldType.setField(this, field, fieldValue);
 		return result;
 	}
 
