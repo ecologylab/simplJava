@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 import ecologylab.generic.ParsedURL;
@@ -146,7 +147,14 @@ implements Environment
 		if (propertiesFileRelativePath != null)
 		{
 			println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
-			loadProperties(path, propertiesFileRelativePath);
+			/*
+			//TODO need to move this up so that we never treat a URL as a file
+			//check to see if this is really a URL that was passed (cut off '/config') GHETTO!!!
+			String possibleURLPath = propertiesFileRelativePath.trim().substring(7).toLowerCase();
+			if (possibleURLPath.startsWith("http"))
+				loadPropertiesURL(possibleURLPath);
+			else*/
+				loadProperties(path, propertiesFileRelativePath);
 		}
 		else
 			properties			= new Properties();
@@ -175,6 +183,22 @@ implements Environment
 			e.printStackTrace();
 		} catch (IOException e)
 		{
+			e.printStackTrace();
+		}
+	}
+	public void loadPropertiesURL(String urlString)
+	{
+		try 
+		{
+			properties = new Properties();
+			URL propertiesURL = new URL(urlString);
+			
+			println("Loading Properties file from URL: " + propertiesURL);
+			properties.load(propertiesURL.openStream());
+		} 
+		catch (Exception e)
+		{
+			System.err.println("Error loading properties file from URL: " + urlString);
 			e.printStackTrace();
 		}
 	}

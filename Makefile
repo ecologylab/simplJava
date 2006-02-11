@@ -9,7 +9,7 @@ JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 JAR_DIRS = $(ECOLOGY_LAB_DIRS:%=ecologylab/%)
 DIRS	= $(JAR_DIRS)
 
-DOC_DIR = ../cfdocs
+DOC_DIR = ../../cfdocs
 
 DOC_DIRS = $(ECOLOGY_LAB_DIRS)
 
