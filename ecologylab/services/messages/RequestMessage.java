@@ -5,7 +5,9 @@ package ecologylab.services.messages;
  * 
  * @author blake
  */
-public class RequestMessage extends ServiceMessage 
+public abstract class RequestMessage 
+extends ServiceMessage
+implements ResponseTypes
 {
-	
+	public abstract ResponseMessage performService(RequestMessage requestMessage);
 }
