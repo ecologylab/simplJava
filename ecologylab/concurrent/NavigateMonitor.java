@@ -15,6 +15,14 @@ public class NavigateMonitor extends Thread
    public static final int PORT = 8081;
    private Socket 			sock = null;
    
+   /**
+    * Initialiazed to true, hoping for the best.
+    * Will get set to false if the assumption turns out not to be valid.
+    * Indicates there is a server to connect to to perform navigation.
+    * Otherwise, try to use more local options.
+    */
+   private boolean			hasNavigateServer	= true;
+   
    public NavigateMonitor(String name)
    {
 	  super(name);
@@ -54,9 +62,17 @@ public class NavigateMonitor extends Thread
 		 {  
 			wait();
 			// does the actual navigate
-			//Generic.go(purl);
-			//System.out.println("About to navigate!!!");
-			goNavigate(purl);
+			if (hasNavigateServer)
+			{
+				Debug.println("Navigate with navigateServer to " + purl);
+				goNavigate(purl);
+			}
+			else
+			{
+				Debug.println("Navigate with local Generic.go() to " + purl);
+				Generic.go(purl);
+			}
+			
 		 } catch (InterruptedException e)
 		 {
 			if (running)
@@ -85,6 +101,8 @@ public class NavigateMonitor extends Thread
 			catch (Exception e)
 			{
 				e.printStackTrace();
+				hasNavigateServer	= false;
+				return;
 			}
 	   }
 	   
