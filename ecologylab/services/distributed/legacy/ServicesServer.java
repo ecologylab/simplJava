@@ -19,7 +19,7 @@ import ecologylab.xml.NameSpace;
  * @author blake
  * @author andruid
  */
-public abstract class ServicesServer extends Thread
+public class ServicesServer extends Thread
 {
 	private int portNumber;
 	private ServerSocket socketServer;
