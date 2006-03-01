@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -16,20 +17,52 @@ import ecologylab.xml.NameSpace;
  * Extend this to provide concentrated services.
  * 
  * @author blake
+ * @author andruid
  */
 public abstract class ServicesServer extends Thread
 {
 	private int portNumber;
 	private ServerSocket socketServer;
 	
-	public ServicesServer(int portNumber)
-	{
-		this.portNumber = portNumber;
-	}
+	/**
+	 * Space that defines mappings between xml names, and Java class names,
+	 * for request messages.
+	 */
+	NameSpace		requestTranslationSpace;
 	
-	abstract public ResponseMessage performService(RequestMessage requestMessage);
-	abstract protected String getPackageName();
-	abstract protected String getMessagePackageName();
+	/**
+	 * Provides a context for request processing.
+	 */
+	ObjectRegistry	objectRegistry;
+
+	/**
+	 * Create a services server, that listens on the specified port, and
+	 * uses the specified TranslationSpaces for operating on messages.
+	 * 
+	 * @param portNumber
+	 * @param requestTranslationSpace
+	 * @param objectRegistry Provides a context for request processing.
+	 */
+	public ServicesServer(int portNumber,
+						  NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+	{
+		this.portNumber 				= portNumber;
+		this.requestTranslationSpace	= requestTranslationSpace;
+	}
+
+	/**
+	 * Perform the service associated with a RequestMessage, by calling the
+	 * performService() method on that message.
+	 * 
+	 * @param requestMessage	Message to perform.
+	 * @param objectRegistry	Context for request processing.
+	 * 
+	 * @return					Response to the message.
+	 */
+	public ResponseMessage performService(RequestMessage requestMessage, ObjectRegistry objectRegistry) 
+	{
+		return requestMessage.performService(requestMessage, objectRegistry);
+	}
 	
 	public void run()
 	{
@@ -41,8 +74,6 @@ public abstract class ServicesServer extends Thread
 			   socketServer = new ServerSocket(portNumber);
 			   while (true) 
 			   {
-				   ElementState.setDefaultPackageName(getPackageName());
-				   
 				   Socket incomingSocket = socketServer.accept();
 				   BufferedReader reader =
 			   	  		new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
@@ -57,15 +88,11 @@ public abstract class ServicesServer extends Thread
 					   //get the packet message
 					   String str = reader.readLine();
 					   
-					   ElementState.setDefaultPackageName(getMessagePackageName());
-					   
 					   RequestMessage requestMessage
-								= (RequestMessage) ElementState.translateFromXMLString(str);
-					   
-					   ElementState.setDefaultPackageName(getPackageName());
+								= (RequestMessage) ElementState.translateFromXMLString(str, requestTranslationSpace);
 					   
 					   //perform the service being requested
-					   ResponseMessage responseMessage = performService(requestMessage);
+					   ResponseMessage responseMessage = performService(requestMessage, objectRegistry);
 					   
 					   //send the response
 					   out.println(responseMessage.translateToXML(false));
