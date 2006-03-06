@@ -68,6 +68,17 @@ abstract public class MixedInitiativeOp extends ElementState
 	{
 		return this.action	== action;
 	}
+	
+	public boolean equals(Object other)
+	{
+		boolean result	= (other instanceof MixedInitiativeOp);
+		if (result)
+		{
+			MixedInitiativeOp miop	= (MixedInitiativeOp) other;
+			result		= actionEquals(miop.action);
+		}
+		return result;
+	}
 	/**
 	 * Free resources associated with this.
 	 *
