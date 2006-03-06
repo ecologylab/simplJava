@@ -11,12 +11,12 @@ import java.util.HashMap;
  */
 public class NameSpace extends IO 
 {
-   protected String		name;
+   protected String			name;
    /**
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
 	*/
-   private String		defaultPackageName = "cf.state";
+   private String			defaultPackageName	= "cf.state";
    
    /**
 	* This boolean controls whether package names are added to the class names
@@ -34,7 +34,7 @@ public class NameSpace extends IO
 	* The hashtable containing the class name to package name mapping.
 	* the name of the class is the key and the name of package is the value.
 	*/
-   private final HashMap classPackageMappings	= new HashMap();
+   private final HashMap 	classPackageMappings= new HashMap();
    
    /**
     * Create a new NameSpace.
@@ -44,8 +44,6 @@ public class NameSpace extends IO
    public NameSpace(String name)
    {
 	  // !!! these lines need to be moved to the studies package !!!
-//	  addTranslation("studies", "SubjectState");
-//	  addTranslation("studies", "SubjectSet");
 	  this.name	= name;
 	  allNameSpaces.put(name, this);
    }
@@ -59,6 +57,56 @@ public class NameSpace extends IO
    {
 	   this(name);
 	   this.setDefaultPackageName(defaultPackgeName);
+   }
+   /**
+    * Create a new NameSpace, with a new default package, and
+	* a set of defined translations.
+    * 
+    * @param name		Name of the NameSpace to be 
+	*					A key for use in the TranslationSpace registry.
+    * @param defaultPackgeName
+	* @param translations		Set of initially defined translations for this.
+    */
+   public NameSpace(String name, String defaultPackgeName, 
+					String[][] translations)
+   {
+	   this(name);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   /**
+    * Create a new NameSpace, with the same name and default package name, and
+	* a set of defined translations.
+    * 
+    * @param defaultPackgeName		Name of the NameSpace to be created --
+	*					A key for use in the TranslationSpace registry.
+    * 					Also the defaultPackgeName for translations using this.
+    * 
+	* @param translations		Set of initially defined translations for this.
+    */
+   public NameSpace(String defaultPackgeName,
+					String[][] translations)
+   {
+	   this(defaultPackgeName, defaultPackgeName, translations);
+   }
+/**
+ * Add a set of  translation table entry for an ElementState derived sub-class.
+ * Assumes that the xmlTag can be derived automatically from the className,
+ * by translating case-based separators to "_"-based separators.
+ * 
+ * @param translations		Set of new translations.
+ */
+   public void addTranslations(String[][] translations)
+   {
+	  if (translations != null)
+	  {
+		  int		numTranslations	= translations.length;
+		  for (int i=0; i< numTranslations; i++)
+		  {
+			 String[] thatTranslation		= translations[i];
+			 addTranslation(thatTranslation[0], thatTranslation[1]);
+		  }
+	  }
    }
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
@@ -297,15 +345,54 @@ public class NameSpace extends IO
 	   NameSpace result	= lookup(name);
 	   if (result != null)
 	   {
-		   String resultDefaultPackageName = result.defaultPackageName;
-		   if (!resultDefaultPackageName.equals(defaultPackageName))
-			   throw new RuntimeException("NameSpace ERROR: Existing NameSpace " + name +
+		  if (defaultPackageName != null)
+		  {
+			 String resultDefaultPackageName = result.defaultPackageName;
+			 if (!resultDefaultPackageName.equals(defaultPackageName))
+				throw new RuntimeException("NameSpace ERROR: Existing NameSpace " + name +
 					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
+		  }
 	   }
 	   else
 	   {
 		   result	= new NameSpace(name, defaultPackageName);
 	   }
 	   return result;
+   }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
+    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
+    * 
+    * Add the translations to the NameSpace.
+    * 
+    * @param name
+    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
+    * A RuntimeException will be thrown if there was already such a NameSpace, but with different defaultPackageName.
+    */
+   public static NameSpace get(String name, String defaultPackageName,
+							   String[][] translations)
+   {
+	  NameSpace result	= get(name, defaultPackageName);
+	  result.addTranslations(translations);
+	  return result;
+   }
+   /**
+    * Find the NameSpace called <code>defaultPackageName</code>, if there is
+	* one. If there is no NameSpace with this name, create a new one, and 
+	* set its defaultPackageName.
+	* 
+    * Add the translations to the NameSpace.
+    * 
+    * @param name
+    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
+    */
+   public static NameSpace get(String defaultPackageName,
+							   String[][] translations)
+   {
+	  NameSpace result	= get(defaultPackageName, defaultPackageName);
+	  result.addTranslations(translations);
+	  return result;
    }
 }

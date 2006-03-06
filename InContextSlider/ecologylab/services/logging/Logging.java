@@ -14,6 +14,7 @@ import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
@@ -287,7 +288,7 @@ implements Runnable
 	}
 */	
 	//TODO this looks like dead code.
-	public ElementState loadLogXML(String fileName)
+	public ElementState loadLogXML(String fileName, NameSpace nameSpace)
 	{			
 		
 		fixBrokenLog(fileName);
@@ -296,7 +297,7 @@ implements Runnable
 		ElementState stateObject = null;
 		try
 		{
-			stateObject = (ElementState) translateFromXML(fileName);
+			stateObject = (ElementState) translateFromXML(fileName, nameSpace);
 		} catch (XmlTranslationException e)
 		{
 			e.printStackTrace();

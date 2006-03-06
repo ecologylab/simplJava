@@ -347,6 +347,19 @@ public class ElementState extends IO
 					// false if from a parent / super class
 					boolean fieldIsFromDeclaringClass= 
 						declaringClassName.equals(className);
+					
+					  HashMap leafElementFields			= leafElementFields();
+					  if (leafElementFields != null)
+					  {
+						  String thatFieldName			= thatField.getName();
+						  if (leafElementFields.get(thatFieldName) != null)
+						  {
+							  Type type		= TypeRegistry.getType(thatField);
+							  String value	= XmlTools.escapeXML(type.toString(this, thatField));
+							  buffy.append(tagMapEntry.startOpenTag).append('>')
+							    .append(value).append(tagMapEntry.closeTag);
+						  }
+					  }
 
 					//TODO is field one that we are supposed to translate
 					// as a nested element with a with a single 
@@ -606,6 +619,36 @@ public class ElementState extends IO
 	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
 	 * 
 	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlFile		the path to the XML document that needs to be translated.
+	 * @return 					the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXML(File xmlFile, 
+												NameSpace nameSpace)
+	throws XmlTranslationException
+	{
+	   Document document	= buildDOM(xmlFile);
+	   ElementState result	= null;
+	   if (document != null)
+		  result			= translateFromXML(document, nameSpace);
+	   return result;
+	}
+	/**
+	 * Given the URL of a valid XML document,
+	 * reads the document and builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
 	 * <p/>
 	 * Uses the default globalNameSpace as the basis for translation.
 	 * 
@@ -615,11 +658,34 @@ public class ElementState extends IO
 	public static ElementState translateFromXML(File xmlFile)
 	throws XmlTranslationException
 	{
-	   Document document	= buildDOM(xmlFile);
-	   ElementState result	= null;
-	   if (document != null)
-		  result			= translateFromXML(document);
-	   return result;
+	   return translateFromXML(xmlFile, globalNameSpace);
+	}
+	/**
+	 * Given the name of a valid XML file,
+	 * reads the file and builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param fileName	the name of the XML file that needs to be translated.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXML(String fileName,
+												NameSpace nameSpace)
+		throws XmlTranslationException
+	{
+		Document document	= buildDOM(fileName);
+		return (document == null) ? null : translateFromXML(document, nameSpace);
 	}
 	/**
 	 * Given the name of a valid XML file,
@@ -644,10 +710,36 @@ public class ElementState extends IO
 	public static ElementState translateFromXML(String fileName)
 		throws XmlTranslationException
 	{
-		Document document	= buildDOM(fileName);
-		return (document == null) ? null : translateFromXML(document);
+		return translateFromXML(fileName, globalNameSpace);
 	}
 	
+	/**
+	 * Given an XML-formatted String, 
+	 * builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlStream	An InputStream to the XML that needs to be translated.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXML(InputStream xmlStream,
+												NameSpace nameSpace)
+		throws XmlTranslationException
+	{
+		Document document	= buildDOM(xmlStream);
+		return (document == null) ? null : translateFromXML(document, nameSpace);
+	}	
 	/**
 	 * Given an XML-formatted String, 
 	 * builds a tree of equivalent ElementState objects.
@@ -671,10 +763,39 @@ public class ElementState extends IO
 	public static ElementState translateFromXML(InputStream xmlStream)
 		throws XmlTranslationException
 	{
-		Document document	= buildDOM(xmlStream);
-		return (document == null) ? null : translateFromXML(document);
+		return translateFromXML(xmlStream, globalNameSpace);
 	}	
 	
+	/**
+	 * Given an XML-formatted String, 
+	 * builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlString	the actual XML that needs to be translated.
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXMLString(String xmlString, 
+													  int charsetType,
+													  NameSpace nameSpace)
+		throws XmlTranslationException
+	{
+	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
+	   return (document == null) ? null : translateFromXML(document,nameSpace);
+	}
 	/**
 	 * Given an XML-formatted String, 
 	 * builds a tree of equivalent ElementState objects.
@@ -701,10 +822,43 @@ public class ElementState extends IO
 													  int charsetType)
 		throws XmlTranslationException
 	{
-	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
-	   return (document == null) ? null : translateFromXML(document);
+	   return translateFromXMLString(xmlString, charsetType, globalNameSpace);
 	}
 	
+	/**
+	 * Given an XML-formatted String, uses charset type UTF-8 to create
+	 * a stream, and build a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which
+	 * is an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree 
+	 * of classes derived from ElementState, which corresponds to the
+	 * structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to 
+	 * the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into
+	 * a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param xmlString	the actual XML that needs to be translated.
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
+	 * @return 		 Parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXMLString(String xmlString,
+													  NameSpace nameSpace)
+		throws XmlTranslationException
+	{
+
+	   xmlString = XML_FILE_HEADER + xmlString;
+	   return translateFromXMLString(xmlString, StringInputStream.UTF8,
+									 nameSpace);
+	}
 	/**
 	 * Given an XML-formatted String, uses charset type UTF-8 to create
 	 * a stream, and build a tree of equivalent ElementState objects.
@@ -733,11 +887,7 @@ public class ElementState extends IO
 	public static ElementState translateFromXMLString(String xmlString)
 		throws XmlTranslationException
 	{
-
-	   xmlString = XML_FILE_HEADER + xmlString;
-	   Document document	= buildDOMFromXMLString(xmlString, 
-													StringInputStream.UTF8);
-	   return (document == null) ? null : translateFromXML(document);
+	   return translateFromXMLString(xmlString, globalNameSpace);
 	}
 	
 	/**
@@ -1045,7 +1195,15 @@ public class ElementState extends IO
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
+			   NameSpace nameSpaceForTranslation	= nameSpace;
 			   String childTag			= childNode.getNodeName();
+			   int colonIndex			= childTag.indexOf(':');
+			   if (colonIndex > 0)
+			   {
+				   String nameSpaceName	= childTag.substring(0, colonIndex);
+				   nameSpaceForTranslation	= NameSpace.get(nameSpaceName);
+				   childTag				= childTag.substring(colonIndex+1);
+			   }
 			   String childFieldName	= 
 				  XmlTools.fieldNameFromElementName(childTag);
 //			   println("childFieldName="+childFieldName +" in "+
@@ -1058,11 +1216,46 @@ public class ElementState extends IO
 				  //TODO does the tag correspond to an element with one text child,
 				  // which we are supposed to squirt directly into a field, rather than into
 				  // a nested element?
+				  HashMap leafElementFields	= leafElementFields();
+				  if (leafElementFields != null)
+				  {
+					  if (leafElementFields.get(childFieldName) != null)
+					  {
+						  // get the text element child
+						  Node textElementChild		= childNode.getFirstChild();
+						  if (textElementChild != null)
+						  {
+							  String textNodeValue	= textElementChild.getNodeValue();
+							  //debug("setting special text node " +childFieldName +"="+textNodeValue);
+							  this.setField(childField, textNodeValue);
+/*
+							  short childsChildNodeType	= childNode.getNodeType();
+							  switch (childsChildNodeType)
+							  {
+							  case Node.TEXT_NODE:
+							  case Node.CDATA_SECTION_NODE:
+								  String textNodeValue	= textElementChild.getNodeValue();
+								  debug("setting special text node childField="+textNodeValue);
+								  this.setField(childField, textNodeValue);
+								  break;
+							  default:
+								  debug("ERROR: didn't find text node child where specified for " + childFieldName);
+								  break;
+							  }
+							  */
+						  }
+						  else
+						  {
+							  debug("ERROR: didn't find text node child where specified for " + childFieldName);
+						  }
+						  continue;						  
+					  }
+				  }
 //				  println("childClass="+childClass);
 				  ElementState childElementState = getElementState(childClass);
 				  childElementState.elementByIdMap	= this.elementByIdMap;
 				  
-				  childElementState.translateFromXML(childNode, childClass, nameSpace);
+				  childElementState.translateFromXML(childNode, childClass, nameSpaceForTranslation);
 				  addNestedElement(childField, childElementState);
 				  
 			   } catch (NoSuchFieldException e)
@@ -1413,72 +1606,7 @@ public class ElementState extends IO
 	{
 	   return globalNameSpace.objectToXmlTag(this);
 	}
-
-	/**
-	 * Translate the name of this ElementState derived class into an
-	 * appropriate tag name. Use the tag name to form most of an open
-	 * tag for an XML element.
-	 * </p>
-	 * However, the final close > is not emitted here,
-	 * so attributes can be appended.
-	 *
-	 * @return	Most of an open tag for the XML element.
-	 */
-	public String startOpenTag(NameSpace nameSpace)
-	{	
-	   return "<" + this.tagName(nameSpace);
-	}
-	/**
-	 * Translate the name of this ElementState derived class into an
-	 * appropriate tag name. Use the tag name to form a close tag for 
-	 * an XML element.
-	 *
-	 * @return	Most of an open tag for the XML element.
-	 */
-	public String closeTag(NameSpace nameSpace)
-	{
-		return "</" + this.tagName(nameSpace) + ">";
-	}
-
-	/**
-	 * Translate the name of this ElementState derived class into an
-	 * appropriate tag name. Use the tag name to form a close tag for 
-	 * an XML element.
-	 *
-	 * @return	Most of an open tag for the XML element.
-	 */
-	public String closeTag()
-	{
-		return closeTag(globalNameSpace);
-	}
 	
-	/**
-	 * Translate a supplied field name into an appropriate tag name. 
-	 * Use the tag name to form most of an open tag for an XML element.
-	 * </p>
-	 * However, the final close > is not emitted here,
-	 * so attributes can be appended.
-	 *
-	 * @return	Most of an open tag for the XML element.
-	 */
-	public String startOpenTag(String fieldName, boolean compression)
-	{	
-	   return getTagMapEntry(fieldName, compression).startOpenTag;
-	}
-	/**
-	 * Translate a supplied field name into an appropriate tag name. 
-	 * Use the tag name to form a close tag for an XML element.
-	 * </p>
-	 * However, the final close > is not emitted here,
-	 * so attributes can be appended.
-	 *
-	 * @return	Most of an open tag for the XML element.
-	 */
-	public String closeTag(String fieldName, boolean compression)
-	{	
-	   return getTagMapEntry(fieldName, compression).closeTag;
-	}
-
 /**
  * Get a tag translation object that corresponds to the fieldName,
  * with this class. If necessary, form that tag translation object,
@@ -1508,7 +1636,7 @@ public class ElementState extends IO
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	private TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
+	protected TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
 	{
 	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(thatClass);
 	   if (result == null)
@@ -1579,15 +1707,21 @@ public class ElementState extends IO
 		try
 		{
 		   Field field			= getClass().getField(fieldName);
-		   Type fieldType		= TypeRegistry.getType(field);
-		   if (fieldType != null)
-			  result			= fieldType.setField(this, field, fieldValue);
+		   result = setField(field, fieldValue);
 		}
 		catch (NoSuchFieldException e)
 		{
 			debug("ERROR no such field to set "+fieldName+" = "+
 			      fieldValue);
 		}
+		return result;
+	}
+	protected boolean setField(Field field, String fieldValue)
+	{
+		boolean result		= false;
+		Type fieldType		= TypeRegistry.getType(field);
+		if (fieldType != null)
+			result			= fieldType.setField(this, field, fieldValue);
 		return result;
 	}
 
@@ -1696,10 +1830,10 @@ public class ElementState extends IO
 	  globalNameSpace.setDefaultPackageName(packageName);
    }
 
-	class TagMapEntry
+	protected class TagMapEntry
 	{
-	   final String startOpenTag;
-	   final String closeTag;
+	   public final String startOpenTag;
+	   public final String closeTag;
 	   
 	   TagMapEntry(String tagName)
 	   {
@@ -1729,20 +1863,34 @@ public class ElementState extends IO
 	}
 	public Type translatePrimitiveAsElementNotAttribute(String fieldName)
 	{
-	   HashMap fieldsAsElementWithOneTextChild = fieldsAsElementWithOneTextChild();
-	   return (fieldsAsElementWithOneTextChild == null) ? null :
-	   	(Type) fieldsAsElementWithOneTextChild.get(fieldName);
+	   HashMap leafElementFields = leafElementFields();
+	   return (leafElementFields == null) ? null :
+	   	(Type) leafElementFields.get(fieldName);
 	}
 /**
  * This is used by subclasses to declare primitive fields, each of
  * which gets translated to XML as an element with a single TEXT_NODE child,
  * instead of as an attribute.
  */
-	protected HashMap fieldsAsElementWithOneTextChild()
+	protected HashMap leafElementFields()
 	{
 		return null;
 	}
-	
+	/**
+	 * Add a bunch of entries to a leafElementFields map.
+	 * 
+	 * @param fieldsMap
+	 * @param leafElementFieldNames
+	 */
+	static protected void defineLeafElementFieldNames(HashMap fieldsMap, String[] leafElementFieldNames)
+	{
+		int numLeafElementFieldNames	= leafElementFieldNames.length;
+		for (int i=0; i< numLeafElementFieldNames; i++)
+		{
+			String fieldName			= leafElementFieldNames[i];
+			fieldsMap.put(fieldName, fieldName);
+		}
+	}
 	/**
 	 * Controls if the public fields of a parent class (= super class)
 	 * will be emitted or not, during translation to XML.
