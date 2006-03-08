@@ -3,21 +3,16 @@
  */
 package ecologylab.generic.AssetsCache;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
+import ecologylab.generic.ApplicationProperties;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.DownloadMonitor;
+import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ParsedURL;
+import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.ZipDownload;
 import ecologylab.gui.Status;
 import ecologylab.media.IIOPhoto;
@@ -29,32 +24,75 @@ import ecologylab.media.IIOPhoto;
  */
 public class Assets
 extends Debug
+implements ApplicationProperties
 {
-	static File cacheRoot = null;
-	
 	/**
 	 * current known assets (although arbitrary ones can exist)
 	 */
-	public static final String INTERFACE		= "interface";
-	public static final String SEMANTICS		= "semantics";
+	public static final String INTERFACE		= "interface/";
+	public static final String SEMANTICS		= "semantics/";
 	
-	private static DownloadMonitor downloadMonitor;	
+	/**
+	 * Source URL root of the tree of assets for this application.
+	 * Default is the configDir(), which in turn is the config subdir of codebase.
+
+	 * 
+	 * The source location of any asset is specified relative to here.
+	 */
+	static ParsedURL	assetsRoot;
 	
+	/**
+	 * Source URL root of the tree of interface assets for this application.
+	 * This should always be set to the INTERFACE subdir of the assetsRoot.
+	 * 
+	 * The source location of any interface asset is specified relative to here.
+	 */
+	static ParsedURL	interfaceAssetsRoot;
+	
+	/**
+	 * Source URL root of the tree of semantics assets for this application.
+	 * This should always be set to the SEMANTICS subdir of the assetsRoot.
+	 * 
+	 * The source location of any semantics asset is specified relative to here.
+	 */
+	static ParsedURL	semanticsAssetsRoot;
+	
+/**
+ * The root directory on the local machine where assets will be stored (cached).
+ * 
+ * The cache destination  of any asset is applied relative to here.
+ */
+	static File			cacheRoot;
+	
+	/**
+	 * The root directory on the local machine where interface assets will be stored
+	 * (cached). 
+	 * This should always be set to the INTERFACE subdir of the cacheRoot.
+	 * 
+	 * The location of any interface asset is specified relative to here.
+	 */
+	static File			interfaceCacheRoot;
+	
+	/**
+	 * The root directory on the local machine where semantics assets will be stored
+	 * (cached). 
+	 * This should always be set to the SEMANTICS subdir of the cacheRoot.
+	 * 
+	 * The location of any semantics asset is specified relative to here.
+	 */
+	static File			semanticsCacheRoot;
+
+	static
+	{
+		setAssetsRoot(Generic.configDir());
+		setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
+	}
 	//////////////////////////////////////////////////////////////
 	
 	/**
 	 * No instances possible, static references only.
 	 */
 	private Assets() {}
-	
-	/**
-	 * Sets the root file path for caching. Assets are specified relative to this path.
-	 * @param cacheRoot The root file path for caching assets.
-	 */
-	public static void setCacheRoot(File cacheRoot)
-	{
-		Assets.cacheRoot = cacheRoot;
-	}
 	
 	/**
 	 * Given a relative path, return a file reference to this path
@@ -123,158 +161,166 @@ extends Debug
 		
 		return theAsset;
 	}
-	
-	public static void downloadZip(ParsedURL sourceZip, File targetFile)
+	/**
+	 * 
+	 * @param assetRelativePath
+	 * @return
+	 */
+	public static File getInterfaceFile(String assetRelativePath)
 	{
-		downloadZip(sourceZip, targetFile, null);
+		//FIXME need to make sure zip has been downloaded here
+		// if not, initiate download & wait for it!
+		return getCachedInterfaceFile(assetRelativePath);		
+	}
+	/**
+	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
+	 * 
+	 * @param assetRelativePath
+	 * @return
+	 */
+	protected static File getCachedInterfaceFile(String assetRelativePath)
+	{
+		return Files.newFile(interfaceCacheRoot, assetRelativePath);
+	}
+	/**
+	 * 
+	 * @param assetRelativePath
+	 * @return
+	 */
+	public static File getSemanticsFile(String assetRelativePath)
+	{
+		//FIXME need to make sure zip has been downloaded here
+		// if not, initiate download & wait for it!
+		return getCachedSemanticsFile(assetRelativePath);		
+	}
+	/**
+	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
+	 * 
+	 * @param assetRelativePath
+	 * @return
+	 */
+	protected static File getCachedSemanticsFile(String assetRelativePath)
+	{
+		return Files.newFile(semanticsCacheRoot, assetRelativePath);
+	}
+	/**
+	 * Download an interface assets zip file from the interfaceAssetsRoot.
+	 * Unzip it into the cacheRoot.
+	 * 
+	 * @param assetRelativePath -- This is the name of the interface. It does not end in .zip!
+	 * @param status	Provide feedback to the user at the bottom of a window, or such.
+	 */
+	public static void downloadInterfaceZip(String assetRelativePath, Status status,
+											boolean forceDownload)
+	{
+		downloadZip(interfaceAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
+					interfaceCacheRoot, status, forceDownload);
+	}
+	/**
+	 * Download an semantics assets zip file from the semanticsAssetsRoot.
+	 * Unzip it into the cacheRoot.
+	 * 
+	 * @param assetRelativePath
+	 * @param status	Provide feedback to the user at the bottom of a window, or such.
+	 */
+	public static void downloadSemanticsZip(String assetRelativePath, Status status,
+											boolean forceDownload)
+	{
+		downloadZip(semanticsAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
+					semanticsCacheRoot, status, forceDownload);
+	}
+	/**
+	 * Download the assets zip file from the assetsRoot.
+	 * Unzip it into the cacheRoot.
+	 * 
+	 * @param assetRelativePath
+	 * @param status	Provide feedback to the user at the bottom of a window, or such.
+	 */
+	public static void downloadZip(String assetRelativePath, Status status,
+								   boolean forceDownload)
+	{
+		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
+					Files.newFile(cacheRoot, assetRelativePath), status, forceDownload);
+	}
+	/**
+	 * Download the assets zip file from the assetsRoot.
+	 * Unzip it into the cacheRoot.
+	 * 
+	 * Don't bother providing feedback to the user.
+	 * 
+	 * @param assetRelativePath
+	 */
+	public static void downloadZip(String assetRelativePath,
+								   boolean forceDownload)
+	{
+		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
+					Files.newFile(cacheRoot, assetRelativePath), null, forceDownload);
 	}
 	
+	public static void downloadZip(ParsedURL sourceZip, File targetFile,
+								   boolean forceDownload)
+	{
+		downloadZip(sourceZip, targetFile, null, forceDownload);
+	}
 	/**
-	 * Convenience function to allow downloading and uncompressing of a 
-	 * zip file from a source to a target location with minimal effort.
-	 * 
-	 * @param source The location of the zip file to download and uncompress.
-	 * @param target The location where the zip file should be uncompressed. This
-	 * will be created if it doesn't exist.
+	 * Download and uncompress a zip file from a source to a target location with minimal effort,
+	 * unless the zip file already exists at the target location, in which case, 
+	 * do nothing.
 	 * @param status The Status object that provides a source of state change visiblity;
 	 * can be null.
+	 * @param forceDownload TODO
+	 * @param source The location of the zip file to download and uncompress.
+	 * @param target The location where the zip file should be uncompressed. This
+	 * directory structure will be created if it doesn't exist.
 	 */
-	public static void downloadZip(ParsedURL sourceZip, File targetFile, Status status)
+	public static void downloadZip(ParsedURL sourceZip, File targetFile, Status status, boolean forceDownload)
 	{
-		ZipFile zipFile			=   null;
-	   	Enumeration entries		=   null;
-	   	
-	   	//create the target parent directories if they don't exist
-	   	if (!targetFile.getParentFile().exists())
-	   		targetFile.getParentFile().mkdirs();
-	   	   
-	   	println("zip URL: " + sourceZip);
-		try
-		{    	           	            
-			if (sourceZip.toString().startsWith("file://"))
-			{
-				String zipLoc = 
-					sourceZip.toString().substring(7, sourceZip.toString().length());
-				zipFile = new ZipFile(zipLoc);
-			}
-			else
-			{
-				ZipDownload zipDownload = new ZipDownload(sourceZip, targetFile, status);
-				zipDownload.downloadAndWrite(true);
-				//zipFile = new ZipFile(sourceZip.url().toString());
-				return;
-				
-			}
-	    	
-			System.out.println("Extracting zip file: " + sourceZip);
-			entries = zipFile.entries();
-			while (entries.hasMoreElements())
-			{
-				ZipEntry entry = (ZipEntry) entries.nextElement();
-				
-				if (entry.isDirectory())
-				{
-					File entryDir = new File(targetFile.getParentFile(), entry.getName());
-					if (!entryDir.exists())
-						entryDir.mkdirs();
-					
-					continue;
-				}
-				File outFile = new File(targetFile.getParentFile(), entry.getName());
-		        copyInputStream(zipFile.getInputStream(entry),
-		           new BufferedOutputStream(new FileOutputStream(outFile)));
-			}
-			
-			zipFile.close();
-			
-		}catch(IOException e)
+		//TODO add versioning logic
+		if (forceDownload || !targetFile.canRead())
 		{
-			System.out.println("Error, file not found on the server!");
-			e.printStackTrace();
-			return;
-		}      
-	}
-	
-	/**
-	 * Tiny inner class to handle buffer I/O
-	 * 
-	 * @param in	The inputstream
-	 * @param out	The outputstream
-	 * @throws IOException	Throws IOException on invalid in or out stream.
-	 */
-	public static final void copyInputStream(InputStream in, OutputStream out)
-	throws IOException
-	{
-	  byte[] buffer = new byte[1024];
-	  int len;
-
-	  while((len = in.read(buffer)) >= 0)
-	    out.write(buffer, 0, len);
-
-	  in.close();
-	  out.close();
-	}
-	
-	static final String interfaceSubDir	= Generic.parameter("userinterface");
-	
+			ZipDownload downloadingZip	= ZipDownload.downloadZip(sourceZip, targetFile, status);
+			if (downloadingZip != null) // null if already available locally or error
+			{
+				downloadingZip.waitForDownload();
+			}
+		}
+	}	
 	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget)
-	   {
-		   boolean isCached = false;
-		   IIOPhoto result		= null;
-		   if (imagePath != null)
-		   {
-			   ParsedURL parsedPixelBasedURL	= null;
-			   if(!imagePath.startsWith("file:///"))
-			   {
-				   File cachedFile = 
-					   new File (Assets.getAsset(INTERFACE, Generic.parameter("userinterface")), 
-						   						imagePath);
-//				 used a cached copy if available
-				   if (cachedFile.canRead())
-				   {
-					   println("Cache read: " + cachedFile);
-					   parsedPixelBasedURL		= new ParsedURL(cachedFile);
-					   isCached = true;
-				   }
-				   else
-				   {
-					   parsedPixelBasedURL = Generic.systemPhotoPath(imagePath);
-				   }
-				}
-				else
-				{
-					parsedPixelBasedURL =  ParsedURL.getRelativeOrAbsolute(imagePath, 
-							"getPixelBased()");
-				}
-			 if (parsedPixelBasedURL != null)
-			 {
-			    try
-			    {
-			    	result	= new IIOPhoto(parsedPixelBasedURL, dispatchTarget);
-			    }
-				catch (NullPointerException e)
-			    {
-			    	println("getPixelBased() ERROR: returning null.");
-			    	e.printStackTrace();	
-					return null;
-			    }
-		//	    result.checkForTimeout	= checkForTimeout;
-		//	    debug("getPixelBased(download() "+pixelBasedString+") ->"+ pixelBasedURL);
-				result.downloadWithHighPriority();
-			    result.download();
-				if (!isCached) //cache the picture if it isn't already
-				{
-					result.cacheImage(
-							Generic.parameter("userinterface") 	+
-							File.separator						+
-							imagePath);
-				}
-			 }
-			 else
-				 println("getCachedIIOPhoto( Couldn't find param "+imagePath);
-	     }
-		 return result;
-	   }
+	{
+		//FIXME need to make sure zip has been downloaded here
+		// if not, initiate download & wait for it!
+		ParsedURL cachedImagePURL	= new ParsedURL(getCachedInterfaceFile(imagePath));
+		IIOPhoto result = new IIOPhoto(cachedImagePURL, dispatchTarget);
+//		result.downloadWithHighPriority();
+		result.useHighPriorityDownloadMonitor();
+		result.download();
+//		if (result.isDownloadDone())
+//			result.delivery(dispatchTarget);
+		return result;
+	}
 
+	/**
+	 * Set the source URL root of the tree of assets for this application.
+	 * Default is the configDir(), which in turn is the config subdir of codebase.
+	 * 
+	 * The source location of any asset is specified relative to here.
+	 */
+	public static void setAssetsRoot(ParsedURL assetsRoot)
+	{
+		Assets.assetsRoot 		= assetsRoot;
+		interfaceAssetsRoot		= assetsRoot.getRelative(INTERFACE, "forming interface assets root");
+		semanticsAssetsRoot		= assetsRoot.getRelative(SEMANTICS, "forming semantics assets root");
+	}
+
+	/**
+	 * Sets the root file path for caching. Assets are specified relative to this path.
+	 * @param cacheRoot The root file path for caching assets.
+	 */
+	public static void setCacheRoot(File cacheRoot)
+	{
+		Assets.cacheRoot		= cacheRoot;
+		interfaceCacheRoot		= Files.newFile(cacheRoot, INTERFACE);
+		semanticsCacheRoot		= Files.newFile(cacheRoot, SEMANTICS);
+	}
 }
 
