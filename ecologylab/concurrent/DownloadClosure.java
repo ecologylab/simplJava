@@ -68,6 +68,7 @@ extends Debug
    {
       downloadingThread		= Thread.currentThread();
       downloadable.performDownload();
+      downloadable.downloadDone();
    }
    public synchronized void dispatch()
    {

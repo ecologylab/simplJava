@@ -24,4 +24,10 @@ public interface Downloadable
  * Called in case an IO error happens.
  */
    public void handleIoError();
+   
+   /**
+    * Call to notify the object that its download is completed;
+    *
+    */
+   public void downloadDone();
 }
