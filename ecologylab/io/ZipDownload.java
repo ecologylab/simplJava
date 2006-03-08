@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -27,7 +28,8 @@ import ecologylab.gui.Status;
  * 
  * @author Blake Dworaczyk
  */
-public class ZipDownload 
+public class ZipDownload
+extends Debug
 implements Downloadable, DispatchTarget
 {
 	
@@ -38,7 +40,7 @@ implements Downloadable, DispatchTarget
 	Status		status;
 	boolean		keepStatus			= false;
 	
-	boolean		downloaded 			= false;
+	boolean		downloadDone 		= false;
 	boolean 	downloadStarted 	= false;
 	boolean 	aborted				= false;
 	boolean		extractWhenComplete = false;
@@ -127,6 +129,11 @@ implements Downloadable, DispatchTarget
           
           if (extractWhenComplete)
         	  extractZipFile(zipTarget);
+          
+          synchronized (this)
+          {
+        	  downloadDone	= true;
+          }
 	}
 	
 	public BufferedInputStream getInputStream(File zipTarget)
@@ -192,12 +199,12 @@ implements Downloadable, DispatchTarget
 
 	public boolean isDownloadDone() 
 	{
-		return downloaded;
+		return downloadDone;
 	}
 
 	public boolean handleTimeout() 
 	{
-		if (!downloaded && !aborted)
+		if (!downloadDone && !aborted)
 		{
 			aborted = true;
 			if (inputStream != null)
@@ -231,55 +238,128 @@ implements Downloadable, DispatchTarget
 	}
 	
 	/**
+	 * Convenience function to allow downloading and uncompressing of a 
+	 * zip file from a source to a target location with minimal effort.
+	 * 
+	 * @param source The location of the zip file to download and uncompress.
+	 * @param targetDir The location where the zip file should be uncompressed. This
+	 * directory structure will be created if it doesn't exist.
+	 * @param status The Status object that provides a source of state change visiblity;
+	 * can be null.
+	 * @return TODO
+	 */
+	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, Status status)
+	{
+	   	// create the target parent directories if they don't exist
+	   	if (!targetDir.getParentFile().exists())
+	   		targetDir.getParentFile().mkdirs();
+	   	   
+	   	println("downloading from zip URL: " + sourceZip);
+		try
+		{    	         
+			//FIXME make this use a (fixed?!) version of ParsedURL.isFile() ...
+			if (sourceZip.toString().startsWith("file://"))
+			{
+				String zipLoc = 
+					sourceZip.toString().substring(7, sourceZip.toString().length());
+				// copy zip file from assets source to cache?
+				extractZipFile(zipLoc, targetDir);
+				return null;
+			}
+			else
+			{
+				ZipDownload zipDownload = new ZipDownload(sourceZip, targetDir, status);
+				zipDownload.downloadAndWrite(true);
+				return zipDownload;
+			}
+		} catch(IOException e)
+		{
+			System.out.println("Error, file not found on the server!");
+			e.printStackTrace();
+			return null;
+		}      
+	}
+
+	/**
+	 * Extracts a zip file into the directory where it resides
+	 * 
+	 * @param zipSource	The path to the source zip file to extract.
+	 */
+	public static void extractZipFile(String zipSourcePath)
+	throws IOException
+	{
+	   extractZipFile(new File(zipSourcePath));
+	}
+	public static void extractZipFile(File zipSource)
+	throws IOException
+	{
+		extractZipFile(zipSource, zipSource.getParentFile());
+	}
+	/**
 	 * Extracts a zip file into the directory where it resides
 	 * 
 	 * @param zipSource	The source zip file to extract
 	 */
-	public static void extractZipFile(File zipSource)
+	public static void extractZipFile(String zipSourcePath, File unzipPath)
+	throws IOException
+	{
+	   extractZipFile(new File(zipSourcePath), unzipPath);
+	}
+	/**
+	 * Extracts a zip file into the directory where it resides
+	 * 
+	 * @param zipSource	The source zip file to extract
+	 */
+	public static void extractZipFile(File zipSource, File unzipPath)
 	throws IOException
 	{
 		ZipFile zipFile 	= new ZipFile(zipSource);
-		int numEntries 		= zipFile.size();
-		int currentEntry	= 0;
-		
-		File targetDir 	= zipSource.getParentFile();
-		FileOutputStream outputStream;
-		int bytesRead;
-		byte[] buffer;
-		
-		ZipInputStream zipInputStream = 
-			new ZipInputStream(new FileInputStream(zipSource));
-		
-		ZipEntry entry;
-		
-		while ((entry = zipInputStream.getNextEntry()) != null)
+		System.out.println("Extracting zip file: " + zipSource);
+		Enumeration entries = zipFile.entries();
+		while (entries.hasMoreElements())
 		{
+			ZipEntry entry = (ZipEntry) entries.nextElement();
+			
 			if (entry.isDirectory())
 			{
-				File entryDir = new File(targetDir, entry.getName());
+				File entryDir = new File(unzipPath, entry.getName());
 				if (!entryDir.exists())
 					entryDir.mkdirs();
 				
 				continue;
 			}
-			//zipInputStream 		= zipFile.getInputStream(entry);
-			File destFile		= new File(targetDir, entry.getName());
-			outputStream		= 
-				new FileOutputStream(destFile);
-			 
-			buffer = new byte[(int) entry.getSize()];
-			while ((bytesRead = zipInputStream.read(buffer)) != -1) 
-			{
-                 
-					outputStream.write(buffer, 0, bytesRead);
-			}
-			
-			//give the user some feedback on how long this takes.
-			currentEntry++;
-			Generic.status("Zip file extracted: " + destFile);
+			File outFile = new File(unzipPath, entry.getName());
+	        StreamUtils.copyInputStream(zipFile.getInputStream(entry),
+	           new BufferedOutputStream(new FileOutputStream(outFile)));
 		}
+		
+		zipFile.close();
 		
 		System.out.println("Finished extracting Zip file: " + zipSource);
 	}
-
+	   /**
+	    * Call to notify the object that its download is completed;
+	    *
+	    */
+	   public synchronized void downloadDone()
+	   {
+		   notifyAll();
+	   }
+   public void waitForDownload()
+   {
+	   synchronized (this)
+	   {
+		   if (!downloadDone)
+		   {
+			   try
+			{
+				wait();
+			} catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		   }
+	   }
+   }
 }
