@@ -156,6 +156,15 @@ public class Generic
    
    static ParsedURL configDir;
    
+   /**
+    * The config directory, as located relative to the codebase, with the jar file and perhaps the sources.
+    * This is where the tree of configuration assets is rooted.
+    * Examples of configuration assets include interface graphics, interface semantic descriptions (xml),
+    * dictionary, ...
+    * These are files that don't change often, and are needed for an application.
+    * 
+    * @return
+    */
    public static ParsedURL configDir()
    {
 	   ParsedURL result	= configDir;
@@ -166,6 +175,12 @@ public class Generic
 	   }
 	   return result;
    }
+   /**
+    * Obtain a path relative to the configDir().
+    * 
+    * @param relativePath
+    * @return
+    */
    public static ParsedURL configPath(String relativePath)
    {
 	   return configDir().getRelative(relativePath, "Error forming config directory path.");
