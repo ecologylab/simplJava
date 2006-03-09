@@ -254,7 +254,7 @@ implements Downloadable, DispatchTarget
 	   	if (!targetDir.getParentFile().exists())
 	   		targetDir.getParentFile().mkdirs();
 	   	   
-	   	println("downloading from zip URL: " + sourceZip);
+	   	println("downloading from zip URL: " + sourceZip );
 		try
 		{    	         
 			//FIXME make this use a (fixed?!) version of ParsedURL.isFile() ...
@@ -265,6 +265,9 @@ implements Downloadable, DispatchTarget
 				File sourceZipFile	= sourceZip.file();
 				String fileName		= sourceZipFile.getName();
 				File destFile		= Files.newFile(targetDir, fileName);
+				if( !destFile.getParentFile().exists() )
+					destFile.getParentFile().mkdirs();
+					
 				StreamUtils.copyFile(sourceZipFile, destFile);
 				extractZipFile(sourceZipFile, targetDir);
 				return null;
