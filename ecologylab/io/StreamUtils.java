@@ -1,5 +1,8 @@
 package ecologylab.generic;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +15,11 @@ import java.io.OutputStream;
  */
 public class StreamUtils
 {
-
+	public static final void copyFile(File in, File out)
+	throws IOException
+	{
+		copyInputStream(new FileInputStream(in), new FileOutputStream(out));
+	}
 	/**
 	 * Tiny inner class to handle buffer I/O
 	 * 
@@ -23,6 +30,7 @@ public class StreamUtils
 	public static final void copyInputStream(InputStream in, OutputStream out)
 	throws IOException
 	{
+	  //TODO use a buffer pool!
 	  byte[] buffer = new byte[1024];
 	  int len;
 	
