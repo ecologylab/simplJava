@@ -258,12 +258,15 @@ implements Downloadable, DispatchTarget
 		try
 		{    	         
 			//FIXME make this use a (fixed?!) version of ParsedURL.isFile() ...
-			if (sourceZip.toString().startsWith("file://"))
+//			if (sourceZip.toString().startsWith("file://"))
+			if (sourceZip.isFile())
 			{
-				String zipLoc = 
-					sourceZip.toString().substring(7, sourceZip.toString().length());
-				// copy zip file from assets source to cache?
-				extractZipFile(zipLoc, targetDir);
+				// copy zip file from assets source to cache
+				File sourceZipFile	= sourceZip.file();
+				String fileName		= sourceZipFile.getName();
+				File destFile		= Files.newFile(targetDir, fileName);
+				StreamUtils.copyFile(sourceZipFile, destFile);
+				extractZipFile(sourceZipFile, targetDir);
 				return null;
 			}
 			else
@@ -335,7 +338,7 @@ implements Downloadable, DispatchTarget
 		
 		zipFile.close();
 		
-		System.out.println("Finished extracting Zip file: " + zipSource);
+		System.out.println("Finished extracting Zip file to " + unzipPath);
 	}
 	   /**
 	    * Call to notify the object that its download is completed;
