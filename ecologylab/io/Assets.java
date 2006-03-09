@@ -273,17 +273,26 @@ implements ApplicationProperties
 	 * @param target The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
 	 */
-	public static void downloadZip(ParsedURL sourceZip, File targetFile, Status status, boolean forceDownload)
+	public static void downloadZip(ParsedURL sourceZip, File targetDir, Status status, boolean forceDownload)
 	{
 		//TODO add versioning logic
-		if (forceDownload || !targetFile.canRead())
+		String zipFileName	= sourceZip.url().getFile();
+		int lastSlash		= zipFileName.lastIndexOf('\\');
+		if (lastSlash == -1)
+			lastSlash		= zipFileName.lastIndexOf('/');
+		
+		zipFileName			= zipFileName.substring(lastSlash+1);
+		File zipFileDestination	= Files.newFile(targetDir, zipFileName);
+		if (forceDownload || !zipFileDestination.canRead())
 		{
-			ZipDownload downloadingZip	= ZipDownload.downloadZip(sourceZip, targetFile, status);
+			ZipDownload downloadingZip	= ZipDownload.downloadZip(sourceZip, targetDir, status);
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();
 			}
 		}
+		else
+			println("Using cached " + zipFileDestination);
 	}	
 	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget)
 	{
