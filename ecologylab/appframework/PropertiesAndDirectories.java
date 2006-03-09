@@ -86,7 +86,7 @@ extends Debug
 				result.mkdir();
 			
 			THIS_APPLICATION_DIR		= result;
-			Assets.setCacheRoot(result);
+//			Assets.setCacheRoot(result);
 		}
 		return result;
 	}

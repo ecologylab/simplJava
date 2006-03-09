@@ -166,7 +166,7 @@ implements Environment
 			setProperty("screen_size", screenSize);
 		
 		PropertiesAndDirectories.setApplicationName(applicationName);
-		Assets.setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
+//		PropertiesAndDirectories.thisApplicationDir();
 	}
 	
 	public void loadProperties(File path, String filename)
