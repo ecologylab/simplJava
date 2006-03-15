@@ -24,7 +24,7 @@ public class LockFile
 	}
 	
 	/**
-	 * Lock the program. Return a status.
+	 * Lock the program (create a lockfile). Return a status.
 	 * @return whether or not the lockfile could be sucessfully written.
 	 */
 	public boolean lock()
@@ -50,16 +50,16 @@ public class LockFile
 	}
 	
 	/**
-	 * Unlock the program. Return a status.
+	 * Unlock the program (delete the lockfile). Return a status.
 	 * @return whether or not the lockfile could be sucessfully deleted.
 	 */
 	public boolean unlock()
 	{
 		if (lockFile == null)
-			return false;
+			lockFile = getLockFile();
 		
 		lockFile.delete();
-		lockFile = null;
+		//lockFile = null;
 		return true;
 	}
 	
@@ -74,6 +74,16 @@ public class LockFile
 			lockFile = getLockFile();
 		
 		return (lockFile != null && lockFile.exists());
+	}
+	
+	/**
+	 * Closes the 
+	 *
+	 */
+	public void close()
+	{
+		if (lockFile != null)
+			lockFile = null;
 	}
 	
 	/**
@@ -92,4 +102,5 @@ public class LockFile
 		return new File(PropertiesAndDirectories.tempDir(), 
 							lockName);
 	}
+	
 }
