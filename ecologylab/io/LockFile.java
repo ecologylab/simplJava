@@ -77,7 +77,7 @@ public class LockFile
 	}
 	
 	/**
-	 * Closes the 
+	 * Gets rid of the file handler (for garbage collection)
 	 *
 	 */
 	public void close()

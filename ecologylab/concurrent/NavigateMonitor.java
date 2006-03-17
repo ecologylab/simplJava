@@ -12,7 +12,7 @@ public class NavigateMonitor extends Thread
 {
    private boolean			running;
    
-   public static final int PORT = 8081;
+   public static final int PORT = 10001;
    private Socket 			sock = null;
    
    /**
