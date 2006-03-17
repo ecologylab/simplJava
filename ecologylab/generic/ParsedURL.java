@@ -145,7 +145,7 @@ extends Debug
    
    public final ParsedURL getRelative(String relativeURLPath, String errorDescriptor)
    {
-	 if (isFile())
+   	 if (isFile())
 	 {
 		 File newFile	= Files.newFile(file, relativeURLPath);
 		 return new ParsedURL(newFile);
