@@ -308,4 +308,13 @@ implements Environment
 		return (args.length >= 1) ? "config/" + args[0] : null;
 	}
 
+	/**
+	 * Set the codebase for the application.
+	 * Should only be done at startup.
+	 */
+	public void setCodeBase(ParsedURL codeBase) 
+	{
+		this.codeBase = codeBase;
+	}
+
 }
