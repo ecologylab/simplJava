@@ -15,24 +15,20 @@ implements ResponseTypes
 	/**
 	 * Perform the service associated with the request, using the supplied
 	 * context as needed.
-	 * 
-	 * @param requestMessage	Message to perform.
 	 * @param objectRegistry	Context to perform it in/with.
 	 * 
 	 * @return					Response to pass back to the (remote) caller.
 	 */
-	public abstract ResponseMessage performService(RequestMessage requestMessage, ObjectRegistry objectRegistry);
+	public abstract ResponseMessage performService(ObjectRegistry objectRegistry);
 
 	/**
 	 * Perform the service associated with the request, using a null 
 	 * ObjectRegistry context.
 	 * 
-	 * @param requestMessage	Message to perform.
-	 * 
 	 * @return					Response to pass back to the (remote) caller.
 	 */
-	public ResponseMessage performService(RequestMessage requestMessage)
+	public ResponseMessage performService()
 	{
-	   return performService(requestMessage, null);
+	   return performService(null);
 	}
 }
