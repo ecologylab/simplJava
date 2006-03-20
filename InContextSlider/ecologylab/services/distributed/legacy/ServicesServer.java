@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -61,7 +62,7 @@ public class ServicesServer extends Thread
 	 */
 	public ResponseMessage performService(RequestMessage requestMessage, ObjectRegistry objectRegistry) 
 	{
-		return requestMessage.performService(requestMessage, objectRegistry);
+		return requestMessage.performService(objectRegistry);
 	}
 	
 	public void run()
@@ -100,12 +101,19 @@ public class ServicesServer extends Thread
 				   }
 			   }
 			}
+			catch (java.net.BindException be)
+			{
+				System.out.println("ServicesServer ERROR: can't bind to port " + portNumber
+						+" cause its already in use. Quitting!");
+				return;
+			}
 			catch (Exception e)
 			{
 				//incomingSocket.close();
 				
 				System.out.println("ServicesServer error: couldn't bind to port " + portNumber);
 				e.printStackTrace();
+				Generic.sleep(1000);
 			}
 		}
 	}

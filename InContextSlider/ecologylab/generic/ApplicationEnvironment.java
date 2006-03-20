@@ -166,7 +166,7 @@ implements Environment
 			setProperty("screen_size", screenSize);
 		
 		PropertiesAndDirectories.setApplicationName(applicationName);
-		Assets.setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
+//		PropertiesAndDirectories.thisApplicationDir();
 	}
 	
 	public void loadProperties(File path, String filename)
@@ -306,6 +306,15 @@ implements Environment
 	public static String paramaterFileRelativeFromArg0(String[] args) 
 	{
 		return (args.length >= 1) ? "config/" + args[0] : null;
+	}
+
+	/**
+	 * Set the codebase for the application.
+	 * Should only be done at startup.
+	 */
+	public void setCodeBase(ParsedURL codeBase) 
+	{
+		this.codeBase = codeBase;
 	}
 
 }
