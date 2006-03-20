@@ -3,6 +3,8 @@
  */
 package ecologylab.generic;
 
+import ecologylab.media.PixelBased;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -33,7 +35,7 @@ extends Debug
 implements Downloadable, DispatchTarget
 {
 	
-	static DownloadMonitor downloadMonitor = new DownloadMonitor("Zip DownloadMonitor", 0);
+	static DownloadMonitor downloadMonitor = PixelBased.highPriorityDownloadMonitor;
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
@@ -74,6 +76,7 @@ implements Downloadable, DispatchTarget
 	public void downloadAndWrite(boolean extractWhenComplete)
 	{
 		this.extractWhenComplete 	= extractWhenComplete;
+		debug("downloadAndWrite() calling downloadMonitor");
 		downloadMonitor.download(this, this);
 	}
 	/**
@@ -91,16 +94,29 @@ implements Downloadable, DispatchTarget
 	public void performDownload() 
 	throws Exception 
 	{
+		debug("performDOwnload() top");
 		if (downloadStarted)
 			return;
 		
 		downloadStarted = true;
 		
 		//this gets the stream and sets the member field 'fileSize'
-		inputStream = getInputStream(zipTarget);
+//		inputStream = getInputStream(zipSource);
+		inputStream = zipSource.url().openStream();
 		
-		  //actually read and write the zip
+		debug("performDownload() got InputStream");
+
+		//actually read and write the zip
+		// if zipTarget already exists, delete it
+		if (zipTarget.equals(zipTarget))
+		{
+			boolean deleted = zipTarget.delete();
+			debug("ZipTarget exists, so deleting = " + deleted);
+		}
+		
 		  OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(zipTarget));
+		  debug("performDownload() got outputStream from " + zipTarget);
+
 		  byte zipBytes[] = new byte[BUFFER_SIZE];
 		  
 		  //Read data from the source file and write it out to the zip file
@@ -251,10 +267,10 @@ implements Downloadable, DispatchTarget
 	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, Status status)
 	{
 	   	// create the target parent directories if they don't exist
-	   	if (!targetDir.getParentFile().exists())
-	   		targetDir.getParentFile().mkdirs();
+	   	if (!targetDir.exists())
+	   		targetDir.mkdirs();
 	   	   
-	   	println("downloading from zip URL: " + sourceZip );
+	   	println("downloading from zip URL: " + sourceZip +"\n\t to " + targetDir);
 		try
 		{    	         
 			//FIXME make this use a (fixed?!) version of ParsedURL.isFile() ...
@@ -280,7 +296,7 @@ implements Downloadable, DispatchTarget
 			}
 		} catch(IOException e)
 		{
-			System.out.println("Error, file not found on the server!");
+			System.out.println("Error, zip file not found on the server!");
 			e.printStackTrace();
 			return null;
 		}      
