@@ -918,4 +918,24 @@ extends Debug
 		}
 
     }
+    /**
+     * Returns the name of the file or directory denoted by this abstract pathname. 
+     * This is just the last name in the pathname's name sequence. 
+     * If the pathname's name sequence is empty, then the empty string is returned.
+     * <p/>
+     * Analagous to File.getName().
+     * 
+     * @return
+     */
+    public String getName()
+    {
+    	URL url			= this.url;
+    	String path		= url.getPath();
+    	int lastSlash	= path.lastIndexOf('/');
+    	if (lastSlash > -1)
+    	{
+    		path		= path.substring(lastSlash+1);
+    	}
+    	return path;
+    }
 }
