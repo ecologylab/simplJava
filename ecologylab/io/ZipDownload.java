@@ -108,7 +108,7 @@ implements Downloadable, DispatchTarget
 
 		//actually read and write the zip
 		// if zipTarget already exists, delete it
-		if (zipTarget.equals(zipTarget))
+		if (zipTarget.exists())
 		{
 			boolean deleted = zipTarget.delete();
 			debug("ZipTarget exists, so deleting = " + deleted);
@@ -290,7 +290,8 @@ implements Downloadable, DispatchTarget
 			}
 			else
 			{
-				ZipDownload zipDownload = new ZipDownload(sourceZip, targetDir, status);
+				String fileName			= sourceZip.getName();
+				ZipDownload zipDownload = new ZipDownload(sourceZip, Files.newFile(targetDir, fileName), status);
 				zipDownload.downloadAndWrite(true);
 				return zipDownload;
 			}
