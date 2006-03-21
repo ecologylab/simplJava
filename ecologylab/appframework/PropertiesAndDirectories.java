@@ -25,7 +25,7 @@ extends Debug
    
     public static final int UNKNOWN=0, WINDOWS=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5;
 	
-	protected static final int os; //should be final
+	protected static int os; //should be final
 	
 	static
 	{
@@ -56,6 +56,20 @@ extends Debug
 	
 	public static int os()
 	{
+		if (os == UNKNOWN)
+		{
+			String osPreference = Generic.parameter("os");
+			if (osPreference != null)
+			{
+				osPreference	= osPreference.toLowerCase();
+				if (osPreference.indexOf("windows") != -1)
+					os			= WINDOWS;
+				else if (osPreference.indexOf("mac") != -1)
+					os			= MAC;
+				else if (osPreference.indexOf("linux") != -1)
+					os			= LINUX;				
+			}
+		}
 		return os;
 	}
 	static String		applicationName;
@@ -64,6 +78,12 @@ extends Debug
 	{
 		applicationName = apName;
 	}
+
+	public static String applicationName()
+	{
+		return applicationName;
+	}
+
 /**
  * This function now uses the Assets class that manages caching and retrieval of
  * assets.
@@ -76,8 +96,10 @@ extends Debug
 		File result = THIS_APPLICATION_DIR;
 		if (result == null)
 		{
-		   File apDataDir			= applicationDataDir();		
-		   if (PropertiesAndDirectories.os() == WINDOWS)
+		   File apDataDir			= applicationDataDir();
+		   println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
+				   +os());
+		   if (os() == WINDOWS)
 			   result				= Files.newFile(apDataDir, applicationName);
 		   else
 			   result				= Files.newFile(apDataDir, "." + applicationName);
@@ -193,10 +215,12 @@ extends Debug
 	   if (result == null)
 	   {
 		   String fileName = sysProperty("deployment.user.profile");
+		   println("deployment.user.profile=" + fileName);
 		   
 		   if (fileName == null) //for Mac OS X (and some windows!!)
 		   {
 			   fileName = sysProperty("user.home");
+			   println("user.home=" + fileName);
 			   File appDataDir = new File(fileName, "Application Data");
 			   
 			   if (appDataDir.exists()) //use the windows 'application data' directory if possible
@@ -212,7 +236,7 @@ extends Debug
 			   else
 				   result = Files.newFile(fileName);
 		   }
-		   
+		  println("applicationDataDir() = " + result);
 		  APPLICATION_DATA_DIR	= result;
 	   }
 	   return result;
