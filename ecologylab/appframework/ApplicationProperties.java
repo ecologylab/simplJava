@@ -18,4 +18,9 @@ public interface ApplicationProperties
 	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool(USE_ASSETS_CACHE_NAME);
 	
 	public static final String	CODEBASE				= "codebase";
+
+	public static final String FRAME 		= "frame";
+
+	public static final String GO_PREFIX	= "go_prefix";
+
 }
