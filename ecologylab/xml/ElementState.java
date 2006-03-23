@@ -841,13 +841,11 @@ public class ElementState extends IO
 	 * the DOM.
 	 * 
 	 * Recursively parses the XML nodes in DFS order and translates them into
-	 * a tree of state-objects.
+	 * a tree of state-objects. Uses the default UTF8 charset.
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param xmlString	the actual XML that needs to be translated.
-	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
-	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString,

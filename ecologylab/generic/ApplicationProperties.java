@@ -2,7 +2,7 @@ package ecologylab.generic;
 
 
 /**
- * Reusable String constants for getting properties from the environment.
+ * General set of reusable String constants for getting properties from the environment.
  * 
  * @author andruid
  * @author blake
