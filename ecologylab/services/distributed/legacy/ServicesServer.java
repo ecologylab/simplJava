@@ -49,6 +49,7 @@ public class ServicesServer extends Thread
 	{
 		this.portNumber 				= portNumber;
 		this.requestTranslationSpace	= requestTranslationSpace;
+		this.objectRegistry				= objectRegistry;
 	}
 
 	/**
@@ -56,11 +57,9 @@ public class ServicesServer extends Thread
 	 * performService() method on that message.
 	 * 
 	 * @param requestMessage	Message to perform.
-	 * @param objectRegistry	Context for request processing.
-	 * 
 	 * @return					Response to the message.
 	 */
-	public ResponseMessage performService(RequestMessage requestMessage, ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(RequestMessage requestMessage) 
 	{
 		return requestMessage.performService(objectRegistry);
 	}
@@ -93,7 +92,7 @@ public class ServicesServer extends Thread
 								= (RequestMessage) ElementState.translateFromXMLString(str, requestTranslationSpace);
 					   
 					   //perform the service being requested
-					   ResponseMessage responseMessage = performService(requestMessage, objectRegistry);
+					   ResponseMessage responseMessage = performService(requestMessage);
 					   
 					   //send the response
 					   out.println(responseMessage.translateToXML(false));
@@ -111,7 +110,7 @@ public class ServicesServer extends Thread
 			{
 				//incomingSocket.close();
 				
-				System.out.println("ServicesServer error: couldn't bind to port " + portNumber);
+				System.out.println("ServicesServer error while processing requests. ");
 				e.printStackTrace();
 				Generic.sleep(1000);
 			}
