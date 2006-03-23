@@ -19,4 +19,8 @@ public class Preference extends ElementState
 		this.name 	= name;
 		this.value 	= value; 
 	}
+	public String toString()
+	{
+		return "Preference\tname="+name+" value="+value;
+	}
 }
