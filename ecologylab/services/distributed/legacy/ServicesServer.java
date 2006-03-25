@@ -49,6 +49,8 @@ public class ServicesServer extends Thread
 	{
 		this.portNumber 				= portNumber;
 		this.requestTranslationSpace	= requestTranslationSpace;
+		if (objectRegistry == null)
+			objectRegistry				= new ObjectRegistry();
 		this.objectRegistry				= objectRegistry;
 	}
 
