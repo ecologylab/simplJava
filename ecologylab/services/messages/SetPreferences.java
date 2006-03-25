@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import cf.app.CFPropertyNames;
 import cf.app.CFSessionObjects;
 import cf.app.CMMenuBar;
+import cf.app.CMShellApplication;
 import cf.app.CollageMachine;
-
-
+import cf.app.CMShellApplication;
 
 import ecologylab.generic.ApplicationEnvironment;
 import ecologylab.generic.Environment;
@@ -88,16 +88,12 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
     		debug("SetPreferences ERROR! no codebase preference was passed in.");
     	}
     	//print the prefs
-		System.out.println("Received and loaded preferences: " + preferencesSet);
+		System.out.println("performService() Received and loaded preferences: " + preferencesSet);
 		
-		AWTBridge cmBridge	= (AWTBridge) objectRegistry.lookupObject(CM_BRIDGE);
-		CMMenuBar cmMenuBar	= (CMMenuBar) objectRegistry.lookupObject(CM_MENU_BAR);
-
-		  cmBridge.unstuckDebugger();
-		  
-		  CollageMachine collageMachine		= new CollageMachine(cmBridge, cmMenuBar);
+		CollageMachine collageMachine	= CMShellApplication.setupCollageMachine(objectRegistry);
+		
 		//  collageMachine.start();
-		  collageMachine.run();
+		collageMachine.run();
         println("sending ResponseMessage(OK)");
 		return new ResponseMessage(OK);
 	}
