@@ -8,6 +8,9 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import ecologylab.services.messages.BrowseCommand;
+import ecologylab.xml.XmlTranslationException;
+
 public class NavigateMonitor extends Thread
 {
    private boolean			running;
@@ -118,29 +121,25 @@ public class NavigateMonitor extends Thread
 		    e.printStackTrace();
 		}
 	
-		//BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		PrintStream writer =
 		    new PrintStream(out);
-		//BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
 		
-		//TODO need to change this to XML and use ecologylab.xml
-		String line1 = "navigate " + purl.toString();
+		BrowseCommand browseCommand = new BrowseCommand("navigate", purl.toString());
 		try 
 		{
 		    System.out.println("Navigating to " + purl);
-			//line = reader.readLine();
-			writer.println(line1);
-			//writer.newLine();
-			
+		    String message = browseCommand.translateToXML(false);
+			writer.println(message);
 			writer.flush();
+			
+			System.out.println("just sent: " + message);
 		} 
-		catch(Exception e) 
+		catch(XmlTranslationException e) 
 		{
-		    e.printStackTrace();
+		    System.out.println("failed translating BrowseCommand to XML");
+			e.printStackTrace();
 		}
-	
-		System.out.println("just sent: ");
-		System.out.println(line1);
+		
    }
    
 }
