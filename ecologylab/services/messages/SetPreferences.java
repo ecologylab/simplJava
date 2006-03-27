@@ -7,13 +7,13 @@ import cf.app.CFSessionObjects;
 import cf.app.CMMenuBar;
 import cf.app.CMShellApplication;
 import cf.app.CollageMachine;
-import cf.app.CMShellApplication;
 
 import ecologylab.generic.ApplicationEnvironment;
 import ecologylab.generic.Environment;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.ParsedURL;
+import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.ApplicationProperties;
 import ecologylab.gui.AWTBridge;
 import ecologylab.services.messages.RequestMessage;
@@ -60,7 +60,7 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
-		System.out.println("cf services: received preferences: " + preferencesSet);
+		debug("cf services: received new preferences: " + preferencesSet);
 		
     	//now internally set the preferences
 
@@ -92,9 +92,9 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 		
 		CollageMachine collageMachine	= CMShellApplication.setupCollageMachine(objectRegistry);
 		
-		//  collageMachine.start();
-		collageMachine.run();
-        println("sending ResponseMessage(OK)");
+		collageMachine.start(Thread.NORM_PRIORITY - 1); // build in new Thread to enable concurrency with seed transmission.
+		//collageMachine.run();
+        ConsoleUtils.obtrusiveConsoleOutput("SetPreferences.sending ResponseMessage(OK)");
 		return new ResponseMessage(OK);
 	}
 }
