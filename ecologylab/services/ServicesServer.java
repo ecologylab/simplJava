@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
@@ -20,10 +21,15 @@ import ecologylab.xml.NameSpace;
  * @author blake
  * @author andruid
  */
-public class ServicesServer extends Thread
+public class ServicesServer extends Debug
+implements Runnable
 {
 	private int portNumber;
 	private ServerSocket socketServer;
+	
+	boolean			finished;
+	
+	Thread			thread;
 	
 	/**
 	 * Space that defines mappings between xml names, and Java class names,
@@ -68,7 +74,7 @@ public class ServicesServer extends Thread
 	
 	public void run()
 	{
-		while (true)
+		while (!finished)
 		{
 			try 
 			{
@@ -117,5 +123,31 @@ public class ServicesServer extends Thread
 				Generic.sleep(1000);
 			}
 		}
+	}
+	/**
+	 * Start the ServicesServer, at the specified priority.
+	 * @param priority
+	 */
+	public synchronized void start(int priority)
+	{
+		if (thread == null)
+		{
+			Thread t	= new Thread(this, "Services Server");
+			t.setPriority(priority);
+			thread		= t;
+			t.start();
+		}
+	}
+	public synchronized void stop()
+	{
+		if (thread != null)
+		{
+			finished	= true;
+			thread		= null;
+		}
+	}
+	public void start()
+	{
+		start(Thread.NORM_PRIORITY);
 	}
 }
