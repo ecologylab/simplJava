@@ -1720,6 +1720,8 @@ public class ElementState extends IO
 		Type fieldType		= TypeRegistry.getType(field);
 		if (fieldType != null)
 			result			= fieldType.setField(this, field, fieldValue);
+		else
+			debug("Can't find type for " + field + " with value=" + fieldValue);
 		return result;
 	}
 
