@@ -13,6 +13,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
+import ecologylab.xml.XmlTranslationException;
 
 /**
  * Generic service server. Accepts TCP/IP messages and acknowleges with responses.
@@ -76,6 +77,7 @@ implements Runnable
 	{
 		while (!finished)
 		{
+			String messageString	= "";
 			try 
 			{
 			   System.out.println("ServicesServer: Listening for a connection on port " + portNumber);
@@ -94,10 +96,12 @@ implements Runnable
 				   {
 						//System.out.println("waiting for actual packet");
 					   //get the packet message
-					   String str = reader.readLine();
+					   messageString = reader.readLine();
+					   
+					   //println("ServicesServer got raw message: " + messageString);
 					   
 					   RequestMessage requestMessage
-								= (RequestMessage) ElementState.translateFromXMLString(str, requestTranslationSpace);
+								= (RequestMessage) ElementState.translateFromXMLString(messageString, requestTranslationSpace);
 					   
 					   //perform the service being requested
 					   ResponseMessage responseMessage = performService(requestMessage);
@@ -110,9 +114,14 @@ implements Runnable
 			}
 			catch (java.net.BindException be)
 			{
-				System.out.println("ServicesServer ERROR: can't bind to port " + portNumber
+				Debug.println("ServicesServer ERROR: can't bind to port " + portNumber
 						+" cause its already in use. Quitting!");
 				return;
+			}
+			catch (XmlTranslationException te)
+			{
+				Debug.println("ERROR translating from XML: " + messageString);
+				te.printStackTrace();
 			}
 			catch (Exception e)
 			{

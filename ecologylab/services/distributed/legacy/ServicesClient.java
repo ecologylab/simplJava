@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import ecologylab.generic.Debug;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.ResponseTypes;
@@ -19,7 +20,9 @@ import ecologylab.xml.NameSpace;
  * 
  * @author blake
  */
-public class ServicesClient implements ResponseTypes
+public class ServicesClient
+extends Debug
+implements ResponseTypes
 {
 	private Socket 		sock;
 	BufferedReader 		reader;
@@ -113,9 +116,10 @@ public class ServicesClient implements ResponseTypes
 		boolean transactionComplete = false;
 		while (!transactionComplete)
 		{
+			String message		= null;
 			try
 			{
-				String message = requestMessage.translateToXML(false);
+				message = requestMessage.translateToXML(false);
 				output.println(message);
 			
 				System.out.println("Services Client: just sent message: " + message);
@@ -135,13 +139,10 @@ public class ServicesClient implements ResponseTypes
 					responseMessage = (ResponseMessage)
 						ResponseMessage.translateFromXMLString(response);
 				
-				if (responseMessage.response.equals(OK))
+				transactionComplete = true;
+				if (responseMessage.response.equals(BAD))
 				{
-					transactionComplete = true;
-				}
-				else
-				{
-					System.err.println("Received bad response, resending...");
+					Debug.println("Received BAD response to message: " + message);
 				}
 			}
 			catch (Exception e)
