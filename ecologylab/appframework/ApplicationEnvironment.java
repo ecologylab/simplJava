@@ -133,7 +133,7 @@ implements Environment
 		File path				= new File(pathName);
 		String pathString		= path.getAbsolutePath();
 		
-		println("looking for " + packageNameAsPath +" in " + pathString);
+		//println("looking for " + packageNameAsPath +" in " + pathString);
 
 		int packageIndex		= pathString.lastIndexOf(packageNameAsPath);
 		if (packageIndex != -1)
@@ -146,7 +146,7 @@ implements Environment
 		println("codeBase="+codeBase);
 		if (propertiesFileRelativePath != null)
 		{
-			println("Loading from codeBase " + path +"\n\tproperties " + propertiesFileRelativePath);
+			println("Loading from codeBase " + path +"\tproperties " + propertiesFileRelativePath);
 			/*
 			//TODO need to move this up so that we never treat a URL as a file
 			//check to see if this is really a URL that was passed (cut off '/config') GHETTO!!!

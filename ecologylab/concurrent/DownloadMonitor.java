@@ -110,7 +110,7 @@ implements Runnable
 			{
 			   thatClosure	= 
 				  (DownloadClosure) potentialTimeouts.firstElement();
-			   debug("checking() "+thatClosure);
+			   //debug("checking() "+thatClosure);
 			   
 			   if (thatClosure.timeoutOrComplete(now)) // does Downloable work
 			   {

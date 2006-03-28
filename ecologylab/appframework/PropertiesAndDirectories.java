@@ -97,8 +97,8 @@ extends Debug
 		if (result == null)
 		{
 		   File apDataDir			= applicationDataDir();
-		   println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
-				   +os());
+		   //println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
+		   //	   +os());
 		   if (os() == WINDOWS)
 			   result				= Files.newFile(apDataDir, applicationName);
 		   else
