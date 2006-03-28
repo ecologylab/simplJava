@@ -8,7 +8,9 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import ecologylab.services.ServicesClient;
 import ecologylab.services.messages.BrowseCommand;
+import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public class NavigateMonitor extends Thread
@@ -16,7 +18,16 @@ public class NavigateMonitor extends Thread
    private boolean			running;
    
    public static final int PORT = 10001;
-   private Socket 			sock = null;
+   
+   private static final NameSpace messageSpace = 
+	new NameSpace("Browse", "ecologylab.services.messages");
+   
+   public ServicesClient servicesClient = new ServicesClient(PORT, messageSpace);
+   
+   static 
+   {
+   		messageSpace.addTranslation("ecologylab.services.messages", "BrowseCommand");
+   }
    
    /**
     * Initialiazed to true, hoping for the best.
@@ -93,52 +104,22 @@ public class NavigateMonitor extends Thread
    private void goNavigate(ParsedURL purl)
    {
 	   //lazy evaluation for socket creation
-	   if (sock == null)
-	   {
-		   InetAddress address = null;
-			try 
-			{
-				address = InetAddress.getLocalHost();
-				sock = new Socket(address, PORT);
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				hasNavigateServer	= false;
-				return;
-			}
-	   }
+	   if (!servicesClient.connected())
+	   		servicesClient.connect();
 	   
-		OutputStream out = null;
-		//InputStream in = null;
-		try 
-		{
-		    //in = sock.getInputStream();
-			out = sock.getOutputStream(); 
-		} 
-		catch(IOException e) 
-		{
-		    e.printStackTrace();
-		}
+	   if (!servicesClient.connected())
+	   {
+	   		hasNavigateServer = false;
+	   		Generic.go(purl);
+	   		return;
+	   }
 	
-		PrintStream writer =
-		    new PrintStream(out);
-		
-		BrowseCommand browseCommand = new BrowseCommand("navigate", purl.toString());
-		try 
-		{
-		    System.out.println("Navigating to " + purl);
-		    String message = browseCommand.translateToXML(false);
-			writer.println(message);
-			writer.flush();
-			
-			System.out.println("just sent: " + message);
-		} 
-		catch(XmlTranslationException e) 
-		{
-		    System.out.println("failed translating BrowseCommand to XML");
-			e.printStackTrace();
-		}
+	   //Create the browse message
+	   BrowseCommand browseCommand = new BrowseCommand("navigate", purl.toString());
+	   
+	   //send it
+	   System.out.println("Navigating to " + purl);
+	   servicesClient.sendMessage(browseCommand);
 		
    }
    
