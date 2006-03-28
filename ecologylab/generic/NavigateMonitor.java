@@ -1,33 +1,17 @@
 package ecologylab.generic;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.net.InetAddress;
-import java.net.Socket;
-
+import ecologylab.applet.BrowserServer;
 import ecologylab.services.ServicesClient;
-import ecologylab.services.messages.BrowseCommand;
+import ecologylab.services.messages.Navigate;
 import ecologylab.xml.NameSpace;
-import ecologylab.xml.XmlTranslationException;
 
 public class NavigateMonitor extends Thread
 {
    private boolean			running;
    
-   public static final int PORT = 10001;
+   private static final NameSpace messageSpace = NameSpace.get("Browse", "ecologylab.services.messages");
    
-   private static final NameSpace messageSpace = 
-	new NameSpace("Browse", "ecologylab.services.messages");
-   
-   public ServicesClient servicesClient = new ServicesClient(PORT, messageSpace);
-   
-   static 
-   {
-   		messageSpace.addTranslation("ecologylab.services.messages", "BrowseCommand");
-   }
+   public ServicesClient servicesClient = new ServicesClient(BrowserServer.PORT, messageSpace);
    
    /**
     * Initialiazed to true, hoping for the best.
@@ -115,7 +99,8 @@ public class NavigateMonitor extends Thread
 	   }
 	
 	   //Create the browse message
-	   BrowseCommand browseCommand = new BrowseCommand("navigate", purl.toString());
+	   Debug.println("create Navigate(" + purl);
+	   Navigate browseCommand = new Navigate(purl);
 	   
 	   //send it
 	   System.out.println("Navigating to " + purl);
