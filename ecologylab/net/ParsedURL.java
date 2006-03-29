@@ -515,9 +515,9 @@ extends Debug
 		return new ParsedURL(new URL(url, addressString));
 	  } catch (MalformedURLException e) 
 	  {
-		 println("ParsedURL.get() cant access malformed url:\n\t" +
-		 		url +"\n\taddressString = "+ addressString);
-		 e.printStackTrace();
+		 println("ParsedURL.get() cant from url from: " +
+		 		/*url +"\n\taddressString = "+*/ addressString);
+		 //e.printStackTrace();
 	  }
 	  return null;
    }
