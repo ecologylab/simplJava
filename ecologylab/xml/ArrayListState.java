@@ -21,7 +21,8 @@ public class ArrayListState extends ElementState
     * Add an element to our Collection.
     */
    	public void addNestedElement(ElementState elementState)
-   	{
+    throws XmlTranslationException
+    {
    		set.add(elementState);
    	}
    	/**
