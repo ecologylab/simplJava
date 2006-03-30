@@ -16,9 +16,12 @@ import ecologylab.services.messages.ResponseTypes;
 import ecologylab.xml.NameSpace;
 
 /**
+ * Interface Ecology Lab Distributed Computing Services framework<p/>
+ * 
  * Client to connect to ServicesServer.
  * 
  * @author blake
+ * @author andruid
  */
 public class ServicesClient
 extends Debug
@@ -30,7 +33,7 @@ implements ResponseTypes
 	
 	private int 		port;
 	private String		server;
-	private NameSpace	messageSpace = null;
+	private NameSpace	translationSpace = null;
 	
 	/**
 	 * Create a client that will connect on the provided port. Assume localhost
@@ -57,10 +60,10 @@ implements ResponseTypes
 	{
 		this.port			= port;
 		this.server 		= server;
-		this.messageSpace 	= messageSpace;
+		this.translationSpace 	= messageSpace;
 	}
 	
-	private void init()
+	private void createConnection()
 	{
 		InetAddress address = null;
 		try 
@@ -79,6 +82,17 @@ implements ResponseTypes
 			//System.exit(2);
 			sock = null;
 		}
+	}
+	String 		toString;
+	public String toString()
+	{
+		String toString	= this.toString;
+		if (toString == null)
+		{
+			toString		= this.getClassName() + "[" + server + ": " + port + "]";
+			this.toString	= toString;
+		}
+		return toString;
 	}
 	
 	/**
@@ -101,18 +115,27 @@ implements ResponseTypes
 		if (connected())
 			return true;
 		
-		init();
-		if (connected())
-			return true;
+		createConnection(); // has side effects on connected()!
 		
-		return false;
+		return connected();
 	}
-	
-	public void sendMessage(RequestMessage requestMessage)
+	/**
+	 * Send a message to the ServicesServer to get a service performed,
+	 * 
+	 * @param requestMessage
+	 * @return	The ResponseMessage from the server.
+	 * 			This could be null, which means that communication with the server failed.
+	 * 			Reasons for failure include:
+	 * 			1) IOException: the socket connection broke somehow.
+	 * 			2) XmlTranslationException: The message was malformed or 
+	 * 			   translation failed strangely.
+	 */
+	public ResponseMessage sendMessage(RequestMessage requestMessage)
 	{
 		if (!connected())
-			init();
+			createConnection();
 		
+		ResponseMessage responseMessage	= null;
 		boolean transactionComplete = false;
 		while (!transactionComplete)
 		{
@@ -128,27 +151,21 @@ implements ResponseTypes
 				System.out.println("Services Client: awaiting a response");
 				response = reader.readLine();
 				
-				//ConsoleUtils.obtrusiveConsoleOutput("RESPONSE: " + response);
-				
-				ResponseMessage responseMessage;
-				
-				if (messageSpace != null)
-					responseMessage = (ResponseMessage)
-						ResponseMessage.translateFromXMLString(response, messageSpace);
-				else
-					responseMessage = (ResponseMessage)
-						ResponseMessage.translateFromXMLString(response);
+				responseMessage = (ResponseMessage)
+						ResponseMessage.translateFromXMLString(response, translationSpace);
 				
 				transactionComplete = true;
 				if (responseMessage.response.equals(BAD))
 				{
-					Debug.println("Received BAD response to message: " + message);
+					debug("Received BAD response to message: " + message);
 				}
 			}
 			catch (Exception e)
 			{
-				System.out.println("Failed sending request message, resending...");
+				debug("ERROR: Failed sending " + requestMessage + ": " + e);
+				transactionComplete	= true;
 			}
 		}
+		return responseMessage;
 	}
 }
