@@ -145,20 +145,22 @@ implements ResponseTypes
 				message = requestMessage.translateToXML(false);
 				output.println(message);
 			
-				System.out.println("Services Client: just sent message: " + message);
+				debug("Services Client: just sent message: " + message);
 				String response;
 				
-				System.out.println("Services Client: awaiting a response");
+				debug("Services Client: awaiting a response");
 				response = reader.readLine();
 				
 				responseMessage = (ResponseMessage)
 						ResponseMessage.translateFromXMLString(response, translationSpace);
 				
-				transactionComplete = true;
-				if (responseMessage.response.equals(BAD))
+				if (responseMessage.response.equals(BADTransmission))
 				{
-					debug("Received BAD response to message: " + message);
+					debug("BADTransmission of: " + message + " resending");
+					//TODO count retransmissions and quit after ________
 				}
+				else
+					transactionComplete = true;
 			}
 			catch (Exception e)
 			{

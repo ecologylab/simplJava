@@ -23,6 +23,10 @@ import ecologylab.xml.XmlTranslationException;
 public class ServerToClientConnection extends Debug
 implements Runnable
 {
+	/**
+	 * If we get more bad messages than this, it may be malicous.
+	 */
+	static final int MAXIMUM_TRANSMISSION_ERRORS = 3;
 	BufferedReader		inputStreamReader;
 	PrintStream			outputStreamWriter;
 	
@@ -51,6 +55,7 @@ implements Runnable
 	 */
 	public void run()
 	{
+		int badTransmissionCount	= 0;
 		while (running) 
 		{
 			//debug("waiting for packet");
@@ -72,9 +77,8 @@ implements Runnable
 					//perform the service being requested
 					ResponseMessage responseMessage = servicesServer.performService(requestMessage);
 					
-					//send the response
-					outputStreamWriter.println(responseMessage.translateToXML(false));
-					outputStreamWriter.flush();
+					sendResponse(responseMessage);
+					badTransmissionCount	= 0;
 				}
 			} catch (java.net.SocketException e)
 			{
@@ -93,6 +97,20 @@ implements Runnable
 				// report error on XML passed through the socket
 				debug("Bogus Message ERROR: " + messageString);
 				e.printStackTrace();
+				if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
+				{
+					debug("Too many bogus messages.");
+					break;
+				} 
+				else
+					try
+					{
+						sendResponse(ResponseMessage.BADTransmissionResponse());
+					} catch (XmlTranslationException e1)
+					{
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 			}
 		}
 		synchronized (this)
@@ -100,6 +118,12 @@ implements Runnable
 			if (running)
 				stop();
 		}
+	}
+	protected void sendResponse(ResponseMessage responseMessage) throws XmlTranslationException
+	{
+		//send the response
+		outputStreamWriter.println(responseMessage.translateToXML(false));
+		outputStreamWriter.flush();
 	}
 	public synchronized void stop()
 	{
