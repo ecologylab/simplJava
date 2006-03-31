@@ -32,8 +32,9 @@ implements MessageTypes
 	{
 		if (purl == null)
 		{
-			System.err.println("Incoming \"navigate\" packets require a URL argument");
-			return ResponseMessage.BADResponse();
+			final String msg = "Incoming \"navigate\" packets require a URL argument";
+			debug(msg);
+			return new BadSemanticContentResponse(msg);
 		}
 			
 		try
@@ -67,7 +68,7 @@ implements MessageTypes
 		{
 			System.err.println("BrowserServer: Malformed URL received: " + purl);
 			e.printStackTrace();
-			return ResponseMessage.BADResponse();
+			return ResponseMessage.BADTransmissionResponse();
 		}
 		catch (Exception e)
 		{

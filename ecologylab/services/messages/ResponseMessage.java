@@ -12,7 +12,7 @@ implements ResponseTypes
 	public String response;
 	
 	private static ResponseMessage OKResponse 	= null;
-	private static ResponseMessage BADResponse = null;
+	private static ResponseMessage BADTransmissionResponse = null;
 	
 	public ResponseMessage() {}
 	
@@ -38,10 +38,10 @@ implements ResponseTypes
 	 * 
 	 * @return A ReponseMessage representing 'BAD'
 	 */
-	public static ResponseMessage BADResponse()
+	public static ResponseMessage BADTransmissionResponse()
 	{
-		if (BADResponse == null)
-			BADResponse = new ResponseMessage(BAD);
-		return BADResponse;
+		if (BADTransmissionResponse == null)
+			BADTransmissionResponse = new ResponseMessage(BADTransmission);
+		return BADTransmissionResponse;
 	}
 }
