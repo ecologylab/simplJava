@@ -28,6 +28,7 @@ implements Runnable
 	 */
 	static final int MAXIMUM_TRANSMISSION_ERRORS = 3;
 	BufferedReader		inputStreamReader;
+
 	PrintStream			outputStreamWriter;
 	
 	ServicesServer		servicesServer;
@@ -41,7 +42,7 @@ implements Runnable
 		this.incomingSocket	= incomingSocket;
 		
 		inputStreamReader	= new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
-		
+
 		outputStreamWriter	= new PrintStream(incomingSocket.getOutputStream());
 		
 		this.servicesServer	= servicesServer;
@@ -64,10 +65,11 @@ implements Runnable
 			try
 			{
 				//TODO -- change to nio
-				messageString = inputStreamReader.readLine();
+		//		messageString = inputStreamReader.readLine();
+				messageString = readToMax(inputStreamReader);
 				
-				//debugA("got raw message: " + messageString);
-				
+				debug("got raw message: " + messageString.getBytes().length );
+		
 				RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString);
 				
 				if (requestMessage == null)
@@ -111,6 +113,10 @@ implements Runnable
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
+			} catch (Exception e) {
+				debug("Exception Caught: " + e.toString());
+				e.printStackTrace();
+				break;
 			}
 		}
 		synchronized (this)
@@ -148,5 +154,34 @@ implements Runnable
 			debug("while closing reader & writer: " + e.getMessage());
 		}
 		servicesServer.connectionTerminated(this);
+	}
+	
+	/**
+	 * Limit the data size and send exception if the request data is bigger than defined size. 
+	 * 
+	 * @param in
+	 * @return
+	 * @throws Exception
+	 */
+	public String readToMax(BufferedReader in) throws Exception
+	{
+		char[] ch_array = new char[LoggingDef.maxSize];
+		int count = 0;
+		
+		while(count < LoggingDef.maxSize)
+		{
+			char c = (char)in.read();
+			ch_array[count] = c;	
+			count++;
+			if( (count!=1) && (c == '\n' || c == '\r'))
+			{
+				String str = new String(ch_array, 0, count);
+				str.trim();
+				return str;
+			}
+		}
+		
+		throw new Exception("Data is over Maximum Size !!");
+
 	}
 }
