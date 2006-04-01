@@ -137,12 +137,14 @@ implements ResponseTypes
 		
 		ResponseMessage responseMessage	= null;
 		boolean transactionComplete = false;
+		int badTransmissionCount = 0;
 		while (!transactionComplete)
 		{
 			String message		= null;
 			try
 			{
 				message = requestMessage.translateToXML(false);
+
 				output.println(message);
 			
 				debug("Services Client: just sent message: " + message);
@@ -157,7 +159,13 @@ implements ResponseTypes
 				if (responseMessage.response.equals(BADTransmission))
 				{
 					debug("BADTransmission of: " + message + " resending");
-					//TODO count retransmissions and quit after ________
+					badTransmissionCount++;
+					if( badTransmissionCount == 3 )
+					{
+						debug("Quitting sending to the server because of the network condition after " +
+								badTransmissionCount + " times try ");
+						break;
+					}
 				}
 				else
 					transactionComplete = true;
