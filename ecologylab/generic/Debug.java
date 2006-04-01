@@ -150,8 +150,8 @@ public class Debug
    {   	
    	  if (logToFile)
    	  {
-		 Files.writeLine(writer, message);
-		 if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
+		 Files.writeLine(writer, message);	 
+	//	 if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
    	    	Files.flush(writer);	     	   
    	  }  
    	  else
@@ -380,7 +380,7 @@ public class Debug
 
    public static void closeLoggingFile()
    {
-      Files.closeWriter(writer);
+	   Files.closeWriter(writer);
    }
 	
 /**
