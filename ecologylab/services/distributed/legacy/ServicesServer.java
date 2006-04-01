@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
@@ -34,7 +35,7 @@ public class ServicesServer extends Debug
 implements Runnable
 {
 	private int				portNumber;
-	private ServerSocket	serverSocket;
+	protected ServerSocket	serverSocket;
 	
 	boolean					finished;
 	
@@ -52,6 +53,11 @@ implements Runnable
 	ObjectRegistry	objectRegistry;
 	
 	Vector			serverToClientConnections		= new Vector();
+	/**
+	 * Limit the maximum number of client connection to the server
+	 */
+	private static int		maxConnectionSize				= 50;
+	private int				connectionCount					= 0;
 
 	/**
 	 * This is the actual way to create an instance of this.
@@ -76,6 +82,7 @@ implements Runnable
 		}
 		return newServer;
 	}
+
 	/**
 	 * Create a services server, that listens on the specified port, and
 	 * uses the specified TranslationSpaces for operating on messages.
@@ -129,6 +136,7 @@ implements Runnable
 	void connectionTerminated(ServerToClientConnection serverToClientConnection)
 	{
 		serverToClientConnections.remove(serverToClientConnection);
+		connectionCount--;
 	}
 	public void run()
 	{
@@ -136,15 +144,24 @@ implements Runnable
         {
             try
             {
-            	ServerToClientConnection s2c = getConnection(serverSocket.accept());
+            	Socket sock = serverSocket.accept();
+            	ServerToClientConnection s2c = getConnection(sock);
             	synchronized (this)
             	{	// avoid race conditions near stop()
-	            	if (!finished)
+	            	if (!finished && (connectionCount < maxConnectionSize))
 	            	{
 	            		debugA("created " + s2c);
 		                serverToClientConnections.add(s2c);
+		                connectionCount ++;
 		                Thread  thread = new Thread(s2c, "ServerToClientConnection " + serverToClientConnections.size());
 		                thread.start();
+	            	}
+	            	else   // print the debug message to the server (reason why connection refused)
+	            	{
+	            		debug("No more connection allowed OR ServicesServer stopped, connectionCount=" + 
+	            				connectionCount + "  finished=" + finished);
+	            		debug("Connection Refused: between client: " + sock.getLocalSocketAddress() + " and server: " 
+	            				+ sock.getLocalAddress() );
 	            	}
             	}
             } catch (IOException e)
@@ -225,6 +242,7 @@ implements Runnable
 			//debug("stop connection["+i+"] " +s2c);
 			s2c.stop();
 		}
+		connectionCount = 0;
 	}
 	public void start()
 	{
