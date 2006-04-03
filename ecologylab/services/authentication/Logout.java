@@ -3,7 +3,7 @@
  */
 package ecologylab.services.authentication;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.ErrorResponse;
@@ -35,17 +35,17 @@ public class Logout extends RequestMessage implements AuthenticationMessages {
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
-        HashSet authedClients = (HashSet) objectRegistry.lookupObject("authenticatedClients");
+    	HashMap authedClients = (HashMap) objectRegistry.lookupObject("authenticatedClients");
         ResponseMessage responseMessage;
         
-        if ((authedClients != null) && authedClients.contains(entry.getUsername()))
+        if ((authedClients != null) && authedClients.containsKey(entry.getUsername()))
         {
     		responseMessage	= OKResponse.get();
             
             authedClients.remove(entry.getUsername());
         }
         else
-        	responseMessage	=  new ErrorResponse(LOGOUT_FAILED_NOT_LOGGEDIN); // set to the default failure
+        	responseMessage	=  new ErrorResponse(LOGOUT_FAILED_NOT_LOGGEDIN); 
         
         return responseMessage;
     }

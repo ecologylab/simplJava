@@ -6,7 +6,7 @@ package ecologylab.services.authentication;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.Socket;
-import java.util.HashSet;
+import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerToClientConnection;
@@ -105,7 +105,7 @@ public class ServicesServerAuthentication extends ServicesServer {
         this.objectRegistry.registerObject("authenticationList", authList);
 
         this.objectRegistry.registerObject("authenticatedClients",
-                new HashSet());
+                new HashMap());
     }
     
     /**

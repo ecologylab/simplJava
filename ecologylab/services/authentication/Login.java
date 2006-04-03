@@ -3,9 +3,11 @@
  */
 package ecologylab.services.authentication;
 
-import java.util.HashSet;
+import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.messages.ErrorResponse;
+import ecologylab.services.messages.OKResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -37,8 +39,9 @@ public class Login extends RequestMessage implements AuthenticationMessages {
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry) {
         AuthenticationList authList = (AuthenticationList) objectRegistry.lookupObject("authenticationList");
-        HashSet authedClients = (HashSet) objectRegistry.lookupObject("authenticatedClients");
-        ResponseMessage loginConfirm = new ResponseMessage(LOGIN_FAILED_PASSWORD); // set to the default failure
+        HashMap authedClients = (HashMap) objectRegistry.lookupObject("authenticatedClients");
+        
+        ResponseMessage loginConfirm = new ErrorResponse(LOGIN_FAILED_PASSWORD); // set to the default failure
         
         if (authList != null) {
             // make sure the username is in the list
@@ -51,13 +54,12 @@ public class Login extends RequestMessage implements AuthenticationMessages {
                     debug("password match!");
                     
                     // now make sure that the user isn't already logged-in
-                    if (authedClients.contains(entry.getUsername())) {
-                        loginConfirm.setResponse(LOGIN_FAILED_LOGGEDIN);
+                    if (authedClients.containsKey(entry.getUsername())) {
+                        loginConfirm = new ErrorResponse(LOGIN_FAILED_LOGGEDIN);
                     } else {
                         // we want to let the client know that it's logged in...
-                        loginConfirm.setResponse(LOGIN_SUCCESSFUL);
-                        // ...and add it to the list of logged-in clients
-                        authedClients.add(entry.getUsername());
+                    	// TODO not sure if this is right; we might want to be more specific about what we're saying OK to...
+                        loginConfirm = OKResponse.get();
                     }
                 }
             }
