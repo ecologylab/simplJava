@@ -12,7 +12,6 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
-import ecologylab.services.MixedInitiativeOp;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionId;
 import ecologylab.xml.ElementState;

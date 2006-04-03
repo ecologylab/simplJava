@@ -1,6 +1,5 @@
 package ecologylab.services.logging;
 
-import ecologylab.services.MixedInitiativeOp;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
