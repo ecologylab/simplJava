@@ -32,7 +32,6 @@ extends ElementState
 implements Runnable
 {
 	public static final long	time					= System.currentTimeMillis();
-	public String				studyInterface          = null;
 
 	protected BufferedWriter	writer;
 	ServicesClient 				loggingClient = null;
@@ -44,11 +43,16 @@ implements Runnable
 
 	static final String LOG_FILE_NAME		= "combinFormationLog.xml";
 	
-	public static final String LOG_HEADER	= XmlTools.xmlHeader() + "\n<logging_data>" +
-						"\n<localhost_ip>" + localHost() + "</localhost_ip>\n" +
-						"\n<starting_time>" + date() + "</starting_time>\n" +
+	/**
+	 * Logging Header message string written to the logging file in the begining  
+	 */
+	public static final String LOG_HEADER	= XmlTools.xmlHeader() + 
+						"\n<session_log " + "ip=\"" + localHost() + "\" starting_time=\"" + date() + "\">" +
  						"\n<op_sequence>\n\n";
-	public static final String LOG_CLOSING	= "\n</op_sequence>\n\n";
+	/**
+	 * Logging closing message string written to the logging file at the end
+	 */
+	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
 
 	static final int NOLOG =0;
 	static final int LOGTODESKTOP = 1;
@@ -60,7 +64,7 @@ implements Runnable
 	
 
 	/**
-	 * Queue of action strings that have been sent to us for loggin.
+	 * Queue of action opperations that have been sent to us for loggin.
 	 * Our Runnable Thread will actually to the file writes,
 	 * at a convenient time, at a low priority.
 	 */
@@ -90,14 +94,15 @@ implements Runnable
 			logFile 	= new File(PropertiesAndDirectories.desktopDir(), LOG_FILE_NAME);
 			writer		= Files.openWriter(logFile);
 			debugA("logging to " + logFile);
-  	        break;
+  	        break;   
 	  	case LOGTOSERVICESSERVER:  
   		  	//emit which interface the subject used in the study
-  	        studyInterface= Generic.parameter("userinterface");
+ // 	        studyInterface= Generic.parameter("userinterface");
+	  		/**
+	  		 * Create the logging client which communicates with the logging server
+	  		 */
   	        loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
-
-	  	        
-	  	        break;
+  	        break;
 	  	        
 	    default: break;
 	  }
@@ -147,11 +152,16 @@ implements Runnable
 		}
 	}
 
-
+	/**
+	 * 1) Send the logging data to the Logging server 
+	 * 2) Write the logging data to the local file 
+	 * 
+	 * Either 1) or 2) will be performed based on the selected option
+	 */
 	protected void writeQueuedActions() 
 	{
 		String actionStr = "";
-		
+
 		if( loggingClient != null )
 		{
 			debug("Logging: Sending opSet " + opSet);
@@ -163,34 +173,25 @@ implements Runnable
 			try 
 			{
 				actionStr = (String)opSet.translateToXML(false);
-			} catch (XmlTranslationException e) 
+			} 
+			catch (XmlTranslationException e) 
 			{
 				e.printStackTrace();
 			}
 			Files.writeLine(writer, actionStr);
 		}
-		
 		opSet.clearSet();
-
 	}
+	
 	public void setDate(String value)
     {
    		date	=	value;
     }
 
-    public void setStudyInterface(String value)
-    {
-        studyInterface	 = value;
-    }
-    
-    public String studyInterface ()
-    {
-    	return studyInterface;
-    }
     
 /**
- * Write the start of the log out to the log file, if there is one.
- * Also, to the wholeLog String, if the doingUserStudy pref is true.
+ * Write the start of the log header out to the log file
+ * OR, send the begining logging file message so that logging server write the start of the log header.
  */
 	public void beginEmit()
 	{
@@ -210,10 +211,7 @@ implements Runnable
 	
 	/**
 	 * Write the closing() XML to the log file, and close it.
-	 * <p/>
-	 * Generates current TermSet and TraversableSet.
-	 * 
-	 * @param infoCollector  The agent that has TraversableSet state that needs to be emitted.	
+	 * Or, send the closing logging file message to the logging server
 	 */
 	public void endEmit()
 	{
@@ -293,6 +291,10 @@ implements Runnable
 		}				
 	}	
    
+	/**
+	 * Re-formatted starting time string of the current session.
+	 * @return String   
+	 */
    static String date()
    {
 	   String temp;
@@ -301,7 +303,12 @@ implements Runnable
 	   return temp;
    }
    
+
    static String localHost = null;
+   /**
+    * local host address (parse out only IP address)
+    * @return
+    */
    static String localHost()
    {
 	   if( localHost == null )
@@ -351,17 +358,7 @@ implements Runnable
 	    Files.closeReader(reader);
 	    Files.closeWriter(writer);
    }
-   
-   void writeStudyInterfaceFile(File outputFile)
-   {
-   	    if (!outputFile.exists())
-   	    {
-	   		BufferedWriter      writer;
-	   		writer = Files.openWriter(outputFile);
-	   		Files.writeLine(writer, studyInterface);
-	   		Files.closeWriter(writer);
-   	    }
-   }
+
    /**
     * Return our session start timestamp.
     * @return
