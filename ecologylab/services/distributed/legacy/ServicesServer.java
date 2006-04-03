@@ -46,7 +46,7 @@ implements Runnable
 	/**
 	 * Provides a context for request processing.
 	 */
-	ObjectRegistry	objectRegistry;
+	protected ObjectRegistry	objectRegistry;
 	
 	Vector			serverToClientConnections		= new Vector();
 	/**
@@ -193,7 +193,7 @@ implements Runnable
 		return new ServerToClientConnection(incomingSocket, this);
 	}
 	
-	RequestMessage translateXMLStringToRequestMessage(String messageString)
+	public RequestMessage translateXMLStringToRequestMessage(String messageString)
 	throws XmlTranslationException
 	{
 		RequestMessage requestMessage
