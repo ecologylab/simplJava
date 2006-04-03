@@ -31,4 +31,18 @@ implements ResponseTypes
 			OKResponse = new ResponseMessage(OK);
 		return OKResponse;
 	}
+
+    /**
+     * @return Returns the response.
+     */
+    public String getResponse() {
+        return response;
+    }
+
+    /**
+     * @param response The response to set.
+     */
+    public void setResponse(String response) {
+        this.response = response;
+    }
 }

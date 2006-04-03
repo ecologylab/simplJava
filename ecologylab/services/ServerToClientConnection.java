@@ -126,12 +126,14 @@ implements Runnable
 				stop();
 		}
 	}
+    
 	protected void sendResponse(ResponseMessage responseMessage) throws XmlTranslationException
 	{
 		//send the response
 		outputStreamWriter.println(responseMessage.translateToXML(false));
 		outputStreamWriter.flush();
 	}
+    
 	public synchronized void stop()
 	{
 		running	= false;
