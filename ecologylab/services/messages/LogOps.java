@@ -21,11 +21,11 @@ import ecologylab.xml.XmlTranslationException;
  * @author eunyee
  *
  */
-public class LogOps extends RequestMessage
+public class LogOps extends LogRequestMessage
 {
 
 	public ArrayListState	mixedInitiativeOpSet = new ArrayListState();
-	
+
 	public void addNestedElement(ElementState elementState)
 	{
 		if (elementState instanceof MixedInitiativeOp)
@@ -42,47 +42,10 @@ public class LogOps extends RequestMessage
 		mixedInitiativeOpSet.clear();
 	}
 
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	
+	String getMessageString() throws XmlTranslationException
 	{
-		Debug.println("cf services: received LOG " );
-		
-//	    MixedInitiativeOpSet opSet = (MixedInitiativeOpSet) requestMessage;
-	    if (mixedInitiativeOpSet != null)
-	    {
-	    	FileOutputStream outFile = null;
-	    	if( outFile == null )
-	    	{
-				try {
-					outFile = new FileOutputStream(LoggingDef.sessionLogFile,true);
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	    	}
-	    	
-			if( outFile != null )
-			{
-				try {
-					
-					String actionStr	=	(String)this.translateToXML(false) + "\n";
-					outFile.write(actionStr.getBytes());
-					System.out.println("cf services: sending postive response"); 
-					
-				} catch (XmlTranslationException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-
-	    	return new ResponseMessage(OK);
-	    }
-	    else
-	    {
-	    	System.out.println("cf services: PREFS FAILED! sending NEGATIVE response");
-	    	return new ResponseMessage(BADTransmission);
-	    }
+		return (String)this.translateToXML(false) + "\n";
 	}
 	
 }
