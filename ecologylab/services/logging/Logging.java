@@ -1,4 +1,4 @@
-package ecologylab.services;
+package ecologylab.services.logging;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,9 +12,9 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
-import ecologylab.services.messages.BeginEmit;
-import ecologylab.services.messages.EndEmit;
-import ecologylab.services.messages.LogOps;
+import ecologylab.services.MixedInitiativeOp;
+import ecologylab.services.ServicesClient;
+import ecologylab.services.SessionId;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTools;
