@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1661,7 +1662,7 @@ public class ElementState extends IO
 	private void arrangeFields(Field[] fields)
 	{
 		int primitivePos = 0;
-		Vector refTypes = new Vector();
+		ArrayList refTypes = new ArrayList();
 		
 		for (int i = 0; i < fields.length; i++)
 		{
@@ -1684,7 +1685,7 @@ public class ElementState extends IO
 		int j = 0;
 		for(int i = fields.length - refTypes.size(); i < fields.length; i++)
 		{
-			fields[i]	=	(Field)refTypes.elementAt(j++);			
+			fields[i]	=	(Field)refTypes.get(j++);			
 		}
 	}
 
