@@ -81,8 +81,7 @@ public class ThreadDebugger extends Debug
 			threadEntriesByName.put(threadName, threadEntry);	
 			threadEntriesByThread.put(thread, threadEntry);
 			nThreads++;
-			println("ThreadDebugger.register("+thread+" COUNT = " + 
-				nThreads);
+			//println("ThreadDebugger.register("+thread+" COUNT = " +nThreads);
 			verticalBox.add(threadEntry.button);
 			threadControlFrame.pack();
 			setPosition();			

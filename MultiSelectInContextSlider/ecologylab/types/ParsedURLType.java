@@ -1,9 +1,9 @@
 /*
  * Created on Dec 31, 2004 at the Interface Ecology Lab.
  */
-package ecologylab.generic;
+package ecologylab.types;
 
-import ecologylab.types.Type;
+import ecologylab.generic.ParsedURL;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.

@@ -32,6 +32,7 @@ public class TypeRegistry extends IO
 	   new CharType();
 	   new ColorType();
 	   new URLType();
+	   new ParsedURLType();
 
 //	   new DateType();
 //	   new CurrencyType();

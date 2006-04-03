@@ -1720,6 +1720,8 @@ public class ElementState extends IO
 		Type fieldType		= TypeRegistry.getType(field);
 		if (fieldType != null)
 			result			= fieldType.setField(this, field, fieldValue);
+		else
+			debug("Can't find type for " + field + " with value=" + fieldValue);
 		return result;
 	}
 
@@ -1734,7 +1736,7 @@ public class ElementState extends IO
 	 *
 	 * @param elementState	the nested state-object to be added
 	 */
-	protected void addNestedElement(ElementState elementState)
+	protected void addNestedElementToField(ElementState elementState)
 		throws XmlTranslationException
 	{
 		String fieldName = XmlTools.fieldNameFromObject(elementState);
@@ -1749,7 +1751,11 @@ public class ElementState extends IO
 		   debug("ERROR: Can't find a field called " + fieldName);
 		}
 	}
-
+	protected void addNestedElement(ElementState elementState)
+	throws XmlTranslationException
+	{
+		addNestedElementToField(elementState);
+	}
 	/**
 	 * Used to add a nested object to <code>this ElementState</code> object.
 	 * 

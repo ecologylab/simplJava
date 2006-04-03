@@ -30,7 +30,6 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class SetPreferences 
 extends RequestMessage
-implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 {
 	static boolean	firstTime	= true;
 	
@@ -63,32 +62,10 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 		debug("cf services: received new preferences: " + preferencesSet);
 		
     	//now internally set the preferences
+		preferencesSet.processPreferences();
+		//print the prefs
+		debug("performService() Received and loaded preferences: " + preferencesSet);
 
-		ApplicationEnvironment appEnvironment = 
-								(ApplicationEnvironment)Environment.the.get();
-		ArrayList prefs = preferencesSet.set;
-    	for (int i=0; i<prefs.size(); i++)
-    	{
-    		Preference pref = (Preference)prefs.get(i);
-    		println("processing preference: " + pref);
-    		appEnvironment.setProperty(pref.name, pref.value);
-    	}
-    	println("so now, userinterface=" + USERINTERFACE);
-    	
-    	String codeBasePref	= (String) appEnvironment.parameter(CODEBASE);
-
-    	ParsedURL codeBase	= ParsedURL.getAbsolute(codeBasePref, "Setting up codebase");
-    	if (codeBase != null)
-    	{
-    		debug("SetPreferences setting codeBase="+codeBase);
-        	appEnvironment.setCodeBase(codeBase);
-    	}
-    	else
-    	{
-    		debug("SetPreferences ERROR! no codebase preference was passed in.");
-    	}
-    	//print the prefs
-		System.out.println("performService() Received and loaded preferences: " + preferencesSet);
 		
 		CollageMachine collageMachine	= CMShellApplication.setupCollageMachine(objectRegistry);
 		

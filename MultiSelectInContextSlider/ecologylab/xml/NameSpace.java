@@ -37,29 +37,36 @@ public class NameSpace extends IO
    private final HashMap 	classPackageMappings= new HashMap();
    
    /**
-    * Create a new NameSpace.
+    * Create a new space that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
     * 
     * @param name
     */
-   public NameSpace(String name)
+   protected NameSpace(String name)
    {
 	  // !!! these lines need to be moved to the studies package !!!
 	  this.name	= name;
 	  allNameSpaces.put(name, this);
    }
    /**
-    * Create a new NameSpace, with a new default packge.
+    * Create a new space that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * 
+    * Set a new default packge.
     * 
     * @param name
     * @param defaultPackgeName
     */
-   public NameSpace(String name, String defaultPackgeName)
+   protected NameSpace(String name, String defaultPackgeName)
    {
 	   this(name);
 	   this.setDefaultPackageName(defaultPackgeName);
    }
    /**
-    * Create a new NameSpace, with a new default package, and
+    * Create a new space that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * 
+    * Set a new default package, and
 	* a set of defined translations.
     * 
     * @param name		Name of the NameSpace to be 
@@ -67,7 +74,7 @@ public class NameSpace extends IO
     * @param defaultPackgeName
 	* @param translations		Set of initially defined translations for this.
     */
-   public NameSpace(String name, String defaultPackgeName, 
+   protected NameSpace(String name, String defaultPackgeName, 
 					String[][] translations)
    {
 	   this(name);
@@ -374,8 +381,13 @@ public class NameSpace extends IO
    public static NameSpace get(String name, String defaultPackageName,
 							   String[][] translations)
    {
-	  NameSpace result	= get(name, defaultPackageName);
-	  result.addTranslations(translations);
+	  //TODO do not addTranslations if the object was already there!!!
+	  NameSpace result	= lookup(name);
+	  if (result == null)
+	  {
+		  result		= get(name, defaultPackageName);
+		  result.addTranslations(translations);
+	  }
 	  return result;
    }
    /**
@@ -391,8 +403,6 @@ public class NameSpace extends IO
    public static NameSpace get(String defaultPackageName,
 							   String[][] translations)
    {
-	  NameSpace result	= get(defaultPackageName, defaultPackageName);
-	  result.addTranslations(translations);
-	  return result;
+	  return get(defaultPackageName, defaultPackageName, translations);
    }
 }

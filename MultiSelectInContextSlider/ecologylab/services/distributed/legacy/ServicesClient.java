@@ -9,17 +9,23 @@ import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import ecologylab.generic.Debug;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.ResponseTypes;
 import ecologylab.xml.NameSpace;
 
 /**
+ * Interface Ecology Lab Distributed Computing Services framework<p/>
+ * 
  * Client to connect to ServicesServer.
  * 
  * @author blake
+ * @author andruid
  */
-public class ServicesClient implements ResponseTypes
+public class ServicesClient
+extends Debug
+implements ResponseTypes
 {
 	private Socket 		sock;
 	BufferedReader 		reader;
@@ -27,7 +33,7 @@ public class ServicesClient implements ResponseTypes
 	
 	private int 		port;
 	private String		server;
-	private NameSpace	messageSpace = null;
+	private NameSpace	translationSpace = null;
 	
 	/**
 	 * Create a client that will connect on the provided port. Assume localhost
@@ -54,10 +60,10 @@ public class ServicesClient implements ResponseTypes
 	{
 		this.port			= port;
 		this.server 		= server;
-		this.messageSpace 	= messageSpace;
+		this.translationSpace 	= messageSpace;
 	}
 	
-	private void init()
+	private void createConnection()
 	{
 		InetAddress address = null;
 		try 
@@ -76,6 +82,17 @@ public class ServicesClient implements ResponseTypes
 			//System.exit(2);
 			sock = null;
 		}
+	}
+	String 		toString;
+	public String toString()
+	{
+		String toString	= this.toString;
+		if (toString == null)
+		{
+			toString		= this.getClassName() + "[" + server + ": " + port + "]";
+			this.toString	= toString;
+		}
+		return toString;
 	}
 	
 	/**
@@ -98,56 +115,67 @@ public class ServicesClient implements ResponseTypes
 		if (connected())
 			return true;
 		
-		init();
-		if (connected())
-			return true;
+		createConnection(); // has side effects on connected()!
 		
-		return false;
+		return connected();
 	}
-	
-	public void sendMessage(RequestMessage requestMessage)
+	/**
+	 * Send a message to the ServicesServer to get a service performed,
+	 * 
+	 * @param requestMessage
+	 * @return	The ResponseMessage from the server.
+	 * 			This could be null, which means that communication with the server failed.
+	 * 			Reasons for failure include:
+	 * 			1) IOException: the socket connection broke somehow.
+	 * 			2) XmlTranslationException: The message was malformed or 
+	 * 			   translation failed strangely.
+	 */
+	public ResponseMessage sendMessage(RequestMessage requestMessage)
 	{
 		if (!connected())
-			init();
+			createConnection();
 		
+		ResponseMessage responseMessage	= null;
 		boolean transactionComplete = false;
+		int badTransmissionCount = 0;
 		while (!transactionComplete)
 		{
+			String message		= null;
 			try
 			{
-				String message = requestMessage.translateToXML(false);
+				message = requestMessage.translateToXML(false);
+
 				output.println(message);
 			
-				System.out.println("Services Client: just sent message: " + message);
+				debug("Services Client: just sent message: " + message);
 				String response;
 				
-				System.out.println("Services Client: awaiting a response");
+				debug("Services Client: awaiting a response");
 				response = reader.readLine();
 				
-				//ConsoleUtils.obtrusiveConsoleOutput("RESPONSE: " + response);
+				responseMessage = (ResponseMessage)
+						ResponseMessage.translateFromXMLString(response, translationSpace);
 				
-				ResponseMessage responseMessage;
-				
-				if (messageSpace != null)
-					responseMessage = (ResponseMessage)
-						ResponseMessage.translateFromXMLString(response, messageSpace);
-				else
-					responseMessage = (ResponseMessage)
-						ResponseMessage.translateFromXMLString(response);
-				
-				if (responseMessage.response.equals(OK))
+				if (responseMessage.response.equals(BADTransmission))
 				{
+					debug("BADTransmission of: " + message + " resending");
+					badTransmissionCount++;
+					if( badTransmissionCount == 3 )
+					{
+						debug("Quitting sending to the server because of the network condition after " +
+								badTransmissionCount + " times try ");
+						break;
+					}
+				}
+				else
 					transactionComplete = true;
-				}
-				else
-				{
-					System.err.println("Received bad response, resending...");
-				}
 			}
 			catch (Exception e)
 			{
-				System.out.println("Failed sending request message, resending...");
+				debug("ERROR: Failed sending " + requestMessage + ": " + e);
+				transactionComplete	= true;
 			}
 		}
+		return responseMessage;
 	}
 }
