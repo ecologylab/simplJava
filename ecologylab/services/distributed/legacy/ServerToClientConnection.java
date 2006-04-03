@@ -55,8 +55,12 @@ implements Runnable
 	}
 	/**
 	 * Service the client connection.
+	 * <p/>
+	 * Do not override this method!
+	 * If you need more specific functionality, add some sort of a hook that gets called from in here,
+	 * that subclasses can override. -- Andruid
 	 */
-	public void run()
+	public final void run()
 	{
 		int badTransmissionCount	= 0;
 		while (running) 
@@ -79,7 +83,7 @@ implements Runnable
 				else
 				{
 					//perform the service being requested
-					ResponseMessage responseMessage = servicesServer.performService(requestMessage);
+					ResponseMessage responseMessage = performService(requestMessage);
 					
 					sendResponse(responseMessage);
 					badTransmissionCount	= 0;
@@ -127,6 +131,22 @@ implements Runnable
 			if (running)
 				stop();
 		}
+	}
+	/**
+	 * Perform the service specified by the request method.
+	 * The default implementation, here, simply passes the message to the servicesServer,
+	 * which is keeping an objectRegistry context, and does the perform.
+	 * <p/>
+	 * This routine is abstracted out here, so that customized Servers can do thread/connection
+	 * specific custom processing in this method, as needed, by overriding the definition.
+	 * 
+	 * @param requestMessage
+	 * @return
+	 */
+	protected ResponseMessage performService(RequestMessage requestMessage)
+	{
+		ResponseMessage responseMessage = servicesServer.performService(requestMessage);
+		return responseMessage;
 	}
     
 	protected void sendResponse(ResponseMessage responseMessage) throws XmlTranslationException
