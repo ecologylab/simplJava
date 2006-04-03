@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.net.Socket;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.logging.LoggingDef;
+import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
@@ -26,15 +28,15 @@ implements Runnable
 	/**
 	 * If we get more bad messages than this, it may be malicous.
 	 */
-	static final int MAXIMUM_TRANSMISSION_ERRORS = 3;
-	BufferedReader		inputStreamReader;
-
-	PrintStream			outputStreamWriter;
+	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	ServicesServer		servicesServer;
-	Socket				incomingSocket;
+	protected BufferedReader		inputStreamReader;
+	protected PrintStream			outputStreamWriter;
 	
-	boolean				running	= true;
+	protected ServicesServer		servicesServer;
+	protected Socket				incomingSocket;
+	
+	protected boolean				running	= true;
 	
 	public ServerToClientConnection(Socket incomingSocket, ServicesServer servicesServer)
 	throws IOException
@@ -194,7 +196,7 @@ implements Runnable
 	 *
 	 * @author andruid
 	 */
-	class BadTransmissionResponse extends ResponseMessage
+	class BadTransmissionResponse extends ErrorResponse
 	{
 		private BadTransmissionResponse()
 		{
