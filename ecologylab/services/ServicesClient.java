@@ -156,7 +156,8 @@ implements ResponseTypes
 				responseMessage = (ResponseMessage)
 						ResponseMessage.translateFromXMLString(response, translationSpace);
 				
-				if (responseMessage.response.equals(BADTransmission))
+//				if (responseMessage.response.equals(BADTransmission))
+				if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
 				{
 					debug("BADTransmission of: " + message + " resending");
 					badTransmissionCount++;

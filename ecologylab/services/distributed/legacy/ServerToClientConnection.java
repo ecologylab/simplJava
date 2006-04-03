@@ -107,7 +107,8 @@ implements Runnable
 				else
 					try
 					{
-						sendResponse(ResponseMessage.BADTransmissionResponse());
+//						sendResponse(ResponseMessage.BADTransmissionResponse());
+						sendResponse(new BadTransmissionResponse());
 					} catch (XmlTranslationException e1)
 					{
 						// TODO Auto-generated catch block
@@ -183,5 +184,19 @@ implements Runnable
 		
 		throw new Exception("Data is over Maximum Size !!");
 
+	}
+	/**
+	 * This is the error Response sent 3 times by this server, when it receives a bogus (not proper xml)
+	 * message. Outside of in this server, and in ServicesClient, where this message must recognized as
+	 * a request for a retry, this class *MUST* not be used anywhere!
+	 *
+	 * @author andruid
+	 */
+	class BadTransmissionResponse extends ResponseMessage
+	{
+		private BadTransmissionResponse()
+		{
+			
+		}
 	}
 }
