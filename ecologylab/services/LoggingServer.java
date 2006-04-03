@@ -8,9 +8,8 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.xml.NameSpace;
 
 /**
- * 
+ * creating logging server and set the file for saving debug messages
  * @author eunyee
- *
  */
 
 public class LoggingServer extends ServicesServer
