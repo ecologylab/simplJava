@@ -1,10 +1,7 @@
 package ecologylab.services;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -12,7 +9,6 @@ import java.net.Socket;
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.messages.ResponseTypes;
 import ecologylab.xml.NameSpace;
 
 /**
@@ -25,7 +21,6 @@ import ecologylab.xml.NameSpace;
  */
 public class ServicesClient
 extends Debug
-implements ResponseTypes
 {
 	private Socket 		sock;
 	BufferedReader 		reader;
@@ -169,7 +164,10 @@ implements ResponseTypes
 					}
 				}
 				else
+				{
+					responseMessage.processResponse();
 					transactionComplete = true;
+				}
 			}
 			catch (Exception e)
 			{
