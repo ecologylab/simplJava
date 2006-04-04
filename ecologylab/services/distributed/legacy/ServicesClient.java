@@ -135,14 +135,14 @@ extends Debug
 		int badTransmissionCount = 0;
 		while (!transactionComplete)
 		{
-			String message		= null;
+			String requestMessageXML		= null;
 			try
 			{
-				message = requestMessage.translateToXML(false);
+				requestMessageXML = requestMessage.translateToXML(false);
 
-				output.println(message);
+				output.println(requestMessageXML);
 			
-				debug("Services Client: just sent message: " + message);
+				debug("Services Client: just sent message: " + requestMessageXML);
 				String response;
 				
 				debug("Services Client: awaiting a response");
@@ -154,17 +154,20 @@ extends Debug
 //				if (responseMessage.response.equals(BADTransmission))
 				if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
 				{
-					debug("BADTransmission of: " + message + " resending");
 					badTransmissionCount++;
 					if( badTransmissionCount == 3 )
 					{
-						debug("Quitting sending to the server because of the network condition after " +
+						debug("ERROR: Quitting sending to the server because of the network condition after " +
 								badTransmissionCount + " times try ");
 						break;
 					}
+					else
+						debug("ERROR: BADTransmission of: " + requestMessageXML + "\n\t Resending.");
+						
 				}
 				else
 				{
+					debug("received response: " + response);
 					responseMessage.processResponse();
 					transactionComplete = true;
 				}
