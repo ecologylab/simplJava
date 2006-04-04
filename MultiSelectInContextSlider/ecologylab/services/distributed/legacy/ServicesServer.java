@@ -1,10 +1,6 @@
 package ecologylab.services;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
@@ -50,7 +46,7 @@ implements Runnable
 	/**
 	 * Provides a context for request processing.
 	 */
-	ObjectRegistry	objectRegistry;
+	protected ObjectRegistry	objectRegistry;
 	
 	Vector			serverToClientConnections		= new Vector();
 	/**
@@ -197,7 +193,7 @@ implements Runnable
 		return new ServerToClientConnection(incomingSocket, this);
 	}
 	
-	RequestMessage translateXMLStringToRequestMessage(String messageString)
+	public RequestMessage translateXMLStringToRequestMessage(String messageString)
 	throws XmlTranslationException
 	{
 		RequestMessage requestMessage

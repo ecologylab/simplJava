@@ -7,6 +7,8 @@ import java.io.PrintStream;
 import java.net.Socket;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.logging.LoggingDef;
+import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
@@ -26,15 +28,15 @@ implements Runnable
 	/**
 	 * If we get more bad messages than this, it may be malicous.
 	 */
-	static final int MAXIMUM_TRANSMISSION_ERRORS = 3;
-	BufferedReader		inputStreamReader;
-
-	PrintStream			outputStreamWriter;
+	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	ServicesServer		servicesServer;
-	Socket				incomingSocket;
+	protected BufferedReader		inputStreamReader;
+	protected PrintStream			outputStreamWriter;
 	
-	boolean				running	= true;
+	protected ServicesServer		servicesServer;
+	protected Socket				incomingSocket;
+	
+	protected boolean				running	= true;
 	
 	public ServerToClientConnection(Socket incomingSocket, ServicesServer servicesServer)
 	throws IOException
@@ -53,8 +55,12 @@ implements Runnable
 	}
 	/**
 	 * Service the client connection.
+	 * <p/>
+	 * Do not override this method!
+	 * If you need more specific functionality, add some sort of a hook that gets called from in here,
+	 * that subclasses can override. -- Andruid
 	 */
-	public void run()
+	public final void run()
 	{
 		int badTransmissionCount	= 0;
 		while (running) 
@@ -77,7 +83,7 @@ implements Runnable
 				else
 				{
 					//perform the service being requested
-					ResponseMessage responseMessage = servicesServer.performService(requestMessage);
+					ResponseMessage responseMessage = performService(requestMessage);
 					
 					sendResponse(responseMessage);
 					badTransmissionCount	= 0;
@@ -107,7 +113,8 @@ implements Runnable
 				else
 					try
 					{
-						sendResponse(ResponseMessage.BADTransmissionResponse());
+//						sendResponse(ResponseMessage.BADTransmissionResponse());
+						sendResponse(new BadTransmissionResponse());
 					} catch (XmlTranslationException e1)
 					{
 						// TODO Auto-generated catch block
@@ -125,12 +132,30 @@ implements Runnable
 				stop();
 		}
 	}
+	/**
+	 * Perform the service specified by the request method.
+	 * The default implementation, here, simply passes the message to the servicesServer,
+	 * which is keeping an objectRegistry context, and does the perform.
+	 * <p/>
+	 * This routine is abstracted out here, so that customized Servers can do thread/connection
+	 * specific custom processing in this method, as needed, by overriding the definition.
+	 * 
+	 * @param requestMessage
+	 * @return
+	 */
+	protected ResponseMessage performService(RequestMessage requestMessage)
+	{
+		ResponseMessage responseMessage = servicesServer.performService(requestMessage);
+		return responseMessage;
+	}
+    
 	protected void sendResponse(ResponseMessage responseMessage) throws XmlTranslationException
 	{
 		//send the response
 		outputStreamWriter.println(responseMessage.translateToXML(false));
 		outputStreamWriter.flush();
 	}
+    
 	public synchronized void stop()
 	{
 		running	= false;
@@ -183,5 +208,19 @@ implements Runnable
 		
 		throw new Exception("Data is over Maximum Size !!");
 
+	}
+	/**
+	 * This is the error Response sent 3 times by this server, when it receives a bogus (not proper xml)
+	 * message. Outside of in this server, and in ServicesClient, where this message must recognized as
+	 * a request for a retry, this class *MUST* not be used anywhere!
+	 *
+	 * @author andruid
+	 */
+	class BadTransmissionResponse extends ErrorResponse
+	{
+		private BadTransmissionResponse()
+		{
+			
+		}
 	}
 }

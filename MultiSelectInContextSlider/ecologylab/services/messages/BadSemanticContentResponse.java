@@ -8,7 +8,7 @@ package ecologylab.services.messages;
  * @author blake
  * @author eunyee
  */
-public class BadSemanticContentResponse extends ResponseMessage
+public class BadSemanticContentResponse extends ErrorResponse
 {
 
 	public BadSemanticContentResponse()

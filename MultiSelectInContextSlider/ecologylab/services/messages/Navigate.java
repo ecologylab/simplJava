@@ -32,9 +32,9 @@ implements MessageTypes
 	{
 		if (purl == null)
 		{
-			final String msg = "Incoming \"navigate\" packets require a URL argument";
-			debug(msg);
-			return new BadSemanticContentResponse(msg);
+			final String MSG = "Incoming \"navigate\" packets require a URL argument";
+			debug(MSG);
+			return new BadSemanticContentResponse(MSG);
 		}
 			
 		try
@@ -62,19 +62,19 @@ implements MessageTypes
 				appletContext.showDocument(url, frame);
 		    }
 
-			System.out.println("finished navigating");
+			debug("finished navigating");
 		}
 		catch (MalformedURLException e)
 		{
-			System.err.println("BrowserServer: Malformed URL received: " + purl);
+			debug("BrowserServer: Malformed URL received: " + purl);
 			e.printStackTrace();
-			return ResponseMessage.BADTransmissionResponse();
+			return new BadSemanticContentResponse("Malformed URL");
 		}
 		catch (Exception e)
 		{
-			System.out.println("BrowserServer error: ");
+			debug("BrowserServer error: " + e);
 			e.printStackTrace();
 		}
-		return ResponseMessage.OKResponse();
+		return  OKResponse.get();
 	}
 }

@@ -1,16 +1,16 @@
-package ecologylab.services;
+package ecologylab.services.logging;
 
 import java.io.IOException;
 import java.net.BindException;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.ServicesServer;
 import ecologylab.xml.NameSpace;
 
 /**
- * 
+ * creating logging server and set the file for saving debug messages
  * @author eunyee
- *
  */
 
 public class LoggingServer extends ServicesServer

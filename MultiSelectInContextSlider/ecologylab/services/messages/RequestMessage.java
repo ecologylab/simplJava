@@ -10,7 +10,6 @@ import ecologylab.generic.ObjectRegistry;
  */
 public abstract class RequestMessage 
 extends ServiceMessage
-implements ResponseTypes
 {
 	/**
 	 * Perform the service associated with the request, using the supplied

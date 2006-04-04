@@ -1,4 +1,4 @@
-package ecologylab.services;
+package ecologylab.services.logging;
 
 import java.net.InetAddress;
 

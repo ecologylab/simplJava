@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services;
+package ecologylab.services.logging;
 
 import ecologylab.xml.ElementState;
 

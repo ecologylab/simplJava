@@ -1,10 +1,7 @@
 package ecologylab.services;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -12,7 +9,6 @@ import java.net.Socket;
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.messages.ResponseTypes;
 import ecologylab.xml.NameSpace;
 
 /**
@@ -25,7 +21,6 @@ import ecologylab.xml.NameSpace;
  */
 public class ServicesClient
 extends Debug
-implements ResponseTypes
 {
 	private Socket 		sock;
 	BufferedReader 		reader;
@@ -140,14 +135,14 @@ implements ResponseTypes
 		int badTransmissionCount = 0;
 		while (!transactionComplete)
 		{
-			String message		= null;
+			String requestMessageXML		= null;
 			try
 			{
-				message = requestMessage.translateToXML(false);
+				requestMessageXML = requestMessage.translateToXML(false);
 
-				output.println(message);
+				output.println(requestMessageXML);
 			
-				debug("Services Client: just sent message: " + message);
+				debug("Services Client: just sent message: " + requestMessageXML);
 				String response;
 				
 				debug("Services Client: awaiting a response");
@@ -156,19 +151,26 @@ implements ResponseTypes
 				responseMessage = (ResponseMessage)
 						ResponseMessage.translateFromXMLString(response, translationSpace);
 				
-				if (responseMessage.response.equals(BADTransmission))
+//				if (responseMessage.response.equals(BADTransmission))
+				if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
 				{
-					debug("BADTransmission of: " + message + " resending");
 					badTransmissionCount++;
 					if( badTransmissionCount == 3 )
 					{
-						debug("Quitting sending to the server because of the network condition after " +
+						debug("ERROR: Quitting sending to the server because of the network condition after " +
 								badTransmissionCount + " times try ");
 						break;
 					}
+					else
+						debug("ERROR: BADTransmission of: " + requestMessageXML + "\n\t Resending.");
+						
 				}
 				else
+				{
+					debug("received response: " + response);
+					responseMessage.processResponse();
 					transactionComplete = true;
+				}
 			}
 			catch (Exception e)
 			{
