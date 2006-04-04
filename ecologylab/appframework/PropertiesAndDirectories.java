@@ -120,9 +120,9 @@ extends Debug
 	   File result		= TEMP_DIR;
 	   if (result == null)
 	   {
-		  File sysTempDirName	= sysTempDirName();
-		  if (sysTempDirName != null)
-			 result		= sysTempDirName;
+		  File sysTempDir	= sysTempDirName();
+		  if (sysTempDir != null)
+			 result		= sysTempDir;
 		  else
 		  {
 			 result		= Files.newFile(thisApplicationDir(), "temp");
@@ -145,58 +145,69 @@ extends Debug
 	public static File sysTempDirName()
 	{
 		File result			= null;
-		switch (PropertiesAndDirectories.os())
+		String javaTmpDirStr= System.getProperty("java.io.tmpdir");
+		File javaTmpDir		= new File(javaTmpDirStr);
+		if (javaTmpDir.exists())
+			result			= javaTmpDir;
+		else if (javaTmpDir.mkdirs())
+			result			= javaTmpDir;
+		else
 		{
-			case WINDOWS:
-				String s1		= "c:/temp/";
-				File f1			= new File(s1);
-				if (f1.exists() && f1.canRead() && f1.canWrite())
-				{
-				   result		= f1;
-				}
-				else
-				{
-				   String s2	= "c:/wutemp/";
-				   File f2		= new File(s2);
-				   if (f2.exists() && f2.canRead() && f2.canWrite())
-				   {
-					  result	= f2;
-				   }
-				   else
-				   {
-					  String osDirName	= 
-						 System.getProperty("deployment.system.profile");
-					  if (osDirName != null)
-					  {
-						 File osDir		= Files.newFile(osDirName);
-						 File osTempDir	= Files.newFile(osDir, "temp");
-						 if (osTempDir.exists() && osTempDir.canRead() && osTempDir.canWrite())
-							result		= osTempDir;
-						 else
-						 {
-							if (f1.mkdir())
-							   result	= f1;
-							else
-							{
+			switch (PropertiesAndDirectories.os())
+			{
+				case WINDOWS:
+					String s1		= "c:/temp/";
+					File f1			= new File(s1);
+					if (f1.exists() && f1.canRead() && f1.canWrite())
+					{
+					   result		= f1;
+					}
+					else
+					{
+					   String s2	= "c:/wutemp/";
+					   File f2		= new File(s2);
+					   if (f2.exists() && f2.canRead() && f2.canWrite())
+					   {
+						  result	= f2;
+					   }
+					   else
+					   {
+						  String osDirName	= 
+							 System.getProperty("deployment.system.profile");
+						  if (osDirName != null)
+						  {
+							 File osDir		= Files.newFile(osDirName);
+							 File osTempDir	= Files.newFile(osDir, "temp");
+							 if (osTempDir.exists() && osTempDir.canRead() && osTempDir.canWrite())
+								result		= osTempDir;
+							 else
+							 {
+								if (f1.mkdirs())
+								   result	= f1;
+								else
+								{
+									// use (and make if necessary) temp dir inside our application dir
+									result = Files.newFile (thisApplicationDir(), "\temp");
+									if( !result.exists() )
+										result.mkdirs();
+								}
+							 }
+						  }
+						  else
+						  {
 								// use (and make if necessary) temp dir inside our application dir
-								result = Files.newFile (thisApplicationDir(), "\temp");
+								result = Files.newFile(thisApplicationDir(), "temp");
 								if( !result.exists() )
-									result.mkdir();
-							}
-						 }
-					  }
-					  else
-					  {
-							// use (and make if necessary) temp dir inside our application dir
-							result = Files.newFile(thisApplicationDir(), "temp");
-							if( !result.exists() )
-								result.mkdir();
-					  }
-				   }
-				}
-				break;
-			default:
-				result	= Files.newFile("/tmp/");
+									result.mkdirs();
+						  }
+					   }
+					}
+					break;
+				default:
+					result	= Files.newFile("/tmp/");
+					if (!result.exists())
+						result.mkdirs();
+			}
 		}
 		return result;
 	}
