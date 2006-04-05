@@ -133,7 +133,20 @@ implements Runnable
 	{
 		serverToClientConnections.remove(serverToClientConnection);
 		connectionCount--;
+		// When thread close by unexpected way (such as client just crashes),
+		// this method will end the service gracefully.
+		terminationAction();
 	}
+	
+	/**
+	 * This defines the actions that server needs to perform 
+	 * when the client ends unexpected way. Detail implementations will be in subclasses.
+	 */
+	protected void terminationAction()
+	{
+		
+	}
+	
 	public void run()
 	{
        while (!finished)
