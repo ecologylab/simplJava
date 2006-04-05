@@ -6,6 +6,8 @@ import java.net.BindException;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServicesServer;
+import ecologylab.services.messages.RequestMessage;
+import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
 
 /**
@@ -17,6 +19,8 @@ public class LoggingServer extends ServicesServer
 implements LoggingDef
 {
 
+	boolean end = false;
+	
 	public LoggingServer(int portNumber, NameSpace nameSpace, ObjectRegistry objectRegistry) 
 	throws BindException, IOException 
 	{
@@ -25,4 +29,26 @@ implements LoggingDef
 		Debug.setLoggingFile(serverLogFile);
 	}
 	
+	/**
+	 * Perform the service associated with a RequestMessage, by calling the
+	 * performService() method on that message.
+	 * Override the performServices method to do error handling. 
+	 * @param requestMessage	Message to perform.
+	 * @return					Response to the message.
+	 */
+	public ResponseMessage performService(RequestMessage requestMessage) 
+	{
+		if( requestMessage instanceof EndEmit)
+			end = true;
+		
+		return requestMessage.performService(objectRegistry);
+	}
+	
+	protected void terminationAction()
+	{
+		if( !end )
+		{
+			(new EndEmit()).performService(null);
+		}
+	}
 }
