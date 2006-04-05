@@ -212,7 +212,7 @@ extends Debug
 		return result;
 	}
 	
-	static String sysProperty(String propName)
+	public static String sysProperty(String propName)
 	{
 	   return System.getProperty(propName);
 	}
