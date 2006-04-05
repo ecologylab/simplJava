@@ -1,5 +1,7 @@
 package ecologylab.services.messages;
 
+import ecologylab.generic.ObjectRegistry;
+
 /**
  * Service response message.
  * 
@@ -20,9 +22,10 @@ extends ServiceMessage
 
     /**
      * Allows for custom processing of ResponseMessages by ServicesClient, without extending that.
+     * @param objectRegistry provide a context for response message processing.
      *
      */
-    public void processResponse()
+    public void processResponse(ObjectRegistry objectRegistry)
     {
     	
     }
