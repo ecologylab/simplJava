@@ -6,12 +6,14 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.Vector;
 
 import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
+import ecologylab.generic.ConsoleUtils;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionId;
 import ecologylab.xml.ElementState;
@@ -35,12 +37,12 @@ implements Runnable
 	protected BufferedWriter	writer;
 	ServicesClient 				loggingClient = null;
 	NameSpace 					nameSpace;
+	
+	Thread						thread;
 
 	int							log_mode;
 	
 	static String						date					= new Date(time).toString();
-
-	static final String LOG_FILE_NAME		= "combinFormationLog.xml";
 	
 	/**
 	 * Logging Header message string written to the logging file in the begining  
@@ -58,8 +60,7 @@ implements Runnable
 	static final int LOGTOSERVICESSERVER = 2; 
 	
 	File						logFile		= null;
-	
-	String 						readLogFileName ="";
+	String						logFileName = null;
 	
 
 	/**
@@ -68,16 +69,20 @@ implements Runnable
 	 * at a convenient time, at a low priority.
 	 */
 	LogOps 						opSet	= new LogOps();
+	
+	Vector						opsToWrite	= new Vector();
+	
 	boolean						finished;
 
 	static final int			THREAD_PRIORITY	= 1;
 	static final int			SLEEP_TIME		= 15000;
 	
-	public Logging(NameSpace nameSpace)
+	public Logging(NameSpace nameSpace, String logFileName)
 	{
 	   super();
 	   finished = false;
 	   this.nameSpace = nameSpace;
+	   this.logFileName = logFileName;
 	   setLogMode();
 	}
 	
@@ -90,7 +95,7 @@ implements Runnable
 	  		break;
 	  	case LOGTODESKTOP:
   			//logFile = new File(LOG_FILE_NAME);
-			logFile 	= new File(PropertiesAndDirectories.desktopDir(), LOG_FILE_NAME);
+			logFile 	= new File(PropertiesAndDirectories.desktopDir(), logFileName);
 			writer		= Files.openWriter(logFile);
 			debugA("logging to " + logFile);
   	        break;   
@@ -111,20 +116,26 @@ implements Runnable
 	{
 
 	   if ( (writer != null) || (loggingClient!=null) )
-	   	  opSet.addNestedElement(op);
+		   opsToWrite.add(op);
 
 	}
-		
 	public void start()
 	{
-		Thread thread = new Thread(this);
-		thread.setPriority(THREAD_PRIORITY);
-		thread.start();
+		if (thread == null)
+		{
+			thread = new Thread(this);
+			thread.setPriority(THREAD_PRIORITY);
+			thread.start();
+		}
 	}
 	public void stop()
 	{
-		finished	= true;
-		writeQueuedActions();
+		if (thread != null)
+		{
+			finished	= true;
+			writeQueuedActions();
+			thread		= null;
+		}
 	}
 	long lastGcTime;
 	static final long KICK_GC_INTERVAL		= 300000; // 5 minutes
@@ -161,12 +172,18 @@ implements Runnable
 	{
 		String actionStr = "";
 
-		if( loggingClient != null )
+		synchronized (opsToWrite)
 		{
-			debug("Logging: Sending opSet " + opSet);
-			loggingClient.sendMessage(opSet);
+			int num	= opsToWrite.size();
+			for (int i=0; i< num; i++)
+			{
+				MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
+				// copy thatOp to opSet
+				opSet.addNestedElement(thatOp);		
+			}
+			opsToWrite.clear();
 		}
-		
+//		ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
 		if( writer != null )
 		{
 			try 
@@ -179,6 +196,13 @@ implements Runnable
 			}
 			Files.writeLine(writer, actionStr);
 		}
+		
+		if( loggingClient != null )
+		{
+			debug("Logging: Sending opSet " + opSet);
+			loggingClient.sendMessage(opSet);
+		}
+		
 		opSet.clearSet();
 	}
 	
@@ -203,7 +227,6 @@ implements Runnable
 		if (writer !=null)
 		{
 			Files.writeLine(writer, LOG_HEADER);
-			start();
 		}
 
 	}
