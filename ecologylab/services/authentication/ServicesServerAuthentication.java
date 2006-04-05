@@ -96,11 +96,12 @@ public class ServicesServerAuthentication extends ServicesServer {
      */
     private ServicesServerAuthentication(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList) throws IOException, BindException {
+            AuthenticationList authList) throws IOException, BindException 
+    {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        requestTranslationSpace.addTranslation("ecologylab.services.messages", "Login");
-        requestTranslationSpace.addTranslation("ecologylab.services.messages", "Logout");
+        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Login");
+        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Logout");
         
         this.objectRegistry.registerObject("authenticationList", authList);
 
@@ -119,7 +120,8 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @throws IOException
      */
     protected ServerToClientConnection getConnection(Socket incomingSocket)
-            throws IOException {
+            throws IOException 
+    {
         return new ServerToClientConnectionAuthentication(incomingSocket, this);
     }
 }
