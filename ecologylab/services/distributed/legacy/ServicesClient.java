@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
@@ -29,6 +30,8 @@ extends Debug
 	private int 		port;
 	private String		server;
 	private NameSpace	translationSpace = null;
+	
+	protected ObjectRegistry	objectRegistry;
 	
 	/**
 	 * Create a client that will connect on the provided port. Assume localhost
@@ -53,9 +56,17 @@ extends Debug
 	
 	public ServicesClient(String server, int port, NameSpace messageSpace)
 	{
+		this(server, port, messageSpace, null);
+	}
+	public ServicesClient(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry)
+	{
 		this.port			= port;
 		this.server 		= server;
 		this.translationSpace 	= messageSpace;
+		
+		if (objectRegistry == null)
+			objectRegistry	= new ObjectRegistry();
+		this.objectRegistry	= objectRegistry;
 	}
 	
 	private void createConnection()
@@ -168,7 +179,7 @@ extends Debug
 				else
 				{
 					debug("received response: " + response);
-					responseMessage.processResponse();
+					processResponse(responseMessage);
 					transactionComplete = true;
 				}
 			}
@@ -179,5 +190,11 @@ extends Debug
 			}
 		}
 		return responseMessage;
+	}
+
+
+	protected void processResponse(ResponseMessage responseMessage)
+	{
+		responseMessage.processResponse(objectRegistry);
 	}
 }
