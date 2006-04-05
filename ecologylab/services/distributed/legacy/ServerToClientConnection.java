@@ -2,6 +2,7 @@ package ecologylab.services;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
@@ -30,7 +31,7 @@ implements Runnable
 	 */
 	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	protected BufferedReader		inputStreamReader;
+	protected InputStream			inputStream;
 	protected PrintStream			outputStreamWriter;
 	
 	protected ServicesServer		servicesServer;
@@ -43,7 +44,7 @@ implements Runnable
 	{
 		this.incomingSocket	= incomingSocket;
 		
-		inputStreamReader	= new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
+		inputStream			= incomingSocket.getInputStream();
 
 		outputStreamWriter	= new PrintStream(incomingSocket.getOutputStream());
 		
@@ -72,7 +73,7 @@ implements Runnable
 			{
 				//TODO -- change to nio
 		//		messageString = inputStreamReader.readLine();
-				messageString = readToMax(inputStreamReader);
+				messageString = readToMax(inputStream);
 				if( messageString != null )
 				{
 					debug("got raw message: " + messageString.getBytes().length );
@@ -170,11 +171,11 @@ implements Runnable
 				//debug("writer is closed.");
 				outputStreamWriter	= null;
 			}
-			if (inputStreamReader != null)
+			if (inputStream != null)
 			{
-				inputStreamReader.close();
+				inputStream.close();
 				//debug("reader is closed.");
-				inputStreamReader	= null;
+				inputStream	= null;
 			}
 		} catch (IOException e)
 		{
@@ -190,7 +191,7 @@ implements Runnable
 	 * @return
 	 * @throws Exception
 	 */
-	public String readToMax(BufferedReader in) throws Exception
+	public String readToMax(InputStream in) throws Exception
 	{
 		char[] ch_array = new char[LoggingDef.maxSize];
 		int count = 0;
