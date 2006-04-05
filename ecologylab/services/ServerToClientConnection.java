@@ -73,20 +73,22 @@ implements Runnable
 				//TODO -- change to nio
 		//		messageString = inputStreamReader.readLine();
 				messageString = readToMax(inputStreamReader);
-				
-				debug("got raw message: " + messageString.getBytes().length );
-		
-				RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString);
-				
-				if (requestMessage == null)
-					debug("ERROR: translation failed: " + messageString);
-				else
+				if( messageString != null )
 				{
-					//perform the service being requested
-					ResponseMessage responseMessage = performService(requestMessage);
+					debug("got raw message: " + messageString.getBytes().length );
+			
+					RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString);
 					
-					sendResponse(responseMessage);
-					badTransmissionCount	= 0;
+					if (requestMessage == null)
+						debug("ERROR: translation failed: " + messageString);
+					else
+					{
+						//perform the service being requested
+						ResponseMessage responseMessage = performService(requestMessage);
+						
+						sendResponse(responseMessage);
+						badTransmissionCount	= 0;
+					}
 				}
 			} catch (java.net.SocketException e)
 			{
@@ -192,11 +194,14 @@ implements Runnable
 	{
 		char[] ch_array = new char[LoggingDef.maxSize];
 		int count = 0;
-		
+
 		while(count < LoggingDef.maxSize)
 		{
-			char c = (char)in.read();
-			ch_array[count] = c;	
+			int c = in.read();
+			if( c == -1 )
+				return null;
+			
+			ch_array[count] = (char)c;	
 			count++;
 			if( (count!=1) && (c == '\n' || c == '\r'))
 			{
