@@ -1,5 +1,6 @@
 package ecologylab.services.logging;
 
+import ecologylab.xml.ArrayListState;
 import ecologylab.xml.VectorState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
@@ -16,7 +17,7 @@ import ecologylab.xml.XmlTranslationException;
 public class LogOps extends LogRequestMessage
 {
 
-	public VectorState	mixedInitiativeOpSet = new VectorState();
+	public ArrayListState	mixedInitiativeOpSet = new ArrayListState();
 
 	public void addNestedElement(ElementState elementState)
 	{
