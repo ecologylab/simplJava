@@ -94,10 +94,16 @@ implements Runnable
 	  	case NOLOG: 
 	  		break;
 	  	case LOGTODESKTOP:
-  			//logFile = new File(LOG_FILE_NAME);
-			logFile 	= new File(PropertiesAndDirectories.desktopDir(), logFileName);
-			writer		= Files.openWriter(logFile);
-			debugA("logging to " + logFile);
+	  		// The application save a log file only if there is the application directory exists 
+	  		// Or, if the application directory can be created
+	  		if( PropertiesAndDirectories.thisApplicationDir() != null )
+	  		{
+				logFile 	= new File(PropertiesAndDirectories.logDir(), logFileName);
+				writer		= Files.openWriter(logFile);
+				debugA("logging to " + logFile + " " + writer);
+	  		}
+	  		else
+	  			debug("thisApplicationDir() does not exist or cannot create");
   	        break;   
 	  	case LOGTOSERVICESSERVER:  
   		  	//emit which interface the subject used in the study
