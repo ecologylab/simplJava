@@ -105,11 +105,9 @@ extends Debug
 		   else
 			   result				= Files.newFile(apDataDir, "." + applicationName);
 		   
-			if (!result.exists())
-				result.mkdir();
-			
-			THIS_APPLICATION_DIR		= result;
-//			Assets.setCacheRoot(result);
+			result				= createDirsAsNeeded(result);
+			if (result != null)
+				THIS_APPLICATION_DIR= result;
 		}
 		return result;
 	}
@@ -119,25 +117,36 @@ extends Debug
 	 */
 	public static File logDir()
 	{
-	   File result		= LOG_DIR;
-	   if (result == null)
-	   {
-		  File apDataDir			= thisApplicationDir();
-		  
-		   if (os() == WINDOWS)
-			   result				= Files.newFile(apDataDir, "log");
-		   else
-			   result				= Files.newFile(apDataDir, "." + "log");
-		   
-			if (!result.exists())
-				result.mkdir();
-
-		  LOG_DIR		= result;
-		  println("LOG_DIR = "+LOG_DIR);
-	   }
-	   return result;
+		File result		= LOG_DIR;
+		if (result == null)
+		{
+			File apDataDir			= thisApplicationDir();
+			
+			if (apDataDir != null)
+			{
+				if (os() == WINDOWS)
+					result			= Files.newFile(apDataDir, "log");
+				else
+					result			= Files.newFile(apDataDir, "." + "log");
+				
+				result				= createDirsAsNeeded(result);
+				if (result != null)
+					LOG_DIR		= result;
+			}
+			println("LOG_DIR = "+LOG_DIR);
+		}
+		return result;
 	}
-		
+	/**
+	 * Create directories associated with this path, if possible.
+	 * 
+	 * @param path
+	 * @return	null if it was not possible to create the path, otherwise, the argument passed in.
+	 */
+	public static File createDirsAsNeeded(File path)
+	{
+		return path.exists() ? path : (path.mkdirs() ? path : null);
+	}
 /**
  * @return		the appropriate directory for storing temporary files.
  */
@@ -146,17 +155,17 @@ extends Debug
 	   File result		= TEMP_DIR;
 	   if (result == null)
 	   {
-		  File sysTempDir	= sysTempDirName();
+		  File sysTempDir	= sysTempDir();
 		  if (sysTempDir != null)
 			 result		= sysTempDir;
 		  else
 		  {
 			 result		= Files.newFile(thisApplicationDir(), "temp");
-			 result.mkdir();
-			 if (!result.exists())
+			 result		= createDirsAsNeeded(result);
+			 if (result == null)
 			 {
-			 	result		= Files.newFile(userDir(), "temp");
-				result.mkdir();
+			 	result	= Files.newFile(userDir(), "temp");
+			 	result	= createDirsAsNeeded(result);
 			 }
 		  }
 		  TEMP_DIR		= result;
@@ -168,7 +177,7 @@ extends Debug
 /**
  * @return		name of the appropriate directory for storing temporary files.
  */
-	public static File sysTempDirName()
+	public static File sysTempDir()
 	{
 		File result			= null;
 		String javaTmpDirStr= System.getProperty("java.io.tmpdir");
@@ -208,14 +217,13 @@ extends Debug
 								result		= osTempDir;
 							 else
 							 {
-								if (f1.mkdirs())
+								if (createDirsAsNeeded(f1) != null)
 								   result	= f1;
 								else
 								{
 									// use (and make if necessary) temp dir inside our application dir
 									result = Files.newFile (thisApplicationDir(), "\temp");
-									if( !result.exists() )
-										result.mkdirs();
+									result = createDirsAsNeeded(result);
 								}
 							 }
 						  }
@@ -223,16 +231,14 @@ extends Debug
 						  {
 								// use (and make if necessary) temp dir inside our application dir
 								result = Files.newFile(thisApplicationDir(), "temp");
-								if( !result.exists() )
-									result.mkdirs();
+								result = createDirsAsNeeded(result);
 						  }
 					   }
 					}
 					break;
 				default:
 					result	= Files.newFile("/tmp/");
-					if (!result.exists())
-						result.mkdirs();
+					result = createDirsAsNeeded(result);
 			}
 		}
 		return result;
@@ -244,7 +250,7 @@ extends Debug
 	}
 
 /**
- * On Windows, this is c:\Documents and Settings\User Name\Application Data
+ * On Windows, this is typically c:\Documents and Settings\User Name\Application Data
  */
 	public static File applicationDataDir()
 	{
@@ -258,20 +264,13 @@ extends Debug
 		   {
 			   fileName = sysProperty("user.home");
 			   println("user.home=" + fileName);
-			   File appDataDir = new File(fileName, "Application Data");
-			   
-			   if (appDataDir.exists()) //use the windows 'application data' directory if possible
-				   result = appDataDir;
-			   else
-				   result = Files.newFile(fileName);
 		   }
-		   else //use the windows 'application data' directory if possible
+		   File appDataDir = new File(fileName, "Application Data");
+		   result		= createDirsAsNeeded(appDataDir);
+		   
+		   if (result == null)
 		   {
-			   File appDataDir = new File(fileName, "Application Data");
-			   if (appDataDir.exists())
-				   result = appDataDir;
-			   else
-				   result = Files.newFile(fileName);
+			   result	= createDirsAsNeeded(Files.newFile(fileName));
 		   }
 		  println("applicationDataDir() = " + result);
 		  APPLICATION_DATA_DIR	= result;
@@ -284,6 +283,7 @@ extends Debug
  * 
  * In Windows, this is typically c:\\Documents and Settings\\username
  */
+	//TODO clean this one up -- probably should use appDataDir() if user.dir is not defined
 	public static File userDir()
 	{
 	   File result		= USER_DIR;

@@ -32,32 +32,34 @@ public class Logging
 extends ElementState
 implements Runnable
 {
-	public static final long	time					= System.currentTimeMillis();
-
+	private static final String SESSION_LOG_START = "\n<session_log>\n ";
+	private static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
+	
 	protected BufferedWriter	writer;
 	ServicesClient 				loggingClient = null;
 	NameSpace 					nameSpace;
 	
 	Thread						thread;
 
-	int							log_mode;
-	
-	static String						date					= new Date(time).toString();
+	int							logMode;
 	
 	/**
 	 * Logging Header message string written to the logging file in the begining  
 	 */
+	
 	public static final String LOG_HEADER	= XmlTools.xmlHeader() + 
-						"\n<session_log " + "ip=\"" + localHost() + "\" starting_time=\"" + date() + "\">" +
- 						"\n<op_sequence>\n\n";
+						SESSION_LOG_START + "ip=\"" + localHost() + "\" starting_time=\"" + date() + "\">" +
+ 						OP_SEQUENCE_START;
+	
+	public static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
 	/**
 	 * Logging closing message string written to the logging file at the end
 	 */
 	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
 
-	static final int NOLOG =0;
-	static final int LOGTODESKTOP = 1;
-	static final int LOGTOSERVICESSERVER = 2; 
+	static final int NO_LOGGING				= 0;
+	static final int LOG_TO_FILE			= 1;
+	static final int LOG_TO_SERVICES_SERVER = 2; 
 	
 	File						logFile		= null;
 	String						logFileName = null;
@@ -79,49 +81,62 @@ implements Runnable
 	
 	public Logging(NameSpace nameSpace, String logFileName)
 	{
-	   super();
-	   finished = false;
-	   this.nameSpace = nameSpace;
-	   this.logFileName = logFileName;
-	   setLogMode();
+		super();
+		finished = false;
+		this.nameSpace = nameSpace;
+		this.logFileName = logFileName;
+		int log_mode = Generic.parameterInt("log_mode", NO_LOGGING);
+		this.logMode	= log_mode;
+		switch (log_mode)
+		{
+		case NO_LOGGING: 
+			break;
+		case LOG_TO_FILE:
+			if (logFileName == null)
+			{
+				log_mode	= NO_LOGGING;
+			}
+			else
+			{
+				File logDir	= PropertiesAndDirectories.logDir();
+				if (logDir == null)
+				{
+					log_mode= NO_LOGGING;
+					debug("Can't write to logDir=" + logDir);
+				}
+				else
+				{
+					logFile 	= new File(logDir, logFileName);
+					writer		= Files.openWriter(logFile);
+					if (writer != null)
+						debugA("logging to " + logFile + " " + writer);
+					else
+						debug("ERROR: cant open writer to " + logFile);
+				}
+			}
+			break;
+		case LOG_TO_SERVICES_SERVER:  
+			/**
+			 * Create the logging client which communicates with the logging server
+			 */
+			loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
+			if (loggingClient.connect())
+				debug("Logging to service via connection: " + loggingClient);
+			else
+			{
+				loggingClient	= null;
+				log_mode		= NO_LOGGING;
+			}
+			break;
+			
+		default: break;
+		}
 	}
 	
-    void setLogMode()
-    {
-    	log_mode = Generic.parameterInt("log_mode", 0); 	
-	  switch (log_mode)
-	  {
-	  	case NOLOG: 
-	  		break;
-	  	case LOGTODESKTOP:
-	  		// The application save a log file only if there is the application directory exists 
-	  		// Or, if the application directory can be created
-	  		if( PropertiesAndDirectories.thisApplicationDir() != null )
-	  		{
-				logFile 	= new File(PropertiesAndDirectories.logDir(), logFileName);
-				writer		= Files.openWriter(logFile);
-				debugA("logging to " + logFile + " " + writer);
-	  		}
-	  		else
-	  			debug("thisApplicationDir() does not exist or cannot create");
-  	        break;   
-	  	case LOGTOSERVICESSERVER:  
-  		  	//emit which interface the subject used in the study
- // 	        studyInterface= Generic.parameter("userinterface");
-	  		/**
-	  		 * Create the logging client which communicates with the logging server
-	  		 */
-  	        loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
-  	        break;
-	  	        
-	    default: break;
-	  }
-    }
-    
 	public void logAction(MixedInitiativeOp op)
 	{
 
-	   if ( (writer != null) || (loggingClient!=null) )
+	   if ( (writer != null) || (loggingClient != null) )
 		   opsToWrite.add(op);
 
 	}
@@ -212,29 +227,46 @@ implements Runnable
 		opSet.clearSet();
 	}
 	
-	public void setDate(String value)
-    {
-   		date	=	value;
-    }
-
-    
 /**
  * Write the start of the log header out to the log file
  * OR, send the begining logging file message so that logging server write the start of the log header.
  */
 	public void beginEmit()
 	{
-		if( loggingClient != null )
+		if (logMode != NO_LOGGING)
 		{
-			debug("Logging: Sending BeginEmit ");
-			loggingClient.sendMessage(new BeginEmit());
+			Prologue prologue = getPrologue();
+			if( loggingClient != null )
+			{
+				debug("Logging: Sending Prologue ");
+				loggingClient.sendMessage(prologue);
+			}
+			
+			if (writer !=null)
+			{
+				try
+				{
+					Files.writeLine(writer, BEGIN_EMIT + prologue.translateToXML(false) + OP_SEQUENCE_START);
+				} catch (XmlTranslationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
-		
-		if (writer !=null)
-		{
-			Files.writeLine(writer, LOG_HEADER);
-		}
+	}
 
+	/**
+	 * A message at the beginnging of the log.
+	 * This method may be overridden to return a subclass of Prologue, by subclasses of this,
+	 * that wish to emit application specific information at the start of a log.
+	 * 
+	 * @return
+	 */
+	protected Prologue getPrologue()
+	{
+		Prologue prologue = new Prologue();
+		return prologue;
 	}
 	
 	/**
@@ -325,6 +357,7 @@ implements Runnable
 	 */
    static String date()
    {
+	   final String date	=  new Date(System.currentTimeMillis()).toString();;
 	   String temp;
 	   temp=date.replace(' ','_');
 	   temp=temp.replace(':','-');   	
@@ -387,6 +420,7 @@ implements Runnable
 	    Files.closeWriter(writer);
    }
 
+   static final long time	= System.currentTimeMillis();
    /**
     * Return our session start timestamp.
     * @return

@@ -69,7 +69,7 @@ extends Debug
 		this.objectRegistry	= objectRegistry;
 	}
 	
-	private void createConnection()
+	private boolean createConnection()
 	{
 		InetAddress address = null;
 		try 
@@ -83,11 +83,11 @@ extends Debug
 		}
 		catch (Exception e)
 		{
-			//System.err.println("No server: " + server);
 			//e.printStackTrace();
-			//System.exit(2);
+			debug("Couldnt create connection to server: " + e);
 			sock = null;
 		}
+		return sock != null;
 	}
 	String 		toString;
 	public String toString()
