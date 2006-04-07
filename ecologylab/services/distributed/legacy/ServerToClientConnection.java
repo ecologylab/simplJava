@@ -31,7 +31,7 @@ implements Runnable
 	 */
 	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	protected InputStream			inputStream;
+	protected BufferedReader		inputStream;
 	protected PrintStream			outputStreamWriter;
 	
 	protected ServicesServer		servicesServer;
@@ -44,7 +44,7 @@ implements Runnable
 	{
 		this.incomingSocket	= incomingSocket;
 		
-		inputStream			= incomingSocket.getInputStream();
+		inputStream			= new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
 
 		outputStreamWriter	= new PrintStream(incomingSocket.getOutputStream());
 		
@@ -90,7 +90,9 @@ implements Runnable
 						sendResponse(responseMessage);
 						badTransmissionCount	= 0;
 					}
-				}
+				} else {
+        System.err.println("null returned.");            
+                }
 			} catch (java.net.SocketException e)
 			{
 				// this seems to mean the connection went away
@@ -191,7 +193,7 @@ implements Runnable
 	 * @return
 	 * @throws Exception
 	 */
-	public String readToMax(InputStream in) throws Exception
+	public String readToMax(BufferedReader in) throws Exception
 	{
 		char[] ch_array = new char[LoggingDef.maxSize];
 		int count = 0;
@@ -200,7 +202,7 @@ implements Runnable
 		{
 			int c = in.read();
 			if( c == -1 )
-				return null;
+				throw new Exception("Client terminated connection.");
 			
 			ch_array[count] = (char)c;	
 			count++;
