@@ -15,6 +15,7 @@ extends Debug
 {
 	protected static File		USER_DIR;
 	protected static File		DESKTOP_DIR;
+	protected static File 		LOG_DIR;
 
 	protected static File		APPLICATION_DATA_DIR;
 	protected static File		THIS_APPLICATION_DIR;
@@ -112,6 +113,31 @@ extends Debug
 		}
 		return result;
 	}
+	
+	/**
+	 * @return		the appropriate directory for storing temporary files.
+	 */
+	public static File logDir()
+	{
+	   File result		= LOG_DIR;
+	   if (result == null)
+	   {
+		  File apDataDir			= thisApplicationDir();
+		  
+		   if (os() == WINDOWS)
+			   result				= Files.newFile(apDataDir, "log");
+		   else
+			   result				= Files.newFile(apDataDir, "." + "log");
+		   
+			if (!result.exists())
+				result.mkdir();
+
+		  LOG_DIR		= result;
+		  println("LOG_DIR = "+LOG_DIR);
+	   }
+	   return result;
+	}
+		
 /**
  * @return		the appropriate directory for storing temporary files.
  */
