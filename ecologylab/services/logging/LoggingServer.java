@@ -2,9 +2,12 @@ package ecologylab.services.logging;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.Socket;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.LoggingServerToClientConnection;
+import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -26,7 +29,23 @@ implements LoggingDef
 	{
 		super(portNumber, nameSpace, objectRegistry);
 		// Let server debug messages print to the file
-		Debug.setLoggingFile(serverLogFile);
+//		Debug.setLoggingFile(serverLogFile);
+	}
+	
+	/**
+	 * Create a ServerToClientConnection, the object that handles the connection to
+	 * each incoming client.
+	 * To extend the functionality of the client, you can override this method in your subclass of this,
+	 * to return a subclass of ServerToClientConnection.
+	 * 
+	 * @param incomingSocket
+	 * @return
+	 * @throws IOException
+	 */
+	protected ServerToClientConnection getConnection(Socket incomingSocket)
+	throws IOException
+	{
+		return new LoggingServerToClientConnection(incomingSocket, this);
 	}
 	
 	/**

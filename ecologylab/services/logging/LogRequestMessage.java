@@ -17,25 +17,21 @@ import ecologylab.xml.XmlTranslationException;
  *
  */
 public class LogRequestMessage extends RequestMessage
-{
-	FileOutputStream outFile;
-	
+{	
 	/**
 	 * Save the logging messages to the session log file
 	 */
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		Debug.println("cf services: received Logging Messages " );
+		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
-		if( getOutFile() != null )
+		if( outFile != null )
 		{
-			try {
-				
+			try 
+			{	
 				String actionStr	=	getMessageString();
-				System.out.println("cf services: Got It " + 
-						"\n" + actionStr );
 				outFile.write(actionStr.getBytes());
-
 			} 
 			catch (XmlTranslationException e) 
 			{
@@ -46,8 +42,10 @@ public class LogRequestMessage extends RequestMessage
 				e.printStackTrace();
 			}
 		}
+		else
+			debug("FileOutputStream has not been created " + outFile );
 		
-		System.out.println("cf services: sending postive response");
+		debug("cf services: sending postive response");
 
     	return OKResponse.get();
 
@@ -65,22 +63,4 @@ public class LogRequestMessage extends RequestMessage
 		return "";
 	}
 
-	
-	/**
-	 * Create a session logging file in the specific server space
-	 * @return
-	 */
-	FileOutputStream getOutFile()
-	{
-    	if( outFile == null )
-    	{
-			try {
-				outFile = new FileOutputStream(LoggingDef.sessionLogFile,true);
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-    	}
-		return outFile;
-	}
 }

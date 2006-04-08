@@ -13,7 +13,6 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
-import ecologylab.generic.ConsoleUtils;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionId;
 import ecologylab.xml.ElementState;
@@ -33,7 +32,17 @@ extends ElementState
 implements Runnable
 {
 	private static final String SESSION_LOG_START = "\n<session_log>\n ";
-	private static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
+	static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
+	
+	/**
+	 * Logging closing message string written to the logging file at the end
+	 */
+	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
+	
+	/**
+	 * Logging Header message string written to the logging file in the begining  
+	 */
+	static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
 	
 	protected BufferedWriter	writer;
 	ServicesClient 				loggingClient = null;
@@ -43,20 +52,6 @@ implements Runnable
 
 	int							logMode;
 	
-	/**
-	 * Logging Header message string written to the logging file in the begining  
-	 */
-	
-	public static final String LOG_HEADER	= XmlTools.xmlHeader() + 
-						SESSION_LOG_START + "ip=\"" + localHost() + "\" starting_time=\"" + date() + "\">" +
- 						OP_SEQUENCE_START;
-	
-	public static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
-	/**
-	 * Logging closing message string written to the logging file at the end
-	 */
-	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
-
 	static final int NO_LOGGING				= 0;
 	static final int LOG_TO_FILE			= 1;
 	static final int LOG_TO_SERVICES_SERVER = 2; 
@@ -140,6 +135,7 @@ implements Runnable
 		   opsToWrite.add(op);
 
 	}
+	
 	public void start()
 	{
 		if (thread == null)
@@ -149,6 +145,7 @@ implements Runnable
 			thread.start();
 		}
 	}
+	
 	public void stop()
 	{
 		if (thread != null)
@@ -158,6 +155,7 @@ implements Runnable
 			thread		= null;
 		}
 	}
+	
 	long lastGcTime;
 	static final long KICK_GC_INTERVAL		= 300000; // 5 minutes
 	
@@ -227,10 +225,10 @@ implements Runnable
 		opSet.clearSet();
 	}
 	
-/**
- * Write the start of the log header out to the log file
- * OR, send the begining logging file message so that logging server write the start of the log header.
- */
+	/**
+	 * Write the start of the log header out to the log file
+	 * OR, send the begining logging file message so that logging server write the start of the log header.
+	 */
 	public void beginEmit()
 	{
 		if (logMode != NO_LOGGING)
@@ -386,18 +384,6 @@ implements Runnable
 	   }
 	   return localHost;
    }
-   
-   String logFileName()
-   {
-   	 return "user" + SessionId.get() + "-logFile" + date() + ".xml";
-   }     
-   
-   String traceFileName()
-   {
-   	 return "user" + SessionId.get() + "-TraceFile" + date() + ".trace";
-   }
-   
-
 
    void copyTraceFile(File outputFile)
    {

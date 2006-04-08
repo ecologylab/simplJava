@@ -24,14 +24,10 @@ public interface LoggingDef
 	static final int maxSize = 60000; 
 	
 	/**
-	 * A session log file name of a user
-	 */
-	static String sessionLogFile	=	// "/project/ecologylab/studyResults/CF_LOG/" + 
-				Logging.localHost() + "__" + Logging.date() + ".xml";
-	
-	/**
 	 * Logging file of the server's debug messages
 	 */
 	static String serverLogFile 	= // "/project/ecologylab/studyResults/CF_LOG/" + 
 				"stdout.log";
+	
+	static String keyStringForFileObject = "key";
 }
