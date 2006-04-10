@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
-import ecologylab.services.messages.ErrorResponse;
+import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -50,7 +50,7 @@ public class ServerToClientConnectionAuthentication extends
                 
             } else 
             { // otherwise we consider it bad!
-                responseMessage = new ErrorResponse(REQUEST_FAILED_NOT_AUTHENTICATED);
+                responseMessage = new BadSemanticContentResponse(REQUEST_FAILED_NOT_AUTHENTICATED);
             }
                     
         } else {

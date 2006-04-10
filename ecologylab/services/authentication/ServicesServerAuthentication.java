@@ -47,7 +47,7 @@ public class ServicesServerAuthentication extends ServicesServer {
             AuthenticationList authList = (AuthenticationList) ElementState.translateFromXML(
                     authListFilename, NameSpace.get(
                             "authListNameSpace",
-                            "ecologylab.services"));
+                            "ecologylab.services.authentication"));
             newServer   = new ServicesServerAuthentication(portNumber, requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -122,6 +122,7 @@ public class ServicesServerAuthentication extends ServicesServer {
     protected ServerToClientConnection getConnection(Socket incomingSocket)
             throws IOException 
     {
+       
         return new ServerToClientConnectionAuthentication(incomingSocket, this);
     }
 }
