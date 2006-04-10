@@ -31,7 +31,7 @@ implements Runnable
 	 */
 	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	protected BufferedReader		inputStream;
+	protected InputStream  		inputStream;
 	protected PrintStream			outputStreamWriter;
 	
 	protected ServicesServer		servicesServer;
@@ -44,7 +44,7 @@ implements Runnable
 	{
 		this.incomingSocket	= incomingSocket;
 		
-		inputStream			= new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
+		inputStream			= incomingSocket.getInputStream();
 
 		outputStreamWriter	= new PrintStream(incomingSocket.getOutputStream());
 		
@@ -193,7 +193,7 @@ implements Runnable
 	 * @return
 	 * @throws Exception
 	 */
-	public String readToMax(BufferedReader in) throws Exception
+	public String readToMax(InputStream in) throws Exception
 	{
 		char[] ch_array = new char[LoggingDef.maxSize];
 		int count = 0;
