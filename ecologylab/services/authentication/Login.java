@@ -20,7 +20,10 @@ public class Login extends RequestMessage implements AuthenticationMessages
 
     public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
     
-    public Login() 
+    /**
+     * Should not normally be used; only for XML translations.
+     */
+    public Login()
     {
         super();
     }
