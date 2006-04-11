@@ -13,8 +13,6 @@ public interface ApplicationProperties
 	
 	public static final String	USERINTERFACE			= Generic.parameter(USERINTERFACE_NAME);
 
-	public static final String	DASHBOARD_INTERFACE		= "dashboard.xml";
-	
 	public static final String	USE_ASSETS_CACHE_NAME	= "use_assets_cache";
 	
 	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool(USE_ASSETS_CACHE_NAME);
