@@ -93,6 +93,11 @@ public class ServicesClientAuthentication extends ServicesClient implements Auth
             loggedIn = false;
         }
         
+        if (!loggedIn)
+        {
+            super.disconnect();
+        }
+        
         return this.connected();
     }
 
