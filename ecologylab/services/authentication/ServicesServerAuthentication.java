@@ -94,7 +94,7 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @throws IOException
      * @throws BindException
      */
-    private ServicesServerAuthentication(int portNumber,
+    protected ServicesServerAuthentication(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException 
     {
