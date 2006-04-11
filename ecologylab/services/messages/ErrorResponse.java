@@ -25,4 +25,12 @@ public class ErrorResponse extends ResponseMessage
 		return false;
 	}
 
+    /**
+     * @return Returns the explanation.
+     */
+    public String getExplanation()
+    {
+        return explanation;
+    }
+
 }
