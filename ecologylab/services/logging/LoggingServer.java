@@ -6,7 +6,6 @@ import java.net.Socket;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.LoggingServerToClientConnection;
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.messages.RequestMessage;
