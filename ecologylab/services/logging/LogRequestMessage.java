@@ -18,6 +18,8 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class LogRequestMessage extends RequestMessage
 {	
+	protected String			xmlString;
+	
 	/**
 	 * Save the logging messages to the session log file
 	 */
@@ -43,9 +45,9 @@ public class LogRequestMessage extends RequestMessage
 			}
 		}
 		else
-			debug("FileOutputStream has not been created " + outFile );
+			debug("ERROR: Can't log because FileOutputStream has not been created: " + outFile );
 		
-		debug("cf services: sending postive response");
+		debug("cf services: sending OK response");
 
     	return OKResponse.get();
 
@@ -61,6 +63,21 @@ public class LogRequestMessage extends RequestMessage
 	String getMessageString() throws XmlTranslationException 
 	{
 		return "";
+	}
+
+	/**
+	 * Full XML for the message to be logged.
+	 * 
+	 * @return
+	 */
+	public String xmlString()
+	{
+		return xmlString;
+	}
+
+	public void setXmlString(String xmlString)
+	{
+		this.xmlString = xmlString;
 	}
 
 }
