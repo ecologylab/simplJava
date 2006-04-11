@@ -15,6 +15,7 @@ import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionId;
+import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTools;
@@ -44,6 +45,13 @@ implements Runnable
 	 */
 	static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
 	
+	/**
+	 * This field is used for reading a log in from a file, but not for writing one, because
+	 * we dont the write the log file all at once, and so can't automatically translate
+	 * the start tag and end tag for this element.
+	 */
+	public ArrayListState		opSequence;
+	
 	protected BufferedWriter	writer;
 	ServicesClient 				loggingClient = null;
 	NameSpace 					nameSpace;
@@ -59,14 +67,16 @@ implements Runnable
 	File						logFile		= null;
 	String						logFileName = null;
 	
-
+/**
+ * Object for sending a batch of ops to the LoggingServer.
+ */
+	LogOps 						opSet	= new LogOps();
+	
 	/**
-	 * Queue of action opperations that have been sent to us for loggin.
+	 * Queue of action opperations that have been sent to us for logging.
 	 * Our Runnable Thread will actually to the file writes,
 	 * at a convenient time, at a low priority.
 	 */
-	LogOps 						opSet	= new LogOps();
-	
 	Vector						opsToWrite	= new Vector();
 	
 	boolean						finished;
@@ -189,35 +199,44 @@ implements Runnable
 	 */
 	protected void writeQueuedActions() 
 	{
-		String actionStr = "";
 
-		synchronized (opsToWrite)
-		{
-			int num	= opsToWrite.size();
-			for (int i=0; i< num; i++)
-			{
-				MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
-				// copy thatOp to opSet
-				opSet.addNestedElement(thatOp);		
-			}
-			opsToWrite.clear();
-		}
 //		ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
 		if( writer != null )
 		{
 			try 
 			{
-				actionStr = (String)opSet.translateToXML(false);
+				String actionStr = "";
+				synchronized (opsToWrite)
+				{
+					int num	= opsToWrite.size();
+					for (int i=0; i< num; i++)
+					{
+						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
+						actionStr += (String)thatOp.translateToXML(false);	
+					}
+					opsToWrite.clear();
+				}
+				Files.writeLine(writer, actionStr);
 			} 
 			catch (XmlTranslationException e) 
 			{
 				e.printStackTrace();
 			}
-			Files.writeLine(writer, actionStr);
 		}
 		
 		if( loggingClient != null )
 		{
+			synchronized (opsToWrite)
+			{
+				int num	= opsToWrite.size();
+				for (int i=0; i< num; i++)
+				{
+					MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
+					// copy thatOp to opSet
+					opSet.addNestedElement(thatOp);		
+				}
+				opsToWrite.clear();
+			}
 			debug("Logging: Sending opSet " + opSet);
 			loggingClient.sendMessage(opSet);
 		}

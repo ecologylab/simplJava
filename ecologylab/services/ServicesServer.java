@@ -206,11 +206,11 @@ implements Runnable
 		return new ServerToClientConnection(incomingSocket, this);
 	}
 	
-	public RequestMessage translateXMLStringToRequestMessage(String messageString)
+	public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
 		RequestMessage requestMessage
-					= (RequestMessage) ElementState.translateFromXMLString(messageString, requestTranslationSpace);
+					= (RequestMessage) ElementState.translateFromXMLString(messageString, requestTranslationSpace, doRecursiveDescent);
 		return requestMessage;
 	}
 	/**
