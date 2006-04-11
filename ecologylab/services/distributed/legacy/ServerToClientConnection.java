@@ -214,7 +214,7 @@ implements Runnable
 		{
 			int c = in.read();
 			if( c == -1 )
-				throw new Exception("Client terminated connection.");
+				throw new java.net.SocketException("Client terminated connection.");
 			
 			ch_array[count] = (char)c;	
 			count++;
