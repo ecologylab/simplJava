@@ -1,6 +1,7 @@
 package ecologylab.services;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
@@ -125,6 +126,29 @@ extends Debug
 		
 		return connected();
 	}
+    
+    /**
+     * Disconnect from the server (if connected).
+     */
+    public void disconnect()
+    {
+        if (connected())
+        {
+            try
+            {
+                sock.close();
+                System.out.println("Closed the connection.");
+                sock = null;
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        } else
+        {
+            System.out.println("Could not close connection: not connected!");
+        }
+    }
+    
 	/**
 	 * Send a message to the ServicesServer to get a service performed,
 	 * 
@@ -191,7 +215,6 @@ extends Debug
 		}
 		return responseMessage;
 	}
-
 
 	protected void processResponse(ResponseMessage responseMessage)
 	{
