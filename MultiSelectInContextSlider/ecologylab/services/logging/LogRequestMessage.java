@@ -17,8 +17,8 @@ import ecologylab.xml.XmlTranslationException;
  *
  */
 public class LogRequestMessage extends RequestMessage
-{
-	FileOutputStream outFile;
+{	
+	protected String			xmlString;
 	
 	/**
 	 * Save the logging messages to the session log file
@@ -26,16 +26,14 @@ public class LogRequestMessage extends RequestMessage
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		Debug.println("cf services: received Logging Messages " );
+		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
-		if( getOutFile() != null )
+		if( outFile != null )
 		{
-			try {
-				
+			try 
+			{	
 				String actionStr	=	getMessageString();
-				System.out.println("cf services: Got It " + 
-						"\n" + actionStr );
 				outFile.write(actionStr.getBytes());
-
 			} 
 			catch (XmlTranslationException e) 
 			{
@@ -46,8 +44,10 @@ public class LogRequestMessage extends RequestMessage
 				e.printStackTrace();
 			}
 		}
+		else
+			debug("ERROR: Can't log because FileOutputStream has not been created: " + outFile );
 		
-		System.out.println("cf services: sending postive response");
+		debug("cf services: sending OK response");
 
     	return OKResponse.get();
 
@@ -65,22 +65,19 @@ public class LogRequestMessage extends RequestMessage
 		return "";
 	}
 
-	
 	/**
-	 * Create a session logging file in the specific server space
+	 * Full XML for the message to be logged.
+	 * 
 	 * @return
 	 */
-	FileOutputStream getOutFile()
+	public String xmlString()
 	{
-    	if( outFile == null )
-    	{
-			try {
-				outFile = new FileOutputStream(LoggingDef.sessionLogFile,true);
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-    	}
-		return outFile;
+		return xmlString;
 	}
+
+	public void setXmlString(String xmlString)
+	{
+		this.xmlString = xmlString;
+	}
+
 }

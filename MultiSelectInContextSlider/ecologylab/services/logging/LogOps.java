@@ -1,6 +1,9 @@
 package ecologylab.services.logging;
 
+import java.util.ArrayList;
+
 import ecologylab.xml.ArrayListState;
+import ecologylab.xml.VectorState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
 
@@ -15,29 +18,34 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class LogOps extends LogRequestMessage
 {
-
-	public ArrayListState	mixedInitiativeOpSet = new ArrayListState();
-
+	ArrayList set	=	new ArrayList();
+	
 	public void addNestedElement(ElementState elementState)
 	{
 		if (elementState instanceof MixedInitiativeOp)
-			try {
-				mixedInitiativeOpSet.addNestedElement(elementState);
-			} catch (XmlTranslationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			set.add(elementState);
 	}
 	
 	public void clearSet()
 	{
-		mixedInitiativeOpSet.clear();
+		set.clear();
 	}
 
+	static final String START			= "<log_ops>";
+	static final int	START_OFFSET	= START.length();
+	static final String	END				= "</log_ops>";
 	
+	/**
+	 * The string that the LoggingServer will write.
+	 * Eliminates the outer <log_ops> XML element.
+	 */
 	String getMessageString() throws XmlTranslationException
 	{
-		return (String)this.translateToXML(false) + "\n";
+		String xmlString	= xmlString();
+		int start			= xmlString.indexOf(START) + START_OFFSET;
+		int end				= xmlString.indexOf(END);
+		return (String) xmlString.substring(start, end) + "\n";
+	//	return (String)this.translateToXML(false) + "\n";
 	}
 	
 }

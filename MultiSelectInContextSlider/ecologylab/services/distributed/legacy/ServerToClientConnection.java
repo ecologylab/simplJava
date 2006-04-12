@@ -1,8 +1,7 @@
 package ecologylab.services;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Socket;
 
@@ -30,7 +29,7 @@ implements Runnable
 	 */
 	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	protected BufferedReader		inputStreamReader;
+	protected InputStream  		inputStream;
 	protected PrintStream			outputStreamWriter;
 	
 	protected ServicesServer		servicesServer;
@@ -43,7 +42,7 @@ implements Runnable
 	{
 		this.incomingSocket	= incomingSocket;
 		
-		inputStreamReader	= new BufferedReader(new InputStreamReader(incomingSocket.getInputStream()));
+		inputStream			= incomingSocket.getInputStream();
 
 		outputStreamWriter	= new PrintStream(incomingSocket.getOutputStream());
 		
@@ -72,22 +71,26 @@ implements Runnable
 			{
 				//TODO -- change to nio
 		//		messageString = inputStreamReader.readLine();
-				messageString = readToMax(inputStreamReader);
-				
-				debug("got raw message: " + messageString.getBytes().length );
-		
-				RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString);
-				
-				if (requestMessage == null)
-					debug("ERROR: translation failed: " + messageString);
-				else
+				messageString = readToMax(inputStream);
+				if( messageString != null )
 				{
-					//perform the service being requested
-					ResponseMessage responseMessage = performService(requestMessage);
+					debug("got raw message: " + messageString.getBytes().length );
+			
+					RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 					
-					sendResponse(responseMessage);
-					badTransmissionCount	= 0;
-				}
+					if (requestMessage == null)
+						debug("ERROR: translation failed: " + messageString);
+					else
+					{
+						//perform the service being requested
+						ResponseMessage responseMessage = performService(requestMessage);
+						
+						sendResponse(responseMessage);
+						badTransmissionCount	= 0;
+					}
+				} else {
+        System.err.println("null returned.");            
+                }
 			} catch (java.net.SocketException e)
 			{
 				// this seems to mean the connection went away
@@ -133,6 +136,20 @@ implements Runnable
 		}
 	}
 	/**
+	 * Use the ServicesServer and its ObjectRegistry to do the translation.
+	 * Can be overridden to provide special functionalities
+	 * 
+	 * @param messageString
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	protected RequestMessage translateXMLStringToRequestMessage(String messageString)
+	throws XmlTranslationException 
+	{
+		RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString, true);
+		return requestMessage;
+	}
+	/**
 	 * Perform the service specified by the request method.
 	 * The default implementation, here, simply passes the message to the servicesServer,
 	 * which is keeping an objectRegistry context, and does the perform.
@@ -168,11 +185,11 @@ implements Runnable
 				//debug("writer is closed.");
 				outputStreamWriter	= null;
 			}
-			if (inputStreamReader != null)
+			if (inputStream != null)
 			{
-				inputStreamReader.close();
+				inputStream.close();
 				//debug("reader is closed.");
-				inputStreamReader	= null;
+				inputStream	= null;
 			}
 		} catch (IOException e)
 		{
@@ -188,15 +205,18 @@ implements Runnable
 	 * @return
 	 * @throws Exception
 	 */
-	public String readToMax(BufferedReader in) throws Exception
+	public String readToMax(InputStream in) throws Exception
 	{
 		char[] ch_array = new char[LoggingDef.maxSize];
 		int count = 0;
-		
+
 		while(count < LoggingDef.maxSize)
 		{
-			char c = (char)in.read();
-			ch_array[count] = c;	
+			int c = in.read();
+			if( c == -1 )
+				throw new java.net.SocketException("Client terminated connection.");
+			
+			ch_array[count] = (char)c;	
 			count++;
 			if( (count!=1) && (c == '\n' || c == '\r'))
 			{

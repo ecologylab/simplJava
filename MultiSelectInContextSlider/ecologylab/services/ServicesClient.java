@@ -1,12 +1,14 @@
 package ecologylab.services;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
@@ -29,6 +31,8 @@ extends Debug
 	private int 		port;
 	private String		server;
 	private NameSpace	translationSpace = null;
+	
+	protected ObjectRegistry	objectRegistry;
 	
 	/**
 	 * Create a client that will connect on the provided port. Assume localhost
@@ -53,12 +57,20 @@ extends Debug
 	
 	public ServicesClient(String server, int port, NameSpace messageSpace)
 	{
+		this(server, port, messageSpace, null);
+	}
+	public ServicesClient(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry)
+	{
 		this.port			= port;
 		this.server 		= server;
 		this.translationSpace 	= messageSpace;
+		
+		if (objectRegistry == null)
+			objectRegistry	= new ObjectRegistry();
+		this.objectRegistry	= objectRegistry;
 	}
 	
-	private void createConnection()
+	private boolean createConnection()
 	{
 		InetAddress address = null;
 		try 
@@ -72,11 +84,11 @@ extends Debug
 		}
 		catch (Exception e)
 		{
-			//System.err.println("No server: " + server);
 			//e.printStackTrace();
-			//System.exit(2);
+			debug("Couldnt create connection to server: " + e);
 			sock = null;
 		}
+		return sock != null;
 	}
 	String 		toString;
 	public String toString()
@@ -114,6 +126,29 @@ extends Debug
 		
 		return connected();
 	}
+    
+    /**
+     * Disconnect from the server (if connected).
+     */
+    public void disconnect()
+    {
+        if (connected())
+        {
+            try
+            {
+                sock.close();
+                System.out.println("Closed the connection.");
+                sock = null;
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        } else
+        {
+            System.out.println("Could not close connection: not connected!");
+        }
+    }
+    
 	/**
 	 * Send a message to the ServicesServer to get a service performed,
 	 * 
@@ -168,7 +203,7 @@ extends Debug
 				else
 				{
 					debug("received response: " + response);
-					responseMessage.processResponse();
+					processResponse(responseMessage);
 					transactionComplete = true;
 				}
 			}
@@ -179,5 +214,10 @@ extends Debug
 			}
 		}
 		return responseMessage;
+	}
+
+	protected void processResponse(ResponseMessage responseMessage)
+	{
+		responseMessage.processResponse(objectRegistry);
 	}
 }

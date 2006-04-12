@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.Vector;
 
 import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
@@ -14,6 +15,7 @@ import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionId;
+import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTools;
@@ -30,102 +32,140 @@ public class Logging
 extends ElementState
 implements Runnable
 {
-	public static final long	time					= System.currentTimeMillis();
-
-	protected BufferedWriter	writer;
-	ServicesClient 				loggingClient = null;
-	NameSpace 					nameSpace;
-
-	int							log_mode;
+	private static final String SESSION_LOG_START = "\n<session_log>\n ";
+	static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
 	
-	static String						date					= new Date(time).toString();
-
-	static final String LOG_FILE_NAME		= "combinFormationLog.xml";
-	
-	/**
-	 * Logging Header message string written to the logging file in the begining  
-	 */
-	public static final String LOG_HEADER	= XmlTools.xmlHeader() + 
-						"\n<session_log " + "ip=\"" + localHost() + "\" starting_time=\"" + date() + "\">" +
- 						"\n<op_sequence>\n\n";
 	/**
 	 * Logging closing message string written to the logging file at the end
 	 */
 	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
+	
+	/**
+	 * Logging Header message string written to the logging file in the begining  
+	 */
+	static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
+	
+	/**
+	 * This field is used for reading a log in from a file, but not for writing one, because
+	 * we dont the write the log file all at once, and so can't automatically translate
+	 * the start tag and end tag for this element.
+	 */
+	public ArrayListState		opSequence;
+	
+	protected BufferedWriter	writer;
+	ServicesClient 				loggingClient = null;
+	NameSpace 					nameSpace;
+	
+	Thread						thread;
 
-	static final int NOLOG =0;
-	static final int LOGTODESKTOP = 1;
-	static final int LOGTOSERVICESSERVER = 2; 
+	int							logMode;
+	
+	static final int NO_LOGGING				= 0;
+	static final int LOG_TO_FILE			= 1;
+	static final int LOG_TO_SERVICES_SERVER = 2; 
 	
 	File						logFile		= null;
+	String						logFileName = null;
 	
-	String 						readLogFileName ="";
+/**
+ * Object for sending a batch of ops to the LoggingServer.
+ */
+	LogOps 						opSet	= new LogOps();
 	
-
 	/**
-	 * Queue of action opperations that have been sent to us for loggin.
+	 * Queue of action opperations that have been sent to us for logging.
 	 * Our Runnable Thread will actually to the file writes,
 	 * at a convenient time, at a low priority.
 	 */
-	LogOps 						opSet	= new LogOps();
+	Vector						opsToWrite	= new Vector();
+	
 	boolean						finished;
 
 	static final int			THREAD_PRIORITY	= 1;
 	static final int			SLEEP_TIME		= 15000;
 	
-	public Logging(NameSpace nameSpace)
+	public Logging(NameSpace nameSpace, String logFileName)
 	{
-	   super();
-	   finished = false;
-	   this.nameSpace = nameSpace;
-	   setLogMode();
+		super();
+		finished = false;
+		this.nameSpace = nameSpace;
+		this.logFileName = logFileName;
+		int log_mode = Generic.parameterInt("log_mode", NO_LOGGING);
+		this.logMode	= log_mode;
+		switch (log_mode)
+		{
+		case NO_LOGGING: 
+			break;
+		case LOG_TO_FILE:
+			if (logFileName == null)
+			{
+				log_mode	= NO_LOGGING;
+			}
+			else
+			{
+				File logDir	= PropertiesAndDirectories.logDir();
+				if (logDir == null)
+				{
+					log_mode= NO_LOGGING;
+					debug("Can't write to logDir=" + logDir);
+				}
+				else
+				{
+					logFile 	= new File(logDir, logFileName);
+					writer		= Files.openWriter(logFile);
+					if (writer != null)
+						debugA("logging to " + logFile + " " + writer);
+					else
+						debug("ERROR: cant open writer to " + logFile);
+				}
+			}
+			break;
+		case LOG_TO_SERVICES_SERVER:  
+			/**
+			 * Create the logging client which communicates with the logging server
+			 */
+			loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
+			if (loggingClient.connect())
+				debug("Logging to service via connection: " + loggingClient);
+			else
+			{
+				loggingClient	= null;
+				log_mode		= NO_LOGGING;
+			}
+			break;
+			
+		default: break;
+		}
 	}
 	
-    void setLogMode()
-    {
-    	log_mode = Generic.parameterInt("log_mode", 0); 	
-	  switch (log_mode)
-	  {
-	  	case NOLOG: 
-	  		break;
-	  	case LOGTODESKTOP:
-  			//logFile = new File(LOG_FILE_NAME);
-			logFile 	= new File(PropertiesAndDirectories.desktopDir(), LOG_FILE_NAME);
-			writer		= Files.openWriter(logFile);
-			debugA("logging to " + logFile);
-  	        break;   
-	  	case LOGTOSERVICESSERVER:  
-  		  	//emit which interface the subject used in the study
- // 	        studyInterface= Generic.parameter("userinterface");
-	  		/**
-	  		 * Create the logging client which communicates with the logging server
-	  		 */
-  	        loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
-  	        break;
-	  	        
-	    default: break;
-	  }
-    }
-    
 	public void logAction(MixedInitiativeOp op)
 	{
 
-	   if ( (writer != null) || (loggingClient!=null) )
-	   	  opSet.addNestedElement(op);
+	   if ( (writer != null) || (loggingClient != null) )
+		   opsToWrite.add(op);
 
 	}
-		
+	
 	public void start()
 	{
-		Thread thread = new Thread(this);
-		thread.setPriority(THREAD_PRIORITY);
-		thread.start();
+		if (thread == null)
+		{
+			thread = new Thread(this);
+			thread.setPriority(THREAD_PRIORITY);
+			thread.start();
+		}
 	}
+	
 	public void stop()
 	{
-		finished	= true;
-		writeQueuedActions();
+		if (thread != null)
+		{
+			finished	= true;
+			writeQueuedActions();
+			thread		= null;
+		}
 	}
+	
 	long lastGcTime;
 	static final long KICK_GC_INTERVAL		= 300000; // 5 minutes
 	
@@ -159,53 +199,91 @@ implements Runnable
 	 */
 	protected void writeQueuedActions() 
 	{
-		String actionStr = "";
 
-		if( loggingClient != null )
-		{
-			debug("Logging: Sending opSet " + opSet);
-			loggingClient.sendMessage(opSet);
-		}
-		
+//		ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
 		if( writer != null )
 		{
 			try 
 			{
-				actionStr = (String)opSet.translateToXML(false);
+				String actionStr = "";
+				synchronized (opsToWrite)
+				{
+					int num	= opsToWrite.size();
+					for (int i=0; i< num; i++)
+					{
+						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
+						actionStr += (String)thatOp.translateToXML(false);	
+					}
+					opsToWrite.clear();
+				}
+				Files.writeLine(writer, actionStr);
 			} 
 			catch (XmlTranslationException e) 
 			{
 				e.printStackTrace();
 			}
-			Files.writeLine(writer, actionStr);
 		}
+		
+		if( loggingClient != null )
+		{
+			synchronized (opsToWrite)
+			{
+				int num	= opsToWrite.size();
+				for (int i=0; i< num; i++)
+				{
+					MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
+					// copy thatOp to opSet
+					opSet.addNestedElement(thatOp);		
+				}
+				opsToWrite.clear();
+			}
+			debug("Logging: Sending opSet " + opSet);
+			loggingClient.sendMessage(opSet);
+		}
+		
 		opSet.clearSet();
 	}
 	
-	public void setDate(String value)
-    {
-   		date	=	value;
-    }
-
-    
-/**
- * Write the start of the log header out to the log file
- * OR, send the begining logging file message so that logging server write the start of the log header.
- */
+	/**
+	 * Write the start of the log header out to the log file
+	 * OR, send the begining logging file message so that logging server write the start of the log header.
+	 */
 	public void beginEmit()
 	{
-		if( loggingClient != null )
+		if (logMode != NO_LOGGING)
 		{
-			debug("Logging: Sending BeginEmit ");
-			loggingClient.sendMessage(new BeginEmit());
+			Prologue prologue = getPrologue();
+			if( loggingClient != null )
+			{
+				debug("Logging: Sending Prologue ");
+				loggingClient.sendMessage(prologue);
+			}
+			
+			if (writer !=null)
+			{
+				try
+				{
+					Files.writeLine(writer, BEGIN_EMIT + prologue.translateToXML(false) + OP_SEQUENCE_START);
+				} catch (XmlTranslationException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
-		
-		if (writer !=null)
-		{
-			Files.writeLine(writer, LOG_HEADER);
-			start();
-		}
+	}
 
+	/**
+	 * A message at the beginnging of the log.
+	 * This method may be overridden to return a subclass of Prologue, by subclasses of this,
+	 * that wish to emit application specific information at the start of a log.
+	 * 
+	 * @return
+	 */
+	protected Prologue getPrologue()
+	{
+		Prologue prologue = new Prologue();
+		return prologue;
 	}
 	
 	/**
@@ -296,6 +374,7 @@ implements Runnable
 	 */
    static String date()
    {
+	   final String date	=  new Date(System.currentTimeMillis()).toString();;
 	   String temp;
 	   temp=date.replace(' ','_');
 	   temp=temp.replace(':','-');   	
@@ -324,18 +403,6 @@ implements Runnable
 	   }
 	   return localHost;
    }
-   
-   String logFileName()
-   {
-   	 return "user" + SessionId.get() + "-logFile" + date() + ".xml";
-   }     
-   
-   String traceFileName()
-   {
-   	 return "user" + SessionId.get() + "-TraceFile" + date() + ".trace";
-   }
-   
-
 
    void copyTraceFile(File outputFile)
    {
@@ -358,6 +425,7 @@ implements Runnable
 	    Files.closeWriter(writer);
    }
 
+   static final long time	= System.currentTimeMillis();
    /**
     * Return our session start timestamp.
     * @return

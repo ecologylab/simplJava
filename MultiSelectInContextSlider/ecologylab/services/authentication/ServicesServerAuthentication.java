@@ -47,7 +47,7 @@ public class ServicesServerAuthentication extends ServicesServer {
             AuthenticationList authList = (AuthenticationList) ElementState.translateFromXML(
                     authListFilename, NameSpace.get(
                             "authListNameSpace",
-                            "ecologylab.services"));
+                            "ecologylab.services.authentication"));
             newServer   = new ServicesServerAuthentication(portNumber, requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -94,13 +94,14 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @throws IOException
      * @throws BindException
      */
-    private ServicesServerAuthentication(int portNumber,
+    protected ServicesServerAuthentication(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList) throws IOException, BindException {
+            AuthenticationList authList) throws IOException, BindException 
+    {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        requestTranslationSpace.addTranslation("ecologylab.services.messages", "Login");
-        requestTranslationSpace.addTranslation("ecologylab.services.messages", "Logout");
+        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Login");
+        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Logout");
         
         this.objectRegistry.registerObject("authenticationList", authList);
 
@@ -119,7 +120,9 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @throws IOException
      */
     protected ServerToClientConnection getConnection(Socket incomingSocket)
-            throws IOException {
+            throws IOException 
+    {
+       
         return new ServerToClientConnectionAuthentication(incomingSocket, this);
     }
 }

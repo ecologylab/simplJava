@@ -17,12 +17,8 @@ public class Logout extends RequestMessage implements AuthenticationMessages {
     
     /** 
      * Should not normally be used; only for XML translations.
-     *
      */
-    public Logout()
-    {
-        super();
-    }
+    public Logout() { super(); }
     
     public Logout(AuthenticationListEntry entry)
     {
@@ -35,7 +31,7 @@ public class Logout extends RequestMessage implements AuthenticationMessages {
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
-    	HashMap authedClients = (HashMap) objectRegistry.lookupObject("authenticatedClients");
+    	    HashMap authedClients = (HashMap) objectRegistry.lookupObject("authenticatedClients");
         ResponseMessage responseMessage;
         
         if ((authedClients != null) && authedClients.containsKey(entry.getUsername()))
