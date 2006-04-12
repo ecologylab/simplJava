@@ -75,6 +75,6 @@ implements MessageTypes
 			debug("BrowserServer error: " + e);
 			e.printStackTrace();
 		}
-		return  OKResponse.get();
+		return  OkResponse.get();
 	}
 }

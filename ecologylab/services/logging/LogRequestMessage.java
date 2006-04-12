@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.messages.OKResponse;
+import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
@@ -49,7 +49,7 @@ public class LogRequestMessage extends RequestMessage
 		
 		debug("cf services: sending OK response");
 
-    	return OKResponse.get();
+    	return OkResponse.get();
 
 	}
 	

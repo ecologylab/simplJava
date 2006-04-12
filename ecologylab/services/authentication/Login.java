@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.OKResponse;
+import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -71,7 +71,7 @@ public class Login extends RequestMessage implements AuthenticationMessages
                     {
                         // we want to let the client know that it's logged in...
                     	// TODO not sure if this is right; we might want to be more specific about what we're saying OK to...
-                        loginConfirm = OKResponse.get();
+                        loginConfirm = OkResponse.get();
                     }
                 }
             }

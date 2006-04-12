@@ -5,12 +5,12 @@ package ecologylab.services.messages;
  * 
  * @author andruid
  */
-public class OKResponse extends ResponseMessage
+public class OkResponse extends ResponseMessage
 {
 
-	static final OKResponse reusableInstance	= new OKResponse();
+	static final OkResponse reusableInstance	= new OkResponse();
 	
-	public OKResponse()
+	public OkResponse()
 	{
 		super();
 	}
@@ -20,7 +20,7 @@ public class OKResponse extends ResponseMessage
 		return true;
 	}
 	
-	public static OKResponse get()
+	public static OkResponse get()
 	{
 		return reusableInstance;
 	}

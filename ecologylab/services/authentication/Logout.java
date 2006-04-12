@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.OKResponse;
+import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -36,7 +36,7 @@ public class Logout extends RequestMessage implements AuthenticationMessages {
         
         if ((authedClients != null) && authedClients.containsKey(entry.getUsername()))
         {
-    		responseMessage	= OKResponse.get();
+    		responseMessage	= OkResponse.get();
             
             authedClients.remove(entry.getUsername());
         }
