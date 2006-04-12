@@ -177,10 +177,12 @@ extends Debug
 
 				output.println(requestMessageXML);
 			
-				debug("Services Client: just sent message: " + requestMessageXML);
+				if (show(5))
+					debug("Services Client: just sent message: " + requestMessageXML);
 				String response;
 				
-				debug("Services Client: awaiting a response");
+				if (show(5))
+					debug("Services Client: awaiting a response");
 				response = reader.readLine();
 				
 				responseMessage = (ResponseMessage)
@@ -202,7 +204,8 @@ extends Debug
 				}
 				else
 				{
-					debug("received response: " + response);
+					//if (show(5))
+						debug("received response: " + response);
 					processResponse(responseMessage);
 					transactionComplete = true;
 				}

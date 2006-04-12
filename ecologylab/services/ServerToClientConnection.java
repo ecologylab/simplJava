@@ -74,7 +74,8 @@ implements Runnable
 				messageString = readToMax(inputStream);
 				if( messageString != null )
 				{
-					debug("got raw message: " + messageString.getBytes().length );
+					if (show(5))
+						debug("got raw message: " + messageString.getBytes().length );
 			
 					RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 					
@@ -88,8 +89,10 @@ implements Runnable
 						sendResponse(responseMessage);
 						badTransmissionCount	= 0;
 					}
-				} else {
-        System.err.println("null returned.");            
+				} 
+				else 
+				{
+					debug("ERROR: null returned when translating message.");            
                 }
 			} catch (java.net.SocketException e)
 			{
@@ -123,7 +126,8 @@ implements Runnable
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-			} catch (Exception e) {
+			} catch (Exception e)
+			{
 				debug("Exception Caught: " + e.toString());
 				e.printStackTrace();
 				break;
