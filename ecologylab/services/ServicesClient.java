@@ -204,7 +204,7 @@ extends Debug
 				}
 				else
 				{
-					//if (show(5))
+					if (show(5))
 						debug("received response: " + response);
 					processResponse(responseMessage);
 					transactionComplete = true;
