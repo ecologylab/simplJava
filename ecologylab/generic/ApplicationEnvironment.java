@@ -100,7 +100,7 @@ implements Environment
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
 	{
-	   this(baseClass, applicationName, paramaterFileRelativeFromArg0(args),
+	   this(baseClass, applicationName, parameterFileRelativeFromArg0(args),
 			   ((args.length >= 2) ? args[1] : null),
 			   ((args.length >= 3) ? args[2] : null));
 	}
@@ -303,9 +303,9 @@ implements Environment
 	 * @param args
 	 * @return
 	 */
-	public static String paramaterFileRelativeFromArg0(String[] args) 
+	public static String parameterFileRelativeFromArg0(String[] args) 
 	{
-		return (args.length >= 1) ? "config/" + args[0] : null;
+		return (args.length >= 1) ? "config/preferences/" + args[0] : null;
 	}
 
 	/**
