@@ -19,7 +19,10 @@ import java.io.*;
 public class Generic 
 {
 /**
- * Get a boolean parameter from the runtime environment. If the value is the
+ * Get a boolean parameter from the Environment. Environment is an interface that enables
+ * consistent runtime preferences to be passed into code from diverse circumstances, such as
+ * applets, applications, and servlets. <p/>
+ * If the value is the
  * string <code>true</code> or <code>yes</code>, the result is 
  * <code>true</code>; else false.
  * 
@@ -46,7 +49,10 @@ public class Generic
       return result;
    }
 /**
- * Get an integer parameter from the runtime environment. The default is 0.
+ * Get an integer from the Environment. Environment is an interface that enables
+ * consistent runtime preferences to be passed into code from diverse circumstances, such as
+ * applets, applications, and servlets. <p/>
+ * The default is 0.
  * 
  * @param	paramName	The name of the parameter's key.
  */
@@ -54,7 +60,9 @@ public class Generic
    { return parameterInt(paramName, 0); }
    
 /**
- * Get an integer parameter from the runtime environment. 
+ * Get an integer parameter  from the Environment. Environment is an interface that enables
+ * consistent runtime preferences to be passed into code from diverse circumstances, such as
+ * applets, applications, and servlets. <p/> 
  * 
  * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default integer value, in case param is 
@@ -75,7 +83,9 @@ public class Generic
       return result;
    }
 /**
- * Get a float parameter from the runtime environment.
+ * Get a float parameter  from the Environment. Environment is an interface that enables
+ * consistent runtime preferences to be passed into code from diverse circumstances, such as
+ * applets, applications, and servlets. <p/>
  * 
  * @param	paramName	The name of the parameter's key.
  * @param	defaultValue	Default floating point value, in case param is 

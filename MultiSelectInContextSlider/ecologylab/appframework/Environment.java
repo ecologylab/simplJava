@@ -4,13 +4,11 @@
  */
 package ecologylab.generic;
 
-import java.net.*;
 
 /**
- * With an eye toward browser/application portability this interface
- * begins to constitute a transparrent wrapper that provides services
- * that come from the runtime environment, such as parameters, and opening web
- * pages for browsing. 
+ * Provides a mechanism for passing parameters/preferences/properties from
+ * diverse runtime environments, including applets (via the param tag), 
+ * applications (via a properties file), and sooner or later, servlets.
  * <p>
  * 
  * <b>Cooperative programming</b>: Any class that implements this

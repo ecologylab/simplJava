@@ -53,7 +53,7 @@ public class ServicesClientAuthentication extends ServicesClient implements Auth
         messageSpace.addTranslation("ecologylab.services.authentication", "Logout");
         messageSpace.addTranslation("ecologylab.services.authentication", "AuthenticationListEntry");
         
-        messageSpace.addTranslation("ecologylab.services.messages", "OKResponse");
+        messageSpace.addTranslation("ecologylab.services.messages", "OkResponse");
         messageSpace.addTranslation("ecologylab.services.messages", "BadSemanticContentResponse");
         messageSpace.addTranslation("ecologylab.services.messages", "ErrorResponse");
         
