@@ -32,7 +32,8 @@ public class NavigateMonitor extends Thread
 	  if (running)
 	  {
 		 running		= false;
-		 interrupt();
+		// interrupt();
+		 notify();
 	  }
    }
    
@@ -52,31 +53,35 @@ public class NavigateMonitor extends Thread
 	  notify();
    }
    
-   public synchronized void run()
+   public void run()
    {
-	  while (running)
-	  {
-		 try
-		 {  
-			wait();
-			// does the actual navigate
-			if (hasNavigateServer)
-			{
-				Debug.println("Navigate with navigateServer to " + purl);
-				goNavigate(purl);
-			}
-			else
-			{
-				Debug.println("Navigate with local Generic.go() to " + purl);
-				Generic.go(purl);
-			}
-			
-		 } catch (InterruptedException e)
-		 {
-			if (running)
-			   Debug.println("NavigateMonitor.stop()!");
-		 }
-	  }
+	   synchronized (this)
+	   {
+		   while (running)
+		   {
+			   try
+			   {  
+				   wait();
+				   if (!running)
+					   break;
+				   
+			   } catch (InterruptedException e)
+			   {
+				   e.printStackTrace();
+			   }
+			   // does the actual navigate
+			   if (hasNavigateServer)
+			   {
+				   Debug.println("Navigate with navigateServer to " + purl);
+				   goNavigate(purl);
+			   }
+			   else
+			   {
+				   Debug.println("Navigate with local Generic.go() to " + purl);
+				   Generic.go(purl);
+			   }
+		   }
+	   }
    }
    
    /**
