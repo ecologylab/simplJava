@@ -4,7 +4,7 @@ import cf.app.CMShellApplication;
 import cf.app.CollageMachine;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.messages.OKResponse;
+import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -61,6 +61,6 @@ extends RequestMessage
 		collageMachine.start(Thread.NORM_PRIORITY - 1); // build in new Thread to enable concurrency with seed transmission.
 		//collageMachine.run();
         ConsoleUtils.obtrusiveConsoleOutput("SetPreferences.sending ResponseMessage(OK)");
-		return OKResponse.get();
+		return OkResponse.get();
 	}
 }
