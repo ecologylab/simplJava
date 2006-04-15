@@ -279,7 +279,7 @@ extends Debug implements BasicFloatSet
       FloatSetElement element	= maxSelect();
       if (element == sentinel)
       {  // defensive programming
-		 debug("maxSelect() ERROR chose sentinel??????!!! size="+ size);
+		 debug("maxSelect() ERROR chose sentinel??????!!! size="+ size +" maxArrayListSize="+maxArrayList.size());
 		 Thread.dumpStack();
       }
       else if (element != null)
