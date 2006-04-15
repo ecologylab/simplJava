@@ -14,6 +14,8 @@ import java.net.SocketTimeoutException;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.logging.LoggingDef;
+import ecologylab.services.logging.LoggingServerToClientConnection;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
@@ -194,6 +196,12 @@ extends Debug
 			try
 			{
 				requestMessageXML = requestMessage.translateToXML(false);
+				
+				if( requestMessageXML.getBytes().length > ServerToClientConnection.MAX_PACKET_SIZE )
+				{
+					debug("requestMessage is Bigger than accetable server size \n CANNOT SEND : " + requestMessageXML);
+					break;
+				}
 
 				output.println(requestMessageXML);
 			
