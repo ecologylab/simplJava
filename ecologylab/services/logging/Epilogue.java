@@ -8,9 +8,9 @@ package ecologylab.services.logging;
  * 
  * @author eunyee
  */
-public class EndEmit extends LogRequestMessage
+public class Epilogue extends LogRequestMessage
 {
-	String getMessageString()
+	protected String getMessageString()
 	{
 		return Logging.LOG_CLOSING;
 	}
