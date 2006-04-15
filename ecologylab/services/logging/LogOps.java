@@ -18,7 +18,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class LogOps extends LogRequestMessage
 {
-	ArrayList set	=	new ArrayList();
+	public ArrayList set	=	new ArrayList();
 	
 	public void addNestedElement(ElementState elementState)
 	{
@@ -42,8 +42,14 @@ public class LogOps extends LogRequestMessage
 	String getMessageString() throws XmlTranslationException
 	{
 		String xmlString	= xmlString();
+	
 		int start			= xmlString.indexOf(START) + START_OFFSET;
 		int end				= xmlString.indexOf(END);
+		if( (start==-1) || (end==-1) )
+		{
+			debug("RECEIVE MESSAGE : " + xmlString);
+			return "\n";
+		}
 		return (String) xmlString.substring(start, end) + "\n";
 	//	return (String)this.translateToXML(false) + "\n";
 	}
