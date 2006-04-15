@@ -17,6 +17,8 @@ public class Prologue extends LogRequestMessage
 	
 	public String	ip						= Logging.localHost();
 	
+	public int 		userID					= 0;
+	
 	String getMessageString()
 	{
 		try {
@@ -40,4 +42,8 @@ public class Prologue extends LogRequestMessage
 		return sessionLogFile;
 	}
 	
+	public void setUserID(int id)
+	{
+		this.userID = id;
+	}
 }
