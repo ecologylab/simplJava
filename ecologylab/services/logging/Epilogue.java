@@ -1,5 +1,8 @@
 package ecologylab.services.logging;
 
+import ecologylab.xml.XmlTools;
+import ecologylab.xml.XmlTranslationException;
+
 
 /**
  * 
@@ -8,10 +11,39 @@ package ecologylab.services.logging;
  * 
  * @author eunyee
  */
-public class Epilogue extends LogRequestMessage
+public class Epilogue extends LogueMessage
 {
-	protected String getMessageString()
+	/**
+	 * Constructor for building from the Logging class.
+	 * @param logging
+	 */
+	public Epilogue(Logging logging)
 	{
-		return Logging.LOG_CLOSING;
+		logName			= XmlTools.getXmlTagName(logging.getClass(), "State", false);
 	}
+	/*
+	 * Constructor for automatic translation;
+	 */
+	public Epilogue()
+	{
+		super();
+	}
+	
+	String getMessageString()
+	{
+		try
+		{
+			return (Logging.OP_SEQUENCE_END + this.translateToXML(false) + endLog() );
+		} catch (XmlTranslationException e) 
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public String endLog()
+ 	{
+ 		return Logging.OP_SEQUENCE_END + "</" + logName() + ">";
+ 	}
+
 }

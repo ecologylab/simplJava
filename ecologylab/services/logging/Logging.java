@@ -34,7 +34,8 @@ extends ElementState
 implements Runnable
 {
 	private static final String SESSION_LOG_START = "\n<session_log>\n ";
-	static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
+	static final String OP_SEQUENCE_START	= "\n\n<op_sequence>\n\n";
+	static final String OP_SEQUENCE_END		= "\n</op_sequence>\n";
 	
 	/**
 	 * Logging closing message string written to the logging file at the end
@@ -172,7 +173,7 @@ implements Runnable
 			finished	= true;
 			thread		= null;
 			writeQueuedActions();
-			beginEpilogue();
+			writeEpilogue();
 			if (writer != null)
 			{
 				try
@@ -239,7 +240,7 @@ implements Runnable
 					for (int i=0; i< num; i++)
 					{
 						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
-						actionStr += (String)thatOp.translateToXML(false);	
+						actionStr += (String)thatOp.translateToXML(false) + "\n";	
 					}
 					opsToWrite.clear();
 				}
@@ -272,37 +273,6 @@ implements Runnable
 	}
 	
 	/**
-	 * Write the start of the log header out to the log file
-	 * OR, send the begining logging file message so that logging server write the start of the log header.
-	 */
-	public void beginPrologue()
-	{
-		if (logMode != NO_LOGGING)
-		{
-			Prologue prologue = getPrologue();
-			if( loggingClient != null )
-			{
-				int uid = Generic.parameterInt("uid", 0);
-				debug("Logging: Sending Prologue userID:" + uid);
-				prologue.setUserID(uid);
-				loggingClient.sendMessage(prologue);
-			}
-			
-			if (writer !=null)
-			{
-				try
-				{
-					Files.writeLine(writer, BEGIN_EMIT + prologue.translateToXML(false) + OP_SEQUENCE_START);
-				} catch (XmlTranslationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	/**
 	 * A message at the beginnging of the log.
 	 * This method may be overridden to return a subclass of Prologue, by subclasses of this,
 	 * that wish to emit application specific information at the start of a log.
@@ -311,8 +281,7 @@ implements Runnable
 	 */
 	protected Prologue getPrologue()
 	{
-		Prologue prologue = new Prologue();
-		return prologue;
+		return new Prologue(this);
 	}
 	
 	/**
@@ -324,30 +293,56 @@ implements Runnable
 	 */	
 	protected Epilogue getEpilogue()
 	{
-		Epilogue epilogue = new Epilogue();
+		Epilogue epilogue = new Epilogue(this);
 		return epilogue;
 	}
 	
 	/**
+	 * Write the start of the log header out to the log file
+	 * OR, send the begining logging file message so that logging server write the start of the log header.
+	 */
+	public void writePrologue()
+	{
+		if (logMode != NO_LOGGING)
+		{
+			Prologue prologue = getPrologue();
+			if( loggingClient != null )
+			{
+				int uid = Generic.parameterInt("uid", 0);
+				debug("Logging: Sending Prologue userID:" + uid);
+				prologue.setUserID(uid);
+				loggingClient.sendMessage(prologue);
+			}
+			if (writer !=null)
+			{
+				Files.writeLine(writer, prologue.getMessageString());
+			}
+		}
+	}
+
+	/**
 	 * Write the closing() XML to the log file, and close it.
 	 * Or, send the closing logging file message to the logging server
 	 */
-	public void beginEpilogue()
+	public void writeEpilogue()
 	{
-		if( loggingClient != null )
+		if (logMode != NO_LOGGING)
 		{
-			debug("Logging: Sending Epilogue "+ LOG_CLOSING);
-			loggingClient.sendMessage(getEpilogue());
+			Epilogue epilogue = getEpilogue();
+			if( loggingClient != null )
+			{
+				debug("Logging: Sending Epilogue "+ LOG_CLOSING);
+				loggingClient.sendMessage(epilogue);
+			}
+			
+			if (writer != null)
+			{
+//				stop();
+				Files.writeLine(writer, epilogue.getMessageString());
+				debug("wrote line");
+				Files.closeWriter(writer);
+			}
 		}
-		
-		if (writer != null)
-		{
-//		   stop();
-		   Files.writeLine(writer, LOG_CLOSING);
-		   debug("wrote line");
-		   Files.closeWriter(writer);
-		}
-
 	}
 	
 	
