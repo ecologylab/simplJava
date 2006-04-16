@@ -80,6 +80,7 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 	protected RequestMessage translateXMLStringToRequestMessage(String messageString)
 	throws XmlTranslationException 
 	{
+		// translate with recursive descent!
 		RequestMessage requestMessage = servicesServer.translateXMLStringToRequestMessage(messageString, false);
 		if (requestMessage instanceof LogRequestMessage)
 		{
