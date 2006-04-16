@@ -33,7 +33,7 @@ public class Epilogue extends LogueMessage
 	{
 		try
 		{
-			return (Logging.OP_SEQUENCE_END + this.translateToXML(false) + endLog() );
+			return (Logging.OP_SEQUENCE_END + super.getMessageString() + endLog() );
 		} catch (XmlTranslationException e) 
 		{
 			e.printStackTrace();

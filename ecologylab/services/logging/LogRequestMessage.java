@@ -1,6 +1,5 @@
 package ecologylab.services.logging;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -62,7 +61,9 @@ public class LogRequestMessage extends RequestMessage
 	 */
 	String getMessageString() throws XmlTranslationException 
 	{
-		return "";
+		String xmlString	= xmlString();
+		
+		return (xmlString != null) ? xmlString : this.translateToXML(false);
 	}
 
 	/**

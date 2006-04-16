@@ -42,7 +42,7 @@ public class Prologue extends LogueMessage
 	{
 		try
 		{
-			return (beginLog() + this.translateToXML(false) + Logging.OP_SEQUENCE_START);
+			return (beginLog() + super.getMessageString() + Logging.OP_SEQUENCE_START);
 		} catch (XmlTranslationException e) 
 		{
 			e.printStackTrace();
