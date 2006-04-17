@@ -31,27 +31,28 @@ public class LogOps extends LogRequestMessage
 		set.clear();
 	}
 
-	static final String START			= "<log_ops>";
-	static final int	START_OFFSET	= START.length();
-	static final String	END				= "</log_ops>";
-	
 	/**
 	 * The string that the LoggingServer will write.
-	 * Eliminates the outer <log_ops> XML element.
+	 * Eliminates the outer XML element, such as <log_request_message> or <log_ops>.
 	 */
 	String getMessageString() throws XmlTranslationException
 	{
+//		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString	= xmlString();
 	
-		int start			= xmlString.indexOf(START) + START_OFFSET;
-		int end				= xmlString.indexOf(END);
+//		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
+		// start of the real stuff is the end of the first tag -- whatever it is
+		int start			= xmlString.indexOf('>') + 1;
+		// end of the real stuff is the start of the close tag... 
+		// which also should be the start of the last tag -- whatever it is
+		int end				= xmlString.lastIndexOf('<');
+//		int end				= xmlString.indexOf(tagMapEntry.closeTag);
 		if( (start==-1) || (end==-1) )
 		{
 			debug("RECEIVE MESSAGE : " + xmlString);
 			return "\n";
 		}
 		return (String) xmlString.substring(start, end) + "\n";
-	//	return (String)this.translateToXML(false) + "\n";
 	}
 	
 }
