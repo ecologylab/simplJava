@@ -11,15 +11,33 @@ import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
-public class Logout extends RequestMessage implements AuthenticationMessages {
+/**
+ * A Logout message indicates that the connnected client no longer wants to be
+ * connected.
+ * 
+ * @author Zach Toups (toupsz@gmail.com)
+ */
+public class Logout extends RequestMessage implements AuthenticationMessages,
+        RegistryObjectsServerAuthentication
+{
 
     public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
-    
-    /** 
+
+    /**
      * Should not normally be used; only for XML translations.
      */
-    public Logout() { super(); }
-    
+    public Logout()
+    {
+        super();
+    }
+
+    /**
+     * Creates a new Logout object using the given AuthenticationListEntry
+     * object, indicating the user that should be logged out of the server.
+     * 
+     * @param entry -
+     *            the entry to use for this Logout object.
+     */
     public Logout(AuthenticationListEntry entry)
     {
         super();
@@ -27,22 +45,25 @@ public class Logout extends RequestMessage implements AuthenticationMessages {
     }
 
     /**
-     * Attempts to log the user specified by entry from the system; if they are already logged in; if not, sends a failure response.
+     * @override
+     * Attempts to log the user specified by entry from the system; if they are
+     * already logged in; if not, sends a failure response.
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
-    	    HashMap authedClients = (HashMap) objectRegistry.lookupObject("authenticatedClients");
+        HashMap authedClients = (HashMap) objectRegistry
+                .lookupObject(AUTHENTICATED_CLIENTS);
         ResponseMessage responseMessage;
-        
-        if ((authedClients != null) && authedClients.containsKey(entry.getUsername()))
+
+        if ((authedClients != null)
+                && authedClients.containsKey(entry.getUsername()))
         {
-    		responseMessage	= OkResponse.get();
-            
+            responseMessage = OkResponse.get();
+
             authedClients.remove(entry.getUsername());
-        }
-        else
-        	responseMessage	=  new ErrorResponse(LOGOUT_FAILED_NOT_LOGGEDIN); 
-        
+        } else
+            responseMessage = new ErrorResponse(LOGOUT_FAILED_NOT_LOGGEDIN);
+
         return responseMessage;
     }
 
