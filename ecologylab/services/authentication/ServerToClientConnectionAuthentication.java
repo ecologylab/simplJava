@@ -13,17 +13,30 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
 /**
+ * ServerToClientConnectionAuthentication represents the connection between a
+ * server and client on the server side that requires authentication. This class
+ * makes sure that the client cannot execute any RequestMessages until it has
+ * first successfully logged in to the server.
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class ServerToClientConnectionAuthentication extends
-        ServerToClientConnection implements AuthenticationMessages
+        ServerToClientConnection implements AuthenticationMessages,
+        RegistryObjectsServerAuthentication
 {
 
     private boolean loggedIn = false;
 
     private ResponseMessage responseMessage;
 
+    /**
+     * Creates a new ServerToClientAuthentication object using the given
+     * arguments.
+     * 
+     * @param incomingSocket
+     * @param servicesServer
+     * @throws IOException
+     */
     public ServerToClientConnectionAuthentication(Socket incomingSocket,
             ServicesServerAuthentication servicesServer) throws IOException
     {
@@ -32,8 +45,9 @@ public class ServerToClientConnectionAuthentication extends
 
     /**
      * Calls the super implementation of performService if this thread is
-     * logged-in; otherwise, it bounces messages until a Login message is
-     * successful.
+     * logged-in; otherwise, it bounces messages (with a
+     * BadSemanticContentResponse whose error is
+     * REQUEST_FAILED_NOT_AUTHENTICATED) until a Login message is successful.
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
@@ -51,7 +65,7 @@ public class ServerToClientConnectionAuthentication extends
                     // the object registry
                     loggedIn = true;
                     ((HashMap) (servicesServer.getObjectRegistry())
-                            .lookupObject("authenticatedClients")).put(
+                            .lookupObject(AUTHENTICATED_CLIENTS)).put(
                             ((Login) requestMessage).getEntry().getUsername(),
                             this);
                 }
