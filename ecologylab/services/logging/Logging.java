@@ -251,7 +251,6 @@ implements Runnable
 				e.printStackTrace();
 			}
 		}
-		
 		if( loggingClient != null )
 		{
 			synchronized (opsToWrite)
@@ -267,9 +266,8 @@ implements Runnable
 			}
 			debug("Logging: Sending opSet " + opSet);
 			loggingClient.sendMessage(opSet);
+			opSet.clearSet();
 		}
-		
-		opSet.clearSet();
 	}
 	
 	/**
