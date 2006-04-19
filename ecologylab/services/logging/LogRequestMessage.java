@@ -74,7 +74,9 @@ public class LogRequestMessage extends RequestMessage
 	{
 //		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString	= xmlString();
-	
+		if (xmlString == null)
+			return this.translateToXML(false);
+		
 //		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
 		// start of the real stuff is the end of the first tag -- whatever it is
 		int start			= xmlString.indexOf('>') + 1;
