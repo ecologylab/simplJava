@@ -309,7 +309,7 @@ implements Runnable
 				int uid = Generic.parameterInt("uid", 0);
 				debug("Logging: Sending Prologue userID:" + uid);
 				prologue.setUserID(uid);
-				loggingClient.sendMessage(prologue);
+				loggingClient.sendMessage(new SendPrologue(prologue));
 			}
 			if (writer !=null)
 			{
@@ -330,7 +330,7 @@ implements Runnable
 			if( loggingClient != null )
 			{
 				debug("Logging: Sending Epilogue "+ LOG_CLOSING);
-				loggingClient.sendMessage(epilogue);
+				loggingClient.sendMessage(new SendEpilogue(epilogue));
 			}
 			
 			if (writer != null)
