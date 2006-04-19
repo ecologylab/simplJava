@@ -56,7 +56,7 @@ implements LoggingDef
 	 */
 	public ResponseMessage performService(RequestMessage requestMessage) 
 	{
-		if( requestMessage instanceof Epilogue)
+		if( requestMessage instanceof SendEpilogue)
 			end = true;
 		
 		return requestMessage.performService(objectRegistry);
@@ -66,7 +66,7 @@ implements LoggingDef
 	{
 		if( !end )
 		{
-			(new Epilogue()).performService(null);
+			(new SendEpilogue()).performService(objectRegistry);
 		}
 	}
 }

@@ -28,18 +28,19 @@ public class Epilogue extends LogueMessage
 	{
 		super();
 	}
-	
+	/*
 	String getMessageString()
 	{
 		try
 		{
-			return (Logging.OP_SEQUENCE_END + super.getMessageString() + endLog() );
+			//TODO Eunyee
+			return (Logging.OP_SEQUENCE_END + super.getMessageString() + endLog());
 		} catch (XmlTranslationException e) 
 		{
 			e.printStackTrace();
 			return null;
 		}
-	}
+	}*/
 	
 	public String endLog()
  	{

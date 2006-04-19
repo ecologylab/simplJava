@@ -313,7 +313,8 @@ implements Runnable
 			}
 			if (writer !=null)
 			{
-				Files.writeLine(writer, prologue.getMessageString());
+				//TODO Eunyee
+				//Files.writeLine(writer, prologue.getMessageString());
 			}
 		}
 	}
@@ -336,7 +337,8 @@ implements Runnable
 			if (writer != null)
 			{
 //				stop();
-				Files.writeLine(writer, epilogue.getMessageString());
+				//TODO Eunyee
+				//Files.writeLine(writer, epilogue.getMessageString());
 				debug("wrote line");
 				Files.closeWriter(writer);
 			}

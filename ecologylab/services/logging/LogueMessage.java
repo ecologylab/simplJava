@@ -1,5 +1,6 @@
 package ecologylab.services.logging;
 
+import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTools;
 
 /**
@@ -8,7 +9,7 @@ import ecologylab.xml.XmlTools;
  *
  * @author andruid
  */
-public class LogueMessage extends LogRequestMessage
+public class LogueMessage extends ElementState
 {
 
 	public String logName;

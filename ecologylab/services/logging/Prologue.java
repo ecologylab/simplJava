@@ -37,7 +37,7 @@ public class Prologue extends LogueMessage
 	{
 		super();
 	}
-	
+	/*
 	String getMessageString()
 	{
 		try
@@ -49,7 +49,7 @@ public class Prologue extends LogueMessage
 			return null;
 		}
 	}
-	
+	*/
 	public String getFileName()
 	{
 		String tempDate = date.replace(' ','_');
