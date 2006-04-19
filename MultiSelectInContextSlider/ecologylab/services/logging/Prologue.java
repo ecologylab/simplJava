@@ -3,6 +3,7 @@ package ecologylab.services.logging;
 import java.util.Date;
 
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XmlTools;
 
 
 /**
@@ -11,21 +12,42 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author eunyee
  */
-public class Prologue extends LogRequestMessage
+public class Prologue extends LogueMessage
 {
 	public String	date					= new Date(System.currentTimeMillis()).toString();
 	
 	public String	ip						= Logging.localHost();
 	
+	public String	logName;
+	
+	public int 		userID					= 0;
+	
+	/**
+	 * Constructor for building from the Logging class.
+	 * @param logging
+	 */
+	public Prologue(Logging logging)
+	{
+		super(logging);
+	}
+	/*
+	 * Constructor for automatic translation;
+	 */
+	public Prologue()
+	{
+		super();
+	}
+	
 	String getMessageString()
 	{
-		try {
-			return (Logging.BEGIN_EMIT + this.translateToXML(false) + Logging.OP_SEQUENCE_START);
-		} catch (XmlTranslationException e) {
-			// TODO Auto-generated catch block
+		try
+		{
+			return (beginLog() + super.getMessageString() + Logging.OP_SEQUENCE_START);
+		} catch (XmlTranslationException e) 
+		{
 			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 	
 	public String getFileName()
@@ -40,4 +62,13 @@ public class Prologue extends LogRequestMessage
 		return sessionLogFile;
 	}
 	
+	public void setUserID(int id)
+	{
+		this.userID = id;
+	}
+
+ 	public String beginLog()
+ 	{
+ 		return XmlTools.xmlHeader() + "\n<" + logName() + ">\n\n";
+ 	}
 }

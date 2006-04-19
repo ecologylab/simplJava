@@ -139,19 +139,7 @@ public class NameSpace extends IO
 							  String xmlTag)
    {
 //	  debugA("addTranslation: "+ className " : " + packageName);
-	  classPackageMappings.put(className, packageName+".");
-	  new NameEntry(packageName, className);
-   }
-   /**
-	* returns a package name for a corresponding class name
-	* @param className	the class for which the package names needs to be found out.
-	* @return	package name of the given class name
-	*/
-   public String getPackageName(String className)
-   {
-	  String packageName = (String) classPackageMappings.get(className);
-	  
-	  return (packageName != null) ? packageName : defaultPackageName;
+	  new NameEntry(packageName, className, xmlTag);
    }
    /**
 	* Set the default package name for XML tag to ElementState sub-class translations.

@@ -4,11 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.BindException;
 import java.net.InetAddress;
+import java.net.PortUnreachableException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.logging.LoggingDef;
+import ecologylab.services.logging.LoggingServerToClientConnection;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
@@ -24,6 +31,8 @@ import ecologylab.xml.NameSpace;
 public class ServicesClient
 extends Debug
 {
+	private final static int CONNECTION_RETRY_SLEEP_INTERVAL	=	250;
+	
 	private Socket 		sock;
 	BufferedReader 		reader;
 	PrintStream 		output;
@@ -33,6 +42,8 @@ extends Debug
 	private NameSpace	translationSpace = null;
 	
 	protected ObjectRegistry	objectRegistry;
+	
+	private String 		toString;
 	
 	/**
 	 * Create a client that will connect on the provided port. Assume localhost
@@ -81,16 +92,29 @@ extends Debug
 			sock 		= new Socket(address, port);
 			reader 		= new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			output		= new PrintStream(sock.getOutputStream()); 
-		}
-		catch (Exception e)
+		} catch (BindException e)
 		{
+			debug("Couldnt create socket connection to server '" + server + "': " + e);
 			//e.printStackTrace();
-			debug("Couldnt create connection to server: " + e);
+			sock = null;
+		} catch (PortUnreachableException e)
+		{
+			debug("Server is alive, but has no daemon on port " + port + ": " + e);
+			//e.printStackTrace();
+			sock = null;
+		} catch (SocketException e)
+		{
+			debug("Server '" + server + "' unreachable: " + e);
+		}
+		catch (IOException e)
+		{
+			debug("Bad response from server: " + e);
+			//e.printStackTrace();
 			sock = null;
 		}
 		return sock != null;
 	}
-	String 		toString;
+	
 	public String toString()
 	{
 		String toString	= this.toString;
@@ -122,9 +146,7 @@ extends Debug
 		if (connected())
 			return true;
 		
-		createConnection(); // has side effects on connected()!
-		
-		return connected();
+		return createConnection();
 	}
     
     /**
@@ -174,6 +196,12 @@ extends Debug
 			try
 			{
 				requestMessageXML = requestMessage.translateToXML(false);
+				
+				if( requestMessageXML.getBytes().length > ServerToClientConnection.MAX_PACKET_SIZE )
+				{
+					debug("requestMessage is Bigger than accetable server size \n CANNOT SEND : " + requestMessageXML);
+					break;
+				}
 
 				output.println(requestMessageXML);
 			
@@ -222,5 +250,27 @@ extends Debug
 	protected void processResponse(ResponseMessage responseMessage)
 	{
 		responseMessage.processResponse(objectRegistry);
+	}
+	
+	/**
+	 * Try and connect to the server. If we fail, wait CONNECTION_RETRY_SLEEP_INTERVAL
+	 * and try again. Repeat ad nauseum.
+	 */
+	public void waitForConnect()
+	{
+		System.out.println("Waiting for a server on port " + port);
+		while (!connect())
+		{
+			//try again soon
+			Generic.sleep(CONNECTION_RETRY_SLEEP_INTERVAL);
+		}
+	}
+	
+	public boolean isServerRunning()
+	{
+		boolean serverIsRunning = createConnection();
+		//we're just checking, don't keep the connection
+		disconnect();
+		return serverIsRunning;
 	}
 }

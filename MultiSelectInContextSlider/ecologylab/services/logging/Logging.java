@@ -3,6 +3,7 @@ package ecologylab.services.logging;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -33,7 +34,8 @@ extends ElementState
 implements Runnable
 {
 	private static final String SESSION_LOG_START = "\n<session_log>\n ";
-	static final String OP_SEQUENCE_START = "\n<op_sequence>\n\n";
+	static final String OP_SEQUENCE_START	= "\n\n<op_sequence>\n\n";
+	static final String OP_SEQUENCE_END		= "\n</op_sequence>\n";
 	
 	/**
 	 * Logging closing message string written to the logging file at the end
@@ -62,7 +64,9 @@ implements Runnable
 	
 	static final int NO_LOGGING				= 0;
 	static final int LOG_TO_FILE			= 1;
-	static final int LOG_TO_SERVICES_SERVER = 2; 
+	static final int LOG_TO_SERVICES_SERVER = 2;
+	
+	static final int MAX_OPS_BEFORE_WRITE	= 20;
 	
 	File						logFile		= null;
 	String						logFileName = null;
@@ -138,12 +142,18 @@ implements Runnable
 		}
 	}
 	
-	public void logAction(MixedInitiativeOp op)
+	public synchronized void logAction(MixedInitiativeOp op)
 	{
 
 	   if ( (writer != null) || (loggingClient != null) )
+	   {
 		   opsToWrite.add(op);
-
+		   if ((loggingClient != null) && (opsToWrite.size() > MAX_OPS_BEFORE_WRITE))
+		   {
+			   debugA("interrupting thread to do i/o now");
+			   thread.interrupt(); // end sleep in that thread prematurely to do i/o
+		   }
+	   }
 	}
 	
 	public void start()
@@ -156,13 +166,30 @@ implements Runnable
 		}
 	}
 	
-	public void stop()
+	public synchronized void stop()
 	{
 		if (thread != null)
 		{
 			finished	= true;
-			writeQueuedActions();
 			thread		= null;
+			writeQueuedActions();
+			writeEpilogue();
+			if (writer != null)
+			{
+				try
+				{
+					writer.close();
+				} catch (IOException e) 
+				{
+					e.printStackTrace();
+				}
+				writer	= null;
+			}
+			if (loggingClient != null)
+			{
+				loggingClient.disconnect();
+				loggingClient	= null;
+			}
 		}
 	}
 	
@@ -179,6 +206,7 @@ implements Runnable
 		lastGcTime	= System.currentTimeMillis();	
 		while (!finished)
 		{
+			Thread.interrupted();
 			Generic.sleep(SLEEP_TIME);		
 			writeQueuedActions();
 			long now	=  System.currentTimeMillis();
@@ -212,7 +240,7 @@ implements Runnable
 					for (int i=0; i< num; i++)
 					{
 						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
-						actionStr += (String)thatOp.translateToXML(false);	
+						actionStr += (String)thatOp.translateToXML(false) + "\n";	
 					}
 					opsToWrite.clear();
 				}
@@ -223,7 +251,6 @@ implements Runnable
 				e.printStackTrace();
 			}
 		}
-		
 		if( loggingClient != null )
 		{
 			synchronized (opsToWrite)
@@ -239,40 +266,10 @@ implements Runnable
 			}
 			debug("Logging: Sending opSet " + opSet);
 			loggingClient.sendMessage(opSet);
+			opSet.clearSet();
 		}
-		
-		opSet.clearSet();
 	}
 	
-	/**
-	 * Write the start of the log header out to the log file
-	 * OR, send the begining logging file message so that logging server write the start of the log header.
-	 */
-	public void beginEmit()
-	{
-		if (logMode != NO_LOGGING)
-		{
-			Prologue prologue = getPrologue();
-			if( loggingClient != null )
-			{
-				debug("Logging: Sending Prologue ");
-				loggingClient.sendMessage(prologue);
-			}
-			
-			if (writer !=null)
-			{
-				try
-				{
-					Files.writeLine(writer, BEGIN_EMIT + prologue.translateToXML(false) + OP_SEQUENCE_START);
-				} catch (XmlTranslationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
 	/**
 	 * A message at the beginnging of the log.
 	 * This method may be overridden to return a subclass of Prologue, by subclasses of this,
@@ -282,28 +279,68 @@ implements Runnable
 	 */
 	protected Prologue getPrologue()
 	{
-		Prologue prologue = new Prologue();
-		return prologue;
+		return new Prologue(this);
 	}
 	
+	/**
+	 * A message at the end of the log.
+	 * This method may be overridden to return a subclass of Epilogue, by subclasses of this,
+	 * that wish to emit application specific information at the end of a log.
+	 * 
+	 * @return
+	 */	
+	protected Epilogue getEpilogue()
+	{
+		Epilogue epilogue = new Epilogue(this);
+		return epilogue;
+	}
+	
+	/**
+	 * Write the start of the log header out to the log file
+	 * OR, send the begining logging file message so that logging server write the start of the log header.
+	 */
+	public void writePrologue()
+	{
+		if (logMode != NO_LOGGING)
+		{
+			Prologue prologue = getPrologue();
+			if( loggingClient != null )
+			{
+				int uid = Generic.parameterInt("uid", 0);
+				debug("Logging: Sending Prologue userID:" + uid);
+				prologue.setUserID(uid);
+				loggingClient.sendMessage(new SendPrologue(prologue));
+			}
+			if (writer !=null)
+			{
+				Files.writeLine(writer, prologue.getMessageString());
+			}
+		}
+	}
+
 	/**
 	 * Write the closing() XML to the log file, and close it.
 	 * Or, send the closing logging file message to the logging server
 	 */
-	public void endEmit()
+	public void writeEpilogue()
 	{
-		if( loggingClient != null )
-			loggingClient.sendMessage(new EndEmit());
-		
-		if (writer != null)
+		if (logMode != NO_LOGGING)
 		{
-		   debug("Logging: Sending EndEmit "+ LOG_CLOSING);
-		   stop();
-		   Files.writeLine(writer, LOG_CLOSING);
-		   debug("wrote line");
-		   Files.closeWriter(writer);
+			Epilogue epilogue = getEpilogue();
+			if( loggingClient != null )
+			{
+				debug("Logging: Sending Epilogue "+ LOG_CLOSING);
+				loggingClient.sendMessage(new SendEpilogue(epilogue));
+			}
+			
+			if (writer != null)
+			{
+//				stop();
+				Files.writeLine(writer, epilogue.getMessageString());
+				debug("wrote line");
+				Files.closeWriter(writer);
+			}
 		}
-
 	}
 	
 	

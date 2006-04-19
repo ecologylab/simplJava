@@ -10,72 +10,138 @@ import sun.misc.BASE64Encoder;
 
 import ecologylab.xml.ElementState;
 
-public class AuthenticationListEntry extends ElementState {
+/**
+ * An entry for an AuthenticationList. Contains a username matched with a
+ * password (which is stored and checked as a SHA-256 hash).
+ * 
+ * This class can be extended to include other pieces of information, such as
+ * real names and email addresses; if desired.
+ * 
+ * @author Zach Toups (toupsz@gmail.com)
+ */
+public class AuthenticationListEntry extends ElementState
+{
 
     public String username;
+
     public String password; // password automatically encrypted when added
-    
-    public AuthenticationListEntry() {
+
+    /**
+     * Param-free constructor; normally used for translating from XML.
+     * 
+     */
+    public AuthenticationListEntry()
+    {
         super();
-    }
-    
-    public AuthenticationListEntry(String username, String password) {
-        super();
-        
-        this.username = username;
-        this.password = encryptPassword(password);
     }
 
-    public void setUsername(String username) {
+    /**
+     * Creates a new AuthenticationListEntry with the given username and
+     * password.
+     * 
+     * @param username -
+     *            the name of the user.
+     * @param password -
+     *            the password; will be hashed before it is stored.
+     */
+    public AuthenticationListEntry(String username, String password)
+    {
+        super();
+
+        this.username = username;
+        this.password = hashPassword(password);
+    }
+
+    /**
+     * Sets the username of the AuthenticationListEntry.
+     * 
+     * @param username -
+     *            the username to set.
+     */
+    public void setUsername(String username)
+    {
         this.username = username;
     }
-    
+
     /**
      * Uses SHA-256 encryption to store the password passed to it.
-     * @param password
+     * 
+     * @param password -
+     *            the password to hash and store.
      */
-    public void setAndEncryptPassword(String password) {
-        this.password = encryptPassword(password);
+    public void setAndHashPassword(String password)
+    {
+        this.password = hashPassword(password);
     }
-    
-    public boolean compareEncryptedPassword(String encryptedPassword) {
-        return password.equals(encryptedPassword);
+
+    /**
+     * Compares the given hashed password (such as the kind from the
+     * getPassword() method) to the one contained in this object.
+     * 
+     * @param hashedPassword -
+     *            the password to check.
+     * @return true if the passwords are identical, false otherwise.
+     */
+    public boolean compareHashedPassword(String hashedPassword)
+    {
+        return password.equals(hashedPassword);
     }
-    
-    public boolean compareUnencryptedPassword(String unencryptedPassword) {
-        return password.equals(encryptPassword(unencryptedPassword));
+
+    /**
+     * Compares the given unhashed password against the one stored here by
+     * hashing it, then comparing it.
+     * 
+     * @param password -
+     *            the unhashed password to check.
+     * @return true if the passwords are identical, false otherwise.
+     */
+    public boolean comparePassword(String password)
+    {
+        return this.password.equals(hashPassword(password));
     }
-    
-    private static String encryptPassword(String password) {
-        
-        try {
+
+    /**
+     * Hashes the given password using SHA-256 and returns it as a String.
+     * 
+     * @param password -
+     *            the password to hash.
+     * @return a password hashed using SHA-256.
+     */
+    private static String hashPassword(String password)
+    {
+
+        try
+        {
             MessageDigest encrypter = MessageDigest.getInstance("SHA-256");
-            
+
             encrypter.update(password.getBytes());
-            
+
             // convert to normal characters and return as a String
             return new String((new BASE64Encoder()).encode(encrypter.digest()));
-            
-        } catch (NoSuchAlgorithmException e) {
-            // this won't happen in practice, once we have the right one!  :D
+
+        } catch (NoSuchAlgorithmException e)
+        {
+            // this won't happen in practice, once we have the right one! :D
             e.printStackTrace();
         }
-        
+
         // this should never occur
         return password;
     }
 
     /**
-     * @return Returns the password.
+     * @return Returns the password (hashed).
      */
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
     /**
      * @return Returns the username.
      */
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 }

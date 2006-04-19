@@ -79,6 +79,13 @@ implements Downloadable, DispatchTarget
 		debug("downloadAndWrite() calling downloadMonitor");
 		downloadMonitor.download(this, this);
 	}
+	
+	public static void stopDownloadMonitor()
+	{
+		if( downloadMonitor != null )
+			downloadMonitor.stop();
+	}
+	
 	/**
 	 * @see downloadAndWrite(boolean)
 	 */

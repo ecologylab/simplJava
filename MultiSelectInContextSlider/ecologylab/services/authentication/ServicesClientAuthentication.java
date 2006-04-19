@@ -8,36 +8,74 @@ import ecologylab.services.ServicesClient;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
 
-public class ServicesClientAuthentication extends ServicesClient implements AuthenticationMessages
+/**
+ * Represents the client side of an authenticating server. Requires that it is
+ * connected and authenticated with the server before it can begin attempting to
+ * process messages.
+ * 
+ * @author Zach Toups (toupsz@gmail.com)
+ */
+public class ServicesClientAuthentication extends ServicesClient implements
+        AuthenticationMessages
 {
     private AuthenticationListEntry entry = null;
+
     private boolean loggedIn = false;
 
     /**
-     * @return Returns the loggedIn.
+     * @return Returns loggedIn.
      */
     public boolean isLoggedIn()
     {
         return loggedIn;
     }
 
-    public ServicesClientAuthentication(String server, int port) 
+    /**
+     * Creates a new ServicesClientAuthentication object using the given
+     * parameters.
+     * 
+     * @param server
+     * @param port
+     */
+    public ServicesClientAuthentication(String server, int port)
     {
         this(server, port, null);
     }
-    
-    public ServicesClientAuthentication(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry)
+
+    /**
+     * Creates a new ServicesClientAuthentication object using the given
+     * parameters.
+     * 
+     * @param server
+     * @param port
+     * @param messageSpace
+     * @param objectRegistry
+     */
+    public ServicesClientAuthentication(String server, int port,
+            NameSpace messageSpace, ObjectRegistry objectRegistry)
     {
         this(server, port, messageSpace, objectRegistry, null);
     }
-    
-    public ServicesClientAuthentication(String server, int port, AuthenticationListEntry entry)
-    {
-        this(server, port, NameSpace.get("authClient", "ecologylab.services.authentication"), new ObjectRegistry(), entry);
-    }
-    
+
     /**
-     * Main constructor; creates a new ServicesClientAuthentication using the parameters.
+     * Creates a new ServicesClientAuthentication object using the given
+     * parameters.
+     * 
+     * @param server
+     * @param port
+     * @param entry
+     */
+    public ServicesClientAuthentication(String server, int port,
+            AuthenticationListEntry entry)
+    {
+        this(server, port, NameSpace.get("authClient",
+                "ecologylab.services.authentication"), new ObjectRegistry(),
+                entry);
+    }
+
+    /**
+     * Main constructor; creates a new ServicesClientAuthentication using the
+     * parameters.
      * 
      * @param server
      * @param port
@@ -45,63 +83,81 @@ public class ServicesClientAuthentication extends ServicesClient implements Auth
      * @param objectRegistry
      * @param entry
      */
-    public ServicesClientAuthentication(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry, AuthenticationListEntry entry)
+    public ServicesClientAuthentication(String server, int port,
+            NameSpace messageSpace, ObjectRegistry objectRegistry,
+            AuthenticationListEntry entry)
     {
         super(server, port, messageSpace, objectRegistry);
-        
-        messageSpace.addTranslation("ecologylab.services.authentication", "Login");
-        messageSpace.addTranslation("ecologylab.services.authentication", "Logout");
-        messageSpace.addTranslation("ecologylab.services.authentication", "AuthenticationListEntry");
-        
-        messageSpace.addTranslation("ecologylab.services.messages", "OkResponse");
-        messageSpace.addTranslation("ecologylab.services.messages", "BadSemanticContentResponse");
-        messageSpace.addTranslation("ecologylab.services.messages", "ErrorResponse");
-        
+
+        messageSpace.addTranslation("ecologylab.services.authentication",
+                "Login");
+        messageSpace.addTranslation("ecologylab.services.authentication",
+                "Logout");
+        messageSpace.addTranslation("ecologylab.services.authentication",
+                "AuthenticationListEntry");
+
+        messageSpace.addTranslation("ecologylab.services.messages",
+                "OkResponse");
+        messageSpace.addTranslation("ecologylab.services.messages",
+                "BadSemanticContentResponse");
+        messageSpace.addTranslation("ecologylab.services.messages",
+                "ErrorResponse");
+
         this.entry = entry;
     }
 
     /**
-     * @param entry The entry to set.
+     * @param entry
+     *            The entry to set.
      */
     public void setEntry(AuthenticationListEntry entry)
     {
         this.entry = entry;
     }
 
-    /* (non-Javadoc)
-     * @see ecologylab.services.ServicesClient#connect()
+    /**
+     * Attempts to connect to the server using the AuthenticationListEntry that
+     * is associated with the client's side of the connection. Returns true if
+     * the client is connected and authenticated; false otherwise.
+     * 
+     * Has the side effect of disconnecting completely if authentication fails.
      */
     public boolean connect()
     {
         ResponseMessage response = null;
-        
+
         super.connect();
-        
-        // if we have an entry (username + password), then we can try to connect to the server.
-        if (entry != null) {
+
+        // if we have an entry (username + password), then we can try to connect
+        // to the server.
+        if (entry != null)
+        {
             response = this.sendMessage(new Login(entry));
-            
-            if (response.isOK()) {
+
+            if (response.isOK())
+            {
                 loggedIn = true;
             } else
             {
                 loggedIn = false;
             }
-            
+
         } else
         {
             loggedIn = false;
         }
-        
+
         if (!loggedIn)
         {
             super.disconnect();
         }
-        
+
         return this.connected();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see ecologylab.services.ServicesClient#processResponse(ecologylab.services.messages.ResponseMessage)
      */
     protected void processResponse(ResponseMessage responseMessage)
@@ -110,8 +166,8 @@ public class ServicesClientAuthentication extends ServicesClient implements Auth
         super.processResponse(responseMessage);
     }
 
-    /* (non-Javadoc)
-     * @see ecologylab.services.ServicesClient#connected()
+    /**
+     * Indicates whether or not the client is connected AND authenticated.
      */
     public boolean connected()
     {

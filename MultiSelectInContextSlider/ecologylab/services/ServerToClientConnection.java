@@ -29,7 +29,12 @@ implements Runnable
 	 */
 	static final int 				MAXIMUM_TRANSMISSION_ERRORS = 3;
 	
-	protected InputStream  		inputStream;
+	/**
+	 * the maximum size of message acceptable by server
+	 */
+	public static int					MAX_PACKET_SIZE			= 96 * 1024; 
+	
+	protected InputStream  			inputStream;
 	protected PrintStream			outputStreamWriter;
 	
 	protected ServicesServer		servicesServer;
@@ -211,10 +216,10 @@ implements Runnable
 	 */
 	public String readToMax(InputStream in) throws Exception
 	{
-		char[] ch_array = new char[LoggingDef.maxSize];
+		char[] ch_array = new char[MAX_PACKET_SIZE];
 		int count = 0;
 
-		while(count < LoggingDef.maxSize)
+		while(count < MAX_PACKET_SIZE)
 		{
 			int c = in.read();
 			if( c == -1 )

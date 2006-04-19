@@ -26,7 +26,9 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class ServicesServerAuthentication extends ServicesServer {
+public class ServicesServerAuthentication extends ServicesServer implements
+        RegistryObjectsServerAuthentication
+{
 
     /**
      * This is the actual way to create an instance of this.
@@ -34,26 +36,33 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @param portNumber
      * @param requestTranslationSpace
      * @param objectRegistry
-     * @param authListFilename - a file name indicating the location of the authentication list; this should be an XML file of an AuthenticationList object.
-     * @return  A server instance, or null if it was not possible to open a ServerSocket
-     *          on the port on this machine.
+     * @param authListFilename -
+     *            a file name indicating the location of the authentication
+     *            list; this should be an XML file of an AuthenticationList
+     *            object.
+     * @return A server instance, or null if it was not possible to open a
+     *         ServerSocket on the port on this machine.
      */
     public static ServicesServerAuthentication get(int portNumber,
-                          NameSpace requestTranslationSpace, ObjectRegistry objectRegistry, String authListFilename)
+            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            String authListFilename)
     {
-        ServicesServerAuthentication newServer    = null;
+        ServicesServerAuthentication newServer = null;
         try
         {
-            AuthenticationList authList = (AuthenticationList) ElementState.translateFromXML(
-                    authListFilename, NameSpace.get(
+            AuthenticationList authList = (AuthenticationList) ElementState
+                    .translateFromXML(authListFilename, NameSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer   = new ServicesServerAuthentication(portNumber, requestTranslationSpace, objectRegistry, authList);
+            newServer = new ServicesServerAuthentication(portNumber,
+                    requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
-            println("ServicesServer ERROR: can't open ServerSocket on port " + portNumber);
+            println("ServicesServer ERROR: can't open ServerSocket on port "
+                    + portNumber);
             e.printStackTrace();
-        } catch (XmlTranslationException e) {
+        } catch (XmlTranslationException e)
+        {
             e.printStackTrace();
         }
         return newServer;
@@ -65,27 +74,35 @@ public class ServicesServerAuthentication extends ServicesServer {
      * @param portNumber
      * @param requestTranslationSpace
      * @param objectRegistry
-     * @param authList - the AuthorizationList object to be used to determine possible users.
-     * @return  A server instance, or null if it was not possible to open a ServerSocket
-     *          on the port on this machine.
+     * @param authList -
+     *            the AuthorizationList object to be used to determine possible
+     *            users.
+     * @return A server instance, or null if it was not possible to open a
+     *         ServerSocket on the port on this machine.
      */
     public static ServicesServerAuthentication get(int portNumber,
-                          NameSpace requestTranslationSpace, ObjectRegistry objectRegistry, AuthenticationList authList)
+            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            AuthenticationList authList)
     {
-        ServicesServerAuthentication newServer    = null;
+        ServicesServerAuthentication newServer = null;
         try
         {
-            newServer   = new ServicesServerAuthentication(portNumber, requestTranslationSpace, objectRegistry, authList);
+            newServer = new ServicesServerAuthentication(portNumber,
+                    requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
-            println("ServicesServer ERROR: can't open ServerSocket on port " + portNumber);
+            println("ServicesServer ERROR: can't open ServerSocket on port "
+                    + portNumber);
             e.printStackTrace();
-        } 
-        
+        }
+
         return newServer;
     }
-    
+
     /**
+     * Creates a new ServicesServerAuthentication with the given arguments. This
+     * constructor should only be invoked by a subclass or the .get() method to
+     * ensure that only one server is running on the given port.
      * 
      * @param portNumber
      * @param requestTranslationSpace
@@ -96,33 +113,36 @@ public class ServicesServerAuthentication extends ServicesServer {
      */
     protected ServicesServerAuthentication(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList) throws IOException, BindException 
+            AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Login");
-        requestTranslationSpace.addTranslation("ecologylab.services.authentication", "Logout");
-        
-        this.objectRegistry.registerObject("authenticationList", authList);
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication", "Login");
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication", "Logout");
 
-        this.objectRegistry.registerObject("authenticatedClients",
-                new HashMap());
+        this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
+
+        this.objectRegistry
+                .registerObject(AUTHENTICATED_CLIENTS, new HashMap());
     }
-    
+
     /**
-     * Create a ServerToClientConnectionAuthentication, the object that handles the connection
-     * to each incoming client and requires that they pass a Login item that matches an entry in the authenticationList. To extend the functionality of the client, you
-     * can override this method in your subclass of this, to return a subclass
-     * of ServerToClientConnection.
+     * Create a ServerToClientConnectionAuthentication, the object that handles
+     * the connection to each incoming client and requires that they pass a
+     * Login item that matches an entry in the authenticationList. To extend the
+     * functionality of the client, you can override this method in your
+     * subclass of this, to return a subclass of ServerToClientConnection.
      * 
      * @param incomingSocket
      * @return
      * @throws IOException
      */
     protected ServerToClientConnection getConnection(Socket incomingSocket)
-            throws IOException 
+            throws IOException
     {
-       
+
         return new ServerToClientConnectionAuthentication(incomingSocket, this);
     }
 }

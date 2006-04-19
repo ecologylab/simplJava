@@ -16,9 +16,9 @@ import ecologylab.xml.XmlTranslationException;
  * @author eunyee
  *
  */
-public class LogOps extends LogRequestMessage
+public final class LogOps extends LogRequestMessage
 {
-	ArrayList set	=	new ArrayList();
+	public ArrayList set	=	new ArrayList();
 	
 	public void addNestedElement(ElementState elementState)
 	{
@@ -29,23 +29,6 @@ public class LogOps extends LogRequestMessage
 	public void clearSet()
 	{
 		set.clear();
-	}
-
-	static final String START			= "<log_ops>";
-	static final int	START_OFFSET	= START.length();
-	static final String	END				= "</log_ops>";
-	
-	/**
-	 * The string that the LoggingServer will write.
-	 * Eliminates the outer <log_ops> XML element.
-	 */
-	String getMessageString() throws XmlTranslationException
-	{
-		String xmlString	= xmlString();
-		int start			= xmlString.indexOf(START) + START_OFFSET;
-		int end				= xmlString.indexOf(END);
-		return (String) xmlString.substring(start, end) + "\n";
-	//	return (String)this.translateToXML(false) + "\n";
 	}
 	
 }
