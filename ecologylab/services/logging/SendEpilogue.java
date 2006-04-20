@@ -1,12 +1,14 @@
 package ecologylab.services.logging;
 
-public final class SendEpilogue extends LogRequestMessage
+import ecologylab.xml.XmlTranslationException;
+
+public final class SendEpilogue extends LogueMessage
 {
 	public Epilogue		epilogue;
 	
-	public SendEpilogue(Epilogue epilogue)
+	public SendEpilogue(Logging logging, Epilogue epilogue)
 	{
-		super();
+		super(logging);
 		this.epilogue	= epilogue;
 	}
 
@@ -15,4 +17,20 @@ public final class SendEpilogue extends LogRequestMessage
 		super();
 	}
 
+	protected String getMessageString()
+	{
+		try
+		{
+			return (Logging.OP_SEQUENCE_END + super.getMessageString() + endLog() );
+		} catch (XmlTranslationException e) 
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public String endLog()
+ 	{
+ 		return "</" + logName() + ">";
+ 	}
 }

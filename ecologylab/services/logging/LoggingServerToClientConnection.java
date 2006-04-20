@@ -41,7 +41,7 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 	{
 		if( requestMessage instanceof SendPrologue )
 		{
-			String name = ((SendPrologue)requestMessage).prologue.getFileName();
+			String name = ((SendPrologue)requestMessage).getFileName();
 			servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject, getFile(name) );
 		}
 		else if( outputStream == null )

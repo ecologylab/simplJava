@@ -128,7 +128,7 @@ implements Runnable
 			/**
 			 * Create the logging client which communicates with the logging server
 			 */
-			loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.port, nameSpace);
+			loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.LOGGING_PORT, nameSpace);
 			if (loggingClient.connect())
 				debug("Logging to service via connection: " + loggingClient);
 			else
@@ -148,7 +148,7 @@ implements Runnable
 	   if ( (writer != null) || (loggingClient != null) )
 	   {
 		   opsToWrite.add(op);
-		   if ((loggingClient != null) && (opsToWrite.size() > MAX_OPS_BEFORE_WRITE))
+		   if ((thread != null) && (loggingClient != null) && (opsToWrite.size() > MAX_OPS_BEFORE_WRITE))
 		   {
 			   debugA("interrupting thread to do i/o now");
 			   thread.interrupt(); // end sleep in that thread prematurely to do i/o
@@ -156,7 +156,7 @@ implements Runnable
 	   }
 	}
 	
-	public void start()
+	private void start()
 	{
 		if (thread == null)
 		{
@@ -279,7 +279,7 @@ implements Runnable
 	 */
 	protected Prologue getPrologue()
 	{
-		return new Prologue(this);
+		return new Prologue();
 	}
 	
 	/**
@@ -291,54 +291,56 @@ implements Runnable
 	 */	
 	protected Epilogue getEpilogue()
 	{
-		Epilogue epilogue = new Epilogue(this);
+		Epilogue epilogue = new Epilogue();
 		return epilogue;
 	}
 	
 	/**
 	 * Write the start of the log header out to the log file
 	 * OR, send the begining logging file message so that logging server write the start of the log header.
+	 * <p/>
+	 * Then start the looping thread that periodically wakes up and performs log i/o.
 	 */
 	public void writePrologue()
 	{
 		if (logMode != NO_LOGGING)
 		{
 			Prologue prologue = getPrologue();
+			SendPrologue sendPrologue	= new SendPrologue(this, prologue);
 			if( loggingClient != null )
 			{
 				int uid = Generic.parameterInt("uid", 0);
 				debug("Logging: Sending Prologue userID:" + uid);
 				prologue.setUserID(uid);
-				loggingClient.sendMessage(new SendPrologue(prologue));
+				loggingClient.sendMessage(sendPrologue);
 			}
 			if (writer !=null)
 			{
-				//TODO Eunyee
-				//Files.writeLine(writer, prologue.getMessageString());
+				Files.writeLine(writer, sendPrologue.getMessageString());
 			}
 		}
+		start();
 	}
 
 	/**
 	 * Write the closing() XML to the log file, and close it.
 	 * Or, send the closing logging file message to the logging server
 	 */
-	public void writeEpilogue()
+	protected void writeEpilogue()
 	{
 		if (logMode != NO_LOGGING)
 		{
-			Epilogue epilogue = getEpilogue();
+			SendEpilogue sendEpilogue = new SendEpilogue(this, getEpilogue());
 			if( loggingClient != null )
 			{
 				debug("Logging: Sending Epilogue "+ LOG_CLOSING);
-				loggingClient.sendMessage(new SendEpilogue(epilogue));
+				loggingClient.sendMessage(sendEpilogue);
 			}
 			
 			if (writer != null)
 			{
 //				stop();
-				//TODO Eunyee
-				//Files.writeLine(writer, epilogue.getMessageString());
+				Files.writeLine(writer, sendEpilogue.getMessageString());
 				debug("wrote line");
 				Files.closeWriter(writer);
 			}

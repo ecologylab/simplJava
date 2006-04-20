@@ -9,7 +9,7 @@ import ecologylab.xml.XmlTools;
  *
  * @author andruid
  */
-public class LogueMessage extends ElementState
+public class LogueMessage extends LogRequestMessage
 {
 
 	public String logName;

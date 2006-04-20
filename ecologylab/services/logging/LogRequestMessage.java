@@ -68,14 +68,20 @@ public class LogRequestMessage extends RequestMessage
 */
 	/**
 	 * The string that the LoggingServer will write.
+	 * Uses substring() to peel the inner message out of the LogRequestApplication.
+	 * 
 	 * Eliminates the outer XML element, such as <log_request_message> or <log_ops>.
 	 */
-	String getMessageString() throws XmlTranslationException
+	protected String getMessageString() throws XmlTranslationException
 	{
 //		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString	= xmlString();
+		
+		// if not on server, do normal translate to XML
 		if (xmlString == null)
-			return this.translateToXML(false);
+			xmlString		= this.translateToXML(false);
+		
+		// if on server, peel message(s) out of the XML we received, without parsing it!
 		
 //		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
 		// start of the real stuff is the end of the first tag -- whatever it is

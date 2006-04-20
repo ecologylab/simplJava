@@ -17,7 +17,7 @@ public interface LoggingDef
 //	static final String loggingServer = "128.194.147.58";  // CSDLL server IP address
 	static final String loggingServer = Logging.localHost();
 //	static final String loggingServer = "128.194.147.49";  // ecology1
-	static final int port = 10000;
+	static final int LOGGING_PORT = 10000;
 	
 	/**
 	 * Logging file of the server's debug messages
