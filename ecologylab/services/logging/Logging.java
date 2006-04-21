@@ -229,7 +229,7 @@ implements Runnable
 	{
 
 //		ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
-		if( writer != null )
+		if (writer != null)
 		{
 			try 
 			{
@@ -237,6 +237,8 @@ implements Runnable
 				synchronized (opsToWrite)
 				{
 					int num	= opsToWrite.size();
+					if (num == 0)
+						return;
 					for (int i=0; i< num; i++)
 					{
 						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
@@ -251,11 +253,13 @@ implements Runnable
 				e.printStackTrace();
 			}
 		}
-		if( loggingClient != null )
+		if (loggingClient != null)
 		{
 			synchronized (opsToWrite)
 			{
 				int num	= opsToWrite.size();
+				if (num == 0)
+					return;
 				for (int i=0; i< num; i++)
 				{
 					MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
@@ -264,7 +268,8 @@ implements Runnable
 				}
 				opsToWrite.clear();
 			}
-			debug("Logging: Sending opSet " + opSet);
+			if (show(3))
+				debug("Logging: Sending opSet " + opSet);
 			loggingClient.sendMessage(opSet);
 			opSet.clearSet();
 		}
