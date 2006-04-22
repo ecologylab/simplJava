@@ -75,7 +75,20 @@ public class LockFile
 		
 		return (lockFile != null && lockFile.exists());
 	}
-	
+	static final int FIVE_MINUTES	= 1000 * 60 * 5;
+	/**
+	 * Return true if the lock file exists, and is older than 5 minutes ago.
+	 * @return
+	 */
+	public boolean isOld()
+	{
+		if (!isLocked())
+			return false;
+		long lastMod	= lockFile.lastModified();
+		long now		= System.currentTimeMillis();
+		long deltaT		= now - lastMod;
+		return isLocked() && (deltaT > FIVE_MINUTES);
+	}
 	/**
 	 * Gets rid of the file handler (for garbage collection)
 	 *
