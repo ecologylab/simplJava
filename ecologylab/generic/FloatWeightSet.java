@@ -77,8 +77,9 @@ extends Debug implements BasicFloatSet
    
    /**
     * Maximum size to let this grow to, before needPrune() will return true.
+    * That is, when the set grows larger than this, it should be prune()ed.
     */
-   protected int	maxSize;
+   protected int	pruneSize;
 
 /**
  * When there is more than one maximum found by maxSelect(), this ArrayList
@@ -134,12 +135,12 @@ extends Debug implements BasicFloatSet
 	  this.extraAllocation		= extraAllocation;
 
       size		= 0;
-      maxSize	= initialSize + extraAllocation/2;
+      pruneSize	= initialSize + extraAllocation/2;
       
       alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
       sentinel.weight	= 0.0f;
       insert(sentinel);
-      debug("constructed w numSlots=" + numSlots + " maxSize=" + maxSize + " extraAllocation="+extraAllocation);
+      debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
    {
@@ -236,16 +237,21 @@ extends Debug implements BasicFloatSet
    }
    public boolean pruneIfNeeded()
    {
-   	  int maxSize	 = this.maxSize;
-   	  boolean result = needPrune(maxSize);
+   	  int pruneSize	 = this.pruneSize;
+   	  boolean result = isOversize(pruneSize);
    	  if (result)
-   	  	 prune(maxSize);
+   	  	 prune(pruneSize);
    	  return result;
    }
-   protected boolean needPrune(int desiredSize)
+   /**
+    * Return true if the size of this is greater than the threshold passed in.
+    * 
+    * @param sizeThreshold
+    * @return
+    */
+   protected boolean isOversize(int sizeThreshold)
    {
-	  //      return (desiredSize > 0) && (size >= (5 * desiredSize / 4));
-      return (size >= desiredSize);
+      return (size >= sizeThreshold);
    }
 
    public ArrayList maxArrayList()
@@ -262,11 +268,10 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement pruneAndMaxSelect()
    {
-   	  return maxSelect(maxSize);
+   	  return maxSelect(pruneSize);
    }
    /**
     * Prune to the specified desired size, if necessary, then do a maxSelect().
-    * The reason for doing these operations together is because both require sorting.
     * 
     * @param desiredSize
     * @return	element in the set with the highest weight, or in case of a tie,
@@ -274,7 +279,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement maxSelect(int desiredSize)
    {
-      if (needPrune(desiredSize))
+      if (isOversize(desiredSize))
 		 prune(desiredSize);
       Thread.yield();
       FloatSetElement element	= maxSelect();
@@ -386,8 +391,8 @@ extends Debug implements BasicFloatSet
 		 {
 			elements[i]	= null;	   // its deleted or moved; null either way
 			//	    thatElement.setSet(null); // make sure its treated as not here
-			thatElement.setIndex(-1); // during gc() excursion
 			debug("recycling " + thatElement);
+			thatElement.setIndex(-1); // during gc() excursion
 			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
 			   thatElement.clearSynch();
 			else
@@ -713,7 +718,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement pruneAndWeightedRandomSelect()
    {
-   	  return weightedRandomSelect(maxSize);
+   	  return weightedRandomSelect(pruneSize);
    }
    /**
     * Prune to the specified desired size, if necessary, then do a 
@@ -727,7 +732,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement weightedRandomSelect(int desiredSize)
    {
-      if (needPrune(desiredSize))
+      if (isOversize(desiredSize))
 		 prune(desiredSize);
       boolean ok	= syncRecompute();
       Generic.sleep(10);
@@ -819,16 +824,6 @@ extends Debug implements BasicFloatSet
 		 println(set.weightedRandomSelect().toString());
    }
    
-/**
- * Set the maximum size this should grow to before pruning.
- * 
- * @param maxSize The maxSize to set.
- */
-   public void setMaxSize(int maxSize)
-   {
-	  this.maxSize = maxSize;
-   }
-   
    //				Accessors for MediaSetState
    ////////////////////////////////////////////////////////
    public FloatSetElement[] elements()
@@ -872,8 +867,20 @@ extends Debug implements BasicFloatSet
 	   alloc(size, true);
    }
    
-   public int getMaxSize()
+   /**
+    * Set the maximum size this should grow to before pruning.
+    * 
+    * @param maxSize The maxSize to set.
+    */
+      public void setPruneSize(int maxSize)
+      {
+   	  this.pruneSize = maxSize;
+      }
+   /**
+    * Get the maximum size this should grow to before pruning.
+    */   
+   public int getPruneSize()
    {
-	   return maxSize;
+	   return pruneSize;
    }
 }
