@@ -116,7 +116,8 @@ extends Debug implements BasicFloatSet
    public FloatWeightSet(int initialSize, ThreadMaster threadMaster, 
 						 boolean supportWeightedRandomSelect)
    {
-	  this(initialSize, EXTRA_ALLOCATION, threadMaster, 
+		  //this(initialSize, EXTRA_ALLOCATION, threadMaster, 
+		  this(initialSize, initialSize/2, threadMaster, 
 						 supportWeightedRandomSelect);
    }
    
@@ -133,12 +134,12 @@ extends Debug implements BasicFloatSet
 	  this.extraAllocation		= extraAllocation;
 
       size		= 0;
-      maxSize	= initialSize;
+      maxSize	= initialSize + extraAllocation/2;
       
-      alloc(initialSize + PRUNE_LEVEL + EXTRA_ALLOCATION, supportWeightedRandomSelect);
+      alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
       sentinel.weight	= 0.0f;
       insert(sentinel);
-      debug("constructed w " + numSlots);
+      debug("constructed w numSlots=" + numSlots + " maxSize=" + maxSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
    {
@@ -244,7 +245,7 @@ extends Debug implements BasicFloatSet
    protected boolean needPrune(int desiredSize)
    {
 	  //      return (desiredSize > 0) && (size >= (5 * desiredSize / 4));
-      return (size >= (desiredSize + PRUNE_LEVEL));
+      return (size >= desiredSize);
    }
 
    public ArrayList maxArrayList()
@@ -312,18 +313,21 @@ extends Debug implements BasicFloatSet
       for (int i=1; i<size; i++)
       {
 		 FloatSetElement thatElement	= elements[i];
-		 float thatWeight	= thatElement.getWeight();
-		 if (thatWeight > maxWeight)
+		 if (thatElement != this.sentinel) // never pick the sentinel!
 		 {
-		    maxArrayList.clear();
-		 	result		= thatElement;
-		    maxWeight		= thatWeight;
-		    maxIndex		= i;
-		    maxArrayList.add(thatElement);
-		 }
-		 else if (thatWeight == maxWeight)
-		 {
-		 	maxArrayList.add(thatElement);
+			 float thatWeight	= thatElement.getWeight();
+			 if (thatWeight > maxWeight)
+			 {
+			    maxArrayList.clear();
+			 	result		= thatElement;
+			    maxWeight		= thatWeight;
+			    maxIndex		= i;
+			    maxArrayList.add(thatElement);
+			 }
+			 else if (thatWeight == maxWeight)
+			 {
+			 	maxArrayList.add(thatElement);
+			 }
 		 }
       }
       
@@ -343,6 +347,7 @@ extends Debug implements BasicFloatSet
 	*/
    public synchronized void prune(int numToKeep)
    {
+	  int size = this.size;
       if (size <= numToKeep)
 		 return;
       long startTime	= System.currentTimeMillis();
@@ -358,23 +363,21 @@ extends Debug implements BasicFloatSet
       if (PRUNE_PRIORITY < priority)
 		 currentThread.setPriority(PRUNE_PRIORITY);
       //------------------ update weights ------------------//
-      for (int i=0; i!=size; i++)
+      for (int i=0; i<size; i++)
 		 elements[i].getWeight();
       //------------------ sort in inverse order ------------------//
 	  //      println("gc() after update: " + size);
 	  //      insertionSort(elements, size);
       quickSort(elements, 0, size-1, false);
 	  //      println("gc() after sort: " + size);
-      String before	= "prune(): " + size  + ", " + Memory.usage();
 
       //-------------- lowest weight elements are on top -------------//
-      int wontGo	= 0;
       for (int i=1; i!=numToKeep; i++)
 		 elements[i].setIndex(i);  // renumber cref index
 	  //      println("gc() after renumber: " + size);
       int oldSize	= size;
-      size	= numToKeep;
-      for (int i=numToKeep; i!=oldSize; i++)
+      this.size	= numToKeep;
+      for (int i=numToKeep; i<oldSize; i++)
       {
 		 if (i >= elements.length)
 			debug(".SHOCK i="+i + " size="+size+ " numSlots="+numSlots);
@@ -384,6 +387,7 @@ extends Debug implements BasicFloatSet
 			elements[i]	= null;	   // its deleted or moved; null either way
 			//	    thatElement.setSet(null); // make sure its treated as not here
 			thatElement.setIndex(-1); // during gc() excursion
+			debug("recycling " + thatElement);
 			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
 			   thatElement.clearSynch();
 			else
@@ -395,9 +399,9 @@ extends Debug implements BasicFloatSet
 		 currentThread.setPriority(priority);
       if (threadMaster != null)
       {
-		 debug("unpause threads and sleep briefly");
+		 debug("prune() unpause threads");
 		 threadMaster.unpauseThreads();
-		 Generic.sleep(1000);
+		 //Generic.sleep(1000);
       }
       debug("prune() finished " + duration);
    }
