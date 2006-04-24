@@ -77,8 +77,9 @@ extends Debug implements BasicFloatSet
    
    /**
     * Maximum size to let this grow to, before needPrune() will return true.
+    * That is, when the set grows larger than this, it should be prune()ed.
     */
-   protected int	maxSize;
+   protected int	pruneSize;
 
 /**
  * When there is more than one maximum found by maxSelect(), this ArrayList
@@ -116,7 +117,8 @@ extends Debug implements BasicFloatSet
    public FloatWeightSet(int initialSize, ThreadMaster threadMaster, 
 						 boolean supportWeightedRandomSelect)
    {
-	  this(initialSize, EXTRA_ALLOCATION, threadMaster, 
+		  //this(initialSize, EXTRA_ALLOCATION, threadMaster, 
+		  this(initialSize, initialSize/2, threadMaster, 
 						 supportWeightedRandomSelect);
    }
    
@@ -133,12 +135,12 @@ extends Debug implements BasicFloatSet
 	  this.extraAllocation		= extraAllocation;
 
       size		= 0;
-      maxSize	= initialSize;
+      pruneSize	= initialSize + extraAllocation/2;
       
-      alloc(initialSize + PRUNE_LEVEL + EXTRA_ALLOCATION, supportWeightedRandomSelect);
+      alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
       sentinel.weight	= 0.0f;
       insert(sentinel);
-      debug("constructed w " + numSlots);
+      debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
    {
@@ -235,16 +237,21 @@ extends Debug implements BasicFloatSet
    }
    public boolean pruneIfNeeded()
    {
-   	  int maxSize	 = this.maxSize;
-   	  boolean result = needPrune(maxSize);
+   	  int pruneSize	 = this.pruneSize;
+   	  boolean result = isOversize(pruneSize);
    	  if (result)
-   	  	 prune(maxSize);
+   	  	 prune(pruneSize);
    	  return result;
    }
-   protected boolean needPrune(int desiredSize)
+   /**
+    * Return true if the size of this is greater than the threshold passed in.
+    * 
+    * @param sizeThreshold
+    * @return
+    */
+   protected boolean isOversize(int sizeThreshold)
    {
-	  //      return (desiredSize > 0) && (size >= (5 * desiredSize / 4));
-      return (size >= (desiredSize + PRUNE_LEVEL));
+      return (size >= sizeThreshold);
    }
 
    public ArrayList maxArrayList()
@@ -261,11 +268,10 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement pruneAndMaxSelect()
    {
-   	  return maxSelect(maxSize);
+   	  return maxSelect(pruneSize);
    }
    /**
     * Prune to the specified desired size, if necessary, then do a maxSelect().
-    * The reason for doing these operations together is because both require sorting.
     * 
     * @param desiredSize
     * @return	element in the set with the highest weight, or in case of a tie,
@@ -273,7 +279,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement maxSelect(int desiredSize)
    {
-      if (needPrune(desiredSize))
+      if (isOversize(desiredSize))
 		 prune(desiredSize);
       Thread.yield();
       FloatSetElement element	= maxSelect();
@@ -312,18 +318,21 @@ extends Debug implements BasicFloatSet
       for (int i=1; i<size; i++)
       {
 		 FloatSetElement thatElement	= elements[i];
-		 float thatWeight	= thatElement.getWeight();
-		 if (thatWeight > maxWeight)
+		 if (thatElement != this.sentinel) // never pick the sentinel!
 		 {
-		    maxArrayList.clear();
-		 	result		= thatElement;
-		    maxWeight		= thatWeight;
-		    maxIndex		= i;
-		    maxArrayList.add(thatElement);
-		 }
-		 else if (thatWeight == maxWeight)
-		 {
-		 	maxArrayList.add(thatElement);
+			 float thatWeight	= thatElement.getWeight();
+			 if (thatWeight > maxWeight)
+			 {
+			    maxArrayList.clear();
+			 	result		= thatElement;
+			    maxWeight		= thatWeight;
+			    maxIndex		= i;
+			    maxArrayList.add(thatElement);
+			 }
+			 else if (thatWeight == maxWeight)
+			 {
+			 	maxArrayList.add(thatElement);
+			 }
 		 }
       }
       
@@ -343,6 +352,7 @@ extends Debug implements BasicFloatSet
 	*/
    public synchronized void prune(int numToKeep)
    {
+	  int size = this.size;
       if (size <= numToKeep)
 		 return;
       long startTime	= System.currentTimeMillis();
@@ -358,23 +368,21 @@ extends Debug implements BasicFloatSet
       if (PRUNE_PRIORITY < priority)
 		 currentThread.setPriority(PRUNE_PRIORITY);
       //------------------ update weights ------------------//
-      for (int i=0; i!=size; i++)
+      for (int i=0; i<size; i++)
 		 elements[i].getWeight();
       //------------------ sort in inverse order ------------------//
 	  //      println("gc() after update: " + size);
 	  //      insertionSort(elements, size);
       quickSort(elements, 0, size-1, false);
 	  //      println("gc() after sort: " + size);
-      String before	= "prune(): " + size  + ", " + Memory.usage();
 
       //-------------- lowest weight elements are on top -------------//
-      int wontGo	= 0;
       for (int i=1; i!=numToKeep; i++)
 		 elements[i].setIndex(i);  // renumber cref index
 	  //      println("gc() after renumber: " + size);
       int oldSize	= size;
-      size	= numToKeep;
-      for (int i=numToKeep; i!=oldSize; i++)
+      this.size	= numToKeep;
+      for (int i=numToKeep; i<oldSize; i++)
       {
 		 if (i >= elements.length)
 			debug(".SHOCK i="+i + " size="+size+ " numSlots="+numSlots);
@@ -383,6 +391,7 @@ extends Debug implements BasicFloatSet
 		 {
 			elements[i]	= null;	   // its deleted or moved; null either way
 			//	    thatElement.setSet(null); // make sure its treated as not here
+			debug("recycling " + thatElement);
 			thatElement.setIndex(-1); // during gc() excursion
 			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
 			   thatElement.clearSynch();
@@ -395,9 +404,9 @@ extends Debug implements BasicFloatSet
 		 currentThread.setPriority(priority);
       if (threadMaster != null)
       {
-		 debug("unpause threads and sleep briefly");
+		 debug("prune() unpause threads");
 		 threadMaster.unpauseThreads();
-		 Generic.sleep(1000);
+		 //Generic.sleep(1000);
       }
       debug("prune() finished " + duration);
    }
@@ -709,7 +718,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement pruneAndWeightedRandomSelect()
    {
-   	  return weightedRandomSelect(maxSize);
+   	  return weightedRandomSelect(pruneSize);
    }
    /**
     * Prune to the specified desired size, if necessary, then do a 
@@ -723,7 +732,7 @@ extends Debug implements BasicFloatSet
     */
    public synchronized FloatSetElement weightedRandomSelect(int desiredSize)
    {
-      if (needPrune(desiredSize))
+      if (isOversize(desiredSize))
 		 prune(desiredSize);
       boolean ok	= syncRecompute();
       Generic.sleep(10);
@@ -815,16 +824,6 @@ extends Debug implements BasicFloatSet
 		 println(set.weightedRandomSelect().toString());
    }
    
-/**
- * Set the maximum size this should grow to before pruning.
- * 
- * @param maxSize The maxSize to set.
- */
-   public void setMaxSize(int maxSize)
-   {
-	  this.maxSize = maxSize;
-   }
-   
    //				Accessors for MediaSetState
    ////////////////////////////////////////////////////////
    public FloatSetElement[] elements()
@@ -868,8 +867,20 @@ extends Debug implements BasicFloatSet
 	   alloc(size, true);
    }
    
-   public int getMaxSize()
+   /**
+    * Set the maximum size this should grow to before pruning.
+    * 
+    * @param maxSize The maxSize to set.
+    */
+      public void setPruneSize(int maxSize)
+      {
+   	  this.pruneSize = maxSize;
+      }
+   /**
+    * Get the maximum size this should grow to before pruning.
+    */   
+   public int getPruneSize()
    {
-	   return maxSize;
+	   return pruneSize;
    }
 }

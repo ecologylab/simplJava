@@ -18,6 +18,7 @@ import ecologylab.xml.XmlTranslationException;
 public class LogRequestMessage extends RequestMessage
 {	
 	protected String			xmlString;
+	FileOutputStream outFile;
 	
 	/**
 	 * Save the logging messages to the session log file
@@ -25,7 +26,7 @@ public class LogRequestMessage extends RequestMessage
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		Debug.println("cf services: received Logging Messages " );
-		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
+//		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
 		if( outFile != null )
 		{
@@ -68,18 +69,21 @@ public class LogRequestMessage extends RequestMessage
 */
 	/**
 	 * The string that the LoggingServer will write.
+	 * Uses substring() to peel the inner message out of the LogRequestApplication.
+	 * 
 	 * Eliminates the outer XML element, such as <log_request_message> or <log_ops>.
 	 */
-	String getMessageString() throws XmlTranslationException
+	protected String getMessageString() throws XmlTranslationException
 	{
 //		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString	= xmlString();
-	
+		
+		// if not on server, do normal translate to XML
 		if (xmlString == null)
-		{
-			debug("xmlString == null");
-			return "\n";
-		}
+			xmlString		= this.translateToXML(false);
+		
+		// if on server, peel message(s) out of the XML we received, without parsing it!
+		
 //		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
 		// start of the real stuff is the end of the first tag -- whatever it is
 		int start			= xmlString.indexOf('>') + 1;
@@ -108,6 +112,11 @@ public class LogRequestMessage extends RequestMessage
 	public void setXmlString(String xmlString)
 	{
 		this.xmlString = xmlString;
+	}
+	
+	public void setOutputStream(FileOutputStream outputStream)
+	{
+		this.outFile = outputStream;
 	}
 
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
  * @author blake
  */
 public class LockFile 
+extends Debug
 {
 	String 	programName;
 	File	lockFile = null;
@@ -75,7 +76,21 @@ public class LockFile
 		
 		return (lockFile != null && lockFile.exists());
 	}
-	
+	static final int NINETY_SECONDS	= 1000 * 90;
+	/**
+	 * Return true if the lock file exists, and is older than 90 seconds ago.
+	 * @return
+	 */
+	public boolean isOld()
+	{
+		if (!isLocked())
+			return false;
+		long lastMod	= lockFile.lastModified();
+		long now		= System.currentTimeMillis();
+		long deltaT		= now - lastMod;
+		debug("Checking lock file; its age is " + deltaT);
+		return isLocked() && (deltaT >= NINETY_SECONDS);
+	}
 	/**
 	 * Gets rid of the file handler (for garbage collection)
 	 *

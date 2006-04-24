@@ -17,6 +17,15 @@ public class ArrayListState extends ElementState
 		super();
 	}
 
+	public void add(ElementState elementState)
+	{
+		try {
+			addNestedElement(elementState);
+		}catch (XmlTranslationException e) {
+			debug("ERROR: " + e.getMessage() + " while translating");
+		}		
+	}
+	
    /**
     * Add an element to our Collection.
     */

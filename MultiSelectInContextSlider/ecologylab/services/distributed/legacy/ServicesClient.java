@@ -273,4 +273,22 @@ extends Debug
 		disconnect();
 		return serverIsRunning;
 	}
+
+
+    /**
+     * @return Returns the server.
+     */
+    public String getServer()
+    {
+        return server;
+    }
+
+
+    /**
+     * @param server The server to set.
+     */
+    public void setServer(String server)
+    {
+        this.server = server;
+    }
 }

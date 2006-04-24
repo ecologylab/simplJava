@@ -1,10 +1,13 @@
 package ecologylab.services.logging;
 
+import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTools;
 
 /**
- * Message to extend for Prologue and Epilogue.
- * Enables writing application-specific headers and footers in the log file.
+ * Base class for SendPrologue and SendEpilogue.
+ * Probably should not be used for anything else.
+ * Enables passing of the logName, in order to write custom log XML element
+ * open and close tags.
  *
  * @author andruid
  */

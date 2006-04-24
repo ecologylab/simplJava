@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.Socket;
 
-import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
@@ -30,7 +29,12 @@ implements LoggingDef
 		// Let server debug messages print to the file
 //		Debug.setLoggingFile(serverLogFile);
 	}
-	
+	public LoggingServer()
+	throws BindException, IOException 
+	{
+		this(LOGGING_PORT, NameSpace.get("ecologylab.services.logging", "ecologylab.services.logging"),
+				null);
+	}
 	/**
 	 * Create a ServerToClientConnection, the object that handles the connection to
 	 * each incoming client.
@@ -56,7 +60,7 @@ implements LoggingDef
 	 */
 	public ResponseMessage performService(RequestMessage requestMessage) 
 	{
-		if( requestMessage instanceof Epilogue)
+		if( requestMessage instanceof SendEpilogue)
 			end = true;
 		
 		return requestMessage.performService(objectRegistry);
@@ -66,7 +70,36 @@ implements LoggingDef
 	{
 		if( !end )
 		{
-			(new Epilogue()).performService(null);
+			(new SendEpilogue()).performService(objectRegistry);
 		}
+	}
+	/**
+	 * Construct an instance of the LoggingServer.
+	 * Handle and report on exceptions that may occur in the process.
+	 * 
+	 * @return	The LoggingServer instance, or null if exceptions are thrown.
+	 */
+	public static LoggingServer get()
+	{
+		LoggingServer loggingServer	= null;
+		try
+		{
+			loggingServer = new LoggingServer();
+		} catch (BindException e)
+		{
+			println("LoggingServer ERROR binding to port during initialization: " + e);
+			e.printStackTrace();
+		} catch (IOException e)
+		{
+			println("LoggingServer ERROR during initialization: " + e);
+			e.printStackTrace();
+		}
+		return loggingServer;
+	}
+	public static void main(String args[])
+	{
+		LoggingServer loggingServer	= get();
+		if (loggingServer != null)
+			loggingServer.start();
 	}
 }

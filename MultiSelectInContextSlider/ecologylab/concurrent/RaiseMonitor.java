@@ -69,7 +69,7 @@ public abstract class RaiseMonitor extends Thread {
 			{  
 				AWTBridge.rolloverRaiseStatus	= 30;
 				// wait for the next request
-				//println("RolloverFrame.run() wait()");
+				//Debug.println("RolloverFrame.run() wait()");
 				wait();
 	
 				if (running == false)
@@ -98,7 +98,8 @@ public abstract class RaiseMonitor extends Thread {
 					  else // waitingToDoRun changed asychronously by cancel()
 					  {
 						 AWTBridge.rolloverRaiseStatus	= 35;
-						 // oneAndOnly.showEmbellishments	= false;
+						 cancelRaise();
+						 //oneAndOnly.showEmbellishments	= false;
 					  }
 				 }
 			} catch (Exception e)
