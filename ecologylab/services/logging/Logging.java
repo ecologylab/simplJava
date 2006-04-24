@@ -142,6 +142,15 @@ implements Runnable
 		}
 	}
 	
+	/**
+	 * Constructor for automatic translation from XML
+	 *
+	 */
+	public Logging() 
+	{
+
+	}
+
 	public synchronized void logAction(MixedInitiativeOp op)
 	{
 
