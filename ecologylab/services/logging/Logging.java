@@ -311,16 +311,17 @@ implements Runnable
 		if (logMode != NO_LOGGING)
 		{
 			Prologue prologue = getPrologue();
-			SendPrologue sendPrologue	= new SendPrologue(this, prologue);
 			if( loggingClient != null )
 			{
 				int uid = Generic.parameterInt("uid", 0);
 				debug("Logging: Sending Prologue userID:" + uid);
 				prologue.setUserID(uid);
+				SendPrologue sendPrologue	= new SendPrologue(this, prologue);
 				loggingClient.sendMessage(sendPrologue);
 			}
 			if (writer !=null)
 			{
+				SendPrologue sendPrologue	= new SendPrologue(this, prologue);
 				Files.writeLine(writer, sendPrologue.getMessageString());
 			}
 		}
