@@ -18,6 +18,7 @@ import ecologylab.xml.XmlTranslationException;
 public class LogRequestMessage extends RequestMessage
 {	
 	protected String			xmlString;
+	FileOutputStream outFile;
 	
 	/**
 	 * Save the logging messages to the session log file
@@ -25,7 +26,7 @@ public class LogRequestMessage extends RequestMessage
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		Debug.println("cf services: received Logging Messages " );
-		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
+//		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
 		if( outFile != null )
 		{
@@ -111,6 +112,11 @@ public class LogRequestMessage extends RequestMessage
 	public void setXmlString(String xmlString)
 	{
 		this.xmlString = xmlString;
+	}
+	
+	public void setOutputStream(FileOutputStream outputStream)
+	{
+		this.outFile = outputStream;
 	}
 
 }
