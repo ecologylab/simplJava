@@ -60,7 +60,8 @@ public class SendPrologue extends LogueMessage
 		 * A session log file name of a user
 		 */
 		String sessionLogFile	=	// "/project/ecologylab/studyResults/CF_LOG/" + 
-					ip + "__" + tempDate + ".xml";
+					"LogFiles/" + 
+					ip + "__" + tempDate + "_" + userID + ".xml";
 		return sessionLogFile;
 	}
  	public String beginLog()
