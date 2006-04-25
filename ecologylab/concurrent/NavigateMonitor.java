@@ -1,7 +1,7 @@
 package ecologylab.generic;
 
-import ecologylab.applet.BrowserServer;
 import ecologylab.services.ServicesClient;
+import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.messages.Navigate;
 import ecologylab.xml.NameSpace;
 
@@ -11,7 +11,7 @@ public class NavigateMonitor extends Thread
    
    private static final NameSpace messageSpace = NameSpace.get("Browse", "ecologylab.services.messages");
    
-   public ServicesClient servicesClient = new ServicesClient(BrowserServer.PORT, messageSpace);
+   public ServicesClient servicesClient = new ServicesClient(ServicesHostsAndPorts.BROWSER_SERVER_PORT, messageSpace);
    
    /**
     * Initialiazed to true, hoping for the best.
