@@ -5,6 +5,17 @@ import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.messages.Navigate;
 import ecologylab.xml.NameSpace;
 
+/**
+ * Provide navigation to a web page, in a web browser.
+ * Does this in a separate thread from the caller's.
+ * Thus, this is suitable for call from an event handler.
+ * <p/>
+ * Uses the BrowserServer, if one can be found.
+ * Otherwise, uses JavaScript to a browser, if we're inside a Playlet.
+ * Otherwise, seeks Firefox and if found, exec's a command at the OS level.
+ *
+ * @author andruid
+ */
 public class NavigateMonitor extends Thread
 {
    private boolean			running;
