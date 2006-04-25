@@ -11,7 +11,7 @@ public class NavigateMonitor extends Thread
    
    private static final NameSpace messageSpace = NameSpace.get("Browse", "ecologylab.services.messages");
    
-   public ServicesClient servicesClient = new ServicesClient(ServicesHostsAndPorts.BROWSER_SERVER_PORT, messageSpace);
+   protected ServicesClient servicesClient = new ServicesClient(ServicesHostsAndPorts.BROWSER_SERVER_PORT, messageSpace);
    
    /**
     * Initialiazed to true, hoping for the best.

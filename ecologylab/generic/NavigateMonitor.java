@@ -104,13 +104,10 @@ public class NavigateMonitor extends Thread
 	   }
 	
 	   //Create the browse message
-	   Debug.println("create Navigate(" + purl);
 	   Navigate browseCommand = new Navigate(purl);
 	   
 	   //send it
-	   System.out.println("Navigating to " + purl);
+	   Debug.println(this, "Use BrowserServer to navigate to " + purl);
 	   servicesClient.sendMessage(browseCommand);
-		
    }
-   
-}
+ }
