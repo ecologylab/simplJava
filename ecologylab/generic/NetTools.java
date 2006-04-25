@@ -1,7 +1,9 @@
 package ecologylab.generic;
 
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 /**
  * Reusable static methods that do nifty network stuff.
@@ -32,5 +34,27 @@ public class NetTools extends Debug
         }
         return result;
 	}
+
+	   static String localHost = null;
+	   /**
+	    * local host address (parse out only IP address)
+	    * @return
+	    */
+	   public static String localHost()
+	   {
+		   if( localHost == null )
+		   {
+			   try {
+				localHost = InetAddress.getLocalHost().toString();
+		//		localHost = localHost.replace('/','_');
+				localHost = localHost.substring(localHost.indexOf('/')+1);
+				return localHost;
+			   } catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				   e.printStackTrace();
+				}
+		   }
+		   return localHost;
+	   }
 
 }
