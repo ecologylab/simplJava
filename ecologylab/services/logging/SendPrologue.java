@@ -2,6 +2,7 @@ package ecologylab.services.logging;
 
 import java.util.Date;
 
+import ecologylab.generic.NetTools;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
@@ -18,7 +19,7 @@ public class SendPrologue extends LogueMessage
 	
 	public String	date					= new Date(System.currentTimeMillis()).toString();
 	
-	public String	ip						= Logging.localHost();
+	public String	ip						= NetTools.localHost();
 	
 	public int 		userID					= 0;
 

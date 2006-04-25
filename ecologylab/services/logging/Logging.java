@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Vector;
 
@@ -15,7 +13,7 @@ import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.services.ServicesClient;
-import ecologylab.services.SessionId;
+import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
@@ -31,7 +29,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class Logging
 extends ElementState
-implements Runnable
+implements Runnable, ServicesHostsAndPorts
 {
 	private static final String SESSION_LOG_START = "\n<session_log>\n ";
 	static final String OP_SEQUENCE_START	= "\n\n<op_sequence>\n\n";
@@ -128,7 +126,7 @@ implements Runnable
 			/**
 			 * Create the logging client which communicates with the logging server
 			 */
-			loggingClient = new ServicesClient(LoggingDef.loggingServer, LoggingDef.LOGGING_PORT, nameSpace);
+			loggingClient = new ServicesClient(LOGGING_HOST, ServicesHostsAndPorts.LOGGING_PORT, nameSpace);
 			if (loggingClient.connect())
 				debug("Logging to service via connection: " + loggingClient);
 			else
@@ -437,29 +435,6 @@ implements Runnable
 	   return temp;
    }
    
-
-   static String localHost = null;
-   /**
-    * local host address (parse out only IP address)
-    * @return
-    */
-   static String localHost()
-   {
-	   if( localHost == null )
-	   {
-		   try {
-			localHost = InetAddress.getLocalHost().toString();
-	//		localHost = localHost.replace('/','_');
-			localHost = localHost.substring(localHost.indexOf('/')+1);
-			return localHost;
-		   } catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			   e.printStackTrace();
-			}
-	   }
-	   return localHost;
-   }
-
    void copyTraceFile(File outputFile)
    {
       final String TRACE_PATH = System.getProperty("deployment.user.logdir") +
