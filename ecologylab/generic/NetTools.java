@@ -27,34 +27,36 @@ public class NetTools extends Debug
 	public static boolean  disconnect(URLConnection urlConnection)
 	{
 		boolean result	= urlConnection != null;
-        if (result && (urlConnection instanceof HttpURLConnection))
-        {
-       	 HttpURLConnection	httpConnection	= (HttpURLConnection) urlConnection;
-       	 httpConnection.disconnect(); // free resources!
-        }
-        return result;
+		if (result && (urlConnection instanceof HttpURLConnection))
+		{
+			HttpURLConnection	httpConnection	= (HttpURLConnection) urlConnection;
+			httpConnection.disconnect(); // free resources!
+		}
+		return result;
 	}
 
-	   static String localHost = null;
-	   /**
-	    * local host address (parse out only IP address)
-	    * @return
-	    */
-	   public static String localHost()
-	   {
-		   if( localHost == null )
-		   {
-			   try {
-				localHost = InetAddress.getLocalHost().toString();
-		//		localHost = localHost.replace('/','_');
-				localHost = localHost.substring(localHost.indexOf('/')+1);
-				return localHost;
-			   } catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				   e.printStackTrace();
-				}
-		   }
-		   return localHost;
-	   }
-
+	static String localHost = null;
+	/**
+	 * local host address (parse out only IP address)
+	 * @return
+	 */
+	public static String localHost()
+	{
+		String localHost			= NetTools.localHost;
+		if (localHost == null)
+		{
+			try
+			{
+				localHost			= InetAddress.getLocalHost().toString();
+				//		localHost = localHost.replace('/','_');
+				localHost			= localHost.substring(localHost.indexOf('/')+1);
+				NetTools.localHost	= localHost;
+			} catch (UnknownHostException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return localHost;
+	}
+	
 }
