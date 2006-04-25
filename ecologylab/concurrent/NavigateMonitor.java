@@ -54,9 +54,14 @@ public class NavigateMonitor extends Thread
    ParsedURL			purl;
    
    /**
-	* Raise embellishments after a suitable delay, unless a cancel comes
-	* in first().
-	*/
+    * Provide navigation to a web page, in a web browser.
+    * Does this in a separate thread from the caller's.
+    * Thus, this is suitable for call from an event handler.
+    * <p/>
+    * Uses the BrowserServer, if one can be found.
+    * Otherwise, uses JavaScript to a browser, if we're inside a Playlet.
+    * Otherwise, seeks Firefox and if found, exec's a command at the OS level.
+    */
    public synchronized void navigate(ParsedURL purl)
    {
 	  //println("RolloverFrame.delayThenShow()");
