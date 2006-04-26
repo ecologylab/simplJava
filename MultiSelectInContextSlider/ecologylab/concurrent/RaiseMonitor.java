@@ -98,7 +98,7 @@ public abstract class RaiseMonitor extends Thread {
 					  else // waitingToDoRun changed asychronously by cancel()
 					  {
 						 AWTBridge.rolloverRaiseStatus	= 35;
-						 cancelRaise();
+						 //cancelRaise();
 						 //oneAndOnly.showEmbellishments	= false;
 					  }
 				 }
