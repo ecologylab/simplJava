@@ -3,6 +3,7 @@
  */
 package ecologylab.services.authentication;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
@@ -24,6 +25,8 @@ public class Login extends RequestMessage implements AuthenticationMessages,
 
     public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
 
+    public InetAddress clientAddress = null;
+    
     /**
      * Should not normally be used; only for XML translations.
      */
@@ -126,5 +129,21 @@ public class Login extends RequestMessage implements AuthenticationMessages,
     public void setEntry(AuthenticationListEntry entry)
     {
         this.entry = entry;
+    }
+
+    /**
+     * @return Returns the clientAddress.
+     */
+    public InetAddress getClientAddress()
+    {
+        return clientAddress;
+    }
+
+    /**
+     * @param clientAddress The clientAddress to set.
+     */
+    public void setClientAddress(InetAddress clientAddress)
+    {
+        this.clientAddress = clientAddress;
     }
 }
