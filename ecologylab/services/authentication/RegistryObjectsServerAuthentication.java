@@ -17,6 +17,8 @@ public interface RegistryObjectsServerAuthentication
      * object; used to map usernames to ServerToClientConnectionAuthentication
      * objects that represent their connections. Generally used to ensure that
      * each username is logged in only once.
+     * 
+     * XXX CHANGED TO USERNAME + IP!
      */
     public static final String AUTHENTICATED_CLIENTS = "authenticatedClients";
 

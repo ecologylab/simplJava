@@ -67,7 +67,7 @@ public class ServerToClientConnectionAuthentication extends
                     ((HashMap) (servicesServer.getObjectRegistry())
                             .lookupObject(AUTHENTICATED_CLIENTS)).put(
                             ((Login) requestMessage).getEntry().getUsername(),
-                            this);
+                            this.incomingSocket.getInetAddress());
                 }
 
             } else
