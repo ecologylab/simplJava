@@ -178,8 +178,15 @@ implements Runnable
 	protected void sendResponse(ResponseMessage responseMessage) throws XmlTranslationException
 	{
 		//send the response
-		outputStreamWriter.println(responseMessage.translateToXML(false));
-		outputStreamWriter.flush();
+		if (outputStreamWriter != null)
+		{
+			outputStreamWriter.println(responseMessage.translateToXML(false));
+			outputStreamWriter.flush();
+		}
+		else
+		{
+			debug("Cant send message after stop: " + responseMessage);
+		}
 	}
     
 	public synchronized void stop()
