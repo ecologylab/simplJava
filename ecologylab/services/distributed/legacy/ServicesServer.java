@@ -3,6 +3,7 @@ package ecologylab.services;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Vector;
 
 import ecologylab.generic.Debug;
@@ -173,6 +174,13 @@ implements Runnable
 	            				+ sock.getLocalAddress() );
 	            	}
             	}
+            } catch (SocketException e)
+            {
+            	if (!finished)
+            	{
+                	debug("ERROR during serverSocket accept!");
+                    e.printStackTrace();
+            	}
             } catch (IOException e)
             {
             	debug("ERROR during serverSocket accept!");
@@ -180,8 +188,14 @@ implements Runnable
             }
         }
 
-        try
+        close();
+	}
+
+	private void close()
+	{
+		try
         {
+			debug("closing");
             serverSocket.close();
         } catch (IOException e)
         {
@@ -241,6 +255,7 @@ implements Runnable
 		if (thread != null)
 		{
 			finished	= true;
+			close();
 			thread		= null;
 		}
 		Object[] connections	= serverToClientConnections.toArray();
