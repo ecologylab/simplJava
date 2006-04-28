@@ -24,6 +24,8 @@ import java.io.*;
  */
 public class Debug 
 {
+	private static final String SEPARATOR = ": ";
+	
 /**
  * Global hi watermark. debug() messages with a level less than or equal
  *  to this will get printed out.
@@ -126,11 +128,11 @@ public class Debug
    }
    public static void println(Object o, String message)
    {
-      println(o + "." + message);
+      println(o + SEPARATOR + message);
    }
    public static void println(String className, String message)
    {
-      println(className + "." + message);
+      println(className + SEPARATOR + message);
    }
    public static void printlnI(Object o, String message)
    {
@@ -172,14 +174,14 @@ public class Debug
  */
    public static void printlnA(Object that, String message) 
    {
-      println(getClassName(that)+"." + message/* +" " +level(that) */);
+      println(getClassName(that)+SEPARATOR + message/* +" " +level(that) */);
    }
 /**
  * Print a debug message, starting with the abbreviated class name.
  */
    public static void printlnA(Class c, String message) 
    {
-      println(getClassName(c)+"." + message);
+      println(getClassName(c)+SEPARATOR + message);
    }
 
 /**
@@ -192,7 +194,7 @@ public class Debug
       if (abbrevName == null)
       {
 		 String fullName	= thatClass.toString();
-		 abbrevName	= fullName.substring(fullName.lastIndexOf(".") + 1);
+		 abbrevName	= fullName.substring(fullName.lastIndexOf(SEPARATOR) + 1);
 		 synchronized (classAbbrevNames)
 		 {
 			classAbbrevNames.put(thatClass, abbrevName);
@@ -210,7 +212,7 @@ public class Debug
       if (packageName == null)
       {
 		 String className	= thatClass.toString();
-		 packageName	= className.substring(6, className.lastIndexOf("."));
+		 packageName	= className.substring(6, className.lastIndexOf(SEPARATOR));
 		 synchronized (packageNames)
 		 {
 		    packageNames.put(thatClass, packageName);
