@@ -828,6 +828,38 @@ extends Debug
 	  
 	  return directory.isDirectory() ? directory.listFiles(XMLfilter) : null;
    }
+   
+   /**
+    * Recursively delete a directory on the file system. We
+	* must recursively delete it since java requires that 
+	* the directory be empty before deletion.
+    * 
+    * @param targetDir The target directory to delete.
+    * @return true if successful, false otherwise.
+    */
+   public static boolean deleteDirectory(File targetDir)
+   {
+	   boolean succeeded = true;
+	   
+	   if (targetDir.exists())
+	   	{
+	   		File[] dirFiles = targetDir.listFiles();
+	   		for (int i=0; i<dirFiles.length; i++)
+	   		{
+	   			File dirFile = dirFiles[i];
+	   			if (dirFile.isDirectory())
+	   			{
+	   				succeeded = succeeded && deleteDirectory(dirFile);
+	   				succeeded = succeeded && dirFile.delete();
+	   			}
+	   			else
+	   			{
+	   				dirFile.delete();
+	   			}
+	   		}
+	   	}
+		return succeeded;
+   }
 }
 
 class XMLFileFilter implements java.io.FileFilter 

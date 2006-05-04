@@ -273,9 +273,14 @@ implements Downloadable, DispatchTarget
 	 */
 	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, Status status)
 	{
-	   	// create the target parent directories if they don't exist
-	   	if (!targetDir.exists())
-	   		targetDir.mkdirs();
+	   	// Delete the previous target parent directory if it exists.
+	   	if (targetDir.exists())
+	   	{
+	   		Files.deleteDirectory(targetDir);
+	   	}
+	   	
+	   	//Create the target parent directory.
+	   	targetDir.mkdirs();
 	   	   
 	   	println("downloading from zip URL: " + sourceZip +"\n\t to " + targetDir);
 		try
