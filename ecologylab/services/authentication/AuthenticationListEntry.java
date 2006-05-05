@@ -144,4 +144,13 @@ public class AuthenticationListEntry extends ElementState
     {
         return username;
     }
+    
+
+    /**
+     * Returns hashCode() called on username.
+     */
+    public int hashCode()
+    {
+        return username.hashCode();
+    }
 }

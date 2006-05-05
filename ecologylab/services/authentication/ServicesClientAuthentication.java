@@ -5,6 +5,8 @@ package ecologylab.services.authentication;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServicesClient;
+import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
 
@@ -16,7 +18,7 @@ import ecologylab.xml.NameSpace;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class ServicesClientAuthentication extends ServicesClient implements
-        AuthenticationMessages
+        AuthMessages
 {
     private AuthenticationListEntry entry = null;
 
@@ -89,9 +91,9 @@ public class ServicesClientAuthentication extends ServicesClient implements
     {
         super(server, port, messageSpace, objectRegistry);
 
-        messageSpace.addTranslation("ecologylab.services.authentication",
+        messageSpace.addTranslation("ecologylab.services.authentication.messages",
                 "Login");
-        messageSpace.addTranslation("ecologylab.services.authentication",
+        messageSpace.addTranslation("ecologylab.services.authentication.messages",
                 "Logout");
         messageSpace.addTranslation("ecologylab.services.authentication",
                 "AuthenticationListEntry");

@@ -19,8 +19,11 @@ public interface RegistryObjectsServerAuthentication
      * each username is logged in only once.
      * 
      * XXX CHANGED TO USERNAME + IP!
+     * XXX CHANGE TO USERNAME + TOKEN FOR NORMAL SERVICES SERVER
      */
-    public static final String AUTHENTICATED_CLIENTS = "authenticatedClients";
+    public static final String AUTHENTICATED_CLIENTS_BY_USERNAME = "authenticatedClientsByUsername";
+    
+    public static final String AUTHENTICATED_CLIENTS_BY_TOKEN = "authenticatedClientsByToken";
 
     /**
      * Indicates an AuthenticationList object that contains all the usernames
