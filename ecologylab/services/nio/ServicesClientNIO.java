@@ -5,6 +5,7 @@ package ecologylab.services.nio;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServicesClient;
+import ecologylab.services.ServicesClientBase;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
@@ -16,31 +17,19 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
-public class ServicesClientNIO extends ServicesClient
+public class ServicesClientNIO extends ServicesClientBase
 {
 
+    private Charset charset = Charset.forName("ISO-8859-1");
+    private CharsetDecoder decoder = charset.newDecoder();
+    private CharsetEncoder encoder = charset.newEncoder();
+    
     private Selector selector = null;
     private SocketChannel channel = null;
-    
-    /**
-     * @param port
-     * @param messageSpace
-     */
-    public ServicesClientNIO(int port, NameSpace messageSpace)
-    {
-        super(port, messageSpace);
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param port
-     */
-    public ServicesClientNIO(int port)
-    {
-        super(port);
-        // TODO Auto-generated constructor stub
-    }
 
     /**
      * @param server
@@ -51,27 +40,6 @@ public class ServicesClientNIO extends ServicesClient
     public ServicesClientNIO(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param server
-     * @param port
-     * @param messageSpace
-     */
-    public ServicesClientNIO(String server, int port, NameSpace messageSpace)
-    {
-        super(server, port, messageSpace);
-        // TODO Auto-generated constructor stub
-    }
-
-    /**
-     * @param server
-     * @param port
-     */
-    public ServicesClientNIO(String server, int port)
-    {
-        super(server, port);
         // TODO Auto-generated constructor stub
     }
 
@@ -137,22 +105,10 @@ public class ServicesClientNIO extends ServicesClient
         return super.sendMessage(requestMessage);
     }
 
-    /* (non-Javadoc)
-     * @see ecologylab.services.ServicesClient#waitForConnect()
-     */
-    public void waitForConnect()
+    protected boolean createConnection()
     {
         // TODO Auto-generated method stub
-        super.waitForConnect();
-    }
-
-    /* (non-Javadoc)
-     * @see ecologylab.services.ServicesClient#setServer(java.lang.String)
-     */
-    public void setServer(String server)
-    {
-        // TODO Auto-generated method stub
-        super.setServer(server);
+        return false;
     }
 
     

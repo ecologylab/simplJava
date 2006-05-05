@@ -2,7 +2,6 @@ package ecologylab.services;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.BindException;
@@ -10,12 +9,7 @@ import java.net.InetAddress;
 import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 
-import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -29,33 +23,14 @@ import ecologylab.xml.NameSpace;
  * @author blake
  * @author andruid
  */
-public class ServicesClient extends Debug implements ServerConstants
+public class ServicesClient extends ServicesClientBase implements ServerConstants
 {
-    private final static int CONNECTION_RETRY_SLEEP_INTERVAL = 250;
-
-    protected Socket         sock;
-
     BufferedReader           reader;
     
-//    InputStream             in;
-
     PrintStream              output;
-
-    protected int            port;
-
-    protected String         server;
-
-    private NameSpace        translationSpace                = null;
-
-    protected ObjectRegistry objectRegistry;
 
     private String           toString;
     
-    private Charset charset = Charset.forName("ISO-8859-1");
-    private CharsetDecoder decoder = charset.newDecoder();
-    private CharsetEncoder encoder = charset.newEncoder();
-
-
     /**
      * Create a client that will connect on the provided port. Assume localhost
      * 
@@ -85,16 +60,10 @@ public class ServicesClient extends Debug implements ServerConstants
     public ServicesClient(String server, int port, NameSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
-        this.port = port;
-        this.server = server;
-        this.translationSpace = messageSpace;
-
-        if (objectRegistry == null)
-            objectRegistry = new ObjectRegistry();
-        this.objectRegistry = objectRegistry;
+        super(server, port, messageSpace, objectRegistry);
     }
 
-    private boolean createConnection()
+    protected boolean createConnection()
     {
         InetAddress address = null;
         try
@@ -151,20 +120,6 @@ public class ServicesClient extends Debug implements ServerConstants
     public boolean connected()
     {
         return (sock != null);
-    }
-
-    /**
-     * Connect to the server (if not already connected). Return connection
-     * status.
-     * 
-     * @return True if connected, false if not.
-     */
-    public boolean connect()
-    {
-        if (connected())
-            return true;
-
-        return createConnection();
     }
 
     /**
@@ -270,49 +225,5 @@ public class ServicesClient extends Debug implements ServerConstants
             }
         }
         return responseMessage;
-    }
-    
-    protected void processResponse(ResponseMessage responseMessage)
-    {
-        responseMessage.processResponse(objectRegistry);
-    }
-
-    /**
-     * Try and connect to the server. If we fail, wait
-     * CONNECTION_RETRY_SLEEP_INTERVAL and try again. Repeat ad nauseum.
-     */
-    public void waitForConnect()
-    {
-        System.out.println("Waiting for a server on port " + port);
-        while (!connect())
-        {
-            // try again soon
-            Generic.sleep(CONNECTION_RETRY_SLEEP_INTERVAL);
-        }
-    }
-
-    public boolean isServerRunning()
-    {
-        boolean serverIsRunning = createConnection();
-        // we're just checking, don't keep the connection
-        disconnect();
-        return serverIsRunning;
-    }
-
-    /**
-     * @return Returns the server.
-     */
-    public String getServer()
-    {
-        return server;
-    }
-
-    /**
-     * @param server
-     *            The server to set.
-     */
-    public void setServer(String server)
-    {
-        this.server = server;
-    }
+    }    
 }
