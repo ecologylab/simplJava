@@ -6,10 +6,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Vector;
 
-import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
-import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -28,8 +26,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author andruid
  * @author blake
  */
-public class ServicesServer extends Debug
-implements Runnable
+public class ServicesServer extends ServicesServerBase
 {
 	private int				portNumber;
 	protected ServerSocket	serverSocket;
@@ -93,11 +90,7 @@ implements Runnable
 						  NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
 	throws IOException, java.net.BindException
 	{
-		this.portNumber 				= portNumber;
-		this.requestTranslationSpace	= requestTranslationSpace;
-		if (objectRegistry == null)
-			objectRegistry				= new ObjectRegistry();
-		this.objectRegistry				= objectRegistry;
+        super(portNumber, requestTranslationSpace, objectRegistry);
 		
 		serverSocket = new ServerSocket(portNumber);
 		debug("created.");
@@ -114,40 +107,19 @@ implements Runnable
 		}
 		return toString;
 	}
-	/**
-	 * Perform the service associated with a RequestMessage, by calling the
-	 * performService() method on that message.
-	 * 
-	 * @param requestMessage	Message to perform.
-	 * @return					Response to the message.
-	 */
-	public ResponseMessage performService(RequestMessage requestMessage) 
-	{
-		return requestMessage.performService(objectRegistry);
-	}
-	/**
-	 * Remove the argument passed in from the set of connections we know about.
-	 * 
-	 * @param serverToClientConnection
-	 */
-	void connectionTerminated(ServerToClientConnection serverToClientConnection)
-	{
-		serverToClientConnections.remove(serverToClientConnection);
-		connectionCount--;
-		// When thread close by unexpected way (such as client just crashes),
-		// this method will end the service gracefully.
-		terminationAction();
-	}
-	
-	/**
-	 * This defines the actions that server needs to perform 
-	 * when the client ends unexpected way. Detail implementations will be in subclasses.
-	 */
-	protected void terminationAction()
-	{
-		
-	}
-	
+
+    /**
+     * Remove the argument passed in from the set of connections we know about.
+     * 
+     * @param serverToClientConnection
+     */
+    protected void connectionTerminated(ServerToClientConnection serverToClientConnection)
+    {
+        serverToClientConnections.remove(serverToClientConnection);
+        
+        super.connectionTerminated();
+    }
+    
 	public void run()
 	{
        while (!finished)
@@ -249,16 +221,20 @@ implements Runnable
  			}
 		}
 	}
-	public synchronized void stop()
+    
+	public synchronized boolean stop()
 	{
 		debug("stopping.");
+        
 		if (thread != null)
 		{
 			finished	= true;
 			close();
 			thread		= null;
 		}
+        
 		Object[] connections	= serverToClientConnections.toArray();
+        
 		for (int i=0; i<connections.length; i++)
 		{
 			ServerToClientConnection s2c	= (ServerToClientConnection) connections[i];
@@ -266,19 +242,16 @@ implements Runnable
 			//debug("stop connection["+i+"] " +s2c);
 			s2c.stop();
 		}
+        
 		connectionCount = 0;
+        
+        return true;
 	}
-	public void start()
+    
+	public boolean start()
 	{
 		start(Thread.NORM_PRIORITY);
-	}
-	/**
-	 * Get the message passing context associated with this server.
-	 * 
-	 * @return
-	 */
-	public ObjectRegistry getObjectRegistry()
-	{
-		return objectRegistry;
+        
+        return true;
 	}
 }
