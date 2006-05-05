@@ -1,11 +1,13 @@
 /*
  * Created on Mar 30, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.messages;
 
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.RegistryObjectsServerAuthentication;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -17,7 +19,7 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Logout extends RequestMessage implements AuthenticationMessages,
+public class Logout extends RequestMessage implements AuthMessages,
         RegistryObjectsServerAuthentication
 {
 
@@ -52,7 +54,7 @@ public class Logout extends RequestMessage implements AuthenticationMessages,
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
         HashMap authedClients = (HashMap) objectRegistry
-                .lookupObject(AUTHENTICATED_CLIENTS);
+                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
         ResponseMessage responseMessage;
 
         if ((authedClients != null)

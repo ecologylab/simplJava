@@ -1,12 +1,15 @@
 /*
  * Created on Mar 30, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.messages;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.RegistryObjectsServerAuthentication;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -19,7 +22,7 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Login extends RequestMessage implements AuthenticationMessages,
+public class Login extends RequestMessage implements AuthMessages,
         RegistryObjectsServerAuthentication
 {
 
@@ -73,7 +76,7 @@ public class Login extends RequestMessage implements AuthenticationMessages,
         AuthenticationList authList = (AuthenticationList) objectRegistry
                 .lookupObject(AUTHENTICATION_LIST);
         HashMap authedClients = (HashMap) objectRegistry
-                .lookupObject(AUTHENTICATED_CLIENTS);
+                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
 
         ResponseMessage loginConfirm = new ErrorResponse(LOGIN_FAILED_PASSWORD); // set
                                                                                     // to

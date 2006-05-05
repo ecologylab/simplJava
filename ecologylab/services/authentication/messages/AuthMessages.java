@@ -1,4 +1,4 @@
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.messages;
 
 /**
  * Interface that contains the list of constant Strings used for Authentication
@@ -6,7 +6,7 @@ package ecologylab.services.authentication;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public interface AuthenticationMessages
+public interface AuthMessages
 {
     /**
      * Indicates that a LOGIN was successful.
