@@ -48,17 +48,17 @@ public class MessageProcessor extends Debug implements Runnable,
     private ByteBuffer             rawBytes     = ByteBuffer
                                                         .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer             messageChars = CharBuffer
-                                                        .allocate(MAX_PACKET_SIZE);
+//    private CharBuffer             messageChars = CharBuffer
+  //                                                      .allocate(MAX_PACKET_SIZE);
 
     private LinkedList             messageQueue = new LinkedList();
 
-    private int                    bytesRead;
+  //  private int                    bytesRead;
 
     // private Charset charset = Charset.forName("ISO-8859-1");
-    private Charset                charset      = Charset.forName("ASCII");
+//    private Charset                charset      = Charset.forName("ASCII");
 
-    private CharsetDecoder         decoder      = charset.newDecoder();
+//    private CharsetDecoder         decoder      = charset.newDecoder();
 
     private NameSpace              translationSpace;
 
@@ -85,7 +85,10 @@ public class MessageProcessor extends Debug implements Runnable,
         if (token.equals(key.attachment()))
         {
             rawBytes.clear();
-            bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
+            
+//            bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
+            ((SocketChannel) key.channel()).read(rawBytes);
+            
             rawBytes.flip();
 
             if (show(5))
@@ -93,17 +96,19 @@ public class MessageProcessor extends Debug implements Runnable,
 
             // if (bytesRead > 0)
             // {
-            try
-            {
+       //     try
+         //   {
                 // rawBytes.flip();
 
-                messageChars = decoder.decode(rawBytes);
+//                messageChars = decoder.decode(rawBytes);
 
                 // System.out.println("got this message: \""
                 // + messageChars.toString() + "\"");
+//
+//                accumulator = accumulator.append(messageChars.toString());
 
-                accumulator = accumulator.append(messageChars.toString());
-
+                accumulator.append(rawBytes.asCharBuffer());
+                
                 if (accumulator.length() > 0)
                 {
                     if ((accumulator.charAt(accumulator.length() - 1) == '\n')
@@ -125,22 +130,23 @@ public class MessageProcessor extends Debug implements Runnable,
                             notify();
                         }
                         // clear the accumulator
-                        accumulator = new StringBuffer();
+//                        accumulator = new StringBuffer();
+                        accumulator.delete(0, accumulator.length());
 
                     }
                 }
 
                 // clear the buffers
-                rawBytes.clear();
-                messageChars.clear();
-                bytesRead = 0;
+ //               rawBytes.clear();
+//                messageChars.clear();
+//                bytesRead = 0;
 
-            } catch (CharacterCodingException e)
+/*            } catch (CharacterCodingException e)
             {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
+*/
         } else
         {
             throw new Exception("Token mismatch!");
