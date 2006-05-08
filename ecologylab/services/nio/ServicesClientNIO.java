@@ -24,7 +24,7 @@ import java.nio.charset.CharsetEncoder;
 public class ServicesClientNIO extends ServicesClientBase
 {
 
-    private Charset charset = Charset.forName("ISO-8859-1");
+    private Charset charset = Charset.forName("ASCII");
     private CharsetDecoder decoder = charset.newDecoder();
     private CharsetEncoder encoder = charset.newEncoder();
     
@@ -40,7 +40,6 @@ public class ServicesClientNIO extends ServicesClientBase
     public ServicesClientNIO(String server, int port, NameSpace messageSpace, ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
-        // TODO Auto-generated constructor stub
     }
 
     /* (non-Javadoc)
@@ -51,7 +50,7 @@ public class ServicesClientNIO extends ServicesClientBase
         try
         {
             selector = Selector.open();
-            channel = SocketChannel.open();
+            channel = SocketChannel.open();d
             
             channel.configureBlocking(false);
             channel.connect(new InetSocketAddress(server, port));

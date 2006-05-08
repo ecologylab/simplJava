@@ -31,8 +31,6 @@ import ecologylab.generic.ObjectRegistry;
 public class MessageProcessor extends Debug implements Runnable,
         ServerConstants
 {
-    private Thread                 thread       = null;
-
     protected Object               token;
 
     private Channel                channel;
@@ -41,15 +39,11 @@ public class MessageProcessor extends Debug implements Runnable,
 
     protected MessageProcessorPool pool;
 
-    private LinkedList             keysQueue    = new LinkedList();
-
     protected ResponseMessage      response;
 
     private RequestMessage         request;
 
-    private volatile boolean       running      = false;
-
-    private volatile boolean       active       = false;
+    private Thread                 thread;
 
     private ByteBuffer             rawBytes     = ByteBuffer
                                                         .allocate(MAX_PACKET_SIZE);
@@ -57,7 +51,9 @@ public class MessageProcessor extends Debug implements Runnable,
     private CharBuffer             messageChars = CharBuffer
                                                         .allocate(MAX_PACKET_SIZE);
 
-    private SelectionKey           tempKey;
+    private LinkedList             messageQueue = new LinkedList();
+
+    private int                    bytesRead;
 
     // private Charset charset = Charset.forName("ISO-8859-1");
     private Charset                charset      = Charset.forName("ASCII");
@@ -67,6 +63,8 @@ public class MessageProcessor extends Debug implements Runnable,
     private NameSpace              translationSpace;
 
     protected ObjectRegistry       registry;
+
+    boolean                        running      = true;
 
     public MessageProcessor(MessageProcessorPool pool, Channel channel,
             Object token, NameSpace translationSpace, ObjectRegistry registry)
@@ -86,138 +84,66 @@ public class MessageProcessor extends Debug implements Runnable,
     {
         if (token.equals(key.attachment()))
         {
-            // add to the queue; if we are not running, then start
-            synchronized (keysQueue)
-            {
-                keysQueue.add(key);
-            }
+            rawBytes.clear();
+            bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
+            rawBytes.flip();
 
-            if (thread == null)
-            {
-                thread = new Thread(this, "Message Processor for " + token);
-                thread.start();
-            }
+            if (show(5))
+                debug("got raw message: " + rawBytes.remaining());
 
-            if (!running)
+            // if (bytesRead > 0)
+            // {
+            try
             {
-                running = true;
-                
-                synchronized (this)
+                // rawBytes.flip();
+
+                messageChars = decoder.decode(rawBytes);
+
+                // System.out.println("got this message: \""
+                // + messageChars.toString() + "\"");
+
+                accumulator = accumulator.append(messageChars.toString());
+
+                if (accumulator.length() > 0)
                 {
-                    notify();
+                    if ((accumulator.charAt(accumulator.length() - 1) == '\n')
+                            || (accumulator.charAt(accumulator.length() - 1) == '\r'))
+                    { // when we have accumulated an entire message,
+                        // process it
+
+                        messageQueue.add(accumulator.toString());
+
+                        if (thread == null)
+                        {
+                            thread = new Thread(this, "Message Processor for "
+                                    + token);
+                            thread.start();
+                        }
+
+                        synchronized (this)
+                        {
+                            notify();
+                        }
+                        // clear the accumulator
+                        accumulator = new StringBuffer();
+
+                    }
                 }
+
+                // clear the buffers
+                rawBytes.clear();
+                messageChars.clear();
+                bytesRead = 0;
+
+            } catch (CharacterCodingException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
 
         } else
         {
             throw new Exception("Token mismatch!");
-        }
-
-    }
-
-    public void run()
-    {
-        running = true;
-        active = true;
-
-        response = null;
-        request = null;
-        
-//        long time = System.currentTimeMillis();
-
-        while (active)
-        {
-            while (keysQueue.size() > 0)
-            {
-//                if (accumulator.length() == 0)
-  //              {
-    //                time = System.currentTimeMillis();
-      //          }
-                
-                // take the first key off the queue, read its buffer
-                synchronized (keysQueue)
-                {
-                    tempKey = (SelectionKey) keysQueue.removeFirst();
-
-                    try
-                    {
-                        ((SocketChannel) tempKey.channel()).read(rawBytes);
-                    } catch (IOException e1)
-                    {
-                        e1.printStackTrace();
-                    }
-                }
-
-                if (show(5))
-                    debug("got raw message: " + rawBytes.remaining());
-
-                try
-                {
-                    rawBytes.flip();
-
-                    messageChars = decoder.decode(rawBytes);
-
-                    accumulator = accumulator.append(messageChars.toString());
-
-                    if (accumulator.length() > 0)
-                    {
-                        if ((accumulator.charAt(accumulator.length() - 1) == '\n')
-                                || (accumulator
-                                        .charAt(accumulator.length() - 1) == '\r'))
-                        { // when we have accumulated an entire message,
-                            // process
-                            // it
-                            // System.out.println("recieved: "
-                            // + accumulator.toString());
-
-                            request = translateXMLStringToRequestMessage(accumulator
-                                    .toString());
-
-                            if (request == null)
-                            {
-                                debug("ERROR: translation failed: ");
-
-                            } else
-                            {
-                                // perform the service being requested
-                                response = performService(request);
-
-                                pool.messageProcessed(response, channel);
-                                // TODO bad transmissions
-                            }
-
-//                            System.out.println(System.currentTimeMillis() - time);
-                            
-                            // clear the accumulator
-                            accumulator = new StringBuffer();
-
-                        }
-                    }
-
-                    // clear the buffers
-                    rawBytes.clear();
-                    messageChars.clear();
-
-                } catch (XmlTranslationException e)
-                {
-                    e.printStackTrace();
-                } catch (CharacterCodingException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
-            running = false;
-
-            try {
-                    synchronized(this) {
-                        while (!running)
-                            wait();
-                    }
-            } catch (InterruptedException e){
-            }
-
         }
     }
 
@@ -256,5 +182,52 @@ public class MessageProcessor extends Debug implements Runnable,
     {
         return (RequestMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace, doRecursiveDescent);
+    }
+
+    /**
+     * Processes the next String in the messageQueue, sleeps when there are none
+     * left.
+     */
+    public void run()
+    {
+        while (running)
+        {
+            while (messageQueue.size() > 0)
+            {
+                try
+                {
+                    request = translateXMLStringToRequestMessage((String) messageQueue
+                            .removeFirst());
+                } catch (XmlTranslationException e)
+                {
+                    e.printStackTrace();
+                }
+
+                if (request == null)
+                {
+                    debug("ERROR: translation failed: ");
+
+                } else
+                {
+                    // perform the service being requested
+                    response = performService(request);
+
+                    pool.messageProcessed(response, channel);
+
+                    // TODO bad transmissions
+                }
+            }
+
+            try
+            {
+                synchronized (this)
+                {
+                    while (messageQueue.size() == 0)
+                        wait();
+                }
+            } catch (InterruptedException e)
+            {
+            }
+        }
     }
 }

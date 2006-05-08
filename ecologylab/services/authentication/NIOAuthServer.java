@@ -85,6 +85,7 @@ public class NIOAuthServer extends ServicesServerNIO implements
             AuthenticationList authList)
     {
         NIOAuthServer newServer = null;
+        
         try
         {
             newServer = new NIOAuthServer(portNumber,

@@ -23,14 +23,23 @@ import ecologylab.xml.NameSpace;
  * @author blake
  * @author andruid
  */
-public class ServicesClient extends ServicesClientBase implements ServerConstants
+public class ServicesClient extends ServicesClientBase implements
+        ServerConstants
 {
-    BufferedReader           reader;
-    
-    PrintStream              output;
+    BufferedReader reader;
 
-    private String           toString;
-    
+    PrintStream    output;
+
+    /**
+     * Stores information about this for the toString() method.
+     */
+    private String toString;
+
+    /**
+     * Stores the response from the server until it is translated from XML.
+     */
+    private String response;
+
     /**
      * Create a client that will connect on the provided port. Assume localhost
      * 
@@ -72,8 +81,8 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
             // get the address and connect
             address = InetAddress.getByName(server);
             sock = new Socket(address, port);
-            
-//            in = sock.getInputStream();
+
+            // in = sock.getInputStream();
             reader = new BufferedReader(new InputStreamReader(sock
                     .getInputStream()));
             output = new PrintStream(sock.getOutputStream());
@@ -162,15 +171,13 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         ResponseMessage responseMessage = null;
         boolean transactionComplete = false;
         int badTransmissionCount = 0;
-        
+
         while (!transactionComplete)
         {
             String requestMessageXML = null;
             try
             {
                 requestMessageXML = requestMessage.translateToXML(false);
-                
-//                System.out.println("sending: "+requestMessageXML);
 
                 if (requestMessageXML.getBytes().length > ServerConstants.MAX_PACKET_SIZE)
                 {
@@ -180,25 +187,19 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                 }
 
                 output.println(requestMessageXML);
-
+                
                 if (show(5))
                     debug("Services Client: just sent message: "
                             + requestMessageXML);
-                String response;
 
                 if (show(5))
                     debug("Services Client: awaiting a response");
-                
-                //response = readToMax(in);
-                
+
                 response = reader.readLine();
-
-//                System.out.println("received: " + response);
-
+                
                 responseMessage = (ResponseMessage) ResponseMessage
                         .translateFromXMLString(response, translationSpace);
-
-                // if (responseMessage.response.equals(BADTransmission))
+                
                 if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
                 {
                     badTransmissionCount++;
@@ -218,12 +219,14 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                     processResponse(responseMessage);
                     transactionComplete = true;
                 }
+
             } catch (Exception e)
             {
                 debug("ERROR: Failed sending " + requestMessage + ": " + e);
                 transactionComplete = true;
             }
         }
+
         return responseMessage;
-    }    
+    }
 }

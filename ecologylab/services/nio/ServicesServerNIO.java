@@ -41,6 +41,8 @@ public class ServicesServerNIO extends ServicesServerBase implements
 
     private CharsetEncoder         encoder = charset.newEncoder();
 
+    private Iterator               selectedKeyIter;
+
     public ServicesServerNIO(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
@@ -59,6 +61,7 @@ public class ServicesServerNIO extends ServicesServerBase implements
         serverSocket = channel.socket();
 
         // bind to the port for this server
+        System.err.println("Asdf");
         serverSocket.bind(new InetSocketAddress(portNumber));
 
         // register the channel with the selector to look for incoming
@@ -75,12 +78,10 @@ public class ServicesServerNIO extends ServicesServerBase implements
             try
             {
                 // block until some connection has something to do
-                if (selector.select(100) > 0)
+                if (selector.select() > 0)
                 {
-
                     // get an iterator of the keys that have something to do
-                    Iterator selectedKeyIter = selector.selectedKeys()
-                            .iterator();
+                    selectedKeyIter = selector.selectedKeys().iterator();
 
                     while (selectedKeyIter.hasNext())
                     {
@@ -88,6 +89,8 @@ public class ServicesServerNIO extends ServicesServerBase implements
                         // appropriately
                         SelectionKey key = (SelectionKey) selectedKeyIter
                                 .next();
+
+                        selectedKeyIter.remove();
 
                         if (key.isAcceptable())
                         { // incoming connection
@@ -108,12 +111,10 @@ public class ServicesServerNIO extends ServicesServerBase implements
                                     + tempChannel);
                         }
 
-                        if (key.isReadable())
+                        if (key.isReadable() && key.isValid())
                         { // incoming message
                             messageProcessors.addKey(key);
                         }
-
-                        selectedKeyIter.remove();
                     }
                 }
             } catch (IOException e)
@@ -137,6 +138,7 @@ public class ServicesServerNIO extends ServicesServerBase implements
      */
     protected void sendResponse(ResponseMessage responseMessage, Channel channel)
     {
+//        long sendResponseTime = System.currentTimeMillis();
         buffer.clear();
 
         try
@@ -152,7 +154,10 @@ public class ServicesServerNIO extends ServicesServerBase implements
                 buffer.put(encoder.encode(CharBuffer.wrap(tempMsg)));
                 buffer.flip();
 
+  //              long writeTime = System.currentTimeMillis();
                 ((SocketChannel) channel).write(buffer);
+//                System.err.println("time to use channel.write(): "
+    //                    + (System.currentTimeMillis() - writeTime));
             }
         } catch (XmlTranslationException e)
         {
@@ -163,6 +168,8 @@ public class ServicesServerNIO extends ServicesServerBase implements
         }
 
         buffer.clear();
+//        System.err.println("Total time for sendResponse(): "
+  //              + (System.currentTimeMillis() - sendResponseTime));
     }
 
     public boolean start()
