@@ -3,13 +3,10 @@
  */
 package ecologylab.services.nio;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.LinkedList;
@@ -56,9 +53,9 @@ public class MessageProcessor extends Debug implements Runnable,
   //  private int                    bytesRead;
 
     // private Charset charset = Charset.forName("ISO-8859-1");
-//    private Charset                charset      = Charset.forName("ASCII");
+    private Charset                charset      = Charset.forName("ASCII");
 
-//    private CharsetDecoder         decoder      = charset.newDecoder();
+    private CharsetDecoder         decoder      = charset.newDecoder();
 
     private NameSpace              translationSpace;
 
@@ -100,12 +97,10 @@ public class MessageProcessor extends Debug implements Runnable,
          //   {
                 // rawBytes.flip();
 
-//                messageChars = decoder.decode(rawBytes);
-
                 // System.out.println("got this message: \""
                 // + messageChars.toString() + "\"");
 //
-//                accumulator = accumulator.append(messageChars.toString());
+                accumulator = accumulator.append(decoder.decode(rawBytes).toString());
 
                 accumulator.append(rawBytes.asCharBuffer());
                 
