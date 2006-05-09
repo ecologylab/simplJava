@@ -122,6 +122,8 @@ public class AuthServer extends ServicesServer implements
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
 
+        this.objectRegistry = objectRegistry;
+        
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
         this.objectRegistry
