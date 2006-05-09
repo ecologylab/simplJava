@@ -42,6 +42,8 @@ public class ServicesServerNIO extends ServicesServerBase implements
     private CharsetEncoder         encoder = charset.newEncoder();
 
     private Iterator               selectedKeyIter;
+    
+    private String                  tempMsg;
 
     public ServicesServerNIO(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
@@ -136,7 +138,7 @@ public class ServicesServerNIO extends ServicesServerBase implements
      * @param responseMessage
      * @param channel
      */
-    protected void sendResponse(ResponseMessage responseMessage, Channel channel)
+    protected void sendResponse(CharBuffer responseMessage, Channel channel)
     {
 //        long sendResponseTime = System.currentTimeMillis();
         buffer.clear();
@@ -145,23 +147,11 @@ public class ServicesServerNIO extends ServicesServerBase implements
         {
             if (responseMessage != null)
             {
-                String tempMsg = responseMessage.translateToXML(false);
-
-                // System.out.println("sending: "+tempMsg);
-
-                tempMsg = tempMsg.concat("\n");
-
-                buffer.put(encoder.encode(CharBuffer.wrap(tempMsg)));
+                buffer.put(encoder.encode(responseMessage));
                 buffer.flip();
 
-  //              long writeTime = System.currentTimeMillis();
                 ((SocketChannel) channel).write(buffer);
-//                System.err.println("time to use channel.write(): "
-    //                    + (System.currentTimeMillis() - writeTime));
             }
-        } catch (XmlTranslationException e)
-        {
-            e.printStackTrace();
         } catch (IOException e)
         {
             e.printStackTrace();

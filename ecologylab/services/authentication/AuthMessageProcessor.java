@@ -88,7 +88,7 @@ public class AuthMessageProcessor extends MessageProcessor implements
                     
                     ((HashMap) (registry)
                             .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                            .remove(((Login) requestMessage).getEntry()
+                            .remove(((Logout) requestMessage).entry
                                     .getUsername());
 
                     ((HashMap) (registry)

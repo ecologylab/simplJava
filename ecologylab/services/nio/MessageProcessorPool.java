@@ -3,12 +3,14 @@
  */
 package ecologylab.services.nio;
 
+import java.nio.CharBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.XmlTranslationException;
 
 /**
  * Maintains a pool of MessageProcessors for use by an NIO Services Server.
@@ -24,6 +26,8 @@ public class MessageProcessorPool extends Debug
     protected HashMap           pool = new HashMap();
 
     protected ServicesServerNIO server;
+    
+    private CharBuffer temp;
 
     public MessageProcessorPool(ServicesServerNIO server)
     {
@@ -75,7 +79,18 @@ public class MessageProcessorPool extends Debug
      */
     public void messageProcessed(ResponseMessage response, Channel channel)
     {
-        server.sendResponse(response, channel);
+        try
+        {
+            synchronized(response)
+            {
+                server.sendResponse(CharBuffer.wrap(response.translateToXML(false).concat("\n")), channel);
+            }
+            
+        } catch (XmlTranslationException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**

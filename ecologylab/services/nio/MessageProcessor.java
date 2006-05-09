@@ -45,12 +45,12 @@ public class MessageProcessor extends Debug implements Runnable,
     private ByteBuffer             rawBytes     = ByteBuffer
                                                         .allocate(MAX_PACKET_SIZE);
 
-//    private CharBuffer             messageChars = CharBuffer
-  //                                                      .allocate(MAX_PACKET_SIZE);
+    // private CharBuffer messageChars = CharBuffer
+    // .allocate(MAX_PACKET_SIZE);
 
     private LinkedList             messageQueue = new LinkedList();
 
-  //  private int                    bytesRead;
+    // private int bytesRead;
 
     // private Charset charset = Charset.forName("ISO-8859-1");
     private Charset                charset      = Charset.forName("ASCII");
@@ -82,66 +82,43 @@ public class MessageProcessor extends Debug implements Runnable,
         if (token.equals(key.attachment()))
         {
             rawBytes.clear();
-            
-//            bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
+
+            // bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
             ((SocketChannel) key.channel()).read(rawBytes);
-            
+
             rawBytes.flip();
 
             if (show(5))
                 debug("got raw message: " + rawBytes.remaining());
 
-            // if (bytesRead > 0)
-            // {
-       //     try
-         //   {
-                // rawBytes.flip();
+            accumulator.append(decoder.decode(rawBytes).toString());
 
-                // System.out.println("got this message: \""
-                // + messageChars.toString() + "\"");
-//
-                accumulator = accumulator.append(decoder.decode(rawBytes).toString());
-
-                accumulator.append(rawBytes.asCharBuffer());
-                
-                if (accumulator.length() > 0)
-                {
-                    if ((accumulator.charAt(accumulator.length() - 1) == '\n')
-                            || (accumulator.charAt(accumulator.length() - 1) == '\r'))
-                    { // when we have accumulated an entire message,
-                        // process it
-
-                        messageQueue.add(accumulator.toString());
-
-                        if (thread == null)
-                        {
-                            thread = new Thread(this, "Message Processor for "
-                                    + token);
-                            thread.start();
-                        }
-
-                        synchronized (this)
-                        {
-                            notify();
-                        }
-                        // clear the accumulator
-//                        accumulator = new StringBuffer();
-                        accumulator.delete(0, accumulator.length());
-
-                    }
-                }
-
-                // clear the buffers
- //               rawBytes.clear();
-//                messageChars.clear();
-//                bytesRead = 0;
-
-/*            } catch (CharacterCodingException e)
+            if (accumulator.length() > 0)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if ((accumulator.charAt(accumulator.length() - 1) == '\n')
+                        || (accumulator.charAt(accumulator.length() - 1) == '\r'))
+                { // when we have accumulated an entire message,
+                    // process it
+
+                    messageQueue.add(accumulator.toString());
+
+                    if (thread == null)
+                    {
+                        thread = new Thread(this, "Message Processor for "
+                                + token);
+                        thread.start();
+                    }
+
+                    synchronized (this)
+                    {
+                        notify();
+                    }
+                    // clear the accumulator
+                    // accumulator = new StringBuffer();
+                    accumulator.delete(0, accumulator.length());
+
+                }
             }
-*/
         } else
         {
             throw new Exception("Token mismatch!");
@@ -197,8 +174,13 @@ public class MessageProcessor extends Debug implements Runnable,
             {
                 try
                 {
-                    request = translateXMLStringToRequestMessage((String) messageQueue
-                            .removeFirst());
+                    //String temp = (String) messageQueue
+//                    .removeFirst();
+                    
+//                    System.out.println(temp);
+                    
+  //                  request = translateXMLStringToRequestMessage(temp);
+                    request = translateXMLStringToRequestMessage((String) messageQueue.removeFirst());
                 } catch (XmlTranslationException e)
                 {
                     e.printStackTrace();
@@ -212,7 +194,7 @@ public class MessageProcessor extends Debug implements Runnable,
                 {
                     // perform the service being requested
                     response = performService(request);
-
+                    
                     pool.messageProcessed(response, channel);
 
                     // TODO bad transmissions
