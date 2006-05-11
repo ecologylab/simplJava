@@ -6,6 +6,7 @@ package ecologylab.services.nio;
 import java.nio.CharBuffer;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 import ecologylab.generic.Debug;
@@ -85,12 +86,14 @@ public class MessageProcessorPool extends Debug
             {
                 server.sendResponse(CharBuffer.wrap(response.translateToXML(false).concat("\n")), channel);
             }
-            
+        } catch (ConcurrentModificationException e1)
+        {
+            System.out.println("something was concurrently modified; retrying.");
+            this.messageProcessed(response, channel);
         } catch (XmlTranslationException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        } 
     }
 
     /**
