@@ -28,30 +28,13 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ServicesServer extends ServicesServerBase
 {
-	private int				portNumber;
-	protected ServerSocket	serverSocket;
-	
-	boolean					finished;
-	
 	Thread					thread;
-	
-	/**
-	 * Space that defines mappings between xml names, and Java class names,
-	 * for request messages.
-	 */
-	NameSpace		requestTranslationSpace;
-	
-	/**
-	 * Provides a context for request processing.
-	 */
-	protected ObjectRegistry	objectRegistry;
-	
+		
 	Vector			serverToClientConnections		= new Vector();
 	/**
 	 * Limit the maximum number of client connection to the server
 	 */
 	private static int		maxConnectionSize				= 50;
-	private int				connectionCount					= 0;
 
 	/**
 	 * This is the actual way to create an instance of this.
