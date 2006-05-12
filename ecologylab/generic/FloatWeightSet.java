@@ -299,9 +299,17 @@ extends Debug implements BasicFloatSet
    public synchronized FloatSetElement maxSelect()
    {
       int size			= this.size;
-      if (size <= 1)		// degenerate case
-		 return null;
-
+      switch (size)
+      {
+      case 0:	// should never happen cause of sentinel
+      case 1:	// degenerate case (look out for the sentinel!)
+    	  return null;
+      case 2:
+    	  return elements[1];
+      default:	// now, size >= 3!
+    	  break;
+      }
+      
       if (maxArrayList == null)
       {
 		 int arrayListSize	= size / 4;
@@ -312,10 +320,11 @@ extends Debug implements BasicFloatSet
       else
 		 maxArrayList.clear();
       
-      int maxIndex		= MathTools.random(size-1) + 1;
-      FloatSetElement result	= elements[maxIndex];
+      //int maxIndex		= MathTools.random(size-1) + 1;
+      int maxIndex			= 1;
+      FloatSetElement result= elements[maxIndex];
       float maxWeight		= result.getWeight();
-      for (int i=1; i<size; i++)
+      for (int i=2; i<size; i++)
       {
 		 FloatSetElement thatElement	= elements[i];
 		 if (thatElement != this.sentinel) // never pick the sentinel!
