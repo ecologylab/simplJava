@@ -258,6 +258,8 @@ implements Environment
 	}
 	
 	static final String FIREFOX_PATH_WINDOWS	= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+	static final String IE_PATH_WINDOWS			= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
+	
 	static File	firefoxFileCache;
 	
 	static File getFirefoxFile()
@@ -279,7 +281,7 @@ implements Environment
 		{
 		case PropertiesAndDirectories.WINDOWS:
 			File firefoxFile	= getFirefoxFile();
-			cmd	= (Generic.parameterBool("navigate_with_ie") || !firefoxFile.exists()) ? "iexplore" : FIREFOX_PATH_WINDOWS; 
+			cmd	= (Generic.parameterBool("navigate_with_ie") || !firefoxFile.exists()) ? IE_PATH_WINDOWS : FIREFOX_PATH_WINDOWS; 
 			cmd	+= " " + purl; //" \"" + purl + "\"";
 			Debug.println(cmd);
 			try {
