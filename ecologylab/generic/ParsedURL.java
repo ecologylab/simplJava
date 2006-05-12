@@ -442,8 +442,14 @@ extends Debug
       "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", 
    };
    static final HashMap imgMimes = 
-      Generic.buildHashMapFromStrings(imgMimeStrings);
-   static final String[] htmlMimeStrings	=
+	      Generic.buildHashMapFromStrings(imgMimeStrings);
+   static final String[] jpegMimeStrings	=
+   {
+      "jpg", "jpeg", "pjpg", "pjpeg", 
+   };
+   static final HashMap jpegMimes = 
+	      Generic.buildHashMapFromStrings(jpegMimeStrings);
+    static final String[] htmlMimeStrings	=
    {
       "html", "htm", "stm", "php", "jhtml", "jsp", "asp", "txt", "shtml",
       "pl", "plx", "exe"
@@ -758,7 +764,7 @@ extends Debug
    }
    
    /**
-    * @param	suffix	file name suffix in lower case.
+    * @return	true if this is an image file.
     */
     public boolean isImg()
     {
@@ -766,6 +772,15 @@ extends Debug
         return (suffix != null) && (suffix.length() != 0) && 
 		 	imgMimes.containsKey(suffix);
     }
+    /**
+     * @return	true if this is a JPEG image file.
+     */
+     public boolean isJpeg()
+     {
+        suffix = suffix();
+         return (suffix != null) && (suffix.length() != 0) && 
+ 		 	jpegMimes.containsKey(suffix);
+     }
     
    /**
     * @param	suffix	file name suffix in lower case.
