@@ -1,16 +1,18 @@
 /*
  * Created on May 4, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.nio;
 
 import java.net.InetAddress;
-import java.nio.channels.Channel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -18,19 +20,17 @@ import ecologylab.services.nio.MessageProcessor;
 import ecologylab.xml.NameSpace;
 
 public class AuthMessageProcessor extends MessageProcessor implements
-        RegistryObjectsServerAuthentication, AuthMessages
+        AuthServerRegistryObjects, AuthMessages
 {
     private boolean     loggedIn      = false;
 
     private InetAddress clientAddress = null;
 
-    public AuthMessageProcessor(AuthMessageProcessorPool pool, Channel channel,
-            Object token, NameSpace translationSpace, ObjectRegistry registry,
-            InetAddress clientAddress)
+    public AuthMessageProcessor(SelectionKey key, NameSpace translationSpace, ObjectRegistry registry)
     {
-        super(pool, channel, token, translationSpace, registry);
+        super(key, translationSpace, registry);
         
-        this.clientAddress = clientAddress;
+        this.clientAddress = ((SocketChannel)key.channel()).socket().getInetAddress();
     }
 
     /**
@@ -62,11 +62,11 @@ public class AuthMessageProcessor extends MessageProcessor implements
                     ((HashMap) (registry)
                             .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
                             .put(((Login) requestMessage).getEntry()
-                                    .getUsername(), token);
+                                    .getUsername(), key.attachment());
 
                     ((HashMap) (registry)
                             .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN)).put(
-                            token, ((Login) requestMessage).getEntry()
+                            key.attachment(), ((Login) requestMessage).getEntry()
                                     .getUsername());
                 }
 
@@ -93,7 +93,7 @@ public class AuthMessageProcessor extends MessageProcessor implements
 
                     ((HashMap) (registry)
                             .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN)).remove(
-                            token);
+                            key.attachment());
                 }
             } else
             {

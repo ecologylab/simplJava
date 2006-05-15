@@ -1,7 +1,7 @@
 /*
  * Created on Apr 17, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.registryobjects;
 
 /**
  * Interface of constants used for the object registry in an authenticating
@@ -9,7 +9,7 @@ package ecologylab.services.authentication;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public interface RegistryObjectsServerAuthentication
+public interface AuthServerRegistryObjects
 {
 
     /**

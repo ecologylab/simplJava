@@ -205,7 +205,7 @@ public class ServicesServer extends ServicesServerBase
 		}
 	}
     
-	public synchronized boolean stop()
+	public synchronized void stop()
 	{
 		debug("stopping.");
         
@@ -227,14 +227,10 @@ public class ServicesServer extends ServicesServerBase
 		}
         
 		connectionCount = 0;
-        
-        return true;
 	}
     
-	public boolean start()
+	public void start()
 	{
 		start(Thread.NORM_PRIORITY);
-        
-        return true;
 	}
 }

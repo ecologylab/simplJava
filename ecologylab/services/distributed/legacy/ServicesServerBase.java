@@ -14,6 +14,7 @@ import sun.misc.BASE64Encoder;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;

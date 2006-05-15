@@ -10,12 +10,14 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
+import ecologylab.xml.XmlTranslationException;
 
 public abstract class ServicesClientBase extends Debug implements
         ClientConstants
 {
-    protected Socket         sock;
+    protected Socket         socket;
 
     protected int            port;
 
@@ -60,7 +62,7 @@ public abstract class ServicesClientBase extends Debug implements
     public abstract void disconnect();
     public abstract boolean connected();
     protected abstract boolean createConnection();
-    public abstract ResponseMessage sendMessage(RequestMessage request);
+    public abstract void sendMessage(RequestMessage request);
     
     /**
      * Check to see if the server is running.
@@ -86,6 +88,28 @@ public abstract class ServicesClientBase extends Debug implements
             // try again soon
             Generic.sleep(CONNECTION_RETRY_SLEEP_INTERVAL);
         }
+    }
+    
+    /**
+     * Use the ServicesClient and its NameSpace to do the translation. Can
+     * be overridden to provide special functionalities
+     * 
+     * @param messageString
+     * @return
+     * @throws XmlTranslationException
+     */
+    protected ResponseMessage translateXMLStringToResponseMessage(
+            String messageString) throws XmlTranslationException
+    {
+        return translateXMLStringToResponseMessage(messageString, true);
+    }
+
+    public ResponseMessage translateXMLStringToResponseMessage(
+            String messageString, boolean doRecursiveDescent)
+            throws XmlTranslationException
+    {
+        return (ResponseMessage) ElementState.translateFromXMLString(
+                messageString, translationSpace, doRecursiveDescent);
     }
     
     /**

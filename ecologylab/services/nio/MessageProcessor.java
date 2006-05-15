@@ -3,15 +3,18 @@
  */
 package ecologylab.services.nio;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channel;
+import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.LinkedList;
+import java.nio.charset.CharsetEncoder;
 
 import ecologylab.services.ServerConstants;
+import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -28,109 +31,78 @@ import ecologylab.generic.ObjectRegistry;
 public class MessageProcessor extends Debug implements Runnable,
         ServerConstants
 {
-    protected Object               token;
+    private SocketChannel     channel;
 
-    private Channel                channel;
+    private StringBuffer      accumulator    = new StringBuffer();
 
-    private StringBuffer           accumulator  = new StringBuffer();
+    protected ResponseMessage response       = new BadSemanticContentResponse();
 
-    protected MessageProcessorPool pool;
+    private RequestMessage    request;
 
-    protected ResponseMessage      response;
+    private Thread            thread;
 
-    private RequestMessage         request;
+    private ByteBuffer        rawBytes       = ByteBuffer
+                                                     .allocate(MAX_PACKET_SIZE);
 
-    private Thread                 thread;
-
-    private ByteBuffer             rawBytes     = ByteBuffer
-                                                        .allocate(MAX_PACKET_SIZE);
-
-    // private CharBuffer messageChars = CharBuffer
-    // .allocate(MAX_PACKET_SIZE);
-
-    private LinkedList             messageQueue = new LinkedList();
-
-    // private int bytesRead;
+    private CharBuffer        outgoingChars  = CharBuffer
+                                                     .allocate(MAX_PACKET_SIZE);
 
     // private Charset charset = Charset.forName("ISO-8859-1");
-    private Charset                charset      = Charset.forName("ASCII");
+    private Charset           charset        = Charset.forName("ASCII");
 
-    private CharsetDecoder         decoder      = charset.newDecoder();
+    private CharsetDecoder    decoder        = charset.newDecoder();
 
-    private NameSpace              translationSpace;
+    private CharsetEncoder    encoder        = charset.newEncoder();
 
-    protected ObjectRegistry       registry;
+    private NameSpace         translationSpace;
 
-    boolean                        running      = true;
+    protected ObjectRegistry  registry;
 
-    public MessageProcessor(MessageProcessorPool pool, Channel channel,
-            Object token, NameSpace translationSpace, ObjectRegistry registry)
+    private boolean           running        = true;
+
+    protected SelectionKey    key            = null;
+
+    private boolean           messageWaiting = false;
+
+    private int               bytesRead      = 0;
+
+    public MessageProcessor(SelectionKey key, NameSpace translationSpace,
+            ObjectRegistry registry)
     {
-        this.pool = pool;
+        this.key = key;
 
-        this.channel = channel;
-
-        this.token = token;
+        channel = (SocketChannel) key.channel();
 
         this.translationSpace = translationSpace;
 
         this.registry = registry;
     }
 
-    public void process(SelectionKey key) throws Exception
+    /**
+     * Disables read notifications on the key associated with this, then
+     * notifies the run method to process it.
+     * 
+     * @throws Exception
+     */
+    public synchronized void process() throws Exception
     {
-        if (token.equals(key.attachment()))
+        if (thread == null)
         {
-            rawBytes.clear();
-
-            // bytesRead = ((SocketChannel) key.channel()).read(rawBytes);
-            ((SocketChannel) key.channel()).read(rawBytes);
-
-            rawBytes.flip();
-
-            if (show(5))
-                debug("got raw message: " + rawBytes.remaining());
-
-            accumulator.append(decoder.decode(rawBytes).toString());
-
-            if (accumulator.length() > 0)
-            {
-                if ((accumulator.charAt(accumulator.length() - 1) == '\n')
-                        || (accumulator.charAt(accumulator.length() - 1) == '\r'))
-                { // when we have accumulated an entire message,
-                    // process it
-
-                    messageQueue.add(accumulator.toString());
-
-                    if (thread == null)
-                    {
-                        thread = new Thread(this, "Message Processor for "
-                                + token);
-                        thread.start();
-                    }
-
-                    synchronized (this)
-                    {
-                        notify();
-                    }
-                    // clear the accumulator
-                    // accumulator = new StringBuffer();
-                    accumulator.delete(0, accumulator.length());
-
-                }
-            }
-        } else
-        {
-            throw new Exception("Token mismatch!");
+            thread = new Thread(this, "Message Processor for "
+                    + key.attachment());
+            thread.start();
         }
+
+        // tell the run method to wake up.
+        messageWaiting = true;
+
+        notify();
     }
 
     /**
      * Calls performService on the given RequestMessage using the local
-     * ObjectRegistry.
-     * 
-     * Can be overridden by subclasses to provide more specialized
-     * functionality.
+     * ObjectRegistry. Can be overridden by subclasses to provide more
+     * specialized functionality.
      * 
      * @param requestMessage
      * @return
@@ -166,51 +138,145 @@ public class MessageProcessor extends Debug implements Runnable,
      * Processes the next String in the messageQueue, sleeps when there are none
      * left.
      */
-    public void run()
+    public synchronized void run()
     {
         while (running)
         {
-            while (messageQueue.size() > 0)
+            long time = System.currentTimeMillis();
+            
+            try
             {
-                try
+                while ((bytesRead = channel.read(rawBytes)) > 0)
                 {
-                    //String temp = (String) messageQueue
-//                    .removeFirst();
-                    
-//                    System.out.println(temp);
-                    
-  //                  request = translateXMLStringToRequestMessage(temp);
-                    request = translateXMLStringToRequestMessage((String) messageQueue.removeFirst());
-                } catch (XmlTranslationException e)
-                {
-                    e.printStackTrace();
+                    if (bytesRead < MAX_PACKET_SIZE)
+                    {
+                        rawBytes.flip();
+
+                        accumulator.append(decoder.decode(rawBytes));
+
+                        rawBytes.clear();
+
+                        if (accumulator.length() > 0)
+                        {
+                            if ((accumulator.charAt(accumulator.length() - 1) == '\n')
+                                    || (accumulator
+                                            .charAt(accumulator.length() - 1) == '\r'))
+                            { // when we have accumulated an entire message,
+                                // process it
+
+                                // in case we have several messages that are
+                                // split by returns
+                                while (accumulator.length() > 0)
+                                {
+                                    // transform the message into a request and
+                                    // perform the service
+                                    // long time = System.currentTimeMillis();
+
+                                    processString(accumulator.substring(0,
+                                            accumulator.indexOf("\n")));
+
+                                    // System.out.println("time:
+                                    // "+(System.currentTimeMillis()-time));
+
+                                    // erase the message from the accumulator
+                                    accumulator.delete(0, accumulator
+                                            .indexOf("\n") + 1);
+                                    
+                                    System.out.println("time to process: "+(System.currentTimeMillis() - time));
+                                    
+                                    time = System.currentTimeMillis();
+                                }
+                            }
+                        }
+
+                        messageWaiting = false;
+                    } else
+                    { // TODO might be able to catch too large messages
+                        // better.
+                        debug("Packet too large. Terminating connection.");
+                        running = false;
+                        break;
+                    }
                 }
-
-                if (request == null)
-                {
-                    debug("ERROR: translation failed: ");
-
-                } else
-                {
-                    // perform the service being requested
-                    response = performService(request);
-                    
-                    pool.messageProcessed(response, channel);
-
-                    // TODO bad transmissions
-                }
+            } catch (CharacterCodingException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (IOException e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
+
+            // re-enable reading on the key and wake up the selector.
+            key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+            key.selector().wakeup();
 
             try
             {
-                synchronized (this)
+                while (!messageWaiting)
                 {
-                    while (messageQueue.size() == 0)
-                        wait();
+                    wait();
                 }
             } catch (InterruptedException e)
             {
+                e.printStackTrace();
+                thread.interrupted();
             }
         }
+        // }
     }
+
+    private void processString(String incomingMessage)
+    {
+        try
+        {
+            request = translateXMLStringToRequestMessage(incomingMessage);
+
+        } catch (XmlTranslationException e)
+        {
+            e.printStackTrace();
+        }
+
+        if (request == null)
+        {
+            debug("ERROR: translation failed: ");
+
+        } else
+        {
+            // perform the service being requested
+            response = performService(request);
+
+            if (response != null)
+            { // if the response is null, then we do nothing else
+                try
+                {
+                    // System.out.println("response: "
+                    // + response.translateToXML(false));
+                    // translate the response and store it, then
+                    // encode it and write it
+                    outgoingChars.clear();
+                    outgoingChars.put(response.translateToXML(false)).put('\n');
+                    outgoingChars.flip();
+
+                    channel.write(encoder.encode(outgoingChars));
+
+                } catch (XmlTranslationException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (CharacterCodingException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+    
 }

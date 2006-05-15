@@ -6,44 +6,30 @@ package ecologylab.services.nio;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServerBase;
-import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.NameSpace;
-import ecologylab.xml.XmlTranslationException;
 
 public class ServicesServerNIO extends ServicesServerBase implements
         ServerConstants
 {
-    private Selector               selector;
+    private Selector     selector;
 
-    private boolean                running;
+    private boolean      running;
 
-    protected MessageProcessorPool messageProcessors;
+    private Iterator     selectedKeyIter;
 
-    private ByteBuffer             buffer  = ByteBuffer
-                                                   .allocate(MAX_PACKET_SIZE);
+    private SelectionKey key  = null;
 
-    // private Charset charset = Charset.forName("ISO-8859-1");
-    private Charset                charset = Charset.forName("ASCII");
-
-    private CharsetEncoder         encoder = charset.newEncoder();
-
-    private Iterator               selectedKeyIter;
-    
-    private String                  tempMsg;
+    protected HashMap    pool = new HashMap();
 
     public ServicesServerNIO(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
@@ -63,18 +49,18 @@ public class ServicesServerNIO extends ServicesServerBase implements
         serverSocket = channel.socket();
 
         // bind to the port for this server
-        System.err.println("Asdf");
         serverSocket.bind(new InetSocketAddress(portNumber));
 
         // register the channel with the selector to look for incoming
         // accept requests
         channel.register(selector, SelectionKey.OP_ACCEPT);
-
-        messageProcessors = new MessageProcessorPool(this);
     }
 
     public void run()
     {
+        long timer = System.currentTimeMillis();
+        long timeDiff;
+
         while (running)
         {
             try
@@ -89,36 +75,63 @@ public class ServicesServerNIO extends ServicesServerBase implements
                     {
                         // get the key corresponding to the event and process it
                         // appropriately
-                        SelectionKey key = (SelectionKey) selectedKeyIter
-                                .next();
+                        key = (SelectionKey) selectedKeyIter.next();
 
                         selectedKeyIter.remove();
 
                         if (key.isAcceptable())
                         { // incoming connection
-                            SocketChannel tempChannel = ((ServerSocketChannel) key
-                                    .channel()).accept();
-
-                            tempChannel.configureBlocking(false);
-
-                            // when we register, we want to attach the proper
-                            // session token to all of the keys associated with
-                            // this connection, so we can sort them out later.
-                            tempChannel.register(selector,
-                                    SelectionKey.OP_READ, this
-                                            .generateSessionToken(tempChannel
-                                                    .socket()));
-
-                            System.out.println("Now connected to "
-                                    + tempChannel);
+                            acceptKey(key);
                         }
 
-                        if (key.isReadable() && key.isValid())
+                        if (key.isReadable())
                         { // incoming message
-                            messageProcessors.addKey(key);
+                            // disable the key for reading; done here to prevent
+                            // any issues with hanging select()'s
+                            key.interestOps(key.interestOps()
+                                    & (~SelectionKey.OP_READ));
+
+                            if (key.attachment() != null)
+                            {
+                                if (!pool.containsKey(key.attachment()))
+                                {
+                                    placeKeyInPool(key);
+                                }
+
+                                try
+                                {
+                                    ((MessageProcessor) pool.get(key
+                                            .attachment())).process();
+                                } catch (Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            } else
+                            {
+                                debug("Null token!");
+                            }
+                            // messageProcessors.addKey(key);
+                        }
+                    }
+                } else if ((timeDiff = (System.currentTimeMillis() - timer)) < MAX_TARDINESS)
+                {
+                    // System.out.println("server waiting: "+timeDiff);
+
+                    synchronized (this)
+                    {
+                        try
+                        {
+                            wait(MAX_TARDINESS - timeDiff);
+                        } catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
                         }
                     }
                 }
+                // System.err.println("hi "+(System.currentTimeMillis() -
+                // timer));
+                timer = System.currentTimeMillis();
+
             } catch (IOException e)
             {
                 this.stop();
@@ -129,64 +142,65 @@ public class ServicesServerNIO extends ServicesServerBase implements
             }
 
         }
-    }
-
-    /**
-     * Clears this.buffer, then translates responseMessage to XML and writes it
-     * to the buffer. Writes the buffer to channel and clears it.
-     * 
-     * @param responseMessage
-     * @param channel
-     */
-    protected void sendResponse(CharBuffer responseMessage, Channel channel)
-    {
-//        long sendResponseTime = System.currentTimeMillis();
-        buffer.clear();
 
         try
         {
-            if (responseMessage != null)
-            {
-                buffer.put(encoder.encode(responseMessage));
-                buffer.flip();
-
-                ((SocketChannel) channel).write(buffer);
-            }
+            selector.close();
         } catch (IOException e)
         {
             e.printStackTrace();
         }
-
-        buffer.clear();
-//        System.err.println("Total time for sendResponse(): "
-  //              + (System.currentTimeMillis() - sendResponseTime));
     }
 
-    public boolean start()
+    protected SocketChannel acceptKey(SelectionKey key)
+    {
+        try
+        {
+            SocketChannel tempChannel = ((ServerSocketChannel) key.channel())
+                    .accept();
+
+            tempChannel.configureBlocking(false);
+
+            // when we register, we want to attach the proper
+            // session token to all of the keys associated with
+            // this connection, so we can sort them out later.
+            tempChannel.register(selector, SelectionKey.OP_READ, this
+                    .generateSessionToken(tempChannel.socket()));
+
+            System.out.println("Now connected to " + tempChannel);
+            
+            return tempChannel;
+
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Hook method to allow subclasses to specify what kind of MessageProcessor
+     * to use.
+     * 
+     * @param key
+     */
+    protected void placeKeyInPool(SelectionKey key)
+    {
+        pool.put(key.attachment(), new MessageProcessor(key,
+                requestTranslationSpace, objectRegistry));
+    }
+
+    public void start()
     {
         // start the server running
         running = true;
 
         new Thread(this, "NIO Server running on port " + portNumber).start();
-
-        return true;
     }
 
-    public synchronized boolean stop()
+    public synchronized void stop()
     {
-        try
-        {
-            running = false;
-
-            selector.close();
-
-            return true;
-
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-
-            return false;
-        }
+        running = false;
     }
 }

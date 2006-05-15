@@ -9,6 +9,24 @@ import ecologylab.xml.ElementState;
  */
 public class ServiceMessage extends ElementState 
 {
+    public long timeStamp = 0;
+    
+    /**
+     * Sets timeStamp to equal the current system time in milliseconds.
+     *
+     */
+    public void stampTime()
+    {
+        timeStamp = System.currentTimeMillis();
+    }
+
+    /**
+     * @return Returns the timeStamp in milliseconds.
+     */
+    public long getTimeStamp()
+    {
+        return timeStamp;
+    }
 	
 }
 

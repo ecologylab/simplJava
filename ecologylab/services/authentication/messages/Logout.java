@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationListEntry;
-import ecologylab.services.authentication.RegistryObjectsServerAuthentication;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -20,7 +20,7 @@ import ecologylab.services.messages.ResponseMessage;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class Logout extends RequestMessage implements AuthMessages,
-        RegistryObjectsServerAuthentication
+        AuthServerRegistryObjects
 {
 
     public AuthenticationListEntry entry = new AuthenticationListEntry("", "");

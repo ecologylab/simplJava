@@ -80,24 +80,24 @@ public class ServicesClient extends ServicesClientBase implements
             // address = InetAddress.getLocalHost();
             // get the address and connect
             address = InetAddress.getByName(server);
-            sock = new Socket(address, port);
+            socket = new Socket(address, port);
 
-            // in = sock.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(sock
+            // in = socket.getInputStream();
+            reader = new BufferedReader(new InputStreamReader(socket
                     .getInputStream()));
-            output = new PrintStream(sock.getOutputStream());
+            output = new PrintStream(socket.getOutputStream());
         } catch (BindException e)
         {
             debug("Couldnt create socket connection to server '" + server
                     + "': " + e);
             // e.printStackTrace();
-            sock = null;
+            socket = null;
         } catch (PortUnreachableException e)
         {
             debug("Server is alive, but has no daemon on port " + port + ": "
                     + e);
             // e.printStackTrace();
-            sock = null;
+            socket = null;
         } catch (SocketException e)
         {
             debug("Server '" + server + "' unreachable: " + e);
@@ -105,9 +105,9 @@ public class ServicesClient extends ServicesClientBase implements
         {
             debug("Bad response from server: " + e);
             // e.printStackTrace();
-            sock = null;
+            socket = null;
         }
-        return sock != null;
+        return socket != null;
     }
 
     public String toString()
@@ -128,7 +128,7 @@ public class ServicesClient extends ServicesClientBase implements
      */
     public boolean connected()
     {
-        return (sock != null);
+        return (socket != null);
     }
 
     /**
@@ -140,9 +140,9 @@ public class ServicesClient extends ServicesClientBase implements
         {
             try
             {
-                sock.close();
+                socket.close();
                 System.out.println("Closed the connection.");
-                sock = null;
+                socket = null;
             } catch (IOException e)
             {
                 e.printStackTrace();
@@ -163,7 +163,7 @@ public class ServicesClient extends ServicesClientBase implements
      *         somehow. 2) XmlTranslationException: The message was malformed or
      *         translation failed strangely.
      */
-    public ResponseMessage sendMessage(RequestMessage requestMessage)
+    public void sendMessage(RequestMessage requestMessage)
     {
         if (!connected())
             createConnection();
@@ -177,11 +177,12 @@ public class ServicesClient extends ServicesClientBase implements
             String requestMessageXML = null;
             try
             {
+//                requestMessage.stampTime();
                 requestMessageXML = requestMessage.translateToXML(false);
 
                 if (requestMessageXML.getBytes().length > ServerConstants.MAX_PACKET_SIZE)
                 {
-                    debug("requestMessage is Bigger than accetable server size \n CANNOT SEND : "
+                    debug("requestMessage is Bigger than acceptable server size \n CANNOT SEND : "
                             + requestMessageXML);
                     break;
                 }
@@ -199,6 +200,8 @@ public class ServicesClient extends ServicesClientBase implements
                 
                 responseMessage = (ResponseMessage) ResponseMessage
                         .translateFromXMLString(response, translationSpace);
+                
+//                System.out.println("the response lagged "+(System.currentTimeMillis() - responseMessage.timeStamp)+"ms; the round trip took "+(System.currentTimeMillis() - requestMessage.timeStamp)+"ms.)");
                 
                 if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
                 {
@@ -226,7 +229,5 @@ public class ServicesClient extends ServicesClientBase implements
                 transactionComplete = true;
             }
         }
-
-        return responseMessage;
     }
 }

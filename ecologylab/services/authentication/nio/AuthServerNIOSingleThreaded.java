@@ -1,34 +1,25 @@
 /*
- * Created on Mar 30, 2006
+ * Created on May 15, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.net.Socket;
+import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.ServerToClientConnection;
-import ecologylab.services.ServicesServer;
+import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.messages.RequestMessage;
+import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.ServicesServerNIOSingleThreaded;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
-/**
- * ServiceServerAuthentication is used to handle servers that require
- * authentication. This means that the ServerToClientConnection will require
- * that the client log in before it will perform any other work.
- * 
- * It also means that the objectRegistry must contain "authenticationList" and
- * "authenticatedClients" entries. These are created by the constructors in this
- * class.
- * 
- * @author Zach Toups (toupsz@gmail.com)
- */
-public class AuthServer extends ServicesServer implements
-        AuthServerRegistryObjects
+public class AuthServerNIOSingleThreaded extends ServicesServerNIOSingleThreaded implements
+AuthServerRegistryObjects
 {
 
     /**
@@ -44,18 +35,19 @@ public class AuthServer extends ServicesServer implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static AuthServer get(int portNumber,
+    public static AuthServerNIOSingleThreaded get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
-        AuthServer newServer = null;
+        AuthServerNIOSingleThreaded newServer = null;
+        
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
                     .translateFromXML(authListFilename, NameSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer = new AuthServer(portNumber,
+            newServer = new AuthServerNIOSingleThreaded(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -66,6 +58,7 @@ public class AuthServer extends ServicesServer implements
         {
             e.printStackTrace();
         }
+        
         return newServer;
     }
 
@@ -81,14 +74,15 @@ public class AuthServer extends ServicesServer implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static AuthServer get(int portNumber,
+    public static AuthServerNIOSingleThreaded get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
-        AuthServer newServer = null;
+        AuthServerNIOSingleThreaded newServer = null;
+        
         try
         {
-            newServer = new AuthServer(portNumber,
+            newServer = new AuthServerNIOSingleThreaded(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -112,7 +106,7 @@ public class AuthServer extends ServicesServer implements
      * @throws IOException
      * @throws BindException
      */
-    protected AuthServer(int portNumber,
+    protected AuthServerNIOSingleThreaded(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
@@ -123,29 +117,11 @@ public class AuthServer extends ServicesServer implements
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
 
-        this.objectRegistry = objectRegistry;
-        
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
         this.objectRegistry
                 .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
+        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
     }
 
-    /**
-     * Create a ServerToClientConnectionAuthentication, the object that handles
-     * the connection to each incoming client and requires that they pass a
-     * Login item that matches an entry in the authenticationList. To extend the
-     * functionality of the client, you can override this method in your
-     * subclass of this, to return a subclass of ServerToClientConnection.
-     * 
-     * @param incomingSocket
-     * @return
-     * @throws IOException
-     */
-    protected ServerToClientConnection getConnection(Socket incomingSocket)
-            throws IOException
-    {
-
-        return new ServerToClientConnectionAuthentication(incomingSocket, this);
-    }
 }

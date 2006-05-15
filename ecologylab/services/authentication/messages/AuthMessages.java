@@ -12,7 +12,7 @@ public interface AuthMessages
      * Indicates that a LOGIN was successful.
      */
     public static final String LOGIN_SUCCESSFUL = "Successfully logged in.";
-
+    
     /**
      * Indicates that login failed because either the username was not found, or
      * because the password did not match a username.
@@ -24,6 +24,11 @@ public interface AuthMessages
      */
     public static final String LOGIN_FAILED_LOGGEDIN = "Cannot log in: username already logged-in.";
 
+    /**
+     * Indicates that a LOGOUT was successful.
+     */
+    public static final String LOGOUT_SUCCESSFUL = "Successfully logged out.";
+    
     /**
      * Indicates that LOGOUT failed because the given username was never logged
      * in in the first place!

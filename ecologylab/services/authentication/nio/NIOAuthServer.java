@@ -1,13 +1,17 @@
 /*
  * Created on Mar 30, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.nio.MessageProcessor;
 import ecologylab.services.nio.ServicesServerNIO;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
@@ -25,7 +29,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class NIOAuthServer extends ServicesServerNIO implements
-        RegistryObjectsServerAuthentication
+        AuthServerRegistryObjects
 {
 
     /**
@@ -128,8 +132,11 @@ public class NIOAuthServer extends ServicesServerNIO implements
         this.objectRegistry
                 .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
         this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
-        
-        // overwrites messageProcessors to use Authentiaction
-        messageProcessors = new AuthMessageProcessorPool(this);
+    }
+
+    protected void placeKeyInPool(SelectionKey key)
+    {
+        pool.put(key.attachment(), new AuthMessageProcessor(key, requestTranslationSpace, 
+                objectRegistry));
     }    
 }

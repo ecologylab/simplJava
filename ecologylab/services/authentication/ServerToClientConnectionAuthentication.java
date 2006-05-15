@@ -11,6 +11,7 @@ import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -25,7 +26,7 @@ import ecologylab.services.messages.ResponseMessage;
  */
 public class ServerToClientConnectionAuthentication extends
         ServerToClientConnection implements AuthMessages,
-        RegistryObjectsServerAuthentication
+        AuthServerRegistryObjects
 {
 
     private boolean         loggedIn = false;
