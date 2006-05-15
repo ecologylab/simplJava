@@ -385,5 +385,20 @@ extends Debug
 	   if (length > 0)
 		   buffy.delete(0, length);
    }
+   /**
+    * Return true iff all the characters in the argument are lower case.
+    * @param s
+    * @return
+    */
+   public static boolean isLowerCase(String s)
+   {
+	   int length	= s.length();
+	   for (int i=0; i< length; i++)
+	   {
+		   if (!Character.isLowerCase(s.charAt(i)))
+			   return false;
+	   }
+	   return true;
+   }
 }
 
