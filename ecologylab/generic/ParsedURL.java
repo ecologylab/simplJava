@@ -8,6 +8,8 @@ import java.io.File;
 import java.net.*;
 import java.util.*;
 
+import javax.imageio.ImageIO;
+
 /**
  * New class for manipulating and displaying URLs.
  * 
@@ -437,36 +439,37 @@ extends Debug
    static final HashMap supportedProtocols = 
       Generic.buildHashMapFromStrings(supportedProtocolStrings);
 
-   static final String[] imgMimeStrings	=
-   {
+   static final String[] imgSuffixStrings	= ImageIO.getReaderFormatNames();
+  /* {
       "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", 
-   };
-   static final HashMap imgMimes = 
-	      Generic.buildHashMapFromStrings(imgMimeStrings);
+   }; */
+   static final HashMap imgSuffixMap = 
+	      Generic.buildHashMapFromLCStrings(imgSuffixStrings); // formats from jdk contain lower & upper case
+   
    static final String[] jpegMimeStrings	=
    {
       "jpg", "jpeg", "pjpg", "pjpeg", 
    };
-   static final HashMap jpegMimes = 
+   static final HashMap jpegSuffixMap = 
 	      Generic.buildHashMapFromStrings(jpegMimeStrings);
     static final String[] htmlMimeStrings	=
    {
       "html", "htm", "stm", "php", "jhtml", "jsp", "asp", "txt", "shtml",
       "pl", "plx", "exe"
    };
-   static final HashMap htmlMimes = 
+   static final HashMap htmlSuffixMap = 
       Generic.buildHashMapFromStrings(htmlMimeStrings);
    static final String[] pdfMimeStrings		=
    {
    		"pdf"
    };
-   static final HashMap pdfMimes =
+   static final HashMap pdfSuffixMap =
    	  Generic.buildHashMapFromStrings(pdfMimeStrings);
    static final String[] rssMimeStrings		=
    {
    		"rss", "xml"
    };
-   static final HashMap rssMimes =
+   static final HashMap rssSuffixMap =
    	  Generic.buildHashMapFromStrings(rssMimeStrings);
 
 
@@ -562,9 +565,6 @@ extends Debug
       {
 			return get(contextPURL.url(), addressString);
       }
-//      debugA("addressString="+addressString);    
-      URL base = (contextPURL != null)  ? contextPURL.directory() : null;
-      URL newUrl = null;
 
       String	lc	= addressString.toLowerCase();
       boolean javascript	= lc.startsWith("javascript:");
@@ -618,7 +618,6 @@ extends Debug
       char argDelim	= '?';
       // url string always keep hash string.
       String hashString = StringTools.EMPTY_STRING;
-      URL hashUrl = null;
       if (fromSearchPage)
       {
 		 // handle embedded http://
@@ -768,51 +767,37 @@ extends Debug
     */
     public boolean isImg()
     {
-       suffix = suffix();
-        return (suffix != null) && (suffix.length() != 0) && 
-		 	imgMimes.containsKey(suffix);
+       return imgSuffixMap.containsKey(suffix());
     }
     /**
      * @return	true if this is a JPEG image file.
      */
-     public boolean isJpeg()
-     {
-        suffix = suffix();
-         return (suffix != null) && (suffix.length() != 0) && 
- 		 	jpegMimes.containsKey(suffix);
-     }
+    public boolean isJpeg()
+    {
+       return jpegSuffixMap.containsKey(suffix());
+    }
     
    /**
     * @param	suffix	file name suffix in lower case.
     */
    public boolean isHTML()
-      {
-	 suffix = suffix();
-        return htmlMimes.containsKey(suffix);
-      }
+   {
+	   return htmlSuffixMap.containsKey(suffix());
+   }
    
    public boolean isPDF()
    {
-   		suffix = suffix();
-   		return pdfMimes.containsKey(suffix);
+   	   return pdfSuffixMap.containsKey(suffix());
    }
    
    public boolean isRSS()
    {
-   		suffix = suffix();
-   		return rssMimes.containsKey(suffix);
+   	   return rssSuffixMap.containsKey(suffix());
    }
    
    public String mimeType()
    {
-   		if( isHTML() )
-   			return "text/html";
-   		else if( isPDF() )
-   			return "application/pdf";
-   		else if( isRSS() )
-   			return "xml/rss";
-   		else
-   			return null;
+	   return isHTML() ? "text/html" : isPDF() ? "application/pdf" : isRSS() ? "xml/rss" : null;
    }
    
    /*
@@ -821,8 +806,7 @@ extends Debug
     */
    public boolean isUnsupported()
     {
-       suffix = suffix();
-        return unsupportedMimes.containsKey(suffix);
+        return unsupportedMimes.containsKey(suffix());
     }
    
    /*
@@ -838,29 +822,29 @@ extends Debug
     */
    public String directoryString()
    {
-         String path	= url.getFile();
-         int	args		= path.indexOf("?");
-
-         if (args > -1)
-         	path		= path.substring(0,args);
-         int	lastSlash	= path.lastIndexOf("/");
-         int	lastDot		= path.lastIndexOf(".");
-         if (lastDot > lastSlash)
-         	path		= path.substring(0,lastSlash); 
-
-         int portNum		= url.getPort();
-         String port		= (portNum == -1) ? "" : ":" + portNum;
-	 String host		= url.getHost();
-         String protocol	= url.getProtocol();
-
-	 int stringLength	= protocol.length() + 3 + host.length()
-	    + port.length() + path.length();
-
-	 StringBuffer buffy	= new StringBuffer(stringLength);
-	 buffy.append(protocol).append("://").append(host).
-	    append(port).append(path);
-
-         return buffy.toString();  // dont copy; wont reuse buffy
+	   String path	= url.getFile();
+	   int	args		= path.indexOf("?");
+	   
+	   if (args > -1)
+		   path		= path.substring(0,args);
+	   int	lastSlash	= path.lastIndexOf("/");
+	   int	lastDot		= path.lastIndexOf(".");
+	   if (lastDot > lastSlash)
+		   path		= path.substring(0,lastSlash); 
+	   
+	   int portNum		= url.getPort();
+	   String port		= (portNum == -1) ? "" : ":" + portNum;
+	   String host		= url.getHost();
+	   String protocol	= url.getProtocol();
+	   
+	   int stringLength	= protocol.length() + 3 + host.length()
+	   + port.length() + path.length();
+	   
+	   StringBuffer buffy	= new StringBuffer(stringLength);
+	   buffy.append(protocol).append("://").append(host).
+	   append(port).append(path);
+	   
+	   return buffy.toString();  // dont copy; wont reuse buffy
    }
    public boolean equals(Object other)
    {
