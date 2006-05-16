@@ -22,6 +22,7 @@ import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.generic.StartAndStoppable;
 
 /**
  * Used as a worker thread and client information container.
@@ -29,7 +30,7 @@ import ecologylab.generic.ObjectRegistry;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class MessageProcessor extends Debug implements Runnable,
-        ServerConstants
+        ServerConstants, StartAndStoppable
 {
     private SocketChannel     channel;
 
@@ -58,7 +59,7 @@ public class MessageProcessor extends Debug implements Runnable,
 
     protected ObjectRegistry  registry;
 
-    private boolean           running        = true;
+    private boolean           running        = false;
 
     protected SelectionKey    key            = null;
 
@@ -86,12 +87,7 @@ public class MessageProcessor extends Debug implements Runnable,
      */
     public synchronized void process() throws Exception
     {
-        if (thread == null)
-        {
-            thread = new Thread(this, "Message Processor for "
-                    + key.attachment());
-            thread.start();
-        }
+        this.start();
 
         // tell the run method to wake up.
         messageWaiting = true;
@@ -142,8 +138,6 @@ public class MessageProcessor extends Debug implements Runnable,
     {
         while (running)
         {
-            long time = System.currentTimeMillis();
-            
             try
             {
                 while ((bytesRead = channel.read(rawBytes)) > 0)
@@ -181,10 +175,6 @@ public class MessageProcessor extends Debug implements Runnable,
                                     // erase the message from the accumulator
                                     accumulator.delete(0, accumulator
                                             .indexOf("\n") + 1);
-                                    
-                                    System.out.println("time to process: "+(System.currentTimeMillis() - time));
-                                    
-                                    time = System.currentTimeMillis();
                                 }
                             }
                         }
@@ -204,8 +194,8 @@ public class MessageProcessor extends Debug implements Runnable,
                 e1.printStackTrace();
             } catch (IOException e1)
             {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                debug("Connection closed by client. Terminating message processor: "+channel.toString());
+                this.stop();
             }
 
             // re-enable reading on the key and wake up the selector.
@@ -277,6 +267,23 @@ public class MessageProcessor extends Debug implements Runnable,
             }
 
         }
+    }
+
+    public void start()
+    {
+        running = true;
+        
+        if (thread == null)
+        {
+            thread = new Thread(this, "Message Processor for "
+                    + key.attachment());
+            thread.start();
+        }
+    }
+
+    public void stop()
+    {
+        running = false;
     }
     
 }

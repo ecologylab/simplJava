@@ -79,38 +79,53 @@ public class ServicesServerNIO extends ServicesServerBase implements
 
                         selectedKeyIter.remove();
 
-                        if (key.isAcceptable())
-                        { // incoming connection
-                            acceptKey(key);
-                        }
-
-                        if (key.isReadable())
-                        { // incoming message
-                            // disable the key for reading; done here to prevent
-                            // any issues with hanging select()'s
-                            key.interestOps(key.interestOps()
-                                    & (~SelectionKey.OP_READ));
-
-                            if (key.attachment() != null)
-                            {
-                                if (!pool.containsKey(key.attachment()))
-                                {
-                                    placeKeyInPool(key);
-                                }
-
-                                try
-                                {
-                                    ((MessageProcessor) pool.get(key
-                                            .attachment())).process();
-                                } catch (Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            } else
-                            {
-                                debug("Null token!");
+                        if (key.isValid())
+                        {
+                            if (key.isAcceptable())
+                            { // incoming connection
+                                acceptKey(key);
                             }
-                            // messageProcessors.addKey(key);
+
+                            if (key.isReadable())
+                            { // incoming message
+                                // disable the key for reading; done here to
+                                // prevent
+                                // any issues with hanging select()'s
+                                key.interestOps(key.interestOps()
+                                        & (~SelectionKey.OP_READ));
+
+                                if (key.attachment() != null)
+                                {
+                                    if (!pool.containsKey(key.attachment()))
+                                    {
+                                        placeKeyInPool(key);
+                                    }
+
+                                    try
+                                    {
+                                        ((MessageProcessor) pool.get(key
+                                                .attachment())).process();
+                                    } catch (Exception e)
+                                    {
+                                        e.printStackTrace();
+                                    }
+                                } else
+                                {
+                                    debug("Null token!");
+                                }
+                                // messageProcessors.addKey(key);
+                            }
+                        } else
+                        {
+                            debug("Key "
+                                    + key.attachment()
+                                    + " invalid; shutting down message processor.");
+                            if (pool.containsKey(key.attachment()))
+                            {
+                                ((MessageProcessor) pool.remove(key
+                                        .attachment())).stop();
+                            }
+                            key.cancel();
                         }
                     }
                 } else if ((timeDiff = (System.currentTimeMillis() - timer)) < MAX_TARDINESS)
@@ -168,14 +183,14 @@ public class ServicesServerNIO extends ServicesServerBase implements
                     .generateSessionToken(tempChannel.socket()));
 
             System.out.println("Now connected to " + tempChannel);
-            
+
             return tempChannel;
 
         } catch (IOException e)
         {
             e.printStackTrace();
         }
-        
+
         return null;
     }
 
