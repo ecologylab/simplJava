@@ -16,7 +16,11 @@ public class LogoutStatusResponse extends ResponseMessage implements AuthMessage
     public LogoutStatusResponse()
     {
         super();
-        // TODO Auto-generated constructor stub
+    }
+    
+    public LogoutStatusResponse(String responseMessage)
+    {
+        this.responseMessage = responseMessage;
     }
 
     public boolean isOK()
@@ -27,6 +31,7 @@ public class LogoutStatusResponse extends ResponseMessage implements AuthMessage
     public void processResponse(ObjectRegistry objectRegistry)
     {
         ((BooleanSlot)objectRegistry.lookupObject(LOGIN_STATUS)).value = false;
+        
         objectRegistry.modifyObject(LOGIN_STATUS_STRING, responseMessage);
     }
 

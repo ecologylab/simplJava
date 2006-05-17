@@ -64,7 +64,7 @@ public class Logout extends RequestMessage implements AuthMessages,
 
             authedClients.remove(entry.getUsername());
         } else
-            responseMessage = new ErrorResponse(LOGOUT_FAILED_NOT_LOGGEDIN);
+            responseMessage = new LogoutStatusResponse(LOGOUT_FAILED_NOT_LOGGEDIN);
 
         return responseMessage;
     }
