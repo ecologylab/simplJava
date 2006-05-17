@@ -105,6 +105,9 @@ public class ServicesClientNIO extends ServicesClientBase implements
         }
     }
 
+    /**
+     * Side effect of calling start().
+     */
     protected boolean createConnection()
     {
         try
@@ -149,6 +152,11 @@ public class ServicesClientNIO extends ServicesClientBase implements
             socket = null;
         }
 
+        if (connected())
+        {
+            start();
+        }
+        
         return connected();
     }
 
@@ -205,6 +213,9 @@ public class ServicesClientNIO extends ServicesClientBase implements
         System.err.println("shutting down client listening thread.");
 
         running = false;
+        
+        // dispose of thread
+        thread = null;
     }
 
     public void run()
