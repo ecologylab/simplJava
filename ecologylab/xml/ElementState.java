@@ -405,17 +405,24 @@ public class ElementState extends Debug
 					
 						while (elementIterator.hasNext())
 						{
-							ElementState element;
-							try
+							Object next = elementIterator.next();
+							// this is a special hack for working with pre-translated XML Strings
+							if (next instanceof String)
+								buffy.append((String) next);
+							else
 							{
-								element = (ElementState) elementIterator.next();
-							} catch(ClassCastException e)
-							{
-								throw new XmlTranslationException("Collections MUST contain " +
-										"objects of class derived from ElementState but " +
-										thatReferenceObject +" contains some that aren't.");
+								ElementState element;
+								try
+								{
+									element = (ElementState) next;
+								} catch(ClassCastException e)
+								{
+									throw new XmlTranslationException("Collections MUST contain " +
+											"objects of class derived from ElementState or XML Strings, but " +
+											thatReferenceObject +" contains some that aren't.");
+								}
+								buffy.append(element.translateToXML(compression, true, nodeNumber));
 							}
-							buffy.append(element.translateToXML(compression, true, nodeNumber));		
 						}
 					}
 					else if (thatReferenceObject instanceof ElementState)
