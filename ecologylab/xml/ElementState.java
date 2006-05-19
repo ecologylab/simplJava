@@ -324,8 +324,7 @@ public class ElementState extends Debug
 			//so if the nodeNumber is 1 (top node) then emit the compression attribute
 			if (compression && (nodeNumber == TOP_LEVEL_NODE))
 			{
-				String compressionAttr = " " + "compression" + " = " + "\"" + compression + "\"" + " ";
-				buffy.append(compressionAttr);
+				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
 			}
 
 			for (int i=0; i<numFields; i++)
