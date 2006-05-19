@@ -406,9 +406,10 @@ public class ElementState extends Debug
 						while (elementIterator.hasNext())
 						{
 							ElementState element;
-							try{
+							try
+							{
 								element = (ElementState) elementIterator.next();
-							}catch(ClassCastException e)
+							} catch(ClassCastException e)
 							{
 								throw new XmlTranslationException("Collections MUST contain " +
 										"objects of class derived from ElementState but " +
