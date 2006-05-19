@@ -465,7 +465,30 @@ extends Debug
       return insertFile(fileWriter, fileToInsert);
    }
    
-   public static boolean insertFile(BufferedWriter writer,
+   //TODO this is also old dead code
+public static void copyTraceFile(File outputFile)
+{
+    final String TRACE_PATH = System.getProperty("deployment.user.logdir")
+            + "/plugin"
+            + StringTools.remove(System.getProperty("java.version"), '_')
+            + ".trace";
+    BufferedWriter writer;
+    BufferedReader reader;
+    reader = openReader(TRACE_PATH);
+    writer = openWriter(outputFile);
+
+    String oneLine = readLine(reader);
+
+    while (oneLine != null)
+    {
+        writeLine(writer, oneLine);
+        oneLine = readLine(reader);
+    }
+    closeReader(reader);
+    closeWriter(writer);
+}
+
+public static boolean insertFile(BufferedWriter writer,
 				    String fileToInsert)
    {
       BufferedReader reader	= openReader(fileToInsert);
