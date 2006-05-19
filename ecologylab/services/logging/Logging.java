@@ -5,13 +5,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Vector;
 
 import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
-import ecologylab.generic.StringTools;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.xml.ArrayListState;
@@ -21,448 +21,585 @@ import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
 /**
- * Logging service. 
- * Uses ecologylab.xml to serialize user and agent actions to a file.
- * Can also provide the stuff as a String, if you specify it.
- *
+ * Logging service. Uses ecologylab.xml to serialize user and agent actions to a
+ * file. Can also provide the stuff as a String, if you specify it.
+ * 
  * @author andruid
  */
-public class Logging
-extends ElementState
-implements Runnable, ServicesHostsAndPorts
+public class Logging extends ElementState implements Runnable,
+        ServicesHostsAndPorts
 {
-	private static final String SESSION_LOG_START = "\n<session_log>\n ";
-	static final String OP_SEQUENCE_START	= "\n\n<op_sequence>\n\n";
-	static final String OP_SEQUENCE_END		= "\n</op_sequence>\n";
-	
-	/**
-	 * Logging closing message string written to the logging file at the end
-	 */
-	public static final String LOG_CLOSING	= "\n</op_sequence></session_log>\n\n";
-	
-	/**
-	 * Logging Header message string written to the logging file in the begining  
-	 */
-	static final String BEGIN_EMIT	= XmlTools.xmlHeader() + SESSION_LOG_START;
-	
-	/**
-	 * This field is used for reading a log in from a file, but not for writing one, because
-	 * we dont the write the log file all at once, and so can't automatically translate
-	 * the start tag and end tag for this element.
-	 */
-	public ArrayListState		opSequence;
-	
-	protected BufferedWriter	writer;
-	ServicesClient 				loggingClient = null;
-	NameSpace 					nameSpace;
-	
-	Thread						thread;
+    /**
+     * This field is used for reading a log in from a file, but not for writing
+     * one, because we dont the write the log file all at once, and so can't
+     * automatically translate the start tag and end tag for this element.
+     */
+    public ArrayListState       opSequence;
+    
 
-	int							logMode;
-	
-	static final int NO_LOGGING				= 0;
-	static final int LOG_TO_FILE			= 1;
-	static final int LOG_TO_SERVICES_SERVER = 2;
-	
-	static final int MAX_OPS_BEFORE_WRITE	= 20;
-	
-	File						logFile		= null;
-	String						logFileName = null;
-	
-/**
- * Object for sending a batch of ops to the LoggingServer.
- */
-	LogOps 						opSet	= new LogOps();
-	
-	/**
-	 * Queue of action opperations that have been sent to us for logging.
-	 * Our Runnable Thread will actually to the file writes,
-	 * at a convenient time, at a low priority.
-	 */
-	Vector						opsToWrite	= new Vector();
-	
-	boolean						finished;
+    Thread                      thread;
+    
+    NameSpace                   nameSpace;
 
-	static final int			THREAD_PRIORITY	= 1;
-	static final int			SLEEP_TIME		= 15000;
-	
-	public Logging(NameSpace nameSpace, String logFileName)
-	{
-		super();
-		finished = false;
-		this.nameSpace = nameSpace;
-		this.logFileName = logFileName;
-		int log_mode = Generic.parameterInt("log_mode", NO_LOGGING);
-		this.logMode	= log_mode;
-		switch (log_mode)
-		{
-		case NO_LOGGING: 
-			break;
-		case LOG_TO_FILE:
-			if (logFileName == null)
-			{
-				log_mode	= NO_LOGGING;
-			}
-			else
-			{
-				File logDir	= PropertiesAndDirectories.logDir();
-				if (logDir == null)
-				{
-					log_mode= NO_LOGGING;
-					debug("Can't write to logDir=" + logDir);
-				}
-				else
-				{
-					logFile 	= new File(logDir, logFileName);
-					writer		= Files.openWriter(logFile);
-					if (writer != null)
-						debugA("logging to " + logFile + " " + writer);
-					else
-						debug("ERROR: cant open writer to " + logFile);
-				}
-			}
-			break;
-		case LOG_TO_SERVICES_SERVER:  
-			/**
-			 * Create the logging client which communicates with the logging server
-			 */
-			loggingClient = new ServicesClient(LOGGING_HOST, ServicesHostsAndPorts.LOGGING_PORT, nameSpace);
-			if (loggingClient.connect())
-				debug("Logging to service via connection: " + loggingClient);
-			else
-			{
-				loggingClient	= null;
-				log_mode		= NO_LOGGING;
-			}
-			break;
-			
-		default: break;
-		}
-	}
-	
-	/**
-	 * Constructor for automatic translation from XML
-	 *
-	 */
-	public Logging() 
-	{
+    /**
+     * Does all the work of logging, if there is any work to be done.
+     * If this is null, then there is no logging;
+     * conversely, if there is no longging, this is null.
+     */
+    LogWriter                   logWriter;
 
-	}
+    /**
+     * Object for sending a batch of ops to the LoggingServer.
+     */
+    LogOps                      opSet                    = new LogOps();
 
-	public synchronized void logAction(MixedInitiativeOp op)
-	{
+    /**
+     * Queue of action opperations that have been sent to us for logging. Our
+     * Runnable Thread will actually to the file writes, at a convenient time,
+     * at a low priority.
+     */
+    // Vector opsToWrite = new Vector();
+    /**
+     * This is the Vector for the operations that are being queued up before
+     * they can go to outgoingOps.
+     */
+    Vector                      incomingOpsQueue         = new Vector();
 
-	   if ( (writer != null) || (loggingClient != null) )
-	   {
-		   opsToWrite.add(op);
-		   if ((thread != null) && (loggingClient != null) && (opsToWrite.size() > MAX_OPS_BEFORE_WRITE))
-		   {
-			   debugA("interrupting thread to do i/o now");
-			   thread.interrupt(); // end sleep in that thread prematurely to do i/o
-		   }
-	   }
-	}
-	
-	private void start()
-	{
-		if (thread == null)
-		{
-			thread = new Thread(this);
-			thread.setPriority(THREAD_PRIORITY);
-			thread.start();
-		}
-	}
-	
-	public synchronized void stop()
-	{
-		if (thread != null)
-		{
-			finished	= true;
-			thread		= null;
-			writeQueuedActions();
-			writeEpilogue();
-			if (writer != null)
-			{
-				try
-				{
-					writer.close();
-				} catch (IOException e) 
-				{
-					e.printStackTrace();
-				}
-				writer	= null;
-			}
-			if (loggingClient != null)
-			{
-				loggingClient.disconnect();
-				loggingClient	= null;
-			}
-		}
-	}
-	
-	long lastGcTime;
-	static final long KICK_GC_INTERVAL		= 300000; // 5 minutes
-	
-	/**
-	 * Logging to a file is delayed to the actions of this thread, because
-	 * otherwise, it can mess up priorities in the system, because events get
-	 * logged in the highest priority thread.
-	 */
-	public void run()
-	{
-		lastGcTime	= System.currentTimeMillis();	
-		while (!finished)
-		{
-			Thread.interrupted();
-			Generic.sleep(SLEEP_TIME);		
-			writeQueuedActions();
-			long now	=  System.currentTimeMillis();
-			long deltaT	= now - lastGcTime;
-			if (deltaT >= KICK_GC_INTERVAL)
-			{
-				lastGcTime	= now;
-				Memory.reclaim();
-			}
-		}
-	}
+    /**
+     * This is the Vector for the operations that are in the process of being
+     * written out.
+     */
+    Vector                      outgoingOpsQueue         = new Vector();
 
-	/**
-	 * 1) Send the logging data to the Logging server 
-	 * 2) Write the logging data to the local file 
-	 * 
-	 * Either 1) or 2) will be performed based on the selected option
-	 */
-	protected void writeQueuedActions() 
-	{
+    /**
+     * Stores the pointer to outgoingOpsQueue for swapQueues.
+     */
+    Vector                      tempQueue                = null;
 
-//		ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
-		if (writer != null)
-		{
-			try 
-			{
-				String actionStr = "";
-				synchronized (opsToWrite)
-				{
-					int num	= opsToWrite.size();
-					if (num == 0)
-						return;
-					for (int i=0; i< num; i++)
-					{
-						MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
-						actionStr += (String)thatOp.translateToXML(false) + "\n";	
-					}
-					opsToWrite.clear();
-				}
-				Files.writeLine(writer, actionStr);
-			} 
-			catch (XmlTranslationException e) 
-			{
-				e.printStackTrace();
-			}
-		}
-		if (loggingClient != null)
-		{
-			synchronized (opsToWrite)
-			{
-				int num	= opsToWrite.size();
-				if (num == 0)
-					return;
-				for (int i=0; i< num; i++)
-				{
-					MixedInitiativeOp thatOp	= (MixedInitiativeOp) opsToWrite.get(i);
-					// copy thatOp to opSet
-					opSet.addNestedElement(thatOp);		
-				}
-				opsToWrite.clear();
-			}
-			if (show(3))
-				debug("Logging: Sending opSet " + opSet);
-			loggingClient.sendMessage(opSet);
-			opSet.clearSet();
-		}
-	}
-	
-	/**
-	 * A message at the beginnging of the log.
-	 * This method may be overridden to return a subclass of Prologue, by subclasses of this,
-	 * that wish to emit application specific information at the start of a log.
-	 * 
-	 * @return
-	 */
-	protected Prologue getPrologue()
-	{
-		return new Prologue();
-	}
-	
-	/**
-	 * A message at the end of the log.
-	 * This method may be overridden to return a subclass of Epilogue, by subclasses of this,
-	 * that wish to emit application specific information at the end of a log.
-	 * 
-	 * @return
-	 */	
-	protected Epilogue getEpilogue()
-	{
-		Epilogue epilogue = new Epilogue();
-		return epilogue;
-	}
-	
-	/**
-	 * Write the start of the log header out to the log file
-	 * OR, send the begining logging file message so that logging server write the start of the log header.
-	 * <p/>
-	 * Then start the looping thread that periodically wakes up and performs log i/o.
-	 */
-	public void writePrologue()
-	{
-		if (logMode != NO_LOGGING)
-		{
-			Prologue prologue = getPrologue();
-			if( loggingClient != null )
-			{
-				int uid = Generic.parameterInt("uid", 0);
-				debug("Logging: Sending Prologue userID:" + uid);
-				prologue.setUserID(uid);
-				SendPrologue sendPrologue	= new SendPrologue(this, prologue);
-				loggingClient.sendMessage(sendPrologue);
-			}
-			if (writer !=null)
-			{
-				SendPrologue sendPrologue	= new SendPrologue(this, prologue);
-				Files.writeLine(writer, sendPrologue.getMessageString());
-			}
-		}
-		start();
-	}
+    /**
+     * Iterator for writing out ops.
+     */
+    Iterator                    outgoingOpsQueueIterator = null;
 
-	/**
-	 * Write the closing() XML to the log file, and close it.
-	 * Or, send the closing logging file message to the logging server
-	 */
-	protected void writeEpilogue()
-	{
-		if (logMode != NO_LOGGING)
-		{
-			SendEpilogue sendEpilogue = new SendEpilogue(this, getEpilogue());
-			if( loggingClient != null )
-			{
-				debug("Logging: Sending Epilogue "+ LOG_CLOSING);
-				loggingClient.sendMessage(sendEpilogue);
-			}
-			
-			if (writer != null)
-			{
-//				stop();
-				Files.writeLine(writer, sendEpilogue.getMessageString());
-				debug("wrote line");
-				Files.closeWriter(writer);
-			}
-		}
-	}
-	
-	
-	//TODO this looks like dead code.
-	public ElementState loadLogXML(String fileName, NameSpace nameSpace)
-	{			
-		
-		fixBrokenLog(fileName);
-		
-		// build the state object from the XML
-		ElementState stateObject = null;
-		try
-		{
-			stateObject = (ElementState) translateFromXML(fileName, nameSpace);
-		} catch (XmlTranslationException e)
-		{
-			e.printStackTrace();
-		}
-		return stateObject;		
-	}
-	
-	void fixBrokenLog(String fileName)
-	{
-		String lastLine = null;
-		String lastSecondLine = null;
-		String currentLine = null;
-		BufferedReader reader		= Files.openReader(fileName);
-		if (reader == null)
-		{
-			println("CANT OPEN LOGGING FILE: " + fileName);
-			return;
-		}
-		currentLine = Files.readLine(reader);
-		while(currentLine!=null)
-		{
-			lastLine = currentLine;			
-			currentLine = Files.readLine(reader);
-			if(currentLine!=null)
-			{
-				lastSecondLine = lastLine;
-				lastLine = currentLine;				
-			}			
-		}		
-		Files.closeReader(reader);
-		
-		//println("LatSL is  " + lastSecondLine);
-		//println("LatL is  " + lastLine);
-				
-		if ((lastLine == null)||(!lastLine.equals("</collage_log>")))
-		{
-		   BufferedWriter writer = Files.openWriter(fileName, true);
-		   if((lastSecondLine == null) || (!lastSecondLine.equals("</collage_op_sequence>")))
-		   {
-//		   	  debug(3,"write last second line");
-		   	  Files.writeLine(writer, "/n</collage_op_sequence>");
-		   }	
-		   
-//		   debug(0,"write last line");
-		   Files.writeLine(writer, "/n</collage_log>");
-		   
-		   Files.closeWriter(writer);		   
-		}				
-	}	
-   
-	/**
-	 * Re-formatted starting time string of the current session.
-	 * @return String   
-	 */
-   static String date()
-   {
-	   final String date	=  new Date(System.currentTimeMillis()).toString();;
-	   String temp;
-	   temp=date.replace(' ','_');
-	   temp=temp.replace(':','-');   	
-	   return temp;
-   }
-   
-   void copyTraceFile(File outputFile)
-   {
-      final String TRACE_PATH = System.getProperty("deployment.user.logdir") +
-	 "/plugin"+ StringTools.remove(System.getProperty("java.version"),'_')+
-	 ".trace";
-   		BufferedWriter      writer;
-		BufferedReader      reader;
-	    reader = Files.openReader(TRACE_PATH);
-	    writer = Files.openWriter(outputFile);
+    boolean                     finished;
 
-	    String oneLine = Files.readLine(reader);
-	    
-	    while (oneLine!=null)
-	    {
-			Files.writeLine(writer, oneLine);
-			oneLine = Files.readLine(reader);    	
-	    }
-	    Files.closeReader(reader);
-	    Files.closeWriter(writer);
-   }
+    static final int            THREAD_PRIORITY          = 1;
 
-   static final long time	= System.currentTimeMillis();
-   /**
-    * Return our session start timestamp.
-    * @return
-    */
- 	public static final long time()
- 	{
- 		return time;
- 	}
+    static final int            SLEEP_TIME               = 15000; // 15 seconds
+
+    static final long           sessionStartTime = System.currentTimeMillis();
+
+    long                        lastGcTime;
+
+    static final long           KICK_GC_INTERVAL = 300000; // 5 minutes
+    
+
+    private static final String SESSION_LOG_START        = "\n<session_log>\n ";
+
+    static final String         OP_SEQUENCE_START        = "\n\n<op_sequence>\n\n";
+
+    static final String         OP_SEQUENCE_END          = "\n</op_sequence>\n";
+
+    /**
+     * Logging closing message string written to the logging file at the end
+     */
+    public static final String  LOG_CLOSING              = "\n</op_sequence></session_log>\n\n";
+
+    /**
+     * Logging Header message string written to the logging file in the begining
+     */
+    static final String         BEGIN_EMIT               = XmlTools.xmlHeader()
+                                                                 + SESSION_LOG_START;
+
+    static final int            NO_LOGGING               = 0;
+
+    static final int            LOG_TO_FILE              = 1;
+
+    static final int            LOG_TO_SERVICES_SERVER   = 2;
+
+    static final int            MAX_OPS_BEFORE_WRITE     = 30;
+    
+    final int                   maxOpsBeforeWrite;
+
+
+    public Logging(NameSpace nameSpace)
+    {
+        this(nameSpace, null);
+    }
+    public Logging(NameSpace nameSpace, String logFileName)
+    {
+        this(nameSpace, logFileName, MAX_OPS_BEFORE_WRITE);
+    }
+    public Logging(NameSpace nameSpace, String logFileName, int maxOpsBeforeWrite)
+    {
+        super();
+        this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
+        finished            = false;
+        this.nameSpace      = nameSpace;
+        int logMode         = Generic.parameterInt("log_mode", NO_LOGGING);
+        switch (logMode)
+        {
+            case NO_LOGGING:
+                debug("logging disabled");
+                break;
+            case LOG_TO_FILE:
+                if (logFileName == null)
+                {
+                    debug("Logging disabled; no file name specified");
+                }
+                else
+                {
+                    File logDir = PropertiesAndDirectories.logDir();
+                    if (logDir == null)
+                    {
+                        debug("Can't write to logDir=" + logDir);
+                    } else
+                    {
+                        debug("Logging to file: " + logDir + logFileName);
+
+                        File logFile = new File(logDir, logFileName);
+                        BufferedWriter bufferedWriter  = Files.openWriter(logFile);
+                        if (bufferedWriter != null)
+                        {
+                            try
+                            {
+                                logWriter   = new FileLogWriter(logFile, bufferedWriter);
+                            } catch (IOException e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
+                        else
+                        {
+                            debug("ERROR: cant open writer to " + logFile);
+                        }
+                    }
+                }
+                break;
+            case LOG_TO_SERVICES_SERVER:
+                /**
+                 * Create the logging client which communicates with the logging
+                 * server
+                 */
+                ServicesClient loggingClient = new ServicesClient(LOGGING_HOST,
+                        ServicesHostsAndPorts.LOGGING_PORT, nameSpace);
+                if (loggingClient.connect())
+                {
+                    try
+                    {
+                        logWriter       = new NetworkLogWriter(loggingClient);
+                    } catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                else
+                {
+                    loggingClient   = null;
+                    debug("Logging disabled: cannot reach server");
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Constructor for automatic translation from XML
+     * 
+     */
+    public Logging()
+    {
+        this.maxOpsBeforeWrite  = MAX_OPS_BEFORE_WRITE;
+    }
+
+    /**
+     * If
+     * 
+     */
+    private void swapQueues()
+    {
+        synchronized (this.outgoingOpsQueue)
+        {
+            synchronized (this.incomingOpsQueue)
+            {
+                if (outgoingOpsQueue.isEmpty())
+                {
+                    tempQueue = outgoingOpsQueue;
+                    outgoingOpsQueue = incomingOpsQueue;
+                    incomingOpsQueue = tempQueue;
+                }
+            }
+        }
+    }
+
+    public void logAction(MixedInitiativeOp op)
+    {
+        if (logWriter != null)
+        {
+            try
+            {
+                logAction(op.translateToXML(false));
+            } catch (XmlTranslationException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void logAction(String translatedXML)
+    {
+        if (logWriter != null)
+        {
+            synchronized (incomingOpsQueue)
+            {
+                incomingOpsQueue.add(translatedXML);
+            }
+
+            if ((thread != null) && (incomingOpsQueue.size() > maxOpsBeforeWrite))
+            {
+                debugA("interrupting thread to do i/o now");
+                thread.interrupt(); // end sleep in that thread prematurely to
+                                    // do i/o
+            }
+        }
+    }
+
+    /**
+     * Write the start of the log header out to the log file OR, send the
+     * begining logging file message so that logging server write the start of
+     * the log header. <p/> Then start the looping thread that periodically
+     * wakes up and performs log i/o.
+     */
+    public void start()
+    {
+        if ((logWriter != null) && (thread == null))
+        {
+            logWriter.writePrologue(new SendPrologue(this, getPrologue()));
+
+            thread = new Thread(this);
+            thread.setPriority(THREAD_PRIORITY);
+            thread.start();
+        }
+    }
+
+    public synchronized void stop()
+    {
+        if (thread != null)
+        {
+            finished = true;
+            thread = null;
+            if (logWriter != null)
+            {
+                writeQueuedActions();
+                
+                logWriter.writeEpilogueAndClose(new SendEpilogue(this, getEpilogue()));
+            }
+        }
+    }
+
+    /**
+     * Logging to a file is delayed to the actions of this thread, because
+     * otherwise, it can mess up priorities in the system, because events get
+     * logged in the highest priority thread.
+     * <p/>
+     * This MUST be the only thread that ever calls writeQueuedActions().
+     */
+    public void run()
+    {
+        lastGcTime = System.currentTimeMillis();
+        while (!finished)
+        {
+            Thread.interrupted();
+            Generic.sleep(SLEEP_TIME);
+            writeQueuedActions();
+
+            long now = System.currentTimeMillis();
+            long deltaT = now - lastGcTime;
+
+            if (deltaT >= KICK_GC_INTERVAL)
+            {
+                debug("kick GC");
+                lastGcTime = now;
+                Memory.reclaim();
+            }
+        }
+    }
+
+    /**
+     * Use the LogWriter, if there is one, to output queued actions to the log.
+     * <p/>
+     * NB: This method is SINGLE Threaded! It is not thread safe.
+     * It must only be called from the run() method.
+     */
+    protected void writeQueuedActions()
+    {
+        if (logWriter == null)
+            return;
+        // ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
+        
+        Vector ourQueueToWrite = incomingOpsQueue;
+        synchronized (ourQueueToWrite)
+        {
+            int size = ourQueueToWrite.size();
+            if (size == 0)
+                return;
+            swapQueues();
+            // what was incomingOpsQueue is now outgoing!
+            String firstEntry = (String) ourQueueToWrite.get(0);
+            if (size == 1)
+            {
+               logWriter.consumeOp(firstEntry);
+            }
+            else
+            {
+                // allocate storage with a reasonable size estimate
+                for (int i = 1; i < size; i++)
+                {
+                    String thatEntry = (String) ourQueueToWrite.get(i);
+                    logWriter.consumeOp(thatEntry);
+                }
+            }
+            logWriter.finishConsumingQueue();
+            ourQueueToWrite.clear();
+        }
+       
+    }
+    /**
+     * A message at the beginnging of the log. This method may be overridden to
+     * return a subclass of Prologue, by subclasses of this, that wish to emit
+     * application specific information at the start of a log.
+     * 
+     * @return
+     */
+    protected Prologue getPrologue()
+    {
+        return new Prologue();
+    }
+
+    /**
+     * A message at the end of the log. This method may be overridden to return
+     * a subclass of Epilogue, by subclasses of this, that wish to emit
+     * application specific information at the end of a log.
+     * 
+     * @return
+     */
+    protected Epilogue getEpilogue()
+    {
+        Epilogue epilogue = new Epilogue();
+        return epilogue;
+    }
+
+    // TODO this looks like dead code.
+    public static ElementState loadLogXML(String fileName, NameSpace nameSpace)
+    {
+
+        fixBrokenLog(fileName);
+
+        // build the state object from the XML
+        ElementState stateObject = null;
+        try
+        {
+            stateObject = (ElementState) translateFromXML(fileName, nameSpace);
+        } catch (XmlTranslationException e)
+        {
+            e.printStackTrace();
+        }
+        return stateObject;
+    }
+
+    public static void fixBrokenLog(String fileName)
+    {
+        String lastLine = null;
+        String lastSecondLine = null;
+        String currentLine = null;
+        BufferedReader reader = Files.openReader(fileName);
+        if (reader == null)
+        {
+            println("CANT OPEN LOGGING FILE: " + fileName);
+            return;
+        }
+        currentLine = Files.readLine(reader);
+        while (currentLine != null)
+        {
+            lastLine = currentLine;
+            currentLine = Files.readLine(reader);
+            if (currentLine != null)
+            {
+                lastSecondLine = lastLine;
+                lastLine = currentLine;
+            }
+        }
+        Files.closeReader(reader);
+
+        // println("LatSL is " + lastSecondLine);
+        // println("LatL is " + lastLine);
+
+        if ((lastLine == null) || (!lastLine.equals("</collage_log>")))
+        {
+            BufferedWriter writer = Files.openWriter(fileName, true);
+            if ((lastSecondLine == null)
+                    || (!lastSecondLine.equals("</collage_op_sequence>")))
+            {
+                // debug(3,"write last second line");
+                Files.writeLine(writer, "/n</collage_op_sequence>");
+            }
+
+            // debug(0,"write last line");
+            Files.writeLine(writer, "/n</collage_log>");
+
+            Files.closeWriter(writer);
+        }
+    }
+
+    /**
+     * Return our session start timestamp.
+     * 
+     * @return
+     */
+    public static final long sessionStartTime()
+    {
+        return sessionStartTime;
+    }
+    
+    /**
+     * Objects that process queuedActions for writing, either to a local file,
+     * or, using the network, to the LoggingServer.
+     * 
+     * @author andruid
+     * @author toupsz
+     */
+    protected abstract class LogWriter
+    {
+        LogWriter()
+        throws IOException
+        {
+            
+        }
+        /**
+         * Write the prologue -- special stuff at the beginning of a session.
+         * @param prologue
+         */
+        abstract void writePrologue(SendPrologue sendPrologue);
+        /**
+         * Process a single op -- take steps to send to destination, or actually send it.
+         * @param op
+         */
+        abstract void consumeOp(String op);
+        /**
+         * Optional: commit changes; complete processing of the queue.
+         *
+         */
+        abstract void finishConsumingQueue();
+        /**
+         * Close resources associated with this at the end of a session.
+         * @param sendEpilogue TODO
+         */
+        abstract void writeEpilogueAndClose(SendEpilogue sendEpilogue);
+        
+    }
+    /**
+     * LogWriter that uses a local file for logging.
+     * 
+     * @author andruid
+     * @author toupsz
+     */
+    protected class FileLogWriter
+    extends LogWriter
+    {
+        BufferedWriter  bufferedWriter;
+        
+        FileLogWriter(File logFile, BufferedWriter bufferedWriter)
+        throws IOException
+        {
+            if (bufferedWriter == null)
+                throw new IOException("Can't log to File with null buffereredWriter.");
+            this.bufferedWriter = bufferedWriter;
+            Logging.this.debugA("Logging to " + logFile + " " + bufferedWriter);
+        }
+
+        /**
+         * Write the prologue -- special stuff at the beginning of a session.
+         * @param prologue
+         */
+        void writePrologue(SendPrologue sendPrologue)
+        {
+            Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
+        }
+        void consumeOp(String op)
+        {
+            Files.writeLine(bufferedWriter, op);
+        }
+        void finishConsumingQueue()
+        {
+            
+        }
+        /**
+         * Close the local file.
+         */
+        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        {
+            Files.writeLine(bufferedWriter, sendEpilogue.getMessageString());
+            try
+            {
+                bufferedWriter.close();
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            bufferedWriter  = null;
+        }
+    }
+    /**
+     * LogWriter that connects to the ServicesServer over the network for logging.
+     * 
+     * @author andruid
+     * @author toupsz
+     */
+    protected class NetworkLogWriter
+    extends LogWriter
+    {
+        ServicesClient  loggingClient;
+        
+        NetworkLogWriter(ServicesClient loggingClient)
+        throws IOException
+        {
+            if (loggingClient == null)
+                throw new IOException("Can't log to Network with null loggingClient.");
+            this.loggingClient = loggingClient;
+            Logging.this.debug("Logging to service via connection: " + loggingClient);
+        }
+
+        /**
+         * Write the prologue -- special stuff at the beginning of a session.
+         * @param prologue
+         */
+        void writePrologue(SendPrologue sendPrologue)
+        {
+            int uid = Generic.parameterInt("uid", 0);
+            Logging.this.debug("Logging: Sending Prologue userID:" + uid);
+            sendPrologue.prologue.setUserID(uid);
+            loggingClient.sendMessage(sendPrologue);            
+        }
+        void consumeOp(String op)
+        {
+            opSet.addNestedElement(op);
+        }
+        void finishConsumingQueue()
+        {
+            loggingClient.sendMessage(opSet);
+            opSet.clearSet();
+        }
+        /**
+         * Close the connection to the loggingServer.
+         */
+        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        {
+            Logging.this.debug("Logging: Sending Epilogue " + LOG_CLOSING);
+            loggingClient.sendMessage(sendEpilogue);
+            
+            loggingClient.disconnect();
+            loggingClient   = null;
+        }
+    }
 }

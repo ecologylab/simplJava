@@ -24,7 +24,7 @@ abstract public class MixedInitiativeOp extends ElementState
 	public MixedInitiativeOp()
 	{
 		super();
-		sessionTime	= System.currentTimeMillis() - Logging.time();		
+		sessionTime	= System.currentTimeMillis() - Logging.sessionStartTime();		
 	}
 
 	/**
