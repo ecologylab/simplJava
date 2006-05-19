@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * An ElementState XML tree node that supports an ArrayList of
@@ -25,7 +26,32 @@ public class ArrayListState extends ElementState
 			debug("ERROR: " + e.getMessage() + " while translating");
 		}		
 	}
+    
+    public ElementState remove(int i)
+    {
+        return (ElementState) set.remove(i);
+    }
+    
+    public Iterator iterator()
+    {
+        return set.iterator();
+    }
+    
+    public void add(int i, ElementState obj)
+    {
+        set.add(i, obj);
+    }
 	
+    public ElementState get(int i)
+    {
+        if (i > set.size())
+        {
+            return null;
+        } else
+        {
+            return (ElementState) set.get(i);
+        }
+    }
    /**
     * Add an element to our Collection.
     */
