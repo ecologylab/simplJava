@@ -219,6 +219,9 @@ public class MessageProcessor extends Debug implements Runnable,
 
     private void processString(String incomingMessage)
     {
+        if (show(5))
+            debug("processing: "+incomingMessage);
+        
         try
         {
             request = translateXMLStringToRequestMessage(incomingMessage);
