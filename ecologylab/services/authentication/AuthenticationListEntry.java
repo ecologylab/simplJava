@@ -48,7 +48,7 @@ public class AuthenticationListEntry extends ElementState
     {
         super();
 
-        this.username = username;
+        this.username = username.toLowerCase();
         this.password = hashPassword(password);
     }
 
@@ -60,7 +60,7 @@ public class AuthenticationListEntry extends ElementState
      */
     public void setUsername(String username)
     {
-        this.username = username;
+        this.username = username.toLowerCase();
     }
 
     /**
@@ -142,7 +142,7 @@ public class AuthenticationListEntry extends ElementState
      */
     public String getUsername()
     {
-        return username;
+        return username.toLowerCase();
     }
     
 
