@@ -273,15 +273,10 @@ implements Downloadable, DispatchTarget
 	 */
 	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, Status status)
 	{
-	   	// Delete the previous target parent directory if it exists.
-	   	if (targetDir.exists())
-	   	{
-	   		Files.deleteDirectory(targetDir);
-	   	}
+		//Create the target parent directory. 
+	   	if (!targetDir.exists())
+	   		targetDir.mkdirs();
 	   	
-	   	//Create the target parent directory.
-	   	targetDir.mkdirs();
-	   	   
 	   	println("downloading from zip URL: " + sourceZip +"\n\t to " + targetDir);
 		try
 		{    	         
@@ -293,9 +288,14 @@ implements Downloadable, DispatchTarget
 				File sourceZipFile	= sourceZip.file();
 				String fileName		= sourceZipFile.getName();
 				File destFile		= Files.newFile(targetDir, fileName);
-				if( !destFile.getParentFile().exists() )
-					destFile.getParentFile().mkdirs();
-					
+				File destFileDir	= Files.newFile(targetDir, destFile.toString().substring(0,destFile.toString().length()-4));
+
+				println("Checking if dir exists: " + destFileDir.toString());
+				
+				//Delete the previous directory if it exists.
+				if (destFileDir.exists())
+					Files.deleteDirectory(destFileDir);
+				
 				StreamUtils.copyFile(sourceZipFile, destFile);
 				extractZipFile(sourceZipFile, targetDir);
 				return null;
