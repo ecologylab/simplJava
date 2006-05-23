@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
@@ -46,33 +47,42 @@ import ecologylab.xml.XmlTranslationException;
 public class ServicesClientNIO extends ServicesClientBase implements
         StartAndStoppable, Runnable, ServerConstants
 {
-    private Selector        selector;
+    private Selector                    selector;
 
-    private boolean         running          = false;
+    private boolean                     running                = false;
 
-    private SocketChannel   channel;
+    private SocketChannel               channel;
 
-    private Thread          thread;
+    private Thread                      thread;
 
-    private SelectionKey    key;
+    private SelectionKey                key;
 
-    private ByteBuffer      incomingRawBytes = ByteBuffer
-                                                     .allocate(MAX_PACKET_SIZE);
+    private ByteBuffer                  incomingRawBytes       = ByteBuffer
+                                                                       .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer      outgoingChars    = CharBuffer
-                                                     .allocate(MAX_PACKET_SIZE);
+    private CharBuffer                  outgoingChars          = CharBuffer
+                                                                       .allocate(MAX_PACKET_SIZE);
 
-    private StringBuffer    accumulator      = new StringBuffer(MAX_PACKET_SIZE);
+    private StringBuffer                accumulator            = new StringBuffer(
+                                                                       MAX_PACKET_SIZE);
 
-    private CharsetDecoder  decoder          = Charset.forName("ASCII")
-                                                     .newDecoder();
+    private CharsetDecoder              decoder                = Charset
+                                                                       .forName(
+                                                                               "ASCII")
+                                                                       .newDecoder();
 
-    private CharsetEncoder  encoder          = Charset.forName("ASCII")
-                                                     .newEncoder();
+    private CharsetEncoder              encoder                = Charset
+                                                                       .forName(
+                                                                               "ASCII")
+                                                                       .newEncoder();
 
-    private ResponseMessage responseMessage  = null;
-    
-    private Iterator incoming;
+    private ResponseMessage             responseMessage        = null;
+
+    private Iterator                    incoming;
+
+    private volatile boolean            blockingRequestPending = false;
+
+    private LinkedList<ResponseMessage> blockingResponsesQueue = new LinkedList<ResponseMessage>();
 
     public ServicesClientNIO(String server, int port, NameSpace messageSpace,
             ObjectRegistry objectRegistry)
@@ -88,7 +98,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
             {
                 channel.close();
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -99,7 +110,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
         if (channel != null)
         {
             return channel.isConnected();
-        } else
+        }
+        else
         {
             return false;
         }
@@ -130,22 +142,26 @@ public class ServicesClientNIO extends ServicesClientBase implements
                 // connected
                 channel.register(selector, SelectionKey.OP_READ);
             }
-        } catch (BindException e)
+        }
+        catch (BindException e)
         {
             debug("Couldnt create socket connection to server '" + server
                     + "': " + e);
             // e.printStackTrace();
             socket = null;
-        } catch (PortUnreachableException e)
+        }
+        catch (PortUnreachableException e)
         {
             debug("Server is alive, but has no daemon on port " + port + ": "
                     + e);
             // e.printStackTrace();
             socket = null;
-        } catch (SocketException e)
+        }
+        catch (SocketException e)
         {
             debug("Server '" + server + "' unreachable: " + e);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             debug("Bad response from server: " + e);
             // e.printStackTrace();
@@ -156,11 +172,18 @@ public class ServicesClientNIO extends ServicesClientBase implements
         {
             start();
         }
-        
+
         return connected();
     }
 
-    public void sendMessage(RequestMessage request)
+    /**
+     * Sends request, but does not wait for the response. The response gets
+     * processed later in a non-stateful way by the run method.
+     * 
+     * @param request
+     *            the request to send to the server.
+     */
+    public void nonBlockingSendMessage(RequestMessage request)
     {
         // translate the response and store it, then
         // encode it and write it
@@ -168,33 +191,118 @@ public class ServicesClientNIO extends ServicesClientBase implements
         {
             try
             {
+                request.setUid(this.getUid());
 
                 outgoingChars.clear();
                 outgoingChars.put(request.translateToXML(false)).put('\n');
                 outgoingChars.flip();
 
                 channel.write(encoder.encode(outgoingChars));
-            } catch (NullPointerException e)
+            }
+            catch (NullPointerException e)
             {
                 e.printStackTrace();
                 System.out.println("recovering.");
-            } catch (XmlTranslationException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (CharacterCodingException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e)
+            }
+            catch (XmlTranslationException e)
             {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        } else
+            catch (CharacterCodingException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else
         {
             debug("Attempted to send message, but not connected.");
         }
+    }
+
+    public synchronized ResponseMessage sendMessage(RequestMessage request)
+    {
+        ResponseMessage returnValue = null;
+        long currentMessageUid = this.getUid();
+
+        // notify the connection thread that we are waiting on a response
+        blockingRequestPending = true;
+
+        // translate the response and store it, then
+        // encode it and write it
+        if (connected())
+        {
+            try
+            {
+                request.setUid(currentMessageUid);
+
+                outgoingChars.clear();
+                outgoingChars.put(request.translateToXML(false)).put('\n');
+                outgoingChars.flip();
+
+                channel.write(encoder.encode(outgoingChars));
+            }
+            catch (NullPointerException e)
+            {
+                e.printStackTrace();
+                System.out.println("recovering.");
+            }
+            catch (XmlTranslationException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (CharacterCodingException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            debug("Attempted to send message, but not connected.");
+        }
+
+        // wait to be notified that the response has arrived
+        while (blockingRequestPending)
+        {
+            try
+            {
+                wait();
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+
+            while ((blockingRequestPending)
+                    && (!blockingResponsesQueue.isEmpty()))
+            {
+                returnValue = blockingResponsesQueue.removeFirst();
+                if (returnValue.getUid() == currentMessageUid)
+                {
+                    blockingRequestPending = false;
+
+                }
+                else
+                {
+                    returnValue = null;
+                }
+            }
+        }
+
+        return returnValue;
     }
 
     public void start()
@@ -213,7 +321,7 @@ public class ServicesClientNIO extends ServicesClientBase implements
         System.err.println("shutting down client listening thread.");
 
         running = false;
-        
+
         // dispose of thread
         thread = null;
     }
@@ -232,10 +340,9 @@ public class ServicesClientNIO extends ServicesClientBase implements
                         // channel,
                         // so...
                         incoming = selector.selectedKeys().iterator();
-                        
-                        key = (SelectionKey) incoming
-                                .next();
-                        
+
+                        key = (SelectionKey) incoming.next();
+
                         incoming.remove();
 
                         if (key.isReadable())
@@ -270,17 +377,28 @@ public class ServicesClientNIO extends ServicesClientBase implements
                                                 // transform the message into a
                                                 // request and
                                                 // perform the service
-                                                // long time =
-                                                // System.currentTimeMillis();
 
-                                                processString(accumulator
-                                                        .substring(
-                                                                0,
-                                                                accumulator
-                                                                        .indexOf("\n")));
-
-                                                // System.out.println("time:
-                                                // "+(System.currentTimeMillis()-time));
+                                                if (!this.blockingRequestPending)
+                                                {
+                                                    processString(accumulator
+                                                            .substring(
+                                                                    0,
+                                                                    accumulator
+                                                                            .indexOf("\n")));
+                                                }
+                                                else
+                                                {
+                                                    blockingResponsesQueue
+                                                            .add(processString(accumulator
+                                                                    .substring(
+                                                                            0,
+                                                                            accumulator
+                                                                                    .indexOf("\n"))));
+                                                    synchronized(this)
+                                                    {
+                                                        notify();
+                                                    }
+                                                }
 
                                                 // erase the message from the
                                                 // accumulator
@@ -293,22 +411,26 @@ public class ServicesClientNIO extends ServicesClientBase implements
                                         }
                                     }
                                 }
-                            } catch (CharacterCodingException e1)
-                            {
-                                // TODO Auto-generated catch block
-                                e1.printStackTrace();
-                            } catch (IOException e1)
+                            }
+                            catch (CharacterCodingException e1)
                             {
                                 // TODO Auto-generated catch block
                                 e1.printStackTrace();
                             }
-                        } else
+                            catch (IOException e1)
+                            {
+                                // TODO Auto-generated catch block
+                                e1.printStackTrace();
+                            }
+                        }
+                        else
                         {
                             debug("Key is selected and not readable!");
                         }
                     }
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
@@ -318,15 +440,16 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
     }
 
-    private void processString(String incomingMessage)
+    private ResponseMessage processString(String incomingMessage)
     {
-//        System.out.println("client got the following: " + incomingMessage);
+        // System.out.println("client got the following: " + incomingMessage);
 
         try
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
 
-        } catch (XmlTranslationException e)
+        }
+        catch (XmlTranslationException e)
         {
             e.printStackTrace();
         }
@@ -335,10 +458,13 @@ public class ServicesClientNIO extends ServicesClientBase implements
         {
             debug("ERROR: translation failed: ");
 
-        } else
+        }
+        else
         {
             // perform the service being requested
             processResponse(responseMessage);
         }
+
+        return responseMessage;
     }
 }
