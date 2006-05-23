@@ -244,6 +244,8 @@ public class MessageProcessor extends Debug implements Runnable,
             { // if the response is null, then we do nothing else
                 try
                 {
+                    response.setUid(request.getUid());
+                    
                     // System.out.println("response: "
                     // + response.translateToXML(false));
                     // translate the response and store it, then
