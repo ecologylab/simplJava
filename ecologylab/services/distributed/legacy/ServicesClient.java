@@ -86,22 +86,26 @@ public class ServicesClient extends ServicesClientBase implements
             reader = new BufferedReader(new InputStreamReader(socket
                     .getInputStream()));
             output = new PrintStream(socket.getOutputStream());
-        } catch (BindException e)
+        }
+        catch (BindException e)
         {
             debug("Couldnt create socket connection to server '" + server
                     + "': " + e);
             // e.printStackTrace();
             socket = null;
-        } catch (PortUnreachableException e)
+        }
+        catch (PortUnreachableException e)
         {
             debug("Server is alive, but has no daemon on port " + port + ": "
                     + e);
             // e.printStackTrace();
             socket = null;
-        } catch (SocketException e)
+        }
+        catch (SocketException e)
         {
             debug("Server '" + server + "' unreachable: " + e);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             debug("Bad response from server: " + e);
             // e.printStackTrace();
@@ -143,11 +147,13 @@ public class ServicesClient extends ServicesClientBase implements
                 socket.close();
                 System.out.println("Closed the connection.");
                 socket = null;
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 e.printStackTrace();
             }
-        } else
+        }
+        else
         {
             System.out.println("Could not close connection: not connected!");
         }
@@ -163,8 +169,11 @@ public class ServicesClient extends ServicesClientBase implements
      *         somehow. 2) XmlTranslationException: The message was malformed or
      *         translation failed strangely.
      */
-    public void sendMessage(RequestMessage requestMessage)
+    public ResponseMessage sendMessage(RequestMessage requestMessage)
     {
+        // get the UID for the request message
+        requestMessage.setUid(this.getUid());
+
         if (!connected())
             createConnection();
 
@@ -177,7 +186,7 @@ public class ServicesClient extends ServicesClientBase implements
             String requestMessageXML = null;
             try
             {
-//                requestMessage.stampTime();
+                // requestMessage.stampTime();
                 requestMessageXML = requestMessage.translateToXML(false);
 
                 if (requestMessageXML.getBytes().length > ServerConstants.MAX_PACKET_SIZE)
@@ -188,7 +197,7 @@ public class ServicesClient extends ServicesClientBase implements
                 }
 
                 output.println(requestMessageXML);
-                
+
                 if (show(5))
                     debug("Services Client: just sent message: "
                             + requestMessageXML);
@@ -197,12 +206,16 @@ public class ServicesClient extends ServicesClientBase implements
                     debug("Services Client: awaiting a response");
 
                 response = reader.readLine();
-                
+
                 responseMessage = (ResponseMessage) ResponseMessage
                         .translateFromXMLString(response, translationSpace);
-                
-//                System.out.println("the response lagged "+(System.currentTimeMillis() - responseMessage.timeStamp)+"ms; the round trip took "+(System.currentTimeMillis() - requestMessage.timeStamp)+"ms.)");
-                
+
+                // System.out.println("the response lagged
+                // "+(System.currentTimeMillis() -
+                // responseMessage.timeStamp)+"ms; the round trip took
+                // "+(System.currentTimeMillis() -
+                // requestMessage.timeStamp)+"ms.)");
+
                 if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
                 {
                     badTransmissionCount++;
@@ -211,23 +224,37 @@ public class ServicesClient extends ServicesClientBase implements
                         debug("ERROR: Quitting sending to the server because of the network condition after "
                                 + badTransmissionCount + " times try ");
                         break;
-                    } else
+                    }
+                    else
+                    {
                         debug("ERROR: BADTransmission of: " + requestMessageXML
                                 + "\n\t Resending.");
-
-                } else
+                    }
+                }
+                else
                 {
-                    if (show(5))
-                        debug("received response: " + response);
-                    processResponse(responseMessage);
-                    transactionComplete = true;
+                    if (requestMessage.getUid() == responseMessage.getUid())
+                    {
+                        if (show(5))
+                            debug("received response: " + response);
+                        processResponse(responseMessage);
+                        transactionComplete = true;
+                    }
+                    else
+                    {
+                        debug("Request UID is " + requestMessage.getUid()
+                                + "; response was: " + responseMessage.getUid() + "; ignoring message.");
+                    }
                 }
 
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 debug("ERROR: Failed sending " + requestMessage + ": " + e);
                 transactionComplete = true;
             }
         }
+        
+        return responseMessage;
     }
 }

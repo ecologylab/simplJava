@@ -27,6 +27,12 @@ public abstract class ServicesClientBase extends Debug implements
 
     protected ObjectRegistry objectRegistry;
 
+    /**
+     * Contains the unique identifier for the next message that the client will
+     * send.
+     */
+    private long             uidIndex         = 0;
+
     public ServicesClientBase(String server, int port, NameSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
@@ -58,14 +64,26 @@ public abstract class ServicesClientBase extends Debug implements
 
         return createConnection();
     }
-    
+
     public abstract void disconnect();
+
     public abstract boolean connected();
+
     protected abstract boolean createConnection();
-    public abstract void sendMessage(RequestMessage request);
-    
+
+    /**
+     * Performs a blocking send: sends request, waits for a ResponseMessage,
+     * processes the response, then returns it.
+     * 
+     * @param request
+     *            the request to send to the server.
+     * @return the response received from the server.
+     */
+    public abstract ResponseMessage sendMessage(RequestMessage request);
+
     /**
      * Check to see if the server is running.
+     * 
      * @return true if the server is running, false otherwise.
      */
     public boolean isServerRunning()
@@ -75,7 +93,7 @@ public abstract class ServicesClientBase extends Debug implements
         disconnect();
         return serverIsRunning;
     }
-    
+
     /**
      * Try and connect to the server. If we fail, wait
      * CONNECTION_RETRY_SLEEP_INTERVAL and try again. Repeat ad nauseum.
@@ -89,10 +107,10 @@ public abstract class ServicesClientBase extends Debug implements
             Generic.sleep(CONNECTION_RETRY_SLEEP_INTERVAL);
         }
     }
-    
+
     /**
-     * Use the ServicesClient and its NameSpace to do the translation. Can
-     * be overridden to provide special functionalities
+     * Use the ServicesClient and its NameSpace to do the translation. Can be
+     * overridden to provide special functionalities
      * 
      * @param messageString
      * @return
@@ -111,7 +129,13 @@ public abstract class ServicesClientBase extends Debug implements
         return (ResponseMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace, doRecursiveDescent);
     }
-    
+
+    public long getUid()
+    {
+        // return the current value of uidIndex, then increment.
+        return uidIndex++;
+    }
+
     /**
      * @return Returns the server.
      */

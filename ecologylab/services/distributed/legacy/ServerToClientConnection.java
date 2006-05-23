@@ -84,6 +84,9 @@ public class ServerToClientConnection extends Debug implements Runnable,
                         // perform the service being requested
                         ResponseMessage responseMessage = performService(requestMessage);
 
+                        // set the uid on the responseMessage
+                        responseMessage.setUid(requestMessage.getUid());
+                        
                         sendResponse(responseMessage);
                         badTransmissionCount = 0;
                     }
