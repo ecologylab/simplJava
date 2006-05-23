@@ -182,16 +182,21 @@ public class ServicesClientNIO extends ServicesClientBase implements
      * 
      * @param request
      *            the request to send to the server.
+     * 
+     * @return the UID of request.
      */
-    public void nonBlockingSendMessage(RequestMessage request)
+    public long nonBlockingSendMessage(RequestMessage request)
+            throws IOException
     {
+        long outgoingUid = this.getUid();
+
         // translate the response and store it, then
         // encode it and write it
         if (connected())
         {
             try
             {
-                request.setUid(this.getUid());
+                request.setUid(outgoingUid);
 
                 outgoingChars.clear();
                 outgoingChars.put(request.translateToXML(false)).put('\n');
@@ -223,83 +228,58 @@ public class ServicesClientNIO extends ServicesClientBase implements
         else
         {
             debug("Attempted to send message, but not connected.");
+            throw new IOException(
+                    "Attempted to send message, but not connected.");
         }
+
+        return outgoingUid;
     }
 
     public synchronized ResponseMessage sendMessage(RequestMessage request)
     {
         ResponseMessage returnValue = null;
-        long currentMessageUid = this.getUid();
 
         // notify the connection thread that we are waiting on a response
         blockingRequestPending = true;
 
-        // translate the response and store it, then
-        // encode it and write it
-        if (connected())
+        long currentMessageUid;
+
+        try
         {
-            try
-            {
-                request.setUid(currentMessageUid);
+            currentMessageUid = this.nonBlockingSendMessage(request);
 
-                outgoingChars.clear();
-                outgoingChars.put(request.translateToXML(false)).put('\n');
-                outgoingChars.flip();
-
-                channel.write(encoder.encode(outgoingChars));
-            }
-            catch (NullPointerException e)
+            // wait to be notified that the response has arrived
+            while (blockingRequestPending)
             {
-                e.printStackTrace();
-                System.out.println("recovering.");
-            }
-            catch (XmlTranslationException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (CharacterCodingException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        else
-        {
-            debug("Attempted to send message, but not connected.");
-        }
-
-        // wait to be notified that the response has arrived
-        while (blockingRequestPending)
-        {
-            try
-            {
-                wait();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-
-            while ((blockingRequestPending)
-                    && (!blockingResponsesQueue.isEmpty()))
-            {
-                returnValue = blockingResponsesQueue.removeFirst();
-                if (returnValue.getUid() == currentMessageUid)
+                try
                 {
-                    blockingRequestPending = false;
-
+                    wait();
                 }
-                else
+                catch (InterruptedException e)
                 {
-                    returnValue = null;
+                    e.printStackTrace();
+                }
+
+                while ((blockingRequestPending)
+                        && (!blockingResponsesQueue.isEmpty()))
+                {
+                    returnValue = blockingResponsesQueue.removeFirst();
+                    if (returnValue.getUid() == currentMessageUid)
+                    {
+                        blockingRequestPending = false;
+
+                    }
+                    else
+                    {
+                        returnValue = null;
+                    }
                 }
             }
+
+        }
+        catch (IOException e1)
+        {
+            e1.printStackTrace();
         }
 
         return returnValue;
@@ -345,87 +325,98 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
                         incoming.remove();
 
-                        if (key.isReadable())
+                        if (key.isValid())
                         {
-                            try
+                            if (key.isReadable())
                             {
-                                while (channel.read(incomingRawBytes) > 0)
+                                try
                                 {
-                                    incomingRawBytes.flip();
-
-                                    accumulator.append(decoder
-                                            .decode(incomingRawBytes));
-
-                                    incomingRawBytes.clear();
-
-                                    if (accumulator.length() > 0)
+                                    while (channel.read(incomingRawBytes) > 0)
                                     {
-                                        if ((accumulator.charAt(accumulator
-                                                .length() - 1) == '\n')
-                                                || (accumulator
-                                                        .charAt(accumulator
-                                                                .length() - 1) == '\r'))
-                                        { // when we have accumulated an
-                                            // entire
-                                            // message,
-                                            // process it
+                                        incomingRawBytes.flip();
 
-                                            // in case we have several messages
-                                            // that are split by returns
-                                            while (accumulator.length() > 0)
-                                            {
-                                                // transform the message into a
-                                                // request and
-                                                // perform the service
+                                        accumulator.append(decoder
+                                                .decode(incomingRawBytes));
 
-                                                if (!this.blockingRequestPending)
+                                        incomingRawBytes.clear();
+
+                                        if (accumulator.length() > 0)
+                                        {
+                                            if ((accumulator.charAt(accumulator
+                                                    .length() - 1) == '\n')
+                                                    || (accumulator
+                                                            .charAt(accumulator
+                                                                    .length() - 1) == '\r'))
+                                            { // when we have accumulated an
+                                                // entire
+                                                // message,
+                                                // process it
+
+                                                // in case we have several
+                                                // messages
+                                                // that are split by returns
+                                                while (accumulator.length() > 0)
                                                 {
-                                                    processString(accumulator
-                                                            .substring(
+                                                    // transform the message
+                                                    // into a
+                                                    // request and
+                                                    // perform the service
+
+                                                    if (!this.blockingRequestPending)
+                                                    {
+                                                        processString(accumulator
+                                                                .substring(
+                                                                        0,
+                                                                        accumulator
+                                                                                .indexOf("\n")));
+                                                    }
+                                                    else
+                                                    {
+                                                        blockingResponsesQueue
+                                                                .add(processString(accumulator
+                                                                        .substring(
+                                                                                0,
+                                                                                accumulator
+                                                                                        .indexOf("\n"))));
+                                                        synchronized (this)
+                                                        {
+                                                            notify();
+                                                        }
+                                                    }
+
+                                                    // erase the message from
+                                                    // the
+                                                    // accumulator
+                                                    accumulator
+                                                            .delete(
                                                                     0,
                                                                     accumulator
-                                                                            .indexOf("\n")));
+                                                                            .indexOf("\n") + 1);
                                                 }
-                                                else
-                                                {
-                                                    blockingResponsesQueue
-                                                            .add(processString(accumulator
-                                                                    .substring(
-                                                                            0,
-                                                                            accumulator
-                                                                                    .indexOf("\n"))));
-                                                    synchronized(this)
-                                                    {
-                                                        notify();
-                                                    }
-                                                }
-
-                                                // erase the message from the
-                                                // accumulator
-                                                accumulator
-                                                        .delete(
-                                                                0,
-                                                                accumulator
-                                                                        .indexOf("\n") + 1);
                                             }
                                         }
                                     }
                                 }
+                                catch (CharacterCodingException e1)
+                                {
+                                    // TODO Auto-generated catch block
+                                    e1.printStackTrace();
+                                }
+                                catch (IOException e1)
+                                {
+                                    // TODO Auto-generated catch block
+                                    e1.printStackTrace();
+                                }
                             }
-                            catch (CharacterCodingException e1)
+                            else
                             {
-                                // TODO Auto-generated catch block
-                                e1.printStackTrace();
-                            }
-                            catch (IOException e1)
-                            {
-                                // TODO Auto-generated catch block
-                                e1.printStackTrace();
+                                debug("Key is selected and not readable!");
                             }
                         }
                         else
-                        {
-                            debug("Key is selected and not readable!");
+                        { // the key is invalid; server disconnected
+                            disconnect();
+
                         }
                     }
                 }
@@ -442,8 +433,6 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
     private ResponseMessage processString(String incomingMessage)
     {
-        // System.out.println("client got the following: " + incomingMessage);
-
         try
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
