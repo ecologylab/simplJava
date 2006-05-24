@@ -184,17 +184,18 @@ public class Debug
       println(getClassName(c)+SEPARATOR + message);
    }
 
+   static char PERIOD	= 	'.';
+   static char SPACE	=	' ';
 /**
  * @return   the abbreviated name of the class - without the package qualifier.
  */
    public static String getClassName(Class thatClass)
    {
-	  //      String abbrevName	= (String) classAbbrevNames.get(fullName);
-      String abbrevName	= (String) classAbbrevNames.get(thatClass);
+      String abbrevName	= (String) classAbbrevNames.get(thatClass); 
       if (abbrevName == null)
       {
 		 String fullName	= thatClass.toString();
-		 abbrevName	= fullName.substring(fullName.lastIndexOf(SEPARATOR) + 1);
+		 abbrevName	= fullName.substring(fullName.lastIndexOf(PERIOD) + 1);	 
 		 synchronized (classAbbrevNames)
 		 {
 			classAbbrevNames.put(thatClass, abbrevName);
@@ -212,7 +213,7 @@ public class Debug
       if (packageName == null)
       {
 		 String className	= thatClass.toString();
-		 packageName	= className.substring(6, className.lastIndexOf(SEPARATOR));
+		 packageName	= className.substring(className.indexOf(SPACE) + 1, className.lastIndexOf(PERIOD));	 
 		 synchronized (packageNames)
 		 {
 		    packageNames.put(thatClass, packageName);
