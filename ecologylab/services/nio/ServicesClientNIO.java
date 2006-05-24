@@ -301,6 +301,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
         System.err.println("shutting down client listening thread.");
 
         running = false;
+        
+        this.disconnect();
 
         // dispose of thread
         thread = null;
