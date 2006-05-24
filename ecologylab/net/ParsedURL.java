@@ -135,8 +135,10 @@ extends Debug
       if (webAddr == null)
       	return null;
       
-      // if its a relative address string, make it that way
-      ParsedURL result	= getRelativeToDocBase(webAddr, errorDescriptor);
+      ParsedURL result	= null;
+      // if its not an absolute url string, parse url as relative
+      if (webAddr.indexOf("://") == -1)
+    	  result		= getRelativeToDocBase(webAddr, errorDescriptor);
       // otherwise, try forming it absolutely
       if (result == null)
       {
