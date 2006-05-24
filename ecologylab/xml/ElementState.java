@@ -261,7 +261,7 @@ public class ElementState extends Debug
 	{
 	   
 	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
-							 getTagMapEntry(getClass(), compression));
+							 getTagMapEntry(thatClass, compression));
 	}
 	
 	/**
