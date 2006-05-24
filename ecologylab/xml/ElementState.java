@@ -1276,7 +1276,8 @@ public class ElementState extends Debug
 					String value		= xmlAttr.getNodeValue();
 					if (xmlAttrName.equals("id"))
 						this.elementByIdMap.put(value, this);
-					
+					if (value != null)
+						value			= XmlTools.unescapeXML(value);
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -1367,6 +1368,8 @@ public class ElementState extends Debug
 						  if (textElementChild != null)
 						  {
 							  String textNodeValue	= textElementChild.getNodeValue();
+							  if (textNodeValue != null)
+								  textNodeValue		= XmlTools.unescapeXML(textNodeValue);
 							  //debug("setting special text node " +childFieldName +"="+textNodeValue);
 							  this.setField(childField, textNodeValue);
 /*
