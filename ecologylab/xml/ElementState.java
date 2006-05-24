@@ -441,17 +441,17 @@ public class ElementState extends Debug
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
 						Class thatNewClass			= thatElementState.getClass();
-//						debug("checking: " + thatReferenceObject+" w " + thatClass+", " + thatField.getType());
+//						debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						if (thatNewClass == thatField.getType())
 							buffy.append( 
 							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
 									  getTagMapEntry(fieldName, compression)));
 						else
 						{
-//						   debug("derived class -- using class name for " + thatClass);
+//						   debug("derived class -- using class name for " + thatNewClass);
 							buffy.append(
 							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-									  getTagMapEntry(thatClass, compression)));
+									  getTagMapEntry(thatNewClass, compression)));
 						}
 					}
 				} //end of doRecursiveDescent
