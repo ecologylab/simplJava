@@ -1,5 +1,7 @@
 package ecologylab.services.logging;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 import ecologylab.generic.NetTools;
@@ -61,7 +63,7 @@ public class SendPrologue extends LogueMessage
 		 * A session log file name of a user
 		 */
 		String sessionLogFile	=	// "/project/ecologylab/studyResults/CF_LOG/" + 
-					"LogFiles/" + 
+				//	"LogFiles/" + 
 					ip + "__" + tempDate + "_" + userID + ".xml";
 		return sessionLogFile;
 	}
