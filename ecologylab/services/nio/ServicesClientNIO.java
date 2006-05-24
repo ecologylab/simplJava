@@ -82,7 +82,7 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
     private volatile boolean            blockingRequestPending = false;
 
-    private LinkedList<ResponseMessage> blockingResponsesQueue = new LinkedList<ResponseMessage>();
+    private LinkedList blockingResponsesQueue = new LinkedList();
 
     public ServicesClientNIO(String server, int port, NameSpace messageSpace,
             ObjectRegistry objectRegistry)
@@ -263,7 +263,7 @@ public class ServicesClientNIO extends ServicesClientBase implements
                 while ((blockingRequestPending)
                         && (!blockingResponsesQueue.isEmpty()))
                 {
-                    returnValue = blockingResponsesQueue.removeFirst();
+                    returnValue = (ResponseMessage) blockingResponsesQueue.removeFirst();
                     if (returnValue.getUid() == currentMessageUid)
                     {
                         blockingRequestPending = false;

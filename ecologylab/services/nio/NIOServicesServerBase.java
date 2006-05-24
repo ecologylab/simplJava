@@ -59,13 +59,13 @@ public abstract class NIOServicesServerBase extends ServicesServerBase implement
                 if (selector.select() > 0)
                 {
                     // get an iterator of the keys that have something to do
-                    Iterator<SelectionKey> selectedKeyIter = selector.selectedKeys().iterator();
+                    Iterator selectedKeyIter = selector.selectedKeys().iterator();
 
                     while (selectedKeyIter.hasNext())
                     {
                         // get the key corresponding to the event and process it
                         // appropriately
-                        SelectionKey key = selectedKeyIter.next();
+                        SelectionKey key = (SelectionKey) selectedKeyIter.next();
 
                         selectedKeyIter.remove();
 

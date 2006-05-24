@@ -16,7 +16,7 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
         ServerConstants
 {
 
-    protected HashMap<Object, MessageProcessor> pool = new HashMap<Object, MessageProcessor>();
+    protected HashMap pool = new HashMap();
 
     public ServicesServerNIO(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
@@ -43,7 +43,7 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
         
         if (pool.containsKey(key.attachment()))
         {
-            pool.remove(key.attachment()).stop();
+            ((NIOServicesServerBase) pool.remove(key.attachment())).stop();
         }
         
         key.cancel();
@@ -65,7 +65,7 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
 
             try
             {
-                pool.get(key.attachment()).process();
+                ((MessageProcessor) pool.get(key.attachment())).process();
             }
             catch (Exception e)
             {

@@ -32,7 +32,7 @@ public class SServerNIOST extends NIOServicesServerBase
      * Maps key attachments (different connections) to accumulators
      * (StringBuffers of the incoming messages recieved so far).
      */
-    private HashMap<Object, StringBuffer> connectionAccumulators = new HashMap<Object, StringBuffer>();
+    private HashMap connectionAccumulators = new HashMap();
 
     // private Charset charset = Charset.forName("ISO-8859-1");
     private Charset                       charset                = Charset
@@ -154,13 +154,13 @@ public class SServerNIOST extends NIOServicesServerBase
         ByteBuffer rawBytes = ByteBuffer.allocate(MAX_PACKET_SIZE);
         int bytesRead = 0;
 
-        StringBuffer accumulator = connectionAccumulators.get(key.attachment());
+        StringBuffer accumulator = (StringBuffer) connectionAccumulators.get(key.attachment());
 
         if (accumulator == null)
         { // no accumulator for this key yet
             connectionAccumulators.put(key.attachment(), new StringBuffer(
                     MAX_PACKET_SIZE));
-            accumulator = connectionAccumulators.get(key.attachment());
+            accumulator = (StringBuffer) connectionAccumulators.get(key.attachment());
         }
 
         try
