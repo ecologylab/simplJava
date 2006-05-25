@@ -136,7 +136,7 @@ public class LoggingMemoryMapped extends Logging implements Runnable,
      * The base size for the log file, and the amount it will be incremented
      * whenever its buffer overflows.
      */
-    static final int            LOG_FILE_INCREMENT       = 1024 * 200;
+    static final int            LOG_FILE_INCREMENT       = 1024 * 512;
 
     int                         lastPos                  = LOG_FILE_INCREMENT;
 
