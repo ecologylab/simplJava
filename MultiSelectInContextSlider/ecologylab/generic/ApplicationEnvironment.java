@@ -257,7 +257,22 @@ implements Environment
 		return purl;
 	}
 	
-
+	static final String FIREFOX_PATH_WINDOWS	= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+	static final String IE_PATH_WINDOWS			= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
+	
+	static File	firefoxFileCache;
+	
+	static File getFirefoxFile()
+	{
+		File result		= firefoxFileCache;
+		if (result == null)
+		{
+			result		= new File(FIREFOX_PATH_WINDOWS);
+			firefoxFileCache	= result;
+		}
+		return result;
+	}
+	
 	public void go(ParsedURL purl, String frame)
 	{
 		int os		= PropertiesAndDirectories.os();
@@ -265,17 +280,20 @@ implements Environment
 		switch (os)
 		{
 		case PropertiesAndDirectories.WINDOWS:
-			cmd	= "C:\\Program Files\\Mozilla Firefox\\firefox " + purl;
+			File firefoxFile	= getFirefoxFile();
+			cmd	= (Generic.parameterBool("navigate_with_ie") || !firefoxFile.exists()) ? IE_PATH_WINDOWS : FIREFOX_PATH_WINDOWS; 
+			cmd	+= " " + purl; //" \"" + purl + "\"";
+			Debug.println(cmd);
 			try {
 					Process p = Runtime.getRuntime().exec(cmd);
 				} catch (IOException e)
 				{
-					println("problems in go(); caught exception: ");
+					println("ERROR in go(); caught exception: ");
 					e.printStackTrace();
 				}
 			break;
 		default:
-			println("go(ParsedURL) not supported for os " + os);
+			println("go(ParsedURL) not supported for os " + PropertiesAndDirectories.getOsName());
 			break;				
 		}
 	}

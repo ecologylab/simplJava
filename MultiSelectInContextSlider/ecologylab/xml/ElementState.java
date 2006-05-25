@@ -171,7 +171,7 @@ public class ElementState extends Debug
 	{
 		//nodeNumber is just to indicate which node number(#1 is the root node of the DOM)
 		//is being processed. compression attr is emitted only for node number 1
-		return translateToXML(compression, true, TOP_LEVEL_NODE);
+		return translateToXML(compression, true);
 	}
 	
 	/**
@@ -211,9 +211,14 @@ public class ElementState extends Debug
 	 */
 	public String translateToXML(boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
 	{
-		return translateToXML(compression, doRecursiveDescent, TOP_LEVEL_NODE);
+		return translateToXML(getClass(), compression, doRecursiveDescent);
 	}
-	
+
+	public String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
+	{
+		return translateToXML(thatClass, compression, doRecursiveDescent, TOP_LEVEL_NODE);
+	}
+
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
@@ -251,12 +256,12 @@ public class ElementState extends Debug
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	protected String translateToXML(boolean compression, boolean doRecursiveDescent, int nodeNumber)
+	private String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent, int nodeNumber)
 		throws XmlTranslationException
 	{
 	   
-	   return translateToXML(compression, doRecursiveDescent, nodeNumber,
-							 getTagMapEntry(getClass(), compression));
+	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
+							 getTagMapEntry(thatClass, compression));
 	}
 	
 	/**
@@ -296,8 +301,8 @@ public class ElementState extends Debug
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	protected String translateToXML(boolean compression, 
-									boolean doRecursiveDescent, 
+	private String translateToXML(Class thatClass, 
+									boolean compression, boolean doRecursiveDescent, 
 									int nodeNumber, TagMapEntry tagMapEntry)
 		throws XmlTranslationException
 	{
@@ -308,12 +313,14 @@ public class ElementState extends Debug
 		
 		try
 		{
-			Field[] fields	= getClass().getFields();
+			//Class theClass = getClass();
+			Field[] fields	= thatClass.getFields();
 			//arrange the fields such that all primitive types occur before the reference types
 			arrangeFields(fields);
 			boolean	processingNestedElements= false;
 			
-			String className			= getClass().getName();
+			// maybe this should be getClass()
+			String className			= thatClass.getName();
 			int	numFields				= fields.length;
 			
 			buffy		= new StringBuffer(numFields * ESTIMATE_CHARS_PER_FIELD);
@@ -324,8 +331,7 @@ public class ElementState extends Debug
 			//so if the nodeNumber is 1 (top node) then emit the compression attribute
 			if (compression && (nodeNumber == TOP_LEVEL_NODE))
 			{
-				String compressionAttr = " " + "compression" + " = " + "\"" + compression + "\"" + " ";
-				buffy.append(compressionAttr);
+				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
 			}
 
 			for (int i=0; i<numFields; i++)
@@ -406,16 +412,24 @@ public class ElementState extends Debug
 					
 						while (elementIterator.hasNext())
 						{
-							ElementState element;
-							try{
-								element = (ElementState) elementIterator.next();
-							}catch(ClassCastException e)
+							Object next = elementIterator.next();
+							// this is a special hack for working with pre-translated XML Strings
+							if (next instanceof String)
+								buffy.append((String) next);
+							else
 							{
-								throw new XmlTranslationException("Collections MUST contain " +
-										"objects of class derived from ElementState but " +
-										thatReferenceObject +" contains some that aren't.");
+								ElementState element;
+								try
+								{
+									element = (ElementState) next;
+								} catch(ClassCastException e)
+								{
+									throw new XmlTranslationException("Collections MUST contain " +
+											"objects of class derived from ElementState or XML Strings, but " +
+											thatReferenceObject +" contains some that aren't.");
+								}
+								buffy.append(element.translateToXML(element.getClass(), compression, true, nodeNumber));
 							}
-							buffy.append(element.translateToXML(compression, true, nodeNumber));		
 						}
 					}
 					else if (thatReferenceObject instanceof ElementState)
@@ -426,18 +440,18 @@ public class ElementState extends Debug
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						Class thatClass			= thatElementState.getClass();
-//						debug("checking: " + thatReferenceObject+" w " + thatClass+", " + thatField.getType());
-						if (thatClass == thatField.getType())
+						Class thatNewClass			= thatElementState.getClass();
+//						debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
+						if (thatNewClass == thatField.getType())
 							buffy.append( 
-							  thatElementState.translateToXML(compression, true, nodeNumber,
+							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
 									  getTagMapEntry(fieldName, compression)));
 						else
 						{
-//						   debug("derived class -- using class name for " + thatClass);
+//						   debug("derived class -- using class name for " + thatNewClass);
 							buffy.append(
-							  thatElementState.translateToXML(compression, true, nodeNumber,
-									  getTagMapEntry(thatClass, compression)));
+							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
+									  getTagMapEntry(thatNewClass, compression)));
 						}
 					}
 				} //end of doRecursiveDescent
@@ -1269,7 +1283,8 @@ public class ElementState extends Debug
 					String value		= xmlAttr.getNodeValue();
 					if (xmlAttrName.equals("id"))
 						this.elementByIdMap.put(value, this);
-					
+					if (value != null)
+						value			= XmlTools.unescapeXML(value);
 					try
 					{
 						Class[] parameters	= new Class[1];
@@ -1360,6 +1375,8 @@ public class ElementState extends Debug
 						  if (textElementChild != null)
 						  {
 							  String textNodeValue	= textElementChild.getNodeValue();
+							  if (textNodeValue != null)
+								  textNodeValue		= XmlTools.unescapeXML(textNodeValue);
 							  //debug("setting special text node " +childFieldName +"="+textNodeValue);
 							  this.setField(childField, textNodeValue);
 /*

@@ -25,6 +25,10 @@ extends Debug
     protected static File		_DIR;
    
     public static final int UNKNOWN=0, WINDOWS=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5;
+    public static final String OS_NAMES[] =
+    {
+    	"Unknown", "Windows", "Linux", "Mac old", "Mac OSX", "Unix",
+    };
 	
 	protected static int os; //should be final
 	
@@ -72,6 +76,10 @@ extends Debug
 			}
 		}
 		return os;
+	}
+	public static String getOsName()
+	{
+		return OS_NAMES[os()];
 	}
 	static String		applicationName;
 	

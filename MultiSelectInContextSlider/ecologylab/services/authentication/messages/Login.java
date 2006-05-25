@@ -1,13 +1,15 @@
 /*
  * Created on Mar 30, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.messages;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.OkResponse;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -18,12 +20,14 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Login extends RequestMessage implements AuthenticationMessages,
-        RegistryObjectsServerAuthentication
+public class Login extends RequestMessage implements AuthMessages,
+        AuthServerRegistryObjects
 {
 
     public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
 
+    public InetAddress clientAddress = null;
+    
     /**
      * Should not normally be used; only for XML translations.
      */
@@ -70,9 +74,9 @@ public class Login extends RequestMessage implements AuthenticationMessages,
         AuthenticationList authList = (AuthenticationList) objectRegistry
                 .lookupObject(AUTHENTICATION_LIST);
         HashMap authedClients = (HashMap) objectRegistry
-                .lookupObject(AUTHENTICATED_CLIENTS);
+                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
 
-        ResponseMessage loginConfirm = new ErrorResponse(LOGIN_FAILED_PASSWORD); // set
+        LoginStatusResponse loginConfirm = new LoginStatusResponse(LOGIN_FAILED_PASSWORD); // set
                                                                                     // to
                                                                                     // the
                                                                                     // default
@@ -96,13 +100,11 @@ public class Login extends RequestMessage implements AuthenticationMessages,
                     // now make sure that the user isn't already logged-in
                     if (authedClients.containsKey(entry.getUsername()))
                     {
-                        loginConfirm = new ErrorResponse(LOGIN_FAILED_LOGGEDIN);
+                        loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
                     } else
                     {
                         // we want to let the client know that it's logged in...
-                        // TODO not sure if this is right; we might want to be
-                        // more specific about what we're saying OK to...
-                        loginConfirm = OkResponse.get();
+                        loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
                     }
                 }
             }
@@ -126,5 +128,21 @@ public class Login extends RequestMessage implements AuthenticationMessages,
     public void setEntry(AuthenticationListEntry entry)
     {
         this.entry = entry;
+    }
+
+    /**
+     * @return Returns the clientAddress.
+     */
+    public InetAddress getClientAddress()
+    {
+        return clientAddress;
+    }
+
+    /**
+     * @param clientAddress The clientAddress to set.
+     */
+    public void setClientAddress(InetAddress clientAddress)
+    {
+        this.clientAddress = clientAddress;
     }
 }

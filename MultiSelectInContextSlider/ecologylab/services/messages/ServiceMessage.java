@@ -9,6 +9,35 @@ import ecologylab.xml.ElementState;
  */
 public class ServiceMessage extends ElementState 
 {
+    public long timeStamp = 0;
+    
+    public long uid;
+    
+    /**
+     * Sets timeStamp to equal the current system time in milliseconds.
+     *
+     */
+    public void stampTime()
+    {
+        timeStamp = System.currentTimeMillis();
+    }
+
+    /**
+     * @return Returns the timeStamp in milliseconds.
+     */
+    public long getTimeStamp()
+    {
+        return timeStamp;
+    }
 	
+    public void setUid(long uid)
+    {
+        this.uid = uid;
+    }
+    
+    public long getUid()
+    {
+        return uid;
+    }
 }
 

@@ -3,6 +3,7 @@
  */
 package ecologylab.generic.AssetsCache;
 
+import java.awt.GraphicsConfiguration;
 import java.io.File;
 
 import ecologylab.generic.ApplicationProperties;
@@ -294,12 +295,12 @@ implements ApplicationProperties
 		else
 			println("Using cached " + zipFileDestination);
 	}	
-	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget)
+	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget, GraphicsConfiguration graphicsConfiguration)
 	{
 		//FIXME need to make sure zip has been downloaded here
 		// if not, initiate download & wait for it!
 		ParsedURL cachedImagePURL	= new ParsedURL(getCachedInterfaceFile(imagePath));
-		IIOPhoto result = new IIOPhoto(cachedImagePURL, dispatchTarget);
+		IIOPhoto result = new IIOPhoto(cachedImagePURL, dispatchTarget, graphicsConfiguration);
 //		result.downloadWithHighPriority();
 		result.useHighPriorityDownloadMonitor();
 		result.download();

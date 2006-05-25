@@ -1,0 +1,344 @@
+/*
+ * Created on May 12, 2006
+ */
+package ecologylab.services.authentication.nio;
+
+import ecologylab.generic.BooleanSlot;
+import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.AuthConstants;
+import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
+import ecologylab.services.nio.ServicesClientNIO;
+import ecologylab.xml.NameSpace;
+
+public class NIOAuthClient extends ServicesClientNIO implements
+        AuthClientRegistryObjects, AuthConstants, AuthMessages
+{
+    protected AuthenticationListEntry entry      = null;
+
+    /**
+     * Indicates whether or not this is trying to log into the server.
+     */
+    private boolean                   loggingIn  = false;
+
+    private boolean                   loggingOut = false;
+
+    /**
+     * @return Returns loggedIn.
+     */
+    public boolean isLoggedIn()
+    {
+        return ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value;
+    }
+
+    /**
+     * Creates a new AuthClient object using the given parameters.
+     * 
+     * @param server
+     * @param port
+     */
+    public NIOAuthClient(String server, int port)
+    {
+        this(server, port, null);
+    }
+
+    /**
+     * Creates a new AuthClient object using the given parameters.
+     * 
+     * @param server
+     * @param port
+     * @param messageSpace
+     * @param objectRegistry
+     */
+    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+            ObjectRegistry objectRegistry)
+    {
+        this(server, port, messageSpace, objectRegistry, null);
+    }
+
+    /**
+     * Creates a new AuthClient object using the given parameters.
+     * 
+     * @param server
+     * @param port
+     * @param entry
+     */
+    public NIOAuthClient(String server, int port, AuthenticationListEntry entry)
+    {
+        this(server, port, NameSpace.get("authClient",
+                "ecologylab.services.authentication"), new ObjectRegistry(),
+                entry);
+    }
+
+    /**
+     * Main constructor; creates a new AuthClient using the parameters.
+     * 
+     * @param server
+     * @param port
+     * @param messageSpace
+     * @param objectRegistry
+     * @param entry
+     */
+    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+            ObjectRegistry objectRegistry, AuthenticationListEntry entry)
+    {
+        super(server, port, messageSpace, objectRegistry);
+
+        messageSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "Login");
+        messageSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "Logout");
+        messageSpace.addTranslation("ecologylab.services.authentication",
+                "AuthenticationListEntry");
+        messageSpace.addTranslation(
+                "ecologylab.services.authentication.messages",
+                "LoginStatusResponse");
+
+        messageSpace.addTranslation("ecologylab.services.messages",
+                "BadSemanticContentResponse");
+        messageSpace.addTranslation("ecologylab.services.messages",
+                "ErrorResponse");
+
+        objectRegistry.registerObject(LOGIN_STATUS, new BooleanSlot(false));
+        objectRegistry.registerObject(LOGIN_STATUS_STRING, null);
+
+        this.entry = entry;
+    }
+
+    /**
+     * @param entry
+     *            The entry to set.
+     */
+    public void setEntry(AuthenticationListEntry entry)
+    {
+        this.entry = entry;
+    }
+
+    /**
+     * Attempts to connect to the server using the AuthenticationListEntry that
+     * is associated with the client's side of the connection. Does not block
+     * for connection.
+     */
+    public boolean login()
+    {
+        // if we have an entry (username + password), then we can try to connect
+        // to the server.
+        if (entry != null)
+        {
+            loggingOut = false;
+            loggingIn = true;
+
+            // Login response will handle changing the LOGIN_STATUS
+            sendLoginMessage();
+        } else
+        {
+            debug("ENTRY NOT SET!");
+        }
+
+        return isLoggedIn();
+    }
+
+    public boolean blockingLogin()
+    {
+        login();
+
+        System.out.println("Waiting for server response for login.");
+
+        for (int i = 0; i < LOGIN_WAIT_TIME / 10; i++)
+        {
+            if (!loggingIn)
+            {
+                break;
+            } else
+            {
+                if (i % 100 == 0)
+                {
+                    System.out.println("Waited " + i / 100
+                            + " seconds for the server's response.");
+                }
+
+                try
+                {
+                    this.finishLogin();
+                } catch (Exception e)
+                { // cannot happen
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                if (loggingIn)
+                {
+                    synchronized (this)
+                    {
+
+                        try
+                        {
+                            this.wait(10);
+                        } catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                } else
+                {
+                    break;
+                }
+            }
+        }
+
+        return isLoggedIn();
+    }
+
+    /**
+     * Attempts to log out of the server using the AuthenticationListEntry that
+     * is associated with the client's side of the connection. Blocks until a
+     * response is received or until LOGIN_WAIT_TIME passes, whichever comes
+     * first.
+     */
+    public boolean logout()
+    {
+        // if we have an entry (username + password), then we can try to logout
+        // of
+        // the server.
+        if (entry != null)
+        {
+            loggingIn = false;
+            loggingOut = true;
+
+            // Login response will handle changing the LOGIN_STATUS
+            sendLogoutMessage();
+        }
+
+        return isLoggedIn();
+    }
+
+    /**
+     * Checks whether or not a login call is complete. May be called multiple
+     * times.
+     * 
+     * @return true if a pending login (successful or not) is COMPLETE, false if
+     *         it is still in progress.
+     * @throws Exception
+     *             if no login call has yet been made.
+     */
+    public boolean finishLogin() throws Exception
+    {
+        if (!connected())
+        {
+            throw new Exception("Not yet connected.");
+        } else if (!loggingIn)
+        {
+            throw new Exception("No pending login.");
+        } else
+        {
+            if (!isLoggedIn())
+            { // if we are not logged in, it might be because login failed, or
+                // because it's not yet finished; need to determine which.
+                if (didLoginFail((String) objectRegistry
+                        .lookupObject(LOGIN_STATUS_STRING)))
+                { // login is complete, but failed
+                    loggingIn = false;
+                }
+                // otherwise, we just leave it true
+
+            } else
+            {
+                loggingIn = false;
+            }
+        }
+
+        return !loggingIn;
+    }
+
+    public boolean finishLogout() throws Exception
+    {
+        if (!connected())
+        {
+            throw new Exception("Not connected.");
+        } else if (!loggingOut)
+        {
+            throw new Exception("No pending logout.");
+        } else
+        {
+            if (isLoggedIn())
+            { // if we are logged in, it might be because logout failed, or
+                // because it's not yet finished; need to determine which.
+                if (didLogoutFail((String) objectRegistry
+                        .lookupObject(LOGIN_STATUS_STRING)))
+                { // login is complete, but failed
+                    loggingOut = false;
+                }
+                // otherwise, we just leave it true
+
+            } else
+            {
+                loggingOut = false;
+            }
+        }
+
+        return !loggingOut;
+    }
+
+    public boolean didLogoutFail(String statusString)
+    {
+        return (LOGOUT_FAILED_NOT_LOGGEDIN.equals(statusString));
+    }
+
+    public boolean didLoginFail(String statusString)
+    {
+        return (LOGIN_FAILED_PASSWORD.equals(statusString) || LOGIN_FAILED_LOGGEDIN
+                .equals(statusString));
+    }
+
+    /**
+     * Sends a Logout message to the server; may be overridden by subclasses
+     * that need to add addtional information to the Logout message.
+     * 
+     */
+    protected void sendLogoutMessage()
+    {
+        this.sendMessage(new Logout(entry));
+    }
+
+    /**
+     * Sends a Login message to the server; may be overridden by subclasses that
+     * need to add addtional information to the Login message.
+     * 
+     */
+    protected void sendLoginMessage()
+    {
+        this.sendMessage(new Login(entry));
+    }
+
+    /**
+     * @return Returns the loggingIn.
+     */
+    public boolean isLoggingIn()
+    {
+        return loggingIn;
+    }
+
+    /**
+     * @return Returns the loggingOut.
+     */
+    public boolean isLoggingOut()
+    {
+        return loggingOut;
+    }
+
+    public String getExplanation()
+    {
+        String temp = (String) objectRegistry.lookupObject(LOGIN_STATUS_STRING);
+
+        if (temp == null)
+        {
+            return "";
+        } else
+        {
+            return temp;
+        }
+    }
+}

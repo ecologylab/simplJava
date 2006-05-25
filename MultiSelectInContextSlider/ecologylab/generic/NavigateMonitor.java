@@ -1,30 +1,42 @@
 package ecologylab.generic;
 
-import ecologylab.applet.BrowserServer;
 import ecologylab.services.ServicesClient;
+import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.messages.Navigate;
+import ecologylab.services.messages.StopMessage;
 import ecologylab.xml.NameSpace;
 
+/**
+ * Provide navigation to a web page, in a web browser.
+ * Does this in a separate thread from the caller's.
+ * Thus, this is suitable for call from an event handler.
+ * <p/>
+ * Uses the BrowserServer, if one can be found.
+ * Otherwise, uses JavaScript to a browser, if we're inside a Playlet.
+ * Otherwise, seeks Firefox and if found, exec's a command at the OS level.
+ *
+ * @author andruid
+ */
 public class NavigateMonitor extends Thread
 {
    private boolean			running;
    
-   private static final NameSpace messageSpace = NameSpace.get("Browse", "ecologylab.services.messages");
-   
-   public ServicesClient servicesClient = new ServicesClient(BrowserServer.PORT, messageSpace);
+   protected ServicesClient servicesClient;// = new ServicesClient(ServicesHostsAndPorts.BROWSER_SERVER_PORT, messageSpace);
    
    /**
-    * Initialiazed to true, hoping for the best.
+    * Initialiazed to true if there is a non-null servicesClient, hoping for the best.
     * Will get set to false if the assumption turns out not to be valid.
     * Indicates there is a server to connect to to perform navigation.
     * Otherwise, try to use more local options.
     */
-   private boolean			hasNavigateServer	= true;
+   private boolean			useBrowserServices	= true;
    
-   public NavigateMonitor(String name)
+   public NavigateMonitor(ServicesClient servicesClient)
    {
-	  super(name);
-	  running			= true;
+	  super("NavigateMonitor" + ((servicesClient == null) ? "" : ("-"+servicesClient.toString())));
+	  running					= true;
+	  this.servicesClient		= servicesClient;
+	  this.useBrowserServices	= (servicesClient != null);
 	  start();
    }
    public synchronized void stopRunning()
@@ -34,18 +46,35 @@ public class NavigateMonitor extends Thread
 		 running		= false;
 		// interrupt();
 		 notify();
+		 debug("checking to stop servicesClient");
+		 if ((servicesClient != null) && servicesClient.connected())
+		 {
+			 debug("send StopMessage() to BrowserServices");
+			 servicesClient.sendMessage(new StopMessage());
+			 debug("disconnect()");
+			 servicesClient.disconnect();
+			 servicesClient	= null;
+		 }
 	  }
    }
-   
+   protected void debug(String msg)
+   {
+	   Debug.println(this, msg);
+   }
 /**
  * The next location we'll navigate to.
  */
    ParsedURL			purl;
    
    /**
-	* Raise embellishments after a suitable delay, unless a cancel comes
-	* in first().
-	*/
+    * Provide navigation to a web page, in a web browser.
+    * Does this in a separate thread from the caller's.
+    * Thus, this is suitable for call from an event handler.
+    * <p/>
+    * Uses the BrowserServer, if one can be found.
+    * Otherwise, uses JavaScript to a browser, if we're inside a Playlet.
+    * Otherwise, seeks Firefox and if found, exec's a command at the OS level.
+    */
    public synchronized void navigate(ParsedURL purl)
    {
 	  //println("RolloverFrame.delayThenShow()");
@@ -70,7 +99,7 @@ public class NavigateMonitor extends Thread
 				   e.printStackTrace();
 			   }
 			   // does the actual navigate
-			   if (hasNavigateServer)
+			   if (useBrowserServices)
 			   {
 				   Debug.println("Navigate with navigateServer to " + purl);
 				   goNavigate(purl);
@@ -98,19 +127,16 @@ public class NavigateMonitor extends Thread
 	   
 	   if (!servicesClient.connected())
 	   {
-	   		hasNavigateServer = false;
+	   		useBrowserServices = false;
 	   		Generic.go(purl);
 	   		return;
 	   }
 	
 	   //Create the browse message
-	   Debug.println("create Navigate(" + purl);
 	   Navigate browseCommand = new Navigate(purl);
 	   
 	   //send it
-	   System.out.println("Navigating to " + purl);
+	   Debug.println(this, "Use BrowserServer to navigate to " + purl);
 	   servicesClient.sendMessage(browseCommand);
-		
    }
-   
-}
+ }

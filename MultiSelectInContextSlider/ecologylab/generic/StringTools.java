@@ -27,18 +27,18 @@ extends Debug
  */
    public static final void toLowerCase(StringBuffer buffer)
    {
-      int length	= buffer.length();
-      for (int i=0; i<length; i++)
-      {
-	 char c		= buffer.charAt(i);
-//	 if (Character.isUpperCase(c))
-	 // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
-	 if ((c >='A') && (c <= 'Z'))
-	 {
-	    c	       += 0x20;
-	    buffer.setCharAt(i, c);
-	 }
-      }
+	   int length	= buffer.length();
+	   for (int i=0; i<length; i++)
+	   {
+		   char c		= buffer.charAt(i);
+//		   if (Character.isUpperCase(c))
+		   // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
+		   if ((c >='A') && (c <= 'Z'))
+		   {
+			   c	       += 0x20;
+			   buffer.setCharAt(i, c);
+		   }
+	   }
    }
    public static final boolean sameDomain(URL url1, URL url2)
    {
@@ -46,49 +46,48 @@ extends Debug
    }
    public static final String domain(URL url)
    {
-      if (url.getProtocol().equals("file"))
-	 return "filesystem.local";
-      else
-	 return domain(url.getHost());
+	   if (url.getProtocol().equals("file"))
+		   return "filesystem.local";
+	   else
+		   return domain(url.getHost());
    }
 /**
  * Useful for finding common domains.
  */
    public static final String domain(String urlString)
    {
-      if ((urlString == null) || (urlString.length() == 0))
-	 return null;
-      int end	= urlString.length() - 1;
-      int domainStartingDot	= 0;
-      boolean foundFirstDot	= false;
-      boolean foundSecondDot	= false;
-      boolean international	= false;
-      String result	= urlString;
-      for (int i=end; i>0; i--)
-      {
-	 if (urlString.charAt(i) == '.')
-	 {
-	    if (foundFirstDot)
-	    {
-	       if (international && !foundSecondDot)
-	       {
-		  foundSecondDot	= true;
-	       }
-	       else
-	       {
-		  domainStartingDot	= i + 1;
-		  break;
-	       }
-	    }
-	    else
-	    {
-	       foundFirstDot	= true;
-	       String suffix	= urlString.substring(i+1);
-	       international	= !oneDotDomains.containsKey(suffix);
-	    }
-	 }
-      }
-      return urlString.substring(domainStartingDot, end + 1);
+	   if ((urlString == null) || (urlString.length() == 0))
+		   return null;
+	   int end	= urlString.length() - 1;
+	   int domainStartingDot	= 0;
+	   boolean foundFirstDot	= false;
+	   boolean foundSecondDot	= false;
+	   boolean international	= false;
+	   for (int i=end; i>0; i--)
+	   {
+		   if (urlString.charAt(i) == '.')
+		   {
+			   if (foundFirstDot)
+			   {
+				   if (international && !foundSecondDot)
+				   {
+					   foundSecondDot	= true;
+				   }
+				   else
+				   {
+					   domainStartingDot	= i + 1;
+					   break;
+				   }
+			   }
+			   else
+			   {
+				   foundFirstDot	= true;
+				   String suffix	= urlString.substring(i+1);
+				   international	= !oneDotDomains.containsKey(suffix);
+			   }
+		   }
+	   }
+	   return urlString.substring(domainStartingDot, end + 1);
    }
    
 /**
@@ -158,19 +157,19 @@ extends Debug
       
       try
       {
-	 length	=
-	 protocol.length() + 3 /* :// */ + authority.length() + pathLength + 1/* ? */ + queryLength;
-   } catch (Exception e)
-   {
-      Debug.println("protocol="+protocol+" authority="+authority+
-		     u.toExternalForm());
-      e.printStackTrace();
-   }
+    	  length	=
+    		  protocol.length() + 3 /* :// */ + authority.length() + pathLength + 1/* ? */ + queryLength;
+      } catch (Exception e)
+      {
+    	  Debug.println("protocol="+protocol+" authority="+authority+
+    			  u.toExternalForm());
+    	  e.printStackTrace();
+      }
       
       StringBuffer result = new StringBuffer(length);
       result.append(protocol).append("://").append(authority).append(path);
       if(query != null)
-      result.append("?").append(query);
+    	  result.append("?").append(query);
 
       return new String(result);
    }
@@ -193,27 +192,27 @@ extends Debug
       
       try
       {
-	 length	=
-	 protocol.length() + 3 /* :// */ + authorityLength + pathLength
-	    + 1 /* ? */ + queryLength + 1 /* # */ + anchorLength;
-   } catch (Exception e)
-   {
-      Debug.println("protocol="+protocol+" authority="+authority+
-		     u.toExternalForm());
-      e.printStackTrace();
-   }
+    	  length	=
+    		  protocol.length() + 3 /* :// */ + authorityLength + pathLength
+    		  + 1 /* ? */ + queryLength + 1 /* # */ + anchorLength;
+      } catch (Exception e)
+      {
+    	  Debug.println("protocol="+protocol+" authority="+authority+
+    			  u.toExternalForm());
+    	  e.printStackTrace();
+      }
       
       StringBuffer result = new StringBuffer(length);
       result.append(protocol).append("://");
       if (authority != null)
-	 result.append(authority);
+    	  result.append(authority);
       if (path != null)
-	 result.append(path);
+    	  result.append(path);
       if(query != null)
-	 result.append("?").append(query);
+    	  result.append("?").append(query);
       if(anchor != null)
-	 result.append("#").append(anchor);
-
+    	  result.append("#").append(anchor);
+      
       return new String(result);
    }
    
@@ -228,25 +227,25 @@ extends Debug
    
    public static final URL urlNoAnchor(URL source)
    {
-      URL result = null;
-      
-      if(source==null)
-    	  return result;
-      
-      if (source.getRef() == null)
-    	  return source;
-      		
-      try
-      {
-		 result= new URL(source.getProtocol(), source.getHost(),
-				 source.getPort(), source.getFile());
-      } catch (MalformedURLException e)
-      {
-		 e.printStackTrace();
-		 throw new RuntimeException("Cant form noHashUrl from " +
-					    source.toString());
-      }
-      return result;
+	   URL result = null;
+	   
+	   if (source==null)
+		   return result;
+	   
+	   if (source.getRef() == null)
+		   return source;
+	   
+	   try
+	   {
+		   result= new URL(source.getProtocol(), source.getHost(),
+				   source.getPort(), source.getFile());
+	   } catch (MalformedURLException e)
+	   {
+		   e.printStackTrace();
+		   throw new RuntimeException("Cant form noHashUrl from " +
+				   source.toString());
+	   }
+	   return result;
    }
 /*      
    public static void main(String[] args)
@@ -266,58 +265,57 @@ extends Debug
  */   
    public static String[] seperateLowerUpperCase(String in)
    {
-      int n = in.length();
-      // pass 1 -- just find out how many transitions there are?
-      int numWords = 1;
-      for (int i=0; i<n; i++)
-      {
-	 char thisChar = in.charAt(i);
-	 if (Character.isUpperCase(thisChar) && (i != 0))
-	    numWords++;
-      }
-      // pass 2 -- create the result set and fill it in
-      String result[]	= new String[numWords];
-      int bufferIndex = 0;
-      int resultIndex = 0;
-      int transition  = 0;
-      char[] buffer = new char[n];
-      for (int i=0; i<n; i++)
-      {
-	 char thisChar = in.charAt(i);
-	 if (Character.isUpperCase(thisChar))
-	 {
-	    thisChar = Character.toLowerCase(thisChar);
-	    if (i > 0)
-	    {
-	       result[resultIndex++]	= 
-		  new String(buffer, transition, (i - transition));
-//	       result[resultIndex++]	= in.substring(transition, i);
-	       transition		= i;
-	    }
-	 }
-	 buffer[i]	= thisChar;
-      }
-      result[resultIndex]= new String(buffer, transition, (n - transition));
-      return result;
+	   int n = in.length();
+	   // pass 1 -- just find out how many transitions there are?
+	   int numWords = 1;
+	   for (int i=0; i<n; i++)
+	   {
+		   char thisChar = in.charAt(i);
+		   if (Character.isUpperCase(thisChar) && (i != 0))
+			   numWords++;
+	   }
+	   // pass 2 -- create the result set and fill it in
+	   String result[]	= new String[numWords];
+	   int resultIndex = 0;
+	   int transition  = 0;
+	   char[] buffer = new char[n];
+	   for (int i=0; i<n; i++)
+	   {
+		   char thisChar = in.charAt(i);
+		   if (Character.isUpperCase(thisChar))
+		   {
+			   thisChar = Character.toLowerCase(thisChar);
+			   if (i > 0)
+			   {
+				   result[resultIndex++]	= 
+					   new String(buffer, transition, (i - transition));
+//				   result[resultIndex++]	= in.substring(transition, i);
+				   transition		= i;
+			   }
+		   }
+		   buffer[i]	= thisChar;
+	   }
+	   result[resultIndex]= new String(buffer, transition, (n - transition));
+	   return result;
    }
 /**
  * Remove all instances of @param c from @arg string
  */   
    public static String remove(String string, char c)
    {
-      int index;
-      
-      while ((index = string.indexOf(c)) > -1)
-      {
-	 int length	= string.length();
-	 if (index == 0)
-	    string	= string.substring(1);
-	 else if (index == (length - 1))
-	    string	= string.substring(0, length-1);
-	 else
-	    string	= string.substring(0,index) +string.substring(index+1);
-      }
-      return string;
+	   int index;
+	   
+	   while ((index = string.indexOf(c)) > -1)
+	   {
+		   int length	= string.length();
+		   if (index == 0)
+			   string	= string.substring(1);
+		   else if (index == (length - 1))
+			   string	= string.substring(0, length-1);
+		   else
+			   string	= string.substring(0,index) +string.substring(index+1);
+	   }
+	   return string;
    }
    public static final String FIND_PUNCTUATION_REGEX = 
       "(:)|(\\d)|(\\.)|(/++)|(=)|(\\?)|(\\-)|(\\+)|(_)|(%)|(\\,)";        
@@ -326,28 +324,28 @@ extends Debug
  */
    public static String removePunctuation(String s)
    {
-      int length		= s.length();
-      StringBuffer buffy	= new StringBuffer(length);
-      
-      boolean	wasSpace	= true;
-      
-      for (int i=0; i<length; i++)
-      {
-	 char c			= s.charAt(i);
-	 if (Character.isLetter(c))
-	 {
-	    buffy.append(c);
-	    wasSpace		= false;
-	 }
-	 else
-	 {
-	    if (!wasSpace)
-//	       buffy.append('-');
-	       buffy.append(' ');
-	    wasSpace		= true;
-	 }
-      }
-      return new String(buffy);
+	   int length		= s.length();
+	   StringBuffer buffy	= new StringBuffer(length);
+	   
+	   boolean	wasSpace	= true;
+	   
+	   for (int i=0; i<length; i++)
+	   {
+		   char c			= s.charAt(i);
+		   if (Character.isLetter(c))
+		   {
+			   buffy.append(c);
+			   wasSpace		= false;
+		   }
+		   else
+		   {
+			   if (!wasSpace)
+//				   buffy.append('-');
+				   buffy.append(' ');
+			   wasSpace		= true;
+		   }
+	   }
+	   return new String(buffy);
    }
    
    public static String removePunctuation2(String s)
@@ -364,14 +362,14 @@ extends Debug
    }
    public static void main2(String[] s)
    {
-   		for (int i=0; i<s.length; i++)
-   		{
+	   for (int i=0; i<s.length; i++)
+	   {
 		   String[] result = seperateLowerUpperCase(s[i]);
 		   System.out.print(s[i] + " -> " );
 		   for (int j=0; j<result.length; j++)
-		      System.out.print(result[j] + " ");
+			   System.out.print(result[j] + " ");
 		   System.out.println();
-		}   	
+	   }   	
    }
 /**
  * Reset the StringBuffer, so that is empty and ready for reuse.
@@ -380,12 +378,27 @@ extends Debug
  */
    public static final void clear(StringBuffer buffy)
    {
-      // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
-      // a tiny buffer, so use this weirdness, which looks like the 
-      // most reasonable option
-      int length	= buffy.length();
-      if (length > 0)
-	 buffy.delete(0, length);
+	   // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
+	   // a tiny buffer, so use this weirdness, which looks like the 
+	   // most reasonable option
+	   int length	= buffy.length();
+	   if (length > 0)
+		   buffy.delete(0, length);
+   }
+   /**
+    * Return true iff all the characters in the argument are lower case.
+    * @param s
+    * @return
+    */
+   public static boolean isLowerCase(String s)
+   {
+	   int length	= s.length();
+	   for (int i=0; i< length; i++)
+	   {
+		   if (!Character.isLowerCase(s.charAt(i)))
+			   return false;
+	   }
+	   return true;
    }
 }
 

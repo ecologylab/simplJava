@@ -57,7 +57,7 @@ public class AuthenticationList extends ElementState
      */
     public AuthenticationListEntry get(String username)
     {
-        return (AuthenticationListEntry) authList.get(username);
+        return (AuthenticationListEntry) authList.get(username.toLowerCase());
     }
 
     /**
@@ -69,7 +69,7 @@ public class AuthenticationList extends ElementState
      */
     public boolean containsKey(String username)
     {
-        return authList.containsKey(username);
+        return authList.containsKey(username.toLowerCase());
     }
 
 }

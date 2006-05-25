@@ -8,6 +8,10 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import ecologylab.services.ServerToClientConnection;
+import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -21,11 +25,11 @@ import ecologylab.services.messages.ResponseMessage;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class ServerToClientConnectionAuthentication extends
-        ServerToClientConnection implements AuthenticationMessages,
-        RegistryObjectsServerAuthentication
+        ServerToClientConnection implements AuthMessages,
+        AuthServerRegistryObjects
 {
 
-    private boolean loggedIn = false;
+    private boolean         loggedIn = false;
 
     private ResponseMessage responseMessage;
 
@@ -38,7 +42,7 @@ public class ServerToClientConnectionAuthentication extends
      * @throws IOException
      */
     public ServerToClientConnectionAuthentication(Socket incomingSocket,
-            ServicesServerAuthentication servicesServer) throws IOException
+            AuthServer servicesServer) throws IOException
     {
         super(incomingSocket, servicesServer);
     }
@@ -56,6 +60,11 @@ public class ServerToClientConnectionAuthentication extends
         {
             if (requestMessage instanceof Login)
             {
+                // login needs to have it's IP address added before anything is
+                // done with it!
+                ((Login) requestMessage).setClientAddress(this.incomingSocket
+                        .getInetAddress());
+
                 // since this is a Login message, perform it.
                 responseMessage = super.performService(requestMessage);
 
@@ -65,9 +74,12 @@ public class ServerToClientConnectionAuthentication extends
                     // the object registry
                     loggedIn = true;
                     ((HashMap) (servicesServer.getObjectRegistry())
-                            .lookupObject(AUTHENTICATED_CLIENTS)).put(
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME)).put(
                             ((Login) requestMessage).getEntry().getUsername(),
-                            this);
+                            this.incomingSocket.getInetAddress());
+
+                    System.out.println(this.incomingSocket.getInetAddress()
+                            .toString());
                 }
 
             } else
@@ -85,6 +97,11 @@ public class ServerToClientConnectionAuthentication extends
                 if (responseMessage.isOK())
                 {
                     loggedIn = false;
+                    
+                    ((HashMap) (servicesServer.getObjectRegistry())
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
+                            .remove(((Login) requestMessage).getEntry()
+                                    .getUsername());
                 }
             } else
             {

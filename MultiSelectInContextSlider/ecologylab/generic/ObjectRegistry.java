@@ -40,5 +40,10 @@ public class ObjectRegistry
 	{
 		return registryMap.get(name);
 	}
+    
+    public void modifyObject(String name, Object value)
+    {
+        registryMap.put(name, value);
+    }
    
 }

@@ -20,11 +20,15 @@ public final class LogOps extends LogRequestMessage
 {
 	public ArrayList set	=	new ArrayList();
 	
-	public void addNestedElement(ElementState elementState)
-	{
-		if (elementState instanceof MixedInitiativeOp)
-			set.add(elementState);
-	}
+    public void addNestedElement(ElementState elementState)
+    {
+        if (elementState instanceof MixedInitiativeOp)
+            set.add(elementState);
+    }
+    public void addNestedElement(String string)
+    {
+        set.add(string);
+    }
 	
 	public void clearSet()
 	{

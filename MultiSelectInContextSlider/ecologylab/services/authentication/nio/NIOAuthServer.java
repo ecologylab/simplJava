@@ -1,16 +1,18 @@
 /*
  * Created on Mar 30, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.net.Socket;
+import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.ServerToClientConnection;
-import ecologylab.services.ServicesServer;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.nio.MessageProcessor;
+import ecologylab.services.nio.ServicesServerNIO;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -26,8 +28,8 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class ServicesServerAuthentication extends ServicesServer implements
-        RegistryObjectsServerAuthentication
+public class NIOAuthServer extends ServicesServerNIO implements
+        AuthServerRegistryObjects
 {
 
     /**
@@ -43,18 +45,19 @@ public class ServicesServerAuthentication extends ServicesServer implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static ServicesServerAuthentication get(int portNumber,
+    public static NIOAuthServer get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
-        ServicesServerAuthentication newServer = null;
+        NIOAuthServer newServer = null;
+        
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
                     .translateFromXML(authListFilename, NameSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer = new ServicesServerAuthentication(portNumber,
+            newServer = new NIOAuthServer(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -65,6 +68,7 @@ public class ServicesServerAuthentication extends ServicesServer implements
         {
             e.printStackTrace();
         }
+        
         return newServer;
     }
 
@@ -80,14 +84,15 @@ public class ServicesServerAuthentication extends ServicesServer implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static ServicesServerAuthentication get(int portNumber,
+    public static NIOAuthServer get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
-        ServicesServerAuthentication newServer = null;
+        NIOAuthServer newServer = null;
+        
         try
         {
-            newServer = new ServicesServerAuthentication(portNumber,
+            newServer = new NIOAuthServer(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -100,7 +105,7 @@ public class ServicesServerAuthentication extends ServicesServer implements
     }
 
     /**
-     * Creates a new ServicesServerAuthentication with the given arguments. This
+     * Creates a new AuthServer with the given arguments. This
      * constructor should only be invoked by a subclass or the .get() method to
      * ensure that only one server is running on the given port.
      * 
@@ -111,38 +116,27 @@ public class ServicesServerAuthentication extends ServicesServer implements
      * @throws IOException
      * @throws BindException
      */
-    protected ServicesServerAuthentication(int portNumber,
+    protected NIOAuthServer(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication", "Login");
+                "ecologylab.services.authentication.messages", "Login");
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication", "Logout");
+                "ecologylab.services.authentication.messages", "Logout");
 
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
         this.objectRegistry
-                .registerObject(AUTHENTICATED_CLIENTS, new HashMap());
+                .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
+        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
     }
 
-    /**
-     * Create a ServerToClientConnectionAuthentication, the object that handles
-     * the connection to each incoming client and requires that they pass a
-     * Login item that matches an entry in the authenticationList. To extend the
-     * functionality of the client, you can override this method in your
-     * subclass of this, to return a subclass of ServerToClientConnection.
-     * 
-     * @param incomingSocket
-     * @return
-     * @throws IOException
-     */
-    protected ServerToClientConnection getConnection(Socket incomingSocket)
-            throws IOException
+    protected void placeKeyInPool(SelectionKey key)
     {
-
-        return new ServerToClientConnectionAuthentication(incomingSocket, this);
-    }
+        pool.put(key.attachment(), new AuthMessageProcessor(key, requestTranslationSpace, 
+                objectRegistry));
+    }    
 }

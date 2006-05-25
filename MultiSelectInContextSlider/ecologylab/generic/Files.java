@@ -465,7 +465,30 @@ extends Debug
       return insertFile(fileWriter, fileToInsert);
    }
    
-   public static boolean insertFile(BufferedWriter writer,
+   //TODO this is also old dead code
+public static void copyTraceFile(File outputFile)
+{
+    final String TRACE_PATH = System.getProperty("deployment.user.logdir")
+            + "/plugin"
+            + StringTools.remove(System.getProperty("java.version"), '_')
+            + ".trace";
+    BufferedWriter writer;
+    BufferedReader reader;
+    reader = openReader(TRACE_PATH);
+    writer = openWriter(outputFile);
+
+    String oneLine = readLine(reader);
+
+    while (oneLine != null)
+    {
+        writeLine(writer, oneLine);
+        oneLine = readLine(reader);
+    }
+    closeReader(reader);
+    closeWriter(writer);
+}
+
+public static boolean insertFile(BufferedWriter writer,
 				    String fileToInsert)
    {
       BufferedReader reader	= openReader(fileToInsert);
@@ -827,6 +850,38 @@ extends Debug
 	  java.io.FileFilter XMLfilter = XMLFileFilter.get();
 	  
 	  return directory.isDirectory() ? directory.listFiles(XMLfilter) : null;
+   }
+   
+   /**
+    * Recursively delete a directory on the file system. We
+	* must recursively delete it since java requires that 
+	* the directory be empty before deletion.
+    * 
+    * @param targetDir The target directory to delete.
+    * @return true if successful, false otherwise.
+    */
+   public static boolean deleteDirectory(File targetDir)
+   {
+	   boolean succeeded = true;
+	   
+	   if (targetDir.exists())
+	   	{
+	   		File[] dirFiles = targetDir.listFiles();
+	   		for (int i=0; i<dirFiles.length; i++)
+	   		{
+	   			File dirFile = dirFiles[i];
+	   			if (dirFile.isDirectory())
+	   			{
+	   				succeeded = succeeded && deleteDirectory(dirFile);
+	   				succeeded = succeeded && dirFile.delete();
+	   			}
+	   			else
+	   			{
+	   				dirFile.delete();
+	   			}
+	   		}
+	   	}
+		return succeeded;
    }
 }
 

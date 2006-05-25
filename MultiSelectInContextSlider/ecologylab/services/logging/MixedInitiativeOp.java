@@ -18,21 +18,13 @@ abstract public class MixedInitiativeOp extends ElementState
 	 */
 	public long		sessionTime;
 
-	public String 	action;
-
 	/**
 	 * 
 	 */
 	public MixedInitiativeOp()
 	{
 		super();
-		
-	}
-	public MixedInitiativeOp(String action)
-	{
-		super();
-		this.action = action;
-		sessionTime	= System.currentTimeMillis() - Logging.time();		
+		sessionTime	= System.currentTimeMillis() - Logging.sessionStartTime();		
 	}
 
 	/**
@@ -57,28 +49,6 @@ abstract public class MixedInitiativeOp extends ElementState
 		   return true;
 	   }
 
-	/**
-	 * @return Returns the action.
-	 */
-	public String action()
-	{
-		return action;
-	}
-	public boolean actionEquals(String action)
-	{
-		return this.action	== action;
-	}
-	
-	public boolean equals(Object other)
-	{
-		boolean result	= (other instanceof MixedInitiativeOp);
-		if (result)
-		{
-			MixedInitiativeOp miop	= (MixedInitiativeOp) other;
-			result		= actionEquals(miop.action);
-		}
-		return result;
-	}
 	/**
 	 * Free resources associated with this.
 	 *

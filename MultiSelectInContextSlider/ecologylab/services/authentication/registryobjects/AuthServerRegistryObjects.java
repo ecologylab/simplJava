@@ -1,7 +1,7 @@
 /*
  * Created on Apr 17, 2006
  */
-package ecologylab.services.authentication;
+package ecologylab.services.authentication.registryobjects;
 
 /**
  * Interface of constants used for the object registry in an authenticating
@@ -9,7 +9,7 @@ package ecologylab.services.authentication;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public interface RegistryObjectsServerAuthentication
+public interface AuthServerRegistryObjects
 {
 
     /**
@@ -17,8 +17,13 @@ public interface RegistryObjectsServerAuthentication
      * object; used to map usernames to ServerToClientConnectionAuthentication
      * objects that represent their connections. Generally used to ensure that
      * each username is logged in only once.
+     * 
+     * XXX CHANGED TO USERNAME + IP!
+     * XXX CHANGE TO USERNAME + TOKEN FOR NORMAL SERVICES SERVER
      */
-    public static final String AUTHENTICATED_CLIENTS = "authenticatedClients";
+    public static final String AUTHENTICATED_CLIENTS_BY_USERNAME = "authenticatedClientsByUsername";
+    
+    public static final String AUTHENTICATED_CLIENTS_BY_TOKEN = "authenticatedClientsByToken";
 
     /**
      * Indicates an AuthenticationList object that contains all the usernames
