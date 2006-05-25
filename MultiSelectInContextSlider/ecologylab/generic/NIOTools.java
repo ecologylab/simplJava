@@ -1,4 +1,4 @@
-package cf.history;
+package ecologylab.generic;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -10,12 +10,11 @@ import ecologylab.generic.*;
  * 
  * @author wolf
  */
-public class NIOBufferUtils extends Debug{
+public class NIOTools extends Debug{
 	/**
 	 * The logger for reporting io problems
 	 */
-//	private static final Logger LOGGER = Logger.getLogger("org.geotools.io");
-    private static byte warned = 0;
+    private static boolean warned;
 	
 	/**
      * Really closes a MappedByteBuffer without the need to wait for
@@ -45,9 +44,9 @@ public class NIOBufferUtils extends Debug{
                     Method clean = cleaner.getClass().getMethod("clean", null);
                     clean.invoke(cleaner, null);
                     success = Boolean.TRUE;
-				} catch (Exception e) {
-                    // This really is a show stopper on windows
-                    if (isLoggable())
+				} catch (Exception e)
+                {
+                    if (!warned)
                         log(e,buffer);
 				}
 				return success;
@@ -57,18 +56,11 @@ public class NIOBufferUtils extends Debug{
         return b.booleanValue();
 	}
     
-    private static boolean isLoggable() 
-    {
-        return warned == 0 && (
-            System.getProperty("os.name").indexOf("Windows") >= 0
-        );
-    }
-    
     private static void log(Exception e,java.nio.ByteBuffer buffer) 
     {
-        warned = (byte) 1;
-        String message = "Error attempting to close a mapped byte buffer : " + buffer.getClass().getName();
+        warned = true;
+        String message = "NIOTools: Error attempting to close a mapped byte buffer : " + buffer.getClass().getName();
         message += "\n JVM : " + System.getProperty("java.version") + " " + System.getProperty("java.vendor");
-        Debug.println("message are there: " + message);
+        Debug.println(message);
     }
 }
