@@ -88,7 +88,7 @@ public class Debug
    }
    protected Debug()
    {
-      AllocationDebugger.constructed(this);
+      //AllocationDebugger.constructed(this);
    }
 
    public final int level()
