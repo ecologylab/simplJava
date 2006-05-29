@@ -44,47 +44,56 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class ServicesClientNIO extends ServicesClientBase implements
-        StartAndStoppable, Runnable, ServerConstants
+public class NIOClient extends ServicesClientBase implements StartAndStoppable,
+        Runnable, ServerConstants
 {
-    private Selector                    selector;
+    protected Selector       selector;
 
-    private boolean                     running                = false;
+    protected boolean        running                = false;
 
-    private SocketChannel               channel;
+    private SocketChannel    channel;
 
-    private Thread                      thread;
+    private Thread           thread;
 
-    private SelectionKey                key;
+    private SelectionKey     key;
 
-    private ByteBuffer                  incomingRawBytes       = ByteBuffer
-                                                                       .allocate(MAX_PACKET_SIZE);
+    private ByteBuffer       incomingRawBytes       = ByteBuffer
+                                                            .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer                  outgoingChars          = CharBuffer
-                                                                       .allocate(MAX_PACKET_SIZE);
+    private CharBuffer       outgoingChars          = CharBuffer
+                                                            .allocate(MAX_PACKET_SIZE);
 
-    private StringBuffer                accumulator            = new StringBuffer(
-                                                                       MAX_PACKET_SIZE);
+    private StringBuffer     accumulator            = new StringBuffer(
+                                                            MAX_PACKET_SIZE);
 
-    private CharsetDecoder              decoder                = Charset
-                                                                       .forName(
-                                                                               "ASCII")
-                                                                       .newDecoder();
+    private CharsetDecoder   decoder                = Charset.forName("ASCII")
+                                                            .newDecoder();
 
-    private CharsetEncoder              encoder                = Charset
-                                                                       .forName(
-                                                                               "ASCII")
-                                                                       .newEncoder();
+    private CharsetEncoder   encoder                = Charset.forName("ASCII")
+                                                            .newEncoder();
 
-    private ResponseMessage             responseMessage        = null;
+    private ResponseMessage  responseMessage        = null;
 
-    private Iterator                    incoming;
+    protected Iterator       incoming;
 
-    private volatile boolean            blockingRequestPending = false;
+    private volatile boolean blockingRequestPending = false;
 
-    private LinkedList blockingResponsesQueue = new LinkedList();
+    private LinkedList       blockingResponsesQueue = new LinkedList();
 
-    public ServicesClientNIO(String server, int port, NameSpace messageSpace,
+    /**
+     * selectInterval is passed to select() when it is called in the run loop.
+     * It is set to 0 indicating that the loop should block until the selector
+     * picks up something interesting. However, if this class is subclassed, it
+     * is possible to modify this value so that the select() will only block for
+     * the number of ms supplied by this field. Thus, it is possible (by also
+     * subclassing the sendData() method) to have this send data on an interval,
+     * and then select.
+     */
+    protected long           selectInterval         = 0;
+
+    protected boolean        isSending              = false;
+
+    public NIOClient(String server, int port, NameSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
@@ -211,18 +220,16 @@ public class ServicesClientNIO extends ServicesClientBase implements
             }
             catch (XmlTranslationException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (CharacterCodingException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             catch (IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                debug("connection shut down at a bad time; stopping.");
+                this.stop();
             }
         }
         else
@@ -231,6 +238,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
             throw new IOException(
                     "Attempted to send message, but not connected.");
         }
+
+        // debug("just sent message: " + outgoingUid);
 
         return outgoingUid;
     }
@@ -251,6 +260,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
             // wait to be notified that the response has arrived
             while (blockingRequestPending)
             {
+                debug("waiting on blocking request");
+
                 try
                 {
                     wait();
@@ -260,13 +271,20 @@ public class ServicesClientNIO extends ServicesClientBase implements
                     e.printStackTrace();
                 }
 
+                debug("waking");
+
                 while ((blockingRequestPending)
                         && (!blockingResponsesQueue.isEmpty()))
                 {
-                    returnValue = (ResponseMessage) blockingResponsesQueue.removeFirst();
+                    returnValue = (ResponseMessage) blockingResponsesQueue
+                            .removeFirst();
                     if (returnValue.getUid() == currentMessageUid)
                     {
+                        debug("got the right response");
+
                         blockingRequestPending = false;
+
+                        blockingResponsesQueue.clear();
 
                     }
                     else
@@ -301,7 +319,7 @@ public class ServicesClientNIO extends ServicesClientBase implements
         System.err.println("shutting down client listening thread.");
 
         running = false;
-        
+
         this.disconnect();
 
         // dispose of thread
@@ -310,15 +328,29 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
     public void run()
     {
+        long runStartTime = 0;
+
         while (running)
         {
             try
             {
                 if (connected())
                 {
-                    if (selector.select() > 0)
+                    if (isSending)
+                    {
+                        sendData();
+                    }
 
-                    { // there is something to read; only register one
+                    if (selectInterval > 0)
+                    {
+                        runStartTime = System.currentTimeMillis();
+                    }
+
+                    // debug("selectInterval = "+selectInterval);
+
+                    if (selector.select(selectInterval) > 0)
+                    {
+                        // there is something to read; only register one
                         // channel,
                         // so...
                         incoming = selector.selectedKeys().iterator();
@@ -350,9 +382,7 @@ public class ServicesClientNIO extends ServicesClientBase implements
                                                             .charAt(accumulator
                                                                     .length() - 1) == '\r'))
                                             { // when we have accumulated an
-                                                // entire
-                                                // message,
-                                                // process it
+                                                // entire message, process it
 
                                                 // in case we have several
                                                 // messages
@@ -401,13 +431,20 @@ public class ServicesClientNIO extends ServicesClientBase implements
                                 }
                                 catch (CharacterCodingException e1)
                                 {
-                                    // TODO Auto-generated catch block
                                     e1.printStackTrace();
                                 }
                                 catch (IOException e1)
                                 {
-                                    // TODO Auto-generated catch block
-                                    e1.printStackTrace();
+                                    debug("IOException");
+
+                                    if (e1
+                                            .getMessage()
+                                            .equals(
+                                                    "An existing connection was forcibly closed by the remote host"))
+                                    {
+                                        debug("Server shut down; invalidating key.");
+                                        key.cancel();
+                                    }
                                 }
                             }
                             else
@@ -421,6 +458,31 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
                         }
                     }
+
+                    // reset the selectInterval
+                    resetSelectInterval();
+
+                    if (selectInterval != 0)
+                    {
+                        runStartTime = System.currentTimeMillis()
+                                - runStartTime;
+
+                        // debug("run time = "+runStartTime);
+
+                        if ((selectInterval - runStartTime) > 0)
+                        {
+                            selectInterval -= runStartTime;
+                            // debug("new selectInterval = "+selectInterval);
+                        }
+                        else
+                        {
+                            // debug("selectInterval - runStartTime <= 0");
+                        }
+                    }
+                    else
+                    {
+                        // debug("selectInterval == 0");
+                    }
                 }
             }
             catch (IOException e)
@@ -433,8 +495,24 @@ public class ServicesClientNIO extends ServicesClientBase implements
 
     }
 
+    /**
+     * Hook method to allow subclasses to send data before selecting.
+     * 
+     */
+    protected void sendData()
+    {
+    }
+
+    protected void resetSelectInterval()
+    {
+        selectInterval = 0;
+    }
+
     private ResponseMessage processString(String incomingMessage)
     {
+        if (show(5))
+            debug("incoming message: " + incomingMessage);
+
         try
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
@@ -455,6 +533,8 @@ public class ServicesClientNIO extends ServicesClientBase implements
             // perform the service being requested
             processResponse(responseMessage);
         }
+
+        // debug("just translated response: "+responseMessage.getUid());
 
         return responseMessage;
     }
