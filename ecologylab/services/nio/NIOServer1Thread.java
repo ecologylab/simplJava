@@ -23,7 +23,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class SServerNIOST extends NIOServicesServerBase
+public class NIOServer1Thread extends NIOServerBase
         implements ServerConstants
 {
     protected ObjectRegistry              registry;
@@ -44,7 +44,7 @@ public class SServerNIOST extends NIOServicesServerBase
     private CharsetEncoder                encoder                = charset
                                                                          .newEncoder();
 
-    public SServerNIOST(int portNumber,
+    public NIOServer1Thread(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
             throws IOException, BindException
     {
