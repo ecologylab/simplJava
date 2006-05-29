@@ -44,7 +44,7 @@ public class ArrayListState extends ElementState
 	
     public ElementState get(int i)
     {
-        if (i > set.size())
+        if (i >= set.size())
         {
             return null;
         } else
