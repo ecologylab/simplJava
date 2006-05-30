@@ -16,12 +16,12 @@ import ecologylab.services.authentication.registryobjects.AuthServerRegistryObje
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.SServerNIOST;
+import ecologylab.services.nio.NIOServer1Thread;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class NIOAuthServerSingleThreaded extends SServerNIOST implements
+public class NIOAuthServerSingleThreaded extends NIOServer1Thread implements
 AuthServerRegistryObjects
 {
 

@@ -10,9 +10,11 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.MessageProcessor;
-import ecologylab.services.nio.ServicesServerNIO;
+import ecologylab.services.nio.NIOServer2Threads;
+import ecologylab.services.nio.NIOServerMultiThreaded;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -28,8 +30,8 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class NIOAuthServer extends ServicesServerNIO implements
-        AuthServerRegistryObjects
+public class NIOAuthServer extends NIOServerMultiThreaded implements
+        AuthServerRegistryObjects, AuthMessages
 {
 
     /**
@@ -134,9 +136,12 @@ public class NIOAuthServer extends ServicesServerNIO implements
         this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
     }
 
-    protected void placeKeyInPool(SelectionKey key)
+    protected MessageProcessor placeKeyInPool(SelectionKey key)
     {
-        pool.put(key.attachment(), new AuthMessageProcessor(key, requestTranslationSpace, 
-                objectRegistry));
+        AuthMessageProcessor temp = new AuthMessageProcessor(key, requestTranslationSpace, objectRegistry);
+
+        pool.put(key.attachment(), temp);
+        
+        return temp;
     }    
 }
