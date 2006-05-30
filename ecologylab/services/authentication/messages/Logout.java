@@ -8,8 +8,6 @@ import java.util.HashMap;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -47,24 +45,26 @@ public class Logout extends RequestMessage implements AuthMessages,
     }
 
     /**
-     * @override
-     * Attempts to log the user specified by entry from the system; if they are
-     * already logged in; if not, sends a failure response.
+     * @override Attempts to log the user specified by entry from the system; if
+     *           they are already logged in; if not, sends a failure response.
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
         HashMap authedClients = (HashMap) objectRegistry
                 .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
+        
         ResponseMessage responseMessage;
 
         if ((authedClients != null)
                 && authedClients.containsKey(entry.getUsername()))
         {
-            responseMessage = OkResponse.get();
+            responseMessage = new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
 
             authedClients.remove(entry.getUsername());
-        } else
-            responseMessage = new LogoutStatusResponse(LOGOUT_FAILED_NOT_LOGGEDIN);
+        }
+        else
+            responseMessage = new LogoutStatusResponse(
+                    LOGOUT_FAILED_NOT_LOGGEDIN);
 
         return responseMessage;
     }
