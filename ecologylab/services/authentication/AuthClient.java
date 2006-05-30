@@ -125,7 +125,10 @@ public class AuthClient extends ServicesClient implements AuthMessages,
         // to the server.
         if (entry != null)
         {
-            sendLoginMessage();
+            if (this.isServerRunning())
+            {
+                sendLoginMessage();
+            }
         }
 
         return this.isLoggedIn();
@@ -143,12 +146,28 @@ public class AuthClient extends ServicesClient implements AuthMessages,
         // to the server.
         if (entry != null)
         {
-            sendLogoutMessage();
+            if (this.isServerRunning())
+            {
+                sendLogoutMessage();
+            }
+            else
+            {
+                this.setLoggedIn(false);
+            }
+        }
+        else
+        {
+            this.setLoggedIn(false);
         }
 
         return this.isLoggedIn();
     }
 
+    protected void setLoggedIn(boolean newValue)
+    {
+        ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value = newValue;
+    }
+    
     /**
      * Sends a Logout message to the server; may be overridden by subclasses that
      * need to add addtional information to the Logout message.
