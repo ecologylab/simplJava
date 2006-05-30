@@ -24,10 +24,11 @@ public class Login extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects
 {
 
-    public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
+    public AuthenticationListEntry entry         = new AuthenticationListEntry(
+                                                         "", "");
 
-    public InetAddress clientAddress = null;
-    
+    public InetAddress             clientAddress = null;
+
     /**
      * Should not normally be used; only for XML translations.
      */
@@ -76,18 +77,16 @@ public class Login extends RequestMessage implements AuthMessages,
         HashMap authedClients = (HashMap) objectRegistry
                 .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
 
-        LoginStatusResponse loginConfirm = new LoginStatusResponse(LOGIN_FAILED_PASSWORD); // set
-                                                                                    // to
-                                                                                    // the
-                                                                                    // default
-                                                                                    // failure
+        // set to the default failure message
+        LoginStatusResponse loginConfirm = new LoginStatusResponse(
+                LOGIN_FAILED_PASSWORD); 
 
         if (authList != null)
         {
             // make sure the username is in the list
             if (authList.containsKey(entry.getUsername()))
             {
-                // System.err.println("username found!");
+                debug("username match: " + entry.getUsername());
 
                 // if it is, then compare the passwords
                 if (((AuthenticationListEntry) (authList.get(entry
@@ -101,12 +100,17 @@ public class Login extends RequestMessage implements AuthMessages,
                     if (authedClients.containsKey(entry.getUsername()))
                     {
                         loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
-                    } else
+                    }
+                    else
                     {
                         // we want to let the client know that it's logged in...
                         loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
                     }
                 }
+            }
+            else
+            {
+                debug(entry.getUsername() + ": no such user exists.");
             }
         }
 
@@ -139,7 +143,8 @@ public class Login extends RequestMessage implements AuthMessages,
     }
 
     /**
-     * @param clientAddress The clientAddress to set.
+     * @param clientAddress
+     *            The clientAddress to set.
      */
     public void setClientAddress(InetAddress clientAddress)
     {
