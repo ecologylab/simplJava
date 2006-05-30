@@ -99,7 +99,11 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
                 "ecologylab.services.authentication.messages", "Login");
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
-
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "LoginStatusResponse");
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "LogoutStatusResponse");
+        
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
         this.objectRegistry
