@@ -47,15 +47,15 @@ import ecologylab.xml.XmlTranslationException;
 public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         Runnable, ServerConstants
 {
-    protected Selector       selector;
+    protected Selector       selector               = null;
 
     protected boolean        running                = false;
 
-    private SocketChannel    channel;
+    private SocketChannel    channel                = null;
 
     private Thread           thread;
 
-    private SelectionKey     key;
+    private SelectionKey     key                    = null;
 
     private ByteBuffer       incomingRawBytes       = ByteBuffer
                                                             .allocate(MAX_PACKET_SIZE);
@@ -101,17 +101,39 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public void disconnect()
     {
-        try
-        {
-            if (connected())
-            {
-                channel.close();
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        debug("Disconnecting...");
+
+                try
+                {
+                    if (connected())
+                    {
+                        debug("connected; closing channel and selector.");
+                        
+                        channel.close();
+                        
+                        selector.wakeup();
+                        
+                        selector.selectNow();
+                        
+                        selector.close();
+
+                        nullOut();
+                    }
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+    }
+
+    private void nullOut()
+    {
+        debug("null out");
+        
+        socket = null;
+        channel = null;
+        selector = null;
+        key = null;
     }
 
     public boolean connected()
@@ -156,30 +178,27 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             debug("Couldnt create socket connection to server '" + server
                     + "': " + e);
-            // e.printStackTrace();
-            socket = null;
+
+            nullOut();
         }
         catch (PortUnreachableException e)
         {
             debug("Server is alive, but has no daemon on port " + port + ": "
                     + e);
-            // e.printStackTrace();
-            socket = null;
+
+            nullOut();
         }
         catch (SocketException e)
         {
             debug("Server '" + server + "' unreachable: " + e);
+
+            nullOut();
         }
         catch (IOException e)
         {
             debug("Bad response from server: " + e);
-            // e.printStackTrace();
-            socket = null;
-        }
 
-        if (connected())
-        {
-            start();
+            nullOut();
         }
 
         return connected();
@@ -286,6 +305,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                         blockingResponsesQueue.clear();
 
+                        return returnValue;
                     }
                     else
                     {
@@ -329,6 +349,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
     public void run()
     {
         long runStartTime = 0;
+        int bytesRead = 0;
 
         while (running)
         {
@@ -365,7 +386,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                             {
                                 try
                                 {
-                                    while (channel.read(incomingRawBytes) > 0)
+                                    while ((bytesRead = channel.read(incomingRawBytes)) > 0)
                                     {
                                         incomingRawBytes.flip();
 
@@ -417,8 +438,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                                     }
 
                                                     // erase the message from
-                                                    // the
-                                                    // accumulator
+                                                    // the accumulator
                                                     accumulator
                                                             .delete(
                                                                     0,
@@ -427,6 +447,13 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                                 }
                                             }
                                         }
+                                    }
+                                    
+                                    if (bytesRead == -1)
+                                    {
+                                        debug("Read returned -1; disconnecting.");
+
+                                        disconnect();
                                     }
                                 }
                                 catch (CharacterCodingException e1)
@@ -442,8 +469,9 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                             .equals(
                                                     "An existing connection was forcibly closed by the remote host"))
                                     {
-                                        debug("Server shut down; invalidating key.");
-                                        key.cancel();
+                                        debug("Server shut down; disconnecting.");
+                                        
+                                        disconnect();
                                     }
                                 }
                             }
@@ -526,7 +554,6 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         if (responseMessage == null)
         {
             debug("ERROR: translation failed: ");
-
         }
         else
         {
