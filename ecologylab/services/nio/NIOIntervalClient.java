@@ -57,8 +57,6 @@ public class NIOIntervalClient extends NIOClient
     protected void sendData()
     {
         long time = System.currentTimeMillis();
-        
-        //debug("start time = "+time);
 
         this.sendMessageOnInterval();
 
@@ -69,9 +67,6 @@ public class NIOIntervalClient extends NIOClient
             // or 1, whichever is greater.
             time = System.currentTimeMillis() - time;
             
-//            debug("end time = "+time);
-  //          debug("selectInterval - time = "+(selectInterval - time));
-            
             if ((selectInterval - time) > 0)
             {
                 selectInterval -= time;
@@ -80,12 +75,7 @@ public class NIOIntervalClient extends NIOClient
             {
                 selectInterval = 1;
             }
-            
-    //        debug("selectInterval = "+selectInterval);
-        } else
-        {
-      //      debug("max interval = 0");
-        }
+        } 
     }
 
     protected void sendMessageOnInterval()
