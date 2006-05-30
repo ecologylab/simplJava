@@ -3,6 +3,7 @@ package ecologylab.services.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
@@ -118,7 +119,7 @@ public class ContextManager extends Debug implements ServerConstants
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
-        return requestMessage.performService(registry);
+            return requestMessage.performService(registry);
     }
 
     private void processRequest(RequestMessage request)
@@ -261,6 +262,9 @@ public class ContextManager extends Debug implements ServerConstants
 
             rawBytes.clear();
 
+            if (show(5))
+            debug("accumulator: "+accumulator.toString());
+            
             if (accumulator.length() > 0)
             {
                 if ((accumulator.charAt(accumulator.length() - 1) == '\n')
@@ -305,66 +309,63 @@ public class ContextManager extends Debug implements ServerConstants
      */
     public void readChannel()
     {
-        // disable reading interest on the key
-        key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-
-        try
+        if (key.isValid())
         {
-            if ((bytesRead = channel.read(rawBytes)) > 0)
+            try
             {
-                readBytesIntoAccumulator();
+                // disable reading interest on the key
+                key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
+
+                if ((bytesRead = channel.read(rawBytes)) > 0)
+                {
+                    readBytesIntoAccumulator();
+                }
+
+                // the connection is offline
+                else if (bytesRead == -1)
+                {
+                    debug("Read -1 bytes; closing connection "
+                            + key.attachment());
+                    key.cancel();
+                }
+                
+                if (key.isValid())
+                {
+                    // re-enable reading on the key and wake up the selector.
+                    key.interestOps(key.interestOps() | SelectionKey.OP_READ);
+                    key.selector().wakeup();
+                }
+            }
+            catch (CharacterCodingException e1)
+            {
+                e1.printStackTrace();
+            }
+            catch (IOException e1)
+            {
+                debug("Connection closed by client. Terminating message processor: "
+                        + channel.toString());
+                key.cancel();
+            }
+            catch (CancelledKeyException e)
+            {
+                e.printStackTrace();
             }
         }
-        catch (CharacterCodingException e1)
+        else
         {
-            e1.printStackTrace();
-        }
-        catch (IOException e1)
-        {
-            debug("Connection closed by client. Terminating message processor: "
-                    + channel.toString());
-            key.cancel();
-        }
-
-        // re-enable reading on the key and wake up the selector.
-        key.interestOps(key.interestOps() | SelectionKey.OP_READ);
-        key.selector().wakeup();
-    }
-
-    /**
-     * Removes key from the OP_READ interest set of the selector, drains all
-     * bytes from it, parses them into messages, then restores the OP_READ
-     * interest.
-     * 
-     * This method blocks and reads until there is nothing left on the channel;
-     * 
-     * @see readChannel.
-     */
-    public void readChannelUntilEmpty()
-    {
-        // disable reading interest on the key
-        key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-
-        try
-        {
-            while ((bytesRead = channel.read(rawBytes)) > 0)
+            debug("key: "+key.attachment()+" is invalid; closing.");
+            
+            try
             {
-                readBytesIntoAccumulator();
+                key.channel().close();
+                key.cancel();
+                key.selector().selectNow();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
-        catch (CharacterCodingException e1)
-        {
-            e1.printStackTrace();
-        }
-        catch (IOException e1)
-        {
-            debug("Connection closed by client. Terminating message processor: "
-                    + channel.toString());
-            key.cancel();
-        }
-
-        // re-enable reading on the key and wake up the selector.
-        key.interestOps(key.interestOps() | SelectionKey.OP_READ);
-        key.selector().wakeup();
     }
 }
