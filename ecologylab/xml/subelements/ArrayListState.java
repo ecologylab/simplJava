@@ -9,7 +9,7 @@ import java.util.Iterator;
  * 
  * @author andruid
  */
-public class ArrayListState extends ElementState
+public class ArrayListState extends ElementState implements Cloneable, Iterable
 {
 	public ArrayList set	=	new ArrayList();
 		
@@ -77,4 +77,13 @@ public class ArrayListState extends ElementState
    	{
    		return set.size();
    	}
+    
+    public Object clone()
+    {
+        ArrayListState clone = new ArrayListState();
+        
+        clone.set = (ArrayList) this.set.clone();
+        
+        return clone;
+    }
 }
