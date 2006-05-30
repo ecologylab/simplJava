@@ -34,6 +34,15 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
     {
         messageProcessor.removeKey(key);
 
+        try
+        {
+            key.channel().close();
+        }
+        catch (IOException e)
+        {
+            debug(e.getMessage());
+        }
+        
         key.cancel();
     }
 

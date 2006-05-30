@@ -218,6 +218,13 @@ public class NIOServer1Thread extends NIOServerBase
                     key.cancel();
                 }
             }
+            
+            if (bytesRead == -1)
+            {
+                debug("Connection closed; shutting down.");
+                
+                key.cancel();
+            }
         }
         catch (CharacterCodingException e1)
         {
