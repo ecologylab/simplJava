@@ -50,6 +50,8 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     protected int            connectionCount = 0;
 
     private MessageDigest    digester;
+    
+    private long dispensedTokens;
 
     /**
      * Creates a Services Server Base. Sets internal variables, but does not
@@ -96,10 +98,13 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
         // we make a string consisting of the following:
         // time of initial connection (when this method is called), server ip,
         // server actual port, client ip, client actual port
-        digester.update((new Date()).toString().getBytes());
+        digester.update(String.valueOf(System.nanoTime()).toString().getBytes());
         digester.update(this.serverSocket.getInetAddress().toString()
                 .getBytes());
         digester.update(incomingSocket.getInetAddress().toString().getBytes());
+        digester.update(String.valueOf(this.dispensedTokens).getBytes());
+        
+        dispensedTokens++;
 
         // convert to normal characters and return as a String
         return new String((new BASE64Encoder()).encode(digester.digest()));
