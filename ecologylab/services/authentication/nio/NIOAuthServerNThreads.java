@@ -13,7 +13,7 @@ import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.MessageProcessor;
-import ecologylab.services.nio.NIOServerMultiThreaded;
+import ecologylab.services.nio.NIOServerNThreads;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -29,7 +29,7 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class NIOAuthServerMultiThreaded extends NIOServerMultiThreaded implements
+public class NIOAuthServerNThreads extends NIOServerNThreads implements
         AuthServerRegistryObjects, AuthMessages
 {
 
@@ -46,11 +46,11 @@ public class NIOAuthServerMultiThreaded extends NIOServerMultiThreaded implement
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServerMultiThreaded get(int portNumber,
+    public static NIOAuthServerNThreads get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
-        NIOAuthServerMultiThreaded newServer = null;
+        NIOAuthServerNThreads newServer = null;
         
         try
         {
@@ -58,7 +58,7 @@ public class NIOAuthServerMultiThreaded extends NIOServerMultiThreaded implement
                     .translateFromXML(authListFilename, NameSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer = new NIOAuthServerMultiThreaded(portNumber,
+            newServer = new NIOAuthServerNThreads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -85,15 +85,15 @@ public class NIOAuthServerMultiThreaded extends NIOServerMultiThreaded implement
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServerMultiThreaded get(int portNumber,
+    public static NIOAuthServerNThreads get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
-        NIOAuthServerMultiThreaded newServer = null;
+        NIOAuthServerNThreads newServer = null;
         
         try
         {
-            newServer = new NIOAuthServerMultiThreaded(portNumber,
+            newServer = new NIOAuthServerNThreads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -117,7 +117,7 @@ public class NIOAuthServerMultiThreaded extends NIOServerMultiThreaded implement
      * @throws IOException
      * @throws BindException
      */
-    protected NIOAuthServerMultiThreaded(int portNumber,
+    protected NIOAuthServerNThreads(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
