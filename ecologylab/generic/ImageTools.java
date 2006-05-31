@@ -4,17 +4,49 @@ package ecologylab.generic;
 import java.io.*;
 import java.awt.image.*;
 import java.awt.*;
+
 import javax.imageio.*;
 import javax.imageio.stream.*;
 import java.util.*;
 import javax.imageio.plugins.jpeg.*;
 
 /**
- * A set of lovely convenience methods for writing image files.
+ * A set of lovely convenience methods for working with images.
  */
 public class ImageTools 
 extends Debug
 {
+	/**
+	 * Make a copy of the BufferedImage.
+	 * 
+	 * @param srcImage
+	 * @param destImage
+	 */
+	public static void copyImage(BufferedImage srcImage, BufferedImage destImage)
+	{
+		scaleAndCopyImage(srcImage.getWidth(), srcImage.getHeight(), srcImage, destImage);
+	}
+	/**
+	 * Make a scaled copy of the BufferedImage.
+	 * Uses INTERPOLATION_BILINEAR.
+	 * 
+	 * @param srcImage
+	 * @param destImage
+	 */
+	public static void scaleAndCopyImage(int newWidth, int newHeight, BufferedImage srcImage, BufferedImage destImage)
+	{
+		//AffineTransformOp scaleOp 	= createScaleOp(newWidth, newHeight, width, height);
+		//scaleOp.filter(bufferedImage, scaledBImage);
+		// faster than using AffineTransformOp scaleOp. i promise.
+		// -- use the source, luke!
+
+		Graphics2D g2		= destImage.createGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.drawImage(srcImage, 0,0, newWidth,newHeight, null);
+		g2.dispose();
+	}
+	
+	
 /**
  * Take the RenderedImage passed in, compress it,
  * and writes it to a file created from outfileName.
