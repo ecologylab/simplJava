@@ -23,8 +23,7 @@ import ecologylab.xml.NameSpace;
  * @author blake
  * @author andruid
  */
-public class ServicesClient extends ServicesClientBase implements
-        ServerConstants
+public class ServicesClient extends ServicesClientBase implements ServerConstants
 {
     BufferedReader reader;
 
@@ -83,21 +82,18 @@ public class ServicesClient extends ServicesClientBase implements
             socket = new Socket(address, port);
 
             // in = socket.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(socket
-                    .getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintStream(socket.getOutputStream());
         }
         catch (BindException e)
         {
-            debug("Couldnt create socket connection to server '" + server
-                    + "': " + e);
+            debug("Couldnt create socket connection to server '" + server + "': " + e);
             // e.printStackTrace();
             socket = null;
         }
         catch (PortUnreachableException e)
         {
-            debug("Server is alive, but has no daemon on port " + port + ": "
-                    + e);
+            debug("Server is alive, but has no daemon on port " + port + ": " + e);
             // e.printStackTrace();
             socket = null;
         }
@@ -163,11 +159,14 @@ public class ServicesClient extends ServicesClientBase implements
      * Send a message to the ServicesServer to get a service performed,
      * 
      * @param requestMessage
-     * @return The ResponseMessage from the server. This could be null, which
-     *         means that communication with the server failed. Reasons for
-     *         failure include: 1) IOException: the socket connection broke
-     *         somehow. 2) XmlTranslationException: The message was malformed or
-     *         translation failed strangely.
+     * @return The ResponseMessage from the server. This could be null, which means that
+     *         communication with the server failed. Reasons for failure include:
+     *         <ul>
+     *         <li>1) IOException: the socket connection broke somehow.</li>
+     *         <li>2) XmlTranslationException: The message was malformed or translation failed
+     *         strangely.</li>
+     *         <li>3) The server closed its output stream (occurs whenever a StopMessage is sent).</li>
+     *         </ul>
      */
     public ResponseMessage sendMessage(RequestMessage requestMessage)
     {
@@ -186,7 +185,6 @@ public class ServicesClient extends ServicesClientBase implements
             String requestMessageXML = null;
             try
             {
-                // requestMessage.stampTime();
                 requestMessageXML = requestMessage.translateToXML(false);
 
                 if (requestMessageXML.getBytes().length > ServerConstants.MAX_PACKET_SIZE)
@@ -199,24 +197,27 @@ public class ServicesClient extends ServicesClientBase implements
                 output.println(requestMessageXML);
 
                 if (show(5))
-                    debug("Services Client: just sent message: "
-                            + requestMessageXML);
+                    debug("Services Client: just sent message: " + requestMessageXML);
 
                 if (show(5))
                     debug("Services Client: awaiting a response");
 
                 response = reader.readLine();
 
-                responseMessage = (ResponseMessage) ResponseMessage
-                        .translateFromXMLString(response, translationSpace);
+                if (response == null)
+                {
+                    debug("Connection closed.");
+                    response = null;
+                    transactionComplete = true;
+                }
+                else
+                {
+                    responseMessage = (ResponseMessage) ResponseMessage.translateFromXMLString(
+                            response, translationSpace);
+                }
 
-                // System.out.println("the response lagged
-                // "+(System.currentTimeMillis() -
-                // responseMessage.timeStamp)+"ms; the round trip took
-                // "+(System.currentTimeMillis() -
-                // requestMessage.timeStamp)+"ms.)");
-
-                if (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse)
+                if ((responseMessage != null)
+                        && (responseMessage instanceof ServerToClientConnection.BadTransmissionResponse))
                 {
                     badTransmissionCount++;
                     if (badTransmissionCount == 3)
@@ -227,11 +228,10 @@ public class ServicesClient extends ServicesClientBase implements
                     }
                     else
                     {
-                        debug("ERROR: BADTransmission of: " + requestMessageXML
-                                + "\n\t Resending.");
+                        debug("ERROR: BADTransmission of: " + requestMessageXML + "\n\t Resending.");
                     }
                 }
-                else
+                else if (responseMessage != null)
                 {
                     if (requestMessage.getUid() == responseMessage.getUid())
                     {
@@ -242,8 +242,8 @@ public class ServicesClient extends ServicesClientBase implements
                     }
                     else
                     {
-                        debug("Request UID is " + requestMessage.getUid()
-                                + "; response was: " + responseMessage.getUid() + "; ignoring message.");
+                        debug("Request UID is " + requestMessage.getUid() + "; response was: "
+                                + responseMessage.getUid() + "; ignoring message.");
                     }
                 }
 
@@ -251,10 +251,11 @@ public class ServicesClient extends ServicesClientBase implements
             catch (Exception e)
             {
                 debug("ERROR: Failed sending " + requestMessage + ": " + e);
+                e.printStackTrace();
                 transactionComplete = true;
             }
         }
-        
+
         return responseMessage;
     }
 }
