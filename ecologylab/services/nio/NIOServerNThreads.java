@@ -13,13 +13,13 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.xml.NameSpace;
 
-public class NIOServerMultiThreaded extends NIOServerBase implements
+public class NIOServerNThreads extends NIOServerBase implements
         ServerConstants
 {
 
     protected HashMap pool = new HashMap();
 
-    public NIOServerMultiThreaded(int portNumber, NameSpace requestTranslationSpace,
+    public NIOServerNThreads(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
