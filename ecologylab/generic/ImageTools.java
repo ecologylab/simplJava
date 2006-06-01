@@ -24,7 +24,10 @@ extends Debug
 	 */
 	public static void copyImage(BufferedImage srcImage, BufferedImage destImage)
 	{
-		scaleAndCopyImage(srcImage.getWidth(), srcImage.getHeight(), srcImage, destImage);
+		//scaleAndCopyImage(srcImage.getWidth(), srcImage.getHeight(), srcImage, destImage);
+		Graphics2D g2		= destImage.createGraphics();
+		g2.drawImage(srcImage, 0,0, null);
+		g2.dispose();
 	}
 	/**
 	 * Make a scaled copy of the BufferedImage.
