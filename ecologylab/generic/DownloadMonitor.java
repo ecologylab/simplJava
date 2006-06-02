@@ -143,8 +143,11 @@ implements Runnable
 			Generic.sleep(sleep);
 		 } catch (OutOfMemoryError e)
 		 {
-			if (Memory.outOfMemory(e))
+		 	OutOfMemoryErrorHandler.handleException(e);
+		 	/*
+		 	if (Memory.outOfMemory(e))
 			   finished		= true;
+			*/
 		 }
 	  }
       timeoutThread	= null;
@@ -256,8 +259,12 @@ implements Runnable
 			thatClosure.dispatch();
 		 } catch (OutOfMemoryError e)
 		 { 
-			if (Memory.outOfMemory(e))
+		 	finished		= true;
+		 	OutOfMemoryErrorHandler.handleException(e);
+		 	/*
+		 	if (Memory.outOfMemory(e))
 			   finished		= true;
+			 */
 		 } catch (Throwable e)
 		 {
 			debugA(".dispatch -- got exception:");
@@ -498,10 +505,14 @@ implements Runnable
 
 		 } catch (OutOfMemoryError e)
 		 { 
-			if (Memory.outOfMemory(e))
+		 	finished		= true;	// give up!
+		 	OutOfMemoryErrorHandler.handleException(e);
+		 	/*
+		 	if (Memory.outOfMemory(e))
 			   finished		= true;	// give up!
-			else
-			   thatClosure.ioError();
+			*/
+			//else
+			   //thatClosure.ioError();
 		 } catch (Throwable e)
 		 {
 			boolean interrupted		= Thread.interrupted();

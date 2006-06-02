@@ -151,14 +151,21 @@ extends Debug implements BasicFloatSet
    }
    /**
     * Delete all the elements in the set, as fast as possible.
+ * @param doRecycleElements TODO
     *
     */
-   public synchronized void clear()
+   public synchronized void clear(boolean doRecycleElements)
    {
    		for (int i=0; i<size; i++)
    		{
    			FloatSetElement element	= elements[i];
    			elements[i]				= null;
+   			if (doRecycleElements)
+   			{
+   				element.setIndex(-1); // during gc() excursion
+   				element.recycle();
+                element.clearSynch();
+   			}
    			element.clear();
    		}
    		size	= 0;
