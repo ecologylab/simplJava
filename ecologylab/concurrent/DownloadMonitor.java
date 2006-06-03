@@ -143,6 +143,7 @@ implements Runnable
 			Generic.sleep(sleep);
 		 } catch (OutOfMemoryError e)
 		 {
+		 	finished		= true;
 		 	OutOfMemoryErrorHandler.handleException(e);
 		 	/*
 		 	if (Memory.outOfMemory(e))
@@ -259,12 +260,8 @@ implements Runnable
 			thatClosure.dispatch();
 		 } catch (OutOfMemoryError e)
 		 { 
-		 	finished		= true;
-		 	OutOfMemoryErrorHandler.handleException(e);
-		 	/*
-		 	if (Memory.outOfMemory(e))
+			if (Memory.outOfMemory(e))
 			   finished		= true;
-			 */
 		 } catch (Throwable e)
 		 {
 			debugA(".dispatch -- got exception:");
