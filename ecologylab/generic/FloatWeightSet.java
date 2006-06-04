@@ -169,6 +169,7 @@ extends Debug implements BasicFloatSet
    			element.clear();
    		}
    		size	= 0;
+   		this.maxArrayListClear();
    }
    public synchronized void insert(FloatSetElement el)
    {
@@ -261,11 +262,6 @@ extends Debug implements BasicFloatSet
       return (size >= sizeThreshold);
    }
 
-   public ArrayList maxArrayList()
-   {
-	  return maxArrayList;
-   }
-   
    /**
     * Prune to the set's specified maxSize, if necessary, then do a maxSelect().
     * The reason for doing these operations together is because both require sorting.
@@ -300,6 +296,17 @@ extends Debug implements BasicFloatSet
       return element;
    }
    /**
+    * Clear the ArrayList of tied elements from the last maxSelect().
+    * This method can be overridden to provide post-process before the actual clear.
+    * <p/>
+    * The clear() should be done as part of maxSelect() to avoid memory leaks.
+    */
+   protected void maxArrayListClear()
+   {
+	   if (maxArrayList != null)
+		   maxArrayList.clear();
+   }
+   /**
 	* @return	the maximum in the set. If there are ties, pick
 	* randomly among them
 	*/
@@ -319,16 +326,17 @@ extends Debug implements BasicFloatSet
       
       if (maxArrayList == null)
       {
-		 int arrayListSize	= size / 4;
+		 int arrayListSize	= size / 8;
 		 if (arrayListSize > 1024)
 		    arrayListSize	= 1024;
 		 maxArrayList		= new ArrayList(arrayListSize);
       }
       else
-		 maxArrayList.clear();
+		 maxArrayList.clear(); // this line is redundant
       
       //int maxIndex		= MathTools.random(size-1) + 1;
       int maxIndex			= 1;
+      // set result in case there's only 1 element in the set.
       FloatSetElement result= elements[maxIndex];
       float maxWeight		= result.getWeight();
       for (int i=2; i<size; i++)
@@ -357,6 +365,7 @@ extends Debug implements BasicFloatSet
       if (numMax > 1)
 		 result			=
 			(FloatSetElement) maxArrayList.get(MathTools.random(numMax));
+      maxArrayListClear();
       return result;
    }
    
