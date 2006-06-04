@@ -140,10 +140,22 @@ public class Generic
    }
 
 
-	/**
- * Sleep easily, ignoring (unlikely) <code>InterruptedException</code>s.
+/**
+ * Sleep easily.
+ * Report <code>InterruptedException</code>s when they happen,
+ * if the param is true.
  */
    public static final void sleep(int time)
+   {
+	  sleep(time, true);
+   }
+   
+/**
+ * Sleep easily.
+ * Report <code>InterruptedException</code>s when they happen,
+ * if the param is true.
+ */
+   public static final void sleep(int time, boolean reportExceptions)
    {
       try
       {
@@ -151,8 +163,11 @@ public class Generic
       }
       catch (InterruptedException e)
       {
-		 Debug.println("Sleep was interrupted -- clearing if possible.\n" + e);
-		 e.printStackTrace();
+		 if (reportExceptions)
+		 {
+			Debug.println("Sleep was interrupted -- clearing if possible.");
+			e.printStackTrace();
+		 }
 		 // in jdk 1.1x clears the interrupt
 		 // !!! (undocumented) !!! (see Thread src)
 		 Thread.interrupted();	
