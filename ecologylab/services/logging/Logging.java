@@ -311,7 +311,7 @@ public class Logging extends ElementState implements Runnable,
         while (!finished)
         {
             Thread.interrupted();
-            Generic.sleep(SLEEP_TIME);
+            Generic.sleep(SLEEP_TIME, false);
             writeQueuedActions();
 
             long now = System.currentTimeMillis();
@@ -347,13 +347,13 @@ public class Logging extends ElementState implements Runnable,
             swapQueues();
             // what was incomingOpsQueue is now outgoing!
             String firstEntry = (String) ourQueueToWrite.get(0);
+            //println("Logging: writeQueuedActions() start of output loop.");
             if (size == 1)
             {
                logWriter.consumeOp(firstEntry);
             }
             else
             {
-                // allocate storage with a reasonable size estimate
                 for (int i = 1; i < size; i++)
                 {
                     String thatEntry = (String) ourQueueToWrite.get(i);
@@ -361,6 +361,7 @@ public class Logging extends ElementState implements Runnable,
                 }
             }
             logWriter.finishConsumingQueue();
+            //println("Logging: writeQueuedActions() after output loop.");
             ourQueueToWrite.clear();
         }
        
