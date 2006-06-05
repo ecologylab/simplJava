@@ -54,14 +54,17 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
         Iterator contextIterator;
         while (running)
         {
-            contextIterator = contexts.values().iterator();
-            
-            // process all of the messages in the queues
-            while (contextIterator.hasNext())
+            synchronized(contexts)
             {
-                ((ContextManager)contextIterator.next()).processAllMessagesAndSendResponses();
+                contextIterator = contexts.values().iterator();
+            
+                // process all of the messages in the queues
+                while (contextIterator.hasNext())
+                {
+                    ((ContextManager)contextIterator.next()).processAllMessagesAndSendResponses();
+                }
             }
-
+            
             // sleep until notified of new messages
             try
             {
@@ -83,7 +86,10 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
         {
             if (temp == null)
             {
-                contexts.put(key.attachment(), this.generateClientContext(key.attachment(), key, translationSpace, registry));
+                synchronized(contexts)
+                {
+                    contexts.put(key.attachment(), this.generateClientContext(key.attachment(), key, translationSpace, registry));
+                }
                 
                 temp = (ContextManager) contexts.get(key.attachment());
             }
@@ -97,9 +103,12 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
         
-        if (contexts.containsKey(key.attachment()))
+        synchronized(contexts)
         {
-            ((MessageProcessor) contexts.remove(key.attachment())).stop();
+            if (contexts.containsKey(key.attachment()))
+            {
+                ((MessageProcessor) contexts.remove(key.attachment())).stop();
+            }
         }
     }
     
