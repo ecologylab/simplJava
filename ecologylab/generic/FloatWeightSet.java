@@ -285,15 +285,19 @@ extends Debug implements BasicFloatSet
       if (isOversize(desiredSize))
 		 prune(desiredSize);
       Thread.yield();
-      FloatSetElement element	= maxSelect();
-      if (element == sentinel)
+      FloatSetElement result	= maxSelect();
+      if (result == sentinel)
       {  // defensive programming
 		 debug("maxSelect() ERROR chose sentinel??????!!! size="+ size +" maxArrayListSize="+maxArrayList.size());
 		 Thread.dumpStack();
+		 if (size > 1)
+			 result	= elements[--size];
+		 else
+			 result	= null;
       }
-      else if (element != null)
-		 element.delete(NO_RECOMPUTE);
-      return element;
+      if (result != null)
+		 result.delete(NO_RECOMPUTE);
+      return result;
    }
    /**
     * Clear the ArrayList of tied elements from the last maxSelect().
