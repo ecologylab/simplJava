@@ -177,6 +177,7 @@ public class Logging extends ElementState implements Runnable,
 
                         File logFile = new File(logDir, logFileName);
                         BufferedWriter bufferedWriter  = Files.openWriter(logFile);
+                        
                         if (bufferedWriter != null)
                         {
                             try
@@ -202,6 +203,7 @@ public class Logging extends ElementState implements Runnable,
                 else
                 {
                     File logDir = PropertiesAndDirectories.logDir();
+                    
                     if (logDir == null)
                     {
                         debug("Can't write to logDir=" + logDir);
@@ -210,9 +212,7 @@ public class Logging extends ElementState implements Runnable,
                         debug("Logging to file: " + logDir + logFileName);
 
                         File logFile = new File(logDir, logFileName);
-                        BufferedWriter bufferedWriter  = Files.openWriter(logFile);
-                        if (bufferedWriter != null)
-                        {
+
                             try
                             {
                                 logWriter   = new MemoryMappedFileLogWriter(logFile);
@@ -220,11 +220,6 @@ public class Logging extends ElementState implements Runnable,
                             {
                                 e.printStackTrace();
                             }
-                        }
-                        else
-                        {
-                            debug("ERROR: cant open writer to " + logFile);
-                        }
                     }
                 }
                 break;
@@ -256,7 +251,7 @@ public class Logging extends ElementState implements Runnable,
                 break;
         }
     }
-
+    
     /**
      * Constructor for automatic translation from XML
      * 
