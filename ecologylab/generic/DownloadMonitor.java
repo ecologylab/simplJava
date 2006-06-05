@@ -418,6 +418,7 @@ implements Runnable
 			debug(4, "pause("+paused);
 			this.paused	= paused;
 
+			int[] priorities		= this.priorities; // avoid race
 			if (paused)
 			{
 			   if (downloadThreads != null)
@@ -427,15 +428,16 @@ implements Runnable
 					 Thread thatThread	= downloadThreads[i];
 					 if (thatThread != null)
 					 {
-						priorities[i]		= thatThread.getPriority();
-						thatThread.setPriority(Thread.MIN_PRIORITY);
+						int thatPriority	= thatThread.getPriority();
+						priorities[i]		= thatPriority;
+						if (Thread.MIN_PRIORITY < thatPriority)
+							thatThread.setPriority(Thread.MIN_PRIORITY);
 					 }
 				  }
 			   }
 			}
 			else
 			{
-			   int[] priorities		= this.priorities; // avoid race
 			   if (downloadThreads != null)
 			   {
 				  for (int i=0; i<numDownloadThreads; i++)
@@ -445,7 +447,10 @@ implements Runnable
 					 if ((t != null) && (priorities != null))
 					 {
 						debug("restore priority to " + priorities[i]);
-						t.setPriority(priorities[i]);
+						int thatPriority	= priorities[i];
+						if (thatPriority <= 0)
+							thatPriority	= 1;
+						t.setPriority(thatPriority);
 					 }
 				  }
 			   }
