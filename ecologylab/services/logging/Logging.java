@@ -341,6 +341,7 @@ public class Logging extends ElementState implements Runnable,
                 writeQueuedActions();
                 
                 logWriter.writeEpilogueAndClose(new SendEpilogue(this, getEpilogue()));
+                logWriter	= null;
             }
         }
     }
@@ -772,7 +773,7 @@ public class Logging extends ElementState implements Runnable,
         }
         void consumeOp(String op)
         {
-            Files.writeLine(bufferedWriter, op);
+        	Files.writeLine(bufferedWriter, op);
         }
         void finishConsumingQueue()
         {
