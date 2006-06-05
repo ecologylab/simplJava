@@ -19,7 +19,8 @@ implements Runnable
 {
    static final int	TIMEOUT		= 25000;
    static final int	TIMEOUT_SLEEP	= 4000;
-   static final int	SHORT_SLEEP	= 50;
+   //static final int	SHORT_SLEEP	= 50;
+   static final int	SHORT_SLEEP	= 100;
 
    public static final int TIMEOUT_PRIORITY	= 4;
    public static final int HIGHER_PRIORITY	= 4;
