@@ -129,14 +129,6 @@ public class Logging extends ElementState implements Runnable,
 
     static final int            MAX_OPS_BEFORE_WRITE     = 30;
     
-    /**
-     * The base size for the log file, and the amount it will be incremented
-     * whenever its buffer overflows.
-     */
-    static final int            LOG_FILE_INCREMENT       = 1024 * 512;
-
-    int                         lastPos                  = LOG_FILE_INCREMENT;
-
     final int                   maxOpsBeforeWrite;
 
 
@@ -565,6 +557,14 @@ public class Logging extends ElementState implements Runnable,
         private CharsetEncoder encoder = Charset.forName("ASCII").newEncoder();
         
         private File logFile;
+        
+        /**
+         * The base size for the log file, and the amount it will be incremented
+         * whenever its buffer overflows.
+         */
+        static final int            LOG_FILE_INCREMENT       = 1024*512;
+
+        private int                         endOfMappedBytes                  = LOG_FILE_INCREMENT;
 
         MemoryMappedFileLogWriter(File logFile/* , BufferedWriter bufferedWriter */)
                 throws IOException
@@ -637,14 +637,8 @@ public class Logging extends ElementState implements Runnable,
 
                 // shrink the file to the appropriate size
                 int fileSize = 0;
-                if (lastPos == LOG_FILE_INCREMENT)
-                {
-                    fileSize = buffy.position();
-                }
-                else
-                {
-                    fileSize = lastPos + buffy.position();
-                }
+                
+                fileSize = endOfMappedBytes - LOG_FILE_INCREMENT + buffy.position();
                 
                 buffy = null;
                 
@@ -653,6 +647,10 @@ public class Logging extends ElementState implements Runnable,
                 channel.close();
                 
                 channel = null;
+                
+                debug("final log file size is "+fileSize+" bytes.");
+                
+                debug("truncating log.");
                 
                 new RandomAccessFile(logFile, "rw").getChannel().truncate(fileSize);
             }
@@ -665,14 +663,8 @@ public class Logging extends ElementState implements Runnable,
                 e.printStackTrace();
             }
 
-            debug("file closed.");
+            debug("log file closed.");
         }
-
-        /*
-         * Files.writeLine(bufferedWriter, sendEpilogue.getMessageString()); try {
-         * bufferedWriter.close(); } catch (IOException e) {
-         * e.printStackTrace(); } bufferedWriter = null; }
-         */
 
         private void putInBuffer(ByteBuffer incoming)
         {
@@ -685,11 +677,11 @@ public class Logging extends ElementState implements Runnable,
                 { // we want to write more than will fit; so we just write
                     // what we can first...
                     System.out.println("not enough space in the buffer: "
-                            + remaining + "/" + incoming.remaining());
+                            + remaining + " remaining, " + incoming.remaining()+" needed.");
                     System.out.println("last range file range: "
-                            + (lastPos - LOG_FILE_INCREMENT) + "-" + lastPos);
-                    System.out.println("new range will be: " + (lastPos) + "-"
-                            + (lastPos + LOG_FILE_INCREMENT));
+                            + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-" + endOfMappedBytes);
+                    System.out.println("new range will be: " + (endOfMappedBytes) + "-"
+                            + (endOfMappedBytes + LOG_FILE_INCREMENT));
                     debug("creating temp byte array of size: " + remaining);
 
                     byte[] temp = new byte[remaining];
@@ -701,9 +693,9 @@ public class Logging extends ElementState implements Runnable,
                     buffy.force();
 
                     // then shift buffy to map to the next segment of the file
-                    buffy = channel.map(MapMode.READ_WRITE, lastPos,
+                    buffy = channel.map(MapMode.READ_WRITE, endOfMappedBytes,
                             LOG_FILE_INCREMENT);
-                    lastPos += LOG_FILE_INCREMENT;
+                    endOfMappedBytes += LOG_FILE_INCREMENT;
 
                     // recursively call on the remainder of incoming
                     putInBuffer(incoming);
