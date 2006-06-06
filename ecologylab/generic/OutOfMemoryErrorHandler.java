@@ -15,6 +15,11 @@ public class OutOfMemoryErrorHandler
 	
 	private static boolean			previouslyRanOut			= false;
 	
+	/**
+	 * The OutOfMemoryError memory threshold (in bytes) that means we should shut down
+	 */
+	private static final long		OUT_OF_MEMORY_THRESHOLD		= 4000000;
+	
 	private OutOfMemoryErrorHandler() {}
 	
 	public static void registerObjectRegistry(ObjectRegistry oRegistry)
@@ -39,6 +44,16 @@ public class OutOfMemoryErrorHandler
 	 */
 	public static void handleException(OutOfMemoryError e)
 	{
+		//in case we get here prematurely
+		if (Memory.getFreeMemoryInBytes() > OUT_OF_MEMORY_THRESHOLD)
+		{
+			ConsoleUtils.obtrusiveConsoleOutput("OutOfMemoryErrorHandler	BYPASSED PREMATURE MEMORY ERROR");
+			return;
+		}
+		
+		//ConsoleUtils.obtrusiveConsoleOutput("Free Memory: " + currentFreeMemory + " bytes");
+		//ConsoleUtils.obtrusiveConsoleOutput("Memory Threshold: " + OUT_OF_MEMORY_THRESHOLD + " bytes");
+		
 		//don't bother synchronizing because we're probably hosed and can't do it.
 		if (previouslyRanOut) //we already handled it
 			return;

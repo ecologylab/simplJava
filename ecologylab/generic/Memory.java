@@ -132,4 +132,9 @@ public class Memory
       }	 
       return false;
    }
+   
+   public static long getFreeMemoryInBytes()
+   {
+   		return runtime.freeMemory();
+   }
 }
