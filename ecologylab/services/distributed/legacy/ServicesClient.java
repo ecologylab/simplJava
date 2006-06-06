@@ -210,7 +210,8 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                     if (response == null)
                     {
                         debug("Connection closed.");
-                        responseMessage = null;
+                        //TODO shouldnt we disconnect???
+                        return null;
                     }
                     else
                     {
