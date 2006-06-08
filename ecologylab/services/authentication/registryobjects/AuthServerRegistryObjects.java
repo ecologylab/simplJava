@@ -30,4 +30,9 @@ public interface AuthServerRegistryObjects
      * and passwords for the server.
      */
     public static final String AUTHENTICATION_LIST = "authenticationList";
+    
+    /**
+     * Stores the Authentication Server reference. May be any implementation of the Auth Server.
+     */
+    public static final String AUTH_SERVER = "authServer";
 }
