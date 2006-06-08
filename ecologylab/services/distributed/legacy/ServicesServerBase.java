@@ -8,7 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 import sun.misc.BASE64Encoder;
 
@@ -97,11 +96,13 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
 
         // we make a string consisting of the following:
         // time of initial connection (when this method is called), server ip,
-        // server actual port, client ip, client actual port
-        digester.update(String.valueOf(System.nanoTime()).toString().getBytes());
+        // client ip, client actual port
+        digester.update(String.valueOf(System.nanoTime()).getBytes());
         digester.update(this.serverSocket.getInetAddress().toString()
                 .getBytes());
         digester.update(incomingSocket.getInetAddress().toString().getBytes());
+        digester.update(String.valueOf(incomingSocket.getPort()).getBytes());
+
         digester.update(String.valueOf(this.dispensedTokens).getBytes());
         
         dispensedTokens++;
