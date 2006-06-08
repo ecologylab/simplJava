@@ -69,4 +69,12 @@ public class Logout extends RequestMessage implements AuthMessages,
         return responseMessage;
     }
 
+    /**
+     * @return Returns the entry.
+     */
+    public AuthenticationListEntry getEntry()
+    {
+        return entry;
+    }
+
 }
