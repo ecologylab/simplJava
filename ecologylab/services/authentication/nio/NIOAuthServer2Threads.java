@@ -3,19 +3,27 @@ package ecologylab.services.authentication.nio;
 import java.io.IOException;
 import java.net.BindException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.MessageProcessor2Threads;
 import ecologylab.services.nio.NIOServer2Threads;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServerRegistryObjects, AuthMessages
+public class NIOAuthServer2Threads extends NIOServer2Threads implements
+        AuthServerRegistryObjects, AuthMessages, AuthLogging
 {
+    private LinkedList logListeners = new LinkedList();
+
     /**
      * This is the actual way to create an instance of this.
      * 
@@ -34,7 +42,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
             String authListFilename)
     {
         NIOAuthServer2Threads newServer = null;
-        
+
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
@@ -43,16 +51,18 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
                             "ecologylab.services.authentication"));
             newServer = new NIOAuthServer2Threads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             println("ServicesServer ERROR: can't open ServerSocket on port "
                     + portNumber);
             e.printStackTrace();
-        } catch (XmlTranslationException e)
+        }
+        catch (XmlTranslationException e)
         {
             e.printStackTrace();
         }
-        
+
         return newServer;
     }
 
@@ -73,12 +83,13 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
             AuthenticationList authList)
     {
         NIOAuthServer2Threads newServer = null;
-        
+
         try
         {
             newServer = new NIOAuthServer2Threads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             println("ServicesServer ERROR: can't open ServerSocket on port "
                     + portNumber);
@@ -87,11 +98,10 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
 
         return newServer;
     }
-    
+
     public NIOAuthServer2Threads(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList)
-            throws IOException, BindException
+            AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
@@ -100,19 +110,40 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements AuthServ
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "LoginStatusResponse");
+                "ecologylab.services.authentication.messages",
+                "LoginStatusResponse");
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "LogoutStatusResponse");
-        
+                "ecologylab.services.authentication.messages",
+                "LogoutStatusResponse");
+
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
-        this.objectRegistry
-                .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
-        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
+        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME,
+                new HashMap());
+        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN,
+                new HashMap());
+        
+        this.objectRegistry.registerObject(AUTH_SERVER, this);
     }
 
-    protected MessageProcessor2Threads generateMessageProcessor(NameSpace translationSpace, ObjectRegistry registry)
+    protected MessageProcessor2Threads generateMessageProcessor(
+            NameSpace translationSpace, ObjectRegistry registry)
     {
         return new AuthMessageProcessor2Threads(translationSpace, registry);
+    }
+
+    public void addLoggingListener(Logging log)
+    {
+        logListeners.add(log);
+    }
+
+    public void fireLoggingEvent(AuthenticationOp op)
+    {
+        Iterator loggingListenerIter = logListeners.iterator();
+
+        while (loggingListenerIter.hasNext())
+        {
+            ((Logging) loggingListenerIter.next()).logAction(op);
+        }
     }
 }

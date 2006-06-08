@@ -6,19 +6,25 @@ package ecologylab.services.authentication.nio;
 import java.io.IOException;
 import java.net.BindException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.NIOServer1Thread;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public class NIOAuthServer1Thread extends NIOServer1Thread implements
-AuthServerRegistryObjects
+AuthServerRegistryObjects, AuthLogging
 {
-
+    private LinkedList logListeners = new LinkedList();
+    
     /**
      * This is the actual way to create an instance of this.
      * 
@@ -123,5 +129,23 @@ AuthServerRegistryObjects
         this.objectRegistry
                 .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
         this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
+        
+        this.objectRegistry.registerObject(AUTH_SERVER, this);
+    }
+
+    
+    public void addLoggingListener(Logging log)
+    {
+        logListeners.add(log);
+    }
+    
+    public void fireLoggingEvent(AuthenticationOp op)
+    {
+        Iterator loggingListenerIter = logListeners.iterator();
+        
+        while (loggingListenerIter.hasNext())
+        {
+            ((Logging)loggingListenerIter.next()).logAction(op);
+        }
     }
 }

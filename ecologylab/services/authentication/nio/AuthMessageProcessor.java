@@ -3,11 +3,13 @@ package ecologylab.services.authentication.nio;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.MessageProcessor;
 import ecologylab.xml.NameSpace;
 
-public class AuthMessageProcessor extends MessageProcessor
+public class AuthMessageProcessor extends MessageProcessor implements AuthServerRegistryObjects
 {
 
     public AuthMessageProcessor(Object token, SelectionKey key, NameSpace translationSpace,
@@ -18,7 +20,7 @@ public class AuthMessageProcessor extends MessageProcessor
 
     protected ContextManager generateClientContext(Object token, SelectionKey key, NameSpace translationSpace, ObjectRegistry registry)
     {
-        return new AuthContextManager(token, key, translationSpace, registry);
+        return new AuthContextManager(token, key, translationSpace, registry, (AuthLogging) registry.lookupObject(AUTH_SERVER));
     }
     
 }

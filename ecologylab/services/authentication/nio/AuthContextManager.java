@@ -7,9 +7,16 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.ServicesServer;
+import ecologylab.services.ServicesServerBase;
+import ecologylab.services.authentication.AuthServer;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -27,14 +34,19 @@ import ecologylab.xml.NameSpace;
 public class AuthContextManager extends ContextManager implements
         ServerConstants, AuthServerRegistryObjects, AuthMessages
 {
-    private boolean     loggedIn      = false;
+    private boolean     loggedIn       = false;
 
-    private InetAddress clientAddress = null;
+    private InetAddress clientAddress  = null;
+
+    private AuthLogging servicesServer = null;
 
     public AuthContextManager(Object token, SelectionKey key,
-            NameSpace translationSpace, ObjectRegistry registry)
+            NameSpace translationSpace, ObjectRegistry registry,
+            AuthLogging servicesServer)
     {
         super(token, key, translationSpace, registry);
+
+        this.servicesServer = servicesServer;
 
         this.clientAddress = ((SocketChannel) key.channel()).socket()
                 .getInetAddress();
@@ -50,75 +62,92 @@ public class AuthContextManager extends ContextManager implements
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
-            ResponseMessage response;
+        ResponseMessage response;
 
-            // if not logged in yet, make sure they log in first
-            if (!loggedIn)
+        // if not logged in yet, make sure they log in first
+        if (!loggedIn)
+        {
+            if (requestMessage instanceof Login)
             {
-                if (requestMessage instanceof Login)
+                // login needs to have it's IP address added before anything
+                // is
+                // done with it!
+                ((Login) requestMessage).setClientAddress(clientAddress);
+
+                // since this is a Login message, perform it.
+                response = super.performService(requestMessage);
+
+                if (response.isOK())
                 {
-                    // login needs to have it's IP address added before anything
-                    // is
-                    // done with it!
-                    ((Login) requestMessage).setClientAddress(clientAddress);
+                    // mark as logged in, and add to the authenticated
+                    // clients
+                    // in the object registry
+                    loggedIn = true;
 
-                    // since this is a Login message, perform it.
-                    response = super.performService(requestMessage);
+                    ((HashMap) (registry)
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
+                            .put(((Login) requestMessage).getEntry()
+                                    .getUsername(), key.attachment());
 
-                    if (response.isOK())
-                    {
-                        // mark as logged in, and add to the authenticated
-                        // clients
-                        // in the object registry
-                        loggedIn = true;
-
-                        ((HashMap) (registry)
-                                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                                .put(((Login) requestMessage).getEntry()
-                                        .getUsername(), key.attachment());
-
-                        ((HashMap) (registry)
-                                .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN))
-                                .put(key.attachment(), ((Login) requestMessage)
-                                        .getEntry().getUsername());
-                    }
-
-                }
-                else
-                { // otherwise we consider it bad!
-                    response = new BadSemanticContentResponse(
-                            REQUEST_FAILED_NOT_AUTHENTICATED);
+                    ((HashMap) (registry)
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN)).put(
+                            key.attachment(), ((Login) requestMessage)
+                                    .getEntry().getUsername());
                 }
 
+                // tell the server to log it
+                servicesServer.fireLoggingEvent(new AuthenticationOp(
+                        ((Login) requestMessage).getEntry().getUsername(),
+                        true, ((LoginStatusResponse) response)
+                                .getResponseMessage(), ((SocketChannel) key
+                                .channel()).socket().getInetAddress()
+                                .toString(), ((SocketChannel) key.channel())
+                                .socket().getPort()));
+            }
+            else
+            { // otherwise we consider it bad!
+                response = new BadSemanticContentResponse(
+                        REQUEST_FAILED_NOT_AUTHENTICATED);
+            }
+
+        }
+        else
+        {
+            if (requestMessage instanceof Logout)
+            {
+                response = super.performService(requestMessage);
+
+                if (response.isOK())
+                {
+                    loggedIn = false;
+
+                    ((HashMap) (registry)
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
+                            .remove(((Logout) requestMessage).entry
+                                    .getUsername());
+
+                    ((HashMap) (registry)
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN))
+                            .remove(key.attachment());
+                }
+
+                // tell the server to log it
+                servicesServer.fireLoggingEvent(new AuthenticationOp(
+                        ((Logout) requestMessage).getEntry().getUsername(),
+                        false, ((LogoutStatusResponse) response)
+                                .getResponseMessage(), ((SocketChannel) key
+                                .channel()).socket().getInetAddress()
+                                .toString(), ((SocketChannel) key.channel())
+                                .socket().getPort()));
             }
             else
             {
-                if (requestMessage instanceof Logout)
-                {
-                    response = super.performService(requestMessage);
-
-                    if (response.isOK())
-                    {
-                        loggedIn = false;
-
-                        ((HashMap) (registry)
-                                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                                .remove(((Logout) requestMessage).entry
-                                        .getUsername());
-
-                        ((HashMap) (registry)
-                                .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN))
-                                .remove(key.attachment());
-                    }
-                }
-                else
-                {
-                    response = super.performService(requestMessage);
-                }
+                response = super.performService(requestMessage);
             }
+        }
 
-            // return the response message
-            return response;
-        
+        // return the response message
+        return response;
+
     }
 }

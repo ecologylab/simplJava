@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.MessageProcessor;
 import ecologylab.services.nio.NIOServerNThreads;
 import ecologylab.xml.ElementState;
@@ -30,8 +35,9 @@ import ecologylab.xml.XmlTranslationException;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class NIOAuthServerNThreads extends NIOServerNThreads implements
-        AuthServerRegistryObjects, AuthMessages
+        AuthServerRegistryObjects, AuthMessages, AuthLogging
 {
+    private LinkedList logListeners = new LinkedList();
 
     /**
      * This is the actual way to create an instance of this.
@@ -137,6 +143,8 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         this.objectRegistry
                 .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
         this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
+        
+        this.objectRegistry.registerObject(AUTH_SERVER, this);
     }
 
     protected MessageProcessor placeKeyInPool(SelectionKey key)
@@ -147,4 +155,19 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         
         return temp;
     }    
+    
+    public void addLoggingListener(Logging log)
+    {
+        logListeners.add(log);
+    }
+    
+    public void fireLoggingEvent(AuthenticationOp op)
+    {
+        Iterator loggingListenerIter = logListeners.iterator();
+        
+        while (loggingListenerIter.hasNext())
+        {
+            ((Logging)loggingListenerIter.next()).logAction(op);
+        }
+    }
 }
