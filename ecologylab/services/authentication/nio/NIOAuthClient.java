@@ -193,7 +193,6 @@ public class NIOAuthClient extends NIOIntervalClient implements
                 {
                     synchronized (this)
                     {
-
                         try
                         {
                             this.wait(10);
