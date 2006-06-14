@@ -642,11 +642,13 @@ public class Logging extends ElementState implements Runnable,
                 
                 buffy = null;
                 
-                Memory.reclaim();
-                
                 channel.close();
                 
                 channel = null;
+                
+                // do garbage collection to ensure that the file is no longer mapped
+                System.runFinalization();
+                System.gc();
                 
                 debug("final log file size is "+fileSize+" bytes.");
                 
