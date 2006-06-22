@@ -654,7 +654,35 @@ public class Logging extends ElementState implements Runnable,
                 
                 debug("truncating log.");
                 
-                new RandomAccessFile(logFile, "rw").getChannel().truncate(fileSize);
+                boolean truncated = false;
+                int numTries = 0;
+                
+                while (!truncated)
+                {
+                    try
+                    {
+                        new RandomAccessFile(logFile, "rw").getChannel().truncate(fileSize);
+                        
+                        truncated = true;
+                    }
+                    catch (IOException e)
+                    {
+                        debug("truncation failed because the file is still mapped, attempting to garbage collect...AGAIN.");
+
+                        //do garbage collection to ensure that the file is no longer mapped
+                        System.runFinalization();
+                        System.gc();
+                        
+                        numTries ++;
+                    }
+                    
+                    if (numTries == 10)
+                    {
+                        debug("Tried to unmap file 10 times; failing now.");
+                        
+                        truncated = true;
+                    }
+                }
             }
             catch (CharacterCodingException e)
             {
