@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -124,11 +123,28 @@ public class ElementState extends Debug
 	HashMap				elementByIdMap;
 	
 	NameSpace			nameSpace		= globalNameSpace;
+    
+    short                 floatingValuesPrecision = -1;
 	
 	public ElementState()
 	{
 	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
 	}
+    
+    /**
+     * As ElementState(), but specifies the number of decimal places that will be retained in float and double values.
+     * 
+     * TODO: change to use significant figures rather than decimal places.
+     * 
+     * @param floatingValuesPrecision the number of digits after the decimal place to retain.
+     */
+    public ElementState(short floatingValuesPrecision)
+    {
+        this();
+        
+        this.floatingValuesPrecision = floatingValuesPrecision;
+    }
+    
 /**
  * Emit XML header, then the object's XML.
  */
@@ -363,7 +379,9 @@ public class ElementState extends Debug
 						  if (leafElementFields.get(thatFieldName) != null)
 						  {
 							  Type type		= TypeRegistry.getType(thatField);
-							  String value	= XmlTools.escapeXML(type.toString(this, thatField));
+                                                            
+                              String value    = XmlTools.escapeXML(type.toString(this, thatField));
+
 							  buffy.append(tagMapEntry.startOpenTag).append('>')
 							    .append(value).append(tagMapEntry.closeTag);
 						  }
@@ -380,7 +398,9 @@ public class ElementState extends Debug
 					// parent class fields should not be emitted,
 					// coz thats confusing
 					if (fieldIsFromDeclaringClass || emitParentFields())
-						buffy.append(XmlTools.generateNameVal(thatField, this));
+                    {
+						buffy.append(XmlTools.generateNameVal(thatField, this, floatingValuesPrecision));
+                    }
 				}
 				else if (doRecursiveDescent)	// recursive descent
 				{	
