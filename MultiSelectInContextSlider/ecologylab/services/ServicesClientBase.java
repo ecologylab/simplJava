@@ -43,7 +43,6 @@ public abstract class ServicesClientBase extends Debug implements
         if (objectRegistry == null)
             objectRegistry = new ObjectRegistry();
         this.objectRegistry = objectRegistry;
-
     }
 
     protected void processResponse(ResponseMessage responseMessage)
@@ -89,8 +88,11 @@ public abstract class ServicesClientBase extends Debug implements
     public boolean isServerRunning()
     {
         boolean serverIsRunning = createConnection();
+        
         // we're just checking, don't keep the connection
-        disconnect();
+        if (connected())
+            disconnect();
+        
         return serverIsRunning;
     }
 

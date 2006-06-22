@@ -35,7 +35,7 @@ public class Memory
  * 
  * @param		Part of the message to be printed, to identify call site.
  */
-   public static void reclaim(String s)
+   public static synchronized void reclaim(String s)
    {
       try
       {
@@ -52,10 +52,9 @@ public class Memory
 		 e.printStackTrace();
       }
    }
-   public static void reclaimQuiet()
+   public static synchronized void reclaimQuiet()
    {
       System.gc();
-      //System.runFinalization();
       gcCount++;
    }
 /**
@@ -132,5 +131,10 @@ public class Memory
 		 processingOutOfMemory	= false;
       }	 
       return false;
+   }
+   
+   public static long getFreeMemoryInBytes()
+   {
+   		return runtime.freeMemory();
    }
 }

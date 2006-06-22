@@ -3,6 +3,8 @@
  */
 package ecologylab.services.authentication.nio;
 
+import java.io.IOException;
+
 import ecologylab.generic.BooleanSlot;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthConstants;
@@ -11,10 +13,12 @@ import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
-import ecologylab.services.nio.ServicesClientNIO;
+import ecologylab.services.messages.RequestMessage;
+import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.NIOIntervalClient;
 import ecologylab.xml.NameSpace;
 
-public class NIOAuthClient extends ServicesClientNIO implements
+public class NIOAuthClient extends NIOIntervalClient implements
         AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
     protected AuthenticationListEntry entry      = null;
@@ -42,7 +46,7 @@ public class NIOAuthClient extends ServicesClientNIO implements
      */
     public NIOAuthClient(String server, int port)
     {
-        this(server, port, null);
+        this(server, port, null, 0, null);
     }
 
     /**
@@ -54,9 +58,11 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * @param objectRegistry
      */
     public NIOAuthClient(String server, int port, NameSpace messageSpace,
-            ObjectRegistry objectRegistry)
+            ObjectRegistry objectRegistry, int interval,
+            RequestMessage messageToSend)
     {
-        this(server, port, messageSpace, objectRegistry, null);
+        this(server, port, messageSpace, objectRegistry, null, interval,
+                messageToSend);
     }
 
     /**
@@ -66,11 +72,19 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * @param port
      * @param entry
      */
-    public NIOAuthClient(String server, int port, AuthenticationListEntry entry)
+    public NIOAuthClient(String server, int port,
+            AuthenticationListEntry entry, int interval,
+            RequestMessage messageToSend)
     {
         this(server, port, NameSpace.get("authClient",
                 "ecologylab.services.authentication"), new ObjectRegistry(),
-                entry);
+                entry, interval, messageToSend);
+    }
+
+    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+            ObjectRegistry objectRegistry, AuthenticationListEntry entry)
+    {
+        this(server, port, messageSpace, objectRegistry, entry, 0, null);
     }
 
     /**
@@ -83,9 +97,11 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * @param entry
      */
     public NIOAuthClient(String server, int port, NameSpace messageSpace,
-            ObjectRegistry objectRegistry, AuthenticationListEntry entry)
+            ObjectRegistry objectRegistry, AuthenticationListEntry entry,
+            int interval, RequestMessage messageToSend)
     {
-        super(server, port, messageSpace, objectRegistry);
+        super(server, port, messageSpace, objectRegistry, interval,
+                messageToSend);
 
         messageSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Login");
@@ -121,8 +137,9 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * Attempts to connect to the server using the AuthenticationListEntry that
      * is associated with the client's side of the connection. Does not block
      * for connection.
+     * @throws IOException 
      */
-    public boolean login()
+    public boolean login() throws IOException
     {
         // if we have an entry (username + password), then we can try to connect
         // to the server.
@@ -133,7 +150,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
 
             // Login response will handle changing the LOGIN_STATUS
             sendLoginMessage();
-        } else
+        }
+        else
         {
             debug("ENTRY NOT SET!");
         }
@@ -141,7 +159,7 @@ public class NIOAuthClient extends ServicesClientNIO implements
         return isLoggedIn();
     }
 
-    public boolean blockingLogin()
+    public boolean blockingLogin() throws IOException
     {
         login();
 
@@ -152,7 +170,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
             if (!loggingIn)
             {
                 break;
-            } else
+            }
+            else
             {
                 if (i % 100 == 0)
                 {
@@ -163,7 +182,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
                 try
                 {
                     this.finishLogin();
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 { // cannot happen
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -173,16 +193,17 @@ public class NIOAuthClient extends ServicesClientNIO implements
                 {
                     synchronized (this)
                     {
-
                         try
                         {
                             this.wait(10);
-                        } catch (InterruptedException e)
+                        }
+                        catch (InterruptedException e)
                         {
                             e.printStackTrace();
                         }
                     }
-                } else
+                }
+                else
                 {
                     break;
                 }
@@ -197,8 +218,9 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * is associated with the client's side of the connection. Blocks until a
      * response is received or until LOGIN_WAIT_TIME passes, whichever comes
      * first.
+     * @throws IOException 
      */
-    public boolean logout()
+    public boolean logout() throws IOException
     {
         // if we have an entry (username + password), then we can try to logout
         // of
@@ -229,10 +251,12 @@ public class NIOAuthClient extends ServicesClientNIO implements
         if (!connected())
         {
             throw new Exception("Not yet connected.");
-        } else if (!loggingIn)
+        }
+        else if (!loggingIn)
         {
             throw new Exception("No pending login.");
-        } else
+        }
+        else
         {
             if (!isLoggedIn())
             { // if we are not logged in, it might be because login failed, or
@@ -244,7 +268,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
                 }
                 // otherwise, we just leave it true
 
-            } else
+            }
+            else
             {
                 loggingIn = false;
             }
@@ -258,10 +283,12 @@ public class NIOAuthClient extends ServicesClientNIO implements
         if (!connected())
         {
             throw new Exception("Not connected.");
-        } else if (!loggingOut)
+        }
+        else if (!loggingOut)
         {
             throw new Exception("No pending logout.");
-        } else
+        }
+        else
         {
             if (isLoggedIn())
             { // if we are logged in, it might be because logout failed, or
@@ -273,7 +300,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
                 }
                 // otherwise, we just leave it true
 
-            } else
+            }
+            else
             {
                 loggingOut = false;
             }
@@ -298,9 +326,9 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * that need to add addtional information to the Logout message.
      * 
      */
-    protected void sendLogoutMessage()
+    protected ResponseMessage sendLogoutMessage() throws IOException
     {
-        this.sendMessage(new Logout(entry));
+        return this.sendMessage(new Logout(entry));
     }
 
     /**
@@ -308,9 +336,9 @@ public class NIOAuthClient extends ServicesClientNIO implements
      * need to add addtional information to the Login message.
      * 
      */
-    protected void sendLoginMessage()
+    protected ResponseMessage sendLoginMessage() throws IOException
     {
-        this.sendMessage(new Login(entry));
+        return this.sendMessage(new Login(entry));
     }
 
     /**
@@ -336,7 +364,8 @@ public class NIOAuthClient extends ServicesClientNIO implements
         if (temp == null)
         {
             return "";
-        } else
+        }
+        else
         {
             return temp;
         }

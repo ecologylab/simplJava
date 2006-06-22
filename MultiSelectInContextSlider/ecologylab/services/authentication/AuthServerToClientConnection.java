@@ -8,9 +8,12 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import ecologylab.services.ServerToClientConnection;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -24,9 +27,8 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class ServerToClientConnectionAuthentication extends
-        ServerToClientConnection implements AuthMessages,
-        AuthServerRegistryObjects
+public class AuthServerToClientConnection extends ServerToClientConnection
+        implements AuthMessages, AuthServerRegistryObjects
 {
 
     private boolean         loggedIn = false;
@@ -41,7 +43,7 @@ public class ServerToClientConnectionAuthentication extends
      * @param servicesServer
      * @throws IOException
      */
-    public ServerToClientConnectionAuthentication(Socket incomingSocket,
+    public AuthServerToClientConnection(Socket incomingSocket,
             AuthServer servicesServer) throws IOException
     {
         super(incomingSocket, servicesServer);
@@ -74,21 +76,33 @@ public class ServerToClientConnectionAuthentication extends
                     // the object registry
                     loggedIn = true;
                     ((HashMap) (servicesServer.getObjectRegistry())
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME)).put(
-                            ((Login) requestMessage).getEntry().getUsername(),
-                            this.incomingSocket.getInetAddress());
+                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
+                            .put(((Login) requestMessage).getEntry()
+                                    .getUsername(), this.incomingSocket
+                                    .getInetAddress());
 
                     System.out.println(this.incomingSocket.getInetAddress()
                             .toString());
                 }
 
-            } else
+                // tell the server to log it
+                ((AuthServer) servicesServer)
+                        .fireLoggingEvent(new AuthenticationOp(
+                                ((Login) requestMessage).getEntry()
+                                        .getUsername(), true,
+                                ((LoginStatusResponse) responseMessage)
+                                        .getResponseMessage(), incomingSocket
+                                        .getInetAddress().toString(),
+                                incomingSocket.getPort()));
+            }
+            else
             { // otherwise we consider it bad!
                 responseMessage = new BadSemanticContentResponse(
                         REQUEST_FAILED_NOT_AUTHENTICATED);
             }
 
-        } else
+        }
+        else
         {
             if (requestMessage instanceof Logout)
             {
@@ -97,13 +111,24 @@ public class ServerToClientConnectionAuthentication extends
                 if (responseMessage.isOK())
                 {
                     loggedIn = false;
-                    
+
                     ((HashMap) (servicesServer.getObjectRegistry())
                             .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
                             .remove(((Login) requestMessage).getEntry()
                                     .getUsername());
                 }
-            } else
+                
+                // tell the server to log it
+                ((AuthServer) servicesServer)
+                        .fireLoggingEvent(new AuthenticationOp(
+                                ((Logout) requestMessage).getEntry()
+                                        .getUsername(), false,
+                                ((LogoutStatusResponse) responseMessage)
+                                        .getResponseMessage(), incomingSocket
+                                        .getInetAddress().toString(),
+                                incomingSocket.getPort()));
+            }
+            else
             {
                 responseMessage = super.performService(requestMessage);
             }

@@ -14,9 +14,9 @@ public class ServicesClientState implements BaseStates
 {
     protected String state = NOT_CONNECTED;
 
-    protected ServicesClientNIO connection = null;
+    protected NIOClient connection = null;
     
-    public ServicesClientState(ServicesClientNIO connection)
+    public ServicesClientState(NIOClient connection)
     {
         this.connection = connection;
     }

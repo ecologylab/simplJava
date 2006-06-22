@@ -7,18 +7,19 @@ import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.xml.NameSpace;
 
-public class ServicesServerNIO extends NIOServicesServerBase implements
+public class NIOServerNThreads extends NIOServerBase implements
         ServerConstants
 {
 
     protected HashMap pool = new HashMap();
 
-    public ServicesServerNIO(int portNumber, NameSpace requestTranslationSpace,
+    public NIOServerNThreads(int portNumber, NameSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
@@ -30,10 +31,14 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
      * 
      * @param key
      */
-    protected void placeKeyInPool(SelectionKey key)
+    protected MessageProcessor placeKeyInPool(SelectionKey key)
     {
-        pool.put(key.attachment(), new MessageProcessor(key,
-                requestTranslationSpace, objectRegistry));
+        MessageProcessor temp = new MessageProcessor(key.attachment(), key,
+                requestTranslationSpace, objectRegistry);
+        
+        pool.put(key.attachment(), temp);
+        
+        return temp;
     }
 
     protected void invalidateKey(SelectionKey key)
@@ -43,7 +48,7 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
         
         if (pool.containsKey(key.attachment()))
         {
-            ((NIOServicesServerBase) pool.remove(key.attachment())).stop();
+            ((NIOServerBase) pool.remove(key.attachment())).stop();
         }
         
         key.cancel();
@@ -51,21 +56,21 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
 
     protected void readKey(SelectionKey key)
     {
-        // disable the key for reading; done here to
-        // prevent
-        // any issues with hanging select()'s
-        key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-
         if (key.attachment() != null)
         {
             if (!pool.containsKey(key.attachment()))
             {
-                placeKeyInPool(key);
+                placeKeyInPool(key).start();
             }
 
             try
             {
-                ((MessageProcessor) pool.get(key.attachment())).process();
+                MessageProcessor temp = (MessageProcessor) pool.get(key.attachment());
+                
+                synchronized(temp)
+                {
+                    temp.notify();
+                }
             }
             catch (Exception e)
             {
@@ -76,5 +81,19 @@ public class ServicesServerNIO extends NIOServicesServerBase implements
         {
             debug("Null token!");
         }
+    }
+    
+    public void stop()
+    {
+        super.stop();
+        
+        Iterator temp = pool.values().iterator();
+        
+        while (temp.hasNext())
+        {
+            ((MessageProcessor)temp.next()).stop();
+        }
+        
+        pool.clear();
     }
 }

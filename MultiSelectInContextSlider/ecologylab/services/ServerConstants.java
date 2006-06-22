@@ -23,6 +23,8 @@ public interface ServerConstants
      */
     static final int MAX_CONNECTION_SIZE         = 50;
     
-    static final int MAX_TARDINESS = 20;
+    static final int MAX_TARDINESS              = 20;
+    
+    static final String CHARACTER_ENCODING = "ASCII";
 
 }

@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.logging.Logging;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -28,8 +33,9 @@ import ecologylab.xml.XmlTranslationException;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class AuthServer extends ServicesServer implements
-        AuthServerRegistryObjects
+        AuthServerRegistryObjects, AuthLogging
 {
+    private LinkedList logListeners = new LinkedList();
 
     /**
      * This is the actual way to create an instance of this.
@@ -145,7 +151,21 @@ public class AuthServer extends ServicesServer implements
     protected ServerToClientConnection getConnection(Socket incomingSocket)
             throws IOException
     {
-
-        return new ServerToClientConnectionAuthentication(incomingSocket, this);
+        return new AuthServerToClientConnection(incomingSocket, this);
+    }
+    
+    public void addLoggingListener(Logging log)
+    {
+        logListeners.add(log);
+    }
+    
+    public void fireLoggingEvent(AuthenticationOp op)
+    {
+        Iterator loggingListenerIter = logListeners.iterator();
+        
+        while (loggingListenerIter.hasNext())
+        {
+            ((Logging)loggingListenerIter.next()).logAction(op);
+        }
     }
 }

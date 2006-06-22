@@ -4,7 +4,15 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -116,6 +124,8 @@ public class Logging extends ElementState implements Runnable,
     static final int            LOG_TO_FILE              = 1;
 
     static final int            LOG_TO_SERVICES_SERVER   = 2;
+    
+    static final int            LOG_TO_MEMORY_MAPPED_FILE = 3;
 
     static final int            MAX_OPS_BEFORE_WRITE     = 30;
     
@@ -159,6 +169,7 @@ public class Logging extends ElementState implements Runnable,
 
                         File logFile = new File(logDir, logFileName);
                         BufferedWriter bufferedWriter  = Files.openWriter(logFile);
+                        
                         if (bufferedWriter != null)
                         {
                             try
@@ -173,6 +184,34 @@ public class Logging extends ElementState implements Runnable,
                         {
                             debug("ERROR: cant open writer to " + logFile);
                         }
+                    }
+                }
+                break;
+            case LOG_TO_MEMORY_MAPPED_FILE:
+                if (logFileName == null)
+                {
+                    debug("Logging disabled; no file name specified");
+                }
+                else
+                {
+                    File logDir = PropertiesAndDirectories.logDir();
+                    
+                    if (logDir == null)
+                    {
+                        debug("Can't write to logDir=" + logDir);
+                    } else
+                    {
+                        debug("Logging to file: " + logDir + logFileName);
+
+                        File logFile = new File(logDir, logFileName);
+
+                            try
+                            {
+                                logWriter   = new MemoryMappedFileLogWriter(logFile);
+                            } catch (IOException e)
+                            {
+                                e.printStackTrace();
+                            }
                     }
                 }
                 break;
@@ -204,7 +243,7 @@ public class Logging extends ElementState implements Runnable,
                 break;
         }
     }
-
+    
     /**
      * Constructor for automatic translation from XML
      * 
@@ -294,6 +333,7 @@ public class Logging extends ElementState implements Runnable,
                 writeQueuedActions();
                 
                 logWriter.writeEpilogueAndClose(new SendEpilogue(this, getEpilogue()));
+                logWriter	= null;
             }
         }
     }
@@ -311,7 +351,7 @@ public class Logging extends ElementState implements Runnable,
         while (!finished)
         {
             Thread.interrupted();
-            Generic.sleep(SLEEP_TIME);
+            Generic.sleep(SLEEP_TIME, false);
             writeQueuedActions();
 
             long now = System.currentTimeMillis();
@@ -347,6 +387,7 @@ public class Logging extends ElementState implements Runnable,
             swapQueues();
             // what was incomingOpsQueue is now outgoing!
             String firstEntry = (String) ourQueueToWrite.get(0);
+            //println("Logging: writeQueuedActions() start of output loop.");
             if (size == 1)
             {
                logWriter.consumeOp(firstEntry);
@@ -361,6 +402,7 @@ public class Logging extends ElementState implements Runnable,
                 }
             }
             logWriter.finishConsumingQueue();
+            //println("Logging: writeQueuedActions() after output loop.");
             ourQueueToWrite.clear();
         }
        
@@ -498,6 +540,203 @@ public class Logging extends ElementState implements Runnable,
         abstract void writeEpilogueAndClose(SendEpilogue sendEpilogue);
         
     }
+    
+    /**
+     * LogWriter that uses a memory-mapped local file for logging.
+     * 
+     * @author andruid
+     * @author toupsz
+     */
+    protected class MemoryMappedFileLogWriter extends LogWriter
+    {
+        // BufferedWriter bufferedWriter;
+        MappedByteBuffer       buffy   = null;
+
+        FileChannel            channel = null;
+
+        private CharsetEncoder encoder = Charset.forName("ASCII").newEncoder();
+        
+        private File logFile;
+        
+        /**
+         * The base size for the log file, and the amount it will be incremented
+         * whenever its buffer overflows.
+         */
+        static final int            LOG_FILE_INCREMENT       = 1024*512;
+
+        private int                         endOfMappedBytes                  = LOG_FILE_INCREMENT;
+
+        MemoryMappedFileLogWriter(File logFile/* , BufferedWriter bufferedWriter */)
+                throws IOException
+        {
+            this.logFile = logFile;
+            
+            channel = new RandomAccessFile(logFile, "rw").getChannel();
+
+            // allocate LOG_FILE_INCREMENT for the file size; this will be
+            // incremented as necessary
+            buffy = channel.map(MapMode.READ_WRITE, 0, LOG_FILE_INCREMENT);
+
+            // if (bufferedWriter == null)
+            // throw new IOException("Can't log to File with null
+            // buffereredWriter.");
+            // this.bufferedWriter = bufferedWriter;
+            Logging.this.debugA("Logging to " + logFile + " " + buffy);
+        }
+
+        /**
+         * Write the prologue -- special stuff at the beginning of a session.
+         * 
+         * @param prologue
+         */
+        void writePrologue(SendPrologue sendPrologue)
+        {
+            try
+            {
+                putInBuffer(encoder.encode(CharBuffer.wrap(sendPrologue
+                        .getMessageString())));
+            }
+            catch (CharacterCodingException e)
+            {
+                e.printStackTrace();
+            }
+            // Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
+        }
+
+        void consumeOp(String op)
+        {
+            // Files.writeLine(bufferedWriter, op);
+            try
+            {
+                putInBuffer(encoder.encode(CharBuffer.wrap(op + "\n")));
+            }
+            catch (CharacterCodingException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        void finishConsumingQueue()
+        {
+
+        }
+
+        /**
+         * Close the local file.
+         */
+        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        {
+            System.out.println("writing epilogue and closing");
+
+            try
+            {
+                putInBuffer(encoder.encode(CharBuffer.wrap(sendEpilogue
+                        .getMessageString())));
+
+                buffy.force();
+
+                // shrink the file to the appropriate size
+                int fileSize = 0;
+                
+                fileSize = endOfMappedBytes - LOG_FILE_INCREMENT + buffy.position();
+                
+                buffy = null;
+                
+                channel.close();
+                
+                channel = null;
+                
+                // do garbage collection to ensure that the file is no longer mapped
+                System.runFinalization();
+                System.gc();
+                
+                debug("final log file size is "+fileSize+" bytes.");
+                
+                debug("truncating log.");
+                
+                new RandomAccessFile(logFile, "rw").getChannel().truncate(fileSize);
+            }
+            catch (CharacterCodingException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+
+            debug("log file closed.");
+        }
+
+        private void putInBuffer(ByteBuffer incoming)
+        {
+
+            try
+            {
+                int remaining = buffy.remaining();
+
+                if (remaining < incoming.remaining())
+                { // we want to write more than will fit; so we just write
+                    // what we can first...
+                    System.out.println("not enough space in the buffer: "
+                            + remaining + " remaining, " + incoming.remaining()+" needed.");
+                    System.out.println("last range file range: "
+                            + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-" + endOfMappedBytes);
+                    System.out.println("new range will be: " + (endOfMappedBytes) + "-"
+                            + (endOfMappedBytes + LOG_FILE_INCREMENT));
+                    debug("creating temp byte array of size: " + remaining);
+
+                    byte[] temp = new byte[remaining];
+                    incoming.get(temp, incoming.position(), remaining);
+
+                    buffy.put(temp);
+
+                    // ensure that the buffer has been written out
+                    buffy.force();
+
+                    // then shift buffy to map to the next segment of the file
+                    buffy = channel.map(MapMode.READ_WRITE, endOfMappedBytes,
+                            LOG_FILE_INCREMENT);
+                    endOfMappedBytes += LOG_FILE_INCREMENT;
+
+                    // recursively call on the remainder of incoming
+                    putInBuffer(incoming);
+                }
+                else
+                {
+                    if (show(5))
+                        debug("writing to buffer: " + remaining
+                                + "bytes remaining before resize");
+
+                    buffy.put(incoming);
+                }
+            }
+            catch (NullPointerException e)
+            {
+                debug("null pointer; data to be written:");
+                try
+                {
+                    debug(Charset.forName("ASCII").newDecoder()
+                            .decode(incoming).toString());
+                }
+                catch (CharacterCodingException e1)
+                {
+                    e1.printStackTrace();
+                }
+
+                e.printStackTrace();
+            }
+            catch (CharacterCodingException e)
+            {
+                e.printStackTrace();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     /**
      * LogWriter that uses a local file for logging.
      * 
@@ -528,7 +767,7 @@ public class Logging extends ElementState implements Runnable,
         }
         void consumeOp(String op)
         {
-            Files.writeLine(bufferedWriter, op);
+        	Files.writeLine(bufferedWriter, op);
         }
         void finishConsumingQueue()
         {

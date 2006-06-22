@@ -5,7 +5,6 @@ package ecologylab.services.authentication.messages;
 
 import ecologylab.generic.BooleanSlot;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
 
@@ -33,6 +32,14 @@ public class LogoutStatusResponse extends ResponseMessage implements AuthMessage
         ((BooleanSlot)objectRegistry.lookupObject(LOGIN_STATUS)).value = false;
         
         objectRegistry.modifyObject(LOGIN_STATUS_STRING, responseMessage);
+    }
+
+    /**
+     * @return Returns the responseMessage.
+     */
+    public String getResponseMessage()
+    {
+        return responseMessage;
     }
 
 }

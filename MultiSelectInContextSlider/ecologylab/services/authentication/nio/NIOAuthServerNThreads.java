@@ -7,12 +7,18 @@ import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.logging.AuthLogging;
+import ecologylab.services.authentication.logging.AuthenticationOp;
+import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.MessageProcessor;
-import ecologylab.services.nio.ServicesServerNIO;
+import ecologylab.services.nio.NIOServerNThreads;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -28,9 +34,10 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class NIOAuthServer extends ServicesServerNIO implements
-        AuthServerRegistryObjects
+public class NIOAuthServerNThreads extends NIOServerNThreads implements
+        AuthServerRegistryObjects, AuthMessages, AuthLogging
 {
+    private LinkedList logListeners = new LinkedList();
 
     /**
      * This is the actual way to create an instance of this.
@@ -45,11 +52,11 @@ public class NIOAuthServer extends ServicesServerNIO implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServer get(int portNumber,
+    public static NIOAuthServerNThreads get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
-        NIOAuthServer newServer = null;
+        NIOAuthServerNThreads newServer = null;
         
         try
         {
@@ -57,7 +64,7 @@ public class NIOAuthServer extends ServicesServerNIO implements
                     .translateFromXML(authListFilename, NameSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer = new NIOAuthServer(portNumber,
+            newServer = new NIOAuthServerNThreads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -84,15 +91,15 @@ public class NIOAuthServer extends ServicesServerNIO implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServer get(int portNumber,
+    public static NIOAuthServerNThreads get(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
-        NIOAuthServer newServer = null;
+        NIOAuthServerNThreads newServer = null;
         
         try
         {
-            newServer = new NIOAuthServer(portNumber,
+            newServer = new NIOAuthServerNThreads(portNumber,
                     requestTranslationSpace, objectRegistry, authList);
         } catch (IOException e)
         {
@@ -116,7 +123,7 @@ public class NIOAuthServer extends ServicesServerNIO implements
      * @throws IOException
      * @throws BindException
      */
-    protected NIOAuthServer(int portNumber,
+    protected NIOAuthServerNThreads(int portNumber,
             NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
@@ -126,17 +133,41 @@ public class NIOAuthServer extends ServicesServerNIO implements
                 "ecologylab.services.authentication.messages", "Login");
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
-
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "LoginStatusResponse");
+        requestTranslationSpace.addTranslation(
+                "ecologylab.services.authentication.messages", "LogoutStatusResponse");
+        
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
         this.objectRegistry
                 .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
         this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
+        
+        this.objectRegistry.registerObject(AUTH_SERVER, this);
     }
 
-    protected void placeKeyInPool(SelectionKey key)
+    protected MessageProcessor placeKeyInPool(SelectionKey key)
     {
-        pool.put(key.attachment(), new AuthMessageProcessor(key, requestTranslationSpace, 
-                objectRegistry));
+        AuthMessageProcessor temp = new AuthMessageProcessor(key.attachment(), key, requestTranslationSpace, objectRegistry);
+
+        pool.put(key.attachment(), temp);
+        
+        return temp;
     }    
+    
+    public void addLoggingListener(Logging log)
+    {
+        logListeners.add(log);
+    }
+    
+    public void fireLoggingEvent(AuthenticationOp op)
+    {
+        Iterator loggingListenerIter = logListeners.iterator();
+        
+        while (loggingListenerIter.hasNext())
+        {
+            ((Logging)loggingListenerIter.next()).logAction(op);
+        }
+    }
 }

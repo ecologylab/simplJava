@@ -7,13 +7,13 @@ public class DownloadClosure
 extends Debug
 {
    Downloadable		downloadable;
-   long			startTime;
+   long				startTime;
    DispatchTarget	dispatchTarget;
    DownloadMonitor	downloadMonitor;
    
-   Thread		downloadingThread;
+   Thread			downloadingThread;
 
-   boolean		timeoutResolved;
+   boolean			timeoutResolved;
    
    private boolean	timeout;
    private boolean	dispatched;
@@ -37,12 +37,12 @@ extends Debug
    {
       long  deltaTime	= now - startTime;
       if (downloadable.isDownloadDone())
-	 return true;
-//      debug("deltaTime="+deltaTime);
+		 return true;
+	  //      debug("deltaTime="+deltaTime);
       if (deltaTime >= DownloadMonitor.TIMEOUT)
       {
-	 timeout();
-	 return true;
+		 timeout();
+		 return true;
       }
       return false;
    }
@@ -74,11 +74,11 @@ extends Debug
    {
       if (!dispatched)
       {
-//	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
-	 dispatched		= true;
-	 downloadMonitor.dispatched++;
-	 if (dispatchTarget != null)
-	    dispatchTarget.delivery(downloadable);
+		 //	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
+		 dispatched		= true;
+		 downloadMonitor.dispatched++;
+		 if (dispatchTarget != null)
+			dispatchTarget.delivery(downloadable);
       }
    }
    public boolean timedOut()

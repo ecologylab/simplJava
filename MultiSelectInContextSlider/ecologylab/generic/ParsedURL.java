@@ -459,6 +459,12 @@ extends Debug
       "html", "htm", "stm", "php", "jhtml", "jsp", "asp", "txt", "shtml",
       "pl", "plx", "exe"
    };
+    static final String[] noAlphaMimeStrings		=
+    {
+ 	   "bmp", "wbmp","jpg","jpeg", "pjpg","pjpeg"
+    };
+   static final HashMap noAlphaSuffixMap = Generic.buildHashMapFromStrings(noAlphaMimeStrings);
+   
    static final HashMap htmlSuffixMap = 
       Generic.buildHashMapFromStrings(htmlMimeStrings);
    static final String[] pdfMimeStrings		=
@@ -775,6 +781,14 @@ extends Debug
      * @return	true if this is a JPEG image file.
      */
     public boolean isJpeg()
+    {
+       return jpegSuffixMap.containsKey(suffix());
+    }
+    /**
+     * @return	true if we can tell the image file wont have alpha, just from its suffix.
+     * 			This is currently the case for jpeg and bmp.
+     */
+    public boolean isNoAlpha()
     {
        return jpegSuffixMap.containsKey(suffix());
     }
