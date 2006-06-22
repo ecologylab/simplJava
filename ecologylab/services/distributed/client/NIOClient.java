@@ -10,6 +10,7 @@ import java.net.PortUnreachableException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -55,7 +56,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     private Thread           thread;
 
-    private SelectionKey     key                    = null;
+    protected SelectionKey   key                    = null;
 
     private ByteBuffer       incomingRawBytes       = ByteBuffer
                                                             .allocate(MAX_PACKET_SIZE);
@@ -80,6 +81,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     private LinkedList       blockingResponsesQueue = new LinkedList();
 
+    protected LinkedList     requestsQueue          = new LinkedList();
+
     /**
      * selectInterval is passed to select() when it is called in the run loop.
      * It is set to 0 indicating that the loop should block until the selector
@@ -99,37 +102,51 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         super(server, port, messageSpace, objectRegistry);
     }
 
+    public void enqueueRequest(RequestMessage request)
+    {
+        synchronized (requestsQueue)
+        {
+            requestsQueue.add(request);
+        }
+
+        // debug("setting interest");
+        key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
+
+        // debug("booting selector");
+        selector.wakeup();
+    }
+
     public void disconnect()
     {
         debug("Disconnecting...");
 
-                try
-                {
-                    if (connected())
-                    {
-                        debug("connected; closing channel and selector.");
-                        
-                        channel.close();
-                        
-                        selector.wakeup();
-                        
-                        selector.selectNow();
-                        
-                        selector.close();
+        try
+        {
+            if (connected())
+            {
+                debug("connected; closing channel and selector.");
 
-                        nullOut();
-                    }
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                channel.close();
+
+                selector.wakeup();
+
+                selector.selectNow();
+
+                selector.close();
+
+                nullOut();
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
     private void nullOut()
     {
         debug("null out");
-        
+
         socket = null;
         channel = null;
         selector = null;
@@ -172,6 +189,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 // register the channel for read operations, now that it is
                 // connected
                 channel.register(selector, SelectionKey.OP_READ);
+                // channel.register(selector, SelectionKey.OP_WRITE);
             }
         }
         catch (BindException e)
@@ -217,6 +235,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             throws IOException
     {
         long outgoingUid = this.getUid();
+
+        // debug("UID: "+outgoingUid);
 
         // translate the response and store it, then
         // encode it and write it
@@ -265,6 +285,12 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public synchronized ResponseMessage sendMessage(RequestMessage request)
     {
+        return this.sendMessage(request, -1);
+    }
+
+    public synchronized ResponseMessage sendMessage(RequestMessage request,
+            int timeOutMillis)
+    {
         ResponseMessage returnValue = null;
 
         // notify the connection thread that we are waiting on a response
@@ -272,18 +298,31 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
         long currentMessageUid;
 
+        boolean blockingRequestFailed = false;
+        long startTime = System.currentTimeMillis();
+        int accumulator = 0;
+
         try
         {
             currentMessageUid = this.nonBlockingSendMessage(request);
 
+            selector.wakeup();
+
             // wait to be notified that the response has arrived
-            while (blockingRequestPending)
+            while (blockingRequestPending && !blockingRequestFailed)
             {
                 debug("waiting on blocking request");
 
                 try
                 {
-                    wait();
+                    if (timeOutMillis > -1)
+                    {
+                        wait(timeOutMillis);
+                    }
+                    else
+                    {
+                        wait();
+                    }
                 }
                 catch (InterruptedException e)
                 {
@@ -291,6 +330,9 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 }
 
                 debug("waking");
+
+                accumulator += System.currentTimeMillis() - startTime;
+                startTime = System.currentTimeMillis();
 
                 while ((blockingRequestPending)
                         && (!blockingResponsesQueue.isEmpty()))
@@ -312,6 +354,17 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                         returnValue = null;
                     }
                 }
+
+                if ((timeOutMillis > -1) && (accumulator >= timeOutMillis)
+                        && (blockingRequestPending))
+                {
+                    blockingRequestFailed = true;
+                }
+            }
+
+            if (blockingRequestFailed)
+            {
+                debug("Request failed due to timeout!");
             }
 
         }
@@ -357,159 +410,69 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 if (connected())
                 {
-                    if (isSending)
-                    {
-                        sendData();
-                    }
+                    /*
+                     * if (isSending) { sendData(); }
+                     * 
+                     * if (selectInterval > 0) { runStartTime =
+                     * System.currentTimeMillis(); }
+                     * 
+                     * debug("selectInterval = "+selectInterval);
+                     */
 
-                    if (selectInterval > 0)
+                    // debug("going to select now");
+                    if (selector.select(/* selectInterval */) > 0)
                     {
-                        runStartTime = System.currentTimeMillis();
-                    }
+                        // debug("done selecting and have something
+                        // interesting");
 
-                    // debug("selectInterval = "+selectInterval);
-
-                    if (selector.select(selectInterval) > 0)
-                    {
                         // there is something to read; only register one
                         // channel,
                         // so...
                         incoming = selector.selectedKeys().iterator();
 
-                        key = (SelectionKey) incoming.next();
-
-                        incoming.remove();
-
-                        if (key.isValid())
+                        while (incoming.hasNext())
                         {
-                            if (key.isReadable())
+                            key = (SelectionKey) incoming.next();
+
+                            incoming.remove();
+
+                            if (key.isValid())
                             {
-                                try
+                                if (key.isReadable())
                                 {
-                                    while ((bytesRead = channel.read(incomingRawBytes)) > 0)
+                                    // debug("this key is readable!");
+
+                                    readChannel();
+                                }
+
+                                if (key.isWritable())
+                                {
+                                    // debug("this key is writable!");
+
+                                    synchronized (requestsQueue)
                                     {
-                                        incomingRawBytes.flip();
-
-                                        accumulator.append(decoder
-                                                .decode(incomingRawBytes));
-
-                                        incomingRawBytes.clear();
-
-                                        if (accumulator.length() > 0)
+                                        while ((requestsQueue.size() > 0))
                                         {
-                                            if ((accumulator.charAt(accumulator
-                                                    .length() - 1) == '\n')
-                                                    || (accumulator
-                                                            .charAt(accumulator
-                                                                    .length() - 1) == '\r'))
-                                            { // when we have accumulated an
-                                                // entire message, process it
-
-                                                // in case we have several
-                                                // messages
-                                                // that are split by returns
-                                                while (accumulator.length() > 0)
-                                                {
-                                                    // transform the message
-                                                    // into a
-                                                    // request and
-                                                    // perform the service
-
-                                                    if (!this.blockingRequestPending)
-                                                    {
-                                                        processString(accumulator
-                                                                .substring(
-                                                                        0,
-                                                                        accumulator
-                                                                                .indexOf("\n")));
-                                                    }
-                                                    else
-                                                    {
-                                                        blockingResponsesQueue
-                                                                .add(processString(accumulator
-                                                                        .substring(
-                                                                                0,
-                                                                                accumulator
-                                                                                        .indexOf("\n"))));
-                                                        synchronized (this)
-                                                        {
-                                                            notify();
-                                                        }
-                                                    }
-
-                                                    // erase the message from
-                                                    // the accumulator
-                                                    accumulator
-                                                            .delete(
-                                                                    0,
-                                                                    accumulator
-                                                                            .indexOf("\n") + 1);
-                                                }
-                                            }
+                                            this
+                                                    .nonBlockingSendMessage((RequestMessage) requestsQueue
+                                                            .removeFirst());
                                         }
                                     }
-                                    
-                                    if (bytesRead == -1)
-                                    {
-                                        debug("Read returned -1; disconnecting.");
 
-                                        disconnect();
-                                    }
+                                    key.interestOps(key.interestOps()
+                                            & (~SelectionKey.OP_WRITE));
                                 }
-                                catch (CharacterCodingException e1)
-                                {
-                                    e1.printStackTrace();
-                                }
-                                catch (IOException e1)
-                                {
-                                    debug("IOException");
-
-                                    if (e1
-                                            .getMessage()
-                                            .equals(
-                                                    "An existing connection was forcibly closed by the remote host"))
-                                    {
-                                        debug("Server shut down; disconnecting.");
-                                        
-                                        disconnect();
-                                    }
-                                }
+                                /*
+                                 * else { debug("Key is selected and not
+                                 * readable!"); }
+                                 */
                             }
                             else
-                            {
-                                debug("Key is selected and not readable!");
+                            { // the key is invalid; server disconnected
+                                disconnect();
+
                             }
                         }
-                        else
-                        { // the key is invalid; server disconnected
-                            disconnect();
-
-                        }
-                    }
-
-                    // reset the selectInterval
-                    resetSelectInterval();
-
-                    if (selectInterval != 0)
-                    {
-                        runStartTime = System.currentTimeMillis()
-                                - runStartTime;
-
-                        // debug("run time = "+runStartTime);
-
-                        if ((selectInterval - runStartTime) > 0)
-                        {
-                            selectInterval -= runStartTime;
-                            // debug("new selectInterval = "+selectInterval);
-                        }
-                        else
-                        {
-                            // debug("selectInterval - runStartTime <= 0");
-                        }
-                    }
-                    else
-                    {
-                        // debug("selectInterval == 0");
                     }
                 }
             }
@@ -521,6 +484,95 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
         System.out.println("Thread shutting down.");
 
+    }
+
+    protected void readChannel()
+    {
+        int bytesRead = 0;
+
+        try
+        {
+            while ((bytesRead = channel.read(incomingRawBytes)) > 0)
+            {
+                incomingRawBytes.flip();
+
+                accumulator.append(decoder.decode(incomingRawBytes));
+
+                incomingRawBytes.clear();
+
+                if (accumulator.length() > 0)
+                {
+                    if ((accumulator.charAt(accumulator.length() - 1) == '\n')
+                            || (accumulator.charAt(accumulator.length() - 1) == '\r'))
+                    { // when we have accumulated
+                        // an
+                        // entire message, process
+                        // it
+
+                        // in case we have several
+                        // messages
+                        // that are split by returns
+                        while (accumulator.length() > 0)
+                        {
+                            // transform the message
+                            // into a
+                            // request and
+                            // perform the service
+
+                            if (!this.blockingRequestPending)
+                            {
+                                processString(accumulator.substring(0,
+                                        accumulator.indexOf("\n")));
+                            }
+                            else
+                            {
+                                blockingResponsesQueue
+                                        .add(processString(accumulator
+                                                .substring(0, accumulator
+                                                        .indexOf("\n"))));
+                                synchronized (this)
+                                {
+                                    notify();
+                                }
+                            }
+
+                            // debug("accumulator: "+accumulator.toString());
+
+                            // erase the message
+                            // from
+                            // the accumulator
+                            accumulator
+                                    .delete(0, accumulator.indexOf("\n") + 1);
+                        }
+                    }
+                }
+            }
+
+            if (bytesRead == -1)
+            {
+                debug("Read returned -1; disconnecting.");
+
+                disconnect();
+            }
+        }
+        catch (CharacterCodingException e1)
+        {
+            e1.printStackTrace();
+        }
+        catch (IOException e1)
+        {
+            debug("IOException");
+
+            if (e1
+                    .getMessage()
+                    .equals(
+                            "An existing connection was forcibly closed by the remote host"))
+            {
+                debug("Server shut down; disconnecting.");
+
+                disconnect();
+            }
+        }
     }
 
     /**
