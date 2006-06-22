@@ -70,6 +70,8 @@ public class ThreadDebugger extends Debug
 	
 	public static void registerMyself(Thread thread)
 	{
+		if (threadControlFrame ==  null)
+			return;
 		synchronized (threadEntriesByName)
 		{
 			final String threadName = thread.getName();
