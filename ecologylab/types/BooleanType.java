@@ -31,8 +31,8 @@ public class BooleanType extends Type
 	public boolean getValue(String valueString)
 	{
 	   String lcValue= valueString.toLowerCase();
-	   return lcValue.equals("true") ||
-		  lcValue.equalsIgnoreCase("yes") || (lcValue.equals("1"));
+	   return lcValue.equals("t") || lcValue.equals("true") ||
+		  lcValue.equals("yes") || (lcValue.equals("1"));
 	}
 	
 	/**
@@ -62,7 +62,8 @@ public class BooleanType extends Type
 	   try
 	   {
 		  result		= Boolean.toString(field.getBoolean(object));
-	   } catch (Exception e)
+	   } 
+       catch (Exception e)
 	   {
 		  e.printStackTrace();
 	   }
