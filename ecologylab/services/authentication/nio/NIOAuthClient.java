@@ -11,14 +11,16 @@ import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.NIOClient;
 import ecologylab.services.nio.NIOIntervalClient;
 import ecologylab.xml.NameSpace;
 
-public class NIOAuthClient extends NIOIntervalClient implements
+public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
         AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
     protected AuthenticationListEntry entry      = null;
@@ -100,8 +102,8 @@ public class NIOAuthClient extends NIOIntervalClient implements
             ObjectRegistry objectRegistry, AuthenticationListEntry entry,
             int interval, RequestMessage messageToSend)
     {
-        super(server, port, messageSpace, objectRegistry, interval,
-                messageToSend);
+        super(server, port, messageSpace, objectRegistry/*, interval,
+                messageToSend*/);
 
         messageSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Login");
@@ -162,53 +164,6 @@ public class NIOAuthClient extends NIOIntervalClient implements
     public boolean blockingLogin() throws IOException
     {
         login();
-
-        System.out.println("Waiting for server response for login.");
-
-        for (int i = 0; i < LOGIN_WAIT_TIME / 10; i++)
-        {
-            if (!loggingIn)
-            {
-                break;
-            }
-            else
-            {
-                if (i % 100 == 0)
-                {
-                    System.out.println("Waited " + i / 100
-                            + " seconds for the server's response.");
-                }
-
-                try
-                {
-                    this.finishLogin();
-                }
-                catch (Exception e)
-                { // cannot happen
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (loggingIn)
-                {
-                    synchronized (this)
-                    {
-                        try
-                        {
-                            this.wait(10);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
 
         return isLoggedIn();
     }
@@ -328,7 +283,7 @@ public class NIOAuthClient extends NIOIntervalClient implements
      */
     protected ResponseMessage sendLogoutMessage() throws IOException
     {
-        return this.sendMessage(new Logout(entry));
+        return this.sendMessage(new Logout(entry), 5000);
     }
 
     /**
@@ -338,7 +293,11 @@ public class NIOAuthClient extends NIOIntervalClient implements
      */
     protected ResponseMessage sendLoginMessage() throws IOException
     {
-        return this.sendMessage(new Login(entry));
+        ResponseMessage temp = this.sendMessage(new Login(entry), 5000);
+        
+//        System.out.println(((LoginStatusResponse)temp).responseMessage+", "+((LoginStatusResponse)temp).isOK());
+        
+        return temp;
     }
 
     /**
