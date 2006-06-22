@@ -6,7 +6,7 @@ package ecologylab.xml;
  * Object wrapper for int primitive values. Useful for storing in HashMaps, and
  * anywhere else that a reference type is needed.
  */
-public class IntState extends ElementState
+public class IntState extends ElementState implements Comparable
 {
     public int value;
 
@@ -21,8 +21,6 @@ public class IntState extends ElementState
      */
     public IntState()
     {
-
-        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -38,6 +36,31 @@ public class IntState extends ElementState
 
     public String toString()
     {
-        return "IntSlot[" + value + "]";
+        return "IntState[" + value + "]";
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object arg0)
+    {
+        return (arg0 != null) 
+            && (((arg0 instanceof IntState) && (((IntState)arg0).value == value)));
+    }
+    
+    public int compareTo(Object arg0)
+    {
+        if (arg0 == null)
+            throw new NullPointerException();
+        
+        if (!(arg0 instanceof IntState))
+            throw new ClassCastException();
+        
+        if (value > ((IntState)arg0).value)
+            return 1;
+        else if (value == ((IntState)arg0).value)
+            return 0;
+        else
+            return -1;
     }
 }
