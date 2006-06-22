@@ -88,11 +88,11 @@ public abstract class ServicesClientBase extends Debug implements
     public boolean isServerRunning()
     {
         boolean serverIsRunning = createConnection();
-        
+
         // we're just checking, don't keep the connection
         if (connected())
             disconnect();
-        
+
         return serverIsRunning;
     }
 
@@ -132,10 +132,26 @@ public abstract class ServicesClientBase extends Debug implements
                 messageString, translationSpace, doRecursiveDescent);
     }
 
+    /**
+     * Increments the internal tracker of the next UID, and returns the current
+     * one.
+     * 
+     * @return the current uidIndex.
+     */
     public long getUid()
     {
         // return the current value of uidIndex, then increment.
         return uidIndex++;
+    }
+
+    /**
+     * As getUid(), but does not increment the internal uidIndex.
+     * 
+     * @return the current uidIndex.
+     */
+    public long getUidNoIncrement()
+    {
+        return uidIndex;
     }
 
     /**
