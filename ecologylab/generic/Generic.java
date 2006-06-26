@@ -456,12 +456,18 @@ public class Generic
       }
       return result;
    }
-   /* Change return value from URL to ParsedURL. */
+
    public static ParsedURL docBase()
    {
-   	  /* docBase() method also returns ParsedURL. */
       return Environment.the.get().docBase();
    }
+   /**
+    * Raise the priority of the current thread to the priority level,
+    * if the current priority level is less than it.
+    * Otherwise, do nothing.
+    * 
+    * @param priority
+    */
    public static void raisePriority(int priority)
    {
       Thread t	= Thread.currentThread();
@@ -470,8 +476,8 @@ public class Generic
       {
 		 raiseMaxPriority(t, priority);
 		 t.setPriority(priority);
-		 Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
-					   t.getPriority());
+		 //Debug.println("\nraisingPriority{" + t + "} " + oldPriority +" -> "+
+					   //t.getPriority());
       }
    }
    public static void raiseMaxPriority(int priority)
