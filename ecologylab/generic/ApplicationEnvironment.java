@@ -23,6 +23,8 @@ public class ApplicationEnvironment
 extends Debug
 implements Environment
 {
+	protected static final String PREFERENCES_PATH = "config/preferences/";
+
 	/**
 	 * Holds properties for use in servicing parameter(String) requests.
 	 */
@@ -100,7 +102,7 @@ implements Environment
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
 	{
-	   this(baseClass, applicationName, parameterFileRelativeFromArg0(args),
+	   this(baseClass, applicationName, preferencesFileRelativeFromArg0(args),
 			   ((args.length >= 2) ? args[1] : null),
 			   ((args.length >= 3) ? args[2] : null));
 	}
@@ -144,9 +146,12 @@ implements Environment
 
 		codeBase				= new ParsedURL(path);
 		println("codeBase="+codeBase);
+		// load general application propertioes
+		loadProperties(path, PREFERENCES_PATH+"preferences.txt");
+		// load properties specific to this invocation
 		if (propertiesFileRelativePath != null)
 		{
-			println("Loading from codeBase " + path +"\tproperties " + propertiesFileRelativePath);
+			//println("Loading from codeBase " + path +"\tproperties " + propertiesFileRelativePath);
 			/*
 			//TODO need to move this up so that we never treat a URL as a file
 			//check to see if this is really a URL that was passed (cut off '/config') GHETTO!!!
@@ -173,11 +178,19 @@ implements Environment
 	{
 		try 
 		{
-			properties = new Properties();
+			if (properties == null)
+				properties = new Properties();
 
 			File file = new File(path, filename);
-			println("Loading Properties file from: "+file);
-			properties.load(new FileInputStream(file));
+			if (file.exists())
+			{
+				println("Loading preferences from: "+file);
+				FileInputStream	inStream	= new FileInputStream(file);
+				properties.load(inStream);
+				inStream.close();
+			}
+			else
+				println("Can't load preferences from non-existent path: " + file);
 		} catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
@@ -321,9 +334,9 @@ implements Environment
 	 * @param args
 	 * @return
 	 */
-	public static String parameterFileRelativeFromArg0(String[] args) 
+	public static String preferencesFileRelativeFromArg0(String[] args) 
 	{
-		return (args.length >= 1) ? "config/preferences/" + args[0] : null;
+		return (args.length >= 1) ? PREFERENCES_PATH + args[0] : null;
 	}
 
 	/**
