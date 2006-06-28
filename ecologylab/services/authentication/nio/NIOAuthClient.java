@@ -17,7 +17,6 @@ import ecologylab.services.authentication.registryobjects.AuthClientRegistryObje
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOClient;
-import ecologylab.services.nio.NIOIntervalClient;
 import ecologylab.xml.NameSpace;
 
 public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
