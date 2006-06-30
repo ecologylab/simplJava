@@ -241,6 +241,16 @@ public class Generic
       return Environment.the.javaVersion();
    }
    /**
+    * Check to see if we're running on what we consider to be a decent, usable version of Java.
+    * For 1.5, this means rel 4 or more; for 1.4, it means 1.42_04 or more.
+    * 
+    * @return	true if the Java we're running on is good; false if its crap.
+    */
+   public static boolean hasGoodJava()
+   {
+	   return Environment.the.hasGoodJava();
+   }
+   /**
     * @return The version of Java we're using (with the specific release)
     */
    public static String javaVersionFull()

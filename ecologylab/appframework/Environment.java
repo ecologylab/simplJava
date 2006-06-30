@@ -119,12 +119,22 @@ public interface Environment
 		 return environment;
       }
 /**
- * @return	The version of Java we're using (but not the specific release),
- *		as in 1.2, 1.3, 1.4,...
+ * @return	The version of Java we're using.
  */
       public float javaVersion()
       {
 		 return javaVersion;
+      }
+      /**
+       * Check to see if we're running on what we consider to be a decent, usable version of Java.
+       * For 1.5, this means rel 4 or more; for 1.4, it means 1.42_04 or more.
+       * 
+       * @return	true if the Java we're running on is good; false if its crap.
+       */
+      public boolean hasGoodJava()
+      {
+    	  float javaVersion	= javaVersion();
+    	  return (javaVersion >= 1.5004) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
       }
       public boolean javaIsBeta()
       {
