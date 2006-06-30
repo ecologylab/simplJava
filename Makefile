@@ -9,7 +9,7 @@ JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 JAR_DIRS = $(ECOLOGY_LAB_DIRS:%=ecologylab/%)
 DIRS	= $(JAR_DIRS)
 
-#KEYSTORE	=  -keystore c:/local/k/chain 
+KEYSTORE	=  -keystore c:/local/k/chain 
 
 DOC_DIR = ../../cfdocs
 
@@ -33,7 +33,7 @@ JAVA_CLASS = $(DIRS:%=%/*.class)
 TARGET		= ecologylab
 JAR_FILE	= $(TARGET).jar
 SIGNER		= "Interface Ecology Lab"
-RELEASE = 2.0Alpha3
+RELEASE = 2.0Beta6
 
 .PHONY: ecologylab.jar
 
