@@ -9,7 +9,7 @@ import java.util.Iterator;
  * 
  * @author andruid
  */
-public class ArrayListState extends ElementState implements Cloneable, Iterable
+public class ArrayListState extends ElementState implements Cloneable //, Iterable
 {
     public ArrayList set = new ArrayList();
 
