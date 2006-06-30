@@ -8,7 +8,7 @@ import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -35,7 +35,7 @@ extends RequestMessage
 		super();
 		this.preferencesSet		= preferencesSet;
 	}
-	public SetPreferences(String preferencesSetString, NameSpace nameSpace)
+	public SetPreferences(String preferencesSetString, TranslationSpace nameSpace)
 	throws XmlTranslationException
 	{
 		this((PreferencesSet) translateFromXMLString(preferencesSetString, nameSpace));
