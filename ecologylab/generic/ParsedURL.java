@@ -862,11 +862,16 @@ extends Debug
 	   
 	   return buffy.toString();  // dont copy; wont reuse buffy
    }
+   /**
+    * Return true if the other object is either a ParsedURL or a URL
+    * that refers to the same location as this.
+    */
    public boolean equals(Object other)
    {
 	  URL url = this.url;
-      return (other instanceof ParsedURL) && // (url != null) &&
-		 url.equals(((ParsedURL) other).url);
+      return ((other instanceof ParsedURL) && // (url != null) &&
+		 url.equals(((ParsedURL) other).url)) ||
+		 ((other instanceof URL) && url.equals((URL) other));
    }
    public int hashCode()
    {
@@ -952,5 +957,21 @@ extends Debug
     		path		= path.substring(lastSlash+1);
     	}
     	return path;
+    }
+    
+    /**
+     * Promote the freeing of resources!
+     * Free everything except the url, itself.
+     * (Which means all can be reconstituted!)
+     *
+     */
+    public void partialRecycle()
+    {
+    	domain			= null;
+    	suffix			= null;
+    	lc				= null;
+    	string			= null;
+    	directory		= null;
+    	hashUrl			= null;
     }
 }
