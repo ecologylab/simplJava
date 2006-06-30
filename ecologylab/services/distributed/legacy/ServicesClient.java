@@ -13,7 +13,7 @@ import java.net.SocketException;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -50,7 +50,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         this(port, null);
     }
 
-    public ServicesClient(int port, NameSpace messageSpace)
+    public ServicesClient(int port, TranslationSpace messageSpace)
     {
         this("localhost", port, messageSpace);
     }
@@ -60,12 +60,12 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         this("localhost", port, null);
     }
 
-    public ServicesClient(String server, int port, NameSpace messageSpace)
+    public ServicesClient(String server, int port, TranslationSpace messageSpace)
     {
         this(server, port, messageSpace, null);
     }
 
-    public ServicesClient(String server, int port, NameSpace messageSpace,
+    public ServicesClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);

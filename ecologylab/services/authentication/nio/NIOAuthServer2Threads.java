@@ -16,7 +16,7 @@ import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.MessageProcessor2Threads;
 import ecologylab.services.nio.NIOServer2Threads;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public class NIOAuthServer2Threads extends NIOServer2Threads implements
@@ -38,7 +38,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
      *         ServerSocket on the port on this machine.
      */
     public static NIOAuthServer2Threads get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
         NIOAuthServer2Threads newServer = null;
@@ -46,7 +46,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
-                    .translateFromXML(authListFilename, NameSpace.get(
+                    .translateFromXML(authListFilename, TranslationSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
             newServer = new NIOAuthServer2Threads(portNumber,
@@ -79,7 +79,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
      *         ServerSocket on the port on this machine.
      */
     public static NIOAuthServer2Threads get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
         NIOAuthServer2Threads newServer = null;
@@ -100,7 +100,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
     }
 
     public NIOAuthServer2Threads(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
@@ -127,7 +127,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
     }
 
     protected MessageProcessor2Threads generateMessageProcessor(
-            NameSpace translationSpace, ObjectRegistry registry)
+            TranslationSpace translationSpace, ObjectRegistry registry)
     {
         return new AuthMessageProcessor2Threads(translationSpace, registry);
     }

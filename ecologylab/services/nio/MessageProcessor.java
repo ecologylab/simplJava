@@ -9,7 +9,7 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServerConstants;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Used as a worker thread and client information container.
@@ -28,7 +28,7 @@ public class MessageProcessor extends Debug implements Runnable,
     protected SelectionKey key;
 
     public MessageProcessor(Object token, SelectionKey key,
-            NameSpace translationSpace, ObjectRegistry registry)
+            TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.context = generateClientContext(token, key, translationSpace,
                 registry);
@@ -37,7 +37,7 @@ public class MessageProcessor extends Debug implements Runnable,
     }
 
     protected ContextManager generateClientContext(Object token,
-            SelectionKey key, NameSpace translationSpace,
+            SelectionKey key, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
         return new ContextManager(token, key, translationSpace, registry);

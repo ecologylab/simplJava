@@ -18,7 +18,7 @@ import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -69,10 +69,10 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
-    private NameSpace        translationSpace;
+    private TranslationSpace        translationSpace;
 
     public ContextManager(Object token, SelectionKey key,
-            NameSpace translationSpace, ObjectRegistry registry)
+            TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.token = token;
 

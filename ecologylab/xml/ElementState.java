@@ -89,7 +89,7 @@ public class ElementState extends Debug
 	 */ 
 	protected String	packageName;
 	
-	private static final NameSpace globalNameSpace	= new NameSpace("global");
+	private static final TranslationSpace globalNameSpace	= new TranslationSpace("global");
 	
 /**
  * This instance of the String Class is used for argument marshalling
@@ -123,7 +123,7 @@ public class ElementState extends Debug
 	 */
 	HashMap				elementByIdMap;
 	
-	NameSpace			nameSpace		= globalNameSpace;
+	TranslationSpace			nameSpace		= globalNameSpace;
 	
 	public ElementState()
 	{
@@ -546,7 +546,7 @@ public class ElementState extends Debug
 	 */
 
 	public static ElementState translateFromXML(ParsedURL xmlDocumentPURL,
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 	throws XmlTranslationException
 	{
 		return (xmlDocumentPURL == null) ? 
@@ -612,7 +612,7 @@ public class ElementState extends Debug
 	 */
 
 	public static ElementState translateFromXML(URL xmlDocumentURL,
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 	throws XmlTranslationException
 	{
 	   Document document	= buildDOM(xmlDocumentURL);
@@ -640,7 +640,7 @@ public class ElementState extends Debug
 	 * @return 					the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(File xmlFile, 
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 	throws XmlTranslationException
 	{
 	   Document document	= buildDOM(xmlFile);
@@ -697,7 +697,7 @@ public class ElementState extends Debug
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(String fileName,
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(fileName);
@@ -750,7 +750,7 @@ public class ElementState extends Debug
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(InputStream xmlStream,
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(xmlStream);
@@ -806,7 +806,7 @@ public class ElementState extends Debug
 	 */
 	public static ElementState translateFromXMLString(String xmlString, 
 													  int charsetType,
-													  NameSpace nameSpace)
+													  TranslationSpace nameSpace)
 		throws XmlTranslationException
 	{
 	   return translateFromXMLString(xmlString, charsetType, nameSpace, true);
@@ -835,7 +835,7 @@ public class ElementState extends Debug
 	 */
 	public static ElementState translateFromXMLString(String xmlString, 
 													  int charsetType,
-													  NameSpace nameSpace,
+													  TranslationSpace nameSpace,
 													boolean doRecursiveDescent)
 		throws XmlTranslationException
 	{
@@ -896,7 +896,7 @@ public class ElementState extends Debug
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString,
-													  NameSpace nameSpace)
+													  TranslationSpace nameSpace)
 		throws XmlTranslationException
 	{
 
@@ -926,7 +926,7 @@ public class ElementState extends Debug
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString,
-													  NameSpace nameSpace,
+													  TranslationSpace nameSpace,
 													boolean doRecursiveDescent)
 		throws XmlTranslationException
 	{
@@ -1023,7 +1023,7 @@ public class ElementState extends Debug
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Document doc, 
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 	throws XmlTranslationException
 	{
 		return translateFromXML(doc, nameSpace, true);
@@ -1055,7 +1055,7 @@ public class ElementState extends Debug
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Document doc, 
-												NameSpace nameSpace,
+												TranslationSpace nameSpace,
 												boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
@@ -1126,7 +1126,7 @@ public class ElementState extends Debug
 	 * @return 			Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Node xmlNode,
-												NameSpace nameSpace)
+												TranslationSpace nameSpace)
 	   throws XmlTranslationException
 	{
 	   return translateFromXML(xmlNode, nameSpace, true);
@@ -1161,7 +1161,7 @@ public class ElementState extends Debug
 	 * @return 			Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Node xmlNode,
-												NameSpace nameSpace,
+												TranslationSpace nameSpace,
 												boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
@@ -1257,7 +1257,7 @@ public class ElementState extends Debug
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
 	private void translateFromXML(Node xmlNode, Class stateClass,
-								  NameSpace nameSpace, boolean doRecursiveDescent)
+								  TranslationSpace nameSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
 		// translate attribtues
@@ -1344,13 +1344,13 @@ public class ElementState extends Debug
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
-			   NameSpace nameSpaceForTranslation	= nameSpace;
+			   TranslationSpace nameSpaceForTranslation	= nameSpace;
 			   String childTag			= childNode.getNodeName();
 			   int colonIndex			= childTag.indexOf(':');
 			   if (colonIndex > 0)
 			   {
 				   String nameSpaceName	= childTag.substring(0, colonIndex);
-				   nameSpaceForTranslation	= NameSpace.get(nameSpaceName);
+				   nameSpaceForTranslation	= TranslationSpace.get(nameSpaceName);
 				   childTag				= childTag.substring(colonIndex+1);
 			   }
 			   String childFieldName	= 
@@ -1753,7 +1753,7 @@ public class ElementState extends Debug
 	 * @param nameSpace TODO
 	 * @return	the XML element name, or <i>tag</i>, that maps to this ElementState derived class.
 	 */
-	public String tagName(NameSpace nameSpace)
+	public String tagName(TranslationSpace nameSpace)
 	{
 	   return globalNameSpace.objectToXmlTag(this);
 	}
@@ -2015,7 +2015,7 @@ public class ElementState extends Debug
 		return (ElementState) this.elementByIdMap.get(id);
 	}
 	
-	public void setNameSpace(NameSpace nameSpace)
+	public void setNameSpace(TranslationSpace nameSpace)
 	{
 		this.nameSpace	= nameSpace;
 	}

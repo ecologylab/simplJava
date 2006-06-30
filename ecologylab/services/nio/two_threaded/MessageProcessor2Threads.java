@@ -11,7 +11,7 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServerConstants;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Used as a worker thread and client information container.
@@ -29,17 +29,17 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
 
     protected SelectionKey key;
     
-    private NameSpace translationSpace;
+    private TranslationSpace translationSpace;
     private ObjectRegistry registry;
 
-    public MessageProcessor2Threads(NameSpace translationSpace, ObjectRegistry registry)
+    public MessageProcessor2Threads(TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.translationSpace = translationSpace;
         this.registry = registry;
     }
 
     protected ContextManager generateClientContext(Object token,
-            SelectionKey key, NameSpace translationSpace,
+            SelectionKey key, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
         return new ContextManager(token, key, translationSpace, registry);

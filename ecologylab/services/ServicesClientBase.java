@@ -11,7 +11,7 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public abstract class ServicesClientBase extends Debug implements
@@ -23,7 +23,7 @@ public abstract class ServicesClientBase extends Debug implements
 
     protected String         server;
 
-    protected NameSpace      translationSpace = null;
+    protected TranslationSpace      translationSpace = null;
 
     protected ObjectRegistry objectRegistry;
 
@@ -33,7 +33,7 @@ public abstract class ServicesClientBase extends Debug implements
      */
     private long             uidIndex         = 0;
 
-    public ServicesClientBase(String server, int port, NameSpace messageSpace,
+    public ServicesClientBase(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
         this.port = port;

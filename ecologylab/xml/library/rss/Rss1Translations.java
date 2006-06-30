@@ -1,6 +1,6 @@
 package ecologylab.xml.rss;
 
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Translations for RSS version 1.0 style, with no namespace: style identifiers.
@@ -8,7 +8,7 @@ import ecologylab.xml.NameSpace;
  * @author andruid
  */
 public class Rss1Translations
-extends NameSpace
+extends TranslationSpace
 {
    public Rss1Translations()
    {

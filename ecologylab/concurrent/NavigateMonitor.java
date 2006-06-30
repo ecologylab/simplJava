@@ -4,7 +4,7 @@ import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.messages.Navigate;
 import ecologylab.services.messages.StopMessage;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Provide navigation to a web page, in a web browser.

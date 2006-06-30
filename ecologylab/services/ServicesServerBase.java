@@ -17,7 +17,7 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -39,7 +39,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      * Space that defines mappings between xml names, and Java class names, for
      * request messages.
      */
-    protected NameSpace      requestTranslationSpace;
+    protected TranslationSpace      requestTranslationSpace;
 
     /**
      * Provides a context for request processing.
@@ -63,7 +63,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      * @throws IOException
      */
     protected ServicesServerBase(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
             throws IOException, java.net.BindException
     {
         this.portNumber = portNumber;
@@ -172,7 +172,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     /**
      * @return Returns the requestTranslationSpace.
      */
-    public NameSpace getRequestTranslationSpace()
+    public TranslationSpace getRequestTranslationSpace()
     {
         return requestTranslationSpace;
     }

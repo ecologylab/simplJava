@@ -10,7 +10,7 @@ import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Represents the client side of an authenticating server. Requires that it is
@@ -51,7 +51,7 @@ public class AuthClient extends ServicesClient implements AuthMessages,
      * @param messageSpace
      * @param objectRegistry
      */
-    public AuthClient(String server, int port, NameSpace messageSpace,
+    public AuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
         this(server, port, messageSpace, objectRegistry, null);
@@ -66,7 +66,7 @@ public class AuthClient extends ServicesClient implements AuthMessages,
      */
     public AuthClient(String server, int port, AuthenticationListEntry entry)
     {
-        this(server, port, NameSpace.get("authClient",
+        this(server, port, TranslationSpace.get("authClient",
                 "ecologylab.services.authentication"), new ObjectRegistry(),
                 entry);
     }
@@ -80,7 +80,7 @@ public class AuthClient extends ServicesClient implements AuthMessages,
      * @param objectRegistry
      * @param entry
      */
-    public AuthClient(String server, int port, NameSpace messageSpace,
+    public AuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry, AuthenticationListEntry entry)
     {
         super(server, port, messageSpace, objectRegistry);

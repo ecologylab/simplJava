@@ -9,7 +9,7 @@ import java.util.Vector;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -46,7 +46,7 @@ public class ServicesServer extends ServicesServerBase
      *         ServerSocket on the port on this machine.
      */
     public static ServicesServer get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
     {
         ServicesServer newServer = null;
         try
@@ -73,7 +73,7 @@ public class ServicesServer extends ServicesServerBase
      *            Provides a context for request processing.
      * @throws IOException
      */
-    public ServicesServer(int portNumber, NameSpace requestTranslationSpace,
+    public ServicesServer(int portNumber, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException,
             java.net.BindException
     {

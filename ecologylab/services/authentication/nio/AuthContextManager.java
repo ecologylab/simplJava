@@ -22,7 +22,7 @@ import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.ContextManager;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Stores information about the connection context for the client. Should be
@@ -41,7 +41,7 @@ public class AuthContextManager extends ContextManager implements
     private AuthLogging servicesServer = null;
 
     public AuthContextManager(Object token, SelectionKey key,
-            NameSpace translationSpace, ObjectRegistry registry,
+            TranslationSpace translationSpace, ObjectRegistry registry,
             AuthLogging servicesServer)
     {
         super(token, key, translationSpace, registry);

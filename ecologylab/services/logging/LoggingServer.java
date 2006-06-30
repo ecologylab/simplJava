@@ -10,7 +10,7 @@ import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * creating logging server and set the file for saving debug messages
@@ -23,7 +23,7 @@ implements LoggingDef
 
 	boolean end = false;
 	
-	public LoggingServer(int portNumber, NameSpace nameSpace, ObjectRegistry objectRegistry) 
+	public LoggingServer(int portNumber, TranslationSpace nameSpace, ObjectRegistry objectRegistry) 
 	throws BindException, IOException 
 	{
 		super(portNumber, nameSpace, objectRegistry);
@@ -33,7 +33,7 @@ implements LoggingDef
 	public LoggingServer()
 	throws BindException, IOException 
 	{
-		this(ServicesHostsAndPorts.LOGGING_PORT, NameSpace.get("ecologylab.services.logging", "ecologylab.services.logging"),
+		this(ServicesHostsAndPorts.LOGGING_PORT, TranslationSpace.get("ecologylab.services.logging", "ecologylab.services.logging"),
 				null);
 	}
 	/**

@@ -20,7 +20,7 @@ import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public class NIOServer1Thread extends NIOServerBase
@@ -45,7 +45,7 @@ public class NIOServer1Thread extends NIOServerBase
                                                                          .newEncoder();
 
     public NIOServer1Thread(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
             throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);

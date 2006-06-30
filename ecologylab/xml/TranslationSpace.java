@@ -3,13 +3,14 @@ package ecologylab.xml;
 import java.util.HashMap;
 
 /**
- * This class contains the package information for the classes that are converted
- * from Java to XML and back. This is done by maintaining a Hashtable containing
+ * A set of translations between XML element names (tags) and associated Java ElementState
+ * class names.
+ * This is done by maintaining a HashMap containing
  * the name of the class as the key and its package as the value. If no entry is 
- * present in the hashtable, then the default package is returned. This is used when
+ * present in the map, then the default package is returned. This is used when
  * an XML is converted back to its Java State-Object
  */
-public class NameSpace extends IO 
+public class TranslationSpace extends IO 
 {
    protected String			name;
    /**
@@ -42,7 +43,7 @@ public class NameSpace extends IO
     * 
     * @param name
     */
-   protected NameSpace(String name)
+   protected TranslationSpace(String name)
    {
 	  // !!! these lines need to be moved to the studies package !!!
 	  this.name	= name;
@@ -57,7 +58,7 @@ public class NameSpace extends IO
     * @param name
     * @param defaultPackgeName
     */
-   protected NameSpace(String name, String defaultPackgeName)
+   protected TranslationSpace(String name, String defaultPackgeName)
    {
 	   this(name);
 	   this.setDefaultPackageName(defaultPackgeName);
@@ -74,7 +75,7 @@ public class NameSpace extends IO
     * @param defaultPackgeName
 	* @param translations		Set of initially defined translations for this.
     */
-   protected NameSpace(String name, String defaultPackgeName, 
+   protected TranslationSpace(String name, String defaultPackgeName, 
 					String[][] translations)
    {
 	   this(name);
@@ -91,7 +92,7 @@ public class NameSpace extends IO
     * 
 	* @param translations		Set of initially defined translations for this.
     */
-   public NameSpace(String defaultPackgeName,
+   public TranslationSpace(String defaultPackgeName,
 					String[][] translations)
    {
 	   this(defaultPackgeName, defaultPackgeName, translations);
@@ -310,9 +311,9 @@ public class NameSpace extends IO
     * @param name
     * @return
     */
-   public static NameSpace lookup(String name)
+   public static TranslationSpace lookup(String name)
    {
-	   return (NameSpace) allNameSpaces.get(name);
+	   return (TranslationSpace) allNameSpaces.get(name);
    }
    /**
     * Find the NameSpace called <code>name</code>, if there is one.
@@ -321,10 +322,10 @@ public class NameSpace extends IO
     * @param name
     * @return
     */
-   public static NameSpace get(String name)
+   public static TranslationSpace get(String name)
    {
-	   NameSpace result	= lookup(name);
-	   return (result != null) ? result : new NameSpace(name);
+	   TranslationSpace result	= lookup(name);
+	   return (result != null) ? result : new TranslationSpace(name);
    }
    /**
     * Find the NameSpace called <code>name</code>, if there is one.
@@ -335,9 +336,9 @@ public class NameSpace extends IO
     * @param name
     * @return
     */
-   public static NameSpace get(String name, String defaultPackageName)
+   public static TranslationSpace get(String name, String defaultPackageName)
    {
-	   NameSpace result	= lookup(name);
+	   TranslationSpace result	= lookup(name);
 	   if (result != null)
 	   {
 		  if (defaultPackageName != null)
@@ -350,7 +351,7 @@ public class NameSpace extends IO
 	   }
 	   else
 	   {
-		   result	= new NameSpace(name, defaultPackageName);
+		   result	= new TranslationSpace(name, defaultPackageName);
 	   }
 	   return result;
    }
@@ -366,11 +367,11 @@ public class NameSpace extends IO
     * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
     * A RuntimeException will be thrown if there was already such a NameSpace, but with different defaultPackageName.
     */
-   public static NameSpace get(String name, String defaultPackageName,
+   public static TranslationSpace get(String name, String defaultPackageName,
 							   String[][] translations)
    {
 	  //TODO do not addTranslations if the object was already there!!!
-	  NameSpace result	= lookup(name);
+	  TranslationSpace result	= lookup(name);
 	  if (result == null)
 	  {
 		  result		= get(name, defaultPackageName);
@@ -388,7 +389,7 @@ public class NameSpace extends IO
     * @param name
     * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
     */
-   public static NameSpace get(String defaultPackageName,
+   public static TranslationSpace get(String defaultPackageName,
 							   String[][] translations)
    {
 	  return get(defaultPackageName, defaultPackageName, translations);

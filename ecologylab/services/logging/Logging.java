@@ -24,7 +24,7 @@ import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
@@ -47,7 +47,7 @@ public class Logging extends ElementState implements Runnable,
 
     Thread                      thread;
     
-    NameSpace                   nameSpace;
+    TranslationSpace                   nameSpace;
 
     /**
      * Does all the work of logging, if there is any work to be done.
@@ -132,15 +132,15 @@ public class Logging extends ElementState implements Runnable,
     final int                   maxOpsBeforeWrite;
 
 
-    public Logging(NameSpace nameSpace)
+    public Logging(TranslationSpace nameSpace)
     {
         this(nameSpace, null);
     }
-    public Logging(NameSpace nameSpace, String logFileName)
+    public Logging(TranslationSpace nameSpace, String logFileName)
     {
         this(nameSpace, logFileName, MAX_OPS_BEFORE_WRITE);
     }
-    public Logging(NameSpace nameSpace, String logFileName, int maxOpsBeforeWrite)
+    public Logging(TranslationSpace nameSpace, String logFileName, int maxOpsBeforeWrite)
     {
         super();
         this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
@@ -433,7 +433,7 @@ public class Logging extends ElementState implements Runnable,
     }
 
     // TODO this looks like dead code.
-    public static ElementState loadLogXML(String fileName, NameSpace nameSpace)
+    public static ElementState loadLogXML(String fileName, TranslationSpace nameSpace)
     {
 
         fixBrokenLog(fileName);

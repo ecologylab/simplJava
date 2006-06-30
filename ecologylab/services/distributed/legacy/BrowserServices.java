@@ -5,7 +5,7 @@ import java.io.IOException;
 
 
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Provide socket based browser services.

@@ -20,7 +20,7 @@ import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.MessageProcessor;
 import ecologylab.services.nio.NIOServerNThreads;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -53,7 +53,7 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
      *         ServerSocket on the port on this machine.
      */
     public static NIOAuthServerNThreads get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
         NIOAuthServerNThreads newServer = null;
@@ -61,7 +61,7 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
-                    .translateFromXML(authListFilename, NameSpace.get(
+                    .translateFromXML(authListFilename, TranslationSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
             newServer = new NIOAuthServerNThreads(portNumber,
@@ -92,7 +92,7 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
      *         ServerSocket on the port on this machine.
      */
     public static NIOAuthServerNThreads get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
         NIOAuthServerNThreads newServer = null;
@@ -124,7 +124,7 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
      * @throws BindException
      */
     protected NIOAuthServerNThreads(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);

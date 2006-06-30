@@ -17,7 +17,7 @@ import ecologylab.services.authentication.registryobjects.AuthClientRegistryObje
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOClient;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
         AuthClientRegistryObjects, AuthConstants, AuthMessages
@@ -58,7 +58,7 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
      * @param messageSpace
      * @param objectRegistry
      */
-    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+    public NIOAuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry, int interval,
             RequestMessage messageToSend)
     {
@@ -77,12 +77,12 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
             AuthenticationListEntry entry, int interval,
             RequestMessage messageToSend)
     {
-        this(server, port, NameSpace.get("authClient",
+        this(server, port, TranslationSpace.get("authClient",
                 "ecologylab.services.authentication"), new ObjectRegistry(),
                 entry, interval, messageToSend);
     }
 
-    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+    public NIOAuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry, AuthenticationListEntry entry)
     {
         this(server, port, messageSpace, objectRegistry, entry, 0, null);
@@ -97,7 +97,7 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
      * @param objectRegistry
      * @param entry
      */
-    public NIOAuthClient(String server, int port, NameSpace messageSpace,
+    public NIOAuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry, AuthenticationListEntry entry,
             int interval, RequestMessage messageToSend)
     {

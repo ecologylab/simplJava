@@ -9,13 +9,13 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 public class NIOServer2Threads extends NIOServerBase implements ServerConstants
 {
     MessageProcessor2Threads messageProcessor = null;
 
-    public NIOServer2Threads(int portNumber, NameSpace requestTranslationSpace,
+    public NIOServer2Threads(int portNumber, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
@@ -25,7 +25,7 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
     }
 
     protected MessageProcessor2Threads generateMessageProcessor(
-            NameSpace translationSpace, ObjectRegistry registry)
+            TranslationSpace translationSpace, ObjectRegistry registry)
     {
         return new MessageProcessor2Threads(translationSpace, registry);
     }

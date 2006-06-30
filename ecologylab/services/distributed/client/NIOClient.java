@@ -27,7 +27,7 @@ import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesClientBase;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -96,7 +96,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     protected boolean        isSending              = false;
 
-    public NIOClient(String server, int port, NameSpace messageSpace,
+    public NIOClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);

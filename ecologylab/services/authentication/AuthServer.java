@@ -18,7 +18,7 @@ import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -51,14 +51,14 @@ public class AuthServer extends ServicesServer implements
      *         ServerSocket on the port on this machine.
      */
     public static AuthServer get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             String authListFilename)
     {
         AuthServer newServer = null;
         try
         {
             AuthenticationList authList = (AuthenticationList) ElementState
-                    .translateFromXML(authListFilename, NameSpace.get(
+                    .translateFromXML(authListFilename, TranslationSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
             newServer = new AuthServer(portNumber,
@@ -88,7 +88,7 @@ public class AuthServer extends ServicesServer implements
      *         ServerSocket on the port on this machine.
      */
     public static AuthServer get(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList)
     {
         AuthServer newServer = null;
@@ -119,7 +119,7 @@ public class AuthServer extends ServicesServer implements
      * @throws BindException
      */
     protected AuthServer(int portNumber,
-            NameSpace requestTranslationSpace, ObjectRegistry objectRegistry,
+            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
             AuthenticationList authList) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);

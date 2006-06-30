@@ -11,7 +11,7 @@ import java.util.Iterator;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
-import ecologylab.xml.NameSpace;
+import ecologylab.xml.TranslationSpace;
 
 public class NIOServerNThreads extends NIOServerBase implements
         ServerConstants
@@ -19,7 +19,7 @@ public class NIOServerNThreads extends NIOServerBase implements
 
     protected HashMap pool = new HashMap();
 
-    public NIOServerNThreads(int portNumber, NameSpace requestTranslationSpace,
+    public NIOServerNThreads(int portNumber, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
