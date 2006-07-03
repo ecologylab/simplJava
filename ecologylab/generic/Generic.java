@@ -31,22 +31,25 @@ public class Generic
    public static boolean parameterBool(String name)
    {
       String value	= parameter(name);
-      boolean result	= value != null;
-      if (result)
-		 result		=  value.equalsIgnoreCase("true") ||
-			value.equalsIgnoreCase("yes") || (value.equals("1"));
+      boolean result= (value != null) && booleanFromString(value);
       return result;
+   }
+   /**
+    * Convert a String to a boolean.
+    * 
+    * @param value
+    * @return	true if the String is "true", "yes", or "1".
+    * 			false otherwise
+    */
+   public static boolean booleanFromString(String value)
+   {
+	  return value.equalsIgnoreCase("true") ||
+				value.equalsIgnoreCase("yes") || value.equals("1");
    }
    public static boolean parameterBool(String name, boolean defaultValue)
    {
-      String param	= parameter(name);
-      boolean result;
-      if (param != null)
-		 result		=  param.equalsIgnoreCase("true") ||
-			param.equalsIgnoreCase("yes") || (param.equals("1"));
-      else
-		 result		= defaultValue;
-      return result;
+      String value	= parameter(name);
+      return (value == null) ? defaultValue : booleanFromString(value);
    }
 /**
  * Get an integer from the Environment. Environment is an interface that enables
