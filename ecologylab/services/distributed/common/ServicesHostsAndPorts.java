@@ -3,7 +3,7 @@
  */
 package ecologylab.services;
 
-import ecologylab.generic.NetTools;
+import ecologylab.net.NetTools;
 import ecologylab.services.logging.Logging;
 
 /**

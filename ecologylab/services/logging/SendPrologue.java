@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import ecologylab.generic.NetTools;
+import ecologylab.net.NetTools;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
