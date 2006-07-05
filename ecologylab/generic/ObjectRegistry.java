@@ -46,4 +46,8 @@ public class ObjectRegistry
         registryMap.put(name, value);
     }
    
+    public boolean containsKey(String key)
+    {
+    	return registryMap.containsKey(key);
+    }
 }
