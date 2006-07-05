@@ -1,19 +1,28 @@
-/*
- * Modified by Eunyee Koh
- */
-
 package ecologylab.generic;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
 import java.util.*;
 
 import javax.imageio.ImageIO;
 
+import ecologylab.net.ConnectionHelper;
+import ecologylab.net.NetTools;
+import ecologylab.net.PURLConnection;
+
 /**
+ * Extends the URL with many features for the convenience and power of network programmers.
  * New class for manipulating and displaying URLs.
  * 
  * Uses lazy evaluation to minimize storage allocation.
+ * 
+ * @author andruid
+ * @author eunyee
+ * @author madhur
  */
 public class ParsedURL
 extends Debug
@@ -775,8 +784,18 @@ extends Debug
     */
     public boolean isImg()
     {
-       return imgSuffixMap.containsKey(suffix());
+       return isImageSuffix(suffix());
     }
+
+    /**
+     * 
+     * @param thatSuffix
+     * @return	true if the suffix passed in is one for an image type that we can handle.
+     */
+	public static boolean isImageSuffix(String thatSuffix)
+	{
+		return imgSuffixMap.containsKey(thatSuffix);
+	}
     /**
      * @return	true if this is a JPEG image file.
      */
@@ -974,4 +993,120 @@ extends Debug
     	directory		= null;
     	hashUrl			= null;
     }
+    
+    public PURLConnection connect(ConnectionHelper connectionHelper)
+    {
+    	URLConnection connection= null;
+    	InputStream inStream	= null;
+    	boolean bad				= false;
+     	PURLConnection result	= null;
+
+     // get an InputStream, and set the mimeType, if not bad
+     if (isFile())
+     {
+     	File file = file();
+     	if (file.isDirectory())
+     		//result				= new FileDirectoryType(file, container, infoCollector);
+     		connectionHelper.handleFileDirectory(file);
+     	else
+     	{
+     		String suffix = suffix();
+     		if (suffix != null)
+     		{
+ 				//result			= getInstanceBySuffix(suffix);
+ 	    		//if (result != null)
+ 	    		if (connectionHelper.parseFilesWithSuffix(suffix))
+ 	    		{
+ 			      	try
+ 					{
+ 						inStream	= new FileInputStream(file);
+ 					} catch (FileNotFoundException e)
+ 					{
+ 						bad			= true;
+ 						e.printStackTrace();
+ 					}
+ 	    		}
+ 	    		result				= new PURLConnection(null, inStream);
+     		}
+     	}
+     	return result;
+     }
+     else
+     {	  // network based URL
+ 	      try 
+ 	      {
+ 		    connection			= this.url().openConnection();
+     
+ 		    // hack so google thinks we're a normal browser
+ 		    // (otherwise, it wont serve us)
+ 		    connection.setRequestProperty("user-agent", IE5_USER_AGENT);
+			
+			/*//TODO include more structure instead of this total hack!
+			if ("nytimes.com".equals(this.domain()))
+			{
+				String auth	= new sun.misc.BASE64Encoder().encode("fred66:fred66".getBytes());
+				connection.setRequestProperty("Authorization", auth);
+			}
+ 		    */
+ 		    
+ 		    String mimeType			= connection.getContentType();
+ 	
+		    //println("mimeType = " + mimeType);
+		    // no one uses the encoding header: connection.getContentEncoding();
+		    String unsupportedCharset = NetTools.isCharsetSupported(mimeType);
+			if (unsupportedCharset != null)
+		    {
+				connectionHelper.displayStatus("Cant process charset " + unsupportedCharset + " in " + this);
+		    	return null;
+		    }
+ 	
+ 		    // notice if url changed between request and retrieved connection
+ 		    // if so, this is a server-side redirect
+ 		    URL connectionURL			= connection.getURL();
+ 		    
+ 		    if (!this.equals(connectionURL)) // follow redirects!
+ 		    {
+ 		    	// avoid doubly stuffed urls
+ 		    	String connectionFile	= connectionURL.getFile();
+ 		    	String file				= url().getFile();
+ 	
+ 		    	if ((file.indexOf("http://") != -1) ||
+ 		    			(connectionFile.indexOf("http://") == -1))
+ 		    	{
+ 		    		if (connectionHelper.processRedirect(connectionURL))
+ 		    			inStream		= connection.getInputStream();
+		    			
+ 		    	}
+ 		    	else
+		    		println("WEIRD: skipping double stuffed url: " + connectionURL); 		    		
+ 		    }  
+ 		    else	// no redirect, eveything is kewl
+	    			inStream			= connection.getInputStream();
+ 	      }
+ 	      catch (FileNotFoundException e)
+ 	      { 
+ 			 bad			= true;
+ 			 println("Can't open because FileNotFoundException: " + this);
+ 	     }
+ 	      catch (IOException e)
+ 	      { 
+ 			 bad			= true;
+ 			 println("Can't open because " + e +" " + this);
+ 		  }
+ 	      catch (Exception e)	   // catch all exceptions, including security
+ 	      { 
+ 	      	bad				= true;
+ 	      	println("connect() caught " + e);
+ 	      	e.printStackTrace();
+ 	      }
+       } // end else network based URL
+
+       //TODO -- how are the headers (like ContentType) read?
+       // is the inputStream really created automatically for us behind the scences???
+       // if so, we need to get it, close it, disconnect() it, etc.
+       return ((inStream == null) || bad)? null : new PURLConnection(connection, inStream);
+    }
+    
+    final static String IE5_USER_AGENT	= 
+	      "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 5.0";
 }
