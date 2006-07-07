@@ -31,8 +31,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.ParsedURL;
 import ecologylab.generic.StringInputStream;
+import ecologylab.net.ParsedURL;
 import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
@@ -1049,17 +1049,17 @@ public class ElementState extends Debug
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param doc	Document object for DOM tree that needs to be translated.
+	 * @param dom	Document object for DOM tree that needs to be translated.
 	 * @param nameSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(Document doc, 
+	public static ElementState translateFromXML(Document dom, 
 												TranslationSpace nameSpace,
 												boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
-		Node rootNode				= (Node) doc.getDocumentElement();
+		Node rootNode				= (Node) dom.getDocumentElement();
 		return translateFromXML(rootNode, nameSpace, doRecursiveDescent);
 	}
 	
@@ -1166,14 +1166,14 @@ public class ElementState extends Debug
 	   throws XmlTranslationException
 	{
 	   // find the class for the new object derived from ElementState
-		Class stateClass				= null;
-		String tagName		= xmlNode.getNodeName();
+		Class stateClass			= null;
+		String tagName				= xmlNode.getNodeName();
 		try
 		{			  
 		   stateClass= nameSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
 		   {
-		   	  ElementState rootState = getElementState(stateClass);
+		   	  ElementState rootState= getElementState(stateClass);
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap();
@@ -1224,7 +1224,7 @@ public class ElementState extends Debug
 		{
 		   if (e instanceof NullPointerException)
 			   println(e.toString());
-		   throw new XmlTranslationException("Instantiation ERROR:", e);
+		   throw new XmlTranslationException("Instantiation ERROR for " + stateClass +":", e);
 		}
 		return elementState;
 	}
