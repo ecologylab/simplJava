@@ -25,18 +25,17 @@ implements ConnectionHelper
 	public void handleFileDirectory(File file)
 	{
 	}
-	
+
 	/**
-	 * Tells the connect() method that it should go ahead and create a PURLConnection
-	 * for files that have this suffix.
+	 * Called at the end of processing, if it turns out that something went wrong
+	 * while opening the connection.
 	 * 
-	 * An implementation (usually using a HashMap) must be provided in order
-	 * for connect() to work.
-	 * 
-	 * @param suffix
-	 * @return
+	 * This version does nothing.
 	 */
-	abstract public boolean parseFilesWithSuffix(String suffix);
+	public void badResult()
+	{
+		
+	}
 	
 	/**
 	 * Used to provid status feedback to the user.

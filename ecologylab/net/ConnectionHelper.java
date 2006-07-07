@@ -23,6 +23,12 @@ public interface ConnectionHelper
 	public boolean	parseFilesWithSuffix(String suffix);
 	
 	/**
+	 * Called at the end of processing, if it turns out that something went wrong
+	 * while opening the connection.
+	 */
+	public void badResult();
+	
+	/**
 	 * Used to provid status feedback to the user.
 	 * 
 	 * @param message
