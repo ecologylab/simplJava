@@ -55,6 +55,11 @@ extends Debug
    {
       delete(BasicFloatSet.NO_RECOMPUTE);
    }
+   
+   public boolean isInSet()
+   {
+	   return (set != null) && (index != NOT_A_MEMBER);
+   }
 /**
  * Delete the element from the set.
  * This means changing the set's structure, and also changing slots in 
@@ -66,7 +71,7 @@ extends Debug
  */
    public synchronized void delete(int recompute)
    {
-      if ((set != null) && (index != NOT_A_MEMBER))//prevent double dip deletes
+      if (isInSet())//prevent double dip deletes
       {
       	set.delete(this, recompute);
         clear();
