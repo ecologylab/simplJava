@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.net;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,9 +10,10 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
-import ecologylab.net.ConnectionHelper;
-import ecologylab.net.NetTools;
-import ecologylab.net.PURLConnection;
+import ecologylab.generic.Debug;
+import ecologylab.generic.Files;
+import ecologylab.generic.Generic;
+import ecologylab.generic.StringTools;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers.
@@ -998,7 +999,6 @@ extends Debug
     {
     	URLConnection connection= null;
     	InputStream inStream	= null;
-    	boolean bad				= false;
      	PURLConnection result	= null;
 
      // get an InputStream, and set the mimeType, if not bad
@@ -1020,19 +1020,20 @@ extends Debug
  			      	try
  					{
  						inStream	= new FileInputStream(file);
+ 		 	    		result		= new PURLConnection(null, inStream);
  					} catch (FileNotFoundException e)
  					{
- 						bad			= true;
- 						e.printStackTrace();
+ 						connectionHelper.badResult();
+ 			 			println("Can't open because FileNotFoundException: " + this);
  					}
  	    		}
- 	    		result				= new PURLConnection(null, inStream);
      		}
      	}
      	return result;
      }
      else
      {	  // network based URL
+    	  boolean bad			= false;
  	      try 
  	      {
  		    connection			= this.url().openConnection();
@@ -1099,12 +1100,13 @@ extends Debug
  	      	println("connect() caught " + e);
  	      	e.printStackTrace();
  	      }
+ 	      return ((inStream == null) || bad)? null : new PURLConnection(connection, inStream);
        } // end else network based URL
 
        //TODO -- how are the headers (like ContentType) read?
        // is the inputStream really created automatically for us behind the scences???
-       // if so, we need to get it, close it, disconnect() it, etc.
-       return ((inStream == null) || bad)? null : new PURLConnection(connection, inStream);
+       // if so, we need to get it, close it, disconnect() it, etc. --
+       // just because we read the headers???
     }
     
     final static String IE5_USER_AGENT	= 
