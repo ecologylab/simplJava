@@ -4,6 +4,7 @@
 package ecologylab.generic;
 
 import ecologylab.media.PixelBased;
+import ecologylab.net.ParsedURL;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

@@ -5,6 +5,8 @@ import java.util.*;
 import java.net.*;
 import java.nio.channels.FileChannel;
 
+import ecologylab.net.ParsedURL;
+
 /**
  * A set of lovely convenience methods for doing operations on local files.
  */
@@ -72,35 +74,34 @@ extends Debug
  */
    public static File newFile(File context, String inFileName)
    {
-      // one of the replaces should do something;
-      // and the other should do nothing.
-//      Debug.println("newFile("+context+","+inFileName);
-      String fixedFileName      =inFileName.replace('/',sep).replace('\\',sep);
-      File one	= new File(fixedFileName);
-      if (context == null)
-	 return one;
-      if (one.isAbsolute() || (context == null))
-      {
-	 // hack gnarly windows path shit
-	 // (drives & backslashes are a plague on all programmers)
-	 if (fixedFileName.charAt(1) != ':')
-	 {
-	    String contextName	= context.getPath();
-	    if (contextName.charAt(1) == ':')
-	    {
-	       String fixedFixed= contextName.substring(0,2) + fixedFileName;
-	       return new File(fixedFixed);
-	    }
-	 }
-	 return one;
-      }
-      // else
-//      Debug.println("newFile: (0)="+fixedFileName.charAt(0) + " (1)"+
-//			 fixedFileName.charAt(0));
-//      if ((fixedFileName.charAt(1) == ':') || (fixedFileName.charAt(0) == sep))
-//	 return new File(fixedFileName);
-//      else
-	 return new File(context, fixedFileName);
+	   // one of the replaces should do something;
+	   // and the other should do nothing.
+	   String fixedFileName      =inFileName.replace('/',sep).replace('\\',sep);
+	   File one	= new File(fixedFileName);
+	   if (context == null)
+		   return one;
+	   if (one.isAbsolute() || (context == null))
+	   {
+		   // hack gnarly windows path shit
+		   // (drives & backslashes are a plague on all programmers)
+		   if (fixedFileName.charAt(1) != ':')
+		   {
+			   String contextName	= context.getPath();
+			   if (contextName.charAt(1) == ':')
+			   {
+				   String fixedFixed= contextName.substring(0,2) + fixedFileName;
+				   return new File(fixedFixed);
+			   }
+		   }
+		   return one;
+	   }
+	   // else
+//	   Debug.println("newFile: (0)="+fixedFileName.charAt(0) + " (1)"+
+//	   fixedFileName.charAt(0));
+//	   if ((fixedFileName.charAt(1) == ':') || (fixedFileName.charAt(0) == sep))
+//	   return new File(fixedFileName);
+//	   else
+	   return new File(context, fixedFileName);
    }
    public void close()
    {

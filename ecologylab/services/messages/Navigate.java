@@ -8,7 +8,7 @@ import netscape.javascript.JSObject;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.generic.ParsedURL;
+import ecologylab.net.ParsedURL;
 
 /**
  * A message sent to the browser server to perform the navigation service.

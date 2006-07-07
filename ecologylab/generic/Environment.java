@@ -4,6 +4,8 @@
  */
 package ecologylab.generic;
 
+import ecologylab.net.ParsedURL;
+
 
 /**
  * Provides a mechanism for passing parameters/preferences/properties from

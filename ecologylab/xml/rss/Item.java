@@ -2,7 +2,7 @@ package ecologylab.xml.rss;
 
 import java.util.HashMap;
 
-import ecologylab.generic.ParsedURL;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.*;
 
 /**

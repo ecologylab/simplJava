@@ -3,6 +3,8 @@ package ecologylab.generic;
 import java.net.*;
 import java.util.*;
 
+import ecologylab.net.ParsedURL;
+
 
 /**
  * A set of lovely convenience methods for doing operations on 

@@ -12,11 +12,11 @@ import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.DownloadMonitor;
 import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
-import ecologylab.generic.ParsedURL;
 import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.generic.ZipDownload;
 import ecologylab.gui.Status;
 import ecologylab.media.IIOPhoto;
+import ecologylab.net.ParsedURL;
 
 /**
  * Used to manage cachable assets

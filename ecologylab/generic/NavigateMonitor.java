@@ -1,5 +1,6 @@
 package ecologylab.generic;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.messages.Navigate;

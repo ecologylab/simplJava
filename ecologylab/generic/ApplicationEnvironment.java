@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import ecologylab.generic.ParsedURL;
 import ecologylab.generic.AssetsCache.Assets;
+import ecologylab.net.ParsedURL;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,

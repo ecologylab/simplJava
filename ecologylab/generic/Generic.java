@@ -6,6 +6,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
+import ecologylab.net.ParsedURL;
+
 /**
  * A set of generic convenience methods for doing things like getting
  * typed parameters from the envionment, getting other stuff from
