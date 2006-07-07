@@ -66,10 +66,16 @@ public class PURLConnection extends Debug
 		return urlConnection;
 	}
 
+	/**
+	 * Find the mime type returned by the web server to the URLConnection, in its header.
+	 * Thus, if there is no URLConnection (as for local file system), this always returns null.
+	 * 
+	 * @return	the mime type or null
+	 */
 	public String mimeType()
 	{
 		String result				= this.mimeType;
-		if (result == null)
+		if ((result == null) && (urlConnection != null))
 		{
 			result					= urlConnection.getContentType();
 			if (result != null)
