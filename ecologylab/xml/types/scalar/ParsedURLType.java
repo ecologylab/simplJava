@@ -3,7 +3,9 @@
  */
 package ecologylab.types;
 
-import ecologylab.generic.ParsedURL;
+import java.io.File;
+
+import ecologylab.net.ParsedURL;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -34,6 +36,11 @@ public class ParsedURLType extends Type
 	 */
 	public Object getInstance(String value)
 	{
+	   if (value.indexOf(':') == 1)
+	   {
+		   File file	= ecologylab.generic.Files.newFile(value);
+		   return new ParsedURL(file);
+	   }
 	   return ParsedURL.getAbsolute(value, " getInstance()");
 	}
 }
