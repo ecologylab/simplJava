@@ -8,7 +8,7 @@ import cf.app.CFSessionObjects;
 import ecologylab.generic.ApplicationEnvironment;
 import ecologylab.generic.ApplicationProperties;
 import ecologylab.generic.Environment;
-import ecologylab.generic.ParsedURL;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 
