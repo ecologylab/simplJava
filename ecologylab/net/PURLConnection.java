@@ -30,12 +30,6 @@ public class PURLConnection extends Debug
 	{
 		// parsing done. now free resources asap to avert leaking and memory fragmentation
 		// (this is a known problem w java.net.HttpURLConnection)
-		URLConnection urlConnection	= this.urlConnection;
-		if (urlConnection != null)
-		{
-			NetTools.disconnect(urlConnection);
-			this.urlConnection		= null;
-		}
 		InputStream inputStream		= this.inputStream;
 		if (inputStream != null)
 		{
@@ -46,6 +40,12 @@ public class PURLConnection extends Debug
 			{
 			}
 			this.inputStream		= null;
+		}
+		URLConnection urlConnection	= this.urlConnection;
+		if (urlConnection != null)
+		{
+			NetTools.disconnect(urlConnection);
+			this.urlConnection		= null;
 		}
 		mimeType					= null;
 	}
