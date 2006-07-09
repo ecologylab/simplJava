@@ -9,6 +9,9 @@ import java.util.HashMap;
  * An ElementState object that will contain XML leaf element fields, that is, fields
  * in which primitive values are defined as text nodes, with name a singleton element,
  * rather than as attributes.
+ * <p/>
+ * Very specifically, this can be done for leaf nodes that have a text child where
+ * the value is, but have *no* attributes themselves.
  * 
  * @author andruid
  */
