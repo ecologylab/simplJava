@@ -1052,7 +1052,7 @@ extends Debug
  		    
  		    String mimeType			= connection.getContentType();
  	
-		    //println("mimeType = " + mimeType);
+		    //println("mimeType = '" + mimeType +"'");
 		    // no one uses the encoding header: connection.getContentEncoding();
 		    String unsupportedCharset = NetTools.isCharsetSupported(mimeType);
 			if (unsupportedCharset != null)
