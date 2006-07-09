@@ -56,15 +56,19 @@ public class NetTools extends Debug
 				String charset		= (closingSemIndex == -1) ? 
 						mimeType.substring(equalsIndex) :
 							mimeType.substring(closingSemIndex, equalsIndex);
-						if ((charset != null) && (charset.length() > 0))
-						{
-							charset		= charset.trim();
-							println("CHARSET: '" + charset + "'");
-							if (!supportedCharsetMap.containsKey(charset))
-							{
-								return charset;
-							}
-						}
+				if ((charset != null) && (charset.length() > 0))
+				{
+					charset		= charset.trim();
+					if (charset.startsWith("\""))
+						charset	= charset.substring(1);
+					if (charset.endsWith("\""))
+						charset	= charset.substring(0, charset.length() - 1);
+					println("CHARSET: '" + charset + "'");
+					if (!supportedCharsetMap.containsKey(charset))
+					{
+						return charset;
+					}
+				}
 			}
 		}
 		return null;
