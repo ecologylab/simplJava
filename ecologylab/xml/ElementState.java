@@ -1252,12 +1252,12 @@ public class ElementState extends Debug
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
      * @param stateClass		Must be derived from ElementState. 
 	 *							The type of the object to translate in to.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
      * 
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
 	private void translateFromXML(Node xmlNode, Class stateClass,
-								  TranslationSpace nameSpace, boolean doRecursiveDescent)
+								  TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
 		// translate attribtues
@@ -1318,6 +1318,13 @@ public class ElementState extends Debug
 					{
 						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
 //						debug("buildFromXML(-> setPrimitive("+fieldName,value);
+						int colonIndex	= fieldName.indexOf(':');
+						String nameSpaceName	= null;
+						if (colonIndex > -1)
+						{
+							nameSpaceName	= fieldName.substring(0, colonIndex);
+							fieldName		= fieldName.substring(colonIndex + 1);
+						}
 						setField(fieldName, value);
 //						if (!elementState.setField(fieldName, value))
 //							throw new
@@ -1344,7 +1351,7 @@ public class ElementState extends Debug
 			{
 			   // look for instance variable name corresponding to
 			   // childNode's tag in this. Get the class of that.
-			   TranslationSpace nameSpaceForTranslation	= nameSpace;
+			   TranslationSpace nameSpaceForTranslation	= translationSpace;
 			   String childTag			= childNode.getNodeName();
 			   int colonIndex			= childTag.indexOf(':');
 			   if (colonIndex > 0)
@@ -1376,9 +1383,13 @@ public class ElementState extends Debug
 						  {
 							  String textNodeValue	= textElementChild.getNodeValue();
 							  if (textNodeValue != null)
+							  {
 								  textNodeValue		= XmlTools.unescapeXML(textNodeValue);
-							  //debug("setting special text node " +childFieldName +"="+textNodeValue);
-							  this.setField(childField, textNodeValue);
+								  textNodeValue		= textNodeValue.trim();
+								  //debug("setting special text node " +childFieldName +"="+textNodeValue);
+								  if (textNodeValue.length() > 0)
+									  this.setField(childField, textNodeValue);
+							  }
 /*
 							  short childsChildNodeType	= childNode.getNodeType();
 							  switch (childsChildNodeType)
@@ -1397,7 +1408,8 @@ public class ElementState extends Debug
 						  }
 						  else
 						  {
-							  debug("ERROR: didn't find text node child where specified for " + childFieldName);
+							  // no big deal if the field turns out to be empty. it happens
+							  //debug("ERROR: didn't find text node child where specified for " + childFieldName);
 						  }
 						  continue;						  
 					  }
@@ -1417,14 +1429,14 @@ public class ElementState extends Debug
 			   	  // anyway, its not not a named field
 			   	  
 				  String tagName		= childNode.getNodeName();
-			  	  Class childStateClass= nameSpace.xmlTagToClass(tagName);
+			  	  Class childStateClass= translationSpace.xmlTagToClass(tagName);
 			  	  
 			  	  if (childStateClass != null)
 			  	  {
 				  	  ElementState childElementState = getElementState(childStateClass);
 					  childElementState.elementByIdMap	= this.elementByIdMap;
 					  
-					  childElementState.translateFromXML(childNode, childStateClass, nameSpace, true);
+					  childElementState.translateFromXML(childNode, childStateClass, translationSpace, true);
 			
 					  if (childElementState != null)
 					  	// ! notice this signature is different from the addNestedElement() above !
