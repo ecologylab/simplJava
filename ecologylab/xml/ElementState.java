@@ -1256,7 +1256,7 @@ public class ElementState extends Debug
      * 
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	private void translateFromXML(Node xmlNode, Class stateClass,
+	protected void translateFromXML(Node xmlNode, Class stateClass,
 								  TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
