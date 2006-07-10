@@ -44,6 +44,11 @@ public class Result extends ElementStateWithLeafElements
 	public String				FileFormat;
 	
 	/**
+	 * Specific to news search.
+	 */
+	public String				NewsSource;
+	
+	/**
 	 * For web search only. Like file format, except its true mime type, like text/html.
 	 * Very nice.
 	 */
@@ -62,7 +67,7 @@ public class Result extends ElementStateWithLeafElements
 	   
 	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= 
 	{"Title", "Summary", "Url", "RefererUrl", "FileSize", "Width",
-	 "Height", "FileFormat", "MimeType"};
+	 "Height", "FileFormat", "MimeType", "NewsSource"};
 	
 	static
 	{
