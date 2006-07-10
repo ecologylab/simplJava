@@ -30,8 +30,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.ParsedURL;
 import ecologylab.generic.StringInputStream;
+import ecologylab.net.ParsedURL;
 import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
