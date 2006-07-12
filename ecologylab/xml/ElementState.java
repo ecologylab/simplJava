@@ -324,10 +324,8 @@ public class ElementState extends Debug
 			int	numFields				= fields.length;
 			
 			buffy		= new StringBuffer(numFields * ESTIMATE_CHARS_PER_FIELD);
-			buffy.append(tagMapEntry.startOpenTag);
 			
-			if (leafElementFields() != null)
-				buffy.append(">");
+			buffy.append(tagMapEntry.startOpenTag);
 			
 			//emit compresseion = true only for the top node, so this dirty hack
 			//so if the nodeNumber is 1 (top node) then emit the compression attribute
@@ -366,12 +364,8 @@ public class ElementState extends Debug
 						  {
 							  Type type		= TypeRegistry.getType(thatField);
 							  String value	= XmlTools.escapeXML(type.toString(this, thatField));
-							  //buffy.append(tagMapEntry.startOpenTag).append('>')
-							  String properFieldName = XmlTools.getXmlTagName(thatFieldName, "state", false);
-							  
-							  buffy.append('<').append(properFieldName).append('>')
-							    //.append(value).append(tagMapEntry.closeTag);
-							  	.append(value).append("</" + properFieldName + ">");
+							  buffy.append(tagMapEntry.startOpenTag).append('>')
+							    .append(value).append(tagMapEntry.closeTag);
 						  }
 					  }
 
@@ -385,18 +379,15 @@ public class ElementState extends Debug
 					// emit only if the field is present in this classs
 					// parent class fields should not be emitted,
 					// coz thats confusing
-					if ((fieldIsFromDeclaringClass || emitParentFields()) && leafElementFields() == null)
+					if (fieldIsFromDeclaringClass || emitParentFields())
 						buffy.append(XmlTools.generateNameVal(thatField, this));
 				}
 				else if (doRecursiveDescent)	// recursive descent
 				{	
 					if (!processingNestedElements)
 					{	// found *first* recursive element
-						if (leafElementFields() == null)
-						{
-							buffy.append('>');	// close element tag behind attributes
-							processingNestedElements	= true; //TODO Should this be inside the conditional?
-						}
+						buffy.append('>');	// close element tag behind attributes
+						processingNestedElements	= true;
 					}
 					Object thatReferenceObject = null;
 					try
@@ -482,16 +473,14 @@ public class ElementState extends Debug
 			else
 			{
 				String textNode = this.getTextNodeString();
-				
-				if (leafElementFields() != null)
-				{
-					buffy.append(tagMapEntry.closeTag);
-				}
-				else if ( textNode != null)
+				if ( textNode != null)
 				{	
 					buffy.append('>').append(textNode).append(tagMapEntry.closeTag);
 				}
-				
+				else
+				{
+					buffy.append("/>");	// simple element w attrs but no embedded elements and no text node
+				}
 			}
 				
 		} catch (SecurityException e)
