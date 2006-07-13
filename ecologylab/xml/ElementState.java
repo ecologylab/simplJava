@@ -1375,6 +1375,7 @@ public class ElementState extends Debug
 				  HashMap leafElementFields	= leafElementFields();
 				  if (leafElementFields != null)
 				  {
+					  //TODO ? check to see if its a leaf node and try this even without the declaration ?
 					  if (leafElementFields.get(childFieldName) != null)
 					  {
 						  // get the text element child
