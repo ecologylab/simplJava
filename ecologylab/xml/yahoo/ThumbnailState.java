@@ -8,7 +8,7 @@ import ecologylab.xml.ElementStateWithLeafElements;
  *
  * @author andruid
  */
-public class Thumbnail extends ElementStateWithLeafElements
+public class ThumbnailState extends ElementStateWithLeafElements
 {
 	public ParsedURL		Url;
 	

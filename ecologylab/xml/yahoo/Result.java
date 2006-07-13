@@ -62,7 +62,7 @@ public class Result extends ElementStateWithLeafElements
 	/**
 	 * Cool! For image search, direct access to their thumbnail image.
 	 */
-	public Thumbnail			thumbnail;
+	public ThumbnailState			Thumbnail;
 	
 	   
 	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= 
