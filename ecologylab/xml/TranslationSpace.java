@@ -30,13 +30,7 @@ public class TranslationSpace extends IO
    private HashMap			entriesByTag		= new HashMap();
    
    private static HashMap	allNameSpaces		= new HashMap();
-   
-   /**
-	* The hashtable containing the class name to package name mapping.
-	* the name of the class is the key and the name of package is the value.
-	*/
-   private final HashMap 	classPackageMappings= new HashMap();
-   
+      
    /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
@@ -83,6 +77,26 @@ public class TranslationSpace extends IO
 	   addTranslations(translations);
    }
    /**
+    * Create a new space that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * 
+    * Set a new default package, and
+	* a set of defined translations.
+    * 
+    * @param name		Name of the NameSpace to be 
+	*					A key for use in the TranslationSpace registry.
+    * @param defaultPackgeName
+	* @param translations		Set of initially defined translations for this.
+    */
+   protected TranslationSpace(String name, String defaultPackgeName, 
+					Object[] translations)
+   {
+	   this(name);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   
+   /**
     * Create a new NameSpace, with the same name and default package name, and
 	* a set of defined translations.
     * 
@@ -116,6 +130,52 @@ public class TranslationSpace extends IO
 		  }
 	  }
    }
+   
+   /**
+    * Add translations, where each translation is defined by an actual Class object.
+    * We can get both the class name and the package name from the Class object.
+    * 
+    * @param classes
+    */
+   public void addTranslations(Class[] classes)
+   {
+	   if (classes != null)
+	   {
+		   int numClasses	= classes.length;
+		   for (int i=0; i<numClasses; i++)
+		   {
+			   Class thatClass	= classes[i];
+			   addTranslation(thatClass);
+		   }
+	   }
+   }
+   /**
+    * Add translations, where each translation can be heterogeneously either a Class object,
+    * or an array with 2 String elements, package name and class name.
+    * 
+    * @param translations
+    */
+   public void addTranslations(Object[] translations)
+   {
+	   if (translations != null)
+	   {
+		   int		numTranslations	= translations.length;
+		   for (int i=0; i< numTranslations; i++)
+		   {
+			   Object thatTranslation		= translations[i];
+			   if (thatTranslation instanceof String[])
+			   {
+				   String[] thatStringTrans	= (String[]) thatTranslation;
+				   addTranslation(thatStringTrans[0], thatStringTrans[1]);
+			   }
+			   else if (thatTranslation instanceof Class)
+			   {
+				   addTranslation((Class) thatTranslation);
+			   }
+			  }
+		  }
+	   }
+
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
 	* Assumes that the xmlTag can be derived automatically from the className,
@@ -130,6 +190,19 @@ public class TranslationSpace extends IO
    }
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
+	* Assumes that the xmlTag can be derived automatically from the className,
+	* by translating case-based separators to "_"-based separators.
+	* 
+	* @param packageName	Package that the class lives in.
+	* @param classObj		The object for the class.
+	*/
+  public void addTranslation(Class classObj)
+  {
+  	  new NameEntry(classObj.getPackage().getName(), classObj);
+  }
+
+   /**
+	* Add a translation table entry for an ElementState derived sub-class.
 	* Use this signature when the xmlTag cannot be generated automatically from the className.
 	* 
 	* @param packageName	Package that the class lives in.
@@ -140,7 +213,7 @@ public class TranslationSpace extends IO
 							  String xmlTag)
    {
 //	  debugA("addTranslation: "+ className " : " + packageName);
-	  new NameEntry(packageName, className, xmlTag);
+	  new NameEntry(packageName, className, xmlTag, null);
    }
    /**
 	* Set the default package name for XML tag to ElementState sub-class translations.
@@ -166,7 +239,7 @@ public class TranslationSpace extends IO
 	  {
 		 String className	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
-		 entry				= new NameEntry(packageName, className, xmlTag);
+		 entry				= new NameEntry(packageName, className, xmlTag, null);
 	  }
 	  else if (entry.empty)
 	  {
@@ -232,16 +305,24 @@ public class TranslationSpace extends IO
 
 	  boolean					empty;
 	  
-/**
- * Create the entry by package name and class name.
- */
-	  public NameEntry(String packageName, String className)
-	  {
-		 this(packageName, className,
-			  XmlTools.getXmlTagName(className, "State", false));
-	  }
+	  /**
+	   * Create the entry by package name and class name.
+	   */
+	  	  public NameEntry(String packageName, String className)
+	  	  {
+	  		 this(packageName, className,
+	  			  XmlTools.getXmlTagName(className, "State", false), null);
+	  	  }
+	  	  /**
+	  	   * Create the entry by package name and class name.
+	  	   */
+	  	  public NameEntry(String packageName, Class classObj)
+	  	  {
+	  		  this(packageName, classObj.getSimpleName(),
+	  				  XmlTools.getXmlTagName(classObj.getSimpleName(), "State", false), classObj);
+	  	  }
 	  public NameEntry(String packageName, String className, 
-					   String tag)
+					   String tag, Class classObj)
 	  {
 	  	 String wholeClassName	= packageName + "." + className;
 		 this.packageName		= packageName;
@@ -250,26 +331,28 @@ public class TranslationSpace extends IO
 		 String dottedPackageName		= packageName + ".";
 		 this.dottedPackageName	= dottedPackageName;
 		 this.tagWithPackage	= dottedPackageName + tag;
-		 Class classObj			= null;
-		 try
-		 {  
-			classObj			= Class.forName(wholeClassName);
-		 } catch (ClassNotFoundException e)
+		 if (classObj == null)
 		 {
-			// maybe we need to use State
-			try
-			{
-			   //debug("trying " + wholeClassName+"State");
-			   classObj			= Class.forName(wholeClassName+"State");
-			} catch (ClassNotFoundException e2)
-			{
-			   debug("WARNING: can't find class object, create empty entry.");
-			   //Thread.dumpStack();
-
-//			   this.classObj			= classObj;
-			   this.empty				= true;
-//			   return;
-			}
+			 try
+			 {  
+				classObj			= Class.forName(wholeClassName);
+			 } catch (ClassNotFoundException e)
+			 {
+				// maybe we need to use State
+				try
+				{
+				   //debug("trying " + wholeClassName+"State");
+				   classObj			= Class.forName(wholeClassName+"State");
+				} catch (ClassNotFoundException e2)
+				{
+				   debug("WARNING: can't find class object, create empty entry.");
+				   //Thread.dumpStack();
+	
+	//			   this.classObj			= classObj;
+				   this.empty				= true;
+	//			   return;
+				}
+			 }
 		 }
 		 this.classObj			= classObj;
 
@@ -379,6 +462,31 @@ public class TranslationSpace extends IO
 	  }
 	  return result;
    }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
+    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
+    * 
+    * Add the translations to the NameSpace.
+    * 
+    * @param name
+    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
+    * A RuntimeException will be thrown if there was already such a NameSpace, but with different defaultPackageName.
+    */
+   public static TranslationSpace get(String name, String defaultPackageName,
+							   Class[] translations)
+   {
+	  //TODO do not addTranslations if the object was already there!!!
+	  TranslationSpace result	= lookup(name);
+	  if (result == null)
+	  {
+		  result		= get(name, defaultPackageName);
+		  result.addTranslations(translations);
+	  }
+	  return result;
+   }
+
    /**
     * Find the NameSpace called <code>defaultPackageName</code>, if there is
 	* one. If there is no NameSpace with this name, create a new one, and 
