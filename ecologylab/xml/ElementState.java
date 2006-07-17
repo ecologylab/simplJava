@@ -70,6 +70,9 @@ import ecologylab.types.TypeRegistry;
  */
 public class ElementState extends Debug
 {
+	private static final int UTF16 = 2;
+	private static final int UTF16_le = 2;
+	private static final int UTF8 = 2;
 	/**
 	 * xml header
 	 */
@@ -1612,6 +1615,19 @@ public class ElementState extends Debug
 		  new StringInputStream(xmlString, charsetType);
 
 	   return buildDOM(xmlStream);
+	}
+
+	/**
+	 * This method creates a DOM Document from an XML-formatted String,
+	 * encoded as UTF8.
+	 *
+	 * @param xmlString	the XML-formatted String from which the DOM is to be created
+	 * 
+	 * @return					the Document object
+	 */
+	static public Document buildDOMFromXMLString(String xmlString)
+    {
+	   return buildDOMFromXMLString(xmlString, UTF8);
 	}
 
   	static private void createErrorHandler(final DocumentBuilder builder){
