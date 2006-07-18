@@ -2,6 +2,7 @@ package ecologylab.xml.rss;
 
 import ecologylab.xml.*;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Channel extends ElementStateWithLeafElements
 {
@@ -17,13 +18,18 @@ public class Channel extends ElementStateWithLeafElements
 	   defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
    }
    
-   public void addNestedElement(ElementState elementState)
-	   throws XmlTranslationException
+  /* public void addNestedElement(ElementState elementState)
    	{
    		if (elementState instanceof Item)
 		   itemSet.add(elementState);
 		else
 		   super.addNestedElement(elementState);
    	}
+   	*/
+	protected Collection getCollection(Class thatClass)
+	{
+  		return Item.class.equals(thatClass) ?
+		   itemSet : null;
+  	}
    
 }
