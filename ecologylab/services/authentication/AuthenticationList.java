@@ -29,7 +29,6 @@ public class AuthenticationList extends ElementState
      *           on the username of the entries.
      */
     public void addNestedElement(ElementState elementState)
-            throws XmlTranslationException
     {
         authList.put(((AuthenticationListEntry) elementState).getUsername(),
                 (AuthenticationListEntry) elementState);

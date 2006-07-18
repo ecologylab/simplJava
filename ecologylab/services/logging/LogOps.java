@@ -2,10 +2,7 @@ package ecologylab.services.logging;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ArrayListState;
-import ecologylab.xml.VectorState;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
 
 /**
  * Send an intermediate sequence of ops to the logging server.
