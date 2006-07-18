@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
@@ -20,14 +21,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
 
     public void add(ElementState elementState)
     {
-        try
-        {
-            addNestedElement(elementState);
-        }
-        catch (XmlTranslationException e)
-        {
-            debug("ERROR: " + e.getMessage() + " while translating");
-        }
+        set.add(elementState);
     }
 
     public ElementState remove(int i)
@@ -66,15 +60,21 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
             return (ElementState) set.get(i);
         }
     }
-
-    /**
-     * Add an element to our Collection.
-     */
-    public void addNestedElement(ElementState elementState) throws XmlTranslationException
+    
+    public boolean contains(Object o)
     {
-        set.add(elementState);
+    	return set.contains(o);
     }
-
+    
+    /**
+     * Return the collection object associated with this
+     * 
+     * @return	The ArrayList we collect in.
+     */
+	protected Collection getCollection(Class thatClass)
+	{
+		return set;
+	}
     /**
      * Remove all elements from our Collection.
      * 

@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -30,12 +31,14 @@ public class HashSetState extends ElementState implements Cloneable, Iterable
     }
 
     /**
-     * Add an element to our Collection.
+     * Return the collection object associated with this
+     * 
+     * @return	The ArrayList we collect in.
      */
-    public void addNestedElement(ElementState elementState) throws XmlTranslationException
-    {
-        set.add(elementState);
-    }
+	protected Collection getCollection(Class thatClass)
+	{
+		return set;
+	}
 
     /**
      * Remove all elements from our Collection.

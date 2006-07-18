@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.util.Collection;
 import java.util.Vector;
 
 /**
@@ -21,25 +22,19 @@ public class VectorState extends ElementState
 
     public void add(ElementState elementState)
     {
-        try
-        {
-            addNestedElement(elementState);
-        }
-        catch (XmlTranslationException e)
-        {
-            debug("ERROR: " + e.getMessage() + " while translating");
-        }
+    	set.add(elementState);
     }
 
     /**
-     * Add an element to our Collection.
+     * Return the collection object associated with this
+     * 
+     * @return	The ArrayList we collect in.
      */
-    public void addNestedElement(ElementState elementState)
-            throws XmlTranslationException
-    {
-        set.add(elementState);
-    }
-
+	protected Collection getCollection(Class thatClass)
+	{
+		return set;
+	}
+	
     /**
      * Remove all elements from our Collection.
      * 
