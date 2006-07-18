@@ -57,25 +57,69 @@ public class TypeRegistry extends IO
 		}
 		return result;
 	}
-
+/**
+ * Get the Type corresponding to the Field, by using the Field's Class.
+ * @param field
+ * @return
+ */
 	public static Type getType(Field field)
 	{
 	   return getType(field.getType());
 	}
+	/**
+	 * Get the Type corresponding to the Class, by using its name.
+	 * @param thatClass
+	 * @return
+	 */
 	public static Type getType(Class thatClass)
 	{
 	   return getType(thatClass.getName());
 	}
+	/**
+	 * Get the Type corresponding to the Class name.
+	 * @param className
+	 * @return
+	 */
 	public static final Type getType(String className)
 	{
 	   return (Type) allTypes.get(className);
 	}
+	/**
+	 * Check to see if we have a Type corresponding to the Class, by using its name.
+	 * @param thatClass
+	 * @return
+	 */
 	public static boolean contains(Class thatClass)
 	{
 	   return contains(thatClass.getName());
 	}
+	/**
+	 * Check to see if we have a Type corresponding to the Class name.
+	 * @param thatClass
+	 * @return
+	 */
 	public static boolean contains(String className)
 	{
 	   return allTypes.containsKey(className);
 	}
+	/**
+	 * Set the Field to a value, converted using the Field's Type.
+	 * 
+	 * @param that
+	 * @param field
+	 * @param fieldValue
+	 * @return
+	 */
+	public static boolean setField(Object that, Field field, String fieldValue)
+	{
+		boolean result		= false;
+		Type fieldType		= getType(field);
+		if (fieldType != null)
+			result			= fieldType.setField(that, field, fieldValue);
+		else
+			println("TypeRegistry: Can't set type for " + field + " with value=" + fieldValue+
+					", in "+ that);
+		return result;
+	}
+	
 }
