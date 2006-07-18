@@ -193,7 +193,6 @@ public class TranslationSpace extends IO
 	* Assumes that the xmlTag can be derived automatically from the className,
 	* by translating case-based separators to "_"-based separators.
 	* 
-	* @param packageName	Package that the class lives in.
 	* @param classObj		The object for the class.
 	*/
   public void addTranslation(Class classObj)
