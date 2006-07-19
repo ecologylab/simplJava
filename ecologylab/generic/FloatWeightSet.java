@@ -138,7 +138,7 @@ extends Debug implements BasicFloatSet
       pruneSize	= initialSize + extraAllocation/2;
       
       alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
-      sentinel.weight	= 0.0f;
+      sentinel.weight	= - Float.MAX_VALUE;
       insert(sentinel);
       debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
@@ -339,20 +339,20 @@ extends Debug implements BasicFloatSet
 		 maxArrayList.clear(); // this line is redundant
       
       //int maxIndex		= MathTools.random(size-1) + 1;
-      int maxIndex			= 1;
+      int maxIndex			= 0;
       // set result in case there's only 1 element in the set.
-      FloatSetElement result= elements[maxIndex];
+      FloatSetElement result= sentinel;
       float maxWeight		= result.getWeight();
-      for (int i=2; i<size; i++)
+      for (int i=1; i<size; i++)
       {
 		 FloatSetElement thatElement	= elements[i];
-		 if (thatElement != this.sentinel) // never pick the sentinel!
+		 if (!thatElement.filteredOut())
 		 {
 			 float thatWeight	= thatElement.getWeight();
 			 if (thatWeight > maxWeight)
 			 {
 			    maxArrayList.clear();
-			 	result		= thatElement;
+			 	result			= thatElement;
 			    maxWeight		= thatWeight;
 			    maxIndex		= i;
 			    maxArrayList.add(thatElement);
@@ -363,6 +363,9 @@ extends Debug implements BasicFloatSet
 			 }
 		 }
       }
+      
+      if (result == sentinel)
+    	  return null;
       
       int numMax		= maxArrayList.size();
 
