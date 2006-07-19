@@ -36,6 +36,15 @@ extends Debug
    {
       return weight;
    }
+   /**
+    * This can be overridden to exclude elements from selection while keeping them in the set.
+    * 
+    * @return	The default implementation always returns false, including all elements for selection.
+    */
+   public boolean filteredOut()
+   {
+	   return false;
+   }
    public int getIndex()
    {
       return index;
