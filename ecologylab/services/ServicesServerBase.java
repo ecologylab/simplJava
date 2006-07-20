@@ -97,7 +97,8 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
         // we make a string consisting of the following:
         // time of initial connection (when this method is called), server ip,
         // client ip, client actual port
-        digester.update(String.valueOf(System.nanoTime()).getBytes());
+        digester.update(String.valueOf(System.currentTimeMillis()).getBytes());
+//        digester.update(String.valueOf(System.nanoTime()).getBytes());
         digester.update(this.serverSocket.getInetAddress().toString()
                 .getBytes());
         digester.update(incomingSocket.getInetAddress().toString().getBytes());
