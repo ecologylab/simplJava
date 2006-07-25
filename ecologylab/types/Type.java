@@ -76,30 +76,30 @@ public class Type extends IO
 	 *			false	if the field cannot be accessed, or if value cannot be
 	 *					converted to the appropriate type.
 	 */
-		public boolean setField(Object object, Field field, String value)
+	public boolean setField(Object object, Field field, String value)
+	{
+		if (value == null)
+			return true;
+		
+		boolean result	= false;
+		Object referenceObject = "";
+		
+		try
 		{
-		   if (value == null)
-			  return true;
-		   
-		   boolean result	= false;
-		   Object referenceObject = "";
-		   
-		   try
-		   {
-			  referenceObject	= getInstance(value);
-			  if (referenceObject != null)
-			  {
-				 field.set(object, referenceObject); 
-				 result		= true;
-			  }
-		   } catch (IllegalAccessException e)
-		   {
-			  debug("Got " + e + " while setting field " +
+			referenceObject	= getInstance(value);
+			if (referenceObject != null)
+			{
+				field.set(object, referenceObject); 
+				result		= true;
+			}
+		} catch (IllegalAccessException e)
+		{
+			debug("Got " + e + " while setting field " +
 					field + " to " + value+"->"+referenceObject+" "+
 					referenceObject.getClass());
-		   }
-		   return result;
 		}
+		return result;
+	}
 	
 	/**
 	 * @return Returns the className for this type.
