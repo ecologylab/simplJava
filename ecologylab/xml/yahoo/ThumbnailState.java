@@ -1,14 +1,14 @@
 package ecologylab.xml.yahoo;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementStateWithLeafElements;
+import ecologylab.xml.ElementState;
 
 /**
  * Yahoo image search Thumbnail image XML description.
  *
  * @author andruid
  */
-public class ThumbnailState extends ElementStateWithLeafElements
+public class ThumbnailState extends ElementState
 {
 	public ParsedURL		Url;
 	
@@ -18,9 +18,13 @@ public class ThumbnailState extends ElementStateWithLeafElements
 	static final String[]	LEAF_ELEMENT_FIELD_NAMES	= 
 	{"Url", "Width", "Height"};
 	
-	static
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
 	{
-		defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+		return LEAF_ELEMENT_FIELD_NAMES;
 	}
-	
 }

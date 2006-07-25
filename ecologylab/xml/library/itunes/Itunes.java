@@ -1,7 +1,7 @@
 package ecologylab.xml.itunes;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementStateWithLeafElements;
+import ecologylab.xml.ElementState;
 
 /**
  * XMLNS (namespace) corresponding to itunes podcasts.
@@ -13,7 +13,7 @@ import ecologylab.xml.ElementStateWithLeafElements;
  *
  * @author andruid
  */
-public class Itunes extends ElementStateWithLeafElements
+public class Itunes extends ElementState
 {
 	public String			subtitle;
 	public String			author;
@@ -45,10 +45,13 @@ public class Itunes extends ElementStateWithLeafElements
 	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= 
 	{"subtitle", "author", "summary", "image", "duration", "keywords"};
 	
-	static
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
 	{
-		defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+		return LEAF_ELEMENT_FIELD_NAMES;
 	}
-	
-	
 }

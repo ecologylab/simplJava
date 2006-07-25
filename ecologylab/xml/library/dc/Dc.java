@@ -1,18 +1,19 @@
 package ecologylab.xml.dc;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementStateWithLeafElements;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * Dublin Core Metadata Element Set, as defined at
  * 
- * http://dublincore.org/documents/dces/
+ * {@link http://dublincore.org/documents/dces/ http://dublincore.org/documents/dces/}.
  * 
  * There is no enclosing parent element in the XML markup.
  *
  * @author andruid
  */
-public class Dc extends ElementStateWithLeafElements
+public class Dc extends ElementState
 {
 	public String				title;
 	public String				creator;
@@ -49,9 +50,28 @@ public class Dc extends ElementStateWithLeafElements
 	{"title", "creator", "description", "subject", "publisher", "type",
 	 "format", "identifier"};
 	
-	static
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
 	{
-		defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+		return LEAF_ELEMENT_FIELD_NAMES;
+	}
+
+	
+	private static final String TRANSLATION_SPACE_NAME	= "dc";
+	private static final String PACKAGE_NAME			= "ecologylab.xml.dc";
+
+	public static final Class TRANSLATIONS[]	= 
+	{
+		Dc.class,
+	};
+
+	public static TranslationSpace get()
+	{
+		return TranslationSpace.get(TRANSLATION_SPACE_NAME, PACKAGE_NAME, TRANSLATIONS);
 	}
 	
 }

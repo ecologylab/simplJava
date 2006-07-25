@@ -1,7 +1,7 @@
 package ecologylab.xml.yahoo;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementStateWithLeafElements;
+import ecologylab.xml.ElementState;
 
 /**
  * Result from a Yahoo Search.
@@ -11,7 +11,7 @@ import ecologylab.xml.ElementStateWithLeafElements;
  *
  * @author andruid
  */
-public class Result extends ElementStateWithLeafElements
+public class Result extends ElementState
 {
 	public String				Title;
 	public String				Summary;
@@ -69,9 +69,13 @@ public class Result extends ElementStateWithLeafElements
 	{"Title", "Summary", "Url", "RefererUrl", "FileSize", "Width",
 	 "Height", "FileFormat", "MimeType", "NewsSource"};
 	
-	static
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
 	{
-		defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+		return LEAF_ELEMENT_FIELD_NAMES;
 	}
-
 }

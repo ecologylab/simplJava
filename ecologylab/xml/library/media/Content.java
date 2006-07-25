@@ -4,17 +4,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.types.Type;
-import ecologylab.types.TypeRegistry;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementStateWithLeafElements;
 
 /**
  * Primary element of the media XML name space. As in <media:content>
  *
  * @author andruid
  */
-public class Content extends ElementStateWithLeafElements
+public class Content extends ElementState
 {
 	public ParsedURL		url;
 	public String			type;
@@ -28,6 +25,7 @@ public class Content extends ElementStateWithLeafElements
 	
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)
+	//TODO confirm if this is correct.
 	public ArrayList		categoryStrings;
 	
 	public Credit			credit;
@@ -39,9 +37,14 @@ public class Content extends ElementStateWithLeafElements
 
 	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"title", "category"};
 	
-	static
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
 	{
-		defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+		return LEAF_ELEMENT_FIELD_NAMES;
 	}
 	
 	public Content()
@@ -54,7 +57,7 @@ public class Content extends ElementStateWithLeafElements
 	 * Otherwise, call super() to do regular field setting,
 	 * using reflection
 	 */
-	protected boolean setField(Field field, String fieldValue)
+	protected boolean setFieldUsingTypeRegistry(Field field, String fieldValue)
 	{
 		String fieldName	= field.getName();
 		if ("cateogry".equalsIgnoreCase(fieldName))
@@ -63,7 +66,7 @@ public class Content extends ElementStateWithLeafElements
 			return true;
 		}
 		else
-			return super.setField(field, fieldValue);
+			return super.setFieldUsingTypeRegistry(field, fieldValue);
 	}
 
 	/**

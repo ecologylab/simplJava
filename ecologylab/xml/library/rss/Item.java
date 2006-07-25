@@ -1,16 +1,15 @@
 package ecologylab.xml.rss;
 
-import java.util.HashMap;
-
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.*;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.dc.Dc;
 
 /**
  * RSS 1 item element declaration.
  *
  * @author andruid
  */
-public class Item extends ElementStateWithLeafElements
+public class Item extends ElementState
 {
    public String				title;
   // public ElementState			title;
@@ -20,11 +19,20 @@ public class Item extends ElementStateWithLeafElements
    //public ElementState		description;
    public String				author;
    
+   /**
+    * Some people put Dublin Core fields into their items. Go figure :-)
+    */
+   public Dc					dc;
+   
    static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"title", "link", "description", "author"};
    
-   static
+   /**
+    * The array of Strings with the names of the leaf elements.
+    * 
+    * @return
+    */
+   protected String[] leafElementFieldNames()
    {
-	   defineLeafElementFieldNames(LEAF_ELEMENT_FIELD_NAMES);
+	   return LEAF_ELEMENT_FIELD_NAMES;
    }
-   
 }
