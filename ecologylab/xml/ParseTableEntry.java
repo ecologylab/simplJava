@@ -13,7 +13,8 @@ import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
 /**
- * Describes how the field gets translated from XML.
+ * Holds optimizations for translating from XML a single tag or attribute
+ * within a contextualizing ElementState subclass.
  *
  * @author andruid
  */
