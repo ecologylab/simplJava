@@ -44,6 +44,10 @@ public class XmlTranslationException extends Exception
 	}
 	public XmlTranslationException(String msg, Exception e)
 	{
-		super("XmlTranslationException " + msg + "\n\t" + e.toString() + "\n\t" + e.getStackTrace()[0]);
+		super("XmlTranslationException\n" + msg + "\n\t" + e.toString()
+				+ "\n\t" + e.getStackTrace()[0]
+				+ "\n\t" + e.getStackTrace()[1]
+				+ "\n\t" + e.getStackTrace()[2]
+				+ "\n\t" + e.getStackTrace()[3] + "\n\t");
 	}
 }
