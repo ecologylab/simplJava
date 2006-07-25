@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
 import ecologylab.types.Type;
@@ -66,53 +67,65 @@ import ecologylab.types.TypeRegistry;
  *  
  * @author      Andruid Kerne
  * @author      Madhur Khandelwal
- * @version     0.9
+ * @version     2.9
  */
 public class ElementState extends Debug
+implements ParseTableEntryTypes
 {
-	private static final int UTF16_LE	= 0;
-	private static final int UTF16		= 1;
-	private static final int UTF8		= 2;
+	/**
+	 * Link for a DOM tree.
+	 */
+	ElementState				parent;
+/**
+ * Enables storage of a single text node child.
+ * This facility is meager and rarely used, since
+ * the leaf nodes facility does the same thing but better.
+ * <p/>
+ * We might want to implement the ability to store multiple text nodes
+ * here some time in the future.
+ */	
+	String						textNodeString;
+	
+	/**
+	 * Just-in time look-up tables to make translation be efficient.
+	 * Allocated on a per class basis.
+	 */
+	Optimizations				optimizations;
+	
+	/**
+	 * Use for resolving getElementById()
+	 */
+	HashMap						elementByIdMap;
+
+	
+	public static final int 	UTF16_LE	= 0;
+	public static final int 	UTF16		= 1;
+	public static final int 	UTF8		= 2;
 	/**
 	 * xml header
 	 */
 	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"UTF-8\"" + "?>\n";
 //	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	
-	static protected final int		ESTIMATE_CHARS_PER_FIELD	= 80;
+	static protected final int	ESTIMATE_CHARS_PER_FIELD	= 80;
 	/**
 	 * whether the generated XML should be in compressed form or not
 	 */
-	protected static boolean compressed = false;
+	protected static boolean 	compressed = false;
 
-	static final int TOP_LEVEL_NODE		= 1;
+	static final int 			TOP_LEVEL_NODE		= 1;
 	
-	private static final TranslationSpace globalNameSpace	= new TranslationSpace("global");
+	private static final TranslationSpace globalNameSpace	= TranslationSpace.get("global");
 	
 /**
  * Used for argument marshalling with reflection to access 
  * a set method that takes a String as an argument.
  */
-	protected static Class[] MARSHALLING_PARAMS	= {String.class};
+	protected static Class[] 	MARSHALLING_PARAMS	= {String.class};
 
-/**
- * For each class, for each field name of type ElementState, store the
- * open tag. Also do the same for this class.
- */
-	static HashMap		eStateToFieldNameOrClassToOpenTagMapMap = new HashMap();
-
-	HashMap				fieldNameOrClassToTagMap;
-	
-	/**
-	 * Use for resolving getElementById()
-	 */
-	HashMap				elementByIdMap;
-	
-	TranslationSpace			nameSpace		= globalNameSpace;
-	
 	public ElementState()
 	{
-	   fieldNameOrClassToTagMap	= getFieldNamesToOpenTagsMap();
+	   optimizations			= Optimizations.lookup(this);
 	}
 /**
  * Emit XML header, then the object's XML.
@@ -341,18 +354,14 @@ public class ElementState extends Debug
 					boolean fieldIsFromDeclaringClass= 
 						declaringClassName.equals(className);
 					
-					  HashMap leafElementFields			= leafElementFields();
-					  if (leafElementFields != null)
-					  {
-						  String thatFieldName			= thatField.getName();
-						  if (leafElementFields.get(thatFieldName) != null)
-						  {
-							  Type type		= TypeRegistry.getType(thatField);
-							  String value	= XmlTools.escapeXML(type.toString(this, thatField));
-							  buffy.append(tagMapEntry.startOpenTag).append('>')
-							    .append(value).append(tagMapEntry.closeTag);
-						  }
-					  }
+					String thatFieldName			= thatField.getName();
+					if (isLeafElementField(thatFieldName))
+					{
+						Type type		= TypeRegistry.getType(thatField);
+						String value	= XmlTools.escapeXML(type.toString(this, thatField));
+						buffy.append(tagMapEntry.startOpenTag).append('>')
+						.append(value).append(tagMapEntry.closeTag);
+					}
 
 					//TODO is field one that we are supposed to translate
 					// as a nested element with a with a single 
@@ -1140,10 +1149,10 @@ public class ElementState extends Debug
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param xmlNode	Root node of the DOM tree that needs to be translated.
+	 * @param xmlNode		Root node of the DOM tree that needs to be translated.
 	 * @param nameSpace		NameSpace that provides basis for translation.
 	 * 
-	 * @return 			Parent ElementState object of the corresponding Java tree.
+	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Node xmlNode,
 												TranslationSpace nameSpace,
@@ -1153,6 +1162,12 @@ public class ElementState extends Debug
 	   // find the class for the new object derived from ElementState
 		Class stateClass			= null;
 		String tagName				= xmlNode.getNodeName();
+		int colonIndex				= tagName.indexOf(':');
+		if (colonIndex > 1)
+		{   // we are dealing with an XML Namespace
+			//TODO -- do something more substantial than throwing away the prefix
+			tagName					= tagName.substring(colonIndex + 1);
+		}
 		try
 		{			  
 		   stateClass= nameSpace.xmlTagToClass(tagName);
@@ -1162,14 +1177,14 @@ public class ElementState extends Debug
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap();
-		   	  	 rootState.translateFromXML(xmlNode, stateClass, nameSpace, doRecursiveDescent);
+		   	  	 rootState.translateFromXML(null, xmlNode, stateClass, nameSpace, doRecursiveDescent);
 		   	  	 return rootState;
 		   	  }
 		   }
 		   else
 		   {
 			   // else, we dont translate this field; we ignore it.
-			   println("XML Translation WARNING: Cant find class object for XML element <"
+			   println("XML Translation WARNING: Cant find class object for Root XML element <"
 					   + tagName + ">: Ignored. ");
 		   }
 		}
@@ -1232,15 +1247,15 @@ public class ElementState extends Debug
 	 *  a tree of state-objects.
      * 
      * This method used to be called builtStateObject(...).
+     * @param parent TODO
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
      * @param stateClass		Must be derived from ElementState. 
 	 *							The type of the object to translate in to.
-	 * @param translationSpace		NameSpace that provides basis for translation.
-     * 
+     * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	protected void translateFromXML(Node xmlNode, Class stateClass,
-								  TranslationSpace translationSpace, boolean doRecursiveDescent)
+	private void translateFromXML(ElementState parent, Node xmlNode,
+								  Class stateClass, TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
 		// translate attribtues
@@ -1250,68 +1265,25 @@ public class ElementState extends Debug
 			
 			for (int i = 0; i < xmlNodeAttributes.getLength(); i++) 
 			{
-				Node xmlAttr = xmlNodeAttributes.item(i);
+				Node xmlAttr 		= xmlNodeAttributes.item(i);
+				String value		= xmlAttr.getNodeValue();
                
-				if (xmlAttr.getNodeValue() != null)
+				if (value != null)
 				{
-					String xmlAttrName	= xmlAttr.getNodeName();
-					//create the method name from the tag name
-					//for example, for the attr bias, methodName = setBias
-					String methodName	= XmlTools.methodNameFromTagName(xmlAttrName);
-					//search for the method with the name created above 
-					//for this u have to create an array of class indicating the parameters to the method
-					//in our case, all the methods have a single parameter, String
-					//which holds the value of the attribute and then that object is responsible
-					//for converting it to appropriate type from the string
-					String value		= xmlAttr.getNodeValue();
-					if (xmlAttrName.equals("id"))
-						this.elementByIdMap.put(value, this);
-					if (value != null)
-						value			= XmlTools.unescapeXML(value);
-					try
+					//TODO consider getting rid of the TranslationSpace parameter here!
+					ParseTableEntry pte	= 
+						optimizations.parseTableAttrEntry(translationSpace, this, xmlAttr);
+					switch (pte.type())
 					{
-						Method attrMethod	= stateClass.getMethod(methodName, MARSHALLING_PARAMS);
-						// if the method is found, invoke the method
-						// fill the String value with the value of the attr node
-						// args is the array of objects containing arguments to the method to be invoked
-						// in our case, methods have only one arg: the value String
-						Object[] args = new Object[1];
-						args[0]		  = value;
-						try
-						{
-							attrMethod.invoke(this,args); // run set method!
-						}
-						catch (InvocationTargetException e)
-						{
-							println("WEIRD: couldnt run set method for " + xmlAttrName +
-									  " even though we found it");
-							e.printStackTrace();
-						}
-						catch (IllegalAccessException e)
-						{
-							println("WEIRD: couldnt run set method for " + xmlAttrName +
-									  " even though we found it");
-							e.printStackTrace();
-						}	  
-						
+					case REGULAR_ATTRIBUTE:
+						pte.setAttribute(this, value);
+						break;
+					default:
+						break;	
 					}
-					catch (NoSuchMethodException e)
-					{	// the normal way of setting attributes
-						String fieldName = XmlTools.fieldNameFromElementName(xmlAttr.getNodeName());
-//						debug("buildFromXML(-> setPrimitive("+fieldName,value);
-						int colonIndex	= fieldName.indexOf(':');
-						String nameSpaceName	= null;
-						if (colonIndex > -1)
-						{
-							nameSpaceName	= fieldName.substring(0, colonIndex);
-							fieldName		= fieldName.substring(colonIndex + 1);
-						}
-						setFieldUsingTypeRegistry(fieldName, value);
-					}
-				} // end if non-null attribute
-			} // end of for attribute processing loop
-		}// end of if hasAttributes
-
+				}
+			}
+		}
 		if (!doRecursiveDescent)
 			return;
 		
@@ -1324,103 +1296,97 @@ public class ElementState extends Debug
 		{
 			Node childNode		= childNodes.item(i);
 			short childNodeType	= childNode.getNodeType();
-			if ((childNodeType != Node.TEXT_NODE) && (childNodeType != Node.CDATA_SECTION_NODE))
+			if ((childNodeType == Node.TEXT_NODE) || (childNodeType == Node.CDATA_SECTION_NODE))
 			{
-			   // look for instance variable name corresponding to
-			   // childNode's tag in this. Get the class of that.
-			   TranslationSpace nameSpaceForTranslation	= translationSpace;
-			   String childTag			= childNode.getNodeName();
-			   int colonIndex			= childTag.indexOf(':');
-			   if (colonIndex > 0)
-			   {
-				   String nameSpaceName	= childTag.substring(0, colonIndex);
-				   nameSpaceForTranslation	= TranslationSpace.get(nameSpaceName);
-				   childTag				= childTag.substring(colonIndex+1);
-			   }
-			   String childFieldName	= 
-				  XmlTools.fieldNameFromElementName(childTag);
-			   try
-			   {
-				  // is there a field with this name?
-				  // (if not, throw NoSuchFieldException, and process collection in exception handler)
-				  Field childField		= stateClass.getField(childFieldName);
-				  Class childClass		= childField.getType();
-				  // does the tag correspond to an element with one text child,
-				  // which we are supposed to squirt directly into a field, rather than into
-				  // a nested element?
-				  HashMap leafElementFields	= leafElementFields();
-				  //TODO ? check to see if its a leaf node and try this even without the declaration ?
-				  if ((leafElementFields != null) &&
-					   (leafElementFields.get(childFieldName) != null))
-				  {
-					  // get the text element child
-					  Node textElementChild		= childNode.getFirstChild();
-					  if (textElementChild != null)
-					  {
-						  String textNodeValue	= textElementChild.getNodeValue();
-						  if (textNodeValue != null)
-						  {
-							  textNodeValue		= XmlTools.unescapeXML(textNodeValue);
-							  textNodeValue		= textNodeValue.trim();
-							  //debug("setting special text node " +childFieldName +"="+textNodeValue);
-							  if (textNodeValue.length() > 0)
-								  this.setFieldUsingTypeRegistry(childField, textNodeValue);
-						  }
-					  }
-					  else
-					  {
-						  // no big deal if the field turns out to be empty. it happens
-						  //debug("ERROR: didn't find text node child where specified for " + childFieldName);
-					  }
-					  continue;						  
-				  }
-				  else
-				  {	  // regular nested field -- in this case, there is a field name.
-					  // we map the tag name to the field name.
-					  ElementState childElementState =
-					  		getChildElementState(childNode, childClass, nameSpaceForTranslation);
-
-					  addNestedElement(childField, childElementState);
-				  }
-			   } catch (NoSuchFieldException e)
-			   {
-				  // must be part of a collection, or a field we dont know about
-			   	  // anyway, its not not a named field.
-				  // so, the tag name is used to get a Class, instead of a field.
-				  // what we need to do is use the Class to figure out what collection to put it in.
-			   	  
-			  	  Class childStateClass	= translationSpace.xmlTagToClass(childTag);
-			  	  
-			  	  Collection collection	= getCollection(childStateClass);
-			  	  if (childStateClass != null)
-			  	  {	  
-			  		  //TODO -- wouldnt it be nice to process leaf nodes here, too!
-			  		  //		so we could add them to Collections
-					  ElementState childElementState = 
-						  getChildElementState(childNode, childStateClass, translationSpace);
-					  if (childElementState != null)
-					  {
-				  		  if (collection != null)
-				  		  {
-					  		  // the sleek new way to add elements to collections
-					  		  collection.add(getChildElementState(childNode, childStateClass, translationSpace));
-				  		  }
-				  		  else
-				  		  {
-				  			  // the old stylee
-							  	// ! notice this signature is different from the addNestedElement() above !
-							  	addNestedElement(childElementState);
-				  		  }
-					  }
-			  	  }
-				  // else we couldnt find an appropriate class for this tag, so we're ignoring it
-			   }
+				setTextNodeString(childNode.getNodeValue());
 			}
-			else if (numChilds == 1) // we could get rid of this and append to be even more general!
+			else
 			{
-				String text	= childNode.getNodeValue();
-				if (text != null)
-					setTextNodeString(text);
+				ParseTableEntry pte		= optimizations.parseTableEntry(translationSpace, this, childNode);
+				ParseTableEntry nsPTE	= pte.nestedPTE();
+				ParseTableEntry	activePTE;
+				ElementState	activeES;
+				if (nsPTE != null)
+				{
+					activePTE				= nsPTE;
+					// get (create if necessary) the ElementState object corresponding to the XML Namespace
+					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
+					if (activeES == null)
+					{	// first time using the Namespace element, so we gotta create it
+						activeES			= pte.getChildElementState(parent, null);
+						ReflectionTools.setFieldValue(this, pte.field(), activeES);
+					}
+				}
+				else
+				{
+					activePTE				= pte;
+					activeES				= this;
+				}
+				switch (pte.type())
+				{
+				case REGULAR_NESTED_ELEMENT:
+					activeES.setFieldToNestedElement(activePTE.field(), activePTE.getChildElementState(activeES, childNode));
+					break;
+				case LEAF_NODE_VALUE:
+					
+					Node textElementChild		= childNode.getFirstChild();	
+					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
+					break;
+				case COLLECTION_ELEMENT:
+					Collection collection		= activeES.getCollection(activePTE.classOp());
+					// the sleek new way to add elements to collections
+					collection.add(activePTE.getChildElementState(activeES, childNode));
+					break;
+				case OTHER_NESTED_ELEMENT:
+					activeES.addNestedElement(activePTE.getChildElementState(activeES, childNode));
+					break;
+				case IGNORED_ELEMENT:
+				case BAD_FIELD:
+				default:
+					break;
+				}
+			}
+		}
+	}
+	/**
+	 * Set an extended primitive value using the textElementChild Node as the source,
+	 * the stateClass as the template for where the field is located, 
+	 * the childFieldName as the name of the field to select in the template,
+	 * and this as the object to do the set in.
+	 * 
+	 * @param stateClass
+	 * @param childFieldName
+	 * @param textElementChildd	The leaf node with the text element value.
+	 * 
+	 * @throws NoSuchFieldException
+	 */
+	private void setLeafNodeValue(Class stateClass, String childFieldName, Node textElementChild)
+	throws NoSuchFieldException
+	{
+		Field childField		= stateClass.getField(childFieldName);;
+		setLeafNodeValue(childField, textElementChild);
+	}
+	/**
+	 * Set an extended primitive value using the textElementChild Node as the source,
+	 * the stateClass as the template for where the field is located, 
+	 * the childFieldName as the name of the field to select in the template,
+	 * and this as the object to do the set in.
+	 * 
+	 * @param childField		The Field in this that holds the value for the leaf node.
+	 * @param textElementChild	The leaf node with the text element value.
+	 */
+	private void setLeafNodeValue(Field childField, Node textElementChild)
+	{
+		if (textElementChild != null)
+		{
+			String textNodeValue	= textElementChild.getNodeValue();
+			if (textNodeValue != null)
+			{
+				textNodeValue		= XmlTools.unescapeXML(textNodeValue);
+				textNodeValue		= textNodeValue.trim();
+				//debug("setting special text node " +childFieldName +"="+textNodeValue);
+				if (textNodeValue.length() > 0)
+					this.setFieldUsingTypeRegistry(childField, textNodeValue);
 			}
 		}
 	}
@@ -1434,13 +1400,16 @@ public class ElementState extends Debug
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	private ElementState getChildElementState(Node childNode,
+	ElementState getChildElementState(Node childNode,
 			Class childClass, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		ElementState childElementState		= getElementState(childClass);
 		childElementState.elementByIdMap	= this.elementByIdMap;
-		childElementState.translateFromXML(childNode, childClass, translationSpace, true);
+		childElementState.parent			= this;
+		
+		if (childNode != null)
+			childElementState.translateFromXML(this, childNode, childClass, translationSpace, true);
 		return childElementState;
 	}
 	
@@ -1546,41 +1515,35 @@ public class ElementState extends Debug
     	  
   		  document = builder.parse(inStream);
 		} 
-		
-		catch (SAXParseException spe) {
+		catch (SAXParseException spe)
+		{
 			// Error generated by the parser
-		    println(inStream + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
+		    println("ERROR parsing DOM in" + inStream + ":\n\t** Parsing error on line " + spe.getLineNumber() + ", uri=" + spe.getSystemId());
 		    println("   " + spe.getMessage());
-		  
-		    // Use the contained exception, if any
-		    Exception  x = spe;
-		    if (spe.getException() != null)
-		   	   x = spe.getException();
-		    x.printStackTrace();
 	  	}
-	  	
-	  	catch (SAXException sxe) {
-		    // Error generated during parsing
+	  	catch (SAXException sxe)
+	  	{   // Error generated during parsing
 		    Exception  x = sxe;
 		    if (sxe.getException() != null)
 		      x = sxe.getException();
 		    x.printStackTrace();
 	   	}
-	   	
-	   	catch (ParserConfigurationException pce) {
+	   	catch (ParserConfigurationException pce)
+	   	{
 		    // Parser with specified options can't be built
 		    pce.printStackTrace();
 	   	}
-	   	
-	   	catch (IOException ioe) {
+	   	catch (IOException ioe)
+	   	{
 		    // I/O error
 		    ioe.printStackTrace();
 	  	}
-	  	
-	  	catch(FactoryConfigurationError fce){
+	  	catch(FactoryConfigurationError fce)
+	  	{
 	  		fce.printStackTrace();
 	  	}
-	  	catch(Exception e){
+	  	catch(Exception e)
+	  	{
 	  		e.printStackTrace();
 	  	}
 		return document;
@@ -1745,6 +1708,7 @@ public class ElementState extends Debug
  * because all relevant objects are subclassed from <code>ElementState</code>,
  * so a static declaration wouldn't actually be class wide.
  */
+/*
 	private HashMap getFieldNamesToOpenTagsMap()
 	{
 	   Class thisClass= getClass();
@@ -1764,6 +1728,7 @@ public class ElementState extends Debug
 	   }
 	   return result;
 	}
+*/
 	/**
 	 * @param nameSpace TODO
 	 * @return	the XML element name, or <i>tag</i>, that maps to this ElementState derived class.
@@ -1780,6 +1745,7 @@ public class ElementState extends Debug
  */
 	private TagMapEntry getTagMapEntry(String fieldName, boolean compression)
 	{
+		/*
 	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(fieldName);
 	   if (result == null)
 	   {
@@ -1796,6 +1762,8 @@ public class ElementState extends Debug
 		  }
 	   }
 	   return result;
+	   */
+		return optimizations.getTagMapEntry(fieldName, compression);
 	}
 /**
  * Get a tag translation object that corresponds to the fieldName,
@@ -1804,6 +1772,7 @@ public class ElementState extends Debug
  */
 	protected TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
 	{
+		/*
 	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(thatClass);
 	   if (result == null)
 	   {
@@ -1820,6 +1789,8 @@ public class ElementState extends Debug
 		  }
 	   }
 	   return result;
+	   */
+		return optimizations.getTagMapEntry(thatClass, compression);
 	}
 	/**
 	 * Reorders fields so that all primitive types occur first and then the reference types.
@@ -1913,7 +1884,7 @@ public class ElementState extends Debug
 		try
 		{
 			Field field = getClass().getField(fieldName);
-			addNestedElement(field, elementState);
+			setFieldToNestedElement(field, elementState);
 		}
 		catch (Exception e)
 		{
@@ -1921,28 +1892,33 @@ public class ElementState extends Debug
 		   e.printStackTrace();
 		}
 	}
+	/**
+	 * This is the hook that enables programmers to do something special
+	 * when handling a nested XML element and its associate ElementState (subclass),
+	 * by overriding this method and providing a custom implementation.
+	 * <p/>
+	 * The default implementation is a no-op.
+	 * fields that get here are ignored.
+	 * 
+	 * @param elementState
+	 */
 	protected void addNestedElement(ElementState elementState)
 	{
-		addNestedElementToField(elementState);
 	}
 	/**
-	 * Used to add a nested object to <code>this ElementState</code> object.
+	 * Used to set a field in this to a nested ElementState object.
 	 * 
-	 * This method MUST be overridden by all derived ElementState super classes
-	 * that function as collections (e.g., via Vector, Hashtable etc.) of other
-	 * ElementState derivatives.
-	 * In those cases, it is used to add the nested derived elements inside
-	 * to the collection. This method is called during translateFromXML(...).
+	 * his method is called during translateFromXML(...).
 	 *
-	 * @param elementState	the nested state-object to be added
+	 * @param nestedElementState	the nested state-object to be added
 	 */
-	protected void addNestedElement(Field field, ElementState elementState)
+	protected void setFieldToNestedElement(Field field, ElementState nestedElementState)
 		throws XmlTranslationException
 	{
 //		debug("<<<<<<<<<<<<<<<<<<<<<<<<fieldName is: " + fieldName);
 		try
 		{
-			field.set(this,elementState);
+			field.set(this,nestedElementState);
 		}
 		catch (Exception e)
 		{
@@ -1951,12 +1927,22 @@ public class ElementState extends Debug
 					field +" , " + this, e);
 		}
 	}
-	
-	String textNodeString;
-	
+	/**
+	 * Called during translateFromXML().
+	 * If the textNodeString is currently null, assign to.
+	 * Otherwise, append to it.
+	 * 
+	 * @param textNodeString	Text Node value just found parsing the XML.
+	 */
 	public void setTextNodeString(String textNodeString)
 	{
-	   this.textNodeString		= XmlTools.unescapeXML(textNodeString);
+	   if (textNodeString != null)
+	   {
+		   String unescapedString = XmlTools.unescapeXML(textNodeString);
+		   String previousTextNodeString = this.textNodeString;
+		   this.textNodeString	= (previousTextNodeString == null) ?
+				   unescapedString : previousTextNodeString + unescapedString;
+	   }
 	}
 	public String getTextNodeString()
 	{
@@ -2003,22 +1989,6 @@ public class ElementState extends Debug
 	  globalNameSpace.setDefaultPackageName(packageName);
    }
 
-	protected class TagMapEntry
-	{
-	   public final String startOpenTag;
-	   public final String closeTag;
-	   
-	   TagMapEntry(String tagName)
-	   {
-		  startOpenTag	= "<" + tagName;
-		  closeTag		= "</" + tagName + ">";
-	   }
-	   public String toString()
-	   {
-	   		return "TagMapEntry" + closeTag;
-	   }
-	}
-	
 	/**
 	 * The DOM classic accessor method.
 	 * 
@@ -2030,40 +2000,18 @@ public class ElementState extends Debug
 		return (ElementState) this.elementByIdMap.get(id);
 	}
 	
-	public void setNameSpace(TranslationSpace nameSpace)
+	   /**
+	    * This is used by subclasses to declare primitive fields, each of
+	    * which gets translated to XML as an element with a single TEXT_NODE child,
+	    * instead of as an attribute.
+	    * 
+	    * @return	false, because by default there are no leaf elements defined in this.
+	    */
+	protected boolean isLeafElementField(String fieldName)
 	{
-		this.nameSpace	= nameSpace;
+		return optimizations.isLeafElementField(fieldName);
 	}
-	public Type translatePrimitiveAsElementNotAttribute(String fieldName)
-	{
-	   HashMap leafElementFields = leafElementFields();
-	   return (leafElementFields == null) ? null :
-	   	(Type) leafElementFields.get(fieldName);
-	}
-/**
- * This is used by subclasses to declare primitive fields, each of
- * which gets translated to XML as an element with a single TEXT_NODE child,
- * instead of as an attribute.
- */
-	protected HashMap leafElementFields()
-	{
-		return null;
-	}
-	/**
-	 * Add a bunch of entries to a leafElementFields map.
-	 * 
-	 * @param fieldsMap
-	 * @param leafElementFieldNames
-	 */
-	static protected void defineLeafElementFieldNames(HashMap fieldsMap, String[] leafElementFieldNames)
-	{
-		int numLeafElementFieldNames	= leafElementFieldNames.length;
-		for (int i=0; i< numLeafElementFieldNames; i++)
-		{
-			String fieldName			= leafElementFieldNames[i];
-			fieldsMap.put(fieldName, fieldName);
-		}
-	}
+
 	/**
 	 * Controls if the public fields of a parent class (= super class)
 	 * will be emitted or not, during translation to XML.
@@ -2076,10 +2024,7 @@ public class ElementState extends Debug
 	{
 		return true;
 	}
-	Object[][]	MAPPINGS	=
-	{
-			{String.class, fieldNameOrClassToTagMap},
-	};
+
 	/**
 	 * When translating from XML, if a tag is encountered with no matching field, perhaps
 	 * it belongs in a Collection.
@@ -2092,6 +2037,19 @@ public class ElementState extends Debug
 	{
 		return null;
 	}
+	
+
+	/**
+	 * An array of Strings with the names of the leaf elements.
+	 * Must be overridden to provide leaf elements as direct, typed field values.
+	 * 
+	 * @return		null in the default implementation.
+	 */
+	protected String[] leafElementFieldNames()
+	{
+		return null;
+	}
+	
 	
 	/**
 	 * Convenience for specifying what collection to put objects of a given
