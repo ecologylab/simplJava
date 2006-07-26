@@ -24,6 +24,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import ecologylab.types.DoubleType;
+import ecologylab.types.FloatType;
 import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
@@ -305,42 +307,77 @@ implements CharacterConstants
 		return result;
 	}
 	
-/**
- * This method generates a name value pair corresponding to the primitive Jave field. Returns
- * an empty string if the field contains a default value, which means that there is no need
- * to emit that field. Used while translation of Java to xml.  
- * @param field		the <code>Field</code> object type corresponding to the primitive type
- * @param obj		the object which contains the field
- * @return			name-value pair of the attribute, nothing if the field has a default value
- */
+    /**
+     * This method generates a name value pair corresponding to the primitive Jave field. Returns
+     * an empty string if the field contains a default value, which means that there is no need
+     * to emit that field. Used while translation of Java to xml.  
+     * @param field     the <code>Field</code> object type corresponding to the primitive type
+     * @param obj       the object which contains the field
+     * @return          name-value pair of the attribute, nothing if the field has a default value
+     */
+    public static String generateNameVal(Field field, Object obj, int floatingValuePrecision)
+    {
+        if (obj != null)
+        {
+            //take the field, generate tags and attach name value pair
+            try
+            {
+               Type type        = TypeRegistry.getType(field);
+               String fieldValue= escapeXML(type.toString(obj, field));
+               if (type.isDefaultValue(fieldValue))
+                  return "";
+               
+               StringBuffer result = new StringBuffer(50);
+               result.append(' ').append(attrNameFromField(field, false))
+                  .append("=\"");
+               
+               if ((floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF) && 
+                       (type.isFloatingPoint()))
+               { // if we need to adjust for precision...
+                   
+                   // find the decimal, and where we SHOULD cut off...
+                   int endPos = fieldValue.indexOf(".")+floatingValuePrecision+1;
+                   
+                   if (endPos > fieldValue.length())
+                   { // if the cutoff is too far, do nothing
+                       result.append(fieldValue);
+                   }
+                   else
+                   { // if the cutoff is not too far, then cut off the extra
+                       result.append(fieldValue, 0, endPos);
+                   }
+                   
+                   // if there is nothing after the decimal, remove it
+                   if (result.charAt(result.length()-1) == '.')
+                   {
+                       result.deleteCharAt(result.length()-1);
+                   }
+                   
+                   result.append('"');
+               }
+               else
+               {
+                   result.append(fieldValue).append('"');
+               }
+               
+//             println("generateNameVal() = "+result);
+               return XmlTools.toString(result);
+                
+            }
+            catch (Exception e)
+            {
+               println("generateNameVal("+field+", "+obj+" ERROR");
+               e.printStackTrace();
+            }
+        }
+        
+        return "";
+    }
+    
 	public static String generateNameVal(Field field, Object obj)
 	{
-		if (obj != null)
-		{
-			//take the field, generate tags and attach name value pair
-			try
-			{
-			   Type type		= TypeRegistry.getType(field);
-			   String fieldValue= escapeXML(type.toString(obj, field));
-			   if (type.isDefaultValue(fieldValue))
-				  return "";
-			   
-			   StringBuffer result = new StringBuffer(50);
-			   result.append(' ').append(attrNameFromField(field, false))
-				  .append("=\"").append(fieldValue).append('"');
-				
-//			   println("generateNameVal() = "+result);
-			   return XmlTools.toString(result);
-				
-			}
-			catch (Exception e)
-			{
-			   println("generateNameVal("+field+", "+obj+" ERROR");
-			   e.printStackTrace();
-			}
-		}
-		return "";
-	}
+	    return generateNameVal(field, obj, ElementState.FLOATING_PRECISION_OFF);
+    }
 	
 	static final HashMap		classAbbrevNames	= new HashMap();
 	static final HashMap		packageNames		= new HashMap();
