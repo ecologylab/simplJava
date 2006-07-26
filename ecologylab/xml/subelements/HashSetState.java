@@ -35,7 +35,7 @@ public class HashSetState extends ElementState implements Cloneable, Iterable
      * 
      * @return	The ArrayList we collect in.
      */
-	protected Collection getCollection(Class thatClass)
+	protected Collection getCollection(Class thatClass, String tag)
 	{
 		return set;
 	}
