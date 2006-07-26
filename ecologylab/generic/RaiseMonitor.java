@@ -67,21 +67,22 @@ public abstract class RaiseMonitor extends Thread {
 		{
 			try
 			{  
-				AWTBridge.rolloverRaiseStatus	= 30;
+				AWTBridge.rolloverRaiseStatus	= 3000;
 				// wait for the next request
-				//Debug.println("RolloverFrame.run() wait()");
+				Debug.println("RolloverFrame.run() wait()");
 				wait();
 	
-				if (running == false)
+				if (!running)
 					break;
-			   
-				//println("RolloverFrame.run() take waitingLock");
+			    
+				AWTBridge.rolloverRaiseStatus = 3001;
+				Debug.println("RolloverFrame.run() take waitingLock");
 				synchronized (waitingLock)
 				{
 					  waitingToDoRun	= true;
 		//				  println("RolloverFrame.run() waitingLock.wait(RAISE_ABOUT_DELAY)");
 					  
-					  AWTBridge.rolloverRaiseStatus	= 31;
+					  AWTBridge.rolloverRaiseStatus	= 3002;
 					  // wait for a little delay before raising
 					  waitingLock.wait(raiseDelay);
 					  if (running == false)
@@ -91,13 +92,13 @@ public abstract class RaiseMonitor extends Thread {
 					  if (waitingToDoRun)
 					  {
 						 waitingToDoRun	= false;
-						 AWTBridge.rolloverRaiseStatus	= 32;
+						 AWTBridge.rolloverRaiseStatus	= 3003;
 					     doRaise();
-						 AWTBridge.rolloverRaiseStatus	= 33;
+						 AWTBridge.rolloverRaiseStatus	= 3004;
 					  }
 					  else // waitingToDoRun changed asychronously by cancel()
 					  {
-						 AWTBridge.rolloverRaiseStatus	= 35;
+						 AWTBridge.rolloverRaiseStatus	= 3005;
 						 //cancelRaise();
 						 //oneAndOnly.showEmbellishments	= false;
 					  }
