@@ -50,7 +50,8 @@ public class IntType extends Type
 		} catch (Exception e)
 		{
 		   debug("Got " + e + " while setting field " +
-				 field + " to " + value+"->"+converted);
+				 field + " to " + value+"->"+converted + " in " + object);
+		   e.printStackTrace();
 		}
 		return result;
 	}
