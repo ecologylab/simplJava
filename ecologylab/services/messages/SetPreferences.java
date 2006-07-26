@@ -40,11 +40,6 @@ extends RequestMessage
 	{
 		this((PreferencesSet) translateFromXMLString(preferencesSetString, nameSpace));
 	}
-	public void addNestedElement(ElementState preferenceState)
-	{
-		if (preferenceState instanceof Preference)
-			preferencesSet.addNestedElement(preferenceState);
-	}
 
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{

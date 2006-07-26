@@ -1,6 +1,7 @@
 package cf.services.messages;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import cf.app.CFPropertyNames;
 import cf.app.CFSessionObjects;
@@ -23,13 +24,19 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 	{
 		super();
 	}
+	
 	/**
-	 * overriding the addElement of ElementState class to add non-primitive objects
+	 * When translating from XML, if a tag is encountered with no matching field, perhaps
+	 * it belongs in a Collection.
+	 * This method tells us which collection object that would be.
+	 * 
+	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
+	 * @param tag 			The tag that represents the field in the XML where the ElementState object is stored.
+	 * @return
 	 */
-	public void addNestedElement(ElementState elementState)
+	protected Collection getCollection(Class thatClass, String tag)
 	{
-		if (elementState instanceof Preference)
-			set.add(elementState);
+		return Preference.class.equals(thatClass) ? set : null;
 	}
 	
 	public void processPreferences()
