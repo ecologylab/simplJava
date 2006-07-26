@@ -345,17 +345,20 @@ extends Debug implements BasicFloatSet
 	   for (int i=1; i<size; i++)
 	   {
 		   FloatSetElement thatElement	= elements[i];
-		   float thatWeight	= thatElement.getWeight();
-		   if (thatWeight > maxWeight)
+		   if (!thatElement.filteredOut())
 		   {
-			   maxArrayList.clear();
-			   result			= thatElement;
-			   maxWeight		= thatWeight;
-			   maxArrayList.add(thatElement);
-		   }
-		   else if (thatWeight == maxWeight)
-		   {
-			   maxArrayList.add(thatElement);
+			   float thatWeight	= thatElement.getWeight();
+			   if (thatWeight > maxWeight)
+			   {
+				   maxArrayList.clear();
+				   result			= thatElement;
+				   maxWeight		= thatWeight;
+				   maxArrayList.add(thatElement);
+			   }
+			   else if (thatWeight == maxWeight)
+			   {
+				   maxArrayList.add(thatElement);
+			   }
 		   }
 	   }
 	   
