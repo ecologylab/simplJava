@@ -316,64 +316,61 @@ extends Debug implements BasicFloatSet
 	*/
    public synchronized FloatSetElement maxSelect()
    {
-      int size			= this.size;
-      switch (size)
-      {
-      case 0:	// should never happen cause of sentinel
-      case 1:	// degenerate case (look out for the sentinel!)
-    	  return null;
-      case 2:
-    	  return elements[1];
-      default:	// now, size >= 3!
-    	  break;
-      }
-      
-      if (maxArrayList == null)
-      {
-		 int arrayListSize	= size / 8;
-		 if (arrayListSize > 1024)
-		    arrayListSize	= 1024;
-		 maxArrayList		= new ArrayList(arrayListSize);
-      }
-      else
-		 maxArrayList.clear(); // this line is redundant
-      
-      //int maxIndex		= MathTools.random(size-1) + 1;
-      int maxIndex			= 0;
-      // set result in case there's only 1 element in the set.
-      FloatSetElement result= sentinel;
-      float maxWeight		= result.getWeight();
-      for (int i=1; i<size; i++)
-      {
-		 FloatSetElement thatElement	= elements[i];
-		 if (!thatElement.filteredOut())
-		 {
-			 float thatWeight	= thatElement.getWeight();
-			 if (thatWeight > maxWeight)
-			 {
-			    maxArrayList.clear();
-			 	result			= thatElement;
-			    maxWeight		= thatWeight;
-			    maxIndex		= i;
-			    maxArrayList.add(thatElement);
-			 }
-			 else if (thatWeight == maxWeight)
-			 {
-			 	maxArrayList.add(thatElement);
-			 }
-		 }
-      }
-      
-      if (result == sentinel)
-    	  return null;
-      
-      int numMax		= maxArrayList.size();
-
-      if (numMax > 1)
-		 result			=
-			(FloatSetElement) maxArrayList.get(MathTools.random(numMax));
-      maxArrayListClear();
-      return result;
+	   int size			= this.size;
+	   switch (size)
+	   {
+	   case 0:	// should never happen cause of sentinel
+	   case 1:	// degenerate case (look out for the sentinel!)
+		   return null;
+	   case 2:
+		   return elements[1];
+	   default:	// now, size >= 3!
+		   break;
+	   }
+	   
+	   if (maxArrayList == null)
+	   {
+		   int arrayListSize	= size / 8;
+		   if (arrayListSize > 1024)
+			   arrayListSize	= 1024;
+		   maxArrayList		= new ArrayList(arrayListSize);
+	   }
+	   else
+		   maxArrayList.clear();
+	   
+	   //set result in case there's only 1 element in the set.
+	   FloatSetElement result= sentinel;
+	   float maxWeight		= result.getWeight();
+	   
+	   for (int i=1; i<size; i++)
+	   {
+		   FloatSetElement thatElement	= elements[i];
+		   float thatWeight	= thatElement.getWeight();
+		   if (thatWeight > maxWeight)
+		   {
+			   maxArrayList.clear();
+			   result			= thatElement;
+			   maxWeight		= thatWeight;
+			   maxArrayList.add(thatElement);
+		   }
+		   else if (thatWeight == maxWeight)
+		   {
+			   maxArrayList.add(thatElement);
+		   }
+	   }
+	   
+	   if (result == sentinel)
+		   return null;
+	   
+	   int numMax		= maxArrayList.size();
+	   
+	   //if there are more than one in our set, there is a tie, so choose which to get!
+	   if (numMax > 1)
+		   result			=
+			   (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
+	   maxArrayListClear();
+	   
+	   return result;
    }
    
    
