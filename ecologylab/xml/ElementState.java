@@ -1177,7 +1177,7 @@ implements ParseTableEntryTypes
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap();
-		   	  	 rootState.translateFromXML(null, xmlNode, stateClass, nameSpace, doRecursiveDescent);
+		   	  	 rootState.translateFromXML(xmlNode, stateClass, nameSpace, doRecursiveDescent);
 		   	  	 return rootState;
 		   	  }
 		   }
@@ -1244,18 +1244,16 @@ implements ParseTableEntryTypes
 	 * equivalent to the DOM.
      * 
      * Recursively parses the XML nodes in DFS order and translates them into
-	 *  a tree of state-objects.
+	 * a tree of state-objects.
      * 
-     * This method used to be called builtStateObject(...).
-     * @param parent TODO
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
      * @param stateClass		Must be derived from ElementState. 
 	 *							The type of the object to translate in to.
      * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	private void translateFromXML(ElementState parent, Node xmlNode,
-								  Class stateClass, TranslationSpace translationSpace, boolean doRecursiveDescent)
+	private void translateFromXML(Node xmlNode, Class stateClass,
+								  TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
 		// translate attribtues
@@ -1313,7 +1311,7 @@ implements ParseTableEntryTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= pte.getChildElementState(parent, null);
+						activeES			= pte.getChildElementState(this, null);
 						ReflectionTools.setFieldValue(this, pte.field(), activeES);
 					}
 				}
@@ -1333,7 +1331,7 @@ implements ParseTableEntryTypes
 					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
 					break;
 				case COLLECTION_ELEMENT:
-					Collection collection		= activeES.getCollection(activePTE.classOp());
+					Collection collection		= activeES.getCollection(activePTE.classOp(), activePTE.tag());
 					// the sleek new way to add elements to collections
 					collection.add(activePTE.getChildElementState(activeES, childNode));
 					break;
@@ -1409,7 +1407,7 @@ implements ParseTableEntryTypes
 		childElementState.parent			= this;
 		
 		if (childNode != null)
-			childElementState.translateFromXML(this, childNode, childClass, translationSpace, true);
+			childElementState.translateFromXML(childNode, childClass, translationSpace, true);
 		return childElementState;
 	}
 	
@@ -2030,15 +2028,15 @@ implements ParseTableEntryTypes
 	 * it belongs in a Collection.
 	 * This method tells us which collection object that would be.
 	 * 
-	 * @param thatClass
+	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
+	 * @param tag 			The tag that represents the field in the XML where the ElementState object is stored.
 	 * @return
 	 */
-	protected Collection getCollection(Class thatClass)
+	protected Collection getCollection(Class thatClass, String tag)
 	{
 		return null;
 	}
 	
-
 	/**
 	 * An array of Strings with the names of the leaf elements.
 	 * Must be overridden to provide leaf elements as direct, typed field values.
@@ -2086,5 +2084,14 @@ implements ParseTableEntryTypes
 		{
 			return lookup(thatClass.getSimpleName());
 		}
+	}
+
+
+	/**
+	 * @return the parent
+	 */
+	protected ElementState parent()
+	{
+		return parent;
 	}
 }

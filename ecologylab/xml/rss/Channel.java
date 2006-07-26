@@ -23,7 +23,7 @@ public class Channel extends ElementState
 		return LEAF_ELEMENT_FIELD_NAMES;
 	}
 
-	protected Collection getCollection(Class thatClass)
+	protected Collection getCollection(Class thatClass, String tag)
 	{
   		return Item.class.equals(thatClass) ?
 		   itemSet : null;

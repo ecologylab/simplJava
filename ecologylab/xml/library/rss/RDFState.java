@@ -11,10 +11,10 @@ public class RDFState extends ArrayListState
 	{
 		super();
 	}
-	protected Collection getCollection(Class thatClass)
+	protected Collection getCollection(Class thatClass, String tag)
 	{
   		return Item.class.equals(thatClass) ?
-		   super.getCollection(thatClass) : null;
+		   super.getCollection(thatClass, tag) : null;
   	}
 
 }

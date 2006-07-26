@@ -3,7 +3,6 @@ package ecologylab.xml;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import org.w3c.dom.Node;
 
@@ -144,10 +143,10 @@ implements ParseTableEntryTypes
 		}
 		else
 		{	// no XML namespace; life is simpler.
-			String fieldName			= XmlTools.fieldNameFromElementName(tag);
+			String fieldName	= XmlTools.fieldNameFromElementName(tag);
 			this.classOp		= contextClass;
 
-			Field field		= ReflectionTools.getField(contextClass, fieldName);
+			Field field			= ReflectionTools.getField(contextClass, fieldName);
 			if (field != null)
 			{
 				this.field	= field;
@@ -165,7 +164,7 @@ implements ParseTableEntryTypes
 				Class classOp	= translationSpace.xmlTagToClass(tag);
 				if (classOp != null)
 				{
-					this.type	= (context.getCollection(classOp) != null) ?
+					this.type	= (context.getCollection(classOp, tag) != null) ?
 							COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
 					this.classOp= classOp;
 				}
