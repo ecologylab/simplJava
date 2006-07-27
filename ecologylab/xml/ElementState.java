@@ -1287,6 +1287,8 @@ implements ParseTableEntryTypes
 					{
 					case REGULAR_ATTRIBUTE:
 						pte.setAttribute(this, value);
+						if ("id".equals(pte.tag()))
+							this.elementByIdMap.put(value, this);
 						break;
 					default:
 						break;	
@@ -2113,11 +2115,4 @@ implements ParseTableEntryTypes
 	{
 		return parent;
 	}
-    /**
-     * @param floatingPrecision the floatingPrecision to set
-     */
-    public void setFloatingPrecision(short floatingPrecision)
-    {
-        this.floatingPrecision = floatingPrecision;
-    }
 }
