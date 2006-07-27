@@ -123,6 +123,18 @@ implements ParseTableEntryTypes
  */
 	protected static Class[] 	MARSHALLING_PARAMS	= {String.class};
 
+    /**
+     * Constant indicating that floating precision cutoff is disabled. If floatingPrecision is set
+     * to this value, then all available decimal places will be emitted.
+     */
+    public static final short             FLOATING_PRECISION_OFF   = -1;
+
+    /**
+     * Indicates how many digits after the decimal will be emitted on all floating values (floats
+     * and doubles). If set to FLOATING_PRECISION_OFF (the default value), nothing will be done.
+     */
+    private short                         floatingPrecision;
+    
 	public ElementState()
 	{
 	   optimizations			= Optimizations.lookup(this);
@@ -374,7 +386,7 @@ implements ParseTableEntryTypes
 					// parent class fields should not be emitted,
 					// coz thats confusing
 					if (fieldIsFromDeclaringClass || emitParentFields())
-						buffy.append(XmlTools.generateNameVal(thatField, this));
+						buffy.append(XmlTools.generateNameVal(thatField, this, floatingPrecision));
 				}
 				else if (doRecursiveDescent)	// recursive descent
 				{	
@@ -2101,4 +2113,11 @@ implements ParseTableEntryTypes
 	{
 		return parent;
 	}
+    /**
+     * @param floatingPrecision the floatingPrecision to set
+     */
+    public void setFloatingPrecision(short floatingPrecision)
+    {
+        this.floatingPrecision = floatingPrecision;
+    }
 }
