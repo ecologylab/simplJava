@@ -86,19 +86,15 @@ public class AuthClient extends ServicesClient implements AuthMessages,
         super(server, port, messageSpace, objectRegistry);
 
         messageSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Login");
+                ecologylab.services.authentication.messages.Login.class);
         messageSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Logout");
-        messageSpace.addTranslation("ecologylab.services.authentication",
-                "AuthenticationListEntry");
+                ecologylab.services.authentication.messages.Logout.class);
+        messageSpace.addTranslation(ecologylab.services.authentication.AuthenticationListEntry.class);
         messageSpace.addTranslation(
-                "ecologylab.services.authentication.messages",
-                "LoginStatusResponse");
+                ecologylab.services.authentication.messages.LoginStatusResponse.class);
 
-        messageSpace.addTranslation("ecologylab.services.messages",
-                "BadSemanticContentResponse");
-        messageSpace.addTranslation("ecologylab.services.messages",
-                "ErrorResponse");
+        messageSpace.addTranslation(ecologylab.services.messages.BadSemanticContentResponse.class);
+        messageSpace.addTranslation(ecologylab.services.messages.ErrorResponse.class);
 
         objectRegistry.registerObject(LOGIN_STATUS, new BooleanSlot(false));
 

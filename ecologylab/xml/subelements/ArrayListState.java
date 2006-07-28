@@ -102,4 +102,9 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
 
         return clone;
     }
+    
+    public void trimToSize()
+    {
+        set.trimToSize();
+    }
 }

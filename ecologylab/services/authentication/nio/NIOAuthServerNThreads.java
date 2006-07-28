@@ -130,13 +130,13 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         super(portNumber, requestTranslationSpace, objectRegistry);
 
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Login");
+                ecologylab.services.authentication.messages.Login.class);
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Logout");
+                ecologylab.services.authentication.messages.Logout.class);
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "LoginStatusResponse");
+                ecologylab.services.authentication.messages.LoginStatusResponse.class);
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "LogoutStatusResponse");
+                ecologylab.services.authentication.messages.LogoutStatusResponse.class);
         
         this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 

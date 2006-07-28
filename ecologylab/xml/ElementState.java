@@ -7,15 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -133,7 +130,7 @@ implements ParseTableEntryTypes
      * Indicates how many digits after the decimal will be emitted on all floating values (floats
      * and doubles). If set to FLOATING_PRECISION_OFF (the default value), nothing will be done.
      */
-    private short                         floatingPrecision;
+    private short                         floatingPrecision = FLOATING_PRECISION_OFF;
     
 	public ElementState()
 	{

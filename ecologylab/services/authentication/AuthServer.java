@@ -125,9 +125,9 @@ public class AuthServer extends ServicesServer implements
         super(portNumber, requestTranslationSpace, objectRegistry);
 
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Login");
+                ecologylab.services.authentication.messages.Login.class);
         requestTranslationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Logout");
+                ecologylab.services.authentication.messages.Logout.class);
 
         this.objectRegistry = objectRegistry;
         

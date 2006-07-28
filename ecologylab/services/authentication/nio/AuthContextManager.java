@@ -7,9 +7,6 @@ import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
-import ecologylab.services.ServicesServer;
-import ecologylab.services.ServicesServerBase;
-import ecologylab.services.authentication.AuthServer;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;

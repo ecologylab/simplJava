@@ -11,7 +11,6 @@ import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
-import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
