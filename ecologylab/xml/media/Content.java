@@ -18,10 +18,10 @@ public class Content extends ElementState
 	public int				width;
 	public int				height;
 	
-	String					title;
-	Description				description;
-	String					keywords;
-	Thumbnail				thumbnail;
+	public String			title;
+	public Description		description;
+	public String			keywords;
+	public Thumbnail		thumbnail;
 	
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)

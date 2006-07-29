@@ -17,13 +17,26 @@ public class Media extends ElementState
 	 * An alternative would be to implement this as an ArrayListState, and be able
 	 * to aggregate a set of these. We can do this when there is a need, with an example.
 	 */
-	Content		content;
+	public Content		content;
 	
-	Credit		credit;
+	//public Credit		credit;
 	
-	String		category;
+	public String		category;
 	
-	String		text;
+	public String		text;
 	
-	String		rating;
+	public String		rating;
+
+	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"text", "category", "rating"};
+	
+	/**
+	 * The array of Strings with the names of the leaf elements.
+	 * 
+	 * @return
+	 */
+	protected String[] leafElementFieldNames()
+	{
+		return LEAF_ELEMENT_FIELD_NAMES;
+	}
+	
 }
