@@ -3,6 +3,7 @@ package ecologylab.xml.rss;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.dc.Dc;
+import ecologylab.xml.media.Media;
 
 /**
  * RSS 1 item element declaration.
@@ -23,6 +24,8 @@ public class Item extends ElementState
     * Some people put Dublin Core fields into their items. Go figure :-)
     */
    public Dc					dc;
+   
+   public Media					media;
    
    static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"title", "link", "description", "author"};
    
