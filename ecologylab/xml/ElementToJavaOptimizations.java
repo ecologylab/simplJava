@@ -128,6 +128,7 @@ implements ParseTableEntryTypes
 					Optimizations nsOptimizations	= Optimizations.lookup(dummyES);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
 					ParseTableEntry	 nsPTE	= nsOptimizations.parseTableEntry(nameSpaceTranslations, dummyES, subTag);
+					this.classOp			= nsFieldClass;
 					fillValues(nsPTE);
 					this.nestedPTE			= nsPTE;
 				}
@@ -232,8 +233,10 @@ implements ParseTableEntryTypes
 	
 	private void fillValues(ParseTableEntry other)
 	{
-		this.classOp			= other.classOp;
+		//this.classOp			= other.classOp;
 		this.type				= other.type;
+		// i think this field could be gotten from here (the child) or be propagated from us
+		// no difference, cause the current Field has to appear in both TranslationSpaces!
 		this.translationSpace	= other.translationSpace;
 	}
 
