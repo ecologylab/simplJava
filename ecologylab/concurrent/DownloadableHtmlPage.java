@@ -144,5 +144,10 @@ public class DownloadableHtmlPage implements Downloadable
     {
         return finalContent;
     }
+    
+    public ParsedURL getDownloadablePurl()
+    {
+    		return purl;
+    }
 
 }
