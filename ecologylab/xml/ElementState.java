@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.ArrayList;
@@ -1939,8 +1941,8 @@ implements ParseTableEntryTypes
 		catch (Exception e)
 		{
 		   throw new XmlTranslationException(
-					"Object / Field set mismatch -- unexpected. This should never happen.\n"+
-					field +" , " + this, e);
+					"Object / Field set mismatch -- unexpected. This should never happen.\n\t"+
+					"with Field = " + field +"\n\tin object " + this +"\n\tbeing set to " + nestedElementState.getClassName(), e);
 		}
 	}
 	/**
