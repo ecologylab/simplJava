@@ -262,6 +262,37 @@ public class Generic
    {
 	   return System.getProperty("java.version");
    }
+   
+   /**
+    * Where to navigate to to download the lastest Java.
+    */
+   public static ParsedURL	SUN_JAVA_PURL	= ParsedURL.getAbsolute("http://www.java.com/en/download/", "Java download");
+   /**
+    * Where to navigate to to download the lastest Java for the Macintosh.
+    */
+   public static ParsedURL	MAC_JAVA_PURL	= ParsedURL.getAbsolute("http://www.apple.com/java/", "Java download");
+
+   /**
+    * Checks what platform we're on, and returns a suitable PURL that you would navigate to,
+    * to download the current Java.
+    * 
+    * @return	PURL of www.java.com, or www.apple.com/java.
+    */
+   public static ParsedURL downloadJavaPURL()
+   {
+	   ParsedURL result;
+	   switch (PropertiesAndDirectories.os())
+	   {
+	   case PropertiesAndDirectories.MAC:
+		   result	= MAC_JAVA_PURL;
+	   case PropertiesAndDirectories.WINDOWS:
+	   case PropertiesAndDirectories.LINUX:
+	   default:
+		   result	= SUN_JAVA_PURL;
+	   }
+	   return result;
+   }
+   
    public static boolean hasXML()
    {
       return Environment.the.hasXML();
