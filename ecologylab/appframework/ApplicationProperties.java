@@ -9,18 +9,17 @@ package ecologylab.generic;
  */
 public interface ApplicationProperties
 {
-	public static final String	USERINTERFACE_NAME		= "userinterface";
-	
-	public static final String	USERINTERFACE			= Generic.parameter(USERINTERFACE_NAME);
+	/**
+	 * The name of the user interface currently in use, and its path in /config/interface.
+	 */
+	public static final String	USERINTERFACE			= Generic.parameter("userinterface");
 
-	public static final String	USE_ASSETS_CACHE_NAME	= "use_assets_cache";
-	
-	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool(USE_ASSETS_CACHE_NAME);
+	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool("use_assets_cache");
 	
 	public static final String	CODEBASE				= "code_base";
 
-	public static final String FRAME 		= "frame";
+	public static final String	FRAME 					= "frame";
 
-	public static final String GO_PREFIX	= "go_prefix";
+	public static final String	GO_PREFIX				= "go_prefix";
 
 }
