@@ -20,9 +20,9 @@ import ecologylab.xml.XmlTranslationException;
 public class SetPreferences 
 extends RequestMessage
 {
-	static boolean	firstTime	= true;
+	static boolean			firstTime		= true;
 	
-	public PreferencesSet	preferencesSet = new PreferencesSet();
+	public PreferencesSet	preferencesSet	= new PreferencesSet();
 	
 	
 	public SetPreferences()
@@ -44,18 +44,24 @@ extends RequestMessage
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		debug("cf services: received new preferences: " + preferencesSet);
+		if (firstTime)
+		{
+			firstTime		= false;
+	    	//now internally set the preferences
+			preferencesSet.processPreferences();
+			//print the prefs
+			debug("performService() Received and loaded preferences: " + preferencesSet);
+	
+			
+			CollageMachine collageMachine	= CMShellApplication.setupCollageMachine(objectRegistry);
+			
+			collageMachine.start(Thread.NORM_PRIORITY - 1); // build in new Thread to enable concurrency with seed transmission.
+			//collageMachine.run();
+	        ConsoleUtils.obtrusiveConsoleOutput("SetPreferences.sending ResponseMessage(OK)");
+		}
+		else
+			debug("IGNORING: preferences were previously loaded.");
 		
-    	//now internally set the preferences
-		preferencesSet.processPreferences();
-		//print the prefs
-		debug("performService() Received and loaded preferences: " + preferencesSet);
-
-		
-		CollageMachine collageMachine	= CMShellApplication.setupCollageMachine(objectRegistry);
-		
-		collageMachine.start(Thread.NORM_PRIORITY - 1); // build in new Thread to enable concurrency with seed transmission.
-		//collageMachine.run();
-        ConsoleUtils.obtrusiveConsoleOutput("SetPreferences.sending ResponseMessage(OK)");
 		return OkResponse.get();
 	}
 }
