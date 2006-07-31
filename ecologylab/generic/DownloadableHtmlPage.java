@@ -93,7 +93,7 @@ public class DownloadableHtmlPage implements Downloadable
         
         int beginIndex  = 0;
         int endIndex    = charChunkSize - 1;
-        while (isReader.read(charBuffer, beginIndex, endIndex) != -1)
+        while (isReader.read(charBuffer, beginIndex, endIndex-beginIndex) != -1)
         {
             beginIndex  += charChunkSize;
             endIndex    += charChunkSize;
@@ -118,6 +118,8 @@ public class DownloadableHtmlPage implements Downloadable
     public void handleIoError()
     {
         System.err.println("DownloadableHtmlPage: IO Error, retrying a max of " + MAX_RETRIES + " times.");
+        
+        Generic.sleep(1000); //sleep one second
         
         while (numRetries <= MAX_RETRIES)
         {
