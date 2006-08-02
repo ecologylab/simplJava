@@ -354,17 +354,22 @@ implements Downloadable, DispatchTarget
 		Enumeration entries = zipFile.entries();
 		while (entries.hasMoreElements())
 		{
-			ZipEntry entry = (ZipEntry) entries.nextElement();
-			
+			ZipEntry entry		= (ZipEntry) entries.nextElement();
+			String entryName	= entry.getName();
 			if (entry.isDirectory())
 			{
-				File entryDir = new File(unzipPath, entry.getName());
+				File entryDir = new File(unzipPath, entryName);
 				if (!entryDir.exists())
 					entryDir.mkdirs();
 				
 				continue;
 			}
-			File outFile = new File(unzipPath, entry.getName());
+			//else (if !entry.ex)
+			File outFile	= new File(unzipPath, entryName);
+			String dirPath	= outFile.getParent();
+			File dir		= new File(dirPath);
+			if (!dir.exists())
+				dir.mkdirs();
 	        StreamUtils.copyInputStream(zipFile.getInputStream(entry),
 	           new BufferedOutputStream(new FileOutputStream(outFile)));
 		}
