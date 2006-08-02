@@ -1272,7 +1272,8 @@ implements ParseTableEntryTypes
 		{
 			NamedNodeMap xmlNodeAttributes = xmlNode.getAttributes();
 			
-			for (int i = 0; i < xmlNodeAttributes.getLength(); i++) 
+			int numAttributes = xmlNodeAttributes.getLength();
+			for (int i = 0; i < numAttributes; i++) 
 			{
 				Node xmlAttr 		= xmlNodeAttributes.item(i);
 				String value		= xmlAttr.getNodeValue();
