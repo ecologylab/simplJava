@@ -9,6 +9,7 @@ import java.util.ArrayList;
  * 
  */
 public class OutOfMemoryErrorHandler  
+extends Debug
 {
 	private static ArrayList 		handlers 		= new ArrayList();
 	private static ObjectRegistry 	objectRegistry;
@@ -48,6 +49,7 @@ public class OutOfMemoryErrorHandler
 		if (Memory.getFreeMemoryInBytes() > OUT_OF_MEMORY_THRESHOLD)
 		{
 			ConsoleUtils.obtrusiveConsoleOutput("OutOfMemoryErrorHandler	BYPASSED PREMATURE MEMORY ERROR");
+			e.printStackTrace();
 			return;
 		}
 		
@@ -59,6 +61,8 @@ public class OutOfMemoryErrorHandler
 			return;
 		previouslyRanOut = true;
 		
+		Debug.println("Calling OUT OF MEMORY Handlers cause: ");
+		e.printStackTrace();
 		for (int i=0; i<handlers.size(); i++)
 		{
 			((ExceptionHandler)handlers.get(i)).handleException(new Exception(e.getMessage()),
