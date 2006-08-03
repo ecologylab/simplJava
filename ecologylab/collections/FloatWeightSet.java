@@ -345,7 +345,7 @@ extends Debug implements BasicFloatSet
 		   maxArrayList.clear();
 	   
 	   //count how many active elements we have in this set.
-	   numActive = 1;
+	   numActive = 0;
 	   
 	   //set result in case there's only 1 element in the set.
 	   FloatSetElement result= sentinel;
@@ -370,7 +370,11 @@ extends Debug implements BasicFloatSet
 				   maxArrayList.add(thatElement);
 			   }
 		   }
-	   }
+/*		   else
+		   {
+			  // debug("MAX SELECT FILTERED " + thatElement);
+		   }
+*/	   }
 	   
 	   if (result == sentinel)
 		   return null;
@@ -676,7 +680,7 @@ extends Debug implements BasicFloatSet
     */
    public int numActive()
    {
-	   return numActive - 1;		   // leave out the sentinel
+	   return numActive;
    }
 
 
