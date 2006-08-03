@@ -70,6 +70,8 @@ implements Runnable
    
    static boolean	finished;
    
+   static 		ThreadGroup	THREAD_GROUP	= new ThreadGroup("DownloadMonitor");
+   
    FloatWeightSet		sourceSet;
 
    public DownloadMonitor(String name, int numDownloadThreads)
@@ -187,7 +189,7 @@ implements Runnable
 		 finished		= false;
 		 if (timeoutThread == null)
 		 {
-			timeoutThread	= new Thread(this, toString() + "-timeouts");
+			timeoutThread	= new Thread(THREAD_GROUP, this, toString() + "-timeouts");
 			timeoutThread.setPriority(TIMEOUT_PRIORITY);
 			timeoutThread.start(); // to our run method
 		 }
@@ -225,7 +227,7 @@ implements Runnable
       {
 		 //	 debug("startDispatcHMonitor()");
 		 finished		= false;
-		 dispatchThread	= new Thread(toString() + "-dispatching")
+		 dispatchThread	= new Thread(THREAD_GROUP, toString() + "-dispatching")
 		 {
 			// !!! if its not in its own thread, the java.awt imaging sys
 			// can get messed up.
@@ -373,7 +375,7 @@ implements Runnable
    protected Thread makeDownloadThread(int i, String s)
    {
 	  //      debug("makeDownloadThread()");
-	  return new Thread(toString()+"-download "+i+" "+s)
+	  return new Thread(THREAD_GROUP, toString()+"-download "+i+" "+s)
 	  {
 		 public void run()
 		 {			  	
