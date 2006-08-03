@@ -12,31 +12,46 @@ import java.util.Iterator;
  */
 public class ArrayListState extends ElementState implements Cloneable //, Iterable
 {
-    public ArrayList set = new ArrayList();
+    public ArrayList set;
 
     public ArrayListState()
     {
         super();
     }
-
+    /**
+     * Use lazy evaluation for creating the set, in order to make it possible this
+     * class lightweight enough to use in subclass situations where they may be no elements
+     * added to the set, where the ElementState is only being used for direct fields.
+     * @return
+     */
+    protected ArrayList set()
+    {
+    	ArrayList	result	= set;
+    	if (result == null)
+    	{
+    		result			= new ArrayList();
+    		set			 	= result;
+    	}
+    	return result;
+    }
     public void add(ElementState elementState)
     {
-        set.add(elementState);
+        set().add(elementState);
     }
 
     public ElementState remove(int i)
     {
-        return (ElementState) set.remove(i);
+        return (set == null) ? null : (ElementState) set.remove(i);
     }
 
     public Iterator iterator()
     {
-        return set.iterator();
+        return set().iterator();
     }
 
     public void add(int i, ElementState obj)
     {
-        set.add(i, obj);
+        set().add(i, obj);
     }
 
     /**
@@ -47,6 +62,9 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
      */
     public ElementState get(int i)
     {
+    	if (set == null)
+    		return null;
+    	
         if (i < 0)
         {
             return null;
@@ -63,7 +81,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
     
     public boolean contains(Object o)
     {
-    	return set.contains(o);
+    	return (set == null) ? false : set.contains(o);
     }
     
     /**
@@ -73,7 +91,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
      */
 	protected Collection getCollection(Class thatClass, String tag)
 	{
-		return set;
+		return set();
 	}
     /**
      * Remove all elements from our Collection.
@@ -81,7 +99,8 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
      */
     public void clear()
     {
-        set.clear();
+        if (set != null)
+        	set.clear();
     }
 
     /**
@@ -91,7 +110,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
      */
     public int size()
     {
-        return set.size();
+        return (set == null) ? 0 : set.size();
     }
 
     public Object clone()
@@ -105,6 +124,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
     
     public void trimToSize()
     {
-        set.trimToSize();
+        if (set != null)
+        	set.trimToSize();
     }
 }
