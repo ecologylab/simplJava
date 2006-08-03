@@ -36,17 +36,16 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 	 */
 	protected Collection getCollection(Class thatClass, String tag)
 	{
-		return Preference.class.equals(thatClass) ? set : null;
+		return Preference.class.equals(thatClass) ? set() : null;
 	}
 	
 	public void processPreferences()
 	{
 		ApplicationEnvironment appEnvironment = 
 			(ApplicationEnvironment)Environment.the.get();
-		ArrayList prefs = set;
 		for (int i=0; i<size(); i++)
 		{
-			Preference pref = (Preference) prefs.get(i);
+			Preference pref = (Preference) get(i);
 			println("processing preference: " + pref);
 			appEnvironment.setProperty(pref.name, pref.value);
 		}
