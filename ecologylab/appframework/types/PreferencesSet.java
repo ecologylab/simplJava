@@ -44,7 +44,7 @@ implements ApplicationProperties, CFSessionObjects, CFPropertyNames
 		ApplicationEnvironment appEnvironment = 
 			(ApplicationEnvironment)Environment.the.get();
 		ArrayList prefs = set;
-		for (int i=0; i<prefs.size(); i++)
+		for (int i=0; i<size(); i++)
 		{
 			Preference pref = (Preference) prefs.get(i);
 			println("processing preference: " + pref);
