@@ -59,8 +59,10 @@ extends Debug
    }
 /**
  * Delete in the most expedient manner possible.
+ * This is final because if you are going to override,
+ * you should override the other version.
  */
-   public void delete()
+   public final void delete()
    {
       delete(BasicFloatSet.NO_RECOMPUTE);
    }
