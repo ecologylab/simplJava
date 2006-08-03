@@ -116,7 +116,8 @@ public class Generic
 
    public static final String parameter(String paramName)
    {
-      return Environment.the.get().parameter(paramName);
+      Environment environment = Environment.the.get();
+      return (environment == null) ? null : environment.parameter(paramName);
    }
 
 
