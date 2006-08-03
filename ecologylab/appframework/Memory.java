@@ -87,7 +87,7 @@ public class Memory
    }
    public static String usage()
    {
-      return K(runtime.freeMemory()) + " free of " + K(runtime.totalMemory());
+      return getFreeMemoryInK() + " free of " + K(runtime.totalMemory());
    }
    public static String K(long numBytes)
    {
@@ -136,5 +136,10 @@ public class Memory
    public static long getFreeMemoryInBytes()
    {
    		return runtime.freeMemory();
+   }
+   
+   public static String getFreeMemoryInK()
+   {
+   		return K(getFreeMemoryInBytes());
    }
 }
