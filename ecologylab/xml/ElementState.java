@@ -342,7 +342,13 @@ implements ParseTableEntryTypes
 			{
 				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
 			}
-
+			StringBuffer leafBuffy		= null;
+			String[] leafElementFieldNames = this.leafElementFieldNames();
+			if (leafElementFieldNames != null)
+			{
+				leafBuffy				= 
+					new StringBuffer(leafElementFieldNames.length * ESTIMATE_CHARS_PER_FIELD);
+			}
 			for (int i=0; i<numFields; i++)
 			{
 				// iterate through fields
@@ -370,8 +376,11 @@ implements ParseTableEntryTypes
 					{
 						Type type		= TypeRegistry.getType(thatField);
 						String value	= XmlTools.escapeXML(type.toString(this, thatField));
-						buffy.append(tagMapEntry.startOpenTag).append('>')
-						.append(value).append(tagMapEntry.closeTag);
+						//Debug.println("ESCAPED: " + value);
+						//TODO optimize w a better data structure to avoid multliple recomputes!
+						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
+						leafBuffy.append('<').append(leafElementName).append('>')
+						.append(value).append("</").append(leafElementName).append('>');
 					}
 
 					//TODO is field one that we are supposed to translate
@@ -392,6 +401,8 @@ implements ParseTableEntryTypes
 					if (!processingNestedElements)
 					{	// found *first* recursive element
 						buffy.append('>');	// close element tag behind attributes
+						if (leafBuffy != null)
+							buffy.append(leafBuffy);
 						processingNestedElements	= true;
 					}
 					Object thatReferenceObject = null;
@@ -471,7 +482,7 @@ implements ParseTableEntryTypes
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{
-					buffy.append(textNode);
+					buffy.append(XmlTools.escapeXML(textNode));
 				}
 				buffy.append(tagMapEntry.closeTag);
 			}
@@ -480,7 +491,7 @@ implements ParseTableEntryTypes
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{	
-					buffy.append('>').append(textNode).append(tagMapEntry.closeTag);
+					buffy.append('>').append(XmlTools.escapeXML(textNode)).append(tagMapEntry.closeTag);
 				}
 				else
 				{
