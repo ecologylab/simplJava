@@ -1,13 +1,17 @@
-package cf.services.messages;
+package ecologylab.services.messages;
 
+import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 
 /**
  * Represents a preference in the form of name/val.
+ * Can also hold a tree of ElementState objects of any type!
+ * that is, one or more.
  * 
  * @author blake
+ * @author andruid
  */
-public class Preference extends ElementState 
+public class Preference extends ArrayListState 
 {
 	public String 	name;
 	public String 	value;
@@ -23,4 +27,16 @@ public class Preference extends ElementState
 	{
 		return "Preference\tname="+name+" value="+value;
 	}
+
+	/**
+	 * Natural accessor when you have a single ElementState child in your preference.
+	 * 
+	 * @return Returns the first child in the set.
+	 */
+	public ElementState child()
+	{
+		return get(0);
+	}
+	
+	
 }
