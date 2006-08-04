@@ -6,6 +6,7 @@ import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.OkResponse;
+import ecologylab.services.messages.PreferencesSet;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -44,7 +45,7 @@ extends RequestMessage
 
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
-		debug("cf services: received new preferences: " + preferencesSet +" " + preferencesSet.size());
+		debug("performService(): " + preferencesSet +" " + preferencesSet.size());
 		if (firstTime)
 		{
 			firstTime		= false;
