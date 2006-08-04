@@ -5,10 +5,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Properties;
 
 import ecologylab.generic.AssetsCache.Assets;
 import ecologylab.net.ParsedURL;
+import ecologylab.services.messages.DefaultServicesTranslations;
+import ecologylab.services.messages.PreferencesSet;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,
@@ -23,12 +27,15 @@ public class ApplicationEnvironment
 extends Debug
 implements Environment
 {
-	protected static final String PREFERENCES_PATH = "config/preferences/";
+	protected static final String PREFERENCES_SUBDIR_PATH		= "config/preferences/";
+
+//	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
+	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.xml";
 
 	/**
-	 * Holds properties for use in servicing parameter(String) requests.
+	 * Holds preferences for use in servicing parameter(String) requests.
 	 */
-	private static Properties properties;
+	private static ObjectRegistry	preferencesRegistry	= new ObjectRegistry();
 	
 	/**
 	 * Used for forming codeBase relative ParsedURLs.
@@ -53,13 +60,13 @@ implements Environment
  */
 	public ApplicationEnvironment()
 	{
-	   properties = new Properties();
 	   Environment.the.set(this);
 	}
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
 	 * <p/>
-	 * No command line argument is processed. No properties file is loaded.
+	 * No command line argument is processed. 
+	 * Only default preferences are loaded, and processed with the default TranslationSpace.
 	 *  
 	 * @param applicationName	Name of the application. Used to set the applicationName, applicationDir, and .
 	 */
@@ -70,30 +77,91 @@ implements Environment
 	
 	/**
 	 * Create an ApplicationEnvironment.
-	 * Load Properties from a properties file found in the config/ directory.
-	 * If there is a 0th command line argument, that is the name of the
-	 * properties file. Otherwise, the properties come from
-	 * config/interface/params.txt.
+	 * Load preferences from XML file founds in the config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
 	 *  
-	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 * @param applicationName
+	 * @param translationSpace		TranslationSpace used for translating preferences XML.
+	 * 								If this is null, 
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * 								will be used.
+	 * @param args					Command line argument array, from public static void main(String[]).
+	 */
+	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[])
+	{
+	   this(null, applicationName, translationSpace, args);
+	}
+	/**
+	 * Create an ApplicationEnvironment.
+	 * Load preferences from XML files found in the config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
+	 * <p/>
+	 * The default TranslationSpace, from
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * will be used.
+	 *  
+	 * @param applicationName
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * 								will be used.
+	 * @param args					Command line argument array, from public static void main(String[]).
 	 */
 	public ApplicationEnvironment(String applicationName, String args[])
 	{
-	   this(null, applicationName, args);
+	   this(null, (TranslationSpace) null, args);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
 	 * Get the base for finding the path to the "codeBase" by using the
 	 * package path of the baseClass passed in.
 	 * <p/>
-	 * Load Properties from a properties file found in the config/ directory.
-	 * If there is a 0th command line argument, that is the name of the
-	 * properties file. Otherwise, the properties come from
-	 * config/interface/params.txt.
+	 * Load preferences from XML file founds in the codeBase/config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
 	 * <p/>
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 *  
-	 * @param baseClass			Used for computing codeBase property.
+	 * @param baseClass				Used for computing codeBase property.
+	 * @param applicationName
+	 * @param translationSpace		TranslationSpace used for translating preferences XML.
+	 * 								If this is null, 
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * 								will be used.
+	 * @param args				The following command line parameters are recognized:
+	 * 								0: parameter file name (found in user.dir/config/)
+	 * 								1: graphics_device (screen number)
+	 * 								2: screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 */
+	public ApplicationEnvironment(Class baseClass, String applicationName, 
+			TranslationSpace translationSpace, String args[])
+	{
+	   this(baseClass, applicationName, preferencesFileRelativeFromArg0(args), translationSpace,
+			   ((args.length >= 2) ? args[1] : null),
+			   ((args.length >= 3) ? args[2] : null));
+	}
+	/**
+	 * Create an ApplicationEnvironment.
+	 * Get the base for finding the path to the "codeBase" by using the
+	 * package path of the baseClass passed in.
+	 * <p/>
+	 * Load preferences from XML file founds in the codeBase/config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
+	 * <p/>
+	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 * <p/>
+	 * The default TranslationSpace, from
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * will be used.
+	 *  
+	 * @param baseClass				Used for computing codeBase property.
+	 * @param applicationName
 	 * @param args				The following command line parameters are recognized:
 	 * 								0: parameter file name (found in user.dir/config/)
 	 * 								1: graphics_device (screen number)
@@ -102,16 +170,23 @@ implements Environment
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
 	{
-	   this(baseClass, applicationName, preferencesFileRelativeFromArg0(args),
-			   ((args.length >= 2) ? args[1] : null),
-			   ((args.length >= 3) ? args[2] : null));
+	   this(baseClass, applicationName, null, args);
 	}
-	
 	/**
 	 * Create an ApplicationEnvironment.
-	 * Load properties from the properties file specified here.
+	 * Get the base for finding the path to the "codeBase" by using the
+	 * package path of the baseClass passed in.
+	 * <p/>
+	 * Load preferences from XML file founds in the codeBase/config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
 	 * <p/>
 	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 * <p/>
+	 * The default TranslationSpace, from
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * will be used.
 	 * 
 	 * @param baseClass			Used for computing codeBase property.
 	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
@@ -120,13 +195,50 @@ implements Environment
 	 * 								1 - quarter; 2 - almost half; 3; near full; 4 full
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
-			String graphicsDev, String screenSize) 
+			 String graphicsDev, String screenSize) 
+	{
+		this(baseClass, applicationName, propertiesFileRelativePath, 
+			 null, graphicsDev,  screenSize);
+	}
+	/**
+	 * Create an ApplicationEnvironment.
+	 * Get the base for finding the path to the "codeBase" by using the
+	 * package path of the baseClass passed in.
+	 * <p/>
+	 * Load preferences from XML file founds in the codeBase/config/preferences directory.
+	 * Default preferences will be loaded from preferences.xml.
+	 * If there is a 0th command line argument, that is the name of an additional
+	 * preferences file.
+	 * <p/>
+	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 * <p/>
+	 * The default TranslationSpace, from
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * will be used.
+	 * 
+	 * @param baseClass			Used for computing codeBase property.
+	 * @param applicationName	Name of the application.
+	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 * @param translationSpace		TranslationSpace used for translating preferences XML.
+	 * 								If this is null, 
+	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * 								will be used.
+	 * @param graphicsDev		graphics_device (screen number) to display window. count from 0.
+	 * @param screenSize		used in TopLevel --
+	 * 								1 - quarter; 2 - almost half; 3; near full; 4 full
+	 */
+	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
+			TranslationSpace translationSpace, String graphicsDev, String screenSize) 
 	{
 		Environment.the.set(this);
 
 		// setup codeBase
 		if (baseClass == null)
 			baseClass			= this.getClass();
+		
+		if (translationSpace == null)
+			translationSpace	= DefaultServicesTranslations.get();
+		
 		Package basePackage		= baseClass.getPackage();
 		String packageName		= basePackage.getName();
 		String packageNameAsPath= packageName.replace('.', Files.sep);
@@ -147,22 +259,16 @@ implements Environment
 		codeBase				= new ParsedURL(path);
 		println("codeBase="+codeBase);
 		// load general application propertioes
-		loadProperties(path, PREFERENCES_PATH+"preferences.txt");
+		//loadProperties(path, BASE_PREFERENCE_PATH);
+		loadPreferencesXML(translationSpace, path, BASE_PREFERENCE_PATH);
 		// load properties specific to this invocation
 		if (propertiesFileRelativePath != null)
 		{
-			//println("Loading from codeBase " + path +"\tproperties " + propertiesFileRelativePath);
-			/*
-			//TODO need to move this up so that we never treat a URL as a file
-			//check to see if this is really a URL that was passed (cut off '/config') GHETTO!!!
-			String possibleURLPath = propertiesFileRelativePath.trim().substring(7).toLowerCase();
-			if (possibleURLPath.startsWith("http"))
-				loadPropertiesURL(possibleURLPath);
-			else*/
-				loadProperties(path, propertiesFileRelativePath);
+//			loadProperties(path, propertiesFileRelativePath);
+			loadPreferencesXML(translationSpace, path, propertiesFileRelativePath);
 		}
-		else
-			properties			= new Properties();
+//		else
+//			properties			= new Properties();
 		
 		if (graphicsDev != null)
 			setProperty("graphics_device", graphicsDev);
@@ -173,52 +279,27 @@ implements Environment
 		PropertiesAndDirectories.setApplicationName(applicationName);
 //		PropertiesAndDirectories.thisApplicationDir();
 	}
-	
-	public void loadProperties(File path, String filename)
+	private void loadPreferencesXML(TranslationSpace translationSpace, File path, String prefFilePath)
 	{
-		try 
+		File preferencesXMLFile	= new File(path, prefFilePath);
+		if (preferencesXMLFile.exists())
 		{
-			if (properties == null)
-				properties = new Properties();
-
-			File file = new File(path, filename);
-			if (file.exists())
+			try
 			{
-				println("Loading preferences from: "+file);
-				FileInputStream	inStream	= new FileInputStream(file);
-				properties.load(inStream);
-				inStream.close();
+				PreferencesSet ps	= (PreferencesSet) ElementState.translateFromXML(preferencesXMLFile, translationSpace);
+				ps.processPreferences();
+			} catch (XmlTranslationException e)
+			{
+				e.printStackTrace();
 			}
-			else
-				println("Can't load preferences from non-existent path: " + file);
-		} catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
 		}
 	}
-	public void loadPropertiesURL(String urlString)
-	{
-		try 
-		{
-			properties = new Properties();
-			URL propertiesURL = new URL(urlString);
-			
-			println("Loading Properties file from URL: " + propertiesURL);
-			properties.load(propertiesURL.openStream());
-		} 
-		catch (Exception e)
-		{
-			System.err.println("Error loading properties file from URL: " + urlString);
-			e.printStackTrace();
-		}
-	}
+	
 	
 	public void setProperty(String propertyName, String propertyValue)
 	{
-		properties.setProperty(propertyName, propertyValue);
+//		properties.setProperty(propertyName, propertyValue);
+		preferencesRegistry.registerObject(propertyName, propertyValue);
 	}
     /**
      * @see ecologylab.generic.Environment#runtimeEnv()
@@ -248,7 +329,8 @@ implements Environment
 	 */
 	public String parameter(String name)
 	{
-		return properties.getProperty(name);
+//		return properties.getProperty(name);
+		return (String) preferencesRegistry.lookupObject(name);
 	}
 
 	/**
@@ -265,7 +347,8 @@ implements Environment
 	 * return the current working directory of the application
 	 * which is "c:\web\code\java\cm"
 	 */
-	public ParsedURL docBase() {
+	public ParsedURL docBase()
+	{
 		ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
 		return purl;
 	}
@@ -336,7 +419,7 @@ implements Environment
 	 */
 	public static String preferencesFileRelativeFromArg0(String[] args) 
 	{
-		return (args.length >= 1) ? PREFERENCES_PATH + args[0] : null;
+		return (args.length >= 1) ? PREFERENCES_SUBDIR_PATH + args[0] : null;
 	}
 
 	/**
@@ -347,5 +430,21 @@ implements Environment
 	{
 		this.codeBase = codeBase;
 	}
-
+	/**
+	 * @return Returns the preferencesRegistry.
+	 */
+	public static ObjectRegistry preferencesRegistry()
+	{
+		return preferencesRegistry;
+	}
+	/**
+	 * Find a complex object set in preferences.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public static ElementState lookupElementStatePreference(String name)
+	{
+		return (ElementState) preferencesRegistry.lookupObject(name);
+	}
 }
