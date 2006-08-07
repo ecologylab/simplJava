@@ -119,9 +119,11 @@ extends Debug
     */
    public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
    {
-       try
+      try
       {
       	URL url		= new URL(webAddr);
+      	if (isUndetectedMalformedURL(url))
+  			return null;
       	return new ParsedURL(url);
       }
       catch (MalformedURLException e)
@@ -129,7 +131,20 @@ extends Debug
       	Debug.println(urlErrorMsg(webAddr, errorDescriptor));
       	return null;
       }
+      
     }
+   
+   /**
+    * Determines a URL is malformed since Java fails to detect this. 
+    * @param url
+    * @return
+    */
+   private static boolean isUndetectedMalformedURL(URL url)
+   {
+	   boolean isFileProtocol = url.getProtocol() == "file:";
+	   String host = url.getHost().trim();
+	   return ((!isFileProtocol && (host == "" || host == "/")) || (isFileProtocol && url.getPath().trim() != ""));
+   }
 /*   
    public URL getURL(String webAddr)
    {
