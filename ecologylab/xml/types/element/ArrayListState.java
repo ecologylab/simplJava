@@ -127,4 +127,8 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
         if (set != null)
         	set.trimToSize();
     }
+    public Object[] toArray()
+    {
+        return set().toArray();
+    }
 }
