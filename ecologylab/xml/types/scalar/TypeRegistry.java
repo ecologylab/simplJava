@@ -34,7 +34,7 @@ public class TypeRegistry extends IO
 	   new URLType();
 	   new ParsedURLType();
 
-//	   new DateType();
+	   new DateType();
 //	   new CurrencyType();
 	}
 	
