@@ -111,7 +111,7 @@ implements Environment
 	 */
 	public ApplicationEnvironment(String applicationName, String args[])
 	{
-	   this(null, (TranslationSpace) null, args);
+	   this(applicationName, (TranslationSpace) null, args);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
