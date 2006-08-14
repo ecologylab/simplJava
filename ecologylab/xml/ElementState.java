@@ -2126,4 +2126,11 @@ implements ParseTableEntryTypes
 	{
 		return parent;
 	}
+    /**
+     * @param floatingPrecision the floatingPrecision to set
+     */
+    public void setFloatingPrecision(short floatingPrecision)
+    {
+        this.floatingPrecision = floatingPrecision;
+    }
 }
