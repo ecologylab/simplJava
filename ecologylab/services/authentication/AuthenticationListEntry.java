@@ -19,12 +19,25 @@ import ecologylab.xml.ElementState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationListEntry extends ElementState
+public class AuthenticationListEntry extends ElementState implements AuthLevels
 {
 
-    public String username;
+    public String username = "";
 
-    public String password; // password automatically encrypted when added
+    /**
+     * Represents the password for this username. It is automatically converted
+     * to a hash when added via methods so it should never be modified through
+     * any other way!
+     */
+    public String password = "";
+
+    /**
+     * Represents the administrator level of the user.
+     * 
+     * 0 = normal user (NORMAL_USER) (Others can be added here as necessary.) 10 =
+     * administrator (ADMINISTRATOR)
+     */
+    public int    level    = 0;
 
     /**
      * Param-free constructor; normally used for translating from XML.
@@ -119,7 +132,8 @@ public class AuthenticationListEntry extends ElementState
             // convert to normal characters and return as a String
             return new String((new BASE64Encoder()).encode(encrypter.digest()));
 
-        } catch (NoSuchAlgorithmException e)
+        }
+        catch (NoSuchAlgorithmException e)
         {
             // this won't happen in practice, once we have the right one! :D
             e.printStackTrace();
@@ -144,7 +158,6 @@ public class AuthenticationListEntry extends ElementState
     {
         return username.toLowerCase();
     }
-    
 
     /**
      * Returns hashCode() called on username.
@@ -152,5 +165,22 @@ public class AuthenticationListEntry extends ElementState
     public int hashCode()
     {
         return username.hashCode();
+    }
+
+    /**
+     * @return the level
+     */
+    public int getLevel()
+    {
+        return level;
+    }
+
+    /**
+     * @param level
+     *            the level to set
+     */
+    public void setLevel(int level)
+    {
+        this.level = level;
     }
 }
