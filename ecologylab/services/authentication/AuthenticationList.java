@@ -4,8 +4,9 @@
 package ecologylab.services.authentication;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
-import ecologylab.xml.ElementState;
+import ecologylab.xml.ArrayListState;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -14,24 +15,13 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationList extends ElementState
+public class AuthenticationList extends ArrayListState
 {
-
-    public HashMap authList = new HashMap();
+    private HashMap authList = null;
 
     public AuthenticationList()
     {
         super();
-    }
-
-    /**
-     * @override makes sure that the reconstructed AuthenticationList is hashed
-     *           on the username of the entries.
-     */
-    public void addNestedElement(ElementState elementState)
-    {
-        authList.put(((AuthenticationListEntry) elementState).getUsername(),
-                (AuthenticationListEntry) elementState);
     }
 
     /**
@@ -42,7 +32,43 @@ public class AuthenticationList extends ElementState
      */
     public void add(AuthenticationListEntry entry)
     {
-        authList.put(entry.getUsername(), entry);
+        this.add(entry);
+
+        authList().put(entry.getUsername(), entry);
+    }
+
+    /**
+     * Constructs the internal HashMap to improve retrievals. This should
+     * probably be made more efficient later.
+     * 
+     * Note that this method also ensures that the passwords are hashed properly
+     * (which would normally be done with the constructor). They should
+     * (currently) be plaintext in the XML file.
+     * 
+     * TODO Make it so that passwords stored in the file are already hashed;
+     * this will require a small command line program!!!
+     * 
+     * @return
+     */
+    private HashMap authList()
+    {
+        if (authList == null)
+        {
+            authList = new HashMap();
+
+            Iterator previousEntries = this.iterator();
+
+            while (previousEntries.hasNext())
+            {
+                AuthenticationListEntry entry = (AuthenticationListEntry) previousEntries
+                        .next();
+
+                entry.setAndHashPassword(entry.getPassword());
+
+                authList.put(entry.getUsername(), entry);
+            }
+        }
+        return authList;
     }
 
     /**
@@ -56,7 +82,7 @@ public class AuthenticationList extends ElementState
      */
     public AuthenticationListEntry get(String username)
     {
-        return (AuthenticationListEntry) authList.get(username.toLowerCase());
+        return (AuthenticationListEntry) authList().get(username.toLowerCase());
     }
 
     /**
@@ -68,7 +94,30 @@ public class AuthenticationList extends ElementState
      */
     public boolean containsKey(String username)
     {
-        return authList.containsKey(username.toLowerCase());
+        return authList().containsKey(username.toLowerCase());
     }
 
+    public String toString()
+    {
+        Iterator tempIter = authList().values().iterator();
+        StringBuffer buffy = new StringBuffer();
+
+        while (tempIter.hasNext())
+        {
+            String entryXML;
+            try
+            {
+                entryXML = ((AuthenticationListEntry) tempIter.next())
+                        .translateToXML(false);
+                buffy.append(entryXML).append('\n');
+            }
+            catch (XmlTranslationException e)
+            {
+                e.printStackTrace();
+                System.out.println("exception caught; skipping bad entry");
+            }
+        }
+
+        return buffy.toString();
+    }
 }
