@@ -107,6 +107,12 @@ public class Login extends RequestMessage implements AuthMessages,
                         loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
                     }
                 }
+                else
+                {
+                    debug("password did not match!");
+                    
+                    loginConfirm.setResponseMessage(LOGIN_FAILED_PASSWORD);
+                }
             }
             else
             {

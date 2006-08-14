@@ -35,7 +35,10 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
      */
     public boolean isLoggedIn()
     {
-        return ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value;
+        if (this.connected())
+            return ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value;
+        else
+            return false;
     }
 
     /**
