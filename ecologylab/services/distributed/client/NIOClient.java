@@ -445,7 +445,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                     readChannel();
                                 }
 
-                                if (key.isWritable())
+                                if (key.isValid() && key.isWritable())
                                 {
                                     // debug("this key is writable!");
 
@@ -563,10 +563,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             debug("IOException");
 
-            if (e1
-                    .getMessage()
-                    .equals(
-                            "An existing connection was forcibly closed by the remote host"))
+            if ("An existing connection was forcibly closed by the remote host".equals(e1
+                    .getMessage()))
             {
                 debug("Server shut down; disconnecting.");
 

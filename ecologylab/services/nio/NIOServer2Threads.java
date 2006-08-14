@@ -78,6 +78,18 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
         messageProcessor.start();
     }
 
+    /**
+     * close() is called after the server has stopped.
+     * 
+     * @see ecologylab.services.nio.NIOServerBase#close()
+     */
+    protected void close()
+    {
+        super.close();
+
+        messageProcessor = null;
+    }
+
     public void stop()
     {
         super.stop();

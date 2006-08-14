@@ -76,6 +76,8 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
                 Thread.interrupted();
             }
         }
+        
+        contexts.clear();
 
         debug("Message Processor " + key.attachment() + " terminating.");
     }
@@ -126,8 +128,6 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
     public void stop()
     {
         running = false;
-        
-        contexts.clear();
     }
 
 }
