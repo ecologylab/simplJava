@@ -141,8 +141,8 @@ implements Environment
 			TranslationSpace translationSpace, String args[])
 	{
 	   this(baseClass, applicationName, preferencesFileRelativeFromArg0(args), translationSpace,
-			   ((args.length >= 2) ? args[1] : null),
-			   ((args.length >= 3) ? args[2] : null));
+			   (((args == null) || (args.length < 2)) ? null : args[1]),
+			   (((args == null) || (args.length < 3)) ? null : args[2]));
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -286,6 +286,7 @@ implements Environment
 		{
 			try
 			{
+				debugA("Loading preferences from: " + preferencesXMLFile);
 				PreferencesSet ps	= (PreferencesSet) ElementState.translateFromXML(preferencesXMLFile, translationSpace);
 				ps.processPreferences();
 			} catch (XmlTranslationException e)
@@ -293,6 +294,8 @@ implements Environment
 				e.printStackTrace();
 			}
 		}
+		else
+			debugA("Can't find preferences file: " + preferencesXMLFile);
 	}
 	
 	
@@ -419,7 +422,7 @@ implements Environment
 	 */
 	public static String preferencesFileRelativeFromArg0(String[] args) 
 	{
-		return (args.length >= 1) ? PREFERENCES_SUBDIR_PATH + args[0] : null;
+		return ((args == null) || (args.length == 0)) ? null :  PREFERENCES_SUBDIR_PATH + args[0];
 	}
 
 	/**
