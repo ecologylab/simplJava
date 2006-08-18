@@ -317,8 +317,8 @@ public class TranslationSpace extends IO
 	  	   */
 	  	  public NameEntry(String packageName, Class classObj)
 	  	  {
-	  		  this(packageName, classObj.getSimpleName(),
-	  				  XmlTools.getXmlTagName(classObj.getSimpleName(), "State", false), classObj);
+	  		  this(packageName, Optimizations.getClassName(classObj),
+	  				  XmlTools.getXmlTagName(Optimizations.getClassName(classObj), "State", false), classObj);
 	  	  }
 	  public NameEntry(String packageName, String className, 
 					   String tag, Class classObj)

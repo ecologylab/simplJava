@@ -11,7 +11,7 @@ import java.util.Iterator;
  * 
  * @author andruid
  */
-public class HashSetState extends ElementState implements Cloneable, Iterable
+public class HashSetState extends ElementState implements Cloneable
 {
     public HashSet set = new HashSet();
 
