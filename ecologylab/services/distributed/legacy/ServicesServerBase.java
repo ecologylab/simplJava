@@ -4,13 +4,14 @@
 package ecologylab.services;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import sun.misc.BASE64Encoder;
-
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
@@ -176,5 +177,11 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     public TranslationSpace getRequestTranslationSpace()
     {
         return requestTranslationSpace;
+    }
+    
+    
+    public SocketAddress getAddress()
+    {
+        return this.serverSocket.getLocalSocketAddress();
     }
 }
