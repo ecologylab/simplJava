@@ -2118,6 +2118,16 @@ implements ParseTableEntryTypes
 		}
 	}
 
+	/**
+	 * Specifies automatic conversion from XML style names (e.g. composition_space) to
+	 * Java style class names (e.g. CompositionSpace) or instance variable names (e.g. compositionSpace).
+	 * 
+	 * @return	The default implementation returns true.
+	 */
+	protected boolean convertNameStyles()
+	{
+		return true;
+	}
 
 	/**
 	 * @return the parent
