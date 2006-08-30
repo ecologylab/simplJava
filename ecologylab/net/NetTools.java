@@ -63,7 +63,7 @@ public class NetTools extends Debug
 						charset	= charset.substring(1);
 					if (charset.endsWith("\""))
 						charset	= charset.substring(0, charset.length() - 1);
-					println("CHARSET: '" + charset + "'");
+					//println("CHARSET: '" + charset + "'");
 					if (!supportedCharsetMap.containsKey(charset))
 					{
 						return charset;
