@@ -201,6 +201,7 @@ implements Runnable
  * Entry point for siphon threads. We will queue a DispatchTarget
  * for dispatching by our dispatch thread, when we are ready.
  * Starts the dispatching thread, if necessary.
+ * THIS CODE IS NOT USED!
  */
    public void dispatch(Downloadable thatDownloadable,
 			DispatchTarget dispatchTarget)
@@ -219,6 +220,10 @@ implements Runnable
 			toDispatch.notify();
       }
    }
+   /**
+    * 
+    * THIS CODE IS NOT USED!
+    */
    private void startDispatchMonitor()
    {
 	  //      finished		= false;
@@ -237,6 +242,7 @@ implements Runnable
 			   performDispatches();
 			}
 		 };
+		 dispatchThread.setPriority(lowPriority);
 		 dispatchThread.setPriority(lowPriority);
 		 dispatchThread.start();
       }
@@ -289,11 +295,29 @@ implements Runnable
 		 toDownload.addElement(new DownloadClosure(thatDownloadable,
 												   dispatchTarget, this));
 		 if (downloadThreads == null)
-			startDownloadMonitor();
+			startPerformDownloadsThreads();
 		 else
 			toDownload.notify();
       }
    }
+   /**
+    * Set the priority of the download thread.
+    * The more backed up we are, the higher the priority.
+    * 
+    * @param t
+    * @return
+    */
+   private int setDownloadPriority()
+   {
+	   return setDownloadPriority(Thread.currentThread());
+   }
+   /**
+    * Set the priority of the download thread.
+    * The more backed up we are, the higher the priority.
+    * 
+    * @param t
+    * @return
+    */
    private int setDownloadPriority(Thread t)
    {
       int waiting	= toDownload.size();
@@ -312,6 +336,7 @@ implements Runnable
    }
    private void kickDownloadThread(Thread t)
    {
+	   debug("kickDownloadThread("+t+") - no-op");
 /* put this back?! after fixing race condition. It is incompatible
    with ThreadStateDebugger
       if (t != null)
@@ -355,26 +380,25 @@ implements Runnable
       }
  */
    }
-   private Thread newDownloadThread(int i)
+   /**
+    * Create a new Thread that runs performDownloads().
+    * 
+    * @param i
+    * @return
+    */
+   protected Thread newPerformDownloadsThread(int i)
    {
-      return newDownloadThread(i, "");
+      return newPerformDownloadsThread(i, "");
    }
-   private Thread newDownloadThread(int i, String s)
+   /**
+    * Create a new Thread that runs performDownloads().
+    * 
+    * @param i
+    * @param s
+    * @return
+    */
+   protected Thread newPerformDownloadsThread(int i, String s)
    {
-      /*return new Thread(toString()+"-download "+i+" "+s)
-	    {
-	       public void run()
-	       {
-		  performDownloads();
-	       }
-	    };
-	   */
-      return makeDownloadThread(i, s);
-   }
-   
-   protected Thread makeDownloadThread(int i, String s)
-   {
-	  //      debug("makeDownloadThread()");
 	  return new Thread(THREAD_GROUP, toString()+"-download "+i+" "+s)
 	  {
 		 public void run()
@@ -383,20 +407,23 @@ implements Runnable
 		 }
 	  };
    }
-
-   private void startDownloadMonitor()
+/**
+ * Creates and starts up our performDownloads() Threads.
+ *
+ */
+   private void startPerformDownloadsThreads()
    {
       if (downloadThreads == null)
       {
-		 finished		= false;
+		 finished			= false;
 		 downloadThreads	= new Thread[numDownloadThreads];
-		 priorities		= new int[numDownloadThreads];
+		 priorities			= new int[numDownloadThreads];
 		 for (int i=0; i<numDownloadThreads; i++)
 		 {
-			Thread thatThread	= newDownloadThread(i);
+			Thread thatThread	= newPerformDownloadsThread(i);
 			downloadThreads[i]	= thatThread;
 			thatThread.setPriority(lowPriority);
-			priorities[i]	= lowPriority;
+			priorities[i]		= lowPriority;
 			ThreadDebugger.registerMyself(thatThread);
 			thatThread.start();
 		 }
@@ -460,6 +487,14 @@ implements Runnable
 		 }
       }
    }
+   /**
+    * The heart of the workhorse Threads.
+    * It loops, pulling a DownloadClosure off the toDownload queue,
+    * calling its performDownload() method, and then
+    * calling dispatch() if there is a dispatchTarget.
+    * 
+    *
+    */
    void performDownloads()
    {
       Thread downloadThread = Thread.currentThread();
@@ -483,15 +518,11 @@ implements Runnable
 		 detectPotentialTimeout(thatClosure, Thread.currentThread());
 		 try
 		 {
-			//	    debug("performDownload() "+
-			//		  thatClosure.downloadable+" "+ Thread.currentThread());
-
-			// ??? i dont understand this -- andruid 12/18
-			//	    if (getUrgent)
-			//	       setDownloadPriority(Thread.currentThread());
-
 			pending++;
 			ThreadDebugger.waitIfPaused(downloadThread);
+			// NEW -- set the priority of the download, based on how backed up we are
+			setDownloadPriority();
+			
 			thatClosure.performDownload();
 			//	    debug("after performDownload() " + thatClosure);
 			potentialTimeouts.remove(thatClosure); 
