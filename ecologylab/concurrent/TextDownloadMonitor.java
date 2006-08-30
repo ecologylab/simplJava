@@ -17,10 +17,18 @@ DownloadMonitor
    {
       super(name, numDownloadThreads, priorityBoost);
    }
-   protected Thread makeDownloadThread(int i, String s)
+   /**
+    * In addition to calling super to create a new Thread for performing downloads,
+    * create a stemmer for the new Thread.
+    * 
+    * @param i
+    * @param s
+    * @return
+    */
+   protected Thread newPerformDownloadsThread(int i, String s)
    {
-      Thread result = super.makeDownloadThread(i, s);
-      debug("makeDownloadThread() gcreating stemmer for " + result);
+      Thread result = super.newPerformDownloadsThread(i, s);
+      debug("makeDownloadThread() creating stemmer for " + result);
       
       addStemmer(result);
 
