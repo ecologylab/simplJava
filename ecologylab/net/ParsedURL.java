@@ -323,52 +323,56 @@ extends Debug
     */
    public URL directory()
    {
-	   	URL result	= StringTools.endsWithSlash(toString()) ?
-			this.url : this.directory;
+	   	URL result	= this.directory;
    		if (result == null)
    		{
-   			String suffix	= suffix();
-			try 
-			{
-				String path		= url.getPath();
-				String args		= url.getQuery();
-				String protocol	= url.getProtocol();
-				String host		= url.getHost();
-				int port		= url.getPort();
-				if (suffix.length() == 0)
-				{	// this is a directory that is unterminated by slash; we need to fix that
-					
-					if (path.length() == 0)
-						result	= new URL(protocol, host, port, "/");
-					else
-					{
-						if ((args == null) || (args.length() == 0))
-							result	= new URL(protocol, host, port, path + '/');
-						else // this is a tricky executable with no suffix
-						{
-							// result = null;
-							// drop down into the next block, and peel off that suffix-less executable name
-						}
-					}
-				}
-				// else
-				if (result == null)
-				{	// you have a suffix, so we need to trim off the filename
-					int lastSlashIndex = path.lastIndexOf('/');
-					if (lastSlashIndex == -1)
-						// suffix, but not within any subdirectory
-						result	= new URL(protocol, host, port, "/");
-					else
-					{
-						String pathThroughLastSlash = path.substring(0, lastSlashIndex+1);
-						result	= new URL(protocol, host, port, pathThroughLastSlash);
-					}
-				}
-			} catch (MalformedURLException e)
-			{
-				debug("Unexpected ERROR forming directory.");
-				e.printStackTrace();
-			}
+   			if (StringTools.endsWithSlash(toString()))
+   				result	= this.url;
+   			if (result == null)
+   			{
+   				String suffix	= suffix();
+   				try 
+   				{
+   					String path		= url.getPath();
+   					String args		= url.getQuery();
+   					String protocol	= url.getProtocol();
+   					String host		= url.getHost();
+   					int port		= url.getPort();
+   					if (suffix.length() == 0)
+   					{	// this is a directory that is unterminated by slash; we need to fix that
+   						
+   						if (path.length() == 0)
+   							result	= new URL(protocol, host, port, "/");
+   						else
+   						{
+   							if ((args == null) || (args.length() == 0))
+   								result	= new URL(protocol, host, port, path + '/');
+   							else // this is a tricky executable with no suffix
+   							{
+   								// result = null;
+   								// drop down into the next block, and peel off that suffix-less executable name
+   							}
+   						}
+   					}
+   					// else
+   					if (result == null)
+   					{	// you have a suffix, so we need to trim off the filename
+   						int lastSlashIndex = path.lastIndexOf('/');
+   						if (lastSlashIndex == -1)
+   							// suffix, but not within any subdirectory
+   							result	= new URL(protocol, host, port, "/");
+   						else
+   						{
+   							String pathThroughLastSlash = path.substring(0, lastSlashIndex+1);
+   							result	= new URL(protocol, host, port, pathThroughLastSlash);
+   						}
+   					}
+   				} catch (MalformedURLException e)
+   				{
+   					debug("Unexpected ERROR forming directory.");
+   					e.printStackTrace();
+   				}
+   			}
 			this.directory		= result;
   		}
    		return result;
