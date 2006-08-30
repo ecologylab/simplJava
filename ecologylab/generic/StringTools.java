@@ -402,5 +402,15 @@ extends Debug
 	   }
 	   return true;
    }
+   
+	/**
+	 * @param path
+	 * @return true if the String ends with a forward slash, like a nice directory.
+	 */
+	public static boolean endsWithSlash(String path)
+	{
+		return path.charAt(path.length() - 1) == '/';
+	}
+
 }
 
