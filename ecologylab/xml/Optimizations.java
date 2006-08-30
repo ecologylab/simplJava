@@ -72,7 +72,7 @@ class Optimizations extends Debug
 	static Optimizations lookup(ElementState elementState)
 	{
 		Class thatClass		= elementState.getClass();
-		String className	= Optimizations.getClassName(thatClass);
+		String className	= getClassName(thatClass);
 		// stay out of the synchronized block most of the time
 		Optimizations result = (Optimizations) registry.get(className);
 		if (result == null)

@@ -2,6 +2,8 @@ package ecologylab.xml;
 
 import java.util.HashMap;
 
+import ecologylab.generic.Debug;
+
 /**
  * A set of translations between XML element names (tags) and associated Java ElementState
  * class names.
@@ -10,7 +12,7 @@ import java.util.HashMap;
  * present in the map, then the default package is returned. This is used when
  * an XML is converted back to its Java State-Object
  */
-public class TranslationSpace extends IO 
+public class TranslationSpace extends Debug
 {
    protected String			name;
    /**
@@ -317,8 +319,8 @@ public class TranslationSpace extends IO
 	  	   */
 	  	  public NameEntry(String packageName, Class classObj)
 	  	  {
-	  		  this(packageName, Optimizations.getClassName(classObj),
-	  				  XmlTools.getXmlTagName(Optimizations.getClassName(classObj), "State", false), classObj);
+	  		  this(packageName, getClassName(classObj),
+	  				  XmlTools.getXmlTagName(getClassName(classObj), "State", false), classObj);
 	  	  }
 	  public NameEntry(String packageName, String className, 
 					   String tag, Class classObj)
