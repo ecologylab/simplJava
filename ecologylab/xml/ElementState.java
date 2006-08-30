@@ -2100,7 +2100,8 @@ implements ParseTableEntryTypes
 				{
 					Class thatClass				= (Class) thatMapping[0];
 					Collection thatCollection	= (Collection) thatMapping[1];
-					put(Optimizations.getClassName(thatClass), thatCollection);
+//					put(thatClass.getSimpleName(), thatCollection);
+					put(Debug.getClassName(thatClass), thatCollection);
 				} catch (ClassCastException e)
 				{
 					debug("ERROR in ClassToCollectionMap initializer("+i+" has wrong type:\n\t"+
@@ -2114,7 +2115,7 @@ implements ParseTableEntryTypes
 		}
 		public Collection lookup(Class thatClass)
 		{
-			return lookup(Optimizations.getClassName(thatClass));
+			return lookup(getClassName(thatClass));
 		}
 	}
 
