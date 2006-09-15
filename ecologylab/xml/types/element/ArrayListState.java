@@ -89,7 +89,7 @@ public class ArrayListState extends ElementState implements Cloneable //, Iterab
      * 
      * @return	The ArrayList we collect in.
      */
-	protected Collection getCollection(Class thatClass, String tag)
+	protected Collection getCollection(Class thatClass)
 	{
 		return set();
 	}

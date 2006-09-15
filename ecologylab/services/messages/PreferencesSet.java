@@ -29,10 +29,9 @@ implements ApplicationProperties
 	 * This method tells us which collection object that would be.
 	 * 
 	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
-	 * @param tag 			The tag that represents the field in the XML where the ElementState object is stored.
 	 * @return
 	 */
-	protected Collection getCollection(Class thatClass, String tag)
+	protected Collection getCollection(Class thatClass)
 	{
 		return Preference.class.equals(thatClass) ? set() : null;
 	}

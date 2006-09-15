@@ -166,7 +166,7 @@ implements ParseTableEntryTypes
 				Class classOp	= translationSpace.xmlTagToClass(tag);
 				if (classOp != null)
 				{
-					Collection collection = context.getCollection(classOp, tag);
+					Collection collection = context.getCollection(classOp);
 					this.type	= (collection != null) ?
 							COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
 					this.classOp= classOp;

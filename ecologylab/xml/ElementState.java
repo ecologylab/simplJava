@@ -1356,7 +1356,7 @@ implements ParseTableEntryTypes
 					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
 					break;
 				case COLLECTION_ELEMENT:
-					Collection collection		= activeES.getCollection(activePTE.classOp(), activePTE.tag());
+					Collection collection		= activeES.getCollection(activePTE.classOp());
 					// the sleek new way to add elements to collections
 					collection.add(activePTE.getChildElementState(activeES, childNode));
 					break;
@@ -2061,10 +2061,9 @@ implements ParseTableEntryTypes
 	 * This method tells us which collection object that would be.
 	 * 
 	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
-	 * @param tag 			The tag that represents the field in the XML where the ElementState object is stored.
 	 * @return
 	 */
-	protected Collection getCollection(Class thatClass, String tag)
+	protected Collection getCollection(Class thatClass)
 	{
 		return null;
 	}
