@@ -338,7 +338,7 @@ implements CharacterConstants
                    }
                    else
                    { // if the cutoff is not too far, then cut off the extra
-                       result.append(fieldValue, 0, endPos);
+                       result.append(fieldValue.substring(0, endPos));
                    }
                    
                    // if there is nothing after the decimal, remove it
