@@ -14,7 +14,7 @@ public interface ApplicationProperties
 	 */
 	public static final String	USERINTERFACE			= Generic.parameter("userinterface");
 
-	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool("use_assets_cache");
+	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool("use_assets_cache", true);
 	
 	public static final String	CODEBASE				= "code_base";
 
