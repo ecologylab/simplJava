@@ -33,7 +33,7 @@ JAVA_CLASS = $(DIRS:%=%/*.class)
 TARGET		= ecologylab
 JAR_FILE	= $(TARGET).jar
 SIGNER		= "Interface Ecology Lab"
-RELEASE = 2.0Beta6
+RELEASE = 2.1Beta4
 
 .PHONY: ecologylab.jar
 
