@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import ecologylab.generic.Files;
 import ecologylab.net.NetTools;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
@@ -24,6 +25,8 @@ public class SendPrologue extends LogueMessage
 	public String	ip						= NetTools.localHost();
 	
 	public int 		userID					= 0;
+	
+	public String	studyName;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
@@ -65,6 +68,8 @@ public class SendPrologue extends LogueMessage
 		String sessionLogFile	=	// "/project/ecologylab/studyResults/CF_LOG/" + 
 				//	"LogFiles/" + 
 					ip + "__" + tempDate + "_" + userID + ".xml";
+		if (studyName != null)
+			sessionLogFile		= studyName + Files.sep + sessionLogFile;
 		return sessionLogFile;
 	}
  	public String beginLog()
