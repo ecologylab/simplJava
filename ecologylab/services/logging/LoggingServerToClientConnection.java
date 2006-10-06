@@ -1,5 +1,6 @@
 package ecologylab.services.logging;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,7 +64,13 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 		if( outputStream == null )
 		{
 			try {
-				outputStream = new FileOutputStream(fileName, true);
+				File file	= new File(fileName);
+				String dirPath	= file.getParent();
+				File dir	= new File(dirPath);
+				if (!dir.exists())
+					dir.mkdirs();
+				//TODO what if (file.exists()) ???
+				outputStream = new FileOutputStream(file, true);
 				return outputStream;
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
