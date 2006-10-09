@@ -77,4 +77,5 @@ public class ByteType extends Type
 	{
 	   return "0";
 	}
+	
 }

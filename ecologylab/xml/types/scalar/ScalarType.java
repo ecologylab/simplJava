@@ -128,6 +128,15 @@ public class Type extends IO
     }
 
     /**
+     * Return true if this type may need escaping when emitted as XML.
+     * 
+     * @return true, by default, for all reference types (includes Strings, PURLs, ...); false otherwise.
+     */
+    public boolean needsEscaping()
+    {
+    	return isReference();
+    }
+    /**
      * Find out if this is a reference type or a primitive types.
      * 
      * @return true for a reference type. false for a primitive type.
@@ -171,10 +180,16 @@ public class Type extends IO
     {
         return NULL_STRING;
     }
+    
+    public final int defaultValueLength()
+    {
+    	return defaultValue().length();
+    }
 
     public boolean isDefaultValue(String value)
     {
-        return defaultValue().equals(value);
+        String defaultValue = defaultValue();
+		return (defaultValue.length() == value.length()) && defaultValue.equals(value);
     }
 
     /**

@@ -77,4 +77,15 @@ public class CharType extends Type
 	{
 	   return " ";
 	}
+	
+    /**
+     * Return true if this type may need escaping when emitted as XML.
+     * 
+     * @return true
+     */
+    public boolean needsEscaping()
+    {
+    	return true;
+    }
+
 }
