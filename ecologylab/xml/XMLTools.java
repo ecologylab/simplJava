@@ -137,7 +137,7 @@ implements CharacterConstants
       	className			= className.substring(0, suffixPosition);
       }
 
-      StringBuffer result = new StringBuffer(50);
+      StringBuilder result = new StringBuilder(50);
 
       
 	  if (compression && (encodingTable.get(result) != null))
@@ -285,23 +285,7 @@ implements CharacterConstants
    		return result;
 	}
 	
-   
-/**
- * This method gets called when the <code>Object</code> being passed for generating
- * a name-value pair is not of type <code>Field</code>. Thus, this method always returns
- * a null. 
- * @see <code>generateNameVal(Field field, Object obj)</code>
- * @return	String corresponding to an attr val pair, based on the field, and 
- * assumging that the field is of a primitive type.
- * If the field is not of a primitive type, return null.
- */
-	public static String generateNameVal(Object object, String fieldName)
-	{
-		String result	= null;
-		return result;
-	}
-	
-    /**
+	/**
      * This method generates a name value pair corresponding to the primitive Jave field. Returns
      * an empty string if the field contains a default value, which means that there is no need
      * to emit that field. Used while translation of Java to xml.  
@@ -309,7 +293,7 @@ implements CharacterConstants
      * @param obj       the object which contains the field
      * @return          name-value pair of the attribute, nothing if the field has a default value
      */
-    public static String generateNameVal(Field field, Object obj, int floatingValuePrecision)
+    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision)
     {
         if (obj != null)
         {
@@ -317,28 +301,26 @@ implements CharacterConstants
             try
             {
                Type type        = TypeRegistry.getType(field);
-               String fieldValue= escapeXML(type.toString(obj, field));
-               if (type.isDefaultValue(fieldValue))
-                  return "";
-               
-               StringBuffer result = new StringBuffer(50);
+               String unescapedFieldValue = type.toString(obj, field);
+               if (type.isDefaultValue(unescapedFieldValue))
+                  return;
                result.append(' ').append(attrNameFromField(field, false))
                   .append("=\"");
                
-               if ((floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF) && 
-                       (type.isFloatingPoint()))
+               if (type.isFloatingPoint() && 
+            	   (floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF))
                { // if we need to adjust for precision...
                    
                    // find the decimal, and where we SHOULD cut off...
-                   int endPos = fieldValue.indexOf(".")+floatingValuePrecision+1;
+                   int endPos = unescapedFieldValue.indexOf(".")+floatingValuePrecision+1;
                    
-                   if (endPos > fieldValue.length())
+                   if (endPos > unescapedFieldValue.length())
                    { // if the cutoff is too far, do nothing
-                       result.append(fieldValue);
+                       result.append(unescapedFieldValue);
                    }
                    else
                    { // if the cutoff is not too far, then cut off the extra
-                       result.append(fieldValue, 0, endPos);
+                       result.append(unescapedFieldValue, 0, endPos);
                    }
                    
                    // if there is nothing after the decimal, remove it
@@ -351,11 +333,18 @@ implements CharacterConstants
                }
                else
                {
-                   result.append(fieldValue).append('"');
+                   //String escapedFieldValue= escapeXML(unescapedFieldValue);
+            	   //TODO only call escape if not a primitive and not char
+            	   if (type.needsEscaping())
+            		   escapeXML(result, unescapedFieldValue);
+            	   else
+            		   result.append(unescapedFieldValue);
+            	   
+//                   result.append(escapedFieldValue).append('"');
                }
                
 //             println("generateNameVal() = "+result);
-               return XmlTools.toString(result);
+//               return XmlTools.toString(result);
                 
             }
             catch (Exception e)
@@ -365,12 +354,12 @@ implements CharacterConstants
             }
         }
         
-        return "";
+//        return "";
     }
     
-	public static String generateNameVal(Field field, Object obj)
+	public void generateNameVal(StringBuilder result, Field field, Object obj)
 	{
-	    return generateNameVal(field, obj, ElementState.FLOATING_PRECISION_OFF);
+	    generateNameVal(result, field, obj, ElementState.FLOATING_PRECISION_OFF);
     }
 	
 	static final HashMap		classAbbrevNames	= new HashMap();
@@ -563,12 +552,12 @@ static String q(String string)
    
    /**
 	* Use this method to efficiently get a <code>String</code> from a
-	* <code>StringBuffer</code> on those occassions when you plan to keep
-	* using the <code>StringBuffer</code>, and want an efficiently made copy.
+	* <code>StringBuilder</code> on those occassions when you plan to keep
+	* using the <code>StringBuilder</code>, and want an efficiently made copy.
 	* In those cases, <i>much</i> better than 
-	* <code>new String(StringBuffer)</code>
+	* <code>new String(StringBuilder)</code>
 	*/
-	  public static final String toString(StringBuffer buffer)
+	  public static final String toString(StringBuilder buffer)
 	  {
 		 return buffer.substring(0);
 	  }
@@ -597,7 +586,7 @@ static String q(String string)
 	  else
 	  {
 //	  	println("unescapeXML( found amp " + s);
-	  	return unescapeXML(new StringBuffer(s), ampPos).toString();
+	  	return unescapeXML(new StringBuilder(s), ampPos).toString();
 	  }
    }
 	
@@ -605,7 +594,7 @@ static String q(String string)
  * Translate XML named entity special characters into their Unicode char
  * equivalents.
  */
-    public static StringBuffer unescapeXML(StringBuffer sb, int startPos)
+    public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
    {
 	  int		ampPos		= sb.indexOf("&", startPos);
 	  
@@ -625,7 +614,7 @@ static String q(String string)
 	  
 	  // this includes shifting the rest of the string up, and 
 	  
-	  // resetting the length of the StringBuffer to be shorter 
+	  // resetting the length of the StringBuilder to be shorter 
 	  // (since the entity is always longer than the char it maps to)
 	  
 	  // then call recursively, setting the startPos index to after the last
@@ -672,81 +661,86 @@ static String q(String string)
 	/**
 	* Replaces characters that may be confused by a HTML
 	* parser with their equivalent character entity references.
-	* @param s	original string which may contain some characters which are confusing
+	* @param stringToEscape	original string which may contain some characters which are confusing
 	* to the HTML parser, for eg. &lt; and &gt;
 	* @return	the string in which the confusing characters are replaced by their 
 	* equivalent entity references
 	*/   
-   public static String escapeXML(String s)
+   public static StringBuilder escapeXML(StringBuilder result, String stringToEscape)
    {
-        int length = s.length();
+        int length = stringToEscape.length();
         int newLength = length;
         // first check for characters that might
         // be dangerous and calculate a length
         // of the string that has escapes.
         for (int i=0; i<length; i++)
         {
-            char c = s.charAt(i);
-            switch(c)
-            {
-                case '\"':
-                  	newLength += 5;
-                 	break;
-                case '&':
-                case '\'':
-                    newLength += 4;
-                	break;
-                case '<':
-                case '>':
-                    newLength += 3;
-                	break;
-                default: 
-		   if (c >= ISO_LATIN1_START)
-		    newLength += 5;
-            }
+        	char c = stringToEscape.charAt(i);
+        	switch(c)
+        	{
+        	case '\"':
+        		newLength += 5;
+        		break;
+        	case '&':
+        	case '\'':
+        		newLength += 4;
+        		break;
+        	case '<':
+        	case '>':
+        		newLength += 3;
+        		break;
+        	default: 
+        		if (c >= ISO_LATIN1_START)
+        			newLength += 5;
+        	}
         }
         if (length == newLength)
         {
             // nothing to escape in the string
-            return s;
+        	//result.append(stringToEscape)
+        	if (result != null)
+        		result.append(stringToEscape);
+        	return result;
+//            return stringToEscape;
         }
-        StringBuffer sb = new StringBuffer(newLength);
+        if (result == null)
+        	result = new StringBuilder(newLength);
         for (int i=0; i<length; i++)
         {
-            char c = s.charAt(i);
+            char c = stringToEscape.charAt(i);
             switch(c)
             {
                 case '\"':
-                    sb.append("&quot;");
+                    result.append("&quot;");
                 	break;
                 case '\'':
-                    sb.append("&#39;");
+                    result.append("&#39;");
                 	break;
                 case '&':
-                    sb.append("&amp;");
+                    result.append("&amp;");
                 	break;
                 case '<':
-                    sb.append("&lt;");
+                    result.append("&lt;");
                 	break;
                 case '>':
-                    sb.append("&gt;");
+                    result.append("&gt;");
                 	break;
                 case TAB:
                 case LF:
                 case CR:
-     		       sb.append(c);
+     		       result.append(c);
      		       break;
                 default: 
 				   if (c >= 0x20) 
 				   {
 				   		if (c >= ISO_LATIN1_START)
-							sb.append("&#"+Integer.toString(c) + ";");
+							result.append("&#"+Integer.toString(c) + ";");
 				   		else
-				      		sb.append(c);
+				      		result.append(c);
 		           }
             }
         }
-        return sb.toString();
+        return result;
     }
     
    /**
@@ -894,7 +888,7 @@ static String q(String string)
 	 */
 	public static String wrapInHTMLTags(String htmlFragmentString)
 	{
-		StringBuffer buffy	= new StringBuffer(htmlFragmentString.length() + 13);
+		StringBuilder buffy	= new StringBuilder(htmlFragmentString.length() + 13);
 		return 
 		  buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
 	}

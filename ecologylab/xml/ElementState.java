@@ -96,6 +96,8 @@ implements ParseTableEntryTypes
 	 */
 	HashMap						elementByIdMap;
 
+    static final HashMap		fieldsForClassMap	= new HashMap();
+
 	
 	public static final int 	UTF16_LE	= 0;
 	public static final int 	UTF16		= 1;
@@ -269,8 +271,9 @@ implements ParseTableEntryTypes
 		throws XmlTranslationException
 	{
 	   
-	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
-							 getTagMapEntry(thatClass, compression));
+	   StringBuilder buffy = translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
+							 getTagMapEntry(thatClass, compression), null);
+	   return (buffy == null) ? "" : buffy.toString();
 	}
 	
 	/**
@@ -310,29 +313,26 @@ implements ParseTableEntryTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private String translateToXML(Class thatClass, 
+	private StringBuilder translateToXML(Class thatClass, 
 									boolean compression, boolean doRecursiveDescent, 
-									int nodeNumber, TagMapEntry tagMapEntry)
+									int nodeNumber, TagMapEntry tagMapEntry, StringBuilder buffy)
 		throws XmlTranslationException
 	{
 		compressed = compression;
 		nodeNumber++;
 		
-		StringBuffer	buffy			= null;
-		
 		try
 		{
 			//Class theClass = getClass();
-			Field[] fields	= thatClass.getFields();
-			//arrange the fields such that all primitive types occur before the reference types
-			arrangeFields(fields);
+			Field[] fields = getFieldsForClass(thatClass);
 			boolean	processingNestedElements= false;
 			
 			// maybe this should be getClass()
 			String className			= thatClass.getName();
 			int	numFields				= fields.length;
 			
-			buffy		= new StringBuffer(numFields * ESTIMATE_CHARS_PER_FIELD);
+			if (buffy == null)
+				buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
 			
 			buffy.append(tagMapEntry.startOpenTag);
 			
@@ -342,12 +342,13 @@ implements ParseTableEntryTypes
 			{
 				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
 			}
-			StringBuffer leafBuffy		= null;
+			// will encounter leaf nodes before all attributes, perhaps, so allocate separate data structure
+			StringBuilder leafBuffy		= null;
 			String[] leafElementFieldNames = this.leafElementFieldNames();
 			if (leafElementFieldNames != null)
 			{
 				leafBuffy				= 
-					new StringBuffer(leafElementFieldNames.length * ESTIMATE_CHARS_PER_FIELD);
+					new StringBuilder(leafElementFieldNames.length * ESTIMATE_CHARS_PER_FIELD);
 			}
 			for (int i=0; i<numFields; i++)
 			{
@@ -374,27 +375,34 @@ implements ParseTableEntryTypes
 					String thatFieldName			= thatField.getName();
 					if (isLeafElementField(thatFieldName))
 					{
-						Type type		= TypeRegistry.getType(thatField);
-						String value	= XmlTools.escapeXML(type.toString(this, thatField));
 						//Debug.println("ESCAPED: " + value);
 						//TODO optimize w a better data structure to avoid multliple recomputes!
 						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
-						leafBuffy.append('<').append(leafElementName).append('>')
-						.append(value).append("</").append(leafElementName).append('>');
+						leafBuffy.append('<').append(leafElementName).append('>');
+						Type type		= TypeRegistry.getType(thatField);
+						String leafValue = type.toString(this, thatField);
+						if (type.needsEscaping())
+							XmlTools.escapeXML(leafBuffy, leafValue);
+						else
+							leafBuffy.append(leafValue);
+						leafBuffy.append("</").append(leafElementName).append('>');
 					}
-
-					//TODO is field one that we are supposed to translate
-					// as a nested element with a with a single 
-					// TEXT_NODE child, instead of as an attribute.
-					if (fieldIsFromDeclaringClass && processingNestedElements)
-						throw new XmlTranslationException("Primitive type " + thatField + 
-				   					" found after Reference type " + fields[i-1].getType().getName());
-					
-					// emit only if the field is present in this classs
-					// parent class fields should not be emitted,
-					// coz thats confusing
-					if (fieldIsFromDeclaringClass || emitParentFields())
-						buffy.append(XmlTools.generateNameVal(thatField, this, floatingPrecision));
+					else
+					{
+						//TODO is field one that we are supposed to translate
+						// as a nested element with a with a single 
+						// TEXT_NODE child, instead of as an attribute.
+						if (fieldIsFromDeclaringClass && processingNestedElements)
+							throw new XmlTranslationException("Primitive type " + thatField + 
+					   					" found after Reference type " + fields[i-1].getType().getName());
+						
+						// emit only if the field is present in this classs
+						// parent class fields should not be emitted,
+						// coz thats confusing
+						if (fieldIsFromDeclaringClass || emitParentFields())
+							XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision);
+	//						buffy.append(XmlTools.generateNameVal(thatField, this, floatingPrecision));
+					}
 				}
 				else if (doRecursiveDescent)	// recursive descent
 				{	
@@ -458,17 +466,10 @@ implements ParseTableEntryTypes
 						// field, use the instance's type to determine the XML tag name.
 						Class thatNewClass			= thatElementState.getClass();
 //						debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						if (thatNewClass == thatField.getType())
-							buffy.append( 
-							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-									  getTagMapEntry(fieldName, compression)));
-						else
-						{
-//						   debug("derived class -- using class name for " + thatNewClass);
-							buffy.append(
-							  thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-									  getTagMapEntry(thatNewClass, compression)));
-						}
+						TagMapEntry nestedTagMapEntry = (thatNewClass == thatField.getType()) ?
+								getTagMapEntry(fieldName, compression) : getTagMapEntry(thatNewClass, compression);
+						thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
+									  nestedTagMapEntry, buffy);
 					}
 				} //end of doRecursiveDescent
 			} //end of for loop
@@ -482,7 +483,7 @@ implements ParseTableEntryTypes
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{
-					buffy.append(XmlTools.escapeXML(textNode));
+					XmlTools.escapeXML(buffy, textNode);
 				}
 				buffy.append(tagMapEntry.closeTag);
 			}
@@ -491,7 +492,9 @@ implements ParseTableEntryTypes
 				String textNode = this.getTextNodeString();
 				if ( textNode != null)
 				{	
-					buffy.append('>').append(XmlTools.escapeXML(textNode)).append(tagMapEntry.closeTag);
+					buffy.append('>');
+					XmlTools.escapeXML(buffy, textNode);
+					buffy.append(tagMapEntry.closeTag);
 				}
 				else
 				{
@@ -503,7 +506,8 @@ implements ParseTableEntryTypes
 		{
 			e.printStackTrace();
 		}
-		return (buffy == null) ? "" : buffy.toString();
+		return buffy;
+//		return (buffy == null) ? "" : buffy.toString();
 	}
 	
 	/**
@@ -1405,11 +1409,18 @@ implements ParseTableEntryTypes
 			String textNodeValue	= textElementChild.getNodeValue();
 			if (textNodeValue != null)
 			{
-				textNodeValue		= XmlTools.unescapeXML(textNodeValue);
 				textNodeValue		= textNodeValue.trim();
+				Type fieldType		= TypeRegistry.getType(childField);
+				if (fieldType.needsEscaping())
+					textNodeValue	= XmlTools.unescapeXML(textNodeValue);
 				//debug("setting special text node " +childFieldName +"="+textNodeValue);
 				if (textNodeValue.length() > 0)
-					this.setFieldUsingTypeRegistry(childField, textNodeValue);
+				{
+					if (fieldType != null)
+						fieldType.setField(this, childField, textNodeValue);
+					else
+						debug("Can't find type for " + childField + " with value=" + textNodeValue);
+				}
 			}
 		}
 	}
@@ -1768,24 +1779,6 @@ implements ParseTableEntryTypes
  */
 	private TagMapEntry getTagMapEntry(String fieldName, boolean compression)
 	{
-		/*
-	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(fieldName);
-	   if (result == null)
-	   {
-		  synchronized (fieldNameOrClassToTagMap)
-		  {
-			 result		= (TagMapEntry) fieldNameOrClassToTagMap.get(fieldName);
-			 if (result == null)
-			 {
-				String tagName	= XmlTools.getXmlTagName(fieldName, "State", compression);
-				result	= new TagMapEntry(tagName);
-//				debug(tagName.toString());
-				fieldNameOrClassToTagMap.put(fieldName, result);
-			 }
-		  }
-	   }
-	   return result;
-	   */
 		return optimizations.getTagMapEntry(fieldName, compression);
 	}
 /**
@@ -1795,32 +1788,36 @@ implements ParseTableEntryTypes
  */
 	protected TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
 	{
-		/*
-	   TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(thatClass);
-	   if (result == null)
-	   {
-		  synchronized (fieldNameOrClassToTagMap)
-		  {
-			 result		= (TagMapEntry) fieldNameOrClassToTagMap.get(thatClass);
-			 if (result == null)
-			 {
-				String tagName	= XmlTools.getXmlTagName(thatClass, "State", compression);
-				result	= new TagMapEntry(tagName);
-				fieldNameOrClassToTagMap.put(thatClass, result);
-				debug(tagName.toString());
-			 }
-		  }
-	   }
-	   return result;
-	   */
 		return optimizations.getTagMapEntry(thatClass, compression);
 	}
+	
+	/**
+	 * Get the array of Fields for thatClass, in sorted order, so that attributes are first.
+	 * Either get this from the cache, or cache it will deriving it.
+	 * 
+	 * @param thatClass
+	 * @return
+	 */
+	private static Field[] getFieldsForClass(Class thatClass)
+	{
+		String thatClassName = thatClass.getName();
+		Field[] result	= (Field[]) fieldsForClassMap.get(thatClassName);
+		if (result == null)
+		{
+			result		= thatClass.getFields();
+			//arrange the fields such that all primitive types occur before the reference types
+			arrangeFields(result);
+			fieldsForClassMap.put(thatClassName, result);
+		}
+		return result;
+	}
+
 	/**
 	 * Reorders fields so that all primitive types occur first and then the reference types.
 	 * 
 	 * @param fields
 	 */
-	private void arrangeFields(Field[] fields)
+	private static void arrangeFields(Field[] fields)
 	{
 		int primitivePos = 0;
 		ArrayList refTypes = new ArrayList();
@@ -1841,6 +1838,7 @@ implements ParseTableEntryTypes
 				refTypes.add(thatField);
 			}
 		}
+		//TODO this should really make sure that leaf elements are after attributes
 		
 		//copy the ref types at the end of the primitive types
 		int j = 0;

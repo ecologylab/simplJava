@@ -376,7 +376,7 @@ public class TranslationSpace extends Debug
 	  }
 	  public String toString()
 	  {
-		 StringBuffer buffy = new StringBuffer(50);
+		  StringBuilder buffy = new StringBuilder(50);
 		 buffy.append("NameEntry[").append(className).
 			append(" <").append(tag).append('>');
 		 if (classObj != null)
