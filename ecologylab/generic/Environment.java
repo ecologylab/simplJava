@@ -136,7 +136,9 @@ public interface Environment
       public boolean hasGoodJava()
       {
     	  float javaVersion	= javaVersion();
-    	  return (javaVersion >= 1.5004) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
+    	  //return (javaVersion >= 1.5004) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
+    	  //  accomodate the retarded scc
+    	  return (javaVersion >= 1.5) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
       }
       public boolean javaIsBeta()
       {
