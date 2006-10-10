@@ -340,7 +340,7 @@ implements CharacterConstants
             	   else
             		   result.append(unescapedFieldValue);
             	   
-//                   result.append(escapedFieldValue).append('"');
+                   result.append('"');
                }
                
 //             println("generateNameVal() = "+result);
