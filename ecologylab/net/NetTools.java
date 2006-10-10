@@ -53,9 +53,13 @@ public class NetTools extends Debug
 			if (equalsIndex++ > -1)		// seek and skip over the equals
 			{
 				int closingSemIndex	= mimeType.indexOf(';', equalsIndex);
-				String charset		= (closingSemIndex == -1) ? 
-						mimeType.substring(equalsIndex) :
+				String charset = null;
+				if( equalsIndex >= closingSemIndex )
+				{
+					charset		= (closingSemIndex == -1) ? mimeType.substring(equalsIndex) :
 							mimeType.substring(closingSemIndex, equalsIndex);
+				}
+				
 				if ((charset != null) && (charset.length() > 0))
 				{
 					charset		= charset.trim();
