@@ -3,6 +3,7 @@ package ecologylab.xml.yahoo;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Top level result set collection element for Yahoo search.
@@ -10,7 +11,7 @@ import ecologylab.xml.TranslationSpace;
  *
  * @author andruid
  */
-public class ResultSet extends ArrayListState
+public @xml_inherit class ResultSet extends ArrayListState
 {
 	public int			totalResultsAvailable;
 	public int			totalResultsReturned;

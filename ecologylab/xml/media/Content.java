@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Primary element of the media XML name space. As in <media:content>
@@ -18,7 +19,7 @@ public class Content extends ElementState
 	public int				width;
 	public int				height;
 	
-	public String			title;
+	@xml_leaf	public String			title;
 	public Description		description;
 	public String			keywords;
 	public Thumbnail		thumbnail;

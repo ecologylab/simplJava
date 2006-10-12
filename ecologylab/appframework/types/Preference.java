@@ -2,6 +2,7 @@ package ecologylab.services.messages;
 
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Represents a preference in the form of name/val.
@@ -11,7 +12,7 @@ import ecologylab.xml.ElementState;
  * @author blake
  * @author andruid
  */
-public class Preference extends ArrayListState 
+public @xml_inherit class Preference extends ArrayListState 
 {
 	public String 	name;
 	public String 	value;

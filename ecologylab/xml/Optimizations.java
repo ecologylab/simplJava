@@ -1,5 +1,7 @@
 package ecologylab.xml;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.w3c.dom.Node;
@@ -46,6 +48,12 @@ class Optimizations extends Debug
 	 * Used to optimize translateFromXML(...).
 	 */
 	private HashMap					parseTable					= new HashMap();
+	
+	private Field[]					fields;
+	
+	private ArrayList				attributeFields;
+	
+	private ArrayList				elementFields;
 	
 	
 	private Optimizations()
@@ -96,6 +104,10 @@ class Optimizations extends Debug
 		if (leafElementFieldNames != null)
 			leafElementFields	= Generic.buildHashMapFromStrings(leafElementFieldNames);
 	}
+	boolean isLeafElementField(Field field)
+   	{
+		return isLeafElementField(field.getName());
+   	}
 	boolean isLeafElementField(String fieldName)
    	{
    		return (leafElementFields != null) && leafElementFields.containsKey(fieldName);
@@ -204,5 +216,15 @@ class Optimizations extends Debug
 			parseTable.put(tag, result);
 		}
 		return result;
+	}
+	
+	void setFields(Field[] fields)
+	{
+		this.fields	= fields;
+	}
+	
+	Field[] fields()
+	{
+		return fields;
 	}
 }

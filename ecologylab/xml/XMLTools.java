@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import ecologylab.generic.ReflectionTools;
 import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
@@ -865,19 +866,41 @@ static String q(String string)
 	/**
 	 * During translation to XML, uses a field's type to determine
 	 * if the field is one that is emitted directly as an attribute.
-	 * 
+	 * This is true for types defined in the TypeRegistry (scalar values),
+	 * which are not declared as leaf nodes, using @leaf.
+	 * <p/>
 	 * Also useful during other translation processes to determine 
 	 * if the field is one that would be emitted directly as an attribute,
 	 * because such fields require minimal processing.
 	 * 
 	 * @param field The field which might be emittable as an attribute.
+	 * @param optimizations -- used to lookup leaf nodes. TODO -- get rid of this!
 	 * 
 	 * @return		true if the field's type is contained within the 
 	 * 				{@link cm.types.TypeRegistry TypeRegistry}
 	 */
-	public static boolean emitFieldAsAttribute(Field field)
+	static boolean emitFieldAsAttribute(Field field, Optimizations optimizations)
 	{
-	   return TypeRegistry.contains(field.getType());
+	   return isScalarValue(field) && 
+	   		!(isLeafNode(field));
+	}
+	/**
+	 * Determine if the field is declared as a leaf node.
+	 * 
+	 * @param field
+	 * @return
+	 */
+	static boolean isLeafNode(Field field)
+	{
+		return ReflectionTools.isAnnotationPresent(field, ElementState.xml_leaf.class);
+	}
+	/**
+	 * @param field
+	 * @return	true if the Field is one translated by the Type system.
+	 */
+	public static boolean isScalarValue(Field field)
+	{
+		return TypeRegistry.contains(field.getType());
 	}
 	/**
 	 * Wrap the passed in argument in HTML tags, so it can be parsed as XML.

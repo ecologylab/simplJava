@@ -3,8 +3,9 @@ package ecologylab.xml.rss;
 import java.util.Collection;
 
 import ecologylab.xml.ArrayListState;
+import ecologylab.xml.xml_inherit;
 
-public class RDFState extends ArrayListState
+public @xml_inherit class RDFState extends ArrayListState
 {
 	
 	public RDFState()

@@ -1,6 +1,7 @@
 package ecologylab.xml.media;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Root class for inserting elements from the Yahoo Media XML Namespace.
@@ -21,11 +22,11 @@ public class Media extends ElementState
 	
 	//public Credit		credit;
 	
-	public String		category;
+	@xml_leaf	public String		category;
 	
-	public String		text;
+	@xml_leaf	public String		text;
 	
-	public String		rating;
+	@xml_leaf	public String		rating;
 
 	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"text", "category", "rating"};
 	

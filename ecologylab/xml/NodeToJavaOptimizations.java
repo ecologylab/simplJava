@@ -152,7 +152,7 @@ implements ParseTableEntryTypes
 			if (field != null)
 			{
 				this.field	= field;
-				if (optimizations.isLeafElementField(fieldName))
+				if (XmlTools.isLeafNode(field))
 					this.type	= LEAF_NODE_VALUE;
 				else
 				{

@@ -4,8 +4,7 @@ import ecologylab.xml.*;
 
 public class RssState extends ElementState
 {
-   public float			version;
+	@xml_attribute	public	float		version;
    
-   public Channel		channel;
-   
+	@xml_nested		public	Channel		channel;
 }

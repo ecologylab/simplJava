@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -102,6 +104,19 @@ implements ParseTableEntryTypes
 	public static final int 	UTF16_LE	= 0;
 	public static final int 	UTF16		= 1;
 	public static final int 	UTF8		= 2;
+	
+	/**
+	 * These are the styles for declaring fields as translated to XML.
+	 *
+	 * @author andruid
+	 */
+	public enum DeclarationStyle { ANNOTATION, TRANSIENT, PUBLIC};
+	public static final int		ANNOTATION_MODE	= 0;
+	public static final int		TRANSIENT_MODE	= 1;
+	public static final int		PUBLIC_MODE		= -1;
+	
+	private static DeclarationStyle	declarationStyle	= DeclarationStyle.PUBLIC;
+	
 	/**
 	 * xml header
 	 */
@@ -363,7 +378,7 @@ implements ParseTableEntryTypes
 //					debug("Skipping " + thatField + " because its static!");
 					continue;
 				 }
-				if (XmlTools.emitFieldAsAttribute(thatField))
+				if (XmlTools.emitFieldAsAttribute(thatField, optimizations))
 				{
 					String declaringClassName			= 
 						thatField.getDeclaringClass().getName();
@@ -1798,16 +1813,16 @@ implements ParseTableEntryTypes
 	 * @param thatClass
 	 * @return
 	 */
-	private static Field[] getFieldsForClass(Class thatClass)
+	private Field[] getFieldsForClass(Class thatClass)
 	{
-		String thatClassName = thatClass.getName();
-		Field[] result	= (Field[]) fieldsForClassMap.get(thatClassName);
+		String thatClassName	= thatClass.getName();
+		Field[] result			= optimizations.fields();
 		if (result == null)
 		{
 			result		= thatClass.getFields();
 			//arrange the fields such that all primitive types occur before the reference types
 			arrangeFields(result);
-			fieldsForClassMap.put(thatClassName, result);
+			optimizations.setFields(result);
 		}
 		return result;
 	}
@@ -1817,7 +1832,7 @@ implements ParseTableEntryTypes
 	 * 
 	 * @param fields
 	 */
-	private static void arrangeFields(Field[] fields)
+	private void arrangeFields(Field[] fields)
 	{
 		int primitivePos = 0;
 		ArrayList refTypes = new ArrayList();
@@ -1825,7 +1840,7 @@ implements ParseTableEntryTypes
 		for (int i = 0; i < fields.length; i++)
 		{
 			Field thatField	= fields[i];
-			if (XmlTools.emitFieldAsAttribute(thatField))
+			if (XmlTools.emitFieldAsAttribute(thatField, optimizations))
 			{
 				if(i > primitivePos)
 				{
@@ -2141,4 +2156,53 @@ implements ParseTableEntryTypes
     {
         this.floatingPrecision = floatingPrecision;
     }
+    
+    public static void setDeclarationStyle(DeclarationStyle ds)
+    {
+    	declarationStyle	= ds;
+    }
+    
+    public static DeclarationStyle declarationStyle()
+    {
+    	return declarationStyle;
+    }
+    
+    /**
+     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * is a scalar-value,
+     * which should be represented in XML as an attribute.
+     *
+     * @author andruid
+     */
+    @Target(ElementType.FIELD)
+    public @interface xml_attribute
+    {
+
+    }
+
+    /**
+     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * is a scalar-value,
+     * which should be represented in XML as a leaf node.
+     *
+     * @author andruid
+     */
+    @Target(ElementType.FIELD)
+    public @interface xml_leaf
+    {
+
+    }
+
+    /**
+     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * is a complex nested field, which requires further translation.
+     *
+     * @author andruid
+     */
+    @Target(ElementType.FIELD)
+    public @interface xml_nested
+    {
+
+    }
+
 }

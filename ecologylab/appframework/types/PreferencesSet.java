@@ -9,11 +9,12 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * A top level message between javascript and CFSessionLauncher.
  */
-public class PreferencesSet extends ArrayListState
+public @xml_inherit class PreferencesSet extends ArrayListState
 implements ApplicationProperties
 {
 	ElementState child;

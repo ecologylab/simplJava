@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import ecologylab.xml.xml_inherit;
+
 /**
  * Utility routines for working with reflection.
  *
@@ -180,5 +182,15 @@ public class ReflectionTools extends Debug
 		}
   		return result;
   	}
-  	  	
+  	/**
+  	 * See if the Field has the annotation in its declaration.
+  	 * 
+  	 * @param field
+  	 * @param annotationClass
+  	 * @return
+  	 */  	
+  	public static boolean isAnnotationPresent(Field field, Class annotationClass)
+  	{
+  		return field.getClass().isAnnotationPresent(annotationClass);
+  	}
 }

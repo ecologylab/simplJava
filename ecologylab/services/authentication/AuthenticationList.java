@@ -8,6 +8,7 @@ import java.util.Iterator;
 
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
@@ -15,7 +16,7 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationList extends ArrayListState
+public @xml_inherit class AuthenticationList extends ArrayListState
 {
     private HashMap authList = null;
 

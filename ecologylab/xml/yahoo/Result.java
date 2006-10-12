@@ -2,6 +2,7 @@ package ecologylab.xml.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Result from a Yahoo Search.
@@ -13,46 +14,46 @@ import ecologylab.xml.ElementState;
  */
 public class Result extends ElementState
 {
-	public String				Title;
-	public String				Summary;
+	@xml_leaf	public String				Title;
+	@xml_leaf	public String				Summary;
 	/**
 	 * For web search, the URL of the document.
 	 * For image search, the URL of the image.
 	 */
-	public ParsedURL			Url;
+	@xml_leaf	public ParsedURL			Url;
 	// there is also a field called ClickUrl. for image search, it duplicates Url.
 	// for web search ClickUrl is that nasty url that takes you through yahoo, and includes
 	// a url-encoded : after http, in the middle
 	/**
 	 * For image search, this is the Container web page!
 	 */
-	public ParsedURL			RefererUrl;
+	@xml_leaf	public ParsedURL			RefererUrl;
 	
 	/**
 	 * Another field for image search only. How useful! 
 	 * Lets us know if we want to work with the thumbnail or just download the whole image.
 	 * Seems to be in bytes.
 	 */
-	public int					FileSize;
+	@xml_leaf	public int					FileSize;
 	
-	public int					Width;
-	public int					Height;
+	@xml_leaf	public int					Width;
+	@xml_leaf	public int					Height;
 	
 	/**
 	 * For image search only. This seems to be the file suffix, though they use jpeg instead of jpg.
 	 */
-	public String				FileFormat;
+	@xml_leaf	public String				FileFormat;
 	
 	/**
 	 * Specific to news search.
 	 */
-	public String				NewsSource;
+	@xml_leaf	public String				NewsSource;
 	
 	/**
 	 * For web search only. Like file format, except its true mime type, like text/html.
 	 * Very nice.
 	 */
-	public String				MimeType;
+	@xml_leaf	public String				MimeType;
 	
 	// DisplayUrl -- boring. Web search only.
 	
