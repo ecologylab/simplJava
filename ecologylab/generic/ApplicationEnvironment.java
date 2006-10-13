@@ -230,6 +230,7 @@ implements Environment
 	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
 			TranslationSpace translationSpace, String graphicsDev, String screenSize) 
 	{
+		ElementState.setDeclarationStyle(ElementState.DeclarationStyle.PUBLIC);
 		Environment.the.set(this);
 
 		// setup codeBase
