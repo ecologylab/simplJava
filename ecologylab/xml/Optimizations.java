@@ -319,10 +319,12 @@ class Optimizations extends Debug
 			if (XmlTools.representAsAttribute(thatField))
 			{
 				attributeFields.add(thatField);
+				thatField.setAccessible(true);
 			}
 			else if (XmlTools.representAsLeafOrNested(thatField))
 			{
 				elementFields.add(thatField);
+				thatField.setAccessible(true);
 			}
 			// else -- ignore non-annotated fields
 		}
