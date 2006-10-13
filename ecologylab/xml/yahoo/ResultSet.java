@@ -1,8 +1,10 @@
 package ecologylab.xml.yahoo;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -11,7 +13,8 @@ import ecologylab.xml.xml_inherit;
  *
  * @author andruid
  */
-public @xml_inherit class ResultSet extends ArrayListState
+@xml_inherit
+public class ResultSet extends ArrayListState
 {
 	public int			totalResultsAvailable;
 	public int			totalResultsReturned;
@@ -26,5 +29,21 @@ public @xml_inherit class ResultSet extends ArrayListState
 	public static TranslationSpace translationSpace()
 	{
 		return TranslationSpace.get("yahoo", "ecologylab.xml.yahoo");
+	}
+	
+	public static String SEOUL_SHOPPING		= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";
+	
+	public static void main(String[] a)
+	{
+		ParsedURL purl = ParsedURL.getAbsolute(SEOUL_SHOPPING, "uck");
+		try
+		{
+			ResultSet resultSet	= 
+				(ResultSet) ElementState.translateFromXML(purl, ResultSet.translationSpace());
+		} catch (XmlTranslationException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

@@ -2,7 +2,6 @@ package ecologylab.xml.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Result from a Yahoo Search.
@@ -14,7 +13,7 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class Result extends ElementState
 {
-	@xml_leaf	public String				Title;
+	public @xml_leaf	String				Title;
 	@xml_leaf	public String				Summary;
 	/**
 	 * For web search, the URL of the document.
