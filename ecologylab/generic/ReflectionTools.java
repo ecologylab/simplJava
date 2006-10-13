@@ -37,6 +37,27 @@ public class ReflectionTools extends Debug
 	   return result;
    }
 
+   /**
+    * Get the Field object with name fieldName, in thatClass.
+    * 
+    * @param thatClass
+    * @param fieldName
+    * 
+    * @return	The Field object in thatClass, or null if there is none accessible.
+    */
+      public static Field getDeclaredField(Class thatClass, String fieldName)
+      {
+   	   Field	result	= null;
+   	   try
+   	   {
+   		   result		= thatClass.getDeclaredField(fieldName);
+   	   } catch (SecurityException e)
+   	   {
+   	   } catch (NoSuchFieldException e)
+   	   {
+   	   }	
+   	   return result;
+      }
    public static final Object	BAD_ACCESS	= new Object();
    
    /**
@@ -191,6 +212,6 @@ public class ReflectionTools extends Debug
   	 */  	
   	public static boolean isAnnotationPresent(Field field, Class annotationClass)
   	{
-  		return field.getClass().isAnnotationPresent(annotationClass);
+  		return field.isAnnotationPresent(annotationClass);
   	}
 }
