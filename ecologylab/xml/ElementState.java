@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -111,11 +114,8 @@ implements ParseTableEntryTypes
 	 * @author andruid
 	 */
 	public enum DeclarationStyle { ANNOTATION, TRANSIENT, PUBLIC};
-	public static final int		ANNOTATION_MODE	= 0;
-	public static final int		TRANSIENT_MODE	= 1;
-	public static final int		PUBLIC_MODE		= -1;
 	
-	private static DeclarationStyle	declarationStyle	= DeclarationStyle.PUBLIC;
+	private static DeclarationStyle	declarationStyle	= DeclarationStyle.ANNOTATION;
 	
 	/**
 	 * xml header
@@ -338,13 +338,12 @@ implements ParseTableEntryTypes
 		
 		try
 		{
-			//Class theClass = getClass();
-			Field[] fields = getFieldsForClass(thatClass);
-			boolean	processingNestedElements= false;
-			
-			// maybe this should be getClass()
 			String className			= thatClass.getName();
-			int	numFields				= fields.length;
+			ArrayList attributeFields	= optimizations.attributeFields();
+			ArrayList elementFields		= optimizations.elementFields();
+			int numAttributes 			= attributeFields.size();
+			int numElements				= elementFields.size();
+			int	numFields				= numAttributes + numElements;
 			
 			if (buffy == null)
 				buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
@@ -357,172 +356,124 @@ implements ParseTableEntryTypes
 			{
 				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
 			}
-			// will encounter leaf nodes before all attributes, perhaps, so allocate separate data structure
-			StringBuilder leafBuffy		= null;
-			String[] leafElementFieldNames = this.leafElementFieldNames();
-			if (leafElementFieldNames != null)
-			{
-				leafBuffy				= 
-					new StringBuilder(leafElementFieldNames.length * ESTIMATE_CHARS_PER_FIELD);
-			}
-			for (int i=0; i<numFields; i++)
+			
+			for (int i=0; i<numAttributes; i++)
 			{
 				// iterate through fields
-				Field thatField			= fields[i];
-				int fieldModifiers		= thatField.getModifiers();
-
-				// skip static fields, since we're saving instances,
-				// and inclusion w each instance would be redundant.
-				if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
-				{
-//					debug("Skipping " + thatField + " because its static!");
-					continue;
-				 }
-				if (XmlTools.emitFieldAsAttribute(thatField, optimizations))
-				{
-					String declaringClassName			= 
-						thatField.getDeclaringClass().getName();
-
-					// false if from a parent / super class
-					boolean fieldIsFromDeclaringClass= 
-						declaringClassName.equals(className);
-					
-					String thatFieldName			= thatField.getName();
-					if (isLeafElementField(thatFieldName))
-					{
-						//Debug.println("ESCAPED: " + value);
-						//TODO optimize w a better data structure to avoid multliple recomputes!
-						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
-						leafBuffy.append('<').append(leafElementName).append('>');
-						Type type		= TypeRegistry.getType(thatField);
-						String leafValue = type.toString(this, thatField);
-						if (type.needsEscaping())
-							XmlTools.escapeXML(leafBuffy, leafValue);
-						else
-							leafBuffy.append(leafValue);
-						leafBuffy.append("</").append(leafElementName).append('>');
-					}
-					else
-					{
-						//TODO is field one that we are supposed to translate
-						// as a nested element with a with a single 
-						// TEXT_NODE child, instead of as an attribute.
-						if (fieldIsFromDeclaringClass && processingNestedElements)
-							throw new XmlTranslationException("Primitive type " + thatField + 
-					   					" found after Reference type " + fields[i-1].getType().getName());
-						
-						// emit only if the field is present in this classs
-						// parent class fields should not be emitted,
-						// coz thats confusing
-						if (fieldIsFromDeclaringClass || emitParentFields())
-							XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision);
-	//						buffy.append(XmlTools.generateNameVal(thatField, this, floatingPrecision));
-					}
-				}
-				else if (doRecursiveDescent)	// recursive descent
-				{	
-					if (!processingNestedElements)
-					{	// found *first* recursive element
-						buffy.append('>');	// close element tag behind attributes
-						if (leafBuffy != null)
-							buffy.append(leafBuffy);
-						processingNestedElements	= true;
-					}
-					Object thatReferenceObject = null;
-					try
-					{
-						thatReferenceObject	= thatField.get(this);
-					}
-					catch (IllegalAccessException e)
-					{
-						e.printStackTrace();
-					}
-					// ignore null reference objects
-					if (thatReferenceObject == null)
-					   continue;
-					
-					Collection thatCollection = XmlTools.getCollection(thatReferenceObject);
-					
-					if (thatCollection != null)
-					{
-						//if the object is a collection, 
-						//basically iterate thru the collection and emit Xml from each element
-						Iterator elementIterator = thatCollection.iterator();
-					
-						while (elementIterator.hasNext())
-						{
-							Object next = elementIterator.next();
-							// this is a special hack for working with pre-translated XML Strings
-							if (next instanceof String)
-								buffy.append((String) next);
-							else
-							{
-								ElementState element;
-								try
-								{
-									element = (ElementState) next;
-								} catch(ClassCastException e)
-								{
-									throw new XmlTranslationException("Collections MUST contain " +
-											"objects of class derived from ElementState or XML Strings, but " +
-											thatReferenceObject +" contains some that aren't.");
-								}
-								buffy.append(element.translateToXML(element.getClass(), compression, true, nodeNumber));
-							}
-						}
-					}
-					else if (thatReferenceObject instanceof ElementState)
-					{	// one of our nested elements, so recurse
-						ElementState thatElementState	= (ElementState) thatReferenceObject;
-						String fieldName		= thatField.getName();
-						// if the field type is the same type of the instance (that is, if no subclassing),
-						// then use the field name to determine the XML tag name.
-						// if the field object is an instance of a subclass that extends the declared type of the
-						// field, use the instance's type to determine the XML tag name.
-						Class thatNewClass			= thatElementState.getClass();
-//						debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						TagMapEntry nestedTagMapEntry = (thatNewClass == thatField.getType()) ?
-								getTagMapEntry(fieldName, compression) : getTagMapEntry(thatNewClass, compression);
-						thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-									  nestedTagMapEntry, buffy);
-					}
-				} //end of doRecursiveDescent
-			} //end of for loop
+				Field thatField			= (Field) attributeFields.get(i);				
+				XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision);
+			}
 			
-			// end the element (or, at least, our contribution to it)
-			if (!doRecursiveDescent)
-				buffy.append('>'); // dont close it
-			else if (processingNestedElements)
+			String textNode = this.getTextNodeString();
+			if ((numElements == 0) && (textNode == null))
 			{
-				//TODO emit text node
-				String textNode = this.getTextNodeString();
-				if ( textNode != null)
-				{
-					XmlTools.escapeXML(buffy, textNode);
-				}
-				buffy.append(tagMapEntry.closeTag);
+				buffy.append("/>");	// done! completely close element behind attributes				
 			}
 			else
 			{
-				String textNode = this.getTextNodeString();
-				if ( textNode != null)
+				buffy.append('>');	// close open tag behind attributes
+				if (textNode != null)
 				{	
-					buffy.append('>');
 					XmlTools.escapeXML(buffy, textNode);
-					buffy.append(tagMapEntry.closeTag);
 				}
-				else
+	
+				for (int i=0; i<numElements; i++)
 				{
-					buffy.append("/>");	// simple element w attrs but no embedded elements and no text node
-				}
-			}
+					Field thatField			= (Field) elementFields.get(i);
+					if (XmlTools.representAsLeafNode(thatField))
+					{
+						String thatFieldName			= thatField.getName();
+						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
+						buffy.append('<').append(leafElementName).append('>');
+						Type type		= TypeRegistry.getType(thatField);
+						String leafValue = type.toString(this, thatField);
+						if (type.needsEscaping())
+							XmlTools.escapeXML(buffy, leafValue);
+						else
+							buffy.append(leafValue);
+						buffy.append("</").append(leafElementName).append('>');
+					}
+					else
+					{
+						Object thatReferenceObject = null;
+						try
+						{
+							thatReferenceObject	= thatField.get(this);
+						}
+						catch (IllegalAccessException e)
+						{
+							thatField.setAccessible(true);
+							try
+							{
+								thatReferenceObject	= thatField.get(this);
+							} catch (IllegalAccessException e1)
+							{
+								debug("ERROR accessing " + thatField.getName());
+								e1.printStackTrace();
+							}
+						}
+						// ignore null reference objects
+						if (thatReferenceObject == null)
+							continue;
+						
+						Collection thatCollection = XmlTools.getCollection(thatReferenceObject);
+						
+						if (thatCollection != null)
+						{
+							//if the object is a collection, 
+							//basically iterate thru the collection and emit Xml from each element
+							Iterator elementIterator = thatCollection.iterator();
+							
+							while (elementIterator.hasNext())
+							{
+								Object next = elementIterator.next();
+								// this is a special hack for working with pre-translated XML Strings
+								if (next instanceof String)
+									buffy.append((String) next);
+								else
+								{
+									ElementState element;
+									try
+									{
+										element = (ElementState) next;
+									} catch(ClassCastException e)
+									{
+										throw new XmlTranslationException("Collections MUST contain " +
+												"objects of class derived from ElementState or XML Strings, but " +
+												thatReferenceObject +" contains some that aren't.");
+									}
+									buffy.append(element.translateToXML(element.getClass(), compression, true, nodeNumber));
+								}
+							}
+						}
+						else if (thatReferenceObject instanceof ElementState)
+						{	// one of our nested elements, so recurse
+							ElementState thatElementState	= (ElementState) thatReferenceObject;
+							String fieldName		= thatField.getName();
+							// if the field type is the same type of the instance (that is, if no subclassing),
+							// then use the field name to determine the XML tag name.
+							// if the field object is an instance of a subclass that extends the declared type of the
+							// field, use the instance's type to determine the XML tag name.
+							Class thatNewClass			= thatElementState.getClass();
+							//					debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
+							TagMapEntry nestedTagMapEntry = (thatNewClass == thatField.getType()) ?
+									getTagMapEntry(fieldName, compression) : getTagMapEntry(thatNewClass, compression);
+									thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
+											nestedTagMapEntry, buffy);
+						}
+					}
+				} //end of for loop
 				
+				// end the element
+				buffy.append(tagMapEntry.closeTag);
+				
+			} // end if no nested elements or text node
 		} catch (SecurityException e)
 		{
+			debug("Caught exception:");
 			e.printStackTrace();
 		}
 		return buffy;
-//		return (buffy == null) ? "" : buffy.toString();
 	}
 	
 	/**
@@ -1805,64 +1756,6 @@ implements ParseTableEntryTypes
 	{
 		return optimizations.getTagMapEntry(thatClass, compression);
 	}
-	
-	/**
-	 * Get the array of Fields for thatClass, in sorted order, so that attributes are first.
-	 * Either get this from the cache, or cache it will deriving it.
-	 * 
-	 * @param thatClass
-	 * @return
-	 */
-	private Field[] getFieldsForClass(Class thatClass)
-	{
-		String thatClassName	= thatClass.getName();
-		Field[] result			= optimizations.fields();
-		if (result == null)
-		{
-			result		= thatClass.getFields();
-			//arrange the fields such that all primitive types occur before the reference types
-			arrangeFields(result);
-			optimizations.setFields(result);
-		}
-		return result;
-	}
-
-	/**
-	 * Reorders fields so that all primitive types occur first and then the reference types.
-	 * 
-	 * @param fields
-	 */
-	private void arrangeFields(Field[] fields)
-	{
-		int primitivePos = 0;
-		ArrayList refTypes = new ArrayList();
-		
-		for (int i = 0; i < fields.length; i++)
-		{
-			Field thatField	= fields[i];
-			if (XmlTools.emitFieldAsAttribute(thatField, optimizations))
-			{
-				if(i > primitivePos)
-				{
-					fields[primitivePos] = thatField;
-				}
-				primitivePos++;
-			}
-			else
-			{
-				refTypes.add(thatField);
-			}
-		}
-		//TODO this should really make sure that leaf elements are after attributes
-		
-		//copy the ref types at the end of the primitive types
-		int j = 0;
-		for(int i = fields.length - refTypes.size(); i < fields.length; i++)
-		{
-			fields[i]	=	(Field)refTypes.get(j++);			
-		}
-	}
-
 
 	//////////////// helper methods used by translateFromXML() ////////////////
 	/**
@@ -2042,18 +1935,6 @@ implements ParseTableEntryTypes
 	{
 		return (ElementState) this.elementByIdMap.get(id);
 	}
-	
-	   /**
-	    * This is used by subclasses to declare primitive fields, each of
-	    * which gets translated to XML as an element with a single TEXT_NODE child,
-	    * instead of as an attribute.
-	    * 
-	    * @return	false, because by default there are no leaf elements defined in this.
-	    */
-	protected boolean isLeafElementField(String fieldName)
-	{
-		return optimizations.isLeafElementField(fieldName);
-	}
 
 	/**
 	 * Controls if the public fields of a parent class (= super class)
@@ -2162,11 +2043,14 @@ implements ParseTableEntryTypes
     	declarationStyle	= ds;
     }
     
-    public static DeclarationStyle declarationStyle()
+    static DeclarationStyle declarationStyle()
     {
     	return declarationStyle;
     }
-    
+    static boolean isPublicDeclarationStyle()
+    {
+    	return declarationStyle() == DeclarationStyle.PUBLIC;
+    }
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a scalar-value,
@@ -2174,7 +2058,9 @@ implements ParseTableEntryTypes
      *
      * @author andruid
      */
+    @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
+    @Inherited
     public @interface xml_attribute
     {
 
@@ -2187,7 +2073,9 @@ implements ParseTableEntryTypes
      *
      * @author andruid
      */
+    @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
+    @Inherited
     public @interface xml_leaf
     {
 
@@ -2199,10 +2087,18 @@ implements ParseTableEntryTypes
      *
      * @author andruid
      */
+    @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
+    @Inherited
     public @interface xml_nested
     {
 
     }
+	public void checkAnnotation() throws NoSuchFieldException
+	{
+		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(xml_inherit.class));
+		Field f		= this.getClass().getField("foo");
+		System.out.println(" is leaf = " + XmlTools.representAsLeafNode(f));
+	}
 
 }

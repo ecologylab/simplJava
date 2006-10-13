@@ -1,6 +1,8 @@
 package ecologylab.xml;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,16 +24,15 @@ import ecologylab.generic.Generic;
 class Optimizations extends Debug
 {
 	/**
+	 * Class object that we are holding optimizations for.
+	 */
+	Class							thatClass;
+	/**
 	 * A map of all the Optimizations objects.
 	 * The keys are simple class names.
 	 */
 	private static final HashMap	registry	= new HashMap();
-	
-	/**
-	 * Holds the declarations of leaf element field names.
-	 */
-	private HashMap					leafElementFields;
-	
+		
 	/**
 	 * Found before the colon while translating from;
 	 * emitted with a colon while translating to.
@@ -49,23 +50,24 @@ class Optimizations extends Debug
 	 */
 	private HashMap					parseTable					= new HashMap();
 	
-	private Field[]					fields;
-	
+	/**
+	 * The fields that are represented as attributes for the class we're optimizing.
+	 */
 	private ArrayList				attributeFields;
 	
+	/**
+	 * The fields that are represented as nested elements (including leaf nodes)
+	 * for the class we're optimizing.
+	 */
 	private ArrayList				elementFields;
 	
 	
-	private Optimizations()
+	private Optimizations(Class thatClass)
 	{
-		super();		
+		super();
+		this.thatClass		= thatClass;
 	}
-	private Optimizations(String[] leafElementFieldNames)
-	{
-		this();
-		registerLeafElementFields(leafElementFieldNames);
-	}
-	
+
 	/**
 	 * The only mechanism for obtaining an Optimizations object, since the constructor is private.
 	 * Uses just-in-time / lazy evaluation.
@@ -91,7 +93,7 @@ class Optimizations extends Debug
 				result = (Optimizations) registry.get(className);
 				if (result == null)
 				{
-					result				= new Optimizations(elementState.leafElementFieldNames());
+					result				= new Optimizations(thatClass);
 					registry.put(className, result);
 				}
 			}
@@ -99,19 +101,6 @@ class Optimizations extends Debug
 		return result;
 	}
 	
-	private void registerLeafElementFields(String[] leafElementFieldNames)
-	{
-		if (leafElementFieldNames != null)
-			leafElementFields	= Generic.buildHashMapFromStrings(leafElementFieldNames);
-	}
-	boolean isLeafElementField(Field field)
-   	{
-		return isLeafElementField(field.getName());
-   	}
-	boolean isLeafElementField(String fieldName)
-   	{
-   		return (leafElementFields != null) && leafElementFields.containsKey(fieldName);
-   	}
 	/**
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
@@ -218,13 +207,132 @@ class Optimizations extends Debug
 		return result;
 	}
 	
-	void setFields(Field[] fields)
+	/**
+	 * Get the fields that are represented as attributes for the class we're optimizing.
+	 * Uses lazy evaluation -- while derive the answer for attributefieldbs and elementFields, and cache it.
+	 * 
+	 * @return	ArrayList of Field objects.
+	 */
+	ArrayList attributeFields()
 	{
-		this.fields	= fields;
+		ArrayList result	= attributeFields;
+		if (result == null)
+		{
+			getAndOrganizeFields();
+			result			= attributeFields;
+		}
+		return result;
 	}
-	
-	Field[] fields()
+	/**
+	 * Get the fields that are represented as nested elements (including leaf nodes)
+	 * for the class we're optimizing.
+	 * Uses lazy evaluation -- while derive the answer for attributefieldbs and elementFields, and cache it.
+	 * 
+	 * @return	ArrayList of Field objects.
+	 */
+	ArrayList elementFields()
 	{
-		return fields;
+		ArrayList result	= elementFields;
+		if (result == null)
+		{
+			getAndOrganizeFields();
+			result			= elementFields;
+		}
+		return result;
 	}
+	/**
+	 * Performs the lazy evaluation to get attribute and element field collections.
+	 * Dispatches to the correct routine for this, based on ElementState.declarationStyle().
+	 *
+	 */
+	private void getAndOrganizeFields()
+	{
+		attributeFields		= new ArrayList();
+		elementFields		= new ArrayList();
+		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
+		switch (ds)
+		{
+		case PUBLIC:
+			getAndOrganizeFieldsPublic(thatClass, attributeFields, elementFields);
+			break;
+		case ANNOTATION:
+			getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields);
+			break;
+		default:
+			throw new RuntimeException("Unsupported declaration style: " + ds);
+		}
+	}
+	/**
+	 * Performs the lazy evaluation to get attribute and element field collections.
+	 * Uses the hip new annotation stylee.
+	 * Uses the old PUBLIC declaration stylee.
+	 */
+	private static void getAndOrganizeFieldsPublic(Class thatClass,
+			ArrayList attributeFields, ArrayList elementFields)
+	{
+		Field[] fields		= thatClass.getFields();
+			
+		for (int i = 0; i < fields.length; i++)
+		{
+			Field thatField	= fields[i];
+			int fieldModifiers		= thatField.getModifiers();
+
+			// skip static fields, since we're saving instances,
+			// and inclusion w each instance would be redundant.
+			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
+			{
+//				debug("Skipping " + thatField + " because its static!");
+				continue;
+			 }
+			if (XmlTools.isScalarValue(thatField) && !XmlTools.representAsLeafNode(thatField))
+			{
+				attributeFields.add(thatField);
+			}
+			else
+			{
+				elementFields.add(thatField);
+			}
+		}
+	}
+	/**
+	 * Performs the lazy evaluation to get attribute and element field collections.
+	 * Uses the hip new annotation declaration stylee.
+	 * Recurses up the chain of inherited Java classes, if @xml_inherit is specified.
+	 */
+	private static void getAndOrganizeFieldsRecursive(Class thatClass,
+			ArrayList attributeFields, ArrayList elementFields)
+	{
+		Field[] fields		= thatClass.getDeclaredFields();
+			
+		for (int i = 0; i < fields.length; i++)
+		{
+			Field thatField	= fields[i];
+			int fieldModifiers		= thatField.getModifiers();
+
+			// skip static fields, since we're saving instances,
+			// and inclusion w each instance would be redundant.
+			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
+			{
+//				debug("Skipping " + thatField + " because its static!");
+				continue;
+			 }
+			if (XmlTools.representAsAttribute(thatField))
+			{
+				attributeFields.add(thatField);
+			}
+			else if (XmlTools.representAsLeafOrNested(thatField))
+			{
+				elementFields.add(thatField);
+			}
+			// else -- ignore non-annotated fields
+		}
+		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
+		{	// recurse on super class
+			Class superClass	= thatClass.getSuperclass();
+			if (superClass != null)
+				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields);
+		}
+			
+	}	
 }
+

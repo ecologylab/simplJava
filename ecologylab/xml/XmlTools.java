@@ -882,17 +882,32 @@ static String q(String string)
 	static boolean emitFieldAsAttribute(Field field, Optimizations optimizations)
 	{
 	   return isScalarValue(field) && 
-	   		!(isLeafNode(field));
+	   		!(representAsLeafNode(field));
 	}
 	/**
-	 * Determine if the field is declared as a leaf node.
+	 * Determine if the field is a scalar value that is represented in XML as a an leaf node.
 	 * 
 	 * @param field
 	 * @return
 	 */
-	static boolean isLeafNode(Field field)
+	static boolean representAsLeafNode(Field field)
 	{
-		return ReflectionTools.isAnnotationPresent(field, ElementState.xml_leaf.class);
+		return field.isAnnotationPresent(ElementState.xml_leaf.class);
+	}
+	/**
+	 * Determine if the field is a scalar value that is represented in XML as a an attribute.
+	 * 
+	 * @param field
+	 * @return
+	 */
+	static boolean representAsAttribute(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_attribute.class);
+	}
+	static boolean representAsLeafOrNested(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_leaf.class) ||
+			   field.isAnnotationPresent(ElementState.xml_nested.class);
 	}
 	/**
 	 * @param field

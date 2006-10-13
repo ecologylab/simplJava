@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -151,8 +152,10 @@ implements ParseTableEntryTypes
 			Field field			= ReflectionTools.getField(contextClass, fieldName);
 			if (field != null)
 			{
+				Annotation[] annotations	= field.getDeclaredAnnotations();
+
 				this.field	= field;
-				if (XmlTools.isLeafNode(field))
+				if (XmlTools.representAsLeafNode(field))
 					this.type	= LEAF_NODE_VALUE;
 				else
 				{
