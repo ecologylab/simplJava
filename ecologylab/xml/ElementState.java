@@ -286,11 +286,18 @@ implements ParseTableEntryTypes
 		throws XmlTranslationException
 	{
 	   
-	   StringBuilder buffy = translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
-							 getTagMapEntry(thatClass, compression), null);
+	   StringBuilder buffy = translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber, null);
 	   return (buffy == null) ? "" : buffy.toString();
 	}
 	
+	private StringBuilder translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent, 
+								  int nodeNumber, StringBuilder buffy)
+	throws XmlTranslationException
+	{
+	   
+	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
+							 getTagMapEntry(thatClass, compression), buffy);
+	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
@@ -374,7 +381,9 @@ implements ParseTableEntryTypes
 				buffy.append('>');	// close open tag behind attributes
 				if (textNode != null)
 				{	
-					XmlTools.escapeXML(buffy, textNode);
+					textNode	= textNode.trim();
+					if (textNode.length() > 0)
+						XmlTools.escapeXML(buffy, textNode);
 				}
 	
 				for (int i=0; i<numElements; i++)
@@ -432,17 +441,17 @@ implements ParseTableEntryTypes
 									buffy.append((String) next);
 								else
 								{
-									ElementState element;
+									ElementState collectionSubElementState;
 									try
 									{
-										element = (ElementState) next;
+										collectionSubElementState = (ElementState) next;
 									} catch(ClassCastException e)
 									{
 										throw new XmlTranslationException("Collections MUST contain " +
 												"objects of class derived from ElementState or XML Strings, but " +
 												thatReferenceObject +" contains some that aren't.");
 									}
-									buffy.append(element.translateToXML(element.getClass(), compression, true, nodeNumber));
+									collectionSubElementState.translateToXML(collectionSubElementState.getClass(), compression, true, nodeNumber, buffy);
 								}
 							}
 						}
@@ -458,8 +467,9 @@ implements ParseTableEntryTypes
 							//					debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 							TagMapEntry nestedTagMapEntry = (thatNewClass == thatField.getType()) ?
 									getTagMapEntry(fieldName, compression) : getTagMapEntry(thatNewClass, compression);
-									thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-											nestedTagMapEntry, buffy);
+									
+							thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
+															nestedTagMapEntry, buffy);
 						}
 					}
 				} //end of for loop
