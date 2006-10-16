@@ -43,16 +43,4 @@ public class Itunes extends ElementState
 	
 	// public String			explicit;
 	
-	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= 
-	{"subtitle", "author", "summary", "image", "duration", "keywords"};
-	
-	/**
-	 * The array of Strings with the names of the leaf elements.
-	 * 
-	 * @return
-	 */
-	protected String[] leafElementFieldNames()
-	{
-		return LEAF_ELEMENT_FIELD_NAMES;
-	}
 }

@@ -23,16 +23,4 @@ public class Item extends ElementState
    @xml_nested	public Dc			dc;
    
    @xml_nested	public Media		media;
-   
-   static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"title", "link", "description", "author"};
-   
-   /**
-    * The array of Strings with the names of the leaf elements.
-    * 
-    * @return
-    */
-   protected String[] leafElementFieldNames()
-   {
-	   return LEAF_ELEMENT_FIELD_NAMES;
-   }
 }

@@ -28,16 +28,4 @@ public class Media extends ElementState
 	
 	@xml_leaf	public String		rating;
 
-	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"text", "category", "rating"};
-	
-	/**
-	 * The array of Strings with the names of the leaf elements.
-	 * 
-	 * @return
-	 */
-	protected String[] leafElementFieldNames()
-	{
-		return LEAF_ELEMENT_FIELD_NAMES;
-	}
-	
 }
