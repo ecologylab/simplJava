@@ -67,42 +67,43 @@ public abstract class RaiseMonitor extends Thread {
 		{
 			try
 			{  
-				AWTBridge.rolloverRaiseStatus	= 3000;
+				//AWTBridge.rolloverRaiseStatus	= 3000;
 				// wait for the next request
-				Debug.println("RolloverFrame.run() wait()");
+				//Debug.println("RaiseMonitor.run() wait()");
 				wait();
 	
 				if (!running)
 					break;
 			    
 				AWTBridge.rolloverRaiseStatus = 3001;
-				Debug.println("RolloverFrame.run() take waitingLock");
+				//Debug.println("RaiseMonitor.run() take waitingLock");
 				synchronized (waitingLock)
 				{
-					  waitingToDoRun	= true;
-		//				  println("RolloverFrame.run() waitingLock.wait(RAISE_ABOUT_DELAY)");
-					  
-					  AWTBridge.rolloverRaiseStatus	= 3002;
-					  // wait for a little delay before raising
-					  waitingLock.wait(raiseDelay);
-					  if (running == false)
-						 break;
-					  
-					  //println("run() waitingToDoRun="+waitingToDoRun);
-					  if (waitingToDoRun)
-					  {
-						 waitingToDoRun	= false;
-						 AWTBridge.rolloverRaiseStatus	= 3003;
-					     doRaise();
-						 AWTBridge.rolloverRaiseStatus	= 3004;
-					  }
-					  else // waitingToDoRun changed asychronously by cancel()
-					  {
-						 AWTBridge.rolloverRaiseStatus	= 3005;
-						 //cancelRaise();
-						 //oneAndOnly.showEmbellishments	= false;
-					  }
-				 }
+					waitingToDoRun	= true;
+					//				  println("RolloverFrame.run() waitingLock.wait(RAISE_ABOUT_DELAY)");
+					
+					AWTBridge.rolloverRaiseStatus	= 3002;
+					// wait for a little delay before raising
+					waitingLock.wait(raiseDelay);
+					if (running == false)
+						break;
+					
+					//println("run() waitingToDoRun="+waitingToDoRun);
+					if (waitingToDoRun)
+					{
+						waitingToDoRun	= false;
+						AWTBridge.rolloverRaiseStatus	= 3003;
+						doRaise();
+						AWTBridge.rolloverRaiseStatus	= 3004;
+					}
+					else // waitingToDoRun changed asychronously by cancel()
+					{
+						AWTBridge.rolloverRaiseStatus	= 3005;
+						//cancelRaise();
+						//oneAndOnly.showEmbellishments	= false;
+					}
+				}
+				//Debug.println("RaiseMonitor.run() released waitingLock");
 			} catch (Exception e)
 			{
 			   if (running)
