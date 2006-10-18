@@ -916,13 +916,45 @@ extends Debug
    /**
     * Return true if the other object is either a ParsedURL or a URL
     * that refers to the same location as this.
+    * Note: this is our own implementation. It is *much* faster and slightly less careful than JavaSoft's.
+    * Checks port, host, file, protocol, and query. Ignores ref = hash.
     */
    public boolean equals(Object other)
    {
-	  URL url = this.url;
-      return ((other instanceof ParsedURL) && // (url != null) &&
-		 url.equals(((ParsedURL) other).url)) ||
-		 ((other instanceof URL) && url.equals((URL) other));
+	   if (other == null)
+		   return false;
+	   
+	  boolean otherIsPURL	= other instanceof ParsedURL;
+	  if (!(otherIsPURL || (other instanceof URL)))
+		  return false;
+	  
+	  URL url		= this.url;
+	  URL otherURL	= otherIsPURL ? ((ParsedURL) other).url : (URL) other;
+	  
+	  // compare port
+	  if (url.getPort() != otherURL.getPort())
+		  return false;
+
+	  // compare host
+	  if (!bothNullOrEqual(url.getHost(), otherURL.getHost()))
+		  return false;
+
+	  // compare file
+	  if (!bothNullOrEqual(url.getFile(), otherURL.getFile()))
+		  return false;
+
+	  // compare protocol
+	  if (!bothNullOrEqual(url.getProtocol(), otherURL.getProtocol()))
+		  return false;	  
+
+	  // compare arguments
+	  return bothNullOrEqual(url.getQuery(), otherURL.getQuery());
+   }
+
+   private static boolean bothNullOrEqual(String a, String b)
+   {
+	   return ((a == b) || // both are null or the same string
+			   ((a != null) && a.equals(b))); // now safe to use a.equals()
    }
    public int hashCode()
    {
