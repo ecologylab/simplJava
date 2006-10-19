@@ -1950,19 +1950,6 @@ implements ParseTableEntryTypes
 	}
 
 	/**
-	 * Controls if the public fields of a parent class (= super class)
-	 * will be emitted or not, during translation to XML.
-	 * <p/>
-	 * Override this to change the behavior in subclasses.
-	 * 
-	 * @return		true by default.
-	 */
-	protected boolean emitParentFields()
-	{
-		return true;
-	}
-
-	/**
 	 * When translating from XML, if a tag is encountered with no matching field, perhaps
 	 * it belongs in a Collection.
 	 * This method tells us which collection object that would be.
