@@ -61,6 +61,8 @@ class Optimizations extends Debug
 	 */
 	private ArrayList				elementFields;
 	
+	private HashMap					fieldsMap;
+	
 	
 	private Optimizations(Class thatClass)
 	{
