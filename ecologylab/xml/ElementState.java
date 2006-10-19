@@ -1278,6 +1278,7 @@ implements ParseTableEntryTypes
 					{
 					case REGULAR_ATTRIBUTE:
 						pte.setAttribute(this, value);
+						// the value can become a unique id for looking up this
 						if ("id".equals(pte.tag()))
 							this.elementByIdMap.put(value, this);
 						break;
@@ -1331,9 +1332,10 @@ implements ParseTableEntryTypes
 					activeES.setFieldToNestedElement(activePTE.field(), activePTE.getChildElementState(activeES, childNode));
 					break;
 				case LEAF_NODE_VALUE:
-					
-					Node textElementChild		= childNode.getFirstChild();	
-					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
+					Node textElementChild		= childNode.getFirstChild();
+					if (textElementChild != null)
+						activePTE.setLeafNodeValue(activeES, textElementChild);
+//					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
 					break;
 				case COLLECTION_ELEMENT:
 					Collection collection		= activeES.getCollection(activePTE.classOp());
@@ -1369,6 +1371,7 @@ implements ParseTableEntryTypes
 		Field childField		= stateClass.getField(childFieldName);;
 		setLeafNodeValue(childField, textElementChild);
 	}
+//TODO -- delete this dead code	
 	/**
 	 * Set an extended primitive value using the textElementChild Node as the source,
 	 * the stateClass as the template for where the field is located, 

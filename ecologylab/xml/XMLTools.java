@@ -37,6 +37,7 @@ import ecologylab.types.TypeRegistry;
 public class XmlTools extends TypeRegistry
 implements CharacterConstants
 {
+	private static final int DEFAULT_TAG_LENGTH = 15;
 	private static Hashtable encodingTable 	=	new Hashtable();
 	private static Hashtable decodingTable	=	new Hashtable();
 	
@@ -138,8 +139,7 @@ implements CharacterConstants
       	className			= className.substring(0, suffixPosition);
       }
 
-      StringBuilder result = new StringBuilder(50);
-
+      StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);
       
 	  if (compression && (encodingTable.get(result) != null))
 	  {
@@ -164,7 +164,7 @@ implements CharacterConstants
 			    result.append(c);
 	      }
 	  }
-      return XmlTools.toString(result);
+      return result.toString();
    }
    
  /**
@@ -218,7 +218,7 @@ implements CharacterConstants
 			elementName = (String)decodingTable.get(elementName);
 		}
    		
-   		String result = "";
+	    StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);  
    		
    		for (int i = 0; i < elementName.length(); i++)
    		{
@@ -226,18 +226,18 @@ implements CharacterConstants
   			
    			if (capsOn)
    			{
-   				result  += Character.toUpperCase(c);
+   				result.append(Character.toUpperCase(c));
    				capsOn = false;
    			}
    			else
    			{
    				if(c != '_')
-	   				result += c;
+   					result.append(c);
    			}
    			if(c == '_')
    				capsOn = true;
    		}
-   		return result;
+   		return result.toString();
    }
 
    /**
@@ -251,19 +251,20 @@ implements CharacterConstants
    */      
    public static String methodNameFromTagName(String tagName)
    {
-   		String result = "set";
+	    StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);  
+	    result.append("set");
    		
    		for(int i = 0; i < tagName.length(); i++){
    			
    			char c = tagName.charAt(i);
    			
    			if(i == 0 )
-   				result += Character.toUpperCase(c);
+   				result.append(Character.toUpperCase(c));
    			else
-   				result += c;
+   				result.append(c);
   				
    		}
-   		return result;
+   		return result.toString();
    }
    /**
     * This method generates a field name from a reference type nested object. It just converts
@@ -273,7 +274,7 @@ implements CharacterConstants
     */
 	public static String fieldNameFromObject(ElementState elementState)
 	{
-		String result = "";
+	    StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);  
 		String elementName = getClassName(elementState);
 		
 		for(int i = 0; i < elementName.length(); i++)
@@ -281,9 +282,9 @@ implements CharacterConstants
 			char c = elementName.charAt(i);
 			if (i == 0)
 				c		= Character.toLowerCase(c);
-			result += c;
+			result.append(c);
 		}
-   		return result;
+   		return result.toString();
 	}
 	
 	/**
@@ -638,26 +639,6 @@ static String q(String string)
 	  }	  
 	  return unescapeXML(sb, semicolonPos+1);
 	  
-/*	  String entityCandidate	= sb.substring(entityPos, semicolonPos);
-	  String result				= sb.substring(0, ampPos);
-	  Character lookup			= (Character) entityTable.get(entityCandidate);
-	  if (lookup != null)
-		 result				   += lookup.charValue();
-	  else
-		 result				   += entityCandidate;
-	  
-	  semicolonPos++;
-	  int length				= sb.length();
-	  if (semicolonPos > length)
-	  {
-		 String rest				= sb.substring(semicolonPos);
-		 if ((semicolonPos + 3) < sb.length())
-			result				   += unescapeXML(rest);
-		 else
-			result				   += rest;
-	  }
-	  return  result;
- */	  
    }
 	/**
 	* Replaces characters that may be confused by a HTML

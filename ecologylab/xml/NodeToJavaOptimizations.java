@@ -104,6 +104,8 @@ implements ParseTableEntryTypes
 						this.field		= field;
 						return;
 					}
+					else
+						printError("no set method or type to set values with.");
 				}
 			}
 			this.type					= IGNORED_ATTRIBUTE;
@@ -152,7 +154,7 @@ implements ParseTableEntryTypes
 			Field field			= ReflectionTools.getField(contextClass, fieldName);
 			if (field != null)
 			{
-				Annotation[] annotations	= field.getDeclaredAnnotations();
+				//Annotation[] annotations	= field.getDeclaredAnnotations();
 
 				this.field	= field;
 				if (XmlTools.representAsLeafNode(field))
@@ -198,11 +200,14 @@ implements ParseTableEntryTypes
 		return parent.getChildElementState(node, classOp, translationSpace);
 	}
 	
-	void setAttribute(ElementState context, String value)
+	/**
+	 * Use a set method or the type system to set our field in the context to the value.
+	 * 
+	 * @param context
+	 * @param value
+	 */
+	void setAttribute(Object context, String value)
 	{
-		if (isID)
-			context.elementByIdMap.put(tag, context);
-
 		if (setMethod != null)
 		{
 			// if the method is found, invoke the method
@@ -217,24 +222,70 @@ implements ParseTableEntryTypes
 			}
 			catch (InvocationTargetException e)
 			{
-				context.debugA("WEIRD: couldnt run set method for " + tag +
+				printWeird("couldnt run set method for " + tag +
 						  " even though we found it");
 				e.printStackTrace();
 			}
 			catch (IllegalAccessException e)
 			{
-				context.debugA("WEIRD: couldnt run set method for " + tag +
+				printWeird("couldnt run set method for " + tag +
 						  " even though we found it");
 				e.printStackTrace();
 			}	  
 			
 		}
-		else
+		else if (fieldType != null)
 		{
 			fieldType.setField(context, field, value);
 		}
 	}
 	
+	void printError(String msg)
+	{
+		printMessage("ERROR", msg); 		
+	}
+	void printWarn(String msg)
+	{
+		printMessage("WARNING", msg); 		
+	}
+	void printWeird(String msg)
+	{
+		printMessage("WEIRD", msg); 		
+	}
+	private void printMessage(String prefix, String msg)
+	{
+		String tag	= this.tag;
+		if (tag == null)	//TODO if this happens find a way to show a better error
+			tag		= "NO TAG?";
+		println(tag + ": " + prefix + " - " + msg); 		
+	}
+	/**
+	 * Set a scalar value using the textElementChild Node as the source,
+	 * the stateClass as the template for where the field is located, 
+	 * the childFieldName as the name of the field to select in the template,
+	 * and this as the object to do the set in.
+	 * 
+	 * @param Object			The object in which we are setting the field's value.
+	 * @param textElementChild	The leaf node with the text element value.
+	 */
+	void setLeafNodeValue(Object context, Node textElementChild)
+	{
+		if (textElementChild != null)
+		{
+			String textNodeValue	= textElementChild.getNodeValue();
+			if (textNodeValue != null)
+			{
+				textNodeValue		= textNodeValue.trim();
+				if ((fieldType != null) && fieldType.needsEscaping())
+					textNodeValue	= XmlTools.unescapeXML(textNodeValue);
+				//debug("setting special text node " +childFieldName +"="+textNodeValue);
+				if (textNodeValue.length() > 0)
+				{
+					setAttribute(context, textNodeValue);
+				}
+			}
+		}
+	}
 	
 	private void fillValues(ParseTableEntry other)
 	{
