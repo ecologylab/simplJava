@@ -2,6 +2,7 @@ package ecologylab.xml;
 
 public interface ParseTableEntryTypes
 {
+	public static int	UNSET_TYPE				= -99;
 	/**
 	 * This means we experienced an error while parsing.
 	 * This should never happen.

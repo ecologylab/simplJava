@@ -81,34 +81,7 @@ implements ParseTableEntryTypes
 				return;
 			}
 			
-			String methodName	= XmlTools.methodNameFromTagName(tag);
-			Method setMethod	= 
-				ReflectionTools.getMethod(contextClass, methodName, ElementState.MARSHALLING_PARAMS);
-			if (setMethod != null)
-			{
-				this.setMethod	= setMethod;
-				this.type		= REGULAR_ATTRIBUTE;
-				return;
-			}
-			else if (setMethod == null)
-			{
-				String fieldName= XmlTools.fieldNameFromElementName(tag);
-				Field field		= ReflectionTools.getField(contextClass, fieldName);
-				if (field != null)
-				{
-					Type fieldType		= TypeRegistry.getType(field);
-					if (fieldType != null)
-					{
-						this.fieldType	= fieldType;
-						this.type		= REGULAR_ATTRIBUTE;
-						this.field		= field;
-						return;
-					}
-					else
-						printError("no set method or type to set values with.");
-				}
-			}
-			this.type					= IGNORED_ATTRIBUTE;
+			setupScalarValue(tag, contextClass, true);
 			return;
 		}
 		
@@ -148,41 +121,105 @@ implements ParseTableEntryTypes
 		}
 		else
 		{	// no XML namespace; life is simpler.
-			String fieldName	= XmlTools.fieldNameFromElementName(tag);
-			this.classOp		= contextClass;
-
-			Field field			= ReflectionTools.getField(contextClass, fieldName);
-			if (field != null)
+			
+			// try as leaf node
+			int diganosedType		= setupScalarValue(tag, contextClass, false);
+			switch (diganosedType)
 			{
-				//Annotation[] annotations	= field.getDeclaredAnnotations();
-
-				this.field	= field;
-				if (XmlTools.representAsLeafNode(field))
-					this.type	= LEAF_NODE_VALUE;
-				else
+			case LEAF_NODE_VALUE:
+				this.classOp		= contextClass;
+				return;
+			case IGNORED_ELEMENT:
+				if (this.field != null)
 				{
+					// this is actually a regular nested element
 					this.type	= REGULAR_NESTED_ELEMENT;
 					this.classOp	= field.getType();
+					return;
 				}
+				// no field object, so we must continue to check stuff out!
+				break;
+			default:
+				printError("Unknown case in element type assignment switch " + 
+						    diganosedType + ".");
+				return;
 			}
-			else 
+
+			// else there is no Field to resolve. but there must a class!
+			Class classOp	= translationSpace.xmlTagToClass(tag);
+			if (classOp != null)
 			{
-				// there is no Field to resolve. but there must a class!
-				Class classOp	= translationSpace.xmlTagToClass(tag);
-				if (classOp != null)
-				{
-					Collection collection = context.getCollection(classOp);
-					this.type	= (collection != null) ?
-							COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
-					this.classOp= classOp;
-				}
-				else
-				{
-					context.debugA("WARNING - ignoring <" + tag() +"/>");
-					this.type	= IGNORED_ELEMENT;
-				}
+				Collection collection = context.getCollection(classOp);
+				this.type	= (collection != null) ?
+						COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
+				this.classOp= classOp;
+			}
+			else
+			{
+				context.debugA("WARNING - ignoring <" + tag() +"/>");
+				this.type	= IGNORED_ELEMENT;
 			}
 		}
+	}
+
+	/**
+	 * @param contextClass
+	 * @param fieldName
+	 * @return
+	 */
+	private Field getField(Class contextClass, String fieldName)
+	{
+		return ReflectionTools.getField(contextClass, fieldName);
+	}
+
+/**
+ * Set-up PTE for scalar valued field (attribute or leaf node).
+ * First look for a set method.
+ * Then, look in the type registry.
+ * Else, we must ignore the field.
+ * 
+ * @param tag
+ * @param contextClass
+ * @param isAttribute		true for attribute; false for leaf node.
+ */
+	private int setupScalarValue(String tag, Class contextClass, boolean isAttribute)
+	{
+		int type			= UNSET_TYPE;
+		String methodName	= XmlTools.methodNameFromTagName(tag);
+		Method setMethod	= 
+			ReflectionTools.getMethod(contextClass, methodName, ElementState.MARSHALLING_PARAMS);
+		if (setMethod != null)
+		{
+			this.setMethod	= setMethod;
+			type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
+			// set method is custom code on a per field basis, and so doesnt need field object
+		}
+		else
+		{
+			String fieldName= XmlTools.fieldNameFromElementName(tag);
+			Field field		= ReflectionTools.getField(contextClass, fieldName);
+			if (field != null)
+			{
+				Type fieldType		= TypeRegistry.getType(field);
+				if (fieldType != null)
+				{
+					this.fieldType	= fieldType;
+					type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
+					this.field		= field;
+				}
+				else if (!isAttribute)
+					this.field	= field; // for leaf node seekers that can be nested elements
+			}
+		}
+		if (type == UNSET_TYPE)
+		{
+			type					= isAttribute ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
+			if (isAttribute)
+				printError("no set method or type to set value for this tag in " + 
+						contextClass.getName() + ".");
+		}
+		this.type				= type;
+		return type;
 	}
 	
 	/**
