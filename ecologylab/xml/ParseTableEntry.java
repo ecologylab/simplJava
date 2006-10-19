@@ -287,6 +287,44 @@ implements ParseTableEntryTypes
 		}
 	}
 	
+	/**
+	 * Used to set a field in this to a nested ElementState object.
+	 * 
+	 * his method is called during translateFromXML(...).
+	 *
+	 * @param nestedElementState	the nested state-object to be added
+	 */
+	protected void setFieldToNestedElement(ElementState context, Node childNode)
+		throws XmlTranslationException
+	{
+		Object nestedElementState	= getChildElementState(context, childNode);
+		try
+		{
+			field.set(context, nestedElementState);
+		}
+		catch (Exception e)
+		{
+		   throw new XmlTranslationException(
+					"Object / Field set mismatch -- unexpected. This should never happen.\n\t"+
+					"with Field = " + field +"\n\tin object " + this +"\n\tbeing set to " + nestedElementState.getClass(), e);
+		}
+	}
+	
+/**
+ * Add element derived from the Node to a Collection.
+ * 
+ * @param activeES
+ * @param childNode
+ * @throws XmlTranslationException
+ */
+	void addToCollection(ElementState activeES, Node childNode)
+	throws XmlTranslationException
+	{
+		Collection collection		= activeES.getCollection(classOp());
+		// the sleek new way to add elements to collections
+		collection.add(getChildElementState(activeES, childNode));
+	}
+	
 	private void fillValues(ParseTableEntry other)
 	{
 		//this.classOp			= other.classOp;

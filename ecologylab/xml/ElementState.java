@@ -1329,7 +1329,8 @@ implements ParseTableEntryTypes
 				switch (pte.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-					activeES.setFieldToNestedElement(activePTE.field(), activePTE.getChildElementState(activeES, childNode));
+//					activeES.setFieldToNestedElement(activePTE.field(), activePTE.getChildElementState(activeES, childNode));
+					activePTE.setFieldToNestedElement(activeES, childNode);
 					break;
 				case LEAF_NODE_VALUE:
 					Node textElementChild		= childNode.getFirstChild();
@@ -1338,9 +1339,10 @@ implements ParseTableEntryTypes
 //					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
 					break;
 				case COLLECTION_ELEMENT:
-					Collection collection		= activeES.getCollection(activePTE.classOp());
+					activePTE.addToCollection(activeES, childNode);
+					//Collection collection		= activeES.getCollection(activePTE.classOp());
 					// the sleek new way to add elements to collections
-					collection.add(activePTE.getChildElementState(activeES, childNode));
+					//collection.add(activePTE.getChildElementState(activeES, childNode));
 					break;
 				case OTHER_NESTED_ELEMENT:
 					activeES.addNestedElement(activePTE.getChildElementState(activeES, childNode));
@@ -1665,54 +1667,6 @@ implements ParseTableEntryTypes
 		}		
 	}
 	
-/**
- * Andruid [1/2/05]: this method is supposed to do the following, but it doesn't seem
- * that its being used, nor does it really seem to do this.
- * <p/>
- * 
- * Translate to XML, then appends the result to a file. 
- * This method is used when XML should be emitted and written to a file
- * incrementally. In other words, it does not wait for the complete XML to be
- * emitted before saving it to a file. This is useful in cases such as logging.
- * 
- * @see  <code>saveXmlFile</code>
-
- * 	@param filePath		the file in which the xml needs to be saved
- * 	@param prettyXml	whether the xml should be written in an indented fashion
- *  @param compression	whether the xml should be compressed while being emitted
- */	
-	public void appendXmlFile(String xmlToWrite, String filePath, 
-							  boolean prettyXml, boolean compression)
-	{
-		try
-		{
-			String xmlFileName = filePath;
-			if(!filePath.endsWith(".xml") && !filePath.endsWith(".XML"))
-			{
-				xmlFileName = filePath + ".xml";
-			}
-			else
-			{
-				filePath	=	filePath.substring(0,filePath.indexOf(".xml"));
-			}
-			if (prettyXml)
-				XmlTools.writePrettyXml(xmlToWrite, new StreamResult(new File(xmlFileName)));
-			else
-			{
-				BufferedWriter writer = IO.openWriter(xmlFileName, true);
-				File temp = new File(xmlFileName);
-				if(!temp.exists())
-				IO.writeLine(writer,XML_FILE_HEADER);								
-				IO.writeLine(writer,translateToXML(compression));
-				IO.closeWriter(writer);
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	//////////////// helper methods used by translateToXML() //////////////////
 
 /**
@@ -1814,26 +1768,6 @@ implements ParseTableEntryTypes
 		return result;
 	}
 
-	/**
-	 * Used to add a nested object to <code>this ElementState</code> object.
-	 * 
-	 * @param elementState	the nested state-object to be added
-	 */
-	protected void addNestedElementToField(ElementState elementState)
-	{
-		String fieldName = XmlTools.fieldNameFromObject(elementState);
-//		debug("<<<<<<<<<<<<<<<<<<<<<<<<fieldName is: " + fieldName);
-		try
-		{
-			Field field = getClass().getField(fieldName);
-			setFieldToNestedElement(field, elementState);
-		}
-		catch (Exception e)
-		{
-		   debug("ERROR: Can't find a field called " + fieldName);
-		   e.printStackTrace();
-		}
-	}
 	boolean nestedElementHasBeenWarned;
 	
 	/**
