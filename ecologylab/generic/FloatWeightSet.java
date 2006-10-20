@@ -385,12 +385,20 @@ extends Debug implements BasicFloatSet
 	   if (numMax > 1)
 		   result			=
 			   (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
-	   maxArrayListClear();
+	   //maxArrayListClear();
 	   
 	   return result;
    }
    
-   
+   /**
+    * If there was a tie in the last maxSelect() calculation, the others will be here.
+    * 
+    * @return
+    */
+   public ArrayList tiedForMax()
+   {
+	   return maxArrayList;
+   }
    /**
 	* Delete lowest-weighted elements, in case this collection has grown too big.
 	* (After all, we can't have the INFINITELY LARGE collections we'd really like.)
