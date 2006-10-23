@@ -76,7 +76,7 @@ extends Debug
 		
 		return (lockFile != null && lockFile.exists());
 	}
-	static final int NINETY_SECONDS	= 1000 * 90;
+	static final int THIRTY_SECONDS	= 1000 * 30;
 	/**
 	 * Return true if the lock file exists, and is older than 90 seconds ago.
 	 * @return
@@ -89,7 +89,7 @@ extends Debug
 		long now		= System.currentTimeMillis();
 		long deltaT		= now - lastMod;
 		debug("Checking lock file; its age is " + deltaT);
-		return isLocked() && (deltaT >= NINETY_SECONDS);
+		return isLocked() && (deltaT >= THIRTY_SECONDS);
 	}
 	/**
 	 * Gets rid of the file handler (for garbage collection)
