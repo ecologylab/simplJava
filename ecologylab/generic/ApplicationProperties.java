@@ -8,6 +8,7 @@ package ecologylab.generic;
  * @author blake
  */
 public interface ApplicationProperties
+extends ApplicationPropertyNames
 {
 	/**
 	 * The name of the user interface currently in use, and its path in /config/interface.
@@ -16,10 +17,4 @@ public interface ApplicationProperties
 
 	public static final boolean	USE_ASSETS_CACHE		= Generic.parameterBool("use_assets_cache", true);
 	
-	public static final String	CODEBASE				= "code_base";
-
-	public static final String	FRAME 					= "frame";
-
-	public static final String	GO_PREFIX				= "go_prefix";
-
 }

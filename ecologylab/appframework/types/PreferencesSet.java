@@ -3,7 +3,7 @@ package ecologylab.services.messages;
 import java.util.Collection;
 
 import ecologylab.generic.ApplicationEnvironment;
-import ecologylab.generic.ApplicationProperties;
+import ecologylab.generic.ApplicationPropertyNames;
 import ecologylab.generic.Environment;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.net.ParsedURL;
@@ -15,7 +15,7 @@ import ecologylab.xml.xml_inherit;
  * A top level message between javascript and CFSessionLauncher.
  */
 public @xml_inherit class PreferencesSet extends ArrayListState
-implements ApplicationProperties
+implements ApplicationPropertyNames
 {
 	ElementState child;
 	
@@ -68,8 +68,9 @@ implements ApplicationProperties
 			}
 		}
 		
-		debug("so now, userinterface=" + USERINTERFACE);
-		
+		// note! read directly here instead of with a static in ApplicationProperties,
+		// because now is too early to initialize the other static variables in that interface,
+		// because their values are likely to be changed through subsequent preference initialization
 		String codeBasePref	= (String) appEnvironment.parameter(CODEBASE);
 		
 		ParsedURL codeBase	= ParsedURL.getAbsolute(codeBasePref, "Setting up codebase");
