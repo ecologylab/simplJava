@@ -23,7 +23,7 @@ extends Debug
  */
    public float			weight;
 
-   protected BasicFloatSet	set;
+   BasicFloatSet	set;
 
    public FloatSetElement()
    {
@@ -59,8 +59,8 @@ extends Debug
    }
 /**
  * Delete in the most expedient manner possible.
- * This is final because if you are going to override,
- * you should override the other version.
+ * This is final because you should override deleteHook() to provide
+ * custom behavior.
  */
    public final void delete()
    {
@@ -79,14 +79,29 @@ extends Debug
  * @param recompute	-1 for absolutely no recomputation of the set's internal structures.
  * 			 0 for recompute upwards from el
  * 			 1 for recompute all
+ * 
+ * @return true if the element was a member of a set, and thus, if the delete does something;
+ * 			false if the element was not a member of a set, and thus, if the delete does *nothing*.
  */
-   public synchronized void delete(int recompute)
+   public final synchronized boolean delete(int recompute)
    {
-      if (isInSet())//prevent double dip deletes
+      boolean inSet = isInSet();
+      if (inSet)//prevent double dip deletes
       {
-      	set.delete(this, recompute);
-        clear();
-      }
+    	  set.delete(this, recompute);
+       	  deleteHook();
+       	  clear();
+       }
+      return inSet;
+   }
+   
+   /**
+    * Callback that happens at the end of a delete, and when an element gets pruned.
+    * This implementation is empty. Override to provide custom behaviors.
+    */
+   public void deleteHook()
+   {
+	   
    }
    /**
     * Only for use by FloatWeightSet.clear(), and delete.
@@ -140,4 +155,13 @@ extends Debug
    {
       return true;
    }
+   /**
+    * The set object that this element is part of, or null if its not a member of any set.
+    * 
+    * @return
+    */
+	protected BasicFloatSet set()
+	{
+		return set;
+	}
 }

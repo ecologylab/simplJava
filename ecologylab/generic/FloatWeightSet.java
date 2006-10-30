@@ -447,10 +447,16 @@ extends Debug implements BasicFloatSet
 			//	    thatElement.setSet(null); // make sure its treated as not here
 			debug("recycling " + thatElement);
 			thatElement.setIndex(-1); // during gc() excursion
+			thatElement.deleteHook();
 			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
+			{
 			   thatElement.clearSynch();
+			}
 			else
+			{
+			   debug("WEIRD: re-inserting pruned element: " + thatElement);
 			   insert(thatElement); // put it back in the right place!
+			}
 		 }
       }
       long duration = System.currentTimeMillis() - startTime;
