@@ -41,6 +41,13 @@ public class NIOServerNThreads extends NIOServerBase implements
         return temp;
     }
 
+    /**
+     * Shut down the connection associated with this SelectionKey.
+     * Removes the key from our pool, then calls super.invalidateKey(SelectionKey)
+     * to shut it down at the NIO level.
+     * 
+     * @param key	The SelectionKey that needs to be shut down.
+     */
     protected void invalidateKey(SelectionKey key)
     {
         debug("Key " + key.attachment()
@@ -51,7 +58,7 @@ public class NIOServerNThreads extends NIOServerBase implements
             ((NIOServerBase) pool.remove(key.attachment())).stop();
         }
         
-        key.cancel();
+        super.invalidateKey(key);
     }
 
     protected void readKey(SelectionKey key)

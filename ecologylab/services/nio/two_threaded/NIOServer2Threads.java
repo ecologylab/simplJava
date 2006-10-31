@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.xml.TranslationSpace;
 
@@ -30,23 +31,20 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
         return new MessageProcessor2Threads(translationSpace, registry);
     }
 
+    /**
+     * Shut down the connection associated with this SelectionKey.
+     * Removes the key from our message processor, then calls super.invalidateKey(SelectionKey)
+     * to shut it down at the NIO level.
+     * 
+     * @param key	The SelectionKey that needs to be shut down.
+     */
     protected void invalidateKey(SelectionKey key)
     {
         messageProcessor.removeKey(key);
-
-        try
-        {
-            key.channel().close();
-        }
-        catch (IOException e)
-        {
-            debug(e.getMessage());
-        }
-        
-        key.cancel();
+        super.invalidateKey(key);
     }
 
-    protected void readKey(SelectionKey key)
+    protected void readKey(SelectionKey key) throws BadClientException
     {
         if (key.attachment() != null)
         {

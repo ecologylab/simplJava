@@ -10,6 +10,7 @@ import java.util.Iterator;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.xml.TranslationSpace;
 
@@ -61,7 +62,16 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
                 // process all of the messages in the queues
                 while (contextIterator.hasNext())
                 {
-                    ((ContextManager)contextIterator.next()).processAllMessagesAndSendResponses();
+                    try
+					{
+						((ContextManager)contextIterator.next()).processAllMessagesAndSendResponses();
+					} catch (BadClientException e)
+					{
+						// Handle BadClientException! -- remove it 
+						error(e.getMessage());
+						//TODO have a reference to NIOServerBase, and call its
+						// invalidatKey(selectionKey) method
+					}
                 }
             }
             
@@ -82,7 +92,7 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
         debug("Message Processor " + key.attachment() + " terminating.");
     }
     
-    public void readKey(SelectionKey key)
+    public void readKey(SelectionKey key) throws BadClientException
     {
         ContextManager temp = (ContextManager) contexts.get(key.attachment());
         {

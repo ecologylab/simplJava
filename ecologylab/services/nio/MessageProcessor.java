@@ -8,11 +8,14 @@ import java.nio.channels.SelectionKey;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.xml.TranslationSpace;
 
 /**
  * Used as a worker thread and client information container.
+ * 
+ * One thread per connection (?! -- andruid 10/29/06); N threads altogether.
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
@@ -52,10 +55,20 @@ public class MessageProcessor extends Debug implements Runnable,
         while (running)
         {
             // read the channel
-            context.readChannel();
+            try
+			{
+				context.readChannel();
 
-            // process all the messages
-            context.processAllMessagesAndSendResponses();
+	            // process all the messages
+	            context.processAllMessagesAndSendResponses();
+	            
+			} catch (BadClientException e1)
+			{
+				// close down this evil connection
+				error(e1.getMessage());
+				//TODO remove this connection from the server base, such as NIOServerNThreads!!!!!!!!
+				stop();
+			}
 
             // sleep until notified of new messages
             try

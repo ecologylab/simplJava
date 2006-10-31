@@ -135,6 +135,13 @@ public class NIOServer1Thread extends NIOServerBase
         }
     }
 
+    /**
+     * Shut down the connection associated with this SelectionKey.
+     * Removes the key from our connectionAccumulators, then calls super.invalidateKey(SelectionKey)
+     * to shut it down at the NIO level.
+     * 
+     * @param key	The SelectionKey that needs to be shut down.
+     */
     protected void invalidateKey(SelectionKey key)
     {
         debug("Key " + key.attachment()
@@ -144,8 +151,7 @@ public class NIOServer1Thread extends NIOServerBase
         {
             connectionAccumulators.remove(key.attachment());
         }
-
-        key.cancel();
+        super.invalidateKey(key);
     }
 
     protected void readKey(SelectionKey key)

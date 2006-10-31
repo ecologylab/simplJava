@@ -14,6 +14,7 @@ import java.util.LinkedList;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -63,8 +64,14 @@ public class ContextManager extends Debug implements ServerConstants
     private CharsetEncoder   encoder        = Charset.forName(
                                                     CHARACTER_ENCODING)
                                                     .newEncoder();
-
+    
+    protected long			initialTimeStamp	= System.currentTimeMillis();
+    
+    protected boolean		receivedAValidMsg;
+    
     protected ObjectRegistry registry;
+    
+    private int				badTransmissionCount;
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
@@ -186,14 +193,24 @@ public class ContextManager extends Debug implements ServerConstants
         this.processRequest(this.getNextMessage());
     }
 
-    public void processAllMessagesAndSendResponses()
+    public void processAllMessagesAndSendResponses() throws BadClientException
     {
+    	timeoutBeforeValidMsg();
         while (isMessageWaiting())
         {
             this.processNextMessageAndSendResponse();
+            timeoutBeforeValidMsg();
         }
     }
 
+    void timeoutBeforeValidMsg() throws BadClientException
+    {
+    	long now	= System.currentTimeMillis();
+    	long elapsedTime	= now - this.initialTimeStamp;
+    	if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
+    		throw new BadClientException("Too long before valid response: elapsedTime=" + 
+    									 elapsedTime + ".");
+    }
     /**
      * @return Returns the token.
      */
@@ -216,29 +233,36 @@ public class ContextManager extends Debug implements ServerConstants
      * requestQueue.
      * 
      * @param incomingMessage
+     * @throws BadClientException 
      */
-    private void processString(String incomingMessage)
+    private void processString(String incomingMessage) throws BadClientException
     {
         if (show(5))
             debug("processing: " + incomingMessage);
-
+        request		= null;
         try
         {
             request = (RequestMessage) ElementState.translateFromXMLString(
                     incomingMessage, translationSpace);
-
         }
         catch (XmlTranslationException e)
         {
-            e.printStackTrace();
+        	// drop down to request == null, below
         }
 
         if (request == null)
         {
-            debug("ERROR: translation failed: ");
+            if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
+            {
+            	throw new BadClientException("Too many Bad Transmissions: " + badTransmissionCount);
+            }
+            // else
+            error("ERROR: translation failed: badTransmissionCount=" + badTransmissionCount);
         }
         else
         {
+        	receivedAValidMsg		= true;
+        	badTransmissionCount	= 0;
             synchronized (requestQueue)
             {
                 this.enqueueRequest(request);
@@ -252,7 +276,8 @@ public class ContextManager extends Debug implements ServerConstants
         messageWaiting = true;
     }
 
-    private void readBytesIntoAccumulator() throws CharacterCodingException
+    private void readBytesIntoAccumulator()
+    throws CharacterCodingException, BadClientException
     {
         if (bytesRead < MAX_PACKET_SIZE)
         {
@@ -306,8 +331,9 @@ public class ContextManager extends Debug implements ServerConstants
      * interest.
      * 
      * This method blocks and reads one time from the channel.
+     * @throws BadClientException 
      */
-    public void readChannel()
+    public void readChannel() throws BadClientException
     {
         if (key.isValid())
         {

@@ -21,9 +21,11 @@ public interface ServerConstants
     /**
      * Limit the maximum number of client connection to the server
      */
-    static final int MAX_CONNECTION_SIZE         = 50;
+    static final int MAX_CONNECTIONS       	  	= 50;
     
     static final int MAX_TARDINESS              = 20;
+    
+    static final int MAX_TIME_BEFORE_VALID_MSG	= 20000;
     
     static final String CHARACTER_ENCODING = "ASCII";
 
