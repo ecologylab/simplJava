@@ -13,4 +13,12 @@ public class StringState extends ElementState
     {
         this.string = string;
     }
+
+    /**
+     * @return the string
+     */
+    public String getString()
+    {
+        return string;
+    }
 }
