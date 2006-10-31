@@ -270,7 +270,14 @@ public class Debug
    {
       println(this, message);
    }
-    
+   /**
+    * Print a debug message that starts with this.toString().
+    */
+   public void error(String message)
+   {
+	   println(this, "ERROR: " + message);
+   }
+   
 /**
  * Print a debug message that starts with this.toString().
  */
