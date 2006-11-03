@@ -32,6 +32,7 @@ implements ApplicationProperties
 	 */
 	public static final String INTERFACE		= "interface/";
 	public static final String SEMANTICS		= "semantics/";
+	public static final String PREFERENCES		= "preferences/";
 	
 	/**
 	 * Source URL root of the tree of assets for this application.
@@ -58,6 +59,14 @@ implements ApplicationProperties
 	 */
 	static ParsedURL	semanticsAssetsRoot;
 	
+	/**
+	 * Source URL root of the tree of preferences assets for this application.
+	 * This should always be set to the PREFERENCES subdir of the assetsRoot.
+	 * 
+	 * The source location of any preferences asset is specified relative to here.
+	 */
+	static ParsedURL	preferencesAssetsRoot;
+	
 /**
  * The root directory on the local machine where assets will be stored (cached).
  * 
@@ -82,6 +91,8 @@ implements ApplicationProperties
 	 * The location of any semantics asset is specified relative to here.
 	 */
 	static File			semanticsCacheRoot;
+	
+	static File			preferencesCacheRoot;
 
 	static
 	{
@@ -204,6 +215,22 @@ implements ApplicationProperties
 	{
 		return Files.newFile(semanticsCacheRoot, assetRelativePath);
 	}
+	
+	public static File getPreferencesFile(String assetRelativePath)
+	{
+		return getCachedPreferencesFile(assetRelativePath);
+	}
+	/**
+	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
+	 * 
+	 * @param assetRelativePath
+	 * @return
+	 */
+	protected static File getCachedPreferencesFile(String assetRelativePath)
+	{
+		return Files.newFile(preferencesCacheRoot, assetRelativePath);
+	}
+	
 	/**
 	 * Download an interface assets zip file from the interfaceAssetsRoot.
 	 * Unzip it into the cacheRoot.
@@ -229,6 +256,13 @@ implements ApplicationProperties
 	{
 		downloadZip(semanticsAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
 					semanticsCacheRoot, status, forceDownload);
+	}
+	
+	public static void downloadPreferencesZip(String assetRelativePath, Status status,
+											  boolean forceDownload)
+	{
+		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
+					preferencesCacheRoot, status, forceDownload);
 	}
 	/**
 	 * Download the assets zip file from the assetsRoot.
@@ -320,6 +354,7 @@ implements ApplicationProperties
 		Assets.assetsRoot 		= assetsRoot;
 		interfaceAssetsRoot		= assetsRoot.getRelative(INTERFACE, "forming interface assets root");
 		semanticsAssetsRoot		= assetsRoot.getRelative(SEMANTICS, "forming semantics assets root");
+		preferencesAssetsRoot	= assetsRoot.getRelative(PREFERENCES, "formaing preferences assets root");
 	}
 
 	/**
@@ -331,6 +366,7 @@ implements ApplicationProperties
 		Assets.cacheRoot		= cacheRoot;
 		interfaceCacheRoot		= Files.newFile(cacheRoot, INTERFACE);
 		semanticsCacheRoot		= Files.newFile(cacheRoot, SEMANTICS);
+		preferencesCacheRoot	= Files.newFile(cacheRoot, PREFERENCES);
 	}
 }
 
