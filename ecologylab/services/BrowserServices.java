@@ -38,6 +38,12 @@ implements SessionObjects, ServicesHostsAndPorts
 		super(BROWSER_SERVICES_PORT, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
+	public BrowserServices(int portNumber, TranslationSpace translations, ObjectRegistry objectRegistry)
+	throws IOException, java.net.BindException
+	{
+		super(portNumber, translations, objectRegistry);
+	}
+
 	/**
 	 * This is the actual way to create an instance of this.
 	 * 
@@ -48,10 +54,15 @@ implements SessionObjects, ServicesHostsAndPorts
 	 */
 	public static BrowserServices get(int portNumber, ObjectRegistry objectRegistry)
 	{
+		return (BrowserServices) get(portNumber, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
+	}
+	
+	public static ServicesServer get(int portNumber, TranslationSpace translations, ObjectRegistry objectRegistry)
+	{
 		BrowserServices newServer	= null;
 		try
 		{
-			newServer	= new BrowserServices(portNumber, objectRegistry);
+			newServer	= new BrowserServices(portNumber, translations, objectRegistry);
 		} catch (IOException e)
 		{
 			println("BrowserServices ERROR: can't open ServerSocket on port " + portNumber);

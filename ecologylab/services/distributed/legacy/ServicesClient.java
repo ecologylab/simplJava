@@ -57,7 +57,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
 
     public ServicesClient(String server, int port)
     {
-        this("localhost", port, null);
+        this(server, port, null);
     }
 
     public ServicesClient(String server, int port, TranslationSpace messageSpace)

@@ -31,4 +31,6 @@ public interface ServicesHostsAndPorts
     public static final int 	ROGUE_PORT 				= 14444;
 
     public static final int    PHYSI_ROGUE_UDP_PORT = 14445;
+    
+    public static final int		WEB_START_APP_SERVICES_PORT = 10011;
 }
