@@ -22,6 +22,8 @@ public class Prologue extends ElementState
 	
 	public int 		userID					= 0;
 	
+	public String 	studyName;
+	
 	public Prologue()
 	{
 		super();
@@ -30,5 +32,15 @@ public class Prologue extends ElementState
 	public void setUserID(int id)
 	{
 		this.userID = id;
+	}
+	
+	public void setStudyName(String studyName)
+	{
+		this.studyName = studyName;
+	}
+	
+	public String getStudyName()
+	{
+		return studyName;
 	}
 }

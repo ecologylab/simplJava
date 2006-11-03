@@ -20,7 +20,8 @@ import ecologylab.xml.TranslationSpace;
 public class LoggingServer extends ServicesServer
 implements LoggingDef
 {
-
+	String logFilesPath = "";
+	
 	boolean end = false;
 	
 	public LoggingServer(int portNumber, TranslationSpace nameSpace, ObjectRegistry objectRegistry) 
@@ -74,6 +75,17 @@ implements LoggingDef
 			(new SendEpilogue()).performService(objectRegistry);
 		}
 	}
+	
+	public void setLogFilesPath(String path)
+	{
+		logFilesPath = path;
+	}
+	
+	public String getLogFilesPath()
+	{
+		return logFilesPath;
+	}
+	
 	/**
 	 * Construct an instance of the LoggingServer.
 	 * Handle and report on exceptions that may occur in the process.
@@ -97,10 +109,17 @@ implements LoggingDef
 		}
 		return loggingServer;
 	}
+	
 	public static void main(String args[])
 	{
 		LoggingServer loggingServer	= get();
+		
 		if (loggingServer != null)
+		{
+			if (args.length > 0)
+				loggingServer.setLogFilesPath(args[0]);
+			
 			loggingServer.start();
+		}
 	}
 }

@@ -129,8 +129,11 @@ public class Logging extends ElementState implements Runnable,
 
     static final int            MAX_OPS_BEFORE_WRITE     = 30;
     
+    static final String			LOGGING_HOST_PARAM	= "logging_host";
+    
+    static final String			LOGGING_PORT_PARAM  = "logging_port";
+    
     final int                   maxOpsBeforeWrite;
-
 
     public Logging(TranslationSpace nameSpace)
     {
@@ -220,8 +223,11 @@ public class Logging extends ElementState implements Runnable,
                  * Create the logging client which communicates with the logging
                  * server
                  */
-                ServicesClient loggingClient = new ServicesClient(LOGGING_HOST,
-                        ServicesHostsAndPorts.LOGGING_PORT, nameSpace);
+            	String loggingHost = Generic.parameter(LOGGING_HOST_PARAM);
+            	if (loggingHost == null)
+            		loggingHost = LOGGING_HOST;
+            	int loggingPort	= Generic.parameterInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
+                ServicesClient loggingClient = new ServicesClient(loggingHost, loggingPort, nameSpace);
                 if (loggingClient.connect())
                 {
                     try
@@ -314,7 +320,10 @@ public class Logging extends ElementState implements Runnable,
     {
         if ((logWriter != null) && (thread == null))
         {
-            logWriter.writePrologue(new SendPrologue(this, getPrologue()));
+        	SendPrologue sendPrologue = null;
+        	sendPrologue = new SendPrologue(this, getPrologue());
+        	
+            logWriter.writePrologue(sendPrologue);
 
             thread = new Thread(this);
             thread.setPriority(THREAD_PRIORITY);
@@ -395,6 +404,7 @@ public class Logging extends ElementState implements Runnable,
             else
             {
                 // allocate storage with a reasonable size estimate
+            	logWriter.consumeOp(firstEntry);
                 for (int i = 1; i < size; i++)
                 {
                     String thatEntry = (String) ourQueueToWrite.get(i);
@@ -431,12 +441,17 @@ public class Logging extends ElementState implements Runnable,
         Epilogue epilogue = new Epilogue();
         return epilogue;
     }
+    
+    public TranslationSpace getNameSpace()
+    {
+    	return nameSpace;
+    }
 
     // TODO this looks like dead code.
     public static ElementState loadLogXML(String fileName, TranslationSpace nameSpace)
     {
 
-        fixBrokenLog(fileName);
+        //fixBrokenLog(fileName);
 
         // build the state object from the XML
         ElementState stateObject = null;

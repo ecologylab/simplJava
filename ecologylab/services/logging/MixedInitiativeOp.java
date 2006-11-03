@@ -3,7 +3,7 @@
  */
 package ecologylab.services.logging;
 
-import ecologylab.xml.ElementState;
+import ecologylab.xml.ArrayListState;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history,
@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState;
  * 
  * @author andruid
  */
-abstract public class MixedInitiativeOp extends ElementState
+abstract public class MixedInitiativeOp extends ArrayListState
 {
 	/**
 	 * Elapsed time since the session started.

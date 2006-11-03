@@ -26,7 +26,7 @@ public class SendPrologue extends LogueMessage
 	
 	public int 		userID					= 0;
 	
-	public String	studyName;
+	public String 	studyName;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
@@ -35,6 +35,7 @@ public class SendPrologue extends LogueMessage
 		this.date		= prologue.date;
 		this.ip			= prologue.ip;
 		this.userID		= prologue.userID;
+		this.studyName  = prologue.getStudyName();
 	}
 
 	public SendPrologue()
@@ -68,6 +69,7 @@ public class SendPrologue extends LogueMessage
 		String sessionLogFile	=	// "/project/ecologylab/studyResults/CF_LOG/" + 
 				//	"LogFiles/" + 
 					ip + "__" + tempDate + "_" + userID + ".xml";
+		String studyName = getStudyName();
 		if (studyName != null)
 			sessionLogFile		= studyName + Files.sep + sessionLogFile;
 		return sessionLogFile;
@@ -75,6 +77,11 @@ public class SendPrologue extends LogueMessage
  	public String beginLog()
  	{
  		return XmlTools.xmlHeader() + "\n<" + logName() + ">\n\n";
+ 	}
+ 	
+ 	public String getStudyName()
+ 	{
+ 		return studyName;
  	}
 	
 }
