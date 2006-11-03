@@ -23,6 +23,7 @@ public class DefaultServicesTranslations extends Debug
 	{ 
 		RequestMessage.class,
 		RequestMessage.class,
+		CloseMessage.class,
 		StopMessage.class,
 		OkResponse.class,
 		BadSemanticContentResponse.class,
@@ -35,13 +36,16 @@ public class DefaultServicesTranslations extends Debug
 		
 		Preference.class,
 		PreferencesSet.class,
+		SetPreferences.class,
+		
+		Navigate.class
 	};
 	
 	/**
 	 * Do not use this accessor.
 	 *
 	 */
-	private DefaultServicesTranslations()
+	protected DefaultServicesTranslations()
 	{
 	}
 	/**
