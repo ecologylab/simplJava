@@ -4,10 +4,9 @@
 package ecologylab.services.authentication.messages;
 
 import java.net.InetAddress;
-import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
@@ -72,51 +71,24 @@ public class Login extends RequestMessage implements AuthMessages,
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
-        AuthenticationList authList = (AuthenticationList) objectRegistry
-                .lookupObject(AUTHENTICATION_LIST);
-        HashMap authedClients = (HashMap) objectRegistry
-                .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME);
-
+        Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
+        
         // set to the default failure message
         LoginStatusResponse loginConfirm = new LoginStatusResponse(
                 LOGIN_FAILED_PASSWORD); 
 
-        if (authList != null)
+        boolean loginSuccess = server.login(this.entry);
+
+        if (loginSuccess)
+        { // we're logged in!
+            loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
+        }
+        else
         {
-            // make sure the username is in the list
-            if (authList.containsKey(entry.getUsername()))
+            // figure out why it failed
+            if (server.isLoggedIn(entry.getUsername()))
             {
-                debug("username match: " + entry.getUsername());
-
-                // if it is, then compare the passwords
-                if (((AuthenticationListEntry) (authList.get(entry
-                        .getUsername()))).compareHashedPassword(entry
-                        .getPassword()))
-                {
-
-                    debug("password match!");
-
-                    // now make sure that the user isn't already logged-in
-                    if (authedClients.containsKey(entry.getUsername()))
-                    {
-                        loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
-                    }
-                    else
-                    {
-                        // we want to let the client know that it's logged in...
-                        loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
-                    }
-                }
-                else
-                {
-                    debug("password did not match!");
-                    
-                    loginConfirm.setResponseMessage(LOGIN_FAILED_PASSWORD);
-                }
-            }
-            else
-            {
-                debug(entry.getUsername() + ": no such user exists.");
+                loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
             }
         }
 

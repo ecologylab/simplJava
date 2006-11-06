@@ -1,23 +1,24 @@
 /*
  * Created on May 3, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.nio.n_threaded;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.nio.MessageProcessor;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.TranslationSpace;
 
 public class NIOServerNThreads extends NIOServerBase implements
         ServerConstants
 {
 
-    protected HashMap pool = new HashMap();
+    protected HashMap<Object, MessageProcessor> pool = new HashMap<Object, MessageProcessor>();
 
     public NIOServerNThreads(int portNumber, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
@@ -34,7 +35,7 @@ public class NIOServerNThreads extends NIOServerBase implements
     protected MessageProcessor placeKeyInPool(SelectionKey key)
     {
         MessageProcessor temp = new MessageProcessor(key.attachment(), key,
-                requestTranslationSpace, objectRegistry);
+                requestTranslationSpace, objectRegistry, this);
         
         pool.put(key.attachment(), temp);
         
@@ -48,14 +49,14 @@ public class NIOServerNThreads extends NIOServerBase implements
      * 
      * @param key	The SelectionKey that needs to be shut down.
      */
-    protected void invalidateKey(SelectionKey key)
+    public void invalidateKey(SelectionKey key)
     {
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
         
         if (pool.containsKey(key.attachment()))
         {
-            ((NIOServerBase) pool.remove(key.attachment())).stop();
+            pool.remove(key.attachment()).stop();
         }
         
         super.invalidateKey(key);
@@ -72,7 +73,7 @@ public class NIOServerNThreads extends NIOServerBase implements
 
             try
             {
-                MessageProcessor temp = (MessageProcessor) pool.get(key.attachment());
+                MessageProcessor temp = pool.get(key.attachment());
                 
                 synchronized(temp)
                 {
@@ -94,11 +95,9 @@ public class NIOServerNThreads extends NIOServerBase implements
     {
         super.stop();
         
-        Iterator temp = pool.values().iterator();
-        
-        while (temp.hasNext())
+        for (MessageProcessor mProc : pool.values())
         {
-            ((MessageProcessor)temp.next()).stop();
+            mProc.stop();
         }
         
         pool.clear();

@@ -10,7 +10,6 @@ import java.net.PortUnreachableException;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -19,7 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
@@ -48,40 +47,44 @@ import ecologylab.xml.XmlTranslationException;
 public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         Runnable, ServerConstants
 {
-    protected Selector       selector               = null;
+    protected Selector                            selector               = null;
 
-    protected boolean        running                = false;
+    protected boolean                             running                = false;
 
-    private SocketChannel    channel                = null;
+    private SocketChannel                         channel                = null;
 
-    private Thread           thread;
+    private Thread                                thread;
 
-    protected SelectionKey   key                    = null;
+    protected SelectionKey                        key                    = null;
 
-    private ByteBuffer       incomingRawBytes       = ByteBuffer
-                                                            .allocate(MAX_PACKET_SIZE);
+    private ByteBuffer                            incomingRawBytes       = ByteBuffer
+                                                                                 .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer       outgoingChars          = CharBuffer
-                                                            .allocate(MAX_PACKET_SIZE);
+    private CharBuffer                            outgoingChars          = CharBuffer
+                                                                                 .allocate(MAX_PACKET_SIZE);
 
-    private StringBuffer     accumulator            = new StringBuffer(
-                                                            MAX_PACKET_SIZE);
+    private StringBuilder                         accumulator            = new StringBuilder(
+                                                                                 MAX_PACKET_SIZE);
 
-    private CharsetDecoder   decoder                = Charset.forName("ASCII")
-                                                            .newDecoder();
+    private CharsetDecoder                        decoder                = Charset
+                                                                                 .forName(
+                                                                                         "ASCII")
+                                                                                 .newDecoder();
 
-    private CharsetEncoder   encoder                = Charset.forName("ASCII")
-                                                            .newEncoder();
+    private CharsetEncoder                        encoder                = Charset
+                                                                                 .forName(
+                                                                                         "ASCII")
+                                                                                 .newEncoder();
 
-    private ResponseMessage  responseMessage        = null;
+    private ResponseMessage                       responseMessage        = null;
 
-    protected Iterator       incoming;
+    protected Iterator                            incoming;
 
-    private volatile boolean blockingRequestPending = false;
+    private volatile boolean                      blockingRequestPending = false;
 
-    private LinkedList       blockingResponsesQueue = new LinkedList();
+    private LinkedBlockingQueue<ResponseMessage>  blockingResponsesQueue = new LinkedBlockingQueue<ResponseMessage>();
 
-    protected LinkedList     requestsQueue          = new LinkedList();
+    protected LinkedBlockingQueue<RequestMessage> requestsQueue          = new LinkedBlockingQueue<RequestMessage>();
 
     /**
      * selectInterval is passed to select() when it is called in the run loop.
@@ -92,9 +95,9 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
      * subclassing the sendData() method) to have this send data on an interval,
      * and then select.
      */
-    protected long           selectInterval         = 0;
+    protected long                                selectInterval         = 0;
 
-    protected boolean        isSending              = false;
+    protected boolean                             isSending              = false;
 
     public NIOClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
@@ -337,8 +340,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 while ((blockingRequestPending)
                         && (!blockingResponsesQueue.isEmpty()))
                 {
-                    returnValue = (ResponseMessage) blockingResponsesQueue
-                            .removeFirst();
+                    returnValue = blockingResponsesQueue.poll();
+
                     if (returnValue.getUid() == currentMessageUid)
                     {
                         debug("got the right response");
@@ -401,9 +404,6 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public void run()
     {
-        long runStartTime = 0;
-        int bytesRead = 0;
-
         while (running)
         {
             try
@@ -451,11 +451,11 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                                     synchronized (requestsQueue)
                                     {
-                                        while ((requestsQueue.size() > 0))
+                                        while (!requestsQueue.isEmpty())
                                         {
                                             this
-                                                    .nonBlockingSendMessage((RequestMessage) requestsQueue
-                                                            .removeFirst());
+                                                    .nonBlockingSendMessage(requestsQueue
+                                                            .poll());
                                         }
                                     }
 
@@ -563,8 +563,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             debug("IOException");
 
-            if ("An existing connection was forcibly closed by the remote host".equals(e1
-                    .getMessage()))
+            if ("An existing connection was forcibly closed by the remote host"
+                    .equals(e1.getMessage()))
             {
                 debug("Server shut down; disconnecting.");
 

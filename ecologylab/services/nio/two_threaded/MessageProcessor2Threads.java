@@ -1,7 +1,7 @@
 /*
  * Created on May 4, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.nio.two_threaded;
 
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
@@ -12,6 +12,8 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.nio.ContextManager;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -22,21 +24,26 @@ import ecologylab.xml.TranslationSpace;
 public class MessageProcessor2Threads extends Debug implements Runnable,
         ServerConstants, StartAndStoppable
 {
-    private Thread         thread;
+    private Thread                          thread;
 
-    private boolean        running = false;
+    private boolean                         running  = false;
 
-    private HashMap contexts = new HashMap();
+    private HashMap<Object, ContextManager> contexts = new HashMap<Object, ContextManager>();
 
-    protected SelectionKey key;
-    
-    private TranslationSpace translationSpace;
-    private ObjectRegistry registry;
+    protected SelectionKey                  key;
 
-    public MessageProcessor2Threads(TranslationSpace translationSpace, ObjectRegistry registry)
+    private TranslationSpace                translationSpace;
+
+    private ObjectRegistry                  registry;
+
+    protected NIOServerBase                   server;
+
+    public MessageProcessor2Threads(TranslationSpace translationSpace,
+            ObjectRegistry registry, NIOServerBase server)
     {
         this.translationSpace = translationSpace;
         this.registry = registry;
+        this.server = server;
     }
 
     protected ContextManager generateClientContext(Object token,
@@ -52,29 +59,36 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
      */
     public synchronized void run()
     {
-        Iterator contextIterator;
+        Iterator<ContextManager> contextIterator;
+
         while (running)
         {
-            synchronized(contexts)
+            synchronized (contexts)
             {
                 contextIterator = contexts.values().iterator();
-            
                 // process all of the messages in the queues
                 while (contextIterator.hasNext())
                 {
+                    ContextManager cMan = contextIterator.next();
+
                     try
-					{
-						((ContextManager)contextIterator.next()).processAllMessagesAndSendResponses();
-					} catch (BadClientException e)
-					{
-						// Handle BadClientException! -- remove it 
-						error(e.getMessage());
-						//TODO have a reference to NIOServerBase, and call its
-						// invalidatKey(selectionKey) method
-					}
+                    {
+                        cMan.processAllMessagesAndSendResponses();
+                    }
+                    catch (BadClientException e)
+                    {
+                        // Handle BadClientException! -- remove it
+                        error(e.getMessage());
+
+                        // invalidate the manager's key
+                        server.invalidateKey(cMan.getKey());
+
+                        // remove the manager from the collection
+                        contextIterator.remove();
+                    }
                 }
             }
-            
+
             // sleep until notified of new messages
             try
             {
@@ -86,26 +100,27 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
                 Thread.interrupted();
             }
         }
-        
+
         contexts.clear();
 
         debug("Message Processor " + key.attachment() + " terminating.");
     }
-    
+
     public void readKey(SelectionKey key) throws BadClientException
     {
         ContextManager temp = (ContextManager) contexts.get(key.attachment());
         {
             if (temp == null)
             {
-                synchronized(contexts)
+                synchronized (contexts)
                 {
-                    contexts.put(key.attachment(), this.generateClientContext(key.attachment(), key, translationSpace, registry));
+                    contexts.put(key.attachment(), this.generateClientContext(
+                            key.attachment(), key, translationSpace, registry));
                 }
-                
+
                 temp = (ContextManager) contexts.get(key.attachment());
             }
-            
+
             temp.readChannel();
         }
     }
@@ -114,16 +129,13 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
     {
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
-        
-        synchronized(contexts)
+
+        synchronized (contexts)
         {
-            if (contexts.containsKey(key.attachment()))
-            {
-                ((MessageProcessor) contexts.remove(key.attachment())).stop();
-            }
+            contexts.remove(key.attachment());
         }
     }
-    
+
     public void start()
     {
         running = true;

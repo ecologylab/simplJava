@@ -10,7 +10,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
@@ -35,48 +35,52 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ContextManager extends Debug implements ServerConstants
 {
-    private StringBuffer     accumulator    = new StringBuffer(MAX_PACKET_SIZE);
+    private StringBuffer                          accumulator      = new StringBuffer(
+                                                                           MAX_PACKET_SIZE);
 
-    private int              bytesRead      = 0;
+    private int                                   bytesRead        = 0;
 
-    private SocketChannel    channel;
+    private SocketChannel                         channel;
 
-    private CharsetDecoder   decoder        = Charset.forName(
-                                                    CHARACTER_ENCODING)
-                                                    .newDecoder();
+    private CharsetDecoder                        decoder          = Charset
+                                                                           .forName(
+                                                                                   CHARACTER_ENCODING)
+                                                                           .newDecoder();
 
-    protected SelectionKey   key            = null;
+    protected SelectionKey                        key              = null;
 
-    protected boolean        messageWaiting = false;
+    protected boolean                             messageWaiting   = false;
 
-    private ByteBuffer       rawBytes       = ByteBuffer
-                                                    .allocate(MAX_PACKET_SIZE);
+    private ByteBuffer                            rawBytes         = ByteBuffer
+                                                                           .allocate(MAX_PACKET_SIZE);
 
-    private RequestMessage   request;
+    private RequestMessage                        request;
 
-    protected LinkedList     requestQueue   = new LinkedList();
+    protected LinkedBlockingQueue<RequestMessage> requestQueue     = new LinkedBlockingQueue<RequestMessage>();
 
-    private Object           token          = null;
+    private Object                                token            = null;
 
-    private CharBuffer       outgoingChars  = CharBuffer
-                                                    .allocate(MAX_PACKET_SIZE);
+    private CharBuffer                            outgoingChars    = CharBuffer
+                                                                           .allocate(MAX_PACKET_SIZE);
 
-    private CharsetEncoder   encoder        = Charset.forName(
-                                                    CHARACTER_ENCODING)
-                                                    .newEncoder();
-    
-    protected long			initialTimeStamp	= System.currentTimeMillis();
-    
-    protected boolean		receivedAValidMsg;
-    
-    protected ObjectRegistry registry;
-    
-    private int				badTransmissionCount;
+    private CharsetEncoder                        encoder          = Charset
+                                                                           .forName(
+                                                                                   CHARACTER_ENCODING)
+                                                                           .newEncoder();
+
+    protected long                                initialTimeStamp = System
+                                                                           .currentTimeMillis();
+
+    protected boolean                             receivedAValidMsg;
+
+    protected ObjectRegistry                      registry;
+
+    private int                                   badTransmissionCount;
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
-    private TranslationSpace        translationSpace;
+    private TranslationSpace                      translationSpace;
 
     public ContextManager(Object token, SelectionKey key,
             TranslationSpace translationSpace, ObjectRegistry registry)
@@ -100,19 +104,13 @@ public class ContextManager extends Debug implements ServerConstants
         {
             int queueSize = requestQueue.size();
 
-            if (queueSize == 0)
+            if (queueSize == 1)
             {
-                return null;
+                messageWaiting = false;
             }
-            else
-            {
-                if (queueSize == 1)
-                {
-                    messageWaiting = false;
-                }
 
-                return (RequestMessage) requestQueue.removeFirst();
-            }
+            // return null if none left, or the next Request otherwise
+            return requestQueue.poll();
         }
     }
 
@@ -126,7 +124,7 @@ public class ContextManager extends Debug implements ServerConstants
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
-            return requestMessage.performService(registry);
+        return requestMessage.performService(registry);
     }
 
     private void processRequest(RequestMessage request)
@@ -195,7 +193,7 @@ public class ContextManager extends Debug implements ServerConstants
 
     public void processAllMessagesAndSendResponses() throws BadClientException
     {
-    	timeoutBeforeValidMsg();
+        timeoutBeforeValidMsg();
         while (isMessageWaiting())
         {
             this.processNextMessageAndSendResponse();
@@ -205,12 +203,14 @@ public class ContextManager extends Debug implements ServerConstants
 
     void timeoutBeforeValidMsg() throws BadClientException
     {
-    	long now	= System.currentTimeMillis();
-    	long elapsedTime	= now - this.initialTimeStamp;
-    	if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
-    		throw new BadClientException("Too long before valid response: elapsedTime=" + 
-    									 elapsedTime + ".");
+        long now = System.currentTimeMillis();
+        long elapsedTime = now - this.initialTimeStamp;
+        if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
+            throw new BadClientException(
+                    "Too long before valid response: elapsedTime="
+                            + elapsedTime + ".");
     }
+
     /**
      * @return Returns the token.
      */
@@ -233,13 +233,14 @@ public class ContextManager extends Debug implements ServerConstants
      * requestQueue.
      * 
      * @param incomingMessage
-     * @throws BadClientException 
+     * @throws BadClientException
      */
-    private void processString(String incomingMessage) throws BadClientException
+    private void processString(String incomingMessage)
+            throws BadClientException
     {
         if (show(5))
             debug("processing: " + incomingMessage);
-        request		= null;
+        request = null;
         try
         {
             request = (RequestMessage) ElementState.translateFromXMLString(
@@ -247,22 +248,25 @@ public class ContextManager extends Debug implements ServerConstants
         }
         catch (XmlTranslationException e)
         {
-        	// drop down to request == null, below
+            // drop down to request == null, below
         }
 
         if (request == null)
         {
             if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
             {
-            	throw new BadClientException("Too many Bad Transmissions: " + badTransmissionCount);
+                throw new BadClientException("Too many Bad Transmissions: "
+                        + badTransmissionCount);
             }
             // else
-            error("ERROR: translation failed: badTransmissionCount=" + badTransmissionCount);
+            error("ERROR: translation failed: badTransmissionCount="
+                    + badTransmissionCount);
         }
         else
         {
-        	receivedAValidMsg		= true;
-        	badTransmissionCount	= 0;
+            receivedAValidMsg = true;
+            badTransmissionCount = 0;
+            
             synchronized (requestQueue)
             {
                 this.enqueueRequest(request);
@@ -270,14 +274,24 @@ public class ContextManager extends Debug implements ServerConstants
         }
     }
 
+    /**
+     * Adds the given request to this's request queue.
+     * 
+     * enqueueRequest(RequestMessage) is a hook method for ContextManagers that
+     * need to implement other functionality, such as prioritizing messages.
+     * 
+     * @param request
+     */
     protected void enqueueRequest(RequestMessage request)
     {
-        requestQueue.add(request);
-        messageWaiting = true;
+        if (requestQueue.offer(request))
+        {
+            messageWaiting = true;
+        }
     }
 
-    private void readBytesIntoAccumulator()
-    throws CharacterCodingException, BadClientException
+    private void readBytesIntoAccumulator() throws CharacterCodingException,
+            BadClientException
     {
         if (bytesRead < MAX_PACKET_SIZE)
         {
@@ -288,8 +302,8 @@ public class ContextManager extends Debug implements ServerConstants
             rawBytes.clear();
 
             if (show(5))
-            debug("accumulator: "+accumulator.toString());
-            
+                debug("accumulator: " + accumulator.toString());
+
             if (accumulator.length() > 0)
             {
                 if ((accumulator.charAt(accumulator.length() - 1) == '\n')
@@ -331,7 +345,8 @@ public class ContextManager extends Debug implements ServerConstants
      * interest.
      * 
      * This method blocks and reads one time from the channel.
-     * @throws BadClientException 
+     * 
+     * @throws BadClientException
      */
     public void readChannel() throws BadClientException
     {
@@ -354,7 +369,7 @@ public class ContextManager extends Debug implements ServerConstants
                             + key.attachment());
                     key.cancel();
                 }
-                
+
                 if (key.isValid())
                 {
                     // re-enable reading on the key and wake up the selector.
@@ -379,8 +394,8 @@ public class ContextManager extends Debug implements ServerConstants
         }
         else
         {
-            debug("key: "+key.attachment()+" is invalid; closing.");
-            
+            debug("key: " + key.attachment() + " is invalid; closing.");
+
             try
             {
                 key.channel().close();
@@ -393,5 +408,13 @@ public class ContextManager extends Debug implements ServerConstants
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * @return the key
+     */
+    public SelectionKey getKey()
+    {
+        return key;
     }
 }

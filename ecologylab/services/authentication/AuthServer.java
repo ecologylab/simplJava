@@ -6,8 +6,6 @@ package ecologylab.services.authentication;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
@@ -33,9 +31,11 @@ import ecologylab.xml.XmlTranslationException;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public class AuthServer extends ServicesServer implements
-        AuthServerRegistryObjects, AuthLogging
+        AuthServerRegistryObjects, AuthLogging, Authenticatable
 {
-    private LinkedList logListeners = new LinkedList();
+    private LinkedList<Logging> logListeners  = new LinkedList<Logging>();
+
+    private Authenticator       authenticator = null;
 
     /**
      * This is the actual way to create an instance of this.
@@ -51,8 +51,8 @@ public class AuthServer extends ServicesServer implements
      *         ServerSocket on the port on this machine.
      */
     public static AuthServer get(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            String authListFilename)
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, String authListFilename)
     {
         AuthServer newServer = null;
         try
@@ -61,14 +61,16 @@ public class AuthServer extends ServicesServer implements
                     .translateFromXML(authListFilename, TranslationSpace.get(
                             "authListNameSpace",
                             "ecologylab.services.authentication"));
-            newServer = new AuthServer(portNumber,
-                    requestTranslationSpace, objectRegistry, authList);
-        } catch (IOException e)
+            newServer = new AuthServer(portNumber, requestTranslationSpace,
+                    objectRegistry, authList);
+        }
+        catch (IOException e)
         {
             println("ServicesServer ERROR: can't open ServerSocket on port "
                     + portNumber);
             e.printStackTrace();
-        } catch (XmlTranslationException e)
+        }
+        catch (XmlTranslationException e)
         {
             e.printStackTrace();
         }
@@ -88,15 +90,16 @@ public class AuthServer extends ServicesServer implements
      *         ServerSocket on the port on this machine.
      */
     public static AuthServer get(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList)
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, AuthenticationList authList)
     {
         AuthServer newServer = null;
         try
         {
-            newServer = new AuthServer(portNumber,
-                    requestTranslationSpace, objectRegistry, authList);
-        } catch (IOException e)
+            newServer = new AuthServer(portNumber, requestTranslationSpace,
+                    objectRegistry, authList);
+        }
+        catch (IOException e)
         {
             println("ServicesServer ERROR: can't open ServerSocket on port "
                     + portNumber);
@@ -107,9 +110,9 @@ public class AuthServer extends ServicesServer implements
     }
 
     /**
-     * Creates a new AuthServer with the given arguments. This
-     * constructor should only be invoked by a subclass or the .get() method to
-     * ensure that only one server is running on the given port.
+     * Creates a new AuthServer with the given arguments. This constructor
+     * should only be invoked by a subclass or the .get() method to ensure that
+     * only one server is running on the given port.
      * 
      * @param portNumber
      * @param requestTranslationSpace
@@ -119,22 +122,22 @@ public class AuthServer extends ServicesServer implements
      * @throws BindException
      */
     protected AuthServer(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry,
-            AuthenticationList authList) throws IOException, BindException
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, AuthenticationList authList)
+            throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        requestTranslationSpace.addTranslation(
-                ecologylab.services.authentication.messages.Login.class);
-        requestTranslationSpace.addTranslation(
-                ecologylab.services.authentication.messages.Logout.class);
+        requestTranslationSpace
+                .addTranslation(ecologylab.services.authentication.messages.Login.class);
+        requestTranslationSpace
+                .addTranslation(ecologylab.services.authentication.messages.Logout.class);
 
         this.objectRegistry = objectRegistry;
-        
-        this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
 
-        this.objectRegistry
-                .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
+        this.authenticator = new Authenticator(authList);
+
+        this.objectRegistry.registerObject(MAIN_AUTHENTICATABLE, this);
     }
 
     /**
@@ -153,19 +156,29 @@ public class AuthServer extends ServicesServer implements
     {
         return new AuthServerToClientConnection(incomingSocket, this);
     }
-    
+
     public void addLoggingListener(Logging log)
     {
         logListeners.add(log);
     }
-    
+
     public void fireLoggingEvent(AuthenticationOp op)
     {
-        Iterator loggingListenerIter = logListeners.iterator();
-        
-        while (loggingListenerIter.hasNext())
-        {
-            ((Logging)loggingListenerIter.next()).logAction(op);
-        }
+        for (Logging logListener : logListeners) logListener.logAction(op);
+    }
+
+    public void logout(AuthenticationListEntry entry)
+    {
+        authenticator.logout(entry);
+    }
+
+    public boolean isLoggedIn(String username)
+    {
+        return authenticator.isLoggedIn(username);
+    }
+
+    public boolean login(AuthenticationListEntry entry)
+    {
+        return authenticator.login(entry);
     }
 }

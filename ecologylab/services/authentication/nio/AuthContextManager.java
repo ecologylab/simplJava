@@ -3,7 +3,6 @@ package ecologylab.services.authentication.nio;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
@@ -67,8 +66,7 @@ public class AuthContextManager extends ContextManager implements
             if (requestMessage instanceof Login)
             {
                 // login needs to have it's IP address added before anything
-                // is
-                // done with it!
+                // is done with it!
                 ((Login) requestMessage).setClientAddress(clientAddress);
 
                 // since this is a Login message, perform it.
@@ -80,16 +78,6 @@ public class AuthContextManager extends ContextManager implements
                     // clients
                     // in the object registry
                     loggedIn = true;
-
-                    ((HashMap) (registry)
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                            .put(((Login) requestMessage).getEntry()
-                                    .getUsername(), key.attachment());
-
-                    ((HashMap) (registry)
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN)).put(
-                            key.attachment(), ((Login) requestMessage)
-                                    .getEntry().getUsername());
                 }
 
                 // tell the server to log it
@@ -110,24 +98,10 @@ public class AuthContextManager extends ContextManager implements
         }
         else
         {
+            response = super.performService(requestMessage);
+
             if (requestMessage instanceof Logout)
             {
-                response = super.performService(requestMessage);
-
-                if (response.isOK())
-                {
-                    loggedIn = false;
-
-                    ((HashMap) (registry)
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                            .remove(((Logout) requestMessage).entry
-                                    .getUsername());
-
-                    ((HashMap) (registry)
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_TOKEN))
-                            .remove(key.attachment());
-                }
-
                 // tell the server to log it
                 servicesServer.fireLoggingEvent(new AuthenticationOp(
                         ((Logout) requestMessage).getEntry().getUsername(),
@@ -137,14 +111,9 @@ public class AuthContextManager extends ContextManager implements
                                 .toString(), ((SocketChannel) key.channel())
                                 .socket().getPort()));
             }
-            else
-            {
-                response = super.performService(requestMessage);
-            }
         }
 
         // return the response message
         return response;
-
     }
 }

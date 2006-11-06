@@ -1,7 +1,7 @@
 /*
  * Created on May 3, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.nio.two_threaded;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.TranslationSpace;
 
 public class NIOServer2Threads extends NIOServerBase implements ServerConstants
@@ -28,7 +29,7 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
     protected MessageProcessor2Threads generateMessageProcessor(
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
-        return new MessageProcessor2Threads(translationSpace, registry);
+        return new MessageProcessor2Threads(translationSpace, registry, null);
     }
 
     /**
@@ -38,7 +39,7 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
      * 
      * @param key	The SelectionKey that needs to be shut down.
      */
-    protected void invalidateKey(SelectionKey key)
+    public void invalidateKey(SelectionKey key)
     {
         messageProcessor.removeKey(key);
         super.invalidateKey(key);

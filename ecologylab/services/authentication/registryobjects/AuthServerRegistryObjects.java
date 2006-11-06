@@ -21,18 +21,20 @@ public interface AuthServerRegistryObjects
      * XXX CHANGED TO USERNAME + IP!
      * XXX CHANGE TO USERNAME + TOKEN FOR NORMAL SERVICES SERVER
      */
-    public static final String AUTHENTICATED_CLIENTS_BY_USERNAME = "authenticatedClientsByUsername";
+  //  public static final String AUTHENTICATED_CLIENTS_BY_USERNAME = "authenticatedClientsByUsername";
     
-    public static final String AUTHENTICATED_CLIENTS_BY_TOKEN = "authenticatedClientsByToken";
+//    public static final String AUTHENTICATED_CLIENTS_BY_TOKEN = "authenticatedClientsByToken";
+    
+    public static final String MAIN_AUTHENTICATABLE = "mainAuthenticatable";
 
     /**
      * Indicates an AuthenticationList object that contains all the usernames
      * and passwords for the server.
      */
-    public static final String AUTHENTICATION_LIST = "authenticationList";
+//    public static final String AUTHENTICATION_LIST = "authenticationList";
     
     /**
      * Stores the Authentication Server reference. May be any implementation of the Auth Server.
      */
-    public static final String AUTH_SERVER = "authServer";
+//    public static final String AUTH_SERVER = "authServer";
 }

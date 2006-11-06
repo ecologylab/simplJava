@@ -5,7 +5,6 @@ package ecologylab.services.authentication;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
 
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.authentication.logging.AuthenticationOp;
@@ -75,11 +74,6 @@ public class AuthServerToClientConnection extends ServerToClientConnection
                     // mark as logged in, and add to the authenticatedClients in
                     // the object registry
                     loggedIn = true;
-                    ((HashMap) (servicesServer.getObjectRegistry())
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                            .put(((Login) requestMessage).getEntry()
-                                    .getUsername(), this.incomingSocket
-                                    .getInetAddress());
 
                     System.out.println(this.incomingSocket.getInetAddress()
                             .toString());
@@ -104,20 +98,10 @@ public class AuthServerToClientConnection extends ServerToClientConnection
         }
         else
         {
+            responseMessage = super.performService(requestMessage);
+
             if (requestMessage instanceof Logout)
             {
-                responseMessage = super.performService(requestMessage);
-
-                if (responseMessage.isOK())
-                {
-                    loggedIn = false;
-
-                    ((HashMap) (servicesServer.getObjectRegistry())
-                            .lookupObject(AUTHENTICATED_CLIENTS_BY_USERNAME))
-                            .remove(((Login) requestMessage).getEntry()
-                                    .getUsername());
-                }
-                
                 // tell the server to log it
                 ((AuthServer) servicesServer)
                         .fireLoggingEvent(new AuthenticationOp(
@@ -127,10 +111,6 @@ public class AuthServerToClientConnection extends ServerToClientConnection
                                         .getResponseMessage(), incomingSocket
                                         .getInetAddress().toString(),
                                 incomingSocket.getPort()));
-            }
-            else
-            {
-                responseMessage = super.performService(requestMessage);
             }
         }
 

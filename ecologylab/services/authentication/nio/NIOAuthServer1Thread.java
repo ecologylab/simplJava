@@ -5,25 +5,28 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
-import ecologylab.services.nio.NIOServer1Thread;
+import ecologylab.services.nio.single_threaded.NIOServer1Thread;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 public class NIOAuthServer1Thread extends NIOServer1Thread implements
-AuthServerRegistryObjects, AuthLogging
+AuthServerRegistryObjects, AuthLogging, Authenticatable
 {
-    private LinkedList logListeners = new LinkedList();
+    private LinkedList<Logging> logListeners = new LinkedList<Logging>();
+    
+    private Authenticator authenticator = null;
     
     /**
      * This is the actual way to create an instance of this.
@@ -124,15 +127,10 @@ AuthServerRegistryObjects, AuthLogging
         requestTranslationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "LogoutStatusResponse");
         
-        this.objectRegistry.registerObject(AUTHENTICATION_LIST, authList);
-
-        this.objectRegistry
-                .registerObject(AUTHENTICATED_CLIENTS_BY_USERNAME, new HashMap());
-        this.objectRegistry.registerObject(AUTHENTICATED_CLIENTS_BY_TOKEN, new HashMap());
+        authenticator = new Authenticator(authList);
         
-        this.objectRegistry.registerObject(AUTH_SERVER, this);
+        this.objectRegistry.registerObject(MAIN_AUTHENTICATABLE, this);
     }
-
     
     public void addLoggingListener(Logging log)
     {
@@ -141,11 +139,24 @@ AuthServerRegistryObjects, AuthLogging
     
     public void fireLoggingEvent(AuthenticationOp op)
     {
-        Iterator loggingListenerIter = logListeners.iterator();
-        
-        while (loggingListenerIter.hasNext())
+        for (Logging logListener : logListeners)
         {
-            ((Logging)loggingListenerIter.next()).logAction(op);
+            logListener.logAction(op);
         }
+    }
+    
+    public void logout(AuthenticationListEntry entry)
+    {
+        authenticator.logout(entry);
+    }
+
+    public boolean isLoggedIn(String username)
+    {
+        return authenticator.isLoggedIn(username);
+    }
+
+    public boolean login(AuthenticationListEntry entry)
+    {
+        return authenticator.login(entry);
     }
 }

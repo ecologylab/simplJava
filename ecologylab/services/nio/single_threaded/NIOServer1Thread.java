@@ -1,7 +1,7 @@
 /*
  * Created on May 3, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.nio.single_threaded;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -19,34 +19,34 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class NIOServer1Thread extends NIOServerBase
-        implements ServerConstants
+public class NIOServer1Thread extends NIOServerBase implements ServerConstants
 {
-    protected ObjectRegistry              registry;
+    protected ObjectRegistry               registry;
 
     /**
      * Maps key attachments (different connections) to accumulators
      * (StringBuffers of the incoming messages recieved so far).
      */
-    private HashMap connectionAccumulators = new HashMap();
+    private HashMap<Object, StringBuilder> connectionAccumulators = new HashMap<Object, StringBuilder>();
 
     // private Charset charset = Charset.forName("ISO-8859-1");
-    private Charset                       charset                = Charset
-                                                                         .forName("ASCII");
+    private Charset                        charset                = Charset
+                                                                          .forName("ASCII");
 
-    private CharsetDecoder                decoder                = charset
-                                                                         .newDecoder();
+    private CharsetDecoder                 decoder                = charset
+                                                                          .newDecoder();
 
-    private CharsetEncoder                encoder                = charset
-                                                                         .newEncoder();
+    private CharsetEncoder                 encoder                = charset
+                                                                          .newEncoder();
 
     public NIOServer1Thread(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
-            throws IOException, BindException
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
     }
@@ -103,8 +103,8 @@ public class NIOServer1Thread extends NIOServerBase
             { // if the response is null, then we do nothing else
                 try
                 {
-//                     System.out.println("response: "
-  //                   + response.translateToXML(false)+"\n");
+                    // System.out.println("response: "
+                    // + response.translateToXML(false)+"\n");
                     // translate the response and store it, then
                     // encode it and write it
                     outgoingChars.clear();
@@ -127,7 +127,8 @@ public class NIOServer1Thread extends NIOServerBase
                 {
                     e.printStackTrace();
                 }
-            } else
+            }
+            else
             {
                 debug("Response turned out null.");
             }
@@ -136,21 +137,20 @@ public class NIOServer1Thread extends NIOServerBase
     }
 
     /**
-     * Shut down the connection associated with this SelectionKey.
-     * Removes the key from our connectionAccumulators, then calls super.invalidateKey(SelectionKey)
-     * to shut it down at the NIO level.
+     * Shut down the connection associated with this SelectionKey. Removes the
+     * key from our connectionAccumulators, then calls
+     * super.invalidateKey(SelectionKey) to shut it down at the NIO level.
      * 
-     * @param key	The SelectionKey that needs to be shut down.
+     * @param key
+     *            The SelectionKey that needs to be shut down.
      */
-    protected void invalidateKey(SelectionKey key)
+    public void invalidateKey(SelectionKey key)
     {
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
 
-        if (connectionAccumulators.containsKey(key.attachment()))
-        {
-            connectionAccumulators.remove(key.attachment());
-        }
+        connectionAccumulators.remove(key.attachment());
+
         super.invalidateKey(key);
     }
 
@@ -160,13 +160,15 @@ public class NIOServer1Thread extends NIOServerBase
         ByteBuffer rawBytes = ByteBuffer.allocate(MAX_PACKET_SIZE);
         int bytesRead = 0;
 
-        StringBuffer accumulator = (StringBuffer) connectionAccumulators.get(key.attachment());
+        StringBuilder accumulator = connectionAccumulators
+                .get(key.attachment());
 
         if (accumulator == null)
         { // no accumulator for this key yet
-            connectionAccumulators.put(key.attachment(), new StringBuffer(
+            connectionAccumulators.put(key.attachment(), new StringBuilder(
                     MAX_PACKET_SIZE));
-            accumulator = (StringBuffer) connectionAccumulators.get(key.attachment());
+
+            accumulator = connectionAccumulators.get(key.attachment());
         }
 
         try
@@ -224,11 +226,11 @@ public class NIOServer1Thread extends NIOServerBase
                     key.cancel();
                 }
             }
-            
+
             if (bytesRead == -1)
             {
                 debug("Connection closed; shutting down.");
-                
+
                 key.cancel();
             }
         }

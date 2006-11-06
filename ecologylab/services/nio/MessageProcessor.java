@@ -15,7 +15,7 @@ import ecologylab.xml.TranslationSpace;
 /**
  * Used as a worker thread and client information container.
  * 
- * One thread per connection (?! -- andruid 10/29/06); N threads altogether.
+ * One thread per connection, N threads altogether.
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
@@ -29,14 +29,18 @@ public class MessageProcessor extends Debug implements Runnable,
     private ContextManager context = null;
 
     protected SelectionKey key;
+    
+    protected NIOServerBase server;
 
     public MessageProcessor(Object token, SelectionKey key,
-            TranslationSpace translationSpace, ObjectRegistry registry)
+            TranslationSpace translationSpace, ObjectRegistry registry, NIOServerBase server)
     {
         this.context = generateClientContext(token, key, translationSpace,
                 registry);
 
         this.key = key;
+        
+        this.server = server;
     }
 
     protected ContextManager generateClientContext(Object token,
@@ -66,7 +70,9 @@ public class MessageProcessor extends Debug implements Runnable,
 			{
 				// close down this evil connection
 				error(e1.getMessage());
-				//TODO remove this connection from the server base, such as NIOServerNThreads!!!!!!!!
+
+                server.invalidateKey(key);
+                
 				stop();
 			}
 
