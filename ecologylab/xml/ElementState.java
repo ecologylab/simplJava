@@ -1171,7 +1171,7 @@ implements ParseTableEntryTypes
 		   stateClass= nameSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
 		   {
-		   	  ElementState rootState= getElementState(stateClass);
+		   	  ElementState rootState= (ElementState) getNestedElementObject(stateClass);
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap();
@@ -1209,20 +1209,20 @@ implements ParseTableEntryTypes
  * @throws XmlTranslationException	If its not an ElementState Class object, or
  *  if that class lacks a constructor that takes no paramebers.
  */
-	public static ElementState getElementState(Class stateClass)
+	public static Object getNestedElementObject(Class stateClass)
 	   throws XmlTranslationException
 	{
 		// form the new object derived from ElementState
-		ElementState elementState		= null;
+		Object nestedObject		= null;
 		try
 		{			  
-			elementState	=	(ElementState) stateClass.newInstance();
+			nestedObject	=	stateClass.newInstance();
 		}
 		catch (Exception e)
 		{
 		   throw new XmlTranslationException("Instantiation ERROR for " + stateClass +":", e);
 		}
-		return elementState;
+		return nestedObject;
 	}
     /**
      * A recursive method.
@@ -1352,56 +1352,6 @@ implements ParseTableEntryTypes
 		}
 	}
 	/**
-	 * Set an extended primitive value using the textElementChild Node as the source,
-	 * the stateClass as the template for where the field is located, 
-	 * the childFieldName as the name of the field to select in the template,
-	 * and this as the object to do the set in.
-	 * 
-	 * @param stateClass
-	 * @param childFieldName
-	 * @param textElementChildd	The leaf node with the text element value.
-	 * 
-	 * @throws NoSuchFieldException
-	 */
-	private void setLeafNodeValue(Class stateClass, String childFieldName, Node textElementChild)
-	throws NoSuchFieldException
-	{
-		Field childField		= stateClass.getField(childFieldName);;
-		setLeafNodeValue(childField, textElementChild);
-	}
-//TODO -- delete this dead code	
-	/**
-	 * Set an extended primitive value using the textElementChild Node as the source,
-	 * the stateClass as the template for where the field is located, 
-	 * the childFieldName as the name of the field to select in the template,
-	 * and this as the object to do the set in.
-	 * 
-	 * @param childField		The Field in this that holds the value for the leaf node.
-	 * @param textElementChild	The leaf node with the text element value.
-	 */
-	private void setLeafNodeValue(Field childField, Node textElementChild)
-	{
-		if (textElementChild != null)
-		{
-			String textNodeValue	= textElementChild.getNodeValue();
-			if (textNodeValue != null)
-			{
-				textNodeValue		= textNodeValue.trim();
-				Type fieldType		= TypeRegistry.getType(childField);
-				if (fieldType.needsEscaping())
-					textNodeValue	= XmlTools.unescapeXML(textNodeValue);
-				//debug("setting special text node " +childFieldName +"="+textNodeValue);
-				if (textNodeValue.length() > 0)
-				{
-					if (fieldType != null)
-						fieldType.setField(this, childField, textNodeValue);
-					else
-						debug("Can't find type for " + childField + " with value=" + textNodeValue);
-				}
-			}
-		}
-	}
-	/**
 	 * Construct the ElementState object corresponding to the childClass.
 	 * Set its elementByIdMap to be the same one that this uses.
 	 * @param childNode
@@ -1415,7 +1365,7 @@ implements ParseTableEntryTypes
 			Class childClass, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		ElementState childElementState		= getElementState(childClass);
+		ElementState childElementState		= (ElementState) getNestedElementObject(childClass);
 		childElementState.elementByIdMap	= this.elementByIdMap;
 		childElementState.parent			= this;
 		
@@ -1672,7 +1622,7 @@ implements ParseTableEntryTypes
  * so a static declaration wouldn't actually be class wide.
  */
 /*
-	private HashMap getFieldNamesToOpenTagsMap()
+	private HashMap NamesToOpenTagsMap()
 	{
 	   Class thisClass= getClass();
 	   HashMap result = (HashMap) eStateToFieldNameOrClassToOpenTagMapMap.get(thisClass);
@@ -1732,17 +1682,9 @@ implements ParseTableEntryTypes
 	protected boolean setFieldUsingTypeRegistry(String fieldName, String fieldValue)
 	
 	{
-		boolean result		= false;
-		try
-		{
-		   Field field		= getClass().getField(fieldName);
-		   result			= setFieldUsingTypeRegistry(field, fieldValue);
-		}
-		catch (NoSuchFieldException e)
-		{
-			debug("ERROR no such field to set "+fieldName+" = "+
-			      fieldValue);
-		}
+		boolean result	= false;
+		Field field		= optimizations.getField(fieldName);
+		result			= setFieldUsingTypeRegistry(field, fieldValue);
 		return result;
 	}
 	/**
