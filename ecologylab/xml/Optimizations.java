@@ -220,7 +220,14 @@ class Optimizations extends Debug
 		ArrayList result	= attributeFields;
 		if (result == null)
 		{
-			getAndOrganizeFields();
+			synchronized (this)
+			{
+				result		= attributeFields;	// check again inside the synchronized block
+				if (result == null)
+				{
+					getAndOrganizeFields();
+				}
+			}
 			result			= attributeFields;
 		}
 		return result;
@@ -237,20 +244,55 @@ class Optimizations extends Debug
 		ArrayList result	= elementFields;
 		if (result == null)
 		{
-			getAndOrganizeFields();
+			synchronized (this)
+			{
+				result		= elementFields;	// check again inside the synchronized block
+				if (result == null)
+				{
+					getAndOrganizeFields();
+				}
+			}
 			result			= elementFields;
 		}
 		return result;
 	}
+	
+	/**
+	 * Get the map of fields that we translate for this class.
+	 * Uses lazy evaluation; will call getAndOrganizeFields() to build it
+	 * (and also the attributeFields and elementFields ArrayLists) if this is the 1st
+	 * call for the class.
+	 * 
+	 * @return
+	 */
+	private HashMap fieldsMap()
+	{
+		HashMap result	= fieldsMap;
+		if (result == null)
+		{
+			synchronized (this)
+			{
+				result		= fieldsMap;	// check again inside the synchronized block
+				if (result == null)
+				{
+					getAndOrganizeFields();
+				}
+			}
+			result			= fieldsMap;
+		}
+		return result;
+	}
+	
 	/**
 	 * Performs the lazy evaluation to get attribute and element field collections.
 	 * Dispatches to the correct routine for this, based on ElementState.declarationStyle().
 	 *
 	 */
-	private void getAndOrganizeFields()
+	private synchronized void getAndOrganizeFields()
 	{
 		attributeFields		= new ArrayList();
 		elementFields		= new ArrayList();
+		fieldsMap			= new HashMap();
 		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
 		switch (ds)
 		{
@@ -258,7 +300,9 @@ class Optimizations extends Debug
 			getAndOrganizeFieldsPublic(thatClass, attributeFields, elementFields);
 			break;
 		case ANNOTATION:
-			getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields);
+		case TRANSIENT:
+			getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields,
+										  (ds == ElementState.DeclarationStyle.TRANSIENT));
 			break;
 		default:
 			throw new RuntimeException("Unsupported declaration style: " + ds);
@@ -268,8 +312,10 @@ class Optimizations extends Debug
 	 * Performs the lazy evaluation to get attribute and element field collections.
 	 * Uses the hip new annotation stylee.
 	 * Uses the old PUBLIC declaration stylee.
+	 * <p/>
+	 * Must be called from getAndOrganizeFields() !
 	 */
-	private static void getAndOrganizeFieldsPublic(Class thatClass,
+	private void getAndOrganizeFieldsPublic(Class thatClass,
 			ArrayList attributeFields, ArrayList elementFields)
 	{
 		Field[] fields		= thatClass.getFields();
@@ -285,7 +331,8 @@ class Optimizations extends Debug
 			{
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
-			 }
+			}
+			mapField(thatField);
 			if (XmlTools.isScalarValue(thatField) && !XmlTools.representAsLeafNode(thatField))
 			{
 				attributeFields.add(thatField);
@@ -301,8 +348,9 @@ class Optimizations extends Debug
 	 * Uses the hip new annotation declaration stylee.
 	 * Recurses up the chain of inherited Java classes, if @xml_inherit is specified.
 	 */
-	private static void getAndOrganizeFieldsRecursive(Class thatClass,
-			ArrayList attributeFields, ArrayList elementFields)
+	private void getAndOrganizeFieldsRecursive(Class thatClass,
+			ArrayList attributeFields, ArrayList elementFields, 
+			boolean transientDeclarationStyle)
 	{
 		Field[] fields		= thatClass.getDeclaredFields();
 			
@@ -318,6 +366,7 @@ class Optimizations extends Debug
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
 			 }
+			mapField(thatField);
 			if (XmlTools.representAsAttribute(thatField))
 			{
 				attributeFields.add(thatField);
@@ -330,13 +379,34 @@ class Optimizations extends Debug
 			}
 			// else -- ignore non-annotated fields
 		}
-		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
+		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
 		{	// recurse on super class
 			Class superClass	= thatClass.getSuperclass();
 			if (superClass != null)
-				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields);
+				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
 		}
-			
-	}	
+	}
+	
+	/**
+	 * Add an entry to our map of Field objects, using the field's name as the key.
+	 * Can only be called by routines that guaranty that the fieldsMap has already been
+	 * created and populated with entries.
+	 * 
+	 * @param fieldsMap
+	 * @param thatField
+	 */
+	private void mapField(Field thatField)
+	{
+		fieldsMap.put(thatField.getName(), thatField);
+	}
+	/**
+	 * Get the field asssociated with fieldName.
+	 * If necessary (that is, the first time), this routine may make calls to do all the work
+	 * for creating the fieldsMap and fields ArrayLists.
+	 */
+	Field getField(String fieldName)
+	{
+		return (Field) fieldsMap().get(fieldName);
+	}
 }
 
