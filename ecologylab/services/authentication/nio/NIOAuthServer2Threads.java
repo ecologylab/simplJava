@@ -25,7 +25,7 @@ public class NIOAuthServer2Threads extends NIOServer2Threads implements
 {
     private LinkedList<Logging> logListeners = new LinkedList<Logging>();
     
-    private Authenticator authenticator = null;
+    protected Authenticator authenticator = null;
 
     /**
      * This is the actual way to create an instance of this.

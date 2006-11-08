@@ -15,7 +15,7 @@ import ecologylab.generic.Debug;
  */
 public class Authenticator extends Debug
 {
-    private AuthenticationList      authList             = new AuthenticationList();
+    protected AuthenticationList      authList             = new AuthenticationList();
 
     private HashSet<String> authedClients = new HashSet<String>();
 

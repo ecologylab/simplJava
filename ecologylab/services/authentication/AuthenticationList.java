@@ -18,7 +18,7 @@ import ecologylab.xml.xml_inherit;
  */
 public @xml_inherit class AuthenticationList extends ArrayListState
 {
-    private HashMap authList = null;
+    private HashMap<String, AuthenticationListEntry> authList = null;
 
     public AuthenticationList()
     {
@@ -51,11 +51,11 @@ public @xml_inherit class AuthenticationList extends ArrayListState
      * 
      * @return
      */
-    private HashMap authList()
+    private HashMap<String, AuthenticationListEntry> authList()
     {
         if (authList == null)
         {
-            authList = new HashMap();
+            authList = new HashMap<String, AuthenticationListEntry>();
 
             Iterator previousEntries = this.iterator();
 
@@ -120,5 +120,10 @@ public @xml_inherit class AuthenticationList extends ArrayListState
         }
 
         return buffy.toString();
+    }
+
+    public int getAccessLevel(AuthenticationListEntry entry)
+    {
+        return authList().get(entry.getUsername()).getLevel();
     }
 }
