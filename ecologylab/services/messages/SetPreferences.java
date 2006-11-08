@@ -19,7 +19,8 @@ import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
- * The message sent by CFServicesClientApplet to combinFormation at startup to configure preferences.
+ * The message sent by ServicesClientApplet to Java application running ServicesServer at 
+ * startup to configure preferences.
  *
  * @author blake
  * @author andruid
@@ -96,5 +97,12 @@ extends RequestMessage
 		return OkResponse.get();
 	}
 	
+	/**
+	 * This is a hook inside the performServices method which should be overridden by any
+	 * class that extends this object. It defines the steps necessary to setup an application
+	 * upon receiving and processing a SetPreferences message.
+	 * 
+	 * @param objectRegistry
+	 */
 	protected void setupApplication(ObjectRegistry objectRegistry) { }
 }
