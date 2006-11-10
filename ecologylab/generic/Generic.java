@@ -6,6 +6,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 
+import javax.swing.JOptionPane;
+
 import ecologylab.net.ParsedURL;
 
 /**
@@ -677,6 +679,11 @@ public class Generic
 		{
 			return null;
 		}
+	}
+	public static void showDialogAndExit(String msg, int code)
+	{
+		JOptionPane.showMessageDialog(null, msg);
+		Generic.exit(code);
 	}
     /**
      * Called at the end of an invocation. Calls System.exit(code).
