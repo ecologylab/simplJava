@@ -72,8 +72,8 @@ public class ServerToClientConnection extends Debug implements Runnable,
                 if (messageString != null)
                 {
                     if (show(5))
-                        debug("got raw message: "
-                                + messageString.getBytes().length);
+                        debug("got raw message[" + messageString.getBytes().length + "]: "
+                                + messageString);
 
                     RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 
