@@ -81,7 +81,7 @@ implements ParseTableEntryTypes
 				return;
 			}
 			
-			setupScalarValue(tag, contextClass, true);
+			setupScalarValue(tag, optimizations, contextClass, true);
 			return;
 		}
 		
@@ -92,7 +92,7 @@ implements ParseTableEntryTypes
 			translationSpace	= TranslationSpace.get(nameSpaceName);
 			String subTag		= tag.substring(colonIndex+1);
 			// is there a field called nameSpaceName?
-			Field nameSpaceField= ReflectionTools.getField(contextClass, nameSpaceName);
+			Field nameSpaceField= optimizations.getField(nameSpaceName);
 			if (nameSpaceField != null)
 			{	// o.k. we know we're working in the object of namespace fields
 				// create a dummy object to get its ParseTableEntry
@@ -123,7 +123,7 @@ implements ParseTableEntryTypes
 		{	// no XML namespace; life is simpler.
 			
 			// try as leaf node
-			int diganosedType		= setupScalarValue(tag, contextClass, false);
+			int diganosedType		= setupScalarValue(tag, optimizations, contextClass, false);
 			switch (diganosedType)
 			{
 			case LEAF_NODE_VALUE:
@@ -162,16 +162,6 @@ implements ParseTableEntryTypes
 		}
 	}
 
-	/**
-	 * @param contextClass
-	 * @param fieldName
-	 * @return
-	 */
-	private Field getField(Class contextClass, String fieldName)
-	{
-		return ReflectionTools.getField(contextClass, fieldName);
-	}
-
 /**
  * Set-up PTE for scalar valued field (attribute or leaf node).
  * First look for a set method.
@@ -179,10 +169,11 @@ implements ParseTableEntryTypes
  * Else, we must ignore the field.
  * 
  * @param tag
+ * @param optimizations TODO
  * @param contextClass
  * @param isAttribute		true for attribute; false for leaf node.
  */
-	private int setupScalarValue(String tag, Class contextClass, boolean isAttribute)
+	private int setupScalarValue(String tag, Optimizations optimizations, Class contextClass, boolean isAttribute)
 	{
 		int type			= UNSET_TYPE;
 		String methodName	= XmlTools.methodNameFromTagName(tag);
@@ -197,7 +188,7 @@ implements ParseTableEntryTypes
 		else
 		{
 			String fieldName= XmlTools.fieldNameFromElementName(tag);
-			Field field		= ReflectionTools.getField(contextClass, fieldName);
+			Field field		= optimizations.getField(fieldName);
 			if (field != null)
 			{
 				Type fieldType		= TypeRegistry.getType(field);
