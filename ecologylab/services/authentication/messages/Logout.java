@@ -51,9 +51,14 @@ public class Logout extends RequestMessage implements AuthMessages,
     {
         Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
         
-        server.logout(entry);
-        
-        return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
+        if (server.logout(entry, this.getSender()))
+        {
+            return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
+        }
+        else
+        {
+            return new LogoutStatusResponse(LOGOUT_FAILED_IP_MISMATCH);
+        }
     }
 
     /**

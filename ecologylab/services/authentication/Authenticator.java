@@ -3,7 +3,8 @@
  */
 package ecologylab.services.authentication;
 
-import java.util.HashSet;
+import java.net.InetAddress;
+import java.util.HashMap;
 
 import ecologylab.generic.Debug;
 
@@ -15,9 +16,11 @@ import ecologylab.generic.Debug;
  */
 public class Authenticator extends Debug
 {
-    protected AuthenticationList      authList             = new AuthenticationList();
+    protected AuthenticationList         authList       = new AuthenticationList();
 
-    private HashSet<String> authedClients = new HashSet<String>();
+    private HashMap<String, InetAddress> authedNameToIP = new HashMap<String, InetAddress>();
+
+    private HashMap<InetAddress, String> authedIPToName = new HashMap<InetAddress, String>();
 
     /**
      * Creates a new Authenticator using the given AuthenticationList as a
@@ -53,7 +56,7 @@ public class Authenticator extends Debug
      *            connection that is authenticating.
      * @return
      */
-    public boolean login(AuthenticationListEntry entry)
+    public boolean login(AuthenticationListEntry entry, InetAddress address)
     {
         boolean loggedInSuccessfully = false;
 
@@ -66,13 +69,13 @@ public class Authenticator extends Debug
             {
 
                 // now make sure that the user isn't already logged-in
-                if (!authedClients.contains(entry.getUsername()))
+                if (!authedNameToIP.containsKey(entry.getUsername()))
                 {
                     // mark login successful
                     loggedInSuccessfully = true;
 
                     // and add to collections
-                    authedClients.add(entry.getUsername());
+                    add(entry.getUsername(), address);
                 }
             }
         }
@@ -81,13 +84,22 @@ public class Authenticator extends Debug
     }
 
     /**
-     * Removes the given username from all authenticated client lists.
+     * Removes the given username from all authenticated client lists if the IP
+     * address matches the one currently stored for the entry.
      * 
      * @param entry
      */
-    public void logout(AuthenticationListEntry entry)
+    public boolean logout(AuthenticationListEntry entry, InetAddress address)
     {
-        authedClients.remove(entry.getUsername());
+        if (this.authedIPToName.get(address).equals(entry.getUsername()))
+        {
+            remove(entry.getUsername());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /**
@@ -98,6 +110,32 @@ public class Authenticator extends Debug
      */
     public boolean isLoggedIn(String username)
     {
-        return (authedClients.contains(username));
+        return (authedNameToIP.containsKey(username));
+    }
+
+    protected void remove(String username)
+    {
+        InetAddress key = authedNameToIP.remove(username);
+
+        if (key != null)
+        {
+            this.authedIPToName.remove(key);
+        }
+    }
+
+    protected void remove(InetAddress address)
+    {
+        String key = authedIPToName.remove(address);
+
+        if (key != null)
+        {
+            this.authedNameToIP.remove(key);
+        }
+    }
+
+    protected void add(String username, InetAddress address)
+    {
+        this.authedIPToName.put(address, username);
+        this.authedNameToIP.put(username, address);
     }
 }

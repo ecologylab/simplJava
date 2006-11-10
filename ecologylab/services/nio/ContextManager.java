@@ -124,6 +124,8 @@ public class ContextManager extends Debug implements ServerConstants
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
+        requestMessage.setSender(this.channel.socket().getInetAddress());
+
         return requestMessage.performService(registry);
     }
 

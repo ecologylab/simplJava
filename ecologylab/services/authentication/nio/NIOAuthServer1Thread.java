@@ -5,6 +5,7 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.InetAddress;
 import java.util.LinkedList;
 
 import ecologylab.generic.ObjectRegistry;
@@ -145,9 +146,9 @@ AuthServerRegistryObjects, AuthLogging, Authenticatable
         }
     }
     
-    public void logout(AuthenticationListEntry entry)
+    public boolean logout(AuthenticationListEntry entry, InetAddress address)
     {
-        authenticator.logout(entry);
+        return authenticator.logout(entry, address);
     }
 
     public boolean isLoggedIn(String username)
@@ -155,8 +156,8 @@ AuthServerRegistryObjects, AuthLogging, Authenticatable
         return authenticator.isLoggedIn(username);
     }
 
-    public boolean login(AuthenticationListEntry entry)
+    public boolean login(AuthenticationListEntry entry, InetAddress address)
     {
-        return authenticator.login(entry);
+        return authenticator.login(entry, address);
     }
 }

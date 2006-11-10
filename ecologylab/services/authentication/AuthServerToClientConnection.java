@@ -61,11 +61,6 @@ public class AuthServerToClientConnection extends ServerToClientConnection
         {
             if (requestMessage instanceof Login)
             {
-                // login needs to have it's IP address added before anything is
-                // done with it!
-                ((Login) requestMessage).setClientAddress(this.incomingSocket
-                        .getInetAddress());
-
                 // since this is a Login message, perform it.
                 responseMessage = super.performService(requestMessage);
 

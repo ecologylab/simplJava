@@ -3,6 +3,8 @@
  */
 package ecologylab.services.authentication;
 
+import java.net.InetAddress;
+
 /**
  * Indicates that the implementer can be logged-into and out-of.
  * 
@@ -10,9 +12,9 @@ package ecologylab.services.authentication;
  */
 public interface Authenticatable
 {
-    public boolean login(AuthenticationListEntry entry);
+    public boolean login(AuthenticationListEntry entry, InetAddress address);
     
-    public void logout(AuthenticationListEntry entry);
+    public boolean logout(AuthenticationListEntry entry, InetAddress address);
     
     public boolean isLoggedIn(String username);
 }

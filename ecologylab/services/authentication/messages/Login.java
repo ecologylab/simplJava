@@ -3,8 +3,6 @@
  */
 package ecologylab.services.authentication.messages;
 
-import java.net.InetAddress;
-
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
@@ -25,8 +23,6 @@ public class Login extends RequestMessage implements AuthMessages,
 
     public AuthenticationListEntry entry         = new AuthenticationListEntry(
                                                          "", "");
-
-    public InetAddress             clientAddress = null;
 
     /**
      * Should not normally be used; only for XML translations.
@@ -77,7 +73,12 @@ public class Login extends RequestMessage implements AuthMessages,
         LoginStatusResponse loginConfirm = new LoginStatusResponse(
                 LOGIN_FAILED_PASSWORD); 
 
-        boolean loginSuccess = server.login(this.entry);
+        boolean loginSuccess = false;
+        
+        if (this.getSender() != null)
+        {
+            loginSuccess = server.login(this.entry, this.getSender());
+        }
 
         if (loginSuccess)
         { // we're logged in!
@@ -86,7 +87,11 @@ public class Login extends RequestMessage implements AuthMessages,
         else
         {
             // figure out why it failed
-            if (server.isLoggedIn(entry.getUsername()))
+            if (this.getSender() == null)
+            {
+                loginConfirm.setResponseMessage(LOGIN_FAILED_NO_IP_SUPPLIED);
+            }
+            else if (server.isLoggedIn(entry.getUsername()))
             {
                 loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
             }
@@ -110,22 +115,5 @@ public class Login extends RequestMessage implements AuthMessages,
     public void setEntry(AuthenticationListEntry entry)
     {
         this.entry = entry;
-    }
-
-    /**
-     * @return Returns the clientAddress.
-     */
-    public InetAddress getClientAddress()
-    {
-        return clientAddress;
-    }
-
-    /**
-     * @param clientAddress
-     *            The clientAddress to set.
-     */
-    public void setClientAddress(InetAddress clientAddress)
-    {
-        this.clientAddress = clientAddress;
     }
 }

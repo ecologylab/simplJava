@@ -168,6 +168,9 @@ public class ServerToClientConnection extends Debug implements Runnable,
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
+        // add the IP address
+        requestMessage.setSender(this.incomingSocket.getInetAddress());
+        
         ResponseMessage responseMessage = servicesServer
                 .performService(requestMessage);
         return responseMessage;

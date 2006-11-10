@@ -1,6 +1,5 @@
 package ecologylab.services.authentication.nio;
 
-import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -32,8 +31,6 @@ public class AuthContextManager extends ContextManager implements
 {
     private boolean     loggedIn       = false;
 
-    private InetAddress clientAddress  = null;
-
     private AuthLogging servicesServer = null;
 
     public AuthContextManager(Object token, SelectionKey key,
@@ -43,9 +40,6 @@ public class AuthContextManager extends ContextManager implements
         super(token, key, translationSpace, registry);
 
         this.servicesServer = servicesServer;
-
-        this.clientAddress = ((SocketChannel) key.channel()).socket()
-                .getInetAddress();
     }
 
     /**
@@ -65,10 +59,6 @@ public class AuthContextManager extends ContextManager implements
         {
             if (requestMessage instanceof Login)
             {
-                // login needs to have it's IP address added before anything
-                // is done with it!
-                ((Login) requestMessage).setClientAddress(clientAddress);
-
                 // since this is a Login message, perform it.
                 response = super.performService(requestMessage);
 

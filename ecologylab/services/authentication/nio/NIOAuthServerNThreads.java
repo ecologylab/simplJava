@@ -5,6 +5,7 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 import java.net.BindException;
+import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -171,9 +172,9 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         }
     }
     
-    public void logout(AuthenticationListEntry entry)
+    public boolean logout(AuthenticationListEntry entry, InetAddress address)
     {
-        authenticator.logout(entry);
+        return authenticator.logout(entry, address);
     }
 
     public boolean isLoggedIn(String username)
@@ -181,8 +182,9 @@ public class NIOAuthServerNThreads extends NIOServerNThreads implements
         return authenticator.isLoggedIn(username);
     }
 
-    public boolean login(AuthenticationListEntry entry)
+    public boolean login(AuthenticationListEntry entry, InetAddress address)
     {
-        return authenticator.login(entry);
+        return authenticator.login(entry, address);
     }
+
 }
