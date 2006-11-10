@@ -237,12 +237,18 @@ implements ApplicationProperties
 	 * 
 	 * @param assetRelativePath -- This is the name of the interface. It does not end in .zip!
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
+	 * 
+	 * @return	false if the assetRelativePath is null; otherwise true.
 	 */
-	public static void downloadInterfaceZip(String assetRelativePath, Status status,
+	public static boolean downloadInterfaceZip(String assetRelativePath, Status status,
 											boolean forceDownload)
 	{
+		if (assetRelativePath == null)
+			return false;
+		
 		downloadZip(interfaceAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
 					interfaceCacheRoot, status, forceDownload);
+		return true;
 	}
 	/**
 	 * Download an semantics assets zip file from the semanticsAssetsRoot.
