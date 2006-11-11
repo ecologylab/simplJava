@@ -9,6 +9,7 @@ import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Used to log into a server that requires authentication; carries username and
@@ -17,12 +18,12 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Login extends RequestMessage implements AuthMessages,
+@xml_inherit public class Login extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects
 {
 
-    public AuthenticationListEntry entry         = new AuthenticationListEntry(
-                                                         "", "");
+    @xml_nested protected AuthenticationListEntry entry = new AuthenticationListEntry(
+                                                                "", "");
 
     /**
      * Should not normally be used; only for XML translations.
@@ -67,14 +68,15 @@ public class Login extends RequestMessage implements AuthMessages,
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)
     {
-        Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
-        
+        Authenticatable server = (Authenticatable) objectRegistry
+                .lookupObject(MAIN_AUTHENTICATABLE);
+
         // set to the default failure message
         LoginStatusResponse loginConfirm = new LoginStatusResponse(
-                LOGIN_FAILED_PASSWORD); 
+                LOGIN_FAILED_PASSWORD);
 
         boolean loginSuccess = false;
-        
+
         if (this.getSender() != null)
         {
             loginSuccess = server.login(this.entry, this.getSender());

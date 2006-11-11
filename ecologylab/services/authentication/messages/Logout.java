@@ -9,6 +9,7 @@ import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
 /**
  * A Logout message indicates that the connnected client no longer wants to be
@@ -16,11 +17,10 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Logout extends RequestMessage implements AuthMessages,
+@xml_inherit public class Logout extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects
 {
-
-    public AuthenticationListEntry entry = new AuthenticationListEntry("", "");
+    @xml_attribute protected AuthenticationListEntry entry = new AuthenticationListEntry("", "");
 
     /**
      * Should not normally be used; only for XML translations.

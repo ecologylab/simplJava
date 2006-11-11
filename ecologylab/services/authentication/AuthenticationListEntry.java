@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import sun.misc.BASE64Encoder;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * An entry for an AuthenticationList. Contains a username matched with a
@@ -19,17 +20,17 @@ import ecologylab.xml.ElementState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationListEntry extends ElementState implements AuthLevels
+public @xml_inherit class AuthenticationListEntry extends ElementState implements AuthLevels
 {
 
-    public String username = "";
+    private @xml_attribute String username = "";
 
     /**
      * Represents the password for this username. It is automatically converted
      * to a hash when added via methods so it should never be modified through
      * any other way!
      */
-    public String password = "";
+    private @xml_attribute String password = "";
 
     /**
      * Represents the administrator level of the user.
@@ -37,7 +38,7 @@ public class AuthenticationListEntry extends ElementState implements AuthLevels
      * 0 = normal user (NORMAL_USER) (Others can be added here as necessary.) 10 =
      * administrator (ADMINISTRATOR)
      */
-    public int    level    = 0;
+    private @xml_attribute int    level    = 0;
 
     /**
      * Param-free constructor; normally used for translating from XML.
@@ -59,7 +60,7 @@ public class AuthenticationListEntry extends ElementState implements AuthLevels
      */
     public AuthenticationListEntry(String username, String password)
     {
-        super();
+        this();
 
         this.username = username.toLowerCase();
         this.password = hashPassword(password);
@@ -182,5 +183,13 @@ public class AuthenticationListEntry extends ElementState implements AuthLevels
     public void setLevel(int level)
     {
         this.level = level;
+    }
+
+    /**
+     * @see ecologylab.generic.Debug#toString()
+     */
+    @Override public String toString()
+    {
+        return "AuthenticationListEntry: " + username;
     }
 }

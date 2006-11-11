@@ -7,16 +7,18 @@ import ecologylab.generic.BooleanSlot;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
-public class LogoutStatusResponse extends ResponseMessage implements AuthMessages, AuthClientRegistryObjects
+@xml_inherit public class LogoutStatusResponse extends ResponseMessage
+        implements AuthMessages, AuthClientRegistryObjects
 {
-    public String responseMessage = new String();
-    
+    @xml_attribute private String responseMessage = new String();
+
     public LogoutStatusResponse()
     {
         super();
     }
-    
+
     public LogoutStatusResponse(String responseMessage)
     {
         this.responseMessage = responseMessage;
@@ -29,8 +31,8 @@ public class LogoutStatusResponse extends ResponseMessage implements AuthMessage
 
     public void processResponse(ObjectRegistry objectRegistry)
     {
-        ((BooleanSlot)objectRegistry.lookupObject(LOGIN_STATUS)).value = false;
-        
+        ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value = false;
+
         objectRegistry.modifyObject(LOGIN_STATUS_STRING, responseMessage);
     }
 

@@ -7,12 +7,12 @@ import ecologylab.generic.BooleanSlot;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
-public class LoginStatusResponse extends ResponseMessage implements
+@xml_inherit public class LoginStatusResponse extends ResponseMessage implements
         AuthMessages, AuthClientRegistryObjects
 {
-
-    public String responseMessage = new String();
+    @xml_attribute private String responseMessage = new String();
 
     public LoginStatusResponse(String responseMessage)
     {
