@@ -12,15 +12,111 @@ import ecologylab.xml.media.Media;
  */
 public class Item extends ElementState
 {
-   @xml_leaf	public String			title;
-   @xml_leaf	public String			description;
-   @xml_leaf	public ParsedURL		link;
-   @xml_leaf	public String			author;
+   @xml_leaf	String			title;
+   @xml_leaf	String			description;
+   @xml_leaf	ParsedURL		link;
+   @xml_leaf	String			author;
    
    /**
     * Some people put Dublin Core fields into their items. Go figure :-)
     */
-   @xml_nested	public Dc			dc;
+   @xml_nested	Dc				dc;
    
-   @xml_nested	public Media		media;
+   @xml_nested	Media			media;
+
+   /**
+    * @return Returns the author.
+    */
+   public String getAuthor()
+   {
+	   return author;
+   }
+   
+   /**
+    * @param author The author to set.
+    */
+   public void setAuthor(String author)
+   {
+	   this.author = author;
+   }
+   
+   /**
+    * @return Returns the dc.
+    */
+   public Dc getDc()
+   {
+	   return dc;
+   }
+   
+   /**
+    * @param dc The dc to set.
+    */
+   public void setDc(Dc dc)
+   {
+	   this.dc = dc;
+   }
+   
+   /**
+    * @return Returns the description.
+    */
+   public String getDescription()
+   {
+	   return description;
+   }
+   
+   /**
+    * @param description The description to set.
+    */
+   public void setDescription(String description)
+   {
+	   this.description = description;
+   }
+   
+   /**
+    * @return Returns the link.
+    */
+   public ParsedURL getLink()
+   {
+	   return link;
+   }
+   
+   /**
+    * @param link The link to set.
+    */
+   public void setLink(ParsedURL link)
+   {
+	   this.link = link;
+   }
+   
+   /**
+    * @return Returns the media.
+    */
+   public Media getMedia()
+   {
+	   return media;
+   }
+   
+   /**
+    * @param media The media to set.
+    */
+   public void setMedia(Media media)
+   {
+	   this.media = media;
+   }
+   
+   /**
+    * @return Returns the title.
+    */
+   public String getTitle()
+   {
+	   return title;
+   }
+   
+   /**
+    * @param title The title to set.
+    */
+   public void setTitle(String title)
+   {
+	   this.title = title;
+   }  
 }

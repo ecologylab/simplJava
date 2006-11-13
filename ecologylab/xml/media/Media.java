@@ -18,14 +18,69 @@ public class Media extends ElementState
 	 * An alternative would be to implement this as an ArrayListState, and be able
 	 * to aggregate a set of these. We can do this when there is a need, with an example.
 	 */
-	public Content		content;
+	@xml_nested Content		content;
 	
 	//public Credit		credit;
 	
-	@xml_leaf	public String		category;
+	@xml_leaf	String		category;
 	
-	@xml_leaf	public String		text;
-	
-	@xml_leaf	public String		rating;
+	@xml_leaf	String		text;
+	@xml_leaf	String		rating;
+	/**
+	 * @return Returns the category.
+	 */
+	public String getCategory()
+	{
+		return category;
+	}
+	/**
+	 * @param category The category to set.
+	 */
+	public void setCategory(String category)
+	{
+		this.category = category;
+	}
+	/**
+	 * @return Returns the content.
+	 */
+	public Content getContent()
+	{
+		return content;
+	}
+	/**
+	 * @param content The content to set.
+	 */
+	public void setContent(Content content)
+	{
+		this.content = content;
+	}
+	/**
+	 * @return Returns the rating.
+	 */
+	public String getRating()
+	{
+		return rating;
+	}
+	/**
+	 * @param rating The rating to set.
+	 */
+	public void setRating(String rating)
+	{
+		this.rating = rating;
+	}
+	/**
+	 * @return Returns the text.
+	 */
+	public String getText()
+	{
+		return text;
+	}
+	/**
+	 * @param text The text to set.
+	 */
+	public void setText(String text)
+	{
+		this.text = text;
+	}
 
 }

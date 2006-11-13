@@ -16,13 +16,55 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class Itunes extends ElementState
 {
-	@xml_leaf	public String			subtitle;
-	@xml_leaf	public String			author;
-	@xml_leaf	public String			summary;
-	@xml_leaf	public ParsedURL		image;
-	@xml_leaf	public String			duration;
-	@xml_leaf	public String			keywords;
+	@xml_leaf	String			subtitle;
+	@xml_leaf	String			author;
+	@xml_leaf	String			summary;
+	@xml_leaf	ParsedURL		image;
+	@xml_leaf	String			duration;
+	@xml_leaf	String			keywords;
 	//public Owner			owner; subfields -- email, name
+	/**
+	 * @return Returns the author.
+	 */
+	protected String getAuthor()
+	{
+		return author;
+	}
+	/**
+	 * @return Returns the duration.
+	 */
+	protected String getDuration()
+	{
+		return duration;
+	}
+	/**
+	 * @return Returns the image.
+	 */
+	protected ParsedURL getImage()
+	{
+		return image;
+	}
+	/**
+	 * @return Returns the keywords.
+	 */
+	protected String getKeywords()
+	{
+		return keywords;
+	}
+	/**
+	 * @return Returns the subtitle.
+	 */
+	protected String getSubtitle()
+	{
+		return subtitle;
+	}
+	/**
+	 * @return Returns the summary.
+	 */
+	protected String getSummary()
+	{
+		return summary;
+	}
 	
 	/**
 	 * Cateogory is a yuck field to define semantically, because there

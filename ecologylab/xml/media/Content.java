@@ -14,40 +14,28 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class Content extends ElementState
 {
-	public ParsedURL		url;
-	public String			type;
-	public int				width;
-	public int				height;
+	@xml_attribute	ParsedURL		url;
+	@xml_attribute	String			type;
+	@xml_attribute	int				width;
+	@xml_attribute	int				height;
 	
-	@xml_leaf	public String			title;
-	public Description		description;
-	public String			keywords;
-	public Thumbnail		thumbnail;
+	@xml_leaf		String			title;
+	@xml_nested 	Description		description;
+	@xml_attribute	String			keywords;
+	@xml_nested 	Thumbnail		thumbnail;
 	
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)
 	//TODO confirm if this is correct.
-	public ArrayList		categoryStrings;
+	@xml_nested		ArrayList		categoryStrings;
 	
-	public Credit			credit;
+	@xml_nested		Credit			credit;
 	
 	//public String 		text -- actually there can be many of these
 	//public String			restriction; // a leaf node
 	//
 	
 
-	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= {"title", "category"};
-	
-	/**
-	 * The array of Strings with the names of the leaf elements.
-	 * 
-	 * @return
-	 */
-	protected String[] leafElementFieldNames()
-	{
-		return LEAF_ELEMENT_FIELD_NAMES;
-	}
-	
 	public Content()
 	{
 		super();
@@ -87,6 +75,150 @@ public class Content extends ElementState
 			categoryStrings	= result;
 		}
 		return result;
+	}
+
+	/**
+	 * @return Returns the credit.
+	 */
+	public Credit getCredit()
+	{
+		return credit;
+	}
+
+	/**
+	 * @param credit The credit to set.
+	 */
+	public void setCredit(Credit credit)
+	{
+		this.credit = credit;
+	}
+
+	/**
+	 * @return Returns the description.
+	 */
+	public Description getDescription()
+	{
+		return description;
+	}
+
+	/**
+	 * @param description The description to set.
+	 */
+	public void setDescription(Description description)
+	{
+		this.description = description;
+	}
+
+	/**
+	 * @return Returns the height.
+	 */
+	public int getHeight()
+	{
+		return height;
+	}
+
+	/**
+	 * @param height The height to set.
+	 */
+	public void setHeight(int height)
+	{
+		this.height = height;
+	}
+
+	/**
+	 * @return Returns the keywords.
+	 */
+	public String getKeywords()
+	{
+		return keywords;
+	}
+
+	/**
+	 * @param keywords The keywords to set.
+	 */
+	public void setKeywords(String keywords)
+	{
+		this.keywords = keywords;
+	}
+
+	/**
+	 * @return Returns the thumbnail.
+	 */
+	public Thumbnail getThumbnail()
+	{
+		return thumbnail;
+	}
+
+	/**
+	 * @param thumbnail The thumbnail to set.
+	 */
+	public void setThumbnail(Thumbnail thumbnail)
+	{
+		this.thumbnail = thumbnail;
+	}
+
+	/**
+	 * @return Returns the title.
+	 */
+	public String getTitle()
+	{
+		return title;
+	}
+
+	/**
+	 * @param title The title to set.
+	 */
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+
+	/**
+	 * @return Returns the type.
+	 */
+	public String getType()
+	{
+		return type;
+	}
+
+	/**
+	 * @param type The type to set.
+	 */
+	public void setType(String type)
+	{
+		this.type = type;
+	}
+
+	/**
+	 * @return Returns the url.
+	 */
+	public ParsedURL getUrl()
+	{
+		return url;
+	}
+
+	/**
+	 * @param url The url to set.
+	 */
+	public void setUrl(ParsedURL url)
+	{
+		this.url = url;
+	}
+
+	/**
+	 * @return Returns the width.
+	 */
+	public int getWidth()
+	{
+		return width;
+	}
+
+	/**
+	 * @param width The width to set.
+	 */
+	public void setWidth(int width)
+	{
+		this.width = width;
 	}
 
 	

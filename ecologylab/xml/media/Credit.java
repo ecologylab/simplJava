@@ -10,5 +10,21 @@ import ecologylab.xml.ElementState;
  */
 public class Credit extends ElementState
 {
-	public String		role;
+	@xml_attribute String		role;
+
+	/**
+	 * @return Returns the role.
+	 */
+	protected String getRole()
+	{
+		return role;
+	}
+
+	/**
+	 * @param role The role to set.
+	 */
+	protected void setRole(String role)
+	{
+		this.role = role;
+	}
 }
