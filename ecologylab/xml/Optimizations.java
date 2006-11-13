@@ -21,7 +21,7 @@ import ecologylab.generic.Generic;
  *
  * @author andruid
  */
-class Optimizations extends Debug
+public class Optimizations extends Debug
 {
 	/**
 	 * Class object that we are holding optimizations for.
@@ -239,7 +239,7 @@ class Optimizations extends Debug
 	 * 
 	 * @return	ArrayList of Field objects.
 	 */
-	ArrayList elementFields()
+	public ArrayList elementFields()
 	{
 		ArrayList result	= elementFields;
 		if (result == null)

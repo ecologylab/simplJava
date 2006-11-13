@@ -1972,5 +1972,12 @@ implements ParseTableEntryTypes
 		Field f		= this.getClass().getField("foo");
 		System.out.println(" is leaf = " + XmlTools.representAsLeafNode(f));
 	}
+	/**
+	 * @return Returns the optimizations.
+	 */
+	protected Optimizations optimizations()
+	{
+		return optimizations;
+	}
 
 }
