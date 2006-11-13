@@ -504,20 +504,15 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 {
                     if ((accumulator.charAt(accumulator.length() - 1) == '\n')
                             || (accumulator.charAt(accumulator.length() - 1) == '\r'))
-                    { // when we have accumulated
-                        // an
-                        // entire message, process
+                    { // when we have accumulated an entire message, process
                         // it
 
-                        // in case we have several
-                        // messages
-                        // that are split by returns
+                        // in case we have several messages that are split by
+                        // returns
                         while (accumulator.length() > 0)
                         {
-                            // transform the message
-                            // into a
-                            // request and
-                            // perform the service
+                            // transform the message into a request and perform
+                            // the service
 
                             if (!this.blockingRequestPending)
                             {
@@ -536,7 +531,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                 }
                             }
 
-                            // debug("accumulator: "+accumulator.toString());
+                            debug("accumulator: "+accumulator.toString());
 
                             // erase the message
                             // from

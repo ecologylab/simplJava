@@ -9,12 +9,12 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit
-abstract public class ResponseMessage 
-extends ServiceMessage
+@xml_inherit abstract public class ResponseMessage extends ServiceMessage
 {
-	public ResponseMessage() {}
-	
+    public ResponseMessage()
+    {
+    }
+
     /**
      * Let's the client easily test for OK or error.
      * 
@@ -23,12 +23,15 @@ extends ServiceMessage
     public abstract boolean isOK();
 
     /**
-     * Allows for custom processing of ResponseMessages by ServicesClient, without extending that.
-     * @param objectRegistry provide a context for response message processing.
-     *
+     * Allows for custom processing of ResponseMessages by ServicesClient,
+     * without extending that.
+     * 
+     * @param objectRegistry
+     *            provide a context for response message processing.
+     * 
      */
     public void processResponse(ObjectRegistry objectRegistry)
     {
-    	
+
     }
 }
