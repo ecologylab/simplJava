@@ -1,5 +1,6 @@
 package ecologylab.services.logging;
 
+import ecologylab.xml.xml_inherit;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -15,6 +16,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author eunyee
  *
  */
+@xml_inherit
 public class LogRequestMessage extends RequestMessage
 {	
 	protected String			xmlString;
@@ -77,11 +79,11 @@ public class LogRequestMessage extends RequestMessage
 	{
 //		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString	= xmlString();
-		
+	
 		// if not on server, do normal translate to XML
 		if (xmlString == null)
 			xmlString		= this.translateToXML(false);
-		
+
 		// if on server, peel message(s) out of the XML we received, without parsing it!
 		
 //		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
@@ -91,7 +93,7 @@ public class LogRequestMessage extends RequestMessage
 		// which also should be the start of the last tag -- whatever it is
 		int end				= xmlString.lastIndexOf('<');
 //		int end				= xmlString.indexOf(tagMapEntry.closeTag);
-		if( (start==-1) || (end==-1) )
+		if( (start==0) || (end==-1) )
 		{
 			debug("RECEIVE MESSAGE : " + xmlString);
 			return "\n";

@@ -4,6 +4,7 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.ArrayListState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history,
@@ -11,12 +12,12 @@ import ecologylab.xml.ArrayListState;
  * 
  * @author andruid
  */
-abstract public class MixedInitiativeOp extends ArrayListState
+abstract public @xml_inherit class MixedInitiativeOp extends ArrayListState
 {
 	/**
 	 * Elapsed time since the session started.
 	 */
-	public long		sessionTime;
+	protected @xml_attribute long		sessionTime;
 
 	/**
 	 * 

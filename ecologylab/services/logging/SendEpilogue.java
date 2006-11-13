@@ -1,10 +1,12 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.xml_inherit;
 
+@xml_inherit
 public final class SendEpilogue extends LogueMessage
 {
-	public Epilogue		epilogue;
+	@xml_nested Epilogue		epilogue;
 	
 	public SendEpilogue(Logging logging, Epilogue epilogue)
 	{

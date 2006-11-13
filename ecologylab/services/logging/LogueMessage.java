@@ -1,7 +1,7 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTools;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Base class for SendPrologue and SendEpilogue.
@@ -11,10 +11,11 @@ import ecologylab.xml.XmlTools;
  *
  * @author andruid
  */
+@xml_inherit
 public class LogueMessage extends LogRequestMessage
 {
 
-	public String logName;
+	@xml_attribute protected String logName;
 
 	/**
 	 * Constructor for building from the Logging class.

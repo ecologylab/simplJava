@@ -17,6 +17,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 
@@ -25,13 +26,14 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
+@xml_inherit
 public class SetPreferences 
 extends RequestMessage
 {
 	static boolean			firstTime		= true;
 	
-	public PreferencesSet	preferencesSet	= new PreferencesSet();
-	public String			preferencesSetAssetPath;
+	@xml_nested protected	 PreferencesSet		preferencesSet	= new PreferencesSet();
+	@xml_attribute protected String				preferencesSetAssetPath;
 	//public PreferencesSet   overridePreferencesSet = new PreferencesSet();
 	
 	

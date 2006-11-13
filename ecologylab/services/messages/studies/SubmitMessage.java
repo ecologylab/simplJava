@@ -4,7 +4,9 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
+@xml_inherit
 public class SubmitMessage extends RequestMessage 
 {
 	//public boolean close;

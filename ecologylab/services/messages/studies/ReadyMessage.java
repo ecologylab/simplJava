@@ -5,7 +5,9 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.xml_inherit;
 
+@xml_inherit
 public class ReadyMessage extends RequestMessage 
 {
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 

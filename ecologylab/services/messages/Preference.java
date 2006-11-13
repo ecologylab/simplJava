@@ -14,8 +14,8 @@ import ecologylab.xml.xml_inherit;
  */
 public @xml_inherit class Preference extends ArrayListState 
 {
-	public String 	name;
-	public String 	value;
+	@xml_attribute protected String 	name;
+	@xml_attribute protected String 	value;
 	
 	public Preference() {}
 	

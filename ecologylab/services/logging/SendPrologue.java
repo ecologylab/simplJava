@@ -8,6 +8,7 @@ import ecologylab.generic.Files;
 import ecologylab.net.NetTools;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.xml_inherit;
 
 /**
  * This class should *never* be extended in an application specific way, because the LoggingServer should never
@@ -16,17 +17,18 @@ import ecologylab.xml.XmlTranslationException;
  * @author andruid
  * @author eunyee
  */
+@xml_inherit
 public class SendPrologue extends LogueMessage
 {
-	public Prologue		prologue;
+	@xml_nested protected Prologue		prologue;
 	
-	public String	date					= new Date(System.currentTimeMillis()).toString();
+	@xml_attribute protected String	date					= new Date(System.currentTimeMillis()).toString();
 	
-	public String	ip						= NetTools.localHost();
+	@xml_attribute protected String	ip						= NetTools.localHost();
 	
-	public int 		userID					= 0;
+	@xml_attribute protected int 		userID					= 0;
 	
-	public String 	studyName;
+	@xml_attribute protected String 	studyName;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{

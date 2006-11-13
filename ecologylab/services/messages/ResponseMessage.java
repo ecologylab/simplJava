@@ -1,6 +1,7 @@
 package ecologylab.services.messages;
 
 import ecologylab.generic.ObjectRegistry;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Service response message.
@@ -8,6 +9,7 @@ import ecologylab.generic.ObjectRegistry;
  * @author blake
  * @author andruid
  */
+@xml_inherit
 abstract public class ResponseMessage 
 extends ServiceMessage
 {

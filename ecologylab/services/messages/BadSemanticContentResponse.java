@@ -1,5 +1,7 @@
 package ecologylab.services.messages;
 
+import ecologylab.xml.xml_inherit;
+
 /**
  * The ResponseMessage send from server to client when the RequestMessage
  * is well-formed, but doesn't make sense in the current context.
@@ -8,6 +10,7 @@ package ecologylab.services.messages;
  * @author blake
  * @author eunyee
  */
+@xml_inherit
 public class BadSemanticContentResponse extends ErrorResponse
 {
 

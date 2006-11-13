@@ -16,13 +16,13 @@ import ecologylab.xml.XmlTools;
  */
 public class Prologue extends ElementState
 {
-	public String	date					= new Date(System.currentTimeMillis()).toString();
+	@xml_attribute protected String	date					= new Date(System.currentTimeMillis()).toString();
 	
-	public String	ip						= NetTools.localHost();
+	@xml_attribute protected String	ip						= NetTools.localHost();
 	
-	public int 		userID					= 0;
+	@xml_attribute protected int 		userID					= 0;
 	
-	public String 	studyName;
+	@xml_attribute protected String 	studyName;
 	
 	public Prologue()
 	{

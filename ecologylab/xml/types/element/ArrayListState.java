@@ -12,7 +12,7 @@ import java.util.Iterator;
  */
 public class ArrayListState extends ElementState implements Cloneable //, Iterable
 {
-	@xml_nested	public ArrayList set;
+	@xml_nested	protected ArrayList set;
 
     public ArrayListState()
     {

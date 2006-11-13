@@ -11,9 +11,9 @@ import ecologylab.xml.ElementState;
  */
 public class ServiceMessage extends ElementState
 {
-    public long           timeStamp = 0;
+    @xml_attribute protected long           timeStamp = 0;
 
-    public long           uid;
+    @xml_attribute protected long           uid;
 
     /**
      * Contains the IP address of the host that sent this message. sender

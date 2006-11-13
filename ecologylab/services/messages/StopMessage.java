@@ -4,12 +4,14 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.SessionObjects;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Informs the service server to shut down.
  * 
  * @author blake
  */
+@xml_inherit
 public class StopMessage
 extends RequestMessage
 implements SessionObjects

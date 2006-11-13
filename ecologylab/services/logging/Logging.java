@@ -42,7 +42,7 @@ public class Logging extends ElementState implements Runnable,
      * one, because we dont the write the log file all at once, and so can't
      * automatically translate the start tag and end tag for this element.
      */
-    public ArrayListState       opSequence;
+    @xml_nested protected ArrayListState       opSequence;
     
 
     Thread                      thread;

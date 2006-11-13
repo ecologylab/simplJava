@@ -9,17 +9,20 @@ import netscape.javascript.JSObject;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.net.ParsedURL;
+import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * A message sent to the browser server to perform the navigation service.
  * 
  * @author blake
  */
+@xml_inherit
 public class Navigate 
 extends RequestMessage
 implements MessageTypes
 {
-	public ParsedURL purl;
+	@xml_attribute protected ParsedURL purl;
 	
 	public Navigate() {}
 	

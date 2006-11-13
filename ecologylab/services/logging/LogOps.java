@@ -3,6 +3,7 @@ package ecologylab.services.logging;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Send an intermediate sequence of ops to the logging server.
@@ -13,9 +14,10 @@ import ecologylab.xml.ElementState;
  * @author eunyee
  *
  */
+@xml_inherit
 public final class LogOps extends LogRequestMessage
 {
-	public ArrayList set	=	new ArrayList();
+	@xml_nested protected ArrayList set	=	new ArrayList();
 	
     public void addNestedElement(ElementState elementState)
     {
