@@ -39,7 +39,7 @@ extends Debug implements BasicFloatSet
 /**
  * Used as a boundary condition for fast implementations of sort.
  */
-   FloatSetElement	sentinel	= new FloatSetElement();
+   protected final FloatSetElement	SENTINEL	= new FloatSetElement();
    
 /**
  * This might pause us before we do an expensive operation.
@@ -144,8 +144,8 @@ extends Debug implements BasicFloatSet
       pruneSize	= initialSize + extraAllocation/2;
       
       alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
-      sentinel.weight	= - Float.MAX_VALUE;
-      insert(sentinel);
+      SENTINEL.weight	= - Float.MAX_VALUE;
+      insert(SENTINEL);
       debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
@@ -292,7 +292,7 @@ extends Debug implements BasicFloatSet
 		 prune(desiredSize);
       Thread.yield();
       FloatSetElement result	= maxSelect();
-      if (result == sentinel)
+      if (result == SENTINEL)
       {  // defensive programming
 		 debug("maxSelect() ERROR chose sentinel??????!!! size="+ size +" maxArrayListSize="+maxArrayList.size());
 		 Thread.dumpStack();
@@ -348,7 +348,7 @@ extends Debug implements BasicFloatSet
 	   numActive = 0;
 	   
 	   //set result in case there's only 1 element in the set.
-	   FloatSetElement result= sentinel;
+	   FloatSetElement result= SENTINEL;
 	   float maxWeight		= result.getWeight();
 	   
 	   for (int i=1; i<size; i++)
@@ -376,7 +376,7 @@ extends Debug implements BasicFloatSet
 		   }
 */	   }
 	   
-	   if (result == sentinel)
+	   if (result == SENTINEL)
 		   return null;
 	   
 	   int numMax		= maxArrayList.size();
@@ -496,7 +496,7 @@ extends Debug implements BasicFloatSet
    }
    void insertionSort(FloatSetElement buffer[], int n)
    {
-      sentinel.weight	= Float.POSITIVE_INFINITY;
+      SENTINEL.weight	= Float.POSITIVE_INFINITY;
       for (int i=2; i!=n; i++)
       {
 		 int current		= i;
@@ -511,7 +511,7 @@ extends Debug implements BasicFloatSet
 		 buffer[current]	= toBeInserted;
       }
       n++;
-      sentinel.weight	= 0;	   // dont influence randomSelect() ops
+      SENTINEL.weight	= 0;	   // dont influence randomSelect() ops
    }
    void quickSort(FloatSetElement buffer[],
 				  int lower, int upper, boolean printDebug)
@@ -909,14 +909,7 @@ extends Debug implements BasicFloatSet
    {
 	   incrementalSums = newIncrementalSums;
    }
-   public FloatSetElement sentinel()
-   {
-	   return sentinel;
-   }
-   public void setSentinel(FloatSetElement newSentinel)
-   {
-	   sentinel = newSentinel;
-   }
+
    public int numSlots()
    {
 	   return numSlots;
