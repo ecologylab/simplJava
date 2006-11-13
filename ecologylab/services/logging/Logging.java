@@ -884,4 +884,11 @@ public class Logging extends ElementState implements Runnable,
             loggingClient   = null;
         }
     }
+    /**
+     * @return the opSequence
+     */
+    public ArrayListState getOpSequence()
+    {
+        return opSequence;
+    }
 }
