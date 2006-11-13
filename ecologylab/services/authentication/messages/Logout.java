@@ -20,7 +20,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit public class Logout extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects
 {
-    @xml_attribute protected AuthenticationListEntry entry = new AuthenticationListEntry("", "");
+    @xml_nested protected AuthenticationListEntry entry = new AuthenticationListEntry("", "");
 
     /**
      * Should not normally be used; only for XML translations.
