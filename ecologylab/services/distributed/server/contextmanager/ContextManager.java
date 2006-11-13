@@ -203,14 +203,29 @@ public class ContextManager extends Debug implements ServerConstants
         }
     }
 
+    /**
+     * Checks the time since the last valid message. If the time has been too
+     * long (MAX_TIME_BEFORE_VALID_MSG), throws a BadClientException, which the
+     * server will deal with.
+     * 
+     * If the time has not been too long, updates the time stamp.
+     * 
+     * @throws BadClientException
+     */
     void timeoutBeforeValidMsg() throws BadClientException
     {
         long now = System.currentTimeMillis();
         long elapsedTime = now - this.initialTimeStamp;
         if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
+        {
             throw new BadClientException(
                     "Too long before valid response: elapsedTime="
                             + elapsedTime + ".");
+        }
+        else
+        {
+            this.initialTimeStamp = now;
+        }
     }
 
     /**
@@ -241,7 +256,11 @@ public class ContextManager extends Debug implements ServerConstants
             throws BadClientException
     {
         if (show(5))
+        {
             debug("processing: " + incomingMessage);
+            debug("translationSpace: " + translationSpace.toString());
+        }
+
         request = null;
         try
         {
@@ -268,7 +287,7 @@ public class ContextManager extends Debug implements ServerConstants
         {
             receivedAValidMsg = true;
             badTransmissionCount = 0;
-            
+
             synchronized (requestQueue)
             {
                 this.enqueueRequest(request);
