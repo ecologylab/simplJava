@@ -531,7 +531,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                 }
                             }
 
-                            debug("accumulator: "+accumulator.toString());
+//                            debug("accumulator: "+accumulator.toString());
 
                             // erase the message
                             // from
