@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.net.URLDecoder;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.ErrorResponse;
@@ -33,6 +34,15 @@ public class ServerToClientConnection extends Debug implements Runnable,
     protected Socket         incomingSocket;
 
     protected boolean        running = true;
+    
+    protected boolean		ALLOW_HTTP_STYLE_REQUESTS	= false;
+    
+    static final String HTTP_PREPEND		= "GET /";
+    static final int	HTTP_PREPEND_LENGTH	= HTTP_PREPEND.length();
+    
+    static final String HTTP_APPEND			= " HTTP/1.1";
+    static final int	HTTP_APPEND_LENGTH	= HTTP_APPEND.length();
+    
 
     public ServerToClientConnection(Socket incomingSocket,
             ServicesServer servicesServer) throws IOException
@@ -61,7 +71,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
         int badTransmissionCount = 0;
         while (running)
         {
-            // debug("waiting for packet");
+            debug("waiting for packet");
             // get the packet message
             String messageString = "";
             try
@@ -72,9 +82,15 @@ public class ServerToClientConnection extends Debug implements Runnable,
                 if (messageString != null)
                 {
                     if (show(5))
-                        debug("got raw message[" + messageString.getBytes().length + "]: "
-                                + messageString);
-
+                		debug("got raw message[" + messageString.getBytes().length + "]: "
+                		  	  + messageString);
+                    if (ALLOW_HTTP_STYLE_REQUESTS && messageString.startsWith(HTTP_PREPEND))
+                    {
+                    	int endIndex	= messageString.lastIndexOf(HTTP_APPEND);
+                    	messageString	= messageString.substring(HTTP_PREPEND_LENGTH, endIndex);
+                    	messageString	= URLDecoder.decode(messageString, "UTF-8");
+                    	debug("fixed message! " + messageString);
+                    }
                     RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 
                     if (requestMessage == null)
