@@ -1,10 +1,12 @@
-package ecologylab.generic;
+package ecologylab.io;
 
 import java.io.*;
 import java.util.*;
 import java.net.*;
 import java.nio.channels.FileChannel;
 
+import ecologylab.generic.Debug;
+import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 
 /**

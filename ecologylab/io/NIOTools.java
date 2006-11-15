@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.io;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;

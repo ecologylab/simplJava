@@ -1,7 +1,10 @@
-package ecologylab.generic;
+package ecologylab.io;
 
 import java.io.File;
 import java.io.IOException;
+
+import ecologylab.generic.Debug;
+import ecologylab.generic.PropertiesAndDirectories;
 
 /**
  * Simple utility to write and detect lock files.

@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.io;
 
 import java.io.File;
 import java.io.FileInputStream;

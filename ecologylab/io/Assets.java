@@ -1,21 +1,15 @@
 /**
  * The Assets class is used to manage cachable assets.
  */
-package ecologylab.generic.AssetsCache;
+package ecologylab.io;
 
-import java.awt.GraphicsConfiguration;
 import java.io.File;
 
 import ecologylab.generic.ApplicationProperties;
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.DownloadMonitor;
-import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.PropertiesAndDirectories;
-import ecologylab.generic.ZipDownload;
-import ecologylab.gui.Status;
-import ecologylab.media.IIOPhoto;
+import ecologylab.generic.StatusReporter;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -190,7 +184,7 @@ implements ApplicationProperties
 	 * @param assetRelativePath
 	 * @return
 	 */
-	protected static File getCachedInterfaceFile(String assetRelativePath)
+	public static File getCachedInterfaceFile(String assetRelativePath)
 	{
 		return Files.newFile(interfaceCacheRoot, assetRelativePath);
 	}
@@ -240,7 +234,7 @@ implements ApplicationProperties
 	 * 
 	 * @return	false if the assetRelativePath is null; otherwise true.
 	 */
-	public static boolean downloadInterfaceZip(String assetRelativePath, Status status,
+	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
 											boolean forceDownload)
 	{
 		if (assetRelativePath == null)
@@ -257,14 +251,14 @@ implements ApplicationProperties
 	 * @param assetRelativePath
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
 	 */
-	public static void downloadSemanticsZip(String assetRelativePath, Status status,
+	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
 											boolean forceDownload)
 	{
 		downloadZip(semanticsAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
 					semanticsCacheRoot, status, forceDownload);
 	}
 	
-	public static void downloadPreferencesZip(String assetRelativePath, Status status,
+	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
 											  boolean forceDownload)
 	{
 		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
@@ -277,7 +271,7 @@ implements ApplicationProperties
 	 * @param assetRelativePath
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
 	 */
-	public static void downloadZip(String assetRelativePath, Status status,
+	public static void downloadZip(String assetRelativePath, StatusReporter status,
 								   boolean forceDownload)
 	{
 		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
@@ -314,7 +308,7 @@ implements ApplicationProperties
 	 * @param target The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
 	 */
-	public static void downloadZip(ParsedURL sourceZip, File targetDir, Status status, boolean forceDownload)
+	public static void downloadZip(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean forceDownload)
 	{
 		//TODO add versioning logic
 		String zipFileName	= sourceZip.url().getFile();
@@ -335,19 +329,6 @@ implements ApplicationProperties
 		else
 			println("Using cached " + zipFileDestination);
 	}	
-	public static IIOPhoto getCachedIIOPhoto(String imagePath, DispatchTarget dispatchTarget, GraphicsConfiguration graphicsConfiguration)
-	{
-		//FIXME need to make sure zip has been downloaded here
-		// if not, initiate download & wait for it!
-		ParsedURL cachedImagePURL	= new ParsedURL(getCachedInterfaceFile(imagePath));
-		IIOPhoto result = new IIOPhoto(cachedImagePURL, dispatchTarget, graphicsConfiguration);
-//		result.downloadWithHighPriority();
-		result.useHighPriorityDownloadMonitor();
-		result.download();
-//		if (result.isDownloadDone())
-//			result.delivery(dispatchTarget);
-		return result;
-	}
 
 	/**
 	 * Set the source URL root of the tree of assets for this application.

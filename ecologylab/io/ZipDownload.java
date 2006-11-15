@@ -1,10 +1,7 @@
 /**
  * Simple class to download and write zip files to disk.
  */
-package ecologylab.generic;
-
-import ecologylab.media.PixelBased;
-import ecologylab.net.ParsedURL;
+package ecologylab.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,15 +12,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
-import ecologylab.gui.AWTBridge;
-import ecologylab.gui.Status;
+import ecologylab.generic.Debug;
+import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.DownloadMonitor;
+import ecologylab.generic.Downloadable;
+import ecologylab.generic.StatusReporter;
+import ecologylab.net.ParsedURL;
 
 /**
  * Class implementing DownloadLoadable to allow for the downloading and writing
@@ -36,11 +35,11 @@ extends Debug
 implements Downloadable, DispatchTarget
 {
 	
-	static DownloadMonitor downloadMonitor = PixelBased.highPriorityDownloadMonitor;
+	static DownloadMonitor downloadMonitor;
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
-	Status		status;
+	StatusReporter		status;
 	boolean		keepStatus			= false;
 	
 	boolean		downloadDone 		= false;
@@ -53,7 +52,7 @@ implements Downloadable, DispatchTarget
 	
 	private static final int BUFFER_SIZE	= 8192;
 	
-	public ZipDownload(ParsedURL zipSource, File zipTarget, Status status)
+	public ZipDownload(ParsedURL zipSource, File zipTarget, StatusReporter status)
 	{
 		super();
 		
@@ -138,7 +137,7 @@ implements Downloadable, DispatchTarget
         	  {
         		  //Our status will be in 10% increments
         		  if (count >=  incrementSize*(lastTenth))
-        			  status.displayStatus("Downloading zip file " + zipTarget.getName(),
+        			  status.display("Downloading zip file " + zipTarget.getName(),
         				  					1, count/10, incrementSize);
         		  
         		  //can't just increment because we maybe skip/hit 1/10ths due to 
@@ -268,11 +267,11 @@ implements Downloadable, DispatchTarget
 	 * @param source The location of the zip file to download and uncompress.
 	 * @param targetDir The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
-	 * @param status The Status object that provides a source of state change visiblity;
+	 * @param status The StatusReporter object that provides a source of state change visiblity;
 	 * can be null.
 	 * @return TODO
 	 */
-	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, Status status)
+	public static ZipDownload downloadZip(ParsedURL sourceZip, File targetDir, StatusReporter status)
 	{
 		//Create the target parent directory. 
 	   	if (!targetDir.exists())
@@ -402,5 +401,10 @@ implements Downloadable, DispatchTarget
 			}
 		   }
 	   }
+   }
+
+   public static void setDownloadMonitor(DownloadMonitor downloadMonitor)
+   {
+	   ZipDownload.downloadMonitor = downloadMonitor;
    }
 }
