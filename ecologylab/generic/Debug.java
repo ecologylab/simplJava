@@ -3,6 +3,9 @@ package ecologylab.generic;
 import java.util.*;
 import java.io.*;
 
+import ecologylab.io.Files;
+
+
 
 /**
  * A developer-friendly base class and toolset for logging debug messages.

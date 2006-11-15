@@ -1,12 +1,9 @@
 package ecologylab.generic;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 
-import ecologylab.generic.AssetsCache.Assets;
+import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.PreferencesSet;

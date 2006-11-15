@@ -16,10 +16,10 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
 import java.util.Vector;
 
-import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Memory;
 import ecologylab.generic.PropertiesAndDirectories;
+import ecologylab.io.Files;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.xml.ArrayListState;

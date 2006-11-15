@@ -11,9 +11,9 @@ import java.util.*;
 import javax.imageio.ImageIO;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.Files;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringTools;
+import ecologylab.io.Files;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers.

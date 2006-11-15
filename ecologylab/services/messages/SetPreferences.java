@@ -1,23 +1,12 @@
 package ecologylab.services.messages;
 
-import java.io.File;
-
 import ecologylab.generic.ConsoleUtils;
-import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 import ecologylab.generic.ObjectRegistry;
-import ecologylab.generic.AssetsCache.Assets;
-import ecologylab.gui.Status;
-import ecologylab.net.ParsedURL;
-import ecologylab.services.messages.OkResponse;
-import ecologylab.services.messages.PreferencesSet;
-import ecologylab.services.messages.RequestMessage;
-import ecologylab.services.messages.ResponseMessage;
+import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 

@@ -3,6 +3,7 @@ package ecologylab.services;
 import java.io.*;
 
 import ecologylab.generic.*;
+import ecologylab.io.Files;
 
 /**
  * User study subject session number, and directory management.

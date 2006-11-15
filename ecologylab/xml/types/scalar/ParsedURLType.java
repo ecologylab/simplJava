@@ -38,7 +38,7 @@ public class ParsedURLType extends Type
 	{
 	   if (value.indexOf(':') == 1)
 	   {
-		   File file	= ecologylab.generic.Files.newFile(value);
+		   File file	= ecologylab.io.Files.newFile(value);
 		   return new ParsedURL(file);
 	   }
 	   return ParsedURL.getAbsolute(value, " getInstance()");

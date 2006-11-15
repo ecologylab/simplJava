@@ -1,10 +1,10 @@
 package ecologylab.generic;
 
-import java.util.*;
 import java.io.File;
+import java.util.Properties;
 
-import ecologylab.generic.*;
-import ecologylab.generic.AssetsCache.Assets;
+import ecologylab.io.Files;
+
 
 /**
  * Collects paths and methods for accessing properties that store's on the

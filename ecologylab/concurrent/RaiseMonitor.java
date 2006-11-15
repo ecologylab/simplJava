@@ -1,6 +1,5 @@
 package ecologylab.generic;
 
-import ecologylab.gui.AWTBridge;
 
 
 /**
@@ -67,7 +66,7 @@ public abstract class RaiseMonitor extends Thread {
 		{
 			try
 			{  
-				//AWTBridge.rolloverRaiseStatus	= 3000;
+				//TraceSlots.rolloverRaiseStatus	= 3000;
 				// wait for the next request
 				//Debug.println("RaiseMonitor.run() wait()");
 				wait();
@@ -75,14 +74,14 @@ public abstract class RaiseMonitor extends Thread {
 				if (!running)
 					break;
 			    
-				AWTBridge.rolloverRaiseStatus = 3001;
+				TraceSlots.rolloverRaiseStatus = 3001;
 				//Debug.println("RaiseMonitor.run() take waitingLock");
 				synchronized (waitingLock)
 				{
 					waitingToDoRun	= true;
 					//				  println("RolloverFrame.run() waitingLock.wait(RAISE_ABOUT_DELAY)");
 					
-					AWTBridge.rolloverRaiseStatus	= 3002;
+					TraceSlots.rolloverRaiseStatus	= 3002;
 					// wait for a little delay before raising
 					waitingLock.wait(raiseDelay);
 					if (running == false)
@@ -92,13 +91,13 @@ public abstract class RaiseMonitor extends Thread {
 					if (waitingToDoRun)
 					{
 						waitingToDoRun	= false;
-						AWTBridge.rolloverRaiseStatus	= 3003;
+						TraceSlots.rolloverRaiseStatus	= 3003;
 						doRaise();
-						AWTBridge.rolloverRaiseStatus	= 3004;
+						TraceSlots.rolloverRaiseStatus	= 3004;
 					}
 					else // waitingToDoRun changed asychronously by cancel()
 					{
-						AWTBridge.rolloverRaiseStatus	= 3005;
+						TraceSlots.rolloverRaiseStatus	= 3005;
 						//cancelRaise();
 						//oneAndOnly.showEmbellishments	= false;
 					}
