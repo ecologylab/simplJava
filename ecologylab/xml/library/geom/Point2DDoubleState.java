@@ -3,6 +3,7 @@ package ecologylab.xml.geom;
 import java.awt.geom.Point2D;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Encapsulates a Point2D.Double for use in translating to/from XML.
@@ -18,16 +19,16 @@ import ecologylab.xml.ElementState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Point2DDoubleState extends ElementState
+public @xml_inherit class Point2DDoubleState extends ElementState
 {
     private Point2D.Double point = new Point2D.Double();
 
     /**
      * Location and dimensions of the point.
      */
-    public double          x     = 0;
+    protected @xml_attribute double          x     = 0;
 
-    public double          y     = 0;
+    protected @xml_attribute double          y     = 0;
 
     public Point2DDoubleState()
     {

@@ -6,19 +6,20 @@ package ecologylab.xml.geom;
 import java.awt.Shape;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
-public abstract class RectangularShape extends ElementState implements Shape
+public @xml_inherit abstract class RectangularShape extends ElementState implements Shape
 {
     /**
      * Location and dimensions of the ellipse.
      */
-    public double              x         = 0;
+    protected @xml_attribute double              x         = 0;
 
-    public double              y         = 0;
+    protected @xml_attribute double              y         = 0;
 
-    public double              w         = 0;
+    protected @xml_attribute double              w         = 0;
 
-    public double              h         = 0;   
+    protected @xml_attribute double              h         = 0;   
     
     public RectangularShape()
     {

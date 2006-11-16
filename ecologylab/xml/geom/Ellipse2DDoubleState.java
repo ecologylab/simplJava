@@ -7,6 +7,8 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import ecologylab.xml.xml_inherit;
+
 /**
  * Encapsulates a Ellipse2D.Double for use in translating to/from XML.
  * 
@@ -23,7 +25,7 @@ import java.awt.geom.Rectangle2D;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class Ellipse2DDoubleState extends RectangularShape
+public @xml_inherit class Ellipse2DDoubleState extends RectangularShape
 {
     protected Ellipse2D.Double shape = null;
 
