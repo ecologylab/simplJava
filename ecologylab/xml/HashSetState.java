@@ -1,44 +1,54 @@
 package ecologylab.xml;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
 /**
- * An ElementState XML tree node that supports an ArrayList of children (as well as whatever else
- * you add to it).
+ * An ElementState XML tree node that supports an ArrayList of children (as well
+ * as whatever else you add to it).
  * 
  * @author andruid
  */
-public class HashSetState extends ElementState implements Cloneable
+public class HashSetState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>
 {
-    public HashSet set = new HashSet();
+    private @xml_nested HashSet<T> set = null;
 
     public HashSetState()
     {
         super();
     }
-
-    public boolean add(ElementState elementState)
+    
+    protected HashSet<T> set()
     {
-        return set.add(elementState);
+        HashSet<T>   result  = set;
+        if (result == null)
+        {
+            result          = new HashSet<T>();
+            set             = result;
+        }
+        return result;
+    }
+    
+    public boolean add(T elementState)
+    {
+        return set().add(elementState);
     }
 
-    public Iterator iterator()
+    public Iterator<T> iterator()
     {
-        return set.iterator();
+        return set().iterator();
     }
 
     /**
      * Return the collection object associated with this
      * 
-     * @return	The ArrayList we collect in.
+     * @return The ArrayList we collect in.
      */
-	protected Collection getCollection(Class thatClass)
-	{
-		return set;
-	}
+    protected Collection getCollection(Class thatClass)
+    {
+        return set;
+    }
 
     /**
      * Remove all elements from our Collection.
@@ -46,7 +56,8 @@ public class HashSetState extends ElementState implements Cloneable
      */
     public void clear()
     {
-        set.clear();
+        if (set != null) 
+            set.clear();
     }
 
     /**
@@ -56,14 +67,14 @@ public class HashSetState extends ElementState implements Cloneable
      */
     public int size()
     {
-        return set.size();
+        return (set == null ? 0 : set.size());
     }
 
-    public Object clone()
+    @SuppressWarnings("unchecked") public Object clone()
     {
         HashSetState clone = new HashSetState();
 
-        clone.set = (HashSet) this.set.clone();
+        clone.set = (HashSet<ElementState>) this.set().clone();
 
         return clone;
     }
