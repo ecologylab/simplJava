@@ -6,9 +6,9 @@ package ecologylab.xml;
  * Object wrapper for int primitive values. Useful for storing in HashMaps, and
  * anywhere else that a reference type is needed.
  */
-public class IntState extends ElementState implements Comparable
+public @xml_inherit class IntState extends ElementState implements Comparable
 {
-    public int value;
+    private @xml_attribute int value;
 
     public IntState(int b)
     {
@@ -62,5 +62,21 @@ public class IntState extends ElementState implements Comparable
             return 0;
         else
             return -1;
+    }
+
+    /**
+     * @return the value
+     */
+    public int getValue()
+    {
+        return value;
+    }
+
+    /**
+     * @param value the value to set
+     */
+    public void setValue(int value)
+    {
+        this.value = value;
     }
 }
