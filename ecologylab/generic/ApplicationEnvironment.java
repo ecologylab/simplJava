@@ -215,7 +215,7 @@ implements Environment
 	 * 
 	 * @param baseClass			Used for computing codeBase property.
 	 * @param applicationName	Name of the application.
-	 * @param propertiesFileRelativePath	Path to the properties file, relative to codeBase().
+	 * @param preferencesFileRelativePath	Path to the Preferences file, relative to codeBase().
 	 * @param translationSpace		TranslationSpace used for translating preferences XML.
 	 * 								If this is null, 
 	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
@@ -224,7 +224,7 @@ implements Environment
 	 * @param screenSize		used in TopLevel --
 	 * 								1 - quarter; 2 - almost half; 3; near full; 4 full
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, String propertiesFileRelativePath, 
+	public ApplicationEnvironment(Class baseClass, String applicationName, String preferencesFileRelativePath, 
 			TranslationSpace translationSpace, String graphicsDev, String screenSize) 
 	{
 		//ElementState.setDeclarationStyle(ElementState.DeclarationStyle.PUBLIC);
@@ -256,17 +256,14 @@ implements Environment
 
 		codeBase				= new ParsedURL(path);
 		println("codeBase="+codeBase);
-		// load general application propertioes
-		//loadProperties(path, BASE_PREFERENCE_PATH);
+		
+		// load default preferences
 		loadPreferencesXML(translationSpace, path, BASE_PREFERENCE_PATH);
-		// load properties specific to this invocation
-		if (propertiesFileRelativePath != null)
+		// load preferences specific to this invocation
+		if ((preferencesFileRelativePath != null) && preferencesFileRelativePath.endsWith(".xml"))
 		{
-//			loadProperties(path, propertiesFileRelativePath);
-			loadPreferencesXML(translationSpace, path, propertiesFileRelativePath);
+			loadPreferencesXML(translationSpace, path, preferencesFileRelativePath);
 		}
-//		else
-//			properties			= new Properties();
 		
 		if (graphicsDev != null)
 			setProperty("graphics_device", graphicsDev);
@@ -275,8 +272,14 @@ implements Environment
 			setProperty("screen_size", screenSize);
 		
 		PropertiesAndDirectories.setApplicationName(applicationName);
-//		PropertiesAndDirectories.thisApplicationDir();
 	}
+	/**
+	 * Load an ecologylab style preferences file.
+	 * 
+	 * @param translationSpace
+	 * @param path
+	 * @param prefFilePath
+	 */
 	private void loadPreferencesXML(TranslationSpace translationSpace, File path, String prefFilePath)
 	{
 		File preferencesXMLFile	= new File(path, prefFilePath);
@@ -299,7 +302,6 @@ implements Environment
 	
 	public void setProperty(String propertyName, String propertyValue)
 	{
-//		properties.setProperty(propertyName, propertyValue);
 		preferencesRegistry.registerObject(propertyName, propertyValue);
 	}
     /**
