@@ -38,10 +38,10 @@ extends RequestMessage
 
 	}
 	
-	public SetPreferences(String preferencesSetString, TranslationSpace nameSpace)
+	public SetPreferences(String preferencesSetString, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		this((PreferencesSet) translateFromXMLString(preferencesSetString, nameSpace));
+		this((PreferencesSet) translateFromXMLString(preferencesSetString, translationSpace));
 	}
 	
 	public SetPreferences(String preferencesSetAssetPath, String overridePreferencesSetString, TranslationSpace nameSpace)
@@ -96,4 +96,14 @@ extends RequestMessage
 	 * @param objectRegistry
 	 */
 	protected void setupApplication(ObjectRegistry objectRegistry) { }
+
+	/**
+	 * Set the Asset path used for setPreferences.
+	 * 
+	 * @param preferencesSetAssetPath
+	 */
+	public void setPreferencesSetAssetPath(String preferencesSetAssetPath)
+	{
+		this.preferencesSetAssetPath = preferencesSetAssetPath;
+	}
 }
