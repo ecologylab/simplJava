@@ -1,6 +1,6 @@
 # current working directory
 
-FUNDAMENTAL_DIRS = net generic io types xml xml/yahoo xml/dc xml/media xml/itunes xml/rss services services/messages services/messages/studies services/logging
+FUNDAMENTAL_DIRS = net generic io types xml xml/yahoo xml/dc xml/feedburner xml/media xml/itunes xml/rss services services/messages services/messages/studies services/logging
 
 JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 
@@ -33,6 +33,8 @@ TARGET		= ecologylabFundamental
 TARGET_DIR	= ../cf
 JAR_FILE	= $(TARGET_DIR)/$(TARGET).jar
 SIGNER		= "Interface Ecology Lab"
+STORE_PASS	= -storepass ecology
+
 RELEASE = 2.1Beta4
 
 .PHONY: ecologylab.jar
