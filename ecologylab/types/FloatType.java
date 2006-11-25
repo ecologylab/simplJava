@@ -74,11 +74,11 @@ public class FloatType extends Type
      * The default value for this type, as a String. This value is the one that translateToXML(...)
      * wont bother emitting.
      * 
-     * @return "1"
+     * @return "0"
      */
     public String defaultValue()
     {
-        return "1.0";
+        return "0.0";
     }
 
     /**
