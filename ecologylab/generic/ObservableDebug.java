@@ -11,7 +11,6 @@ extends Observable
 {
    protected ObservableDebug()
    {
-      AllocationDebugger.constructed(this);
    }
    public final void debug(String message)
    {
