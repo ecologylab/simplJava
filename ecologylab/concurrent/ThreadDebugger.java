@@ -1,7 +1,11 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
 import java.util.*;
 import javax.swing.*;
+
+import ecologylab.generic.Debug;
+import ecologylab.generic.ObservableDebug;
+
 import java.awt.event.*;
 import java.awt.*;
 

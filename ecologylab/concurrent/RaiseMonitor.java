@@ -1,4 +1,6 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
+
+import ecologylab.generic.TraceSlots;
 
 
 

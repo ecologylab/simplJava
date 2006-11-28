@@ -1,5 +1,7 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
+import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;

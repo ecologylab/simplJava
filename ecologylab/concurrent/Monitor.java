@@ -1,4 +1,6 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
+
+import ecologylab.generic.ObservableDebug;
 
 /**
  * Generic facilities for concurrent programming.

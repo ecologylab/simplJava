@@ -1,8 +1,10 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import ecologylab.generic.Downloadable;
+import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
 
 /**

@@ -1,6 +1,8 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
 import java.util.*;
+
+import ecologylab.generic.NewPorterStemmer;
 
 /**
  * A DownloadMonitor that processes text.

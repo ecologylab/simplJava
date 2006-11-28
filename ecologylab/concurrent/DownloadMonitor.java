@@ -1,8 +1,18 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
 
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
+
+import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.DownloadProcessor;
+import ecologylab.generic.Downloadable;
+import ecologylab.generic.FloatWeightSet;
+import ecologylab.generic.Generic;
+import ecologylab.generic.MathTools;
+import ecologylab.generic.Memory;
+import ecologylab.generic.NewPorterStemmer;
+import ecologylab.generic.OutOfMemoryErrorHandler;
 
 
 /**
@@ -15,7 +25,7 @@ import java.nio.channels.ClosedByInterruptException;
  */
 public class DownloadMonitor
 extends Monitor
-implements Runnable
+implements Runnable, DownloadProcessor
 {
    static final int	TIMEOUT		= 25000;
    static final int	TIMEOUT_SLEEP	= 4000;

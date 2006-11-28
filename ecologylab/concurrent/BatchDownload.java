@@ -1,9 +1,12 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
 
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Observable;
+
+import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Downloadable;
 
 public class BatchDownload extends Observable implements DispatchTarget
 {

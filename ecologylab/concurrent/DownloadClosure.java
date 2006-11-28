@@ -1,4 +1,8 @@
-package ecologylab.generic;
+package ecologylab.concurrent;
+
+import ecologylab.generic.Debug;
+import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Downloadable;
 
 /**
  * Closure that keeps state about a download, as it progresses.
