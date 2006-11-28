@@ -19,7 +19,7 @@ import java.util.zip.ZipFile;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.DownloadMonitor;
+import ecologylab.generic.DownloadProcessor;
 import ecologylab.generic.Downloadable;
 import ecologylab.generic.StatusReporter;
 import ecologylab.net.ParsedURL;
@@ -35,7 +35,7 @@ extends Debug
 implements Downloadable, DispatchTarget
 {
 	
-	static DownloadMonitor downloadMonitor;
+	static DownloadProcessor downloadMonitor;
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
@@ -403,7 +403,7 @@ implements Downloadable, DispatchTarget
 	   }
    }
 
-   public static void setDownloadMonitor(DownloadMonitor downloadMonitor)
+   public static void setDownloadMonitor(DownloadProcessor downloadMonitor)
    {
 	   ZipDownload.downloadMonitor = downloadMonitor;
    }
