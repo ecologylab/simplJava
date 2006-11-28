@@ -48,7 +48,7 @@ public class DoubleType extends Type
         }
         catch (Exception e)
         {
-            debug(errorString(field) + "to " + value);
+            setFieldError(field, value, e);
         }
         return result;
     }

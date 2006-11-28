@@ -5,6 +5,7 @@ package ecologylab.types;
 
 import java.lang.reflect.Field;
 
+import ecologylab.generic.Debug;
 import ecologylab.xml.*;
 
 /**
@@ -18,7 +19,7 @@ import ecologylab.xml.*;
  * 
  * @author andruid
  */
-public class Type extends IO
+public class Type extends Debug
 {
     String                     className;
 
@@ -95,13 +96,25 @@ public class Type extends IO
                 result = true;
             }
         }
-        catch (IllegalAccessException e)
+//      catch (IllegalAccessException e)
+        catch (Exception e)
         {
-            debug("Got " + e + " while setting field " + field + " to " + value + "->"
-                    + referenceObject + " " + referenceObject.getClass());
+            setFieldError(field, value, e);
         }
         return result;
     }
+
+    /**
+     * Display an error message that arose while setting field to value.
+     * 
+     * @param field
+     * @param value
+     * @param e
+     */
+	protected void setFieldError(Field field, String value, Exception e)
+	{
+		error("Got " + e + " while trying to set field " + field + " to " + value);
+	}
 
     /**
      * @return Returns the className for this type.

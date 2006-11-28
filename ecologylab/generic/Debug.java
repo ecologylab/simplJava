@@ -274,11 +274,11 @@ public class Debug
       println(this, message);
    }
    /**
-    * Print a debug message that starts with this.toString().
+    * Print a message about an error, starting with this.toString().
     */
    public void error(String message)
    {
-	   println(this, "ERROR: " + message);
+	   println("\n" + this + SEPARATOR + "ERROR: " + message + "\n");
    }
    
 /**

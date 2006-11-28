@@ -49,9 +49,8 @@ public class IntType extends Type
 		   result		= true;
 		} catch (Exception e)
 		{
-		   debug("Got " + e + " while setting field " +
+		   error("Got " + e + " while setting field " +
 				 field + " to " + value+"->"+converted + " in " + object);
-		   e.printStackTrace();
 		}
 		return result;
 	}

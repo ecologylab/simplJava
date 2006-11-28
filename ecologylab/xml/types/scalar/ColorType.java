@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
  */
 public class ColorType extends Type
 {
+	
+	
 /**
  * This constructor should only be called once per session, through
  * a static initializer, typically in TypeRegistry.

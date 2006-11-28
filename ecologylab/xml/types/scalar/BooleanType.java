@@ -49,7 +49,7 @@ public class BooleanType extends Type
 			result		= true;
 		} catch (Exception e)
 		{
-			debug(errorString(field) + "to " + value);
+            setFieldError(field, value, e);
 		}
 		return result;
 	}

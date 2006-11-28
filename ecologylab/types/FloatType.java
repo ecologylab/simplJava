@@ -48,7 +48,7 @@ public class FloatType extends Type
         }
         catch (Exception e)
         {
-            debug(errorString(field) + "to " + value);
+            setFieldError(field, value, e);
         }
         return result;
     }
