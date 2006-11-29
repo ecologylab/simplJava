@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
- * An ElementState XML tree node that supports an ArrayList of children (as well as whatever else
- * you add to it).
+ * An ElementState XML tree node for collecting a set of nested elements, using an ArrayList
+ * (non-synchronized).
  * 
  * @author andruid
  */

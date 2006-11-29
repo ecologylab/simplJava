@@ -5,6 +5,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+/**
+ * Static convenience methods for Swing programing.
+ *
+ * @author andruid
+ */
 public class SwingTools
 {
    public static Color showColorChooser(JColorChooser pane, 

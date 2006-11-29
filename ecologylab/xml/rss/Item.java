@@ -7,7 +7,10 @@ import ecologylab.xml.media.Media;
 import ecologylab.xml.feedburner.Feedburner;
 
 /**
- * RSS 1 item element declaration.
+ * RSS parser <code>ite</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
+ * Used with most (perhaps all) RSS versions.
+ * <p/>
+ * Includes support for funky included namespace content, such as DublinCore, Yahoo Media, and Feedburner.
  *
  * @author andruid
  */

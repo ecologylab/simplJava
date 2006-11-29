@@ -14,6 +14,11 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
+/**
+ * Abstract base class for building ecologylab.services clients.
+ *
+ * @author toupsz
+ */
 public abstract class ServicesClientBase extends Debug implements
         ClientConstants
 {

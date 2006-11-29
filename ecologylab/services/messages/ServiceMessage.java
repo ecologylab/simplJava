@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import ecologylab.xml.ElementState;
 
 /**
- * Generic message used for tcp/ip socket messages.
+ * Abstract base class for ecologylab.services DCF request and response messages.
  * 
  * @author blake
  */

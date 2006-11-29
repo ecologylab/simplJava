@@ -1,5 +1,10 @@
 package ecologylab.generic;
 
+/**
+ * Objects that implement this interface can be passed to a {@link DownloadProcessor DownloadProcessor}.
+ *
+ * @author andruid
+ */
 public interface Downloadable
 {
 /**

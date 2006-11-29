@@ -3,6 +3,12 @@ package ecologylab.net;
 import java.io.File;
 import java.net.URL;
 
+/**
+ * Provides callbacks during {@link PURLConnection.connect(ConnectionHelper) PURLConnection.connect},
+ * to enable filtering and custom processing as the connect operation unfolds.
+ *
+ * @author andruid
+ */
 public interface ConnectionHelper
 {
 	/**

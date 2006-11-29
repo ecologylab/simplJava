@@ -294,7 +294,7 @@ public class TranslationSpace extends Debug
 	  return emitPackageNames;
    }
 
-   public class NameEntry extends IO
+   public class NameEntry extends Debug
    {
 	  public final String		packageName;
 	  public final String		className;

@@ -3,12 +3,12 @@ package ecologylab.types;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
-import ecologylab.xml.IO;
+import ecologylab.generic.Debug;
 
 /**
  * This class implements a registry of instances of Type.
  */
-public class TypeRegistry extends IO
+public class TypeRegistry extends Debug
 {
 /**
  * Maps Strings that represent classes to integers.

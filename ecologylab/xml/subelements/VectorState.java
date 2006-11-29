@@ -4,8 +4,9 @@ import java.util.Collection;
 import java.util.Vector;
 
 /**
- * An ElementState XML tree node that supports an Vector of children (as well as
- * whatever else you add to it). <p/> In general, one should use ArrayListState
+ * An ElementState XML tree node for collecting a set of nested elements, using a Vector
+ * (synchronized).
+ * <p/> In general, one should use {@link ArrayListState ArrayListState}
  * for this kind of functionality, but, in some cases, there may be concurrency
  * issues, in which case, this more expensive class will be required.
  * 

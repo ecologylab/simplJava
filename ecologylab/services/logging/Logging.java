@@ -29,8 +29,10 @@ import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
 
 /**
- * Logging service. Uses ecologylab.xml to serialize user and agent actions to a
- * file. Can also provide the stuff as a String, if you specify it.
+ * Provides a framework for interaction logging.
+ * Uses ecologylab.xml to serialize user and agent actions,
+ * and write them either to a file on the user's local machine, or, across the
+ * network, to the LoggingServer.
  * 
  * @author andruid
  */

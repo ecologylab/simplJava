@@ -4,7 +4,7 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Service request message.
+ * Abstract base class for ecologylab.services DCF request messages.
  * 
  * @author blake
  * @author andruid

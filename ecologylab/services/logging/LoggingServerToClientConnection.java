@@ -13,9 +13,13 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
 
 /**
+ * Special version of ServerToClientConnection for the LoggingServer.
+ * Provides a special impleentation of performService(), that open's an OutputStream
+ * as necessary to the appropriate directory for logging, based on the headers in the message,
+ * then logs the message to there with a minimum of translation.
  * 
+ * @author andruid
  * @author eunyee
- *
  */
 public class LoggingServerToClientConnection extends ServerToClientConnection
 {
@@ -28,12 +32,9 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 	}
 	
 	/**
-	 * Perform the service specified by the request method.
-	 * The default implementation, here, simply passes the message to the servicesServer,
-	 * which is keeping an objectRegistry context, and does the perform.
-	 * <p/>
-	 * This routine is abstracted out here, so that customized Servers can do thread/connection
-	 * specific custom processing in this method, as needed, by overriding the definition.
+	 * Log the message, as appropriately, to the correct directory.
+	 * Do this with a minimum of actual parsing of message content,
+	 * so we dont even need the application's TranslationSpace.
 	 * 
 	 * @param requestMessage
 	 * @return

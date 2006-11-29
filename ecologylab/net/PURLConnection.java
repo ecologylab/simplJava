@@ -5,6 +5,11 @@ import java.net.URLConnection;
 
 import ecologylab.generic.Debug;
 
+/**
+ * Combines URLConnection with InputStream, providing convenience.
+ *
+ * @author andruid
+ */
 public class PURLConnection extends Debug
 {
 	protected InputStream			inputStream;

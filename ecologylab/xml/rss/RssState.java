@@ -2,6 +2,12 @@ package ecologylab.xml.rss;
 
 import ecologylab.xml.*;
 
+/**
+ * {@link ecologylab.xml.ElementState ElementState} for the root element of the RSS parser.
+ * In particular, this supports RSS versions such as .91, .92, .93, .94, and 2.0.
+ *
+ * @author andruid
+ */
 public class RssState extends ElementState
 {
 	@xml_attribute	float		version;

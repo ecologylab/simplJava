@@ -6,13 +6,11 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Send an intermediate sequence of ops to the logging server.
- * 
- * 1) Keep mixed initiative loggin data Set
- * 2) Handle recieved logging messages from client 
+ * Bundle a sequence of {@link MixedInitiativeOp MixedInitiativeOp}s,
+ * and send them to the logging server.
  * 
  * @author eunyee
- *
+ * @author andruid
  */
 @xml_inherit
 public final class LogOps extends LogRequestMessage

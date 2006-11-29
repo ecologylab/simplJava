@@ -5,7 +5,7 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.dc.Dc;
 
 /**
- * Translations for RSS version 2.0 style, with no namespace: style identifiers.
+ * Translations for all RSS parsing.
  *
  * @author andruid
  */

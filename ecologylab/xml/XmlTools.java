@@ -25,8 +25,8 @@ import ecologylab.types.Type;
 import ecologylab.types.TypeRegistry;
 
 /**
- * This class contains methods which are used during the translation of java objects
- * to XML and back. All the methods are static. The XML files can also be compressed
+ * Static helper methods that are used during the translation of java objects
+ * to XML and back. The XML files can also be compressed
  * by using the compression variable. For compression to work, the developer should
  * provide a abbreviation table in the format listed in the code.   
  * 
