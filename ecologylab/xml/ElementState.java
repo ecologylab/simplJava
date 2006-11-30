@@ -390,12 +390,20 @@ implements ParseTableEntryTypes
 						String thatFieldName			= thatField.getName();
 						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
 						buffy.append('<').append(leafElementName).append('>');
+						boolean isCDATA	= XmlTools.leafIsCDATA(thatField);
+						if (isCDATA)
+							buffy.append("<![CDATA[");
+
 						Type type		= TypeRegistry.getType(thatField);
 						String leafValue = type.toString(this, thatField);
 						if (type.needsEscaping())
 							XmlTools.escapeXML(buffy, leafValue);
 						else
 							buffy.append(leafValue);
+						
+						if (isCDATA)
+							buffy.append("]]>");
+
 						buffy.append("</").append(leafElementName).append('>');
 					}
 					else
@@ -1939,6 +1947,14 @@ implements ParseTableEntryTypes
     }
 
     /**
+     * Value for the leaf annotation that specifies translation to XML as CDATA.
+     */
+    public static final int		CDATA	= 1;
+    /**
+     * Value for the leaf annotation that specifies translation to XML without CDATA.
+     */
+    public static final int		NORMAL	= 0;
+    /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a scalar-value,
      * which should be represented in XML as a leaf node.
@@ -1950,7 +1966,7 @@ implements ParseTableEntryTypes
     @Inherited
     public @interface xml_leaf
     {
-
+    	int value() default NORMAL;
     }
 
     /**

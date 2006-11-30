@@ -876,6 +876,17 @@ static String q(String string)
 		return field.isAnnotationPresent(ElementState.xml_leaf.class);
 	}
 	/**
+	 * Determine if the field is a scalar value that is represented in XML as a an leaf node.
+	 * 
+	 * @param field
+	 * @return
+	 */
+	static boolean leafIsCDATA(Field field)
+	{
+		ElementState.xml_leaf leafAnnotation		= field.getAnnotation(ElementState.xml_leaf.class);
+		return ((leafAnnotation != null) && (leafAnnotation.value() == ElementState.CDATA));
+	}
+	/**
 	 * Determine if the field is a scalar value that is represented in XML as a an attribute.
 	 * 
 	 * @param field

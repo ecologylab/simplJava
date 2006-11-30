@@ -43,6 +43,11 @@ implements ParseTableEntryTypes
 	private Type				fieldType;
 	
 	/**
+	 * true for LEAF_NODE_VALUE entries. Value not used for other types.
+	 */
+//	private	boolean				isCDATA;
+	
+	/**
 	 * Usually the class of the field corresponding to the tag in the context of the original ElementState 
 	 * object passed to the constructor. However, n the case of an XML Namespace, it may be the class
 	 * of a nested Namespace object.
@@ -128,7 +133,10 @@ implements ParseTableEntryTypes
 			{
 			case LEAF_NODE_VALUE:
 				this.classOp		= contextClass;
-				return;
+/*				ElementState.xml_leaf leafAnnotation		= field.getAnnotation(ElementState.xml_leaf.class);
+				if ((leafAnnotation != null) && (leafAnnotation.value() == ElementState.CDATA))
+						this.isCDATA= true;
+ */				return;
 			case IGNORED_ELEMENT:
 				if (this.field != null)
 				{
@@ -425,4 +433,5 @@ implements ParseTableEntryTypes
 	{
 		return isID;
 	}
+
 }
