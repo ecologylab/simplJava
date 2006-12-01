@@ -27,9 +27,9 @@ public class SeedCf extends RequestMessage
 	 * The default, 0, indicates the first session that was created,
 	 * or if none have been, to create one now, and then use it.
 	 */
-	@xml_attribute int		sessionNumber;
+	@xml_attribute protected	int		sessionNumber;
 	
-	@xml_nested protected	SeedSet seedSet;
+	@xml_nested protected		SeedSet seedSet;
 	
 
 	/**

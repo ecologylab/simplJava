@@ -17,18 +17,18 @@ public class DocumentState extends Seed
 	/**
 	 * URL of the document or container specified for downloading and processing.
 	 */
-	@xml_attribute		ParsedURL	url;
+	@xml_attribute protected		ParsedURL	url;
 	
 	/**
 	 * If true, then no media should be collected from this document.
 	 * Rather, it will be treated as a collection of links, that will be fed to the focused web crawler agent.
 	 */
-	@xml_attribute		boolean		justcrawl;
+	@xml_attribute protected		boolean		justcrawl;
 	/**
 	 * If true, then no links should be collected from this document and fed to the focused web crawler agent.
 	 * Instead, only collect media to form image and text surrogates.
 	 */
-	@xml_attribute		boolean		justmedia;
+	@xml_attribute protected		boolean		justmedia;
 	
 
 	public DocumentState()
