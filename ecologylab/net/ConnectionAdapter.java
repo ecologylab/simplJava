@@ -12,7 +12,7 @@ import ecologylab.generic.Debug;
  *
  * @author andruid
  */
-public abstract class ConnectionAdapter extends Debug
+public class ConnectionAdapter extends Debug
 implements ConnectionHelper
 {
 	/**
@@ -62,4 +62,17 @@ implements ConnectionHelper
 	{
 		return true;
 	}
+	
+	/**
+	 * Tells the connect() method that it should go ahead and create a PURLConnection
+	 * for all files that it finds.
+	 * 
+	 * @param suffix
+	 * @return
+	 */
+	public boolean	parseFilesWithSuffix(String suffix)
+	{
+		return true;
+	}
+
 }
