@@ -390,20 +390,23 @@ implements ParseTableEntryTypes
 						String thatFieldName			= thatField.getName();
 						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
 						buffy.append('<').append(leafElementName).append('>');
-						boolean isCDATA	= XmlTools.leafIsCDATA(thatField);
-						if (isCDATA)
-							buffy.append("<![CDATA[");
-
-						Type type		= TypeRegistry.getType(thatField);
-						String leafValue = type.toString(this, thatField);
-						if (type.needsEscaping())
-							XmlTools.escapeXML(buffy, leafValue);
-						else
-							buffy.append(leafValue);
 						
+						boolean isCDATA	= XmlTools.leafIsCDATA(thatField);
+						Type type		= TypeRegistry.getType(thatField);
+						String leafValue= type.toString(this, thatField);
 						if (isCDATA)
+						{
+							buffy.append("<![CDATA[");
+							buffy.append(leafValue);
 							buffy.append("]]>");
-
+						}
+						else
+						{
+							if (type.needsEscaping())
+								XmlTools.escapeXML(buffy, leafValue);
+							else
+								buffy.append(leafValue);
+						}
 						buffy.append("</").append(leafElementName).append('>');
 					}
 					else
