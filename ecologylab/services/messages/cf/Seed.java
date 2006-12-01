@@ -17,7 +17,6 @@ public class Seed extends ElementState
 	public Seed()
 	{
 		super();
-
 	}
 
 	/**
