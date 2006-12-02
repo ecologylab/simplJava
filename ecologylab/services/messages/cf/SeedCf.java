@@ -41,6 +41,20 @@ public class SeedCf extends RequestMessage
 
 	}
 
+	public SeedSet seedSet()
+	{
+		SeedSet result	= seedSet;
+		if (result == null)
+		{
+			result		= new SeedSet();
+			seedSet		= result;
+		}
+		return result;
+	}
+	public void add(Seed seed)
+	{
+		seedSet().add(seed);
+	}
 	/**
 	 * Dummy version -- will never get called, because this version lives only on the client.
 	 * 

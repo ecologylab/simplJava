@@ -2,6 +2,7 @@ package ecologylab.services.messages.cf;
 
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * A collection of seeds that will be performed by the agent, or elsewhere,
@@ -14,14 +15,19 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  */
 @xml_inherit
-public class SeedSet extends ArrayListState
+public class SeedSet extends ArrayListState<Seed>
 {
 	@xml_attribute protected boolean		dontPlayOnStart;
+	
+	@xml_attribute protected String			id;
+	
+	@xml_attribute protected String			category;
+	
+	@xml_attribute protected String			description;
 
 	public SeedSet()
 	{
 		super();
-
 	}
 
 }
