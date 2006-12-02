@@ -7,8 +7,6 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
-import ecologylab.xml.ElementState.xml_nested;
 
 /**
  * Pass a set of seeds to combinFormation's agents.
@@ -28,12 +26,15 @@ public class SeedCf extends RequestMessage
 	 * or if none have been, to create one now, and then use it.
 	 */
 	@xml_attribute protected	int		sessionNumber;
-	
+
+	/**
+	 * The set of seeds being passed to the combinFormation information collecting agent.
+	 */
 	@xml_nested protected		SeedSet seedSet;
 	
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public SeedCf()
 	{
@@ -41,6 +42,11 @@ public class SeedCf extends RequestMessage
 
 	}
 
+	/**
+	 * Access the SeedSet slot. If it is currently null, create a new SeedSet, and set the slot to its value.
+	 * 
+	 * @return	An instance of SeedSet, from the SeedSet slot. Never null.
+	 */
 	public SeedSet seedSet()
 	{
 		SeedSet result	= seedSet;
@@ -51,12 +57,18 @@ public class SeedCf extends RequestMessage
 		}
 		return result;
 	}
+	/**
+	 * Add a Seed to the request, through its seedSet.
+	 * 
+	 * @param seed
+	 */
 	public void add(Seed seed)
 	{
 		seedSet().add(seed);
 	}
 	/**
-	 * Dummy version -- will never get called, because this version lives only on the client.
+	 * Dummy version -- will never get called, because this version lives only on the client,
+	 * and the real functionality is on the server.
 	 * 
 	 * @param objectRegistry
 	 * @return
@@ -68,4 +80,12 @@ public class SeedCf extends RequestMessage
 		return null;
 	}
 
+	/**
+	 * Remove entries from the SeedSet, if there is one.
+	 */
+	public void clear()
+	{
+		if (seedSet != null)
+			seedSet.clear();
+	}
 }
