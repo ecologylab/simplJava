@@ -142,7 +142,12 @@ implements ParseTableEntryTypes
 				{
 					// this is actually a regular nested element
 					this.type	= REGULAR_NESTED_ELEMENT;
-					this.classOp	= field.getType();
+//					this.classOp	= field.getType();
+					// changed 12/2/06 by andruid -- use the type in the TranslationSpace!
+					Class thatClass	= translationSpace.getClassByTag(tag);
+					if (thatClass == null)
+						thatClass	= field.getType();
+					this.classOp	= thatClass;
 					return;
 				}
 				// no field object, so we must continue to check stuff out!
