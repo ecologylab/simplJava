@@ -37,7 +37,21 @@ public @xml_inherit abstract class RectangularShape extends ElementState impleme
     {
         this.x = x;
         this.y = y;
+        // if we have a negative width or height, we assume the rectangle should just be translated to ensure that w and h are always positive
+        if (w < 0)
+        {
+            x += w;
+            w *= -1;
+        }
+
         this.w = w;
+        
+        if (h < 0)
+        {
+            y += h;
+            h *= -1;
+        }
+    
         this.h = h;
     }
 

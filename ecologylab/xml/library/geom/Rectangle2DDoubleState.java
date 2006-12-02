@@ -25,6 +25,8 @@ import ecologylab.xml.xml_inherit;
 public @xml_inherit class Rectangle2DDoubleState extends RectangularShape
 {
     private Rectangle2D.Double shape = null;
+    private static final Vector2d[] normals = { new Vector2d(0, -1), new Vector2d(1, 0), new Vector2d(0, 1),
+        new Vector2d(-1, 0) };
 
     public Rectangle2DDoubleState()
     {
@@ -101,5 +103,20 @@ public @xml_inherit class Rectangle2DDoubleState extends RectangularShape
     public boolean intersects(double x, double y, double w, double h)
     {
         return shape().intersects(x, y, w, h);
+    }
+    
+    /**
+     * Determines the surface normals for each of the sides of the rectangular
+     * object. These are stored in an array, with entry 0 indicating the top
+     * (-y) normal, and the others progressing clockwise from there.
+     * 
+     * The normals are assumed to lie in the X-Y plane.
+     * 
+     * @return a Vector2d array with each entry corresponding to the surface
+     *         normal of one of the sides.
+     */
+    public static Vector2d[] getSurfaceNormals()
+    {
+        return normals;
     }
 }
