@@ -83,10 +83,12 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         return Math.sqrt(x*x + y*y);
     }
 
-    public void mult(double scalar)
+    public Vector2d mult(double scalar)
     {
         this.x *= scalar;
         this.y *= scalar;
+        
+        return this;
     }
 
     /**

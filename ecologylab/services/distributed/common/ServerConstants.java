@@ -21,7 +21,7 @@ public interface ServerConstants
     /**
      * Limit the maximum number of client connection to the server
      */
-    static final int MAX_CONNECTIONS       	  	= 50;
+    static final int MAX_CONNECTIONS       	  	= 5;
     
     static final int MAX_TARDINESS              = 20;
     

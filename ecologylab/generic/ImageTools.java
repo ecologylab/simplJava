@@ -62,6 +62,72 @@ extends Debug
    {
       writeJpegFile(rendImage, new File(outfileName), compressionQuality);
    }
+   
+   public static void writePngFile(RenderedImage rendImage, File outfile)
+   {
+       try 
+       {
+           // Find a png writer
+           ImageWriter writer = null;
+           Iterator iter = ImageIO.getImageWritersByFormatName("png");
+           if (iter.hasNext()) {
+               writer = (ImageWriter)iter.next();
+           }
+   
+           // Prepare output file
+           ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
+           writer.setOutput(ios);
+        
+        ImageTools imageTools   =   new ImageTools();
+           // Set the compression quality
+           ImageWriteParam iwparam = imageTools.new MyImageWriteParam();
+   
+           // Write the image
+           writer.write(null, new IIOImage(rendImage, null, null), iwparam);
+   
+           // Cleanup
+           ios.flush();
+           writer.dispose();
+           ios.close();
+       } 
+       catch (Exception e) 
+       {
+        e.printStackTrace();
+       }
+   }
+   public static void writeTifFile(RenderedImage rendImage, File outfile)
+   {
+       try 
+       {
+           // Find a png writer
+           ImageWriter writer = null;
+           Iterator iter = ImageIO.getImageWritersBySuffix("tif");
+           if (iter.hasNext()) {
+               writer = (ImageWriter)iter.next();
+           }
+   
+           // Prepare output file
+           ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
+           writer.setOutput(ios);
+        
+        ImageTools imageTools   =   new ImageTools();
+           // Set the compression quality
+           ImageWriteParam iwparam = imageTools.new MyImageWriteParam();
+   
+           // Write the image
+           writer.write(null, new IIOImage(rendImage, null, null), iwparam);
+   
+           // Cleanup
+           ios.flush();
+           writer.dispose();
+           ios.close();
+       } 
+       catch (Exception e) 
+       {
+        e.printStackTrace();
+       }
+   }
+
 /**
  * Take the RenderedImage passed in, compress it,
  * and writes it to outfile.

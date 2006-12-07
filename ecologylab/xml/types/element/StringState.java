@@ -2,7 +2,7 @@ package ecologylab.xml;
 
 public class StringState extends ElementState
 {
-    public String string;
+    private @xml_attribute String string;
     
     public StringState()
     {

@@ -30,13 +30,13 @@ import ecologylab.xml.xml_inherit;
 public @xml_inherit class Line2DDoubleState extends ElementState implements
         Shape
 {
-    private @xml_attribute double x1     = 0;
+    @xml_attribute protected double x1     = 0;
 
-    private @xml_attribute double x2     = 0;
+    @xml_attribute protected double x2     = 0;
 
-    private @xml_attribute double y1     = 0;
+    @xml_attribute protected double y1     = 0;
 
-    private @xml_attribute double y2     = 0;
+    @xml_attribute protected double y2     = 0;
 
     private Line2D.Double         line   = null;
 
@@ -149,7 +149,7 @@ public @xml_inherit class Line2DDoubleState extends ElementState implements
     /**
      * @return the line
      */
-    public Line2D.Double getLine()
+    public Line2D.Double line()
     {
         return line;
     }

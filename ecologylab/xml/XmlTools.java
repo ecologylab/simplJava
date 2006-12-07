@@ -313,6 +313,16 @@ implements CharacterConstants
             	   (floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF))
                { // if we need to adjust for precision...
                    
+                   // if the number is small enough to emit in scientific notation...
+                   // ...then we need to preserve that
+                   int eLoc = unescapedFieldValue.lastIndexOf("E");
+                   String eVal = "";
+
+                   if (eLoc != -1)
+                   {
+                       eVal = unescapedFieldValue.substring(eLoc);
+                   }
+                   
                    // find the decimal, and where we SHOULD cut off...
                    int endPos = unescapedFieldValue.indexOf(".")+floatingValuePrecision+1;
                    
@@ -323,6 +333,7 @@ implements CharacterConstants
                    else
                    { // if the cutoff is not too far, then cut off the extra
                        result.append(unescapedFieldValue, 0, endPos);
+                       result.append(eVal);
                    }
                    
                    // if there is nothing after the decimal, remove it
