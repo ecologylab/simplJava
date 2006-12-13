@@ -33,6 +33,8 @@ public @xml_inherit abstract class RectangularShape extends ElementState impleme
         setFrame(x, y, width, height);
     }
     
+    public abstract java.awt.geom.RectangularShape shape();
+    
     public void setFrame(double x, double y, double w, double h)
     {
         this.x = x;

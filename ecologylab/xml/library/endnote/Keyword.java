@@ -3,28 +3,18 @@
  */
 package ecologylab.xml.endnote;
 
-import ecologylab.xml.StringState;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
 /**
  * @author Zach Toups (toupsz@gmail.com)
  */
-public @xml_inherit class Keyword extends StringState
+public @xml_inherit class Keyword extends ElementState
 {
-
     /**
      * 
      */
     public Keyword()
     {
     }
-
-    /**
-     * @param string
-     */
-    public Keyword(String string)
-    {
-        super(string);
-    }
-
 }

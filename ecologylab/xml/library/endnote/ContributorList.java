@@ -35,12 +35,35 @@ public class ContributorList extends ElementState
     {
         for (Author a : authors)
         {
-            if (a.getString().toLowerCase().contains(value))
+            if (a.getTextNodeString().toLowerCase().contains(value))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * @return
+     */
+    public String getAuthorListString()
+    {
+        StringBuilder string = new StringBuilder();
+        
+        int i = authors.size();
+        
+        for (Author a : authors)
+        {
+            i--;
+            string.append(a.getTextNodeString());
+            
+            if (i != 0)
+            {
+                string.append("; ");
+            }
+        }
+        
+        return string.toString();
     }
 
 }

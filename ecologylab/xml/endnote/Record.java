@@ -17,21 +17,21 @@ public class Record extends ElementState
 
     private @xml_nested TitleList titles = new TitleList();
     
-    private @xml_nested int volume;
+    private @xml_leaf String volume;
     
-    private @xml_nested int number;
+    private @xml_leaf String number;
     
-    private @xml_nested StringState pages;
+    private @xml_leaf String pages;
     
 //    private @xml_nested String pub-location = "";
    
-    private @xml_nested StringState publisher;
+    private @xml_leaf String publisher;
     
-    private @xml_nested StringState isbn;
+    private @xml_leaf String isbn;
     
     private @xml_nested DateList dates = new DateList();
     
-    private @xml_nested StringState label;
+    private @xml_leaf String label;
     
     private @xml_nested KeywordList keywords = new KeywordList();
     
@@ -65,7 +65,7 @@ public class Record extends ElementState
     /**
      * @return the isbn
      */
-    public StringState getIsbn()
+    public String getIsbn()
     {
         return isbn;
     }
@@ -81,7 +81,7 @@ public class Record extends ElementState
     /**
      * @return the label
      */
-    public StringState getLabel()
+    public String getLabel()
     {
         return label;
     }
@@ -89,7 +89,7 @@ public class Record extends ElementState
     /**
      * @return the number
      */
-    public int getNumber()
+    public String getNumber()
     {
         return number;
     }
@@ -97,7 +97,7 @@ public class Record extends ElementState
     /**
      * @return the pages
      */
-    public StringState getPages()
+    public String getPages()
     {
         return pages;
     }
@@ -105,7 +105,7 @@ public class Record extends ElementState
     /**
      * @return the publisher
      */
-    public StringState getPublisher()
+    public String getPublisher()
     {
         return publisher;
     }
@@ -121,7 +121,7 @@ public class Record extends ElementState
     /**
      * @return the volume
      */
-    public int getVolume()
+    public String getVolume()
     {
         return volume;
     }

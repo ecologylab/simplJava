@@ -4,6 +4,7 @@
 package ecologylab.xml.endnote;
 
 import ecologylab.xml.ArrayListState;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -25,7 +26,7 @@ public @xml_inherit class KeywordList extends ArrayListState<Keyword>
     {
         for (Keyword k : this)
         {
-            if (k.getString().toLowerCase().contains(value))
+            if (k.getTextNodeString() != null && k.getTextNodeString().toLowerCase().contains(value))
             {
                 return true;
             }
@@ -34,4 +35,26 @@ public @xml_inherit class KeywordList extends ArrayListState<Keyword>
         return false;
     }
 
+    /**
+     * @return
+     */
+    public String getKeywordListString()
+    {
+        StringBuilder string = new StringBuilder();
+        
+        int i = this.size();
+        
+        for (Keyword a : this)
+        {
+            i--;
+            string.append(a.getTextNodeString());
+            
+            if (i != 0)
+            {
+                string.append("; ");
+            }
+        }
+        
+        return string.toString();
+    }
 }

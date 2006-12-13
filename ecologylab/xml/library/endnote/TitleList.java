@@ -11,7 +11,7 @@ import ecologylab.xml.StringState;
  */
 public class TitleList extends ElementState
 {
-    private @xml_nested StringState title;
+    private @xml_leaf String title;
     
     private @xml_nested StringState secondaryTitle;
     
@@ -34,7 +34,7 @@ public class TitleList extends ElementState
     /**
      * @return the title
      */
-    public StringState getTitle()
+    public String getTitle()
     {
         return title;
     }
