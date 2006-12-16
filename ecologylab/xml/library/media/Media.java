@@ -21,6 +21,8 @@ public class Media extends ElementState
 	@xml_nested Content		content;
 	
 	//public Credit		credit;
+	@xml_leaf	String		title;
+	@xml_leaf	String		description;
 	
 	@xml_leaf	String		category;
 	
@@ -81,6 +83,18 @@ public class Media extends ElementState
 	public void setText(String text)
 	{
 		this.text = text;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
