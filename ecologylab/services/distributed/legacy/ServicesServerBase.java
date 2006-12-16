@@ -123,10 +123,9 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      */
     public ResponseMessage performService(RequestMessage requestMessage)
     {
-        ResponseMessage temp = requestMessage.performService(objectRegistry);
-        temp.setUid(requestMessage.getUid());
+        ResponseMessage responseMessage = requestMessage.performService(objectRegistry);
         
-        return temp;
+        return responseMessage;
     }
 
     public RequestMessage translateXMLStringToRequestMessage(

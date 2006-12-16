@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.ErrorResponse;
+import ecologylab.services.messages.IgnoreRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
@@ -95,6 +96,10 @@ public class ServerToClientConnection extends Debug implements Runnable,
 
                     if (requestMessage == null)
                         debug("ERROR: translation failed: " + messageString);
+                    else if( requestMessage instanceof IgnoreRequest )
+                    {
+                    	debug("IGNORE REQUEST ");
+                    }
                     else
                     {
                         // perform the service being requested
