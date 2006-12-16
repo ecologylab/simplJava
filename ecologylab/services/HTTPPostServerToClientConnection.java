@@ -8,7 +8,14 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
 
-
+/**
+ * parses HTTP Post request message 
+ * It ignore messages by sending IgnoreRequest when it gets the header strings. 
+ * It only translates strings of body messages to XML RequestMessage.  
+ * 
+ * @author eunyee
+ *
+ */
 public class HTTPPostServerToClientConnection extends ServerToClientConnection
 {
 
