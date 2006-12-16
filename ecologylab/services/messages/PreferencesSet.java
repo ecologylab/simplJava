@@ -1,5 +1,6 @@
 package ecologylab.services.messages;
 
+import java.io.File;
 import java.util.Collection;
 
 import ecologylab.generic.ApplicationEnvironment;
@@ -9,6 +10,8 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -39,35 +42,15 @@ implements ApplicationPropertyNames
 	
 	public void processPreferences()
 	{
-		ApplicationEnvironment appEnvironment = 
-			(ApplicationEnvironment)Environment.the.get();
-		/*
+		ObjectRegistry preferencesRegistry		= Environment.the.preferencesRegistry();
 		for (int i=0; i<size(); i++)
 		{
 			Preference pref = (Preference) get(i);
-			println("processing preference: " + pref);
-			appEnvironment.setProperty(pref.name, pref.value);
-		}
-		*/
-		ObjectRegistry preferencesRegistry		= appEnvironment.preferencesRegistry();
-		for (int i=0; i<size(); i++)
-		{
-			Preference pref = (Preference) get(i);
-			println("processing preference: " + pref);
-			ElementState child	= pref.child();
-			// is there at least one child?
-			if (child != null)
-			{
-				preferencesRegistry.registerObject(pref.name, pref);
-			}
-			else
-			{
-				String value = pref.value;
-				if (value != null)
-					preferencesRegistry.registerObject(pref.name, value);
-			}
+			pref.register(preferencesRegistry);
 		}
 		
+		ApplicationEnvironment appEnvironment = 
+			(ApplicationEnvironment)Environment.the.get();
 		// note! read directly here instead of with a static in ApplicationProperties,
 		// because now is too early to initialize the other static variables in that interface,
 		// because their values are likely to be changed through subsequent preference initialization
@@ -83,5 +66,31 @@ implements ApplicationPropertyNames
 		{
 			debug("SetPreferences ERROR! no codebase preference was passed in.");
 		}
+	}
+
+	/**
+	 * Load an ecologylab style preferences file.
+	 * 
+	 * @param translationSpace
+	 * @param path
+	 * @param prefFilePath
+	 */
+	public static void loadPreferencesXML(TranslationSpace translationSpace, File path, String prefFilePath)
+	{
+		File preferencesXMLFile	= new File(path, prefFilePath);
+		if (preferencesXMLFile.exists())
+		{
+			try
+			{
+				println("Loading preferences from: " + preferencesXMLFile);
+				PreferencesSet ps	= (PreferencesSet) ElementState.translateFromXML(preferencesXMLFile, translationSpace);
+				ps.processPreferences();
+			} catch (XmlTranslationException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+			println("Can't find preferences file: " + preferencesXMLFile);
 	}
 }

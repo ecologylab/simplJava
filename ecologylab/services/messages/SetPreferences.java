@@ -1,5 +1,7 @@
 package ecologylab.services.messages;
 
+import javax.swing.JOptionPane;
+
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.io.Assets;
@@ -78,12 +80,19 @@ extends RequestMessage
 			//print the prefs
 			debug("performService() Received and loaded preferences: " + preferencesSet);
 			
-			setupApplication(objectRegistry);
+			ResponseMessage response = setupApplication(objectRegistry);
+			if (response instanceof ErrorResponse)
+			{
+				handleErrorWhileLoading(objectRegistry);
+				return response;
+			}
 			
 	        ConsoleUtils.obtrusiveConsoleOutput("SetPreferences.sending ResponseMessage(OK)");
 		}
 		else
-			debug("IGNORING: preferences were previously loaded.");
+		{
+			handleAlreadyLoaded(objectRegistry);
+		}
 		
 		return OkResponse.get();
 	}
@@ -95,7 +104,7 @@ extends RequestMessage
 	 * 
 	 * @param objectRegistry
 	 */
-	protected void setupApplication(ObjectRegistry objectRegistry) { }
+	protected ResponseMessage setupApplication(ObjectRegistry objectRegistry) { return OkResponse.get(); }
 
 	/**
 	 * Set the Asset path used for setPreferences.
@@ -105,5 +114,20 @@ extends RequestMessage
 	public void setPreferencesSetAssetPath(String preferencesSetAssetPath)
 	{
 		this.preferencesSetAssetPath = preferencesSetAssetPath;
+	}
+	
+	/**
+	 * Method for handling all SetPreferences messages after the first. Should be overridden by
+	 * any class that extends this object to properly handle these situations on message specific basis.
+	 *
+	 */
+	protected void handleAlreadyLoaded(ObjectRegistry objectRegistry)
+	{
+		debug("IGNORING: preferences were previously loaded.");
+	}
+	
+	protected void handleErrorWhileLoading(ObjectRegistry objectRegistry)
+	{
+		
 	}
 }

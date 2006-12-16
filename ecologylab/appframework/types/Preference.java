@@ -1,5 +1,6 @@
 package ecologylab.services.messages;
 
+import ecologylab.generic.ObjectRegistry;
 import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
@@ -38,6 +39,48 @@ public @xml_inherit class Preference extends ArrayListState
 	{
 		return get(0);
 	}
+
+	public String getName() 
+	{
+		return name;
+	}
+
+	public String getValue() 
+	{
+		return value;
+	}
+
+	public void setName(String name) 
+	{
+		this.name = name;
+	}
+
+	public void setValue(String value) 
+	{
+		this.value = value;
+	}
 	
+	/**
+	 * Register this into a PreferencesRegistry.
+	 * 
+	 * @param preferencesRegistry
+	 */
+	public void register(ObjectRegistry preferencesRegistry)
+	{
+		debug("registering");
+		ElementState child	= child();
+		// is there at least one child?
+		if (child != null)
+		{
+			preferencesRegistry.registerObject(this.name, this);
+		}
+		else
+		{
+			String value = this.value;
+			if (value != null)
+				preferencesRegistry.registerObject(this.name, value);
+		}
+		
+	}
 	
 }
