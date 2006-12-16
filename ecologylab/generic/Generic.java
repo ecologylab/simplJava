@@ -680,9 +680,13 @@ public class Generic
 			return null;
 		}
 	}
+	
+	private static final String[] DIALOG_OPTIONS = { "ok" };
+	
 	public static void showDialogAndExit(String msg, int code)
 	{
-		JOptionPane.showMessageDialog(null, msg);
+		JOptionPane.showOptionDialog(null, msg, "combinFormation exited", JOptionPane.DEFAULT_OPTION, 
+									JOptionPane.WARNING_MESSAGE, null, DIALOG_OPTIONS, DIALOG_OPTIONS[0]);
 		Generic.exit(code);
 	}
     /**

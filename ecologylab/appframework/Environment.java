@@ -51,6 +51,12 @@ public interface Environment
    {
       Environment environment;
 
+      /**
+       * Holds preferences for use in servicing parameter(String) requests.
+       */
+      private final	ObjectRegistry	preferencesRegistry	= new ObjectRegistry();
+  	
+
       float			javaVersion	= 1.1f;	// minimum expected
       boolean		javaIsBeta;
       
@@ -206,6 +212,15 @@ public interface Environment
     		 frame			= result;
     	 }
 		 return frame;
+      }
+      
+      /**
+       * The registry of Preferences for this Environment.
+       * @return
+       */
+      public ObjectRegistry preferencesRegistry()
+      {
+    	  return preferencesRegistry;
       }
 
    };

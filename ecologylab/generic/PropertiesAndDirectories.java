@@ -105,14 +105,22 @@ extends Debug
 		File result = THIS_APPLICATION_DIR;
 		if (result == null)
 		{
-		   File apDataDir			= applicationDataDir();
-		   //println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
-		   //	   +os());
-		   if (os() == WINDOWS)
-			   result				= Files.newFile(apDataDir, applicationName);
-		   else
-			   result				= Files.newFile(apDataDir, "." + applicationName);
-		   
+			File apDataDir			= applicationDataDir();
+			//println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
+			//	   +os());
+			switch (os)
+			{
+			case WINDOWS:
+			case MAC:
+			case MAC_OLD: 
+				result	= Files.newFile(apDataDir, applicationName);
+				break;
+			case LINUX:
+			case OTHER_UNIX:
+			case UNKNOWN:
+				result	= Files.newFile(apDataDir, "." + applicationName);
+			}
+			
 			result				= createDirsAsNeeded(result);
 			if (result != null)
 				THIS_APPLICATION_DIR= result;
@@ -273,7 +281,19 @@ extends Debug
 			   fileName = sysProperty("user.home");
 			   println("user.home=" + fileName);
 		   }
-		   File appDataDir = new File(fileName, "Application Data");
+		   File appDataDir;
+		   switch (os) 
+		   {
+		   case WINDOWS: 	appDataDir = new File(fileName, "Application Data");
+		   					break;
+		   case MAC:		appDataDir = new File(fileName, "Library/Application Support");
+		   					break;
+		   case LINUX:
+		   case OTHER_UNIX:
+		   case UNKNOWN:
+		   default:			appDataDir = new File(fileName);
+				   
+		   }
 		   result		= createDirsAsNeeded(appDataDir);
 		   
 		   if (result == null)
