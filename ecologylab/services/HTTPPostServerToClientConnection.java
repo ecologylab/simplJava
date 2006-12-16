@@ -1,6 +1,7 @@
 package ecologylab.services;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
 import ecologylab.services.messages.IgnoreRequest;
@@ -34,7 +35,7 @@ public class HTTPPostServerToClientConnection extends ServerToClientConnection
      * @throws XmlTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XmlTranslationException
+            String messageString) throws XmlTranslationException, UnsupportedEncodingException
     {
     	int messageLineLength = messageString.getBytes().length;
     	if( HTTP_HEADER_END )

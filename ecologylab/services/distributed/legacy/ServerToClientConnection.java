@@ -1,16 +1,22 @@
 package ecologylab.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.URLDecoder;
 
 import ecologylab.generic.Debug;
+import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.IgnoreRequest;
+import ecologylab.services.messages.HttpGetRequest;
+import ecologylab.services.messages.OkResponse;
+import ecologylab.services.messages.PingRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -26,7 +32,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
         ServerConstants
 {
 
-    protected InputStream    inputStream;
+	protected InputStream    inputStream;
 
     protected PrintStream    outputStreamWriter;
 
@@ -34,16 +40,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
 
     protected Socket         incomingSocket;
 
-    protected boolean        running = true;
-    
-    protected boolean		ALLOW_HTTP_STYLE_REQUESTS	= false;
-    
-    static final String HTTP_PREPEND		= "GET /";
-    static final int	HTTP_PREPEND_LENGTH	= HTTP_PREPEND.length();
-    
-    static final String HTTP_APPEND			= " HTTP/1.1";
-    static final int	HTTP_APPEND_LENGTH	= HTTP_APPEND.length();
-    
+    protected boolean        running = true;    
 
     public ServerToClientConnection(Socket incomingSocket,
             ServicesServer servicesServer) throws IOException
@@ -85,33 +82,22 @@ public class ServerToClientConnection extends Debug implements Runnable,
                     if (show(5))
                 		debug("got raw message[" + messageString.getBytes().length + "]: "
                 		  	  + messageString);
-                    if (ALLOW_HTTP_STYLE_REQUESTS && messageString.startsWith(HTTP_PREPEND))
-                    {
-                    	int endIndex	= messageString.lastIndexOf(HTTP_APPEND);
-                    	messageString	= messageString.substring(HTTP_PREPEND_LENGTH, endIndex);
-                    	messageString	= URLDecoder.decode(messageString, "UTF-8");
-                    	debug("fixed message! " + messageString);
-                    }
+
                     RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 
                     if (requestMessage == null)
                         debug("ERROR: translation failed: " + messageString);
-                    else if( requestMessage instanceof IgnoreRequest )
-                    {
-                    	debug("IGNORE REQUEST ");
-                    }
                     else
                     {
                         // perform the service being requested
-                        ResponseMessage responseMessage = performService(requestMessage);
+                    	ResponseMessage responseMessage	= performService(requestMessage);
 
-                        // set the uid on the responseMessage
-                        responseMessage.setUid(requestMessage.getUid());
-                        
-                        sendResponse(responseMessage);
+                        if (sendResponse(requestMessage, responseMessage))
+                        	stop();		// sorry http clients can only handle one message per connection :-(
                         badTransmissionCount = 0;
                     }
-                } else
+                } 
+                else
                 {
                     debug("ERROR: null returned when translating message.");
                 }
@@ -140,7 +126,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
                     try
                     {
                         // sendResponse(ResponseMessage.BADTransmissionResponse());
-                        sendResponse(new BadTransmissionResponse());
+                        sendResponse(null, new BadTransmissionResponse());
                     } catch (XmlTranslationException e1)
                     {
                         // TODO Auto-generated catch block
@@ -169,7 +155,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
      * @throws XmlTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XmlTranslationException
+            String messageString) throws XmlTranslationException, UnsupportedEncodingException
     {
         RequestMessage requestMessage = servicesServer
                 .translateXMLStringToRequestMessage(messageString, true);
@@ -197,18 +183,36 @@ public class ServerToClientConnection extends Debug implements Runnable,
         return responseMessage;
     }
 
-    protected void sendResponse(ResponseMessage responseMessage)
+    /**
+     * Send the response message back to the client.
+     * 
+     * @param requestMessage Provide context for response sending, when needed. May be ignored in some cases.
+     * @param responseMessage
+     * 
+     * @return True if the connection should be terminated after this.
+     * 
+     * @throws XmlTranslationException
+     */
+    protected boolean sendResponse(RequestMessage requestMessage, ResponseMessage responseMessage)
             throws XmlTranslationException
     {
-        // send the response
-        if (outputStreamWriter != null)
-        {
-            outputStreamWriter.println(responseMessage.translateToXML(false));
-            outputStreamWriter.flush();
-        } else
-        {
-            debug("Cant send message after stop: " + responseMessage);
-        }
+        responseMessage.setUid(requestMessage.getUid());
+    	sendResponse(responseMessage.translateToXML(false));
+    	
+    	return false;
+    }
+    protected void sendResponse(String responseString)
+    throws XmlTranslationException
+    {
+    	// send the response
+    	if (outputStreamWriter != null)
+    	{
+    		outputStreamWriter.print(responseString);
+    		outputStreamWriter.flush();
+    	} else
+    	{
+    		debug("Cant send message after stop: " + responseString);
+    	}
     }
 
     public synchronized void stop()
