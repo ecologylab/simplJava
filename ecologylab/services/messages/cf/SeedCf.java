@@ -7,6 +7,7 @@ import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Pass a set of seeds to combinFormation's agents.
@@ -31,6 +32,17 @@ public class SeedCf extends RequestMessage
 	 * The set of seeds being passed to the combinFormation information collecting agent.
 	 */
 	@xml_nested protected		SeedSet seedSet;
+	
+	/**
+	 * If there are multiple seeding requests in a single session, how should we handle it?
+	 */
+	@xml_attribute protected	int	handleMultipleRequests;
+	
+	public static final String[] MULTIPLE_REQUESTSTS_DIALOG_OPTIONS = {  "ignore", "replace seeds", "mix seeds",    };
+	
+	// NOTE! These values, except for ASK_USER, are 1 more than the corresponding index into the MULTIPLE_REQUESTSTS_DIALOG_OPTIONS array.
+	
+	public static final int MULTIPLE_REQUESTSTS_IGNORE = 1, MULTIPLE_REQUESTSTS_REPLACE = 2, MULTIPLE_REQUESTSTS_MIX = 3, MULTIPLE_REQUESTSTS_ASK_USER = 0;
 	
 
 	/**
