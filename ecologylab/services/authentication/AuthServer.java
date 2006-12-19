@@ -127,7 +127,7 @@ public class AuthServer extends ServicesServer implements
             ObjectRegistry objectRegistry, AuthenticationList authList)
             throws IOException, BindException
     {
-        super(portNumber, requestTranslationSpace, objectRegistry);
+        super(portNumber, 0, requestTranslationSpace, objectRegistry);
 
         requestTranslationSpace
                 .addTranslation(ecologylab.services.authentication.messages.Login.class);

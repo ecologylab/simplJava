@@ -27,7 +27,7 @@ implements LoggingDef
 	public LoggingServer(int portNumber, TranslationSpace nameSpace, ObjectRegistry objectRegistry) 
 	throws BindException, IOException 
 	{
-		super(portNumber, nameSpace, objectRegistry);
+		super(portNumber, 0, nameSpace, objectRegistry);
 		// Let server debug messages print to the file
 //		Debug.setLoggingFile(serverLogFile);
 	}
