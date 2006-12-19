@@ -24,7 +24,7 @@ implements SessionObjects, ServicesHostsAndPorts
 	{
 		//Create the socket server. For now don't use a socket manager because we expect
 		//only 1 connection at a time.
-		super(portNumber, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
+		super(portNumber, 0, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
 	/**
@@ -35,13 +35,13 @@ implements SessionObjects, ServicesHostsAndPorts
 	{
 		//Create the socket server. For now don't use a socket manager because we expect
 		//only 1 connection at a time.
-		super(BROWSER_SERVICES_PORT, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
+		super(BROWSER_SERVICES_PORT, 0, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
 	public BrowserServices(int portNumber, TranslationSpace translations, ObjectRegistry objectRegistry)
 	throws IOException, java.net.BindException
 	{
-		super(portNumber, translations, objectRegistry);
+		super(portNumber, 0, translations, objectRegistry);
 	}
 
 	/**

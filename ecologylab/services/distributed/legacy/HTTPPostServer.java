@@ -14,13 +14,12 @@ import ecologylab.xml.TranslationSpace;
  */
 public class HTTPPostServer extends ServicesServer
 {
-
-	private static int port = 10200;
+	private static int postServerPort = 10200;
 	
 	public HTTPPostServer(int portNumber, TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry) 
 		throws IOException, BindException 
 	{
-		super(portNumber, requestTranslationSpace, objectRegistry);
+		super(portNumber, ServicesServer.HTTP_POST_SERVER, requestTranslationSpace, objectRegistry);
 	}
 
 	/**
@@ -45,7 +44,7 @@ public class HTTPPostServer extends ServicesServer
 	 * 
 	 * @return	The TestDataServer instance, or null if exceptions are thrown.
 	 */
-	public static HTTPPostServer get(int portNumber, TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+	protected static HTTPPostServer get(int portNumber, TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
 	{
 		HTTPPostServer httpPostServer	= null;
 		try
