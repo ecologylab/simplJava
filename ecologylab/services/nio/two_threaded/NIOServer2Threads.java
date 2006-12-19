@@ -39,13 +39,13 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
      * 
      * @param key	The SelectionKey that needs to be shut down.
      */
-    public void invalidateKey(SelectionKey key)
+    public void invalidate(SelectionKey key)
     {
         messageProcessor.removeKey(key);
-        super.invalidateKey(key);
+        super.invalidate(key);
     }
 
-    protected void readKey(SelectionKey key) throws BadClientException
+    protected void read(SelectionKey key) throws BadClientException
     {
         if (key.attachment() != null)
         {

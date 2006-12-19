@@ -49,7 +49,7 @@ public class NIOServerNThreads extends NIOServerBase implements
      * 
      * @param key	The SelectionKey that needs to be shut down.
      */
-    public void invalidateKey(SelectionKey key)
+    public void invalidate(SelectionKey key)
     {
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
@@ -59,10 +59,10 @@ public class NIOServerNThreads extends NIOServerBase implements
             pool.remove(key.attachment()).stop();
         }
         
-        super.invalidateKey(key);
+        super.invalidate(key);
     }
 
-    protected void readKey(SelectionKey key)
+    protected void read(SelectionKey key)
     {
         if (key.attachment() != null)
         {

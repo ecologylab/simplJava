@@ -71,7 +71,7 @@ public class MessageProcessor extends Debug implements Runnable,
 				// close down this evil connection
 				error(e1.getMessage());
 
-                server.invalidateKey(key);
+                server.invalidate(key);
                 
 				stop();
 			}

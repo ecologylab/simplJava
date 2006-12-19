@@ -81,7 +81,7 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
                         error(e.getMessage());
 
                         // invalidate the manager's key
-                        server.invalidateKey(cMan.getKey());
+                        server.invalidate(cMan.getKey());
 
                         // remove the manager from the collection
                         contextIterator.remove();

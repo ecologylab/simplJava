@@ -144,17 +144,17 @@ public class NIOServer1Thread extends NIOServerBase implements ServerConstants
      * @param key
      *            The SelectionKey that needs to be shut down.
      */
-    public void invalidateKey(SelectionKey key)
+    public void invalidate(SelectionKey key)
     {
         debug("Key " + key.attachment()
                 + " invalid; shutting down message processor.");
 
         connectionAccumulators.remove(key.attachment());
 
-        super.invalidateKey(key);
+        super.invalidate(key);
     }
 
-    protected void readKey(SelectionKey key)
+    protected void read(SelectionKey key)
     { // incoming message
 
         ByteBuffer rawBytes = ByteBuffer.allocate(MAX_PACKET_SIZE);
