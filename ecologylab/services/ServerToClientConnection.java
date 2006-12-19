@@ -1,22 +1,17 @@
 package ecologylab.services;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.net.URLDecoder;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import ecologylab.generic.Debug;
-import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.messages.HttpGetRequest;
-import ecologylab.services.messages.OkResponse;
-import ecologylab.services.messages.PingRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -28,11 +23,10 @@ import ecologylab.xml.XmlTranslationException;
  * @author zach
  * @author eunyee
  */
-public class ServerToClientConnection extends Debug implements Runnable,
-        ServerConstants
+public class ServerToClientConnection extends Debug implements Runnable, ServerConstants
 {
 
-	protected InputStream    inputStream;
+    protected InputStream    inputStream;
 
     protected PrintStream    outputStreamWriter;
 
@@ -40,8 +34,12 @@ public class ServerToClientConnection extends Debug implements Runnable,
 
     protected Socket         incomingSocket;
 
-    protected boolean        running = true;    
+    protected boolean        running      = true;
 
+    private boolean          shuttingDown = false;
+
+    private Collection<Object> objectsToBeNotified = new LinkedList<Object>();
+    
     public ServerToClientConnection(Socket incomingSocket,
             ServicesServer servicesServer) throws IOException
     {
@@ -74,14 +72,17 @@ public class ServerToClientConnection extends Debug implements Runnable,
             String messageString = "";
             try
             {
-                // TODO -- change to nio
-                // messageString = inputStreamReader.readLine();
-                messageString = readToMax(inputStream);
+                if (!this.shuttingDown)
+                {
+                    messageString = readToMax(inputStream);
+                }
+
                 if (messageString != null)
                 {
                     if (show(5))
-                		debug("got raw message[" + messageString.getBytes().length + "]: "
-                		  	  + messageString);
+                        debug("got raw message["
+                                + messageString.getBytes().length + "]: "
+                                + messageString);
 
                     RequestMessage requestMessage = translateXMLStringToRequestMessage(messageString);
 
@@ -90,30 +91,39 @@ public class ServerToClientConnection extends Debug implements Runnable,
                     else
                     {
                         // perform the service being requested
-                    	ResponseMessage responseMessage	= performService(requestMessage);
+                        ResponseMessage responseMessage = performService(requestMessage);
 
                         if (sendResponse(requestMessage, responseMessage))
-                        	stop();		// sorry http clients can only handle one message per connection :-(
+                            stop(); // sorry http clients can only handle one
+                        // message per connection :-(
                         badTransmissionCount = 0;
                     }
-                } 
+                }
                 else
                 {
                     debug("ERROR: null returned when translating message.");
                 }
-            } catch (java.net.SocketException e)
+                
+                if (this.shuttingDown)
+                {
+                    this.stop();
+                }
+            }
+            catch (java.net.SocketException e)
             {
                 // this seems to mean the connection went away
                 if (outputStreamWriter != null) // dont need the message if
-                                                // we're already shutting down
+                    // we're already shutting down
                     debug("STOPPING:  It seems we are no longer connected to the client.");
                 break;
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 // TODO count streak of errors and break;
                 debug("IO ERROR: " + e.getMessage());
                 e.printStackTrace();
-            } catch (XmlTranslationException e)
+            }
+            catch (XmlTranslationException e)
             {
                 // report error on XML passed through the socket
                 debug("Bogus Message ERROR: " + messageString);
@@ -122,17 +132,20 @@ public class ServerToClientConnection extends Debug implements Runnable,
                 {
                     debug("Too many bogus messages.");
                     break;
-                } else
+                }
+                else
                     try
                     {
                         // sendResponse(ResponseMessage.BADTransmissionResponse());
                         sendResponse(null, new BadTransmissionResponse());
-                    } catch (XmlTranslationException e1)
+                    }
+                    catch (XmlTranslationException e1)
                     {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
                     }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 debug("Exception Caught: " + e.toString());
                 e.printStackTrace();
@@ -155,7 +168,8 @@ public class ServerToClientConnection extends Debug implements Runnable,
      * @throws XmlTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XmlTranslationException, UnsupportedEncodingException
+            String messageString) throws XmlTranslationException,
+            UnsupportedEncodingException
     {
         RequestMessage requestMessage = servicesServer
                 .translateXMLStringToRequestMessage(messageString, true);
@@ -177,7 +191,7 @@ public class ServerToClientConnection extends Debug implements Runnable,
     {
         // add the IP address
         requestMessage.setSender(this.incomingSocket.getInetAddress());
-        
+
         ResponseMessage responseMessage = servicesServer
                 .performService(requestMessage);
         return responseMessage;
@@ -186,39 +200,44 @@ public class ServerToClientConnection extends Debug implements Runnable,
     /**
      * Send the response message back to the client.
      * 
-     * @param requestMessage Provide context for response sending, when needed. May be ignored in some cases.
+     * @param requestMessage
+     *            Provide context for response sending, when needed. May be
+     *            ignored in some cases.
      * @param responseMessage
      * 
      * @return True if the connection should be terminated after this.
      * 
      * @throws XmlTranslationException
      */
-    protected boolean sendResponse(RequestMessage requestMessage, ResponseMessage responseMessage)
-            throws XmlTranslationException
+    protected boolean sendResponse(RequestMessage requestMessage,
+            ResponseMessage responseMessage) throws XmlTranslationException
     {
         responseMessage.setUid(requestMessage.getUid());
-    	sendResponse(responseMessage.translateToXML(false));
-    	
-    	return false;
+        sendResponse(responseMessage.translateToXML(false));
+
+        return false;
     }
+
     protected void sendResponse(String responseString)
-    throws XmlTranslationException
+            throws XmlTranslationException
     {
-    	// send the response
-    	if (outputStreamWriter != null)
-    	{
-    		outputStreamWriter.print(responseString);
-    		outputStreamWriter.flush();
-    	} else
-    	{
-    		debug("Cant send message after stop: " + responseString);
-    	}
+        // send the response
+        if (outputStreamWriter != null)
+        {
+            outputStreamWriter.print(responseString);
+            outputStreamWriter.flush();
+        }
+        else
+        {
+            debug("Cant send message after stop: " + responseString);
+        }
     }
 
     public synchronized void stop()
     {
         running = false;
         debug("stopping.");
+        
         try
         {
             if (outputStreamWriter != null)
@@ -233,13 +252,28 @@ public class ServerToClientConnection extends Debug implements Runnable,
                 // debug("reader is closed.");
                 inputStream = null;
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             debug("while closing reader & writer: " + e.getMessage());
         }
+        
         servicesServer.connectionTerminated(this);
+        
+        notifyObjects();
     }
 
+    private void notifyObjects()
+    {
+        for (Object o : this.objectsToBeNotified)
+        {
+            synchronized (o)
+            {
+                o.notify();
+            }
+        }
+    }
+    
     /**
      * Limit the data size and send exception if the request data is bigger than
      * defined size.
@@ -288,5 +322,20 @@ public class ServerToClientConnection extends Debug implements Runnable,
         {
 
         }
+    }
+
+    /**
+     * Causes this to stop accepting new requests, completes all pending
+     * requests, closes, then notifies objectsToBeNotified.
+     * 
+     * @see ecologylab.services.Shutdownable#shutdownAndNotify(java.util.Collection)
+     */
+    public void shutdown(Collection<Object> objectsToBeNotified)
+    {
+        debug("server to client connection "+this.toString()+" shutting down.");
+
+        this.objectsToBeNotified.addAll(objectsToBeNotified);
+
+        this.shuttingDown = true;
     }
 }

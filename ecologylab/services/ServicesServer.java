@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
@@ -27,32 +31,47 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ServicesServer extends ServicesServerBase
 {
-    Thread             thread;
+    private static final Pattern p = Pattern.compile("content-length\\s*:\\s*(\\d*)\\s*\\Z");
+    
+    public static final int          NORMAL_SERVER             = 0;
 
-    Vector             serverToClientConnections = new Vector();
+    public static final int          HTTP_POST_SERVER          = 1;
+
+    public static final int          HTTP_GET_SERVER           = 2;
+
+    Thread                           thread;
+
+    Vector<ServerToClientConnection> serverToClientConnections = new Vector<ServerToClientConnection>();
+
+    private int                      serverType                = 0;
 
     /**
      * Limit the maximum number of client connection to the server
      */
-    private static int maxConnectionSize         = 50;
+    private static int               maxConnectionSize         = 50;
 
     /**
      * This is the actual way to create an instance of this.
      * 
      * @param portNumber
+     * @param serverType
+     *            TODO
      * @param requestTranslationSpace
      * @param objectRegistry
+     * @param serverType
+     *            TODO
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static ServicesServer get(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
+    public static ServicesServer get(int portNumber, int serverType,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry)
     {
         ServicesServer newServer = null;
         try
         {
-            newServer = new ServicesServer(portNumber, requestTranslationSpace,
-                    objectRegistry);
+            newServer = new ServicesServer(portNumber, serverType,
+                    requestTranslationSpace, objectRegistry);
         }
         catch (IOException e)
         {
@@ -68,12 +87,14 @@ public class ServicesServer extends ServicesServerBase
      * the specified TranslationSpaces for operating on messages.
      * 
      * @param portNumber
+     * @param serverType
      * @param requestTranslationSpace
      * @param objectRegistry
      *            Provides a context for request processing.
      * @throws IOException
      */
-    public ServicesServer(int portNumber, TranslationSpace requestTranslationSpace,
+    protected ServicesServer(int portNumber, int serverType,
+            TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException,
             java.net.BindException
     {
@@ -113,49 +134,53 @@ public class ServicesServer extends ServicesServerBase
     {
         while (!finished)
         {
-            try
+            if (!this.shuttingDown)
             {
-                Socket sock = serverSocket.accept();
-                ServerToClientConnection s2c = getConnection(sock);
-                synchronized (this)
-                { // avoid race conditions near stop()
-                    if (!finished && (connectionCount < maxConnectionSize))
-                    {
-                        debugA("created " + s2c);
-                        serverToClientConnections.add(s2c);
-                        connectionCount++;
-                        Thread thread = new Thread(s2c,
-                                "ServerToClientConnection "
-                                        + serverToClientConnections.size());
-                        thread.start();
-                    }
-                    else
-                    // print the debug message to the server (reason why
-                    // connection refused)
-                    {
-                        debug("No more connection allowed OR ServicesServer stopped, connectionCount="
-                                + connectionCount + "  finished=" + finished);
-                        debug("Connection Refused: between client: "
-                                + sock.getLocalSocketAddress()
-                                + " and server: " + sock.getLocalAddress());
+                try
+                {
+                    Socket sock = serverSocket.accept();
+                    ServerToClientConnection s2c = getConnection(sock);
+                    synchronized (this)
+                    { // avoid race conditions near stop()
+                        if (!finished && (connectionCount < maxConnectionSize))
+                        {
+                            debugA("created " + s2c);
+                            serverToClientConnections.add(s2c);
+                            connectionCount++;
+                            Thread thread = new Thread(s2c,
+                                    "ServerToClientConnection "
+                                            + serverToClientConnections.size());
+                            thread.start();
+                        }
+                        else
+                        // print the debug message to the server (reason why
+                        // connection refused)
+                        {
+                            debug("No more connection allowed OR ServicesServer stopped, connectionCount="
+                                    + connectionCount
+                                    + "  finished="
+                                    + finished);
+                            debug("Connection Refused: between client: "
+                                    + sock.getLocalSocketAddress()
+                                    + " and server: " + sock.getLocalAddress());
+                        }
                     }
                 }
-            }
-            catch (SocketException e)
-            {
-                if (!finished)
+                catch (SocketException e)
+                {
+                    if (!finished)
+                    {
+                        debug("ERROR during serverSocket accept!");
+                        e.printStackTrace();
+                    }
+                }
+                catch (IOException e)
                 {
                     debug("ERROR during serverSocket accept!");
                     e.printStackTrace();
                 }
             }
-            catch (IOException e)
-            {
-                debug("ERROR during serverSocket accept!");
-                e.printStackTrace();
-            }
         }
-
         close();
     }
 
@@ -187,6 +212,15 @@ public class ServicesServer extends ServicesServerBase
     protected ServerToClientConnection getConnection(Socket incomingSocket)
             throws IOException
     {
+        switch (this.serverType)
+        {
+        case NORMAL_SERVER:
+            return new ServerToClientConnection(incomingSocket, this);
+        case HTTP_POST_SERVER:
+            return new HTTPPostServerToClientConnection(incomingSocket, this);
+        case HTTP_GET_SERVER:
+            return new HTTPGetServerToClientConnection(incomingSocket, this);
+        }
         return new ServerToClientConnection(incomingSocket, this);
     }
 
@@ -246,10 +280,76 @@ public class ServicesServer extends ServicesServerBase
         }
 
         connectionCount = 0;
+
+        this.fireServerEvent(ServerEvent.SERVER_STOPPED);
     }
 
     public void start()
     {
         start(Thread.NORM_PRIORITY);
+
+        this.fireServerEvent(ServerEvent.SERVER_STARTED);
+    }
+
+    /**
+     * 
+     * @see ecologylab.services.ServicesServerBase#shutdownAndNotify(java.util.Collection)
+     */
+    public void shutdown()
+    {
+        this.shuttingDown = true;
+
+        this.fireServerEvent(ServerEvent.SERVER_SHUTTING_DOWN);
+
+        int connections;
+
+        // notify connections
+        synchronized (serverToClientConnections)
+        {
+            Collection<Object> notifyMe = new ArrayList<Object>(1);
+            notifyMe.add(this);
+
+            connections = serverToClientConnections.size();
+
+            for (ServerToClientConnection s2c : this.serverToClientConnections)
+            {
+                s2c.shutdown(notifyMe);
+            }
+        }
+
+        // wait for all the connections to shut down
+        while (connections > 0)
+        {
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+                // do nothing, just proceed
+            }
+
+            connections = serverToClientConnections.size();
+        }
+
+        this.stop();
+    }
+
+    /**
+     * Parses the header to an incoming RequestMessage to determine the length
+     * of the message, which it returns. May be overridden to provide more
+     * specific functionality.
+     * 
+     * This method assumes the header passed in is complete (i.e., read from the
+     * beginning until there are two CRLF's in a row).
+     * 
+     * @param header
+     * @return
+     */
+    protected int parseHeader(String header) throws IllegalStateException, IndexOutOfBoundsException
+    {
+        Matcher m = p.matcher(header.toLowerCase());
+        
+        return Integer.parseInt(m.group(1));
     }
 }

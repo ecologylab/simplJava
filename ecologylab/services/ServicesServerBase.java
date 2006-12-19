@@ -4,12 +4,12 @@
 package ecologylab.services;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
 
 import sun.misc.BASE64Encoder;
 import ecologylab.generic.Debug;
@@ -28,30 +28,34 @@ import ecologylab.xml.XmlTranslationException;
  * @author Zach Toups (toupsz@gmail.com)
  */
 public abstract class ServicesServerBase extends Debug implements Runnable,
-        StartAndStoppable
+        StartAndStoppable, Shutdownable
 {
-    protected int            portNumber;
+    protected int              portNumber;
 
-    protected ServerSocket   serverSocket;
+    protected ServerSocket     serverSocket;
 
-    protected boolean        finished;
+    protected boolean          finished;
 
+    protected boolean          shuttingDown    = false;
+
+    protected LinkedList<ServerListener> serverListeners = new LinkedList<ServerListener>();
+    
     /**
      * Space that defines mappings between xml names, and Java class names, for
      * request messages.
      */
-    protected TranslationSpace      requestTranslationSpace;
+    protected TranslationSpace requestTranslationSpace;
 
     /**
      * Provides a context for request processing.
      */
-    protected ObjectRegistry objectRegistry;
+    protected ObjectRegistry   objectRegistry;
 
-    protected int            connectionCount = 0;
+    protected int              connectionCount = 0;
 
-    private MessageDigest    digester;
-    
-    private long dispensedTokens;
+    private MessageDigest      digester;
+
+    private long               dispensedTokens;
 
     /**
      * Creates a Services Server Base. Sets internal variables, but does not
@@ -64,8 +68,9 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      * @throws IOException
      */
     protected ServicesServerBase(int portNumber,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry)
-            throws IOException, java.net.BindException
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry) throws IOException,
+            java.net.BindException
     {
         this.portNumber = portNumber;
         this.requestTranslationSpace = requestTranslationSpace;
@@ -76,7 +81,8 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
         try
         {
             digester = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e)
+        }
+        catch (NoSuchAlgorithmException e)
         {
             debug("This can only happen if the local implementation does not include the given hash algorithm.");
             e.printStackTrace();
@@ -99,14 +105,14 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
         // time of initial connection (when this method is called), server ip,
         // client ip, client actual port
         digester.update(String.valueOf(System.currentTimeMillis()).getBytes());
-//        digester.update(String.valueOf(System.nanoTime()).getBytes());
+        // digester.update(String.valueOf(System.nanoTime()).getBytes());
         digester.update(this.serverSocket.getInetAddress().toString()
                 .getBytes());
         digester.update(incomingSocket.getInetAddress().toString().getBytes());
         digester.update(String.valueOf(incomingSocket.getPort()).getBytes());
 
         digester.update(String.valueOf(this.dispensedTokens).getBytes());
-        
+
         dispensedTokens++;
 
         // convert to normal characters and return as a String
@@ -125,8 +131,8 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     {
         ResponseMessage temp = requestMessage.performService(objectRegistry);
         if (temp != null)
-        	temp.setUid(requestMessage.getUid());
-        
+            temp.setUid(requestMessage.getUid());
+
         return temp;
     }
 
@@ -152,16 +158,16 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
         // this method will end the service gracefully.
         terminationAction();
     }
-    
+
     /**
-     * This defines the actions that server needs to perform 
-     * when the client ends unexpected way. Detail implementations will be in subclasses.
+     * This defines the actions that server needs to perform when the client
+     * ends unexpected way. Detail implementations will be in subclasses.
      */
     protected void terminationAction()
     {
-        
+
     }
-    
+
     /**
      * Get the message passing context associated with this server.
      * 
@@ -179,10 +185,22 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     {
         return requestTranslationSpace;
     }
-    
-    
+
     public SocketAddress getAddress()
     {
         return this.serverSocket.getLocalSocketAddress();
+    }
+
+    public void addServerListener(ServerListener listener)
+    {
+        this.serverListeners.add(listener);
+    }
+    
+    protected void fireServerEvent(String event)
+    {
+        for (ServerListener l : serverListeners)
+        {
+            l.serverEventOccurred(new ServerEvent(event, this));
+        }
     }
 }
