@@ -15,7 +15,7 @@ import ecologylab.xml.XmlTranslationException;
 /**
  * ServerToClientConnection that can work with HTTP GET format requests.
  */
-public class HttpGetServerToClientConnection extends ServerToClientConnection 
+public class HTTPGetServerToClientConnection extends ServerToClientConnection 
 {
 	//	private static final String SCRIPT_HREF_EQUALS_BLANK = "<html>\r\n<script language=\"JavaScript\">\r\nself.location.href = \"about:blank\";\r\n</script>\r\n</html>\r\n";
     private static final String SCRIPT_HREF_EQUALS_BLANK = "<html>\r\n<body bgcolor=red onload=\"alert('yo');location.href = 'http://atsia.csdl.tamu.edu/andruid/ecologylab/combinFormation/launch/green.html'; \">\r\n</body>\r\n</html>\r\n";
@@ -36,7 +36,7 @@ public class HttpGetServerToClientConnection extends ServerToClientConnection
     static final String HTTP_APPEND			= " " + HTTP_VERSION;
     static final int	HTTP_APPEND_LENGTH	= HTTP_APPEND.length();
 	
-	public HttpGetServerToClientConnection(Socket incomingSocket,
+	public HTTPGetServerToClientConnection(Socket incomingSocket,
 			ServicesServer servicesServer) throws IOException 
 	{
 		super(incomingSocket, servicesServer);
