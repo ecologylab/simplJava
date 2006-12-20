@@ -42,7 +42,7 @@ implements ApplicationPropertyNames
 	
 	public void processPreferences()
 	{
-		ObjectRegistry preferencesRegistry		= Environment.the.preferencesRegistry();
+		ObjectRegistry preferencesRegistry		= Preference.preferencesRegistry();
 		for (int i=0; i<size(); i++)
 		{
 			Preference pref = (Preference) get(i);
@@ -87,10 +87,11 @@ implements ApplicationPropertyNames
 				ps.processPreferences();
 			} catch (XmlTranslationException e)
 			{
+				error(preferencesXMLFile, "Caught exception while reading preferences:");
 				e.printStackTrace();
 			}
 		}
 		else
-			println("Can't find preferences file: " + preferencesXMLFile);
+			error(preferencesXMLFile, "Can't find preferences file.");
 	}
 }
