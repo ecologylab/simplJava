@@ -5,6 +5,8 @@ package ecologylab.services.nio.action_processor;
 
 import java.nio.channels.SocketChannel;
 
+import ecologylab.generic.StartAndStoppable;
+import ecologylab.services.BadClientException;
 import ecologylab.services.nio.NIOServerBase;
 
 /**
@@ -16,13 +18,14 @@ import ecologylab.services.nio.NIOServerBase;
  * @author Zach Toups
  * 
  */
-public interface ServerActionProcessor
+public interface ServerActionProcessor extends StartAndStoppable
 {
     /**
      * @param base
      * @param sc
      * @param bs
      * @param bytesRead
+     * @throws BadClientException 
      */
-    void process(NIOServerBase base, SocketChannel sc, byte[] bs, int bytesRead);
+    void process(Object token, NIOServerBase base, SocketChannel sc, byte[] bs, int bytesRead) throws BadClientException;
 }
