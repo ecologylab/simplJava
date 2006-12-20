@@ -1,6 +1,10 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 import java.util.ArrayList;
+
+import ecologylab.generic.ConsoleUtils;
+import ecologylab.generic.Debug;
+import ecologylab.generic.ExceptionHandler;
 
 
 /**

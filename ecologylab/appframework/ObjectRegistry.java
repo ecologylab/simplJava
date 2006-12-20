@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 import java.util.HashMap;
 

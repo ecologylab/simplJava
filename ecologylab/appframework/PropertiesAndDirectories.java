@@ -1,9 +1,12 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 import java.io.File;
 import java.util.Properties;
 
+import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
 import ecologylab.io.Files;
+import ecologylab.services.messages.Preference;
 
 
 /**
@@ -63,7 +66,7 @@ extends Debug
 	{
 		if (os == UNKNOWN)
 		{
-			String osPreference = Generic.parameter("os");
+			String osPreference = Preference.lookupString("os");
 			if (osPreference != null)
 			{
 				osPreference	= osPreference.toLowerCase();

@@ -2,7 +2,10 @@
  * Copyright 1996-2002 by Andruid Kerne. All rights reserved.
  * CONFIDENTIAL. Use is subject to license terms.
  */
-package ecologylab.generic;
+package ecologylab.appframework;
+
+import ecologylab.generic.Debug;
+import ecologylab.generic.StringTools;
 
 /**
  * Utility routines related to memory management, used to watch the

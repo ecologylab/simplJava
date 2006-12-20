@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 public interface ApplicationPropertyNames
 {

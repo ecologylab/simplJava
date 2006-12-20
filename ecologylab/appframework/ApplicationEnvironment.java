@@ -1,12 +1,14 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
 
+import ecologylab.generic.Debug;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
+import ecologylab.services.messages.Preference;
 import ecologylab.services.messages.PreferencesSet;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
@@ -304,13 +306,13 @@ implements Environment
 		preferencesRegistry().registerObject(propertyName, propertyValue);
 	}
     /**
-     * @see ecologylab.generic.Environment#runtimeEnv()
+     * @see ecologylab.appframework.Environment#runtimeEnv()
      */
     public int runtimeEnv()
     { return APPLICATION;}
     
     /**
-     * @see ecologylab.generic.Environment#showStatus(String)
+     * @see ecologylab.appframework.Environment#showStatus(String)
      */
     public void showStatus(String s) 
     {
@@ -318,7 +320,7 @@ implements Environment
     }
 
 	/**
-	 * @see ecologylab.generic.Environment#status(String)
+	 * @see ecologylab.appframework.Environment#status(String)
 	 */
 	public void status(String msg) 
 	{
@@ -327,7 +329,7 @@ implements Environment
 	}
 
 	/**
-	 * @see ecologylab.generic.Environment#parameter(String)
+	 * @see ecologylab.appframework.Environment#parameter(String)
 	 */
 	public String parameter(String name)
 	{
@@ -336,7 +338,7 @@ implements Environment
 	}
 
 	/**
-	 * @see ecologylab.generic.Environment#codeBase()
+	 * @see ecologylab.appframework.Environment#codeBase()
 	 * return the path to root of the
 	 */
 	public ParsedURL codeBase() 
@@ -345,7 +347,7 @@ implements Environment
 	}
 
 	/**
-	 * @see ecologylab.generic.Environment#docBase()
+	 * @see ecologylab.appframework.Environment#docBase()
 	 * return the current working directory of the application
 	 * which is "c:\web\code\java\cm"
 	 */
@@ -379,7 +381,7 @@ implements Environment
 		{
 		case PropertiesAndDirectories.WINDOWS:
 			File firefoxFile	= getFirefoxFile();
-			cmd	= (Generic.parameterBool("navigate_with_ie") || !firefoxFile.exists()) ? IE_PATH_WINDOWS : FIREFOX_PATH_WINDOWS; 
+			cmd	= (Preference.lookupBoolean("navigate_with_ie") || !firefoxFile.exists()) ? IE_PATH_WINDOWS : FIREFOX_PATH_WINDOWS; 
 			cmd	+= " " + purl; //" \"" + purl + "\"";
 			Debug.println(cmd);
 			try {

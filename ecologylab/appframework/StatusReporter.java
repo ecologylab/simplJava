@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.appframework;
 
 /**
  * Interface for objects that report status to the user.

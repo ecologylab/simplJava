@@ -1,7 +1,9 @@
 /**
  * 
  */
-package ecologylab.generic;
+package ecologylab.appframework;
+
+import ecologylab.generic.Debug;
 
 /**
  * Peephole slots used for tracing concurrent real time deadlocks.
