@@ -17,4 +17,5 @@ public interface SessionObjects
 	
 	public static final String LOGGING = "logging";
 	
+	public static final String	TOP_LEVEL	= "top_level";
 }
