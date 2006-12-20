@@ -20,7 +20,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesClientBase;

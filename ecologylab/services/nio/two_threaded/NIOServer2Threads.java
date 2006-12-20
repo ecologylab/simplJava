@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.nio.NIOServerBase;

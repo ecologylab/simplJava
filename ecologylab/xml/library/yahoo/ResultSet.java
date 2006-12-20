@@ -1,11 +1,11 @@
-package ecologylab.xml.yahoo;
+package ecologylab.xml.library.yahoo;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * Top level result set collection element for Yahoo search.

@@ -1,4 +1,4 @@
-package ecologylab.xml.geom;
+package ecologylab.xml.library.geom;
 
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;

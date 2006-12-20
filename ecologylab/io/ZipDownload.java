@@ -17,11 +17,11 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.DownloadProcessor;
 import ecologylab.generic.Downloadable;
-import ecologylab.generic.StatusReporter;
 import ecologylab.net.ParsedURL;
 
 /**

@@ -1,4 +1,4 @@
-package ecologylab.xml.endnote;
+package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.TranslationSpace;
 
@@ -20,23 +20,23 @@ public class EndnoteNameSpace
     protected static final Class  TRANSLATIONS[] =
                                                  {
 
-            ecologylab.xml.StringState.class, ecologylab.xml.IntState.class,
-            ecologylab.xml.ArrayListState.class,
+            ecologylab.xml.subelements.StringState.class, ecologylab.xml.subelements.IntState.class,
+            ecologylab.xml.subelements.ArrayListState.class,
 
-            ecologylab.xml.endnote.Author.class,
-            ecologylab.xml.endnote.ContributorList.class,
-            ecologylab.xml.endnote.DateList.class,
-            ecologylab.xml.endnote.Keyword.class,
-            ecologylab.xml.endnote.KeywordList.class,
-            ecologylab.xml.endnote.Record.class,
-            ecologylab.xml.endnote.Records.class,
-            ecologylab.xml.endnote.TitleList.class,
-            ecologylab.xml.endnote.XmlState.class,
+            ecologylab.xml.library.endnote.Author.class,
+            ecologylab.xml.library.endnote.ContributorList.class,
+            ecologylab.xml.library.endnote.DateList.class,
+            ecologylab.xml.library.endnote.Keyword.class,
+            ecologylab.xml.library.endnote.KeywordList.class,
+            ecologylab.xml.library.endnote.Record.class,
+            ecologylab.xml.library.endnote.Records.class,
+            ecologylab.xml.library.endnote.TitleList.class,
+            ecologylab.xml.library.endnote.XmlState.class,
 
-            ecologylab.xml.geom.Point2DDoubleState.class,
-            ecologylab.xml.geom.Rectangle2DDoubleState.class,
-            ecologylab.xml.geom.Ellipse2DDoubleState.class,
-            ecologylab.xml.geom.RectangularShape.class };
+            ecologylab.xml.library.geom.Point2DDoubleState.class,
+            ecologylab.xml.library.geom.Rectangle2DDoubleState.class,
+            ecologylab.xml.library.geom.Ellipse2DDoubleState.class,
+            ecologylab.xml.library.geom.RectangularShape.class };
 
     public static TranslationSpace get()
     {

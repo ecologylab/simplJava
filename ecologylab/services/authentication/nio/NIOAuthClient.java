@@ -5,8 +5,8 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.BooleanSlot;
-import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.messages.AuthMessages;

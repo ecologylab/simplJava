@@ -3,8 +3,8 @@
  */
 package ecologylab.services.logging;
 
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history,

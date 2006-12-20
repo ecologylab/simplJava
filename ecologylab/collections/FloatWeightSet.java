@@ -2,9 +2,14 @@
  * Copyright 1996-2002 by Andruid Kerne. All rights reserved.
  * CONFIDENTIAL. Use is subject to license terms.
  */
-package ecologylab.generic;
+package ecologylab.collections;
 
 import java.util.*;
+
+import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
+import ecologylab.generic.MathTools;
+import ecologylab.generic.ThreadMaster;
 
 /**
  * Provides the facility of efficient weighted random selection from a set

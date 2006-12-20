@@ -1,4 +1,4 @@
-package ecologylab.xml.media;
+package ecologylab.xml.library.media;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;

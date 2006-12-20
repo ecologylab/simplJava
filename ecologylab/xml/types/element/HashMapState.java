@@ -1,8 +1,10 @@
-package ecologylab.xml;
+package ecologylab.xml.subelements;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+
+import ecologylab.xml.ElementState;
 
 /**
  * An ElementState XML tree node that supports an ArrayList of children (as well as whatever else

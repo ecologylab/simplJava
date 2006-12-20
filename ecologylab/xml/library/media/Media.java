@@ -1,4 +1,4 @@
-package ecologylab.xml.media;
+package ecologylab.xml.library.media;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.ElementState.xml_leaf;

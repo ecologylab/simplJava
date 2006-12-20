@@ -10,7 +10,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

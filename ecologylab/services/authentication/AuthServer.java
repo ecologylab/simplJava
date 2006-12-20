@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerToClientConnection;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.authentication.logging.AuthLogging;

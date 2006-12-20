@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.collections;
 
 import java.util.*;
 

@@ -1,8 +1,8 @@
-package ecologylab.xml.rss;
+package ecologylab.xml.library.rss;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.dc.Dc;
+import ecologylab.xml.library.dc.Dc;
 
 /**
  * Translations for all RSS parsing.

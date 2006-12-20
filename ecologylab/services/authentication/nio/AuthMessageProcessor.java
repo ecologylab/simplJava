@@ -2,7 +2,7 @@ package ecologylab.services.authentication.nio;
 
 import java.nio.channels.SelectionKey;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.ContextManager;

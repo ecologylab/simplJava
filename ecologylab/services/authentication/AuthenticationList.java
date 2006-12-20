@@ -6,9 +6,9 @@ package ecologylab.services.authentication;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their

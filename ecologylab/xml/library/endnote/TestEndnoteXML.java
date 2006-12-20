@@ -1,7 +1,7 @@
 /*
  * Created on Dec 12, 2006
  */
-package ecologylab.xml.endnote;
+package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;

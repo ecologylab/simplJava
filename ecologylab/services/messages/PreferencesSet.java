@@ -3,16 +3,16 @@ package ecologylab.services.messages;
 import java.io.File;
 import java.util.Collection;
 
-import ecologylab.generic.ApplicationEnvironment;
-import ecologylab.generic.ApplicationPropertyNames;
-import ecologylab.generic.Environment;
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.ApplicationPropertyNames;
+import ecologylab.appframework.Environment;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * A top level message between javascript and CFSessionLauncher.

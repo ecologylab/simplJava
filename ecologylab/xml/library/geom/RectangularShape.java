@@ -1,7 +1,7 @@
 /*
  * Created on Aug 29, 2006
  */
-package ecologylab.xml.geom;
+package ecologylab.xml.library.geom;
 
 import java.awt.Shape;
 

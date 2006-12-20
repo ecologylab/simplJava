@@ -1,9 +1,9 @@
-package ecologylab.xml.rss;
+package ecologylab.xml.library.rss;
 
 import java.util.Collection;
 
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * Alternative root element

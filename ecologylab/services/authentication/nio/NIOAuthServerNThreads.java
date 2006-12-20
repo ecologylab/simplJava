@@ -10,7 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;

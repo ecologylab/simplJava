@@ -3,6 +3,7 @@ package ecologylab.generic;
 import java.net.*;
 import java.util.*;
 
+import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
 
 
@@ -19,7 +20,7 @@ extends Debug
       "com", "edu", "gov", "org", "net", "tv",
    };
    static final HashMap	oneDotDomains	= 
-      Generic.buildHashMapFromStrings(oneDotDomainStrings);
+      CollectionTools.buildHashMapFromStrings(oneDotDomainStrings);
 
    public static final String	EMPTY_STRING	= "";
    

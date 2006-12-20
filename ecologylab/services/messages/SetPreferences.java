@@ -2,8 +2,8 @@ package ecologylab.services.messages;
 
 import javax.swing.JOptionPane;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.ConsoleUtils;
-import ecologylab.generic.ObjectRegistry;
 import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

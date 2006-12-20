@@ -1,11 +1,11 @@
 /*
  * Created on Dec 12, 2006
  */
-package ecologylab.xml.endnote;
+package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * @author Zach Toups (toupsz@gmail.com)

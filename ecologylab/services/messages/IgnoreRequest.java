@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.xml_inherit;
 
 /**

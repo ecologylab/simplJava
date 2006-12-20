@@ -1,4 +1,4 @@
-package ecologylab.xml.media;
+package ecologylab.xml.library.media;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

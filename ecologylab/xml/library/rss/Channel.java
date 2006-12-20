@@ -1,7 +1,8 @@
-package ecologylab.xml.rss;
+package ecologylab.xml.library.rss;
 
 import ecologylab.xml.*;
 import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.subelements.ArrayListState;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package ecologylab.xml.yahoo;
+package ecologylab.xml.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;

@@ -1,7 +1,7 @@
 /*
  * Created on Nov 14, 2006
  */
-package ecologylab.xml.geom;
+package ecologylab.xml.library.geom;
 
 import java.awt.geom.Point2D;
 

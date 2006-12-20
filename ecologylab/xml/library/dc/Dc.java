@@ -1,4 +1,4 @@
-package ecologylab.xml.dc;
+package ecologylab.xml.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;

@@ -5,11 +5,11 @@ package ecologylab.io;
 
 import java.io.File;
 
-import ecologylab.generic.ApplicationProperties;
+import ecologylab.appframework.ApplicationProperties;
+import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
-import ecologylab.generic.PropertiesAndDirectories;
-import ecologylab.generic.StatusReporter;
 import ecologylab.net.ParsedURL;
 
 /**

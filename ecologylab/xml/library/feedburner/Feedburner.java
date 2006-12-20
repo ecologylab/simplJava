@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.xml.feedburner;
+package ecologylab.xml.library.feedburner;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;

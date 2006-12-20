@@ -1,4 +1,4 @@
-package ecologylab.xml.itunes;
+package ecologylab.xml.library.itunes;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;

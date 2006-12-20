@@ -4,7 +4,7 @@ package ecologylab.services;
 import java.io.IOException;
 
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.TranslationSpace;
 
 /**

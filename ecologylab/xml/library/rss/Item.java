@@ -1,10 +1,10 @@
-package ecologylab.xml.rss;
+package ecologylab.xml.library.rss;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.dc.Dc;
-import ecologylab.xml.media.Media;
-import ecologylab.xml.feedburner.Feedburner;
+import ecologylab.xml.library.dc.Dc;
+import ecologylab.xml.library.feedburner.Feedburner;
+import ecologylab.xml.library.media.Media;
 
 /**
  * RSS parser <code>ite</code> element {@link ecologylab.xml.ElementState ElementState} declaration.

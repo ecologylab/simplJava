@@ -1,4 +1,4 @@
-package ecologylab.xml.rss;
+package ecologylab.xml.library.rss;
 
 import ecologylab.xml.*;
 

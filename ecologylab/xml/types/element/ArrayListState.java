@@ -1,10 +1,13 @@
-package ecologylab.xml;
+package ecologylab.xml.subelements;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_nested;
 
 /**
  * An ElementState XML tree node for collecting a set of nested elements, using an ArrayList

@@ -1,4 +1,7 @@
-package ecologylab.xml;
+package ecologylab.xml.subelements;
+
+import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_attribute;
 
 public class StringState extends ElementState
 {

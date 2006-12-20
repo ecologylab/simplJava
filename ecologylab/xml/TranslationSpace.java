@@ -29,10 +29,10 @@ public class TranslationSpace extends Debug
 	*/
    private boolean			emitPackageNames	= false;
    
-   private HashMap			entriesByClassName	= new HashMap();
-   private HashMap			entriesByTag		= new HashMap();
+   private HashMap<String, NameEntry>			entriesByClassName	= new HashMap<String, NameEntry>();
+   private HashMap<String, NameEntry>			entriesByTag		= new HashMap<String, NameEntry>();
    
-   private static HashMap	allNameSpaces		= new HashMap();
+   private static HashMap<String, TranslationSpace>	allNameSpaces	= new HashMap<String, TranslationSpace>();
       
    /**
     * Create a new space that defines how to translate xml tag names into
@@ -40,12 +40,26 @@ public class TranslationSpace extends Debug
     * 
     * @param name
     */
-   protected TranslationSpace(String name)
+   private TranslationSpace(String name)
    {
-	  // !!! these lines need to be moved to the studies package !!!
 	  this.name	= name;
 	  allNameSpaces.put(name, this);
    }
+
+   /**
+    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * 
+    * @param name
+    * @param baseTranslations
+    */
+   protected TranslationSpace(String name, TranslationSpace baseTranslations)
+   {
+	  this(name);
+	  addTranslations(baseTranslations);
+   }
+   
    /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
@@ -79,6 +93,41 @@ public class TranslationSpace extends Debug
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
+   
+   /**
+    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Then, add the array of translations, then, make the defaultPackageName available.
+    * 
+    * @param name
+    * @param defaultPackgeName
+    * @param baseTranslations
+    * @param translations
+    */
+   protected TranslationSpace(String name, String defaultPackgeName, TranslationSpace baseTranslations,
+		   String[][] translations)
+   {
+	   this(name, baseTranslations);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   
+   /**
+    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Then, add the array of translations, then, make the defaultPackageName available.
+    * 
+    * @param name
+    * @param defaultPackgeName
+    * @param baseTranslations
+    * @param translations
+    */
+   protected TranslationSpace(String name, String defaultPackgeName, TranslationSpace baseTranslations,
+		   Class[] translations)
+   {
+	   this(name, baseTranslations);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   
    /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
@@ -149,6 +198,27 @@ public class TranslationSpace extends Debug
 		   {
 			   Class thatClass	= classes[i];
 			   addTranslation(thatClass);
+		   }
+	   }
+   }
+   
+   /**
+    * Utility for combining TranslationSpace.
+    * 
+    * Unlike in union(), if there are duplicates, they will override identical entries in this.
+    * @param otherTranlations
+    */
+   public void addTranslations(TranslationSpace otherTranslations)
+   {
+	   if (otherTranslations != null)
+	   {
+		   Iterator translationEntriesIterator = otherTranslations.entriesByClassIterator();
+		   while (translationEntriesIterator.hasNext())
+		   {
+			   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
+			   addTranslation(nameEntry.classObj);
+			   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
+				   debug("WARNING: overriding with " + nameEntry);
 		   }
 	   }
    }
@@ -320,14 +390,25 @@ public class TranslationSpace extends Debug
 		   error("Can't union with null newTranslationSpace.");
 		   return null;
 	   }
-	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassName().values().iterator();
+	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassIterator();
 	   while (translationEntriesIterator.hasNext())
 	   {
 		   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
 		   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
 			   addTranslation(nameEntry.classObj);
+		   else
+			   debug("WARNING: union() not overriding " + nameEntry);
 	   }
 	   return this;
+   }
+   /**
+    * Get the values in the entriesByClass HashMap, and form an Iterator for acessing them.
+    * 
+    * @return
+    */
+   private Iterator entriesByClassIterator()
+   {
+	   return entriesByClassName().values().iterator();
    }
 
    public class NameEntry extends Debug
@@ -447,16 +528,8 @@ public class TranslationSpace extends Debug
 	   TranslationSpace result	= lookup(name);
 	   return (result != null) ? result : new TranslationSpace(name);
    }
-   /**
-    * Find the NameSpace called <code>name</code>, if there is one.
-    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
-    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
-    * 
-    * @param name
-    * @return
-    */
-   public static TranslationSpace get(String name, String defaultPackageName)
+   
+   private static TranslationSpace lookupAndCheckDefaultPackage(String name, String defaultPackageName)
    {
 	   TranslationSpace result	= lookup(name);
 	   if (result != null)
@@ -470,6 +543,22 @@ public class TranslationSpace extends Debug
 		  }
 	   }
 	   else
+		   result.debug("Returning existing TranslationSpace; " + name);
+	   return result;
+   }
+   /**
+    * Find the NameSpace called <code>name</code>, if there is one.
+    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
+    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
+    * 
+    * @param name
+    * @return
+    */
+   public static TranslationSpace get(String name, String defaultPackageName)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   if (result == null)
 	   {
 		   result	= new TranslationSpace(name, defaultPackageName);
 	   }
@@ -490,14 +579,23 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName,
 							   String[][] translations)
    {
-	  //TODO do not addTranslations if the object was already there!!!
-	  TranslationSpace result	= lookup(name);
-	  if (result == null)
-	  {
-		  result		= get(name, defaultPackageName);
-		  result.addTranslations(translations);
-	  }
-	  return result;
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, defaultPackageName, translations);
+	   }
+	   return result;
+   }
+   
+   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace baseTranslations,
+		   Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, defaultPackageName, baseTranslations, translations);
+	   }
+	   return result;	   
    }
    /**
     * Find the NameSpace called <code>name</code>, if there is one.
@@ -515,11 +613,10 @@ public class TranslationSpace extends Debug
 							   Class[] translations)
    {
 	  //TODO do not addTranslations if the object was already there!!!
-	  TranslationSpace result	= lookup(name);
+	  TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
 	  if (result == null)
 	  {
-		  result		= get(name, defaultPackageName);
-		  result.addTranslations(translations);
+		  result		= new TranslationSpace(name, defaultPackageName, translations);
 	  }
 	  return result;
    }

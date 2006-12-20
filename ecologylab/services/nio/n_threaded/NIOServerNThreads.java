@@ -8,7 +8,7 @@ import java.net.BindException;
 import java.nio.channels.SelectionKey;
 import java.util.HashMap;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.nio.MessageProcessor;
 import ecologylab.services.nio.NIOServerBase;

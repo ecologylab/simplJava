@@ -2,8 +2,10 @@
  * Copyright 1996-2002 by Andruid Kerne. All rights reserved.
  * CONFIDENTIAL. Use is subject to license terms.
  */
-package ecologylab.generic;
+package ecologylab.collections;
 import java.awt.*;
+
+import ecologylab.generic.Debug;
 
 /**
  * Doubly linked list of GUI components. Maintains family tree.

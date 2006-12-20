@@ -8,8 +8,8 @@ import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
-import ecologylab.generic.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.BadClientException;
 import ecologylab.services.nio.ContextManager;

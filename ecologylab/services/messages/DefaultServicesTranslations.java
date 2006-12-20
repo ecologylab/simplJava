@@ -38,8 +38,6 @@ public class DefaultServicesTranslations extends Debug
 		PreferencesSet.class,
 		SetPreferences.class,
 		
-		Navigate.class,
-		
 		HttpGetRequest.class,
 		PingRequest.class
 	};

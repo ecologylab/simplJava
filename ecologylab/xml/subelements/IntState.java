@@ -1,4 +1,8 @@
-package ecologylab.xml;
+package ecologylab.xml.subelements;
+
+import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 
 /**

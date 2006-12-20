@@ -1,8 +1,8 @@
 package ecologylab.services.messages.cf;
 
-import ecologylab.xml.ArrayListState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * A collection of seeds that will be performed by the agent, or elsewhere,

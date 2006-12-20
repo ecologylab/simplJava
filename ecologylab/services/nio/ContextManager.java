@@ -9,8 +9,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
-import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;

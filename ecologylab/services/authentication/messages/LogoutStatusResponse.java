@@ -3,8 +3,8 @@
  */
 package ecologylab.services.authentication.messages;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.BooleanSlot;
-import ecologylab.generic.ObjectRegistry;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;

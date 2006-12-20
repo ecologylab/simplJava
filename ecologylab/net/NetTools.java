@@ -6,8 +6,8 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
+import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 
 /**
  * Reusable static methods that do nifty network stuff.
@@ -29,7 +29,7 @@ public class NetTools extends Debug
 		"koi8-r", "utf-8", "utf-16", "utf-16be", "utf-16le",
 		"UTF-8", "UTF-16", "UTF-16be", "UTF-16le"
 	};
-	final static HashMap supportedCharsetMap	= Generic.buildHashMapFromStrings(SUPPORTED_CHARSETS);
+	final static HashMap supportedCharsetMap	= CollectionTools.buildHashMapFromStrings(SUPPORTED_CHARSETS);
 	
 	/**
 	 * Seek a charset specification in the MimeType header of the HTTP request.

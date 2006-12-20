@@ -1,7 +1,7 @@
 /*
  * Created on Jun 26, 2005
  */
-package ecologylab.generic;
+package ecologylab.collections;
 
 import java.util.ArrayList;
 import java.util.Collection;

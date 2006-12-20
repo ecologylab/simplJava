@@ -1,5 +1,7 @@
 package ecologylab.generic;
 
+import ecologylab.appframework.ObjectRegistry;
+
 /**
  * An exception handler used for callbacks. 
  * 

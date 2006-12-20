@@ -10,6 +10,7 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
+import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringTools;
@@ -466,35 +467,35 @@ extends Debug
       "xml", "xsl",
    };
    final static HashMap unsupportedMimes	= 
-      Generic.buildHashMapFromStrings(unsupportedMimeStrings);
+      CollectionTools.buildHashMapFromStrings(unsupportedMimeStrings);
 
    static final String[] unsupportedProtocolStrings = 
    {
       "mailto", "vbscript", "news", "rtsp", "https",
    };
    static final HashMap unsupportedProtocols = 
-      Generic.buildHashMapFromStrings(unsupportedProtocolStrings);
+      CollectionTools.buildHashMapFromStrings(unsupportedProtocolStrings);
 
    static final String[] supportedProtocolStrings = 
    {
       "http", "ftp",
    };
    static final HashMap supportedProtocols = 
-      Generic.buildHashMapFromStrings(supportedProtocolStrings);
+      CollectionTools.buildHashMapFromStrings(supportedProtocolStrings);
 
    static final String[] imgSuffixStrings	= ImageIO.getReaderFormatNames();
   /* {
       "jpg", "jpeg", "pjpg", "pjpeg", "gif", "png", 
    }; */
    static final HashMap imgSuffixMap = 
-	      Generic.buildHashMapFromLCStrings(imgSuffixStrings); // formats from jdk contain lower & upper case
+	      CollectionTools.buildHashMapFromLCStrings(imgSuffixStrings); // formats from jdk contain lower & upper case
    
    static final String[] jpegMimeStrings	=
    {
       "jpg", "jpeg", "pjpg", "pjpeg", 
    };
    static final HashMap jpegSuffixMap = 
-	      Generic.buildHashMapFromStrings(jpegMimeStrings);
+	      CollectionTools.buildHashMapFromStrings(jpegMimeStrings);
     static final String[] htmlMimeStrings	=
    {
       "html", "htm", "stm", "php", "jhtml", "jsp", "asp", "txt", "shtml",
@@ -504,22 +505,22 @@ extends Debug
     {
  	   "bmp", "wbmp","jpg","jpeg", "pjpg","pjpeg"
     };
-   static final HashMap noAlphaSuffixMap = Generic.buildHashMapFromStrings(noAlphaMimeStrings);
+   static final HashMap noAlphaSuffixMap = CollectionTools.buildHashMapFromStrings(noAlphaMimeStrings);
    
    static final HashMap htmlSuffixMap = 
-      Generic.buildHashMapFromStrings(htmlMimeStrings);
+      CollectionTools.buildHashMapFromStrings(htmlMimeStrings);
    static final String[] pdfMimeStrings		=
    {
    		"pdf"
    };
    static final HashMap pdfSuffixMap =
-   	  Generic.buildHashMapFromStrings(pdfMimeStrings);
+   	  CollectionTools.buildHashMapFromStrings(pdfMimeStrings);
    static final String[] rssMimeStrings		=
    {
    		"rss", "xml"
    };
    static final HashMap rssSuffixMap =
-   	  Generic.buildHashMapFromStrings(rssMimeStrings);
+   	  CollectionTools.buildHashMapFromStrings(rssMimeStrings);
 
 
 /**

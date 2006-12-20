@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.Socket;
 
-import ecologylab.generic.ObjectRegistry;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.TranslationSpace;
 
 /**

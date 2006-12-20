@@ -16,17 +16,18 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Iterator;
 import java.util.Vector;
 
+import ecologylab.appframework.Memory;
+import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Generic;
-import ecologylab.generic.Memory;
-import ecologylab.generic.PropertiesAndDirectories;
 import ecologylab.io.Files;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
-import ecologylab.xml.ArrayListState;
+import ecologylab.services.messages.Preference;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.subelements.ArrayListState;
 
 /**
  * Provides a framework for interaction logging.
@@ -151,7 +152,7 @@ public class Logging extends ElementState implements Runnable,
         this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
         finished            = false;
         this.nameSpace      = nameSpace;
-        int logMode         = Generic.parameterInt("log_mode", NO_LOGGING);
+        int logMode         = Preference.lookupInt("log_mode", NO_LOGGING);
         switch (logMode)
         {
             case NO_LOGGING:
@@ -225,10 +226,10 @@ public class Logging extends ElementState implements Runnable,
                  * Create the logging client which communicates with the logging
                  * server
                  */
-            	String loggingHost = Generic.parameter(LOGGING_HOST_PARAM);
+            	String loggingHost = Preference.lookupString(LOGGING_HOST_PARAM);
             	if (loggingHost == null)
             		loggingHost = LOGGING_HOST;
-            	int loggingPort	= Generic.parameterInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
+            	int loggingPort	= Preference.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
                 ServicesClient loggingClient = new ServicesClient(loggingHost, loggingPort, nameSpace);
                 if (loggingClient.connect())
                 {
@@ -860,7 +861,7 @@ public class Logging extends ElementState implements Runnable,
          */
         void writePrologue(SendPrologue sendPrologue)
         {
-            int uid = Generic.parameterInt("uid", 0);
+            int uid = Preference.lookupInt("uid", 0);
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
             loggingClient.sendMessage(sendPrologue);            

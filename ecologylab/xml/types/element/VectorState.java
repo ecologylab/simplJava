@@ -1,7 +1,9 @@
-package ecologylab.xml;
+package ecologylab.xml.subelements;
 
 import java.util.Collection;
 import java.util.Vector;
+
+import ecologylab.xml.ElementState;
 
 /**
  * An ElementState XML tree node for collecting a set of nested elements, using a Vector

@@ -3,7 +3,9 @@ package ecologylab.generic;
 import java.util.*;
 import java.io.*;
 
+import ecologylab.appframework.Environment;
 import ecologylab.io.Files;
+import ecologylab.services.messages.Preference;
 
 
 
@@ -56,9 +58,9 @@ public class Debug
    public static void initialize()
    {
 	  // global
-	  level	= Generic.parameterInt("debug_global_level", 0);
+	  level	= Preference.lookupInt("debug_global_level", 0);
       // class specific
-      String levels	= Generic.parameter("debug_levels");
+      String levels	= Preference.lookupString("debug_levels");
       println("Debug.initialize(" + Debug.level+", "+ levels+")");
       if (levels != null)
       {

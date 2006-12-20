@@ -1,4 +1,4 @@
-package ecologylab.generic;
+package ecologylab.collections;
 
 /**
  * Minimal set of functions needed for collections of FloatSetElements.
