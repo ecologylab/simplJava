@@ -278,9 +278,16 @@ public class Debug
     */
    public void error(String message)
    {
-	   println("\n" + this + SEPARATOR + "ERROR: " + message + "\n");
+	   error(this, message);
    }
-   
+   /**
+    * Print a message about an error, starting with that.toString().
+    */
+   public static void error(Object that, String message)
+   {
+	   println("\n" + that + SEPARATOR + "ERROR: " + message + "\n");
+   }
+  
 /**
  * Print a debug message that starts with this.toString().
  */
