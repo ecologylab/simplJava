@@ -222,7 +222,7 @@ implements Environment
 			PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, BASE_PREFERENCE_PATH);
 			
 			// now seek the path to an application specific xml preferences file
-			arg						= argStack.pop();
+			arg						= pop(argStack);
 			if (arg == null)
 				return;
 
@@ -235,7 +235,7 @@ implements Environment
 				argStack.push(arg);
 		}
 		
-		arg						= argStack.pop();
+		arg						= pop(argStack);
 		if (arg == null)
 			return;
 		try
@@ -243,7 +243,7 @@ implements Environment
 			Integer.parseInt(arg);
 			setProperty("graphics_device", arg);
 			
-			arg						= argStack.pop();
+			arg						= pop(argStack);
 			if (arg == null)
 				return;
 			Integer.parseInt(arg);
