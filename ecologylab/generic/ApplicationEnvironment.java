@@ -29,6 +29,8 @@ implements Environment
 //	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.xml";
 
+	TranslationSpace		translationSpace;
+	
 	/**
 	 * Used for forming codeBase relative ParsedURLs.
 	 * A simulation of the property available in applets.
@@ -173,6 +175,8 @@ implements Environment
 	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[])
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
+		this.translationSpace		= translationSpace;
+		
 		// this is the one and only singleton Environment
 		Environment.the.set(this);
 		
@@ -460,5 +464,13 @@ implements Environment
 	{
 		if (stuff != null)
 			stack.push(stuff);
+	}
+	/**
+	 * Translation space used to parse Preferences for this Application.
+	 * @return
+	 */
+	public TranslationSpace translationSpace()
+	{
+		return translationSpace;
 	}
 }
