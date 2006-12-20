@@ -307,15 +307,27 @@ public class TranslationSpace extends Debug
 	  return emitPackageNames;
    }
    
-   public void union(TranslationSpace newTranslationSpace)
+   /**
+    * Combine translations from newTranslationSpace into this one.
+    * 
+    * @param newTranslationSpace
+    */
+   //TODO should this create a new TranslationSpace or add to the existing one???
+   public TranslationSpace union(TranslationSpace newTranslationSpace)
    {
+	   if (newTranslationSpace == null)
+	   {
+		   error("Can't union with null newTranslationSpace.");
+		   return null;
+	   }
 	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassName().values().iterator();
-	   while(translationEntriesIterator.hasNext())
+	   while (translationEntriesIterator.hasNext())
 	   {
 		   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
-		   addTranslation(nameEntry.classObj);
+		   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
+			   addTranslation(nameEntry.classObj);
 	   }
-	   
+	   return this;
    }
 
    public class NameEntry extends Debug
