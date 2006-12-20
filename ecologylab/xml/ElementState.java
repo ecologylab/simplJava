@@ -1425,8 +1425,9 @@ implements ParseTableEntryTypes
     	  DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     	  DocumentBuilder builder = factory.newDocumentBuilder();
     	  createErrorHandler(builder);
-    	  
-  		  document = builder.parse(xmlFileOrURLName);
+    	  if( !xmlFileOrURLName.contains("://") )
+    		  xmlFileOrURLName = "file:///" + xmlFileOrURLName;
+    	  document = builder.parse(xmlFileOrURLName);
 		} 
 		
 		catch (SAXParseException spe) {
