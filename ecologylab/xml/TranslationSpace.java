@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import ecologylab.generic.Debug;
 
@@ -305,6 +306,17 @@ public class TranslationSpace extends Debug
    {
 	  return emitPackageNames;
    }
+   
+   public void union(TranslationSpace newTranslationSpace)
+   {
+	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassName().values().iterator();
+	   while(translationEntriesIterator.hasNext())
+	   {
+		   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
+		   addTranslation(nameEntry.classObj);
+	   }
+	   
+   }
 
    public class NameEntry extends Debug
    {
@@ -514,5 +526,10 @@ public class TranslationSpace extends Debug
 							   String[][] translations)
    {
 	  return get(defaultPackageName, defaultPackageName, translations);
+   }
+   
+   protected HashMap entriesByClassName()
+   {
+	   return entriesByClassName;
    }
 }
