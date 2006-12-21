@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
@@ -235,7 +236,7 @@ implements Environment
 			// load preferences specific to this invocation
 			if (arg.endsWith(".xml"))
 			{
-				PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, arg);
+				PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, PREFERENCES_SUBDIR_PATH + arg);
 			}
 			else
 				argStack.push(arg);
@@ -355,9 +356,15 @@ implements Environment
 	}
 	
 	static final String FIREFOX_PATH_WINDOWS	= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+//TODO -- use "open" on the mac!!!
+	static final String FIREFOX_PATH_MAC		= "/Applications/Firefox.app/Contents/MacOS/firefox";
+//	static final String FIREFOX_PATH_MAC		= null;
+	static final String SAFARI_PATH_MAC			= "/Applications/Safari.app/Contents/MacOS/Safari";
 	static final String IE_PATH_WINDOWS			= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
 	
 	static File	firefoxFileCache;
+	
+	static String browserPath;
 	
 	static File getFirefoxFile()
 	{
@@ -369,30 +376,89 @@ implements Environment
 		}
 		return result;
 	}
-	
-	public void go(ParsedURL purl, String frame)
+	/**
+	 * Get the operating system dependent path to a suitable web browser for navigating to a web page.
+	 * This is also dependent on what web browser(s) the user has installed.
+	 * In particular, we use Firefox if it is in its normal place!
+	 * 
+	 * @param os
+	 * 
+	 * @return	String that specifies the OS and browser-specific command.
+	 */
+	static String getBrowserPath()
 	{
 		int os		= PropertiesAndDirectories.os();
-		String cmd	= "";
-		switch (os)
+		String result		= browserPath;
+		if (result == null)
 		{
-		case PropertiesAndDirectories.WINDOWS:
-			File firefoxFile	= getFirefoxFile();
-			cmd	= (Preference.lookupBoolean("navigate_with_ie") || !firefoxFile.exists()) ? IE_PATH_WINDOWS : FIREFOX_PATH_WINDOWS; 
-			cmd	+= " " + purl; //" \"" + purl + "\"";
-			Debug.println(cmd);
-			try {
-					Process p = Runtime.getRuntime().exec(cmd);
-				} catch (IOException e)
+			switch (os)
+			{
+			case PropertiesAndDirectories.WINDOWS:
+				if (!Preference.lookupBoolean("navigate_with_ie"))
+					result		= FIREFOX_PATH_WINDOWS;
+				break;
+			case PropertiesAndDirectories.MAC:
+				result		= FIREFOX_PATH_MAC;
+				break;
+			default:
+				println("go(ParsedURL) not supported for os " + PropertiesAndDirectories.getOsName());
+				break;				
+			}
+			if (result != null)
+			{
+				File existentialTester	= new File(result);
+				if (existentialTester.exists())
 				{
-					println("ERROR in go(); caught exception: ");
-					e.printStackTrace();
+					result	+= " -ProfileManager -new-tab";
+					browserPath			= result;
 				}
-			break;
-		default:
-			println("go(ParsedURL) not supported for os " + PropertiesAndDirectories.getOsName());
-			break;				
+			}
+			else
+			{
+				switch (os)
+				{
+				case PropertiesAndDirectories.WINDOWS:
+					result		= IE_PATH_WINDOWS;
+					break;
+				case PropertiesAndDirectories.MAC:
+					result		= SAFARI_PATH_MAC;
+					break;
+				}
+				if (result != null)
+				{
+					File existentialTester	= new File(result);
+					if (existentialTester.exists())
+						browserPath			= result;
+				}
+			}
 		}
+		return result;
+	}
+	
+	/**
+	 * Navigate to the purl using the best browser we can find.
+	 * 
+	 * @param purl
+	 * @param frame
+	 */
+	public void navigate(ParsedURL purl, String frame)
+	{
+		String path	= getBrowserPath();
+		if (path != null)
+		{
+			String cmd	= path + " " + purl; //" \"" + purl + "\"";
+			Debug.println(cmd);
+			try 
+			{
+				Process p = Runtime.getRuntime().exec(cmd);
+			} catch (IOException e)
+			{
+				error("go(); caught exception: ");
+				e.printStackTrace();
+			}
+		}
+		else
+			error("Can't find browser to navigate to.");
 	}
 
 	public int browser()
