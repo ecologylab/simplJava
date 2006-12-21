@@ -1,11 +1,7 @@
 package ecologylab.xml.library.rss;
 
-import ecologylab.xml.*;
-import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.xml_inherit;
 import ecologylab.xml.subelements.ArrayListState;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
@@ -13,7 +9,7 @@ import java.util.Collection;
  *
  * @author andruid
  */
-public @xml_inherit class Channel extends ArrayListState
+public @xml_inherit class Channel extends ArrayListState<Item>
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
