@@ -247,13 +247,13 @@ implements Environment
 		try
 		{
 			Integer.parseInt(arg);
-			setProperty("graphics_device", arg);
+			Preference.register("graphics_device", arg);
 			
 			arg						= pop(argStack);
 			if (arg == null)
 				return;
 			Integer.parseInt(arg);
-			setProperty("screen_size", arg);
+			Preference.register("screen_size", arg);
 		} catch (NumberFormatException e)
 		{
 			argStack.push(arg);
@@ -301,11 +301,8 @@ implements Environment
 		println("codeBase="+codeBase);
 		return path;
 	}
-	public void setProperty(String propertyName, String propertyValue)
-	{
-		preferencesRegistry().registerObject(propertyName, propertyValue);
-	}
-    /**
+
+	/**
      * @see ecologylab.appframework.Environment#runtimeEnv()
      */
     public int runtimeEnv()
@@ -329,9 +326,9 @@ implements Environment
 	}
 
 	/**
-	 * @see ecologylab.appframework.Environment#parameter(String)
+	 * @see ecologylab.appframework.Environment#lookupStringPreference(String)
 	 */
-	public String parameter(String name)
+	public String lookupStringPreference(String name)
 	{
 //		return properties.getProperty(name);
 		return (String) preferencesRegistry().lookupObject(name);

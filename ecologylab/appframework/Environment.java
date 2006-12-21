@@ -7,6 +7,7 @@ package ecologylab.appframework;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
+import ecologylab.services.messages.Preference;
 
 
 /**
@@ -210,7 +211,7 @@ public interface Environment
     	 String result	= frame;
     	 if (result == null)
     	 {
-    		 result			= environment.parameter("frame");
+    		 result			= Preference.lookupString("frame");
     		 frame			= result;
     	 }
 		 return frame;
@@ -254,7 +255,7 @@ public interface Environment
  * Get a parameter or property, based on a key. Implements a name/value pair.
  * @param	name	The name of the key.
  */
-   String	parameter(String name);
+   String	lookupStringPreference(String name);
    
 /**
  * {@link java.applet.Applet#getCodeBase() java.applet.Applet.getCodeBase()}

@@ -47,24 +47,23 @@ implements ApplicationPropertyNames
 		{
 			Preference pref = (Preference) get(i);
 			pref.register(preferencesRegistry);
-		}
-		
-		ApplicationEnvironment appEnvironment = 
-			(ApplicationEnvironment)Environment.the.get();
-		// note! read directly here instead of with a static in ApplicationProperties,
-		// because now is too early to initialize the other static variables in that interface,
-		// because their values are likely to be changed through subsequent preference initialization
-		String codeBasePref	= (String) appEnvironment.parameter(CODEBASE);
-		
-		ParsedURL codeBase	= ParsedURL.getAbsolute(codeBasePref, "Setting up codebase");
-		if (codeBase != null)
-		{
-			debug("SetPreferences setting codeBase="+codeBase);
-			appEnvironment.setCodeBase(codeBase);
-		}
-		else
-		{
-			debug("SetPreferences ERROR! no codebase preference was passed in.");
+			if (CODEBASE.equals(pref.name))
+			{
+				String value	= pref.value;
+				if (value != null)
+				{
+					ParsedURL codeBase	= ParsedURL.getAbsolute(value, "Setting up codebase");
+					if (codeBase != null)
+					{
+						Environment env	= Environment.the.get();
+						if (env instanceof ApplicationEnvironment)
+						{
+							debug("SetPreferences setting codeBase="+codeBase);
+							((ApplicationEnvironment) env).setCodeBase(codeBase);
+						}
+					}
+				}
+			}
 		}
 	}
 

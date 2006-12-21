@@ -543,7 +543,7 @@ public class TranslationSpace extends Debug
 		  }
 	   }
 	   else
-		   result.debug("Returning existing TranslationSpace; " + name);
+		   println("Returning existing TranslationSpace; " + name);
 	   return result;
    }
    /**
@@ -612,7 +612,6 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName,
 							   Class[] translations)
    {
-	  //TODO do not addTranslations if the object was already there!!!
 	  TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
 	  if (result == null)
 	  {

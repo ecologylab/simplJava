@@ -33,7 +33,7 @@ public @xml_inherit class Preference extends ArrayListState
 	}
 	public String toString()
 	{
-		return "Preference\tname="+name+" value="+value;
+		return "Preference["+name+"\t"+value + "]\t";
 	}
 
 	/**
@@ -103,6 +103,12 @@ public @xml_inherit class Preference extends ArrayListState
 	{
 		register(preferencesRegistry());
 	}
+	
+	public static void register(String name, String value)
+	{
+		Preference pref	= new Preference(name, value);
+		pref.register();
+	}
 	/**
 	 * Register this into a PreferencesRegistry.
 	 * 
@@ -110,20 +116,20 @@ public @xml_inherit class Preference extends ArrayListState
 	 */
 	public void register(ObjectRegistry preferencesRegistry)
 	{
-		debug("registering");
+		//debug("registering");
 		ElementState child	= child();
 		// is there at least one child?
-		if (child != null)
+/*		if (child != null)
 		{
-			preferencesRegistry.registerObject(this.name, this);
-		}
+ */			preferencesRegistry.registerObject(this.name, this);
+/*		}
 		else
 		{
 			String value = this.value;
 			if (value != null)
 				preferencesRegistry.registerObject(this.name, value);
 		}
-	}
+ */	}
 	
 	/**
 	 * Get a full Preference object entry from the registry.
@@ -134,7 +140,9 @@ public @xml_inherit class Preference extends ArrayListState
 	 */
 	public static Preference lookup(String name)
 	{
-		return (Preference) preferencesRegistry().lookupObject(name);
+		Object lookupObject = preferencesRegistry().lookupObject(name);
+		//println("lookup(" + name + ") got " + lookupObject);
+		return (Preference) lookupObject;
 	}
 	/**
 	 * Get an entry from the registry, with value type String.
@@ -146,6 +154,9 @@ public @xml_inherit class Preference extends ArrayListState
 	 */
 	public static String lookupString(String name, String defaultValue)
 	{
+		/* Object prefObj	= preferencesRegistry().lookupObject(name);
+		if (prefObj instanceof String)
+			return (String) */
 		Preference pref	= lookup(name);
 		return (pref != null) ? pref.value : defaultValue;
 	}
