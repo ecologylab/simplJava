@@ -397,9 +397,17 @@ public static final String SEP	= "/";
       Debug.println(round(22, 3));
    }
    static final float	LN_EMPTY_WEIGHT	= Float.MAX_VALUE / 1000;
-   public static void go(ParsedURL purl)
+   
+   /**
+    * Open a document in a web browser.
+    * 
+    * @param purl	The address of the web document.
+    * 
+    * @param frame	Frame to open it in within the web page. This may or may not be used.
+    */
+   public static void navigate(ParsedURL purl)
    {
-      Environment.the.get().go(purl, Environment.the.frame());
+      Environment.the.get().navigate(purl, Environment.the.frame());
    }
    
    public static void beep()

@@ -285,5 +285,12 @@ public interface Environment
    public static final int	NS		= 1;
    public static final int	PLUGIN		= 2;
 
-   public void go(ParsedURL purl, String frame);
+   /**
+    * Open a document in a web browser.
+    * 
+    * @param purl	The address of the web document.
+    * 
+    * @param frame	Frame to open it in within the web page. This may or may not be used.
+    */
+   public void navigate(ParsedURL purl, String frame);
 }
