@@ -28,7 +28,7 @@ public class ResultSet extends ArrayListState
 	
 	public static TranslationSpace translationSpace()
 	{
-		return TranslationSpace.get("yahoo", "ecologylab.xml.yahoo");
+		return TranslationSpace.get("yahoo", "ecologylab.xml.library.yahoo");
 	}
 	
 	public static String SEOUL_SHOPPING		= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";

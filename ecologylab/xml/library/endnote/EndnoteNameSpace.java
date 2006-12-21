@@ -15,7 +15,7 @@ public class EndnoteNameSpace
 
     public static final String    NAME           = "endnote";
 
-    protected static final String PACKAGE_NAME   = "ecologylab.xml.endnote";
+    protected static final String PACKAGE_NAME   = "ecologylab.xml.library.endnote";
 
     protected static final Class  TRANSLATIONS[] =
                                                  {

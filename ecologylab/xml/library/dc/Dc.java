@@ -48,7 +48,7 @@ public class Dc extends ElementState
 	// public String		form; // instead of format
 	   
 	private static final String TRANSLATION_SPACE_NAME	= "dc";
-	private static final String PACKAGE_NAME			= "ecologylab.xml.dc";
+	private static final String PACKAGE_NAME			= "ecologylab.xml.library.dc";
 
 	public static final Class TRANSLATIONS[]	= 
 	{
