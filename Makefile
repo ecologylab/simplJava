@@ -1,6 +1,10 @@
 # current working directory
 
-FUNDAMENTAL_DIRS = net generic io types xml xml/yahoo xml/dc xml/feedburner xml/media xml/itunes xml/rss services services/messages services/messages/studies services/messages/cf services/logging
+XML_DIR = xml xml/subelements xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss 
+
+SERVICES = services services/exceptions services/logging services/messages services/messages/cf
+
+FUNDAMENTAL_DIRS = appframework collections generic io net types $(XML_DIR) $(SERVICES)
 
 JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 
@@ -8,7 +12,7 @@ JAR_DIRS = $(FUNDAMENTAL_DIRS:%=ecologylab/%)
 DIRS	= $(JAR_DIRS)
 
 KEYSTORE	=  -keystore c:/local/k/chain 
-#KEYSTORE	=  -keystore h:/local/k/chain 
+KEYSTORE	=  -keystore h:/local/k/chain 
 
 DOC_DIR = ../../cfdocs
 
