@@ -450,7 +450,7 @@ extends Debug implements BasicFloatSet
 		 {
 			elements[i]	= null;	   // its deleted or moved; null either way
 			//	    thatElement.setSet(null); // make sure its treated as not here
-			debug("recycling " + thatElement);
+//			debug("recycling " + thatElement);
 			thatElement.setIndex(-1); // during gc() excursion
 			thatElement.deleteHook();
 			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
