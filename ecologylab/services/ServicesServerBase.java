@@ -203,4 +203,12 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
             l.serverEventOccurred(new ServerEvent(event, this));
         }
     }
+
+    /**
+     * @return the portNumber
+     */
+    public int getPortNumber()
+    {
+        return portNumber;
+    }
 }
