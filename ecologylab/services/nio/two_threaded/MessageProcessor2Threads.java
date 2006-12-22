@@ -13,7 +13,7 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.nio.ContextManager;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -36,10 +36,10 @@ public class MessageProcessor2Threads extends Debug implements Runnable,
 
     private ObjectRegistry                  registry;
 
-    protected NIOServerBase                   server;
+    protected NIOServerBackend                   server;
 
     public MessageProcessor2Threads(TranslationSpace translationSpace,
-            ObjectRegistry registry, NIOServerBase server)
+            ObjectRegistry registry, NIOServerBackend server)
     {
         this.translationSpace = translationSpace;
         this.registry = registry;

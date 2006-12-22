@@ -10,10 +10,10 @@ import java.nio.channels.SelectionKey;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
-public class NIOServer2Threads extends NIOServerBase implements ServerConstants
+public class NIOServer2Threads extends NIOServerBackend implements ServerConstants
 {
     MessageProcessor2Threads messageProcessor = null;
 
@@ -80,7 +80,7 @@ public class NIOServer2Threads extends NIOServerBase implements ServerConstants
     /**
      * close() is called after the server has stopped.
      * 
-     * @see ecologylab.services.nio.NIOServerBase#close()
+     * @see ecologylab.services.nio.NIOServerBackend#close()
      */
     protected void close()
     {

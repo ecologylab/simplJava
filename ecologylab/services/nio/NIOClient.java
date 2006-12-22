@@ -444,8 +444,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                                     readChannel();
                                 }
-
-                                if (key.isValid() && key.isWritable())
+                                else if (key.isWritable())
                                 {
                                     // debug("this key is writable!");
 
@@ -462,10 +461,6 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                     key.interestOps(key.interestOps()
                                             & (~SelectionKey.OP_WRITE));
                                 }
-                                /*
-                                 * else { debug("Key is selected and not
-                                 * readable!"); }
-                                 */
                             }
                             else
                             { // the key is invalid; server disconnected

@@ -1,13 +1,13 @@
 /**
  * 
  */
-package ecologylab.services.nio.action_processor;
+package ecologylab.services.nio.servers;
 
 import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.BadClientException;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 
 /**
  * ServerActionProcessor objects handle the translation of request/response
@@ -18,7 +18,7 @@ import ecologylab.services.nio.NIOServerBase;
  * @author Zach Toups
  * 
  */
-public interface ServerActionProcessor extends StartAndStoppable
+public interface NIOServerFrontend extends StartAndStoppable
 {
     /**
      * @param base
@@ -27,5 +27,5 @@ public interface ServerActionProcessor extends StartAndStoppable
      * @param bytesRead
      * @throws BadClientException 
      */
-    void process(Object token, NIOServerBase base, SocketChannel sc, byte[] bs, int bytesRead) throws BadClientException;
+    void process(Object token, NIOServerBackend base, SocketChannel sc, byte[] bs, int bytesRead) throws BadClientException;
 }

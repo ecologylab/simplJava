@@ -72,7 +72,7 @@ public class ContextManager extends Debug implements ServerConstants
 
     private int                                   badTransmissionCount;
     
-    NIOServerBase server;
+    NIOServerBackend server;
     
     SocketChannel socket;
 
@@ -81,7 +81,7 @@ public class ContextManager extends Debug implements ServerConstants
      */
     private TranslationSpace                      translationSpace;
 
-    public ContextManager(Object token, /*SelectionKey key,*/ NIOServerBase server, SocketChannel socket,
+    public ContextManager(Object token, /*SelectionKey key,*/ NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.token = token;
@@ -94,6 +94,8 @@ public class ContextManager extends Debug implements ServerConstants
 //
         this.registry = registry;
         this.translationSpace = translationSpace;
+        
+        System.out.println("my server is: "+this.server);
     }
 
     /**
@@ -125,8 +127,7 @@ public class ContextManager extends Debug implements ServerConstants
      */
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
-        requestMessage.setSender(server.getInetAddress());
-//        requestMessage.setSender(this.channel.socket().getInetAddress());
+        requestMessage.setSender(this.socket.socket().getInetAddress());
 
         return requestMessage.performService(registry);
     }
@@ -135,8 +136,8 @@ public class ContextManager extends Debug implements ServerConstants
     {
         ResponseMessage response = null;
 
-        if (show(5))
-        {
+//        if (show(5))
+  //      {
             try
             {
                 debug("processing: " + request.translateToXML(false));
@@ -145,7 +146,7 @@ public class ContextManager extends Debug implements ServerConstants
             {
                 e1.printStackTrace();
             }
-        }
+    //    }
 
         if (request == null)
         {
@@ -162,7 +163,7 @@ public class ContextManager extends Debug implements ServerConstants
                 {
                     response.setUid(request.getUid());
 
-                    if (show(5))
+//                    if (show(5))
                         debug("response: " + response.translateToXML(false));
                     // translate the response and store it, then
                     // encode it and write it
@@ -170,7 +171,12 @@ public class ContextManager extends Debug implements ServerConstants
                     outgoingChars.put(response.translateToXML(false)).put('\n');
                     outgoingChars.flip();
                     
-                    server.send(this.socket, encoder.encode(outgoingChars).array());
+                    ByteBuffer temp = encoder.encode(outgoingChars);
+                    
+                    System.out.println(outgoingChars.toString());
+                    System.out.println("sent: "+temp);
+                    
+                    server.send(this.socket, temp);
 
                 }
                 catch (XmlTranslationException e)
@@ -272,6 +278,7 @@ public class ContextManager extends Debug implements ServerConstants
 
         if (request == null)
         {
+            System.out.println("ERROR: "+incomingMessage);
             if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
             {
                 throw new BadClientException("Too many Bad Transmissions: "
@@ -317,8 +324,8 @@ public class ContextManager extends Debug implements ServerConstants
     {
         accumulator.append(decoder.decode(ByteBuffer.wrap(bytes)));
         
-        if (show(5))
-            debug("accumulator: "+accumulator.toString());
+//        if (show(5))
+            System.out.println("accumulator: "+accumulator.toString());
         
         int length = accumulator.length();
         int termPos = accumulator.indexOf("\n");
@@ -336,6 +343,8 @@ public class ContextManager extends Debug implements ServerConstants
 
                 // erase the message from the accumulator
                 accumulator.delete(0, termPos+1);
+                
+                System.out.println("accumulator after delete: "+accumulator.toString());
                 
                 length = accumulator.length();
                 termPos = accumulator.indexOf("\n");

@@ -1,11 +1,11 @@
 /**
  * 
  */
-package ecologylab.services.nio.action_processor;
+package ecologylab.services.nio.servers;
 
 import java.nio.channels.SocketChannel;
 
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 
 /**
  * Uses a group of worker threads to handle processing all of the input from one
@@ -15,22 +15,22 @@ import ecologylab.services.nio.NIOServerBase;
  * @author Zach Toups
  * 
  */
-public class NThreadedActionProcessor implements ServerActionProcessor
+public class NThreadedNIOServer extends NIOServerBase
 {
 
     /**
      * 
      */
-    public NThreadedActionProcessor(int numWorkers)
+    public NThreadedNIOServer(int numWorkers)
     {
         // TODO Auto-generated constructor stub
     }
 
     /**
-     * @see ecologylab.services.nio.action_processor.ServerActionProcessor#process(ecologylab.services.nio.NIOServerBase,
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel, byte[], int)
      */
-    public void process(NIOServerBase base, SocketChannel sc, byte[] bs,
+    public void process(NIOServerBackend base, SocketChannel sc, byte[] bs,
             int bytesRead)
     {
         // TODO Auto-generated method stub

@@ -11,10 +11,10 @@ import java.util.HashMap;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.nio.MessageProcessor;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
-public class NIOServerNThreads extends NIOServerBase implements
+public class NIOServerNThreads extends NIOServerBackend implements
         ServerConstants
 {
 

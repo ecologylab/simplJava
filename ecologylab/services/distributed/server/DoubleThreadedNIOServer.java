@@ -1,19 +1,20 @@
 /**
  * 
  */
-package ecologylab.services.nio.action_processor;
+package ecologylab.services.nio.servers;
 
+import java.io.IOException;
+import java.net.BindException;
+import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.generic.Debug;
-import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.BadClientException;
 import ecologylab.services.nio.ContextManager;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -22,38 +23,39 @@ import ecologylab.xml.TranslationSpace;
  * @author Zach Toups
  * 
  */
-public class DoubleThreadedActionProcessor extends Debug implements ServerActionProcessor,
-        Runnable, StartAndStoppable
+public class DoubleThreadedNIOServer extends NIOServerBase
 {
-    Thread t = null;
+    public static DoubleThreadedNIOServer getInstance(int portNumber,
+            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry) throws IOException, BindException
+    {
+        return new DoubleThreadedNIOServer(portNumber, inetAddress,
+                requestTranslationSpace, objectRegistry);
+    }
 
-    boolean running = false;
-    
-    NIOServerBase server = null;
-    
-    private TranslationSpace                translationSpace;
+    Thread                                 t        = null;
 
-    private ObjectRegistry                  registry;
-    
+    boolean                                running  = false;
+
     HashMap<SocketChannel, ContextManager> contexts = new HashMap<SocketChannel, ContextManager>();
 
     /**
      * 
      */
-    public DoubleThreadedActionProcessor(NIOServerBase server, TranslationSpace translationSpace, ObjectRegistry registry)
-    {   
-        this.server = server;
-        this.translationSpace = translationSpace;
-        this.registry = registry;
+    protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry) throws IOException, BindException
+    {
+        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry);
     }
 
     /**
-     * @throws BadClientException 
-     * @see ecologylab.services.nio.action_processor.ServerActionProcessor#process(ecologylab.services.nio.NIOServerBase,
+     * @throws BadClientException
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel, byte[], int)
      */
-    public void process(Object token, NIOServerBase base, SocketChannel sc, byte[] bs,
-            int bytesRead) throws BadClientException
+    public void process(Object token, NIOServerBackend base, SocketChannel sc,
+            byte[] bs, int bytesRead) throws BadClientException
     {
         synchronized (contexts)
         {
@@ -61,7 +63,7 @@ public class DoubleThreadedActionProcessor extends Debug implements ServerAction
 
             if (cm == null)
             {
-                cm = generateClientContext(token, sc, translationSpace,
+                cm = generateContextManager(token, sc, translationSpace,
                         registry);
                 contexts.put(sc, cm);
             }
@@ -75,13 +77,28 @@ public class DoubleThreadedActionProcessor extends Debug implements ServerAction
                 e.printStackTrace();
             }
         }
+        
+        synchronized(this)
+        {
+            this.notify();
+        }
     }
-    
-    protected ContextManager generateClientContext(Object token,
+
+    /**
+     * Hook method to allow changing the ContextManager to enable specific extra
+     * functionality.
+     * 
+     * @param token
+     * @param sc
+     * @param translationSpace
+     * @param registry
+     * @return
+     */
+    protected ContextManager generateContextManager(Object token,
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        return new ContextManager(token, server, sc, translationSpace, registry);
+        return new ContextManager(token, this.getBackend(), sc, translationSpace, registry);
     }
 
     public void run()
@@ -95,10 +112,10 @@ public class DoubleThreadedActionProcessor extends Debug implements ServerAction
                 contextIter = contexts.keySet().iterator();
 
                 // process all of the messages in the queues
-                while (contextIter.hasNext()) 
+                while (contextIter.hasNext())
                 {
                     SocketChannel sc = contextIter.next();
-                    
+
                     try
                     {
                         contexts.get(sc).processAllMessagesAndSendResponses();
@@ -109,7 +126,7 @@ public class DoubleThreadedActionProcessor extends Debug implements ServerAction
                         error(e.getMessage());
 
                         // invalidate the manager's key
-                        server.invalidate(sc);
+                        this.getBackend().invalidate(sc);
 
                         // remove the manager from the collection
                         contextIter.remove();
@@ -118,33 +135,55 @@ public class DoubleThreadedActionProcessor extends Debug implements ServerAction
             }
 
             // sleep until notified of new messages
-            try
+            synchronized (this)
             {
-                wait();
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-                Thread.interrupted();
+                try
+                {
+                    wait();
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                    Thread.interrupted();
+                }
             }
         }
     }
 
+    /**
+     * @see ecologylab.generic.StartAndStoppable#start()
+     */
     public void start()
     {
         running = true;
-        
+
         if (t == null)
         {
             t = new Thread(this);
         }
-        
+
         t.start();
+        
+        super.start();
     }
 
+    /**
+     * @see ecologylab.generic.StartAndStoppable#stop()
+     */
     public void stop()
     {
         running = false;
+        
+        super.stop();
+    }
+
+    /**
+     * @see ecologylab.services.Shutdownable#shutdown()
+     */
+    public void shutdown()
+    {
+        // TODO Auto-generated method stub
+
     }
 
 }

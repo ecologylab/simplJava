@@ -19,12 +19,12 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class NIOServer1Thread extends NIOServerBase implements ServerConstants
+public class NIOServer1Thread extends NIOServerBackend implements ServerConstants
 {
     protected ObjectRegistry               registry;
 

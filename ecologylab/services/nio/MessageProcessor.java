@@ -30,10 +30,10 @@ public class MessageProcessor extends Debug implements Runnable,
 
     protected SelectionKey key;
     
-    protected NIOServerBase server;
+    protected NIOServerBackend server;
 
     public MessageProcessor(Object token, SelectionKey key,
-            TranslationSpace translationSpace, ObjectRegistry registry, NIOServerBase server)
+            TranslationSpace translationSpace, ObjectRegistry registry, NIOServerBackend server)
     {
         this.context = generateClientContext(token, key, translationSpace,
                 registry);

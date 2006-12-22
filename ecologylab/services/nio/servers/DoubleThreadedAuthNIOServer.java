@@ -1,8 +1,12 @@
-package ecologylab.services.authentication.nio;
+/**
+ * 
+ */
+package ecologylab.services.nio.servers;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
+import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -13,21 +17,25 @@ import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.servers.NIOServerFrontend;
-import ecologylab.services.nio.two_threaded.MessageProcessor2Threads;
+import ecologylab.services.nio.ContextManager;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
-public class NIOAuthServer extends NIOServerBackend implements
-        AuthServerRegistryObjects, AuthMessages, AuthLogging, Authenticatable
+/**
+ * @author Zach Toups
+ * 
+ */
+public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
+        implements AuthServerRegistryObjects, AuthMessages, AuthLogging,
+        Authenticatable
 {
-    private LinkedList<Logging> logListeners = new LinkedList<Logging>();
-    
-    protected Authenticator authenticator = null;
+    private LinkedList<Logging> logListeners  = new LinkedList<Logging>();
+
+    protected Authenticator     authenticator = null;
 
     /**
      * This is the actual way to create an instance of this.
@@ -42,16 +50,16 @@ public class NIOAuthServer extends NIOServerBackend implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServer get(int portNumber, InetAddress inetAddress, 
-            TranslationSpace requestTranslationSpace,
+    public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
+            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, String authListFilename)
     {
-        NIOAuthServer newServer = null;
+        DoubleThreadedAuthNIOServer newServer = null;
 
         try
         {
-            newServer = new NIOAuthServer(portNumber, inetAddress,
-                    requestTranslationSpace, objectRegistry,
+            newServer = new DoubleThreadedAuthNIOServer(portNumber,
+                    inetAddress, requestTranslationSpace, objectRegistry,
                     (AuthenticationList) ElementState.translateFromXML(
                             authListFilename, TranslationSpace.get(
                                     "authListNameSpace",
@@ -83,16 +91,17 @@ public class NIOAuthServer extends NIOServerBackend implements
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
      */
-    public static NIOAuthServer get(int portNumber, InetAddress inetAddress,
-            TranslationSpace requestTranslationSpace,
+    public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
+            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, AuthenticationList authList)
     {
-        NIOAuthServer newServer = null;
+        DoubleThreadedAuthNIOServer newServer = null;
 
         try
         {
-            newServer = new NIOAuthServer(portNumber, inetAddress,
-                    requestTranslationSpace, objectRegistry, authList);
+            newServer = new DoubleThreadedAuthNIOServer(portNumber,
+                    inetAddress, requestTranslationSpace, objectRegistry,
+                    authList);
         }
         catch (IOException e)
         {
@@ -104,29 +113,66 @@ public class NIOAuthServer extends NIOServerBackend implements
         return newServer;
     }
 
-    protected NIOAuthServer(int portNumber, InetAddress inetAddress, 
-            TranslationSpace requestTranslationSpace,
+    /**
+     * @param portNumber
+     * @param inetAddress
+     * @param requestTranslationSpace
+     * @param objectRegistry
+     * @throws IOException
+     * @throws BindException
+     */
+    protected DoubleThreadedAuthNIOServer(int portNumber,
+            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, AuthenticationList authList)
             throws IOException, BindException
     {
-        super(portNumber, new AuthServerActionProcessor(), requestTranslationSpace, objectRegistry);
+        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry);
+        
+        this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
-        requestTranslationSpace.addTranslation(
+        this.translationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Login");
-        requestTranslationSpace.addTranslation(
+        this.translationSpace.addTranslation(
                 "ecologylab.services.authentication.messages", "Logout");
-        requestTranslationSpace.addTranslation(
+        this.translationSpace.addTranslation(
                 "ecologylab.services.authentication.messages",
                 "LoginStatusResponse");
-        requestTranslationSpace.addTranslation(
+        this.translationSpace.addTranslation(
                 "ecologylab.services.authentication.messages",
                 "LogoutStatusResponse");
 
-        this.objectRegistry.registerObject(MAIN_AUTHENTICATABLE, this);
-        
-        this.authenticator = new Authenticator(authList);
+        authenticator = new Authenticator(authList);
     }
 
+    /**
+     * 
+     * @param token
+     * @param key
+     * @param translationSpace
+     * @param registry
+     * @return
+     */
+    protected ContextManager generateContextManager(Object token,
+            SelectionKey key, TranslationSpace translationSpace,
+            ObjectRegistry registry)
+    {
+        try
+        {
+            return new AuthContextManager(token, key, translationSpace,
+                    registry, this);
+        }
+        catch (ClassCastException e)
+        {
+            debug("ATTEMPT TO USE AuthMessageProcessor WITH A NON-AUTHENTICATING SERVER!");
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+
+    /**
+     * @see ecologylab.services.authentication.logging.AuthLogging#addLoggingListener(ecologylab.services.logging.Logging)
+     */
     public void addLoggingListener(Logging log)
     {
         logListeners.add(log);
@@ -154,11 +200,4 @@ public class NIOAuthServer extends NIOServerBackend implements
     {
         return authenticator.login(entry, address);
     }
-
-    public void shutdown()
-    {
-        // TODO Auto-generated method stub
-        
-    }
-
 }

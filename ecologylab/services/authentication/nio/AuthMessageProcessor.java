@@ -7,7 +7,7 @@ import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.MessageProcessor;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
 public class AuthMessageProcessor extends MessageProcessor implements
@@ -16,7 +16,7 @@ public class AuthMessageProcessor extends MessageProcessor implements
 
     public AuthMessageProcessor(Object token, SelectionKey key,
             TranslationSpace translationSpace, ObjectRegistry registry,
-            NIOServerBase server)
+            NIOServerBackend server)
     {
         super(token, key, translationSpace, registry, server);
     }

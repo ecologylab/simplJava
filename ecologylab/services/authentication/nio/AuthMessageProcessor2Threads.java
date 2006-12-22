@@ -6,7 +6,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.nio.ContextManager;
-import ecologylab.services.nio.NIOServerBase;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.two_threaded.MessageProcessor2Threads;
 import ecologylab.xml.TranslationSpace;
 
@@ -15,7 +15,7 @@ public class AuthMessageProcessor2Threads extends MessageProcessor2Threads
 {
 
     public AuthMessageProcessor2Threads(TranslationSpace translationSpace,
-            ObjectRegistry registry, NIOServerBase server)
+            ObjectRegistry registry, NIOServerBackend server)
     {
         super(translationSpace, registry, server);
     }
