@@ -332,7 +332,7 @@ implements Environment
 	public String lookupStringPreference(String name)
 	{
 //		return properties.getProperty(name);
-		return (String) preferencesRegistry().lookupObject(name);
+		return ((Preference) preferencesRegistry().lookupObject(name)).getValue();
 	}
 
 	/**
