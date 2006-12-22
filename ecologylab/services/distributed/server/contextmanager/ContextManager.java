@@ -5,7 +5,6 @@ import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,22 +31,10 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ContextManager extends Debug implements ServerConstants
 {
-    private StringBuilder                          accumulator      = new StringBuilder(
+    private StringBuilder                         accumulator      = new StringBuilder(
                                                                            MAX_PACKET_SIZE);
 
-//    private int                                   bytesRead        = 0;
-
-//    private SocketChannel                         channel;
-
-    private static CharsetDecoder                        decoder          = Charset
-                                                                           .forName(
-                                                                                   CHARACTER_ENCODING)
-                                                                           .newDecoder();
-
     protected boolean                             messageWaiting   = false;
-
-//    private ByteBuffer                            rawBytes         = ByteBuffer
-  //                                                                         .allocate(MAX_PACKET_SIZE);
 
     private RequestMessage                        request;
 
@@ -58,7 +45,7 @@ public class ContextManager extends Debug implements ServerConstants
     private CharBuffer                            outgoingChars    = CharBuffer
                                                                            .allocate(MAX_PACKET_SIZE);
 
-    private static CharsetEncoder                        encoder          = Charset
+    private static CharsetEncoder                 encoder          = Charset
                                                                            .forName(
                                                                                    CHARACTER_ENCODING)
                                                                            .newEncoder();
@@ -71,31 +58,32 @@ public class ContextManager extends Debug implements ServerConstants
     protected ObjectRegistry                      registry;
 
     private int                                   badTransmissionCount;
-    
-    NIOServerBackend server;
-    
-    SocketChannel socket;
+
+    NIOServerBackend                              server;
+
+    SocketChannel                                 socket;
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
     private TranslationSpace                      translationSpace;
 
-    public ContextManager(Object token, /*SelectionKey key,*/ NIOServerBackend server, SocketChannel socket,
+    public ContextManager(Object token, /* SelectionKey key, */
+            NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.token = token;
 
         this.socket = socket;
         this.server = server;
-//        this.key = key;
+        // this.key = key;
 
-//        channel = (SocketChannel) key.channel();
-//
+        // channel = (SocketChannel) key.channel();
+        //
         this.registry = registry;
         this.translationSpace = translationSpace;
-        
-        System.out.println("my server is: "+this.server);
+
+        System.out.println("my server is: " + this.server);
     }
 
     /**
@@ -136,17 +124,17 @@ public class ContextManager extends Debug implements ServerConstants
     {
         ResponseMessage response = null;
 
-//        if (show(5))
-  //      {
-            try
-            {
-                debug("processing: " + request.translateToXML(false));
-            }
-            catch (XmlTranslationException e1)
-            {
-                e1.printStackTrace();
-            }
-    //    }
+        // if (show(5))
+        // {
+        try
+        {
+            debug("processing: " + request.translateToXML(false));
+        }
+        catch (XmlTranslationException e1)
+        {
+            e1.printStackTrace();
+        }
+        // }
 
         if (request == null)
         {
@@ -163,19 +151,19 @@ public class ContextManager extends Debug implements ServerConstants
                 {
                     response.setUid(request.getUid());
 
-//                    if (show(5))
-                        debug("response: " + response.translateToXML(false));
+                    // if (show(5))
+                    debug("response: " + response.translateToXML(false));
                     // translate the response and store it, then
                     // encode it and write it
                     outgoingChars.clear();
                     outgoingChars.put(response.translateToXML(false)).put('\n');
                     outgoingChars.flip();
-                    
+
                     ByteBuffer temp = encoder.encode(outgoingChars);
-                    
+
                     System.out.println(outgoingChars.toString());
-                    System.out.println("sent: "+temp);
-                    
+                    System.out.println("sent: " + temp);
+
                     server.send(this.socket, temp);
 
                 }
@@ -278,7 +266,7 @@ public class ContextManager extends Debug implements ServerConstants
 
         if (request == null)
         {
-            System.out.println("ERROR: "+incomingMessage);
+            System.out.println("ERROR: " + incomingMessage);
             if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
             {
                 throw new BadClientException("Too many Bad Transmissions: "
@@ -317,162 +305,42 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
-     * Converts the given bytes into chars, then extracts any messages from the chars and enqueues them.
-     * @param bytes
+     * Converts the given bytes into chars, then extracts any messages from the
+     * chars and enqueues them.
+     * 
+     * @param message
      */
-    public void convertBytesToMessagesAndEnqueue(byte[] bytes) throws CharacterCodingException, BadClientException
+    public void enqueueStringMessage(CharBuffer message)
+            throws CharacterCodingException, BadClientException
     {
-        accumulator.append(decoder.decode(ByteBuffer.wrap(bytes)));
-        
-//        if (show(5))
-            System.out.println("accumulator: "+accumulator.toString());
-        
+        accumulator.append(message);
+
+        if (show(5))
+            System.out.println("accumulator after: " + accumulator.toString());
+
         int length = accumulator.length();
         int termPos = accumulator.indexOf("\n");
         if (termPos == -1)
         {
             termPos = accumulator.indexOf("\r");
         }
-        
+
         while ((length > 0) && (termPos > 0))
         { // we have at least one whole message: process it
-                // transform the message into a request and
-                // perform the service
+            // transform the message into a request and
+            // perform the service
 
-                processString(accumulator.substring(0, termPos));
+            processString(accumulator.substring(0, termPos));
 
-                // erase the message from the accumulator
-                accumulator.delete(0, termPos+1);
-                
-                System.out.println("accumulator after delete: "+accumulator.toString());
-                
-                length = accumulator.length();
-                termPos = accumulator.indexOf("\n");
-                if (termPos == -1)
-                {
-                    termPos = accumulator.indexOf("\r");
-                }
-        }
-    }
-    
-/*    private void readBytesIntoAccumulator() throws CharacterCodingException,
-            BadClientException
-    {
-        if (bytesRead < MAX_PACKET_SIZE)
-        {
-            rawBytes.flip();
+            // erase the message from the accumulator
+            accumulator.delete(0, termPos + 1);
 
-            accumulator.append(decoder.decode(rawBytes));
-
-            rawBytes.clear();
-
-            if (show(5))
-                debug("accumulator: " + accumulator.toString());
-
-            if (accumulator.length() > 0)
+            length = accumulator.length();
+            termPos = accumulator.indexOf("\n");
+            if (termPos == -1)
             {
-                if ((accumulator.charAt(accumulator.length() - 1) == '\n')
-                        || (accumulator.charAt(accumulator.length() - 1) == '\r'))
-                { // when we have accumulated an entire message,
-                    // process it
-
-                    // in case we have several messages that are
-                    // split by returns
-                    while (accumulator.length() > 0)
-                    {
-                        // transform the message into a request and
-                        // perform the service
-                        // long time = System.currentTimeMillis();
-
-                        processString(accumulator.substring(0, accumulator
-                                .indexOf("\n")));
-
-                        // System.out.println("time:
-                        // "+(System.currentTimeMillis()-time));
-
-                        // erase the message from the accumulator
-                        accumulator.delete(0, accumulator.indexOf("\n") + 1);
-                    }
-                }
-            }
-        }
-        else
-        { // TODO might be able to catch too large messages
-            // better.
-            debug("Packet too large. Terminating connection.");
-            key.cancel();
-        }
-    }*/
-
-    /**
-     * Removes key from the OP_READ interest set of the selector, drains all
-     * bytes from it, parses them into messages, then restores the OP_READ
-     * interest.
-     * 
-     * This method blocks and reads one time from the channel.
-     * 
-     * @throws BadClientException
-     */
-/*    public void readChannel() throws BadClientException
-    {
-        if (key.isValid())
-        {
-            try
-            {
-                // disable reading interest on the key
-                key.interestOps(key.interestOps() & (~SelectionKey.OP_READ));
-
-                if ((bytesRead = channel.read(rawBytes)) > 0)
-                {
-                    readBytesIntoAccumulator();
-                }
-
-                // the connection is offline
-                else if (bytesRead == -1)
-                {
-                    debug("Read -1 bytes; closing connection "
-                            + key.attachment());
-                    key.cancel();
-                }
-
-                if (key.isValid())
-                {
-                    // re-enable reading on the key and wake up the selector.
-                    key.interestOps(key.interestOps() | SelectionKey.OP_READ);
-                    key.selector().wakeup();
-                }
-            }
-            catch (CharacterCodingException e1)
-            {
-                e1.printStackTrace();
-            }
-            catch (IOException e1)
-            {
-                debug("Connection closed by client. Terminating message processor: "
-                        + channel.toString());
-                key.cancel();
-            }
-            catch (CancelledKeyException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        else
-        {
-            debug("key: " + key.attachment() + " is invalid; closing.");
-
-            try
-            {
-                key.channel().close();
-                key.cancel();
-                key.selector().selectNow();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                termPos = accumulator.indexOf("\r");
             }
         }
     }
-*/
 }

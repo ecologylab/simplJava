@@ -90,7 +90,7 @@ public class NIOServerBackend extends ServicesServerBase implements
     private NIOServerFrontend                     sAP                       = null;
 
     private ByteBuffer                            readBuffer                = ByteBuffer
-                                                                                    .allocate(8192);
+                                                                                    .allocate(1024);
 
     private Map<SocketChannel, Queue<ByteBuffer>> pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
@@ -458,7 +458,7 @@ public class NIOServerBackend extends ServicesServerBase implements
         int bytesRead;
 
         this.readBuffer.clear();
-
+        
         // read
         try
         {
@@ -478,15 +478,18 @@ public class NIOServerBackend extends ServicesServerBase implements
 
         if (bytesRead > 0)
         {
-            System.out.println("bytes read: "+bytesRead);
-            this.sAP.process(key.attachment(), this, sc, this.readBuffer.array(),
+            byte[] bytes = new byte[bytesRead];
+
+            readBuffer.flip();
+            readBuffer.get(bytes);
+            
+            this.sAP.process(key.attachment(), this, sc, bytes,
                 bytesRead);
         }
     }
 
     private void write(SelectionKey key) throws IOException
     {
-        System.out.println("writing to socket:");
         SocketChannel sc = (SocketChannel) key.channel();
 
         synchronized (this.pendingWrites)
@@ -497,8 +500,6 @@ public class NIOServerBackend extends ServicesServerBase implements
             { // write everything
                 ByteBuffer bytes = writes.poll();
 
-                System.out.println("bytebuffer: "+bytes);
-                
                 sc.write(bytes);
 
                 if (bytes.remaining() > 0)

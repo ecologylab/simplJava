@@ -6,13 +6,17 @@ package ecologylab.services.nio.servers;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.BadClientException;
+import ecologylab.services.ServerConstants;
 import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
@@ -23,7 +27,8 @@ import ecologylab.xml.TranslationSpace;
  * @author Zach Toups
  * 
  */
-public class DoubleThreadedNIOServer extends NIOServerBase
+public class DoubleThreadedNIOServer extends NIOServerBase implements
+        ServerConstants
 {
     public static DoubleThreadedNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
@@ -38,6 +43,10 @@ public class DoubleThreadedNIOServer extends NIOServerBase
     boolean                                running  = false;
 
     HashMap<SocketChannel, ContextManager> contexts = new HashMap<SocketChannel, ContextManager>();
+
+    private static CharsetDecoder          decoder  = Charset.forName(
+                                                            CHARACTER_ENCODING)
+                                                            .newDecoder();
 
     /**
      * 
@@ -57,30 +66,33 @@ public class DoubleThreadedNIOServer extends NIOServerBase
     public void process(Object token, NIOServerBackend base, SocketChannel sc,
             byte[] bs, int bytesRead) throws BadClientException
     {
-        synchronized (contexts)
+        if (bytesRead > 0)
         {
-            ContextManager cm = contexts.get(sc);
+            synchronized (contexts)
+            {
+                ContextManager cm = contexts.get(sc);
 
-            if (cm == null)
-            {
-                cm = generateContextManager(token, sc, translationSpace,
-                        registry);
-                contexts.put(sc, cm);
+                if (cm == null)
+                {
+                    cm = generateContextManager(token, sc, translationSpace,
+                            registry);
+                    contexts.put(sc, cm);
+                }
+
+                try
+                {
+                    cm.enqueueStringMessage(decoder.decode(ByteBuffer.wrap(bs)));
+                }
+                catch (CharacterCodingException e)
+                {
+                    e.printStackTrace();
+                }
             }
 
-            try
+            synchronized (this)
             {
-                cm.convertBytesToMessagesAndEnqueue(bs);
+                this.notify();
             }
-            catch (CharacterCodingException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        
-        synchronized(this)
-        {
-            this.notify();
         }
     }
 
@@ -98,7 +110,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        return new ContextManager(token, this.getBackend(), sc, translationSpace, registry);
+        return new ContextManager(token, this.getBackend(), sc,
+                translationSpace, registry);
     }
 
     public void run()
@@ -163,7 +176,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase
         }
 
         t.start();
-        
+
         super.start();
     }
 
@@ -173,7 +186,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase
     public void stop()
     {
         running = false;
-        
+
         super.stop();
     }
 

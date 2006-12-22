@@ -61,7 +61,7 @@ public class Authenticator extends Debug
         boolean loggedInSuccessfully = false;
 
         // first see if the username exists
-        if (authList.containsKey(entry.getUsername()))
+        if (entry != null && authList.containsKey(entry.getUsername()))
         {
             // check password
             if (((AuthenticationListEntry) (authList.get(entry.getUsername())))
@@ -79,6 +79,12 @@ public class Authenticator extends Debug
                 }
             }
         }
+        else if (entry == null)
+        {
+            debug("<null> attempted login.");
+            loggedInSuccessfully = false;
+        }
+            
 
         return loggedInSuccessfully;
     }
