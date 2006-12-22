@@ -275,7 +275,7 @@ implements Environment
 	 * 
 	 * @return				File that corresponds to the path of the local codeBase.
 	 */
-	private File deriveLocalFileCodeBase(Class baseClass)
+	protected File deriveLocalFileCodeBase(Class baseClass)
 	{
 		// setup codeBase
 		if (baseClass == null)
