@@ -1,7 +1,7 @@
 /*
  * Created on Dec 22, 2006
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.io.File;
 

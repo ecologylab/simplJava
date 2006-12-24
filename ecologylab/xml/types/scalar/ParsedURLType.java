@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004 at the Interface Ecology Lab.
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.io.File;
 
@@ -32,7 +32,7 @@ public class ParsedURLType extends Type
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.types.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
 	 */
 	public Object getInstance(String value)
 	{

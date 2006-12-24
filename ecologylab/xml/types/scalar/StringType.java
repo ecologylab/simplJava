@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004 at the Interface Ecology Lab.
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
@@ -26,7 +26,7 @@ public class StringType extends Type
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.types.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
 	 */
 	public Object getInstance(String value)
 	{

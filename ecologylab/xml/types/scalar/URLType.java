@@ -1,7 +1,7 @@
 /*
  * Created on Jan 2, 2005 at the Interface Ecology Lab.
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -21,7 +21,7 @@ public class URLType extends Type
 	/**
 	 * @param value is interpreted as an absolute internet address.
 	 * 
-	 * @see ecologylab.types.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
 	 */
 	public Object getInstance(String value)
 	{

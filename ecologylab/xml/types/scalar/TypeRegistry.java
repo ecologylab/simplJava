@@ -1,4 +1,4 @@
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

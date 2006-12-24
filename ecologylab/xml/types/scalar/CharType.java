@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004 at the Interface Ecology Lab.
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.lang.reflect.Field;
 
@@ -36,7 +36,7 @@ public class CharType extends Type
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.types.Type#setField(java.lang.reflect.Field, java.lang.String)
+	 * @see ecologylab.xml.types.scalar.Type#setField(java.lang.reflect.Field, java.lang.String)
 	 */
 	public boolean setField(Object object, Field field, String value) 
 	{

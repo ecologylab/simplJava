@@ -1,7 +1,7 @@
 /*
  * Created on Jan 2, 2005 at the Interface Ecology Lab.
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -29,7 +29,7 @@ public class DateType extends Type
      *            example Wed Aug 02 13:12:50 CDT 2006); if that does not work, then attempts to use
      *            the DateFormat for the current locale instead.
      * 
-     * @see ecologylab.types.Type#getInstance(java.lang.String)
+     * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
      */
     public Object getInstance(String value)
     {

@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004
  */
-package ecologylab.types;
+package ecologylab.xml.types.scalar;
 
 import java.lang.reflect.Field;
 
