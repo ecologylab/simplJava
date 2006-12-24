@@ -34,8 +34,8 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.types.Type;
-import ecologylab.types.TypeRegistry;
+import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code>
@@ -1958,6 +1958,8 @@ implements ParseTableEntryTypes
      * Value for the leaf annotation that specifies translation to XML without CDATA.
      */
     public static final int		NORMAL	= 0;
+    
+    static final 		String	EMPTY	= "";
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a scalar-value,

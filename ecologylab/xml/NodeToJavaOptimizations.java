@@ -10,8 +10,8 @@ import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.types.Type;
-import ecologylab.types.TypeRegistry;
+import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Holds optimizations for translating from XML a single tag or attribute

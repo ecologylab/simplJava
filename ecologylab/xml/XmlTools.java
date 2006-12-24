@@ -21,8 +21,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 import ecologylab.generic.ReflectionTools;
-import ecologylab.types.Type;
-import ecologylab.types.TypeRegistry;
+import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Static helper methods that are used during the translation of java objects
