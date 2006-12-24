@@ -102,24 +102,4 @@ public class TypeRegistry extends Debug
 	{
 	   return allTypes.containsKey(className);
 	}
-	/**
-	 * Set the Field to a value, converted using the Field's Type.
-	 * 
-	 * @param that
-	 * @param field
-	 * @param fieldValue
-	 * @return
-	 */
-	public static boolean setField(Object that, Field field, String fieldValue)
-	{
-		boolean result		= false;
-		Type fieldType		= getType(field);
-		if (fieldType != null)
-			result			= fieldType.setField(that, field, fieldValue);
-		else
-			println("TypeRegistry: Can't set type for " + field + " with value=" + fieldValue+
-					", in "+ that);
-		return result;
-	}
-	
 }
