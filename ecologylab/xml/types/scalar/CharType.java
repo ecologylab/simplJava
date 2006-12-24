@@ -20,9 +20,9 @@ public class CharType extends Type
  * <code>TypeRegistry.get("char")</code>.
  * 
  */
-	protected CharType()
+	public CharType()
 	{
-		super("char", true);
+		super(char.class);
 	}
 
 	/**

@@ -15,7 +15,7 @@ public class URLType extends Type
 {
 	public URLType()
 	{
-		super("java.net.URL", /*TYPE_STRING, */ false);
+		super(URL.class);
 	}
 
 	/**

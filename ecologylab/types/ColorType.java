@@ -23,9 +23,9 @@ public class ColorType extends Type
  * <code>TypeRegistry.get("java.awt.Color")</code>.
  * 
  */
-	protected ColorType()
+	public ColorType()
 	{
-		super("java.awt.Color", /*TYPE_COLOR, */ false);
+		super(Color.class);
 	}
 
 	/**

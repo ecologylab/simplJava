@@ -20,9 +20,9 @@ public class ShortType extends Type
  * <code>TypeRegistry.get("short")</code>.
  * 
  */
-	protected ShortType()
+	public ShortType()
 	{
-		super("short", true);
+		super(short.class);
 	}
 
 	/**

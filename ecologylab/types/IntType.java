@@ -20,9 +20,9 @@ public class IntType extends Type
  * <code>TypeRegistry.get("int")</code>.
  * 
  */
-	protected IntType()
+	public IntType()
 	{
-		super("int", true);
+		super(int.class);
 	}
 
 	/**

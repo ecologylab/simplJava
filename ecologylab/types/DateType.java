@@ -20,7 +20,7 @@ public class DateType extends Type
 
     public DateType()
     {
-        super("java.util.Date", false);
+        super(java.util.Date.class);
     }
 
     /**

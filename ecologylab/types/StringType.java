@@ -18,9 +18,9 @@ public class StringType extends Type
  * <code>TypeRegistry.get("java.lang.String")</code>.
  * 
  */
-	protected StringType()
+	public StringType()
 	{
-		super("java.lang.String", /*TYPE_STRING, */ false);
+		super(String.class);
 	}
 
 	/**

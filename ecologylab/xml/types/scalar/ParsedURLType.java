@@ -24,7 +24,7 @@ public class ParsedURLType extends Type
  */
 	public ParsedURLType()
 	{
-		super("ecologylab.net.ParsedURL", /*TYPE_PARSED_URL, */ false);
+		super(ParsedURL.class);
 	}
 
 	/**

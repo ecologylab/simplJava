@@ -17,7 +17,7 @@ public class FileType extends Type
      */
     public FileType()
     {
-        super("java.io.File", false);
+        super(File.class);
     }
 
     /* (non-Javadoc)

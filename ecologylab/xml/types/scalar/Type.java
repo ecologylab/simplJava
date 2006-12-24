@@ -10,21 +10,25 @@ import ecologylab.xml.*;
 
 /**
  * Basic unit of the type system.
- * 
+ * Manages marshalling from a Java class to a String, and from a String to that Java class.
+ * <p/>
  * The Type object is a means for associating a type name with a type index. It also knows how to
  * create an instance of the type, given a String representation. If the Type is a reference type,
  * this is done with getInstance(String); if the Type is a primitive, this is done with
  * getValue(String), which cannot appear as a method in this, the base class, because it will return
  * a different primitive type for each such Type.
+ * <p/>
+ * Note: unlike ElementState subtypes, translation of these is controlled entirely by the name of
+ * the underlying Java class that gets translated, and not by the class name of subclasses of this.
  * 
  * @author andruid
  */
 public class Type extends Debug
 {
-    String                     className;
+    Class				thatClass;
 
     // int index;
-    boolean                    isPrimitive;
+    boolean             isPrimitive;
 
     public static final String NULL_STRING = "null";
 
@@ -34,12 +38,11 @@ public class Type extends Debug
      * <code>TypeRegistry.get("type-string")</code>.
      * 
      */
-    protected Type(String className, /* int index, */boolean isPrimitive)
+    protected Type(Class thatClass)
     {
-        this.className = className;
+        this.thatClass = thatClass;
         // this.index = index;
-        this.isPrimitive = isPrimitive;
-        TypeRegistry.register(this);
+        this.isPrimitive = thatClass.isPrimitive();
     }
 
     /**
@@ -117,11 +120,11 @@ public class Type extends Debug
 	}
 
     /**
-     * @return Returns the className for this type.
+     * @return Returns the simple className (unqualified) for this type.
      */
     public String getClassName()
     {
-        return className;
+        return thatClass.getSimpleName();
     }
 
     /**
@@ -217,5 +220,15 @@ public class Type extends Debug
     public boolean isFloatingPoint()
     {
         return false;
+    }
+    
+    /**
+     * Get the class object for the Type for which this manages conversion.
+     * 
+     * @return
+     */
+    public Class getTypeClass()
+    {
+    	return thatClass;
     }
 }

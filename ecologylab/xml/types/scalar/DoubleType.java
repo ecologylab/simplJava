@@ -20,9 +20,9 @@ public class DoubleType extends Type
      * <code>TypeRegistry.get("double")</code>.
      * 
      */
-    protected DoubleType()
+	public DoubleType()
     {
-        super("double", true);
+        super(double.class);
     }
 
     /**

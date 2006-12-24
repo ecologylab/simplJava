@@ -6,7 +6,7 @@ package ecologylab.types;
 import java.lang.reflect.Field;
 
 /**
- * Type system entry for int, a built-in primitive.
+ * Type system entry for boolean, a built-in primitive.
  * 
  * @author andruid
  */
@@ -20,9 +20,9 @@ public class BooleanType extends Type
  * <code>TypeRegistry.get("boolean")</code>.
  * 
  */
-	protected BooleanType()
+	public BooleanType()
 	{
-		super("boolean", true);
+		super(boolean.class);
 	}
 
 	/**

@@ -20,9 +20,9 @@ public class FloatType extends Type
      * <code>TypeRegistry.get("float")</code>.
      * 
      */
-    protected FloatType()
+	public FloatType()
     {
-        super("float", true);
+        super(float.class);
     }
 
     /**

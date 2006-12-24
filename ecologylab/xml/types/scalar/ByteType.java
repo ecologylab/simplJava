@@ -20,9 +20,9 @@ public class ByteType extends Type
  * <code>TypeRegistry.get("byte")</code>.
  * 
  */
-	protected ByteType()
+	public ByteType()
 	{
-		super("byte", true);
+		super(byte.class);
 	}
 
 	/**
