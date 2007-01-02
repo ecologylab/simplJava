@@ -403,26 +403,32 @@ extends Debug
 		return "";
 	}
 	
+	/**
+	 * Path to the Java deployment properties file.
+	 * This is, among other things, where Java Plug-in properties are stored.
+	 * 
+	 * @return
+	 */
 	public static File javaDeploymentProfile()
 	{
 		File deploymentFile;
-		if (os() == WINDOWS) //tested with XP and 2000
+		int os = os();
+		switch (os)
 		{
+		case WINDOWS: 	//tested with XP and 2000
 			deploymentFile = 
 				new File(applicationDataDir(), "Sun/Java/Deployment/deployment.properties");
-		}
-		//tested on OSX. 
-		else if(os() == MAC)
-		{
+			break;
+		case MAC:		//tested on OSX
 			deploymentFile = 
 				new File(sysProperty("deployment.user.home"), "deployment.properties");
-		}
-		else //Probably works in linux (not tested on linux yet!!!) TODO test on linux
-		{
+			break;
+		default:
+			// Probably works in linux (not tested on linux yet!!!) TODO test on linux
 			deploymentFile = 
 				new File(sysProperty("user.home"), ".java/deployment/deployment.properties");
+			break;
 		}
-		
 		if (deploymentFile.exists())
 			return deploymentFile;
 		else
