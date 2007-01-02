@@ -381,13 +381,11 @@ implements Environment
 	 * This is also dependent on what web browser(s) the user has installed.
 	 * In particular, we use Firefox if it is in its normal place!
 	 * 
-	 * @param os
-	 * 
 	 * @return	String that specifies the OS and browser-specific command.
 	 */
 	static String getBrowserPath()
 	{
-		int os		= PropertiesAndDirectories.os();
+		int os				= PropertiesAndDirectories.os();
 		String result		= browserPath;
 		if (result == null)
 		{
@@ -396,39 +394,39 @@ implements Environment
 			case PropertiesAndDirectories.WINDOWS:
 				if (!Preference.lookupBoolean("navigate_with_ie"))
 					result		= FIREFOX_PATH_WINDOWS;
+				if (result != null)
+				{
+					File existentialTester	= new File(result);
+					if (!existentialTester.exists())
+						result		= null;
+//					else
+//						result		+= " -new-tab";
+				}
 				break;
 			case PropertiesAndDirectories.MAC:
-				result		= FIREFOX_PATH_MAC;
+				result		= "/usr/bin/open";
 				break;
 			default:
-				println("go(ParsedURL) not supported for os " + PropertiesAndDirectories.getOsName());
+				error(PropertiesAndDirectories.getOsName(), "go(ParsedURL) not supported");
 				break;				
 			}
 			if (result != null)
 			{
-				File existentialTester	= new File(result);
-				if (existentialTester.exists())
-				{
-					result	+= " -ProfileManager -new-tab";
-					browserPath			= result;
-				}
+				browserPath			= result;
 			}
 			else
 			{
 				switch (os)
 				{
 				case PropertiesAndDirectories.WINDOWS:
-					result		= IE_PATH_WINDOWS;
-					break;
-				case PropertiesAndDirectories.MAC:
-					result		= SAFARI_PATH_MAC;
-					break;
-				}
-				if (result != null)
-				{
+					result					= IE_PATH_WINDOWS;
 					File existentialTester	= new File(result);
 					if (existentialTester.exists())
 						browserPath			= result;
+					break;
+				default:
+					// already printed error message above
+					break;
 				}
 			}
 		}
@@ -446,19 +444,22 @@ implements Environment
 		String path	= getBrowserPath();
 		if (path != null)
 		{
-			String cmd	= path + " " + purl; //" \"" + purl + "\"";
-			Debug.println(cmd);
+			String argv[]		= new String[2];
+			argv[0]				= path;
+			String purlString	= purl.toString();
+			argv[1]				= purlString;
+			Debug.println(path + " " + purlString);
 			try 
 			{
-				Process p = Runtime.getRuntime().exec(cmd);
+				Process p = Runtime.getRuntime().exec(argv);
 			} catch (IOException e)
 			{
-				error("go(); caught exception: ");
+				error("navigate() - caught exception: ");
 				e.printStackTrace();
 			}
 		}
 		else
-			error("Can't find browser to navigate to.");
+			error("navigate() - Can't find browser to navigate to.");
 	}
 
 	public int browser()
