@@ -1,6 +1,5 @@
 package ecologylab.services.authentication.nio;
 
-import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -17,6 +16,7 @@ import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.ContextManager;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -33,11 +33,11 @@ public class AuthContextManager extends ContextManager implements
 
     private AuthLogging servicesServer = null;
 
-    public AuthContextManager(Object token, SelectionKey key,
+    public AuthContextManager(Object token, NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry,
             AuthLogging servicesServer)
     {
-        super(token, key, translationSpace, registry);
+        super(token, server, socket, translationSpace, registry);
 
         this.servicesServer = servicesServer;
     }
@@ -74,10 +74,8 @@ public class AuthContextManager extends ContextManager implements
                 servicesServer.fireLoggingEvent(new AuthenticationOp(
                         ((Login) requestMessage).getEntry().getUsername(),
                         true, ((LoginStatusResponse) response)
-                                .getResponseMessage(), ((SocketChannel) key
-                                .channel()).socket().getInetAddress()
-                                .toString(), ((SocketChannel) key.channel())
-                                .socket().getPort()));
+                                .getResponseMessage(), socket.socket().getInetAddress()
+                                .toString(), socket.socket().getPort()));
             }
             else
             { // otherwise we consider it bad!
@@ -96,10 +94,8 @@ public class AuthContextManager extends ContextManager implements
                 servicesServer.fireLoggingEvent(new AuthenticationOp(
                         ((Logout) requestMessage).getEntry().getUsername(),
                         false, ((LogoutStatusResponse) response)
-                                .getResponseMessage(), ((SocketChannel) key
-                                .channel()).socket().getInetAddress()
-                                .toString(), ((SocketChannel) key.channel())
-                                .socket().getPort()));
+                                .getResponseMessage(), socket.socket().getInetAddress()
+                                .toString(), socket.socket().getPort()));
             }
         }
 

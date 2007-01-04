@@ -6,7 +6,7 @@ package ecologylab.services.nio.servers;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -153,12 +153,12 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      * @return
      */
     protected ContextManager generateContextManager(Object token,
-            SelectionKey key, TranslationSpace translationSpace,
+            SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
         try
         {
-            return new AuthContextManager(token, key, translationSpace,
+            return new AuthContextManager(token, getBackend(), sc, translationSpace,
                     registry, this);
         }
         catch (ClassCastException e)

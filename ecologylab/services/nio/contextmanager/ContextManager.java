@@ -61,7 +61,7 @@ public class ContextManager extends Debug implements ServerConstants
 
     NIOServerBackend                              server;
 
-    SocketChannel                                 socket;
+    protected SocketChannel                                 socket;
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
