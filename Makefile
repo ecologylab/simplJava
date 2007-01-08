@@ -1,10 +1,10 @@
 # current working directory
 
-XML_DIR = xml xml/subelements xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss 
+XML_DIR = xml xml/types/scalar xml/subelements xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss 
 
 SERVICES = services services/exceptions services/logging services/messages services/messages/cf
 
-FUNDAMENTAL_DIRS = appframework collections generic io net types $(XML_DIR) $(SERVICES)
+FUNDAMENTAL_DIRS = appframework collections generic io net $(XML_DIR) $(SERVICES)
 
 JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 
