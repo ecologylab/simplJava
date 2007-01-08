@@ -158,14 +158,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public boolean connected()
     {
-        if (channel != null)
-        {
-            return channel.isConnected();
-        }
-        else
-        {
-            return false;
-        }
+        return (channel != null) && !channel.isConnectionPending()
+                && channel.isConnected() && socket.isConnected();
     }
 
     /**
@@ -402,8 +396,9 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         thread = null;
     }
 
-    public void run()
+    public final void run()
     {
+        System.out.println("starting up run method.");
         while (running)
         {
             try
@@ -422,12 +417,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                     // debug("going to select now");
                     if (selector.select(/* selectInterval */) > 0)
                     {
-                        // debug("done selecting and have something
-                        // interesting");
-
                         // there is something to read; only register one
-                        // channel,
-                        // so...
+                        // channel, so...
                         incoming = selector.selectedKeys().iterator();
 
                         while (incoming.hasNext())
@@ -526,7 +517,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                 }
                             }
 
-//                            debug("accumulator: "+accumulator.toString());
+                            // debug("accumulator: "+accumulator.toString());
 
                             // erase the message
                             // from

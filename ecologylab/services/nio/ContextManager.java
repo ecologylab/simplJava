@@ -124,18 +124,6 @@ public class ContextManager extends Debug implements ServerConstants
     {
         ResponseMessage response = null;
 
-        // if (show(5))
-        // {
-        try
-        {
-            debug("processing: " + request.translateToXML(false));
-        }
-        catch (XmlTranslationException e1)
-        {
-            e1.printStackTrace();
-        }
-        // }
-
         if (request == null)
         {
             debug("No request.");
@@ -151,8 +139,8 @@ public class ContextManager extends Debug implements ServerConstants
                 {
                     response.setUid(request.getUid());
 
-                    // if (show(5))
-                    debug("response: " + response.translateToXML(false));
+                    if (show(5))
+                        debug("response: " + response.translateToXML(false));
                     // translate the response and store it, then
                     // encode it and write it
                     outgoingChars.clear();
@@ -160,9 +148,6 @@ public class ContextManager extends Debug implements ServerConstants
                     outgoingChars.flip();
 
                     ByteBuffer temp = encoder.encode(outgoingChars);
-
-                    System.out.println(outgoingChars.toString());
-                    System.out.println("sent: " + temp);
 
                     server.send(this.socket, temp);
 

@@ -87,7 +87,7 @@ public class NIOServerBackend extends ServicesServerBase implements
 
     private int                                   numConnections;
 
-    private NIOServerFrontend                     sAP                       = null;
+    private NIOServerFrontend                     sAP;
 
     private ByteBuffer                            readBuffer                = ByteBuffer
                                                                                     .allocate(1024);
@@ -137,8 +137,39 @@ public class NIOServerBackend extends ServicesServerBase implements
 
         chan.keyFor(selector).cancel();
 
-        // decrement numConnections
-        numConnections--;
+        // decrement numConnections &
+        // if the server disabled new connections due to hitting
+        // max_connections, re-enable
+        if (numConnections-- == MAX_CONNECTIONS)
+        {
+            // acquire the static ServerSocketChannel object
+            ServerSocketChannel channel;
+            try
+            {
+                channel = ServerSocketChannel.open();
+
+                // disable blocking
+                channel.configureBlocking(false);
+
+                // get the socket associated with the channel
+                serverSocket = channel.socket();
+
+                // bind to the port for this server
+                serverSocket
+                        .bind(new InetSocketAddress(hostAddress, portNumber));
+
+                // register the channel with the selector to look for incoming
+                // accept requests
+                channel.register(selector, SelectionKey.OP_ACCEPT);
+            }
+            catch (IOException e)
+            {
+                debug("Unable to re-open socket for accepts; critical failure.");
+                e.printStackTrace();
+                System.exit(-1);
+            }
+
+        }
     }
 
     public void run()
@@ -175,9 +206,10 @@ public class NIOServerBackend extends ServicesServerBase implements
                 {
                     switch (req.type)
                     {
-                    case ChangeRequest.CHANGEOPS:
-                        req.socket.keyFor(this.selector).interestOps(req.ops);
-                        break;
+                        case ChangeRequest.CHANGEOPS:
+                            req.socket.keyFor(this.selector).interestOps(
+                                    req.ops);
+                            break;
                     }
                 }
 
@@ -270,7 +302,7 @@ public class NIOServerBackend extends ServicesServerBase implements
      */
     public void send(SocketChannel socket, ByteBuffer data)
     {
-        System.out.println("recieved: "+data);
+        System.out.println("recieved: " + data);
         synchronized (this.pendingSelectionOpChanges)
         {
             // queue change
@@ -386,8 +418,18 @@ public class NIOServerBackend extends ServicesServerBase implements
             }
             else
             {
-                ((ServerSocketChannel) key.channel()).close();
+                SocketChannel tempChannel = ((ServerSocketChannel) key
+                        .channel()).accept();
+                tempChannel.socket().shutdownInput();
+                tempChannel.socket().shutdownOutput();
+                tempChannel.socket().close();
+                tempChannel.close();
+
+                key.cancel();
+                key.channel().close();
+
                 debug("Rejected connection; already fulfilled max connections.");
+                debug("Disabling accept until some clients disconnect.");
             }
         }
         catch (IOException e)
@@ -458,7 +500,7 @@ public class NIOServerBackend extends ServicesServerBase implements
         int bytesRead;
 
         this.readBuffer.clear();
-        
+
         // read
         try
         {
@@ -482,9 +524,8 @@ public class NIOServerBackend extends ServicesServerBase implements
 
             readBuffer.flip();
             readBuffer.get(bytes);
-            
-            this.sAP.process(key.attachment(), this, sc, bytes,
-                bytesRead);
+
+            this.sAP.process(key.attachment(), this, sc, bytes, bytesRead);
         }
     }
 
