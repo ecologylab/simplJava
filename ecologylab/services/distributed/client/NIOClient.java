@@ -51,7 +51,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     protected boolean                             running                = false;
 
-    private SocketChannel                         channel                = null;
+    protected SocketChannel                         channel                = null;
 
     private Thread                                thread;
 
@@ -60,7 +60,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
     private ByteBuffer                            incomingRawBytes       = ByteBuffer
                                                                                  .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer                            outgoingChars          = CharBuffer
+    protected CharBuffer                            outgoingChars          = CharBuffer
                                                                                  .allocate(MAX_PACKET_SIZE);
 
     private StringBuilder                         accumulator            = new StringBuilder(
@@ -71,7 +71,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                                                                          "ASCII")
                                                                                  .newDecoder();
 
-    private CharsetEncoder                        encoder                = Charset
+    protected CharsetEncoder                        encoder                = Charset
                                                                                  .forName(
                                                                                          "ASCII")
                                                                                  .newEncoder();

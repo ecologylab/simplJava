@@ -153,10 +153,12 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                 // get the socket associated with the channel
                 serverSocket = channel.socket();
+                serverSocket.setReuseAddress(true);
 
                 // bind to the port for this server
                 serverSocket
                         .bind(new InetSocketAddress(hostAddress, portNumber));
+                serverSocket.setReuseAddress(true);
 
                 // register the channel with the selector to look for incoming
                 // accept requests
@@ -391,11 +393,11 @@ public class NIOServerBackend extends ServicesServerBase implements
     {
         try
         {
-            int numConn = selector.keys().size();
+            int numConn = selector.keys().size() - 1;
 
             debug("connections running: " + numConn);
 
-            if (numConn < (MAX_CONNECTIONS + 1))
+            if (numConn < MAX_CONNECTIONS)
             { // the keyset includes this side of the connection
                 SocketChannel tempChannel = ((ServerSocketChannel) key
                         .channel()).accept();
@@ -414,6 +416,15 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                 numConnections++;
 
+                if (numConnections == MAX_CONNECTIONS)
+                {
+                    debug("Maximum connections reached; disabling accept until a client drops.");
+
+                    key.cancel();
+                    ((ServerSocketChannel) key.channel()).socket().close();
+                    key.channel().close();
+                }
+                
                 return tempChannel;
             }
             else
@@ -425,11 +436,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                 tempChannel.socket().close();
                 tempChannel.close();
 
-                key.cancel();
-                key.channel().close();
-
                 debug("Rejected connection; already fulfilled max connections.");
-                debug("Disabling accept until some clients disconnect.");
             }
         }
         catch (IOException e)
@@ -475,9 +482,11 @@ public class NIOServerBackend extends ServicesServerBase implements
 
         // get the socket associated with the channel
         serverSocket = channel.socket();
+        serverSocket.setReuseAddress(true);
 
         // bind to the port for this server
         serverSocket.bind(new InetSocketAddress(hostAddress, portNumber));
+        serverSocket.setReuseAddress(true);
 
         // register the channel with the selector to look for incoming
         // accept requests
