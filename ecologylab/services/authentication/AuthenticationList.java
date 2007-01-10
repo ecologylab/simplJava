@@ -126,4 +126,23 @@ public @xml_inherit class AuthenticationList extends ArrayListState
     {
         return authList().get(entry.getUsername()).getLevel();
     }
+
+    /**
+     * THIS METHOD IS FOR TESTING ONLY! It should NEVER BE INVOKED BY A
+     * DEPLOYMENT SYSTEM!!!
+     * 
+     * This method returns the list of valid usernames and matching passwords.
+     * It is meant to be called by subclasses used for testing (for example,
+     * testing defense against a malicious client who has all the usernames and
+     * passwords).
+     * 
+     * This method is evil, try not to use it too much.
+     * 
+     * @return the authList
+     */
+    protected HashMap<String, AuthenticationListEntry> getAuthList()
+    {
+        return authList;
+    }
+
 }
