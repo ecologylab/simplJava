@@ -32,10 +32,10 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 {
     public static DoubleThreadedNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
     {
         return new DoubleThreadedNIOServer(portNumber, inetAddress,
-                requestTranslationSpace, objectRegistry);
+                requestTranslationSpace, objectRegistry, idleConnectionTimeout);
     }
 
     Thread                                 t        = null;
@@ -53,9 +53,9 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      */
     protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
     {
-        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry);
+        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
     }
 
     /**

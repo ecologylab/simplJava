@@ -52,7 +52,8 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      */
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, String authListFilename)
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            String authListFilename)
     {
         DoubleThreadedAuthNIOServer newServer = null;
 
@@ -60,6 +61,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
         {
             newServer = new DoubleThreadedAuthNIOServer(portNumber,
                     inetAddress, requestTranslationSpace, objectRegistry,
+                    idleConnectionTimeout,
                     (AuthenticationList) ElementState.translateFromXML(
                             authListFilename, TranslationSpace.get(
                                     "authListNameSpace",
@@ -93,7 +95,8 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      */
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, AuthenticationList authList)
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            AuthenticationList authList)
     {
         DoubleThreadedAuthNIOServer newServer = null;
 
@@ -101,7 +104,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
         {
             newServer = new DoubleThreadedAuthNIOServer(portNumber,
                     inetAddress, requestTranslationSpace, objectRegistry,
-                    authList);
+                    idleConnectionTimeout, authList);
         }
         catch (IOException e)
         {
@@ -123,11 +126,12 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      */
     protected DoubleThreadedAuthNIOServer(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, AuthenticationList authList)
-            throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            AuthenticationList authList) throws IOException, BindException
     {
-        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry);
-        
+        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
+                idleConnectionTimeout);
+
         this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
         this.translationSpace.addTranslation(
@@ -158,15 +162,15 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     {
         try
         {
-            return new AuthContextManager(token, getBackend(), sc, translationSpace,
-                    registry, this);
+            return new AuthContextManager(token, getBackend(), sc,
+                    translationSpace, registry, this);
         }
         catch (ClassCastException e)
         {
             debug("ATTEMPT TO USE AuthMessageProcessor WITH A NON-AUTHENTICATING SERVER!");
             e.printStackTrace();
         }
-        
+
         return null;
     }
 

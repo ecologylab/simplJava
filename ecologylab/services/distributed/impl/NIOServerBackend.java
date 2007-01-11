@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -69,10 +70,11 @@ public class NIOServerBackend extends ServicesServerBase implements
     public static NIOServerBackend getInstance(int portNumber,
             InetAddress inetAddress, NIOServerFrontend sAP,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleSocketTimeout)
+            throws IOException, BindException
     {
         return new NIOServerBackend(portNumber, inetAddress, sAP,
-                requestTranslationSpace, objectRegistry);
+                requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
 
     protected Selector                            selector;
@@ -98,9 +100,14 @@ public class NIOServerBackend extends ServicesServerBase implements
 
     private InetAddress                           hostAddress;
 
+    private int                                   idleSocketTimeout;
+
+    private Map<SelectionKey, Long>               keyActivityTimes          = new HashMap<SelectionKey, Long>();
+
     protected NIOServerBackend(int portNumber, InetAddress inetAddress,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleSocketTimeout)
+            throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
@@ -109,6 +116,8 @@ public class NIOServerBackend extends ServicesServerBase implements
         this.sAP = sAP;
 
         this.selector = initSelector();
+
+        this.idleSocketTimeout = idleSocketTimeout;
     }
 
     public InetAddress getHostAddress()
@@ -135,7 +144,11 @@ public class NIOServerBackend extends ServicesServerBase implements
             debug(e.getMessage());
         }
 
-        chan.keyFor(selector).cancel();
+        if (chan.keyFor(selector) != null)
+        { // it's possible that they key was somehow disposed of already,
+            // perhaps it was already invalidated once
+            chan.keyFor(selector).cancel();
+        }
 
         // decrement numConnections &
         // if the server disabled new connections due to hitting
@@ -177,6 +190,7 @@ public class NIOServerBackend extends ServicesServerBase implements
     public void run()
     {
         long time = System.currentTimeMillis();
+        int timeSelecting;
 
         while (running)
         {
@@ -208,10 +222,17 @@ public class NIOServerBackend extends ServicesServerBase implements
                 {
                     switch (req.type)
                     {
-                        case ChangeRequest.CHANGEOPS:
+                    case ChangeRequest.CHANGEOPS:
+                        try
+                        {
                             req.socket.keyFor(this.selector).interestOps(
                                     req.ops);
-                            break;
+                        }
+                        catch (CancelledKeyException e)
+                        {
+                            debug("tried to change ops after key was cancelled.");
+                        }
+                        break;
                     }
                 }
 
@@ -221,7 +242,7 @@ public class NIOServerBackend extends ServicesServerBase implements
             try
             {
                 // block until some connection has something to do
-                if (selector.select(selectInterval) > 0)
+                if ((timeSelecting = selector.select(selectInterval)) > 0)
                 {
                     // get an iterator of the keys that have something to do
                     Iterator<SelectionKey> selectedKeyIter = selector
@@ -236,6 +257,14 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                         selectedKeyIter.remove();
 
+                        // see if the connection has been idle too long
+                        if (idleSocketTimeout > -1 && this.keyActivityTimes.containsKey(key)
+                                && System.currentTimeMillis()
+                                        - this.keyActivityTimes.get(key) > idleSocketTimeout)
+                        {
+                            invalidate((SocketChannel) key.channel());
+                        }
+
                         if (!key.isValid())
                         {
                             invalidate((SocketChannel) key.channel());
@@ -249,7 +278,17 @@ public class NIOServerBackend extends ServicesServerBase implements
                         }
                         else if (key.isWritable())
                         {
-                            write(key);
+                            try
+                            {
+                                write(key);
+                            }
+                            catch (IOException e)
+                            {
+                                debug("IO error when attempting to write to socket; stack trace follows.");
+
+                                e.printStackTrace();
+                            }
+
                         }
                         else if (key.isReadable())
                         { // incoming readable, valid key
@@ -291,6 +330,9 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                 e.printStackTrace();
             }
+
+            // remove any that were idle for too long
+            this.checkAndDropIdleKeys();
         }
 
         this.close();
@@ -304,7 +346,6 @@ public class NIOServerBackend extends ServicesServerBase implements
      */
     public void send(SocketChannel socket, ByteBuffer data)
     {
-        System.out.println("recieved: " + data);
         synchronized (this.pendingSelectionOpChanges)
         {
             // queue change
@@ -389,6 +430,38 @@ public class NIOServerBackend extends ServicesServerBase implements
         this.fireServerEvent(ServerEvent.SERVER_SHUTTING_DOWN);
     }
 
+    /**
+     * Checks all of the current keys to see if they have been idle for too long
+     * and drops them if they have.
+     * 
+     */
+    private void checkAndDropIdleKeys()
+    {
+        if (idleSocketTimeout > -1)
+        { // after we select, we'll check to see if we need to boot any idle
+            // keys
+            LinkedList<SelectionKey> keysToInvalidate = new LinkedList<SelectionKey>();
+            long timeStamp = System.currentTimeMillis();
+
+            for (SelectionKey sKey : keyActivityTimes.keySet())
+            {
+                if (timeStamp - keyActivityTimes.get(sKey).longValue() > idleSocketTimeout)
+                {
+                    keysToInvalidate.add(sKey);
+                }
+            }
+
+            // remove all the invalid keys
+            for (SelectionKey keyToInvalidate : keysToInvalidate)
+            {
+                debug(keyToInvalidate.attachment()
+                        + " took too long to request; disconnecting.");
+                keyActivityTimes.remove(keyToInvalidate);
+                this.invalidate((SocketChannel) keyToInvalidate.channel());
+            }
+        }
+    }
+
     protected SocketChannel accept(SelectionKey key)
     {
         try
@@ -407,8 +480,12 @@ public class NIOServerBackend extends ServicesServerBase implements
                 // when we register, we want to attach the proper
                 // session token to all of the keys associated with
                 // this connection, so we can sort them out later.
-                tempChannel.register(selector, SelectionKey.OP_READ, this
-                        .generateSessionToken(tempChannel.socket()));
+                SelectionKey newKey = tempChannel.register(selector,
+                        SelectionKey.OP_READ, this
+                                .generateSessionToken(tempChannel.socket()));
+
+                this.keyActivityTimes.put(newKey, new Long(System
+                        .currentTimeMillis()));
 
                 debug("Now connected to " + tempChannel + ", "
                         + (MAX_CONNECTIONS - numConn - 1)
@@ -424,7 +501,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                     ((ServerSocketChannel) key.channel()).socket().close();
                     key.channel().close();
                 }
-                
+
                 return tempChannel;
             }
             else
@@ -536,6 +613,8 @@ public class NIOServerBackend extends ServicesServerBase implements
 
             this.sAP.process(key.attachment(), this, sc, bytes, bytesRead);
         }
+
+        this.keyActivityTimes.put(key, new Long(System.currentTimeMillis()));
     }
 
     private void write(SelectionKey key) throws IOException

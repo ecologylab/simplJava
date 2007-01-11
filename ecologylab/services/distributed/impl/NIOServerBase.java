@@ -70,10 +70,10 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
      */
     protected NIOServerBase(int portNumber, InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
     {
         backend = NIOServerBackend.getInstance(portNumber, inetAddress, this,
-                requestTranslationSpace, objectRegistry);
+                requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 
         this.translationSpace = requestTranslationSpace;
         this.registry = objectRegistry;
