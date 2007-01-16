@@ -61,13 +61,11 @@ public class Authenticator extends Debug
         boolean loggedInSuccessfully = false;
 
         // first see if the username exists
-        if (entry != null && authList.containsKey(entry.getUsername()))
+        if (entry != null && authList.contains(entry.getUsername()))
         {
             // check password
-            if (((AuthenticationListEntry) (authList.get(entry.getUsername())))
-                    .compareHashedPassword(entry.getPassword()))
+            if (authList.isValid(entry))
             {
-
                 // now make sure that the user isn't already logged-in
                 if (!authedNameToIP.containsKey(entry.getUsername()))
                 {
