@@ -47,19 +47,6 @@ public @xml_inherit class AuthenticationList extends
     }
 
     /**
-     * Because AuthenticationLists are not ordered and cannot be randomly
-     * accessed, add(int, AuthenticationListEntry) simply calls
-     * add(AuthenticationListEntry).
-     * 
-     * @see ecologylab.services.authentication.AuthenticationList#add(ecologylab.services.authentication.AuthenticationListEntry)
-     */
-    @Override @Deprecated public void add(int i, AuthenticationListEntry obj)
-            throws UnsupportedOperationException
-    {
-        this.add(obj);
-    }
-
-    /**
      * Attempts to add each element of c to this. If any of the elements of c
      * are not
      * 
@@ -82,28 +69,6 @@ public @xml_inherit class AuthenticationList extends
         }
 
         return true;
-    }
-
-    /**
-     * Because AuthenticationLists are not ordered and cannot be randomly
-     * accessed, addAll(int, Collection) simply calls addAll(Collection).
-     * 
-     * @see ecologylab.services.authentication.AuthenticationList#add(java.util.Collection)
-     */
-    @Override @Deprecated public boolean addAll(int index, Collection c)
-            throws UnsupportedOperationException
-    {
-        return addAll(c);
-    }
-
-    /**
-     * @see ecologylab.xml.subelements.ArrayListState#clear()
-     */
-    @Override @Deprecated public final void clear()
-            throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException(
-                "Cannot clear an AuthenticationList.");
     }
 
     /**
@@ -192,18 +157,6 @@ public @xml_inherit class AuthenticationList extends
     }
 
     /**
-     * This operation is not supported for security purposes.
-     * 
-     * @see ecologylab.xml.subelements.ArrayListState#get(int)
-     */
-    @Override @Deprecated public final AuthenticationListEntry get(int i)
-            throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException(
-                "Cannot randomly access the contents of an AuthenticationList.");
-    }
-
-    /**
      * Retrieves the access level for the given entry.
      * 
      * @param entry
@@ -212,16 +165,6 @@ public @xml_inherit class AuthenticationList extends
     public int getAccessLevel(AuthenticationListEntry entry)
     {
         return authList().get(entry.getUsername()).getLevel();
-    }
-
-    /**
-     * @see ecologylab.xml.subelements.ArrayListState#indexOf(java.lang.Object)
-     */
-    @Override @Deprecated public final int indexOf(Object elem)
-            throws UnsupportedOperationException
-    {
-        throw new UnsupportedOperationException(
-                "Cannot randomly access the contents of an AuthenticationList");
     }
 
     /**
@@ -235,6 +178,124 @@ public @xml_inherit class AuthenticationList extends
     {
         return (authList().containsKey(entry.getUsername()) && authList.get(
                 entry.getUsername()).compareHashedPassword(entry.getPassword()));
+    }
+
+    /**
+     * Attempts to remove the given object; this will succeed if and only if the
+     * following are true:
+     * 
+     * 1.) the Object is of type AuthenticationListEntry 2.) this list contains
+     * the AuthenticationListEntry 3.) the AuthenticationListEntry's username
+     * and password both match the one in this list
+     * 
+     * @see ecologylab.xml.subelements.ArrayListState#remove(java.lang.Object)
+     */
+    @Override public boolean remove(Object o)
+    {
+        if (!(o instanceof AuthenticationListEntry))
+        {
+            throw new ClassCastException(
+                    "Remove only works with AuthenticationListEntry objects.");
+        }
+
+        if (this.isValid((AuthenticationListEntry) o))
+        {
+            return super.remove(authList.remove(((AuthenticationListEntry) o)
+                    .getUsername()));
+        }
+
+        return false;
+    }
+    
+    public String toString()
+    {
+        return "AuthenticationList containing " + this.size() + " entries.";
+    }
+
+    /**
+     * Constructs the internal HashMap to improve retrievals.
+     * 
+     * Note that this method also ensures that the passwords are hashed properly
+     * (which would normally be done with the constructor). They should
+     * (currently) be plaintext in the XML file.
+     * 
+     * TODO Make it so that passwords stored in the file are already hashed;
+     * this will require a small command line program!!!
+     * 
+     * @return
+     */
+    private HashMap<String, AuthenticationListEntry> authList()
+    {
+        if (authList == null)
+        {
+            authList = new HashMap<String, AuthenticationListEntry>(this.size());
+
+            for (AuthenticationListEntry e : this)
+            {
+                e.setAndHashPassword(e.getPassword());
+
+                authList.put(e.getUsername(), e);
+            }
+        }
+
+        return authList;
+    }
+
+    /**
+     * Because AuthenticationLists are not ordered and cannot be randomly
+     * accessed, add(int, AuthenticationListEntry) simply calls
+     * add(AuthenticationListEntry).
+     * 
+     * @see ecologylab.services.authentication.AuthenticationList#add(ecologylab.services.authentication.AuthenticationListEntry)
+     */
+    @Override @Deprecated public void add(int i, AuthenticationListEntry obj)
+            throws UnsupportedOperationException
+    {
+        this.add(obj);
+    }
+    
+    /**
+     * Because AuthenticationLists are not ordered and cannot be randomly
+     * accessed, addAll(int, Collection) simply calls addAll(Collection).
+     * 
+     * @see ecologylab.services.authentication.AuthenticationList#add(java.util.Collection)
+     */
+    @Override @Deprecated public boolean addAll(int index, Collection c)
+            throws UnsupportedOperationException
+    {
+        return addAll(c);
+    }
+
+    /**
+     * @see ecologylab.xml.subelements.ArrayListState#clear()
+     */
+    @Override @Deprecated public final void clear()
+            throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(
+                "Cannot clear an AuthenticationList.");
+    }
+
+    /**
+     * This operation is not supported for security purposes.
+     * 
+     * @see ecologylab.xml.subelements.ArrayListState#get(int)
+     */
+    @Override @Deprecated public final AuthenticationListEntry get(int i)
+            throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(
+                "Cannot randomly access the contents of an AuthenticationList.");
+    }
+
+    /**
+     * @see ecologylab.xml.subelements.ArrayListState#indexOf(java.lang.Object)
+     */
+    @Override @Deprecated public final int indexOf(Object elem)
+            throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException(
+                "Cannot randomly access the contents of an AuthenticationList");
     }
 
     /**
@@ -285,33 +346,6 @@ public @xml_inherit class AuthenticationList extends
     {
         throw new UnsupportedOperationException(
                 "Cannot remove elements from an AuthenticationList without username and password.");
-    }
-
-    /**
-     * Attempts to remove the given object; this will succeed if and only if the
-     * following are true:
-     * 
-     * 1.) the Object is of type AuthenticationListEntry 2.) this list contains
-     * the AuthenticationListEntry 3.) the AuthenticationListEntry's username
-     * and password both match the one in this list
-     * 
-     * @see ecologylab.xml.subelements.ArrayListState#remove(java.lang.Object)
-     */
-    @Override public boolean remove(Object o)
-    {
-        if (!(o instanceof AuthenticationListEntry))
-        {
-            throw new ClassCastException(
-                    "Remove only works with AuthenticationListEntry objects.");
-        }
-
-        if (this.isValid((AuthenticationListEntry) o))
-        {
-            return super.remove(authList.remove(((AuthenticationListEntry) o)
-                    .getUsername()));
-        }
-
-        return false;
     }
 
     /**
@@ -375,39 +409,4 @@ public @xml_inherit class AuthenticationList extends
         throw new UnsupportedOperationException(
                 "toArray is not supported by AuthenticationListEntry");
     }
-
-    public String toString()
-    {
-        return "AuthenticationList containing " + this.size() + " entries.";
-    }
-
-    /**
-     * Constructs the internal HashMap to improve retrievals.
-     * 
-     * Note that this method also ensures that the passwords are hashed properly
-     * (which would normally be done with the constructor). They should
-     * (currently) be plaintext in the XML file.
-     * 
-     * TODO Make it so that passwords stored in the file are already hashed;
-     * this will require a small command line program!!!
-     * 
-     * @return
-     */
-    private HashMap<String, AuthenticationListEntry> authList()
-    {
-        if (authList == null)
-        {
-            authList = new HashMap<String, AuthenticationListEntry>(this.size());
-
-            for (AuthenticationListEntry e : this)
-            {
-                e.setAndHashPassword(e.getPassword());
-
-                authList.put(e.getUsername(), e);
-            }
-        }
-
-        return authList;
-    }
-
 }
