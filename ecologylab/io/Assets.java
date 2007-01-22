@@ -8,6 +8,7 @@ import java.io.File;
 import ecologylab.appframework.ApplicationProperties;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.StatusReporter;
+import ecologylab.appframework.types.AssetsState;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
@@ -155,7 +156,7 @@ implements ApplicationProperties
 	 * doesn't exist
 	 * 
 	 * @param relativePath	A string representing the relative file path. 
-	 * @return	A file reference tot he requested path
+	 * @return	A file reference to the requested path
 	 * @see getAsset(String, additionalContext)
 	 */
 	public static File getAndPerhapsCreateAsset(String relativePath, String additionalContext)
@@ -235,15 +236,17 @@ implements ApplicationProperties
 	 * @return	false if the assetRelativePath is null; otherwise true.
 	 */
 	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
-											boolean forceDownload)
+											boolean forceDownload, float version)
 	{
 		if (assetRelativePath == null)
 			return false;
 		
 		downloadZip(interfaceAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
-					interfaceCacheRoot, status, forceDownload);
+				interfaceCacheRoot, status, forceDownload, version);
+		
 		return true;
 	}
+	
 	/**
 	 * Download an semantics assets zip file from the semanticsAssetsRoot.
 	 * Unzip it into the cacheRoot.
@@ -252,17 +255,17 @@ implements ApplicationProperties
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
 	 */
 	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
-											boolean forceDownload)
+											boolean forceDownload, float version)
 	{
 		downloadZip(semanticsAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
-					semanticsCacheRoot, status, forceDownload);
+					semanticsCacheRoot, status, forceDownload, version);
 	}
 	
 	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
 											  boolean forceDownload)
 	{
 		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
-					preferencesCacheRoot, status, forceDownload);
+					preferencesCacheRoot, status, forceDownload, AssetsState.IGNORE_VERSION);
 	}
 	/**
 	 * Download the assets zip file from the assetsRoot.
@@ -272,10 +275,10 @@ implements ApplicationProperties
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
 	 */
 	public static void downloadZip(String assetRelativePath, StatusReporter status,
-								   boolean forceDownload)
+								   boolean forceDownload, float version)
 	{
 		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
-					Files.newFile(cacheRoot, assetRelativePath), status, forceDownload);
+					Files.newFile(cacheRoot, assetRelativePath), status, forceDownload, version);
 	}
 	/**
 	 * Download the assets zip file from the assetsRoot.
@@ -286,17 +289,18 @@ implements ApplicationProperties
 	 * @param assetRelativePath
 	 */
 	public static void downloadZip(String assetRelativePath,
-								   boolean forceDownload)
+								   boolean forceDownload, float version)
 	{
 		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
-					Files.newFile(cacheRoot, assetRelativePath), null, forceDownload);
+					Files.newFile(cacheRoot, assetRelativePath), null, forceDownload, version);
 	}
 	
 	public static void downloadZip(ParsedURL sourceZip, File targetFile,
-								   boolean forceDownload)
+								   boolean forceDownload, float version)
 	{
-		downloadZip(sourceZip, targetFile, null, forceDownload);
+		downloadZip(sourceZip, targetFile, null, forceDownload, version);
 	}
+	
 	/**
 	 * Download and uncompress a zip file from a source to a target location with minimal effort,
 	 * unless the zip file already exists at the target location, in which case, 
@@ -308,9 +312,8 @@ implements ApplicationProperties
 	 * @param target The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
 	 */
-	public static void downloadZip(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean forceDownload)
+	public static void downloadZip(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean forceDownload, float version)
 	{
-		//TODO add versioning logic
 		String zipFileName	= sourceZip.url().getFile();
 		int lastSlash		= zipFileName.lastIndexOf('\\');
 		if (lastSlash == -1)
@@ -318,9 +321,9 @@ implements ApplicationProperties
 		
 		zipFileName			= zipFileName.substring(lastSlash+1);
 		File zipFileDestination	= Files.newFile(targetDir, zipFileName);
-		if (forceDownload || !zipFileDestination.canRead())
+		if (forceDownload || !zipFileDestination.canRead() || !AssetsState.localVersionIsUpToDate(zipFileName, version))
 		{
-			ZipDownload downloadingZip	= ZipDownload.downloadZip(sourceZip, targetDir, status);
+			ZipDownload downloadingZip	= ZipDownload.downloadAndUncompressZip(sourceZip, targetDir, status);
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();
@@ -341,7 +344,7 @@ implements ApplicationProperties
 		Assets.assetsRoot 		= assetsRoot;
 		interfaceAssetsRoot		= assetsRoot.getRelative(INTERFACE, "forming interface assets root");
 		semanticsAssetsRoot		= assetsRoot.getRelative(SEMANTICS, "forming semantics assets root");
-		preferencesAssetsRoot	= assetsRoot.getRelative(PREFERENCES, "formaing preferences assets root");
+		preferencesAssetsRoot	= assetsRoot.getRelative(PREFERENCES, "forming preferences assets root");
 	}
 
 	/**
@@ -354,6 +357,25 @@ implements ApplicationProperties
 		interfaceCacheRoot		= Files.newFile(cacheRoot, INTERFACE);
 		semanticsCacheRoot		= Files.newFile(cacheRoot, SEMANTICS);
 		preferencesCacheRoot	= Files.newFile(cacheRoot, PREFERENCES);
+	}
+
+	/**
+	 * Get the source URL root of the tree of assets for this application.
+	 * Default is the configDir(), which in turn is the config subdir of codebase.
+	 * @return
+	 */
+	public static ParsedURL assetsRoot() 
+	{
+		return assetsRoot;
+	}
+
+	/**
+	 * Get the root file path for caching. Assets are specified relative to this path.
+	 * @return
+	 */
+	public static File cacheRoot() 
+	{
+		return cacheRoot;
 	}
 }
 
