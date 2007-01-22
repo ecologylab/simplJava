@@ -174,6 +174,7 @@ extends Debug implements BasicFloatSet
    			if (doRecycleElements)
    			{
    				element.setIndex(-1); // during gc() excursion
+   				element.deleteHook();
    				element.recycle();
                 element.clearSynch();
    			}
@@ -244,6 +245,7 @@ extends Debug implements BasicFloatSet
 		 synchronized (lastElement)
 		 {
 			elements[index]		= lastElement;
+			elements[lastIndex].deleteHook();
 			elements[lastIndex]	= null;	// remove reference to allow gc
 			lastElement.setIndex(index);
 		 }
