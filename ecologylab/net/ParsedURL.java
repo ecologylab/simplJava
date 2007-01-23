@@ -613,7 +613,8 @@ extends Debug
 		 return null;
       if( addressString.startsWith("#") )
       {
-			return get(contextPURL.url(), addressString);
+			//return get(contextPURL.url(), addressString);
+			return null;
       }
 
       String	lc	= addressString.toLowerCase();
