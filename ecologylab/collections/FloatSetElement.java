@@ -105,6 +105,16 @@ extends Debug
    {
 	   
    }
+   
+   /**
+    * Callback that happens at the end of an insert
+    * This implementation is empty. Override to provide custom behaviors.
+    */
+   public void insertHook()
+   {
+	   
+   }
+   
    /**
     * Only for use by FloatWeightSet.clear(), and delete.
     * This is used to reset state of this, in cases when the state
