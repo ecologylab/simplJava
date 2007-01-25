@@ -36,11 +36,18 @@ public class ParsedURLType extends Type
 	 */
 	public Object getInstance(String value)
 	{
-	   if (value.indexOf(':') == 1)
+	   File file	= null;
+	   if (value.startsWith("file://"))
 	   {
-		   File file	= ecologylab.io.Files.newFile(value);
-		   return new ParsedURL(file);
+		   int startIndex	= value.startsWith("file:///") ? 8 : 7;
+		   value	= value.substring(startIndex);
+		   file		= ecologylab.io.Files.newFile(value);
 	   }
-	   return ParsedURL.getAbsolute(value, " getInstance()");
+	   else if (value.indexOf(':') == 1)
+	   {
+		   file		= ecologylab.io.Files.newFile(value);
+	   }
+	   return (file != null) ? new ParsedURL(file)
+		   : ParsedURL.getAbsolute(value, " getInstance()");
 	}
 }
