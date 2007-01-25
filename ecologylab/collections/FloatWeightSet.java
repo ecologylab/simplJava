@@ -212,6 +212,7 @@ extends Debug implements BasicFloatSet
       el.setSet(this);
       elements[size]			= el;
       el.setIndex(size++);
+      el.insertHook();
    }
    /**
 	* Delete an element from the set.
