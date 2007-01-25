@@ -12,6 +12,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.ServicesServer;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -61,7 +62,7 @@ public class ContextManager extends Debug implements ServerConstants
 
     NIOServerBackend                              server;
 
-    protected SocketChannel                                 socket;
+    protected SocketChannel                       socket;
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
@@ -69,7 +70,7 @@ public class ContextManager extends Debug implements ServerConstants
     private TranslationSpace                      translationSpace;
 
     public ContextManager(Object token, /* SelectionKey key, */
-            NIOServerBackend server, SocketChannel socket,
+    NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.token = token;
@@ -139,18 +140,17 @@ public class ContextManager extends Debug implements ServerConstants
                 {
                     response.setUid(request.getUid());
 
-                    if (show(5))
-                        debug("response: " + response.translateToXML(false));
-                    // translate the response and store it, then
-                    // encode it and write it
+                    String outgoingReq = response.translateToXML(false);
+                    String header = "content-length:" + outgoingReq.length()
+                            + "\r\n\r\n";
+
                     outgoingChars.clear();
-                    outgoingChars.put(response.translateToXML(false)).put('\n');
+                    outgoingChars.put(header).put(outgoingReq);
                     outgoingChars.flip();
 
                     ByteBuffer temp = encoder.encode(outgoingChars);
 
                     server.send(this.socket, temp);
-
                 }
                 catch (XmlTranslationException e)
                 {
@@ -299,32 +299,42 @@ public class ContextManager extends Debug implements ServerConstants
             throws CharacterCodingException, BadClientException
     {
         accumulator.append(message);
+        
+//        System.out.println(accumulator.toString());
 
-        if (show(5))
-            System.out.println("accumulator after: " + accumulator.toString());
-
-        int length = accumulator.length();
-        int termPos = accumulator.indexOf("\n");
-        if (termPos == -1)
+        // look for HTTP header
+        while (accumulator.length() > 0)
         {
-            termPos = accumulator.indexOf("\r");
-        }
+            
+            int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
 
-        while ((length > 0) && (termPos > 0))
-        { // we have at least one whole message: process it
-            // transform the message into a request and
-            // perform the service
+            if (endOfFirstHeader == -1)
+                break;
 
-            processString(accumulator.substring(0, termPos));
+            int length = ServicesServer.parseHeader(accumulator.substring(0,
+                    endOfFirstHeader));
+            
+            if (length == -1)
+                break;
+            
+            String firstMessage;
 
-            // erase the message from the accumulator
-            accumulator.delete(0, termPos + 1);
-
-            length = accumulator.length();
-            termPos = accumulator.indexOf("\n");
-            if (termPos == -1)
+            try
             {
-                termPos = accumulator.indexOf("\r");
+                firstMessage = accumulator.substring(endOfFirstHeader+4, endOfFirstHeader+4+length);
+                accumulator.delete(0, endOfFirstHeader+4+length);
+//                System.out.println(firstMessage);
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                debug("don't have a complete message yet.");
+                e.printStackTrace();
+                break;
+            }
+
+            if (firstMessage != null)
+            {
+                processString(firstMessage);
             }
         }
     }

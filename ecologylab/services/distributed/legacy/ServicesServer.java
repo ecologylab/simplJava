@@ -31,7 +31,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ServicesServer extends ServicesServerBase
 {
-    private static final Pattern p = Pattern.compile("content-length\\s*:\\s*(\\d*)\\s*\\Z");
+    private static final Pattern p = Pattern.compile("content-length\\s*:\\s*(\\d*)\\s*");
     
     public static final int          NORMAL_SERVER             = 0;
 
@@ -344,12 +344,28 @@ public class ServicesServer extends ServicesServerBase
      * beginning until there are two CRLF's in a row).
      * 
      * @param header
-     * @return
+     * @return The value of the content-length header, or -1 if no such header exists.
      */
-    protected int parseHeader(String header) throws IllegalStateException, IndexOutOfBoundsException
+    public static int parseHeader(String header) throws IllegalStateException, IndexOutOfBoundsException
     {
         Matcher m = p.matcher(header.toLowerCase());
         
+        try
+        {
+            m.matches();
         return Integer.parseInt(m.group(1));
+        }
+        catch (NumberFormatException e)
+        {
+            return -1;
+        }
+        catch (IllegalStateException e)
+        {
+            System.out.println("regex was: "+p.pattern());
+            System.out.println("string was: "+header);
+            System.out.println("***");
+            
+            throw e;
+        }
     }
 }

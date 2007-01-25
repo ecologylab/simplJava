@@ -24,6 +24,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesClientBase;
+import ecologylab.services.ServicesServer;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
@@ -51,7 +52,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     protected boolean                             running                = false;
 
-    protected SocketChannel                         channel                = null;
+    protected SocketChannel                       channel                = null;
 
     private Thread                                thread;
 
@@ -60,7 +61,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
     private ByteBuffer                            incomingRawBytes       = ByteBuffer
                                                                                  .allocate(MAX_PACKET_SIZE);
 
-    protected CharBuffer                            outgoingChars          = CharBuffer
+    protected CharBuffer                          outgoingChars          = CharBuffer
                                                                                  .allocate(MAX_PACKET_SIZE);
 
     private StringBuilder                         accumulator            = new StringBuilder(
@@ -71,7 +72,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                                                                                          "ASCII")
                                                                                  .newDecoder();
 
-    protected CharsetEncoder                        encoder                = Charset
+    protected CharsetEncoder                      encoder                = Charset
                                                                                  .forName(
                                                                                          "ASCII")
                                                                                  .newEncoder();
@@ -243,8 +244,12 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 request.setUid(outgoingUid);
 
+                String outgoingReq = request.translateToXML(false);
+                String header = "content-length:" + outgoingReq.length()
+                        + "\r\n\r\n";
+
                 outgoingChars.clear();
-                outgoingChars.put(request.translateToXML(false)).put('\n');
+                outgoingChars.put(header).put(outgoingReq);
                 outgoingChars.flip();
 
                 channel.write(encoder.encode(outgoingChars));
@@ -488,42 +493,51 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                 if (accumulator.length() > 0)
                 {
-                    if ((accumulator.charAt(accumulator.length() - 1) == '\n')
-                            || (accumulator.charAt(accumulator.length() - 1) == '\r'))
-                    { // when we have accumulated an entire message, process
-                        // it
+                    // look for HTTP header
+                    int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
 
-                        // in case we have several messages that are split by
-                        // returns
-                        while (accumulator.length() > 0)
+                    if (endOfFirstHeader == -1)
+                        break;
+
+                    int length = ServicesServer.parseHeader(accumulator
+                            .substring(0, endOfFirstHeader));
+
+                    if (length == -1)
+                        break;
+
+                    String firstMessage;
+
+                    try
+                    {
+                        firstMessage = accumulator.substring(
+                                endOfFirstHeader + 4, endOfFirstHeader + 4
+                                        + length);
+                        accumulator.delete(0, endOfFirstHeader + 4 + length);
+                        // System.out.println(firstMessage);
+                    }
+                    catch (IndexOutOfBoundsException e)
+                    {
+                        debug("don't have a complete message yet.");
+                        e.printStackTrace();
+                        break;
+                    }
+
+                    if (firstMessage != null)
+                    {
+                        System.out.println(firstMessage);
+                        
+                        if (!this.blockingRequestPending)
                         {
-                            // transform the message into a request and perform
-                            // the service
-
-                            if (!this.blockingRequestPending)
+                            processString(firstMessage);
+                        }
+                        else
+                        {
+                            blockingResponsesQueue
+                                    .add(processString(firstMessage));
+                            synchronized (this)
                             {
-                                processString(accumulator.substring(0,
-                                        accumulator.indexOf("\n")));
+                                notify();
                             }
-                            else
-                            {
-                                blockingResponsesQueue
-                                        .add(processString(accumulator
-                                                .substring(0, accumulator
-                                                        .indexOf("\n"))));
-                                synchronized (this)
-                                {
-                                    notify();
-                                }
-                            }
-
-                            // debug("accumulator: "+accumulator.toString());
-
-                            // erase the message
-                            // from
-                            // the accumulator
-                            accumulator
-                                    .delete(0, accumulator.indexOf("\n") + 1);
                         }
                     }
                 }

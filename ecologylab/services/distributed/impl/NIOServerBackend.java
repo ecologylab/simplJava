@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
@@ -591,6 +592,10 @@ public class NIOServerBackend extends ServicesServerBase implements
         try
         {
             bytesRead = sc.read(readBuffer);
+        }
+        catch (BufferOverflowException e)
+        {
+            throw new BadClientException("Client overflowed the buffer.");
         }
         catch (IOException e)
         { // error trying to read; client disconnected
