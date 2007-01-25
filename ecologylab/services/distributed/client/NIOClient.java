@@ -524,7 +524,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                     if (firstMessage != null)
                     {
-                        System.out.println(firstMessage);
+//                        System.out.println(firstMessage);
                         
                         if (!this.blockingRequestPending)
                         {
