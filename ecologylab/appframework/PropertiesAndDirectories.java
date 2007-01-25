@@ -312,25 +312,28 @@ extends Debug
 /**
  * A default place for storing the user's files.
  * 
- * In Windows, this is typically c:\\Documents and Settings\\username
+ * In Windows, this is typically c:\\Documents and Settings\\username\\My Documents
+ * 
+ * In unix-based OSes, it is typically ~.
  */
-	//TODO clean this one up -- probably should use appDataDir() if user.dir is not defined
 	public static File userDir()
 	{
 	   File result		= USER_DIR;
 	   if (result == null)
 	   {
-	   	  String httpAgent	= System.getProperty("http.agent");
-	   	  if (httpAgent == null)
-	   	  	result	= Files.newFile(sysProperty("user.home"));
-		  else if ((PropertiesAndDirectories.os() == WINDOWS) && 
-			  (httpAgent.startsWith("Mozilla")))
+		  switch (PropertiesAndDirectories.os())
 		  {
-			 File appDataDir	= applicationDataDir();
-			 result	= Files.newFile(appDataDir.getParent(), "My Documents");
+		  case WINDOWS:
+			  File appDataDir	= applicationDataDir();
+			  File appDataParent= Files.newFile(appDataDir.getParent());
+			  result	= Files.newFile(appDataParent, "My Documents");
+			  if (!result.exists())
+				  result		= Files.newFile(appDataParent, "Personal");
+			  break;
+		  default:
+			  result = Files.newFile(sysProperty("user.home"));
+			  break;
 		  }
-		  else
-			 result	= Files.newFile(sysProperty("user.dir"));
 
 		  if (result == null)
 			  result = Files.newFile(sysProperty("user.home"));
