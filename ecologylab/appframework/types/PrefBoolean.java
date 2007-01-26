@@ -9,7 +9,7 @@ package ecologylab.appframework.types;
  */
 public class PrefBoolean extends Pref<Boolean>
 {
-	private Boolean			value;
+	private boolean			value;
 	
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class PrefBoolean extends Pref<Boolean>
 	{
 		super();
 	}
-	public PrefBoolean(Boolean value)
+	public PrefBoolean(boolean value)
 	{
 		super();
 		this.value	= value;
@@ -33,7 +33,7 @@ public class PrefBoolean extends Pref<Boolean>
 		return value;
 	}
 	
-	public void setValue(Boolean value)
+	public void setValue(boolean value)
 	{
 		invalidate();
 		this.value	= value;
