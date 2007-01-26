@@ -85,11 +85,28 @@ public class BadClientException extends Exception
 			return (System.currentTimeMillis() - timeStamp) < LOCKOUT_INTERVAL;
 		}
 	}
-	static final EvilHostEntry OK_HOST_ENTRY = 
-		new EvilHostEntry(System.currentTimeMillis() - REPEAT_OFFENDER_INTERVAL);
+    
+    static class OkEvilHostEntry extends EvilHostEntry
+    {
+        OkEvilHostEntry()
+        {
+            
+        }
+        boolean isEvil()
+        {
+            return false;
+        }
+    }
+    
+	static final EvilHostEntry OK_HOST_ENTRY = new OkEvilHostEntry();
 	
 	public static boolean isEvilHostByNumber(String ipNumber)
 	{
+        System.out.println("I'm looking up "+ipNumber);
+        for(String s : evilHostsMap.keySet())
+        {
+            System.out.println(s);
+        }
 		EvilHostEntry entry		= evilHostsMap.get(ipNumber);
 		if (entry == null)
 		{
@@ -104,8 +121,9 @@ public class BadClientException extends Exception
 			}
 		}
         
-		// use double negatives here so that if condition 1 is true, we dont bother executing condition 2
-		return !((entry == OK_HOST_ENTRY) || !entry.isEvil());
+        System.out.println(ipNumber+" is evil? "+entry.isEvil());
+        
+		return entry.isEvil();
 	}
 	
 	/**

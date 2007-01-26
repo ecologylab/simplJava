@@ -79,32 +79,32 @@ public class NIOServerBackend extends ServicesServerBase implements
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
 
-    protected Selector                                              selector;
+    protected Selector                                         selector;
 
-    private boolean                                                 running;
+    private boolean                                            running;
 
-    private long                                                    interval                  = 0;
+    private long                                               interval                  = 0;
 
-    private long                                                    selectInterval            = 0;
+    private long                                               selectInterval            = 0;
 
-    private Thread                                                  thread;
+    private Thread                                             thread;
 
-    private int                                                     numConnections;
+    private int                                                numConnections;
 
-    private NIOServerFrontend                                       sAP;
+    private NIOServerFrontend                                  sAP;
 
-    private ByteBuffer                                              readBuffer                = ByteBuffer
-                                                                                                      .allocate(1024);
+    private ByteBuffer                                         readBuffer                = ByteBuffer
+                                                                                                 .allocate(1024);
 
-    private Map<SocketChannel, Queue<ByteBuffer>>                   pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
+    private Map<SocketChannel, Queue<ByteBuffer>>              pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-    private Queue<ChangeRequest>                                    pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
+    private Queue<ChangeRequest>                               pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
 
-    private InetAddress                                             hostAddress;
+    private InetAddress                                        hostAddress;
 
-    private int                                                     idleSocketTimeout;
+    private int                                                idleSocketTimeout;
 
-    private Map<SelectionKey, Long>                                 keyActivityTimes          = new HashMap<SelectionKey, Long>();
+    private Map<SelectionKey, Long>                            keyActivityTimes          = new HashMap<SelectionKey, Long>();
 
     private Map<String, ObjectOrHashMap<String, SelectionKey>> ipToKeyOrKeys             = new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
 
@@ -368,7 +368,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                                     }
 
                                     keyOrKeys.clear();
-                                    ipToKeyOrKeys.remove(address.getHostAddress());
+                                    ipToKeyOrKeys.remove(address
+                                            .getHostAddress());
                                 }
                             }
                             else
@@ -530,11 +531,7 @@ public class NIOServerBackend extends ServicesServerBase implements
 
             debug("connections running: " + numConn);
 
-            if ((numConn < MAX_CONNECTIONS)
-                    && (BadClientException
-                            .isEvilHostByNumber(((ServerSocketChannel) key
-                                    .channel()).socket().getInetAddress()
-                                    .getHostAddress())))
+            if (numConn < MAX_CONNECTIONS)
             { // the keyset includes this side of the connection
 
                 numConnections++;
@@ -551,67 +548,74 @@ public class NIOServerBackend extends ServicesServerBase implements
                 SocketChannel tempChannel = ((ServerSocketChannel) key
                         .channel()).accept();
 
-                tempChannel.configureBlocking(false);
+                InetAddress address = tempChannel.socket().getInetAddress();
 
-                // when we register, we want to attach the proper
-                // session token to all of the keys associated with
-                // this connection, so we can sort them out later.
-                String keyAttachment = this
-                .generateSessionToken(tempChannel.socket());
-                
-                SelectionKey newKey = tempChannel.register(selector,
-                        SelectionKey.OP_READ, keyAttachment);
+                debug("new address: " + address.getHostAddress());
 
-                this.keyActivityTimes.put(newKey, new Long(System
-                        .currentTimeMillis()));
-
-                InetAddress address = ((SocketChannel) newKey.channel()).socket()
-                        .getInetAddress();
-                
-                debug("new address: "+address.getHostAddress());
-                
-                if ((ipToKeyOrKeys.get(address.getHostAddress())) == null)
+                if (!BadClientException.isEvilHostByNumber(address
+                        .getHostAddress()))
                 {
-                    debug(address + " not in our list, adding it.");
+                    tempChannel.configureBlocking(false);
 
-                    ipToKeyOrKeys.put(address.getHostAddress(),
-                            new ObjectOrHashMap<String, SelectionKey>(
-                                    keyAttachment, newKey));
-                }
-                else
-                {
-                    debug(address + " is in our list, adding another key.");
-                    synchronized (ipToKeyOrKeys)
+                    // when we register, we want to attach the proper
+                    // session token to all of the keys associated with
+                    // this connection, so we can sort them out later.
+                    String keyAttachment = this
+                            .generateSessionToken(tempChannel.socket());
+
+                    SelectionKey newKey = tempChannel.register(selector,
+                            SelectionKey.OP_READ, keyAttachment);
+
+                    this.keyActivityTimes.put(newKey, new Long(System
+                            .currentTimeMillis()));
+
+                    if ((ipToKeyOrKeys.get(address.getHostAddress())) == null)
                     {
-                        ipToKeyOrKeys.get(address.getHostAddress()).put(
-                                keyAttachment, newKey);
-                        System.out.println("new size: "+ipToKeyOrKeys.get(address.getHostAddress()).size());
+                        debug(address + " not in our list, adding it.");
+
+                        ipToKeyOrKeys.put(address.getHostAddress(),
+                                new ObjectOrHashMap<String, SelectionKey>(
+                                        keyAttachment, newKey));
                     }
+                    else
+                    {
+                        debug(address + " is in our list, adding another key.");
+                        synchronized (ipToKeyOrKeys)
+                        {
+                            ipToKeyOrKeys.get(address.getHostAddress()).put(
+                                    keyAttachment, newKey);
+                            System.out.println("new size: "
+                                    + ipToKeyOrKeys.get(
+                                            address.getHostAddress()).size());
+                        }
+                    }
+
+                    debug("Now connected to " + tempChannel + ", "
+                            + (MAX_CONNECTIONS - numConn - 1)
+                            + " connections remaining.");
+
+                    return tempChannel;
                 }
-
-                debug("Now connected to " + tempChannel + ", "
-                        + (MAX_CONNECTIONS - numConn - 1)
-                        + " connections remaining.");
-
-                return tempChannel;
             }
+
+            // we will prematurely exit before now if it's a good connection
+            // so now it's a bad one; disconnect it and return null
+            SocketChannel tempChannel = ((ServerSocketChannel) key.channel())
+                    .accept();
+
+            InetAddress address = tempChannel.socket().getInetAddress();
+
+            // shut it all down
+            tempChannel.socket().shutdownInput();
+            tempChannel.socket().shutdownOutput();
+            tempChannel.socket().close();
+            tempChannel.close();
+
+            // show a debug message
+            if (numConn >= MAX_CONNECTIONS)
+                debug("Rejected connection; already fulfilled max connections.");
             else
-            {
-                SocketChannel tempChannel = ((ServerSocketChannel) key
-                        .channel()).accept();
-                tempChannel.socket().shutdownInput();
-                tempChannel.socket().shutdownOutput();
-                tempChannel.socket().close();
-                tempChannel.close();
-
-                if (numConn >= MAX_CONNECTIONS)
-                    debug("Rejected connection; already fulfilled max connections.");
-                else
-                    debug("Evil host attempted to connect: "
-                            + ((ServerSocketChannel) key.channel()).socket()
-                                    .getInetAddress());
-
-            }
+                debug("Evil host attempted to connect: " + address);
         }
         catch (IOException e)
         {

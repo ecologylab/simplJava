@@ -25,7 +25,7 @@ public interface ServerConstants
     
     static final int MAX_TARDINESS              = 20;
     
-    static final int MAX_TIME_BEFORE_VALID_MSG	= 1000;
+    static final int MAX_TIME_BEFORE_VALID_MSG	= 1000*60;
     
     static final int MAX_HTTP_HEADER_LENGTH = 4096;
     
