@@ -37,7 +37,12 @@ extends RequestMessage
 	{
 		super();
 		this.preferencesSet = preferencesSet;
-
+	}
+	
+	public SetPreferences(PreferencesSet preferencesSet, String preferencesSetAssetPath)
+	{
+		this(preferencesSet);
+		this.preferencesSetAssetPath = preferencesSetAssetPath;
 	}
 	
 	public SetPreferences(String preferencesSetString, TranslationSpace translationSpace)
@@ -129,5 +134,10 @@ extends RequestMessage
 	protected void handleErrorWhileLoading(ObjectRegistry objectRegistry)
 	{
 		
+	}
+	
+	public PreferencesSet preferencesSet()
+	{
+		return this.preferencesSet;
 	}
 }
