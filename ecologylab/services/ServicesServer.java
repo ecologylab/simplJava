@@ -353,7 +353,7 @@ public class ServicesServer extends ServicesServerBase
         try
         {
             m.matches();
-        return Integer.parseInt(m.group(1));
+            return Integer.parseInt(m.group(1));
         }
         catch (NumberFormatException e)
         {

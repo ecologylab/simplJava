@@ -30,29 +30,28 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups
  */
-public class ContextManager extends Debug implements ServerConstants
-{
-    private StringBuilder                         accumulator      = new StringBuilder(
-                                                                           MAX_PACKET_SIZE);
+public class ContextManager extends Debug implements ServerConstants {
+    private StringBuilder                         accumulator               = new StringBuilder(
+                                                                                    MAX_PACKET_SIZE);
 
-    protected boolean                             messageWaiting   = false;
+    protected boolean                             messageWaiting            = false;
 
     private RequestMessage                        request;
 
-    protected LinkedBlockingQueue<RequestMessage> requestQueue     = new LinkedBlockingQueue<RequestMessage>();
+    protected LinkedBlockingQueue<RequestMessage> requestQueue              = new LinkedBlockingQueue<RequestMessage>();
 
-    private Object                                token            = null;
+    private Object                                token                     = null;
 
-    private CharBuffer                            outgoingChars    = CharBuffer
-                                                                           .allocate(MAX_PACKET_SIZE);
+    private CharBuffer                            outgoingChars             = CharBuffer
+                                                                                    .allocate(MAX_PACKET_SIZE);
 
-    private static CharsetEncoder                 encoder          = Charset
-                                                                           .forName(
-                                                                                   CHARACTER_ENCODING)
-                                                                           .newEncoder();
+    private static CharsetEncoder                 encoder                   = Charset
+                                                                                    .forName(
+                                                                                            CHARACTER_ENCODING)
+                                                                                    .newEncoder();
 
-    protected long                                initialTimeStamp = System
-                                                                           .currentTimeMillis();
+    protected long                                initialTimeStamp          = System
+                                                                                    .currentTimeMillis();
 
     protected boolean                             receivedAValidMsg;
 
@@ -64,6 +63,12 @@ public class ContextManager extends Debug implements ServerConstants
 
     protected SocketChannel                       socket;
 
+    private int                                   endOfFirstHeader          = -1;
+
+    private int                                   contentLength             = -1;
+
+    StringBuilder                                 firstMessageInAccumulator = new StringBuilder();
+
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
@@ -71,8 +76,7 @@ public class ContextManager extends Debug implements ServerConstants
 
     public ContextManager(Object token, /* SelectionKey key, */
     NIOServerBackend server, SocketChannel socket,
-            TranslationSpace translationSpace, ObjectRegistry registry)
-    {
+            TranslationSpace translationSpace, ObjectRegistry registry) {
         this.token = token;
 
         this.socket = socket;
@@ -90,14 +94,11 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * @return the next message in the requestQueue.
      */
-    protected RequestMessage getNextMessage()
-    {
-        synchronized (requestQueue)
-        {
+    protected RequestMessage getNextMessage() {
+        synchronized (requestQueue) {
             int queueSize = requestQueue.size();
 
-            if (queueSize == 1)
-            {
+            if (queueSize == 1) {
                 messageWaiting = false;
             }
 
@@ -114,30 +115,25 @@ public class ContextManager extends Debug implements ServerConstants
      * @param requestMessage
      * @return
      */
-    protected ResponseMessage performService(RequestMessage requestMessage)
-    {
+    protected ResponseMessage performService(RequestMessage requestMessage) {
         requestMessage.setSender(this.socket.socket().getInetAddress());
 
         return requestMessage.performService(registry);
     }
 
-    private void processRequest(RequestMessage request)
-    {
+    private void processRequest(RequestMessage request) {
         ResponseMessage response = null;
 
-        if (request == null)
-        {
+        if (request == null) {
             debug("No request.");
         }
-        else
-        {
+        else {
             // perform the service being requested
             response = performService(request);
 
-            if (response != null)
-            { // if the response is null, then we do nothing else
-                try
-                {
+            if (response != null) { // if the response is null, then we do
+                // nothing else
+                try {
                     response.setUid(request.getUid());
 
                     String outgoingReq = response.translateToXML(false);
@@ -152,12 +148,10 @@ public class ContextManager extends Debug implements ServerConstants
 
                     server.send(this.socket, temp);
                 }
-                catch (XmlTranslationException e)
-                {
+                catch (XmlTranslationException e) {
                     e.printStackTrace();
                 }
-                catch (CharacterCodingException e)
-                {
+                catch (CharacterCodingException e) {
                     e.printStackTrace();
                 }
             }
@@ -165,16 +159,13 @@ public class ContextManager extends Debug implements ServerConstants
         }
     }
 
-    public void processNextMessageAndSendResponse()
-    {
+    public void processNextMessageAndSendResponse() {
         this.processRequest(this.getNextMessage());
     }
 
-    public void processAllMessagesAndSendResponses() throws BadClientException
-    {
+    public void processAllMessagesAndSendResponses() throws BadClientException {
         timeoutBeforeValidMsg();
-        while (isMessageWaiting())
-        {
+        while (isMessageWaiting()) {
             this.processNextMessageAndSendResponse();
             timeoutBeforeValidMsg();
         }
@@ -189,18 +180,16 @@ public class ContextManager extends Debug implements ServerConstants
      * 
      * @throws BadClientException
      */
-    void timeoutBeforeValidMsg() throws BadClientException
-    {
+    void timeoutBeforeValidMsg() throws BadClientException {
         long now = System.currentTimeMillis();
         long elapsedTime = now - this.initialTimeStamp;
-        if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
-        {
-            throw new BadClientException(
+        if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG) {
+            throw new BadClientException(this.socket.socket().getInetAddress()
+                    .getHostAddress(),
                     "Too long before valid response: elapsedTime="
                             + elapsedTime + ".");
         }
-        else
-        {
+        else {
             this.initialTimeStamp = now;
         }
     }
@@ -208,16 +197,14 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * @return Returns the token.
      */
-    public Object getToken()
-    {
+    public Object getToken() {
         return token;
     }
 
     /**
      * @return Returns the messageWaiting.
      */
-    public boolean isMessageWaiting()
-    {
+    public boolean isMessageWaiting() {
         return messageWaiting;
     }
 
@@ -230,44 +217,37 @@ public class ContextManager extends Debug implements ServerConstants
      * @throws BadClientException
      */
     private void processString(String incomingMessage)
-            throws BadClientException
-    {
-        if (show(5))
-        {
+            throws BadClientException {
+        if (show(5)) {
             debug("processing: " + incomingMessage);
             debug("translationSpace: " + translationSpace.toString());
         }
 
         request = null;
-        try
-        {
+        try {
             request = (RequestMessage) ElementState.translateFromXMLString(
                     incomingMessage, translationSpace);
         }
-        catch (XmlTranslationException e)
-        {
+        catch (XmlTranslationException e) {
             // drop down to request == null, below
         }
 
-        if (request == null)
-        {
+        if (request == null) {
             System.out.println("ERROR: " + incomingMessage);
-            if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
-            {
-                throw new BadClientException("Too many Bad Transmissions: "
-                        + badTransmissionCount);
+            if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS) {
+                throw new BadClientException(this.socket.socket()
+                        .getInetAddress().getHostAddress(),
+                        "Too many Bad Transmissions: " + badTransmissionCount);
             }
             // else
             error("ERROR: translation failed: badTransmissionCount="
                     + badTransmissionCount);
         }
-        else
-        {
+        else {
             receivedAValidMsg = true;
             badTransmissionCount = 0;
 
-            synchronized (requestQueue)
-            {
+            synchronized (requestQueue) {
                 this.enqueueRequest(request);
             }
         }
@@ -281,10 +261,8 @@ public class ContextManager extends Debug implements ServerConstants
      * 
      * @param request
      */
-    protected void enqueueRequest(RequestMessage request)
-    {
-        if (requestQueue.offer(request))
-        {
+    protected void enqueueRequest(RequestMessage request) {
+        if (requestQueue.offer(request)) {
             messageWaiting = true;
         }
     }
@@ -296,45 +274,83 @@ public class ContextManager extends Debug implements ServerConstants
      * @param message
      */
     public void enqueueStringMessage(CharBuffer message)
-            throws CharacterCodingException, BadClientException
-    {
+            throws CharacterCodingException, BadClientException {
         accumulator.append(message);
-        
-//        System.out.println(accumulator.toString());
+
+//        System.out.println("accum: "+accumulator.toString());
 
         // look for HTTP header
-        while (accumulator.length() > 0)
-        {
-            
-            int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
-
+        while (accumulator.length() > 0) {
             if (endOfFirstHeader == -1)
-                break;
-
-            int length = ServicesServer.parseHeader(accumulator.substring(0,
-                    endOfFirstHeader));
+                endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
             
-            if (length == -1)
+            if (endOfFirstHeader == -1) { // no header yet; if it's too large,
+                // bad client; if it's not too large
+                // yet, just exit
+                if (accumulator.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH) {
+                    throw new BadClientException(this.socket.socket()
+                            .getInetAddress().getHostAddress(),
+                            "Maximum HTTP header length exceeded.");
+                }
+                
                 break;
-            
-            String firstMessage;
-
-            try
-            {
-                firstMessage = accumulator.substring(endOfFirstHeader+4, endOfFirstHeader+4+length);
-                accumulator.delete(0, endOfFirstHeader+4+length);
-//                System.out.println(firstMessage);
             }
-            catch (IndexOutOfBoundsException e)
-            {
+            
+            if (contentLength == -1) {
+                try {
+                    contentLength = ServicesServer.parseHeader(accumulator
+                            .substring(0, endOfFirstHeader));
+                }
+                catch (IllegalStateException e) {
+                    throw new BadClientException(this.socket.socket()
+                            .getInetAddress().getHostAddress(),
+                            "Malformed header.");
+                }
+            }
+
+            if (contentLength == -1)
+                break;
+
+            // make sure contentLength isn't too big
+            if (contentLength > ServerConstants.MAX_PACKET_SIZE) {
+                throw new BadClientException(this.socket.socket()
+                        .getInetAddress().getHostAddress(),
+                        "Specified content length too large: " + contentLength);
+            }
+
+            try {
+                // if we got here, endOfFirstHeader is not -1, so we need to add 4 to it to ensure we're just after all the header
+                endOfFirstHeader += 4;
+
+
+                firstMessageInAccumulator.append(accumulator.substring(
+                        endOfFirstHeader, endOfFirstHeader + contentLength));
+                accumulator.delete(0, endOfFirstHeader + contentLength);
+                endOfFirstHeader = -1;
+                contentLength = -1;
+                // System.out.println(firstMessage);
+            }
+            catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+            catch (IndexOutOfBoundsException e) {
                 debug("don't have a complete message yet.");
+                // append what we do have, then continue
+                endOfFirstHeader = 0; // we already finished with the header
+                String partOfMessage = accumulator.substring(endOfFirstHeader,
+                        accumulator.length());
+                contentLength -= partOfMessage.length();
+
+                accumulator.delete(0, accumulator.length() - 1);
+
                 e.printStackTrace();
                 break;
             }
 
-            if (firstMessage != null)
-            {
-                processString(firstMessage);
+            if (firstMessageInAccumulator != null) {
+                processString(firstMessageInAccumulator.toString());
+                firstMessageInAccumulator.delete(0, firstMessageInAccumulator
+                        .length());
             }
         }
     }

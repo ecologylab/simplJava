@@ -13,8 +13,13 @@ import java.util.HashMap;
  */
 public class BadClientException extends Exception
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1652784829579621254L;
+
 	private static HashMap<String, EvilHostEntry>	evilHostsMap	= 
-		new HashMap();
+		new HashMap<String, EvilHostEntry>();
 	
 	/**
 	 * Time for which a seemingly evil host gets locked out.
@@ -32,18 +37,7 @@ public class BadClientException extends Exception
 	
 	//TODO make all call sites pass IP number in
 	//TODO make call site in timeoutBeforeValidMsg also pass timeStamp in.
-	//TODO should ipNumber be of type InetAddress, instead of String ?!
 
-	/**
-	 * Report that the client has behaved badly, by sending an improperly formed message.
-	 * @param message
-	 */
-	//TODO -- get rid of this constructor
-	public BadClientException(String message)
-	{
-		super(message);
-		// badClientIncident(ipNumber, timeStamp)
-	}
 	/**
 	 * Report that the client has behaved badly, by sending an improperly formed message.
 	 * 
@@ -51,8 +45,7 @@ public class BadClientException extends Exception
 	 */
 	public BadClientException(String ipNumber, String message)
 	{
-		super(message);
-		badClientIncident(ipNumber);
+		this(ipNumber, System.currentTimeMillis(), message);
 	}
 	/**
 	 * Report that the client has behaved badly, by timing out.
@@ -62,6 +55,7 @@ public class BadClientException extends Exception
 	{
 		super(message);
 		badClientIncident(ipNumber, timeStamp);
+		System.out.println(ipNumber+" flagged because "+message);
 	}
 
 	static class EvilHostEntry
@@ -109,22 +103,13 @@ public class BadClientException extends Exception
 				}
 			}
 		}
+        
+        System.out.println("ipNumber: "+ipNumber+" is evil?" + !((entry == OK_HOST_ENTRY) || !entry.isEvil()));
+        
 		// use double negatives here so that if condition 1 is true, we dont bother executing condition 2
 		return !((entry == OK_HOST_ENTRY) || !entry.isEvil());
 	}
 	
-	/**
-	 * Register a BadClientException incident for this host.
-	 * A timestamp of now is generated.
-	 * 
-	 * @param ipNumber		Host that was bad.
-	 * 
-	 * @return	true if now the host is considered to be evil.
-	 */
-	private static boolean badClientIncident(String ipNumber)
-	{
-		return badClientIncident(ipNumber, System.currentTimeMillis());
-	}
 	/**
 	 * Register a BadClientException incident for this host.
 	 * 
@@ -135,6 +120,7 @@ public class BadClientException extends Exception
 	 */
 	private static boolean badClientIncident(String ipNumber, long timeStamp)
 	{
+		System.out.println("client at "+ipNumber+" was naughty and is going into timeout.");
 		EvilHostEntry entry		= evilHostsMap.get(ipNumber);
 		if ((entry == null) || (entry == OK_HOST_ENTRY))
 		{
