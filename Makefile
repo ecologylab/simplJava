@@ -4,7 +4,7 @@ XML_DIR = xml xml/types/scalar xml/subelements xml/library/yahoo xml/library/dc 
 
 SERVICES = services services/exceptions services/logging services/messages services/messages/cf
 
-FUNDAMENTAL_DIRS = appframework collections generic io net $(XML_DIR) $(SERVICES)
+FUNDAMENTAL_DIRS = appframework appframework/types collections generic io net $(XML_DIR) $(SERVICES)
 
 JAVA_CLASS = $(JAVA_SRC:%.java=%.class)
 
@@ -12,7 +12,7 @@ JAR_DIRS = $(FUNDAMENTAL_DIRS:%=ecologylab/%)
 DIRS	= $(JAR_DIRS)
 
 KEYSTORE	=  -keystore c:/local/k/chain 
-#KEYSTORE	=  -keystore h:/local/k/chain 
+KEYSTORE	=  -keystore h:/local/k/chain 
 
 DOC_DIR = ../../cfdocs
 
