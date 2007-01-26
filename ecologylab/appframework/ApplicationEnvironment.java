@@ -246,8 +246,9 @@ implements Environment
 		}
 
 		//load the Assets version file here.
-		try {
-			AssetsState.loadLocalAssetVersions(ASSETS_VERSION_NAME, false);
+		try 
+		{
+			AssetsState.loadAssetVersions(ASSETS_VERSION_NAME, false);
 		} 
 		catch (XmlTranslationException e) 
 		{
