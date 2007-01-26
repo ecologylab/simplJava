@@ -27,7 +27,7 @@ public class LogRequestMessage extends RequestMessage
 	 */
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
-		Debug.println("cf services: received Logging Messages " );
+		Debug.println("services: received Logging Messages " );
 //		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
 		if( outFile != null )
@@ -49,8 +49,8 @@ public class LogRequestMessage extends RequestMessage
 		else
 			debug("ERROR: Can't log because FileOutputStream has not been created: " + outFile );
 		
-		debug("cf services: sending OK response");
-
+		debug("services: sending OK response");
+		
     	return OkResponse.get();
 
 	}

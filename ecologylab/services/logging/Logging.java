@@ -122,21 +122,23 @@ public class Logging extends ElementState implements Runnable,
     static final String         BEGIN_EMIT               = XmlTools.xmlHeader()
                                                                  + SESSION_LOG_START;
 
-    static final int            NO_LOGGING               = 0;
+    public static final int      NO_LOGGING               	= 0;
 
-    static final int            LOG_TO_FILE              = 1;
+    public static final int      LOG_TO_FILE              	= 1;
 
-    static final int            LOG_TO_SERVICES_SERVER   = 2;
+    public static final int      LOG_TO_SERVICES_SERVER  	= 2;
     
-    static final int            LOG_TO_MEMORY_MAPPED_FILE = 3;
+    public static final int      LOG_TO_MEMORY_MAPPED_FILE	= 3;
 
-    static final int            MAX_OPS_BEFORE_WRITE     = 30;
+    static final int             MAX_OPS_BEFORE_WRITE     	= 30;
     
-    static final String			LOGGING_HOST_PARAM	= "logging_host";
+    public static final String	 LOGGING_HOST_PARAM			= "logging_host";
     
-    static final String			LOGGING_PORT_PARAM  = "logging_port";
+    public static final String	 LOGGING_PORT_PARAM  		= "logging_port";
     
-    final int                   maxOpsBeforeWrite;
+    public static final String	 LOGGING_MODE_PARAM 		= "logging_mode";
+    
+    final int                    maxOpsBeforeWrite;
 
     public Logging(TranslationSpace nameSpace)
     {
@@ -152,7 +154,7 @@ public class Logging extends ElementState implements Runnable,
         this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
         finished            = false;
         this.nameSpace      = nameSpace;
-        int logMode         = Preference.lookupInt("log_mode", NO_LOGGING);
+        int logMode         = Preference.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING);
         switch (logMode)
         {
             case NO_LOGGING:
