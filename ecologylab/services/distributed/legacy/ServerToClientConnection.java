@@ -224,7 +224,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
         // send the response
         if (outputStreamWriter != null)
         {
-            outputStreamWriter.print(responseString);
+            outputStreamWriter.println(responseString);
             outputStreamWriter.flush();
         }
         else
