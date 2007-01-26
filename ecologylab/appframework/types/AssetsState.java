@@ -101,7 +101,7 @@ import ecologylab.xml.subelements.ArrayListState;
 	{
 		try 
 		{
-			loadLocalAssetVersions(AssetsState.assetFileName, true);
+			loadAssetVersions(AssetsState.assetFileName, true);
 		} catch (XmlTranslationException e) 
 		{
 			// TODO Auto-generated catch block
@@ -118,7 +118,7 @@ import ecologylab.xml.subelements.ArrayListState;
 	 * @throws XmlTranslationException 
 	 * @throws XmlTranslationException 
 	 */
-	public static void loadLocalAssetVersions(String assetsVersionFileName, boolean forceDownload) 
+	public static void loadAssetVersions(String assetsVersionFileName, boolean forceDownload) 
 	throws XmlTranslationException
 	{
 		if (assetsVersionFileName == null)
@@ -129,6 +129,9 @@ import ecologylab.xml.subelements.ArrayListState;
 		AssetsState.assetFileName = assetsVersionFileName;
 		
 		File assetsVersionFile 	= AssetsState.getAssetsVersionFile(assetsVersionFileName);
+		
+		if (!assetsVersionFile.exists() || forceDownload)
+			downloadAssetsXML(assetsVersionFileName, null);
 		
 		assetsState				= (AssetsState) ElementState.translateFromXML(assetsVersionFile, AssetsTranslations.get());
 	}
@@ -171,20 +174,19 @@ import ecologylab.xml.subelements.ArrayListState;
 	}
 
 	/**
-	 * Download an XML assets file from the AssetsRoot.
+	 * Download an XML assets file from the AssetsRoot, to the CacheRoot.
 	 * 
 	 * @param assetRelativePath -- This is the name of the interface. It does not end in .zip!
 	 * @return	false if the assetRelativePath is null; otherwise true.
 	 */
-	public static boolean downloadAssetsXML(String assetRelativePath, StatusReporter status,
-											boolean forceDownload)
+	public static boolean downloadAssetsXML(String assetRelativePath, StatusReporter status)
 	{
 		if (assetRelativePath == null)
 			return false;
 		
 
 		downloadXML(Assets.assetsRoot().getRelative(assetRelativePath, "forming File location"), 
-				Assets.cacheRoot(), status, forceDownload);
+				Assets.cacheRoot(), status);
 
 		return true;
 	}
@@ -195,12 +197,11 @@ import ecologylab.xml.subelements.ArrayListState;
 	 * do nothing.
 	 * @param status The Status object that provides a source of state change visiblity;
 	 * can be null.
-	 * @param forceDownload
 	 * @param source The location of the zip file to download and uncompress.
 	 * @param target The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
 	 */
-	public static void downloadXML(ParsedURL sourceXML, File targetDir, StatusReporter status, boolean forceDownload)
+	public static void downloadXML(ParsedURL sourceXML, File targetDir, StatusReporter status)
 	{
 		String xmlFileName	= sourceXML.url().getFile();
 		int lastSlash		= xmlFileName.lastIndexOf('\\');
@@ -210,7 +211,7 @@ import ecologylab.xml.subelements.ArrayListState;
 		xmlFileName			= xmlFileName.substring(lastSlash+1);
 		File xmlFileDestination	= Files.newFile(targetDir, xmlFileName);
 
-		if (forceDownload || !xmlFileDestination.canRead())
+		if (!xmlFileDestination.canRead())
 		{
 			//we just want to download it, not uncompress it... (using code from zip downloading stuff)
 			ZipDownload downloadingZip	= ZipDownload.downloadFile(sourceXML, targetDir, status);
