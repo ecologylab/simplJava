@@ -3,10 +3,10 @@ package ecologylab.appframework;
 import java.io.File;
 import java.util.Properties;
 
+import ecologylab.appframework.types.Preference;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
-import ecologylab.services.messages.Preference;
 
 
 /**

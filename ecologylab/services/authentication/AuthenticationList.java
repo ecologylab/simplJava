@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
@@ -67,7 +67,7 @@ public @xml_inherit class AuthenticationList extends
     }
 
     /**
-     * @see ecologylab.xml.subelements.ArrayListState#clone()
+     * @see ecologylab.xml.types.element.ArrayListState#clone()
      */
     @Override public Object clone() throws UnsupportedOperationException
     {
@@ -100,7 +100,7 @@ public @xml_inherit class AuthenticationList extends
     }
 
     /**
-     * @see ecologylab.xml.subelements.ArrayListState#containsAll(java.util.Collection)
+     * @see ecologylab.xml.types.element.ArrayListState#containsAll(java.util.Collection)
      */
     public boolean containsAll(Collection c)
             throws UnsupportedOperationException

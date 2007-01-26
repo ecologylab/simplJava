@@ -4,7 +4,7 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * @author Zach Toups (toupsz@gmail.com)

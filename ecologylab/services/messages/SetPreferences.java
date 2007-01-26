@@ -3,6 +3,7 @@ package ecologylab.services.messages;
 import javax.swing.JOptionPane;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.types.PreferencesSet;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;

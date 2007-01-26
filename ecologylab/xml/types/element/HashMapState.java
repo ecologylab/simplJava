@@ -1,4 +1,4 @@
-package ecologylab.xml.subelements;
+package ecologylab.xml.types.element;
 
 import java.util.ArrayList;
 import java.util.Collection;

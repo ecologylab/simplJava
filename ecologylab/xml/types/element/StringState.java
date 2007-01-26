@@ -1,4 +1,4 @@
-package ecologylab.xml.subelements;
+package ecologylab.xml.types.element;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.ElementState.xml_attribute;

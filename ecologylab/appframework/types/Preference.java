@@ -1,4 +1,4 @@
-package ecologylab.services.messages;
+package ecologylab.appframework.types;
 
 import java.awt.Color;
 
@@ -9,7 +9,7 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.Palette;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Represents a preference in the form of name/val.

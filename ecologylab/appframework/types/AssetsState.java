@@ -19,7 +19,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Handles the loading and parsing of the asset version XML file

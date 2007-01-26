@@ -5,7 +5,7 @@ package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * @author Zach Toups (toupsz@gmail.com)

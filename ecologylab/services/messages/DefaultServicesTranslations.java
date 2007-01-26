@@ -1,5 +1,7 @@
 package ecologylab.services.messages;
 
+import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.PreferencesSet;
 import ecologylab.generic.Debug;
 import ecologylab.services.logging.Epilogue;
 import ecologylab.services.logging.LogOps;

@@ -4,10 +4,10 @@
  */
 package ecologylab.appframework;
 
+import ecologylab.appframework.types.Preference;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
-import ecologylab.services.messages.Preference;
 
 
 /**

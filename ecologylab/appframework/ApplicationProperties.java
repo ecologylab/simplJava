@@ -1,6 +1,6 @@
 package ecologylab.appframework;
 
-import ecologylab.services.messages.Preference;
+import ecologylab.appframework.types.Preference;
 
 
 /**

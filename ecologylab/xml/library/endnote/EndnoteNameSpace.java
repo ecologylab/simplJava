@@ -20,8 +20,8 @@ public class EndnoteNameSpace
     protected static final Class  TRANSLATIONS[] =
                                                  {
 
-            ecologylab.xml.subelements.StringState.class, ecologylab.xml.subelements.IntState.class,
-            ecologylab.xml.subelements.ArrayListState.class,
+            ecologylab.xml.types.element.StringState.class, ecologylab.xml.types.element.IntState.class,
+            ecologylab.xml.types.element.ArrayListState.class,
 
             ecologylab.xml.library.endnote.Author.class,
             ecologylab.xml.library.endnote.ContributorList.class,

@@ -4,8 +4,8 @@ import java.util.*;
 import java.io.*;
 
 import ecologylab.appframework.Environment;
+import ecologylab.appframework.types.Preference;
 import ecologylab.io.Files;
-import ecologylab.services.messages.Preference;
 
 
 

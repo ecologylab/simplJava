@@ -4,7 +4,7 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 public @xml_inherit class Records extends ArrayListState<Record>
 {

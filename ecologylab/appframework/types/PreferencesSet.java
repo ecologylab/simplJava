@@ -1,4 +1,4 @@
-package ecologylab.services.messages;
+package ecologylab.appframework.types;
 
 import java.io.File;
 import java.util.Collection;
@@ -12,7 +12,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * A top level message between javascript and CFSessionLauncher.

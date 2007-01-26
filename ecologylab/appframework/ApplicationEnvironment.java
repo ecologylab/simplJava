@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.util.Stack;
 
 import ecologylab.appframework.types.AssetsState;
+import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.PreferencesSet;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.services.messages.Preference;
-import ecologylab.services.messages.PreferencesSet;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;

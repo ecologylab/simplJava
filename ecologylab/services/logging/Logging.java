@@ -18,16 +18,16 @@ import java.util.Vector;
 
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.appframework.types.Preference;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
-import ecologylab.services.messages.Preference;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTools;
 import ecologylab.xml.XmlTranslationException;
-import ecologylab.xml.subelements.ArrayListState;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Provides a framework for interaction logging.
