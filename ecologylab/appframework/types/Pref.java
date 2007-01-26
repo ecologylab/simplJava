@@ -90,6 +90,7 @@ abstract public class Pref<T> extends ElementState
 	
 	public static Pref lookup(String key)
 	{
+		// need to make sure allPrefs is actually populated - otherwise you get an exception
 		return allPrefs.get(key);
 	}
 	public static void main(String[] a)
