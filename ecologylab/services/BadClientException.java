@@ -104,8 +104,6 @@ public class BadClientException extends Exception
 			}
 		}
         
-        System.out.println("ipNumber: "+ipNumber+" is evil?" + !((entry == OK_HOST_ENTRY) || !entry.isEvil()));
-        
 		// use double negatives here so that if condition 1 is true, we dont bother executing condition 2
 		return !((entry == OK_HOST_ENTRY) || !entry.isEvil());
 	}

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServerEvent;
@@ -78,34 +79,34 @@ public class NIOServerBackend extends ServicesServerBase implements
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
 
-    protected Selector                            selector;
+    protected Selector                                              selector;
 
-    private boolean                               running;
+    private boolean                                                 running;
 
-    private long                                  interval                  = 0;
+    private long                                                    interval                  = 0;
 
-    private long                                  selectInterval            = 0;
+    private long                                                    selectInterval            = 0;
 
-    private Thread                                thread;
+    private Thread                                                  thread;
 
-    private int                                   numConnections;
+    private int                                                     numConnections;
 
-    private NIOServerFrontend                     sAP;
+    private NIOServerFrontend                                       sAP;
 
-    private ByteBuffer                            readBuffer                = ByteBuffer
-                                                                                    .allocate(1024);
+    private ByteBuffer                                              readBuffer                = ByteBuffer
+                                                                                                      .allocate(1024);
 
-    private Map<SocketChannel, Queue<ByteBuffer>> pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
+    private Map<SocketChannel, Queue<ByteBuffer>>                   pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-    private Queue<ChangeRequest>                  pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
+    private Queue<ChangeRequest>                                    pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
 
-    private InetAddress                           hostAddress;
+    private InetAddress                                             hostAddress;
 
-    private int                                   idleSocketTimeout;
+    private int                                                     idleSocketTimeout;
 
-    private Map<SelectionKey, Long>               keyActivityTimes          = new HashMap<SelectionKey, Long>();
+    private Map<SelectionKey, Long>                                 keyActivityTimes          = new HashMap<SelectionKey, Long>();
 
-    private Map<String, Object>                   ipToKeyOrKeys             = new HashMap<String, Object>();
+    private Map<String, ObjectOrHashMap<String, SelectionKey>> ipToKeyOrKeys             = new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
 
     protected NIOServerBackend(int portNumber, InetAddress inetAddress,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
@@ -140,21 +141,26 @@ public class NIOServerBackend extends ServicesServerBase implements
     {
         try
         {
-            chan.close();
-            Object keyOrKeys = this.ipToKeyOrKeys.get(chan.socket()
-                    .getInetAddress().getHostAddress());
+            InetAddress address = chan.socket().getInetAddress();
 
-            if (keyOrKeys instanceof HashMap)
+            chan.close();
+
+            ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys
+                    .get(address.getHostAddress());
+
+            keyOrKeys.remove(address);
+
+            if (keyOrKeys.isEmpty())
             {
-                ((HashMap) keyOrKeys).remove(chan.socket().getInetAddress());
-            }
-            else
-            { // just the one
-                ipToKeyOrKeys.remove(chan.socket().getInetAddress()
+                this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
                         .getHostAddress());
             }
         }
         catch (IOException e)
+        {
+            debug(e.getMessage());
+        }
+        catch (NullPointerException e)
         {
             debug(e.getMessage());
         }
@@ -295,88 +301,83 @@ public class NIOServerBackend extends ServicesServerBase implements
                             // full
                             accept(key);
                         }
-                        else
-                            if (key.isWritable())
+                        else if (key.isWritable())
+                        {
+                            try
+                            {
+                                write(key);
+                            }
+                            catch (IOException e)
+                            {
+                                debug("IO error when attempting to write to socket; stack trace follows.");
+
+                                e.printStackTrace();
+                            }
+
+                        }
+                        else if (key.isReadable())
+                        { // incoming readable,
+                            // valid key
+                            // have to check validity here, because
+                            // accept
+                            // key may have rejected an incoming
+                            // connection
+                            if (key.channel().isOpen())
                             {
                                 try
                                 {
-                                    write(key);
+                                    read(key);
                                 }
-                                catch (IOException e)
+                                catch (ClientOfflineException e)
                                 {
-                                    debug("IO error when attempting to write to socket; stack trace follows.");
-
-                                    e.printStackTrace();
+                                    error(e.getMessage());
+                                    invalidate((SocketChannel) key.channel());
                                 }
+                                catch (BadClientException e)
+                                {
+                                    // close down this evil connection!
+                                    error(e.getMessage());
 
+                                    // shut them ALL down!
+                                    InetAddress address = ((SocketChannel) key
+                                            .channel()).socket()
+                                            .getInetAddress();
+
+                                    ObjectOrHashMap<String, SelectionKey> keyOrKeys = ipToKeyOrKeys
+                                            .get(address.getHostAddress());
+
+                                    Iterator<SelectionKey> allKeysForIp = keyOrKeys
+                                            .values().iterator();
+
+                                    debug("***********Shutting down all clients from "
+                                            + address.getHostAddress());
+
+                                    while (allKeysForIp.hasNext())
+                                    {
+                                        SelectionKey keyForIp = allKeysForIp
+                                                .next();
+
+                                        debug("shutting down "
+                                                + ((SocketChannel) keyForIp
+                                                        .channel()).socket()
+                                                        .getInetAddress());
+
+                                        this
+                                                .invalidate((SocketChannel) keyForIp
+                                                        .channel());
+                                    }
+
+                                    keyOrKeys.clear();
+                                    ipToKeyOrKeys.remove(address.getHostAddress());
+                                }
                             }
                             else
-                                if (key.isReadable())
-                                { // incoming readable,
-                                    // valid key
-                                    // have to check validity here, because
-                                    // accept
-                                    // key may have rejected an incoming
-                                    // connection
-                                    if (key.channel().isOpen())
-                                    {
-                                        try
-                                        {
-                                            read(key);
-                                        }
-                                        catch (ClientOfflineException e)
-                                        {
-                                            error(e.getMessage());
-                                            invalidate((SocketChannel) key
-                                                    .channel());
-                                        }
-                                        catch (BadClientException e)
-                                        {
-                                            // close down this evil connection!
-                                            error(e.getMessage());
-
-                                            // shut them ALL down!
-                                            Object keyOrKeys = ipToKeyOrKeys
-                                                    .get(((SocketChannel) key
-                                                            .channel())
-                                                            .socket()
-                                                            .getInetAddress()
-                                                            .getHostAddress());
-
-                                            if (keyOrKeys instanceof HashMap)
-                                            {
-                                                Iterator<SelectionKey> allKeysForIp = ((HashMap<InetAddress, SelectionKey>) keyOrKeys)
-                                                        .values().iterator();
-
-                                                while (allKeysForIp.hasNext())
-                                                {
-                                                    SelectionKey keyForIp = allKeysForIp
-                                                            .next();
-                                                    
-                                                    System.out.println("class: "+keyForIp
-                                                                    .channel().getClass());
-                                                    
-                                                    this
-                                                            .invalidate((SocketChannel) keyForIp
-                                                                    .channel());
-                                                }
-                                            }
-                                            else
-                                            {
-                                                invalidate((SocketChannel) key
-                                                        .channel());
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        debug("Channel closed on "
-                                                + key.attachment()
-                                                + ", removing.");
-                                        invalidate((SocketChannel) key
-                                                .channel());
-                                    }
-                                }
+                            {
+                                debug("Channel closed on " + key.attachment()
+                                        + ", removing.");
+                                invalidate((SocketChannel) key.channel());
+                            }
+                        }
                     }
                 }
             }
@@ -530,14 +531,11 @@ public class NIOServerBackend extends ServicesServerBase implements
             debug("connections running: " + numConn);
 
             if ((numConn < MAX_CONNECTIONS)
-                    || (BadClientException
+                    && (BadClientException
                             .isEvilHostByNumber(((ServerSocketChannel) key
                                     .channel()).socket().getInetAddress()
                                     .getHostAddress())))
-            { // the keyset
-                // includes this
-                // side of the
-                // connection
+            { // the keyset includes this side of the connection
 
                 numConnections++;
 
@@ -558,44 +556,36 @@ public class NIOServerBackend extends ServicesServerBase implements
                 // when we register, we want to attach the proper
                 // session token to all of the keys associated with
                 // this connection, so we can sort them out later.
+                String keyAttachment = this
+                .generateSessionToken(tempChannel.socket());
+                
                 SelectionKey newKey = tempChannel.register(selector,
-                        SelectionKey.OP_READ, this
-                                .generateSessionToken(tempChannel.socket()));
+                        SelectionKey.OP_READ, keyAttachment);
 
                 this.keyActivityTimes.put(newKey, new Long(System
                         .currentTimeMillis()));
 
-                String address = ((SocketChannel) newKey.channel()).socket()
-                        .getInetAddress().getHostAddress();
-                Object keyOrKeys;
-                if ((keyOrKeys = ipToKeyOrKeys.get(address)) == null)
+                InetAddress address = ((SocketChannel) newKey.channel()).socket()
+                        .getInetAddress();
+                
+                debug("new address: "+address.getHostAddress());
+                
+                if ((ipToKeyOrKeys.get(address.getHostAddress())) == null)
                 {
-                    ipToKeyOrKeys.put(address, newKey);
+                    debug(address + " not in our list, adding it.");
+
+                    ipToKeyOrKeys.put(address.getHostAddress(),
+                            new ObjectOrHashMap<String, SelectionKey>(
+                                    keyAttachment, newKey));
                 }
                 else
                 {
+                    debug(address + " is in our list, adding another key.");
                     synchronized (ipToKeyOrKeys)
                     {
-                        if (keyOrKeys instanceof HashMap)
-                        {
-                            ((HashMap<InetAddress, SelectionKey>) keyOrKeys)
-                                    .put(((SocketChannel) newKey.channel())
-                                            .socket().getInetAddress(), newKey);
-                        }
-                        else
-                        {
-                            HashMap<InetAddress, SelectionKey> keys = new HashMap<InetAddress, SelectionKey>();
-                            keys.put(((SocketChannel) newKey.channel())
-                                    .socket().getInetAddress(), newKey);
-                            keys
-                                    .put(
-                                            ((SocketChannel) ((SelectionKey) keyOrKeys)
-                                                    .channel()).socket()
-                                                    .getInetAddress(),
-                                            (SelectionKey) keyOrKeys);
-
-                            ipToKeyOrKeys.put(address, keys);
-                        }
+                        ipToKeyOrKeys.get(address.getHostAddress()).put(
+                                keyAttachment, newKey);
+                        System.out.println("new size: "+ipToKeyOrKeys.get(address.getHostAddress()).size());
                     }
                 }
 
@@ -614,7 +604,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                 tempChannel.socket().close();
                 tempChannel.close();
 
-                if (numConn < MAX_CONNECTIONS)
+                if (numConn >= MAX_CONNECTIONS)
                     debug("Rejected connection; already fulfilled max connections.");
                 else
                     debug("Evil host attempted to connect: "
