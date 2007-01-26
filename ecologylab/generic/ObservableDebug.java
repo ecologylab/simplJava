@@ -72,6 +72,15 @@ extends Observable
    {
       return super.toString();
    }
+   
+   /**
+    * Print a message about an error, starting with this.toString().
+    */
+   public void error(String message)
+   {
+	   Debug.error(this, message);
+   }
+   
 //   protected final void finalize()
 //   {
 //      AllocationDebugger.finalized(this);
