@@ -3,8 +3,14 @@
  */
 package ecologylab.appframework.types;
 
+import java.awt.Color;
 import java.util.HashMap;
 
+import ecologylab.appframework.Environment;
+import ecologylab.appframework.ObjectRegistry;
+import ecologylab.generic.Debug;
+import ecologylab.generic.Generic;
+import ecologylab.generic.Palette;
 import ecologylab.xml.ElementState;
 
 /**
@@ -60,14 +66,52 @@ abstract public class Pref<T> extends ElementState
 		valueCached	= null;
 	}
 
+	public static Integer valueInt(String name) throws ClassCastException
+	{
+	    return (Integer)allPrefs.get(name).value();
+	}
+	
+	public static Boolean valueBoolean(String name) throws ClassCastException
+	{
+	    return (Boolean)allPrefs.get(name).value();
+	}
+	
+	public static Float valueFloat(String name) throws ClassCastException
+	{
+	    return (Float)allPrefs.get(name).value();
+	}
+	
+	public static String valueString(String name) throws ClassCastException
+	{
+	    return (String)allPrefs.get(name).value();
+	}
+	
+	// TODO: get preferenceRegistry functions from Preference.java
+	
 	public static Pref lookup(String key)
 	{
 		return allPrefs.get(key);
 	}
 	public static void main(String[] a)
 	{
-		PrefInt ti	= (PrefInt) lookup(a[0]);
+		//PrefInt ti	= (PrefInt) lookup(a[0]);
 		
-		int i	= (int) ti.value();
+		//int i	= (int) ti.value();
+		
+		PrefInt ii = new PrefInt(5);
+		int ix	= (int) ii.value();
+		println("ix = " + ix);
+		
+		PrefBoolean ib = new PrefBoolean(true);
+		boolean bi = ib.value();
+		println("bi = " + bi);
+		
+		PrefString is = new PrefString("this is a test");
+		String si = is.value();
+		println("si = " + si);
+		
+		PrefFloat il = new PrefFloat(1645);
+		float li = il.value();
+		println("li = " + li);
 	}
 }
