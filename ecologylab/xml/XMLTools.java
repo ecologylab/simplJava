@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.io.File;
 import java.io.StringBufferInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,9 +13,13 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -750,6 +755,11 @@ static String q(String string)
     {
 		return ElementState.buildDOM(new StringBufferInputStream(contents));
     }
+    
+    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
+    {
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    }
 	
 	/**
 	 * Pretty printing xml, properly indented according to hierarchy.
@@ -760,20 +770,38 @@ static String q(String string)
     {
         try
         {
-            StringBufferInputStream s       =     new StringBufferInputStream(plainXml);
-            DocumentBuilderFactory f        =     DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder         =     f.newDocumentBuilder();
-            Document doc                    =     builder.parse(s);
-            Transformer transformer         =     TransformerFactory.newInstance().newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-            transformer.transform(new DOMSource(doc), out);
+            DocumentBuilder builder		= getDocumentBuilder();
+            Document doc                = builder.parse(plainXml);
+            writePrettyXml(doc, out);
         }
         catch(Exception e)
         {
              e.printStackTrace();
         }
-    }   
+    } 
+    
+    public static void writePrettyXml(File xmlFile, StreamResult out)
+    {
+    	try
+        {
+    		DocumentBuilder builder		= getDocumentBuilder();
+            Document doc                = builder.parse(xmlFile);
+            writePrettyXml(doc, out);
+        }
+        catch(Exception e)
+        {
+             e.printStackTrace();
+        }
+    }
+    
+    private static void writePrettyXml(Document xmlDoc, StreamResult out) 
+    throws TransformerFactoryConfigurationError, TransformerException
+    {
+    	Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        transformer.transform(new DOMSource(xmlDoc), out);
+    }
 
 	/**
 	 * This method needs to be called when the users want compression of the generated xml
