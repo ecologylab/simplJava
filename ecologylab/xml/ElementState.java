@@ -1582,40 +1582,40 @@ implements ParseTableEntryTypes
   	}
 
 	//////////////// methods to generate XML, and write to a file /////////////
-/**
+	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression)
+	throws XmlTranslationException
+	{
+		if(!filePath.endsWith(".xml") && !filePath.endsWith(".XML"))
+		{
+			filePath	= filePath + ".xml";
+		}
+		saveXmlFile(new File(filePath), prettyXml, compression);
+	}
+	/**
  * 	Translate to XML, then write the result to a file.
  * 
  * 	@param filePath		the file in which the xml needs to be saved
  * 	@param prettyXml	whether the xml should be written in an indented fashion
  *  @param compression	whether the xml should be compressed while being emitted
  */	
-	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression)
+	public void saveXmlFile(File xmlFile, boolean prettyXml, boolean compression)
 		throws XmlTranslationException
 	{
-		final String xml = translateToXMLWithHeader(compression);
-
+		final String xmlString = translateToXMLWithHeader(compression);
+		
 		//write the Xml in the file		
 		try
 		{
-			String xmlFileName = filePath;
-			if(!filePath.endsWith(".xml") && !filePath.endsWith(".XML"))
-			{
-				xmlFileName = filePath + ".xml";
-			}
-			else
-			{
-				filePath	=	filePath.substring(0,filePath.indexOf(".xml"));
-			}
 		 if (prettyXml)
 		 {
-		 	XmlTools.writePrettyXml(xml, new StreamResult(new File(xmlFileName)));
+		 	XmlTools.writePrettyXml(xmlString, new StreamResult(xmlFile));
 		 }
 		 
 			else
 			{
-				FileOutputStream out = new FileOutputStream(new File(xmlFileName));
-				PrintStream p = new PrintStream(out);
-				p.println(xml);
+				FileOutputStream out 	= new FileOutputStream(xmlFile);
+				PrintStream p 			= new PrintStream(out);
+				p.println(xmlString);
 				p.close();
 			}
 		}
