@@ -6,8 +6,8 @@ import java.util.ArrayList;
  * An {@link java.util.ArrayList ArrayList}, extended with convenient
  * connections to our {@link Debug Debug} methods.
  */
-public class ArrayListDebug
-extends ArrayList
+public class ArrayListDebug<T>
+extends ArrayList<T>
 {
    protected ArrayListDebug()
    {
