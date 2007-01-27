@@ -323,7 +323,7 @@ implements ApplicationProperties
 		File zipFileDestination	= Files.newFile(targetDir, zipFileName);
 		if (forceDownload || !zipFileDestination.canRead() || !AssetsState.localVersionIsUpToDate(zipFileName, version))
 		{
-			ZipDownload downloadingZip	= ZipDownload.downloadAndUncompressZip(sourceZip, targetDir, status);
+			ZipDownload downloadingZip	= ZipDownload.downloadAndPerhapsUncompress(sourceZip, targetDir, status, true);
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();
