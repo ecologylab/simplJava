@@ -30,7 +30,6 @@ extends Debug
 implements Environment
 {
 	protected static final String PREFERENCES_SUBDIR_PATH		= "config/preferences/";
-	protected static final String ASSETS_VERSION_NAME			= "assets.xml";
 
 //	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.xml";
@@ -243,17 +242,6 @@ implements Environment
 			}
 			else
 				argStack.push(arg);
-		}
-
-		//load the Assets version file here.
-		try 
-		{
-			AssetsState.loadAssetVersions(ASSETS_VERSION_NAME, false);
-		} 
-		catch (XmlTranslationException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 
 		arg						= pop(argStack);
