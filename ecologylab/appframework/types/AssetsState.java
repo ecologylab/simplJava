@@ -214,7 +214,7 @@ import ecologylab.xml.types.element.ArrayListState;
 		if (!xmlFileDestination.canRead())
 		{
 			//we just want to download it, not uncompress it... (using code from zip downloading stuff)
-			ZipDownload downloadingZip	= ZipDownload.downloadFile(sourceXML, targetDir, status);
+			ZipDownload downloadingZip	= ZipDownload.downloadAndPerhapsUncompress(sourceXML, targetDir, status, false);
 			if (downloadingZip != null) // null if already available locally or error
 			{
 				downloadingZip.waitForDownload();
