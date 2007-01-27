@@ -269,9 +269,10 @@ implements Downloadable, DispatchTarget
 	 * directory structure will be created if it doesn't exist.
 	 * @param status The StatusReporter object that provides a source of state change visiblity;
 	 * can be null.
+	 * @param uncompress	true if the file is a zip that needs to be uncompressed after download.
 	 * @return TODO
 	 */
-	public static ZipDownload downloadAndUncompressZip(ParsedURL sourceZip, File targetDir, StatusReporter status)
+	public static ZipDownload downloadAndPerhapsUncompress(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean unCompress)
 	{
 		//Create the target parent directory. 
 	   	if (!targetDir.exists())
@@ -304,7 +305,7 @@ implements Downloadable, DispatchTarget
 			{
 				String fileName			= sourceZip.getName();
 				ZipDownload zipDownload = new ZipDownload(sourceZip, Files.newFile(targetDir, fileName), status);
-				zipDownload.downloadAndWrite(true);
+				zipDownload.downloadAndWrite(unCompress);
 				return zipDownload;
 			}
 		} catch(IOException e)
@@ -315,54 +316,6 @@ implements Downloadable, DispatchTarget
 		}      
 	}
 
-	/**
-	 * Convenience function to allow downloading of any file from 
-	 * a source to a target location with minimal effort.
-	 * 
-	 * @param source The location of the file to download and uncompress.
-	 * @param targetDir The location where the file should be copied to. This
-	 * directory structure will be created if it doesn't exist.
-	 * @param status The StatusReporter object that provides a source of state change visiblity;
-	 * can be null.
-	 * @return TODO
-	 */
-	public static ZipDownload downloadFile(ParsedURL sourceURL, File targetDir, StatusReporter status)
-	{
-		//Create the target parent directory. 
-	   	if (!targetDir.exists())
-	   		targetDir.mkdirs();
-	   	
-	   	println("downloading from file URL: " + sourceURL +"\n\t to " + targetDir);
-		try
-		{    	         
-			// if this URL exists, then copy it over
-			if (sourceURL.isFile())
-			{
-				// copy file from assets source to cache
-				File sourceFile		= sourceURL.file();
-				String fileName		= sourceFile.getName();
-				File destFile		= Files.newFile(targetDir, fileName);
-
-//				println("Checking if dir exists: " + destFileDir.toString());
-				
-				StreamUtils.copyFile(sourceFile, destFile);
-				return null;
-			}
-			else
-			{
-				String fileName			= sourceURL.getName();
-				ZipDownload zipDownload = new ZipDownload(sourceURL, Files.newFile(targetDir, fileName), status);
-				zipDownload.downloadAndWrite(true);
-				return zipDownload;
-			}
-		} catch(IOException e)
-		{
-			System.out.println("Error, zip file not found on the server!");
-			e.printStackTrace();
-			return null;
-		}      
-	}
-	
 	/**
 	 * Extracts a zip file into the directory where it resides
 	 * 
