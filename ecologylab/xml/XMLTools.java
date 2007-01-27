@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -24,6 +25,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.Type;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -768,9 +770,9 @@ static String q(String string)
     {
         try
         {
-            DocumentBuilder builder		= getDocumentBuilder();
-            Document doc                = builder.parse(new StringBufferInputStream(plainXml));
-            writePrettyXml(doc, out);
+    		Document doc	= ElementState.buildDOMFromXMLString(plainXml);
+
+    		writePrettyXml(doc, out);
         }
         catch(Exception e)
         {
