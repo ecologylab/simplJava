@@ -12,7 +12,7 @@ import ecologylab.xml.ElementState;
  * @author andruid
  *
  */
-public class MetaPref /* <T> */ extends ElementState
+public class MetaPref<T> extends ElementState
 {
 	/**
 	 * Unique identifier for Preference name with convenient lookup in automatically generated HashMap.
@@ -31,9 +31,18 @@ public class MetaPref /* <T> */ extends ElementState
 	@xml_attribute 	String		helpText;
 	
 	/**
+	 * Type of graphical user interface component used to interact with it.
+	 * Must be a constant defined in the interface WidgetTypes
+	 * If this value is left as null, it should default to TEXT_FIELD.
+	 */
+	@xml_attribute	String		widget;
+	
+	/**
 	 * Categories enable tabbed panes of preferences to be edited.
 	 */
 	@xml_attribute 	String		category;
+	
+	@xml_attribute	T			defaultValue;
 	
 //	@xml_nested		RangeState<T>	range;
 	/**

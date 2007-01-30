@@ -33,6 +33,10 @@ public class PrefInt extends Pref<Integer>
 		return value;
 	}
 	
+	public void setValue(Integer newValue)
+	{
+		setValue(newValue.intValue());
+	}
 	public void setValue(int value)
 	{
 		invalidate();

@@ -61,6 +61,14 @@ abstract public class Pref<T> extends ElementState
 	 */
 	abstract T getValue();
 	
+	/**
+	 * Generic value setter.
+	 * Uses boxed reference objects for primitives, which are a bit extra expensive.
+	 * 
+	 * @param newValue
+	 */
+	abstract void setValue(T newValue);
+	
 	protected void invalidate()
 	{
 		valueCached	= null;
