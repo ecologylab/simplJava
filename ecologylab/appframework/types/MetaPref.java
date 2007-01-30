@@ -42,7 +42,7 @@ public class MetaPref<T> extends ElementState
 	 */
 	@xml_attribute 	String		category;
 	
-	@xml_attribute	T			defaultValue;
+//	@xml_attribute	T			defaultValue;
 	
 //	@xml_nested		RangeState<T>	range;
 	/**
