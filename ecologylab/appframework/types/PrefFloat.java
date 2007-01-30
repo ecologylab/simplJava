@@ -33,6 +33,10 @@ public class PrefFloat extends Pref<Float>
 		return value;
 	}
 	
+	public void setValue(Float newValue)
+	{
+		setValue(newValue.floatValue());
+	}
 	public void setValue(float value)
 	{
 		invalidate();

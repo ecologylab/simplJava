@@ -33,6 +33,10 @@ public class PrefBoolean extends Pref<Boolean>
 		return value;
 	}
 	
+	public void setValue(Boolean newValue)
+	{
+		setValue(newValue.booleanValue());
+	}
 	public void setValue(boolean value)
 	{
 		invalidate();
