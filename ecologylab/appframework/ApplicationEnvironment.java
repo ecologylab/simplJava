@@ -364,20 +364,8 @@ implements Environment
 	static final String SAFARI_PATH_MAC			= "/Applications/Safari.app/Contents/MacOS/Safari";
 	static final String IE_PATH_WINDOWS			= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
 	
-	static File	firefoxFileCache;
-	
 	static String browserPath;
 	
-	static File getFirefoxFile()
-	{
-		File result		= firefoxFileCache;
-		if (result == null)
-		{
-			result		= new File(FIREFOX_PATH_WINDOWS);
-			firefoxFileCache	= result;
-		}
-		return result;
-	}
 	/**
 	 * Get the operating system dependent path to a suitable web browser for navigating to a web page.
 	 * This is also dependent on what web browser(s) the user has installed.
@@ -400,9 +388,12 @@ implements Environment
 				{
 					File existentialTester	= new File(result);
 					if (!existentialTester.exists())
-						result		= null;
-//					else
-//						result		+= " -new-tab";
+					{
+						result					= IE_PATH_WINDOWS;
+						existentialTester	= new File(result);
+						if (!existentialTester.exists())
+							result			= null;
+					}
 				}
 				break;
 			case PropertiesAndDirectories.MAC:
@@ -416,25 +407,69 @@ implements Environment
 			{
 				browserPath			= result;
 			}
-			else
-			{
-				switch (os)
-				{
-				case PropertiesAndDirectories.WINDOWS:
-					result					= IE_PATH_WINDOWS;
-					File existentialTester	= new File(result);
-					if (existentialTester.exists())
-						browserPath			= result;
-					break;
-				default:
-					// already printed error message above
-					break;
-				}
-			}
 		}
 		return result;
 	}
 	
+	static String[]			cachedNavigateArgs;
+	
+	/**
+	 * Get the operating system dependent path to a suitable web browser for navigating to a web page.
+	 * This is also dependent on what web browser(s) the user has installed.
+	 * In particular, we use Firefox if it is in its normal place!
+	 * 
+	 * @return	String that specifies the OS and browser-specific command.
+	 */
+	static String[] getNavigateArgs()
+	{
+		int os				= PropertiesAndDirectories.os();
+		String[] result		= cachedNavigateArgs;
+		if (result == null)
+		{
+			switch (os)
+			{
+			case PropertiesAndDirectories.WINDOWS:
+				String path		= null;
+				if (!Preference.lookupBoolean("navigate_with_ie"))
+					path		= FIREFOX_PATH_WINDOWS;
+				if (path != null)
+				{
+					File existentialTester	= new File(path);
+					if (existentialTester.exists())
+					{	// cool! firefox
+						result		= new String[3];
+						result[0]	= path;
+						result[1]	= "-new-tab";
+					}
+				}
+				if (result == null)
+				{
+					path					= IE_PATH_WINDOWS;
+					File existentialTester	= new File(path);
+					if (existentialTester.exists())
+					{
+						result		= new String[2];
+						result[0]	= path;
+					}
+				}
+				break;
+			case PropertiesAndDirectories.MAC:
+				result		= new String[4];
+				result[0]	= "/usr/bin/open";
+				result[1]	= "-a";
+				result[2]	= "firefox";
+				break;
+			default:
+				error(PropertiesAndDirectories.getOsName(), "go(ParsedURL) not supported");
+				break;				
+			}
+			if (result != null)
+			{
+				cachedNavigateArgs	= result;
+			}
+		}
+		return result;
+	}
 	/**
 	 * Navigate to the purl using the best browser we can find.
 	 * 
@@ -443,17 +478,19 @@ implements Environment
 	 */
 	public void navigate(ParsedURL purl, String frame)
 	{
-		String path	= getBrowserPath();
-		if (path != null)
+		String[] navigateArgs	= getNavigateArgs();
+		if (navigateArgs != null)
 		{
-			String argv[]		= new String[2];
-			argv[0]				= path;
 			String purlString	= purl.toString();
-			argv[1]				= purlString;
-			Debug.println(path + " " + purlString);
+			int numArgs			= navigateArgs.length;
+			navigateArgs[numArgs - 1]	= purlString;
+			StringBuilder sb	= new StringBuilder();
+			for (int i=0; i<numArgs; i++)
+				sb.append(navigateArgs[i]).append(' ');
+			Debug.println("navigate: " + navigateArgs.toString());
 			try 
 			{
-				Process p = Runtime.getRuntime().exec(argv);
+				Process p = Runtime.getRuntime().exec(navigateArgs);
 			} catch (IOException e)
 			{
 				error("navigate() - caught exception: ");
