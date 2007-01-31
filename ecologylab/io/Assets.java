@@ -236,7 +236,12 @@ implements ApplicationProperties
 	 * @return	false if the assetRelativePath is null; otherwise true.
 	 */
 	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
-											boolean forceDownload, float version)
+											   boolean forceDownload)
+	{
+		return downloadInterfaceZip(assetRelativePath, status, forceDownload, AssetsState.IGNORE_VERSION);
+	}
+	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
+											   boolean forceDownload, float version)
 	{
 		if (assetRelativePath == null)
 			return false;
@@ -254,6 +259,11 @@ implements ApplicationProperties
 	 * @param assetRelativePath
 	 * @param status	Provide feedback to the user at the bottom of a window, or such.
 	 */
+	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
+										    boolean forceDownload)
+	{
+		downloadSemanticsZip(assetRelativePath, status, forceDownload, AssetsState.IGNORE_VERSION);
+	}
 	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
 											boolean forceDownload, float version)
 	{
