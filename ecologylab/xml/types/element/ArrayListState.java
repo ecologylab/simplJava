@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_nested;
 
 /**
  * An ElementState XML tree node for collecting a set of nested elements, using an ArrayList
@@ -122,11 +121,12 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
         return (set == null) ? 0 : set.size();
     }
 
-    @SuppressWarnings("unchecked") public Object clone()
+    @SuppressWarnings("unchecked") public ArrayListState<T> clone()
     {
-        ArrayListState clone = new ArrayListState();
+        ArrayListState<T> clone = new ArrayListState<T>();
 
-        clone.set = (ArrayList<T>)this.set.clone();
+        if (set != null)
+            clone.set = (ArrayList<T>) this.set.clone();
 
         return clone;
     }

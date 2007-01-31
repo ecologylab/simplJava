@@ -15,7 +15,7 @@ import ecologylab.xml.ElementState.xml_nested;
  */
 public class HashSetState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>
 {
-    private @xml_nested HashSet<T> set = null;
+    @xml_nested private HashSet<T> set;
 
     public HashSetState()
     {
@@ -73,11 +73,12 @@ public class HashSetState<T extends ElementState> extends ElementState implement
         return (set == null ? 0 : set.size());
     }
 
-    @SuppressWarnings("unchecked") public Object clone()
+    @SuppressWarnings("unchecked") public HashSetState<T> clone()
     {
-        HashSetState clone = new HashSetState();
+        HashSetState<T> clone = new HashSetState<T>();
 
-        clone.set = (HashSet<ElementState>) this.set().clone();
+        if (set != null)
+            clone.set = (HashSet<T>) this.set().clone();
 
         return clone;
     }

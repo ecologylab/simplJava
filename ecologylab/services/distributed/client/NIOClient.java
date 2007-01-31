@@ -517,7 +517,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                     }
                     catch (IndexOutOfBoundsException e)
                     {
-                        debug("don't have a complete message yet.");
+                        debug("don't have a complete message yet; total length is "+accumulator.length());
                         e.printStackTrace();
                         break;
                     }
