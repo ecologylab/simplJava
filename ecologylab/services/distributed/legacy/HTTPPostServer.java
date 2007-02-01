@@ -61,5 +61,15 @@ public class HTTPPostServer extends ServicesServer
 		}
 		return httpPostServer;
 	}
+	
+	public static void main(String args[])
+	{
+		HTTPPostServer validateionTestServer	= get(postServerPort, TranslationSpace.get("validateMessage", "testServer"), null);
+		
+		if (validateionTestServer != null)
+		{			
+			validateionTestServer.start();
+		}
+	}
 
 }
