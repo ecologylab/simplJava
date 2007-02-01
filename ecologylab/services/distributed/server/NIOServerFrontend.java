@@ -25,7 +25,12 @@ public interface NIOServerFrontend extends StartAndStoppable
      * @param sc
      * @param bs
      * @param bytesRead
-     * @throws BadClientException 
+     * @throws BadClientException
      */
-    void process(Object token, NIOServerBackend base, SocketChannel sc, byte[] bs, int bytesRead) throws BadClientException;
+    void processRead(Object token, NIOServerBackend base, SocketChannel sc,
+            byte[] bs, int bytesRead) throws BadClientException;
+ 
+    void accept(Object token, NIOServerBackend base, SocketChannel sc);
+    
+    void invalidate(Object token, NIOServerBackend base, SocketChannel sc);
 }

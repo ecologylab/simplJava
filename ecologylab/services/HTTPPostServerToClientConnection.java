@@ -16,7 +16,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author eunyee
  *
  */
-public class HTTPPostServerToClientConnection extends ServerToClientConnection
+@Deprecated public class HTTPPostServerToClientConnection extends ServerToClientConnection
 {
 
 	public HTTPPostServerToClientConnection(Socket incomingSocket, ServicesServer servicesServer) 

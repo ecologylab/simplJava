@@ -63,7 +63,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      * @see ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel, byte[], int)
      */
-    public void process(Object token, NIOServerBackend base, SocketChannel sc,
+    public void processRead(Object token, NIOServerBackend base, SocketChannel sc,
             byte[] bs, int bytesRead) throws BadClientException
     {
         if (bytesRead > 0)
@@ -197,6 +197,28 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
     {
         // TODO Auto-generated method stub
 
+    }
+
+    /**
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#accept(java.lang.Object, ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+     */
+    public void accept(Object token, NIOServerBackend base, SocketChannel sc)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /**
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object, ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+     */
+    public void invalidate(Object token, NIOServerBackend base, SocketChannel sc)
+    {
+        ContextManager cm = contexts.remove(sc);
+
+        if (cm != null)
+        {
+            cm.shutdown();
+        }
     }
 
 }

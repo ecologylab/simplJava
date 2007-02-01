@@ -89,8 +89,6 @@ public class NIOServerBackend extends ServicesServerBase implements
 
     private Thread                                             thread;
 
-    private int                                                numConnections;
-
     private NIOServerFrontend                                  sAP;
 
     private ByteBuffer                                         readBuffer                = ByteBuffer
@@ -141,6 +139,7 @@ public class NIOServerBackend extends ServicesServerBase implements
     {
         try
         {
+            sAP.invalidate(null, this, chan);
             InetAddress address = chan.socket().getInetAddress();
 
             chan.close();
@@ -176,7 +175,7 @@ public class NIOServerBackend extends ServicesServerBase implements
         // decrement numConnections &
         // if the server disabled new connections due to hitting
         // max_connections, re-enable
-        if (numConnections-- == MAX_CONNECTIONS)
+        if (selector.keys().size() < MAX_CONNECTIONS)
         {
             // acquire the static ServerSocketChannel object
             ServerSocketChannel channel;
@@ -534,9 +533,7 @@ public class NIOServerBackend extends ServicesServerBase implements
             if (numConn < MAX_CONNECTIONS)
             { // the keyset includes this side of the connection
 
-                numConnections++;
-
-                if (numConnections == MAX_CONNECTIONS)
+                if (numConn-1 == MAX_CONNECTIONS)
                 {
                     debug("Maximum connections reached; disabling accept until a client drops.");
 
@@ -717,7 +714,7 @@ public class NIOServerBackend extends ServicesServerBase implements
             readBuffer.flip();
             readBuffer.get(bytes);
 
-            this.sAP.process(key.attachment(), this, sc, bytes, bytesRead);
+            this.sAP.processRead(key.attachment(), this, sc, bytes, bytesRead);
         }
 
         this.keyActivityTimes.put(key, new Long(System.currentTimeMillis()));
