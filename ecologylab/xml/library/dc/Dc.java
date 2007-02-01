@@ -8,7 +8,7 @@ import ecologylab.xml.ElementState.xml_leaf;
 /**
  * Dublin Core Metadata Element Set, as defined at
  * 
- * {@link http://dublincore.org/documents/dces/ http://dublincore.org/documents/dces/}.
+ * 
  * 
  * There is no enclosing parent element in the XML markup.
  *
