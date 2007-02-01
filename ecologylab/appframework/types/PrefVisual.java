@@ -20,12 +20,13 @@ import javax.swing.JRadioButton;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class PrefVisual {
 
 	private JTabbedPane jTabbedPane = null;
 	private JButton jButton = null;  //  @jve:decl-index=0:visual-constraint="708,77"
-	private JDialog jDialog = null;  //  @jve:decl-index=0:visual-constraint="214,65"
+	private JDialog jDialog = null;  //  @jve:decl-index=0:visual-constraint="159,42"
 	private JPanel jContentPane = null;
 	private JButton jButton1 = null;
 	private JButton jButton2 = null;
@@ -51,6 +52,17 @@ public class PrefVisual {
 	private JRadioButton use_dashboardNo = null;
 	private JLabel elements_per_square_inch = null;
 	private JTextField elements_per_square_inchField = null;
+	private JLabel undo_levels = null;
+	private JTextField undo_levelsField = null;
+	private JLabel log_mode = null;
+	private JRadioButton log_modeNone = null;
+	private JRadioButton log_modeDesktop = null;
+	private JRadioButton log_modeServer = null;
+	private JLabel javascript_debug_mode = null;
+	private JRadioButton javascript_debug_modeYes = null;
+	private JRadioButton javascript_debug_modeNo = null;
+	private JLabel codebase = null;
+	private JTextField codebaseField = null;
 	/**
 	 * This method initializes jTabbedPane	
 	 * 	
@@ -206,8 +218,35 @@ public class PrefVisual {
 	 */
 	private JPanel getJContentPane2() {
 		if (jContentPane2 == null) {
+			codebase = new JLabel();
+			codebase.setBounds(new Rectangle(30, 240, 268, 16));
+			codebase.setText("Jar File Directory");
+			codebase.setToolTipText("");
+			javascript_debug_mode = new JLabel();
+			javascript_debug_mode.setBounds(new Rectangle(30, 180, 197, 16));
+			javascript_debug_mode.setText("Javascript Debug Mode");
+			javascript_debug_mode.setToolTipText("");
+			log_mode = new JLabel();
+			log_mode.setBounds(new Rectangle(30, 105, 271, 16));
+			log_mode.setText("Log Mode");
+			log_mode.setToolTipText("");
+			undo_levels = new JLabel();
+			undo_levels.setBounds(new Rectangle(30, 30, 271, 16));
+			undo_levels.setText("Undo Levels");
+			undo_levels.setToolTipText("");
 			jContentPane2 = new JPanel();
 			jContentPane2.setLayout(null);
+			jContentPane2.add(undo_levels, null);
+			jContentPane2.add(getUndo_levelsField(), null);
+			jContentPane2.add(log_mode, null);
+			jContentPane2.add(getLog_modeNone(), null);
+			jContentPane2.add(getLog_modeDesktop(), null);
+			jContentPane2.add(getLog_modeServer(), null);
+			jContentPane2.add(javascript_debug_mode, null);
+			jContentPane2.add(getJavascript_debug_modeYes(), null);
+			jContentPane2.add(getJavascript_debug_modeNo(), null);
+			jContentPane2.add(codebase, null);
+			jContentPane2.add(getCodebaseField(), null);
 		}
 		return jContentPane2;
 	}
@@ -394,6 +433,114 @@ public class PrefVisual {
 			elements_per_square_inchField.setText("0.7");
 		}
 		return elements_per_square_inchField;
+	}
+
+	/**
+	 * This method initializes undo_levelsField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getUndo_levelsField() {
+		if (undo_levelsField == null) {
+			undo_levelsField = new JTextField();
+			undo_levelsField.setBounds(new Rectangle(451, 28, 55, 20));
+			undo_levelsField.setHorizontalAlignment(JTextField.CENTER);
+			undo_levelsField.setText("32");
+		}
+		return undo_levelsField;
+	}
+
+	/**
+	 * This method initializes log_modeNone	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeNone() {
+		if (log_modeNone == null) {
+			log_modeNone = new JRadioButton();
+			log_modeNone.setBounds(new Rectangle(417, 78, 85, 24));
+			log_modeNone.setText("no logging");
+			log_modeNone.setHorizontalTextPosition(SwingConstants.TRAILING);
+			log_modeNone.setSelected(false);
+		}
+		return log_modeNone;
+	}
+
+	/**
+	 * This method initializes log_modeDesktop	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeDesktop() {
+		if (log_modeDesktop == null) {
+			log_modeDesktop = new JRadioButton();
+			log_modeDesktop.setBounds(new Rectangle(417, 100, 131, 24));
+			log_modeDesktop.setSelected(true);
+			log_modeDesktop.setText("log to desktop file");
+			log_modeDesktop.setHorizontalTextPosition(SwingConstants.TRAILING);
+		}
+		return log_modeDesktop;
+	}
+
+	/**
+	 * This method initializes log_modeServer	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeServer() {
+		if (log_modeServer == null) {
+			log_modeServer = new JRadioButton();
+			log_modeServer.setBounds(new Rectangle(417, 122, 148, 24));
+			log_modeServer.setSelected(false);
+			log_modeServer.setText("log to logging server");
+			log_modeServer.setHorizontalTextPosition(SwingConstants.TRAILING);
+		}
+		return log_modeServer;
+	}
+
+	/**
+	 * This method initializes javascript_debug_modeYes	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getJavascript_debug_modeYes() {
+		if (javascript_debug_modeYes == null) {
+			javascript_debug_modeYes = new JRadioButton();
+			javascript_debug_modeYes.setBounds(new Rectangle(417, 176, 46, 24));
+			javascript_debug_modeYes.setText("Yes");
+			javascript_debug_modeYes.setSelected(true);
+		}
+		return javascript_debug_modeYes;
+	}
+
+	/**
+	 * This method initializes javascript_debug_modeNo	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getJavascript_debug_modeNo() {
+		if (javascript_debug_modeNo == null) {
+			javascript_debug_modeNo = new JRadioButton();
+			javascript_debug_modeNo.setBounds(new Rectangle(494, 176, 40, 24));
+			javascript_debug_modeNo.setText("No");
+			javascript_debug_modeNo.setName("No");
+		}
+		return javascript_debug_modeNo;
+	}
+
+	/**
+	 * This method initializes codebaseField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getCodebaseField() {
+		if (codebaseField == null) {
+			codebaseField = new JTextField();
+			codebaseField.setBounds(new Rectangle(414, 238, 130, 20));
+			codebaseField.setHorizontalAlignment(JTextField.CENTER);
+			codebaseField.setText("code/java");
+		}
+		return codebaseField;
 	}
 
 }
