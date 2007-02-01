@@ -187,6 +187,9 @@ implements Environment
 		
 		PropertiesAndDirectories.setApplicationName(applicationName);
 
+		// setup os specific system preferences
+		PropertiesAndDirectories.setOSSpecificProperties();
+		
 		if (translationSpace == null)
 			translationSpace	= DefaultServicesTranslations.get();
 		

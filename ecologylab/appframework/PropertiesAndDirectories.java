@@ -442,4 +442,15 @@ extends Debug
 	{
 		return System.getProperty("http.agent") == null;
 	}
+	
+	public static void setOSSpecificProperties()
+	{
+		switch (os())
+		{
+		case MAC:
+			System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationName);
+		}
+		
+	}
 }
