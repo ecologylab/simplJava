@@ -12,17 +12,12 @@ public class FileType extends Type
 {
 
     /**
-     * @param className
-     * @param isPrimitive
      */
     public FileType()
     {
         super(File.class);
     }
 
-    /* (non-Javadoc)
-     * @see ecologylab.types.Type#getInstance(java.lang.String)
-     */
     @Override public Object getInstance(String value)
     {
         return new File(value);

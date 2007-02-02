@@ -219,7 +219,7 @@ public interface Environment
       
       /**
        * The registry of Preferences for this Environment.
-       * @return
+       * @return registry of Preferences for this Environment.
        */
       public ObjectRegistry preferencesRegistry()
       {
@@ -274,11 +274,6 @@ public interface Environment
      * @param	code -- 0 for normal. other values are application specific.
      */
     void exit(int code);
-
-/**
- * @return an URL relative to html document
- */   
-//   URL rel(String relativeURL);
 
    public static final int	APPLICATION	= -1;
    public static final int	IE		= 0;

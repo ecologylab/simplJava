@@ -529,10 +529,10 @@ implements Environment
 	/**
 	 * Form the parameter file path.
 	 * Use the 0th argument if there is one, to find a file in config.
-	 * If not, use config/interface/paramts.txt.
+	 * If not, use config/interface/params.txt.
 	 * 
 	 * @param args
-	 * @return
+	 * @return	preferences file path
 	 */
 	public static String preferencesFileRelativeFromArg0(String[] args) 
 	{
@@ -563,7 +563,7 @@ implements Environment
 	 * Find a complex object set in preferences.
 	 * 
 	 * @param name
-	 * @return
+	 * @return	ElementState preference object.
 	 */
 	public static ElementState lookupElementStatePreference(String name)
 	{
@@ -582,7 +582,8 @@ implements Environment
 	}
 	/**
 	 * Translation space used to parse Preferences for this Application.
-	 * @return
+	 * 
+	 * @return	TranslationSpace in use for parsing Preferences
 	 */
 	public TranslationSpace translationSpace()
 	{

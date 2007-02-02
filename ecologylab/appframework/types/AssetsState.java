@@ -166,7 +166,7 @@ import ecologylab.xml.types.element.ArrayListState;
 	 * Use the cacheRoot to produce a File object using the specified relative path.
 	 * 
 	 * @param assetRelativePath
-	 * @return
+	 * @return	File object for the path, relative to the cacheRoot.
 	 */
 	protected static File getCachedAssetsVersionFileFile(String assetRelativePath)
 	{
@@ -197,8 +197,8 @@ import ecologylab.xml.types.element.ArrayListState;
 	 * do nothing.
 	 * @param status The Status object that provides a source of state change visiblity;
 	 * can be null.
-	 * @param source The location of the zip file to download and uncompress.
-	 * @param target The location where the zip file should be uncompressed. This
+	 * @param sourceXML The location of the zip file to download and uncompress.
+	 * @param targetDir The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
 	 */
 	public static void downloadXML(ParsedURL sourceXML, File targetDir, StatusReporter status)

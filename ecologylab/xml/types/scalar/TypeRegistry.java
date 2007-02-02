@@ -118,7 +118,7 @@ public class TypeRegistry extends Debug
 /**
  * Get the Type corresponding to the Field, by using the Field's Class.
  * @param field
- * @return
+ * @return	Type associated with the class of the specified Field
  */
 	public static Type getType(Field field)
 	{
@@ -127,7 +127,7 @@ public class TypeRegistry extends Debug
 	/**
 	 * Get the Type corresponding to the Class, by using its name.
 	 * @param thatClass
-	 * @return
+	 * @return	Type associated with thatClass
 	 */
 	public static Type getType(Class thatClass)
 	{
@@ -136,7 +136,7 @@ public class TypeRegistry extends Debug
 	/**
 	 * Get the Type corresponding to the Class name.
 	 * @param className
-	 * @return
+	 * @return	Type associated with class of the specified name
 	 */
 	public static final Type getType(String className)
 	{
@@ -145,7 +145,7 @@ public class TypeRegistry extends Debug
 	/**
 	 * Check to see if we have a Type corresponding to the Class, by using its name.
 	 * @param thatClass
-	 * @return
+	 * @return	true if thatClass is in this TypeRegistry
 	 */
 	public static boolean contains(Class thatClass)
 	{
@@ -153,8 +153,8 @@ public class TypeRegistry extends Debug
 	}
 	/**
 	 * Check to see if we have a Type corresponding to the Class name.
-	 * @param thatClass
-	 * @return
+	 * @param className
+	 * @return	true if a class with this name is in this TypeRegistry
 	 */
 	public static boolean contains(String className)
 	{

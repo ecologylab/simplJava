@@ -410,7 +410,7 @@ extends Debug
 	 * Path to the Java deployment properties file.
 	 * This is, among other things, where Java Plug-in properties are stored.
 	 * 
-	 * @return
+	 * @return	Properties File for Java deployment.
 	 */
 	public static File javaDeploymentProfile()
 	{

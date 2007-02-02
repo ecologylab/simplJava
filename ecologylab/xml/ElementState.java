@@ -1727,7 +1727,7 @@ implements ParseTableEntryTypes
 	 * 
 	 * @param field
 	 * @param fieldValue
-	 * @return
+	 * @return	true if the Field is set successfully.
 	 */
 	protected boolean setFieldUsingTypeRegistry(Field field, String fieldValue)
 	{

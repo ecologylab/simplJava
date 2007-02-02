@@ -36,7 +36,7 @@ public class Memory
 /**
  * Prod the garbage collector, and print a message about memory status.
  * 
- * @param		Part of the message to be printed, to identify call site.
+ * @param s		Part of the message to be printed, to identify call site.
  */
    public static synchronized void reclaim(String s)
    {

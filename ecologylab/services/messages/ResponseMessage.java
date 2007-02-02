@@ -18,7 +18,7 @@ import ecologylab.xml.xml_inherit;
     /**
      * Let's the client easily test for OK or error.
      * 
-     * @return
+     * @return	true if the response is not an error of some kind.
      */
     public abstract boolean isOK();
 

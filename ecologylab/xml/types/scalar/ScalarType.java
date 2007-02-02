@@ -59,7 +59,6 @@ public class Type extends Debug
 
     /**
      * Set the field represented to the value of
-     * @param nestedObj.
      * 
      * Many different types of exceptions may be thrown. These include IllegalAccessException on the
      * one hand, which would come from problemswith using reflection to access the Field. This is
@@ -222,7 +221,7 @@ public class Type extends Debug
     /**
      * Get the class object for the Type for which this manages conversion.
      * 
-     * @return
+     * @return	Class associated with this Type.
      */
     public Class getTypeClass()
     {

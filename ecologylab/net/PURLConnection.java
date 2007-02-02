@@ -18,11 +18,8 @@ public class PURLConnection extends Debug
 
 	/**
 	 * Fill out the instance of this resulting from a succcessful connect().
-	 * @param purl TODO
 	 * @param urlConnection
-	 * @param inStream
-	 * @param container
-	 * @param infoCollector
+	 * @param inputStream
 	 */
 	//TODO change to package level access when ParsedURL moves
 	public PURLConnection(URLConnection urlConnection, InputStream inputStream)

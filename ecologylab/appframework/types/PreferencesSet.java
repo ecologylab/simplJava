@@ -32,8 +32,8 @@ implements ApplicationPropertyNames
 	 * it belongs in a Collection.
 	 * This method tells us which collection object that would be.
 	 * 
-	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
-	 * @return
+	 * @param thatClass		The type of the ElementState superclass that could be stored in a Collection.
+	 * @return		Collection for objects of the specified type.
 	 */
 	protected Collection getCollection(Class thatClass)
 	{

@@ -47,7 +47,7 @@ public class CFMessagesTranslations extends Debug
 
 	/**
 	 * This accessor will work from anywhere, in any order, and stay efficient.
-	 * @return
+	 * @return	TranslationSpace for cF services.
 	 */
 	public static TranslationSpace get()
 	{

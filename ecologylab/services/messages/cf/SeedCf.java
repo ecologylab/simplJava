@@ -83,7 +83,7 @@ public class SeedCf extends RequestMessage
 	 * and the real functionality is on the server.
 	 * 
 	 * @param objectRegistry
-	 * @return
+	 * @return	null
 	 */
 	@Override
 	public ResponseMessage performService(ObjectRegistry objectRegistry)

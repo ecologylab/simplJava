@@ -88,7 +88,7 @@ public @xml_inherit class Preference extends ArrayListState
 	/**
 	 * The default ObjectRegistry that preferences are stored in for the current application's Environment.
 	 * 
-	 * @return
+	 * @return	ObjectRegistry that Preferences are stored in
 	 */
 	protected static ObjectRegistry preferencesRegistry()
 	{
@@ -96,8 +96,6 @@ public @xml_inherit class Preference extends ArrayListState
 	}
 	/**
 	 * Register this into the Environment's default preferencesRegistry.
-	 * 
-	 * @param preferencesRegistry
 	 */
 	public void register()
 	{
