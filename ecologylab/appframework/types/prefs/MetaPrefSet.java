@@ -9,7 +9,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author Cae
  *
  */
-public class MetaPrefSet extends ArrayListState 
+public class MetaPrefSet extends ArrayListState<MetaPref>
 {
 
 	/**
