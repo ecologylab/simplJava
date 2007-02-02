@@ -756,7 +756,7 @@ static String q(String string)
 		return ElementState.buildDOM(new StringBufferInputStream(contents));
     }
     
-    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
+    public static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
     {
         return DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
