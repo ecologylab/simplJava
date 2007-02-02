@@ -23,7 +23,7 @@ public class NIOTools extends Debug{
      * SEVERE to the logger of the package name. To force logging of errors, 
      * set the System property "org.geotools.io.debugBuffer" to "true".
      * @param buffer
-     * @see MappedByteBuffer
+     * See MappedByteBuffer
      * @return true if the operation was successful, false otherwise.
      */
 	public static boolean clean(final java.nio.ByteBuffer buffer) 

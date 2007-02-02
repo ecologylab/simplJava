@@ -44,7 +44,7 @@ import ecologylab.xml.xml_inherit;
     }
 
     /**
-     * @override Attempts to log the user specified by entry from the system; if
+     * Attempts to log the user specified by entry from the system; if
      *           they are already logged in; if not, sends a failure response.
      */
     public ResponseMessage performService(ObjectRegistry objectRegistry)

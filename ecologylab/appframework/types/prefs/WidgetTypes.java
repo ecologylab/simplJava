@@ -1,4 +1,4 @@
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
 /**
  * Types of graphical user interface components for interactive setting / editing

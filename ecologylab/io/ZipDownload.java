@@ -86,9 +86,6 @@ implements Downloadable, DispatchTarget
 			downloadMonitor.stop();
 	}
 	
-	/**
-	 * @see downloadAndWrite(boolean)
-	 */
 	public void downloadAndWrite()
 	{
 		downloadAndWrite(false);

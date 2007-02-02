@@ -29,7 +29,7 @@ public class LongType extends Type
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#setField(java.lang.reflect.Field, java.lang.String)
+	 * @see ecologylab.xml.types.scalar.Type#setField(Object, Field, String)
 	 */
 	public boolean setField(Object object, Field field, String value) 
 	{

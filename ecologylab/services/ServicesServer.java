@@ -31,7 +31,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ServicesServer extends ServicesServerBase
 {
-    private static final Pattern p = Pattern.compile("\\p{ASCII}*content-length\\s*:\\s*(\\d*)\\p{ASCII}*");
+    private static final Pattern p = Pattern.compile("content-length\\s*:\\s*(\\d*)\\s*");
     
     public static final int          NORMAL_SERVER             = 0;
 
@@ -58,7 +58,6 @@ public class ServicesServer extends ServicesServerBase
      *            TODO
      * @param requestTranslationSpace
      * @param objectRegistry
-     * @param serverType
      *            TODO
      * @return A server instance, or null if it was not possible to open a
      *         ServerSocket on the port on this machine.
@@ -293,7 +292,7 @@ public class ServicesServer extends ServicesServerBase
 
     /**
      * 
-     * @see ecologylab.services.ServicesServerBase#shutdownAndNotify(java.util.Collection)
+     * See ecologylab.services.ServicesServerBase#shutdownAndNotify(java.util.Collection)
      */
     public void shutdown()
     {

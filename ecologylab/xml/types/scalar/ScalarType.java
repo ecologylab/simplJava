@@ -58,10 +58,7 @@ public class Type extends Debug
     }
 
     /**
-     * Set the field represented by
-     * 
-     * @param field
-     *            in <code>this</code> to the value of
+     * Set the field represented to the value of
      * @param nestedObj.
      * 
      * Many different types of exceptions may be thrown. These include IllegalAccessException on the

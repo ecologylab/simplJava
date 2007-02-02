@@ -328,7 +328,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      * Causes this to stop accepting new requests, completes all pending
      * requests, closes, then notifies objectsToBeNotified.
      * 
-     * @see ecologylab.services.Shutdownable#shutdownAndNotify(java.util.Collection)
+     * See ecologylab.services.Shutdownable#shutdownAndNotify(java.util.Collection)
      */
     public void shutdown(Collection<Object> objectsToBeNotified)
     {

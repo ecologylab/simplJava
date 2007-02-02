@@ -1,4 +1,4 @@
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
 import javax.swing.JTabbedPane;
 import java.awt.Dimension;
@@ -36,10 +36,10 @@ public class PrefVisual {
 	private JRadioButton crawlYes = null;
 	private JRadioButton crawlNo = null;
 	private JLabel crawl = null;
-	private JLabel download_images_automatically = null;
+	private JLabel download_images_automaticallyLabel = null;
 	private JRadioButton download_images_automaticallyYes = null;
 	private JRadioButton download_images_automaticallyNo = null;
-	private JLabel coolSpaceRatio = null;
+	private JLabel coolSpaceRatioLabel = null;
 	private JTextField coolSpaceRatioField = null;
 	private JLabel spatial_grid = null;
 	private JRadioButton spatial_gridYes = null;
@@ -163,38 +163,49 @@ public class PrefVisual {
 			elements_per_square_inch = new JLabel();
 			elements_per_square_inch.setBounds(new Rectangle(30, 300, 292, 16));
 			elements_per_square_inch.setText("Density: Visible elements per square inch [.1,20]");
-			elements_per_square_inch.setToolTipText("");
+			elements_per_square_inch.setToolTipText("Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch.<br><br>This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements.");
+			
 			use_dashboard = new JLabel();
 			use_dashboard.setBounds(new Rectangle(30, 255, 224, 16));
 			use_dashboard.setText("Enable the seeding dashboard?");
-			use_dashboard.setToolTipText("");
+			use_dashboard.setToolTipText("Use the seeding dashboard to dynamically filter searches and other seeds.");
+			
 			incontext_slider = new JLabel();
 			incontext_slider.setBounds(new Rectangle(30, 210, 341, 16));
 			incontext_slider.setText("Enable in-context slider?");
-			incontext_slider.setToolTipText("");
+			incontext_slider.setToolTipText("Use the in-context slider to enable fine-grained expression of interest in metadata fields and individual words.");
+			
 			spatial_grid = new JLabel();
 			spatial_grid.setBounds(new Rectangle(30, 165, 366, 16));
 			spatial_grid.setText("Composition agent automatically clusters related elements?");
-			spatial_grid.setToolTipText("");
-			coolSpaceRatio = new JLabel();
-			coolSpaceRatio.setBounds(new Rectangle(30, 120, 187, 16));
-			coolSpaceRatio.setToolTipText("Cool Space Ratio : The hot space is the composition area that you share with the program. The cool space is exclusively yours to work with.");
-			coolSpaceRatio.setText("Cool Space Ratio");
-			download_images_automatically = new JLabel();
-			download_images_automatically.setBounds(new Rectangle(30, 75, 289, 16));
-			download_images_automatically.setText("Download images automatically?");
+			spatial_grid.setToolTipText("Use the visual composition that automatically clusters related elements into piles. You may wish to move elements around, and sometimes, to re-cluster.");
+			
+			coolSpaceRatioLabel = new JLabel();
+			coolSpaceRatioLabel.setBounds(new Rectangle(30, 120, 187, 16));
+			coolSpaceRatioLabel.setToolTipText("The hot space is the composition area that you share with the program. The cool space is exclusively yours  to work with.<br><br>This parameter defines the proportion of the whole information space that is dedicated as the cool space, at startup time.");
+			coolSpaceRatioLabel.setText("Cool Space Ratio");
+			
+			download_images_automaticallyLabel = new JLabel();
+			download_images_automaticallyLabel.setBounds(new Rectangle(30, 75, 289, 16));
+			download_images_automaticallyLabel.setToolTipText("At startup, do you want the information collecting agent to download the images from the web pages it processes?");
+			download_images_automaticallyLabel.setText("Download images automatically?");
+			
 			crawl = new JLabel();
 			crawl.setBounds(new Rectangle(30, 30, 358, 16));
+			crawl.setToolTipText("At startup, do you want the information collecting agent to act as a web crawler, by periodically following hyperlinks to download more documents?");
 			crawl.setText("Download linked documents automatically (crawl)?");
+			
+			
+			
 			jContentPane1 = new JPanel();
 			jContentPane1.setLayout(null);
 			jContentPane1.add(crawl, null);
 			jContentPane1.add(getCrawlYes(), null);
 			jContentPane1.add(getCrawlNo(), null);
-			jContentPane1.add(download_images_automatically, null);
+			jContentPane1.add(download_images_automaticallyLabel, null);
 			jContentPane1.add(getDownload_images_automaticallyYes(), null);
 			jContentPane1.add(getDownload_images_automaticallyNo(), null);
-			jContentPane1.add(coolSpaceRatio, null);
+			jContentPane1.add(coolSpaceRatioLabel, null);
 			jContentPane1.add(getCoolSpaceRatioField(), null);
 			jContentPane1.add(spatial_grid, null);
 			jContentPane1.add(getSpatial_gridYes(), null);
@@ -221,19 +232,23 @@ public class PrefVisual {
 			codebase = new JLabel();
 			codebase.setBounds(new Rectangle(30, 240, 268, 16));
 			codebase.setText("Jar File Directory");
-			codebase.setToolTipText("");
+			codebase.setToolTipText("Directory for the project a developer is working on.");
+			
 			javascript_debug_mode = new JLabel();
 			javascript_debug_mode.setBounds(new Rectangle(30, 180, 197, 16));
 			javascript_debug_mode.setText("Javascript Debug Mode");
-			javascript_debug_mode.setToolTipText("");
+			javascript_debug_mode.setToolTipText("Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies & arrays");
+			
 			log_mode = new JLabel();
 			log_mode.setBounds(new Rectangle(30, 105, 271, 16));
 			log_mode.setText("Log Mode");
-			log_mode.setToolTipText("");
+			log_mode.setToolTipText("Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered.");
+			
 			undo_levels = new JLabel();
 			undo_levels.setBounds(new Rectangle(30, 30, 271, 16));
 			undo_levels.setText("Undo Levels");
-			undo_levels.setToolTipText("");
+			undo_levels.setToolTipText("The number of steps backwards you can go, by using undo, or the reverse button.");
+			
 			jContentPane2 = new JPanel();
 			jContentPane2.setLayout(null);
 			jContentPane2.add(undo_levels, null);

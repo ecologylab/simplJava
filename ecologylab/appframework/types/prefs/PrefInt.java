@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
 /**
  * @author andruid

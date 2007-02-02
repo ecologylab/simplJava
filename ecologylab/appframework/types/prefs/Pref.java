@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 import java.util.HashMap;

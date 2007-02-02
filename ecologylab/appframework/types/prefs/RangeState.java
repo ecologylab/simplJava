@@ -1,4 +1,4 @@
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.ElementState;
 

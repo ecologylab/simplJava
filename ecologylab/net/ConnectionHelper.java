@@ -4,7 +4,7 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * Provides callbacks during {@link PURLConnection.connect(ConnectionHelper) PURLConnection.connect},
+ * Provides callbacks during {@link ecologylab.net.ParsedURL#connect(ConnectionHelper) ParsedURL.connect},
  * to enable filtering and custom processing as the connect operation unfolds.
  *
  * @author andruid

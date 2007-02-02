@@ -6,7 +6,7 @@ import ecologylab.xml.ElementState.xml_leaf;
 /**
  * Root class for inserting elements from the Yahoo Media XML Namespace.
  * 
- * @see	{@link http://search.yahoo.com/mrss http://search.yahoo.com/mrss}.
+ * See	http://search.yahoo.com/mrss
  *
  * @author andruid
  */

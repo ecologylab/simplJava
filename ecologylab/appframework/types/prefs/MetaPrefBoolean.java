@@ -1,9 +1,9 @@
 /**
  * 
  */
-package ecologylab.appframework.types;
+package ecologylab.appframework.types.prefs;
 
-import ecologylab.appframework.types.MetaPref;
+import ecologylab.appframework.types.prefs.MetaPref;
 
 /**
  * Metadata about a Boolean Preference.

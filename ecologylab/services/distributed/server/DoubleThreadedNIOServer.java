@@ -60,7 +60,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 
     /**
      * @throws BadClientException
-     * @see ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
+     * See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel, byte[], int)
      */
     public void processRead(Object token, NIOServerBackend base, SocketChannel sc,

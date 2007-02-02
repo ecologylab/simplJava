@@ -84,7 +84,7 @@ implements Environment
 	 * @param applicationName
 	 * @param translationSpace		TranslationSpace used for translating preferences XML.
 	 * 								If this is null, 
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
 	 * @param args					Command line argument array, from public static void main(String[]).
 	 */
@@ -100,11 +100,11 @@ implements Environment
 	 * preferences file.
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * will be used.
 	 *  
 	 * @param applicationName
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
 	 * @param args					Command line argument array, from public static void main(String[]).
 	 */
@@ -125,7 +125,7 @@ implements Environment
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * will be used.
 	 *  
 	 * @param baseClass				Used for computing codeBase property.
@@ -166,14 +166,14 @@ implements Environment
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * will be used.
 	 * 
 	 * @param baseClass			Used for computing codeBase property.
 	 * @param applicationName	Name of the application.
 	 * @param translationSpace		TranslationSpace used for translating preferences XML.
 	 * 								If this is null, 
-	 * {@link ecologylab.services.message.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
 	 * @param args				The args array
 	 */
@@ -315,7 +315,7 @@ implements Environment
     { return APPLICATION;}
     
     /**
-     * @see ecologylab.appframework.Environment#showStatus(String)
+     * @see ecologylab.appframework.Environment#status(String)
      */
     public void showStatus(String s) 
     {
@@ -357,6 +357,13 @@ implements Environment
 	public ParsedURL docBase()
 	{
 		ParsedURL purl = new ParsedURL(new File(System.getProperty("user.dir")));
+		return purl;
+	}
+	
+	public ParsedURL preferencesDir()
+	{
+		ParsedURL codeBase = codeBase();
+		ParsedURL purl = codeBase.getRelative(PREFERENCES_SUBDIR_PATH, "forming preferences dir");
 		return purl;
 	}
 	

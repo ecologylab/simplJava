@@ -139,7 +139,6 @@ implements ApplicationProperties
 	 * 
 	 * @param relativePath	A string representing the relative file path. 
 	 * @return	A file reference tot he requested path
-	 * @see getAsset(String)
 	 */
 	public static File getAndPerhapsCreateAsset(String relativePath)
 	{
@@ -157,7 +156,7 @@ implements ApplicationProperties
 	 * 
 	 * @param relativePath	A string representing the relative file path. 
 	 * @return	A file reference to the requested path
-	 * @see getAsset(String, additionalContext)
+	 * @see #getAsset(String, String)
 	 */
 	public static File getAndPerhapsCreateAsset(String relativePath, String additionalContext)
 	{
