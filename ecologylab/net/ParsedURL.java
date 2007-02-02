@@ -87,10 +87,11 @@ extends Debug
    {
    		try
 		{
-   			String urlString = "file:///"+file.getAbsolutePath();
+   			String urlString	= "file:///"+file.getAbsolutePath();
+   			urlString			= urlString.replace('\\', '/');
    			if (file.isDirectory())
-   				urlString	+= "/";
-			this.url	= new URL(urlString);
+   				urlString	   += "/";
+			this.url			= new URL(urlString);
 		} catch (MalformedURLException e)
 		{
 			e.printStackTrace();
