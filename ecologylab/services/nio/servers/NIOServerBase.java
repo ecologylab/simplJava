@@ -62,7 +62,6 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
      * 
      * @param portNumber
      * @param inetAddress
-     * @param sAP
      * @param requestTranslationSpace
      * @param objectRegistry
      * @throws IOException

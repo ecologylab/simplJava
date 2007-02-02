@@ -102,8 +102,6 @@ public class NetTools extends Debug
  * HttpURLConnection.
  * 
  * @param urlConnection	a reference to a URLConnection.
- * 
- * @return	true if the URLConnection reference passed in is not null.
  */
 	public static void disconnect(URLConnection urlConnection)
 	{

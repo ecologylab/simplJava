@@ -82,7 +82,7 @@ public class FloatType extends Type
     }
 
     /**
-     * @Override Since FloatType is a floating point value, returns true.
+     * Since FloatType is a floating point value, returns true.
      * @return true
      */
     public boolean isFloatingPoint()

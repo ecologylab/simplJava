@@ -613,12 +613,6 @@ extends Debug
  * @param fromSearchPage If false, then add <code>/</code> to the end
  * of the URL if it seems to be a directory.
  * 
- * @param tossHash if true, eliminate everything after 
- *  <code>#</code> in the URL.
- * 
- * @param tossArgs if true, eliminate everything after <code>&</code>
- * in the URL.
- * 
  * @return	The resulting ParsedURL. It may be null. It will never have 
  *		protocol <code>javascript:</code>.
  */
@@ -764,18 +758,18 @@ extends Debug
    	  return StringTools.removePunctuation(toString());
    }
  
-   /*
-    * return true if they have same domains. 
-    * return false if they have different domains. 
+   /**
+    * @return 	true if they have same domains. 
+    * 			false if they have different domains. 
     */
    public boolean sameDomain(ParsedURL other)
    {
    		return (other != null) && domain().equals(other.domain());
    }
    
-   /*
-    * return true if they have same hosts.
-    * return false if they have different hosts.
+   /**
+    * @return true if they have same hosts.
+    * 		 false if they have different hosts.
     */
    public boolean sameHost(ParsedURL other)
    {
@@ -784,7 +778,8 @@ extends Debug
    
   
    /**
-    * @param lc	String form of a url, already converted to lower case.
+    * Use unsupportedMimes and protocolIsSupported to determine if this
+    * is content fit for processing.
     * 
     * @return true if this seems to be a web addr we can crawl to.
     * 			(currently that means html).
@@ -863,24 +858,40 @@ extends Debug
        return jpegSuffixMap.containsKey(suffix());
     }
     
-   /**
-    * @param	suffix	file name suffix in lower case.
-    */
+/**
+ * Test type of document this refers to.
+ * 
+ * @return	true if this refers to an HTML file
+ */
    public boolean isHTML()
    {
 	   return htmlSuffixMap.containsKey(suffix());
    }
    
+   /**
+    * Test type of document this refers to.
+    * 
+    * @return	true if this refers to a PDF file
+    */
    public boolean isPDF()
    {
    	   return pdfSuffixMap.containsKey(suffix());
    }
    
+   /**
+    * Test type of document this refers to.
+    * 
+    * @return	true if this refers to an RSS feed
+    */
    public boolean isRSS()
    {
    	   return rssSuffixMap.containsKey(suffix());
    }
    
+/**
+ * 
+ * @return	Typical MIME type associated with this.
+ */
    public String mimeType()
    {
 	   return isHTML() ? "text/html" : isPDF() ? "application/pdf" : isRSS() ? "xml/rss" : null;

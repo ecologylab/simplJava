@@ -51,9 +51,7 @@ public class Authenticator extends Debug
      * @param entry -
      *            the AuthenticationListEntry containing a username and password
      *            that is attempting to authenticate.
-     * @param keyAttachment -
-     *            the attachment indicating the SelectionKey that matches the
-     *            connection that is authenticating.
+     *            
      * @return
      */
     public boolean login(AuthenticationListEntry entry, InetAddress address)

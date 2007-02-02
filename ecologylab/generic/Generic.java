@@ -402,8 +402,6 @@ public static final String SEP	= "/";
     * Open a document in a web browser.
     * 
     * @param purl	The address of the web document.
-    * 
-    * @param frame	Frame to open it in within the web page. This may or may not be used.
     */
    public static void navigate(ParsedURL purl)
    {

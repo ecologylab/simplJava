@@ -261,12 +261,12 @@ implements Downloadable, DispatchTarget
 	 * Convenience function to allow downloading and uncompressing of a 
 	 * zip file from a source to a target location with minimal effort.
 	 * 
-	 * @param source The location of the zip file to download and uncompress.
+	 * @param sourceZip The location of the zip file to download and uncompress.
 	 * @param targetDir The location where the zip file should be uncompressed. This
 	 * directory structure will be created if it doesn't exist.
-	 * @param status The StatusReporter object that provides a source of state change visiblity;
+	 * @param status 	The StatusReporter object that provides a source of state change visiblity;
 	 * can be null.
-	 * @param uncompress	true if the file is a zip that needs to be uncompressed after download.
+	 * @param unCompress	true if the file is a zip that needs to be uncompressed after download.
 	 * @return TODO
 	 */
 	public static ZipDownload downloadAndPerhapsUncompress(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean unCompress)
@@ -316,7 +316,7 @@ implements Downloadable, DispatchTarget
 	/**
 	 * Extracts a zip file into the directory where it resides
 	 * 
-	 * @param zipSource	The path to the source zip file to extract.
+	 * @param zipSourcePath	The path to the source zip file to extract.
 	 */
 	public static void extractZipFile(String zipSourcePath)
 	throws IOException
@@ -331,7 +331,7 @@ implements Downloadable, DispatchTarget
 	/**
 	 * Extracts a zip file into the directory where it resides
 	 * 
-	 * @param zipSource	The source zip file to extract
+	 * @param zipSourcePath	The source zip file to extract
 	 */
 	public static void extractZipFile(String zipSourcePath, File unzipPath)
 	throws IOException

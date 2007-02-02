@@ -151,7 +151,6 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     /**
      * 
      * @param token
-     * @param key
      * @param translationSpace
      * @param registry
      * @return

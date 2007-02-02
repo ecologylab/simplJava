@@ -177,7 +177,6 @@ implements ParseTableEntryTypes
 	 * are not emitted.
 	 * 
 	 * @param compression				if the emitted xml needs to be compressed
-	 * @param nodeNumber				counts the depth of recursive descent.
 	 * 
 	 * @return 							the generated xml string
 	 * 
@@ -959,8 +958,7 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param xmlString	the actual XML that needs to be translated.
-	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
-	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
+	 * 
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString)
@@ -1472,6 +1470,11 @@ implements ParseTableEntryTypes
 	  	}
 		return document;
 	}
+	/**
+	 * Report exception during DOM parsing.
+	 * 
+	 * @param sxe
+	 */
 	private static void reportException(SAXException sxe) 
 	{
 		Exception  x = sxe;
@@ -1479,6 +1482,12 @@ implements ParseTableEntryTypes
 		  x = sxe.getException();
 		x.printStackTrace();
 	}
+	/**
+	 * Report exception during DOM parsing.
+	 * 
+	 * @param spe
+	 * @param xmlFileOrURLName
+	 */
 	private static void reportException(SAXParseException spe, String xmlFileOrURLName)
 	{
 		println(xmlFileOrURLName + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
@@ -1495,7 +1504,7 @@ implements ParseTableEntryTypes
 	 * This method creates a DOM Document from the XML file at a given URI,
 	 * which could be a local file or a URL.
 	 *
-	 * @param xmlFileOrURLName	the path to the XML from which the DOM is to be created
+	 * @param inStream	InputStream from which the DOM is to be created
 	 * 
 	 * @return					the Document object
 	 */
@@ -1616,7 +1625,7 @@ implements ParseTableEntryTypes
 	/**
  * 	Translate to XML, then write the result to a file.
  * 
- * 	@param filePath		the file in which the xml needs to be saved
+ * 	@param xmlFile		the file in which the xml needs to be saved
  * 	@param prettyXml	whether the xml should be written in an indented fashion
  *  @param compression	whether the xml should be compressed while being emitted
  */	

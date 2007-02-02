@@ -24,7 +24,7 @@ public interface ConnectionHelper
 	 * for files that have this suffix.
 	 * 
 	 * @param suffix
-	 * @return
+	 * @return	true if files with this suffix should be parsed; false if they should be ignored.
 	 */
 	public boolean	parseFilesWithSuffix(String suffix);
 	

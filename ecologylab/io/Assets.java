@@ -309,17 +309,15 @@ implements ApplicationProperties
 	{
 		downloadZip(sourceZip, targetFile, null, forceDownload, version);
 	}
-	
 	/**
 	 * Download and uncompress a zip file from a source to a target location with minimal effort,
 	 * unless the zip file already exists at the target location, in which case, 
 	 * do nothing.
-	 * @param status The Status object that provides a source of state change visiblity;
-	 * can be null.
-	 * @param forceDownload TODO
-	 * @param source The location of the zip file to download and uncompress.
-	 * @param target The location where the zip file should be uncompressed. This
-	 * directory structure will be created if it doesn't exist.
+	 * 
+	 * @param status		The Status object that provides a source of state change visiblity;
+	 * 						can be null.
+	 * @param forceDownload
+	 * @param version
 	 */
 	public static void downloadZip(ParsedURL sourceZip, File targetDir, StatusReporter status, boolean forceDownload, float version)
 	{
@@ -371,7 +369,8 @@ implements ApplicationProperties
 	/**
 	 * Get the source URL root of the tree of assets for this application.
 	 * Default is the configDir(), which in turn is the config subdir of codebase.
-	 * @return
+	 * 
+	 * @return	ParsedURL referring to the root of the remote place we download assets from.
 	 */
 	public static ParsedURL assetsRoot() 
 	{

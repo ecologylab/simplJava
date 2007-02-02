@@ -211,9 +211,9 @@ implements CharacterConstants
     * the name of an XML tag or attribute.
     * Used during translation of XML to Java.
     * 
-    * @param elementName
-    * @param capsOn			true if the first letter of output should be capitalized.
     * @param elementName	the name of the XML element or tag
+    * @param capsOn			true if the first letter of output should be capitalized.
+    * 
     * @return				the name of the Java class corresponding to the elementName
     */
    public static String javaNameFromElementName(String elementName, boolean capsOn)
@@ -296,9 +296,15 @@ implements CharacterConstants
      * This method generates a name value pair corresponding to the primitive Jave field. Returns
      * an empty string if the field contains a default value, which means that there is no need
      * to emit that field. Used while translation of Java to xml.  
-     * @param field     the <code>Field</code> object type corresponding to the primitive type
-     * @param obj       the object which contains the field
-     * @return          name-value pair of the attribute, nothing if the field has a default value
+     * <p/>
+     * For efficiency, the result is passed back in the StringBuilder passed in.
+     * 
+     * @param result	StringBuilder to append result to. 
+     * 					Result is name-value pair of the attribute, nothing if the field has a default value.
+     * @param field     The <code>Field</code> object type corresponding to the primitive type
+     * @param obj       The object which contains the field
+     * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
+    
      */
     public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision)
     {

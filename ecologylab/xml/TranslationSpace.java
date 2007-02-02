@@ -32,7 +32,7 @@ public class TranslationSpace extends Debug
    private HashMap<String, NameEntry>			entriesByClassName	= new HashMap<String, NameEntry>();
    private HashMap<String, NameEntry>			entriesByTag		= new HashMap<String, NameEntry>();
    
-   private static HashMap<String, TranslationSpace>	allNameSpaces	= new HashMap<String, TranslationSpace>();
+   private static HashMap<String, TranslationSpace>	allTranslationSpaces	= new HashMap<String, TranslationSpace>();
       
    /**
     * Create a new space that defines how to translate xml tag names into
@@ -43,7 +43,7 @@ public class TranslationSpace extends Debug
    private TranslationSpace(String name)
    {
 	  this.name	= name;
-	  allNameSpaces.put(name, this);
+	  allTranslationSpaces.put(name, this);
    }
 
    /**
@@ -81,7 +81,7 @@ public class TranslationSpace extends Debug
     * Set a new default package, and
 	* a set of defined translations.
     * 
-    * @param name		Name of the NameSpace to be 
+    * @param name		Name of the TranslationSpace to be 
 	*					A key for use in the TranslationSpace registry.
     * @param defaultPackgeName
 	* @param translations		Set of initially defined translations for this.
@@ -135,7 +135,7 @@ public class TranslationSpace extends Debug
     * Set a new default package, and
 	* a set of defined translations.
     * 
-    * @param name		Name of the NameSpace to be 
+    * @param name		Name of the TranslationSpace to be 
 	*					A key for use in the TranslationSpace registry.
     * @param defaultPackgeName
 	* @param translations		Set of initially defined translations for this.
@@ -149,10 +149,10 @@ public class TranslationSpace extends Debug
    }
    
    /**
-    * Create a new NameSpace, with the same name and default package name, and
+    * Create a new TranslationSpace, with the same name and default package name, and
 	* a set of defined translations.
     * 
-    * @param defaultPackgeName		Name of the NameSpace to be created --
+    * @param defaultPackgeName		Name of the TranslationSpace to be created --
 	*					A key for use in the TranslationSpace registry.
     * 					Also the defaultPackgeName for translations using this.
     * 
@@ -203,10 +203,12 @@ public class TranslationSpace extends Debug
    }
    
    /**
-    * Utility for combining TranslationSpace.
+    * Utility for composing <code>TranslationSpace</code>s.
+    * Performs composition by value. That is, the entries are copied.
     * 
     * Unlike in union(), if there are duplicates, they will override identical entries in this.
-    * @param otherTranlations
+    * 
+    * @param otherTranslations
     */
    public void addTranslations(TranslationSpace otherTranslations)
    {
@@ -504,20 +506,20 @@ public class TranslationSpace extends Debug
    }
    public String toString()
    {
-      return "NameSpace[" + name +"]";
+      return "TranslationSpace[" + name +"]";
    }
    /**
-    * Find the NameSpace called <code>name</code>, if there is one.
+    * Find the TranslationSpace called <code>name</code>, if there is one.
     * 
     * @param name
     * @return
     */
    public static TranslationSpace lookup(String name)
    {
-	   return (TranslationSpace) allNameSpaces.get(name);
+	   return (TranslationSpace) allTranslationSpaces.get(name);
    }
    /**
-    * Find the NameSpace called <code>name</code>, if there is one.
+    * Find the TranslationSpace called <code>name</code>, if there is one.
     * Otherwise, create a new one with this name, and return it.
     * 
     * @param name
@@ -538,7 +540,7 @@ public class TranslationSpace extends Debug
 		  {
 			 String resultDefaultPackageName = result.defaultPackageName;
 			 if (!resultDefaultPackageName.equals(defaultPackageName))
-				throw new RuntimeException("NameSpace ERROR: Existing NameSpace " + name +
+				throw new RuntimeException("TranslationSpace ERROR: Existing TranslationSpace " + name +
 					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
 		  }
 	   }
@@ -547,9 +549,9 @@ public class TranslationSpace extends Debug
 	   return result;
    }
    /**
-    * Find the NameSpace called <code>name</code>, if there is one.
+    * Find the TranslationSpace called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is no TranslationSpace with this name, create a new one, and set its defaultPackageName.
     * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
     * 
     * @param name
@@ -565,16 +567,16 @@ public class TranslationSpace extends Debug
 	   return result;
    }
    /**
-    * Find the NameSpace called <code>name</code>, if there is one.
+    * Find the TranslationSpace called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is no TranslationSpace with this name, create a new one, and set its defaultPackageName.
     * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
     * 
-    * Add the translations to the NameSpace.
+    * Add the translations to the TranslationSpace.
     * 
     * @param name
-    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
-    * A RuntimeException will be thrown if there was already such a NameSpace, but with different defaultPackageName.
+    * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
+    * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
    public static TranslationSpace get(String name, String defaultPackageName,
 							   String[][] translations)
@@ -598,16 +600,16 @@ public class TranslationSpace extends Debug
 	   return result;	   
    }
    /**
-    * Find the NameSpace called <code>name</code>, if there is one.
+    * Find the TranslationSpace called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no NameSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is no TranslationSpace with this name, create a new one, and set its defaultPackageName.
     * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
     * 
-    * Add the translations to the NameSpace.
+    * Add the translations to the TranslationSpace.
     * 
     * @param name
-    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
-    * A RuntimeException will be thrown if there was already such a NameSpace, but with different defaultPackageName.
+    * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
+    * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
    public static TranslationSpace get(String name, String defaultPackageName,
 							   Class[] translations)
@@ -621,14 +623,15 @@ public class TranslationSpace extends Debug
    }
 
    /**
-    * Find the NameSpace called <code>defaultPackageName</code>, if there is
-	* one. If there is no NameSpace with this name, create a new one, and 
+    * Find the TranslationSpace called <code>defaultPackageName</code>, if there is
+	* one. If there is no TranslationSpace with this name, create a new one, and 
 	* set its defaultPackageName.
 	* 
-    * Add the translations to the NameSpace.
+    * Add the translations to the TranslationSpace.
     * 
-    * @param name
-    * @return Either an existing or new NameSpace, with this defaultPackageName, and these translations.
+    * @param 	translations	An array of tag name to class name entries.
+    *
+    * @return	A new TranslationSpace, or the existing one with the name defaultPackageName, and these translations.
     */
    public static TranslationSpace get(String defaultPackageName,
 							   String[][] translations)

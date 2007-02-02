@@ -68,7 +68,7 @@ implements ConnectionHelper
 	 * for all files that it finds.
 	 * 
 	 * @param suffix
-	 * @return
+	 * @return	true
 	 */
 	public boolean	parseFilesWithSuffix(String suffix)
 	{

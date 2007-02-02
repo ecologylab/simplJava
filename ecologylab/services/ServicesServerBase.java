@@ -148,8 +148,6 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
 
     /**
      * Remove the argument passed in from the set of connections we know about.
-     * 
-     * @param serverToClientConnection
      */
     protected void connectionTerminated()
     {

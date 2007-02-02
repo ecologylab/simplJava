@@ -44,7 +44,7 @@ public class ContributorList extends ElementState
     }
 
     /**
-     * @return
+     * @return	Concatenation of authors.
      */
     public String getAuthorListString()
     {

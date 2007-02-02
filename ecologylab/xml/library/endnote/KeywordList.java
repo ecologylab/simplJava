@@ -36,7 +36,7 @@ public @xml_inherit class KeywordList extends ArrayListState<Keyword>
     }
 
     /**
-     * @return
+     * @return	list of keywords associated with this.
      */
     public String getKeywordListString()
     {

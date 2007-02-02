@@ -132,8 +132,8 @@ public class NIOServerBackend extends ServicesServerBase implements
      * should override to do your own housekeeping, then call
      * super.invalidateKey(SelectionKey) to utilize the functionality here.
      * 
-     * @param key
-     *            The SelectionKey that needs to be shut down.
+     * @param chan
+     *            The SocketChannel that needs to be shut down.
      */
     public void invalidate(SocketChannel chan)
     {
