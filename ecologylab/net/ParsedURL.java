@@ -15,6 +15,9 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers.
@@ -189,7 +192,7 @@ extends Debug
  * Form a new ParsedURL, relative from a supplied base URL.
  * @param relativeURLPath
  * @param errorDescriptor
- * @return
+ * @return	New ParsedURL
  */ 
    public static ParsedURL getRelative(URL base, String relativeURLPath, String errorDescriptor)
    {
@@ -211,6 +214,19 @@ extends Debug
        }      
       
       return result;
+   }
+   
+   /**
+    * Use this as the source of stuff to translate from XML
+    * 
+    * @param translationSpace	Translations that specify package + class names for translating.
+    * @return					ElementState object derived from XML at the InputStream of this.
+    * @throws XmlTranslationException
+    */
+   public ElementState translateFromXML(TranslationSpace translationSpace) 
+   throws XmlTranslationException
+   {
+	   return ElementState.translateFromXML(this, translationSpace);
    }
    
    public static URL getURL(URL base, String path, String error)
@@ -321,7 +337,7 @@ extends Debug
     * As a result, we sometimes add a slash at the end, sometimes peel off the filename.
     * Result is cached a la lazy evaluation.
     * 
-    * @return
+    * @return	Directory URL
     */
    public URL directory()
    {
@@ -989,7 +1005,7 @@ extends Debug
     
     /**
      * True if this ParsedURL represents an entity on the local file system.
-     * @return
+     * @return	true if this is a local File object.
      */
     public boolean isFile()
     {
@@ -1010,7 +1026,7 @@ extends Debug
      * A question mark is appended to the String form of this, and then args are appended.
      * 
      * @param args
-     * @return
+     * @return	ParsedURL with args after ?
      */
     public ParsedURL withArgs(String args)
     {
@@ -1031,7 +1047,7 @@ extends Debug
      * <p/>
      * Analagous to File.getName().
      * 
-     * @return
+     * @return	Name of this, without directory, host, or protocol.
      */
     public String getName()
     {
