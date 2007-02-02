@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services;
+package ecologylab.services.exceptions;
 
 import java.util.HashMap;
 

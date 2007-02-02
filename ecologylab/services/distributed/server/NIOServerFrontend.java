@@ -6,7 +6,7 @@ package ecologylab.services.nio.servers;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
-import ecologylab.services.BadClientException;
+import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.nio.NIOServerBackend;
 
 /**

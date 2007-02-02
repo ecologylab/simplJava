@@ -10,9 +10,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
-import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServer;
+import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;

@@ -23,10 +23,10 @@ import java.util.Queue;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.ObjectOrHashMap;
-import ecologylab.services.BadClientException;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServerEvent;
 import ecologylab.services.ServicesServerBase;
+import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
