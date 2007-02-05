@@ -31,7 +31,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ServicesServer extends ServicesServerBase
 {
-    private static final Pattern p = Pattern.compile("content-length\\s*:\\s*(\\d*)\\s*");
+    private static final Pattern p = Pattern.compile("\\p{ASCII}*content-length\\s*:\\s*(\\d*)\\p{ASCII}*");
     
     public static final int          NORMAL_SERVER             = 0;
 
