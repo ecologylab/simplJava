@@ -32,27 +32,31 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ContextManager extends Debug implements ServerConstants
 {
-    private StringBuilder                         accumulator               = new StringBuilder(
-                                                                                    MAX_PACKET_SIZE);
+    /**
+     * Stores incoming character data until it can be parsed into an XML message
+     * and turned into a Java object.
+     */
+    private StringBuilder                         incomingMessageBuffer  = new StringBuilder(
+                                                                                 MAX_PACKET_SIZE);
 
-    protected boolean                             messageWaiting            = false;
+    protected boolean                             messageWaiting         = false;
 
     private RequestMessage                        request;
 
-    protected LinkedBlockingQueue<RequestMessage> requestQueue              = new LinkedBlockingQueue<RequestMessage>();
+    protected LinkedBlockingQueue<RequestMessage> requestQueue           = new LinkedBlockingQueue<RequestMessage>();
 
-    private Object                                token                     = null;
+    private Object                                token                  = null;
 
-    private CharBuffer                            outgoingChars             = CharBuffer
-                                                                                    .allocate(MAX_PACKET_SIZE);
+    private CharBuffer                            outgoingChars          = CharBuffer
+                                                                                 .allocate(MAX_PACKET_SIZE);
 
-    private final static CharsetEncoder           encoder                   = Charset
-                                                                                    .forName(
-                                                                                            CHARACTER_ENCODING)
-                                                                                    .newEncoder();
+    private final static CharsetEncoder           encoder                = Charset
+                                                                                 .forName(
+                                                                                         CHARACTER_ENCODING)
+                                                                                 .newEncoder();
 
-    protected long                                initialTimeStamp          = System
-                                                                                    .currentTimeMillis();
+    protected long                                initialTimeStamp       = System
+                                                                                 .currentTimeMillis();
 
     protected boolean                             receivedAValidMsg;
 
@@ -64,11 +68,21 @@ public class ContextManager extends Debug implements ServerConstants
 
     protected SocketChannel                       socket;
 
-    private int                                   endOfFirstHeader          = -1;
+    private int                                   endOfFirstHeader       = -1;
 
-    private int                                   contentLength             = -1;
+    /**
+     * Counts how many characters still need to be extracted from the
+     * incomingMessageBuffer before they can be turned into a message (based
+     * upon the HTTP header). A value of -1 means that there is not yet a
+     * complete header, so no length has been determined (yet).
+     */
+    private int                                   contentLengthRemaining = -1;
 
-    StringBuilder                                 firstMessageInAccumulator = new StringBuilder();
+    /**
+     * Stores the first XML message from the incomingMessageBuffer, or parts of
+     * it (if it is being read over several invocations).
+     */
+    StringBuilder                                 firstMessageBuffer     = new StringBuilder();
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
@@ -250,13 +264,13 @@ public class ContextManager extends Debug implements ServerConstants
      * @return
      * @throws XmlTranslationException
      */
-    protected RequestMessage translateXMLStringToRequestMessage(String messageString)
-    throws XmlTranslationException
+    protected RequestMessage translateXMLStringToRequestMessage(
+            String messageString) throws XmlTranslationException
     {
         return (RequestMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace);
     }
-    
+
     /**
      * Takes an incoming message in the form of an XML String and converts it
      * into a RequestMessage. Then places the RequestMessage on the
@@ -286,7 +300,7 @@ public class ContextManager extends Debug implements ServerConstants
 
         if (request == null)
         {
-            System.out.println("ERROR: " + incomingMessage);
+            debug("ERROR: " + incomingMessage);
             if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
             {
                 throw new BadClientException(this.socket.socket()
@@ -334,22 +348,28 @@ public class ContextManager extends Debug implements ServerConstants
     public void enqueueStringMessage(CharBuffer message)
             throws CharacterCodingException, BadClientException
     {
-        accumulator.append(message);
-
-        // System.out.println("accum: "+accumulator.toString());
+        incomingMessageBuffer.append(message);
 
         // look for HTTP header
-        while (accumulator.length() > 0)
+        while (incomingMessageBuffer.length() > 0)
         {
-            if (endOfFirstHeader == -1)
-                endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
+            // debug("START: buffer size: " + incomingMessageBuffer.length());
+            // debug("buffer contents: " + incomingMessageBuffer.toString());
 
             if (endOfFirstHeader == -1)
-            { // no header yet; if it's too large,
-                // bad client; if it's not too large
-                // yet, just exit
-                if (accumulator.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
+                endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
+
+            if (endOfFirstHeader == -1)
+            { /*
+                 * no header yet; if it's too large, bad client; if it's not too
+                 * large yet, just exit, it'll get checked again when more data
+                 * comes in the pipe
+                 */
+                if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
                 {
+                    // clear the buffer
+                    incomingMessageBuffer.delete(0, incomingMessageBuffer
+                            .length());
                     throw new BadClientException(this.socket.socket()
                             .getInetAddress().getHostAddress(),
                             "Maximum HTTP header length exceeded.");
@@ -357,13 +377,29 @@ public class ContextManager extends Debug implements ServerConstants
 
                 break;
             }
-
-            if (contentLength == -1)
+            /*
+             * we have the end of the first header; either just now or from a
+             * previous invokation of this method. If we have it, but don't have
+             * the remaining content length, then we first need to extract that
+             * from the header.
+             */
+            if (contentLengthRemaining == -1)
             {
                 try
                 {
-                    contentLength = ServicesServer.parseHeader(accumulator
-                            .substring(0, endOfFirstHeader));
+                    contentLengthRemaining = ServicesServer
+                            .parseHeader(incomingMessageBuffer.substring(0,
+                                    endOfFirstHeader));
+
+                    // if we got here, endOfFirstHeader is not -1, so we
+                    // need to
+                    // add
+                    // 4 to it to ensure we're just after all the header
+                    // (including the four termination markers)
+                    endOfFirstHeader += 4;
+
+                    // done with the header; kill it
+                    incomingMessageBuffer.delete(0, endOfFirstHeader);
                 }
                 catch (IllegalStateException e)
                 {
@@ -373,54 +409,87 @@ public class ContextManager extends Debug implements ServerConstants
                 }
             }
 
-            if (contentLength == -1)
+            // if we still don't have the remaining length, then there was a
+            // problem
+            if (contentLengthRemaining == -1)
                 break;
 
             // make sure contentLength isn't too big
-            if (contentLength > ServerConstants.MAX_PACKET_SIZE)
+            if (contentLengthRemaining > ServerConstants.MAX_PACKET_SIZE)
             {
                 throw new BadClientException(this.socket.socket()
                         .getInetAddress().getHostAddress(),
-                        "Specified content length too large: " + contentLength);
+                        "Specified content length too large: "
+                                + contentLengthRemaining);
             }
 
             try
             {
-                // if we got here, endOfFirstHeader is not -1, so we need to add
-                // 4 to it to ensure we're just after all the header
-                endOfFirstHeader += 4;
 
-                firstMessageInAccumulator.append(accumulator.substring(
-                        endOfFirstHeader, endOfFirstHeader + contentLength));
-                accumulator.delete(0, endOfFirstHeader + contentLength);
-                endOfFirstHeader = -1;
-                contentLength = -1;
-                // System.out.println(firstMessage);
+                // see if the incoming buffer has enough characters to
+                // include the specified content length
+                if (incomingMessageBuffer.length() >= contentLengthRemaining)
+                {
+                    // debug("buffer size >= contentLengthRemaining:
+                    // "+incomingMessageBuffer.length()+" >=
+                    // "+contentLengthRemaining);
+                    firstMessageBuffer.append(incomingMessageBuffer.substring(
+                            0, contentLengthRemaining));
+
+                    incomingMessageBuffer.delete(0, contentLengthRemaining);
+
+                    // reset to do a new read on the next invocation
+                    contentLengthRemaining = -1;
+                    endOfFirstHeader = -1;
+                }
+                else
+                {
+                    // debug("buffer size < contentLengthRemaining:
+                    // "+incomingMessageBuffer.length()+" <
+                    // "+contentLengthRemaining);
+
+                    firstMessageBuffer.append(incomingMessageBuffer);
+
+                    // indicate that we need to get more from the buffer in
+                    // the next invocation
+                    contentLengthRemaining -= incomingMessageBuffer.length();
+                    endOfFirstHeader = 0;
+
+                    incomingMessageBuffer.delete(0, incomingMessageBuffer
+                            .length());
+                }
+
+                // debug("first message contents:
+                // "+firstMessageBuffer.toString());
+                // debug("buffer contents:
+                // "+incomingMessageBuffer.toString());
             }
             catch (NullPointerException e)
             {
                 e.printStackTrace();
             }
-            catch (IndexOutOfBoundsException e)
-            {
-                debug("don't have a complete message yet.");
-                // append what we do have, then continue
-                endOfFirstHeader = 0; // we already finished with the header
-                String partOfMessage = accumulator.substring(endOfFirstHeader,
-                        accumulator.length());
-                contentLength -= partOfMessage.length();
 
-                accumulator.delete(0, accumulator.length() - 1);
-
-                e.printStackTrace();
-                break;
+            if ((firstMessageBuffer != null)
+                    && (firstMessageBuffer.length() > 0)
+                    && (contentLengthRemaining == -1))
+            { // if we've read a complete message, then
+                // contentLengthRemaining
+                // will be reset to -1
+                processString(firstMessageBuffer.toString());
+                firstMessageBuffer.delete(0, firstMessageBuffer.length());
             }
-
-            if (firstMessageInAccumulator != null)
+            else
             {
-                processString(firstMessageInAccumulator.toString());
-                firstMessageInAccumulator.delete(0, firstMessageInAccumulator
-                        .length());
+                // debug("first message buffer null? "
+                // + (firstMessageBuffer == null));
+                // debug("first message buffer empty? "
+                // + (firstMessageBuffer.length() == 0));
+                // debug("content length remaining? " +
+                // contentLengthRemaining);
+                // debug("end of first header index? " + endOfFirstHeader);
+                debug("first message contents: "
+                        + (firstMessageBuffer.toString()));
+                debug("buffer contents: " + (incomingMessageBuffer.toString()));
             }
         }
     }
