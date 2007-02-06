@@ -20,6 +20,7 @@ import ecologylab.xml.TranslationSpace;
 public class HTTPPostServer extends DoubleThreadedNIOServer
 {
     private static int postServerPort = 10200;
+	public static String datastore	= "//project//ecologylab//TestCollections//";
 
     public static void main(String args[]) throws UnknownHostException
     {
