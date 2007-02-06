@@ -105,6 +105,8 @@ public class NIOServerBackend extends ServicesServerBase implements
     private Map<SelectionKey, Long>                            keyActivityTimes          = new HashMap<SelectionKey, Long>();
 
     private Map<String, ObjectOrHashMap<String, SelectionKey>> ipToKeyOrKeys             = new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
+    
+    private boolean acceptEnabled = false;
 
     protected NIOServerBackend(int portNumber, InetAddress inetAddress,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
@@ -175,7 +177,7 @@ public class NIOServerBackend extends ServicesServerBase implements
         // decrement numConnections &
         // if the server disabled new connections due to hitting
         // max_connections, re-enable
-        if (selector.keys().size() < MAX_CONNECTIONS)
+        if (selector.keys().size() < MAX_CONNECTIONS && !acceptEnabled)
         {
             // acquire the static ServerSocketChannel object
             ServerSocketChannel channel;
@@ -197,6 +199,7 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                 // register the channel with the selector to look for incoming
                 // accept requests
+                acceptEnabled = true;
                 channel.register(selector, SelectionKey.OP_ACCEPT);
             }
             catch (IOException e)
@@ -315,12 +318,12 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                         }
                         else if (key.isReadable())
-                        { // incoming readable,
-                            // valid key
-                            // have to check validity here, because
-                            // accept
-                            // key may have rejected an incoming
-                            // connection
+                        { /* incoming readable,
+                             valid key
+                             have to check validity here, because
+                             accept
+                             key may have rejected an incoming
+                             connection*/
                             if (key.channel().isOpen())
                             {
                                 try
@@ -540,6 +543,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                     key.cancel();
                     ((ServerSocketChannel) key.channel()).socket().close();
                     key.channel().close();
+                    
+                    acceptEnabled = false;
                 }
 
                 SocketChannel tempChannel = ((ServerSocketChannel) key
@@ -665,6 +670,7 @@ public class NIOServerBackend extends ServicesServerBase implements
 
         // register the channel with the selector to look for incoming
         // accept requests
+        acceptEnabled = true;
         channel.register(sSelector, SelectionKey.OP_ACCEPT);
 
         return sSelector;
