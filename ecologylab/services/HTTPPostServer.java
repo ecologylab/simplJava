@@ -28,7 +28,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
         System.out.println(InetAddress.getByName("localhost"));
         HTTPPostServer validateionTestServer = get(postServerPort, InetAddress
                 .getByName("localhost"), TranslationSpace.get(
-                "validateMessage", "testServer"), new ObjectRegistry());
+                "validateMessage", "ecologylab.services.messages"), new ObjectRegistry());
 
         if (validateionTestServer != null)
         {
