@@ -21,7 +21,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author andruid
  * @author eunyee
  */
-public class LoggingServerToClientConnection extends ServerToClientConnection
+@Deprecated public class LoggingServerToClientConnection extends ServerToClientConnection
 {
 	FileOutputStream outputStream;
 	
@@ -39,12 +39,13 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 	 * @param requestMessage
 	 * @return
 	 */
-	protected ResponseMessage performService(RequestMessage requestMessage)
+/*	protected ResponseMessage performService(RequestMessage requestMessage)
 	{
 		if( requestMessage instanceof SendPrologue )
 		{
-			LoggingServer loggingServer = (LoggingServer) servicesServer;
-			String name = loggingServer.getLogFilesPath() + ((SendPrologue)requestMessage).getFileName();
+            // TODO
+//			LoggingServer loggingServer = (LoggingServer) servicesServer;
+//			String name = loggingServer.getLogFilesPath() + ((SendPrologue)requestMessage).getFileName();
 			getFile(name);
 //			servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject, getFile(name) );
 		}
@@ -59,7 +60,7 @@ public class LoggingServerToClientConnection extends ServerToClientConnection
 		}
 		ResponseMessage responseMessage = servicesServer.performService(requestMessage);
 		return responseMessage;
-	}
+	}*/
 	
 	FileOutputStream getFile(String fileName)
 	{

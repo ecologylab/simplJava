@@ -17,12 +17,14 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import ecologylab.appframework.Memory;
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.Preference;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
+import ecologylab.services.nio.NIOClient;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTools;
@@ -232,7 +234,7 @@ public class Logging extends ElementState implements Runnable,
             	if (loggingHost == null)
             		loggingHost = LOGGING_HOST;
             	int loggingPort	= Preference.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
-                ServicesClient loggingClient = new ServicesClient(loggingHost, loggingPort, nameSpace);
+                NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
                 if (loggingClient.connect())
                 {
                     try
@@ -846,9 +848,9 @@ public class Logging extends ElementState implements Runnable,
     protected class NetworkLogWriter
     extends LogWriter
     {
-        ServicesClient  loggingClient;
+        NIOClient  loggingClient;
         
-        NetworkLogWriter(ServicesClient loggingClient)
+        NetworkLogWriter(NIOClient loggingClient)
         throws IOException
         {
             if (loggingClient == null)
@@ -866,7 +868,14 @@ public class Logging extends ElementState implements Runnable,
             int uid = Preference.lookupInt("uid", 0);
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
-            loggingClient.sendMessage(sendPrologue);            
+            try
+            {
+                loggingClient.nonBlockingSendMessage(sendPrologue);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }            
         }
         void consumeOp(String op)
         {
