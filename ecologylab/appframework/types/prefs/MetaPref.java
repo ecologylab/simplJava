@@ -3,7 +3,16 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.Rectangle;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Metadata about a Preference.
@@ -12,7 +21,9 @@ import ecologylab.xml.ElementState;
  * @author andruid
  *
  */
-public class MetaPref<T> extends ElementState
+
+@xml_inherit
+public abstract class MetaPref<T> extends ElementState
 {
 	/**
 	 * Unique identifier for Preference name with convenient lookup in automatically generated HashMap.
@@ -52,6 +63,70 @@ public class MetaPref<T> extends ElementState
 	{
 		super();
 	}
+	
+	abstract T getDefaultValue();
+
+    public String getCategory()
+    {
+        return category;
+    }
+
+    public JComponent getWidget()
+    {
+        if ("RADIO".equals(category))
+        {
+            // TODO don't need this after figure out how to define n-radio buttons
+            if (this.getDefaultValue() instanceof Boolean)
+            {
+                JLabel label = new JLabel();
+                label.setBounds(new Rectangle(0, 4, 292, 16));
+                label.setText(this.description);
+                label.setToolTipText(this.helpText);
+                
+                JRadioButton radioYes = new JRadioButton();
+                radioYes.setBounds(new Rectangle(385, 0, 46, 24));
+                radioYes.setSelected(true);
+                radioYes.setText("Yes");
+
+                JRadioButton radioNo = new JRadioButton();
+                radioNo.setBounds(new Rectangle(464, 0, 40, 24));
+                radioNo.setName("No");
+                radioNo.setText("No");
+                
+                JPanel panel = new JPanel();
+                panel.setLayout(null);
+                panel.add(label);
+                panel.add(radioYes);
+                panel.add(radioNo);
+                
+                return panel;
+            }
+        }
+        else if ("TEXT_FIELD".equals(category))
+        {
+            JLabel label = new JLabel();
+            label.setBounds(new Rectangle(0, 2, 292, 16));
+            label.setText(this.description);
+            label.setToolTipText(this.helpText);
+            
+            JTextField textField = new JTextField();
+            textField.setBounds(new Rectangle(420, 0, 115, 20));
+            textField.setHorizontalAlignment(JTextField.CENTER);
+            textField.setText((String)this.getDefaultValue());
+            
+            JPanel panel = new JPanel();
+            panel.setLayout(null);
+            panel.add(label);
+            panel.add(textField);
+            
+            return panel;
+        }
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    
+	
 /*
 	public boolean isWithinRange(T newValue)
 	{
