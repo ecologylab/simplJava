@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.types.prefs.MetaPref;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Metadata about an Integer Preference.
@@ -12,9 +13,10 @@ import ecologylab.appframework.types.prefs.MetaPref;
  * @author andruid
  *
  */
+@xml_inherit
 public class MetaPrefInt extends MetaPref<Integer>
 {
-	@xml_attribute	Integer		defaultValue;
+	@xml_attribute	int		defaultValue;
 	
 	/**
 	 * 
@@ -23,6 +25,12 @@ public class MetaPrefInt extends MetaPref<Integer>
 	{
 		super();
 	}
+	
+	Integer getDefaultValue()
+	{
+		return defaultValue;
+	}
+	
 /*
 	public boolean isWithinRange(Integer newValue)
 	{

@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.types.prefs.MetaPref;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Metadata about a Boolean Preference.
@@ -12,9 +13,10 @@ import ecologylab.appframework.types.prefs.MetaPref;
  * @author andruid
  *
  */
+@xml_inherit
 public class MetaPrefBoolean extends MetaPref<Boolean>
 {
-	@xml_attribute	Boolean		defaultValue;
+	@xml_attribute	boolean		defaultValue;
 	
 	/**
 	 * 
@@ -23,6 +25,12 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 	{
 		super();
 	}
+	
+	Boolean getDefaultValue()
+	{
+		return defaultValue;
+	}
+	
 /*
 	public boolean isWithinRange(Boolean newValue)
 	{
