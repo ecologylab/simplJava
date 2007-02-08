@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_nested;
 
 /**
  * An ElementState XML tree node that supports an ArrayList of children (as well
