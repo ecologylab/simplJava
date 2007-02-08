@@ -21,6 +21,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.JScrollPane;
 
 public class PrefVisual {
 
@@ -33,6 +34,7 @@ public class PrefVisual {
 	private JButton jButton3 = null;
 	private JPanel jContentPane1 = null;
 	private JPanel jContentPane2 = null;
+	private JPanel jContentPane3 = null;
 	private JRadioButton crawlYes = null;
 	private JRadioButton crawlNo = null;
 	private JLabel crawl = null;
@@ -63,6 +65,18 @@ public class PrefVisual {
 	private JRadioButton javascript_debug_modeNo = null;
 	private JLabel codebase = null;
 	private JTextField codebaseField = null;
+	private JLabel undo_levels1 = null;
+	private JTextField undo_levelsField1 = null;
+	private JLabel log_mode1 = null;
+	private JRadioButton log_modeNone1 = null;
+	private JRadioButton log_modeDesktop1 = null;
+	private JRadioButton log_modeServer1 = null;
+	private JLabel javascript_debug_mode1 = null;
+	private JRadioButton javascript_debug_modeYes1 = null;
+	private JRadioButton javascript_debug_modeNo1 = null;
+	private JLabel codebase1 = null;
+	private JTextField codebaseField1 = null;
+	private JScrollPane jScrollPane = null;
 	/**
 	 * This method initializes jTabbedPane	
 	 * 	
@@ -74,6 +88,7 @@ public class PrefVisual {
 			jTabbedPane.setName("jTabbedPane");
 			jTabbedPane.setBounds(new Rectangle(0, 0, 595, 416));
 			jTabbedPane.addTab("General", null, getJContentPane1(), null);
+			jTabbedPane.addTab("Gen2", null, getJScrollPane(), null);
 			jTabbedPane.addTab("Developers", null, getJContentPane2(), null);
 		}
 		return jTabbedPane;
@@ -251,6 +266,7 @@ public class PrefVisual {
 			
 			jContentPane2 = new JPanel();
 			jContentPane2.setLayout(null);
+			jContentPane2.setSize(new java.awt.Dimension(586,500));
 			jContentPane2.add(undo_levels, null);
 			jContentPane2.add(getUndo_levelsField(), null);
 			jContentPane2.add(log_mode, null);
@@ -264,6 +280,51 @@ public class PrefVisual {
 			jContentPane2.add(getCodebaseField(), null);
 		}
 		return jContentPane2;
+	}
+	
+	/**
+	 * This method initializes jContentPane2	
+	 * 	
+	 * @return javax.swing.JPanel	
+	 */
+	private JPanel getJContentPane3() {
+		if (jContentPane3 == null) {
+			codebase1 = new JLabel();
+			codebase1.setBounds(new Rectangle(30, 240, 268, 16));
+			codebase1.setText("Jar File Directory");
+			codebase1.setToolTipText("Directory for the project a developer is working on.");
+			
+			javascript_debug_mode1 = new JLabel();
+			javascript_debug_mode1.setBounds(new Rectangle(30, 180, 197, 16));
+			javascript_debug_mode1.setText("Javascript Debug Mode");
+			javascript_debug_mode1.setToolTipText("Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies & arrays");
+			
+			log_mode1 = new JLabel();
+			log_mode1.setBounds(new Rectangle(30, 105, 271, 16));
+			log_mode1.setText("Log Mode");
+			log_mode1.setToolTipText("Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered.");
+			
+			undo_levels1 = new JLabel();
+			undo_levels1.setBounds(new Rectangle(30, 30, 271, 16));
+			undo_levels1.setText("Undo Levels");
+			undo_levels1.setToolTipText("The number of steps backwards you can go, by using undo, or the reverse button.");
+			
+			jContentPane3 = new JPanel();
+			jContentPane3.setLayout(null);
+			jContentPane3.setSize(new java.awt.Dimension(586,500));
+			jContentPane3.add(undo_levels1, null);
+			jContentPane3.add(getUndo_levelsField1(), null);
+			jContentPane3.add(log_mode1, null);
+			jContentPane3.add(getLog_modeNone1(), null);
+			jContentPane3.add(getLog_modeDesktop1(), null);
+			jContentPane3.add(getLog_modeServer1(), null);
+			jContentPane3.add(javascript_debug_mode1, null);
+			jContentPane3.add(getJavascript_debug_modeYes1(), null);
+			jContentPane3.add(getJavascript_debug_modeNo1(), null);
+			jContentPane3.add(codebase1, null);
+			jContentPane3.add(getCodebaseField1(), null);
+		}
+		return jContentPane3;
 	}
 
 	/**
@@ -551,11 +612,136 @@ public class PrefVisual {
 	private JTextField getCodebaseField() {
 		if (codebaseField == null) {
 			codebaseField = new JTextField();
-			codebaseField.setBounds(new Rectangle(414, 238, 130, 20));
 			codebaseField.setHorizontalAlignment(JTextField.CENTER);
+			codebaseField.setBounds(new java.awt.Rectangle(421,238,114,20));
 			codebaseField.setText("code/java");
 		}
 		return codebaseField;
+	}
+	
+	/**
+	 * This method initializes undo_levelsField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getUndo_levelsField1() {
+		if (undo_levelsField1 == null) {
+			undo_levelsField1 = new JTextField();
+			undo_levelsField1.setBounds(new Rectangle(451, 28, 55, 20));
+			undo_levelsField1.setHorizontalAlignment(JTextField.CENTER);
+			undo_levelsField1.setText("32");
+		}
+		return undo_levelsField1;
+	}
+
+	/**
+	 * This method initializes log_modeNone	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeNone1() {
+		if (log_modeNone1 == null) {
+			log_modeNone1 = new JRadioButton();
+			log_modeNone1.setBounds(new Rectangle(417, 78, 85, 24));
+			log_modeNone1.setText("no logging");
+			log_modeNone1.setHorizontalTextPosition(SwingConstants.TRAILING);
+			log_modeNone1.setSelected(false);
+		}
+		return log_modeNone1;
+	}
+
+	/**
+	 * This method initializes log_modeDesktop	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeDesktop1() {
+		if (log_modeDesktop1 == null) {
+			log_modeDesktop1 = new JRadioButton();
+			log_modeDesktop1.setBounds(new Rectangle(417, 100, 131, 24));
+			log_modeDesktop1.setSelected(true);
+			log_modeDesktop1.setText("log to desktop file");
+			log_modeDesktop1.setHorizontalTextPosition(SwingConstants.TRAILING);
+		}
+		return log_modeDesktop1;
+	}
+
+	/**
+	 * This method initializes log_modeServer	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getLog_modeServer1() {
+		if (log_modeServer1 == null) {
+			log_modeServer1 = new JRadioButton();
+			log_modeServer1.setBounds(new Rectangle(417, 122, 148, 24));
+			log_modeServer1.setSelected(false);
+			log_modeServer1.setText("log to logging server");
+			log_modeServer1.setHorizontalTextPosition(SwingConstants.TRAILING);
+		}
+		return log_modeServer1;
+	}
+
+	/**
+	 * This method initializes javascript_debug_modeYes	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getJavascript_debug_modeYes1() {
+		if (javascript_debug_modeYes1 == null) {
+			javascript_debug_modeYes1 = new JRadioButton();
+			javascript_debug_modeYes1.setBounds(new Rectangle(417, 176, 46, 24));
+			javascript_debug_modeYes1.setText("Yes");
+			javascript_debug_modeYes1.setSelected(true);
+		}
+		return javascript_debug_modeYes1;
+	}
+
+	/**
+	 * This method initializes javascript_debug_modeNo	
+	 * 	
+	 * @return javax.swing.JRadioButton	
+	 */
+	private JRadioButton getJavascript_debug_modeNo1() {
+		if (javascript_debug_modeNo1 == null) {
+			javascript_debug_modeNo1 = new JRadioButton();
+			javascript_debug_modeNo1.setBounds(new Rectangle(494, 176, 40, 24));
+			javascript_debug_modeNo1.setText("No");
+			javascript_debug_modeNo1.setName("No");
+		}
+		return javascript_debug_modeNo1;
+	}
+
+	/**
+	 * This method initializes codebaseField	
+	 * 	
+	 * @return javax.swing.JTextField	
+	 */
+	private JTextField getCodebaseField1() {
+		if (codebaseField1 == null) {
+			codebaseField1 = new JTextField();
+			codebaseField1.setHorizontalAlignment(JTextField.CENTER);
+			codebaseField1.setBounds(new java.awt.Rectangle(421,238,114,20));
+			codebaseField1.setText("code/java");
+		}
+		return codebaseField1;
+	}
+
+	/**
+	 * This method initializes jScrollPane	
+	 * 	
+	 * @return javax.swing.JScrollPane	
+	 */
+	private JScrollPane getJScrollPane() {
+		if (jScrollPane == null) {
+			jScrollPane = new JScrollPane();
+			jScrollPane.setPreferredSize(new java.awt.Dimension(500,500));
+			jScrollPane.setComponentOrientation(java.awt.ComponentOrientation.LEFT_TO_RIGHT);
+			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			jScrollPane.setName("");
+			jScrollPane.setViewportView(getJContentPane3());
+		}
+		return jScrollPane;
 	}
 
 }
