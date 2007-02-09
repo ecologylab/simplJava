@@ -27,7 +27,7 @@ public class MetaPrefString extends MetaPref<String>
 		super();
 	}
 	
-	String getDefaultValue()
+    public String getDefaultValue()
 	{
 		return defaultValue;
 	}

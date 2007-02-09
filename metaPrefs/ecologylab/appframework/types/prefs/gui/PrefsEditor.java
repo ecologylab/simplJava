@@ -1,13 +1,16 @@
 package ecologylab.appframework.types.prefs.gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.HashMap;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -18,23 +21,11 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 
 public class PrefWidgetManager
 {
-    HashMap<String, HashMap<JComponent, MetaPref>> categoryToWidgets = new HashMap<String, HashMap<JComponent, MetaPref>>();
+    MetaPrefSet metaPrefSet;
     
     public PrefWidgetManager(MetaPrefSet set)
     {
-        for (MetaPref metaPref : set)
-        {
-            HashMap widgets = categoryToWidgets.get(metaPref.getCategory());
-
-            if (widgets == null)
-            {
-                widgets = new HashMap<JComponent, MetaPref>();
-                categoryToWidgets.put(metaPref.getCategory(), widgets);
-            }
-
-            widgets.put(metaPref.getWidget(), metaPref);
-        }
-        
+        metaPrefSet = set;
         JDialog window = getJDialog();
         window.addWindowListener(new WindowAdapter()
         {
@@ -88,6 +79,11 @@ public class PrefWidgetManager
             cancelButton = new JButton();
             cancelButton.setBounds(new Rectangle(482, 435, 89, 35));
             cancelButton.setText("Cancel");
+            cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    System.exit(0);
+                }
+                });
         }
         return cancelButton;
     }
@@ -99,6 +95,11 @@ public class PrefWidgetManager
             saveButton = new JButton();
             saveButton.setBounds(new Rectangle(379, 435, 89, 35));
             saveButton.setText("Save");
+            saveButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    actionSavePreferences();
+                }
+                });
         }
         return saveButton;
     }
@@ -110,14 +111,72 @@ public class PrefWidgetManager
             revertButton = new JButton();
             revertButton.setBounds(new Rectangle(15, 435, 137, 35));
             revertButton.setText("Revert to Default");
+            revertButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    actionRevertPreferencesToDefault();
+                }
+                });
         }
         return revertButton;
     }
     // end of static bits of gui
     
-    // TODO rendering code -- iterate through each category
-    // (categoryToWidgets.get(<categoryname>)) & render each widget
-    // (categoryToWidgets.get(<categoryname>).keySet())
+    private void actionSavePreferences()
+    {
+        System.out.println("we pressed the save button");
+    }
+    
+    /**
+     * The function that actually performs the revert-to-default actions
+     */
+    private void actionRevertPreferencesToDefault()
+    {
+        System.out.println("we pressed the revert button");
+        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+        {
+            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+            {
+                JPanel widget = (JPanel)mp.jPanel;
+                //metaPref.print();
+                //TODO pretty much everything here needs to be rewritten
+                if (widget != null)
+                {
+                    int numComponents = widget.getComponentCount();
+                    if (mp.widgetIsRadio())
+                    {
+                         Component[] list = widget.getComponents();
+                         //System.out.println("default value: " + metaPref.getDefaultValue());
+                         boolean yesVal = (Boolean)mp.getDefaultValue();
+                         boolean noVal = !yesVal;
+                         for (Component piece : list)
+                         {
+                             String pieceName = piece.getName();
+                             if ("Yes".equals(pieceName))
+                             {
+                                 System.out.println("Yes is the default");
+                                 
+                                 //piece.dispatchEvent(new MouseEvent(piece, MouseEvent.MOUSE_CLICKED, MouseEvent.BUTTON1_MASK, numComponents, piece.getX(), piece.getY(), 1, false, MouseEvent.BUTTON1));
+                             }
+                             else if ("No".equals(pieceName))
+                             {
+                                 
+                             }
+                         }
+                    }
+                    else if (mp.widgetIsTextField())
+                    {
+                        Component[] list = widget.getComponents();
+                        //System.out.println("default value: " + metaPref.getDefaultValue());
+                        for (Component piece : list)
+                        {
+                            
+                        }
+                    }
+                    //System.out.println("Number of subcomponents: " + widget.getComponentCount());
+                }
+            }
+        }
+    }
 
     // bits of gui that are all or part auto-generated
     private JTabbedPane getJTabbedPane() 
@@ -127,7 +186,8 @@ public class PrefWidgetManager
             jTabbedPane = new JTabbedPane();
             jTabbedPane.setName("jTabbedPane");
             jTabbedPane.setBounds(new Rectangle(0, 0, 595, 416));
-            for (String cat : categoryToWidgets.keySet())
+            
+            for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
             {
                 JScrollPane p = new JScrollPane();
                 p.setPreferredSize(new java.awt.Dimension(500,500));
@@ -145,16 +205,24 @@ public class PrefWidgetManager
     {
         JPanel newPanel = new JPanel();
         newPanel.setLayout(null);
+        int yval = 30;
         newPanel.setSize(new java.awt.Dimension(586,500));
-        for (JComponent subPanel : categoryToWidgets.get(category).keySet())
+        for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(category))
         {
+            JPanel subPanel = mp.jPanel;
             // TODO increment positions for elements!
             if (subPanel != null)
             {
+                int height = subPanel.getHeight();
+                int width = subPanel.getWidth();
+                System.out.println("subpanel found for " + category + "; height: " + height + ", width: " + width);
+                subPanel.setLocation(30, yval);
+                yval += subPanel.getHeight();
                 newPanel.add(subPanel);
             }
         }
         
         return newPanel;
     }
+    // end of bits of gui that are all or part auto-generated
 }

@@ -37,7 +37,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
 			println("Loading preferences from: " + metaPrefsPURL);
 			MetaPrefSet metaPrefSet	= (MetaPrefSet) ElementState.translateFromXML(metaPrefsPURL, PrefTranslations.get());
 
-			println("metaPrefSet.size() = " + metaPrefSet.size());
+			//println("metaPrefSet.size() = " + metaPrefSet.size());
 			metaPrefSet.processMetaPrefs();
             
             PrefWidgetManager mgr = new PrefWidgetManager(metaPrefSet);

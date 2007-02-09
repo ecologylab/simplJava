@@ -27,7 +27,7 @@ public class MetaPrefFloat extends MetaPref<Float>
 		super();
 	}
 	
-	Float getDefaultValue()
+	public Float getDefaultValue()
 	{
 		return defaultValue;
 	}

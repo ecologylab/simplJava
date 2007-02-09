@@ -26,7 +26,7 @@ public class MetaPrefInt extends MetaPref<Integer>
 		super();
 	}
 	
-	Integer getDefaultValue()
+    public Integer getDefaultValue()
 	{
 		return defaultValue;
 	}

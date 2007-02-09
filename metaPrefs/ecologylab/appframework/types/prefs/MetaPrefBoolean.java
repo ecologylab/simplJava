@@ -26,7 +26,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 		super();
 	}
 	
-	Boolean getDefaultValue()
+	public Boolean getDefaultValue()
 	{
 		return defaultValue;
 	}
