@@ -11,11 +11,10 @@ import java.util.Collection;
  * 
  * @author andruid
  */
-public class ArrayListFloatSet
-extends ArrayList
-implements BasicFloatSet 
+public class ArrayListFloatSet<T extends FloatSetElement>
+extends ArrayList<T>
+implements BasicFloatSet<T>
 {
-
 	/**
 	 * 
 	 */
@@ -51,11 +50,11 @@ implements BasicFloatSet
 	* 			 0 for recompute upwards from el.
 	* 			 1 for recompute all.
 	**/
-	public void delete(FloatSetElement el, int recompute)
+	public void delete(T el, int recompute)
 	{
 		remove(el);
 	}
-	public void insert(FloatSetElement element)
+	public void insert(T element)
 	{
 		element.setSet(this);
 		int index	= size();
@@ -69,18 +68,18 @@ implements BasicFloatSet
     * @param i
     * @return
     */
-   public FloatSetElement getElement(int i)
+   public T getElement(int i)
    {
-   	  return (FloatSetElement) super.get(i);
+   	  return super.get(i);
    }
    /**
     * Get the last element in the set, or null if the set is empty.
     * 
     * @return
     */
-   public FloatSetElement lastElement()
+   public T lastElement()
    {
 	  int size	= size();
-   	  return (size == 0) ? null : (FloatSetElement) get(size - 1);
+   	  return (size == 0) ? null : get(size - 1);
    }
 }

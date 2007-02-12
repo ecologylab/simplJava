@@ -5,7 +5,7 @@ package ecologylab.collections;
  * 
  * @author andruid
  */
-public interface BasicFloatSet 
+public interface BasicFloatSet<T extends FloatSetElement>
 {
    /**
 	* A flag that may be passed to the delete method.
@@ -38,7 +38,7 @@ public interface BasicFloatSet
 	* 			 0 for recompute upwards from el.
 	* 			 1 for recompute all.
 	**/
-	public void delete(FloatSetElement el, int recompute);
+	public void delete(T el, int recompute);
 
    /**
     * Get the ith element in the set.
@@ -46,14 +46,14 @@ public interface BasicFloatSet
     * @param i
     * @return
     */
-	public FloatSetElement getElement(int i);
+	public T getElement(int i);
 
    /**
     * Get the last element in the set, or null if the set is empty.
     * 
     * @return
     */
-	public FloatSetElement lastElement();
+	public T lastElement();
 	
 	/**
 	 * Check to see if the set has any elements.
