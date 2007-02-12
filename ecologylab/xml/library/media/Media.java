@@ -20,7 +20,7 @@ public class Media extends ElementState
 	 */
 	@xml_nested Content		content;
 	
-	//public Credit		credit;
+	@xml_nested Credit		credit;
 	@xml_leaf	String		title;
 	@xml_leaf	String		description;
 	
@@ -95,6 +95,20 @@ public class Media extends ElementState
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	/**
+	 * @return Returns the credit.
+	 */
+	public Credit getCredit()
+	{
+		return credit;
+	}
+	/**
+	 * @param credit The credit to set.
+	 */
+	public void setCredit(Credit credit)
+	{
+		this.credit = credit;
 	}
 
 }
