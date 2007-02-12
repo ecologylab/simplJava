@@ -1,5 +1,6 @@
 package ecologylab.xml.library.rss;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -13,6 +14,10 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
+   /**
+    * Could point to an HTML rendering of the feed.
+    */
+   @xml_leaf	ParsedURL		link;
    
    /**
     * @return Returns the description.
@@ -42,4 +47,19 @@ public @xml_inherit class Channel extends ArrayListState<Item>
    {
 	   this.title = title;
    }
+   
+	/**
+	 * @return Returns the link.
+	 */
+	public ParsedURL getLink()
+	{
+		return link;
+	}
+	/**
+	 * @param link The link to set.
+	 */
+	public void setLink(ParsedURL link)
+	{
+		this.link = link;
+	}
 }
