@@ -142,7 +142,7 @@ public class Optimizations extends Debug
 				result		= (TagMapEntry) fieldNameOrClassToTagMap.get(fieldName);
 				if (result == null)
 				{
-					String tagName	= XmlTools.getXmlTagName(fieldName, "State", compression);
+					String tagName	= XmlTools.getXmlTagName(fieldName, null, compression);
 					result	= new TagMapEntry(tagName);
 //					debug(tagName.toString());
 					fieldNameOrClassToTagMap.put(fieldName, result);
