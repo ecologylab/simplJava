@@ -317,9 +317,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                         }
 
                         if (key.isAcceptable())
-                        { // incoming connection;
-                            // accept if not already
-                            // full
+                        { // incoming connection; accept
                             accept(key);
                         }
                         else
@@ -345,7 +343,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                                      * check validity here, because accept key
                                      * may have rejected an incoming connection
                                      */
-                                    if (key.channel().isOpen())
+                                    if (key.channel().isOpen() && key.isValid())
                                     {
                                         try
                                         {
@@ -403,7 +401,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                                         debug("Channel closed on "
                                                 + key.attachment()
                                                 + ", removing.");
-                                        setPendingInvalidate((SocketChannel) key
+                                        invalidate((SocketChannel) key
                                                 .channel());
                                     }
                                 }
