@@ -453,6 +453,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                 dataQueue.offer(data);
             }
         }
+        
+        selector.wakeup();
     }
 
     public void setInterval(long newInterval)
