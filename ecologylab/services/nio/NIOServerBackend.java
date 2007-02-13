@@ -139,7 +139,12 @@ public class NIOServerBackend extends ServicesServerBase implements
      */
     public void setPendingInvalidate(SocketChannel chan)
     {
-        this.pendingSelectionOpChanges.offer(new ChangeRequest(chan, ChangeRequest.INVALIDATE, 0));
+        synchronized (pendingSelectionOpChanges)
+        {
+            this.pendingSelectionOpChanges.offer(new ChangeRequest(chan,
+                    ChangeRequest.INVALIDATE, 0));
+        }
+        selector.wakeup();
     }
 
     /**
@@ -453,7 +458,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                 dataQueue.offer(data);
             }
         }
-        
+
         selector.wakeup();
     }
 
@@ -547,7 +552,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                 debug(keyToInvalidate.attachment()
                         + " took too long to request; disconnecting.");
                 keyActivityTimes.remove(keyToInvalidate);
-                this.setPendingInvalidate((SocketChannel) keyToInvalidate.channel());
+                this.setPendingInvalidate((SocketChannel) keyToInvalidate
+                        .channel());
             }
         }
     }
