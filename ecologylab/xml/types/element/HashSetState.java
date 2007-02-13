@@ -14,7 +14,7 @@ import ecologylab.xml.ElementState;
  */
 public class HashSetState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>
 {
-    @xml_nested protected HashSet<T> set;
+    @xml_collection protected HashSet<T> set;
 
     public HashSetState()
     {
