@@ -941,10 +941,26 @@ static String q(String string)
 	{
 		return field.isAnnotationPresent(ElementState.xml_attribute.class);
 	}
+	/**
+	 * 
+	 * @param field
+	 * @return	true if the field is leaf, nested, collection, or map.
+	 */
 	static boolean representAsLeafOrNested(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_leaf.class) ||
-			   field.isAnnotationPresent(ElementState.xml_nested.class);
+			   field.isAnnotationPresent(ElementState.xml_nested.class) || 
+			   field.isAnnotationPresent(ElementState.xml_collection.class) ||
+			   field.isAnnotationPresent(ElementState.xml_map.class);
+	}
+	
+	static boolean hasCollectionAnnotation(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_collection.class);
+	}
+	static boolean hasMapAnnotation(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_map.class);
 	}
 	/**
 	 * @param field
