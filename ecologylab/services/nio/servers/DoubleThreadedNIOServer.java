@@ -139,7 +139,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                         error(e.getMessage());
 
                         // invalidate the manager's key
-                        this.getBackend().invalidate(sc);
+                        this.getBackend().setPendingInvalidate(sc);
 
                         // remove the manager from the collection
                         contextIter.remove();
