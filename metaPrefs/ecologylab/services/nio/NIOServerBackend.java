@@ -51,9 +51,11 @@ public class NIOServerBackend extends ServicesServerBase implements
      */
     private class ChangeRequest
     {
-        public static final int REGISTER  = 1;
+        public static final int REGISTER   = 1;
 
-        public static final int CHANGEOPS = 2;
+        public static final int CHANGEOPS  = 2;
+
+        public static final int INVALIDATE = 3;
 
         public SocketChannel    socket;
 
@@ -130,6 +132,22 @@ public class NIOServerBackend extends ServicesServerBase implements
     }
 
     /**
+     * Sets up a pending invalidate command for the given input.
+     * 
+     * @param chan -
+     *            the SocketChannel to invalidate.
+     */
+    public void setPendingInvalidate(SocketChannel chan)
+    {
+        synchronized (pendingSelectionOpChanges)
+        {
+            this.pendingSelectionOpChanges.offer(new ChangeRequest(chan,
+                    ChangeRequest.INVALIDATE, 0));
+        }
+        selector.wakeup();
+    }
+
+    /**
      * Shut down the connection associated with this SelectionKey. Subclasses
      * should override to do your own housekeeping, then call
      * super.invalidateKey(SelectionKey) to utilize the functionality here.
@@ -137,7 +155,7 @@ public class NIOServerBackend extends ServicesServerBase implements
      * @param chan
      *            The SocketChannel that needs to be shut down.
      */
-    public void invalidate(SocketChannel chan)
+    private void invalidate(SocketChannel chan)
     {
         try
         {
@@ -246,7 +264,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                 for (ChangeRequest changeReq : pendingSelectionOpChanges)
                 {
                     if (changeReq.socket.isRegistered())
-                    { // make sure it's still registered; it might have been invalidated and deregistered
+                    { // make sure it's still registered; it might have been
+                        // invalidated and deregistered
                         switch (changeReq.type)
                         {
                         case ChangeRequest.CHANGEOPS:
@@ -260,6 +279,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                                 debug("tried to change ops after key was cancelled.");
                             }
                             break;
+                        case ChangeRequest.INVALIDATE:
+                            invalidate(changeReq.socket);
                         }
                     }
                 }
@@ -291,19 +312,17 @@ public class NIOServerBackend extends ServicesServerBase implements
                                 && System.currentTimeMillis()
                                         - this.keyActivityTimes.get(key) > idleSocketTimeout)
                         {
-                            invalidate((SocketChannel) key.channel());
+                            setPendingInvalidate((SocketChannel) key.channel());
                         }
 
                         if (!key.isValid())
                         {
-                            invalidate((SocketChannel) key.channel());
+                            setPendingInvalidate((SocketChannel) key.channel());
                             continue;
                         }
 
                         if (key.isAcceptable())
-                        { // incoming connection;
-                            // accept if not already
-                            // full
+                        { // incoming connection; accept
                             accept(key);
                         }
                         else
@@ -322,13 +341,14 @@ public class NIOServerBackend extends ServicesServerBase implements
 
                             }
                             else
+                            {
                                 if (key.isReadable())
                                 { /*
                                      * incoming readable, valid key have to
                                      * check validity here, because accept key
                                      * may have rejected an incoming connection
                                      */
-                                    if (key.channel().isOpen())
+                                    if (key.channel().isOpen() && key.isValid())
                                     {
                                         try
                                         {
@@ -337,7 +357,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                                         catch (ClientOfflineException e)
                                         {
                                             error(e.getMessage());
-                                            invalidate((SocketChannel) key
+                                            setPendingInvalidate((SocketChannel) key
                                                     .channel());
                                         }
                                         catch (BadClientException e)
@@ -372,7 +392,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                                                                 .getInetAddress());
 
                                                 this
-                                                        .invalidate((SocketChannel) keyForIp
+                                                        .setPendingInvalidate((SocketChannel) keyForIp
                                                                 .channel());
                                             }
 
@@ -390,6 +410,7 @@ public class NIOServerBackend extends ServicesServerBase implements
                                                 .channel());
                                     }
                                 }
+                            }
                     }
                 }
             }
@@ -437,6 +458,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                 dataQueue.offer(data);
             }
         }
+
+        selector.wakeup();
     }
 
     public void setInterval(long newInterval)
@@ -529,7 +552,8 @@ public class NIOServerBackend extends ServicesServerBase implements
                 debug(keyToInvalidate.attachment()
                         + " took too long to request; disconnecting.");
                 keyActivityTimes.remove(keyToInvalidate);
-                this.invalidate((SocketChannel) keyToInvalidate.channel());
+                this.setPendingInvalidate((SocketChannel) keyToInvalidate
+                        .channel());
             }
         }
     }

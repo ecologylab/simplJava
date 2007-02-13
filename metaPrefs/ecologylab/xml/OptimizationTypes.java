@@ -22,6 +22,8 @@ public interface ParseTableEntryTypes
 	
 	public static int	COLLECTION_ELEMENT		= 3;
 	
+	public static int	MAP_ELEMENT				= 4;
+	
 	public static int	REGULAR_ATTRIBUTE		= 10;
 	
 	public static int	IGNORED_ATTRIBUTE		= 0;

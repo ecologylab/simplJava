@@ -7,14 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Set;
-import java.util.Map.Entry;
 
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
@@ -136,44 +137,7 @@ public class PrefWidgetManager
         {
             for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
             {
-                JPanel widget = (JPanel)mp.jPanel;
-                //metaPref.print();
-                //TODO pretty much everything here needs to be rewritten
-                if (widget != null)
-                {
-                    int numComponents = widget.getComponentCount();
-                    if (mp.widgetIsRadio())
-                    {
-                         Component[] list = widget.getComponents();
-                         //System.out.println("default value: " + metaPref.getDefaultValue());
-                         boolean yesVal = (Boolean)mp.getDefaultValue();
-                         boolean noVal = !yesVal;
-                         for (Component piece : list)
-                         {
-                             String pieceName = piece.getName();
-                             if ("Yes".equals(pieceName))
-                             {
-                                 System.out.println("Yes is the default");
-                                 
-                                 //piece.dispatchEvent(new MouseEvent(piece, MouseEvent.MOUSE_CLICKED, MouseEvent.BUTTON1_MASK, numComponents, piece.getX(), piece.getY(), 1, false, MouseEvent.BUTTON1));
-                             }
-                             else if ("No".equals(pieceName))
-                             {
-                                 
-                             }
-                         }
-                    }
-                    else if (mp.widgetIsTextField())
-                    {
-                        Component[] list = widget.getComponents();
-                        //System.out.println("default value: " + metaPref.getDefaultValue());
-                        for (Component piece : list)
-                        {
-                            
-                        }
-                    }
-                    //System.out.println("Number of subcomponents: " + widget.getComponentCount());
-                }
+                mp.revertToDefault();
             }
         }
     }

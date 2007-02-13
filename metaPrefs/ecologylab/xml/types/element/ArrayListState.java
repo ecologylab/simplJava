@@ -16,7 +16,7 @@ import ecologylab.xml.ElementState;
  */
 public class ArrayListState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>//, List<T>
 {
-    @xml_nested protected ArrayList<T> set;
+    @xml_collection protected ArrayList<T> set;
 
     public ArrayListState()
     {
@@ -158,12 +158,12 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
 
     public boolean remove(Object o)
     {
-        return (set == null ? false : set.remove(o));
+        return (set != null) && set.remove(o);
     }
 
     public boolean removeAll(Collection<?> c)
     {
-        return (set == null ? false : set.removeAll(c));
+        return (set != null) && set.removeAll(c);
     }
 
     public boolean retainAll(Collection<?> c)

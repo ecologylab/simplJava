@@ -95,7 +95,7 @@ implements ParseTableEntryTypes
 	/**
 	 * Use for resolving getElementById()
 	 */
-	HashMap						elementByIdMap;
+	HashMap<String, ElementState>						elementByIdMap;
 
     static final HashMap		fieldsForClassMap	= new HashMap();
 
@@ -127,7 +127,7 @@ implements ParseTableEntryTypes
 
 	static final int 			TOP_LEVEL_NODE		= 1;
 	
-	private static final TranslationSpace globalNameSpace	= TranslationSpace.get("global");
+	private static final TranslationSpace globalTranslationSpace	= TranslationSpace.get("global");
 	
 /**
  * Used for argument marshalling with reflection to access 
@@ -340,7 +340,6 @@ implements ParseTableEntryTypes
 		
 		try
 		{
-			String className			= thatClass.getName();
 			ArrayList attributeFields	= optimizations.attributeFields();
 			ArrayList elementFields		= optimizations.elementFields();
 			int numAttributes 			= attributeFields.size();
@@ -388,25 +387,28 @@ implements ParseTableEntryTypes
 					{
 						String thatFieldName			= thatField.getName();
 						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
-						buffy.append('<').append(leafElementName).append('>');
-						
 						boolean isCDATA	= XmlTools.leafIsCDATA(thatField);
 						Type type		= TypeRegistry.getType(thatField);
 						String leafValue= type.toString(this, thatField);
-						if (isCDATA)
+						if (!ecologylab.xml.types.scalar.Type.NULL_STRING.equals(leafValue))
 						{
-							buffy.append("<![CDATA[");
-							buffy.append(leafValue);
-							buffy.append("]]>");
-						}
-						else
-						{
-							if (type.needsEscaping())
-								XmlTools.escapeXML(buffy, leafValue);
-							else
+							buffy.append('<').append(leafElementName).append('>');
+							
+							if (isCDATA)
+							{
+								buffy.append("<![CDATA[");
 								buffy.append(leafValue);
+								buffy.append("]]>");
+							}
+							else
+							{
+								if (type.needsEscaping())
+									XmlTools.escapeXML(buffy, leafValue);
+								else
+									buffy.append(leafValue);
+							}
+							buffy.append("</").append(leafElementName).append('>');
 						}
-						buffy.append("</").append(leafElementName).append('>');
 					}
 					else
 					{
@@ -423,7 +425,7 @@ implements ParseTableEntryTypes
 								thatReferenceObject	= thatField.get(this);
 							} catch (IllegalAccessException e1)
 							{
-								debug("ERROR accessing " + thatField.getName());
+								error("Can't access " + thatField.getName());
 								e1.printStackTrace();
 							}
 						}
@@ -519,7 +521,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(ParsedURL xmlDocumentPURL)
 	throws XmlTranslationException
 	{
-		return translateFromXML(xmlDocumentPURL, globalNameSpace);
+		return translateFromXML(xmlDocumentPURL, globalTranslationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -542,17 +544,17 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param xmlDocumentPURL	ParsedURL for the XML document that needs to be translated.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 	   Parent ElementState object of the corresponding Java tree.
 	 */
 
 	public static ElementState translateFromXML(ParsedURL xmlDocumentPURL,
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		return (xmlDocumentPURL == null) ? 
-		   null : translateFromXML(buildDOM(xmlDocumentPURL), nameSpace);
+		   null : translateFromXML(buildDOM(xmlDocumentPURL), translationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -583,7 +585,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(URL xmlDocumentURL)
 	throws XmlTranslationException
 	{
-	   return translateFromXML(xmlDocumentURL, globalNameSpace);
+	   return translateFromXML(xmlDocumentURL, globalTranslationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -609,17 +611,17 @@ implements ParseTableEntryTypes
 	 * 
 	 * @param xmlDocumentURL	URL for the XML document that needs to be translated.
 	 * 
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 
 	public static ElementState translateFromXML(URL xmlDocumentURL,
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 	   Document document	= buildDOM(xmlDocumentURL);
 	   return (document == null) ? 
-		  null : translateFromXML(document, nameSpace);
+		  null : translateFromXML(document, translationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -642,13 +644,13 @@ implements ParseTableEntryTypes
 	 * @return 					the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(File xmlFile, 
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 	   Document document	= buildDOM(xmlFile);
 	   ElementState result	= null;
 	   if (document != null)
-		  result			= translateFromXML(document, nameSpace);
+		  result			= translateFromXML(document, translationSpace);
 	   return result;
 	}
 	/**
@@ -676,7 +678,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(File xmlFile)
 	throws XmlTranslationException
 	{
-	   return translateFromXML(xmlFile, globalNameSpace);
+	   return translateFromXML(xmlFile, globalTranslationSpace);
 	}
 	/**
 	 * Given the name of a valid XML file,
@@ -699,11 +701,11 @@ implements ParseTableEntryTypes
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(String fileName,
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(fileName);
-		return (document == null) ? null : translateFromXML(document, nameSpace);
+		return (document == null) ? null : translateFromXML(document, translationSpace);
 	}
 	/**
 	 * Given the name of a valid XML file,
@@ -728,7 +730,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(String fileName)
 		throws XmlTranslationException
 	{
-		return translateFromXML(fileName, globalNameSpace);
+		return translateFromXML(fileName, globalTranslationSpace);
 	}
 	
 	/**
@@ -781,7 +783,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(InputStream xmlStream)
 		throws XmlTranslationException
 	{
-		return translateFromXML(xmlStream, globalNameSpace);
+		return translateFromXML(xmlStream, globalTranslationSpace);
 	}	
 	
 	/**
@@ -808,10 +810,10 @@ implements ParseTableEntryTypes
 	 */
 	public static ElementState translateFromXMLString(String xmlString, 
 													  int charsetType,
-													  TranslationSpace nameSpace)
+													  TranslationSpace translationSpace)
 		throws XmlTranslationException
 	{
-	   return translateFromXMLString(xmlString, charsetType, nameSpace, true);
+	   return translateFromXMLString(xmlString, charsetType, translationSpace, true);
 	}
 	/**
 	 * Given an XML-formatted String, 
@@ -837,13 +839,13 @@ implements ParseTableEntryTypes
 	 */
 	public static ElementState translateFromXMLString(String xmlString, 
 													  int charsetType,
-													  TranslationSpace nameSpace,
+													  TranslationSpace translationSpace,
 													boolean doRecursiveDescent)
 		throws XmlTranslationException
 	{
 	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
 	   return (document == null) ? null : 
-		  translateFromXML(document,nameSpace, doRecursiveDescent);
+		  translateFromXML(document,translationSpace, doRecursiveDescent);
 	}
 	/**
 	 * Given an XML-formatted String, 
@@ -871,7 +873,7 @@ implements ParseTableEntryTypes
 													  int charsetType)
 		throws XmlTranslationException
 	{
-	   return translateFromXMLString(xmlString, charsetType, globalNameSpace);
+	   return translateFromXMLString(xmlString, charsetType, globalTranslationSpace);
 	}
 	
 	/**
@@ -898,11 +900,11 @@ implements ParseTableEntryTypes
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString,
-													  TranslationSpace nameSpace)
+													  TranslationSpace translationSpace)
 		throws XmlTranslationException
 	{
 
-	   return translateFromXMLString(xmlString, nameSpace, true);
+	   return translateFromXMLString(xmlString, translationSpace, true);
 	}
 	/**
 	 * Given an XML-formatted String, uses charset type UTF-8 to create
@@ -928,14 +930,14 @@ implements ParseTableEntryTypes
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLString(String xmlString,
-													  TranslationSpace nameSpace,
+													  TranslationSpace translationSpace,
 													boolean doRecursiveDescent)
 		throws XmlTranslationException
 	{
 
 	   xmlString = XML_FILE_HEADER + xmlString;
 	   return translateFromXMLString(xmlString, StringInputStream.UTF8,
-									 nameSpace, doRecursiveDescent);
+									 translationSpace, doRecursiveDescent);
 	}
 	/**
 	 * Given an XML-formatted String, uses charset type UTF-8 to create
@@ -964,7 +966,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXMLString(String xmlString)
 		throws XmlTranslationException
 	{
-	   return translateFromXMLString(xmlString, globalNameSpace);
+	   return translateFromXMLString(xmlString, globalTranslationSpace);
 	}
 	
 	/**
@@ -995,7 +997,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(Document doc)
 	throws XmlTranslationException
 	{
-	   return translateFromXML(doc, globalNameSpace);
+	   return translateFromXML(doc, globalTranslationSpace);
 	}
 	
 	/**
@@ -1019,15 +1021,15 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param doc	Document object for DOM tree that needs to be translated.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Document doc, 
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		return translateFromXML(doc, nameSpace, true);
+		return translateFromXML(doc, translationSpace, true);
 	}
 	
 	/**
@@ -1051,17 +1053,17 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param dom	Document object for DOM tree that needs to be translated.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Document dom, 
-												TranslationSpace nameSpace,
+												TranslationSpace translationSpace,
 												boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
 		Node rootNode				= (Node) dom.getDocumentElement();
-		return translateFromXML(rootNode, nameSpace, doRecursiveDescent);
+		return translateFromXML(rootNode, translationSpace, doRecursiveDescent);
 	}
 	
 	/**
@@ -1095,7 +1097,7 @@ implements ParseTableEntryTypes
 	public static ElementState translateFromXML(Node xmlNode)
 	   throws XmlTranslationException
 	{
-	   return translateFromXML(xmlNode, globalNameSpace);
+	   return translateFromXML(xmlNode, globalTranslationSpace);
 	}
 
 	/**
@@ -1122,15 +1124,15 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param xmlNode	Root node of the DOM tree that needs to be translated.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 			Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Node xmlNode,
-												TranslationSpace nameSpace)
+												TranslationSpace translationSpace)
 	   throws XmlTranslationException
 	{
-	   return translateFromXML(xmlNode, nameSpace, true);
+	   return translateFromXML(xmlNode, translationSpace, true);
 	   
 	}
 	/**
@@ -1157,12 +1159,12 @@ implements ParseTableEntryTypes
 	 * This method used to be called builtStateObject(...).
 	 * 
 	 * @param xmlNode		Root node of the DOM tree that needs to be translated.
-	 * @param nameSpace		NameSpace that provides basis for translation.
+	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXML(Node xmlNode,
-												TranslationSpace nameSpace,
+												TranslationSpace translationSpace,
 												boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
@@ -1177,14 +1179,14 @@ implements ParseTableEntryTypes
 		}
 		try
 		{			  
-		   stateClass= nameSpace.xmlTagToClass(tagName);
+		   stateClass= translationSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
 		   {
 		   	  ElementState rootState= (ElementState) getNestedElementObject(stateClass);
 		   	  if (rootState != null)
 		   	  {
-		   	  	 rootState.elementByIdMap		= new HashMap();
-		   	  	 rootState.translateFromXML(xmlNode, stateClass, nameSpace, doRecursiveDescent);
+		   	  	 rootState.elementByIdMap		= new HashMap<String, ElementState>();
+		   	  	 rootState.translateFromXML(xmlNode, stateClass, translationSpace, doRecursiveDescent);
 		   	  	 return rootState;
 		   	  }
 		   }
@@ -1691,7 +1693,7 @@ implements ParseTableEntryTypes
 	 */
 	public String tagName(TranslationSpace nameSpace)
 	{
-	   return globalNameSpace.objectToXmlTag(this);
+	   return globalTranslationSpace.objectToXmlTag(this);
 	}
 	
 /**
@@ -1840,7 +1842,7 @@ implements ParseTableEntryTypes
 	 */
 	public static void addTranslation(String packageName, String className)
 	{
-		globalNameSpace.addTranslation(packageName, className);
+		globalTranslationSpace.addTranslation(packageName, className);
 	}
    /**
 	* Set the default package name for XML tag to ElementState sub-class translations,
@@ -1850,7 +1852,7 @@ implements ParseTableEntryTypes
 	*/
    public static void setDefaultPackageName(String packageName)
    {
-	  globalNameSpace.setDefaultPackageName(packageName);
+	  globalTranslationSpace.setDefaultPackageName(packageName);
    }
 
 	/**
@@ -1861,7 +1863,7 @@ implements ParseTableEntryTypes
 	 */
 	public ElementState getElementStateById(String id)
 	{
-		return (ElementState) this.elementByIdMap.get(id);
+		return this.elementByIdMap.get(id);
 	}
 
 	/**
@@ -2019,6 +2021,35 @@ implements ParseTableEntryTypes
     {
 
     }
+    
+    /**
+     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * is a complex nested field, which requires further translation.
+     *
+     * @author andruid
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Inherited
+    public @interface xml_collection
+    {
+
+    }
+    
+    /**
+     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * is a complex nested field, which requires further translation.
+     *
+     * @author andruid
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Inherited
+    public @interface xml_map
+    {
+
+    }
+    
 	public void checkAnnotation() throws NoSuchFieldException
 	{
 		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(xml_inherit.class));

@@ -63,6 +63,10 @@ public class Optimizations extends Debug
 	
 	private HashMap					fieldsMap;
 	
+	//private HashMap<String, Field>	mapsMap;
+	
+	//private HashMap<String, Field>	collectionsMap;
+	
 	
 	private Optimizations(Class thatClass)
 	{
@@ -142,7 +146,7 @@ public class Optimizations extends Debug
 				result		= (TagMapEntry) fieldNameOrClassToTagMap.get(fieldName);
 				if (result == null)
 				{
-					String tagName	= XmlTools.getXmlTagName(fieldName, "State", compression);
+					String tagName	= XmlTools.getXmlTagName(fieldName, null, compression);
 					result	= new TagMapEntry(tagName);
 //					debug(tagName.toString());
 					fieldNameOrClassToTagMap.put(fieldName, result);
@@ -376,6 +380,16 @@ public class Optimizations extends Debug
 			{
 				elementFields.add(thatField);
 				thatField.setAccessible(true);
+				/*
+				if (XmlTools.hasCollectionAnnotation(thatField))
+				{
+					mapCollection(thatField);
+				}
+				else if (XmlTools.hasMapAnnotation(thatField))
+				{
+					mapMap(thatField);
+				}
+				*/
 			}
 			// else -- ignore non-annotated fields
 		}
@@ -399,6 +413,17 @@ public class Optimizations extends Debug
 	{
 		fieldsMap.put(thatField.getName(), thatField);
 	}
+/*
+	private void mapMap(Field thatField)
+	{
+		mapsMap.put(thatField.getName(), thatField);
+	}
+
+	private void mapCollection(Field thatField)
+	{
+		collectionsMap.put(thatField.getName(), thatField);
+	}
+*/
 	/**
 	 * Get the field asssociated with fieldName.
 	 * If necessary (that is, the first time), this routine may make calls to do all the work

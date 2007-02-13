@@ -4,7 +4,9 @@
 package ecologylab.appframework.types.prefs;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -12,6 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.ButtonGroup;
 import javax.swing.SwingConstants;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
@@ -55,6 +58,8 @@ public abstract class MetaPref<T> extends ElementState
 	@xml_attribute 	String		category;
     
     public JPanel               jPanel = this.getWidget();
+    
+    ObjectRegistry<JComponent>  jComponentsMap;
 	
 //	@xml_attribute	T			defaultValue;
 	
@@ -74,81 +79,7 @@ public abstract class MetaPref<T> extends ElementState
         return category;
     }
 
-    public JPanel getWidget()
-    {
-        //println("getting widget: ");
-        if ("RADIO".equals(widget))
-        {
-            // TODO don't need this after figure out how to define n-radio buttons
-            if (this.getDefaultValue() instanceof Boolean)
-            {
-                Boolean defVal = (Boolean)this.getDefaultValue();
-                boolean yesVal = defVal;
-                boolean noVal = !defVal;
-                
-                //println("Generating boolean radio button");
-                JLabel label = new JLabel();
-                label.setBounds(new Rectangle(0, 4, 340, 32));
-                // this is to make the text automatically wrap
-                String wrapText = "<html>" + this.description + "</html>";
-                label.setText(wrapText);
-                label.setToolTipText(this.helpText);
-                label.setHorizontalTextPosition(SwingConstants.LEADING);
-                
-                JRadioButton radioYes = new JRadioButton();
-                radioYes.setBounds(new Rectangle(405, 7, 46, 32));
-                radioYes.setSelected(yesVal);
-                radioYes.setName("Yes");
-                radioYes.setText("Yes");
-
-                JRadioButton radioNo = new JRadioButton();
-                radioNo.setBounds(new Rectangle(484, 7, 40, 32));
-                radioNo.setSelected(noVal);
-                radioNo.setName("No");
-                radioNo.setText("No");
-                
-                ButtonGroup radioPair = new ButtonGroup();
-                radioPair.add(radioYes);
-                radioPair.add(radioNo);
-                
-                JPanel panel = new JPanel();
-                panel.setSize(new java.awt.Dimension(586,40));
-                panel.setLayout(null);
-                panel.add(label);
-                panel.add(radioYes);
-                panel.add(radioNo);
-                panel.setVisible(true);
-                
-                return panel;
-            }
-        }
-        else if ("TEXT_FIELD".equals(widget))
-        {
-            //println("Generating text fields");
-            JLabel label = new JLabel();
-            label.setBounds(new Rectangle(0, 10, 340, 32));
-            String wrapText = "<html>" + this.description + "</html>";
-            label.setText(wrapText);
-            label.setToolTipText(this.helpText);
-            label.setHorizontalTextPosition(SwingConstants.LEADING);
-            
-            JTextField textField = new JTextField();
-            textField.setBounds(new Rectangle(410, 17, 115, 20));
-            textField.setHorizontalAlignment(JTextField.CENTER);
-            textField.setText(this.getDefaultValue().toString());
-            
-            JPanel panel = new JPanel();
-            panel.setSize(new java.awt.Dimension(586,35));
-            panel.setLayout(null);
-            panel.add(label);
-            panel.add(textField);
-            panel.setVisible(true);
-            
-            return panel;
-        }
-        // TODO Auto-generated method stub
-        return null;
-    }
+    public abstract JPanel getWidget();
     
     public void print()
     {
@@ -180,4 +111,28 @@ public abstract class MetaPref<T> extends ElementState
 		return (range == null) ? true :  range.isWithinRange(newValue);
 	}
 	*/
+    
+    public abstract void revertToDefault();
+    
+    private ObjectRegistry<JComponent> jComponentsMap()
+    {
+        ObjectRegistry<JComponent> result   = this.jComponentsMap;
+        if (result == null)
+        {
+            result                          = new ObjectRegistry<JComponent>();
+            this.jComponentsMap             = result;
+        }
+        return result;
+    }
+
+    protected void registerComponent(String labelAndName, JComponent jComponent)
+    {
+        jComponentsMap().registerObject(this.id+labelAndName,jComponent);
+    }
+    
+    protected JComponent lookupComponent(String labelAndName)
+    {
+        JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
+        return jComponent;
+    }
 }

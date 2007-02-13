@@ -448,10 +448,23 @@ extends Debug
     */
    public String noAnchorNoQueryPageString()
    {
-      if ((url.getRef() == null) && (url.getQuery() == null))
-	 return toString();
-      else
-	 return StringTools.noAnchorNoQueryPageString(url);
+	   String string	= toString();
+	   String result	= null;
+	   if (string != null)
+	   {
+		   int qIndex	= string.indexOf('?');
+		   if (qIndex == -1)
+		   {   // strip anchor
+			   int aIndex	= string.indexOf('#');
+			   if (qIndex != -1)
+				  result= string.substring(0, aIndex);
+			   else
+				  result= string;
+		   }
+		   else // dont worry about stripping anchor cause if it was there, it'd be after ?
+			   result 	=  string.substring(0, qIndex);	// strip query
+	   }
+	   return result;
    }
    
    /*
