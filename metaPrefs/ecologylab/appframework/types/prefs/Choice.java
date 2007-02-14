@@ -5,6 +5,7 @@ import ecologylab.xml.ElementState;
 public class Choice<T> extends ElementState
 {
     String      name;
+    String      label;
     T           value;
 
     public Choice()
@@ -25,5 +26,10 @@ public class Choice<T> extends ElementState
     public String getName()
     {
         return name;
+    }
+
+    public String getLabel()
+    {
+        return label;
     }
 }

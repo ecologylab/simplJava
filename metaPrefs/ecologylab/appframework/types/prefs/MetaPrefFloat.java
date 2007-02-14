@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Rectangle;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -49,25 +50,35 @@ public class MetaPrefFloat extends MetaPref<Float>
     public @Override
     JPanel getWidget()
     {
-        JLabel label = new JLabel();
-        label.setBounds(new Rectangle(0, 10, 340, 32));
-        String wrapText = "<html>" + this.description + "</html>";
-        label.setText(wrapText);
-        label.setToolTipText(this.helpText);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
-        
-        JTextField textField = new JTextField();
-        textField.setBounds(new Rectangle(410, 17, 115, 20));
-        textField.setHorizontalAlignment(JTextField.CENTER);
-        textField.setText(this.getDefaultValue().toString());
-        textField.setName("textField");
-        registerComponent("textField",textField);
-        
         JPanel panel = new JPanel();
+        
+        this.createLabel(panel);
+        
+        if (widgetIsTextField())
+        {
+            this.createTextField(panel,this.getDefaultValue().toString(),"textField");
+        }
+        else if (widgetIsRadio())
+        {
+            // we know here that if we are a radio, we are a mutex of 3 or more
+            // because otherwise we would be a bool.
+            if (choices != null)
+            {
+                ButtonGroup buttonGroup = new ButtonGroup();
+                for (Choice choice : choices)
+                {
+                    // TODO: there's a better way to do this than in an if-else
+                    if (this.getDefaultValue().equals(choice.getValue()))
+                        this.createRadio(panel, buttonGroup, true, choice.getLabel(), choice.getName(), 405);
+                    else
+                        this.createRadio(panel, buttonGroup, false, choice.getLabel(), choice.getName(), 405);
+                }
+            }
+        }
+        // TODO: drop-down list
+        
         panel.setSize(new java.awt.Dimension(586,35));
         panel.setLayout(null);
-        panel.add(label);
-        panel.add(textField);
         panel.setVisible(true);
         
         return panel;

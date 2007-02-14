@@ -138,4 +138,48 @@ public abstract class MetaPref<T> extends ElementState
         JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
         return jComponent;
     }
+    
+    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int x)
+    {
+        JRadioButton radioButton = new JRadioButton();
+        radioButton.setBounds(new Rectangle(x, 7, 46, 32));
+        radioButton.setSelected(initialValue);
+        radioButton.setName(name);
+        radioButton.setText(label);
+        
+        buttonGroup.add(radioButton);
+        
+        panel.add(radioButton);
+        registerComponent(name, radioButton);
+        
+        return radioButton;
+    }
+    
+    protected JTextField createTextField(JPanel panel, String initialValue, String labelAndName)
+    {
+        JTextField textField = new JTextField();
+        textField.setBounds(new Rectangle(410, 17, 115, 20));
+        textField.setHorizontalAlignment(JTextField.CENTER);
+        textField.setText(initialValue);
+        textField.setName(labelAndName);
+        
+        panel.add(textField);
+        registerComponent(labelAndName, textField);
+        
+        return textField;
+    }
+    
+    protected JLabel createLabel(JPanel panel)
+    {
+        JLabel label = new JLabel();
+        label.setBounds(new Rectangle(0, 10, 340, 32));
+        String wrapText = "<html>" + this.description + "</html>";
+        label.setText(wrapText);
+        label.setToolTipText(this.helpText);
+        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        
+        panel.add(label);
+        
+        return label;
+    }
 }

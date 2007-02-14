@@ -66,45 +66,21 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         Boolean defVal = (Boolean)this.getDefaultValue();
         boolean yesVal = defVal;
         boolean noVal = !defVal;
-        
-        //println("Generating boolean radio button");
-        JLabel label = new JLabel();
-        label.setBounds(new Rectangle(0, 4, 340, 32));
-        // this is to make the text automatically wrap
-        String wrapText = "<html>" + this.description + "</html>";
-        label.setText(wrapText);
-        label.setToolTipText(this.helpText);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
+
+        JPanel panel = new JPanel();
         
         ButtonGroup radioPair = new ButtonGroup();
         
-        JPanel panel = new JPanel();
         panel.setSize(new java.awt.Dimension(586,40));
         panel.setLayout(null);
-        panel.add(label);
 
-        this.createRadio(panel, radioPair, yesVal, "Yes", 405);
-        this.createRadio(panel, radioPair, noVal, "No", 484);
+        this.createLabel(panel);
+        this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
+        this.createRadio(panel, radioPair, noVal, "No", "Yes", 484);
 
         panel.setVisible(true);
         
         return panel;
-    }
-	
-    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String labelAndName, int x)
-    {
-        JRadioButton radioButton = new JRadioButton();
-        radioButton.setBounds(new Rectangle(x, 7, 46, 32));
-        radioButton.setSelected(initialValue);
-        radioButton.setName(labelAndName);
-        radioButton.setText(labelAndName);
-        
-        buttonGroup.add(radioButton);
-        
-        panel.add(radioButton);
-        registerComponent(labelAndName, radioButton);
-        
-        return radioButton;
     }
     
 /*

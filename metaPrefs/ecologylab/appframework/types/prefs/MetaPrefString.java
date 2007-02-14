@@ -49,25 +49,13 @@ public class MetaPrefString extends MetaPref<String>
     public @Override
     JPanel getWidget()
     {
-        JLabel label = new JLabel();
-        label.setBounds(new Rectangle(0, 10, 340, 32));
-        String wrapText = "<html>" + this.description + "</html>";
-        label.setText(wrapText);
-        label.setToolTipText(this.helpText);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
-        
-        JTextField textField = new JTextField();
-        textField.setBounds(new Rectangle(410, 17, 115, 20));
-        textField.setHorizontalAlignment(JTextField.CENTER);
-        textField.setText(this.getDefaultValue());
-        textField.setName("textField");
-        registerComponent("textField",textField);
-        
         JPanel panel = new JPanel();
+        
+        this.createLabel(panel);
+        this.createTextField(panel,this.getDefaultValue(),"textField");
+        
         panel.setSize(new java.awt.Dimension(586,35));
         panel.setLayout(null);
-        panel.add(label);
-        panel.add(textField);
         panel.setVisible(true);
         
         return panel;
