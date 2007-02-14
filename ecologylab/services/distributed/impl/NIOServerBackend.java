@@ -744,9 +744,8 @@ public class NIOServerBackend extends ServicesServerBase implements
         { // connection closed cleanly
             throw new ClientOfflineException(
                     "Client closed connection cleanly.");
-        }
-
-        if (bytesRead > 0)
+        } 
+        else if (bytesRead > 0)
         {
             byte[] bytes = new byte[bytesRead];
 
