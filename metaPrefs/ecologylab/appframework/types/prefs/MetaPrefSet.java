@@ -25,12 +25,7 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 		for (int i=0; i<size(); i++)
 		{
 			MetaPref metapref = (MetaPref) get(i);
-			/* println(metapref.id + '\n' +
-					metapref.description + '\n' +
-					metapref.category + '\n' +
-					metapref.helpText + '\n' +
-					metapref.widget);
-			println("" + metapref.getDefaultValue() + '\n'); */
+            // create widget
             metapref.jPanel = metapref.getWidget();
             ArrayList<MetaPref> metaPrefList = categoryToMetaPrefs.get(metapref.getCategory());
             if (metaPrefList == null)

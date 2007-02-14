@@ -39,7 +39,9 @@ public class CFPrefsEdit extends ApplicationEnvironment
 
 			//println("metaPrefSet.size() = " + metaPrefSet.size());
 			metaPrefSet.processMetaPrefs();
+            //get or process prefs here
             
+            // we want to also pass in prefs to PrefWidgetManager
             PrefWidgetManager mgr = new PrefWidgetManager(metaPrefSet);
 		}
 		catch (XmlTranslationException e)

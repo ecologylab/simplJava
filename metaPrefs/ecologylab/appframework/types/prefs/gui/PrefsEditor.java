@@ -122,26 +122,6 @@ public class PrefWidgetManager
     }
     // end of static bits of gui
     
-    private void actionSavePreferences()
-    {
-        System.out.println("we pressed the save button");
-    }
-    
-    /**
-     * The function that actually performs the revert-to-default actions
-     */
-    private void actionRevertPreferencesToDefault()
-    {
-        System.out.println("we pressed the revert button");
-        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
-        {
-            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
-            {
-                mp.revertToDefault();
-            }
-        }
-    }
-
     // bits of gui that are all or part auto-generated
     private JTabbedPane getJTabbedPane() 
     {
@@ -179,7 +159,7 @@ public class PrefWidgetManager
             {
                 int height = subPanel.getHeight();
                 int width = subPanel.getWidth();
-                System.out.println("subpanel found for " + category + "; height: " + height + ", width: " + width);
+                //System.out.println("subpanel found for " + category + "; height: " + height + ", width: " + width);
                 subPanel.setLocation(30, yval);
                 yval += subPanel.getHeight();
                 newPanel.add(subPanel);
@@ -189,4 +169,26 @@ public class PrefWidgetManager
         return newPanel;
     }
     // end of bits of gui that are all or part auto-generated
+    
+    // gui actions for buttons
+    private void actionSavePreferences()
+    {
+        System.out.println("we pressed the save button");
+    }
+    
+    /**
+     * The function that actually performs the revert-to-default actions
+     * is in the MetaPrefType classes
+     */
+    private void actionRevertPreferencesToDefault()
+    {
+        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+        {
+            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+            {
+                mp.revertToDefault();
+            }
+        }
+    }
+    // end of gui actions for buttons
 }

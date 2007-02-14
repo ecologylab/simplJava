@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Metadata about a Preference.
@@ -60,6 +61,8 @@ public abstract class MetaPref<T> extends ElementState
     public JPanel               jPanel = this.getWidget();
     
     ObjectRegistry<JComponent>  jComponentsMap;
+    
+    @xml_collection ArrayListState<Choice<T>> choices = null;
 	
 //	@xml_attribute	T			defaultValue;
 	
