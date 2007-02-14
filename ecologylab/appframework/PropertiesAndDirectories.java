@@ -453,4 +453,5 @@ extends Debug
 		}
 		
 	}
+	public static final boolean	isMac	= (os() == MAC);
 }
