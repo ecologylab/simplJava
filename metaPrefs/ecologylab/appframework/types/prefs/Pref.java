@@ -20,7 +20,7 @@ import ecologylab.xml.ElementState;
  */
 abstract public class Pref<T> extends ElementState
 {
-	static HashMap<String, Pref> allPrefs	= new HashMap<String, Pref>();
+    String name;
 	
 	/**
 	 * 
@@ -72,55 +72,5 @@ abstract public class Pref<T> extends ElementState
 	protected void invalidate()
 	{
 		valueCached	= null;
-	}
-
-	public static Integer valueInt(String name) throws ClassCastException
-	{
-	    return (Integer)allPrefs.get(name).value();
-	}
-	
-	public static Boolean valueBoolean(String name) throws ClassCastException
-	{
-	    return (Boolean)allPrefs.get(name).value();
-	}
-	
-	public static Float valueFloat(String name) throws ClassCastException
-	{
-	    return (Float)allPrefs.get(name).value();
-	}
-	
-	public static String valueString(String name) throws ClassCastException
-	{
-	    return (String)allPrefs.get(name).value();
-	}
-	
-	// TODO: get preferenceRegistry functions from Preference.java
-	
-	public static Pref lookup(String key)
-	{
-		// need to make sure allPrefs is actually populated - otherwise you get an exception
-		return allPrefs.get(key);
-	}
-	public static void main(String[] a)
-	{
-		//PrefInt ti	= (PrefInt) lookup(a[0]);
-		
-		//int i	= (int) ti.value();
-		
-		PrefInt ii = new PrefInt(5);
-		int ix	= (int) ii.value();
-		println("ix = " + ix);
-		
-		PrefBoolean ib = new PrefBoolean(true);
-		boolean bi = ib.value();
-		println("bi = " + bi);
-		
-		PrefString is = new PrefString("this is a test");
-		String si = is.value();
-		println("si = " + si);
-		
-		PrefFloat il = new PrefFloat(1645);
-		float li = il.value();
-		println("li = " + li);
 	}
 }

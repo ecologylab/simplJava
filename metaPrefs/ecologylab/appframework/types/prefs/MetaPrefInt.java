@@ -3,15 +3,12 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.Rectangle;
-
 import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
+import javax.swing.ButtonModel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
-import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -42,8 +39,23 @@ public class MetaPrefInt extends MetaPref<Integer>
     public @Override
     void revertToDefault()
     {
-        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
-        textField.setText(this.getDefaultValue().toString());
+        if (widgetIsTextField())
+        {
+            JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+            textField.setText(this.getDefaultValue().toString());
+        }
+        else if (widgetIsRadio())
+        {
+            // TODO: this is a bad assumption (value = index)
+            // get default choice
+            Choice choice = choices.get(this.getDefaultValue());
+            // registered name
+            String regName = this.id + choice.name;
+            println("we think the name is: " + regName);
+            JRadioButton defaultButton = (JRadioButton) lookupComponent(regName);
+            ButtonModel buttonModel = defaultButton.getModel();
+            buttonModel.setSelected(true);
+        }
     }
 
     public @Override
@@ -65,19 +77,31 @@ public class MetaPrefInt extends MetaPref<Integer>
             if (choices != null)
             {
                 ButtonGroup buttonGroup = new ButtonGroup();
+                int start_y = 7;
                 for (Choice choice : choices)
                 {
                     // TODO: there's a better way to do this than in an if-else
-                    if (this.getDefaultValue().equals(choice.getValue()))
-                        this.createRadio(panel, buttonGroup, true, choice.getLabel(), choice.getName(), 405);
+                    boolean thisIsDefault = getDefaultValue().equals(choice.getValue());
+                    //println("this is default?: " + thisIsDefault);
+                    //println("getDefaultValue: " + getDefaultValue().toString());
+                    //println("choice.getValue: " + choice.getValue().toString());
+                    if (thisIsDefault)
+                        this.createRadio(panel, buttonGroup, true, choice.getLabel(), choice.getName(), 405, start_y);
                     else
-                        this.createRadio(panel, buttonGroup, false, choice.getLabel(), choice.getName(), 405);
+                        this.createRadio(panel, buttonGroup, false, choice.getLabel(), choice.getName(), 405, start_y);
+                    start_y += 30;
                 }
             }
         }
         // TODO: drop-down list
-        
-        panel.setSize(new java.awt.Dimension(586,35));
+        if (choices != null)
+        {
+            panel.setSize(new java.awt.Dimension(586,35*choices.size()));
+        }
+        else
+        {
+            panel.setSize(new java.awt.Dimension(586,35));
+        }
         panel.setLayout(null);
         panel.setVisible(true);
         

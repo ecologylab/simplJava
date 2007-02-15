@@ -76,7 +76,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 
         this.createLabel(panel);
         this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
-        this.createRadio(panel, radioPair, noVal, "No", "Yes", 484);
+        this.createRadio(panel, radioPair, noVal, "No", "No", 484);
 
         panel.setVisible(true);
         

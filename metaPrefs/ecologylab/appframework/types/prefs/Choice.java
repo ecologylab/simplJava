@@ -2,34 +2,29 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.ElementState;
 
-public class Choice<T> extends ElementState
+
+abstract public class Choice<T> extends ElementState
 {
-    String      name;
-    String      label;
-    T           value;
+    @xml_attribute String      name;
+    @xml_attribute String      label;
+    //@xml_attribute T           value;
 
     public Choice()
     {
         super();
     }
-
-    public void setValue(T newValue)
-    {
-        value = newValue;
-    }
     
-    public T getValue()
-    {
-        return value;
-    }
+    public abstract T getValue();
+    
+    public abstract void setValue(T newValue);
     
     public String getName()
     {
-        return name;
+        return this.name;
     }
 
     public String getLabel()
     {
-        return label;
+        return this.label;
     }
 }

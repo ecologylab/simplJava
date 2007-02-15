@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.util.HashMap;
 
@@ -91,7 +93,15 @@ public abstract class MetaPref<T> extends ElementState
                 this.category + '\n' +
                 this.helpText + '\n' +
                 this.widget);
-        println("" + this.getDefaultValue() + '\n');
+        println("" + this.getDefaultValue());
+        if (choices != null)
+        {
+            for (Choice choice : choices)
+            {
+                println("Choice: " + choice.name + ", " + choice.label);
+            }
+        }
+        println("\n");
     }
 
     public boolean widgetIsRadio()
@@ -130,11 +140,13 @@ public abstract class MetaPref<T> extends ElementState
 
     protected void registerComponent(String labelAndName, JComponent jComponent)
     {
+        println("Registering: " + this.id+labelAndName);
         jComponentsMap().registerObject(this.id+labelAndName,jComponent);
     }
     
     protected JComponent lookupComponent(String labelAndName)
     {
+        println("Trying to fetch: " + labelAndName);
         JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
         return jComponent;
     }
@@ -142,7 +154,33 @@ public abstract class MetaPref<T> extends ElementState
     protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int x)
     {
         JRadioButton radioButton = new JRadioButton();
-        radioButton.setBounds(new Rectangle(x, 7, 46, 32));
+        // get font metrics info so we can properly determine length
+        FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
+        // get actual width of string (as per gui, not as number of chars)
+        double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
+        // also add width of icon TODO guessed to be 30
+        radioButton.setBounds(new Rectangle(x, 7, (int)strWidth + 30, 32));
+        radioButton.setSelected(initialValue);
+        radioButton.setName(name);
+        radioButton.setText(label);
+        
+        buttonGroup.add(radioButton);
+        
+        panel.add(radioButton);
+        registerComponent(name, radioButton);
+        
+        return radioButton;
+    }
+    
+    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int x, int y)
+    {
+        // get font metrics info so we can properly determine length
+        JRadioButton radioButton = new JRadioButton();
+        FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
+        // get string width
+        double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
+        // also add width of icon TODO: guessed to be 30
+        radioButton.setBounds(new Rectangle(x, y, (int)strWidth + 30, 32));
         radioButton.setSelected(initialValue);
         radioButton.setName(name);
         radioButton.setText(label);
