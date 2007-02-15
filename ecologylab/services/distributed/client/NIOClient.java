@@ -188,6 +188,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 // connected
                 channel.register(selector, SelectionKey.OP_READ);
                 // channel.register(selector, SelectionKey.OP_WRITE);
+                
+                this.key = channel.keyFor(selector);
             }
         }
         catch (BindException e)
