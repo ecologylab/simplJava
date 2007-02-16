@@ -51,7 +51,7 @@ public class Authenticator extends Debug
      * @param entry -
      *            the AuthenticationListEntry containing a username and password
      *            that is attempting to authenticate.
-     *            
+     * 
      * @return
      */
     public boolean login(AuthenticationListEntry entry, InetAddress address)
@@ -80,7 +80,6 @@ public class Authenticator extends Debug
             debug("<null> attempted login.");
             loggedInSuccessfully = false;
         }
-            
 
         return loggedInSuccessfully;
     }
@@ -93,13 +92,21 @@ public class Authenticator extends Debug
      */
     public boolean logout(AuthenticationListEntry entry, InetAddress address)
     {
-        if (this.authedIPToName.get(address).equals(entry.getUsername()))
+        try
         {
-            remove(entry.getUsername());
-            return true;
+            if (this.authedIPToName.get(address).equals(entry.getUsername()))
+            {
+                remove(entry.getUsername());
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-        else
+        catch (Exception e)
         {
+            e.printStackTrace();
             return false;
         }
     }
