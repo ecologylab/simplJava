@@ -28,6 +28,7 @@ public class PrefSet extends ArrayListState<Pref>
         for (int i=0; i<size(); i++)
         {
             Pref pref = (Pref) get(i);
+            //pref.print();
             registerPref(pref.name, pref);
         }
     }
@@ -56,7 +57,7 @@ public class PrefSet extends ArrayListState<Pref>
         allPrefsMap().registerObject(name,pref);
     }
     
-    protected Pref lookupPref(String name)
+    public Pref lookupPref(String name)
     {
         Pref pref = allPrefsMap().lookupObject(name);
         return pref;
@@ -80,5 +81,16 @@ public class PrefSet extends ArrayListState<Pref>
     public String lookupString(String name) throws ClassCastException
     {
         return (String)lookupPref(name).value();
+    }
+    
+    public boolean hasPref(String name)
+    {
+        return allPrefsMap().containsKey(name);
+    }
+
+    public void modifyPref(String name, Object newPref)
+    {
+        // TODO Auto-generated method stub
+        allPrefsMap().modifyObject(name,(Pref)newPref);
     }
 }

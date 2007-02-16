@@ -60,7 +60,9 @@ public abstract class MetaPref<T> extends ElementState
 	 */
 	@xml_attribute 	String		category;
     
-    public JPanel               jPanel = this.getWidget();
+    // have to call getWidget() for each panel;
+    // if we try to do so here, everything ends up null
+    public JPanel               jPanel;
     
     ObjectRegistry<JComponent>  jComponentsMap;
     
@@ -82,6 +84,11 @@ public abstract class MetaPref<T> extends ElementState
     public String getCategory()
     {
         return category;
+    }
+    
+    public String getID()
+    {
+        return id;
     }
 
     public abstract JPanel getWidget();
@@ -126,6 +133,7 @@ public abstract class MetaPref<T> extends ElementState
 	*/
     
     public abstract void revertToDefault();
+    public abstract void setWidgetToPrefValue(T prefValue);
     
     private ObjectRegistry<JComponent> jComponentsMap()
     {
@@ -140,13 +148,13 @@ public abstract class MetaPref<T> extends ElementState
 
     protected void registerComponent(String labelAndName, JComponent jComponent)
     {
-        println("Registering: " + this.id+labelAndName);
+        //println("Registering: " + this.id+labelAndName);
         jComponentsMap().registerObject(this.id+labelAndName,jComponent);
     }
     
     protected JComponent lookupComponent(String labelAndName)
     {
-        println("Trying to fetch: " + labelAndName);
+        //println("Trying to fetch: " + labelAndName);
         JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
         return jComponent;
     }
@@ -220,4 +228,6 @@ public abstract class MetaPref<T> extends ElementState
         
         return label;
     }
+
+    public abstract T getPrefValue();
 }

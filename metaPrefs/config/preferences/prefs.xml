@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pref_set><pref_boolean value="true" name="crawl"/><pref_boolean value="true" name="download_images_automatically"/><pref_float value="0.2" name="coolSpaceRatio"/><pref_boolean value="true" name="spatial_grid"/><pref_boolean name="incontext_slider"/><pref_boolean name="use_dashboard"/><pref_float value="0.7" name="elements_per_square_inch"/><pref_int value="12" name="undo_levels"/><pref_int value="1" name="log_mode"/><pref_boolean value="true" name="javascript_debug_mode"/><pref_string value="code/java" name="codebase"/></pref_set>

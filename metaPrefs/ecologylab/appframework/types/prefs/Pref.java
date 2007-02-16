@@ -12,15 +12,18 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Palette;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Generic base class for application Preference objects.
  * 
  * @author andruid
  */
-abstract public class Pref<T> extends ElementState
+
+@xml_inherit
+public abstract class Pref<T> extends ElementState
 {
-    String name;
+    @xml_attribute String name;
 	
 	/**
 	 * 
@@ -30,10 +33,6 @@ abstract public class Pref<T> extends ElementState
 		super();
 	}
 
-	public Pref(T value)
-	{
-		
-	}
 	T		valueCached;
 	
 	/**
@@ -51,6 +50,11 @@ abstract public class Pref<T> extends ElementState
 		}
 		return result;
 	}
+    
+    public void print()
+    {
+        println("Pref: name: " + name + ", value: " + this.getValue());
+    }
 	
 	/**
 	 * Generic get value returns the value as the actual type you want.
@@ -67,7 +71,7 @@ abstract public class Pref<T> extends ElementState
 	 * 
 	 * @param newValue
 	 */
-	abstract void setValue(T newValue);
+	public abstract void setValue(T newValue);
 	
 	protected void invalidate()
 	{

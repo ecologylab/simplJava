@@ -27,7 +27,8 @@ public class PrefTranslations extends Debug
 	{
 		MetaPref.class,
 		MetaPrefSet.class,
-		
+		Pref.class,
+        PrefSet.class,
 		
 	};
 

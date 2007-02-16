@@ -50,6 +50,7 @@ public class MetaPrefString extends MetaPref<String>
     JPanel getWidget()
     {
         JPanel panel = new JPanel();
+        panel.setName(this.id);
         
         this.createLabel(panel);
         this.createTextField(panel,this.getDefaultValue(),"textField");
@@ -59,6 +60,20 @@ public class MetaPrefString extends MetaPref<String>
         panel.setVisible(true);
         
         return panel;
+    }
+
+    @Override
+    public void setWidgetToPrefValue(String prefValue)
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        textField.setText(prefValue);
+    }
+
+    @Override
+    public String getPrefValue()
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        return textField.getText();
     }
 	
 /*

@@ -51,6 +51,7 @@ public class MetaPrefFloat extends MetaPref<Float>
     JPanel getWidget()
     {
         JPanel panel = new JPanel();
+        panel.setName(this.id);
         
         this.createLabel(panel);
         
@@ -82,6 +83,20 @@ public class MetaPrefFloat extends MetaPref<Float>
         panel.setVisible(true);
         
         return panel;
+    }
+
+    @Override
+    public void setWidgetToPrefValue(Float prefValue)
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        textField.setText(prefValue.toString());
+    }
+
+    @Override
+    public Float getPrefValue()
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        return new Float(textField.getText());
     }
 	
 /*

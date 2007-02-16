@@ -3,13 +3,18 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
+
 /**
  * @author andruid
  *
  */
+
+@xml_inherit
 public class PrefBoolean extends Pref<Boolean>
 {
-	private boolean			value;
+    @xml_attribute boolean			value;
 	
 	/**
 	 * 

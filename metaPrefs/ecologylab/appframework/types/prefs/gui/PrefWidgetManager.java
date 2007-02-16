@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
@@ -17,16 +18,25 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
+import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.net.ParsedURL;
+import ecologylab.xml.XmlTranslationException;
 
 public class PrefWidgetManager
 {
     MetaPrefSet metaPrefSet;
+    PrefSet     prefSet;
+    ParsedURL   prefsPURL;
     
-    public PrefWidgetManager(MetaPrefSet set)
+    public PrefWidgetManager(MetaPrefSet set, PrefSet prefs, ParsedURL prefsURL)
     {
         metaPrefSet = set;
+        prefSet     = prefs;
+        prefsPURL   = prefsURL;
         JDialog window = getJDialog();
         window.addWindowListener(new WindowAdapter()
         {
@@ -154,14 +164,18 @@ public class PrefWidgetManager
         for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(category))
         {
             JPanel subPanel = mp.jPanel;
-            // TODO increment positions for elements!
             if (subPanel != null)
             {
-                int height = subPanel.getHeight();
-                int width = subPanel.getWidth();
+                //int height = subPanel.getHeight();
+                //int width = subPanel.getWidth();
                 //System.out.println("subpanel found for " + category + "; height: " + height + ", width: " + width);
                 subPanel.setLocation(30, yval);
                 yval += subPanel.getHeight();
+                // if we have a prefs value, override it now
+                if (prefSet.hasPref(mp.getID()))
+                {
+                    mp.setWidgetToPrefValue(prefSet.lookupPref(mp.getID()).value());
+                }
                 newPanel.add(subPanel);
             }
         }
@@ -174,6 +188,34 @@ public class PrefWidgetManager
     private void actionSavePreferences()
     {
         System.out.println("we pressed the save button");
+        // we do this with metaprefs because we will always have
+        // all metaprefs. we may not always have a prefs file to start
+        // with.s
+        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+        {
+            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+            {
+                // by casting here we get the proper return type
+                // for getPrefValue
+                String name = mp.getID();
+                mp = mp.getClass().cast(mp);
+                Pref pref = prefSet.lookupPref(name);
+                //pref.print();
+                pref.setValue(mp.getPrefValue());
+                prefSet.modifyPref(name,pref);
+                //prefSet.lookupPref(mp.getID()).print();
+            }
+        }
+        // save file
+        
+        try
+        {
+            prefSet.saveXmlFile(prefsPURL.url().getFile(), true, false);
+        } catch (XmlTranslationException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     /**

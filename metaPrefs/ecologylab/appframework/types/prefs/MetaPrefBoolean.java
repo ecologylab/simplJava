@@ -50,13 +50,13 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         
         if (yesVal)
         {
-            yesModel.setSelected(yesVal);
+            yesModel.setSelected(true);
         }
         else
         {
             JRadioButton noButton = (JRadioButton)lookupComponent(this.id+"No");
             ButtonModel noModel = noButton.getModel();
-            noModel.setSelected(!yesVal);
+            noModel.setSelected(true);
         }
     }
 
@@ -68,6 +68,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         boolean noVal = !defVal;
 
         JPanel panel = new JPanel();
+        panel.setName(this.id);
         
         ButtonGroup radioPair = new ButtonGroup();
         
@@ -81,6 +82,30 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         panel.setVisible(true);
         
         return panel;
+    }
+
+    @Override
+    public void setWidgetToPrefValue(Boolean prefValue)
+    {
+        if (prefValue)
+        {
+            JRadioButton yesButton = (JRadioButton)lookupComponent(this.id+"Yes");
+            ButtonModel yesModel = yesButton.getModel();
+            yesModel.setSelected(true);
+        }
+        else
+        {
+            JRadioButton noButton = (JRadioButton)lookupComponent(this.id+"No");
+            ButtonModel noModel = noButton.getModel();
+            noModel.setSelected(true);
+        }
+    }
+
+    @Override
+    public Boolean getPrefValue()
+    {
+        JRadioButton yesButton = (JRadioButton)lookupComponent(this.id+"Yes");
+        return yesButton.isSelected();
     }
     
 /*
