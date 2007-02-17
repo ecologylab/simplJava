@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.w3c.dom.Node;
@@ -65,7 +66,7 @@ public class Optimizations extends Debug
 	
 	//private HashMap<String, Field>	mapsMap;
 	
-	//private HashMap<String, Field>	collectionsMap;
+	private HashMap<String, Field>	collectionFieldsByTag;
 	
 	
 	private Optimizations(Class thatClass)
@@ -357,19 +358,19 @@ public class Optimizations extends Debug
 			boolean transientDeclarationStyle)
 	{
 		Field[] fields		= thatClass.getDeclaredFields();
-			
+		
 		for (int i = 0; i < fields.length; i++)
 		{
 			Field thatField	= fields[i];
 			int fieldModifiers		= thatField.getModifiers();
-
+			
 			// skip static fields, since we're saving instances,
 			// and inclusion w each instance would be redundant.
 			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
 			{
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
-			 }
+			}
 			mapField(thatField);
 			if (XmlTools.representAsAttribute(thatField))
 			{
@@ -380,19 +381,31 @@ public class Optimizations extends Debug
 			{
 				elementFields.add(thatField);
 				thatField.setAccessible(true);
+				ElementState.xml_collection collectionAnnotation		
+				= thatField.getAnnotation(ElementState.xml_collection.class);
+				if (collectionAnnotation != null)
+				{
+					Class fieldClass			= thatField.getType();
+					//TODO -- how do we make sure the field is a Collection ??? 
+//					if (fieldClass instanceof Class<Collection>)
+					
+					String collectionValue	= collectionAnnotation.value();
+					if ((collectionValue != null) && !"".equals(collectionValue))
+					{ 
+						collectionFieldsByTag.put(collectionValue, thatField);
+					}
+//					else
+//						error("@xml_collection declared, but " + thatField.getName() + " is not a collection.");
+				}
 				/*
-				if (XmlTools.hasCollectionAnnotation(thatField))
-				{
-					mapCollection(thatField);
-				}
-				else if (XmlTools.hasMapAnnotation(thatField))
-				{
-					mapMap(thatField);
-				}
-				*/
+				 else if (XmlTools.hasMapAnnotation(thatField))
+				 {
+				 mapFieldsByTag(thatField);
+				 }
+				 */
 			}
-			// else -- ignore non-annotated fields
 		}
+		// else -- ignore non-annotated fields
 		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
 		{	// recurse on super class
 			Class superClass	= thatClass.getSuperclass();
@@ -400,6 +413,7 @@ public class Optimizations extends Debug
 				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
 		}
 	}
+	
 	
 	/**
 	 * Add an entry to our map of Field objects, using the field's name as the key.
@@ -432,6 +446,11 @@ public class Optimizations extends Debug
 	Field getField(String fieldName)
 	{
 		return (Field) fieldsMap().get(fieldName);
+	}
+	
+	Field getCollectionFieldByTag(String tag)
+	{
+		return collectionFieldsByTag.get(tag);
 	}
 }
 

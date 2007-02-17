@@ -58,6 +58,8 @@ implements ParseTableEntryTypes
 	
 	private ParseTableEntry		nestedPTE;
 	
+	private Field				collectionField;
+	
 	/**
 	 * 
 	 * @param translationSpace
@@ -158,19 +160,32 @@ implements ParseTableEntryTypes
 				return;
 			}
 
-			// else there is no Field to resolve. but there must a class!
-			Class classOp	= translationSpace.xmlTagToClass(tag);
-			if (classOp != null)
+			// else there is no Field to resolve. but there may be a class!
+			
+			// was collection declared explicitly?
+			Field collectionField	= optimizations.getCollectionFieldByTag(tag);
+			if (collectionField != null)
 			{
-				Collection collection = context.getCollection(classOp);
-				this.type	= (collection != null) ?
-						COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
-				this.classOp= classOp;
+				this.collectionField	= collectionField;
+				this.type				= COLLECTION_ELEMENT;
+				//TODO -- now, how do we know what the type of the elements in the Collection are declared as???
+				// Class.getTypeVariables().
 			}
 			else
 			{
-				context.debugA("WARNING - ignoring <" + tag() +"/>");
-				this.type	= IGNORED_ELEMENT;
+				Class classOp	= translationSpace.xmlTagToClass(tag);
+				if (classOp != null)
+				{
+					Collection collection = context.getCollection(classOp);
+					this.type	= (collection != null) ?
+							COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
+					this.classOp= classOp;
+				}
+				else
+				{
+					context.debugA("WARNING - ignoring <" + tag() +"/>");
+					this.type	= IGNORED_ELEMENT;
+				}
 			}
 		}
 	}
@@ -361,6 +376,7 @@ implements ParseTableEntryTypes
 	void addToCollection(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
+		//TODO -- get collection object from PTE directly
 		Collection collection		= activeES.getCollection(classOp());
 		// the sleek new way to add elements to collections
 		collection.add(getChildElementState(activeES, childNode));
