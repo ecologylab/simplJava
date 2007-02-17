@@ -2021,7 +2021,7 @@ implements ParseTableEntryTypes
     {
 
     }
-    
+    static final String NULL_TAG	= "";
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a complex nested field, which requires further translation.
@@ -2033,7 +2033,7 @@ implements ParseTableEntryTypes
     @Inherited
     public @interface xml_collection
     {
-
+    	String value() default NULL_TAG;
     }
     
     /**
