@@ -4,13 +4,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Collection;
+import java.util.Map;
 
 import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.element.Mappable;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -40,7 +44,7 @@ implements ParseTableEntryTypes
 	
 	private Method				setMethod;
 	
-	private Type				fieldType;
+	private ScalarType			scalarType;
 	
 	/**
 	 * true for LEAF_NODE_VALUE entries. Value not used for other types.
@@ -57,8 +61,6 @@ implements ParseTableEntryTypes
 	private TranslationSpace	translationSpace;
 	
 	private ParseTableEntry		nestedPTE;
-	
-	private Field				collectionField;
 	
 	/**
 	 * 
@@ -166,25 +168,84 @@ implements ParseTableEntryTypes
 			Field collectionField	= optimizations.getCollectionFieldByTag(tag);
 			if (collectionField != null)
 			{
-				this.collectionField	= collectionField;
-				this.type				= COLLECTION_ELEMENT;
-				//TODO -- now, how do we know what the type of the elements in the Collection are declared as???
-				// Class.getTypeVariables().
-			}
-			else
-			{
-				Class classOp	= translationSpace.xmlTagToClass(tag);
-				if (classOp != null)
+				java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(collectionField);
+				if (typeArgs != null)
 				{
-					Collection collection = context.getCollection(classOp);
-					this.type	= (collection != null) ?
-							COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
-					this.classOp= classOp;
+					Class	collectionElementsType		= (Class) typeArgs[0];
+					debug("!!!collection elements are of type: " + collectionElementsType.getName());
+					this.classOp			= collectionElementsType;
+					this.field				= collectionField;
+					// is collectionElementsType a scalar or a nested element
+					if (ElementState.class.isAssignableFrom(collectionElementsType))
+					{	// nested element
+						this.type				= COLLECTION_ELEMENT;						
+					}
+					else
+					{	// scalar
+						this.type				= COLLECTION_SCALAR;
+						this.scalarType			= translationSpace.getType(collectionElementsType);
+					}
 				}
 				else
 				{
-					context.debugA("WARNING - ignoring <" + tag() +"/>");
+					printWarning("Ignoring declaration @xml_collection(\"" + tag + 
+							  	 "\") because it is not annotating a parameterized generic Collection defined with a <type> token.");
 					this.type	= IGNORED_ELEMENT;
+					//!! remove entry from map !!
+				}
+			}
+			else
+			{
+				Field mapField	= optimizations.getMapFieldByTag(tag); 
+				if (mapField != null)
+				{
+					java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(mapField);
+					if (typeArgs != null)
+					{
+						Class	mapElementsType		= (Class) typeArgs[1];
+						debug("!!!map elements are of type: " + mapElementsType.getName());
+						this.classOp			= mapElementsType;
+						this.field				= mapField;
+						// is mapElementsType a scalar or a nested element
+						if (ElementState.class.isAssignableFrom(mapElementsType))
+						{	// nested element
+							this.type				= MAP_ELEMENT;						
+						}
+						else
+						{	// scalar
+							this.type				= MAP_SCALAR;
+							this.scalarType			= translationSpace.getType(mapElementsType);
+						}
+					}
+					else
+					{
+						printWarning("Ignoring declaration @xml_map(\"" + tag + 
+								  	 "\") because it is not annotating a parameterized generic Map defined with a <type> token.");
+						this.type	= IGNORED_ELEMENT;
+						//!! remove entry from map !!
+					}
+				}
+				else
+				{
+					Class classOp	= translationSpace.xmlTagToClass(tag);
+					if (classOp != null)
+					{
+						Map map					= context.getMap(classOp);
+						if (map != null)
+							this.type			= MAP_ELEMENT;
+						else
+						{
+							Collection collection = context.getCollection(classOp);
+							this.type	= (collection != null) ?
+									COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
+						}
+						this.classOp= classOp;
+					}
+					else
+					{
+						context.debugA("WARNING - ignoring <" + tag() +"/>");
+						this.type	= IGNORED_ELEMENT;
+					}
 				}
 			}
 		}
@@ -219,10 +280,10 @@ implements ParseTableEntryTypes
 			Field field		= optimizations.getField(fieldName);
 			if (field != null)
 			{
-				Type fieldType		= TypeRegistry.getType(field);
+				ScalarType fieldType		= TypeRegistry.getType(field);
 				if (fieldType != null)
 				{
-					this.fieldType	= fieldType;
+					this.scalarType	= fieldType;
 					type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
 					this.field		= field;
 				}
@@ -250,7 +311,7 @@ implements ParseTableEntryTypes
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	ElementState getChildElementState(ElementState parent, Node node)
+	ElementState getChildElement(ElementState parent, Node node)
 	throws XmlTranslationException
 	{
 		return parent.getChildElementState(node, classOp, translationSpace);
@@ -262,8 +323,13 @@ implements ParseTableEntryTypes
 	 * @param context
 	 * @param value
 	 */
-	void setAttribute(Object context, String value)
+	void setFieldToScalar(Object context, String value)
 	{
+		if ((value == null) || (value.length() == 0))
+		{
+			printError("Can't set scalar field with empty String");
+			return;
+		}
 		if (setMethod != null)
 		{
 			// if the method is found, invoke the method
@@ -290,9 +356,9 @@ implements ParseTableEntryTypes
 			}	  
 			
 		}
-		else if (fieldType != null)
+		else if (scalarType != null)
 		{
-			fieldType.setField(context, field, value);
+			scalarType.setField(context, field, value);
 		}
 	}
 	
@@ -300,7 +366,7 @@ implements ParseTableEntryTypes
 	{
 		printMessage("ERROR", msg); 		
 	}
-	void printWarn(String msg)
+	void printWarning(String msg)
 	{
 		printMessage("WARNING", msg); 		
 	}
@@ -321,26 +387,44 @@ implements ParseTableEntryTypes
 	 * the childFieldName as the name of the field to select in the template,
 	 * and this as the object to do the set in.
 	 * 
-	 * @param Object			The object in which we are setting the field's value.
-	 * @param textElementChild	The leaf node with the text element value.
+	 * @param context	The object in which we are setting the field's value.
+	 * @param leafNode	The leaf node with the text element value.
 	 */
-	void setLeafNodeValue(Object context, Node textElementChild)
+	void setScalarFieldWithLeafNode(Object context, Node leafNode)
 	{
+		String textNodeValue	= getLeafNodeValue(leafNode);
+		setFieldToScalar(context, textNodeValue);
+	}
+	/**
+	 * Assume the first child of the leaf node is a text node.
+	 * Pull the text of out that text node. Trim it, and if necessary, unescape it.
+	 * 
+	 * @param leafNode	The leaf node with the text element value.
+	 * @return			Null if there's not really any text, or the useful text from the Node, if there is some.
+	 */
+	String getLeafNodeValue(Node leafNode)
+	{
+		String result	= null;
+		Node textElementChild			= leafNode.getFirstChild();
 		if (textElementChild != null)
 		{
-			String textNodeValue	= textElementChild.getNodeValue();
-			if (textNodeValue != null)
+			if (textElementChild != null)
 			{
-				textNodeValue		= textNodeValue.trim();
-				if ((fieldType != null) && fieldType.needsEscaping())
-					textNodeValue	= XmlTools.unescapeXML(textNodeValue);
-				//debug("setting special text node " +childFieldName +"="+textNodeValue);
-				if (textNodeValue.length() > 0)
+				String textNodeValue	= textElementChild.getNodeValue();
+				if (textNodeValue != null)
 				{
-					setAttribute(context, textNodeValue);
+					textNodeValue		= textNodeValue.trim();
+					if ((scalarType != null) && scalarType.needsEscaping())
+						textNodeValue	= XmlTools.unescapeXML(textNodeValue);
+					//debug("setting special text node " +childFieldName +"="+textNodeValue);
+					if (textNodeValue.length() > 0)
+					{
+						result			= textNodeValue;
+					}
 				}
 			}
 		}
+		return result;
 	}
 	
 	/**
@@ -353,35 +437,105 @@ implements ParseTableEntryTypes
 	protected void setFieldToNestedElement(ElementState context, Node childNode)
 		throws XmlTranslationException
 	{
-		Object nestedElementState	= getChildElementState(context, childNode);
+		Object nestedElementState	= getChildElement(context, childNode);
 		try
 		{
 			field.set(context, nestedElementState);
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException(
-					"Object / Field set mismatch -- unexpected. This should never happen.\n\t"+
-					"with Field = " + field +"\n\tin object " + this +"\n\tbeing set to " + nestedElementState.getClass(), e);
+		   throw fieldAccessException(nestedElementState, e);
 		}
 	}
-	
-/**
- * Add element derived from the Node to a Collection.
- * 
- * @param activeES
- * @param childNode
- * @throws XmlTranslationException
- */
-	void addToCollection(ElementState activeES, Node childNode)
-	throws XmlTranslationException
+
+	/**
+	 * Generate an exception about problems accessing a field.
+	 * 
+	 * @param nestedElementState
+	 * @param e
+	 * @return
+	 */
+	private XmlTranslationException fieldAccessException(Object nestedElementState, Exception e)
 	{
-		//TODO -- get collection object from PTE directly
-		Collection collection		= activeES.getCollection(classOp());
-		// the sleek new way to add elements to collections
-		collection.add(getChildElementState(activeES, childNode));
+		return new XmlTranslationException(
+					"Unexpected Object / Field set problem. \n\t"+
+					"Field = " + field +"\n\ttrying to set to " + nestedElementState.getClass(), e);
 	}
 	
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES
+	 * @param childNode
+	 * @throws XmlTranslationException
+	 */
+	void addElementToCollection(ElementState activeES, Node childNode)
+	throws XmlTranslationException
+	{
+		Collection collection		= activeES.getCollection(classOp());
+		// the sleek new way to add elements to collections
+		collection.add(getChildElement(activeES, childNode));
+	}
+		
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES
+	 * @param childNode
+	 * @throws XmlTranslationException
+	 */
+	void addElementToMap(ElementState activeES, Node childNode)
+	throws XmlTranslationException
+	{
+		Map map				= activeES.getMap(classOp());
+		Mappable mappable	= (Mappable) getChildElement(activeES, childNode);
+		map.put(mappable.key(), mappable);
+	}
+		
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
+	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
+	 * 
+	 * @throws XmlTranslationException
+	 */
+	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
+	throws XmlTranslationException
+	{
+		if (scalarType != null)
+		{
+			String textNodeValue			= getLeafNodeValue(childLeafNode);
+			
+			Object typeConvertedValue		= scalarType.getInstance(textNodeValue);
+			try
+			{
+				//TODO -- should we be doing this check for null here??
+				if (typeConvertedValue != null)
+				{
+					Collection collection	= (Collection) field.get(activeES);
+					if (collection == null)
+					{
+						// well, why not create the collection object for them?!
+						Collection thatCollection	= 
+							ReflectionTools.getInstance((Class<Collection>) field.getType());
+
+					}
+					collection.add(typeConvertedValue);
+				}
+			} catch (Exception e)
+			{
+				throw fieldAccessException(typeConvertedValue, e);
+			}
+		}
+		else
+		{
+			Node textChild	= childLeafNode.getFirstChild();
+			Object desiredValue	= (textChild == null) ? childLeafNode : textChild.getNodeValue();
+			printError("Can't set to " + desiredValue + " because fieldType is unknown.");
+		}
+	}
+			
 	private void fillValues(ParseTableEntry other)
 	{
 		//this.classOp			= other.classOp;
@@ -455,4 +609,34 @@ implements ParseTableEntryTypes
 		return isID;
 	}
 
+	/**
+	 * 
+	 * @return true if this entry is a leaf node.
+	 */
+	boolean isLeafNode()
+	{
+		return this.type == LEAF_NODE_VALUE;
+	}
+	/**
+	 * 
+	 * @return true if this entry is a collection of scalar valued leaf nodes.
+	 */
+	boolean isCollectionScalar()
+	{
+		return this.type == COLLECTION_SCALAR;
+	}
+	
+	/**
+	 * 
+	 * @return true if this entry is a collection of scalar valued leaf nodes.
+	 */
+	boolean isMapScalar()
+	{
+		return this.type == MAP_SCALAR;
+	}
+	
+	ScalarType scalarType()
+	{
+		return scalarType;
+	}
 }

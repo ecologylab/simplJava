@@ -22,7 +22,11 @@ public interface ParseTableEntryTypes
 	
 	public static int	COLLECTION_ELEMENT		= 3;
 	
-	public static int	MAP_ELEMENT				= 4;
+	public static int	COLLECTION_SCALAR		= 4;
+	
+	public static int	MAP_ELEMENT				= 5;
+	
+	public static int	MAP_SCALAR				= 6;
 	
 	public static int	REGULAR_ATTRIBUTE		= 10;
 	
@@ -31,7 +35,7 @@ public interface ParseTableEntryTypes
 	/**
 	 * These will be handled by otherNestedElement().
 	 */
-	public static int	OTHER_NESTED_ELEMENT	= 4;
+	public static int	OTHER_NESTED_ELEMENT	= 9;
 
 
 }
