@@ -26,7 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 import ecologylab.generic.ReflectionTools;
-import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -313,7 +313,7 @@ implements CharacterConstants
             //take the field, generate tags and attach name value pair
             try
             {
-               Type type        = TypeRegistry.getType(field);
+               ScalarType type        = TypeRegistry.getType(field);
                String unescapedFieldValue = type.toString(obj, field);
                if (type.isDefaultValue(unescapedFieldValue))
                   return;
