@@ -4,8 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import ecologylab.xml.xml_inherit;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Utility routines for working with reflection.
@@ -214,4 +214,22 @@ public class ReflectionTools extends Debug
   	{
   		return field.isAnnotationPresent(annotationClass);
   	}
+
+	/**
+	 * Get the parameterized type tokens that the generic Field was declared with.
+	 * 
+	 * @param reflectType
+	 * @return
+	 */
+	public static Type[] getParameterizedTypeTokens(Field field)
+	{
+		Type[] result				= null;
+		Type reflectType			= field.getGenericType();
+		if (reflectType instanceof ParameterizedType)
+		{		
+			ParameterizedType pType	= (ParameterizedType) reflectType;
+			result	= pType.getActualTypeArguments();
+		}
+		return result;
+	}
 }
