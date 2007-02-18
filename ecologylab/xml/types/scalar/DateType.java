@@ -6,13 +6,14 @@ package ecologylab.xml.types.scalar;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Type system entry for {@link java.util.Date Date}.
  * 
  * @author toupsz
  */
-public class DateType extends Type
+public class DateType extends ScalarType<Date>
 {
     static final DateFormat df      = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
 
@@ -20,7 +21,7 @@ public class DateType extends Type
 
     public DateType()
     {
-        super(java.util.Date.class);
+        super(Date.class);
     }
 
     /**
@@ -29,11 +30,11 @@ public class DateType extends Type
      *            example Wed Aug 02 13:12:50 CDT 2006); if that does not work, then attempts to use
      *            the DateFormat for the current locale instead.
      * 
-     * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
+     * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
      */
-    public Object getInstance(String value)
+    public Date getInstance(String value)
     {
-        Object result = null;
+    	Date result = null;
 
         try
         {
@@ -54,7 +55,6 @@ public class DateType extends Type
                 e1.printStackTrace();
             }
         }
-
         return result;
     }
 }

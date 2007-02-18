@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class ByteType extends Type 
+public class ByteType extends ScalarType 
 {
 /**
  * This constructor should only be called once per session, through
@@ -36,7 +36,7 @@ public class ByteType extends Type
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
 	 */
 	public boolean setField(Object object, Field field, String value) 
 	{

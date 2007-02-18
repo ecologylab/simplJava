@@ -12,7 +12,7 @@ import ecologylab.net.ParsedURL;
  * 
  * @author andruid
  */
-public class ParsedURLType extends Type
+public class ParsedURLType extends ScalarType<ParsedURL>
 {
 /**
  * This constructor should only be called once per session, through
@@ -32,9 +32,9 @@ public class ParsedURLType extends Type
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
-	public Object getInstance(String value)
+	public ParsedURL getInstance(String value)
 	{
 	   File file	= null;
 	   if (value.startsWith("file://"))

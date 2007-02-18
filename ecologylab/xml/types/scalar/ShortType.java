@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class ShortType extends Type 
+public class ShortType extends ScalarType 
 {
 /**
  * This constructor should only be called once per session, through
@@ -36,7 +36,7 @@ public class ShortType extends Type
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#setField(Object, Field, String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#setField(Object, Field, String)
 	 */
 	public boolean setField(Field field, String value) 
 	{

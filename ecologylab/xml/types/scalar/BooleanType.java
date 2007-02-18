@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class BooleanType extends Type 
+public class BooleanType extends ScalarType 
 {
 /**
  * This constructor should only be called once per session, through
@@ -38,7 +38,7 @@ public class BooleanType extends Type
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
 	 */
 	public boolean setField(Object object, Field field, String value) 
 	{
