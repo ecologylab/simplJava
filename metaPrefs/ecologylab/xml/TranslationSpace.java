@@ -1,9 +1,12 @@
 package ecologylab.xml;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
+import ecologylab.xml.types.scalar.ScalarType;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * A set of translations between XML element names (tags) and associated Java ElementState
@@ -29,8 +32,8 @@ public class TranslationSpace extends Debug
 	*/
    private boolean			emitPackageNames	= false;
    
-   private HashMap<String, NameEntry>			entriesByClassName	= new HashMap<String, NameEntry>();
-   private HashMap<String, NameEntry>			entriesByTag		= new HashMap<String, NameEntry>();
+   private HashMap<String, TranslationEntry>			entriesByClassName	= new HashMap<String, TranslationEntry>();
+   private HashMap<String, TranslationEntry>			entriesByTag		= new HashMap<String, TranslationEntry>();
    
    private static HashMap<String, TranslationSpace>	allTranslationSpaces	= new HashMap<String, TranslationSpace>();
       
@@ -61,6 +64,37 @@ public class TranslationSpace extends Debug
    }
    
    /**
+    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * 
+    * @param name
+    * @param baseTranslationSet
+    */
+   protected TranslationSpace(String name, TranslationSpace[] baseTranslationsSet)
+   {
+	  this(name);
+	  int n	= baseTranslationsSet.length;
+	  for (int i=0; i< n; i++)
+		  addTranslations(baseTranslationsSet[i]);
+   }
+   
+   /**
+    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * 
+    * @param name
+    * @param baseTranslationSet
+    */
+   protected TranslationSpace(String name, ArrayList<TranslationSpace> baseTranslationsSet)
+   {
+	  this(name);
+	  for (TranslationSpace thatTranslationSpace: baseTranslationsSet)
+		  addTranslations(thatTranslationSpace);
+   }
+   
+   /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
     * 
@@ -83,14 +117,14 @@ public class TranslationSpace extends Debug
     * 
     * @param name		Name of the TranslationSpace to be 
 	*					A key for use in the TranslationSpace registry.
-    * @param defaultPackgeName
+    * @param defaultPackageName
 	* @param translations		Set of initially defined translations for this.
     */
-   protected TranslationSpace(String name, String defaultPackgeName, 
+   protected TranslationSpace(String name, String defaultPackageName, 
 					String[][] translations)
    {
 	   this(name);
-	   this.setDefaultPackageName(defaultPackgeName);
+	   this.setDefaultPackageName(defaultPackageName);
 	   addTranslations(translations);
    }
    
@@ -117,13 +151,46 @@ public class TranslationSpace extends Debug
     * 
     * @param name
     * @param defaultPackgeName
+    * @param inheritedTranslationsSet
+    * @param translations
+    */
+   protected TranslationSpace(String name, String defaultPackgeName, TranslationSpace[] inheritedTranslationsSet,
+		   Class[] translations)
+   {
+	   this(name, inheritedTranslationsSet);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   /**
+    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Then, add the array of translations, then, make the defaultPackageName available.
+    * 
+    * @param name
+    * @param defaultPackgeName
     * @param baseTranslations
     * @param translations
     */
-   protected TranslationSpace(String name, String defaultPackgeName, TranslationSpace baseTranslations,
+   protected TranslationSpace(String name, String defaultPackgeName, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   Class[] translations)
    {
-	   this(name, baseTranslations);
+	   this(name, inheritedTranslationsSet);
+	   this.setDefaultPackageName(defaultPackgeName);
+	   addTranslations(translations);
+   }
+   
+   /**
+    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Then, add the array of translations, then, make the defaultPackageName available.
+    * 
+    * @param name
+    * @param defaultPackgeName
+    * @param inheritedTranslations
+    * @param translations
+    */
+   protected TranslationSpace(String name, String defaultPackgeName, TranslationSpace inheritedTranslations,
+		   Class[] translations)
+   {
+	   this(name, inheritedTranslations);
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
@@ -217,13 +284,27 @@ public class TranslationSpace extends Debug
 		   Iterator translationEntriesIterator = otherTranslations.entriesByClassIterator();
 		   while (translationEntriesIterator.hasNext())
 		   {
-			   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
-			   addTranslation(nameEntry.classObj);
-			   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
-				   debug("WARNING: overriding with " + nameEntry);
+			   TranslationEntry translationEntry = (TranslationEntry) translationEntriesIterator.next();
+			   if (!entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
+				   debug("WARNING: overriding with " + translationEntry);
+			   //addTranslation(nameEntry.classObj);
+			   translationEntry.registerTranslation();
 		   }
 	   }
    }
+   /**
+	* Add a translation table entry for an ElementState derived sub-class.
+	* Assumes that the xmlTag can be derived automatically from the className,
+	* by translating case-based separators to "_"-based separators.
+	* 
+	* @param classObj		The object for the class.
+	*/
+   public void addTranslation(Class classObj)
+   {
+	   new TranslationEntry(classObj.getPackage().getName(), classObj);
+   }
+
+   
    /**
     * Add translations, where each translation can be heterogeneously either a Class object,
     * or an array with 2 String elements, package name and class name.
@@ -261,19 +342,8 @@ public class TranslationSpace extends Debug
 	*/
    public void addTranslation(String packageName, String className)
    {
-   	  new NameEntry(packageName, className);
+   	  new TranslationEntry(packageName, className);
    }
-   /**
-	* Add a translation table entry for an ElementState derived sub-class.
-	* Assumes that the xmlTag can be derived automatically from the className,
-	* by translating case-based separators to "_"-based separators.
-	* 
-	* @param classObj		The object for the class.
-	*/
-  public void addTranslation(Class classObj)
-  {
-  	  new NameEntry(classObj.getPackage().getName(), classObj);
-  }
 
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
@@ -287,8 +357,9 @@ public class TranslationSpace extends Debug
 							  String xmlTag)
    {
 //	  debugA("addTranslation: "+ className " : " + packageName);
-	  new NameEntry(packageName, className, xmlTag, null);
+	  new TranslationEntry(packageName, className, xmlTag, null);
    }
+   
    /**
 	* Set the default package name for XML tag to ElementState sub-class translations.
 	* 
@@ -307,13 +378,13 @@ public class TranslationSpace extends Debug
 	*/
    public Class xmlTagToClass(String xmlTag)
    {
-	  NameEntry entry		= (NameEntry) entriesByTag.get(xmlTag);
+	  TranslationEntry entry		= (TranslationEntry) entriesByTag.get(xmlTag);
 
 	  if (entry == null)
 	  {
 		 String className	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
-		 entry				= new NameEntry(packageName, className, xmlTag, null);
+		 entry				= new TranslationEntry(packageName, className, xmlTag, null);
 	  }
 	  else if (entry.empty)
 	  {
@@ -330,7 +401,7 @@ public class TranslationSpace extends Debug
     */
    Class getClassByTag(String tag)
    {
-	   NameEntry entry		= (NameEntry) entriesByTag.get(tag);
+	   TranslationEntry entry		= (TranslationEntry) entriesByTag.get(tag);
 	   
 	   return (entry == null) ? null : entry.classObj;
    }
@@ -351,18 +422,18 @@ public class TranslationSpace extends Debug
    public String classToXmlTag(Class classObj)
    {
 	  String className	= classObj.getName();
-	  NameEntry entry	= (NameEntry) entriesByClassName.get(className);
+	  TranslationEntry entry	= (TranslationEntry) entriesByClassName.get(className);
 	  if (entry == null)
 	  {
 	  	 synchronized (this) 
 	  	 {
-	  	 	 entry	= (NameEntry) entriesByClassName.get(className);
+	  	 	 entry	= (TranslationEntry) entriesByClassName.get(className);
 	  	 	 if (entry == null)
 	  	 	 {
 				 String packageName = classObj.getPackage().getName();
 				 int index			= className.lastIndexOf('.') + 1;
 				 className			= className.substring(index);
-				 entry				= new NameEntry(packageName, className);
+				 entry				= new TranslationEntry(packageName, className);
 	  	 	 }
 	  	 }
 	  }
@@ -395,7 +466,7 @@ public class TranslationSpace extends Debug
 	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassIterator();
 	   while (translationEntriesIterator.hasNext())
 	   {
-		   NameEntry nameEntry = (NameEntry) translationEntriesIterator.next();
+		   TranslationEntry nameEntry = (TranslationEntry) translationEntriesIterator.next();
 		   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
 			   addTranslation(nameEntry.classObj);
 		   else
@@ -413,7 +484,7 @@ public class TranslationSpace extends Debug
 	   return entriesByClassName().values().iterator();
    }
 
-   public class NameEntry extends Debug
+   public class TranslationEntry extends Debug
    {
 	  public final String		packageName;
 	  public final String		className;
@@ -428,23 +499,24 @@ public class TranslationSpace extends Debug
 	  /**
 	   * Create the entry by package name and class name.
 	   */
-	  	  public NameEntry(String packageName, String className)
-	  	  {
-	  		 this(packageName, className,
-	  			  XmlTools.getXmlTagName(className, "State", false), null);
-	  	  }
-	  	  /**
-	  	   * Create the entry by package name and class name.
-	  	   */
-	  	  public NameEntry(String packageName, Class classObj)
-	  	  {
-	  		  this(packageName, getClassName(classObj),
-	  				  XmlTools.getXmlTagName(getClassName(classObj), "State", false), classObj);
-	  	  }
-	  public NameEntry(String packageName, String className, 
+	  public TranslationEntry(String packageName, String className)
+	  {
+		  this(packageName, className,
+				  XmlTools.getXmlTagName(className, "State", false), null);
+	  }
+	  /**
+	   * Create the entry by package name and class name.
+	   */
+	  public TranslationEntry(String packageName, Class classObj)
+	  {
+		  this(packageName, getClassName(classObj),
+				  XmlTools.getXmlTagName(getClassName(classObj), "State", false), classObj);
+	  }
+	  
+	  public TranslationEntry(String packageName, String className, 
 					   String tag, Class classObj)
 	  {
-	  	 String wholeClassName	= packageName + "." + className;
+	  	 final String wholeClassName	= packageName + "." + className;
 		 this.packageName		= packageName;
 		 this.className			= wholeClassName;
 		 this.tag				= tag;
@@ -476,7 +548,17 @@ public class TranslationSpace extends Debug
 		 }
 		 this.classObj			= classObj;
 
-		 entriesByTag.put(tag, this);
+		 registerTranslation(tag, wholeClassName);
+//		 else
+//			debug("create entry");
+	  }
+	/**
+	 * @param tag
+	 * @param wholeClassName
+	 */
+	private void registerTranslation(String tag, String wholeClassName)
+	{
+		entriesByTag.put(tag, this);
 		 entriesByClassName.put(wholeClassName, this);
 		 if (wholeClassName.endsWith("State"))
 		 {
@@ -486,9 +568,11 @@ public class TranslationSpace extends Debug
 //			debug("create entry including " + wholeClassNameNoState);
 			entriesByClassName.put(wholeClassNameNoState, this);
 		 }
-//		 else
-//			debug("create entry");
-	  }
+	}
+	private void registerTranslation()
+	{
+		registerTranslation(this.tag, this.className);
+	}
 	  public String getTag()
 	  {
 		 return emitPackageNames() ? tagWithPackage : tag;
@@ -528,7 +612,7 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name)
    {
 	   TranslationSpace result	= lookup(name);
-	   return (result != null) ? result : new TranslationSpace(name);
+	   return (result != null) ? result : new TranslationSpace(name, name);
    }
    
    private static TranslationSpace lookupAndCheckDefaultPackage(String name, String defaultPackageName)
@@ -578,8 +662,7 @@ public class TranslationSpace extends Debug
     * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
     * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
-   public static TranslationSpace get(String name, String defaultPackageName,
-							   String[][] translations)
+   public static TranslationSpace get(String name, String defaultPackageName, String[][] translations)
    {
 	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
 	   if (result == null)
@@ -589,13 +672,115 @@ public class TranslationSpace extends Debug
 	   return result;
    }
    
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace baseTranslations,
-		   Class[] translations)
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on the previous TranslationSpace, by including all mappings from there.
+    * 
+    * @param name
+    * @param defaultPackageName
+    * @param inheritedTranslations
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace inheritedTranslations,
+		   							  Class[] translations)
    {
 	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, defaultPackageName, baseTranslations, translations);
+		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslations, translations);
+	   }
+	   return result;	   
+   }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on the previous TranslationSpace, by including all mappings from there.
+    * 
+    * @param name
+    * @param inheritedTranslations
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, TranslationSpace inheritedTranslations,
+		   							  Class[] translations)
+   {
+	   return get(name, name, inheritedTranslations, translations);
+   }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * 
+    * @param name
+    * @param defaultPackageName
+    * @param inheritedTranslationsSet
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslationsSet,
+		   							  Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
+	   }
+	   return result;	   
+   }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * 
+    * @param name
+    * @param inheritedTranslationsSet
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslationsSet, Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, name);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
+	   }
+	   return result;	   
+   }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * 
+    * @param name
+    * @param defaultPackageName
+    * @param inheritedTranslationsSet
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, String defaultPackageName, ArrayList<TranslationSpace> inheritedTranslationsSet,
+		   							  Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
+	   }
+	   return result;	   
+   }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * 
+    * @param name
+    * @param defaultPackageName
+    * @param inheritedTranslationsSet
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String name, ArrayList<TranslationSpace> inheritedTranslationsSet,
+		   							  Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, name);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
 	   }
 	   return result;	   
    }
@@ -611,8 +796,7 @@ public class TranslationSpace extends Debug
     * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
     * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
-   public static TranslationSpace get(String name, String defaultPackageName,
-							   Class[] translations)
+   public static TranslationSpace get(String name, String defaultPackageName, Class[] translations)
    {
 	  TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
 	  if (result == null)
@@ -633,8 +817,7 @@ public class TranslationSpace extends Debug
     *
     * @return	A new TranslationSpace, or the existing one with the name defaultPackageName, and these translations.
     */
-   public static TranslationSpace get(String defaultPackageName,
-							   String[][] translations)
+   public static TranslationSpace get(String defaultPackageName, String[][] translations)
    {
 	  return get(defaultPackageName, defaultPackageName, translations);
    }
@@ -642,5 +825,16 @@ public class TranslationSpace extends Debug
    protected HashMap entriesByClassName()
    {
 	   return entriesByClassName;
+   }
+   
+	/**
+	 * Get the Scalar Type corresponding to the Class.
+	 * 
+	 * @param thatClass
+	 * @return	Type associated with thatClass
+	 */
+   ScalarType getType(Class thatClass)
+   {
+	   return TypeRegistry.getType(thatClass);
    }
 }

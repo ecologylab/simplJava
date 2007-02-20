@@ -9,23 +9,24 @@ import ecologylab.generic.Debug;
 import ecologylab.xml.*;
 
 /**
- * Basic unit of the type system.
- * Manages marshalling from a Java class to a String, and from a String to that Java class.
+ * Basic unit of the scalar type system.
+ * Manages marshalling from a Java class that represents a scalar, 
+ * to a String, and from a String to that Java class.
  * <p/>
- * The Type object is a means for associating a type name with a type index. It also knows how to
- * create an instance of the type, given a String representation. If the Type is a reference type,
- * this is done with getInstance(String); if the Type is a primitive, this is done with
+ * The ScalarType object is a means for associating a type name with a type index. It also knows how to
+ * create an instance of the type, given a String representation. If the ScalarType is a reference type,
+ * this is done with getInstance(String); if the ScalarType is a primitive, this is done with
  * getValue(String), which cannot appear as a method in this, the base class, because it will return
  * a different primitive type for each such Type.
  * <p/>
- * Note: unlike ElementState subtypes, translation of these is controlled entirely by the name of
+ * Note: unlike with ElementState subtypes, translation of these is controlled entirely by the name of
  * the underlying Java class that gets translated, and not by the class name of subclasses of this.
  * 
  * @author andruid
  */
-public class Type extends Debug
+public class ScalarType<T> extends Debug
 {
-    Class				thatClass;
+    Class<T>			thatClass;
 
     // int index;
     boolean             isPrimitive;
@@ -38,7 +39,7 @@ public class Type extends Debug
      * <code>TypeRegistry.get("type-string")</code>.
      * 
      */
-    protected Type(Class thatClass)
+    protected ScalarType(Class<T> thatClass)
     {
         this.thatClass = thatClass;
         // this.index = index;
@@ -52,7 +53,7 @@ public class Type extends Debug
      * @param value
      *            String representation of the instance.
      */
-    public Object getInstance(String value)
+    public T getInstance(String value)
     {
         return null;
     }
@@ -84,7 +85,7 @@ public class Type extends Debug
             return true;
 
         boolean result = false;
-        Object referenceObject = "";
+        T referenceObject;
 
         try
         {
@@ -95,7 +96,6 @@ public class Type extends Debug
                 result = true;
             }
         }
-//      catch (IllegalAccessException e)
         catch (Exception e)
         {
             setFieldError(field, value, e);

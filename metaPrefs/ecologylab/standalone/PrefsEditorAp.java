@@ -31,6 +31,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
 	{
 		super("ecologyLabFundamental", DefaultServicesTranslations.get(), args);
 		
+        // TODO method for this to get prefs dir
 		ParsedURL metaPrefsPURL = this.preferencesDir().getRelative("metaprefs.xml", "");
         ParsedURL prefsPURL = this.preferencesDir().getRelative("prefs.xml", "");
 

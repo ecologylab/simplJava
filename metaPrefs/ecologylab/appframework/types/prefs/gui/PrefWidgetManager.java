@@ -187,10 +187,11 @@ public class PrefWidgetManager
     // gui actions for buttons
     private void actionSavePreferences()
     {
-        System.out.println("we pressed the save button");
+        //System.out.println("we pressed the save button");
+        
         // we do this with metaprefs because we will always have
         // all metaprefs. we may not always have a prefs file to start
-        // with.s
+        // with.
         for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
         {
             for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
@@ -210,7 +211,8 @@ public class PrefWidgetManager
         
         try
         {
-            prefSet.saveXmlFile(prefsPURL.url().getFile(), true, false);
+            // TODO: mess with something else for file here
+            prefSet.saveXmlFile(prefsPURL.file(), true, false);
         } catch (XmlTranslationException e)
         {
             // TODO Auto-generated catch block

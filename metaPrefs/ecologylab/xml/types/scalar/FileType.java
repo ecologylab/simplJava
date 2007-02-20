@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class FileType extends Type
+public class FileType extends ScalarType
 {
 
     /**

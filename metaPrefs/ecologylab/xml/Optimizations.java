@@ -4,7 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.w3c.dom.Node;
 
@@ -31,7 +33,7 @@ public class Optimizations extends Debug
 	 * A map of all the Optimizations objects.
 	 * The keys are simple class names.
 	 */
-	private static final HashMap	registry	= new HashMap();
+	private static final HashMap<String, Optimizations>	registry	= new HashMap<String, Optimizations>();
 		
 	/**
 	 * Found before the colon while translating from;
@@ -42,30 +44,36 @@ public class Optimizations extends Debug
 	/**
 	 * Used to optimize translateToXML().
 	 */
-	private HashMap					fieldNameOrClassToTagMap	= new HashMap();
+	private HashMap<Object, TagMapEntry>		fieldNameOrClassToTagMap	= new HashMap<Object, TagMapEntry>();
+	
+	/**
+	 * Map of ParseTableEntrys. The keys are tag names.
+	 * Used to optimize translateFromXML(...).
+	 */
+	private HashMap<String, ParseTableEntry>	parseTableByTagNames	= new HashMap<String, ParseTableEntry>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are field names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap					parseTable					= new HashMap();
+	private HashMap<String, ParseTableEntry>	parseTableByFieldNames	= new HashMap<String, ParseTableEntry>();
 	
 	/**
 	 * The fields that are represented as attributes for the class we're optimizing.
 	 */
-	private ArrayList				attributeFields;
+	private ArrayList<Field>					attributeFields;
 	
 	/**
 	 * The fields that are represented as nested elements (including leaf nodes)
 	 * for the class we're optimizing.
 	 */
-	private ArrayList				elementFields;
+	private ArrayList<Field>					elementFields;
 	
-	private HashMap					fieldsMap;
+	private HashMap<String, Field>				fieldsMap;
 	
-	//private HashMap<String, Field>	mapsMap;
+	private HashMap<String, Field>				mapFieldsByTag;
 	
-	//private HashMap<String, Field>	collectionsMap;
+	private HashMap<String, Field>				collectionFieldsByTag;
 	
 	
 	private Optimizations(Class thatClass)
@@ -90,13 +98,13 @@ public class Optimizations extends Debug
 		Class thatClass		= elementState.getClass();
 		String className	= getClassName(thatClass);
 		// stay out of the synchronized block most of the time
-		Optimizations result = (Optimizations) registry.get(className);
+		Optimizations result= registry.get(className);
 		if (result == null)
 		{
 			// but still be thread safe!
 			synchronized (registry)
 			{
-				result = (Optimizations) registry.get(className);
+				result 		= registry.get(className);
 				if (result == null)
 				{
 					result				= new Optimizations(thatClass);
@@ -114,12 +122,12 @@ public class Optimizations extends Debug
 	 */
 	TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
 	{
-		TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(thatClass);
+		TagMapEntry result= fieldNameOrClassToTagMap.get(thatClass);
 		if (result == null)
 		{
 			synchronized (fieldNameOrClassToTagMap)
 			{
-				result		= (TagMapEntry) fieldNameOrClassToTagMap.get(thatClass);
+				result		= fieldNameOrClassToTagMap.get(thatClass);
 				if (result == null)
 				{
 					String tagName	= XmlTools.getXmlTagName(thatClass, "State", compression);
@@ -138,12 +146,12 @@ public class Optimizations extends Debug
 	 */
 	TagMapEntry getTagMapEntry(String fieldName, boolean compression)
 	{
-		TagMapEntry result= (TagMapEntry)fieldNameOrClassToTagMap.get(fieldName);
+		TagMapEntry result= fieldNameOrClassToTagMap.get(fieldName);
 		if (result == null)
 		{
 			synchronized (fieldNameOrClassToTagMap)
 			{
-				result		= (TagMapEntry) fieldNameOrClassToTagMap.get(fieldName);
+				result		= fieldNameOrClassToTagMap.get(fieldName);
 				if (result == null)
 				{
 					String tagName	= XmlTools.getXmlTagName(fieldName, null, compression);
@@ -175,7 +183,6 @@ public class Optimizations extends Debug
 	 * We cache these in the parseTable for each class, to optimize speed.
 	 * <p/>
 	 * These entries are created as needed, just-in-time, by lazy evaluation.
-	 * @param field TODO
 	 * @param translationSpace TODO
 	 * @param context TODO
 	 * @param node TODO
@@ -187,15 +194,33 @@ public class Optimizations extends Debug
 	}
 	ParseTableEntry parseTableEntry(TranslationSpace translationSpace, ElementState context, String tag)
 	{
-		ParseTableEntry result	= (ParseTableEntry) parseTable.get(tag);
+		ParseTableEntry result	= parseTableByTagNames.get(tag);
 		
 		if (result == null)
 		{
 			result				= new ParseTableEntry(translationSpace, this, context, tag, false);
-			parseTable.put(tag, result);
+			putInParseTables(tag, result);
 		}
 		return result;
 	}
+
+	/**
+	 * Add a ParseTableEntry to the parseTables.
+	 * 
+	 * @param tag
+	 * @param result
+	 */
+	private void putInParseTables(String tag, ParseTableEntry result)
+	{
+		parseTableByTagNames.put(tag, result);
+		Field field = result.field();
+		if (field != null)
+		{
+			String fieldName	= field.getName();
+			parseTableByFieldNames.put(fieldName, result);
+		}
+	}
+	
 	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
@@ -203,14 +228,25 @@ public class Optimizations extends Debug
 	}
 	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, String tag)
 	{
-		ParseTableEntry result	= (ParseTableEntry) parseTable.get(tag);
+		ParseTableEntry result	= parseTableByTagNames.get(tag);
 		
 		if (result == null)
 		{
 			result				= new ParseTableEntry(translationSpace, this, context, tag, true);
-			parseTable.put(tag, result);
+			putInParseTables(tag, result);
 		}
 		return result;
+	}
+	
+	/**
+	 * Lookup a ParseTableEntry, using a Field name as the key.
+	 * 
+	 * @param fieldName
+	 * @return
+	 */
+	ParseTableEntry getPTEByFieldName(String fieldName)
+	{
+		return parseTableByFieldNames.get(fieldName);
 	}
 	
 	/**
@@ -219,9 +255,9 @@ public class Optimizations extends Debug
 	 * 
 	 * @return	ArrayList of Field objects.
 	 */
-	ArrayList attributeFields()
+	ArrayList<Field> attributeFields()
 	{
-		ArrayList result	= attributeFields;
+		ArrayList<Field> result	= attributeFields;
 		if (result == null)
 		{
 			synchronized (this)
@@ -243,9 +279,9 @@ public class Optimizations extends Debug
 	 * 
 	 * @return	ArrayList of Field objects.
 	 */
-	public ArrayList elementFields()
+	public ArrayList<Field> elementFields()
 	{
-		ArrayList result	= elementFields;
+		ArrayList<Field> result	= elementFields;
 		if (result == null)
 		{
 			synchronized (this)
@@ -269,9 +305,9 @@ public class Optimizations extends Debug
 	 * 
 	 * @return
 	 */
-	private HashMap fieldsMap()
+	private HashMap<String, Field> fieldsMap()
 	{
-		HashMap result	= fieldsMap;
+		HashMap<String, Field> result	= fieldsMap;
 		if (result == null)
 		{
 			synchronized (this)
@@ -294,9 +330,9 @@ public class Optimizations extends Debug
 	 */
 	private synchronized void getAndOrganizeFields()
 	{
-		attributeFields		= new ArrayList();
-		elementFields		= new ArrayList();
-		fieldsMap			= new HashMap();
+		attributeFields		= new ArrayList<Field>();
+		elementFields		= new ArrayList<Field>();
+		fieldsMap			= new HashMap<String, Field>();
 		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
 		switch (ds)
 		{
@@ -320,7 +356,7 @@ public class Optimizations extends Debug
 	 * Must be called from getAndOrganizeFields() !
 	 */
 	private void getAndOrganizeFieldsPublic(Class thatClass,
-			ArrayList attributeFields, ArrayList elementFields)
+			ArrayList<Field> attributeFields, ArrayList<Field> elementFields)
 	{
 		Field[] fields		= thatClass.getFields();
 			
@@ -353,43 +389,53 @@ public class Optimizations extends Debug
 	 * Recurses up the chain of inherited Java classes, if @xml_inherit is specified.
 	 */
 	private void getAndOrganizeFieldsRecursive(Class thatClass,
-			ArrayList attributeFields, ArrayList elementFields, 
+			ArrayList<Field> attributeFields, ArrayList<Field> elementFields, 
 			boolean transientDeclarationStyle)
 	{
 		Field[] fields		= thatClass.getDeclaredFields();
-			
+		
 		for (int i = 0; i < fields.length; i++)
 		{
 			Field thatField	= fields[i];
 			int fieldModifiers		= thatField.getModifiers();
-
+			
 			// skip static fields, since we're saving instances,
 			// and inclusion w each instance would be redundant.
 			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
 			{
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
-			 }
-			mapField(thatField);
+			}
+			//mapField(thatField);
 			if (XmlTools.representAsAttribute(thatField))
 			{
+				mapField(thatField);
 				attributeFields.add(thatField);
 				thatField.setAccessible(true);
 			}
 			else if (XmlTools.representAsLeafOrNested(thatField))
 			{
+				mapField(thatField);
 				elementFields.add(thatField);
 				thatField.setAccessible(true);
-				/*
-				if (XmlTools.hasCollectionAnnotation(thatField))
+				
+				// look for declared tag for @xml_collection
+				ElementState.xml_collection collectionAnnotation		
+					= thatField.getAnnotation(ElementState.xml_collection.class);
+				if (collectionAnnotation != null)
 				{
-					mapCollection(thatField);
+					processCollectionDeclaredWithTag(thatField, collectionAnnotation);
 				}
-				else if (XmlTools.hasMapAnnotation(thatField))
+				else
 				{
-					mapMap(thatField);
+					// look for declared tag for @xml_map
+					ElementState.xml_map mapAnnotation
+						= thatField.getAnnotation(ElementState.xml_map.class);
+					if (mapAnnotation != null)
+					{
+						processMapDeclaredWithTag(thatField, mapAnnotation);
+					}				
 				}
-				*/
 			}
 			// else -- ignore non-annotated fields
 		}
@@ -400,6 +446,78 @@ public class Optimizations extends Debug
 				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
 		}
 	}
+
+	/**
+	 * @param thatField
+	 * @param tagFromAnnotation
+	 */
+	private void processCollectionDeclaredWithTag(Field thatField, ElementState.xml_collection collectionAnnotation)
+	{
+		String tagFromAnnotation	= collectionAnnotation.value();
+		Class fieldClass			= thatField.getType();
+		if (Collection.class.isAssignableFrom(fieldClass))
+		{
+			if ((tagFromAnnotation != null) && !"".equals(tagFromAnnotation))
+			{ 
+				//note! we *really* want to wait until here before we allocate storage for this HashMap!
+				collectionFieldsByTag().put(tagFromAnnotation, thatField);
+			}
+		} 
+		else
+			annotatedFieldError(thatField, tagFromAnnotation, "collection");
+	}
+
+	/**
+	 * @param thatField
+	 * @param mapAnnotation
+	 */
+	private void processMapDeclaredWithTag(Field thatField, ElementState.xml_map mapAnnotation)
+	{
+		String tagFromAnnotation	= mapAnnotation.value();
+		Class fieldClass			= thatField.getType();
+		if (Map.class.isAssignableFrom(fieldClass))
+		{
+			if ((tagFromAnnotation != null) && !"".equals(tagFromAnnotation))
+			{ 
+				//note! we *really* want to wait until here before we allocate storage for this HashMap!
+				mapFieldsByTag().put(tagFromAnnotation, thatField);
+			}
+		} 
+		else
+			annotatedFieldError(thatField, tagFromAnnotation, "map");
+	}
+
+	HashMap<String, Field> collectionFieldsByTag()
+	{
+		HashMap<String, Field> result	= this.collectionFieldsByTag;
+		if (result == null)
+		{
+			result	= new HashMap<String, Field>();
+			this.collectionFieldsByTag	= result;
+		}
+		return result;
+	}
+	HashMap<String, Field> mapFieldsByTag()
+	{
+		HashMap<String, Field> result	= this.collectionFieldsByTag;
+		if (result == null)
+		{
+			result	= new HashMap<String, Field>();
+			this.collectionFieldsByTag	= result;
+		}
+		return result;
+	}
+	/**
+	 * @param thatField
+	 * @param tagFromAnnotation
+	 * @param required
+	 */
+	private void annotatedFieldError(Field thatField, String tagFromAnnotation, String required)
+	{
+		error("@xml_collection(\"" + tagFromAnnotation + "\") declared as " + 
+				thatField.getType().getSimpleName() +" "+ thatField.getName() + ", which is not a " + required+ ".");
+	}
+	
 	
 	/**
 	 * Add an entry to our map of Field objects, using the field's name as the key.
@@ -431,7 +549,52 @@ public class Optimizations extends Debug
 	 */
 	Field getField(String fieldName)
 	{
-		return (Field) fieldsMap().get(fieldName);
+		return fieldsMap().get(fieldName);
+	}
+	
+	/**
+	 * Lookup a collection object by its tag name.
+	 * This seeks a field declared with @xml_collection(tag).
+	 * 
+	 * @param tag
+	 * @return	The Field object for the correctly parameterized Collection.
+	 */
+	Field getCollectionFieldByTag(String tag)
+	{
+		return (collectionFieldsByTag == null) ? null : collectionFieldsByTag.get(tag);
+	}
+	/**
+	 * Lookup a collection object by its tag name.
+	 * This seeks a field declared with @xml_collection(tag).
+	 * 
+	 * @param tag
+	 * @return	The Field object for the correctly parameterized Collection.
+	 */
+	Field getMapFieldByTag(String tag)
+	{
+		return (mapFieldsByTag == null) ? null : mapFieldsByTag.get(tag);
+	}
+	/**
+	 * If a field declared with @xml_collection(tag) turns out not to be a parameterized
+	 * Collection type, then clear its entry!
+	 * 
+	 * @param tag
+	 */
+	void clearCollectionFieldByTag(String tag)
+	{
+		if (collectionFieldsByTag != null)
+			collectionFieldsByTag.put(tag, null);
+	}
+	/**
+	 * If a field declared with @xml_collection(tag) turns out not to be a parameterized
+	 * Collection type, then clear its entry!
+	 * 
+	 * @param tag
+	 */
+	void clearMapFieldByTag(String tag)
+	{
+		if (mapFieldsByTag != null)
+			mapFieldsByTag.put(tag, null);
 	}
 }
 

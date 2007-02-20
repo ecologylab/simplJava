@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class ColorType extends Type
+public class ColorType extends ScalarType<Color>
 {
 	
 	
@@ -33,9 +33,9 @@ public class ColorType extends Type
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
-	public Object getInstance(String value)
+	public Color getInstance(String value)
 	{
 	   if (value.indexOf('#') == 0)
 		  value			= value.substring(1);

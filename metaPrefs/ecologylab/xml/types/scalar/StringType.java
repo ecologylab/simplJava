@@ -8,7 +8,7 @@ package ecologylab.xml.types.scalar;
  * 
  * @author andruid
  */
-public class StringType extends Type
+public class StringType extends ScalarType<String>
 {
 /**
  * This constructor should only be called once per session, through
@@ -26,9 +26,9 @@ public class StringType extends Type
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
-	public Object getInstance(String value)
+	public String getInstance(String value)
 	{
 		return value;
 	}

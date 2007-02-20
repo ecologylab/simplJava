@@ -448,9 +448,10 @@ extends Debug
 		switch (os())
 		{
 		case MAC:
-			System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", applicationName);
 		}
 		
 	}
+	public static final boolean	isMac	= (os() == MAC);
 }

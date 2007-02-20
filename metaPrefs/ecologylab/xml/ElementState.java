@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -34,7 +35,8 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.types.scalar.Type;
+import ecologylab.xml.types.element.Mappable;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -383,32 +385,16 @@ implements ParseTableEntryTypes
 				for (int i=0; i<numElements; i++)
 				{
 					Field thatField			= (Field) elementFields.get(i);
-					if (XmlTools.representAsLeafNode(thatField))
+					String thatFieldName	= thatField.getName();
+					ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
+					//if (XmlTools.representAsLeafNode(thatField))
+					if ((pte != null) && pte.isLeafNode())
 					{
-						String thatFieldName			= thatField.getName();
-						String leafElementName		= XmlTools.getXmlTagName(thatFieldName, null, false);
-						boolean isCDATA	= XmlTools.leafIsCDATA(thatField);
-						Type type		= TypeRegistry.getType(thatField);
-						String leafValue= type.toString(this, thatField);
-						if (!ecologylab.xml.types.scalar.Type.NULL_STRING.equals(leafValue))
-						{
-							buffy.append('<').append(leafElementName).append('>');
-							
-							if (isCDATA)
-							{
-								buffy.append("<![CDATA[");
-								buffy.append(leafValue);
-								buffy.append("]]>");
-							}
-							else
-							{
-								if (type.needsEscaping())
-									XmlTools.escapeXML(buffy, leafValue);
-								else
-									buffy.append(leafValue);
-							}
-							buffy.append("</").append(leafElementName).append('>');
-						}
+						String leafElementName	= XmlTools.getXmlTagName(thatFieldName, null, false);
+						boolean isCDATA			= XmlTools.leafIsCDATA(thatField);
+						ScalarType type			= TypeRegistry.getType(thatField);
+						String leafValue		= type.toString(this, thatField);
+						appendLeafXML(buffy, leafElementName, leafValue, type, isCDATA);
 					}
 					else
 					{
@@ -419,6 +405,7 @@ implements ParseTableEntryTypes
 						}
 						catch (IllegalAccessException e)
 						{
+							debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
 							thatField.setAccessible(true);
 							try
 							{
@@ -433,19 +420,26 @@ implements ParseTableEntryTypes
 						if (thatReferenceObject == null)
 							continue;
 						
+						// gets Collection object directly or through Map.values()
 						Collection thatCollection = XmlTools.getCollection(thatReferenceObject);
 						
 						if (thatCollection != null)
 						{
 							//if the object is a collection, 
 							//basically iterate thru the collection and emit Xml from each element
-							Iterator elementIterator = thatCollection.iterator();
+							final Iterator iterator			= thatCollection.iterator();
+							final boolean collectionScalar	= (pte != null) && pte.isCollectionScalar();
+							final boolean mapScalar			= (pte != null) && pte.isMapScalar();
 							
-							while (elementIterator.hasNext())
+							while (iterator.hasNext())
 							{
-								Object next = elementIterator.next();
+								Object next = iterator.next();
+								if (collectionScalar || mapScalar)
+								{
+									appendLeafXML(buffy, pte.tag(), next.toString(), pte.scalarType());									
+								}
 								// this is a special hack for working with pre-translated XML Strings
-								if (next instanceof String)
+								else if (next instanceof String)
 									buffy.append((String) next);
 								else
 								{
@@ -492,6 +486,50 @@ implements ParseTableEntryTypes
 			e.printStackTrace();
 		}
 		return buffy;
+	}
+	/**
+	 * Translate our representation of a leaf node to XML.
+	 * 
+	 * @param buffy
+	 * @param leafElementName
+	 * @param leafValue
+	 * @param type
+	 * @param isCDATA
+	 */
+	void appendLeafXML(StringBuilder buffy, String leafElementName, String leafValue, ScalarType type)
+	{
+		appendLeafXML(buffy, leafElementName, leafValue, type, false);
+	}
+	/**
+	 * Translate our representation of a leaf node to XML.
+	 * 
+	 * @param buffy
+	 * @param leafElementName
+	 * @param leafValue
+	 * @param type
+	 * @param isCDATA
+	 */
+	void appendLeafXML(StringBuilder buffy, String leafElementName, String leafValue, ScalarType type, boolean isCDATA)
+	{
+		if (!ecologylab.xml.types.scalar.ScalarType.NULL_STRING.equals(leafValue))
+		{
+			buffy.append('<').append(leafElementName).append('>');
+			
+			if (isCDATA)
+			{
+				buffy.append("<![CDATA[");
+				buffy.append(leafValue);
+				buffy.append("]]>");
+			}
+			else
+			{
+				if (type.needsEscaping())
+					XmlTools.escapeXML(buffy, leafValue);
+				else
+					buffy.append(leafValue);
+			}
+			buffy.append("</").append(leafElementName).append('>');
+		}
 	}
 	
 	/**
@@ -1284,7 +1322,7 @@ implements ParseTableEntryTypes
 					switch (pte.type())
 					{
 					case REGULAR_ATTRIBUTE:
-						pte.setAttribute(this, value);
+						pte.setFieldToScalar(this, value);
 						// the value can become a unique id for looking up this
 						if ("id".equals(pte.tag()))
 							this.elementByIdMap.put(value, this);
@@ -1324,7 +1362,7 @@ implements ParseTableEntryTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= pte.getChildElementState(this, null);
+						activeES			= pte.getChildElement(this, null);
 						ReflectionTools.setFieldValue(this, pte.field(), activeES);
 					}
 				}
@@ -1336,23 +1374,22 @@ implements ParseTableEntryTypes
 				switch (pte.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-//					activeES.setFieldToNestedElement(activePTE.field(), activePTE.getChildElementState(activeES, childNode));
 					activePTE.setFieldToNestedElement(activeES, childNode);
 					break;
 				case LEAF_NODE_VALUE:
-					Node textElementChild		= childNode.getFirstChild();
-					if (textElementChild != null)
-						activePTE.setLeafNodeValue(activeES, textElementChild);
-//					activeES.setLeafNodeValue(activePTE.field(), textElementChild);
+					activePTE.setScalarFieldWithLeafNode(activeES, childNode);
 					break;
 				case COLLECTION_ELEMENT:
-					activePTE.addToCollection(activeES, childNode);
-					//Collection collection		= activeES.getCollection(activePTE.classOp());
-					// the sleek new way to add elements to collections
-					//collection.add(activePTE.getChildElementState(activeES, childNode));
+					activePTE.addElementToCollection(activeES, childNode);
+					break;
+				case COLLECTION_SCALAR:
+					activePTE.addLeafNodeToCollection(activeES, childNode);
+					break;
+				case MAP_ELEMENT:
+					activePTE.addElementToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:
-					activeES.addNestedElement(activePTE.getChildElementState(activeES, childNode));
+					activeES.addNestedElement(activePTE.getChildElement(activeES, childNode));
 					break;
 				case IGNORED_ELEMENT:
 				case BAD_FIELD:
@@ -1743,7 +1780,7 @@ implements ParseTableEntryTypes
 	protected boolean setFieldUsingTypeRegistry(Field field, String fieldValue)
 	{
 		boolean result		= false;
-		Type fieldType		= TypeRegistry.getType(field);
+		ScalarType fieldType		= TypeRegistry.getType(field);
 		if (fieldType != null)
 			result			= fieldType.setField(this, field, fieldValue);
 		else
@@ -1874,7 +1911,20 @@ implements ParseTableEntryTypes
 	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
 	 * @return
 	 */
-	protected Collection getCollection(Class thatClass)
+	protected Collection<? extends ElementState> getCollection(Class thatClass)
+	{
+		return null;
+	}
+	
+	/**
+	 * When translating from XML, if a tag is encountered with no matching field, perhaps
+	 * it belongs in a Collection.
+	 * This method tells us which collection object that would be.
+	 * 
+	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
+	 * @return
+	 */
+	protected <K extends Object, V extends ElementState & Mappable<K>>Map<K, V> getMap(Class thatClass)
 	{
 		return null;
 	}
@@ -2021,7 +2071,7 @@ implements ParseTableEntryTypes
     {
 
     }
-    
+    static final String NULL_TAG	= "";
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a complex nested field, which requires further translation.
@@ -2033,7 +2083,7 @@ implements ParseTableEntryTypes
     @Inherited
     public @interface xml_collection
     {
-
+       	String value() default NULL_TAG;
     }
     
     /**
@@ -2047,7 +2097,7 @@ implements ParseTableEntryTypes
     @Inherited
     public @interface xml_map
     {
-
+       	String value() default NULL_TAG;
     }
     
 	public void checkAnnotation() throws NoSuchFieldException

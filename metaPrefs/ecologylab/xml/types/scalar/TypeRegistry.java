@@ -24,7 +24,7 @@ public class TypeRegistry extends Debug
  * this class use positive integers. All other extended types should
  * use negative integers.
  */	
-	private static final HashMap<String, Type> allTypes	  = new HashMap<String, Type>(32);
+	private static final HashMap<String, ScalarType> allTypes	  = new HashMap<String, ScalarType>(32);
 	
 	static Class[] BASIC_TYPES	=
 	{
@@ -70,9 +70,9 @@ public class TypeRegistry extends Debug
 	 * Enter this type in the registry, which is a map in which the Type's Class object's
 	 * fully qualified named is used as a key.
 	 */
-	static boolean register(Class<? extends Type> typeClass)
+	static boolean register(Class<? extends ScalarType> typeClass)
 	{ 
-		Type type		= (Type) ReflectionTools.getInstance(typeClass);
+		ScalarType type		= (ScalarType) ReflectionTools.getInstance(typeClass);
 		if (type == null)
 		{
 			error(typeClass, "Can't register this Type, because we can't instantiate it!");
@@ -85,7 +85,7 @@ public class TypeRegistry extends Debug
 	 * Enter this type in the registry, which is a map in which the Type's Class object's
 	 * fully qualified named is used as a key.
 	 */
-	static boolean register(Type type)
+	static boolean register(ScalarType type)
 	{ 
 		String typeName	= type.getTypeClass().getName();
 		boolean result;
@@ -108,7 +108,7 @@ public class TypeRegistry extends Debug
 	 * 
 	 * @param thoseTypeClasses
 	 */
-	static void register(Class<? extends Type> thoseTypeClasses[])
+	static void register(Class<? extends ScalarType> thoseTypeClasses[])
 	{
 		int size	= thoseTypeClasses.length;
 		for (int i=0; i<size; i++)
@@ -120,25 +120,25 @@ public class TypeRegistry extends Debug
  * @param field
  * @return	Type associated with the class of the specified Field
  */
-	public static Type getType(Field field)
+	public static ScalarType getType(Field field)
 	{
 	   return getType(field.getType());
 	}
 	/**
-	 * Get the Type corresponding to the Class, by using its name.
+	 * Get the Scalar Type corresponding to the Class, by using its name.
 	 * @param thatClass
 	 * @return	Type associated with thatClass
 	 */
-	public static Type getType(Class thatClass)
+	public static ScalarType getType(Class thatClass)
 	{
 	   return getType(thatClass.getName());
 	}
 	/**
-	 * Get the Type corresponding to the Class name.
+	 * Get the Scalar Type corresponding to the Class name.
 	 * @param className
 	 * @return	Type associated with class of the specified name
 	 */
-	public static final Type getType(String className)
+	public static final ScalarType getType(String className)
 	{
 	   return allTypes.get(className);
 	}

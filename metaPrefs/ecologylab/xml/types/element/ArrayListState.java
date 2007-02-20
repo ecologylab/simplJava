@@ -97,7 +97,7 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
      * 
      * @return  The ArrayList we collect in.
      */
-    protected Collection getCollection(Class thatClass)
+    protected Collection<? extends ElementState> getCollection(Class thatClass)
     {
         return set();
     }

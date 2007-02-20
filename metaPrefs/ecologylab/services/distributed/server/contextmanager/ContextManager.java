@@ -231,11 +231,11 @@ public class ContextManager extends Debug implements ServerConstants
      */
     public void processAllMessagesAndSendResponses() throws BadClientException
     {
-        timeoutBeforeValidMsg();
+//        timeoutBeforeValidMsg();
         while (isMessageWaiting())
         {
             this.processNextMessageAndSendResponse();
-            timeoutBeforeValidMsg();
+//            timeoutBeforeValidMsg();
         }
     }
 
@@ -248,7 +248,7 @@ public class ContextManager extends Debug implements ServerConstants
      * 
      * @throws BadClientException
      */
-    void timeoutBeforeValidMsg() throws BadClientException
+/*    void timeoutBeforeValidMsg() throws BadClientException
     {
         long now = System.currentTimeMillis();
         long elapsedTime = now - this.initialTimeStamp;
@@ -263,7 +263,7 @@ public class ContextManager extends Debug implements ServerConstants
         {
             this.initialTimeStamp = now;
         }
-    }
+    }*/
 
     /**
      * @return Returns the token.
@@ -455,7 +455,6 @@ public class ContextManager extends Debug implements ServerConstants
 
             try
             {
-
                 // see if the incoming buffer has enough characters to
                 // include the specified content length
                 if (incomingMessageBuffer.length() >= contentLengthRemaining)
@@ -474,10 +473,6 @@ public class ContextManager extends Debug implements ServerConstants
                 }
                 else
                 {
-                    // debug("buffer size < contentLengthRemaining:
-                    // "+incomingMessageBuffer.length()+" <
-                    // "+contentLengthRemaining);
-
                     firstMessageBuffer.append(incomingMessageBuffer);
 
                     // indicate that we need to get more from the buffer in
@@ -488,11 +483,6 @@ public class ContextManager extends Debug implements ServerConstants
                     incomingMessageBuffer.delete(0, incomingMessageBuffer
                             .length());
                 }
-
-                // debug("first message contents:
-                // "+firstMessageBuffer.toString());
-                // debug("buffer contents:
-                // "+incomingMessageBuffer.toString());
             }
             catch (NullPointerException e)
             {
@@ -510,13 +500,6 @@ public class ContextManager extends Debug implements ServerConstants
             }
             else
             {
-                // debug("first message buffer null? "
-                // + (firstMessageBuffer == null));
-                // debug("first message buffer empty? "
-                // + (firstMessageBuffer.length() == 0));
-                // debug("content length remaining? " +
-                // contentLengthRemaining);
-                // debug("end of first header index? " + endOfFirstHeader);
                 debug("first message contents: "
                         + (firstMessageBuffer.toString()));
                 debug("buffer contents: " + (incomingMessageBuffer.toString()));

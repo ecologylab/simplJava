@@ -34,6 +34,11 @@ public class Prologue extends ElementState
 		this.userID = id;
 	}
 	
+	public int getUserID()
+	{
+		return this.userID;
+	}
+	
 	public void setStudyName(String studyName)
 	{
 		this.studyName = studyName;

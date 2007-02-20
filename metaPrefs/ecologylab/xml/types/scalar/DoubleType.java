@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class DoubleType extends Type
+public class DoubleType extends ScalarType
 {
     /**
      * This constructor should only be called once per session, through a static initializer,
@@ -36,7 +36,7 @@ public class DoubleType extends Type
     /**
      * This is a primitive type, so we set it specially.
      * 
-     * @see ecologylab.xml.types.scalar.Type#setField(Object, Field, String)
+     * @see ecologylab.xml.types.scalar.ScalarType#setField(Object, Field, String)
      */
     public boolean setField(Object object, Field field, String value)
     {

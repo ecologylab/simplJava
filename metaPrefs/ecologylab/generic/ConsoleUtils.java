@@ -7,12 +7,28 @@ package ecologylab.generic;
  */
 public class ConsoleUtils extends Debug
 {
+	public static void obtrusiveConsoleOutput(String outputMessage, boolean stdErr)
+	{
+		if (stdErr)
+		{
+			System.err.println("****************************************************");
+			System.err.println("----------------------------------------------------");
+			System.err.println(outputMessage);
+			System.err.println("----------------------------------------------------");
+			System.err.println("****************************************************");
+		}
+		else
+		{
+			System.out.println("****************************************************");
+			System.out.println("----------------------------------------------------");
+			System.out.println(outputMessage);
+			System.out.println("----------------------------------------------------");
+			System.out.println("****************************************************");
+		}
+	}
+	
 	public static void obtrusiveConsoleOutput(String outputMessage)
 	{
-		System.out.println("****************************************************");
-		System.out.println("----------------------------------------------------");
-		System.out.println(outputMessage);
-		System.out.println("----------------------------------------------------");
-		System.out.println("****************************************************");
+		obtrusiveConsoleOutput(outputMessage, false);	
 	}
 }

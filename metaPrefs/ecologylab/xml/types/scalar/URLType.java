@@ -11,7 +11,7 @@ import java.net.URL;
  * 
  * @author andruid
  */
-public class URLType extends Type 
+public class URLType extends ScalarType<URL>
 {
 	public URLType()
 	{
@@ -21,11 +21,11 @@ public class URLType extends Type
 	/**
 	 * @param value is interpreted as an absolute internet address.
 	 * 
-	 * @see ecologylab.xml.types.scalar.Type#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
-	public Object getInstance(String value)
+	public URL getInstance(String value)
 	{
-	   Object result	= null;
+	   URL result	= null;
 	   try
 	   {
 		  result		= new URL(value);

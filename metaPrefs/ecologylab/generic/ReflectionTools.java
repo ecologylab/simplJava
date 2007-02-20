@@ -4,8 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import ecologylab.xml.xml_inherit;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Utility routines for working with reflection.
@@ -119,9 +119,9 @@ public class ReflectionTools extends Debug
  * @return	An instance of an object of the specified class, or null if the Class object was null or
  * an InstantiationException or IllegalAccessException was thrown in the attempt to instantiate.
  */
-  	public static Object getInstance(Class thatClass)
+  	public static<T> T getInstance(Class<T> thatClass)
   	{
-  		Object result		= null;
+  		T result		= null;
   		if (thatClass != null)
   		{
   			try
@@ -147,14 +147,14 @@ public class ReflectionTools extends Debug
   	 * @return	An instance of an object of the specified class, or null if the Class object was null or
   	 * an InstantiationException or IllegalAccessException was thrown in the attempt to instantiate.
   	 */
-  	public static Object getInstance(Class thatClass, Class[] parameterTypes, Object[] args)
+  	public static<T> T getInstance(Class<T> thatClass, Class[] parameterTypes, Object[] args)
   	{
-  		Object result				= null;
+  		T result				= null;
   		if (thatClass != null)
   		{
   			try
   			{
-  				Constructor constructor	= thatClass.getDeclaredConstructor(parameterTypes);
+  				Constructor<T> constructor	= thatClass.getDeclaredConstructor(parameterTypes);
   				if (constructor != null)
   					result		 		= constructor.newInstance(args);
 
@@ -214,4 +214,22 @@ public class ReflectionTools extends Debug
   	{
   		return field.isAnnotationPresent(annotationClass);
   	}
+
+	/**
+	 * Get the parameterized type tokens that the generic Field was declared with.
+	 * 
+	 * @param reflectType
+	 * @return
+	 */
+	public static Type[] getParameterizedTypeTokens(Field field)
+	{
+		Type[] result				= null;
+		Type reflectType			= field.getGenericType();
+		if (reflectType instanceof ParameterizedType)
+		{		
+			ParameterizedType pType	= (ParameterizedType) reflectType;
+			result	= pType.getActualTypeArguments();
+		}
+		return result;
+	}
 }
