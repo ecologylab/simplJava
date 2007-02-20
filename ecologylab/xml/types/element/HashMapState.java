@@ -2,7 +2,10 @@ package ecologylab.xml.types.element;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import ecologylab.xml.ElementState;
 
@@ -12,121 +15,108 @@ import ecologylab.xml.ElementState;
  * 
  * @author andruid
  */
-public class HashMapState extends ElementState implements Cloneable //, Iterable
+public class HashMapState<K, V extends ElementState & Mappable<K>> extends ElementState implements Cloneable, Map<K, V> 
 {
-    public ArrayList set;
+    /**
+     * Stores the actual mappings.
+     */
+    @xml_map private HashMap<K, V> map = null;
 
     public HashMapState()
     {
         super();
     }
+    
     /**
-     * Use lazy evaluation for creating the set, in order to make it possible this
+     * Use lazy evaluation for creating the map, in order to make it possible this
      * class lightweight enough to use in subclass situations where they may be no elements
      * added to the set, where the ElementState is only being used for direct fields.
      * @return
      */
-    protected ArrayList set()
+    protected HashMap<K, V> map()
     {
-    	ArrayList	result	= set;
+    	HashMap<K, V>	result	= map;
+        
     	if (result == null)
     	{
-    		result			= new ArrayList();
-    		set			 	= result;
+    		result			= new HashMap<K, V>();
+    		map			 	= result;
     	}
+        
     	return result;
     }
-    public void add(ElementState elementState)
+
+    @Override
+    protected Map<K, V> getMap(Class thatClass)
     {
-        set().add(elementState);
+        return map();
     }
 
-    public ElementState remove(int i)
+    @Override
+    protected Object clone() throws CloneNotSupportedException
     {
-        return (set == null) ? null : (ElementState) set.remove(i);
+        // TODO Auto-generated method stub
+        return super.clone();
     }
 
-    public Iterator iterator()
-    {
-        return set().iterator();
-    }
-
-    public void add(int i, ElementState obj)
-    {
-        set().add(i, obj);
-    }
-
-    /**
-     * @param i
-     *            the index of the element to get.
-     * @return the element located at i; if i is greater than the size of set or less than 0,
-     *         returns null.
-     */
-    public ElementState get(int i)
-    {
-    	if (set == null)
-    		return null;
-    	
-        if (i < 0)
-        {
-            return null;
-        }
-        else if (i >= set.size())
-        {
-            return null;
-        }
-        else
-        {
-            return (ElementState) set.get(i);
-        }
-    }
-    
-    public boolean contains(Object o)
-    {
-    	return (set == null) ? false : set.contains(o);
-    }
-    
-    /**
-     * Return the collection object associated with this
-     * 
-     * @return	The ArrayList we collect in.
-     */
-	protected Collection getCollection(Class thatClass, String tag)
-	{
-		return set();
-	}
-    /**
-     * Remove all elements from our Collection.
-     * 
-     */
     public void clear()
     {
-        if (set != null)
-        	set.clear();
+        if (map != null)
+            map.clear();
     }
 
-    /**
-     * Get the number of elements in the set.
-     * 
-     * @return
-     */
+    public boolean containsKey(Object key)
+    {
+        return (map == null ? false : map.containsKey(key));
+    }
+
+    public boolean containsValue(Object value)
+    {
+        return (map == null ? false : map.containsValue(value));
+    }
+
+    public Set<java.util.Map.Entry<K, V>> entrySet()
+    {
+        return map().entrySet();
+    }
+
+    public V get(Object key)
+    {
+        return map().get(key);
+    }
+
+    public boolean isEmpty()
+    {
+        return (map == null ? true : map.isEmpty());
+    }
+
+    public Set<K> keySet()
+    {
+        return (map == null ? new HashSet<K>() : map.keySet());
+    }
+
+    public V put(K key, V value)
+    {
+        return map().put(key, value);
+    }
+
+    public void putAll(Map<? extends K, ? extends V> t)
+    {
+        map().putAll(t);
+    }
+
+    public V remove(Object key)
+    {
+        return (map == null ? null : map.remove(key));
+    }
+
     public int size()
     {
-        return (set == null) ? 0 : set.size();
+        return (map == null ? 0 : map.size());
     }
 
-    public Object clone()
+    public Collection<V> values()
     {
-        HashMapState clone = new HashMapState();
-
-        clone.set = (ArrayList) this.set.clone();
-
-        return clone;
-    }
-    
-    public void trimToSize()
-    {
-        if (set != null)
-        	set.trimToSize();
+        return (map == null ? new ArrayList<V>() : map.values());
     }
 }

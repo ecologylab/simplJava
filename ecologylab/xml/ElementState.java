@@ -1924,7 +1924,7 @@ implements ParseTableEntryTypes
 	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
 	 * @return
 	 */
-	protected Map<Mappable, ? extends ElementState> getMap(Class thatClass)
+	protected <K extends Object, V extends ElementState & Mappable<K>>Map<K, V> getMap(Class thatClass)
 	{
 		return null;
 	}
