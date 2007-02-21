@@ -8,6 +8,7 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.util.HashMap;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -166,8 +167,8 @@ public abstract class MetaPref<T> extends ElementState
         FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
         // get actual width of string (as per gui, not as number of chars)
         double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
-        // also add width of icon TODO guessed to be 30
-        radioButton.setBounds(new Rectangle(x, 7, (int)strWidth + 30, 32));
+        // also add width of icon TODO guessed to be 30 because icon.getIconWidth is not working
+        radioButton.setBounds(new Rectangle(x, 7, (int)strWidth+30, 32));
         radioButton.setSelected(initialValue);
         radioButton.setName(name);
         radioButton.setText(label);
@@ -187,7 +188,7 @@ public abstract class MetaPref<T> extends ElementState
         FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
         // get string width
         double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
-        // also add width of icon TODO: guessed to be 30
+        // also add width of icon TODO guessed to be 30 because icon.getIconWidth is not working
         radioButton.setBounds(new Rectangle(x, y, (int)strWidth + 30, 32));
         radioButton.setSelected(initialValue);
         radioButton.setName(name);

@@ -90,7 +90,6 @@ public class PrefSet extends ArrayListState<Pref>
 
     public void modifyPref(String name, Object newPref)
     {
-        // TODO Auto-generated method stub
         allPrefsMap().modifyObject(name,(Pref)newPref);
     }
 }

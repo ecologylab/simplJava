@@ -68,11 +68,8 @@ public class MetaPrefFloat extends MetaPref<Float>
                 ButtonGroup buttonGroup = new ButtonGroup();
                 for (Choice choice : choices)
                 {
-                    // TODO: there's a better way to do this than in an if-else
-                    if (this.getDefaultValue().equals(choice.getValue()))
-                        this.createRadio(panel, buttonGroup, true, choice.getLabel(), choice.getName(), 405);
-                    else
-                        this.createRadio(panel, buttonGroup, false, choice.getLabel(), choice.getName(), 405);
+                    boolean isDefault = this.getDefaultValue().equals(choice.getValue());
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), 405);
                 }
             }
         }

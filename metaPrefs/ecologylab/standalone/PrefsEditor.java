@@ -52,7 +52,6 @@ public class CFPrefsEdit extends ApplicationEnvironment
 		}
 		catch (XmlTranslationException e)
 		{
-			// TODO Auto-generated catch block
 			error(metaPrefsPURL, "Caught exception while reading meta-preferences:");
 			e.printStackTrace();
 		}

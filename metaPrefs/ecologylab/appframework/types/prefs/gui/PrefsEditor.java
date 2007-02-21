@@ -26,6 +26,7 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
 
+
 public class PrefWidgetManager
 {
     MetaPrefSet metaPrefSet;
@@ -211,11 +212,11 @@ public class PrefWidgetManager
         
         try
         {
-            // TODO: mess with something else for file here
             prefSet.saveXmlFile(prefsPURL.file(), true, false);
-        } catch (XmlTranslationException e)
+        }
+        catch (XmlTranslationException e)
         {
-            // TODO Auto-generated catch block
+            // TODO auto-generated catch block
             e.printStackTrace();
         }
     }

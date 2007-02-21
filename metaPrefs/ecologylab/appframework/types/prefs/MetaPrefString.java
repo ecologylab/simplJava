@@ -50,12 +50,17 @@ public class MetaPrefString extends MetaPref<String>
     JPanel getWidget()
     {
         JPanel panel = new JPanel();
+        // at the moment this will only be a text field
+        //if (widgetIsTextField())
+        //{
         panel.setName(this.id);
-        
+
         this.createLabel(panel);
         this.createTextField(panel,this.getDefaultValue(),"textField");
-        
+
         panel.setSize(new java.awt.Dimension(586,35));
+        //}
+        
         panel.setLayout(null);
         panel.setVisible(true);
         

@@ -46,7 +46,9 @@ public class MetaPrefInt extends MetaPref<Integer>
         }
         else if (widgetIsRadio())
         {
-            // TODO: this is a bad assumption (value = index)
+            /* TODO: this is a bad assumption (value = index)
+               should do: choices.get(index of thing where value=getdefaultvalue)
+               index can only be gotten by IndexOf(obj) or iterating through */
             // get default choice
             Choice choice = choices.get(this.getDefaultValue());
             // registered name
@@ -65,8 +67,6 @@ public class MetaPrefInt extends MetaPref<Integer>
         panel.setName(this.id);
         
         this.createLabel(panel);
-        // TODO: widget here needs to check what type of thing we are actually creating
-        // ie, metapref.widget (this also needs to be done in other metapref type classes)
         if (widgetIsTextField())
         {
             this.createTextField(panel,this.getDefaultValue().toString(),"textField");
@@ -81,15 +81,11 @@ public class MetaPrefInt extends MetaPref<Integer>
                 int start_y = 7;
                 for (Choice choice : choices)
                 {
-                    // TODO: there's a better way to do this than in an if-else
-                    boolean thisIsDefault = getDefaultValue().equals(choice.getValue());
+                    boolean isDefault = getDefaultValue().equals(choice.getValue());
                     //println("this is default?: " + thisIsDefault);
                     //println("getDefaultValue: " + getDefaultValue().toString());
                     //println("choice.getValue: " + choice.getValue().toString());
-                    if (thisIsDefault)
-                        this.createRadio(panel, buttonGroup, true, choice.getLabel(), choice.getName(), 405, start_y);
-                    else
-                        this.createRadio(panel, buttonGroup, false, choice.getLabel(), choice.getName(), 405, start_y);
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), 405, start_y);
                     start_y += 30;
                 }
             }

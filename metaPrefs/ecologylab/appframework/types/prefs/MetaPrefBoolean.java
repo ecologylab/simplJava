@@ -68,17 +68,21 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         boolean noVal = !defVal;
 
         JPanel panel = new JPanel();
+        // at the moment this will only be a radio button choice
+        //if (widgetIsRadio())
+        //{
         panel.setName(this.id);
-        
+
         ButtonGroup radioPair = new ButtonGroup();
-        
+
         panel.setSize(new java.awt.Dimension(586,40));
-        panel.setLayout(null);
 
         this.createLabel(panel);
         this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
         this.createRadio(panel, radioPair, noVal, "No", "No", 484);
+        //}
 
+        panel.setLayout(null);
         panel.setVisible(true);
         
         return panel;
