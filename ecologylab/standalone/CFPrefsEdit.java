@@ -7,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 
 //import cf.services.messages.CFServicesTranslations;
@@ -49,6 +50,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
             
             // we want to also pass in prefs to PrefWidgetManager
             PrefWidgetManager mgr = new PrefWidgetManager(metaPrefSet, prefSet, prefsPURL);
+            // could also call: JFrame jFrame = mgr.fetchJFrame();
 		}
 		catch (XmlTranslationException e)
 		{

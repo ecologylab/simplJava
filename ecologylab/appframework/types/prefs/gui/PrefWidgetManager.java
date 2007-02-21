@@ -12,6 +12,7 @@ import java.io.File;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -33,12 +34,20 @@ public class PrefWidgetManager
     PrefSet     prefSet;
     ParsedURL   prefsPURL;
     
+    // base setup for gui
+    JFrame jFrame = null;
+    JPanel jContentPane = null;
+    JButton cancelButton = null;
+    JButton saveButton = null;
+    JButton revertButton = null;
+    JTabbedPane jTabbedPane = null;
+    
     public PrefWidgetManager(MetaPrefSet set, PrefSet prefs, ParsedURL prefsURL)
     {
         metaPrefSet = set;
         prefSet     = prefs;
         prefsPURL   = prefsURL;
-        JDialog window = getJDialog();
+        JFrame window = getJFrame();
         window.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
@@ -48,26 +57,23 @@ public class PrefWidgetManager
         });
         window.setVisible(true);
     }
-       
-    // base setup for gui
-    JDialog jDialog = null;
-    JPanel jContentPane = null;
-    JButton cancelButton = null;
-    JButton saveButton = null;
-    JButton revertButton = null;
-    JTabbedPane jTabbedPane = null;
+    
+    public JFrame fetchJFrame()
+    {
+        return getJFrame();
+    }
 
     // static bits of gui
-    private JDialog getJDialog() 
+    private JFrame getJFrame() 
     {
-        if (jDialog == null) 
+        if (jFrame == null) 
         {
-            jDialog = new JDialog();
-            jDialog.setSize(new Dimension(603, 532));
-            jDialog.setTitle("combinFormation Preferences");
-            jDialog.setContentPane(getJContentPane());
+            jFrame = new JFrame();
+            jFrame.setSize(new Dimension(603, 532));
+            jFrame.setTitle("combinFormation Preferences");
+            jFrame.setContentPane(getJContentPane());
         }
-        return jDialog;
+        return jFrame;
     }
 
     private JPanel getJContentPane() 
