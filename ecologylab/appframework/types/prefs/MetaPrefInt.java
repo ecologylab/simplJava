@@ -46,17 +46,26 @@ public class MetaPrefInt extends MetaPref<Integer>
         }
         else if (widgetIsRadio())
         {
-            /* TODO: this is a bad assumption (value = index)
-               should do: choices.get(index of thing where value=getdefaultvalue)
-               index can only be gotten by IndexOf(obj) or iterating through */
+            /* This is an ugly way to do this, but we can't trust
+             * choices to be in the right order (0-n), and we can't
+             * trust the choice values to be number 0-n either.
+             * We also can't get the index without the object.
+             */
             // get default choice
-            Choice choice = choices.get(this.getDefaultValue());
-            // registered name
-            String regName = this.id + choice.name;
-            //println("we think the name is: " + regName);
-            JRadioButton defaultButton = (JRadioButton) lookupComponent(regName);
-            ButtonModel buttonModel = defaultButton.getModel();
-            buttonModel.setSelected(true);
+            Integer defValue = this.getDefaultValue();
+            for(Choice choice1 : choices)
+            {
+                if (defValue.equals(choice1.getValue()))
+                {
+                    // registered name
+                    String regName = this.id + choice1.name;
+                    //println("we think the name is: " + regName);
+                    JRadioButton defaultButton = (JRadioButton)lookupComponent(regName);
+                    ButtonModel buttonModel = defaultButton.getModel();
+                    buttonModel.setSelected(true);
+                    break;
+                }
+            }
         }
     }
 
@@ -115,15 +124,26 @@ public class MetaPrefInt extends MetaPref<Integer>
         }
         else if (widgetIsRadio())
         {
-            // TODO: this is a bad assumption (value = index)
-            // get default choice
-            Choice choice = choices.get(prefValue);
-            // registered name
-            String regName = this.id + choice.name;
-            //println("we think the name is: " + regName);
-            JRadioButton defaultButton = (JRadioButton) lookupComponent(regName);
-            ButtonModel buttonModel = defaultButton.getModel();
-            buttonModel.setSelected(true);
+            /* This is an ugly way to do this, but we can't trust
+             * choices to be in the right order (0-n), and we can't
+             * trust the choice values to be number 0-n either.
+             * We also can't get the index without the object.
+             */
+            // find default choice
+            Integer defValue = this.getDefaultValue();
+            for(Choice choice1 : choices)
+            {
+                if (defValue.equals(choice1.getValue()))
+                {
+                    // registered name
+                    String regName = this.id + choice1.name;
+                    //println("we think the name is: " + regName);
+                    JRadioButton defaultButton = (JRadioButton) lookupComponent(regName);
+                    ButtonModel buttonModel = defaultButton.getModel();
+                    buttonModel.setSelected(true);
+                    break;
+                }
+            }
         }
     }
 
