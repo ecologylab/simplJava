@@ -88,7 +88,7 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
-    private TranslationSpace                      translationSpace;
+    protected TranslationSpace                      translationSpace;
 
     public ContextManager(Object token, /* SelectionKey key, */
     NIOServerBackend server, SocketChannel socket,
