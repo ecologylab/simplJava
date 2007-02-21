@@ -9,7 +9,13 @@
     <meta_pref_float id="elements_per_square_inch" description="Density: Visible elements per square inch [.1,20]" helpText="Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch.&lt;br&gt;&lt;br&gt;This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements." widget="TEXT_FIELD" category="General" defaultValue="0.7" />
 
     <meta_pref_int id="undo_levels" description="Undo Levels" helpText="The number of steps backwards you can go, by using undo, or the reverse button." widget="TEXT_FIELD" category="Developer" defaultValue="32" />
-    <meta_pref_int id="log_mode" description="Log Mode" helpText="Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered." widget="RADIO" category="Developer" defaultValue="1" />
+    <meta_pref_int id="log_mode" description="Log Mode" helpText="Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered." widget="RADIO" category="Developer" defaultValue="1">
+    	<choices>
+    		<choice_int name="log_none" label="no logging" value="0" />
+    		<choice_int name="log_desktop" label="log to desktop file" value="1" />
+    		<choice_int name="log_server" label="log to logging server" value="2" />
+    	</choices>
+    </meta_pref_int>
     <meta_pref_boolean id="javascript_debug_mode" description="Javascript Debug Mode(Y/N)" helpText="Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies &amp; arrays" widget="RADIO" category="Developer" defaultValue="1" />
     <meta_pref_string id="codebase" description="Jar File Directory" helpText="Directory for the project a developer is working on." widget="TEXT_FIELD" category="Developer" defaultValue="code/java" />
 </meta_pref_set>

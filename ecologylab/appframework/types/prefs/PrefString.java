@@ -3,13 +3,18 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
+
 /**
  * @author andruid
  *
  */
+
+@xml_inherit
 public class PrefString extends Pref<String>
 {
-	private String			value;
+    @xml_attribute String			value;
 	
 	/**
 	 * 

@@ -193,6 +193,7 @@ public class PrefVisual {
 			spatial_grid = new JLabel();
 			spatial_grid.setBounds(new Rectangle(30, 165, 366, 16));
 			spatial_grid.setText("Composition agent automatically clusters related elements?");
+			spatial_grid.setHorizontalTextPosition(SwingConstants.LEADING);
 			spatial_grid.setToolTipText("Use the visual composition that automatically clusters related elements into piles. You may wish to move elements around, and sometimes, to re-cluster.");
 			
 			coolSpaceRatioLabel = new JLabel();

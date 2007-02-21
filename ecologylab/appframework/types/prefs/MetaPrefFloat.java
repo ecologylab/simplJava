@@ -3,6 +3,14 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.Rectangle;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
 
@@ -27,10 +35,66 @@ public class MetaPrefFloat extends MetaPref<Float>
 		super();
 	}
 	
-	Float getDefaultValue()
+	public Float getDefaultValue()
 	{
 		return defaultValue;
 	}
+
+    public @Override
+    void revertToDefault()
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        textField.setText(this.getDefaultValue().toString());
+    }
+
+    public @Override
+    JPanel getWidget()
+    {
+        JPanel panel = new JPanel();
+        panel.setName(this.id);
+        
+        this.createLabel(panel);
+        
+        if (widgetIsTextField())
+        {
+            this.createTextField(panel,this.getDefaultValue().toString(),"textField");
+        }
+        else if (widgetIsRadio())
+        {
+            // we know here that if we are a radio, we are a mutex of 3 or more
+            // because otherwise we would be a bool.
+            if (choices != null)
+            {
+                ButtonGroup buttonGroup = new ButtonGroup();
+                for (Choice choice : choices)
+                {
+                    boolean isDefault = this.getDefaultValue().equals(choice.getValue());
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), 405);
+                }
+            }
+        }
+        // TODO: drop-down list
+        
+        panel.setSize(new java.awt.Dimension(586,35));
+        panel.setLayout(null);
+        panel.setVisible(true);
+        
+        return panel;
+    }
+
+    @Override
+    public void setWidgetToPrefValue(Float prefValue)
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        textField.setText(prefValue.toString());
+    }
+
+    @Override
+    public Float getPrefValue()
+    {
+        JTextField textField = (JTextField)lookupComponent(this.id+"textField");
+        return new Float(textField.getText());
+    }
 	
 /*
 	public boolean isWithinRange(Float newValue)
