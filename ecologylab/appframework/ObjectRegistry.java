@@ -33,7 +33,7 @@ public class ObjectRegistry<T>
 	 * 
 	 * @param name
 	 * 
-	 * @return	The object associatedt with this name, found in the registry,
+	 * @return	The object associated with this name, found in the registry,
 	 * 			or null if there is none.
 	 */
 	public T lookupObject(String name)
