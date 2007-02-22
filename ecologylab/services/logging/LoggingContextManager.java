@@ -70,6 +70,19 @@ public class LoggingContextManager extends ContextManager
                     + requestMessage);
         }
 
+        //TODO asdf
+        if (requestMessage instanceof LogOps)
+        {
+            for (String s : ((LogOps)requestMessage).getSet())
+            {
+                debug(s);
+            }
+        }
+        else
+        {
+            debug("perform service on a "+requestMessage.getClassName());
+        }
+        
         if ((outputStream != null)
                 && (requestMessage instanceof LogRequestMessage))
         {

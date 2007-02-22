@@ -22,7 +22,6 @@ import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.Preference;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
-import ecologylab.services.ServicesClient;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.nio.NIOClient;
 import ecologylab.xml.ElementState;
@@ -76,18 +75,18 @@ public class Logging extends ElementState implements Runnable,
      * This is the Vector for the operations that are being queued up before
      * they can go to outgoingOps.
      */
-    Vector                      incomingOpsQueue         = new Vector();
+    Vector<String>                      incomingOpsQueue         = new Vector<String>();
 
     /**
      * This is the Vector for the operations that are in the process of being
      * written out.
      */
-    Vector                      outgoingOpsQueue         = new Vector();
+    Vector<String>                      outgoingOpsQueue         = new Vector<String>();
 
     /**
      * Stores the pointer to outgoingOpsQueue for swapQueues.
      */
-    Vector                      tempQueue                = null;
+    Vector<String>                      tempQueue                = null;
 
     /**
      * Iterator for writing out ops.
@@ -244,12 +243,15 @@ public class Logging extends ElementState implements Runnable,
                     {
                         e.printStackTrace();
                     }
+                    
+                    debug("logging to server: "+loggingHost+":"+loggingPort);
                 }
                 else
                 {
                     loggingClient   = null;
                     debug("Logging disabled: cannot reach server");
                 }
+                
                 break;
 
             default:
@@ -394,7 +396,7 @@ public class Logging extends ElementState implements Runnable,
             return;
         // ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
         
-        Vector ourQueueToWrite = incomingOpsQueue;
+        Vector<String> ourQueueToWrite = incomingOpsQueue;
         synchronized (ourQueueToWrite)
         {
             int size = ourQueueToWrite.size();
@@ -868,15 +870,31 @@ public class Logging extends ElementState implements Runnable,
             int uid = Preference.lookupInt("uid", 0);
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
-            loggingClient.sendMessage(sendPrologue);            
+            try
+            {
+                loggingClient.nonBlockingSendMessage(sendPrologue);
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }            
         }
         void consumeOp(String op)
         {
-            opSet.addNestedElement(op);
+            opSet.recordStringOp(op);
         }
         void finishConsumingQueue()
         {
-            loggingClient.sendMessage(opSet);
+            try
+            {
+                loggingClient.nonBlockingSendMessage(opSet);
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             opSet.clearSet();
         }
         /**
@@ -885,7 +903,15 @@ public class Logging extends ElementState implements Runnable,
         void writeEpilogueAndClose(SendEpilogue sendEpilogue)
         {
             Logging.this.debug("Logging: Sending Epilogue " + LOG_CLOSING);
-            loggingClient.sendMessage(sendEpilogue);
+            try
+            {
+                loggingClient.nonBlockingSendMessage(sendEpilogue);
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             
             loggingClient.disconnect();
             loggingClient   = null;

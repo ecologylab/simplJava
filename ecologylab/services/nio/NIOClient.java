@@ -304,7 +304,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
         boolean blockingRequestFailed = false;
         long startTime = System.currentTimeMillis();
-        int accumulator = 0;
+        int timeCounter = 0;
 
         try
         {
@@ -335,7 +335,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
                 debug("waking");
 
-                accumulator += System.currentTimeMillis() - startTime;
+                timeCounter += System.currentTimeMillis() - startTime;
                 startTime = System.currentTimeMillis();
 
                 while ((blockingRequestPending)
@@ -359,7 +359,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                     }
                 }
 
-                if ((timeOutMillis > -1) && (accumulator >= timeOutMillis)
+                if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis)
                         && (blockingRequestPending))
                 {
                     blockingRequestFailed = true;

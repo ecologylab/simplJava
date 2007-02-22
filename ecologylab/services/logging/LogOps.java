@@ -2,7 +2,6 @@ package ecologylab.services.logging;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -15,14 +14,15 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public final class LogOps extends LogRequestMessage
 {
-	@xml_nested protected ArrayList set	=	new ArrayList();
+	@xml_collection protected ArrayList<String> set	=	new ArrayList<String>();
 	
-    public void addNestedElement(ElementState elementState)
+/*    public void addNestedElement(ElementState elementState)
     {
         if (elementState instanceof MixedInitiativeOp)
             set.add(elementState);
-    }
-    public void addNestedElement(String string)
+    }*/
+    
+    public void recordStringOp(String string)
     {
         set.add(string);
     }
@@ -31,5 +31,15 @@ public final class LogOps extends LogRequestMessage
 	{
 		set.clear();
 	}
+
+    public ArrayList<String> getSet()
+    {
+        return set;
+    }
+
+    public void setSet(ArrayList<String> set)
+    {
+        this.set = set;
+    }
 	
 }
