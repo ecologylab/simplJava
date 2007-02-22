@@ -21,7 +21,7 @@ import ecologylab.xml.XmlTranslationException;
  * @author andruid
  * @author eunyee
  */
-public class LoggingServerToClientConnection extends ServerToClientConnection
+@Deprecated public class LoggingServerToClientConnection extends ServerToClientConnection
 {
 	FileOutputStream outputStream;
 	

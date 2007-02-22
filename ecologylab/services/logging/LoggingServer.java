@@ -17,7 +17,7 @@ import ecologylab.xml.TranslationSpace;
  * @author eunyee
  */
 
-public class LoggingServer extends ServicesServer
+@Deprecated public class LoggingServer extends ServicesServer
 implements LoggingDef
 {
 	String logFilesPath = "";
