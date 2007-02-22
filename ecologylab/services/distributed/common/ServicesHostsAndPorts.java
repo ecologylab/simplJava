@@ -19,13 +19,11 @@ public interface ServicesHostsAndPorts
     // publicstatic final String LOGGING_HOST = "128.194.138.51"; //
     // unix.cs.tamu.edu
 
-    // public static final String LOGGING_HOST = "128.194.147.58"; // CSDLL
-    // server IP address
+    public static final String CSDLL_HOST 				   = "128.194.147.58"; // CSDLL
 
-    public static final String LOGGING_HOST                = NetTools
-                                                                   .localHost();
+    public static final String LOGGING_HOST                = NetTools.localHost();
 
-    public static final int    LOGGING_PORT                = 10000;
+    public static final int    LOGGING_PORT                = 10201;
 
     public static final int    BROWSER_SERVICES_PORT       = 10001;
 
