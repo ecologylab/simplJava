@@ -671,10 +671,26 @@ public class TranslationSpace extends Debug
 	   }
 	   return result;
    }
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * 
+    * @param defaultPackageName
+    * @param translations
+    * @return
+    */
+   public static TranslationSpace get(String defaultPackageName, Class[] translations)
+   {
+	   TranslationSpace result	= lookupAndCheckDefaultPackage(defaultPackageName, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(defaultPackageName, defaultPackageName, translations);
+	   }
+	   return result;	   
+   }
    
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on the previous TranslationSpace, by including all mappings from there.
+    * Inherit from the previous TranslationSpace, by including all mappings from there.
     * 
     * @param name
     * @param defaultPackageName
