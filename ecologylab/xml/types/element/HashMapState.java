@@ -47,9 +47,9 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends Eleme
     }
 
     @Override
-    protected Map<K, V> getMap(Class thatClass)
+	protected <K1 extends Object, V1 extends ElementState & Mappable<K1>>Map<K1, V1> getMap(Class thatClass)
     {
-        return map();
+        return (Map<K1,V1>) map();
     }
 
     @Override
