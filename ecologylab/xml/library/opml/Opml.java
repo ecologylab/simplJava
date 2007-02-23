@@ -40,4 +40,18 @@ public class Opml extends ElementState
 	{
 		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);
 	}
+	/**
+	 * @return Returns the body.
+	 */
+	public Body getBody()
+	{
+		return body;
+	}
+	/**
+	 * @param body The body to set.
+	 */
+	public void setBody(Body body)
+	{
+		this.body = body;
+	}
 }

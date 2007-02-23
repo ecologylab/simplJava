@@ -4,7 +4,6 @@
 package ecologylab.xml.library.opml;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_nested;
 
 /**
  * OPML <body> element
@@ -22,6 +21,22 @@ public class Body extends ElementState
 	{
 		super();
 
+	}
+
+	/**
+	 * @return Returns the outline.
+	 */
+	public Outline getOutline()
+	{
+		return outline;
+	}
+
+	/**
+	 * @param outline The outline to set.
+	 */
+	public void setOutline(Outline outline)
+	{
+		this.outline = outline;
 	}
 
 }
