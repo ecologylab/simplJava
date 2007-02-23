@@ -114,13 +114,25 @@ extends Debug
 */
    ///////////////////////////////////////////////////////////////////////
    
+   /**
+    * Create a PURL from an absolute address.
+    * (Do it the quick and dirty way, providing less error handling.)
+    * NB: Only call this method if you are *sure* a MalformedURlException
+    * would never be produced.
+    * 
+    */
+   public static ParsedURL getAbsolute(String webAddr)
+   {
+	   return getAbsolute(webAddr, "");
+   }
    /* 
-    * Create Absolute URL
+    * Create a PURL from an absolute address.
     * 
     * @param	webAddr	url string
     * @param	errorDescriptor	which will be printed out in the trace file if there is something happen
     * 			converting from the url string to URL.	
-    * @return URL from url string parameter named webAddr.
+    * @return 	ParsedURL from url string parameter named webAddr, 
+    * 			or null if the param is malformed.
     */
    public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
    {
