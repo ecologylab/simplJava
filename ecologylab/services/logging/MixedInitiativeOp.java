@@ -27,6 +27,28 @@ abstract public @xml_inherit class MixedInitiativeOp extends ArrayListState
 		super();
 		sessionTime	= System.currentTimeMillis() - Logging.sessionStartTime();		
 	}
+	
+	/**
+	 * To keep track of the reference count of an object for Garbage Collecting.
+	 * Increase the refereceCount of an object.
+	 * 
+	 * No implementation here. Child class will override this method for its specific purposes.
+	 */
+	public void incrementReferenceCount() 
+	{
+	}
+	
+
+	/**
+	 * To keep track of the reference count of an object for Garbage Collecting.
+	 * Decrease the referenceCount of an object.
+	 * 
+	 * No implementation here. Child class will override this method for its specific purposes.
+	 */
+	public void decrementReferenceCount() 
+	{
+		
+	}
 
 	/**
 	 * Perform the op. Perhaps invert it, as for undo.
