@@ -7,7 +7,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Outline Processor Markup Language
+ * Outline Processor Markup Language root element.
  * 
  * @author andruid
  */
