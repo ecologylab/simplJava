@@ -285,10 +285,10 @@ public class TranslationSpace extends Debug
 		   while (translationEntriesIterator.hasNext())
 		   {
 			   TranslationEntry translationEntry = (TranslationEntry) translationEntriesIterator.next();
-			   if (!entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
+			   if (entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
 				   debug("WARNING: overriding with " + translationEntry);
 			   //addTranslation(nameEntry.classObj);
-			   translationEntry.registerTranslation();
+			   addTranslation(translationEntry);
 		   }
 	   }
    }
@@ -358,6 +358,11 @@ public class TranslationSpace extends Debug
    {
 //	  debugA("addTranslation: "+ className " : " + packageName);
 	  new TranslationEntry(packageName, className, xmlTag, null);
+   }
+   
+   private void addTranslation(TranslationEntry translationEntry)
+   {
+	   this.entriesByTag.put(translationEntry.tag, translationEntry);
    }
    
    /**
@@ -852,5 +857,10 @@ public class TranslationSpace extends Debug
    ScalarType getType(Class thatClass)
    {
 	   return TypeRegistry.getType(thatClass);
+   }
+   
+   public HashMap entriesByTag()
+   {
+	   return entriesByTag;
    }
 }
