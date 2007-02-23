@@ -293,7 +293,7 @@ public class ContextManager extends Debug implements ServerConstants
             String messageString) throws XmlTranslationException,
             UnsupportedEncodingException
     {
-        System.out.println("msg: "+messageString);
+//        System.out.println("msg: "+messageString);
         return (RequestMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace);
     }
@@ -385,7 +385,7 @@ public class ContextManager extends Debug implements ServerConstants
         while (incomingMessageBuffer.length() > 0)
         {
             // debug("START: buffer size: " + incomingMessageBuffer.length());
-            debug("buffer contents: " + incomingMessageBuffer.toString());
+//            debug("buffer contents: " + incomingMessageBuffer.toString());
 
             if (endOfFirstHeader == -1)
                 endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
@@ -501,9 +501,9 @@ public class ContextManager extends Debug implements ServerConstants
             }
             else
             {
-                debug("first message contents: "
-                        + (firstMessageBuffer.toString()));
-                debug("buffer contents: " + (incomingMessageBuffer.toString()));
+//                debug("first message contents: "
+  //                      + (firstMessageBuffer.toString()));
+    //            debug("buffer contents: " + (incomingMessageBuffer.toString()));
             }
         }
     }
