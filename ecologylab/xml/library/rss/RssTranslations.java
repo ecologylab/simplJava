@@ -16,7 +16,7 @@ public class RssTranslations
 extends Debug
 {
    private static final String TRANSLATION_SPACE_NAME	= "rss";
-   private static final String PACKAGE_NAME				= "ecologylab.xml.library.rss";
+   public  static final String PACKAGE_NAME				= "ecologylab.xml.library.rss";
    
    public static final Class TRANSLATIONS[]	= 
    {
