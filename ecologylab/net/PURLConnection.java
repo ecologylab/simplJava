@@ -92,4 +92,19 @@ public class PURLConnection extends Debug
 		}
 		return result;
 	}
+	
+	/**
+	 * Set the initial connect timeout and the read timeout for the connection.
+	 * 
+	 * @param timeout
+	 */
+	public void setTimeouts(int timeout)
+	{
+		URLConnection urlConnection = this.urlConnection;
+		if (urlConnection != null) 
+		{
+			urlConnection.setConnectTimeout(timeout);
+			urlConnection.setReadTimeout(timeout);
+		}
+	}
 }
