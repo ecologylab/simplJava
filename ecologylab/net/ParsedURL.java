@@ -1113,6 +1113,9 @@ extends Debug
     	hashUrl			= null;
     }
     
+    // Set the URLConnection timeout a little smaller than our DownloadMonitor timeout.
+    public static final int TIMEOUT	= 25000 /*DownloadMonitor.TIMEOUT*/ - 2000;
+    
     public PURLConnection connect(ConnectionHelper connectionHelper)
     {
     	URLConnection connection= null;
@@ -1159,6 +1162,10 @@ extends Debug
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
  		    connection.setRequestProperty("user-agent", IE5_USER_AGENT);
+ 		    
+ 		    // Set the connection and read timeout.
+ 		    connection.setConnectTimeout(ParsedURL.TIMEOUT);
+ 		    connection.setReadTimeout(ParsedURL.TIMEOUT);
 			
 			/*//TODO include more structure instead of this total hack!
 			if ("nytimes.com".equals(this.domain()))
