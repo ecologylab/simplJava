@@ -157,7 +157,9 @@ public class LoggingContextManager extends ContextManager
     {
         if (!end)
         {
-            (new SendEpilogue()).performService(registry);
+            SendEpilogue sE = new SendEpilogue();
+            sE.setOutputStream(this.outputStream);
+            sE.performService(registry);
         }
         
         super.shutdown();

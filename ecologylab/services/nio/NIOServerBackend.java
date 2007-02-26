@@ -233,7 +233,7 @@ public class NIOServerBackend extends ServicesServerBase implements
     public void run()
     {
         long time = System.currentTimeMillis();
-        int timeSelecting;
+//        int timeSelecting;
 
         while (running)
         {
@@ -291,7 +291,8 @@ public class NIOServerBackend extends ServicesServerBase implements
             try
             {
                 // block until some connection has something to do
-                if ((timeSelecting = selector.select(selectInterval)) > 0)
+//                if ((timeSelecting = selector.select(selectInterval)) > 0)
+                if (selector.select(selectInterval) > 0)
                 {
                     // get an iterator of the keys that have something to do
                     Iterator<SelectionKey> selectedKeyIter = selector

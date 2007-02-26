@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
@@ -242,11 +243,13 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         // encode it and write it
         if (connected())
         {
+            String outgoingReq = null;
+            
             try
             {
                 request.setUid(outgoingUid);
 
-                String outgoingReq = request.translateToXML(false);
+                outgoingReq = request.translateToXML(false);
                 String header = "content-length:" + outgoingReq.length()
                         + "\r\n\r\n";
 
@@ -255,6 +258,13 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 outgoingChars.flip();
 
                 channel.write(encoder.encode(outgoingChars));
+            }
+            catch (BufferOverflowException e)
+            {
+                debug("The buffer overflowed.");
+                e.printStackTrace();
+                System.out.println("capacity: "+outgoingChars.capacity());
+                System.out.println("outgoing request: "+outgoingReq);
             }
             catch (NullPointerException e)
             {
