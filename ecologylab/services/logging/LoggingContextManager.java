@@ -56,6 +56,7 @@ public class LoggingContextManager extends ContextManager
     @Override
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
+        System.out.println("Doing LCM's performService.");
         if (requestMessage instanceof SendPrologue)
         {
             String name = loggingServer.getLogFilesPath()
@@ -94,6 +95,10 @@ public class LoggingContextManager extends ContextManager
         if (requestMessage instanceof SendEpilogue)
         {
             end = true;
+        }
+        else
+        {
+            requestMessage.getClass();
         }
 
         return responseMessage;
@@ -155,6 +160,19 @@ public class LoggingContextManager extends ContextManager
     @Override
     public void shutdown()
     {
+        while (this.messageWaiting || this.requestQueue.size() > 0)
+        {
+            try
+            {
+                wait(100);
+            }
+            catch (InterruptedException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
         if (!end)
         {
             SendEpilogue sE = new SendEpilogue();

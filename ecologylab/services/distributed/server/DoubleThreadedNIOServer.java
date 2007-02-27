@@ -32,7 +32,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 {
     public static DoubleThreadedNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout)
+            throws IOException, BindException
     {
         return new DoubleThreadedNIOServer(portNumber, inetAddress,
                 requestTranslationSpace, objectRegistry, idleConnectionTimeout);
@@ -53,18 +54,22 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      */
     protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout)
+            throws IOException, BindException
     {
-        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
+                idleConnectionTimeout);
     }
 
     /**
      * @throws BadClientException
-     * See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
-     *      java.nio.channels.SocketChannel, byte[], int)
+     *             See
+     *             ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
+     *             java.nio.channels.SocketChannel, byte[], int)
      */
-    public void processRead(Object token, NIOServerBackend base, SocketChannel sc,
-            byte[] bs, int bytesRead) throws BadClientException
+    public void processRead(Object token, NIOServerBackend base,
+            SocketChannel sc, byte[] bs, int bytesRead)
+            throws BadClientException
     {
         if (bytesRead > 0)
         {
@@ -81,7 +86,9 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 
                 try
                 {
-                    cm.enqueueStringMessage(decoder.decode(ByteBuffer.wrap(bs)));
+                    cm
+                            .enqueueStringMessage(decoder.decode(ByteBuffer
+                                    .wrap(bs)));
                 }
                 catch (CharacterCodingException e)
                 {
@@ -200,21 +207,37 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
     }
 
     /**
-     * @see ecologylab.services.nio.servers.NIOServerFrontend#accept(java.lang.Object, ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#accept(java.lang.Object,
+     *      ecologylab.services.nio.NIOServerBackend,
+     *      java.nio.channels.SocketChannel)
      */
     public void accept(Object token, NIOServerBackend base, SocketChannel sc)
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     /**
-     * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object, ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+     * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object,
+     *      ecologylab.services.nio.NIOServerBackend,
+     *      java.nio.channels.SocketChannel)
      */
     public void invalidate(Object token, NIOServerBackend base, SocketChannel sc)
     {
         ContextManager cm = contexts.remove(sc);
 
+        while (cm.isMessageWaiting())
+        {
+            try
+            {
+                cm.processAllMessagesAndSendResponses();
+            }
+            catch (BadClientException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        
         if (cm != null)
         {
             cm.shutdown();

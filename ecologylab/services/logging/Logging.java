@@ -859,6 +859,8 @@ public class Logging extends ElementState implements Runnable,
                 throw new IOException("Can't log to Network with null loggingClient.");
             this.loggingClient = loggingClient;
             Logging.this.debug("Logging to service via connection: " + loggingClient);
+            
+            this.loggingClient.start();
         }
 
         /**
@@ -867,6 +869,8 @@ public class Logging extends ElementState implements Runnable,
          */
         void writePrologue(SendPrologue sendPrologue)
         {
+            debug("logging client writing prologue");
+            
             int uid = Preference.lookupInt("uid", 0);
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
@@ -902,6 +906,8 @@ public class Logging extends ElementState implements Runnable,
          */
         void writeEpilogueAndClose(SendEpilogue sendEpilogue)
         {
+            debug("write epilogue and close.");
+            
             Logging.this.debug("Logging: Sending Epilogue " + LOG_CLOSING);
             try
             {
@@ -914,6 +920,7 @@ public class Logging extends ElementState implements Runnable,
             }
             
             loggingClient.disconnect();
+            loggingClient.stop();
             loggingClient   = null;
         }
     }

@@ -84,6 +84,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     private volatile boolean                      blockingRequestPending = false;
 
+    private int                                   requestsPending        = 0;
+
     private LinkedBlockingQueue<ResponseMessage>  blockingResponsesQueue = new LinkedBlockingQueue<ResponseMessage>();
 
     protected LinkedBlockingQueue<RequestMessage> requestsQueue          = new LinkedBlockingQueue<RequestMessage>();
@@ -109,36 +111,84 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public void enqueueRequest(RequestMessage request)
     {
-        synchronized (requestsQueue)
-        {
-            requestsQueue.add(request);
-        }
+            synchronized (requestsQueue)
+            {
+                requestsQueue.add(request);
+            }
 
-        // debug("setting interest");
-        key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
+            // debug("setting interest");
+            key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
 
-        // debug("booting selector");
-        selector.wakeup();
+            // debug("booting selector");
+            selector.wakeup();
     }
 
     public void disconnect()
     {
-        debug("Disconnecting...");
+        while (!requestsQueue.isEmpty())
+        {
+            debug("*******************Request queue not empty, finishing messages before disconnecting...");
+            synchronized (this)
+            {
+                try
+                {
+                    wait(100);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        debug("*******************disconnecting...");
 
         try
         {
             if (connected())
             {
-                debug("connected; closing channel and selector.");
+                debug("*******************client is connected...");
 
+                while (this.requestsPending > 0)
+                {
+                    debug("*******************" + this.requestsPending
+                            + " requests still pending response from server.");
+
+                    synchronized (this)
+                    {
+                        try
+                        {
+                            wait(100);
+                        }
+                        catch (InterruptedException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                debug("*******************shutting down output.");
+                // shut down output
+                channel.socket().shutdownOutput();
+
+                debug("*******************closing down output.");
+                // now that there's nothing coming back, shut down input
+                channel.socket().shutdownInput();
+
+                debug("*******************close down all.");
+                // close it all out
                 channel.close();
+                channel.keyFor(selector).cancel();
 
-                selector.wakeup();
+                /*
+                 * selector.wakeup();
+                 * 
+                 * selector.selectNow();
+                 * 
+                 * selector.close();
+                 */
 
-                selector.selectNow();
-
-                selector.close();
-
+                debug("null out.");
                 nullOut();
             }
         }
@@ -189,7 +239,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 // connected
                 channel.register(selector, SelectionKey.OP_READ);
                 // channel.register(selector, SelectionKey.OP_WRITE);
-                
+
                 this.key = channel.keyFor(selector);
             }
         }
@@ -244,7 +294,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         if (connected())
         {
             String outgoingReq = null;
-            
+
             try
             {
                 request.setUid(outgoingUid);
@@ -258,13 +308,15 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 outgoingChars.flip();
 
                 channel.write(encoder.encode(outgoingChars));
+
+                this.requestsPending++;
             }
             catch (BufferOverflowException e)
             {
                 debug("The buffer overflowed.");
                 e.printStackTrace();
-                System.out.println("capacity: "+outgoingChars.capacity());
-                System.out.println("outgoing request: "+outgoingReq);
+                System.out.println("capacity: " + outgoingChars.capacity());
+                System.out.println("outgoing request: " + outgoingReq);
             }
             catch (NullPointerException e)
             {
@@ -529,15 +581,15 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                     }
                     catch (IndexOutOfBoundsException e)
                     {
-                        debug("don't have a complete message yet; total length is "+accumulator.length());
+                        debug("don't have a complete message yet; total length is "
+                                + accumulator.length());
                         e.printStackTrace();
                         break;
                     }
 
                     if (firstMessage != null)
                     {
-//                        System.out.println(firstMessage);
-                        
+                        // we got a response
                         if (!this.blockingRequestPending)
                         {
                             processString(firstMessage);
@@ -601,7 +653,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         try
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
-
+            this.requestsPending--;
+            debug("-----------------------------------------------------------pending requests remaining: "+requestsPending);
         }
         catch (XmlTranslationException e)
         {
