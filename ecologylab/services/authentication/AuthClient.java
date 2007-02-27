@@ -19,7 +19,7 @@ import ecologylab.xml.TranslationSpace;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthClient extends ServicesClient implements AuthMessages,
+@Deprecated public class AuthClient extends ServicesClient implements AuthMessages,
         AuthClientRegistryObjects
 {
     private AuthenticationListEntry entry = null;

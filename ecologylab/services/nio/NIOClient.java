@@ -681,8 +681,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
             this.requestsPending--;
-            debug("-----------------------------------------------------------pending requests remaining: "
-                    + requestsPending);
+//            debug("-----------------------------------------------------------pending requests remaining: "
+  //                  + requestsPending);
         }
         catch (XmlTranslationException e)
         {

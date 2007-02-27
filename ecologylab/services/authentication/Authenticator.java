@@ -132,7 +132,7 @@ public class Authenticator extends Debug
         }
     }
 
-    protected void remove(InetAddress address)
+    public void remove(InetAddress address)
     {
         String key = authedIPToName.remove(address);
 

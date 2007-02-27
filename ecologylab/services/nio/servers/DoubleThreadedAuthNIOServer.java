@@ -21,6 +21,7 @@ import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
 import ecologylab.services.nio.ContextManager;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -202,5 +203,28 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     public boolean login(AuthenticationListEntry entry, InetAddress address)
     {
         return authenticator.login(entry, address);
+    }
+
+    private void remove(InetAddress address)
+    {
+        authenticator.remove(address);
+    }
+    
+    /**
+     * Ensure that the user associated with sc has been logged out of the
+     * authenticator, then call super.invalidate().
+     * 
+     * @see ecologylab.services.nio.servers.DoubleThreadedNIOServer#invalidate(java.lang.Object,
+     *      ecologylab.services.nio.NIOServerBackend,
+     *      java.nio.channels.SocketChannel)
+     */
+    @Override public ContextManager invalidate(Object token, NIOServerBackend base,
+            SocketChannel sc)
+    {
+        InetAddress addr = sc.socket().getInetAddress();
+                
+        this.remove(addr);
+        
+        return super.invalidate(token, base, sc);
     }
 }

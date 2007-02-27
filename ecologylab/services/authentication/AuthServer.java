@@ -31,7 +31,7 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthServer extends ServicesServer implements
+@Deprecated public class AuthServer extends ServicesServer implements
         AuthServerRegistryObjects, AuthLogging, Authenticatable
 {
     private LinkedList<Logging> logListeners  = new LinkedList<Logging>();

@@ -7,6 +7,7 @@ import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.exceptions.BadClientException;
+import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
 
 /**
@@ -29,8 +30,19 @@ public interface NIOServerFrontend extends StartAndStoppable
      */
     void processRead(Object token, NIOServerBackend base, SocketChannel sc,
             byte[] bs, int bytesRead) throws BadClientException;
- 
+
     void accept(Object token, NIOServerBackend base, SocketChannel sc);
-    
-    void invalidate(Object token, NIOServerBackend base, SocketChannel sc);
+
+    /**
+     * Performs any internal actions that should be taken whenever a client is
+     * disconnected.
+     * 
+     * @param token
+     * @param base
+     * @param sc
+     * @return the ContextManager object associated with sc that has been
+     *         removed from the system.
+     */
+    ContextManager invalidate(Object token, NIOServerBackend base,
+            SocketChannel sc);
 }

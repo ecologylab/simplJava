@@ -26,7 +26,7 @@ import ecologylab.services.messages.ResponseMessage;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthServerToClientConnection extends ServerToClientConnection
+@Deprecated public class AuthServerToClientConnection extends ServerToClientConnection
         implements AuthMessages, AuthServerRegistryObjects
 {
 
