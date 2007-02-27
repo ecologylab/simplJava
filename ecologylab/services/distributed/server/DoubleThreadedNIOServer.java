@@ -225,21 +225,18 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
     public void invalidate(Object token, NIOServerBackend base, SocketChannel sc)
     {
         ContextManager cm = contexts.remove(sc);
-
-        while (cm.isMessageWaiting())
-        {
-            try
-            {
-                cm.processAllMessagesAndSendResponses();
-            }
-            catch (BadClientException e)
-            {
-                e.printStackTrace();
-            }
-        }
         
         if (cm != null)
         {
+        	while(cm.isMessageWaiting())
+        	{
+	        	try {
+					cm.processAllMessagesAndSendResponses();
+				} catch (BadClientException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        	}
             cm.shutdown();
         }
     }

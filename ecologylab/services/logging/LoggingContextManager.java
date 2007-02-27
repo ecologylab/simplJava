@@ -56,7 +56,6 @@ public class LoggingContextManager extends ContextManager
     @Override
     protected ResponseMessage performService(RequestMessage requestMessage)
     {
-        System.out.println("Doing LCM's performService.");
         if (requestMessage instanceof SendPrologue)
         {
             String name = loggingServer.getLogFilesPath()
@@ -94,6 +93,7 @@ public class LoggingContextManager extends ContextManager
 
         if (requestMessage instanceof SendEpilogue)
         {
+        	debug("received epiliogue, set end to true");
             end = true;
         }
         else
@@ -112,9 +112,12 @@ public class LoggingContextManager extends ContextManager
             {
                 File file = new File(fileName);
                 String dirPath = file.getParent();
-                File dir = new File(dirPath);
-                if (!dir.exists())
-                    dir.mkdirs();
+                if( dirPath != null )
+                {
+	                File dir = new File(dirPath);
+	                if (!dir.exists())
+	                    dir.mkdirs();
+                }
                 // TODO what if (file.exists()) ???
                 outputStream = new FileOutputStream(file, true);
                 return outputStream;
