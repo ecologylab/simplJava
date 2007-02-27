@@ -131,7 +131,7 @@ public class Logging extends ElementState implements Runnable,
     
     public static final int      LOG_TO_MEMORY_MAPPED_FILE	= 3;
 
-    static final int             MAX_OPS_BEFORE_WRITE     	= 30;
+    static final int             MAX_OPS_BEFORE_WRITE     	= 10;
     
     public static final String	 LOGGING_HOST_PARAM			= "logging_host";
     
