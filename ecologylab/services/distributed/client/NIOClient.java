@@ -111,16 +111,16 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
 
     public void enqueueRequest(RequestMessage request)
     {
-            synchronized (requestsQueue)
-            {
-                requestsQueue.add(request);
-            }
+        synchronized (requestsQueue)
+        {
+            requestsQueue.add(request);
+        }
 
-            // debug("setting interest");
-            key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
+        // debug("setting interest");
+        key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
 
-            // debug("booting selector");
-            selector.wakeup();
+        // debug("booting selector");
+        selector.wakeup();
     }
 
     public void disconnect()
@@ -149,7 +149,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 debug("*******************client is connected...");
 
-                while (this.requestsPending > 0)
+                while (!this.shutdownOK())
                 {
                     debug("*******************" + this.requestsPending
                             + " requests still pending response from server.");
@@ -196,6 +196,14 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @return
+     */
+    protected boolean shutdownOK()
+    {
+        return !(this.requestsPending > 0);
     }
 
     private void nullOut()
@@ -300,15 +308,34 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                 request.setUid(outgoingUid);
 
                 outgoingReq = request.translateToXML(false);
-                String header = "content-length:" + outgoingReq.length()
-                        + "\r\n\r\n";
+                StringBuilder message = new StringBuilder("content-length:"
+                        + outgoingReq.length() + "\r\n\r\n" + outgoingReq);
 
                 outgoingChars.clear();
-                outgoingChars.put(header).put(outgoingReq);
-                outgoingChars.flip();
 
-                channel.write(encoder.encode(outgoingChars));
+                int capacity;
+                
+                while (message.length() > 0)
+                {
+                    outgoingChars.clear();
+                    capacity = outgoingChars.capacity();
+                    
+                    if (message.length() > capacity)
+                    {
+                        outgoingChars.put(message.toString(), 0, capacity);
+                        message.delete(0, capacity);
+                    }
+                    else
+                    {
+                        outgoingChars.put(message.toString());
+                        message.delete(0, message.length());
+                    }
 
+                    outgoingChars.flip();
+
+                    channel.write(encoder.encode(outgoingChars));
+                }
+                
                 this.requestsPending++;
             }
             catch (BufferOverflowException e)
@@ -654,7 +681,8 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
             this.requestsPending--;
-            debug("-----------------------------------------------------------pending requests remaining: "+requestsPending);
+            debug("-----------------------------------------------------------pending requests remaining: "
+                    + requestsPending);
         }
         catch (XmlTranslationException e)
         {
