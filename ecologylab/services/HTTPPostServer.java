@@ -3,12 +3,9 @@ package ecologylab.services;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.servers.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
 
@@ -51,7 +48,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                -1);
+                -1, MAX_PACKET_SIZE);
     }
 
     /**

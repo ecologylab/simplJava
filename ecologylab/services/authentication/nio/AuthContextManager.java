@@ -33,11 +33,11 @@ public class AuthContextManager extends ContextManager implements
 
     private AuthLogging servicesServer = null;
 
-    public AuthContextManager(Object token, NIOServerBackend server, SocketChannel socket,
+    public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry,
             AuthLogging servicesServer)
     {
-        super(token, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, socket, translationSpace, registry);
 
         this.servicesServer = servicesServer;
     }

@@ -44,11 +44,11 @@ public class LoggingContextManager extends ContextManager
      * @param translationSpace
      * @param registry
      */
-    public LoggingContextManager(Object token, NIOLoggingServer loggingServer,
+    public LoggingContextManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
             NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
-        super(token, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, socket, translationSpace, registry);
 
         this.loggingServer = loggingServer;
     }

@@ -54,7 +54,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            String authListFilename)
+            int maxPacketSize, String authListFilename)
     {
         DoubleThreadedAuthNIOServer newServer = null;
 
@@ -62,7 +62,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
         {
             newServer = new DoubleThreadedAuthNIOServer(portNumber,
                     inetAddress, requestTranslationSpace, objectRegistry,
-                    idleConnectionTimeout,
+                    idleConnectionTimeout, maxPacketSize,
                     (AuthenticationList) ElementState.translateFromXML(
                             authListFilename, TranslationSpace.get(
                                     "authListNameSpace",
@@ -97,7 +97,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            AuthenticationList authList)
+            int maxPacketSize, AuthenticationList authList)
     {
         DoubleThreadedAuthNIOServer newServer = null;
 
@@ -105,7 +105,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
         {
             newServer = new DoubleThreadedAuthNIOServer(portNumber,
                     inetAddress, requestTranslationSpace, objectRegistry,
-                    idleConnectionTimeout, authList);
+                    idleConnectionTimeout, maxPacketSize, authList);
         }
         catch (IOException e)
         {
@@ -128,10 +128,11 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     protected DoubleThreadedAuthNIOServer(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            AuthenticationList authList) throws IOException, BindException
+            int maxPacketSize, AuthenticationList authList) throws IOException,
+            BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                idleConnectionTimeout);
+                idleConnectionTimeout, maxPacketSize);
 
         this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
@@ -162,7 +163,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     {
         try
         {
-            return new AuthContextManager(token, getBackend(), sc,
+            return new AuthContextManager(token, maxPacketSize, getBackend(), sc,
                     translationSpace, registry, this);
         }
         catch (ClassCastException e)
@@ -209,7 +210,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     {
         authenticator.remove(address);
     }
-    
+
     /**
      * Ensure that the user associated with sc has been logged out of the
      * authenticator, then call super.invalidate().
@@ -218,13 +219,14 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      *      ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel)
      */
-    @Override public ContextManager invalidate(Object token, NIOServerBackend base,
+    @Override
+    public ContextManager invalidate(Object token, NIOServerBackend base,
             SocketChannel sc)
     {
         InetAddress addr = sc.socket().getInetAddress();
-                
+
         this.remove(addr);
-        
+
         return super.invalidate(token, base, sc);
     }
 }

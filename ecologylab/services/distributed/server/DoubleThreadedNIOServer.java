@@ -32,11 +32,12 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 {
     public static DoubleThreadedNIOServer getInstance(int portNumber,
             InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout)
-            throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize) throws IOException, BindException
     {
         return new DoubleThreadedNIOServer(portNumber, inetAddress,
-                requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+                requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+                maxPacketSize);
     }
 
     Thread                                 t        = null;
@@ -49,16 +50,20 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                                                             CHARACTER_ENCODING)
                                                             .newDecoder();
 
+    protected int                          maxPacketSize;
+
     /**
      * 
      */
     protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout)
-            throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
                 idleConnectionTimeout);
+
+        this.maxPacketSize = maxPacketSize;
     }
 
     /**
@@ -117,7 +122,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        return new ContextManager(token, this.getBackend(), sc,
+        return new ContextManager(token, maxPacketSize, this.getBackend(), sc,
                 translationSpace, registry);
     }
 
@@ -222,7 +227,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      *      ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel)
      */
-    public ContextManager invalidate(Object token, NIOServerBackend base, SocketChannel sc)
+    public ContextManager invalidate(Object token, NIOServerBackend base,
+            SocketChannel sc)
     {
         ContextManager cm = contexts.remove(sc);
 
@@ -242,7 +248,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
             }
             cm.shutdown();
         }
-        
+
         return cm;
     }
 

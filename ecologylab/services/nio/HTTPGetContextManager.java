@@ -67,11 +67,11 @@ public class HTTPGetContextManager extends ContextManager
      * @param translationSpace
      * @param registry
      */
-    public HTTPGetContextManager(Object token, NIOServerBackend server,
+    public HTTPGetContextManager(Object token, int maxPacketSize, NIOServerBackend server,
             SocketChannel socket, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        super(token, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, socket, translationSpace, registry);
     }
 
     /**

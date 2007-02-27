@@ -71,6 +71,8 @@ public class ContextManager extends Debug implements ServerConstants
 
     private int                                   endOfFirstHeader       = -1;
 
+    private int                                   maxPacketSize          = MAX_PACKET_SIZE;
+
     /**
      * Counts how many characters still need to be extracted from the
      * incomingMessageBuffer before they can be turned into a message (based
@@ -88,11 +90,11 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
-    protected TranslationSpace                      translationSpace;
+    protected TranslationSpace                    translationSpace;
 
-    public ContextManager(Object token, /* SelectionKey key, */
-    NIOServerBackend server, SocketChannel socket,
-            TranslationSpace translationSpace, ObjectRegistry registry)
+    public ContextManager(Object token, int maxPacketSize, NIOServerBackend server,
+            SocketChannel socket, TranslationSpace translationSpace,
+            ObjectRegistry registry)
     {
         this.token = token;
 
@@ -231,11 +233,11 @@ public class ContextManager extends Debug implements ServerConstants
      */
     public void processAllMessagesAndSendResponses() throws BadClientException
     {
-//        timeoutBeforeValidMsg();
+        // timeoutBeforeValidMsg();
         while (isMessageWaiting())
         {
             this.processNextMessageAndSendResponse();
-//            timeoutBeforeValidMsg();
+            // timeoutBeforeValidMsg();
         }
     }
 
@@ -248,22 +250,14 @@ public class ContextManager extends Debug implements ServerConstants
      * 
      * @throws BadClientException
      */
-/*    void timeoutBeforeValidMsg() throws BadClientException
-    {
-        long now = System.currentTimeMillis();
-        long elapsedTime = now - this.initialTimeStamp;
-        if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG)
-        {
-            throw new BadClientException(this.socket.socket().getInetAddress()
-                    .getHostAddress(),
-                    "Too long before valid response: elapsedTime="
-                            + elapsedTime + ".");
-        }
-        else
-        {
-            this.initialTimeStamp = now;
-        }
-    }*/
+    /*
+     * void timeoutBeforeValidMsg() throws BadClientException { long now =
+     * System.currentTimeMillis(); long elapsedTime = now -
+     * this.initialTimeStamp; if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG) {
+     * throw new BadClientException(this.socket.socket().getInetAddress()
+     * .getHostAddress(), "Too long before valid response: elapsedTime=" +
+     * elapsedTime + "."); } else { this.initialTimeStamp = now; } }
+     */
 
     /**
      * @return Returns the token.
@@ -293,7 +287,7 @@ public class ContextManager extends Debug implements ServerConstants
             String messageString) throws XmlTranslationException,
             UnsupportedEncodingException
     {
-//        System.out.println("msg: "+messageString);
+        // System.out.println("msg: "+messageString);
         return (RequestMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace);
     }
@@ -385,7 +379,7 @@ public class ContextManager extends Debug implements ServerConstants
         while (incomingMessageBuffer.length() > 0)
         {
             // debug("START: buffer size: " + incomingMessageBuffer.length());
-//            debug("buffer contents: " + incomingMessageBuffer.toString());
+            // debug("buffer contents: " + incomingMessageBuffer.toString());
 
             if (endOfFirstHeader == -1)
                 endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
@@ -501,9 +495,10 @@ public class ContextManager extends Debug implements ServerConstants
             }
             else
             {
-//                debug("first message contents: "
-  //                      + (firstMessageBuffer.toString()));
-    //            debug("buffer contents: " + (incomingMessageBuffer.toString()));
+                // debug("first message contents: "
+                // + (firstMessageBuffer.toString()));
+                // debug("buffer contents: " +
+                // (incomingMessageBuffer.toString()));
             }
         }
     }

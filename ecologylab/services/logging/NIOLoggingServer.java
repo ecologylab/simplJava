@@ -30,7 +30,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
      *         ServerSocket on the port on this machine.
      */
     public static NIOLoggingServer getInstance(InetAddress inetAddress,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout)
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize)
     {
         NIOLoggingServer newServer = null;
 
@@ -39,7 +40,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             newServer = new NIOLoggingServer(LOGGING_PORT, inetAddress,
                     TranslationSpace.get("ecologylab.services.logging",
                             "ecologylab.services.logging"), objectRegistry,
-                    idleConnectionTimeout);
+                    idleConnectionTimeout, maxPacketSize);
         }
         catch (IOException e)
         {
@@ -50,28 +51,48 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 
         return newServer;
     }
-    
-    
+
     public static void main(String args[]) throws UnknownHostException
     {
-        NIOLoggingServer loggingServer = getInstance(InetAddress.getLocalHost(), new ObjectRegistry(), -1);
-        
+        int mPL = MAX_PACKET_SIZE;
+
+        if (args.length > 1)
+        {
+            try
+            {
+                int newMPL = Integer.parseInt(args[1]);
+                mPL = newMPL;
+            }
+            catch (NumberFormatException e)
+            {
+                System.err
+                        .println("second argument was not an integer, using MAX_PACKET_SIZE: "
+                                + MAX_PACKET_SIZE);
+                e.printStackTrace();
+            }
+        }
+
+        NIOLoggingServer loggingServer = getInstance(
+                InetAddress.getLocalHost(), new ObjectRegistry(), -1, mPL);
+
         if (loggingServer != null)
         {
             if (args.length > 0)
+            {
                 loggingServer.setLogFilesPath(args[0]);
-            
+            }
+
             loggingServer.start();
         }
     }
 
     protected NIOLoggingServer(int portNumber, InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry, int idleConnectionTimeout)
-            throws IOException, BindException
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                idleConnectionTimeout);
+                idleConnectionTimeout, maxPacketSize);
     }
 
     public void setLogFilesPath(String path)
@@ -89,7 +110,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        return new LoggingContextManager(token, this, this.getBackend(), sc,
-                translationSpace, registry);
+        return new LoggingContextManager(token, maxPacketSize, this, this
+                .getBackend(), sc, translationSpace, registry);
     }
 }

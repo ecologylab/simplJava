@@ -123,7 +123,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         selector.wakeup();
     }
 
-    public void disconnect()
+    public void disconnect(boolean waitForResponses)
     {
         while (!requestsQueue.isEmpty())
         {
@@ -149,10 +149,11 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 debug("*******************client is connected...");
 
-                while (!this.shutdownOK())
+                while (waitForResponses && connected() && !this.shutdownOK())
                 {
                     debug("*******************" + this.requestsPending
                             + " requests still pending response from server.");
+                    debug("*******************connected: "+connected());
 
                     synchronized (this)
                     {
@@ -166,7 +167,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                         }
                     }
                 }
-
+                
                 debug("*******************shutting down output.");
                 // shut down output
                 channel.socket().shutdownOutput();
@@ -187,14 +188,16 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                  * 
                  * selector.close();
                  */
-
-                debug("null out.");
-                nullOut();
             }
         }
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+        finally
+        {
+            debug("null out.");
+            nullOut();
         }
     }
 
@@ -551,7 +554,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
                             }
                             else
                             { // the key is invalid; server disconnected
-                                disconnect();
+                                disconnect(false);
 
                             }
                         }
@@ -638,7 +641,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 debug("Read returned -1; disconnecting.");
 
-                disconnect();
+                disconnect(false);
             }
         }
         catch (CharacterCodingException e1)
@@ -654,7 +657,7 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
             {
                 debug("Server shut down; disconnecting.");
 
-                disconnect();
+                disconnect(false);
             }
         }
     }
@@ -702,5 +705,11 @@ public class NIOClient extends ServicesClientBase implements StartAndStoppable,
         // debug("just translated response: "+responseMessage.getUid());
 
         return responseMessage;
+    }
+
+    @Override
+    public void disconnect()
+    {
+        disconnect(true);
     }
 }
