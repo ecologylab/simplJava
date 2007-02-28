@@ -436,7 +436,10 @@ implements ParseTableEntryTypes
 								Object next = iterator.next();
 								if (collectionScalar || mapScalar)
 								{
-									appendLeafXML(buffy, pte.tag(), next.toString(), pte.scalarType());									
+									ScalarType scalarType = pte.scalarType();
+									//TODO use the type to create the value!
+									String value = next.toString();
+									appendLeafXML(buffy, pte.tag(), value, scalarType);									
 								}
 								// this is a special hack for working with pre-translated XML Strings
 								else if (next instanceof String)
