@@ -283,11 +283,26 @@ public class Debug
 	   error(this, message);
    }
    /**
+    * Print a message about a warning, starting with this.toString().
+    */
+   public void warning(String message)
+   {
+	   error(this, message);
+   }
+   /**
     * Print a message about an error, starting with that.toString().
     */
    public static void error(Object that, String message)
    {
 	   println("\n" + that + SEPARATOR + "ERROR: " + message + "\n");
+   }
+  
+   /**
+    * Print a message about a warning, starting with that.toString().
+    */
+   public static void warning(Object that, String message)
+   {
+	   println("\n" + that + SEPARATOR + "WARNING: " + message + "\n");
    }
   
 /**
