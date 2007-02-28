@@ -514,8 +514,11 @@ public class Optimizations extends Debug
 	 */
 	private void annotatedFieldError(Field thatField, String tagFromAnnotation, String required)
 	{
-		error("@xml_collection(\"" + tagFromAnnotation + "\") declared as " + 
-				thatField.getType().getSimpleName() +" "+ thatField.getName() + ", which is not a " + required+ ".");
+		String tagMsg = ((tagFromAnnotation == null) || (tagFromAnnotation.length() == 0)) ? "" 
+				: ("\"" + tagFromAnnotation + "\"");
+
+		error("@xml_collection(" + tagMsg + ") declared as type " + 
+				thatField.getType().getSimpleName() +" for field named "+ thatField.getName() + ", which is not a " + required+ ".");
 	}
 	
 	
@@ -595,6 +598,11 @@ public class Optimizations extends Debug
 	{
 		if (mapFieldsByTag != null)
 			mapFieldsByTag.put(tag, null);
+	}
+	
+	public String toString()
+	{
+		return "Optimizations[" + thatClass.getName() + "]"; 
 	}
 }
 
