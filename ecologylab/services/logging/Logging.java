@@ -234,7 +234,7 @@ public class Logging extends ElementState implements Runnable,
             		loggingHost = LOGGING_HOST;
             	int loggingPort	= Preference.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
 
-                NIOClient1234 loggingClient = new NIOClient1234(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
+                NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
                 
                 // CONNECT TO SERVER
                 if (loggingClient.connect())
@@ -858,9 +858,9 @@ public class Logging extends ElementState implements Runnable,
     protected class NetworkLogWriter
     extends LogWriter
     {
-        NIOClient1234  loggingClient;
+        NIOClient  loggingClient;
         
-        NetworkLogWriter(NIOClient1234 loggingClient)
+        NetworkLogWriter(NIOClient loggingClient)
         throws IOException
         {
             if (loggingClient == null)
