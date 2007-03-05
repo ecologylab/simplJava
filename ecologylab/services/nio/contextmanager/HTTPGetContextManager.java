@@ -13,6 +13,7 @@ import ecologylab.services.messages.HttpGetRequest;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
@@ -67,11 +68,11 @@ public class HTTPGetContextManager extends ContextManager
      * @param translationSpace
      * @param registry
      */
-    public HTTPGetContextManager(Object token, int maxPacketSize, NIOServerBackend server,
+    public HTTPGetContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
             SocketChannel socket, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        super(token, maxPacketSize, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
     }
 
     /**

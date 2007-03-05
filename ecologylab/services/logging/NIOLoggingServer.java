@@ -62,6 +62,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             {
                 int newMPL = Integer.parseInt(args[1]);
                 mPL = newMPL;
+                System.err.println("Using "+mPL+" as maximum packet length");
             }
             catch (NumberFormatException e)
             {
@@ -70,6 +71,10 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
                                 + MAX_PACKET_SIZE);
                 e.printStackTrace();
             }
+        }
+        else
+        {
+            System.err.println("No max packet length specified, using "+mPL);
         }
 
         NIOLoggingServer loggingServer = getInstance(
@@ -93,6 +98,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
                 idleConnectionTimeout, maxPacketSize);
+        
+        this.translationSpace.setDefaultPackageName("ecologylab.services.logging");
     }
 
     public void setLogFilesPath(String path)

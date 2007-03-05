@@ -1,8 +1,6 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTools;
-import ecologylab.xml.XmlTranslationException;
 
 
 /**

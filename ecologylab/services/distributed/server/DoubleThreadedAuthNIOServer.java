@@ -17,6 +17,10 @@ import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.LoginStatusResponse;
+import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
@@ -136,16 +140,10 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
 
         this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
-        this.translationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Login");
-        this.translationSpace.addTranslation(
-                "ecologylab.services.authentication.messages", "Logout");
-        this.translationSpace.addTranslation(
-                "ecologylab.services.authentication.messages",
-                "LoginStatusResponse");
-        this.translationSpace.addTranslation(
-                "ecologylab.services.authentication.messages",
-                "LogoutStatusResponse");
+        this.translationSpace.addTranslation(Login.class);
+        this.translationSpace.addTranslation(Logout.class);
+        this.translationSpace.addTranslation(LoginStatusResponse.class);
+        this.translationSpace.addTranslation(LogoutStatusResponse.class);
 
         authenticator = new Authenticator(authList);
     }
@@ -163,8 +161,8 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
     {
         try
         {
-            return new AuthContextManager(token, maxPacketSize, getBackend(), sc,
-                    translationSpace, registry, this);
+            return new AuthContextManager(token, maxPacketSize, getBackend(),
+                    this, sc, translationSpace, registry, this);
         }
         catch (ClassCastException e)
         {
@@ -219,14 +217,15 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      *      ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel)
      */
-    @Override
-    public ContextManager invalidate(Object token, NIOServerBackend base,
-            SocketChannel sc)
+    @Override public ContextManager invalidate(Object token,
+            NIOServerBackend base, SocketChannel sc, boolean permanent)
     {
-        InetAddress addr = sc.socket().getInetAddress();
+        if (permanent)
+        {
+            InetAddress addr = sc.socket().getInetAddress();
 
-        this.remove(addr);
-
-        return super.invalidate(token, base, sc);
+            this.remove(addr);
+        }
+        return super.invalidate(token, base, sc, permanent);
     }
 }

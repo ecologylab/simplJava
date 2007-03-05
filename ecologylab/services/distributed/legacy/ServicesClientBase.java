@@ -8,6 +8,7 @@ import java.net.Socket;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
+import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -36,7 +37,7 @@ public abstract class ServicesClientBase extends Debug implements
      * Contains the unique identifier for the next message that the client will
      * send.
      */
-    private long             uidIndex         = 0;
+    private long             uidIndex         = 1;
 
     public ServicesClientBase(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
@@ -48,6 +49,8 @@ public abstract class ServicesClientBase extends Debug implements
         if (objectRegistry == null)
             objectRegistry = new ObjectRegistry();
         this.objectRegistry = objectRegistry;
+        
+        this.translationSpace.addTranslation(InitConnectionResponse.class);
     }
 
     protected void processResponse(ResponseMessage responseMessage)
@@ -92,11 +95,15 @@ public abstract class ServicesClientBase extends Debug implements
      */
     public boolean isServerRunning()
     {
+        debug("checking availability of server");
         boolean serverIsRunning = createConnection();
 
         // we're just checking, don't keep the connection
         if (connected())
+        {
+            debug("server is running; disconnecting");
             disconnect();
+        }
 
         return serverIsRunning;
     }
@@ -143,7 +150,7 @@ public abstract class ServicesClientBase extends Debug implements
      * 
      * @return the current uidIndex.
      */
-    public long getUid()
+    public long generateUid()
     {
         // return the current value of uidIndex, then increment.
         return uidIndex++;

@@ -13,11 +13,13 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.SessionObjects;
 import ecologylab.services.Shutdownable;
+import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.xml.TranslationSpace;
 
 /**
+ * Combines an NIOServerBackend and NIOServerFrontend
  * @author Zach Toups
  * 
  */
@@ -79,6 +81,8 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
         
         registry.registerObject(MAIN_START_AND_STOPPABLE, this);
         registry.registerObject(MAIN_SHUTDOWNABLE, this);
+        
+        this.translationSpace.addTranslation(InitConnectionRequest.class);
     }
     
     protected abstract ContextManager generateContextManager(Object token,

@@ -18,7 +18,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOClient;
 import ecologylab.xml.TranslationSpace;
 
-public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
+public class NIOAuthClient extends NIOClient implements
         AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
     protected AuthenticationListEntry entry      = null;
@@ -159,6 +159,11 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
             debug("ENTRY NOT SET!");
         }
 
+        if (!isLoggedIn())
+        { // login failed, clear session id
+            this.clearSessionId();
+        }
+        
         return isLoggedIn();
     }
 
@@ -190,91 +195,12 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
             sendLogoutMessage();
         }
 
+        if (!isLoggedIn())
+        { // clear session id
+            this.clearSessionId();
+        }
+        
         return isLoggedIn();
-    }
-
-    /**
-     * Checks whether or not a login call is complete. May be called multiple
-     * times.
-     * 
-     * @return true if a pending login (successful or not) is COMPLETE, false if
-     *         it is still in progress.
-     * @throws Exception
-     *             if no login call has yet been made.
-     */
-    public boolean finishLogin() throws Exception
-    {
-        if (!connected())
-        {
-            throw new Exception("Not yet connected.");
-        }
-        else if (!loggingIn)
-        {
-            throw new Exception("No pending login.");
-        }
-        else
-        {
-            if (!isLoggedIn())
-            { // if we are not logged in, it might be because login failed, or
-                // because it's not yet finished; need to determine which.
-                if (didLoginFail((String) objectRegistry
-                        .lookupObject(LOGIN_STATUS_STRING)))
-                { // login is complete, but failed
-                    loggingIn = false;
-                }
-                // otherwise, we just leave it true
-
-            }
-            else
-            {
-                loggingIn = false;
-            }
-        }
-
-        return !loggingIn;
-    }
-
-    public boolean finishLogout() throws Exception
-    {
-        if (!connected())
-        {
-            throw new Exception("Not connected.");
-        }
-        else if (!loggingOut)
-        {
-            throw new Exception("No pending logout.");
-        }
-        else
-        {
-            if (isLoggedIn())
-            { // if we are logged in, it might be because logout failed, or
-                // because it's not yet finished; need to determine which.
-                if (didLogoutFail((String) objectRegistry
-                        .lookupObject(LOGIN_STATUS_STRING)))
-                { // login is complete, but failed
-                    loggingOut = false;
-                }
-                // otherwise, we just leave it true
-
-            }
-            else
-            {
-                loggingOut = false;
-            }
-        }
-
-        return !loggingOut;
-    }
-
-    public boolean didLogoutFail(String statusString)
-    {
-        return (LOGOUT_FAILED_NOT_LOGGEDIN.equals(statusString));
-    }
-
-    public boolean didLoginFail(String statusString)
-    {
-        return (LOGIN_FAILED_PASSWORD.equals(statusString) || LOGIN_FAILED_LOGGEDIN
-                .equals(statusString));
     }
 
     /**
@@ -295,8 +221,6 @@ public class NIOAuthClient extends /*NIOIntervalClient*/NIOClient implements
     protected ResponseMessage sendLoginMessage() throws IOException
     {
         ResponseMessage temp = this.sendMessage(new Login(entry), 5000);
-        
-//        System.out.println(((LoginStatusResponse)temp).responseMessage+", "+((LoginStatusResponse)temp).isOK());
         
         return temp;
     }

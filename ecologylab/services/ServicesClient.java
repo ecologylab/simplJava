@@ -173,7 +173,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         ResponseMessage responseMessage = null;
         
         // get the UID for the request message
-        requestMessage.setUid(this.getUid());
+        requestMessage.setUid(this.generateUid());
 
         if (!connected())
             createConnection();

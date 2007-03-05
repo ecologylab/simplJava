@@ -31,4 +31,8 @@ public interface ServerConstants
     
     static final String CHARACTER_ENCODING = "ASCII";
 
+    /**
+     * Maximum amount of time a connection can be idle, even if we don't want to drop idle connections.
+     */
+    static final int GARBAGE_CONNECTION_CLEANUP_TIMEOUT = 8 * 60 * 60 * 1000; // 8 hours
 }

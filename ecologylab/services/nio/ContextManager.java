@@ -14,8 +14,11 @@ import ecologylab.generic.Debug;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.exceptions.BadClientException;
+import ecologylab.services.messages.InitConnectionRequest;
+import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -28,6 +31,8 @@ import ecologylab.xml.XmlTranslationException;
  * 
  * Generally, this class can be driven by one or more threads, depending on the
  * desired functionality.
+ * 
+ * On a server, there will be one ContextManager for each client connection.
  * 
  * @author Zach Toups
  */
@@ -45,8 +50,6 @@ public class ContextManager extends Debug implements ServerConstants
     private RequestMessage                        request;
 
     protected LinkedBlockingQueue<RequestMessage> requestQueue           = new LinkedBlockingQueue<RequestMessage>();
-
-    private Object                                token                  = null;
 
     private CharBuffer                            outgoingChars          = CharBuffer
                                                                                  .allocate(MAX_PACKET_SIZE);
@@ -71,7 +74,16 @@ public class ContextManager extends Debug implements ServerConstants
 
     private int                                   endOfFirstHeader       = -1;
 
-    private int                                   maxPacketSize          = MAX_PACKET_SIZE;
+    /**
+     * sessionId uniquely identifies this ContextManager. It is used to restore
+     * the state of a lost connection.
+     */
+    private Object                                sessionId              = null;
+
+    private long                                  lastActivity           = System
+                                                                                 .currentTimeMillis();
+
+    private int                                   maxPacketSize;
 
     /**
      * Counts how many characters still need to be extracted from the
@@ -92,12 +104,20 @@ public class ContextManager extends Debug implements ServerConstants
      */
     protected TranslationSpace                    translationSpace;
 
-    public ContextManager(Object token, int maxPacketSize, NIOServerBackend server,
+    /**
+     * Indicates whether the first request message has been received. The first
+     * request may be an InitConnection, which has special properties.
+     */
+    private boolean                               firstRequestReceived   = false;
+
+    private NIOServerFrontend                     frontend               = null;
+
+    public ContextManager(Object sessionId, int maxPacketSize,
+            NIOServerBackend server, NIOServerFrontend frontend,
             SocketChannel socket, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        this.token = token;
-
+        this.frontend = frontend;
         this.socket = socket;
         this.server = server;
         // this.key = key;
@@ -107,7 +127,10 @@ public class ContextManager extends Debug implements ServerConstants
         this.registry = registry;
         this.translationSpace = translationSpace;
 
-        System.out.println("my server is: " + this.server);
+        // set up session id
+        this.sessionId = sessionId;
+
+        this.maxPacketSize = maxPacketSize;
     }
 
     /**
@@ -153,6 +176,8 @@ public class ContextManager extends Debug implements ServerConstants
      */
     private void processRequest(RequestMessage request)
     {
+        this.lastActivity = System.currentTimeMillis();
+
         ResponseMessage response = null;
 
         if (request == null)
@@ -161,8 +186,42 @@ public class ContextManager extends Debug implements ServerConstants
         }
         else
         {
-            // perform the service being requested
-            response = performService(request);
+            if (!firstRequestReceived)
+            {
+                // special processing for InitConnectionRequest
+                if (request instanceof InitConnectionRequest)
+                {
+                    String incomingSessionId = ((InitConnectionRequest) request)
+                            .getSessionId();
+
+                    if (incomingSessionId == null)
+                    { // client is not expecting an old ContextManager
+                        response = new InitConnectionResponse(
+                                (String) this.sessionId);
+                    }
+                    else
+                    { // client is expecting an old ContextManager
+                        if (frontend.restoreContextManagerFromSessionId(
+                                incomingSessionId, this))
+                        {
+                            response = new InitConnectionResponse(
+                                    incomingSessionId);
+                        }
+                        else
+                        {
+                            response = new InitConnectionResponse(
+                                    (String) this.sessionId);
+                        }
+                    }
+                }
+
+                firstRequestReceived = true;
+            }
+            else
+            {
+                // perform the service being requested
+                response = performService(request);
+            }
 
             if (response != null)
             { // if the response is null, then we do
@@ -233,38 +292,10 @@ public class ContextManager extends Debug implements ServerConstants
      */
     public void processAllMessagesAndSendResponses() throws BadClientException
     {
-        // timeoutBeforeValidMsg();
         while (isMessageWaiting())
         {
             this.processNextMessageAndSendResponse();
-            // timeoutBeforeValidMsg();
         }
-    }
-
-    /**
-     * Checks the time since the last valid message. If the time has been too
-     * long (MAX_TIME_BEFORE_VALID_MSG), throws a BadClientException, which the
-     * server will deal with.
-     * 
-     * If the time has not been too long, updates the time stamp.
-     * 
-     * @throws BadClientException
-     */
-    /*
-     * void timeoutBeforeValidMsg() throws BadClientException { long now =
-     * System.currentTimeMillis(); long elapsedTime = now -
-     * this.initialTimeStamp; if (elapsedTime >= MAX_TIME_BEFORE_VALID_MSG) {
-     * throw new BadClientException(this.socket.socket().getInetAddress()
-     * .getHostAddress(), "Too long before valid response: elapsedTime=" +
-     * elapsedTime + "."); } else { this.initialTimeStamp = now; } }
-     */
-
-    /**
-     * @return Returns the token.
-     */
-    public Object getToken()
-    {
-        return token;
     }
 
     /**
@@ -287,7 +318,6 @@ public class ContextManager extends Debug implements ServerConstants
             String messageString) throws XmlTranslationException,
             UnsupportedEncodingException
     {
-        // System.out.println("msg: "+messageString);
         return (RequestMessage) ElementState.translateFromXMLString(
                 messageString, translationSpace);
     }
@@ -300,7 +330,7 @@ public class ContextManager extends Debug implements ServerConstants
      * @param incomingMessage
      * @throws BadClientException
      */
-    private void processString(String incomingMessage)
+    private final void processString(String incomingMessage)
             throws BadClientException
     {
         if (show(5))
@@ -333,7 +363,7 @@ public class ContextManager extends Debug implements ServerConstants
                         "Too many Bad Transmissions: " + badTransmissionCount);
             }
             // else
-            error("ERROR: translation failed: badTransmissionCount="
+            error("translation failed: badTransmissionCount="
                     + badTransmissionCount);
         }
         else
@@ -370,7 +400,7 @@ public class ContextManager extends Debug implements ServerConstants
      * 
      * @param message
      */
-    public void enqueueStringMessage(CharBuffer message)
+    public final void enqueueStringMessage(CharBuffer message)
             throws CharacterCodingException, BadClientException
     {
         incomingMessageBuffer.append(message);
@@ -378,9 +408,6 @@ public class ContextManager extends Debug implements ServerConstants
         // look for HTTP header
         while (incomingMessageBuffer.length() > 0)
         {
-            // debug("START: buffer size: " + incomingMessageBuffer.length());
-            // debug("buffer contents: " + incomingMessageBuffer.toString());
-
             if (endOfFirstHeader == -1)
                 endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
 
@@ -440,7 +467,7 @@ public class ContextManager extends Debug implements ServerConstants
                 break;
 
             // make sure contentLength isn't too big
-            if (contentLengthRemaining > ServerConstants.MAX_PACKET_SIZE)
+            if (contentLengthRemaining > maxPacketSize)
             {
                 throw new BadClientException(this.socket.socket()
                         .getInetAddress().getHostAddress(),
@@ -454,9 +481,6 @@ public class ContextManager extends Debug implements ServerConstants
                 // include the specified content length
                 if (incomingMessageBuffer.length() >= contentLengthRemaining)
                 {
-                    // debug("buffer size >= contentLengthRemaining:
-                    // "+incomingMessageBuffer.length()+" >=
-                    // "+contentLengthRemaining);
                     firstMessageBuffer.append(incomingMessageBuffer.substring(
                             0, contentLengthRemaining));
 
@@ -487,18 +511,12 @@ public class ContextManager extends Debug implements ServerConstants
             if ((firstMessageBuffer != null)
                     && (firstMessageBuffer.length() > 0)
                     && (contentLengthRemaining == -1))
-            { // if we've read a complete message, then
-                // contentLengthRemaining
-                // will be reset to -1
+            { /*
+                 * if we've read a complete message, then contentLengthRemaining
+                 * will be reset to -1
+                 */
                 processString(firstMessageBuffer.toString());
                 firstMessageBuffer.delete(0, firstMessageBuffer.length());
-            }
-            else
-            {
-                // debug("first message contents: "
-                // + (firstMessageBuffer.toString()));
-                // debug("buffer contents: " +
-                // (incomingMessageBuffer.toString()));
             }
         }
     }
@@ -512,5 +530,30 @@ public class ContextManager extends Debug implements ServerConstants
     public void shutdown()
     {
 
+    }
+
+    /**
+     * @return the socket
+     */
+    public SocketChannel getSocket()
+    {
+        return socket;
+    }
+
+    /**
+     * @param socket
+     *            the socket to set
+     */
+    public void setSocket(SocketChannel socket)
+    {
+        this.socket = socket;
+    }
+
+    /**
+     * @return the lastActivity
+     */
+    public long getLastActivity()
+    {
+        return lastActivity;
     }
 }

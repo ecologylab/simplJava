@@ -4,8 +4,6 @@ import java.util.Date;
 
 import ecologylab.net.NetTools;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
-import ecologylab.xml.XmlTools;
 
 
 /**

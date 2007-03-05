@@ -40,17 +40,17 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                 maxPacketSize);
     }
 
-    Thread                                 t        = null;
+    Thread                          t               = null;
 
-    boolean                                running  = false;
+    boolean                         running         = false;
 
-    HashMap<SocketChannel, ContextManager> contexts = new HashMap<SocketChannel, ContextManager>();
+    HashMap<Object, ContextManager> contexts        = new HashMap<Object, ContextManager>();
 
-    private static CharsetDecoder          decoder  = Charset.forName(
+    private static CharsetDecoder   decoder         = Charset.forName(
                                                             CHARACTER_ENCODING)
                                                             .newDecoder();
 
-    protected int                          maxPacketSize;
+    protected int                   maxPacketSize;
 
     /**
      * 
@@ -72,7 +72,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      *             ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
      *             java.nio.channels.SocketChannel, byte[], int)
      */
-    public void processRead(Object token, NIOServerBackend base,
+    public void processRead(Object sessionId, NIOServerBackend base,
             SocketChannel sc, byte[] bs, int bytesRead)
             throws BadClientException
     {
@@ -80,13 +80,15 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
         {
             synchronized (contexts)
             {
-                ContextManager cm = contexts.get(sc);
+                ContextManager cm = contexts.get(sessionId);
 
                 if (cm == null)
                 {
-                    cm = generateContextManager(token, sc, translationSpace,
-                            registry);
-                    contexts.put(sc, cm);
+                    debug("server creating context manager for " + sessionId);
+
+                    cm = generateContextManager(sessionId, sc,
+                            translationSpace, registry);
+                    contexts.put(sessionId, cm);
                 }
 
                 try
@@ -122,28 +124,28 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
-        return new ContextManager(token, maxPacketSize, this.getBackend(), sc,
-                translationSpace, registry);
+        return new ContextManager(token, maxPacketSize, this.getBackend(),
+                this, sc, translationSpace, registry);
     }
 
     public void run()
     {
-        Iterator<SocketChannel> contextIter;
+        Iterator<ContextManager> contextIter;
 
         while (running)
         {
             synchronized (contexts)
             {
-                contextIter = contexts.keySet().iterator();
+                contextIter = contexts.values().iterator();
 
                 // process all of the messages in the queues
                 while (contextIter.hasNext())
                 {
-                    SocketChannel sc = contextIter.next();
+                    ContextManager cm = contextIter.next();
 
                     try
                     {
-                        contexts.get(sc).processAllMessagesAndSendResponses();
+                        cm.processAllMessagesAndSendResponses();
                     }
                     catch (BadClientException e)
                     {
@@ -151,7 +153,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                         error(e.getMessage());
 
                         // invalidate the manager's key
-                        this.getBackend().setPendingInvalidate(sc);
+                        this.getBackend().setPendingInvalidate(cm.getSocket(),
+                                true);
 
                         // remove the manager from the collection
                         contextIter.remove();
@@ -227,10 +230,25 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      *      ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel)
      */
-    public ContextManager invalidate(Object token, NIOServerBackend base,
-            SocketChannel sc)
+    public ContextManager invalidate(Object sessionId, NIOServerBackend base,
+            SocketChannel sc, boolean permanent)
     {
-        ContextManager cm = contexts.remove(sc);
+        ContextManager cm;
+
+        if (permanent)
+        {
+            synchronized (contexts)
+            {
+                cm = contexts.remove(sessionId);
+            }
+        }
+        else
+        {
+            synchronized (contexts)
+            {
+                cm = contexts.get(sessionId);
+            }
+        }
 
         if (cm != null)
         {
@@ -242,14 +260,48 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                 }
                 catch (BadClientException e)
                 {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
+
             cm.shutdown();
         }
 
         return cm;
     }
 
+    /**
+     * Attempts to switch the ContextManager for a SocketChannel. oldId
+     * indicates the session id that was used for the connection previously (in
+     * order to find the correct ContextManager) and newContextManager is the
+     * recently-created (and now, no longer necessary) ContextManager for the
+     * connection.
+     * 
+     * @param oldId
+     * @param newContextManager
+     * @return true if the restore was successful, false if it was not.
+     */
+    public boolean restoreContextManagerFromSessionId(Object oldSessionId, ContextManager newContextManager)
+    {
+        debug("attempting to restore old session...");
+
+        ContextManager oldContextManager;
+
+        synchronized (contexts)
+        {
+            oldContextManager = this.contexts.get(oldSessionId);
+        }
+        if (oldContextManager == null)
+        { // cannot restore old context
+            debug("restore failed.");
+            return false;
+        }
+        else
+        {
+            oldContextManager.setSocket(newContextManager.getSocket());
+
+            debug("old session restored!");
+            return true;
+        }
+    }
 }

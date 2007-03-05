@@ -7,27 +7,26 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.nio.channels.CancelledKeyException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
+import sun.misc.BASE64Encoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.ServerConstants;
-import ecologylab.services.ServerEvent;
-import ecologylab.services.ServicesServerBase;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.exceptions.ClientOfflineException;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
@@ -41,36 +40,8 @@ import ecologylab.xml.TranslationSpace;
  * @author Zach Toups
  * 
  */
-public class NIOServerBackend extends ServicesServerBase implements
-        ServerConstants
+public class NIOServerBackend extends NIONetworking implements ServerConstants
 {
-    /**
-     * 
-     * @author James Greenfield
-     * 
-     */
-    private class ChangeRequest
-    {
-        public static final int REGISTER   = 1;
-
-        public static final int CHANGEOPS  = 2;
-
-        public static final int INVALIDATE = 3;
-
-        public SocketChannel    socket;
-
-        public int              type;
-
-        public int              ops;
-
-        public ChangeRequest(SocketChannel socket, int type, int ops)
-        {
-            this.socket = socket;
-            this.type = type;
-            this.ops = ops;
-        }
-    }
-
     public static NIOServerBackend getInstance(int portNumber,
             InetAddress inetAddress, NIOServerFrontend sAP,
             TranslationSpace requestTranslationSpace,
@@ -81,34 +52,23 @@ public class NIOServerBackend extends ServicesServerBase implements
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
 
-    protected Selector                                         selector;
-
-    private boolean                                            running;
-
-    private long                                               interval                  = 0;
-
-    private long                                               selectInterval            = 0;
-
-    private Thread                                             thread;
+    protected ServerSocket                                     serverSocket;
 
     private NIOServerFrontend                                  sAP;
 
-    private ByteBuffer                                         readBuffer                = ByteBuffer
-                                                                                                 .allocate(1024);
-
-    private Map<SocketChannel, Queue<ByteBuffer>>              pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
-
-    private Queue<ChangeRequest>                               pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
-
-    private InetAddress                                        hostAddress;
-
     private int                                                idleSocketTimeout;
 
-    private Map<SelectionKey, Long>                            keyActivityTimes          = new HashMap<SelectionKey, Long>();
+    private Map<SelectionKey, Long>                            keyActivityTimes = new HashMap<SelectionKey, Long>();
 
-    private Map<String, ObjectOrHashMap<String, SelectionKey>> ipToKeyOrKeys             = new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
+    private Map<String, ObjectOrHashMap<String, SelectionKey>> ipToKeyOrKeys    = new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
 
-    private boolean                                            acceptEnabled             = false;
+    private boolean                                            acceptEnabled    = false;
+
+    private MessageDigest                                      digester;
+
+    private long                                               dispensedTokens;
+
+    private InetAddress                                        hostAddress;
 
     protected NIOServerBackend(int portNumber, InetAddress inetAddress,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
@@ -124,6 +84,16 @@ public class NIOServerBackend extends ServicesServerBase implements
         this.selector = initSelector();
 
         this.idleSocketTimeout = idleSocketTimeout;
+
+        try
+        {
+            digester = MessageDigest.getInstance("SHA-256");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            debug("This can only happen if the local implementation does not include the given hash algorithm.");
+            e.printStackTrace();
+        }
     }
 
     public InetAddress getHostAddress()
@@ -132,434 +102,54 @@ public class NIOServerBackend extends ServicesServerBase implements
     }
 
     /**
-     * Sets up a pending invalidate command for the given input.
-     * 
-     * @param chan -
-     *            the SocketChannel to invalidate.
-     */
-    public void setPendingInvalidate(SocketChannel chan)
-    {
-        synchronized (pendingSelectionOpChanges)
-        {
-            this.pendingSelectionOpChanges.offer(new ChangeRequest(chan,
-                    ChangeRequest.INVALIDATE, 0));
-        }
-        selector.wakeup();
-    }
-
-    /**
-     * Shut down the connection associated with this SelectionKey. Subclasses
-     * should override to do your own housekeeping, then call
-     * super.invalidateKey(SelectionKey) to utilize the functionality here.
-     * 
-     * @param chan
-     *            The SocketChannel that needs to be shut down.
-     */
-    private void invalidate(SocketChannel chan)
-    {
-        try
-        {
-            sAP.invalidate(null, this, chan);
-            InetAddress address = chan.socket().getInetAddress();
-
-            chan.close();
-
-            ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys
-                    .get(address.getHostAddress());
-
-            keyOrKeys.remove(address);
-
-            if (keyOrKeys.isEmpty())
-            {
-                this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
-                        .getHostAddress());
-            }
-        }
-        catch (IOException e)
-        {
-            debug(e.getMessage());
-        }
-        catch (NullPointerException e)
-        {
-            debug(e.getMessage());
-        }
-
-        if (chan.keyFor(selector) != null)
-        { // it's possible that they key
-            // was somehow disposed of
-            // already,
-            // perhaps it was already invalidated once
-            chan.keyFor(selector).cancel();
-        }
-
-        // decrement numConnections &
-        // if the server disabled new connections due to hitting
-        // max_connections, re-enable
-        if (selector.keys().size() < MAX_CONNECTIONS && !acceptEnabled)
-        {
-            // acquire the static ServerSocketChannel object
-            ServerSocketChannel channel;
-            try
-            {
-                channel = ServerSocketChannel.open();
-
-                // disable blocking
-                channel.configureBlocking(false);
-
-                // get the socket associated with the channel
-                serverSocket = channel.socket();
-                serverSocket.setReuseAddress(true);
-
-                // bind to the port for this server
-                serverSocket
-                        .bind(new InetSocketAddress(hostAddress, portNumber));
-                serverSocket.setReuseAddress(true);
-
-                // register the channel with the selector to look for incoming
-                // accept requests
-                acceptEnabled = true;
-                channel.register(selector, SelectionKey.OP_ACCEPT);
-            }
-            catch (IOException e)
-            {
-                debug("Unable to re-open socket for accepts; critical failure.");
-                e.printStackTrace();
-                System.exit(-1);
-            }
-
-        }
-    }
-
-    public void run()
-    {
-        long time = System.currentTimeMillis();
-//        int timeSelecting;
-
-        while (running)
-        {
-            // if there is an interval set, get off the processor for awhile
-            if (interval != 0)
-            {
-                if ((time = (System.currentTimeMillis() - time)) < interval)
-                {
-                    try
-                    {
-                        synchronized (thread)
-                        {
-                            thread.wait(interval - time);
-                        }
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            time = System.currentTimeMillis();
-
-            // handle any selection op changes
-            synchronized (this.pendingSelectionOpChanges)
-            {
-                for (ChangeRequest changeReq : pendingSelectionOpChanges)
-                {
-                    if (changeReq.socket.isRegistered())
-                    { // make sure it's still registered; it might have been
-                        // invalidated and deregistered
-                        switch (changeReq.type)
-                        {
-                        case ChangeRequest.CHANGEOPS:
-                            try
-                            {
-                                changeReq.socket.keyFor(this.selector)
-                                        .interestOps(changeReq.ops);
-                            }
-                            catch (CancelledKeyException e)
-                            {
-                                debug("tried to change ops after key was cancelled.");
-                            }
-                            break;
-                        case ChangeRequest.INVALIDATE:
-                            invalidate(changeReq.socket);
-                        }
-                    }
-                }
-
-                this.pendingSelectionOpChanges.clear();
-            }
-
-            try
-            {
-                // block until some connection has something to do
-//                if ((timeSelecting = selector.select(selectInterval)) > 0)
-                if (selector.select(selectInterval) > 0)
-                {
-                    // get an iterator of the keys that have something to do
-                    Iterator<SelectionKey> selectedKeyIter = selector
-                            .selectedKeys().iterator();
-
-                    while (selectedKeyIter.hasNext())
-                    {
-                        // get the key corresponding to the event and process it
-                        // appropriately
-                        SelectionKey key = (SelectionKey) selectedKeyIter
-                                .next();
-
-                        selectedKeyIter.remove();
-
-                        // see if the connection has been idle too long
-                        if (idleSocketTimeout > -1
-                                && this.keyActivityTimes.containsKey(key)
-                                && System.currentTimeMillis()
-                                        - this.keyActivityTimes.get(key) > idleSocketTimeout)
-                        {
-                            setPendingInvalidate((SocketChannel) key.channel());
-                        }
-
-                        if (!key.isValid())
-                        {
-                            setPendingInvalidate((SocketChannel) key.channel());
-                            continue;
-                        }
-
-                        if (key.isAcceptable())
-                        { // incoming connection; accept
-                            accept(key);
-                        }
-                        else
-                            if (key.isWritable())
-                            {
-                                try
-                                {
-                                    write(key);
-                                }
-                                catch (IOException e)
-                                {
-                                    debug("IO error when attempting to write to socket; stack trace follows.");
-
-                                    e.printStackTrace();
-                                }
-
-                            }
-                            else
-                            {
-                                if (key.isReadable())
-                                { /*
-                                     * incoming readable, valid key have to
-                                     * check validity here, because accept key
-                                     * may have rejected an incoming connection
-                                     */
-                                    if (key.channel().isOpen() && key.isValid())
-                                    {
-                                        try
-                                        {
-                                            read(key);
-                                        }
-                                        catch (ClientOfflineException e)
-                                        {
-                                            error(e.getMessage());
-                                            setPendingInvalidate((SocketChannel) key
-                                                    .channel());
-                                        }
-                                        catch (BadClientException e)
-                                        {
-                                            // close down this evil connection!
-                                            error(e.getMessage());
-
-                                            // shut them ALL down!
-                                            InetAddress address = ((SocketChannel) key
-                                                    .channel()).socket()
-                                                    .getInetAddress();
-
-                                            ObjectOrHashMap<String, SelectionKey> keyOrKeys = ipToKeyOrKeys
-                                                    .get(address
-                                                            .getHostAddress());
-
-                                            Iterator<SelectionKey> allKeysForIp = keyOrKeys
-                                                    .values().iterator();
-
-                                            debug("***********Shutting down all clients from "
-                                                    + address.getHostAddress());
-
-                                            while (allKeysForIp.hasNext())
-                                            {
-                                                SelectionKey keyForIp = allKeysForIp
-                                                        .next();
-
-                                                debug("shutting down "
-                                                        + ((SocketChannel) keyForIp
-                                                                .channel())
-                                                                .socket()
-                                                                .getInetAddress());
-
-                                                this
-                                                        .setPendingInvalidate((SocketChannel) keyForIp
-                                                                .channel());
-                                            }
-
-                                            keyOrKeys.clear();
-                                            ipToKeyOrKeys.remove(address
-                                                    .getHostAddress());
-                                        }
-                                    }
-                                    else
-                                    {
-                                        debug("Channel closed on "
-                                                + key.attachment()
-                                                + ", removing.");
-                                        invalidate((SocketChannel) key
-                                                .channel());
-                                    }
-                                }
-                            }
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                this.stop();
-
-                debug("attempted to access selector after it was closed! shutting down");
-
-                e.printStackTrace();
-            }
-
-            // remove any that were idle for too long
-            this.checkAndDropIdleKeys();
-        }
-
-        this.close();
-    }
-
-    /**
-     * Queue up bytes to send.
-     * 
-     * @param socket
-     * @param data
-     */
-    public void send(SocketChannel socket, ByteBuffer data)
-    {
-        synchronized (this.pendingSelectionOpChanges)
-        {
-            // queue change
-            this.pendingSelectionOpChanges.offer(new ChangeRequest(socket,
-                    ChangeRequest.CHANGEOPS, SelectionKey.OP_WRITE));
-
-            // queue data to write
-            synchronized (this.pendingWrites)
-            {
-                Queue<ByteBuffer> dataQueue = pendingWrites.get(socket);
-
-                if (dataQueue == null)
-                {
-                    dataQueue = new LinkedList<ByteBuffer>();
-                    pendingWrites.put(socket, dataQueue);
-                }
-
-                dataQueue.offer(data);
-            }
-        }
-
-        selector.wakeup();
-    }
-
-    public void setInterval(long newInterval)
-    {
-        interval = newInterval;
-
-        try
-        {
-            selector.selectNow();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void setSelectInterval(long newInterval)
-    {
-        selectInterval = newInterval;
-
-        try
-        {
-            selector.selectNow();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * @see ecologylab.services.Shutdownable#shutdown()
-     */
-    public void shutdown()
-    {
-        // TODO Auto-generated method stub
-
-    }
-
-    public void start()
-    {
-        // start the server running
-        running = true;
-
-        if (thread == null)
-        {
-            thread = new Thread(this, "NIO Server running on port "
-                    + portNumber);
-        }
-
-        thread.start();
-
-        this.fireServerEvent(ServerEvent.SERVER_STARTED);
-    }
-
-    public synchronized void stop()
-    {
-        running = false;
-
-        this.close();
-
-        this.fireServerEvent(ServerEvent.SERVER_SHUTTING_DOWN);
-    }
-
-    /**
      * Checks all of the current keys to see if they have been idle for too long
      * and drops them if they have.
      * 
      */
-    private void checkAndDropIdleKeys()
+    protected void checkAndDropIdleKeys()
     {
-        if (idleSocketTimeout > -1)
-        { // after we select, we'll check to see
-            // if we need to boot any idle
-            // keys
-            LinkedList<SelectionKey> keysToInvalidate = new LinkedList<SelectionKey>();
-            long timeStamp = System.currentTimeMillis();
+        LinkedList<SelectionKey> keysToInvalidate = new LinkedList<SelectionKey>();
+        long timeStamp = System.currentTimeMillis();
 
+        if (idleSocketTimeout > -1)
+        { /*
+             * after we select, we'll check to see if we need to boot any idle
+             * keys
+             */
             for (SelectionKey sKey : keyActivityTimes.keySet())
             {
-                if (timeStamp - keyActivityTimes.get(sKey).longValue() > idleSocketTimeout)
+                if ((timeStamp - keyActivityTimes.get(sKey)) > idleSocketTimeout)
                 {
                     keysToInvalidate.add(sKey);
                 }
             }
-
-            // remove all the invalid keys
-            for (SelectionKey keyToInvalidate : keysToInvalidate)
+        }
+        else
+        { /*
+             * We have to clean up the key set at some point; use
+             * GARBAGE_CONNECTION_CLEANUP_TIMEOUT
+             */
+            for (SelectionKey sKey : keyActivityTimes.keySet())
             {
-                debug(keyToInvalidate.attachment()
-                        + " took too long to request; disconnecting.");
-                keyActivityTimes.remove(keyToInvalidate);
-                this.setPendingInvalidate((SocketChannel) keyToInvalidate
-                        .channel());
+                if ((timeStamp - keyActivityTimes.get(sKey)) > GARBAGE_CONNECTION_CLEANUP_TIMEOUT)
+                {
+                    keysToInvalidate.add(sKey);
+                }
             }
+        }
+
+        // remove all the invalid keys
+        for (SelectionKey keyToInvalidate : keysToInvalidate)
+        {
+            debug(keyToInvalidate.attachment()
+                    + " took too long to request; disconnecting.");
+            keyActivityTimes.remove(keyToInvalidate);
+            this.setPendingInvalidate(
+                    (SocketChannel) keyToInvalidate.channel(), true);
         }
     }
 
-    protected final SocketChannel accept(SelectionKey key)
+    protected final void acceptKey(SelectionKey key)
     {
         try
         {
@@ -581,29 +171,30 @@ public class NIOServerBackend extends ServicesServerBase implements
                     acceptEnabled = false;
                 }
 
-                SocketChannel tempChannel = ((ServerSocketChannel) key
+                SocketChannel newlyAcceptedChannel = ((ServerSocketChannel) key
                         .channel()).accept();
 
-                InetAddress address = tempChannel.socket().getInetAddress();
+                InetAddress address = newlyAcceptedChannel.socket()
+                        .getInetAddress();
 
                 debug("new address: " + address.getHostAddress());
 
                 if (!BadClientException.isEvilHostByNumber(address
                         .getHostAddress()))
                 {
-                    tempChannel.configureBlocking(false);
+                    newlyAcceptedChannel.configureBlocking(false);
 
                     // when we register, we want to attach the proper
                     // session token to all of the keys associated with
                     // this connection, so we can sort them out later.
                     String keyAttachment = this
-                            .generateSessionToken(tempChannel.socket());
+                            .generateSessionToken(newlyAcceptedChannel.socket());
 
-                    SelectionKey newKey = tempChannel.register(selector,
-                            SelectionKey.OP_READ, keyAttachment);
+                    SelectionKey newKey = newlyAcceptedChannel.register(
+                            selector, SelectionKey.OP_READ, keyAttachment);
 
-                    this.keyActivityTimes.put(newKey, new Long(System
-                            .currentTimeMillis()));
+                    this.keyActivityTimes.put(newKey, System
+                            .currentTimeMillis());
 
                     if ((ipToKeyOrKeys.get(address.getHostAddress())) == null)
                     {
@@ -626,11 +217,11 @@ public class NIOServerBackend extends ServicesServerBase implements
                         }
                     }
 
-                    debug("Now connected to " + tempChannel + ", "
+                    debug("Now connected to " + newlyAcceptedChannel + ", "
                             + (MAX_CONNECTIONS - numConn - 1)
                             + " connections remaining.");
-
-                    return tempChannel;
+                    
+                    return;
                 }
             }
 
@@ -652,24 +243,6 @@ public class NIOServerBackend extends ServicesServerBase implements
                 debug("Rejected connection; already fulfilled max connections.");
             else
                 debug("Evil host attempted to connect: " + address);
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-    protected void close()
-    {
-        try
-        {
-            debug("Closing selector.");
-            selector.close();
-
-            debug("Unbinding.");
-            this.serverSocket.close();
         }
         catch (IOException e)
         {
@@ -710,81 +283,154 @@ public class NIOServerBackend extends ServicesServerBase implements
         return sSelector;
     }
 
-    /**
-     * Reads all the data from the key into the readBuffer, then pushes that
-     * information to the action processor for processing.
-     * 
-     * @param key
-     * @throws BadClientException
-     */
-    private void read(SelectionKey key) throws BadClientException,
-            ClientOfflineException
+    public SocketAddress getAddress()
     {
-        SocketChannel sc = (SocketChannel) key.channel();
-        int bytesRead;
-
-        this.readBuffer.clear();
-
-        // read
-        try
-        {
-            bytesRead = sc.read(readBuffer);
-        }
-        catch (BufferOverflowException e)
-        {
-            throw new BadClientException(sc.socket().getInetAddress()
-                    .getHostAddress(), "Client overflowed the buffer.");
-        }
-        catch (IOException e)
-        { // error trying to read; client disconnected
-            throw new ClientOfflineException(
-                    "Client forcibly closed connection.");
-        }
-
-        if (bytesRead == -1)
-        { // connection closed cleanly
-            throw new ClientOfflineException(
-                    "Client closed connection cleanly.");
-        } 
-        else if (bytesRead > 0)
-        {
-            byte[] bytes = new byte[bytesRead];
-
-            readBuffer.flip();
-            readBuffer.get(bytes);
-
-            this.sAP.processRead(key.attachment(), this, sc, bytes, bytesRead);
-        }
-
-        this.keyActivityTimes.put(key, new Long(System.currentTimeMillis()));
+        return this.serverSocket.getLocalSocketAddress();
     }
 
-    private void write(SelectionKey key) throws IOException
+    /**
+     * @see ecologylab.services.nio.NIONetworking#removeBadConnections()
+     */
+    @Override protected void removeBadConnections(SelectionKey key)
     {
-        SocketChannel sc = (SocketChannel) key.channel();
+        // shut them ALL down!
+        InetAddress address = ((SocketChannel) key.channel()).socket()
+                .getInetAddress();
 
-        synchronized (this.pendingWrites)
+        ObjectOrHashMap<String, SelectionKey> keyOrKeys = ipToKeyOrKeys
+                .get(address.getHostAddress());
+
+        Iterator<SelectionKey> allKeysForIp = keyOrKeys.values().iterator();
+
+        debug("***********Shutting down all clients from "
+                + address.getHostAddress());
+
+        while (allKeysForIp.hasNext())
         {
-            Queue<ByteBuffer> writes = pendingWrites.get(sc);
+            SelectionKey keyForIp = allKeysForIp.next();
 
-            while (!writes.isEmpty())
-            { // write everything
-                ByteBuffer bytes = writes.poll();
+            debug("shutting down "
+                    + ((SocketChannel) keyForIp.channel()).socket()
+                            .getInetAddress());
 
-                sc.write(bytes);
+            this.setPendingInvalidate((SocketChannel) keyForIp.channel(), true);
+        }
 
-                if (bytes.remaining() > 0)
-                { // the socket's buffer filled
-                    // up! OH NOES!
-                    break;
-                }
+        keyOrKeys.clear();
+        ipToKeyOrKeys.remove(address.getHostAddress());
+    }
+
+    /**
+     * @see ecologylab.services.nio.NIONetworking#invalidateKey(java.nio.channels.SocketChannel,
+     *      boolean)
+     */
+    @Override protected void invalidateKey(SelectionKey key, boolean permanent)
+    {
+        SocketChannel chan = (SocketChannel)key.channel();
+        InetAddress address = chan.socket().getInetAddress();
+
+        sAP.invalidate(key.attachment(), this, chan, permanent);
+
+        super.invalidateKey(chan, permanent);
+
+        ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys
+                .get(address.getHostAddress());
+
+        keyOrKeys.remove(address);
+
+        if (keyOrKeys.isEmpty())
+        {
+            this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
+                    .getHostAddress());
+        }
+
+        this.keyActivityTimes.remove(key);
+        
+        // decrement numConnections &
+        // if the server disabled new connections due to hitting
+        // max_connections, re-enable
+        if (selector.keys().size() < MAX_CONNECTIONS && !acceptEnabled)
+        {
+            // acquire the static ServerSocketChannel object
+            ServerSocketChannel channel;
+            try
+            {
+                channel = ServerSocketChannel.open();
+
+                // disable blocking
+                channel.configureBlocking(false);
+
+                // get the socket associated with the channel
+                serverSocket = channel.socket();
+                serverSocket.setReuseAddress(true);
+
+                // bind to the port for this server
+                serverSocket
+                        .bind(new InetSocketAddress(hostAddress, portNumber));
+                serverSocket.setReuseAddress(true);
+
+                // register the channel with the selector to look for incoming
+                // accept requests
+                acceptEnabled = true;
+                channel.register(selector, SelectionKey.OP_ACCEPT);
             }
-
-            if (writes.isEmpty())
-            { // nothing left to write, go back to
-                // listening
-                key.interestOps(SelectionKey.OP_READ);
+            catch (IOException e)
+            {
+                debug("Unable to re-open socket for accepts; critical failure.");
+                e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Generates a unique identifier String for the given socket, based upon
+     * actual ports used and ip addresses with a hash.
+     * 
+     * @param incomingSocket
+     * @return
+     */
+    protected String generateSessionToken(Socket incomingSocket)
+    {
+        // clear digester
+        digester.reset();
+
+        // we make a string consisting of the following:
+        // time of initial connection (when this method is called), server ip,
+        // client ip, client actual port
+        digester.update(String.valueOf(System.currentTimeMillis()).getBytes());
+        // digester.update(String.valueOf(System.nanoTime()).getBytes());
+        digester.update(this.serverSocket.getInetAddress().toString()
+                .getBytes());
+        digester.update(incomingSocket.getInetAddress().toString().getBytes());
+        digester.update(String.valueOf(incomingSocket.getPort()).getBytes());
+
+        digester.update(String.valueOf(this.dispensedTokens).getBytes());
+
+        dispensedTokens++;
+
+        // convert to normal characters and return as a String
+        return new String((new BASE64Encoder()).encode(digester.digest()));
+    }
+
+    @Override protected void close()
+    {
+        try
+        {
+            debug("Closing selector.");
+            selector.close();
+
+            debug("Unbinding.");
+            this.serverSocket.close();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    @Override protected void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead) throws BadClientException
+    {
+        this.sAP.processRead(sessionId, this, sc, bytes, bytesRead);
+        this.keyActivityTimes.put(sc.keyFor(this.selector), System.currentTimeMillis());
     }
 }

@@ -9,7 +9,7 @@ import ecologylab.xml.ElementState;
  * 
  * @author blake
  */
-public class ServiceMessage extends ElementState
+public class ServiceMessage extends ElementState implements Comparable<ServiceMessage>
 {
     @xml_attribute protected long           timeStamp = 0;
 
@@ -66,5 +66,10 @@ public class ServiceMessage extends ElementState
     public void setSender(InetAddress sender)
     {
         this.sender = sender;
+    }
+
+    public int compareTo(ServiceMessage otherRequest)
+    {
+        return (int)(this.uid - otherRequest.getUid());
     }
 }

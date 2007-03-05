@@ -17,6 +17,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
+import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -33,11 +34,11 @@ public class AuthContextManager extends ContextManager implements
 
     private AuthLogging servicesServer = null;
 
-    public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, SocketChannel socket,
+    public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry,
             AuthLogging servicesServer)
     {
-        super(token, maxPacketSize, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
 
         this.servicesServer = servicesServer;
     }

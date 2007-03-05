@@ -40,9 +40,26 @@ public interface NIOServerFrontend extends StartAndStoppable
      * @param token
      * @param base
      * @param sc
+     * @param permanent -
+     *            indicates whether the NIOServerFrontend should destroy the
+     *            context manager object associated with the given connection.
      * @return the ContextManager object associated with sc that has been
      *         removed from the system.
      */
     ContextManager invalidate(Object token, NIOServerBackend base,
-            SocketChannel sc);
+            SocketChannel sc, boolean permanent);
+
+    /**
+     * Attempts to switch the ContextManager for a SocketChannel. oldId
+     * indicates the session id that was used for the connection previously (in
+     * order to find the correct ContextManager) and newContextManager is the
+     * recently-created (and now, no longer necessary) ContextManager for the
+     * connection.
+     * 
+     * @param oldId
+     * @param newContextManager
+     * @return true if the restore was successful, false if it was not.
+     */
+    public boolean restoreContextManagerFromSessionId(Object oldId,
+            ContextManager newContextManager);
 }

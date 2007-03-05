@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.ContextManager;
@@ -48,7 +49,7 @@ public class LoggingContextManager extends ContextManager
             NIOServerBackend server, SocketChannel socket,
             TranslationSpace translationSpace, ObjectRegistry registry)
     {
-        super(token, maxPacketSize, server, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, loggingServer, socket, translationSpace, registry);
 
         this.loggingServer = loggingServer;
     }
@@ -149,14 +150,17 @@ public class LoggingContextManager extends ContextManager
                         false);
 
         if (requestMessage instanceof LogRequestMessage)
-        {
+        { // special processing on log messages
             LogRequestMessage lrm = (LogRequestMessage) requestMessage;
             lrm.setXmlString(messageString);
         }
-        else
+        else if (!(requestMessage instanceof InitConnectionRequest))
+        { // if not log message or connection initialization, bad things   
             throw new XmlTranslationException(
                     "LoggingServer received non logging message: "
                             + requestMessage);
+        }
+        
         return requestMessage;
     }
 

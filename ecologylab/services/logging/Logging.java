@@ -159,7 +159,7 @@ public class Logging extends ElementState implements Runnable,
         switch (logMode)
         {
             case NO_LOGGING:
-                debug("logging disabled");
+                debug("logging disabled; NO_LOGGING specified");
                 break;
             case LOG_TO_FILE:
                 if (logFileName == null)
@@ -233,7 +233,10 @@ public class Logging extends ElementState implements Runnable,
             	if (loggingHost == null)
             		loggingHost = LOGGING_HOST;
             	int loggingPort	= Preference.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
-                NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
+
+                NIOClient1234 loggingClient = new NIOClient1234(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
+                
+                // CONNECT TO SERVER
                 if (loggingClient.connect())
                 {
                     try
@@ -288,6 +291,10 @@ public class Logging extends ElementState implements Runnable,
         }
     }
 
+    /**
+     * Translates op to XML then logs it.
+     * @param op - the operation to be logged.
+     */
     public void logAction(MixedInitiativeOp op)
     {
         if (logWriter != null)
@@ -295,12 +302,14 @@ public class Logging extends ElementState implements Runnable,
             try
             {
                 logAction(op.translateToXML(false));
-            } catch (XmlTranslationException e)
+            }
+            catch (XmlTranslationException e)
             {
                 e.printStackTrace();
             }
         }
     }
+    
     public void logAction(String translatedXML)
     {
         if (logWriter != null)
@@ -394,7 +403,6 @@ public class Logging extends ElementState implements Runnable,
     {
         if (logWriter == null)
             return;
-        // ConsoleUtils.obtrusiveConsoleOutput("opSet is built. translating to xml.");
         
         Vector<String> ourQueueToWrite = incomingOpsQueue;
         synchronized (ourQueueToWrite)
@@ -850,17 +858,15 @@ public class Logging extends ElementState implements Runnable,
     protected class NetworkLogWriter
     extends LogWriter
     {
-        NIOClient  loggingClient;
+        NIOClient1234  loggingClient;
         
-        NetworkLogWriter(NIOClient loggingClient)
+        NetworkLogWriter(NIOClient1234 loggingClient)
         throws IOException
         {
             if (loggingClient == null)
                 throw new IOException("Can't log to Network with null loggingClient.");
             this.loggingClient = loggingClient;
             Logging.this.debug("Logging to service via connection: " + loggingClient);
-            
-            this.loggingClient.start();
         }
 
         /**
@@ -896,9 +902,9 @@ public class Logging extends ElementState implements Runnable,
             }
             catch (IOException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            
             opSet.clearSet();
         }
         /**
@@ -920,7 +926,6 @@ public class Logging extends ElementState implements Runnable,
             }
             
             loggingClient.disconnect();
-            loggingClient.stop();
             loggingClient   = null;
         }
     }
