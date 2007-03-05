@@ -220,7 +220,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
                     debug("Now connected to " + newlyAcceptedChannel + ", "
                             + (MAX_CONNECTIONS - numConn - 1)
                             + " connections remaining.");
-                    
+
                     return;
                 }
             }
@@ -326,7 +326,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
      */
     @Override protected void invalidateKey(SelectionKey key, boolean permanent)
     {
-        SocketChannel chan = (SocketChannel)key.channel();
+        SocketChannel chan = (SocketChannel) key.channel();
         InetAddress address = chan.socket().getInetAddress();
 
         sAP.invalidate(key.attachment(), this, chan, permanent);
@@ -336,16 +336,18 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys
                 .get(address.getHostAddress());
 
-        keyOrKeys.remove(address);
-
-        if (keyOrKeys.isEmpty())
+        if (keyOrKeys != null)
         {
-            this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
-                    .getHostAddress());
-        }
+            keyOrKeys.remove(address);
 
+            if (keyOrKeys.isEmpty())
+            {
+                this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
+                        .getHostAddress());
+            }
+        }
         this.keyActivityTimes.remove(key);
-        
+
         // decrement numConnections &
         // if the server disabled new connections due to hitting
         // max_connections, re-enable
@@ -428,9 +430,12 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         }
     }
 
-    @Override protected void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead) throws BadClientException
+    @Override protected void processReadData(Object sessionId,
+            SocketChannel sc, byte[] bytes, int bytesRead)
+            throws BadClientException
     {
         this.sAP.processRead(sessionId, this, sc, bytes, bytesRead);
-        this.keyActivityTimes.put(sc.keyFor(this.selector), System.currentTimeMillis());
+        this.keyActivityTimes.put(sc.keyFor(this.selector), System
+                .currentTimeMillis());
     }
 }
