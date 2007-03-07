@@ -100,4 +100,9 @@ public class SeedCf extends RequestMessage
 		if (seedSet != null)
 			seedSet.clear();
 	}
+
+	public void setHandleMultipleRequests(int handleMultipleRequests)
+	{
+		this.handleMultipleRequests = handleMultipleRequests;
+	}
 }
