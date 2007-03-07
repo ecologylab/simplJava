@@ -189,6 +189,14 @@ extends Debug
       return result;
    }
    
+   /**
+    * Form a ParsedURL, based on a relative path, using this as the base.
+    * 
+    * @param relativeURLPath	Path relative to this.
+    * @param errorDescriptor
+    * 
+    * @return					New ParsedURL based on this and the relative path.
+    */
    public final ParsedURL getRelative(String relativeURLPath, String errorDescriptor)
    {
    	 if (isFile())
@@ -199,7 +207,17 @@ extends Debug
 	 else
 		 return getRelative(url, relativeURLPath, errorDescriptor);
    }
-   
+   /**
+    * Form a ParsedURL, based on a relative path, using this as the base.
+    * 
+    * @param relativeURLPath	Path relative to this.
+    * 
+    * @return					New ParsedURL based on this and the relative path.
+    */
+   public final ParsedURL getRelative(String relativeURLPath)
+   {
+	   return getRelative(relativeURLPath, "");
+   }
 /**
  * Form a new ParsedURL, relative from a supplied base URL.
  * @param relativeURLPath
@@ -342,6 +360,38 @@ extends Debug
         suffix		= result;
       }
       return result;
+   }
+   private ParsedURL	directoryPURL;
+   
+   /**
+    * Form a ParsedURL based on this, if this is a directory.
+    * Otherwise, form the ParsedURL from the parent of this.
+    * Process files carefully to propagate their file-ness.
+    * 
+    * @return
+    */
+   public ParsedURL directoryPURL()
+   {
+	   ParsedURL result	= directoryPURL;
+	   if (result == null)
+	   {
+		   if (isFile())
+		   {
+			   if (file.isDirectory())
+				   result	= this;
+			   else
+			   {
+				   File parent	= file.getParentFile();
+				   result		= new ParsedURL(parent);
+			   }
+		   }
+		   else
+		   {
+			   result			= new ParsedURL(directory());
+		   }
+		   this.directoryPURL	= result;
+	   }
+	   return result;
    }
    /**
     * Get the URL for the directory associated with this.
@@ -520,7 +570,7 @@ extends Debug
 
    static final String[] supportedProtocolStrings = 
    {
-      "http", "ftp",
+      "http", "ftp", "file",
    };
    static final HashMap supportedProtocols = 
       CollectionTools.buildHashMapFromStrings(supportedProtocolStrings);
@@ -611,16 +661,16 @@ extends Debug
    }
    protected static ParsedURL get(URL url, String addressString)
    {
-   	  try 
-	  {
-		return new ParsedURL(new URL(url, addressString));
-	  } catch (MalformedURLException e) 
-	  {
-		 println("ParsedURL.get() cant from url from: " +
-		 		/*url +"\n\taddressString = "+*/ addressString);
-		 //e.printStackTrace();
-	  }
-	  return null;
+	   try 
+	   {
+		   return new ParsedURL(new URL(url, addressString));
+	   } catch (MalformedURLException e) 
+	   {
+		   println("ParsedURL.get() cant from url from: " +
+				   /*url +"\n\taddressString = "+*/ addressString);
+		   //e.printStackTrace();
+	   }
+	   return null;
    }
 /**
  * Called while processing (parsing) HTML.
@@ -770,7 +820,10 @@ extends Debug
 	 	parsedUrl = getAbsolute(addressString, "in createFromHTML()");
 	 }
 	 else
-	 	parsedUrl = get(contextPURL.directory(), addressString);
+	 {
+		 ParsedURL directoryPURL	= contextPURL.directoryPURL();
+		 parsedUrl					= directoryPURL.getRelative(addressString);
+	 }
             
      return parsedUrl;
    }
