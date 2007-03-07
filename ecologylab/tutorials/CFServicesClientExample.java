@@ -1,3 +1,4 @@
+package ecologylab.tutorials;
 
 
 import ecologylab.generic.Debug;
@@ -66,6 +67,8 @@ public class CFServicesClientExample extends Debug
 	private static void sendQueriesToCF(ServicesClient cfClient, String engine, String[] queries)
 	{
 		SeedCf	seedCf		= new SeedCf();
+		
+		seedCf.setHandleMultipleRequests(SeedCf.MULTIPLE_REQUESTSTS_ASK_USER);
 		
 		for (int i=0; i<queries.length; i++)
 		{
