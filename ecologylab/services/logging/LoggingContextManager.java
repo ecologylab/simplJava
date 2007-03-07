@@ -142,7 +142,7 @@ public class LoggingContextManager extends ContextManager
      * @return
      * @throws XmlTranslationException
      */
-    protected RequestMessage translateXMLStringToRequestMessage(
+    protected RequestMessage translateStringToRequestMessage(
             String messageString) throws XmlTranslationException
     {
         RequestMessage requestMessage = (RequestMessage) ElementState

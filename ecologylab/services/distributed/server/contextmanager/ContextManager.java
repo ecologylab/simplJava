@@ -7,6 +7,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -42,48 +43,74 @@ public class ContextManager extends Debug implements ServerConstants
      * Stores incoming character data until it can be parsed into an XML message
      * and turned into a Java object.
      */
-    private StringBuilder                         incomingMessageBuffer  = new StringBuilder(
-                                                                                 MAX_PACKET_SIZE);
+    private StringBuilder               incomingMessageBuffer  = new StringBuilder(
+                                                                       MAX_PACKET_SIZE);
 
-    protected boolean                             messageWaiting         = false;
+    /**
+     * Indicates whether or not one or more messages are queued for execution by
+     * this ContextManager.
+     */
+    protected boolean                   messageWaiting         = false;
 
-    private RequestMessage                        request;
+    /**
+     * A queue of the requests to be performed by this ContextManager.
+     * Subclasses may override functionality and not use requestQueue.
+     */
+    protected Queue<RequestMessage>     requestQueue           = new LinkedBlockingQueue<RequestMessage>();
 
-    protected LinkedBlockingQueue<RequestMessage> requestQueue           = new LinkedBlockingQueue<RequestMessage>();
+    /**
+     * A buffer for data that will be sent back to the client.
+     */
+    private CharBuffer                  outgoingChars          = CharBuffer
+                                                                       .allocate(MAX_PACKET_SIZE);
 
-    private CharBuffer                            outgoingChars          = CharBuffer
-                                                                                 .allocate(MAX_PACKET_SIZE);
+    /**
+     * The encoder to translate from Strings to bytes.
+     */
+    private final static CharsetEncoder encoder                = Charset
+                                                                       .forName(
+                                                                               CHARACTER_ENCODING)
+                                                                       .newEncoder();
 
-    private final static CharsetEncoder           encoder                = Charset
-                                                                                 .forName(
-                                                                                         CHARACTER_ENCODING)
-                                                                                 .newEncoder();
+    /**
+     * The ObjectRegistry that is used by the processRequest method of each
+     * incoming RequestMessage.
+     */
+    protected ObjectRegistry            registry;
 
-    protected long                                initialTimeStamp       = System
-                                                                                 .currentTimeMillis();
+    /**
+     * Tracks the number of bad transmissions from the client; used for
+     * determining if a client is bad.
+     */
+    private int                         badTransmissionCount;
 
-    protected boolean                             receivedAValidMsg;
+    /**
+     * The network communicator that will handle all the reading and writing for
+     * the socket associated with this ContextManager
+     */
+    private NIOServerBackend            server;
 
-    protected ObjectRegistry                      registry;
+    /**
+     * The frontend for the server that is running the ContextManager. This is
+     * needed in case the client attempts to restore a session, in which case
+     * the frontend must be queried for the old ContextManager.
+     */
+    private NIOServerFrontend           frontend               = null;
 
-    private int                                   badTransmissionCount;
+    protected SocketChannel             socket;
 
-    NIOServerBackend                              server;
-
-    protected SocketChannel                       socket;
-
-    private int                                   endOfFirstHeader       = -1;
+    private int                         endOfFirstHeader       = -1;
 
     /**
      * sessionId uniquely identifies this ContextManager. It is used to restore
      * the state of a lost connection.
      */
-    private Object                                sessionId              = null;
+    private Object                      sessionId              = null;
 
-    private long                                  lastActivity           = System
-                                                                                 .currentTimeMillis();
+    private long                        lastActivity           = System
+                                                                       .currentTimeMillis();
 
-    private int                                   maxPacketSize;
+    private int                         maxPacketSize;
 
     /**
      * Counts how many characters still need to be extracted from the
@@ -91,27 +118,36 @@ public class ContextManager extends Debug implements ServerConstants
      * upon the HTTP header). A value of -1 means that there is not yet a
      * complete header, so no length has been determined (yet).
      */
-    private int                                   contentLengthRemaining = -1;
+    private int                         contentLengthRemaining = -1;
 
     /**
      * Stores the first XML message from the incomingMessageBuffer, or parts of
      * it (if it is being read over several invocations).
      */
-    StringBuilder                                 firstMessageBuffer     = new StringBuilder();
+    StringBuilder                       firstMessageBuffer     = new StringBuilder();
 
     /**
      * Used to translate incoming message XML strings into RequestMessages.
      */
-    protected TranslationSpace                    translationSpace;
+    protected TranslationSpace          translationSpace;
 
     /**
      * Indicates whether the first request message has been received. The first
      * request may be an InitConnection, which has special properties.
      */
-    private boolean                               firstRequestReceived   = false;
+    private boolean                     firstRequestReceived   = false;
 
-    private NIOServerFrontend                     frontend               = null;
-
+    /**
+     * Creates a new ContextManager.
+     * 
+     * @param sessionId
+     * @param maxPacketSize
+     * @param server
+     * @param frontend
+     * @param socket
+     * @param translationSpace
+     * @param registry
+     */
     public ContextManager(Object sessionId, int maxPacketSize,
             NIOServerBackend server, NIOServerFrontend frontend,
             SocketChannel socket, TranslationSpace translationSpace,
@@ -134,9 +170,15 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
+     * Returns the next message in the request queue.
+     * 
+     * getNextRequest() may be overridden to provide specific functionality,
+     * such as a priority queue. In this case, it is important to override the
+     * following methods: isMessageWaiting(), enqueueRequest().
+     * 
      * @return the next message in the requestQueue.
      */
-    protected RequestMessage getNextMessage()
+    protected RequestMessage getNextRequest()
     {
         synchronized (requestQueue)
         {
@@ -153,9 +195,14 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
-     * Calls performService on the given RequestMessage using the local
-     * ObjectRegistry. Can be overridden by subclasses to provide more
-     * specialized functionality.
+     * Appends the sender's IP address to the incoming message and calls
+     * performService on the given RequestMessage using the local
+     * ObjectRegistry.
+     * 
+     * performService(RequestMessage) may be overridden by subclasses to provide
+     * more specialized functionality. Generally, overrides should then call
+     * super.performService(RequestMessage) so that the IP address is appended
+     * to the message.
      * 
      * @param requestMessage
      * @return
@@ -170,11 +217,12 @@ public class ContextManager extends Debug implements ServerConstants
     /**
      * Calls performService(requestMessage), then converts the resulting
      * ResponseMessage into a String, adds the HTTP-like headers, and passes the
-     * final String to the server backend for sending to the client.
+     * completed String to the server backend for sending to the client.
      * 
-     * @param request
+     * @param request -
+     *            the request message to process.
      */
-    private void processRequest(RequestMessage request)
+    private final void processRequest(RequestMessage request)
     {
         this.lastActivity = System.currentTimeMillis();
 
@@ -257,9 +305,10 @@ public class ContextManager extends Debug implements ServerConstants
      * Translates response into an XML string and adds an HTTP-like header, then
      * returns the result.
      * 
-     * This method may be overridden to provide more specific functionality; for
-     * example, for servers that do not use HTTP-like headers or that use
-     * customized messages instead of XML.
+     * translateResponseMessageToString(RequestMessage, ResponseMessage) may be
+     * overridden to provide more specific functionality; for example, for
+     * servers that do not use HTTP-like headers or that use customized messages
+     * instead of XML.
      * 
      * @param requestMessage -
      *            the current request.
@@ -278,19 +327,31 @@ public class ContextManager extends Debug implements ServerConstants
                 + outgoingResp;
     }
 
-    public void processNextMessageAndSendResponse()
+    /**
+     * Calls processRequest(RequestMessage) on the result of getNextRequest().
+     * 
+     * In order to override functionality processRequest(RequestMessage) and/or
+     * getNextRequest() should be overridden.
+     * 
+     */
+    private final void processNextMessageAndSendResponse()
     {
-        this.processRequest(this.getNextMessage());
+        this.processRequest(this.getNextRequest());
     }
 
     /**
-     * Calls processNextMessageAndSendResponse() on each queued message.
+     * Calls processRequest(RequestMessage) on each queued message as they are
+     * acquired through getNextRequest() and finishing when isMessageWaiting()
+     * returns false.
      * 
-     * Can be overridden for more specific functionality.
+     * The functionality of processAllMessagesAndSendResponses() may be
+     * overridden by overridding the following methods: isMessageWaiting(),
+     * processRequest(RequestMessage), getNextRequest().
      * 
      * @throws BadClientException
      */
-    public void processAllMessagesAndSendResponses() throws BadClientException
+    public final void processAllMessagesAndSendResponses()
+            throws BadClientException
     {
         while (isMessageWaiting())
         {
@@ -299,7 +360,13 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
-     * @return Returns the messageWaiting.
+     * Indicates whether there are any messages queued up to be processed.
+     * 
+     * isMessageWaiting() should be overridden if getNextRequest() is overridden
+     * so that it properly reflects the way that getNextRequest() works; it may
+     * also be important to override enqueueRequest().
+     * 
+     * @return true if getNextRequest() can return a value, false if it cannot.
      */
     public boolean isMessageWaiting()
     {
@@ -307,14 +374,23 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
-     * Hook method to provide specific functionality.
+     * Translates the given XML String into a RequestMessage object.
      * 
-     * @param messageString
-     * @return
+     * translateStringToRequestMessage(String) may be overridden to provide
+     * specific functionality, such as a ContextManager that does not use XML
+     * Strings.
+     * 
+     * @param messageString -
+     *            an XML String representing a RequestMessage object.
+     * @return the RequestMessage created by translating messageString into an
+     *         object.
      * @throws XmlTranslationException
+     *             if an error occurs when translating from XML into a
+     *             RequestMessage.
      * @throws UnsupportedEncodingException
+     *             if the String is not encoded properly.
      */
-    protected RequestMessage translateXMLStringToRequestMessage(
+    protected RequestMessage translateStringToRequestMessage(
             String messageString) throws XmlTranslationException,
             UnsupportedEncodingException
     {
@@ -324,8 +400,8 @@ public class ContextManager extends Debug implements ServerConstants
 
     /**
      * Takes an incoming message in the form of an XML String and converts it
-     * into a RequestMessage. Then places the RequestMessage on the
-     * requestQueue.
+     * into a RequestMessage using translateStringToRequestMessage(String). Then
+     * places the RequestMessage on the requestQueue using enqueueRequest().
      * 
      * @param incomingMessage
      * @throws BadClientException
@@ -339,10 +415,10 @@ public class ContextManager extends Debug implements ServerConstants
             debug("translationSpace: " + translationSpace.toString());
         }
 
-        request = null;
+        RequestMessage request = null;
         try
         {
-            request = this.translateXMLStringToRequestMessage(incomingMessage);
+            request = this.translateStringToRequestMessage(incomingMessage);
         }
         catch (XmlTranslationException e)
         {
@@ -368,7 +444,6 @@ public class ContextManager extends Debug implements ServerConstants
         }
         else
         {
-            receivedAValidMsg = true;
             badTransmissionCount = 0;
 
             synchronized (requestQueue)
@@ -384,6 +459,9 @@ public class ContextManager extends Debug implements ServerConstants
      * enqueueRequest(RequestMessage) is a hook method for ContextManagers that
      * need to implement other functionality, such as prioritizing messages.
      * 
+     * If enqueueRequest(RequestMessage) is overridden, the following methods
+     * should also be overridden: isMessageWaiting(), getNextRequest().
+     * 
      * @param request
      */
     protected void enqueueRequest(RequestMessage request)
@@ -396,9 +474,12 @@ public class ContextManager extends Debug implements ServerConstants
 
     /**
      * Converts the given bytes into chars, then extracts any messages from the
-     * chars and enqueues them.
+     * chars and enqueues them. Message is copied into the local buffer before
+     * any operations are performed.
      * 
      * @param message
+     *            the CharBuffer containing one or more messages, or pieces of
+     *            messages.
      */
     public final void enqueueStringMessage(CharBuffer message)
             throws CharacterCodingException, BadClientException
@@ -550,9 +631,13 @@ public class ContextManager extends Debug implements ServerConstants
     }
 
     /**
-     * @return the lastActivity
+     * Indicates the last System timestamp was when the ContextManager had any
+     * activity.
+     * 
+     * @return the last System timestamp indicating when the ContextManager had
+     *         any activity.
      */
-    public long getLastActivity()
+    public final long getLastActivity()
     {
         return lastActivity;
     }

@@ -117,9 +117,9 @@ public class HTTPGetContextManager extends ContextManager
 
     /**
      * @throws UnsupportedEncodingException
-     * @see ecologylab.services.nio.ContextManager#translateXMLStringToRequestMessage(java.lang.String)
+     * @see ecologylab.services.nio.ContextManager#translateStringToRequestMessage(java.lang.String)
      */
-    @Override protected RequestMessage translateXMLStringToRequestMessage(
+    @Override protected RequestMessage translateStringToRequestMessage(
             String messageString) throws XmlTranslationException,
             UnsupportedEncodingException
     {
@@ -132,7 +132,7 @@ public class HTTPGetContextManager extends ContextManager
             debug("fixed message! " + messageString);
         }
 
-        return super.translateXMLStringToRequestMessage(messageString);
+        return super.translateStringToRequestMessage(messageString);
     }
 
 }

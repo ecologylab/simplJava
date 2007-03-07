@@ -441,7 +441,7 @@ implements ParseTableEntryTypes
 									String value = next.toString();
 									appendLeafXML(buffy, pte.tag(), value, scalarType);									
 								}
-								// this is a special hack for working with pre-translated XML Strings
+								// this is a special hack for working with pre-translated XML Strings (LogOp!)
 								else if (next instanceof String)
 									buffy.append((String) next);
 								else
