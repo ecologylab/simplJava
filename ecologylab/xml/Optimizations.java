@@ -499,11 +499,11 @@ public class Optimizations extends Debug
 	}
 	HashMap<String, Field> mapFieldsByTag()
 	{
-		HashMap<String, Field> result	= this.collectionFieldsByTag;
+		HashMap<String, Field> result	= this.mapFieldsByTag;
 		if (result == null)
 		{
 			result	= new HashMap<String, Field>();
-			this.collectionFieldsByTag	= result;
+			this.mapFieldsByTag			= result;
 		}
 		return result;
 	}

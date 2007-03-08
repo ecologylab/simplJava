@@ -157,8 +157,7 @@ implements ParseTableEntryTypes
 				// no field object, so we must continue to check stuff out!
 				break;
 			default:
-				printError("Unknown case in element type assignment switch " + 
-						    diganosedType + ".");
+				error("Unknown case in element type assignment switch " + diganosedType + ".");
 				return;
 			}
 
@@ -188,7 +187,7 @@ implements ParseTableEntryTypes
 				}
 				else
 				{
-					printWarning("Ignoring declaration @xml_collection(\"" + tag + 
+					warning("Ignoring declaration @xml_collection(\"" + tag + 
 							  	 "\") because it is not annotating a parameterized generic Collection defined with a <type> token.");
 					this.type	= IGNORED_ELEMENT;
 					//!! remove entry from map !!
@@ -219,7 +218,7 @@ implements ParseTableEntryTypes
 					}
 					else
 					{
-						printWarning("Ignoring declaration @xml_map(\"" + tag + 
+						warning("Ignoring declaration @xml_map(\"" + tag + 
 								  	 "\") because it is not annotating a parameterized generic Map defined with a <type> token.");
 						this.type	= IGNORED_ELEMENT;
 						//!! remove entry from map !!
@@ -295,7 +294,7 @@ implements ParseTableEntryTypes
 		{
 			type					= isAttribute ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 			if (isAttribute)
-				printError("no set method or type to set value for this tag in " + 
+				error("no set method or type to set value for this tag in " + 
 						contextClass.getName() + ".");
 		}
 		this.type				= type;
@@ -327,7 +326,7 @@ implements ParseTableEntryTypes
 	{
 		if ((value == null) || (value.length() == 0))
 		{
-			printError("Can't set scalar field with empty String");
+			error("Can't set scalar field with empty String");
 			return;
 		}
 		if (setMethod != null)
@@ -344,13 +343,13 @@ implements ParseTableEntryTypes
 			}
 			catch (InvocationTargetException e)
 			{
-				printWeird("couldnt run set method for " + tag +
+				weird("couldnt run set method for " + tag +
 						  " even though we found it");
 				e.printStackTrace();
 			}
 			catch (IllegalAccessException e)
 			{
-				printWeird("couldnt run set method for " + tag +
+				weird("couldnt run set method for " + tag +
 						  " even though we found it");
 				e.printStackTrace();
 			}	  
@@ -361,25 +360,11 @@ implements ParseTableEntryTypes
 			scalarType.setField(context, field, value);
 		}
 	}
-	
-	void printError(String msg)
+		
+	public String toString()
 	{
-		printMessage("ERROR", msg); 		
-	}
-	void printWarning(String msg)
-	{
-		printMessage("WARNING", msg); 		
-	}
-	void printWeird(String msg)
-	{
-		printMessage("WEIRD", msg); 		
-	}
-	private void printMessage(String prefix, String msg)
-	{
-		String tag	= this.tag;
-		if (tag == null)	//TODO if this happens find a way to show a better error
-			tag		= "NO TAG?";
-		println(tag + ": " + prefix + " - " + msg); 		
+		String tagString	= (tag == null) ? "NO_TAG?" : tag;
+		return super.toString() + "[" + tagString + "]";
 	}
 	/**
 	 * Set a scalar value using the textElementChild Node as the source,
@@ -472,9 +457,25 @@ implements ParseTableEntryTypes
 	void addElementToCollection(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
-		Collection collection		= activeES.getCollection(classOp());
-		// the sleek new way to add elements to collections
-		collection.add(getChildElement(activeES, childNode));
+		Collection collection	= null;
+		if (field != null)
+		{
+			try
+			{
+				collection		= (Collection) field.get(activeES);
+			} catch (Exception e)
+			{
+				weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
+				e.printStackTrace();
+			}
+		}
+		else
+			collection		= activeES.getCollection(classOp());
+			
+		if (collection != null)
+		{
+			collection.add(getChildElement(activeES, childNode));
+		}
 	}
 		
 	/**
@@ -487,9 +488,25 @@ implements ParseTableEntryTypes
 	void addElementToMap(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
-		Map map				= activeES.getMap(classOp());
-		Mappable mappable	= (Mappable) getChildElement(activeES, childNode);
-		map.put(mappable.key(), mappable);
+		Map map		= null;
+		if (field != null)
+		{
+			try
+			{
+				map		= (Map) field.get(activeES);
+			} catch (Exception e)
+			{
+				weird("Trying to addElementToMap(). Can't access map field " + field.getType() + " in " + activeES);
+			}
+		}
+		else
+			map		= activeES.getMap(classOp());
+			
+		if (map != null)
+		{
+			Mappable mappable	= (Mappable) getChildElement(activeES, childNode);
+			map.put(mappable.key(), mappable);
+		}
 	}
 		
 	/**
@@ -532,7 +549,7 @@ implements ParseTableEntryTypes
 		{
 			Node textChild	= childLeafNode.getFirstChild();
 			Object desiredValue	= (textChild == null) ? childLeafNode : textChild.getNodeValue();
-			printError("Can't set to " + desiredValue + " because fieldType is unknown.");
+			error("Can't set to " + desiredValue + " because fieldType is unknown.");
 		}
 	}
 			
