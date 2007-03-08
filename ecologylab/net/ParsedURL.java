@@ -815,7 +815,7 @@ extends Debug
      		return null;
      }
      ParsedURL parsedUrl;
-	 if (contextPURL == null)
+	 if (contextPURL == null || addressString.startsWith("http://"))
 	 {
 	 	parsedUrl = getAbsolute(addressString, "in createFromHTML()");
 	 }
