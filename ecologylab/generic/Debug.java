@@ -287,14 +287,21 @@ public class Debug
     */
    public void warning(String message)
    {
-	   error(this, message);
+	   warning(this, message);
+   }
+   /**
+    * Print a message about something that should never happen, starting with this.toString().
+    */
+   public void weird(String message)
+   {
+	   weird(this, message);
    }
    /**
     * Print a message about an error, starting with that.toString().
     */
    public static void error(Object that, String message)
    {
-	   println("\n" + that + SEPARATOR + "ERROR: " + message + "\n");
+	   println("\n" + that + SEPARATOR + "ERROR - " + message + "\n");
    }
   
    /**
@@ -302,7 +309,15 @@ public class Debug
     */
    public static void warning(Object that, String message)
    {
-	   println("\n" + that + SEPARATOR + "WARNING: " + message + "\n");
+	   println("\n" + that + SEPARATOR + "WARNING - " + message + "\n");
+   }
+  
+   /**
+    * Print a message about something that should never happen, starting with that.toString().
+    */
+   public static void weird(Object that, String message)
+   {
+	   println("\n" + that + SEPARATOR + "WEIRD - " + message + "\n");
    }
   
 /**
