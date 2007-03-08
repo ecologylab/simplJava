@@ -1392,7 +1392,7 @@ implements ParseTableEntryTypes
 					activePTE.addElementToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:
-					activeES.addNestedElement(activePTE.getChildElement(activeES, childNode));
+					activeES.addNestedElement(activePTE, childNode);
 					break;
 				case IGNORED_ELEMENT:
 				case BAD_FIELD:
@@ -1791,8 +1791,28 @@ implements ParseTableEntryTypes
 		return result;
 	}
 
-	boolean nestedElementHasBeenWarned;
+	static final int HAVENT_TRIED_ADDING	= 0;
+	static final int DONT_NEED_WARNING		= 1;
+	static final int NEED_WARNING			= -1;
 	
+	private int considerWarning				= HAVENT_TRIED_ADDING;
+	
+	/**
+	 * This provides a warning 
+	 * @param pte
+	 * @param childNode
+	 * @throws XmlTranslationException
+	 */
+	protected void addNestedElement(ParseTableEntry pte, Node childNode)
+	throws XmlTranslationException
+	{
+		addNestedElement(pte.getChildElement(this, childNode));
+		if (considerWarning == NEED_WARNING)
+		{
+			warning("Ignoring nested elements with tag <" + pte.tag() + ">");
+			considerWarning					= DONT_NEED_WARNING;
+		}
+	}
 	/**
 	 * This is the hook that enables programmers to do something special
 	 * when handling a nested XML element and its associate ElementState (subclass),
@@ -1802,14 +1822,12 @@ implements ParseTableEntryTypes
 	 * fields that get here are ignored.
 	 * 
 	 * @param elementState
+	 * @throws XmlTranslationException 
 	 */
 	protected void addNestedElement(ElementState elementState)
 	{
-		if (!nestedElementHasBeenWarned)
-		{
-			nestedElementHasBeenWarned	= true;
-			debugA("IGNORED special nested element: " + elementState);
-		}
+		if (considerWarning == HAVENT_TRIED_ADDING)
+			considerWarning	= NEED_WARNING;
 	}
 	/**
 	 * Used to set a field in this to a nested ElementState object.
