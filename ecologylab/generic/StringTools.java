@@ -412,6 +412,42 @@ extends Debug
 	{
 		return path.charAt(path.length() - 1) == '/';
 	}
+	
+	/**
+	 * Find the last parenthesis given the location of the first one
+	 * 
+	 * @param relationFrag The relation
+	 * @param startLoc	The open parenthesis location in the string
+	 * @return	The location of the close parenthesis matching the open one
+	 */
+	public static int findMatchingParenLoc(String relationFrag, int startLoc)
+	{
+		final char L_PARENTHESIS = '(';
+		final char R_PARENTHESIS = ')';
+		
+		/**
+		 * Bad start location
+		 */
+		if (startLoc >= relationFrag.length() || 
+				relationFrag.charAt(startLoc) != L_PARENTHESIS)
+			return -1;
+		
+		char[] relation = relationFrag.toCharArray();
+		int numUnmatchedParens = 0;
+		for (int i=startLoc; i<relation.length; i++)
+		{
+			if (relation[i] == L_PARENTHESIS)
+				numUnmatchedParens++;
+			else if (relation[i] == R_PARENTHESIS)
+				numUnmatchedParens--;
+			
+			if (numUnmatchedParens == 0)
+				return i;
+		}
+		
+		//didn't find a matching parenthesis
+		return -1;
+	}
 
 }
 
