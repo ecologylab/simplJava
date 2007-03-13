@@ -13,6 +13,7 @@ import ecologylab.generic.Generic;
 import ecologylab.generic.Palette;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Generic base class for application Preference objects.
@@ -21,7 +22,7 @@ import ecologylab.xml.xml_inherit;
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ElementState
+public abstract class Pref<T> extends ArrayListState
 {
     @xml_attribute String name;
 	
