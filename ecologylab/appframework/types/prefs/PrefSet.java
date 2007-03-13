@@ -63,11 +63,15 @@ public class PrefSet extends ArrayListState<Pref>
         return pref;
     }
     
-    public Integer lookupInt(String name) throws ClassCastException
+    public Integer lookupInt2(String name) throws ClassCastException
     {
         return (Integer)lookupPref(name).value();
     }
-    
+    public Integer lookupInt(String name) throws ClassCastException
+    {
+        return ((PrefInt)lookupPref(name)).value();
+    }
+   
     public Boolean lookupBoolean(String name) throws ClassCastException
     {
         return (Boolean)lookupPref(name).value();
