@@ -2,6 +2,7 @@ package ecologylab.services.logging;
 
 import java.util.Date;
 
+import ecologylab.appframework.types.Preference;
 import ecologylab.net.NetTools;
 import ecologylab.xml.ElementState;
 
@@ -20,11 +21,16 @@ public class Prologue extends ElementState
 	
 	@xml_attribute protected int 		userID					= 0;
 	
+	@xml_attribute protected String		questionId;
+	
 	@xml_attribute protected String 	studyName;
 	
 	public Prologue()
 	{
 		super();
+		this.userID 	= Preference.lookupInt("uid", 0);
+		this.questionId = Preference.lookupString("questionId");
+		this.studyName 	= Preference.lookupString("study_name");
 	}
 	
 	public void setUserID(int id)
@@ -45,5 +51,25 @@ public class Prologue extends ElementState
 	public String getStudyName()
 	{
 		return studyName;
+	}
+	
+	public void setQuestionId(String questionId)
+	{
+		this.questionId = questionId;
+	}
+	
+	public String getQuestionId()
+	{
+		return questionId;
+	}
+	
+	public String getIp()
+	{
+		return ip;
+	}
+	
+	public String getDate()
+	{
+		return date;
 	}
 }
