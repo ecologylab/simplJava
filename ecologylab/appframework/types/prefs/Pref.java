@@ -55,6 +55,11 @@ public abstract class Pref<T> extends ElementState
     {
         println("Pref: name: " + name + ", value: " + this.getValue());
     }
+    
+    public String toString()
+    {
+        return "Pref: name: "+name+", value: "+this.getValue();
+    }
 	
 	/**
 	 * Generic get value returns the value as the actual type you want.

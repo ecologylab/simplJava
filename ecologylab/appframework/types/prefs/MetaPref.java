@@ -67,7 +67,7 @@ public abstract class MetaPref<T> extends ElementState
     
     ObjectRegistry<JComponent>  jComponentsMap;
     
-    @xml_collection ArrayListState<Choice<T>> choices = null;
+    @xml_nested ArrayListState<Choice<T>> choices = null;
 	
 //	@xml_attribute	T			defaultValue;
 	

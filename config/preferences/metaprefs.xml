@@ -16,6 +16,6 @@
     		<choice_int name="log_server" label="log to logging server" value="2" />
     	</choices>
     </meta_pref_int>
-    <meta_pref_boolean id="javascript_debug_mode" description="Javascript Debug Mode(Y/N)" helpText="Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies &amp; arrays" widget="RADIO" category="Developer" defaultValue="1" />
+    <meta_pref_boolean id="javascript_debug_mode" description="Javascript Debug Mode (Y/N)" helpText="Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies &amp; arrays" widget="RADIO" category="Developer" defaultValue="1" />
     <meta_pref_string id="codebase" description="Jar File Directory" helpText="Directory for the project a developer is working on." widget="TEXT_FIELD" category="Developer" defaultValue="code/java" />
 </meta_pref_set>

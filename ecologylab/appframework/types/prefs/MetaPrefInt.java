@@ -130,7 +130,7 @@ public class MetaPrefInt extends MetaPref<Integer>
              * We also can't get the index without the object.
              */
             // find default choice
-            Integer defValue = this.getDefaultValue();
+            Integer defValue = prefValue;
             for(Choice choice1 : choices)
             {
                 if (defValue.equals(choice1.getValue()))
