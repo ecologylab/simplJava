@@ -48,26 +48,25 @@ implements Environment
 	 * The docbase is the address where the launching HTML file comes from.
 	 */
 	ParsedURL	docBase;
-
 	
-/**
- * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
- * <p/>
- * @deprecated		This constructor is not recommended!
- * 					Build your application to extend this class.
- * 					Use one of the other constructors.
- */
-	public ApplicationEnvironment()
+	enum LaunchType
 	{
-	   Environment.the.set(this);
+		JNLP, ECLIPSE, JAR,
 	}
+	
+
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
 	 * <p/>
 	 * No command line argument is processed. 
 	 * Only default preferences are loaded, and processed with the default TranslationSpace.
 	 *  
-	 * @param applicationName	Name of the application. Used to set the applicationName, applicationDir, and .
+	 * @param args				The args array, which is treated as a stack with optional entries. They are:
+	 * 							*) JNLP -- if that is the launch method
+	 * 							*) preferences file if you are running in eclipse. Relative to CODEBASE/config/preferences/
+	 * 							*) graphics_device (screen number)
+	 * 							*) screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 */
 	public ApplicationEnvironment(String applicationName)
 	{
@@ -86,7 +85,12 @@ implements Environment
 	 * 								If this is null, 
 	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
-	 * @param args					Command line argument array, from public static void main(String[]).
+	 * @param args				The args array, which is treated as a stack with optional entries. They are:
+	 * 							*) JNLP -- if that is the launch method
+	 * 							*) preferences file if you are running in eclipse. Relative to CODEBASE/config/preferences/
+	 * 							*) graphics_device (screen number)
+	 * 							*) screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 */
 	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[])
 	{
@@ -106,7 +110,12 @@ implements Environment
 	 * @param applicationName
 	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
-	 * @param args					Command line argument array, from public static void main(String[]).
+	 * @param args				The args array, which is treated as a stack with optional entries. They are:
+	 * 							*) JNLP -- if that is the launch method
+	 * 							*) preferences file if you are running in eclipse. Relative to CODEBASE/config/preferences/
+	 * 							*) graphics_device (screen number)
+	 * 							*) screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 */
 	public ApplicationEnvironment(String applicationName, String args[])
 	{
@@ -130,11 +139,12 @@ implements Environment
 	 *  
 	 * @param baseClass				Used for computing codeBase property.
 	 * @param applicationName
-	 * @param args				The following command line parameters are recognized:
-	 * 								0: parameter file name (found in user.dir/config/)
-	 * 								1: graphics_device (screen number)
-	 * 								2: screen_size (used in TopLevel --
-	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param args				The args array, which is treated as a stack with optional entries. They are:
+	 * 							*) JNLP -- if that is the launch method
+	 * 							*) preferences file if you are running in eclipse. Relative to CODEBASE/config/preferences/
+	 * 							*) graphics_device (screen number)
+	 * 							*) screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
 	{
@@ -175,7 +185,12 @@ implements Environment
 	 * 								If this is null, 
 	 * {@link ecologylab.services.messages.DefaultServicesTranslations ecologylab.services.message.DefaultServicesTranslations}
 	 * 								will be used.
-	 * @param args				The args array
+	 * @param args				The args array, which is treated as a stack with optional entries. They are:
+	 * 							*) JNLP -- if that is the launch method
+	 * 							*) preferences file if you are running in eclipse. Relative to CODEBASE/config/preferences/
+	 * 							*) graphics_device (screen number)
+	 * 							*) screen_size (used in TopLevel --
+	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[])
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
@@ -198,35 +213,48 @@ implements Environment
 		for (int i = args.length - 1; i>=0; i--)
 			argStack.push(args[i]);
 		
+		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
+		
 		// look for launch method identifier in upper case
 		String arg				= pop(argStack);
 		if (arg != null)
 		{
 			String uc				= arg.toUpperCase();
-			if (arg.equals(uc))
+			if ("JNLP".equals(uc))
 			{	// tells us how we were launched: e.g., JNLP, ECLIPSE, ...
-				debug("launch type: " + arg);
+				launchType		= LaunchType.JNLP;
 			}
 			else
+			{
+				//TODO -- recognize JAR here !!!
 				argStack.push(arg);
+			}
 		}
-		
+		println("LaunchType = " + launchType);
 		// look for codeBase path
 		arg						= pop(argStack);
-		// prepare for the possibility of preferences to load from a local codebase (to support eclipse launch)
-		File localCodeBasePath	= null;
 		
-		if ((arg != null) && arg.endsWith("/"))
-		{	// JNLP only! (as of now)
-			// right now this only works for http://
-			ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
-			this.setCodeBase(codeBase);
-			
-			//TODO -- Megan, call parsing the user's preferences Asset here
-		}
-		else
-		{	// NB: This gets executed even if arg was null!
-			localCodeBasePath = deriveLocalFileCodeBase(baseClass);
+		switch (launchType)
+		{
+		case JNLP:
+			// next arg *should* be code base
+			if ((arg != null) && arg.endsWith("/"))
+			{	// JNLP only! (as of now)
+				// right now this only works for http://
+				ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
+				this.setCodeBase(codeBase);
+				
+				//TODO -- Megan, call parsing the user's preferences Asset here
+			}
+			else
+			{
+				error("No code base argument :-( Can't load preferences.");
+			}
+			break;
+		case ECLIPSE:
+		case JAR:
+			// NB: This gets executed even if arg was null!
+			File localCodeBasePath	= deriveLocalFileCodeBase(baseClass);
 			argStack.push(arg);
 
 			// load local preferences from codeBase path, if appropriate
@@ -245,6 +273,7 @@ implements Environment
 			}
 			else
 				argStack.push(arg);
+			break;
 		}
 
 		arg						= pop(argStack);
