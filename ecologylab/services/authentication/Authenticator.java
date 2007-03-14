@@ -56,7 +56,11 @@ public class Authenticator extends Debug
      */
     public boolean login(AuthenticationListEntry entry, InetAddress address)
     {
+        System.out.println("*****************************************");
         boolean loggedInSuccessfully = false;
+        System.out.println("entry: "+entry);
+        System.out.println(entry.getUsername());
+        System.out.println(authList.contains(entry));
 
         // first see if the username exists
         if (entry != null && authList.contains(entry.getUsername()))

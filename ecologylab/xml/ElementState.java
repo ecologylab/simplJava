@@ -1511,6 +1511,10 @@ implements ParseTableEntryTypes
 		    // Error generated during parsing
 		    reportException(sxe);
 	   	}
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
 	  	catch(Exception e)
 	  	{
 	  		e.printStackTrace();

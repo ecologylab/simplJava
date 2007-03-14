@@ -10,6 +10,7 @@ import sun.misc.BASE64Encoder;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.element.Mappable;
 
 /**
  * An entry for an AuthenticationList. Contains a username matched with a
@@ -20,7 +21,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public @xml_inherit class AuthenticationListEntry extends ElementState implements AuthLevels
+public @xml_inherit class AuthenticationListEntry extends ElementState implements AuthLevels, Mappable<String>
 {
 
     private @xml_attribute String username = "";
@@ -147,7 +148,7 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
     /**
      * @return Returns the password (hashed).
      */
-    public String getPassword()
+    String getPassword()
     {
         return password;
     }
@@ -191,5 +192,10 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
     @Override public String toString()
     {
         return "AuthenticationListEntry: " + username;
+    }
+
+    public String key()
+    {
+        return username;
     }
 }

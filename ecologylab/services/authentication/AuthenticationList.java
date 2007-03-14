@@ -3,12 +3,7 @@
  */
 package ecologylab.services.authentication;
 
-import java.util.Collection;
-import java.util.HashMap;
-
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
@@ -16,11 +11,10 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public @xml_inherit class AuthenticationList extends
+public class AuthenticationList extends
         ElementState
 {
-    @xml_nested private ArrayListState<AuthenticationListEntry> authList = new ArrayListState<AuthenticationListEntry>();
-    private HashMap<String, AuthenticationListEntry> nameToEntryMap = null;
+    @xml_nested private AuthListHashMap authList = new AuthListHashMap();
 
     public AuthenticationList()
     {
@@ -32,10 +26,9 @@ public @xml_inherit class AuthenticationList extends
      */
     public boolean add(AuthenticationListEntry entry)
     {
-        if (!this.nameToEntryMap().containsKey(entry.getUsername()))
+        if (!this.authList.containsKey(entry.getUsername()))
         {
-            authList.add(entry);
-            nameToEntryMap().put(entry.getUsername(), entry);
+            authList.put(entry.getUsername(), entry);
 
             return true;
         }
@@ -44,32 +37,9 @@ public @xml_inherit class AuthenticationList extends
     }
 
     /**
-     * Attempts to add each element of c to this. If any of the elements of c
-     * are not
-     */
-    public boolean addAll(Collection c) throws ClassCastException
-    {
-        for (Object o : c)
-        {
-            if (!(o instanceof AuthenticationListEntry))
-            {
-                throw new ClassCastException(
-                        "At least one element in the Collection was not an AuthenticationListEntry; no entries added.");
-            }
-        }
-
-        for (Object e : c)
-        {
-            this.add((AuthenticationListEntry) e);
-        }
-
-        return true;
-    }
-
-    /**
      * @see ecologylab.xml.types.element.ArrayListState#clone()
      */
-    @Override public Object clone() throws UnsupportedOperationException
+    @Override public final Object clone() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(
                 "Cannot clone an AuthenticationList.");
@@ -84,6 +54,11 @@ public @xml_inherit class AuthenticationList extends
      */
     public boolean contains(AuthenticationListEntry entry)
     {
+        System.out.println("ASDF_-----------------------------");
+        for (String e : authList.keySet())
+        {
+            System.out.println(e);
+        }
         return this.contains(entry.getUsername());
     }
 
@@ -96,35 +71,7 @@ public @xml_inherit class AuthenticationList extends
      */
     public boolean contains(String username)
     {
-        return nameToEntryMap().containsKey(username);
-    }
-
-    /**
-     * @see ecologylab.xml.types.element.ArrayListState#containsAll(java.util.Collection)
-     */
-    public boolean containsAll(Collection c)
-            throws UnsupportedOperationException
-    {
-        if (c == null)
-            throw new NullPointerException("Collection was null.");
-
-        for (Object o : c)
-        {
-            if (o == null)
-                throw new NullPointerException(
-                        "At least one of the entries was null; this not supported.");
-            else if (!(o instanceof AuthenticationListEntry))
-                throw new ClassCastException(
-                        "At least one of the entries was not an AuthenticationListEntry.");
-        }
-
-        for (Object o : c)
-        {
-            if (!this.contains((AuthenticationListEntry) o))
-                return false;
-        }
-
-        return true;
+        return authList.containsKey(username);
     }
 
     /**
@@ -135,7 +82,7 @@ public @xml_inherit class AuthenticationList extends
      */
     public int getAccessLevel(AuthenticationListEntry entry)
     {
-        return nameToEntryMap().get(entry.getUsername()).getLevel();
+        return authList.get(entry.getUsername()).getLevel();
     }
 
     /**
@@ -147,7 +94,13 @@ public @xml_inherit class AuthenticationList extends
      */
     public boolean isValid(AuthenticationListEntry entry)
     {
-        return (nameToEntryMap().containsKey(entry.getUsername()) && nameToEntryMap.get(
+        System.out.println("contains key: "+authList.containsKey(entry.getUsername()));
+        
+        System.out.println(entry.getPassword());
+        
+        System.out.println(authList.get(entry.getUsername()).getPassword());
+        
+        return (authList.containsKey(entry.getUsername()) && authList.get(
                 entry.getUsername()).compareHashedPassword(entry.getPassword()));
     }
 
@@ -163,7 +116,7 @@ public @xml_inherit class AuthenticationList extends
     {
         if (this.isValid((AuthenticationListEntry) o))
         {
-            return authList.remove(nameToEntryMap.remove(((AuthenticationListEntry) o)
+            return o.equals(authList.remove(o
                     .getUsername()));
         }
 
@@ -173,34 +126,5 @@ public @xml_inherit class AuthenticationList extends
     public String toString()
     {
         return "AuthenticationList containing " + authList.size() + " entries.";
-    }
-
-    /**
-     * Constructs the internal HashMap to improve retrievals.
-     * 
-     * Note that this method also ensures that the passwords are hashed properly
-     * (which would normally be done with the constructor). They should
-     * (currently) be plaintext in the XML file.
-     * 
-     * TODO Make it so that passwords stored in the file are already hashed;
-     * this will require a small command line program!!!
-     * 
-     * @return
-     */
-    private HashMap<String, AuthenticationListEntry> nameToEntryMap()
-    {
-        if (nameToEntryMap == null)
-        {
-            nameToEntryMap = new HashMap<String, AuthenticationListEntry>(authList.size());
-
-            for (AuthenticationListEntry e : authList)
-            {
-                e.setAndHashPassword(e.getPassword());
-
-                nameToEntryMap.put(e.getUsername(), e);
-            }
-        }
-
-        return nameToEntryMap;
     }
 }
