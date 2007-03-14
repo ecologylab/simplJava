@@ -9,7 +9,8 @@ import ecologylab.generic.DownloadProcessor;
 import ecologylab.generic.Downloadable;
 
 /**
- * Just download the thing immediately.
+ * A simple download processor:
+ * just download the Downloadable immediately.
  * 
  * @author andruid
  */
@@ -21,20 +22,20 @@ public class SimpleDownloadProcessor extends Debug implements DownloadProcessor
 	public SimpleDownloadProcessor()
 	{
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
-	 * @see ecologylab.generic.DownloadProcessor#stop()
+	/* A no-op to conform to the interface spec.
+	 * We have no threads to stop :-)
 	 */
 	public void stop()
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 /**
  * Download it now, in this thread.
+ * 
+ * @param	thatDownloadable	The thing to download.
+ * @param	dispatchTarget		Ignored, since we are not asynchronous, there are no callbacks.
  */
 	//TODO improve error handling here
 	public void download(Downloadable thatDownloadable,
