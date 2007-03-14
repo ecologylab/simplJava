@@ -154,4 +154,16 @@ public abstract class Pref<T> extends ArrayListState
     {
     	allPrefsMap.registerObject(this.name, this);
     }
+    
+    /**
+     * Check for existence / membership.
+     * 
+     * @param key
+     * 
+     * @return	true if there is a Pref already registered with name key
+     */
+    public static boolean containsKey(String key)
+    {
+    	return allPrefsMap.containsKey(key);
+    }
 }
