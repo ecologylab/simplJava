@@ -7,9 +7,15 @@ import java.util.Stack;
 import ecologylab.appframework.types.AssetsState;
 import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.PreferencesSet;
+import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.gui.PrefWidgetManager;
 import ecologylab.generic.Debug;
+import ecologylab.generic.DownloadProcessor;
 import ecologylab.generic.Generic;
+import ecologylab.io.Assets;
 import ecologylab.io.Files;
+import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
@@ -29,11 +35,16 @@ public class ApplicationEnvironment
 extends Debug
 implements Environment
 {
-	protected static final String PREFERENCES_SUBDIR_PATH		= "config/preferences/";
+	private static final String METAPREFS_XML = "metaprefs.xml";
+
+	/**
+	 * Subdirectory for eclipse launches.
+	 */
+	protected static final String ECLIPSE_PREFS_DIR		= "config/preferences/";
 
 //	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
-	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.xml";
-
+	private static final String ECLIPSE_BASE_PREFERENCE_PATH = ECLIPSE_PREFS_DIR+"preferences.xml";
+	
 	TranslationSpace		translationSpace;
 	
 	/**
@@ -67,8 +78,9 @@ implements Environment
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName)
+	public ApplicationEnvironment(String applicationName) throws XmlTranslationException
 	{
 	   this(null, applicationName, null);
 	}
@@ -91,8 +103,9 @@ implements Environment
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[])
+	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[]) throws XmlTranslationException
 	{
 	   this(null, applicationName, translationSpace, args);
 	}
@@ -116,8 +129,9 @@ implements Environment
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, String args[])
+	public ApplicationEnvironment(String applicationName, String args[]) throws XmlTranslationException
 	{
 	   this(applicationName, (TranslationSpace) null, args);
 	}
@@ -145,8 +159,9 @@ implements Environment
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full
+	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, String args[])
+	public ApplicationEnvironment(Class baseClass, String applicationName, String args[]) throws XmlTranslationException
 	{
 	   this(baseClass, applicationName, null, args);
 	}
@@ -191,8 +206,9 @@ implements Environment
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[])
+	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[]) throws XmlTranslationException
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
 		this.translationSpace		= translationSpace;
@@ -213,6 +229,41 @@ implements Environment
 		for (int i = args.length - 1; i>=0; i--)
 			argStack.push(args[i]);
 		
+		String arg;
+		processPrefs(baseClass, translationSpace, argStack);
+
+		arg						= pop(argStack);
+		if (arg == null)
+			return;
+		try
+		{
+			Integer.parseInt(arg);
+			Preference.register("graphics_device", arg);
+			
+			arg						= pop(argStack);
+			if (arg == null)
+				return;
+			Integer.parseInt(arg);
+			Preference.register("screen_size", arg);
+		} catch (NumberFormatException e)
+		{
+			argStack.push(arg);
+		}
+		
+		// could parse more args here
+	}
+
+	/**
+	 * Load MetaPrefs and Prefs, if possible
+	 * 
+	 * @param baseClass
+	 * @param translationSpace
+	 * @param argStack
+	 * @throws XmlTranslationException
+	 */
+	private void processPrefs(Class baseClass, TranslationSpace translationSpace, Stack<String> argStack) 
+	throws XmlTranslationException
+	{
 		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
 		
 		// look for launch method identifier in upper case
@@ -244,7 +295,50 @@ implements Environment
 				ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
 				this.setCodeBase(codeBase);
 				
-				//TODO -- Megan, call parsing the user's preferences Asset here
+				// read meta-preferences and preferences from application data dir
+				File applicationDir	= PropertiesAndDirectories.thisApplicationDir();
+				ParsedURL applicationDataPURL	= new ParsedURL(applicationDir);
+				ParsedURL metaPrefsPURL	= applicationDataPURL.getRelative("preferences/metaprefs.xml");
+				XmlTranslationException metaPrefSetException	= null;
+				try
+				{
+					ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
+					Assets.downloadPreferencesZip("prefs", null, true);
+					MetaPrefSet metaPrefSet	= MetaPrefSet.load(Assets.getPreferencesFile(METAPREFS_XML), translationSpace);
+						//MetaPrefSet.load(metaPrefsPURL, translationSpace);
+						//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
+				} catch (XmlTranslationException e)
+				{
+					metaPrefSetException	= e;
+				}
+				ParsedURL prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
+	            println("Loading preferences from: " + prefsPURL);
+	            try
+				{
+					PrefSet prefSet = PrefSet.load(prefsPURL, translationSpace);
+					if (metaPrefSetException != null)
+					{
+						warning("Couldn't load MetaPrefs:");
+						metaPrefSetException.printStackTrace();
+						println("\tContinuing.");
+					}
+				} catch (XmlTranslationException e)
+				{
+					if (metaPrefSetException != null)
+					{
+						error("Can't load MetaPrefs or Prefs. Quitting.");
+						metaPrefSetException.printStackTrace();
+						e.printStackTrace();
+						throw e;
+					}
+					else
+					{
+						// meta prefs o.k. we can continue
+						warning("Couldn't load Prefs:");
+						e.printStackTrace();
+						println("\tContinuing.");
+					}
+				}
 			}
 			else
 			{
@@ -257,44 +351,39 @@ implements Environment
 			File localCodeBasePath	= deriveLocalFileCodeBase(baseClass);
 			argStack.push(arg);
 
+			XmlTranslationException metaPrefSetException	= null;
+				try
+			{
+				ParsedURL metaPrefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML));
+				MetaPrefSet metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
+					//MetaPrefSet.load(metaPrefsPURL, translationSpace);
+					//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
+			} catch (XmlTranslationException e)
+			{
+				metaPrefSetException	= e;
+			}
 			// load local preferences from codeBase path, if appropriate
 			// load default preferences
-			PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, BASE_PREFERENCE_PATH);
+			PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, ECLIPSE_BASE_PREFERENCE_PATH);
 			
 			// now seek the path to an application specific xml preferences file
 			arg						= pop(argStack);
-			if (arg == null)
-				return;
-
-			// load preferences specific to this invocation
-			if (arg.endsWith(".xml"))
+			//if (arg == null)
+				//return;
+			if (arg != null)
 			{
-				PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, PREFERENCES_SUBDIR_PATH + arg);
+				// load preferences specific to this invocation
+				if (arg.endsWith(".xml"))
+				{
+					PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
+				}
+				else
+					argStack.push(arg);
 			}
 			else
-				argStack.push(arg);
+				argStack.push(arg);	// let the next code handle returning.
 			break;
 		}
-
-		arg						= pop(argStack);
-		if (arg == null)
-			return;
-		try
-		{
-			Integer.parseInt(arg);
-			Preference.register("graphics_device", arg);
-			
-			arg						= pop(argStack);
-			if (arg == null)
-				return;
-			Integer.parseInt(arg);
-			Preference.register("screen_size", arg);
-		} catch (NumberFormatException e)
-		{
-			argStack.push(arg);
-		}
-		
-		// could parse more args here
 	}
 	
 	/**
@@ -392,7 +481,7 @@ implements Environment
 	public ParsedURL preferencesDir()
 	{
 		ParsedURL codeBase = codeBase();
-		ParsedURL purl = codeBase.getRelative(PREFERENCES_SUBDIR_PATH, "forming preferences dir");
+		ParsedURL purl = codeBase.getRelative(ECLIPSE_PREFS_DIR, "forming preferences dir");
 		return purl;
 	}
 	
@@ -570,7 +659,7 @@ implements Environment
 		String arg0	= args[0];
 		String lc	= arg0.toLowerCase();
 		
-		return lc.endsWith("xml") ? (PREFERENCES_SUBDIR_PATH + args[0]) : null;
+		return lc.endsWith("xml") ? (ECLIPSE_PREFS_DIR + args[0]) : null;
 	}
 
 	/**
@@ -617,5 +706,20 @@ implements Environment
 	public TranslationSpace translationSpace()
 	{
 		return translationSpace;
+	}
+	
+	/**
+	 * The required version number for the MetaPrefs asset.
+	 * 
+	 * @return	0 by default -- ignore version. 
+	 */
+	public float metaPrefsAssetVerison()
+	{
+		return AssetsState.IGNORE_VERSION;
+	}
+	
+	public DownloadProcessor assetsDownloadProcessor()
+	{
+		return new SimpleDownloadProcessor();
 	}
 }
