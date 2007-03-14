@@ -80,6 +80,14 @@ extends Debug
    }
    
    /**
+    * 
+    * @return	true if this refers to a file, and that file exists.
+    */
+   public boolean isNotFileOrExists()
+   {
+	   return (file == null) || file.exists();
+   }
+   /**
     * Create a ParsedURL from a file.
     * If the file is a directory, append "/" to the path, so that relative URLs
     * will be formed properly later.
