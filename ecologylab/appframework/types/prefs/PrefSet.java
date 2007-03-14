@@ -10,6 +10,10 @@ import java.util.Set;
 import javax.swing.JComponent;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.net.ParsedURL;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -22,23 +26,13 @@ import ecologylab.xml.types.element.ArrayListState;
 public class PrefSet extends ArrayListState<Pref>
 {
     ObjectRegistry<Pref> allPrefsMap;
-    
-    public void processPrefs()
-    {
-        for (int i=0; i<size(); i++)
-        {
-            Pref pref = (Pref) get(i);
-            //pref.print();
-            registerPref(pref.name, pref);
-        }
-    }
-    
+  
+    /*
     /**
      * 
      */
     public PrefSet() 
     {
-        // TODO Auto-generated constructor stub
     }
 
     private ObjectRegistry<Pref> allPrefsMap()
@@ -67,24 +61,50 @@ public class PrefSet extends ArrayListState<Pref>
     {
         return (Integer)lookupPref(name).value();
     }
-    public Integer lookupInt(String name) throws ClassCastException
+    
+    public int lookupInt(String name, int defaultValue) throws ClassCastException
     {
-        return ((PrefInt)lookupPref(name)).value();
+        PrefInt prefInt = ((PrefInt)lookupPref(name));
+		return (prefInt == null) ? defaultValue : prefInt.value();
+    }
+    public int lookupInt(String name) throws ClassCastException
+    {
+        return lookupInt(name, 0);
     }
    
-    public Boolean lookupBoolean(String name) throws ClassCastException
+    public boolean lookupBoolean(String name, boolean defaultValue) throws ClassCastException
     {
-        return (Boolean)lookupPref(name).value();
+        PrefBoolean prefBoolean = ((PrefBoolean)lookupPref(name));
+		return (prefBoolean == null) ? defaultValue : prefBoolean.value();
     }
-    
-    public Float lookupFloat(String name) throws ClassCastException
+    public boolean lookupBoolean(String name) throws ClassCastException
     {
-        return (Float)lookupPref(name).value();
+        return lookupBoolean(name, false);
     }
-    
+       
+    public float lookupFloat(String name, float defaultValue) throws ClassCastException
+    {
+        PrefFloat prefFloat = ((PrefFloat)lookupPref(name));
+		return (prefFloat == null) ? defaultValue : prefFloat.value();
+    }
+    public float lookupFloat(String name) throws ClassCastException
+    {
+        return lookupFloat(name, 1.0f);
+    }
+   
+    public String lookupString(String name, String defaultValue) throws ClassCastException
+    {
+        PrefString prefString = ((PrefString)lookupPref(name));
+		return (prefString == null) ? defaultValue : prefString.value();
+    }
     public String lookupString(String name) throws ClassCastException
     {
-        return (String)lookupPref(name).value();
+        return lookupString(name, null);
+    }
+       
+    public ElementState lookupElementState(String name) throws ClassCastException
+    {
+        return ((PrefElementState)lookupPref(name)).value();
     }
     
     public boolean hasPref(String name)
@@ -92,8 +112,52 @@ public class PrefSet extends ArrayListState<Pref>
         return allPrefsMap().containsKey(name);
     }
 
-    public void modifyPref(String name, Object newPref)
+    public void modifyPref(String name, Pref newPref)
     {
-        allPrefsMap().modifyObject(name,(Pref)newPref);
+        allPrefsMap().modifyObject(name, newPref);
+    }
+    
+    /**
+     * Register the Pref, as well as adding it to the super ArrayListState.
+     * @param that
+     * @return
+     */
+    public boolean add(Pref that)
+    {
+    	boolean result	= super.add(that);
+    	registerPref(that.name, that);
+    	return result;
+    }
+    
+	/**
+	 * Perform custom processing on the newly created child node,
+	 * just before it is added to this.
+	 * <p/>
+	 * This is part of depth-first traversal during translateFromXML().
+	 * <p/>
+	 * Add the entry to the category map.
+	 * 
+	 * @param child
+	 */
+    //TODO -- get rid of this when we make ArrayListState implement Collection!!!
+    // (cause then this.add() will get called!)
+	protected void createChildHook(ElementState child)
+	{
+		Pref pref	= (Pref) child;
+		registerPref(pref.name, pref);
+	}
+    /**
+     * Read MetaPref declarations from a file or across the net.
+     * 
+     * @param purl
+     * @param translationSpace
+     * @return
+     * @throws XmlTranslationException
+     */
+    public static PrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
+    throws XmlTranslationException
+    {
+		 return (PrefSet) ElementState.translateFromXML(purl, translationSpace);
+    	
     }
 }
