@@ -8,6 +8,8 @@ import ecologylab.appframework.types.AssetsState;
 import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.PreferencesSet;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
@@ -253,14 +255,13 @@ implements Environment
 			return;
 		try
 		{
-			Integer.parseInt(arg);
-			Preference.register("graphics_device", arg);
+			Pref.usePrefInt("graphics_device", Integer.parseInt(arg));
 			
 			arg						= pop(argStack);
 			if (arg == null)
 				return;
-			Integer.parseInt(arg);
-			Preference.register("screen_size", arg);
+			Pref.usePrefInt("screen_size", Integer.parseInt(arg));
+
 		} catch (NumberFormatException e)
 		{
 			argStack.push(arg);
