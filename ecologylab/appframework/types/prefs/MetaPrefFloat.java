@@ -95,6 +95,11 @@ public class MetaPrefFloat extends MetaPref<Float>
         JTextField textField = (JTextField)lookupComponent(this.id+"textField");
         return new Float(textField.getText());
     }
+
+	protected @Override Pref<Float> getPrefInstance()
+	{
+		return new PrefFloat();
+	}
 	
 /*
 	public boolean isWithinRange(Float newValue)

@@ -111,6 +111,11 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         JRadioButton yesButton = (JRadioButton)lookupComponent(this.id+"Yes");
         return yesButton.isSelected();
     }
+
+	protected @Override Pref<Boolean> getPrefInstance()
+	{
+		return new PrefBoolean();
+	}
     
 /*
 	public boolean isWithinRange(Boolean newValue)

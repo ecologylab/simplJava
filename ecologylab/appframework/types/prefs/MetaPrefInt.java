@@ -172,6 +172,11 @@ public class MetaPrefInt extends MetaPref<Integer>
         // automatically has a selected value, return the default value
         return (Integer)this.getDefaultValue();
     }
+
+	protected @Override Pref<Integer> getPrefInstance()
+	{
+		return new PrefInt();
+	}
 	
 /*
 	public boolean isWithinRange(Integer newValue)

@@ -80,6 +80,11 @@ public class MetaPrefString extends MetaPref<String>
         JTextField textField = (JTextField)lookupComponent(this.id+"textField");
         return textField.getText();
     }
+
+	protected @Override Pref<String> getPrefInstance()
+	{
+		return new PrefString();
+	}
 	
 /*
 	public boolean isWithinRange(String newValue)
