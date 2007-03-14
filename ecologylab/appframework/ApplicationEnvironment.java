@@ -23,6 +23,7 @@ import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XmlTranslationExceptionTypes;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,
@@ -35,7 +36,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class ApplicationEnvironment
 extends Debug
-implements Environment
+implements Environment, XmlTranslationExceptionTypes
 {
 	private static final String METAPREFS_XML = "metaprefs.xml";
 
@@ -319,11 +320,14 @@ implements Environment
 				File applicationDir	= PropertiesAndDirectories.thisApplicationDir();
 				ParsedURL applicationDataPURL					= new ParsedURL(applicationDir);
 				XmlTranslationException metaPrefSetException	= null;
+				ParsedURL metaPrefsPURL	= null;
 				try
 				{
 					ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
 					Assets.downloadPreferencesZip("prefs", null, true);
-					metaPrefSet		= MetaPrefSet.load(Assets.getPreferencesFile(METAPREFS_XML), translationSpace);
+					File metaPrefsFile	= Assets.getPreferencesFile(METAPREFS_XML);
+					metaPrefsPURL	= new ParsedURL(metaPrefsFile);
+					metaPrefSet		= MetaPrefSet.load(metaPrefsFile, translationSpace);
 						//MetaPrefSet.load(metaPrefsPURL, translationSpace);
 						//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
 				} catch (XmlTranslationException e)
@@ -338,7 +342,7 @@ implements Environment
 					if (metaPrefSetException != null)
 					{
 						warning("Couldn't load MetaPrefs:");
-						metaPrefSetException.printStackTrace();
+						metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
 						println("\tContinuing.");
 					}
 				} catch (XmlTranslationException e)
@@ -346,15 +350,14 @@ implements Environment
 					if (metaPrefSetException != null)
 					{
 						error("Can't load MetaPrefs or Prefs. Quitting.");
-						metaPrefSetException.printStackTrace();
-						e.printStackTrace();
-						throw e;
+						metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
+						e.printTraceOrMessage(this, "Prefs", prefsPURL);
 					}
 					else
 					{
 						// meta prefs o.k. we can continue
 						warning("Couldn't load Prefs:");
-						e.printStackTrace();
+						e.printTraceOrMessage(this, "Prefs", prefsPURL);
 						println("\tContinuing.");
 					}
 				}
@@ -371,9 +374,9 @@ implements Environment
 			argStack.push(arg);
 
 			XmlTranslationException metaPrefSetException	= null;
+			ParsedURL metaPrefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML));
 			try
 			{
-				ParsedURL metaPrefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML));
 				metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
 				//MetaPrefSet.load(metaPrefsPURL, translationSpace);
 				//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
@@ -399,7 +402,7 @@ implements Environment
 						if (metaPrefSetException != null)
 						{
 							warning("Couldn't load MetaPrefs:");
-							metaPrefSetException.printStackTrace();
+							metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
 							println("\tContinuing.");
 						}
 					} catch (XmlTranslationException e)
@@ -407,7 +410,7 @@ implements Environment
 						if (metaPrefSetException != null)
 						{
 							error("Can't load MetaPrefs or Prefs. Quitting.");
-							metaPrefSetException.printStackTrace();
+							metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
 							e.printStackTrace();
 							throw e;
 						}
@@ -415,7 +418,7 @@ implements Environment
 						{
 							// meta prefs o.k. we can continue
 							warning("Couldn't load Prefs:");
-							e.printStackTrace();
+							e.printTraceOrMessage(this, "Prefs", prefsPURL);
 							println("\tContinuing.");
 						}
 					}
