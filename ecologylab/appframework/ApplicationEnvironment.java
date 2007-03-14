@@ -249,6 +249,8 @@ implements Environment
 		
 		String arg;
 		processPrefs(baseClass, translationSpace, argStack);
+		   
+		Debug.initialize();
 
 		arg						= pop(argStack);
 		if (arg == null)
