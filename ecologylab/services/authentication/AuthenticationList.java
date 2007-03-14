@@ -4,6 +4,7 @@
 package ecologylab.services.authentication;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.types.element.HashMapState;
 
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
@@ -11,10 +12,10 @@ import ecologylab.xml.ElementState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationList extends
-        ElementState
+public class AuthenticationList extends ElementState
 {
-    @xml_nested private AuthListHashMap authList = new AuthListHashMap();
+    @xml_nested
+    private HashMapState<String, AuthenticationListEntry> authList = new HashMapState<String, AuthenticationListEntry>();
 
     public AuthenticationList()
     {
@@ -39,7 +40,8 @@ public class AuthenticationList extends
     /**
      * @see ecologylab.xml.types.element.ArrayListState#clone()
      */
-    @Override public final Object clone() throws UnsupportedOperationException
+    @Override
+    public final Object clone() throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException(
                 "Cannot clone an AuthenticationList.");
@@ -54,11 +56,6 @@ public class AuthenticationList extends
      */
     public boolean contains(AuthenticationListEntry entry)
     {
-        System.out.println("ASDF_-----------------------------");
-        for (String e : authList.keySet())
-        {
-            System.out.println(e);
-        }
         return this.contains(entry.getUsername());
     }
 
@@ -94,12 +91,6 @@ public class AuthenticationList extends
      */
     public boolean isValid(AuthenticationListEntry entry)
     {
-        System.out.println("contains key: "+authList.containsKey(entry.getUsername()));
-        
-        System.out.println(entry.getPassword());
-        
-        System.out.println(authList.get(entry.getUsername()).getPassword());
-        
         return (authList.containsKey(entry.getUsername()) && authList.get(
                 entry.getUsername()).compareHashedPassword(entry.getPassword()));
     }
@@ -116,13 +107,12 @@ public class AuthenticationList extends
     {
         if (this.isValid((AuthenticationListEntry) o))
         {
-            return o.equals(authList.remove(o
-                    .getUsername()));
+            return o.equals(authList.remove(o.getUsername()));
         }
 
         return false;
     }
-    
+
     public String toString()
     {
         return "AuthenticationList containing " + authList.size() + " entries.";

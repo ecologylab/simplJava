@@ -953,7 +953,15 @@ static String q(String string)
 			   field.isAnnotationPresent(ElementState.xml_collection.class) ||
 			   field.isAnnotationPresent(ElementState.xml_map.class);
 	}
-	
+    /**
+     * 
+     * @param field
+     * @return  true if the field was declared with @xml_nested
+     */
+	static boolean isNested(Field field)
+    {
+	    return field.isAnnotationPresent(ElementState.xml_nested.class);
+    }
 	static boolean hasCollectionAnnotation(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_collection.class);

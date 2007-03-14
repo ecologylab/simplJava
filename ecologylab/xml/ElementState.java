@@ -421,7 +421,7 @@ implements ParseTableEntryTypes
 							continue;
 						
 						// gets Collection object directly or through Map.values()
-						Collection thatCollection = XmlTools.getCollection(thatReferenceObject);
+						Collection thatCollection = !XmlTools.isNested(thatField) ? XmlTools.getCollection(thatReferenceObject) : null;
 						
 						if (thatCollection != null)
 						{

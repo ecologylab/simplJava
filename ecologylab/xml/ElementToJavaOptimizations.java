@@ -141,7 +141,7 @@ implements ParseTableEntryTypes
 				if ((leafAnnotation != null) && (leafAnnotation.value() == ElementState.CDATA))
 						this.isCDATA= true;
  */				return;
-			case IGNORED_ELEMENT:
+			case IGNORED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
 				if (this.field != null)
 				{
 					// this is actually a regular nested element
