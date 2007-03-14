@@ -155,6 +155,9 @@ implements ApplicationProperties
 	 * doesn't exist
 	 * 
 	 * @param relativePath	A string representing the relative file path. 
+	 * @param additionalContext A string representing an additional relative path.
+	 * This path is relative to the relativePath parameter (rather than the cache root).
+	 * 
 	 * @return	A file reference to the requested path
 	 * @see #getAsset(String, String)
 	 */
@@ -384,6 +387,57 @@ implements ApplicationProperties
 	public static File cacheRoot() 
 	{
 		return cacheRoot;
+	}
+
+	/**
+	 * Download XML from the sourcePath, within the assetsRoot (the application's config dir),
+	 * to the target path within the applicationDir.
+	 * 
+	 * @param sourcePath
+	 * @param targetPath
+	 * @param status
+	 */
+	public static void downloadXML(String sourcePath, String targetPath, StatusReporter status)
+	{
+		File targetDir	= cacheRoot();
+		if ((targetPath != null) && (targetPath.length() > 0))
+			targetDir	= Files.newFile(targetDir, targetPath);
+		
+		downloadXML(assetsRoot().getRelative(sourcePath, "forming Asset path location"), 
+					targetDir, status);
+
+	}	
+	/**
+	 * Download an XML file from a source to a target location with minimal effort,
+	 * unless the XML file already exists at the target location, in which case, 
+	 * do nothing.
+	 * @param status The Status object that provides a source of state change visiblity;
+	 * can be null.
+	 * @param sourceXML The location of the zip file to download and uncompress.
+	 * @param targetDir The location where the zip file should be uncompressed. This
+	 * directory structure will be created if it doesn't exist.
+	 */
+	public static void downloadXML(ParsedURL sourceXML, File targetDir, StatusReporter status)
+	{
+		String xmlFileName	= sourceXML.url().getFile();
+		int lastSlash		= xmlFileName.lastIndexOf('\\');
+		if (lastSlash == -1)
+			lastSlash		= xmlFileName.lastIndexOf('/');
+	
+		xmlFileName			= xmlFileName.substring(lastSlash+1);
+		File xmlFileDestination	= Files.newFile(targetDir, xmlFileName);
+	
+		if (!xmlFileDestination.canRead())
+		{
+			//we just want to download it, not uncompress it... (using code from zip downloading stuff)
+			ZipDownload downloadingZip	= ZipDownload.downloadAndPerhapsUncompress(sourceXML, targetDir, status, false);
+			if (downloadingZip != null) // null if already available locally or error
+			{
+				downloadingZip.waitForDownload();
+			}
+		}
+		else
+			println("Using cached " + xmlFileDestination);
 	}
 }
 
