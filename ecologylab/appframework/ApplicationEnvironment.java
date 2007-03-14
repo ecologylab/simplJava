@@ -9,7 +9,7 @@ import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.PreferencesSet;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.PrefSet;
-import ecologylab.appframework.types.prefs.gui.PrefWidgetManager;
+import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
 import ecologylab.generic.Generic;
@@ -59,6 +59,21 @@ implements Environment
 	 * The docbase is the address where the launching HTML file comes from.
 	 */
 	ParsedURL	docBase;
+	
+	/**
+	 * Set of <code>MetaPref</code>s that describe preferences and provide default values.
+	 */
+	MetaPrefSet metaPrefSet;
+	
+	/**
+	 * Set of actual <code>Pref</code>s being used locally.
+	 */
+	PrefSet prefSet;
+	
+	/**
+	 * Place where <code>Pref</code>s are loaded from and stored to.
+	 */
+	ParsedURL prefsPURL;
 	
 	enum LaunchType
 	{
@@ -303,7 +318,7 @@ implements Environment
 				{
 					ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
 					Assets.downloadPreferencesZip("prefs", null, true);
-					MetaPrefSet metaPrefSet	= MetaPrefSet.load(Assets.getPreferencesFile(METAPREFS_XML), translationSpace);
+					metaPrefSet		= MetaPrefSet.load(Assets.getPreferencesFile(METAPREFS_XML), translationSpace);
 						//MetaPrefSet.load(metaPrefsPURL, translationSpace);
 						//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
 				} catch (XmlTranslationException e)
@@ -314,7 +329,7 @@ implements Environment
 	            println("Loading preferences from: " + prefsPURL);
 	            try
 				{
-					PrefSet prefSet = PrefSet.load(prefsPURL, translationSpace);
+					prefSet 		= PrefSet.load(prefsPURL, translationSpace);
 					if (metaPrefSetException != null)
 					{
 						warning("Couldn't load MetaPrefs:");
@@ -351,12 +366,12 @@ implements Environment
 			argStack.push(arg);
 
 			XmlTranslationException metaPrefSetException	= null;
-				try
+			try
 			{
 				ParsedURL metaPrefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML));
-				MetaPrefSet metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
-					//MetaPrefSet.load(metaPrefsPURL, translationSpace);
-					//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
+				metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
+				//MetaPrefSet.load(metaPrefsPURL, translationSpace);
+				//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
 			} catch (XmlTranslationException e)
 			{
 				metaPrefSetException	= e;
@@ -720,5 +735,23 @@ implements Environment
 	public DownloadProcessor assetsDownloadProcessor()
 	{
 		return new SimpleDownloadProcessor();
+	}
+	
+	/**
+	 * Create and show an editor for preferences, iff the MetaPrefSet and PrefSet are non-null.
+	 * If the PrefSet is null, a new empty one will be created for the editor to use.
+	 * 
+	 * @return
+	 */
+	public PrefsEditor createPrefsEditor()
+	{
+		PrefsEditor result	= null;
+		if ((metaPrefSet != null) && (prefsPURL != null))
+		{
+			if (prefSet == null)
+				prefSet		= new PrefSet();
+			result			= new PrefsEditor(metaPrefSet, prefSet, prefsPURL, false);
+		}
+		return result;
 	}
 }

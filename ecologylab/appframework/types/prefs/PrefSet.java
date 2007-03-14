@@ -18,15 +18,17 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
+ * A serial set of Pref objects.
+ * Used for reading and writing (load and save).
+ * The static allPrefsMap in Pref is used for lookup.
+ * 
  * @author Cae
- *
+ * @author andruid
  */
 
 @xml_inherit
 public class PrefSet extends ArrayListState<Pref>
 {
-    ObjectRegistry<Pref> allPrefsMap;
-  
     /*
     /**
      * 
@@ -35,97 +37,15 @@ public class PrefSet extends ArrayListState<Pref>
     {
     }
 
-    private ObjectRegistry<Pref> allPrefsMap()
-    {
-        ObjectRegistry<Pref> result     = this.allPrefsMap;
-        if (result == null)
-        {
-            result                      = new ObjectRegistry<Pref>();
-            this.allPrefsMap            = result;
-        }
-        return result;
-    }
-    
-    protected void registerPref(String name, Pref pref)
-    {
-        allPrefsMap().registerObject(name,pref);
-    }
-    
-    public Pref lookupPref(String name)
-    {
-        Pref pref = allPrefsMap().lookupObject(name);
-        return pref;
-    }
-    
-    public Integer lookupInt2(String name) throws ClassCastException
-    {
-        return (Integer)lookupPref(name).value();
-    }
-    
-    public int lookupInt(String name, int defaultValue) throws ClassCastException
-    {
-        PrefInt prefInt = ((PrefInt)lookupPref(name));
-		return (prefInt == null) ? defaultValue : prefInt.value();
-    }
-    public int lookupInt(String name) throws ClassCastException
-    {
-        return lookupInt(name, 0);
-    }
-   
-    public boolean lookupBoolean(String name, boolean defaultValue) throws ClassCastException
-    {
-        PrefBoolean prefBoolean = ((PrefBoolean)lookupPref(name));
-		return (prefBoolean == null) ? defaultValue : prefBoolean.value();
-    }
-    public boolean lookupBoolean(String name) throws ClassCastException
-    {
-        return lookupBoolean(name, false);
-    }
-       
-    public float lookupFloat(String name, float defaultValue) throws ClassCastException
-    {
-        PrefFloat prefFloat = ((PrefFloat)lookupPref(name));
-		return (prefFloat == null) ? defaultValue : prefFloat.value();
-    }
-    public float lookupFloat(String name) throws ClassCastException
-    {
-        return lookupFloat(name, 1.0f);
-    }
-   
-    public String lookupString(String name, String defaultValue) throws ClassCastException
-    {
-        PrefString prefString = ((PrefString)lookupPref(name));
-		return (prefString == null) ? defaultValue : prefString.value();
-    }
-    public String lookupString(String name) throws ClassCastException
-    {
-        return lookupString(name, null);
-    }
-       
-    public ElementState lookupElementState(String name) throws ClassCastException
-    {
-        return ((PrefElementState)lookupPref(name)).value();
-    }
-    
-    public boolean hasPref(String name)
-    {
-        return allPrefsMap().containsKey(name);
-    }
-
-    public void modifyPref(String name, Pref newPref)
-    {
-        allPrefsMap().modifyObject(name, newPref);
-    }
-    
     /**
      * Register the Pref, as well as adding it to the super ArrayListState.
-     * @param that
+     * @param pref
      * @return
      */
-    public boolean add(Pref that)
+    public boolean add(Pref pref)
     {
-    	boolean result	= super.add(that);
-    	registerPref(that.name, that);
+    	boolean result	= super.add(pref);
+    	pref.register();
     	return result;
     }
     
@@ -144,7 +64,7 @@ public class PrefSet extends ArrayListState<Pref>
 	protected void createChildHook(ElementState child)
 	{
 		Pref pref	= (Pref) child;
-		registerPref(pref.name, pref);
+		pref.register();
 	}
     /**
      * Read MetaPref declarations from a file or across the net.

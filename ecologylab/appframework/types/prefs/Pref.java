@@ -24,6 +24,11 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class Pref<T> extends ArrayListState
 {
+	/**
+	 * The global registry of Pref objects. Used for providing lookup services.
+	 */
+    static final ObjectRegistry<Pref> allPrefsMap	= new ObjectRegistry<Pref>();
+    
     @xml_attribute String name;
 	
 	/**
@@ -83,4 +88,70 @@ public abstract class Pref<T> extends ArrayListState
 	{
 		valueCached	= null;
 	}
+	
+	
+    public static Pref lookupPref(String name)
+    {
+        Pref pref = allPrefsMap.lookupObject(name);
+        return pref;
+    }
+    
+    public static int lookupInt(String name, int defaultValue) throws ClassCastException
+    {
+        PrefInt prefInt = ((PrefInt)lookupPref(name));
+		return (prefInt == null) ? defaultValue : prefInt.value();
+    }
+    public static int lookupInt(String name) throws ClassCastException
+    {
+        return lookupInt(name, 0);
+    }
+   
+    public static boolean lookupBoolean(String name, boolean defaultValue) throws ClassCastException
+    {
+        PrefBoolean prefBoolean = ((PrefBoolean)lookupPref(name));
+		return (prefBoolean == null) ? defaultValue : prefBoolean.value();
+    }
+    public static boolean lookupBoolean(String name) throws ClassCastException
+    {
+        return lookupBoolean(name, false);
+    }
+       
+    public static float lookupFloat(String name, float defaultValue) throws ClassCastException
+    {
+        PrefFloat prefFloat = ((PrefFloat)lookupPref(name));
+		return (prefFloat == null) ? defaultValue : prefFloat.value();
+    }
+    public static float lookupFloat(String name) throws ClassCastException
+    {
+        return lookupFloat(name, 1.0f);
+    }
+   
+    public static String lookupString(String name, String defaultValue) throws ClassCastException
+    {
+        PrefString prefString = ((PrefString)lookupPref(name));
+		return (prefString == null) ? defaultValue : prefString.value();
+    }
+    public static String lookupString(String name) throws ClassCastException
+    {
+        return lookupString(name, null);
+    }
+       
+    public static ElementState lookupElementState(String name) throws ClassCastException
+    {
+        return ((PrefElementState)lookupPref(name)).value();
+    }
+    
+    public static boolean hasPref(String name)
+    {
+        return allPrefsMap.containsKey(name);
+    }
+
+    /**
+     * Create an entry for this in the allPrefsMap.
+     *
+     */
+    void register()
+    {
+    	allPrefsMap.registerObject(this.name, this);
+    }
 }
