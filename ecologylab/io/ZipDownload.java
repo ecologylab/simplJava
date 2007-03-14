@@ -35,7 +35,7 @@ extends Debug
 implements Downloadable, DispatchTarget
 {
 	
-	static DownloadProcessor downloadMonitor;
+	static DownloadProcessor downloadProcessor;
 	
 	ParsedURL 	zipSource;
 	File		zipTarget;
@@ -77,13 +77,16 @@ implements Downloadable, DispatchTarget
 	{
 		this.extractWhenComplete 	= extractWhenComplete;
 		debug("downloadAndWrite() calling downloadMonitor");
-		downloadMonitor.download(this, this);
+		if (downloadProcessor == null)
+			throw new RuntimeException("Can't download cause downloadProcessor = null.");
+		
+		downloadProcessor.download(this, this);
 	}
 	
-	public static void stopDownloadMonitor()
+	public static void stopDownloadProcessor()
 	{
-		if( downloadMonitor != null )
-			downloadMonitor.stop();
+		if( downloadProcessor != null )
+			downloadProcessor.stop();
 	}
 	
 	public void downloadAndWrite()
@@ -92,7 +95,7 @@ implements Downloadable, DispatchTarget
 	}
 
 	/**
-	 * ONLY called by DownloadMonitor to actually download the 
+	 * ONLY called by <code>DownloadProcessor</code>s to actually download the 
 	 * zip file! Not called by outsiders!
 	 */
 	public void performDownload() 
@@ -401,8 +404,8 @@ implements Downloadable, DispatchTarget
 	   }
    }
 
-   public static void setDownloadMonitor(DownloadProcessor downloadMonitor)
+   public static void setDownloadProcessor(DownloadProcessor downloadProcessor)
    {
-	   ZipDownload.downloadMonitor = downloadMonitor;
+	   ZipDownload.downloadProcessor = downloadProcessor;
    }
 }
