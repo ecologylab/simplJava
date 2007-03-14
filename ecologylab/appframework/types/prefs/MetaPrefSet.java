@@ -3,10 +3,15 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
+import ecologylab.net.ParsedURL;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -19,25 +24,36 @@ import ecologylab.xml.types.element.ArrayListState;
 public class MetaPrefSet extends ArrayListState<MetaPref>
 {
     public HashMap<String, ArrayList<MetaPref>> categoryToMetaPrefs = new HashMap<String, ArrayList<MetaPref>>();
-    
-	public void processMetaPrefs()
+    	
+	/**
+	 * Perform custom processing on the newly created child node,
+	 * just before it is added to this.
+	 * <p/>
+	 * This is part of depth-first traversal during translateFromXML().
+	 * <p/>
+	 * Add the entry to the category map.
+	 * 
+	 * @param child
+	 */
+	protected void createChildHook(ElementState child)
 	{
-		for (int i=0; i<size(); i++)
-		{
-			MetaPref metapref = (MetaPref) get(i);
-            //metapref.print();
-            // create widget
-            metapref.jPanel = metapref.getWidget();
-            ArrayList<MetaPref> metaPrefList = categoryToMetaPrefs.get(metapref.getCategory());
-            if (metaPrefList == null)
-            {
-                metaPrefList = new ArrayList<MetaPref>();
-                categoryToMetaPrefs.put(metapref.category, metaPrefList);
-            }
-            metaPrefList.add(metapref);
-		}
+		addEntryToCategoryMap((MetaPref) child);
 	}
-	
+	/**
+	 * Add entry
+	 * @param metaPref
+	 */
+	void addEntryToCategoryMap(MetaPref metaPref)
+	{
+        metaPref.jPanel = metaPref.getWidget();
+        ArrayList<MetaPref> metaPrefList = categoryToMetaPrefs.get(metaPref.getCategory());
+        if (metaPrefList == null)
+        {
+            metaPrefList = new ArrayList<MetaPref>();
+            categoryToMetaPrefs.put(metaPref.category, metaPrefList);
+        }
+        metaPrefList.add(metaPref);		
+	}
 	/**
 	 * 
 	 */
@@ -51,5 +67,41 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
         return categoryToMetaPrefs.keySet();
     }
 
+    
+    public void populateMissingPrefs(PrefSet prefSet)
+    {
+        for (MetaPref mp : set())
+        {
+        	
+        }
+    }
+    /**
+     * Read MetaPref declarations from a file or across the net.
+     * 
+     * @param purl
+     * @param translationSpace
+     * @return
+     * @throws XmlTranslationException
+     */
+    public static MetaPrefSet load(File file, TranslationSpace translationSpace) 
+    throws XmlTranslationException
+    {
+		 return load(new ParsedURL(file), translationSpace);
+    	
+    }
 	
+    /**
+     * Read MetaPref declarations from a file or across the net.
+     * 
+     * @param purl
+     * @param translationSpace
+     * @return
+     * @throws XmlTranslationException
+     */
+    public static MetaPrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
+    throws XmlTranslationException
+    {
+		 return (MetaPrefSet) ElementState.translateFromXML(purl, translationSpace);
+    	
+    }
 }
