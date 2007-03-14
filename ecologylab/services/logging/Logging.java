@@ -19,7 +19,7 @@ import java.util.Vector;
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.ServicesHostsAndPorts;
@@ -155,7 +155,7 @@ public class Logging extends ElementState implements Runnable,
         this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
         finished            = false;
         this.nameSpace      = nameSpace;
-        int logMode         = Preference.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING);
+        int logMode         = Pref.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING);
         switch (logMode)
         {
             case NO_LOGGING:
@@ -229,10 +229,10 @@ public class Logging extends ElementState implements Runnable,
                  * Create the logging client which communicates with the logging
                  * server
                  */
-            	String loggingHost = Preference.lookupString(LOGGING_HOST_PARAM);
+            	String loggingHost = Pref.lookupString(LOGGING_HOST_PARAM);
             	if (loggingHost == null)
             		loggingHost = LOGGING_HOST;
-            	int loggingPort	= Preference.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
+            	int loggingPort	= Pref.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
 
                 NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
                 
@@ -877,7 +877,7 @@ public class Logging extends ElementState implements Runnable,
         {
             debug("logging client writing prologue");
             
-            int uid = Preference.lookupInt("uid", 0);
+            int uid = Pref.lookupInt("uid", 0);
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
             try

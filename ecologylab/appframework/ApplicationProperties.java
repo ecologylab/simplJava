@@ -1,6 +1,6 @@
 package ecologylab.appframework;
 
-import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.prefs.Pref;
 
 
 /**
@@ -12,6 +12,6 @@ import ecologylab.appframework.types.Preference;
 public interface ApplicationProperties
 extends ApplicationPropertyNames
 {
-	public static final boolean	USE_ASSETS_CACHE		= Preference.lookupBoolean("use_assets_cache", true);
+	public static final boolean	USE_ASSETS_CACHE		= Pref.lookupBoolean("use_assets_cache", true);
 	
 }

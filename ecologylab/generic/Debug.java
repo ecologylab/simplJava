@@ -4,7 +4,8 @@ import java.util.*;
 import java.io.*;
 
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.io.Files;
 
 
@@ -35,7 +36,7 @@ public class Debug
  * Global hi watermark. debug() messages with a level less than or equal
  *  to this will get printed out.
  */
-   private static int level	= 0;
+   private static PrefInt level;
 /**
  * Global flag for printing "interactive debug" statements.
  * See also {@link #debugI(String) debugI()}.
@@ -58,9 +59,9 @@ public class Debug
    public static void initialize()
    {
 	  // global
-	  level	= Preference.lookupInt("debug_global_level", 0);
+	  level	= Pref.usePrefInt("debug_global_level", 0);
       // class specific
-      String levels	= Preference.lookupString("debug_levels");
+      String levels	= Pref.lookupString("debug_levels");
       println("Debug.initialize(" + Debug.level+", "+ levels+")");
       if (levels != null)
       {
@@ -106,7 +107,7 @@ public class Debug
    }
    public static final int level(String className)
    {
-      int result	= level;
+      int result	= level.value();
       IntSlot slot	= (IntSlot) classLevels.get(className);
       if (slot != null)
 		 result		= slot.value;
@@ -119,7 +120,7 @@ public class Debug
  */
    public static void println(int messageLevel, String message) 
    {
-      if (messageLevel <= level)
+      if (messageLevel <= level.value())
 		 println(message);
    }
    public static void printlnI(int messageLevel, String message) 

@@ -3,7 +3,7 @@ package ecologylab.appframework;
 import java.io.File;
 import java.util.Properties;
 
-import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
@@ -66,7 +66,7 @@ extends Debug
 	{
 		if (os == UNKNOWN)
 		{
-			String osPreference = Preference.lookupString("os");
+			String osPreference = Pref.lookupString("os");
 			if (osPreference != null)
 			{
 				osPreference	= osPreference.toLowerCase();

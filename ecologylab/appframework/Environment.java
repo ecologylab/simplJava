@@ -4,7 +4,7 @@
  */
 package ecologylab.appframework;
 
-import ecologylab.appframework.types.Preference;
+import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
@@ -211,7 +211,7 @@ public interface Environment
     	 String result	= frame;
     	 if (result == null)
     	 {
-    		 result			= Preference.lookupString("frame");
+    		 result			= Pref.lookupString("frame");
     		 frame			= result;
     	 }
 		 return frame;
