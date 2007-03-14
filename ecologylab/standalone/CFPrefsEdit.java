@@ -15,7 +15,7 @@ import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefTranslations;
-import ecologylab.appframework.types.prefs.gui.PrefWidgetManager;
+import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
@@ -45,7 +45,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
             println("Loading preferences from: " + prefsPURL);
             PrefSet prefSet = PrefSet.load(prefsPURL, prefTranslations);
 
-            PrefWidgetManager mgr = new PrefWidgetManager(metaPrefSet, prefSet, prefsPURL);
+            PrefsEditor mgr = new PrefsEditor(metaPrefSet, prefSet, prefsPURL, true);
             // could also call: JFrame jFrame = mgr.fetchJFrame();
 		}
 		catch (XmlTranslationException e)

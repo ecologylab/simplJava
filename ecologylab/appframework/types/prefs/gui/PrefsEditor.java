@@ -229,13 +229,8 @@ public class PrefsEditor
                 // for getPrefValue
                 String name = mp.getID();
                 //TODO -- i dont believe this lines makes sense -- andruid 3/12/07
-                mp 			= mp.getClass().cast(mp);
-                Pref pref 	= Pref.lookupPref(name);
-                //pref.print();
-                if (pref == null)
-                {
-                	pref	= mp.getDefaultPrefInstance();
-                }
+                //mp 			= mp.getClass().cast(mp);
+                Pref pref 	= mp.getAssociatedPref();
                 pref.setValue(mp.getPrefValue());
                 if (!prefSet.contains(pref))
                 	prefSet.add(pref);
