@@ -556,7 +556,7 @@ implements Environment, XmlTranslationExceptionTypes
 			switch (os)
 			{
 			case PropertiesAndDirectories.WINDOWS:
-				if (!Preference.lookupBoolean("navigate_with_ie"))
+				if (!Pref.lookupBoolean("navigate_with_ie"))
 					result		= FIREFOX_PATH_WINDOWS;
 				if (result != null)
 				{
