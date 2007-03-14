@@ -68,7 +68,7 @@ public abstract class MetaPref<T> extends ElementState
     ObjectRegistry<JComponent>  jComponentsMap;
     
     @xml_nested ArrayListState<Choice<T>> choices = null;
-	
+    
 //	@xml_attribute	T			defaultValue;
 	
 //	@xml_nested		RangeState<T>	range;
@@ -126,6 +126,28 @@ public abstract class MetaPref<T> extends ElementState
         return false;
     }
 	
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * 
+     * @return
+     */
+    protected abstract Pref<T> getPrefInstance();
+    
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * Use this to fill-in the default value.
+     * 
+     * @return
+     */
+    public Pref<T> getDefaultPrefInstance()
+    {
+    	Pref<T> result	= getPrefInstance();
+    	result.name		= id;
+    	
+    	result.setValue(this.getDefaultValue());
+    	return result;
+    }
+    
 /*
 	public boolean isWithinRange(T newValue)
 	{
@@ -230,5 +252,9 @@ public abstract class MetaPref<T> extends ElementState
         return label;
     }
 
+    /**
+     * 
+     * @return
+     */
     public abstract T getPrefValue();
 }
