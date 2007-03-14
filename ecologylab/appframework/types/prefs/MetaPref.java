@@ -148,6 +148,26 @@ public abstract class MetaPref<T> extends ElementState
     	return result;
     }
     
+    /**
+     * Get the Pref object associated with this.
+     * That is, look for one in the registry.
+     * Return it if there is one.
+     * Otherwise, get a default Pref based on this,
+     * register it, and return it.
+     * 
+     * @return	The Pref object associated with this.
+     */
+    public Pref<T> getAssociatedPref()
+    {
+    	Pref result	= Pref.lookupPref(id);
+    	if (result == null)
+    	{
+    		result	= getDefaultPrefInstance();
+    		result.register();
+    	}
+    	return result;
+    }
+    
 /*
 	public boolean isWithinRange(T newValue)
 	{
