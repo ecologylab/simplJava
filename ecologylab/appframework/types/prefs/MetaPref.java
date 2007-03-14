@@ -60,6 +60,8 @@ public abstract class MetaPref<T> extends ElementState
 	 * Categories enable tabbed panes of preferences to be edited.
 	 */
 	@xml_attribute 	String		category;
+	
+	@xml_attribute	boolean		requiresRestart;
     
     // have to call getWidget() for each panel;
     // if we try to do so here, everything ends up null
