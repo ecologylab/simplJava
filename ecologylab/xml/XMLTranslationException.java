@@ -1,5 +1,8 @@
 package ecologylab.xml;
 
+import ecologylab.net.ParsedURL;
+import ecologylab.generic.Debug;
+
 /**
  * There are certain rules one has to follow while using this framework for
  * translation from Java to XML and back. This exception class enforces those
@@ -83,5 +86,22 @@ public class XmlTranslationException extends Exception implements
     public int getExceptionType()
     {
         return exceptionType;
+    }
+    
+    public void printTraceOrMessage(Object that, String msg, ParsedURL purl)
+    {
+    	switch (getExceptionType())
+    	{
+    	case FILE_NOT_FOUND:
+        	String purlMsg	= (purl == null) ? "" : purl.toString();
+			Debug.println("\tFile not found - " + msg + " - "+purlMsg);
+    		break;
+    	case NULL_PURL:
+			Debug.weird(that, "\tCan't open " + msg + " - ParsedURL is null");
+   		break;
+    	default:
+    		this.printStackTrace();
+    		break;
+    	}
     }
 }
