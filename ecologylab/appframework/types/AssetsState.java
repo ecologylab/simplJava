@@ -14,8 +14,6 @@ import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.Generic;
 import ecologylab.io.Assets;
 import ecologylab.io.Files;
-import ecologylab.io.ZipDownload;
-import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
@@ -110,7 +108,7 @@ import ecologylab.xml.types.element.ArrayListState;
 		}
 	}
 	
-	
+
 	/**
 	 * Load the asset.xml file from the assetsCacheRoot,
 	 * which is equivalent to the Application Data dir.
@@ -185,43 +183,11 @@ import ecologylab.xml.types.element.ArrayListState;
 			return false;
 		
 
-		downloadXML(Assets.assetsRoot().getRelative(assetRelativePath, "forming File location"), 
-				Assets.cacheRoot(), status);
+	//	Assets.downloadXML(Assets.assetsRoot().getRelative(assetRelativePath, "forming File location"), 
+			//	Assets.cacheRoot(), status);
+		Assets.downloadXML(assetRelativePath, "", status);
 
 		return true;
-	}
-
-	/**
-	 * Download an XML file from a source to a target location with minimal effort,
-	 * unless the XML file already exists at the target location, in which case, 
-	 * do nothing.
-	 * @param status The Status object that provides a source of state change visiblity;
-	 * can be null.
-	 * @param sourceXML The location of the zip file to download and uncompress.
-	 * @param targetDir The location where the zip file should be uncompressed. This
-	 * directory structure will be created if it doesn't exist.
-	 */
-	public static void downloadXML(ParsedURL sourceXML, File targetDir, StatusReporter status)
-	{
-		String xmlFileName	= sourceXML.url().getFile();
-		int lastSlash		= xmlFileName.lastIndexOf('\\');
-		if (lastSlash == -1)
-			lastSlash		= xmlFileName.lastIndexOf('/');
-
-		xmlFileName			= xmlFileName.substring(lastSlash+1);
-		File xmlFileDestination	= Files.newFile(targetDir, xmlFileName);
-
-		if (!xmlFileDestination.canRead())
-		{
-			//we just want to download it, not uncompress it... (using code from zip downloading stuff)
-			ZipDownload downloadingZip	= ZipDownload.downloadAndPerhapsUncompress(sourceXML, targetDir, status, false);
-			if (downloadingZip != null) // null if already available locally or error
-			{
-				downloadingZip.waitForDownload();
-			}
-		}
-		else
-			println("Using cached " + xmlFileDestination);
 	}
 
 }
