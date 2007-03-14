@@ -28,34 +28,38 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
 
 
-public class PrefWidgetManager
+public class PrefsEditor
 {
     MetaPrefSet metaPrefSet;
     PrefSet     prefSet;
-    ParsedURL   prefsPURL;
+    ParsedURL   savePrefsPURL;
     
     // base setup for gui
-    JFrame jFrame = null;
-    JPanel jContentPane = null;
-    JButton cancelButton = null;
-    JButton saveButton = null;
-    JButton revertButton = null;
+    JFrame 		jFrame = null;
+    JPanel 		jContentPane = null;
+    JButton 	cancelButton = null;
+    JButton 	saveButton = null;
+    JButton 	revertButton = null;
     JTabbedPane jTabbedPane = null;
     
-    public PrefWidgetManager(MetaPrefSet set, PrefSet prefs, ParsedURL prefsURL)
+    boolean		isStandalone;
+    
+    public PrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean isStandalone)
     {
-        metaPrefSet = set;
-        prefSet     = prefs;
-        prefsPURL   = prefsURL;
-        JFrame window = getJFrame();
-        window.addWindowListener(new WindowAdapter()
+        this.metaPrefSet 	= metaPrefSet;
+        this.prefSet     	= prefSet;
+        this.savePrefsPURL  = savePrefsPURL;
+        this.isStandalone	= isStandalone;
+        
+        final JFrame jFrame = getJFrame();
+        jFrame.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
             {
-                System.exit(0);
+            	closeWindow();
             }
-        });
-        window.setVisible(true);
+       });
+        jFrame.setVisible(true);
     }
     
     public JFrame fetchJFrame()
@@ -76,6 +80,17 @@ public class PrefWidgetManager
         return jFrame;
     }
 
+	private void closeWindow()
+	{
+		if (jFrame != null)
+		{
+			jFrame.setVisible(false);
+	    	jFrame.dispose();
+		}
+    	if (PrefsEditor.this.isStandalone)
+    		System.exit(0);
+	}
+	
     private JPanel getJContentPane() 
     {
         if (jContentPane == null) 
@@ -97,11 +112,13 @@ public class PrefWidgetManager
             cancelButton = new JButton();
             cancelButton.setBounds(new Rectangle(482, 435, 89, 35));
             cancelButton.setText("Cancel");
-            cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    System.exit(0);
-                }
-                });
+            cancelButton.addActionListener(new ActionListener()
+            		{
+            			public void actionPerformed(ActionEvent e)
+            			{
+            				closeWindow();
+            			}
+	                });
         }
         return cancelButton;
     }
@@ -113,11 +130,13 @@ public class PrefWidgetManager
             saveButton = new JButton();
             saveButton.setBounds(new Rectangle(379, 435, 89, 35));
             saveButton.setText("Save");
-            saveButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    actionSavePreferences();
-                }
-                });
+            saveButton.addActionListener(new ActionListener() 
+            		{
+            			public void actionPerformed(ActionEvent e) 
+            			{
+            				actionSavePreferences();
+            			}
+            		});
         }
         return saveButton;
     }
@@ -129,11 +148,13 @@ public class PrefWidgetManager
             revertButton = new JButton();
             revertButton.setBounds(new Rectangle(15, 435, 137, 35));
             revertButton.setText("Revert to Default");
-            revertButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    actionRevertPreferencesToDefault();
-                }
-                });
+            revertButton.addActionListener(new ActionListener() 
+            		{
+            			public void actionPerformed(ActionEvent e) 
+            			{
+            				actionRevertPreferencesToDefault();
+            			}
+            		});
         }
         return revertButton;
     }
@@ -179,9 +200,9 @@ public class PrefWidgetManager
                 subPanel.setLocation(30, yval);
                 yval += subPanel.getHeight();
                 // if we have a prefs value, override it now
-                if (prefSet.hasPref(mp.getID()))
+                if (Pref.hasPref(mp.getID()))
                 {
-                    mp.setWidgetToPrefValue(prefSet.lookupPref(mp.getID()).value());
+                    mp.setWidgetToPrefValue(Pref.lookupPref(mp.getID()).value());
                 }
                 newPanel.add(subPanel);
             }
@@ -199,6 +220,7 @@ public class PrefWidgetManager
         // we do this with metaprefs because we will always have
         // all metaprefs. we may not always have a prefs file to start
         // with.
+    	// this iterator organizes them by category
         for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
         {
             for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
@@ -208,15 +230,17 @@ public class PrefWidgetManager
                 String name = mp.getID();
                 //TODO -- i dont believe this lines makes sense -- andruid 3/12/07
                 mp 			= mp.getClass().cast(mp);
-                Pref pref 	= prefSet.lookupPref(name);
+                Pref pref 	= Pref.lookupPref(name);
                 //pref.print();
                 if (pref == null)
                 {
                 	pref	= mp.getDefaultPrefInstance();
-                	prefSet.add(pref);
                 }
                 pref.setValue(mp.getPrefValue());
-                //TODO -- i dont believe this is really needed because only the value has been changed. -- andruid 3/12/07
+                if (!prefSet.contains(pref))
+                	prefSet.add(pref);
+
+                //TODO -- this is not really needed because only the value has been changed. -- andruid 3/12/07
                 //prefSet.modifyPref(name,pref);
                 //prefSet.lookupPref(mp.getID()).print();
             }
@@ -225,7 +249,7 @@ public class PrefWidgetManager
         
         try
         {
-            prefSet.saveXmlFile(prefsPURL.file(), true, false);
+            prefSet.saveXmlFile(savePrefsPURL.file(), true, false);
         }
         catch (XmlTranslationException e)
         {
