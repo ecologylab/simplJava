@@ -21,6 +21,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class MetaPrefInt extends MetaPref<Integer>
 {
+	private static final int RADIO_X = 405;
 	@xml_attribute	int		defaultValue;
 	
 	/**
@@ -94,7 +95,7 @@ public class MetaPrefInt extends MetaPref<Integer>
                     //println("this is default?: " + thisIsDefault);
                     //println("getDefaultValue: " + getDefaultValue().toString());
                     //println("choice.getValue: " + choice.getValue().toString());
-                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), 405, start_y);
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), RADIO_X, start_y);
                     start_y += 30;
                 }
             }
