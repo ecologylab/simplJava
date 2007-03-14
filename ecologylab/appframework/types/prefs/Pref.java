@@ -89,6 +89,110 @@ public abstract class Pref<T> extends ArrayListState
 		valueCached	= null;
 	}
 	
+	/**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name.
+	 * If you find it return it.
+	 * If not, create a new Pref object of the correct type.
+	 * Set its value to default value.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return	A usable Pref object associated with name, either from the registry or newly created
+	 */
+    public static PrefBoolean usePrefBoolean(String name, boolean defaultValue)
+    {
+        PrefBoolean pref= (PrefBoolean) lookupPref(name);
+        if (pref == null)
+        {
+        	pref		= new PrefBoolean(defaultValue);
+        	pref.name	= name;
+        	pref.register();
+        }
+        return pref;
+    }
+    
+	/**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name.
+	 * If you find it return it.
+	 * If not, create a new Pref object of the correct type.
+	 * Set its value to default value.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return	A usable Pref object associated with name, either from the registry or newly created
+	 */
+    public static PrefFloat usePrefFloat(String name, float defaultValue)
+    {
+        PrefFloat pref	= (PrefFloat) lookupPref(name);
+        if (pref == null)
+        {
+        	pref		= new PrefFloat(defaultValue);
+        	pref.name	= name;
+        	pref.register();
+        }
+        return pref;
+    }
+    
+	/**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name.
+	 * If you find it return it.
+	 * If not, create a new Pref object of the correct type.
+	 * Set its value to default value.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return	A usable Pref object associated with name, either from the registry or newly created
+	 */
+    public static PrefString usePrefString(String name, String defaultValue)
+    {
+    	PrefString pref = (PrefString) lookupPref(name);
+        if (pref == null)
+        {
+        	pref		= new PrefString(defaultValue);
+        	pref.name	= name;
+        	pref.register();
+        }
+        return pref;
+    }
+    
+	/**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name.
+	 * If you find it return it.
+	 * If not, create a new Pref object of the correct type.
+	 * Set its value to default value.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return	A usable Pref object associated with name, either from the registry or newly created
+	 */
+    public static PrefInt usePrefInt(String name, int defaultValue)
+    {
+    	PrefInt pref = (PrefInt) lookupPref(name);
+        if (pref == null)
+        {
+        	pref		= new PrefInt(defaultValue);
+        	pref.name	= name;
+        	pref.register();
+        }
+        return pref;
+    }
+
 	
     public static Pref lookupPref(String name)
     {
