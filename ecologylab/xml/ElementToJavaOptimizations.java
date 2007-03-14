@@ -310,10 +310,12 @@ implements ParseTableEntryTypes
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	ElementState getChildElement(ElementState parent, Node node)
+	ElementState createChildElement(ElementState parent, Node node)
 	throws XmlTranslationException
 	{
-		return parent.getChildElementState(node, classOp, translationSpace);
+		ElementState childElementState = parent.getChildElementState(node, classOp, translationSpace);
+		parent.createChildHook(childElementState);
+		return childElementState;
 	}
 	
 	/**
@@ -422,7 +424,7 @@ implements ParseTableEntryTypes
 	protected void setFieldToNestedElement(ElementState context, Node childNode)
 		throws XmlTranslationException
 	{
-		Object nestedElementState	= getChildElement(context, childNode);
+		Object nestedElementState	= createChildElement(context, childNode);
 		try
 		{
 			field.set(context, nestedElementState);
@@ -474,7 +476,8 @@ implements ParseTableEntryTypes
 			
 		if (collection != null)
 		{
-			collection.add(getChildElement(activeES, childNode));
+			ElementState childElement = createChildElement(activeES, childNode);
+			collection.add(childElement);
 		}
 	}
 		
@@ -504,7 +507,7 @@ implements ParseTableEntryTypes
 			
 		if (map != null)
 		{
-			Mappable mappable	= (Mappable) getChildElement(activeES, childNode);
+			Mappable mappable	= (Mappable) createChildElement(activeES, childNode);
 			map.put(mappable.key(), mappable);
 		}
 	}

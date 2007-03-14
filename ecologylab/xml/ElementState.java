@@ -584,18 +584,23 @@ implements ParseTableEntryTypes
 	 * <p/>
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param xmlDocumentPURL	ParsedURL for the XML document that needs to be translated.
+	 * @param purl	ParsedURL for the XML document that needs to be translated.
 	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 	   Parent ElementState object of the corresponding Java tree.
 	 */
 
-	public static ElementState translateFromXML(ParsedURL xmlDocumentPURL,
+	public static ElementState translateFromXML(ParsedURL purl,
 												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		return (xmlDocumentPURL == null) ? 
-		   null : translateFromXML(buildDOM(xmlDocumentPURL), translationSpace);
+		if (purl == null)
+			throw new XmlTranslationException("Null PURL");
+		
+		if (!purl.isNotFileOrExists())
+			throw new XmlTranslationException("Can't find " + purl.toString());
+		
+		return translateFromXML(buildDOM(purl), translationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -1365,7 +1370,7 @@ implements ParseTableEntryTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= pte.getChildElement(this, null);
+						activeES			= pte.createChildElement(this, null);
 						ReflectionTools.setFieldValue(this, pte.field(), activeES);
 					}
 				}
@@ -1806,7 +1811,7 @@ implements ParseTableEntryTypes
 	protected void addNestedElement(ParseTableEntry pte, Node childNode)
 	throws XmlTranslationException
 	{
-		addNestedElement(pte.getChildElement(this, childNode));
+		addNestedElement(pte.createChildElement(this, childNode));
 		if (considerWarning == NEED_WARNING)
 		{
 			warning("Ignoring nested elements with tag <" + pte.tag() + ">");
@@ -2135,4 +2140,19 @@ implements ParseTableEntryTypes
 		return optimizations;
 	}
 
+	/**
+	 * Perform custom processing on the newly created child node,
+	 * just before it is added to this.
+	 * <p/>
+	 * This is part of depth-first traversal during translateFromXML().
+	 * <p/>
+	 * This, the default implementation, does nothing.
+	 * Sub-classes may wish to override.
+	 * 
+	 * @param child
+	 */
+	protected void createChildHook(ElementState child)
+	{
+		
+	}
 }
