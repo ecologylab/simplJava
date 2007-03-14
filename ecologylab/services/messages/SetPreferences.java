@@ -1,6 +1,7 @@
 package ecologylab.services.messages;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.types.AppFrameworkTranslations;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.io.Assets;
@@ -73,7 +74,7 @@ extends RequestMessage
 				Assets.downloadPreferencesZip(preferencesSetAssetPath, null, true);
 				try {
                     PrefSet preferencesSetAsset = 
-						(PrefSet) ElementState.translateFromXML(Assets.getPreferencesFile(preferencesSetAssetPath + ".xml"), DefaultServicesTranslations.get());
+						(PrefSet) ElementState.translateFromXML(Assets.getPreferencesFile(preferencesSetAssetPath + ".xml"), AppFrameworkTranslations.get());
 //TODO happens automatically					preferencesSetAsset.loadIntoEnvironment();
 					debug("performService() Received and loaded preferences: " + preferencesSetAsset);
 				} catch (XmlTranslationException e) {
