@@ -32,12 +32,16 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 	 * This is part of depth-first traversal during translateFromXML().
 	 * <p/>
 	 * Add the entry to the category map.
+	 * <p/>
+	 * Also, create a Pref to match the MetaPref child, if there isn't one already.
 	 * 
 	 * @param child
 	 */
 	protected void createChildHook(ElementState child)
 	{
-		addEntryToCategoryMap((MetaPref) child);
+		MetaPref metaPref = (MetaPref) child;
+		addEntryToCategoryMap(metaPref);
+		metaPref.getAssociatedPref();	// create one if needed
 	}
 	/**
 	 * Add entry
@@ -59,7 +63,7 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 	 */
 	public MetaPrefSet() 
 	{
-		// TODO Auto-generated constructor stub
+
 	}
 
     public Set getCategories()
@@ -68,13 +72,6 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
     }
 
     
-    public void populateMissingPrefs(PrefSet prefSet)
-    {
-        for (MetaPref mp : set())
-        {
-        	
-        }
-    }
     /**
      * Read MetaPref declarations from a file or across the net.
      * 
