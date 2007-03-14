@@ -75,12 +75,13 @@ implements Environment
 	 */
 	ParsedURL prefsPURL;
 	
-	enum LaunchType
+	protected enum LaunchType
 	{
 		JNLP, ECLIPSE, JAR,
 	}
 	
-
+	LaunchType		launchType;
+	
 	/**
 	 * Create an ApplicationEnvironment. Create an empty properties object for application parameters.
 	 * <p/>
@@ -297,6 +298,7 @@ implements Environment
 			}
 		}
 		println("LaunchType = " + launchType);
+		this.launchType			= launchType;
 		// look for codeBase path
 		arg						= pop(argStack);
 		
@@ -376,9 +378,6 @@ implements Environment
 			{
 				metaPrefSetException	= e;
 			}
-			// load local preferences from codeBase path, if appropriate
-			// load default preferences
-			PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, ECLIPSE_BASE_PREFERENCE_PATH);
 			
 			// now seek the path to an application specific xml preferences file
 			arg						= pop(argStack);
@@ -389,7 +388,34 @@ implements Environment
 				// load preferences specific to this invocation
 				if (arg.endsWith(".xml"))
 				{
-					PreferencesSet.loadPreferencesXML(translationSpace, localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
+					ParsedURL prefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg));
+		            println("Loading preferences from: " + prefsPURL);
+		            try
+					{
+						prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+						if (metaPrefSetException != null)
+						{
+							warning("Couldn't load MetaPrefs:");
+							metaPrefSetException.printStackTrace();
+							println("\tContinuing.");
+						}
+					} catch (XmlTranslationException e)
+					{
+						if (metaPrefSetException != null)
+						{
+							error("Can't load MetaPrefs or Prefs. Quitting.");
+							metaPrefSetException.printStackTrace();
+							e.printStackTrace();
+							throw e;
+						}
+						else
+						{
+							// meta prefs o.k. we can continue
+							warning("Couldn't load Prefs:");
+							e.printStackTrace();
+							println("\tContinuing.");
+						}
+					}
 				}
 				else
 					argStack.push(arg);
@@ -753,5 +779,10 @@ implements Environment
 			result			= new PrefsEditor(metaPrefSet, prefSet, prefsPURL, false);
 		}
 		return result;
+	}
+	
+	protected LaunchType launchType()
+	{
+		return this.launchType;
 	}
 }
