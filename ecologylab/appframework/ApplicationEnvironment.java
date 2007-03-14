@@ -297,8 +297,7 @@ implements Environment
 				
 				// read meta-preferences and preferences from application data dir
 				File applicationDir	= PropertiesAndDirectories.thisApplicationDir();
-				ParsedURL applicationDataPURL	= new ParsedURL(applicationDir);
-				ParsedURL metaPrefsPURL	= applicationDataPURL.getRelative("preferences/metaprefs.xml");
+				ParsedURL applicationDataPURL					= new ParsedURL(applicationDir);
 				XmlTranslationException metaPrefSetException	= null;
 				try
 				{
