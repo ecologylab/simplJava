@@ -202,6 +202,10 @@ public abstract class Pref<T> extends ArrayListState
     
     public static int lookupInt(String name, int defaultValue) throws ClassCastException
     {
+    	/* could do this -- its heavier weight -- create a Pref if there wasn't one, and set its default value as here
+        PrefInt prefInt = usePrefInt(name, defaultValue);
+        return prefInt.value();
+        */
         PrefInt prefInt = ((PrefInt)lookupPref(name));
 		return (prefInt == null) ? defaultValue : prefInt.value();
     }
@@ -242,7 +246,8 @@ public abstract class Pref<T> extends ArrayListState
        
     public static ElementState lookupElementState(String name) throws ClassCastException
     {
-        return ((PrefElementState)lookupPref(name)).value();
+        PrefElementState prefElementState = ((PrefElementState)lookupPref(name));
+		return (prefElementState == null) ? null : prefElementState.value();
     }
     
     public static boolean hasPref(String name)
