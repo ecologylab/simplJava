@@ -24,8 +24,9 @@ public class DefaultServicesTranslations extends Debug
 	public static final Class	TRANSLATIONS[]	= 
 	{ 
 		RequestMessage.class,
-		RequestMessage.class,
+		ResponseMessage.class,
 		CloseMessage.class,
+		
 		StopMessage.class,
 		OkResponse.class,
 		BadSemanticContentResponse.class,
@@ -36,12 +37,15 @@ public class DefaultServicesTranslations extends Debug
 		SendEpilogue.class,
 		SendPrologue.class,
 		
+		HttpGetRequest.class,
+		PingRequest.class,
+		UrlMessage.class,
+		
+		//TODO -- get rid of these!
 		Preference.class,
 		PreferencesSet.class,
 		SetPreferences.class,
 		
-		HttpGetRequest.class,
-		PingRequest.class
 	};
 	
 	/**
