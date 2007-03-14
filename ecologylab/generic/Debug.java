@@ -33,11 +33,6 @@ public class Debug
 	private static final String SEPARATOR = ": ";
 	
 /**
- * Global hi watermark. debug() messages with a level less than or equal
- *  to this will get printed out.
- */
-   private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
-/**
  * Global flag for printing "interactive debug" statements.
  * See also {@link #debugI(String) debugI()}.
  */
@@ -48,13 +43,19 @@ public class Debug
    private static final HashMap	classAbbrevNames	= new HashMap();
    private static final HashMap	packageNames	= new HashMap();
    
-   private static int			sinceFlush;
    static final int FLUSH_FREQUENCY	= 10;
    
 /**
  * Holds class specific debug levels.
  */
    static final HashMap		classLevels	= new HashMap();
+   
+   /**
+    * Global hi watermark. debug() messages with a level less than or equal
+    *  to this will get printed out.
+    */
+   private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
+
 
    public static void initialize()
    {
