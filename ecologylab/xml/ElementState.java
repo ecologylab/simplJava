@@ -72,7 +72,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @version     2.9
  */
 public class ElementState extends Debug
-implements ParseTableEntryTypes
+implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 {
 	/**
 	 * Link for a DOM tree.
@@ -595,10 +595,10 @@ implements ParseTableEntryTypes
 	throws XmlTranslationException
 	{
 		if (purl == null)
-			throw new XmlTranslationException("Null PURL");
+			throw new XmlTranslationException("Null PURL", NULL_PURL);
 		
 		if (!purl.isNotFileOrExists())
-			throw new XmlTranslationException("Can't find " + purl.toString());
+			throw new XmlTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 		
 		return translateFromXML(buildDOM(purl), translationSpace);
 	}
