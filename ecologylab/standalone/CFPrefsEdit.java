@@ -19,6 +19,7 @@ import ecologylab.appframework.types.prefs.gui.PrefWidgetManager;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
@@ -28,7 +29,7 @@ import ecologylab.xml.XmlTranslationException;
 public class CFPrefsEdit extends ApplicationEnvironment 
 {
 	
-	public CFPrefsEdit(String[] args) 
+	public CFPrefsEdit(String[] args) throws XmlTranslationException 
 	{
 		super("ecologyLabFundamental", DefaultServicesTranslations.get(), args);
 		
@@ -39,16 +40,11 @@ public class CFPrefsEdit extends ApplicationEnvironment
 		try 
 		{
 			println("Loading meta-preferences from: " + metaPrefsPURL);
-			MetaPrefSet metaPrefSet	= (MetaPrefSet) ElementState.translateFromXML(metaPrefsPURL, PrefTranslations.get());
+			TranslationSpace prefTranslations = PrefTranslations.get();
+			MetaPrefSet metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, prefTranslations);
             println("Loading preferences from: " + prefsPURL);
-            PrefSet prefSet = (PrefSet) ElementState.translateFromXML(prefsPURL, PrefTranslations.get());
+            PrefSet prefSet = PrefSet.load(prefsPURL, prefTranslations);
 
-			//println("metaPrefSet.size() = " + metaPrefSet.size());
-			metaPrefSet.processMetaPrefs();
-            //get or process prefs here
-            prefSet.processPrefs();
-            
-            // we want to also pass in prefs to PrefWidgetManager
             PrefWidgetManager mgr = new PrefWidgetManager(metaPrefSet, prefSet, prefsPURL);
             // could also call: JFrame jFrame = mgr.fetchJFrame();
 		}
@@ -60,8 +56,9 @@ public class CFPrefsEdit extends ApplicationEnvironment
 	}
 	/**
 	 * @param args
+	 * @throws XmlTranslationException 
 	 */
-	public static void main(String[] args) 
+	public static void main(String[] args) throws XmlTranslationException 
 	{
 		new CFPrefsEdit(args);
 	}
