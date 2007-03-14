@@ -282,13 +282,14 @@ public class TranslationSpace extends Debug
    {
 	   if (otherTranslations != null)
 	   {
-		   Iterator translationEntriesIterator = otherTranslations.entriesByClassIterator();
+		   Iterator<TranslationEntry> translationEntriesIterator = otherTranslations.entriesByClassIterator();
 		   while (translationEntriesIterator.hasNext())
 		   {
-			   TranslationEntry translationEntry = (TranslationEntry) translationEntriesIterator.next();
-			   if (entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
+			   TranslationEntry translationEntry = translationEntriesIterator.next();
+
+               if (entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
 				   debug("WARNING: overriding with " + translationEntry);
-			   debug("adding translation: " + "<"+translationEntry.tag + "/>" + translationEntry.className);
+			   debug("adding translation: " + "<"+translationEntry.tag + "/> - " + translationEntry.className);
 			   //addTranslation(nameEntry.classObj);
 			   addTranslation(translationEntry);
 		   }
@@ -386,7 +387,7 @@ public class TranslationSpace extends Debug
 	*/
    public Class xmlTagToClass(String xmlTag)
    {
-	  TranslationEntry entry		= (TranslationEntry) entriesByTag.get(xmlTag);
+	  TranslationEntry entry		= entriesByTag.get(xmlTag);
 
 	  if (entry == null)
 	  {
@@ -409,7 +410,7 @@ public class TranslationSpace extends Debug
     */
    Class getClassByTag(String tag)
    {
-	   TranslationEntry entry		= (TranslationEntry) entriesByTag.get(tag);
+	   TranslationEntry entry		= entriesByTag.get(tag);
 	   
 	   return (entry == null) ? null : entry.classObj;
    }
@@ -487,9 +488,9 @@ public class TranslationSpace extends Debug
     * 
     * @return
     */
-   private Iterator entriesByClassIterator()
+   private Iterator<TranslationEntry> entriesByClassIterator()
    {
-	   Collection values = entriesByClassName().values();
+	   Collection<TranslationEntry> values = entriesByClassName().values();
 	   return values.iterator();
    }
 
@@ -900,7 +901,7 @@ public class TranslationSpace extends Debug
 	  return get(defaultPackageName, defaultPackageName, translations);
    }
    
-   protected HashMap entriesByClassName()
+   protected HashMap<String, TranslationEntry> entriesByClassName()
    {
 	   return entriesByClassName;
    }

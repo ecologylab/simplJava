@@ -342,8 +342,8 @@ implements ParseTableEntryTypes
 		
 		try
 		{
-			ArrayList attributeFields	= optimizations.attributeFields();
-			ArrayList elementFields		= optimizations.elementFields();
+			ArrayList<Field> attributeFields	= optimizations.attributeFields();
+			ArrayList<Field> elementFields		= optimizations.elementFields();
 			int numAttributes 			= attributeFields.size();
 			int numElements				= elementFields.size();
 			int	numFields				= numAttributes + numElements;
@@ -363,7 +363,7 @@ implements ParseTableEntryTypes
 			for (int i=0; i<numAttributes; i++)
 			{
 				// iterate through fields
-				Field thatField			= (Field) attributeFields.get(i);				
+				Field thatField			= attributeFields.get(i);				
 				XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision);
 			}
 			
@@ -384,7 +384,7 @@ implements ParseTableEntryTypes
 	
 				for (int i=0; i<numElements; i++)
 				{
-					Field thatField			= (Field) elementFields.get(i);
+					Field thatField			= elementFields.get(i);
 					String thatFieldName	= thatField.getName();
 					ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
 					//if (XmlTools.representAsLeafNode(thatField))

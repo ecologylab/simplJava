@@ -3,12 +3,9 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-
-import javax.swing.JComponent;
-
+import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.ApplicationPropertyNames;
+import ecologylab.appframework.Environment;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
@@ -27,7 +24,7 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 
 @xml_inherit
-public class PrefSet extends ArrayListState<Pref>
+public class PrefSet extends ArrayListState<Pref> implements ApplicationPropertyNames
 {
     /*
     /**

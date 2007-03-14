@@ -19,7 +19,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author blake
  * @author andruid
  */
-public @xml_inherit class Preference extends ArrayListState 
+@Deprecated public @xml_inherit class Preference extends ArrayListState 
 {
 	@xml_attribute protected String 	name;
 	@xml_attribute protected String 	value;

@@ -17,7 +17,7 @@ import ecologylab.xml.types.element.ArrayListState;
 /**
  * A top level message between javascript and CFSessionLauncher.
  */
-public @xml_inherit class PreferencesSet extends ArrayListState
+@Deprecated public @xml_inherit class PreferencesSet extends ArrayListState
 implements ApplicationPropertyNames
 {
 	ElementState child;

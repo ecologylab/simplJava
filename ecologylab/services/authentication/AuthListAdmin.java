@@ -58,7 +58,7 @@ public class AuthListAdmin
             try
             {
                 authList = (AuthenticationList) ElementState.translateFromXML(
-                        xmlFile, AuthenticationNameSpace.get());
+                        xmlFile, AuthenticationTranslations.get());
             }
             catch (XmlTranslationException e)
             {

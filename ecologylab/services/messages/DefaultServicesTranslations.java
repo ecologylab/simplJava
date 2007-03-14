@@ -1,7 +1,7 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.types.Preference;
-import ecologylab.appframework.types.PreferencesSet;
+import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.Debug;
 import ecologylab.services.logging.Epilogue;
 import ecologylab.services.logging.LogOps;
@@ -41,11 +41,10 @@ public class DefaultServicesTranslations extends Debug
 		PingRequest.class,
 		UrlMessage.class,
 		
-		//TODO -- get rid of these!
-		Preference.class,
-		PreferencesSet.class,
+        //TODO -- get rid of these!
 		SetPreferences.class,
-		
+        PrefSet.class,
+        Pref.class
 	};
 	
 	/**

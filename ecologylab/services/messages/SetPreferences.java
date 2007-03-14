@@ -1,9 +1,7 @@
 package ecologylab.services.messages;
 
-import javax.swing.JOptionPane;
-
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.appframework.types.PreferencesSet;
+import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;
@@ -19,12 +17,12 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  */
 @xml_inherit
-public class SetPreferences 
+@Deprecated public class SetPreferences 
 extends RequestMessage
 {
 	static boolean			firstTime		= true;
 	
-	@xml_nested protected	 PreferencesSet		preferencesSet	= new PreferencesSet();
+	@xml_nested protected	 PrefSet		preferencesSet	= new PrefSet();
 	@xml_attribute protected String				preferencesSetAssetPath;
 	//public PreferencesSet   overridePreferencesSet = new PreferencesSet();
 	
@@ -34,13 +32,13 @@ extends RequestMessage
 		super();
 	}
 	
-	public SetPreferences(PreferencesSet preferencesSet)
+	public SetPreferences(PrefSet preferencesSet)
 	{
 		super();
 		this.preferencesSet = preferencesSet;
 	}
 	
-	public SetPreferences(PreferencesSet preferencesSet, String preferencesSetAssetPath)
+	public SetPreferences(PrefSet preferencesSet, String preferencesSetAssetPath)
 	{
 		this(preferencesSet);
 		this.preferencesSetAssetPath = preferencesSetAssetPath;
@@ -49,7 +47,7 @@ extends RequestMessage
 	public SetPreferences(String preferencesSetString, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		this((PreferencesSet) translateFromXMLString(preferencesSetString, translationSpace));
+		this((PrefSet) translateFromXMLString(preferencesSetString, translationSpace));
 	}
 	
 	public SetPreferences(String preferencesSetAssetPath, String overridePreferencesSetString, TranslationSpace nameSpace)
@@ -59,6 +57,9 @@ extends RequestMessage
 		this.preferencesSetAssetPath = preferencesSetAssetPath;
 	}
 
+    /**
+     * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
+     */
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		debug("performService(): " + preferencesSet +" " + preferencesSet.size());
@@ -71,9 +72,9 @@ extends RequestMessage
 				debug("downloading preferencesSetAssetPath...");
 				Assets.downloadPreferencesZip(preferencesSetAssetPath, null, true);
 				try {
-					PreferencesSet preferencesSetAsset = 
-						(PreferencesSet) ElementState.translateFromXML(Assets.getPreferencesFile(preferencesSetAssetPath + ".xml"), DefaultServicesTranslations.get());
-					preferencesSetAsset.processPreferences();
+                    PrefSet preferencesSetAsset = 
+						(PrefSet) ElementState.translateFromXML(Assets.getPreferencesFile(preferencesSetAssetPath + ".xml"), DefaultServicesTranslations.get());
+//TODO happens automatically					preferencesSetAsset.loadIntoEnvironment();
 					debug("performService() Received and loaded preferences: " + preferencesSetAsset);
 				} catch (XmlTranslationException e) {
 					// TODO Auto-generated catch block
@@ -82,7 +83,7 @@ extends RequestMessage
 			}
 			
 	    	//now internally set the preferences (overriding any identical preferences set from asset file)
-			preferencesSet.processPreferences();
+//TODO happens automatically			preferencesSet.loadIntoEnvironment();
 			//print the prefs
 			debug("performService() Received and loaded preferences: " + preferencesSet);
 			
@@ -137,7 +138,7 @@ extends RequestMessage
 		
 	}
 	
-	public PreferencesSet preferencesSet()
+	public PrefSet preferencesSet()
 	{
 		return this.preferencesSet;
 	}

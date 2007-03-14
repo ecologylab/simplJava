@@ -1,9 +1,6 @@
 package ecologylab.services.authentication;
 
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.library.geom.Ellipse2DDoubleState;
-import ecologylab.xml.types.element.HashMapState;
-import ecologylab.xml.types.element.StringState;
 
 /**
  * Contains all of the information necessary to translate XML objects used in
@@ -13,12 +10,9 @@ import ecologylab.xml.types.element.StringState;
  * @author Zach Toups
  * 
  */
-public class AuthenticationNameSpace
+public class AuthenticationTranslations
 {
-
-    public static final String    NAME           = "rogue_services";
-
-    protected static final String PACKAGE_NAME   = "rogue";
+    protected static final String PACKAGE_NAME   = "ecologylab.services.authentication";
 
     protected static final Class  TRANSLATIONS[] =
                                                  {
@@ -32,14 +26,6 @@ public class AuthenticationNameSpace
 
     public static TranslationSpace get()
     {
-        return TranslationSpace.get(NAME, PACKAGE_NAME, TRANSLATIONS);
-    }
-
-    /**
-     * @return the TRANSLATIONS
-     */
-    public static Class[] getTRANSLATIONS()
-    {
-        return TRANSLATIONS;
+        return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);
     }
 }
