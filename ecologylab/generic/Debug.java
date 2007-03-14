@@ -36,7 +36,7 @@ public class Debug
  * Global hi watermark. debug() messages with a level less than or equal
  *  to this will get printed out.
  */
-   private static PrefInt level;
+   private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
 /**
  * Global flag for printing "interactive debug" statements.
  * See also {@link #debugI(String) debugI()}.
@@ -58,38 +58,36 @@ public class Debug
 
    public static void initialize()
    {
-	  // global
-	  level	= Pref.usePrefInt("debug_global_level", 0);
       // class specific
       String levels	= Pref.lookupString("debug_levels");
       println("Debug.initialize(" + Debug.level+", "+ levels+")");
       if (levels != null)
       {
-	 StringTokenizer tokenizer	= new StringTokenizer(levels,";");
-	 {
-	    try
-	    {
-	       while (tokenizer.hasMoreTokens())
-	       {
-			  String thisSpec		= tokenizer.nextToken();
-			  StringTokenizer specTokenizer= new StringTokenizer(thisSpec);
-			  try
-			  {
-				 String thisClassName	= specTokenizer.nextToken();
-				 int thisLevel		=
-					Integer.parseInt(specTokenizer.nextToken());
-				 Debug.println("Debug.level\t" + thisClassName + "\t" +
-							   thisLevel);
-				 classLevels.put(thisClassName,
-								 new IntSlot(thisLevel));
-			  } catch (Exception e)
-			  {
-			  }
-	       }
-	    } catch (NoSuchElementException e)
-	    {
-	    }
-	 }
+    	  StringTokenizer tokenizer	= new StringTokenizer(levels,";");
+    	  {
+    		  try
+    		  {
+    			  while (tokenizer.hasMoreTokens())
+    			  {
+    				  String thisSpec		= tokenizer.nextToken();
+    				  StringTokenizer specTokenizer= new StringTokenizer(thisSpec);
+    				  try
+    				  {
+    					  String thisClassName	= specTokenizer.nextToken();
+    					  int thisLevel		=
+    						  Integer.parseInt(specTokenizer.nextToken());
+    					  Debug.println("Debug.level\t" + thisClassName + "\t" +
+    							  thisLevel);
+    					  classLevels.put(thisClassName,
+    							  new IntSlot(thisLevel));
+    				  } catch (Exception e)
+    				  {
+    				  }
+    			  }
+    		  } catch (NoSuchElementException e)
+    		  {
+    		  }
+    	  }
       }
    }
    protected Debug()
