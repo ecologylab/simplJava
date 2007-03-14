@@ -206,11 +206,18 @@ public class PrefWidgetManager
                 // by casting here we get the proper return type
                 // for getPrefValue
                 String name = mp.getID();
-                mp = mp.getClass().cast(mp);
-                Pref pref = prefSet.lookupPref(name);
+                //TODO -- i dont believe this lines makes sense -- andruid 3/12/07
+                mp 			= mp.getClass().cast(mp);
+                Pref pref 	= prefSet.lookupPref(name);
                 //pref.print();
+                if (pref == null)
+                {
+                	pref	= mp.getDefaultPrefInstance();
+                	prefSet.add(pref);
+                }
                 pref.setValue(mp.getPrefValue());
-                prefSet.modifyPref(name,pref);
+                //TODO -- i dont believe this is really needed because only the value has been changed. -- andruid 3/12/07
+                //prefSet.modifyPref(name,pref);
                 //prefSet.lookupPref(mp.getID()).print();
             }
         }
