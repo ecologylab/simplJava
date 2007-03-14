@@ -54,14 +54,14 @@ public class Debug
     * Global hi watermark. debug() messages with a level less than or equal
     *  to this will get printed out.
     */
-   private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
+   //private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
 
 
    public static void initialize()
    {
       // class specific
       String levels	= Pref.lookupString("debug_levels");
-      println("Debug.initialize(" + Debug.level+", "+ levels+")");
+      //println("Debug.initialize(" + Debug.level+", "+ levels+")");
       if (levels != null)
       {
     	  StringTokenizer tokenizer	= new StringTokenizer(levels,";");
@@ -102,25 +102,29 @@ public class Debug
    }
    public static final int level(Object that)
    {
-      return level(getClassName(that));
+	   //return level(getClassName(that));
+	   return 0;
    }
    public static final int level(String className)
    {
-      int result	= level.value();
+/*      int result	= level.value();
       IntSlot slot	= (IntSlot) classLevels.get(className);
       if (slot != null)
 		 result		= slot.value;
       return result;
+      */
+	   return 0;
    }
    
 /**
  * @param	messageLevel If less than or equal to the static level,
  * message will get logged. Otherwise, the statement will be ignored.
  */
+   //TODO make levels work again
    public static void println(int messageLevel, String message) 
    {
-      if (messageLevel <= level.value())
-		 println(message);
+      //if (messageLevel <= level.value())
+		// println(message);
    }
    public static void printlnI(int messageLevel, String message) 
    {
