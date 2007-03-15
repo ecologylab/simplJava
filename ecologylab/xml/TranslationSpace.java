@@ -289,7 +289,7 @@ public class TranslationSpace extends Debug
 
                if (entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
 				   debug("WARNING: overriding with " + translationEntry);
-			   debug("adding translation: " + "<"+translationEntry.tag + "/> - " + translationEntry.className);
+			   //debug("adding inherited translation: " + "<"+translationEntry.tag + "/>\t" + translationEntry.className);
 			   //addTranslation(nameEntry.classObj);
 			   addTranslation(translationEntry);
 		   }
