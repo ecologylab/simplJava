@@ -88,13 +88,13 @@ public class XmlTranslationException extends Exception implements
         return exceptionType;
     }
     
-    public void printTraceOrMessage(Object that, String msg, ParsedURL purl)
+    public void printTraceOrMessage(Debug that, String msg, ParsedURL purl)
     {
     	switch (getExceptionType())
     	{
     	case FILE_NOT_FOUND:
         	String purlMsg	= (purl == null) ? "" : purl.toString();
-			Debug.println("\tFile not found - " + msg + " - "+purlMsg);
+			that.warning("File not found - " + msg + " - "+purlMsg);
     		break;
     	case NULL_PURL:
 			Debug.weird(that, "\tCan't open " + msg + " - ParsedURL is null");
