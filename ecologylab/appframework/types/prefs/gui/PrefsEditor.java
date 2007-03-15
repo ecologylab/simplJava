@@ -24,11 +24,13 @@ import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
 
 
 public class PrefsEditor
+extends Debug
 {
     MetaPrefSet metaPrefSet;
     PrefSet     prefSet;
@@ -215,42 +217,48 @@ public class PrefsEditor
     // gui actions for buttons
     private void actionSavePreferences()
     {
-        //System.out.println("we pressed the save button");
-        
-        // we do this with metaprefs because we will always have
-        // all metaprefs. we may not always have a prefs file to start
-        // with.
-    	// this iterator organizes them by category
-        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
-        {
-            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
-            {
-                // by casting here we get the proper return type
-                // for getPrefValue
-                String name = mp.getID();
-                //TODO -- i dont believe this lines makes sense -- andruid 3/12/07
-                //mp 			= mp.getClass().cast(mp);
-                Pref pref 	= mp.getAssociatedPref();
-                pref.setValue(mp.getPrefValue());
-                if (!prefSet.contains(pref))
-                	prefSet.add(pref);
+        //debug("we pressed the save button");
 
-                //TODO -- this is not really needed because only the value has been changed. -- andruid 3/12/07
-                //prefSet.modifyPref(name,pref);
-                //prefSet.lookupPref(mp.getID()).print();
-            }
-        }
-        // save file
-        
-        try
-        {
-            prefSet.saveXmlFile(savePrefsPURL.file(), true, false);
-        }
-        catch (XmlTranslationException e)
-        {
-            // TODO auto-generated catch block
-            e.printStackTrace();
-        }
+    	// we do this with metaprefs because we will always have
+    	// all metaprefs. we may not always have a prefs file to start
+    	// with.
+    	// this iterator organizes them by category
+    	for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+    	{
+    		for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+    		{
+    			// by casting here we get the proper return type
+    			// for getPrefValue
+    			String name = mp.getID();
+    			//TODO -- i dont believe this lines makes sense -- andruid 3/12/07
+    			//mp 			= mp.getClass().cast(mp);
+    			Pref pref 	= mp.getAssociatedPref();
+    			pref.setValue(mp.getPrefValue());
+    			if (!prefSet.contains(pref))
+    				prefSet.add(pref);
+    			
+    			//TODO -- this is not really needed because only the value has been changed. -- andruid 3/12/07
+    			//prefSet.modifyPref(name,pref);
+    			//prefSet.lookupPref(mp.getID()).print();
+    		}
+    	}
+    	if (savePrefsPURL == null)
+    	{
+    		//TODO provide better feedback to the user here!!!
+    		warning("Not saving Prefs persistently cause savePrefsURL == null.");
+    	}
+    	else
+    	{
+    		try
+    		{
+    			prefSet.saveXmlFile(savePrefsPURL.file(), true, false);
+    		}
+    		catch (XmlTranslationException e)
+    		{
+    			// TODO auto-generated catch block
+    			e.printStackTrace();
+    		}
+    	}
     }
     
     /**
