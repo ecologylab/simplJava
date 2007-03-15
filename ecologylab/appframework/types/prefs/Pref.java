@@ -192,6 +192,32 @@ public abstract class Pref<T> extends ArrayListState
         }
         return pref;
     }
+    
+    /**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name.
+	 * If you find it return it.
+	 * If not, create a new Pref object of the correct type.
+	 * Set its value to default value.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return	A usable Pref object associated with name, either from the registry or newly created
+	 */
+    public static PrefColor usePrefColor(String name, Color defaultValue)
+    {
+    	PrefColor pref = (PrefColor) lookupPref(name);
+        if (pref == null)
+        {
+        	pref		= new PrefColor(defaultValue);
+        	pref.name	= name;
+        	pref.register();
+        }
+        return pref;
+    }
 
 	
     public static Pref lookupPref(String name)
@@ -242,6 +268,16 @@ public abstract class Pref<T> extends ArrayListState
     public static String lookupString(String name) throws ClassCastException
     {
         return lookupString(name, null);
+    }
+    
+    public static Color lookupColor(String name, Color defaultValue) throws ClassCastException
+    {
+        PrefColor prefColor = ((PrefColor)lookupPref(name));
+		return (prefColor == null) ? defaultValue : prefColor.value();
+    }
+    public static Color lookupColor(String name) throws ClassCastException
+    {
+        return lookupColor(name, null);
     }
        
     public static ElementState lookupElementState(String name) throws ClassCastException
