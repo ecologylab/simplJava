@@ -328,6 +328,7 @@ implements Environment, XmlTranslationExceptionTypes
 					File metaPrefsFile	= Assets.getPreferencesFile(METAPREFS_XML);
 					metaPrefsPURL	= new ParsedURL(metaPrefsFile);
 					metaPrefSet		= MetaPrefSet.load(metaPrefsFile, translationSpace);
+					println("OK: loaded MetaPrefs from " + metaPrefsFile);
 						//MetaPrefSet.load(metaPrefsPURL, translationSpace);
 						//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
 				} catch (XmlTranslationException e)
@@ -335,10 +336,10 @@ implements Environment, XmlTranslationExceptionTypes
 					metaPrefSetException	= e;
 				}
 				ParsedURL prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
-	            println("Loading preferences from: " + prefsPURL);
 	            try
 				{
 					prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+		            println("OK: Loaded Prefs from " + prefsPURL);
 					if (metaPrefSetException != null)
 					{
 						warning("Couldn't load MetaPrefs:");
@@ -374,12 +375,12 @@ implements Environment, XmlTranslationExceptionTypes
 			argStack.push(arg);
 
 			XmlTranslationException metaPrefSetException	= null;
-			ParsedURL metaPrefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML));
+			File metaPrefsFile		= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
+			ParsedURL metaPrefsPURL	= new ParsedURL(metaPrefsFile);
 			try
 			{
 				metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
-				//MetaPrefSet.load(metaPrefsPURL, translationSpace);
-				//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
+	            println("OK: Loaded MetaPrefs from: " + metaPrefsFile);
 			} catch (XmlTranslationException e)
 			{
 				metaPrefSetException	= e;
@@ -394,8 +395,8 @@ implements Environment, XmlTranslationExceptionTypes
 				// load preferences specific to this invocation
 				if (arg.endsWith(".xml"))
 				{
-					ParsedURL prefsPURL	= new ParsedURL(new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg));
-		            println("Loading preferences from: " + prefsPURL);
+					File appPrefsFile	= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
+					ParsedURL prefsPURL	= new ParsedURL(appPrefsFile);
 		            try
 					{
 						prefSet 		= PrefSet.load(prefsPURL, translationSpace);
@@ -405,6 +406,9 @@ implements Environment, XmlTranslationExceptionTypes
 							metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
 							println("\tContinuing.");
 						}
+						else
+				            println("OK: Loaded Prefs from: " + appPrefsFile);
+
 					} catch (XmlTranslationException e)
 					{
 						if (metaPrefSetException != null)
@@ -416,9 +420,8 @@ implements Environment, XmlTranslationExceptionTypes
 						}
 						else
 						{
-							// meta prefs o.k. we can continue
-							warning("Couldn't load Prefs:");
-							e.printTraceOrMessage(this, "Prefs", prefsPURL);
+							// meta prefs o.k. we can continue without having loaded Prefs now
+							e.printTraceOrMessage(this, "Couldn't load Prefs", prefsPURL);
 							println("\tContinuing.");
 						}
 					}
@@ -778,7 +781,7 @@ implements Environment, XmlTranslationExceptionTypes
 	public PrefsEditor createPrefsEditor()
 	{
 		PrefsEditor result	= null;
-		if ((metaPrefSet != null) && (prefsPURL != null))
+		if (metaPrefSet != null)
 		{
 			if (prefSet == null)
 				prefSet		= new PrefSet();
