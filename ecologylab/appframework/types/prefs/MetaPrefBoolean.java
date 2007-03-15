@@ -64,8 +64,6 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
     JPanel getWidget()
     {
         Boolean defVal = (Boolean)this.getDefaultValue();
-        boolean yesVal = defVal;
-        boolean noVal = !defVal;
 
         JPanel panel = new JPanel();
         // at the moment this will only be a radio button choice
@@ -78,9 +76,24 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         panel.setSize(new java.awt.Dimension(586,40));
 
         this.createLabel(panel);
-        this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
-        this.createRadio(panel, radioPair, noVal, "No", "No", 484);
-        //}
+        
+        if (choices != null)
+        {
+        	ChoiceBoolean choice0	= (ChoiceBoolean) choices.get(0);
+            boolean isDefault = getDefaultValue().equals(choice0.getValue());
+            String name	= isDefault ? "Yes" : "No";
+        	this.createRadio(panel, radioPair, isDefault, choice0.getLabel(), name, 405);
+        	name	= !isDefault ? "Yes" : "No";
+        	ChoiceBoolean choice1	= (ChoiceBoolean) choices.get(1);
+        	this.createRadio(panel, radioPair, isDefault, choice1.getLabel(), name, 405);
+        }
+        else
+        {
+            boolean yesVal = defVal;
+            boolean noVal = !defVal;
+            this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
+            this.createRadio(panel, radioPair, noVal, "No", "No", 484);
+        }
 
         panel.setLayout(null);
         panel.setVisible(true);
