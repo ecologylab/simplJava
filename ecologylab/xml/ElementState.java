@@ -1673,7 +1673,25 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		}
 		saveXmlFile(new File(filePath), prettyXml, compression);
 	}
+	
 	/**
+	 * 	Translate to XML, then write the result to a file, while formatting nicely.
+	 */
+	public void savePrettyXml(File xmlFile)
+	throws XmlTranslationException
+	{
+		saveXmlFile(xmlFile, true, false);
+	}
+	/**
+	 * 	Translate to XML, then write the result to a file, while formatting nicely.
+	 */
+	public void savePrettyXml(String xmlFileName)
+	throws XmlTranslationException
+	{
+		savePrettyXml(new File(xmlFileName));
+	}
+	
+/**
  * 	Translate to XML, then write the result to a file.
  * 
  * 	@param xmlFile		the file in which the xml needs to be saved
