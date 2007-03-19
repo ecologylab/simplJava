@@ -160,6 +160,42 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 	   return XML_FILE_HEADER + translateToXML(compression);
 	}
+
+	/**
+	 * Translates a tree of ElementState objects into an equivalent XML string.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @return 							the generated xml string
+	 * 
+	 * @throws XmlTranslationException if there is a problem with the 
+	 * structure. Specifically, in each ElementState object, fields for 
+	 * attributes must be declared
+	 * before all fields for nested elements (those derived from ElementState).
+	 * If there is any public field which is not derived from ElementState
+	 * declared after the declaration for 1 or more ElementState instance
+	 * variables, this exception will be thrown.
+	 */
+	public String translateToXML() throws XmlTranslationException
+	{
+		//nodeNumber is just to indicate which node number(#1 is the root node of the DOM)
+		//is being processed. compression attr is emitted only for node number 1
+		return translateToXML(false, true);
+	}
+	
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
