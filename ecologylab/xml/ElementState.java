@@ -1713,7 +1713,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	/**
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
-	public void savePrettyXml(File xmlFile)
+	public void savePrettyXML(File xmlFile)
 	throws XmlTranslationException
 	{
 		saveXmlFile(xmlFile, true, false);
@@ -1721,10 +1721,10 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	/**
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
-	public void savePrettyXml(String xmlFileName)
+	public void savePrettyXML(String xmlFileName)
 	throws XmlTranslationException
 	{
-		savePrettyXml(new File(xmlFileName));
+		savePrettyXML(new File(xmlFileName));
 	}
 	
 /**
