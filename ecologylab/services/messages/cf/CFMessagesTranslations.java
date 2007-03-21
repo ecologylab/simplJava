@@ -25,6 +25,7 @@ public class CFMessagesTranslations extends Debug
 		DocumentState.class,
 		SearchState.class,
 				
+		CfCollaborationGetSurrogate.class,
 	};
 
 	/**
