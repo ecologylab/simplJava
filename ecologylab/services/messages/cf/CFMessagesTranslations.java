@@ -14,19 +14,10 @@ import ecologylab.xml.TranslationSpace;
  */
 public class CFMessagesTranslations extends Debug
 {
-	public static final String	NAME			= "messages.cf";
-	
 	public static final String	PACKAGE_NAME	= "ecologylab.services.messages.cf";
 	
 	public static final Class	TRANSLATIONS[]	= 
 	{ 
-		RequestMessage.class,
-		ResponseMessage.class,
-		StopMessage.class,
-		OkResponse.class,
-		BadSemanticContentResponse.class,
-		ErrorResponse.class,
-
 		SeedCf.class,
 
 		SeedSet.class,
@@ -51,6 +42,6 @@ public class CFMessagesTranslations extends Debug
 	 */
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(NAME, PACKAGE_NAME, TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, DefaultServicesTranslations.get(), TRANSLATIONS);
 	}
 }
