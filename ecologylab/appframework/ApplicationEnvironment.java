@@ -336,7 +336,7 @@ implements Environment, XmlTranslationExceptionTypes
 					metaPrefSetException	= e;
 				}
 				ParsedURL prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
-	            //TODO -- test for studies preference and download special studies preferences
+	            //TODO for eunyee -- test for studies preference and download special studies preferences
 	            // from supplied URL instead of from here
 	            try
 				{
