@@ -77,4 +77,10 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
 		 return (PrefSet) ElementState.translateFromXML(purl, translationSpace);
     	
     }
+    
+    public static PrefSet load(String prefXML, TranslationSpace translationSpace)
+    throws XmlTranslationException
+    {
+    	return (PrefSet) ElementState.translateFromXMLString(prefXML, translationSpace);
+    }
 }
