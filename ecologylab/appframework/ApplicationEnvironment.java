@@ -1,7 +1,13 @@
 package ecologylab.appframework;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Stack;
 
 import ecologylab.appframework.types.AssetsState;
@@ -272,6 +278,55 @@ implements Environment, XmlTranslationExceptionTypes
 		
 		// could parse more args here
 	}
+	
+	/**
+	 * request User's prefSet from the preferenceServlet and return the prefSetXML string.
+	 * @author eunyee
+	 * @param prefServlet
+	 * @param uid
+	 * @return
+	 */
+	private String requestPrefFromServlet(String prefServlet, String uid)
+	{
+		try 
+		{
+			 URL url = new URL(prefServlet);	
+			 URLConnection connection = url.openConnection();
+			 connection.getOutputStream().toString();
+			 // inform the the connection that we will send output and accept input
+			 connection.setDoOutput(true);
+			 connection.setDoInput(true);
+			
+			 // don't use a cached version of URL connection
+			 connection.setUseCaches(false);
+			 connection.setDefaultUseCaches(false);
+			
+			 // specify the content type that binary data is sent
+			 connection.setRequestProperty("Content-Type", "text/xml");
+			 
+		     // define a new PrintWriter on the output stream
+		     PrintWriter out = new PrintWriter(connection.getOutputStream());
+
+		     // send data to the servlet
+		     out.print("uid="+uid);
+		     out.close();
+
+		     // define a new BufferedReader on the input stream
+		     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+		     // receive data from the servlet
+		     String prefSetXML = in.readLine();
+		     
+		     in.close();
+		     
+		     return prefSetXML;
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
 
 	/**
 	 * Load MetaPrefs and Prefs, if possible
@@ -311,7 +366,8 @@ implements Environment, XmlTranslationExceptionTypes
 		case JNLP:
 			// next arg *should* be code base
 			if ((arg != null) && arg.endsWith("/"))
-			{	// JNLP only! (as of now)
+			{					
+				// JNLP only! (as of now)
 				// right now this only works for http://
 				ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
 				this.setCodeBase(codeBase);
@@ -336,11 +392,37 @@ implements Environment, XmlTranslationExceptionTypes
 					metaPrefSetException	= e;
 				}
 				ParsedURL prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
+
 	            //TODO for eunyee -- test for studies preference and download special studies preferences
+				// When the JNLP has more than two arguments (study case) -- eunyee
+				String prefXML = null;
+				if( argStack.size() > 0 )
+				{
+					String prefServlet	= "";
+					String uid			= "";
+					if( arg.startsWith("http://") )
+					{
+						// PreferencesServlet
+						prefServlet = pop(argStack);
+					}
+					else if( !arg.contains("/") )
+					{
+						// uid
+						uid = pop(argStack);
+					}
+					prefXML = requestPrefFromServlet(prefServlet, uid);
+					if( prefXML == null )
+						error("not prefXML string returned from the servlet=" + prefServlet);
+				}
+				
 	            // from supplied URL instead of from here
 	            try
 				{
-					prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+	            	if( prefXML == null ) // Normal Case
+	            		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+	            	else // The case that the servlet brings prefXML strings. 
+	            		prefSet = PrefSet.load(prefXML, translationSpace);
+	            	
 		            println("OK: Loaded Prefs from " + prefsPURL);
 					if (metaPrefSetException != null)
 					{
