@@ -286,7 +286,7 @@ implements Environment, XmlTranslationExceptionTypes
 	 * @param uid
 	 * @return
 	 */
-	private String requestPrefFromServlet(String prefServlet, String uid)
+	private String requestPrefFromServlet(String prefServlet)
 	{
 		try 
 		{
@@ -400,18 +400,13 @@ implements Environment, XmlTranslationExceptionTypes
 				if( argStack.size() > 0 )
 				{
 					String prefServlet	= "";
-					String uid			= "";
 					if( arg.startsWith("http://") )
 					{
 						// PreferencesServlet
 						prefServlet = pop(argStack);
 					}
-					else if( !arg.contains("/") )
-					{
-						// uid
-						uid = pop(argStack);
-					}
-					prefXML = requestPrefFromServlet(prefServlet, uid);
+
+					prefXML = requestPrefFromServlet(prefServlet);
 					if( prefXML == null )
 						error("not prefXML string returned from the servlet=" + prefServlet);
 				}
