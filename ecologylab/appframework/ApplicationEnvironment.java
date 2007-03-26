@@ -307,8 +307,9 @@ implements Environment, XmlTranslationExceptionTypes
 		     // define a new PrintWriter on the output stream
 		     PrintWriter out = new PrintWriter(connection.getOutputStream());
 
-		     // send data to the servlet
-		     out.print("uid="+uid);
+		     // send data to the servlet 
+		 // No Need because we are sending a Get message with a parameter appended in the URL.     
+		 //    out.print("uid="+uid);
 		     out.close();
 
 		     // define a new BufferedReader on the input stream
