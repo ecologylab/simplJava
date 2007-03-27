@@ -24,8 +24,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import ecologylab.appframework.ApplicationEnvironment;
@@ -41,6 +43,9 @@ import ecologylab.xml.XmlTranslationException;
 public class PrefsEditor
 extends Debug
 {
+    private static final int SMALL_TOP_GUI_INSET = 10;
+    private static final int LEFT_GUI_INSET = 20;
+    private static final int TOP_GUI_INSET = 20;
     MetaPrefSet metaPrefSet;
     PrefSet     prefSet;
     ParsedURL   savePrefsPURL;
@@ -207,19 +212,26 @@ extends Debug
                 {
                     firstTime = false;
                     int numberOfEntries = this.getComponentCount();
-                    for (int i=0; i < numberOfEntries; i+=2)
+                    for (int i=0; i < numberOfEntries; i+=3)
                     {
                         // TODO: this only works because we alternate adding JLabels and JPanels
-                        if (((JLabel)this.getComponent(i) instanceof JLabel) && ((JPanel)this.getComponent(i+1) instanceof JPanel))
+                        if (((JLabel)this.getComponent(i) instanceof JLabel) && ((JPanel)this.getComponent(i+1) instanceof JPanel) && ((JSeparator)this.getComponent(i+2) instanceof JSeparator))
                         {
                             JLabel desc = (JLabel)this.getComponent(i);
                             JPanel val  = (JPanel)this.getComponent(i+1);
+                            JSeparator sep = (JSeparator)this.getComponent(i+2);
 
                             FontMetrics fm = desc.getFontMetrics(desc.getFont());
                             int actualWidth = (this.getWidth()-val.getWidth());
                             int stringWidth = SwingUtilities.computeStringWidth(fm, desc.getText());
                             
                             desc.setPreferredSize(new Dimension(actualWidth,((stringWidth/actualWidth)+1)*fm.getHeight()));
+                            sep.setPreferredSize(new Dimension(this.getWidth()-(LEFT_GUI_INSET*2),3));
+                            if (i+3 == numberOfEntries)
+                            {
+                                // make last separator invisible
+                                sep.setVisible(false);
+                            }
                         }
                     }
                 }
@@ -253,10 +265,26 @@ extends Debug
                 constraints.anchor = GridBagConstraints.FIRST_LINE_END;
                 contentPanel.add(subValue, constraints);
             }
+            JSeparator separator  = createSeparator(constraints, rowNum);
+            constraints.anchor = GridBagConstraints.NORTH;
+            contentPanel.add(separator,constraints);
             rowNum++;
         }
         
         return contentPanel;
+    }
+
+    private JSeparator createSeparator(GridBagConstraints constraints, int rowNum)
+    {
+        JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+        /*separator.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(Color.green),
+                            separator.getBorder()));*/
+        constraints.gridx = 0;
+        constraints.gridy = rowNum + 1;
+        constraints.gridwidth = 2;
+        constraints.insets = new Insets(SMALL_TOP_GUI_INSET,0,0,0);
+        return separator;
     }
 
     private JLabel createDescriptionSection(JPanel contentPanel, GridBagConstraints constraints, int rowNum, MetaPref mp)
@@ -268,7 +296,8 @@ extends Debug
         constraints.anchor = GridBagConstraints.FIRST_LINE_START;
         constraints.gridx = 0;
         constraints.gridy = rowNum;
-        constraints.insets = new Insets(10,20,0,0); // top,left,bottom,right
+        constraints.gridwidth = 1;
+        constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,0,0); // top,left,bottom,right
         return subDescription;
     }
     
@@ -279,11 +308,11 @@ extends Debug
         {
             constraints.gridx = 1;
             constraints.gridy = rownum;
-            constraints.insets = new Insets(10,20,0,0); // top,left,bottom,right
-//                subValue.setSize(new Dimension(250, subValue.HEIGHT));
+            constraints.gridwidth = 1;
+            constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,0,0); // top,left,bottom,right
             /*subValue.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(Color.blue),
-                    subValue.getBorder())); */
+                    subValue.getBorder()));*/
             // if we have a prefs value, override it now
             if (Pref.hasPref(metaPref.getID()))
             {
