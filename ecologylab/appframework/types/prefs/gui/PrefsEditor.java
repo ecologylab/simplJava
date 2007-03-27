@@ -43,9 +43,10 @@ import ecologylab.xml.XmlTranslationException;
 public class PrefsEditor
 extends Debug
 {
-    private static final int SMALL_TOP_GUI_INSET = 10;
+    private static final int SMALL_TOP_GUI_INSET = 0;
     private static final int LEFT_GUI_INSET = 20;
-    private static final int TOP_GUI_INSET = 20;
+    private static final int TOP_GUI_INSET = 10;
+    private static final int BOTTOM_GUI_INSET = 10;
     MetaPrefSet metaPrefSet;
     PrefSet     prefSet;
     ParsedURL   savePrefsPURL;
@@ -297,7 +298,7 @@ extends Debug
         constraints.gridx = 0;
         constraints.gridy = rowNum;
         constraints.gridwidth = 1;
-        constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,0,0); // top,left,bottom,right
+        constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,BOTTOM_GUI_INSET,0); // top,left,bottom,right
         return subDescription;
     }
     
@@ -309,7 +310,7 @@ extends Debug
             constraints.gridx = 1;
             constraints.gridy = rownum;
             constraints.gridwidth = 1;
-            constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,0,0); // top,left,bottom,right
+            constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,BOTTOM_GUI_INSET,0); // top,left,bottom,right
             /*subValue.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createLineBorder(Color.blue),
                     subValue.getBorder()));*/
