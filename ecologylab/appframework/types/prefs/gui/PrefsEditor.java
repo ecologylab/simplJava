@@ -1,7 +1,13 @@
 package ecologylab.appframework.types.prefs.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,15 +15,18 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.types.prefs.MetaPref;
@@ -75,9 +84,10 @@ extends Debug
         if (jFrame == null) 
         {
             jFrame = new JFrame();
+            jFrame.setPreferredSize(new Dimension(603, 532));
             jFrame.setSize(new Dimension(603, 532));
             jFrame.setTitle("combinFormation Preferences");
-            jFrame.setContentPane(getJContentPane());
+            jFrame.setContentPane(createJContentPane());
         }
         return jFrame;
     }
@@ -93,21 +103,21 @@ extends Debug
     		System.exit(0);
 	}
 	
-    private JPanel getJContentPane() 
+    private JPanel createJContentPane() 
     {
         if (jContentPane == null) 
         {
             jContentPane = new JPanel();
             jContentPane.setLayout(null);
-            jContentPane.add(getJTabbedPane(), null);
-            jContentPane.add(getCancelButton(), null);
-            jContentPane.add(getSaveButton(), null);
-            jContentPane.add(getRevertButton(), null);
+            jContentPane.add(createJTabbedPane(), null);
+            jContentPane.add(createCancelButton(), null);
+            jContentPane.add(createSaveButton(), null);
+            jContentPane.add(createRevertButton(), null);
         }
         return jContentPane;
     }
 
-    private JButton getCancelButton() 
+    private JButton createCancelButton() 
     {
         if (cancelButton == null) 
         {
@@ -125,7 +135,7 @@ extends Debug
         return cancelButton;
     }
 
-    private JButton getSaveButton() 
+    private JButton createSaveButton() 
     {
         if (saveButton == null) 
         {
@@ -143,7 +153,7 @@ extends Debug
         return saveButton;
     }
 
-    private JButton getRevertButton() 
+    private JButton createRevertButton() 
     {
         if (revertButton == null) 
         {
@@ -163,7 +173,7 @@ extends Debug
     // end of static bits of gui
     
     // bits of gui that are all or part auto-generated
-    private JTabbedPane getJTabbedPane() 
+    private JTabbedPane createJTabbedPane() 
     {
         if (jTabbedPane == null) 
         {
@@ -173,55 +183,126 @@ extends Debug
             
             for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
             {
-                JScrollPane p = new JScrollPane();
-                p.setPreferredSize(new java.awt.Dimension(500,500));
-                p.setComponentOrientation(java.awt.ComponentOrientation.LEFT_TO_RIGHT);
-                p.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-                p.setName("");
-                p.setViewportView(getTabbedBodyFrame(cat));
-                jTabbedPane.addTab(cat, null, p, null);
+                JScrollPane scrollPane = new JScrollPane();
+                scrollPane.setSize(new Dimension(jTabbedPane.getWidth(),jTabbedPane.getHeight()));
+                scrollPane.setComponentOrientation(java.awt.ComponentOrientation.LEFT_TO_RIGHT);
+                scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+                scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                scrollPane.setName(cat);
+                scrollPane.setViewportView(getTabbedBodyFrame(cat,scrollPane));
+                jTabbedPane.addTab(cat, null, scrollPane, null);
             }
         }
         return jTabbedPane;
     }
 
-    private JPanel getTabbedBodyFrame(String category)
+    private JPanel getTabbedBodyFrame(String category, JScrollPane scrollPane)
     {
-        JPanel newPanel = new JPanel();
-        newPanel.setLayout(null);
-        int yval = 30;
-        newPanel.setSize(new java.awt.Dimension(586,500));
-        for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(category))
+        JPanel contentPanel = new JPanel()
         {
-            JPanel subPanel = mp.jPanel;
-            if (subPanel != null)
+            private boolean firstTime = true;
+            public void paintComponent(Graphics g)
             {
-                //int height = subPanel.getHeight();
-                //int width = subPanel.getWidth();
-                //System.out.println("subpanel found for " + category + "; height: " + height + ", width: " + width);
-                subPanel.setLocation(30, yval);
-                yval += subPanel.getHeight();
-                // if we have a prefs value, override it now
-                if (Pref.hasPref(mp.getID()))
+                if (firstTime)
                 {
-                    mp.setWidgetToPrefValue(Pref.lookupPref(mp.getID()).value());
+                    firstTime = false;
+                    int numberOfEntries = this.getComponentCount();
+                    for (int i=0; i < numberOfEntries; i+=2)
+                    {
+                        // TODO: this only works because we alternate adding JLabels and JPanels
+                        if (((JLabel)this.getComponent(i) instanceof JLabel) && ((JPanel)this.getComponent(i+1) instanceof JPanel))
+                        {
+                            JLabel desc = (JLabel)this.getComponent(i);
+                            JPanel val  = (JPanel)this.getComponent(i+1);
+
+                            FontMetrics fm = desc.getFontMetrics(desc.getFont());
+                            int actualWidth = (this.getWidth()-val.getWidth());
+                            int stringWidth = SwingUtilities.computeStringWidth(fm, desc.getText());
+                            
+                            desc.setPreferredSize(new Dimension(actualWidth,((stringWidth/actualWidth)+1)*fm.getHeight()));
+                        }
+                    }
                 }
-                newPanel.add(subPanel);
+                super.paintComponent(g);
             }
+        };
+        /*contentPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.yellow),
+                contentPanel.getBorder()));*/
+        contentPanel.setLayout(new GridBagLayout());
+        contentPanel.setMaximumSize(new Dimension(scrollPane.getWidth(),Integer.MAX_VALUE));
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.weightx = 0.1;
+        int rowNum = 0;
+        for (MetaPref metaPref : metaPrefSet.categoryToMetaPrefs.get(category))
+        {
+            JLabel subDescription = createDescriptionSection(contentPanel, constraints, rowNum, metaPref);
+            JPanel subValue       = createValueSection(constraints, metaPref, rowNum);
+            
+            subValue.setMaximumSize(new Dimension(scrollPane.getWidth()/2,100));
+            subDescription.setMaximumSize(new Dimension(scrollPane.getWidth()/2,50));
+
+            // we have to do this in order for our redraw code to work properly.
+            subDescription.setPreferredSize(new Dimension(1,1));
+
+            //add these suckers to the contentpanel.
+            constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+            contentPanel.add(subDescription, constraints);
+            if (subValue != null)
+            {
+                constraints.anchor = GridBagConstraints.FIRST_LINE_END;
+                contentPanel.add(subValue, constraints);
+            }
+            rowNum++;
         }
         
-        return newPanel;
+        return contentPanel;
+    }
+
+    private JLabel createDescriptionSection(JPanel contentPanel, GridBagConstraints constraints, int rowNum, MetaPref mp)
+    {
+        JLabel subDescription = mp.getLabel(contentPanel);
+        /*subDescription.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.red),
+                subDescription.getBorder()));*/
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        constraints.gridx = 0;
+        constraints.gridy = rowNum;
+        constraints.insets = new Insets(10,20,0,0); // top,left,bottom,right
+        return subDescription;
+    }
+    
+    private JPanel createValueSection(GridBagConstraints constraints, MetaPref metaPref, int rownum)
+    {
+        JPanel subValue = metaPref.jPanel;
+        if (subValue != null)
+        {
+            constraints.gridx = 1;
+            constraints.gridy = rownum;
+            constraints.insets = new Insets(10,20,0,0); // top,left,bottom,right
+//                subValue.setSize(new Dimension(250, subValue.HEIGHT));
+            /*subValue.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.blue),
+                    subValue.getBorder())); */
+            // if we have a prefs value, override it now
+            if (Pref.hasPref(metaPref.getID()))
+            {
+                metaPref.setWidgetToPrefValue(Pref.lookupPref(metaPref.getID()).value());
+            }
+        }
+        return subValue;
     }
     // end of bits of gui that are all or part auto-generated
+    
     
     // gui actions for buttons
     private void actionSavePreferences()
     {
         //debug("we pressed the save button");
 
-    	// we do this with metaprefs because we will always have
-    	// all metaprefs. we may not always have a prefs file to start
-    	// with.
+    	/* we do this with metaprefs because we will always have
+    	 * all metaprefs. we may not always have a prefs file to start
+    	 * with. */
     	// this iterator organizes them by category
     	for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
     	{
