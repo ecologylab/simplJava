@@ -3,8 +3,11 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.util.HashMap;
 
@@ -33,7 +36,9 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class MetaPref<T> extends ElementState
 {
-	/**
+	private static final int TOOLTIP_WRAP_WIDTH = 80;
+
+    /**
 	 * Unique identifier for Preference name with convenient lookup in automatically generated HashMap.
 	 */
 	@xml_attribute 	String		id;
@@ -89,12 +94,28 @@ public abstract class MetaPref<T> extends ElementState
         return category;
     }
     
+    public String getDescription()
+    {
+        return description;
+    }
+    
+    public String getHelpText()
+    {
+        return helpText;
+    }
+    
     public String getID()
     {
         return id;
     }
 
     public abstract JPanel getWidget();
+    
+    public JLabel getLabel(JPanel panel)
+    {
+        // pass 0,0 for row,col - it doesn't actually matter.
+        return createLabel(panel, 0, 0);
+    }
     
     public void print()
     {
@@ -204,74 +225,122 @@ public abstract class MetaPref<T> extends ElementState
         return jComponent;
     }
     
-    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int x)
+    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int row, int col)
     {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
         JRadioButton radioButton = new JRadioButton();
-        // get font metrics info so we can properly determine length
-        FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
-        // get actual width of string (as per gui, not as number of chars)
-        double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
-        // also add width of icon TODO guessed to be 30 because icon.getIconWidth is not working
-        radioButton.setBounds(new Rectangle(x, 7, (int)strWidth+30, 32));
+        
         radioButton.setSelected(initialValue);
         radioButton.setName(name);
         radioButton.setText(label);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,20); // top,left,bottom,right
         
         buttonGroup.add(radioButton);
         
-        panel.add(radioButton);
+        panel.add(radioButton, c);
         registerComponent(name, radioButton);
         
         return radioButton;
     }
     
-    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int x, int y)
+    protected JTextField createTextField(JPanel panel, String initialValue, String labelAndName, int row, int col)
     {
-        // get font metrics info so we can properly determine length
-        JRadioButton radioButton = new JRadioButton();
-        FontMetrics fontMetrics = panel.getFontMetrics(radioButton.getFont());
-        // get string width
-        double strWidth = fontMetrics.getStringBounds(label, panel.getGraphics()).getWidth();
-        // also add width of icon TODO guessed to be 30 because icon.getIconWidth is not working
-        radioButton.setBounds(new Rectangle(x, y, (int)strWidth + 30, 32));
-        radioButton.setSelected(initialValue);
-        radioButton.setName(name);
-        radioButton.setText(label);
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
         
-        buttonGroup.add(radioButton);
-        
-        panel.add(radioButton);
-        registerComponent(name, radioButton);
-        
-        return radioButton;
-    }
-    
-    protected JTextField createTextField(JPanel panel, String initialValue, String labelAndName)
-    {
         JTextField textField = new JTextField();
-        textField.setBounds(new Rectangle(410, 17, 115, 20));
         textField.setHorizontalAlignment(JTextField.CENTER);
         textField.setText(initialValue);
         textField.setName(labelAndName);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,20); // top,left,bottom,right
+        c.ipadx = 50;
         
-        panel.add(textField);
+        panel.add(textField, c);
         registerComponent(labelAndName, textField);
         
         return textField;
     }
     
-    protected JLabel createLabel(JPanel panel)
+    protected JLabel createLabel(JPanel panel, int row, int col)
     {
-        JLabel label = new JLabel();
-        label.setBounds(new Rectangle(0, 10, 340, 32));
-        String wrapText = "<html>" + this.description + "</html>";
-        label.setText(wrapText);
-        label.setToolTipText(this.helpText);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
         
-        panel.add(label);
+        JLabel label = new JLabel();
+        String wrapText = "<html>" + description + "</html>";
+        label.setText(wrapText);
+        
+        //nasty workaround because there is no API option to wrap tooltips
+        String formattedToolTip = wrapTooltip();
+        
+        label.setToolTipText(formattedToolTip);
+        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        label.setVerticalAlignment(SwingConstants.TOP);
+        c.gridx = col;
+        c.gridy = row;
+        c.weightx = 0.5;
+        c.insets = new Insets(0,15,0,0); // top,left,bottom,right
+        
+        panel.add(label, c);
         
         return label;
+    }
+
+    /**
+     * This allows you to wrap the help tooltip text, because there is no
+     * way to normally do this.
+     * @return
+     */
+    private String wrapTooltip()
+    {
+        String formattedToolTip = "<html>";
+        if (helpText != null && helpText != "")
+        {
+            int tiplen = helpText.length();
+            int wrapAt = TOOLTIP_WRAP_WIDTH;
+            int nowAt = 0;
+            int breakAt = 0;
+            if (wrapAt > tiplen-1)
+            {
+                formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
+            }
+            else
+            {
+                do
+                {
+                    nowAt = breakAt;
+                    breakAt = helpText.indexOf(" ", (nowAt+wrapAt));
+                    if (breakAt > tiplen-1)
+                    {
+                        //System.out.print("breakAt " + breakAt + " is past length of string " + tiplen + "\n");
+                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
+                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
+                    }
+                    else if (breakAt > 0)
+                    {
+                        //System.out.print("cut is nowAt " + nowAt + " to breakAt " + breakAt + "\n");
+                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, breakAt) + "<br>");
+                    }
+                    else
+                    {
+                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
+                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
+                        break;
+                    }
+                } while(nowAt < tiplen-1);
+            }
+        }
+        formattedToolTip = formattedToolTip.concat("</html>");
+        return formattedToolTip;
     }
 
     /**
