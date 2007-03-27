@@ -36,7 +36,13 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class MetaPref<T> extends ElementState
 {
-	private static final int TOOLTIP_WRAP_WIDTH = 80;
+	private static final int TEXT_FIELD_PADDING = 50;
+
+    private static final int RIGHT_GUI_INSET = 20;
+
+    private static final int LEFT_GUI_INSET = 15;
+
+    private static final int TOOLTIP_WRAP_WIDTH = 80;
 
     /**
 	 * Unique identifier for Preference name with convenient lookup in automatically generated HashMap.
@@ -238,7 +244,7 @@ public abstract class MetaPref<T> extends ElementState
         radioButton.setText(label);
         c.gridx = col;
         c.gridy = row;
-        c.insets = new Insets(0,0,0,20); // top,left,bottom,right
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
         
         buttonGroup.add(radioButton);
         
@@ -260,8 +266,8 @@ public abstract class MetaPref<T> extends ElementState
         textField.setName(labelAndName);
         c.gridx = col;
         c.gridy = row;
-        c.insets = new Insets(0,0,0,20); // top,left,bottom,right
-        c.ipadx = 50;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        c.ipadx = TEXT_FIELD_PADDING;
         
         panel.add(textField, c);
         registerComponent(labelAndName, textField);
@@ -288,7 +294,7 @@ public abstract class MetaPref<T> extends ElementState
         c.gridx = col;
         c.gridy = row;
         c.weightx = 0.5;
-        c.insets = new Insets(0,15,0,0); // top,left,bottom,right
+        c.insets = new Insets(0,LEFT_GUI_INSET,0,0); // top,left,bottom,right
         
         panel.add(label, c);
         
