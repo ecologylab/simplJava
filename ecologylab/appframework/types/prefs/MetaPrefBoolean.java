@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 
 import javax.swing.ButtonGroup;
@@ -66,36 +68,29 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         Boolean defVal = (Boolean)this.getDefaultValue();
 
         JPanel panel = new JPanel();
-        // at the moment this will only be a radio button choice
-        //if (widgetIsRadio())
-        //{
         panel.setName(this.id);
+        panel.setLayout(new GridBagLayout());
 
         ButtonGroup radioPair = new ButtonGroup();
-
-        panel.setSize(new java.awt.Dimension(586,40));
-
-        this.createLabel(panel);
         
         if (choices != null)
         {
         	ChoiceBoolean choice0	= (ChoiceBoolean) choices.get(0);
-            boolean isDefault = getDefaultValue().equals(choice0.getValue());
-            String name	= isDefault ? "Yes" : "No";
-        	this.createRadio(panel, radioPair, isDefault, choice0.getLabel(), name, 405);
-        	name	= !isDefault ? "Yes" : "No";
+            boolean isDefault       = getDefaultValue().equals(choice0.getValue());
+            String name	            = isDefault ? "Yes" : "No";
+        	this.createRadio(panel, radioPair, isDefault, choice0.getLabel(), name, 0, 0);
+        	name	                = !isDefault ? "Yes" : "No";
         	ChoiceBoolean choice1	= (ChoiceBoolean) choices.get(1);
-        	this.createRadio(panel, radioPair, isDefault, choice1.getLabel(), name, 405);
+        	this.createRadio(panel, radioPair, isDefault, choice1.getLabel(), name, 1, 0);
         }
         else
         {
-            boolean yesVal = defVal;
-            boolean noVal = !defVal;
-            this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 405);
-            this.createRadio(panel, radioPair, noVal, "No", "No", 484);
+            boolean yesVal  = defVal;
+            boolean noVal   = !defVal;
+            this.createRadio(panel, radioPair, yesVal, "Yes", "Yes", 0, 0);
+            this.createRadio(panel, radioPair, noVal, "No", "No", 1, 0);
         }
 
-        panel.setLayout(null);
         panel.setVisible(true);
         
         return panel;

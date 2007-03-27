@@ -3,6 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 
 import javax.swing.JLabel;
@@ -54,14 +55,11 @@ public class MetaPrefString extends MetaPref<String>
         //if (widgetIsTextField())
         //{
         panel.setName(this.id);
+        panel.setLayout(new GridBagLayout());
 
-        this.createLabel(panel);
-        this.createTextField(panel,this.getDefaultValue(),"textField");
-
-        panel.setSize(new java.awt.Dimension(586,35));
+        this.createTextField(panel,this.getDefaultValue(),"textField", 0, 0);
         //}
         
-        panel.setLayout(null);
         panel.setVisible(true);
         
         return panel;

@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.GridBagLayout;
+
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JPanel;
@@ -75,11 +77,11 @@ public class MetaPrefInt extends MetaPref<Integer>
     {
         JPanel panel = new JPanel();
         panel.setName(this.id);
+        panel.setLayout(new GridBagLayout());
         
-        this.createLabel(panel);
         if (widgetIsTextField())
         {
-            this.createTextField(panel,this.getDefaultValue().toString(),"textField");
+            this.createTextField(panel,this.getDefaultValue().toString(),"textField", 0, 0);
         }
         else if (widgetIsRadio())
         {
@@ -88,28 +90,17 @@ public class MetaPrefInt extends MetaPref<Integer>
             if (choices != null)
             {
                 ButtonGroup buttonGroup = new ButtonGroup();
-                int start_y = 7;
+                int rnum = 0;
                 for (Choice choice : choices)
                 {
                     boolean isDefault = getDefaultValue().equals(choice.getValue());
-                    //println("this is default?: " + thisIsDefault);
-                    //println("getDefaultValue: " + getDefaultValue().toString());
-                    //println("choice.getValue: " + choice.getValue().toString());
-                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), RADIO_X, start_y);
-                    start_y += 30;
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), rnum, 0);
+                    rnum++;
                 }
             }
         }
         // TODO: drop-down list
-        if (choices != null)
-        {
-            panel.setSize(new java.awt.Dimension(586,35*choices.size()));
-        }
-        else
-        {
-            panel.setSize(new java.awt.Dimension(586,35));
-        }
-        panel.setLayout(null);
+
         panel.setVisible(true);
         
         return panel;

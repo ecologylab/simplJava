@@ -3,6 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 
 import javax.swing.ButtonGroup;
@@ -52,12 +53,11 @@ public class MetaPrefFloat extends MetaPref<Float>
     {
         JPanel panel = new JPanel();
         panel.setName(this.id);
-        
-        this.createLabel(panel);
+        panel.setLayout(new GridBagLayout());
         
         if (widgetIsTextField())
         {
-            this.createTextField(panel,this.getDefaultValue().toString(),"textField");
+            this.createTextField(panel,this.getDefaultValue().toString(),"textField", 0, 0);
         }
         else if (widgetIsRadio())
         {
@@ -66,17 +66,17 @@ public class MetaPrefFloat extends MetaPref<Float>
             if (choices != null)
             {
                 ButtonGroup buttonGroup = new ButtonGroup();
+                int rnum = 0;
                 for (Choice choice : choices)
                 {
                     boolean isDefault = this.getDefaultValue().equals(choice.getValue());
-                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), 405);
+                    this.createRadio(panel, buttonGroup, isDefault, choice.getLabel(), choice.getName(), rnum, 0);
+                    rnum++;
                 }
             }
         }
         // TODO: drop-down list
         
-        panel.setSize(new java.awt.Dimension(586,35));
-        panel.setLayout(null);
         panel.setVisible(true);
         
         return panel;
