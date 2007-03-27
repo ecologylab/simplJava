@@ -25,9 +25,9 @@ public class CollectionTools extends Debug
 	    * @param strings
 	    * @return
 	    */
-	   public static final HashMap buildHashMapFromStrings(String[] strings)
+	   public static final HashMap<String, String> buildHashMapFromStrings(String[] strings)
 	   {
-	      HashMap hashMap	= new HashMap(strings.length);
+	      HashMap<String, String> hashMap	= new HashMap<String, String>(strings.length);
 	      buildMapFromStrings(hashMap, strings);
 	      return hashMap;
 	   }
@@ -39,9 +39,9 @@ public class CollectionTools extends Debug
 	    * @param strings
 	    * @return
 	    */
-	   public static final HashMap buildHashMapFromLCStrings(String[] strings)
+	   public static final HashMap<String, String> buildHashMapFromLCStrings(String[] strings)
 	   {
-	      HashMap hashMap	= new HashMap(strings.length);
+	      HashMap<String, String> hashMap	= new HashMap<String, String>(strings.length);
 	      buildMapFromLCStrings(hashMap, strings);
 	      return hashMap;
 	   }
@@ -52,9 +52,9 @@ public class CollectionTools extends Debug
 	    * @param entries
 	    * @return
 	    */
-	   public static final HashMap buildHashMap(Object[][] entries)
+	   public static<T> HashMap<T,T> buildHashMap(T[][] entries)
 	   {
-	      HashMap hashMap	= new HashMap(entries.length);
+	      HashMap<T, T> hashMap	= new HashMap<T, T>(entries.length);
 	      buildMap(hashMap, entries);
 	      return hashMap;
 	   }
@@ -65,7 +65,7 @@ public class CollectionTools extends Debug
 	    * @param map
 	    * @param strings
 	    */
-	   public static final void buildMapFromStrings(Map map, String[] strings)
+	   public static final void buildMapFromStrings(Map<String,String> map, String[] strings)
 	   {
 	      for (int i=0; i<strings.length; i++)
 	      {
@@ -81,7 +81,7 @@ public class CollectionTools extends Debug
 	    * @param map
 	    * @param strings
 	    */
-	   public static final void buildMapFromLCStrings(Map map, String[] strings)
+	   public static final void buildMapFromLCStrings(Map<String,String> map, String[] strings)
 	   {
 	      for (int i=0; i<strings.length; i++)
 	      {
@@ -91,13 +91,13 @@ public class CollectionTools extends Debug
 	      }
 	   }
 
-	public static final void buildMap(Map map, Object[][] entries)
+	public static<T> void buildMap(Map<T,T> map, T[][] entries)
 	   {
 	      for (int i=0; i<entries.length; i++)
 	      {
-	    	 Object[] thatEntry	= entries[i];
-	    	 Object thatKey		= thatEntry[0];
-	    	 Object thatValue	= thatEntry[1];
+	    	 T[] thatEntry	= entries[i];
+	    	 T thatKey		= thatEntry[0];
+	    	 T thatValue	= thatEntry[1];
 			 map.put(thatKey, thatValue);
 	      }
 	   }
@@ -105,13 +105,13 @@ public class CollectionTools extends Debug
 	// The keys come from the String[], the values are corresponding number start with 0
 	   public static final HashMap buildNumberHashMapFromStrings(String[] strings)
 	   {
-	      HashMap hashMap	= new HashMap(strings.length);
+	      HashMap<String, Integer> hashMap	= new HashMap<String, Integer>(strings.length);
 	      buildNumberMapFromStrings(hashMap, strings);
 	      return hashMap;
 	   }
 
 	// The keys come from the String[], the values are corresponding number start with 0
-	   public static final void buildNumberMapFromStrings(Map map, String[] strings)
+	   public static final void buildNumberMapFromStrings(Map<String, Integer> map, String[] strings)
 	   {
 	      for (int i=0; i<strings.length; i++)
 	      {
@@ -121,7 +121,7 @@ public class CollectionTools extends Debug
 	      }
 	   }
 
-	public static final void stringIntMapEntry(Map map,
+	public static final void stringIntMapEntry(Map<String, IntSlot> map,
 						      String string, int integer)
 	   {
 	      map.put(string, new IntSlot(integer));
