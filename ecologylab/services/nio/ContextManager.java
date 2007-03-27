@@ -15,6 +15,7 @@ import ecologylab.generic.Debug;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.exceptions.BadClientException;
+import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -211,7 +212,16 @@ public class ContextManager extends Debug implements ServerConstants
     {
         requestMessage.setSender(this.socket.socket().getInetAddress());
 
-        return requestMessage.performService(registry);
+        try
+        {
+            return requestMessage.performService(registry);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            
+            return new BadSemanticContentResponse("The request, "+requestMessage.toString()+" caused an exception on the server.");
+        }
     }
 
     /**
