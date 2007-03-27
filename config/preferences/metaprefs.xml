@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <meta_pref_set>
+    <meta_pref_int id="graphics_device" description="If you have more than one monitor, indicates which one should be used by the application." helpText="Monitors are -usually- numbered 1,2,3.. from left to right. You can check this by looking at your OS's display settings." widget="TEXT_FIELD" category="General" defaultValue="1" requires_restart="1"/>
+
     <meta_pref_boolean id="crawl" description="Download linked documents automatically (crawl)?" helpText="At startup, do you want the information collecting agent to act as a web crawler, by periodically following hyperlinks to download more documents?" widget="RADIO" category="General" defaultValue="1" />
     <meta_pref_boolean id="download_images_automatically" description="Download images automatically?" helpText="At startup, do you want the information collecting agent to download the images from the web pages it processes?" widget="RADIO" category="General" defaultValue="1" />
-    <meta_pref_float id="coolSpaceRatio" description="Cool Space Ratio" helpText="The hot space is the composition area that you share with the program. The cool space is exclusively yours  to work with.&lt;br&gt;&lt;br&gt;This parameter defines the proportion of the whole information space that is dedicated as the cool space, at startup time." widget="TEXT_FIELD" category="General" defaultValue="0.2" />
+    <meta_pref_boolean id="limit_traversal" description="Web crawler path:" helpText="Should the web crawler only crawl deeper through the each site provided or should it also follow links elsewhere outside of the site." widget="RADIO" category="General" defaultValue="0">
+    	<choices>
+    		<choice_boolean name="limit" label="only crawl deeper into each site" value="true"/>
+    		<choice_boolean name="nolimit" label="crawl anywhere" value="false"/>
+    	</choices>
+    </meta_pref_boolean>
+    
+    <meta_pref_float id="coolSpaceRatio" description="Cool Space Ratio" helpText="The hot space is the composition area that you share with the program. The cool space is exclusively yours  to work with. This parameter defines the proportion of the whole information space that is dedicated as the cool space, at startup time." widget="TEXT_FIELD" category="General" defaultValue="0.2" />
     <meta_pref_boolean id="spatial_grid" description="Composition agent automatically clusters related elements?" helpText="Use the visual composition that automatically clusters related elements into piles. You may wish to move elements around, and sometimes, to re-cluster." widget="RADIO" category="General" defaultValue="1" />
     <meta_pref_boolean id="incontext_slider" description="Enable in-context slider?" helpText="Use the in-context slider to enable fine-grained expression of interest in metadata fields and individual words." widget="RADIO" category="General" defaultValue="0" />
     <meta_pref_boolean id="use_dashboard" description="Enable the seeding dashboard?" helpText="Use the seeding dashboard to dynamically filter searches and other seeds." widget="RADIO" category="General" defaultValue="0" />
-    <meta_pref_float id="elements_per_square_inch" description="Density: Visible elements per square inch [.1,20]" helpText="Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch.&lt;br&gt;&lt;br&gt;This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements." widget="TEXT_FIELD" category="General" defaultValue="0.7" />
+    <meta_pref_float id="elements_per_square_inch" description="Density: Visible elements per square inch [.1,20]" helpText="Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch. This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements." widget="TEXT_FIELD" category="General" defaultValue="0.7" />
 
     <meta_pref_int id="undo_levels" description="Undo Levels" helpText="The number of steps backwards you can go, by using undo, or the reverse button." widget="TEXT_FIELD" category="Developer" defaultValue="32" />
     <meta_pref_int id="log_mode" description="Log Mode" helpText="Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered." widget="RADIO" category="Developer" defaultValue="1">
@@ -16,6 +25,6 @@
     		<choice_int name="log_server" label="log to logging server" value="2" />
     	</choices>
     </meta_pref_int>
-    <meta_pref_boolean id="javascript_debug_mode" description="Javascript Debug Mode (Y/N)" helpText="Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies &amp; arrays" widget="RADIO" category="Developer" defaultValue="1" />
+    <meta_pref_boolean id="javascript_debug_mode" description="Javascript Debug Mode (Y/N)" helpText="Shows or hides extra buttons that can be used for debugging the javascript. Allows direct access to cookies &amp; arrays." widget="RADIO" category="Developer" defaultValue="1" />
     <meta_pref_string id="codebase" description="Jar File Directory" helpText="Directory for the project a developer is working on." widget="TEXT_FIELD" category="Developer" defaultValue="code/java" />
 </meta_pref_set>
