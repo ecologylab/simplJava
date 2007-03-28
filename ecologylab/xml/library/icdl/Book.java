@@ -9,6 +9,27 @@ import ecologylab.xml.ElementState;
 /**
  * Book item in ICDL BookXMLResults response.
  * 
+ * http://www.childrenslibrary.org/icdl/BookXMLResults?ids=133,265&amp;prefcollids=474&amp;lang=English&amp;sort=title&amp;ptype=simple
+ * 
+ * ids: 113	comic_book 		http://www.childrenslibrary.org/library/basic/images/action_adventure_round.gifhttp://www.childrenslibrary.org/library/basic/images/comic_book_round.gif
+ * 		133 make_believe_books
+ * 		163	action_adventure	http://www.childrenslibrary.org/library/basic/images/action_adventure_round.gif
+ * 		170 poetry
+ * 		155 mythology_folktales
+ * 		166 science_fiction_fantasy
+ * 		168 funny / humorous *
+ * 		167 scary / horror *
+ * 		169	fairy tales and folk tales fairy_folk_tales_round
+ * 		265	award winning *
+ * 		418	recently added newbooks_round
+ * 		300 imaginary creature characters		imaginary_beasts_creature_round
+ * 		303	kid characters			kids_round
+ * 		301 real animal characters	animals_round
+ * 
+ * 		16	picture books
+ * 		
+ * 		fairy_folk_tales_round_over
+ * 
  * @author andruid
  */
 public class Book extends ElementState
@@ -38,6 +59,7 @@ public class Book extends ElementState
 	 * 
 	 * What works looks like:
 	 * http://www.childrenslibrary.org/icdl/BookPreview?bookid=hergran_00030022&summary=true&categories=false&route=simple_0_0_0_English_0&lang=English&msg=
+	 * 
 	 */
 	@xml_leaf	ParsedURL	bookurl;
 	
