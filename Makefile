@@ -1,10 +1,10 @@
 # current working directory
 
-XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss 
+XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss  xml/library/icdl
 
 SERVICES = services services/exceptions services/logging services/messages services/messages/cf
 
-FUNDAMENTAL_DIRS = appframework appframework/types appframework/types/prefs collections generic io net $(XML_DIR) $(SERVICES) appframework/macos
+FUNDAMENTAL_DIRS = appframework appframework/types appframework/types/prefs appframework/types/prefs/gui collections generic io net $(XML_DIR) $(SERVICES) appframework/macos
 
 JAR_DIRS = $(FUNDAMENTAL_DIRS:%=ecologylab/%)
 
