@@ -55,12 +55,6 @@ public abstract class MetaPref<T> extends ElementState
     private static final int LEFT_GUI_INSET = 15;
 
     /**
-     * The number of characters/columns at which the tooltips will try to wrap.
-     * Actual wrapping will be the nearest space AFTER this number.
-     */
-    private static final int TOOLTIP_WRAP_WIDTH = 80;
-
-    /**
 	 * Unique identifier for Preference name with convenient lookup in 
      * automatically generated HashMap.
 	 */
@@ -390,90 +384,6 @@ public abstract class MetaPref<T> extends ElementState
         registerComponent(labelAndName, textField);
         
         return textField;
-    }
-    
-    /**
-     * Creates a label.
-     * 
-     * @param panel         JPanel this label will be associated with.
-     * @param row           Row this label is in for GridBagLayout
-     * @param col           Column this label is in for GridBagLayout
-     * 
-     * @return JLabel with properties initialized to parameters.
-     */
-    public JLabel createLabel(JPanel panel, int row, int col)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-        
-        JLabel label = new JLabel();
-        String wrapText = "<html>" + description + "</html>";
-        label.setText(wrapText);
-        
-        //nasty workaround because there is no API option to wrap tooltips
-        String formattedToolTip = wrapTooltip();
-        
-        label.setToolTipText(formattedToolTip);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
-        label.setVerticalAlignment(SwingConstants.TOP);
-        c.gridx = col;
-        c.gridy = row;
-        c.weightx = 0.5;
-        c.insets = new Insets(0,LEFT_GUI_INSET,0,0); // top,left,bottom,right
-        
-        panel.add(label, c);
-        
-        return label;
-    }
-
-    /**
-     * This allows you to wrap the help tooltip text, because there is no
-     * way to normally do this.
-     * 
-     * @return Tool tip wrapped via HTML.
-     */
-    private String wrapTooltip()
-    {
-        String formattedToolTip = "<html>";
-        if (helpText != null && helpText != "")
-        {
-            int tiplen = helpText.length();
-            int wrapAt = TOOLTIP_WRAP_WIDTH;
-            int nowAt = 0;
-            int breakAt = 0;
-            if (wrapAt > tiplen-1)
-            {
-                formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
-            }
-            else
-            {
-                do
-                {
-                    nowAt = breakAt;
-                    breakAt = helpText.indexOf(" ", (nowAt+wrapAt));
-                    if (breakAt > tiplen-1)
-                    {
-                        //System.out.print("breakAt " + breakAt + " is past length of string " + tiplen + "\n");
-                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
-                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
-                    }
-                    else if (breakAt > 0)
-                    {
-                        //System.out.print("cut is nowAt " + nowAt + " to breakAt " + breakAt + "\n");
-                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, breakAt) + "<br>");
-                    }
-                    else
-                    {
-                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
-                        formattedToolTip = formattedToolTip.concat(helpText.substring(nowAt, tiplen) + "<br>");
-                        break;
-                    }
-                } while(nowAt < tiplen-1);
-            }
-        }
-        formattedToolTip = formattedToolTip.concat("</html>");
-        return formattedToolTip;
     }
 
     /**

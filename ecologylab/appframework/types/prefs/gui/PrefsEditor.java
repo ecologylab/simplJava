@@ -43,6 +43,11 @@ import ecologylab.xml.XmlTranslationException;
 public class PrefsEditor
 extends Debug
 {
+    /**
+     * The number of characters/columns at which the tooltips will try to wrap.
+     * Actual wrapping will be the nearest space AFTER this number.
+     */
+    private static final int TOOLTIP_WRAP_WIDTH = 80;
     private static final int SMALL_TOP_GUI_INSET = 0;
     private static final int LEFT_GUI_INSET = 20;
     private static final int TOP_GUI_INSET = 10;
@@ -311,7 +316,7 @@ extends Debug
 
     private JLabel createDescriptionSection(JPanel contentPanel, GridBagConstraints constraints, int rowNum, MetaPref mp)
     {
-        JLabel subDescription = mp.createLabel(contentPanel,0,0);
+        JLabel subDescription = createLabel(contentPanel,mp,0,0);
         /*subDescription.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.red),
                 subDescription.getBorder()));*/
@@ -321,6 +326,91 @@ extends Debug
         constraints.gridwidth = 1;
         constraints.insets = new Insets(TOP_GUI_INSET,LEFT_GUI_INSET,BOTTOM_GUI_INSET,0); // top,left,bottom,right
         return subDescription;
+    }
+    
+    /**
+     * Creates a label.
+     * 
+     * @param panel         JPanel this label will be associated with.
+     * @param row           Row this label is in for GridBagLayout
+     * @param col           Column this label is in for GridBagLayout
+     * 
+     * @return JLabel with properties initialized to parameters.
+     */
+    public JLabel createLabel(JPanel panel, MetaPref mp, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+        
+        JLabel label = new JLabel();
+        String wrapText = "<html>" + mp.getDescription() + "</html>";
+        label.setText(wrapText);
+        
+        //nasty workaround because there is no API option to wrap tooltips
+        String formattedToolTip = wrapTooltip(mp);
+        
+        label.setToolTipText(formattedToolTip);
+        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        label.setVerticalAlignment(SwingConstants.TOP);
+        c.gridx = col;
+        c.gridy = row;
+        c.weightx = 0.5;
+        c.insets = new Insets(0,LEFT_GUI_INSET,0,0); // top,left,bottom,right
+        
+        panel.add(label, c);
+        
+        return label;
+    }
+
+    /**
+     * This allows you to wrap the help tooltip text, because there is no
+     * way to normally do this.
+     * 
+     * @return Tool tip wrapped via HTML.
+     */
+    private String wrapTooltip(MetaPref mp)
+    {
+        String formattedToolTip = "<html>";
+        String hText = mp.getHelpText();
+        if (hText != null && hText != "")
+        {
+            int tiplen = hText.length();
+            int wrapAt = TOOLTIP_WRAP_WIDTH;
+            int nowAt = 0;
+            int breakAt = 0;
+            if (wrapAt > tiplen-1)
+            {
+                formattedToolTip = formattedToolTip.concat(hText.substring(nowAt, tiplen) + "<br>");
+            }
+            else
+            {
+                do
+                {
+                    nowAt = breakAt;
+                    breakAt = hText.indexOf(" ", (nowAt+wrapAt));
+                    if (breakAt > tiplen-1)
+                    {
+                        //System.out.print("breakAt " + breakAt + " is past length of string " + tiplen + "\n");
+                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
+                        formattedToolTip = formattedToolTip.concat(hText.substring(nowAt, tiplen) + "<br>");
+                    }
+                    else if (breakAt > 0)
+                    {
+                        //System.out.print("cut is nowAt " + nowAt + " to breakAt " + breakAt + "\n");
+                        formattedToolTip = formattedToolTip.concat(hText.substring(nowAt, breakAt) + "<br>");
+                    }
+                    else
+                    {
+                        //System.out.print("remaining string: " + this.helpText.substring(nowAt,tiplen) + "\n");
+                        formattedToolTip = formattedToolTip.concat(hText.substring(nowAt, tiplen) + "<br>");
+                        break;
+                    }
+                } while(nowAt < tiplen-1);
+            }
+        }
+        formattedToolTip = formattedToolTip.concat("</html>");
+        return formattedToolTip;
     }
     
     private JPanel createValueSection(GridBagConstraints constraints, MetaPref metaPref, int rownum)
