@@ -56,6 +56,7 @@ extends Debug
     JPanel 		jContentPane = null;
     JButton 	cancelButton = null;
     JButton 	saveButton = null;
+    JButton     applyButton = null;
     JButton 	revertButton = null;
     JTabbedPane jTabbedPane = null;
     
@@ -118,6 +119,7 @@ extends Debug
             jContentPane.add(createJTabbedPane(), null);
             jContentPane.add(createCancelButton(), null);
             jContentPane.add(createSaveButton(), null);
+            jContentPane.add(createApplyButton(), null);
             jContentPane.add(createRevertButton(), null);
         }
         return jContentPane;
@@ -153,10 +155,29 @@ extends Debug
             			public void actionPerformed(ActionEvent e) 
             			{
             				actionSavePreferences();
+                            closeWindow();
             			}
             		});
         }
         return saveButton;
+    }
+    
+    private JButton createApplyButton() 
+    {
+        if (applyButton == null) 
+        {
+            applyButton = new JButton();
+            applyButton.setBounds(new Rectangle(276, 435, 89, 35));
+            applyButton.setText("Apply");
+            applyButton.addActionListener(new ActionListener() 
+                    {
+                        public void actionPerformed(ActionEvent e) 
+                        {
+                            actionSavePreferences();
+                        }
+                    });
+        }
+        return applyButton;
     }
 
     private JButton createRevertButton() 
@@ -215,7 +236,7 @@ extends Debug
                     int numberOfEntries = this.getComponentCount();
                     for (int i=0; i < numberOfEntries; i+=3)
                     {
-                        // TODO: this only works because we alternate adding JLabels and JPanels
+                        // TODO: this only works because we alternate adding JLabels and JPanels and JSeparators
                         if (((JLabel)this.getComponent(i) instanceof JLabel) && ((JPanel)this.getComponent(i+1) instanceof JPanel) && ((JSeparator)this.getComponent(i+2) instanceof JSeparator))
                         {
                             JLabel desc = (JLabel)this.getComponent(i);
@@ -290,7 +311,7 @@ extends Debug
 
     private JLabel createDescriptionSection(JPanel contentPanel, GridBagConstraints constraints, int rowNum, MetaPref mp)
     {
-        JLabel subDescription = mp.getLabel(contentPanel);
+        JLabel subDescription = mp.createLabel(contentPanel,0,0);
         /*subDescription.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.red),
                 subDescription.getBorder()));*/
