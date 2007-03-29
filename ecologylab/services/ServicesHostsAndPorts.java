@@ -19,21 +19,24 @@ public interface ServicesHostsAndPorts
     // publicstatic final String LOGGING_HOST = "128.194.138.51"; //
     // unix.cs.tamu.edu
 
-    public static final String CSDLL_HOST 				   = "128.194.147.58"; // CSDLL
+    public static final String CSDLL_HOST                                = "128.194.147.58";  // CSDLL
 
-    public static final String LOGGING_HOST                = NetTools.localHost();
+    public static final String LOGGING_HOST                              = NetTools
+                                                                                 .localHost();
 
-    public static final int    LOGGING_PORT                = 10201;
+    public static final int    LOGGING_PORT                              = 10201;
 
-    public static final int    BROWSER_SERVICES_PORT       = 10001;
+    public static final int    BROWSER_SERVICES_PORT                     = 10001;
 
-    public static final int    CF_SERVICES_PORT            = 10010;
+    public static final int    CF_SERVICES_PORT                          = 10010;
 
-    public static final int    ROGUE_PORT                  = 14444;
+    public static final int    ROGUE_PORT                                = 14444;
 
-    public static final int    ROGUE_OSC_SOUND_UDP_PORT    = 14446;
+    public static final int    ROGUE_OSC_SOUND_PATCH_LISTENER_PORT       = 14446;
 
-    public static final int    PHYSI_ROGUE_UDP_PORT        = 14445;
+    public static final int    ROGUE_OSC_SOUND_RECORDER_ACKNOWLEDGE_PORT = 14450;
 
-    public static final int    WEB_START_APP_SERVICES_PORT = 10011;
+    public static final int    PHYSI_ROGUE_UDP_PORT                      = 14445;
+
+    public static final int    WEB_START_APP_SERVICES_PORT               = 10011;
 }
