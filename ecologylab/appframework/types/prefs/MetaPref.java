@@ -36,16 +36,33 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class MetaPref<T> extends ElementState
 {
+    /**
+     * The padding between the default value in a text field and either 
+     * side of the text field.
+     */
 	private static final int TEXT_FIELD_PADDING = 50;
 
+    /**
+     * The inset between the right side of the gui panel and the right 
+     * side of values.
+     */
     private static final int RIGHT_GUI_INSET = 20;
 
+    /**
+     * The inset between the left side of the gui panel and the left 
+     * side of the descriptions.
+     */
     private static final int LEFT_GUI_INSET = 15;
 
+    /**
+     * The number of characters/columns at which the tooltips will try to wrap.
+     * Actual wrapping will be the nearest space AFTER this number.
+     */
     private static final int TOOLTIP_WRAP_WIDTH = 80;
 
     /**
-	 * Unique identifier for Preference name with convenient lookup in automatically generated HashMap.
+	 * Unique identifier for Preference name with convenient lookup in 
+     * automatically generated HashMap.
 	 */
 	@xml_attribute 	String		id;
 	
@@ -55,8 +72,8 @@ public abstract class MetaPref<T> extends ElementState
 	@xml_attribute 	String		description;
 	
 	/**
-	 * This is longer text about that describes what the Preference does and more about the implications
-	 * of its value.
+	 * This is longer text about that describes what the Preference does and 
+     * more about the implications of its value.
 	 */
 	@xml_attribute 	String		helpText;
 	
@@ -72,57 +89,98 @@ public abstract class MetaPref<T> extends ElementState
 	 */
 	@xml_attribute 	String		category;
 	
+    /**
+     * Whether or not the application has to restart for this pref change to take effect.
+     */
 	@xml_attribute	boolean		requiresRestart;
     
-    // have to call getWidget() for each panel;
-    // if we try to do so here, everything ends up null
+    /**
+     * The JPanel associated with this metaPref; this is the values the pref has.
+     * You have to call getWidget() for each panel after initialization.
+     * Doing so here will just give null.
+     */
     public JPanel               jPanel;
     
+    /**
+     * The object registry which the metapref gui components are stored in.
+     */
     ObjectRegistry<JComponent>  jComponentsMap;
     
+    /**
+     * optional; for preferences with three or more choices
+     */
     @xml_nested ArrayListState<Choice<T>> choices = null;
     
 //	@xml_attribute	T			defaultValue;
 	
 //	@xml_nested		RangeState<T>	range;
 	/**
-	 * 
+	 * never used
 	 */
 	public MetaPref()
 	{
 		super();
 	}
 	
+    /**
+     * Gets the default value of a MetaPref; type-specific behavior. 
+     * 
+     * @return Default value of MetaPref
+     */
 	public abstract T getDefaultValue();
 
+    /**
+     * Gets the category for a MetaPref.
+     * 
+     * @return Category of MetaPref
+     */
     public String getCategory()
     {
         return category;
     }
     
+    /**
+     * Gets the description for a MetaPref.
+     * 
+     * @return Description of MetaPref
+     */
     public String getDescription()
     {
         return description;
     }
     
+    /**
+     * Gets the help text for a MetaPref.
+     * 
+     * @return Help Text of MetaPref
+     */
     public String getHelpText()
     {
         return helpText;
     }
     
+    /**
+     * Gets the ID of a MetaPref. This is a unique identifier.
+     * 
+     * @return ID (unique) of MetaPref.
+     */
     public String getID()
     {
         return id;
     }
 
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref. Type-specific behavior.
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
     public abstract JPanel getWidget();
     
-    public JLabel getLabel(JPanel panel)
-    {
-        // pass 0,0 for row,col - it doesn't actually matter.
-        return createLabel(panel, 0, 0);
-    }
-    
+    /**
+     * Gives printed output showing id, description, category, helpText,
+     * widget, default value, and choices for a MetaPref.
+     */
     public void print()
     {
         println(this.id + '\n' +
@@ -141,6 +199,11 @@ public abstract class MetaPref<T> extends ElementState
         println("\n");
     }
 
+    /**
+     * Returns whether or not a widget uses radio buttons.
+     * 
+     * @return True = Uses radio buttons. False = Doesn't.
+     */
     public boolean widgetIsRadio()
     {
         if ("RADIO".equals(widget))
@@ -148,6 +211,11 @@ public abstract class MetaPref<T> extends ElementState
         return false;
     }
     
+    /**
+     * Returns whether or not a widget uses one or more text fields.
+     * 
+     * @return True = Uses text field(s). False = Doesn't.
+     */
     public boolean widgetIsTextField()
     {
         if ("TEXT_FIELD".equals(widget))
@@ -184,7 +252,7 @@ public abstract class MetaPref<T> extends ElementState
      * Otherwise, get a default Pref based on this,
      * register it, and return it.
      * 
-     * @return	The Pref object associated with this.
+     * @return	The Pref object associated with this MetaPref.
      */
     public Pref<T> getAssociatedPref()
     {
@@ -204,9 +272,22 @@ public abstract class MetaPref<T> extends ElementState
 	}
 	*/
     
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     * Type-specific behavior.
+     */
     public abstract void revertToDefault();
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * Type-specific behavior.
+     */
     public abstract void setWidgetToPrefValue(T prefValue);
     
+    /**
+     * Returns the ObjectRegistry for this MetaPref's jComponents.
+     * 
+     * @return ObjectRegistry for MetaPref's jComponents.
+     */
     private ObjectRegistry<JComponent> jComponentsMap()
     {
         ObjectRegistry<JComponent> result   = this.jComponentsMap;
@@ -218,12 +299,24 @@ public abstract class MetaPref<T> extends ElementState
         return result;
     }
 
+    /**
+     * Registers a JComponent with the ObjectRegistry
+     * 
+     * @param labelAndName
+     * @param jComponent
+     */
     protected void registerComponent(String labelAndName, JComponent jComponent)
     {
         //println("Registering: " + this.id+labelAndName);
         jComponentsMap().registerObject(this.id+labelAndName,jComponent);
     }
     
+    /**
+     * Returns a JComponent from the ObjectRegistry by name
+     * 
+     * @param labelAndName
+     * @return JComponent matching labelAndName from ObjectRegistry
+     */
     protected JComponent lookupComponent(String labelAndName)
     {
         //println("Trying to fetch: " + labelAndName);
@@ -231,6 +324,19 @@ public abstract class MetaPref<T> extends ElementState
         return jComponent;
     }
     
+    /**
+     * Creates a radio button.
+     * 
+     * @param panel         JPanel this button will be associated with.
+     * @param buttonGroup   ButtonGroup this button is a member of.
+     * @param initialValue  boolean; true=selected. false=not selected.
+     * @param label         Text label for button
+     * @param name          Name of button
+     * @param row           Row this button is in for GridBagLayout
+     * @param col           Column this button is in for GridBagLayout
+     * 
+     * @return JRadioButton with properties initialized to parameters.
+     */
     protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int row, int col)
     {
         GridBagConstraints c = new GridBagConstraints();
@@ -254,6 +360,17 @@ public abstract class MetaPref<T> extends ElementState
         return radioButton;
     }
     
+    /**
+     * Creates a text field.
+     * 
+     * @param panel         JPanel this field will be associated with.
+     * @param initialValue  String value this field initially contains.
+     * @param labelAndName  Name of text field
+     * @param row           Row this field is in for GridBagLayout
+     * @param col           Column this field is in for GridBagLayout
+     * 
+     * @return JTextField with properties initialized to parameters.
+     */
     protected JTextField createTextField(JPanel panel, String initialValue, String labelAndName, int row, int col)
     {
         GridBagConstraints c = new GridBagConstraints();
@@ -275,7 +392,16 @@ public abstract class MetaPref<T> extends ElementState
         return textField;
     }
     
-    protected JLabel createLabel(JPanel panel, int row, int col)
+    /**
+     * Creates a label.
+     * 
+     * @param panel         JPanel this label will be associated with.
+     * @param row           Row this label is in for GridBagLayout
+     * @param col           Column this label is in for GridBagLayout
+     * 
+     * @return JLabel with properties initialized to parameters.
+     */
+    public JLabel createLabel(JPanel panel, int row, int col)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
@@ -304,7 +430,8 @@ public abstract class MetaPref<T> extends ElementState
     /**
      * This allows you to wrap the help tooltip text, because there is no
      * way to normally do this.
-     * @return
+     * 
+     * @return Tool tip wrapped via HTML.
      */
     private String wrapTooltip()
     {
@@ -350,8 +477,8 @@ public abstract class MetaPref<T> extends ElementState
     }
 
     /**
-     * 
-     * @return
+     * Gets the Pref value for this MetaPref. Type-specific behavior.
+     * @return Pref value
      */
     public abstract T getPrefValue();
 }
