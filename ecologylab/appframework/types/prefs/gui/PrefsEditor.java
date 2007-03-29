@@ -213,7 +213,9 @@ extends Debug
             jTabbedPane.setName("jTabbedPane");
             jTabbedPane.setBounds(new Rectangle(0, 0, 595, 416));
             
-            for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+            String[] orderedTabNames = new String[metaPrefSet.getNumberOfTabs()];
+            metaPrefSet.getOrderedTabNames(orderedTabNames);
+            for (String cat : orderedTabNames)
             {
                 JScrollPane scrollPane = new JScrollPane();
                 scrollPane.setSize(new Dimension(jTabbedPane.getWidth(),jTabbedPane.getHeight()));

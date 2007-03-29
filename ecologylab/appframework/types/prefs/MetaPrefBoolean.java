@@ -52,6 +52,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 
     /**
      * Sets the widget value/selection to the default value/selection.
+     * TODO: MOVE THIS
      */
     public @Override
     void revertToDefault()
@@ -76,6 +77,8 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
     /**
      * Gets the JPanel containing the gui components for the choices 
      * or fields associated with a MetaPref.
+     * 
+     *  TODO: MOVE THIS
      * 
      * @return JPanel of choices/values JComponents.
      */
@@ -116,6 +119,8 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
     /**
      * Sets the widget value/selection to the value/selection of the Pref.
      * 
+     *  TODO: MOVE THIS
+     * 
      * @param prefValue     Value of Pref
      */
     @Override
@@ -137,6 +142,9 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 
     /**
      * Gets the Pref value for this MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     *  
      * @return Pref value
      */
     @Override

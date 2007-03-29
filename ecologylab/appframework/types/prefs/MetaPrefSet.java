@@ -24,7 +24,7 @@ import ecologylab.xml.types.element.ArrayListState;
 public class MetaPrefSet extends ArrayListState<MetaPref>
 {
     public HashMap<String, ArrayList<MetaPref>> categoryToMetaPrefs = new HashMap<String, ArrayList<MetaPref>>();
-    	
+    private ArrayList<String> orderOfTabs = new ArrayList<String>();
 	/**
 	 * Perform custom processing on the newly created child node,
 	 * just before it is added to this.
@@ -55,6 +55,7 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
         {
             metaPrefList = new ArrayList<MetaPref>();
             categoryToMetaPrefs.put(metaPref.category, metaPrefList);
+            orderOfTabs.add(metaPref.category);
         }
         metaPrefList.add(metaPref);		
 	}
@@ -66,6 +67,16 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 
 	}
 
+    public String[] getOrderedTabNames(String[] tabList)
+    {
+        return orderOfTabs.toArray(tabList);
+    }
+    
+    public int getNumberOfTabs()
+    {
+        return orderOfTabs.size();
+    }
+    
     public Set getCategories()
     {
         return categoryToMetaPrefs.keySet();

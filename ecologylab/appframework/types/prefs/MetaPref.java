@@ -164,14 +164,6 @@ public abstract class MetaPref<T> extends ElementState
     }
 
     /**
-     * Gets the JPanel containing the gui components for the choices 
-     * or fields associated with a MetaPref. Type-specific behavior.
-     * 
-     * @return JPanel of choices/values JComponents.
-     */
-    public abstract JPanel getWidget();
-    
-    /**
      * Gives printed output showing id, description, category, helpText,
      * widget, default value, and choices for a MetaPref.
      */
@@ -267,17 +259,6 @@ public abstract class MetaPref<T> extends ElementState
 	*/
     
     /**
-     * Sets the widget value/selection to the default value/selection.
-     * Type-specific behavior.
-     */
-    public abstract void revertToDefault();
-    /**
-     * Sets the widget value/selection to the value/selection of the Pref.
-     * Type-specific behavior.
-     */
-    public abstract void setWidgetToPrefValue(T prefValue);
-    
-    /**
      * Returns the ObjectRegistry for this MetaPref's jComponents.
      * 
      * @return ObjectRegistry for MetaPref's jComponents.
@@ -319,7 +300,44 @@ public abstract class MetaPref<T> extends ElementState
     }
     
     /**
+     * Gets the Pref value for this MetaPref. Type-specific behavior.
+     * @return Pref value
+     */
+    public abstract T getPrefValue();
+    
+    
+    
+    // TODO: the functions below this line need to be moved out of here and subclasses.
+    
+    
+    
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref. Type-specific behavior.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
+    public abstract JPanel getWidget();
+    
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     * Type-specific behavior.
+     *  TODO: MOVE THIS
+     */
+    public abstract void revertToDefault();
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * Type-specific behavior.
+     *  TODO: MOVE THIS
+     */
+    public abstract void setWidgetToPrefValue(T prefValue);
+    
+    /**
      * Creates a radio button.
+     * 
+     *  TODO: MOVE THIS
      * 
      * @param panel         JPanel this button will be associated with.
      * @param buttonGroup   ButtonGroup this button is a member of.
@@ -357,6 +375,8 @@ public abstract class MetaPref<T> extends ElementState
     /**
      * Creates a text field.
      * 
+     *  TODO: MOVE THIS
+     * 
      * @param panel         JPanel this field will be associated with.
      * @param initialValue  String value this field initially contains.
      * @param labelAndName  Name of text field
@@ -385,10 +405,4 @@ public abstract class MetaPref<T> extends ElementState
         
         return textField;
     }
-
-    /**
-     * Gets the Pref value for this MetaPref. Type-specific behavior.
-     * @return Pref value
-     */
-    public abstract T getPrefValue();
 }
