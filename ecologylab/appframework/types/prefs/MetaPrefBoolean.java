@@ -27,21 +27,32 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class MetaPrefBoolean extends MetaPref<Boolean>
 {
+    /**
+     * Default value for this MetaPref
+     */
 	@xml_attribute	boolean		defaultValue;
 	
 	/**
-	 * 
+	 * Instantiate.
 	 */
 	public MetaPrefBoolean()
 	{
 		super();
 	}
 	
+    /**
+     * Gets the default value of a MetaPref. 
+     * 
+     * @return Default value of MetaPref
+     */
 	public Boolean getDefaultValue()
 	{
 		return defaultValue;
 	}
 
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     */
     public @Override
     void revertToDefault()
     {
@@ -62,6 +73,12 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         }
     }
 
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref.
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
     public @Override
     JPanel getWidget()
     {
@@ -96,6 +113,11 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         return panel;
     }
 
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * 
+     * @param prefValue     Value of Pref
+     */
     @Override
     public void setWidgetToPrefValue(Boolean prefValue)
     {
@@ -113,6 +135,10 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         }
     }
 
+    /**
+     * Gets the Pref value for this MetaPref.
+     * @return Pref value
+     */
     @Override
     public Boolean getPrefValue()
     {
@@ -120,6 +146,12 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         return yesButton.isSelected();
     }
 
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * Use this to fill-in the default value.
+     * 
+     * @return
+     */
 	protected @Override Pref<Boolean> getPrefInstance()
 	{
 		return new PrefBoolean();
