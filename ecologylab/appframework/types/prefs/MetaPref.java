@@ -115,7 +115,7 @@ public abstract class MetaPref<T> extends ElementState
 	
 //	@xml_nested		RangeState<T>	range;
 	/**
-	 * never used
+	 * Instantiate.
 	 */
 	public MetaPref()
 	{
