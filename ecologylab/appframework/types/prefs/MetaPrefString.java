@@ -25,21 +25,33 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class MetaPrefString extends MetaPref<String>
 {
+    /**
+     * Default value for this MetaPref
+     */
 	@xml_attribute	String		defaultValue;
 	
-	/**
-	 * 
-	 */
+    /**
+     * Instantiate.
+     */
 	public MetaPrefString()
 	{
 		super();
 	}
 	
+    /**
+     * Gets the default value of a MetaPref. 
+     * 
+     * @return Default value of MetaPref
+     */
     public String getDefaultValue()
 	{
 		return defaultValue;
 	}
 
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     * TODO: MOVE THIS
+     */
     public @Override
     void revertToDefault()
     {
@@ -47,6 +59,14 @@ public class MetaPrefString extends MetaPref<String>
         textField.setText(this.defaultValue);
     }
 
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
     public @Override
     JPanel getWidget()
     {
@@ -65,6 +85,13 @@ public class MetaPrefString extends MetaPref<String>
         return panel;
     }
 
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @param prefValue     Value of Pref
+     */
     @Override
     public void setWidgetToPrefValue(String prefValue)
     {
@@ -72,6 +99,13 @@ public class MetaPrefString extends MetaPref<String>
         textField.setText(prefValue);
     }
 
+    /**
+     * Gets the Pref value for this MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     *  
+     * @return Pref value
+     */
     @Override
     public String getPrefValue()
     {
@@ -79,6 +113,12 @@ public class MetaPrefString extends MetaPref<String>
         return textField.getText();
     }
 
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * Use this to fill-in the default value.
+     * 
+     * @return
+     */
 	protected @Override Pref<String> getPrefInstance()
 	{
 		return new PrefString();

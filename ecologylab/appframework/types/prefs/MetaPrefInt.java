@@ -24,21 +24,33 @@ import ecologylab.xml.xml_inherit;
 public class MetaPrefInt extends MetaPref<Integer>
 {
 	private static final int RADIO_X = 405;
+    /**
+     * Default value for this MetaPref
+     */
 	@xml_attribute	int		defaultValue;
 	
-	/**
-	 * 
-	 */
+    /**
+     * Instantiate.
+     */
 	public MetaPrefInt()
 	{
 		super();
 	}
 	
+    /**
+     * Gets the default value of a MetaPref. 
+     * 
+     * @return Default value of MetaPref
+     */
     public Integer getDefaultValue()
 	{
 		return defaultValue;
 	}
 
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     * TODO: MOVE THIS
+     */
     public @Override
     void revertToDefault()
     {
@@ -72,6 +84,14 @@ public class MetaPrefInt extends MetaPref<Integer>
         }
     }
 
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
     public @Override
     JPanel getWidget()
     {
@@ -106,6 +126,13 @@ public class MetaPrefInt extends MetaPref<Integer>
         return panel;
     }
 
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @param prefValue     Value of Pref
+     */
     @Override
     public void setWidgetToPrefValue(Integer prefValue)
     {
@@ -139,6 +166,13 @@ public class MetaPrefInt extends MetaPref<Integer>
         }
     }
 
+    /**
+     * Gets the Pref value for this MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     *  
+     * @return Pref value
+     */
     @Override
     public Integer getPrefValue()
     {
@@ -165,6 +199,12 @@ public class MetaPrefInt extends MetaPref<Integer>
         return (Integer)this.getDefaultValue();
     }
 
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * Use this to fill-in the default value.
+     * 
+     * @return
+     */
 	protected @Override Pref<Integer> getPrefInstance()
 	{
 		return new PrefInt();

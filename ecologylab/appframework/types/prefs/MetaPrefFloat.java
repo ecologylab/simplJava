@@ -26,21 +26,33 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class MetaPrefFloat extends MetaPref<Float>
 {
+    /**
+     * Default value for this MetaPref
+     */
 	@xml_attribute	float		defaultValue;
 	
-	/**
-	 * 
-	 */
+    /**
+     * Instantiate.
+     */
 	public MetaPrefFloat()
 	{
 		super();
 	}
 	
+    /**
+     * Gets the default value of a MetaPref. 
+     * 
+     * @return Default value of MetaPref
+     */
 	public Float getDefaultValue()
 	{
 		return defaultValue;
 	}
 
+    /**
+     * Sets the widget value/selection to the default value/selection.
+     * TODO: MOVE THIS
+     */
     public @Override
     void revertToDefault()
     {
@@ -48,6 +60,14 @@ public class MetaPrefFloat extends MetaPref<Float>
         textField.setText(this.getDefaultValue().toString());
     }
 
+    /**
+     * Gets the JPanel containing the gui components for the choices 
+     * or fields associated with a MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @return JPanel of choices/values JComponents.
+     */
     public @Override
     JPanel getWidget()
     {
@@ -82,6 +102,13 @@ public class MetaPrefFloat extends MetaPref<Float>
         return panel;
     }
 
+    /**
+     * Sets the widget value/selection to the value/selection of the Pref.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @param prefValue     Value of Pref
+     */
     @Override
     public void setWidgetToPrefValue(Float prefValue)
     {
@@ -89,6 +116,13 @@ public class MetaPrefFloat extends MetaPref<Float>
         textField.setText(prefValue.toString());
     }
 
+    /**
+     * Gets the Pref value for this MetaPref.
+     * 
+     *  TODO: MOVE THIS
+     *  
+     * @return Pref value
+     */
     @Override
     public Float getPrefValue()
     {
@@ -96,6 +130,12 @@ public class MetaPrefFloat extends MetaPref<Float>
         return new Float(textField.getText());
     }
 
+    /**
+     * Construct a new instance of the Pref that matches this.
+     * Use this to fill-in the default value.
+     * 
+     * @return
+     */
 	protected @Override Pref<Float> getPrefInstance()
 	{
 		return new PrefFloat();
