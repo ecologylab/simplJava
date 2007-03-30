@@ -39,7 +39,13 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
 
-
+/**
+ * Create the GUI for preference editing; also responsible for all
+ * actions associated with the GUI.
+ * 
+ * @author Cae
+ *
+ */
 public class PrefsEditor
 extends Debug
 {
@@ -48,25 +54,83 @@ extends Debug
      * Actual wrapping will be the nearest space AFTER this number.
      */
     private static final int TOOLTIP_WRAP_WIDTH = 80;
+    /**
+     * A small inset for the top of an object in the GUI
+     */
     private static final int SMALL_TOP_GUI_INSET = 0;
+    /**
+     * The inset between the left side of the gui panel and the left 
+     * side of the descriptions.
+     */
     private static final int LEFT_GUI_INSET = 20;
+    /**
+     * The inset between the top side of the gui panel and the object above it.
+     */
     private static final int TOP_GUI_INSET = 10;
+    /**
+     * The inset between the bottom of the gui section and the top of the 
+     * next object.
+     */
     private static final int BOTTOM_GUI_INSET = 10;
+    /**
+     * Set of MetaPrefs
+     */
     MetaPrefSet metaPrefSet;
+    /**
+     * Set of Prefs
+     */
     PrefSet     prefSet;
+    /**
+     * PURL to save prefs.xml to
+     */
     ParsedURL   savePrefsPURL;
     
     // base setup for gui
+    /**
+     * Base window for the GUI
+     */
     JFrame 		jFrame = null;
+    /**
+     * Content pane within base window for GUI
+     */
     JPanel 		jContentPane = null;
+    /**
+     * Cancel button for GUI
+     */
     JButton 	cancelButton = null;
+    /**
+     * Save button for GUI
+     */
     JButton 	saveButton = null;
+    /**
+     * Apply button for GUI
+     */
     JButton     applyButton = null;
+    /**
+     * Revert button for GUI
+     */
     JButton 	revertButton = null;
+    /**
+     * Tabbed pane within content pane within base window for GUI
+     */
     JTabbedPane jTabbedPane = null;
     
+    /**
+     * Whether we're called this standalone or not
+     */
     boolean		isStandalone;
     
+    /**
+     * The base function that you call to construct the prefs editor GUI.
+     * This requires that the MetaPrefSet and PrefSet be instantiated and populated
+     * prior to call. This function creates the entire GUI and handles all actions
+     * for it.
+     * 
+     * @param metaPrefSet       Set of MetaPrefs
+     * @param prefSet           Set of Prefs
+     * @param savePrefsPURL     ParsedURL to save prefs.xml to
+     * @param isStandalone      Whether or not we're calling this standalone
+     */
     public PrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean isStandalone)
     {
         this.metaPrefSet 	= metaPrefSet;
@@ -74,7 +138,7 @@ extends Debug
         this.savePrefsPURL  = savePrefsPURL;
         this.isStandalone	= isStandalone;
         
-        final JFrame jFrame = getJFrame();
+        final JFrame jFrame = fetchJFrame();
         jFrame.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
@@ -85,13 +149,27 @@ extends Debug
         jFrame.setVisible(true);
     }
     
+    /**
+     * Calls createJFrame
+     * @see #createJFrame()
+     * @return Base window (JFrame) for the GUI
+     */
     public JFrame fetchJFrame()
     {
-        return getJFrame();
+        return createJFrame();
     }
 
+    /**
+     * Create the base window for the GUI.
+     * 
+     * This contains {@link #createJContentPane()}.
+     * 
+     * This is a static part of the GUI.
+     * 
+     * @return Base window (JFrame) for the GUI
+     */
     // static bits of gui
-    private JFrame getJFrame() 
+    private JFrame createJFrame() 
     {
         if (jFrame == null) 
         {
@@ -104,6 +182,9 @@ extends Debug
         return jFrame;
     }
 
+    /**
+     * Function to close the window
+     */
 	private void closeWindow()
 	{
 		if (jFrame != null)
@@ -115,6 +196,18 @@ extends Debug
     		System.exit(0);
 	}
 	
+    /**
+     * Create the content pane within the base window for the GUI.
+     * 
+     * This is contained within {@link #createJFrame()}.
+     * This contains {@link #createApplyButton()}, {@link #createCancelButton()},
+     * and {@link #createRevertButton()}, {@link #createSaveButton()},
+     * and {@link #createJTabbedPane()}.
+     * 
+     * This is a static part of the GUI.
+     * 
+     * @return Content pane (JPanel) within the base window for the GUI
+     */
     private JPanel createJContentPane() 
     {
         if (jContentPane == null) 
@@ -130,6 +223,14 @@ extends Debug
         return jContentPane;
     }
 
+    /**
+     * Create the cancel button for the GUI. This button closes
+     * the window without saving the prefs.
+     * This is contained within {@link #createJContentPane()}.
+     * This is a static part of the GUI.
+     * 
+     * @return Cancel button (JButton) for GUI
+     */
     private JButton createCancelButton() 
     {
         if (cancelButton == null) 
@@ -148,6 +249,17 @@ extends Debug
         return cancelButton;
     }
 
+    /**
+     * Create the save button for the GUI. This button saves
+     * prefs and closes the window.
+     * 
+     * This is contained within {@link #createJContentPane()}.
+     * This contains {@link #actionSavePreferences()}.
+     * 
+     * This is a static part of the GUI.
+     * 
+     * @return Save button (JButton) for GUI
+     */
     private JButton createSaveButton() 
     {
         if (saveButton == null) 
@@ -167,6 +279,17 @@ extends Debug
         return saveButton;
     }
     
+    /**
+     * Create the apply button for the GUI. This saves the prefs
+     * and doesn't close the window.
+     * 
+     * This is contained within {@link #createJContentPane()}.
+     * This contains {@link #actionSavePreferences()}.
+     * 
+     * This is a static part of the GUI.
+     * 
+     * @return Apply button (JButton) for GUI
+     */
     private JButton createApplyButton() 
     {
         if (applyButton == null) 
@@ -185,6 +308,17 @@ extends Debug
         return applyButton;
     }
 
+    /**
+     * Create the revert button for the GUI. This reverts the
+     * prefs to their default values when pressed.
+     * 
+     * This is contained within {@link #createJContentPane()}.
+     * This contains {@link #actionRevertPreferencesToDefault()}.
+     * 
+     * This is a static part of the GUI.
+     * 
+     * @return Revert button (JButton) for GUI
+     */
     private JButton createRevertButton() 
     {
         if (revertButton == null) 
@@ -205,6 +339,18 @@ extends Debug
     // end of static bits of gui
     
     // bits of gui that are all or part auto-generated
+    /**
+     * Create the tabbed pane within the main frame within the main
+     * window of the GUI. This pane contains the content panes which define
+     * the actual tabs of the GUI.
+     * 
+     * This is contained within {@link #createJContentPane()}.
+     * This contains {@link #getTabbedBodyFrame(String, JScrollPane)}.
+     * 
+     * This function includes xml-dependent code.
+     * 
+     * @return Tabbed pane within which the tabs for the GUI are defined
+     */
     private JTabbedPane createJTabbedPane() 
     {
         if (jTabbedPane == null) 
@@ -230,6 +376,21 @@ extends Debug
         return jTabbedPane;
     }
 
+    /**
+     * The actual tab for a category within the GUI.
+     * 
+     * This is contained within {@link #createJTabbedPane()}
+     * This contains {@link #createDescriptionSection(JPanel, GridBagConstraints, int, MetaPref)},
+     * and {@link #createValueSection(GridBagConstraints, MetaPref, int)},
+     * and {@link #createSeparator(GridBagConstraints, int)}.
+     * 
+     * This function includes xml-dependent code.
+     * 
+     * @param category      Name of category
+     * @param scrollPane    The pane that scrolls within this panel
+     * 
+     * @return Tab for a category within the GUI
+     */
     private JPanel getTabbedBodyFrame(String category, JScrollPane scrollPane)
     {
         JPanel contentPanel = new JPanel()
@@ -275,7 +436,7 @@ extends Debug
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.weightx = 0.1;
         int rowNum = 0;
-        for (MetaPref metaPref : metaPrefSet.categoryToMetaPrefs.get(category))
+        for (MetaPref metaPref : metaPrefSet.getMetaPrefListByCategory(category))
         {
             JLabel subDescription = createDescriptionSection(contentPanel, constraints, rowNum, metaPref);
             JPanel subValue       = createValueSection(constraints, metaPref, rowNum);
@@ -303,6 +464,16 @@ extends Debug
         return contentPanel;
     }
 
+    /**
+     * Creates a separator to go between two preferences in the GUI.
+     * This is contained within {@link #getTabbedBodyFrame(String, JScrollPane)}.
+     * This function includes xml-dependent code.
+     * 
+     * @param constraints   GridBagConstraints - insets, row, col, etc
+     * @param rowNum        Row number for GridBagLayout
+     * 
+     * @return JSeparator for tab frame in GUI
+     */
     private JSeparator createSeparator(GridBagConstraints constraints, int rowNum)
     {
         JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
@@ -316,6 +487,21 @@ extends Debug
         return separator;
     }
 
+    /**
+     * Create the description section for a preference.
+     * 
+     * This is contained within {@link #getTabbedBodyFrame(String, JScrollPane)}.
+     * This contains {@link #createLabel(JPanel, MetaPref, int, int)}.
+     * 
+     * This function includes xml-dependent code.
+     * 
+     * @param contentPanel      The panel that contains this description panel.
+     * @param constraints       GridBagConstraints - insets, row, col, etc
+     * @param rowNum            Row number for GridBagLayout
+     * @param mp                MetaPref this description is for
+     * 
+     * @return JLabel   Description section
+     */
     private JLabel createDescriptionSection(JPanel contentPanel, GridBagConstraints constraints, int rowNum, MetaPref mp)
     {
         JLabel subDescription = createLabel(contentPanel,mp,0,0);
@@ -331,15 +517,21 @@ extends Debug
     }
     
     /**
-     * Creates a label.
+     * Creates a label for a preference.
+     * 
+     * This is contained within {@link #createDescriptionSection(JPanel, GridBagConstraints, int, MetaPref)}.
+     * This contains {@link #wrapTooltip(MetaPref)}.
+     * 
+     * This function includes xml-dependent code.
      * 
      * @param panel         JPanel this label will be associated with.
+     * @param mp            MetaPref this label is for.
      * @param row           Row this label is in for GridBagLayout
      * @param col           Column this label is in for GridBagLayout
      * 
      * @return JLabel with properties initialized to parameters.
      */
-    public JLabel createLabel(JPanel panel, MetaPref mp, int row, int col)
+    private JLabel createLabel(JPanel panel, MetaPref mp, int row, int col)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
@@ -368,6 +560,10 @@ extends Debug
     /**
      * This allows you to wrap the help tooltip text, because there is no
      * way to normally do this.
+     * 
+     * This is contained within {@link #createLabel(JPanel, MetaPref, int, int)}.
+     * 
+     * @param mp    MetaPref this tooltip is for.
      * 
      * @return Tool tip wrapped via HTML.
      */
@@ -415,6 +611,17 @@ extends Debug
         return formattedToolTip;
     }
     
+    /**
+     * Create the value section for a preference.
+     * This is contained within {@link #getTabbedBodyFrame(String, JScrollPane)}.
+     * This function includes xml-dependent code.
+     * 
+     * @param constraints       GridBagConstraints - insets, row, col, etc
+     * @param metaPref          MetaPref this description is for
+     * @param rowNum            Row number for GridBagLayout
+     * 
+     * @return JLabel           Value section
+     */
     private JPanel createValueSection(GridBagConstraints constraints, MetaPref metaPref, int rownum)
     {
         JPanel subValue = metaPref.jPanel;
@@ -439,6 +646,11 @@ extends Debug
     
     
     // gui actions for buttons
+    /**
+     * Save the preferences; called by {@link #createApplyButton()}
+     * and {@link #createSaveButton()}.
+     * Saves the prefs to {@link #savePrefsPURL}.
+     */
     private void actionSavePreferences()
     {
         //debug("we pressed the save button");
@@ -447,9 +659,9 @@ extends Debug
     	 * all metaprefs. we may not always have a prefs file to start
     	 * with. */
     	// this iterator organizes them by category
-    	for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+    	for (String cat : metaPrefSet.getCategories())
     	{
-    		for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+    		for (MetaPref mp : metaPrefSet.getMetaPrefListByCategory(cat))
     		{
     			// by casting here we get the proper return type
     			// for getPrefValue
@@ -487,13 +699,13 @@ extends Debug
     
     /**
      * The function that actually performs the revert-to-default actions
-     * is in the MetaPrefType classes
+     * is in the MetaPrefType classes.
      */
     private void actionRevertPreferencesToDefault()
     {
-        for (String cat : metaPrefSet.categoryToMetaPrefs.keySet())
+        for (String cat : metaPrefSet.getCategories())
         {
-            for (MetaPref mp : metaPrefSet.categoryToMetaPrefs.get(cat))
+            for (MetaPref mp : metaPrefSet.getMetaPrefListByCategory(cat))
             {
                 mp.revertToDefault();
             }

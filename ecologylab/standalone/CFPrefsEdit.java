@@ -23,6 +23,8 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
+ * Standalone app to open a prefs editing dialog.
+ * 
  * @author Cae
  *
  */
