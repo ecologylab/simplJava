@@ -28,7 +28,9 @@ public abstract class Pref<T> extends ArrayListState
 	 * The global registry of Pref objects. Used for providing lookup services.
 	 */
     static final ObjectRegistry<Pref> allPrefsMap	= new ObjectRegistry<Pref>();
-    
+    /**
+     * Name of a Pref
+     */
     @xml_attribute String name;
 	
 	/**
@@ -38,7 +40,9 @@ public abstract class Pref<T> extends ArrayListState
 	{
 		super();
 	}
-
+    /**
+     * Cached value
+     */
 	T		valueCached;
 	
 	/**
@@ -57,11 +61,19 @@ public abstract class Pref<T> extends ArrayListState
 		return result;
 	}
     
+    /**
+     * Print Pref name and value
+     */
     public void print()
     {
         println("Pref: name: " + name + ", value: " + this.getValue());
     }
     
+    /**
+     * Return String of Pref name and value
+     * 
+     * @return String of Pref name and value
+     */
     public String toString()
     {
         return "Pref: name: "+name+", value: "+this.getValue();
@@ -84,6 +96,9 @@ public abstract class Pref<T> extends ArrayListState
 	 */
 	public abstract void setValue(T newValue);
 	
+    /**
+     * Set valueCached to null
+     */
 	protected void invalidate()
 	{
 		valueCached	= null;
@@ -219,13 +234,28 @@ public abstract class Pref<T> extends ArrayListState
         return pref;
     }
 
-	
+    /**
+     * Look up a Pref by name in the map of all Prefs
+     * 
+     * @param name  Name of Pref
+     * 
+     * @return Pref with the given name
+     */
     public static Pref lookupPref(String name)
     {
         Pref pref = allPrefsMap.lookupObject(name);
         return pref;
     }
     
+    /**
+     * Look up a PrefInt by name in the map of all Prefs.
+     * Return defaultValue if PrefInt's value is null.
+     * 
+     * @param name          Name of PrefInt
+     * @param defaultValue  default value for PrefInt
+     * 
+     * @return PrefInt's value or default value if doesn't exist
+     */
     public static int lookupInt(String name, int defaultValue) throws ClassCastException
     {
     	/* could do this -- its heavier weight -- create a Pref if there wasn't one, and set its default value as here
@@ -235,57 +265,144 @@ public abstract class Pref<T> extends ArrayListState
         PrefInt prefInt = ((PrefInt)lookupPref(name));
 		return (prefInt == null) ? defaultValue : prefInt.value();
     }
+    /**
+     * Look up a PrefInt by name in the map of all Prefs.
+     * 
+     * @param name  Name of PrefInt
+     * 
+     * @return PrefInt's value or 0
+     */
     public static int lookupInt(String name) throws ClassCastException
     {
         return lookupInt(name, 0);
     }
-   
+    
+    /**
+     * Look up a PrefBoolean by name in the map of all Prefs.
+     * Return defaultValue if PrefBoolean's value is null.
+     * 
+     * @param name          Name of PrefBoolean
+     * @param defaultValue  default value for PrefBoolean
+     * 
+     * @return PrefBoolean's value or default value if doesn't exist
+     */
     public static boolean lookupBoolean(String name, boolean defaultValue) throws ClassCastException
     {
         PrefBoolean prefBoolean = ((PrefBoolean)lookupPref(name));
 		return (prefBoolean == null) ? defaultValue : prefBoolean.value();
     }
+    /**
+     * Look up a PrefBoolean by name in the map of all Prefs.
+     * 
+     * @param name          Name of PrefBoolean
+     * 
+     * @return PrefBoolean's value or false if doesn't exist
+     */
     public static boolean lookupBoolean(String name) throws ClassCastException
     {
         return lookupBoolean(name, false);
     }
-       
+    
+    /**
+     * Look up a PrefFloat by name in the map of all Prefs.
+     * Return defaultValue if PrefFloat's value is null.
+     * 
+     * @param name          Name of PrefFloat
+     * @param defaultValue  default value to set PrefFloat to
+     * 
+     * @return PrefFloat's value or default value if doesn't exist
+     */
     public static float lookupFloat(String name, float defaultValue) throws ClassCastException
     {
         PrefFloat prefFloat = ((PrefFloat)lookupPref(name));
 		return (prefFloat == null) ? defaultValue : prefFloat.value();
     }
+    /**
+     * Look up a PrefFloat by name in the map of all Prefs.
+     * 
+     * @param name          Name of PrefFloat
+     * 
+     * @return PrefFloat's value (if exists) or 1.0f
+     */
     public static float lookupFloat(String name) throws ClassCastException
     {
         return lookupFloat(name, 1.0f);
     }
    
+    /**
+     * Look up a PrefString by name in the map of all Prefs.
+     * Return defaultValue if PrefString's value is null.
+     * 
+     * @param name          Name of PrefString
+     * @param defaultValue  default value for PrefString
+     * 
+     * @return PrefString's value or default value if doesn't exist
+     */
     public static String lookupString(String name, String defaultValue) throws ClassCastException
     {
         PrefString prefString = ((PrefString)lookupPref(name));
 		return (prefString == null) ? defaultValue : prefString.value();
     }
+    /**
+     * Look up a PrefString by name in the map of all Prefs.
+     * Return null if PrefString's value is null.
+     * 
+     * @param name          Name of PrefString
+     * 
+     * @return PrefString's value or null
+     */
     public static String lookupString(String name) throws ClassCastException
     {
         return lookupString(name, null);
     }
     
+    /**
+     * Look up a PrefColor by name in the map of all Prefs.
+     * Return defaultValue if PrefColor's value is null.
+     * 
+     * @param name          Name of PrefColor
+     * @param defaultValue  default value for PrefColor
+     * 
+     * @return PrefColor's value or default value if doesn't exist
+     */
     public static Color lookupColor(String name, Color defaultValue) throws ClassCastException
     {
         PrefColor prefColor = ((PrefColor)lookupPref(name));
 		return (prefColor == null) ? defaultValue : prefColor.value();
     }
+    /**
+     * Look up a PrefColor by name in the map of all Prefs.
+     * 
+     * @param name          Name of PrefColor
+     * 
+     * @return PrefColor's value or null
+     */
     public static Color lookupColor(String name) throws ClassCastException
     {
         return lookupColor(name, null);
     }
-       
+    
+    /**
+     * Look up a PrefElementState by name in the map of all Prefs.
+     * Set to defaultValue if PrefElementState's value is null.
+     * 
+     * @param name          Name of PrefElementState
+     * 
+     * @return PrefElementState's value or null if doesn't exist
+     */
     public static ElementState lookupElementState(String name) throws ClassCastException
     {
         PrefElementState prefElementState = ((PrefElementState)lookupPref(name));
 		return (prefElementState == null) ? null : prefElementState.value();
     }
     
+    /**
+     * Check for existence / membership.
+     * 
+     * @param key
+     * 
+     * @return  true if there is a Pref already registered with name key
+     */
     public static boolean hasPref(String name)
     {
         return allPrefsMap.containsKey(name);

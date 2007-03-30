@@ -7,6 +7,7 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
 
 /**
+ * Preference that is a String
  * @author andruid
  *
  */
@@ -14,6 +15,9 @@ import ecologylab.xml.ElementState.xml_attribute;
 @xml_inherit
 public class PrefString extends Pref<String>
 {
+    /**
+     * Value of Pref
+     */
     @xml_attribute String			value;
 	
 	/**
@@ -23,6 +27,11 @@ public class PrefString extends Pref<String>
 	{
 		super();
 	}
+    /**
+     * Instantiate Pref to value
+     * 
+     * @param value
+     */
 	public PrefString(String value)
 	{
 		super();
@@ -30,7 +39,9 @@ public class PrefString extends Pref<String>
 	}
 
 	/**
-	 * @return	The
+     * Get the value of the Pref
+     * 
+	 * @return	The value of the Pref
 	 */
 	@Override
 	String getValue()
@@ -38,6 +49,11 @@ public class PrefString extends Pref<String>
 		return value;
 	}
 	
+    /**
+     * Set the value of the Pref
+     * 
+     * @param  The value the Pref will be set to
+     */
 	public void setValue(String value)
 	{
 		invalidate();

@@ -13,8 +13,14 @@ import ecologylab.xml.TranslationSpace;
  */
 public class PrefTranslations extends Debug 
 {
+    /**
+     * Package name
+     */
 	private static final String PACKAGE_NAME			= "ecologylab.appframework.types.prefs";
 
+    /**
+     * What we should be translating to/from xml
+     */
 	private static final Class TRANSLATIONS[]	= 
 	{
 		MetaPref.class,
@@ -49,6 +55,9 @@ public class PrefTranslations extends Debug
 	{
 	}
 
+    /**
+     * Get the translation space
+     */
 	public static TranslationSpace get()
 	{
 		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);

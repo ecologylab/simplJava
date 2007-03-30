@@ -7,6 +7,7 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
 
 /**
+ * Pref for an Integer
  * @author andruid
  *
  */
@@ -14,6 +15,9 @@ import ecologylab.xml.ElementState.xml_attribute;
 @xml_inherit
 public class PrefInt extends Pref<Integer>
 {
+    /**
+     * Value of Pref
+     */
     @xml_attribute int			value;
 	
 	/**
@@ -23,6 +27,11 @@ public class PrefInt extends Pref<Integer>
 	{
 		super();
 	}
+    /**
+     * Instantiate Pref to value
+     * 
+     * @param value
+     */
 	public PrefInt(int value)
 	{
 		super();
@@ -38,10 +47,20 @@ public class PrefInt extends Pref<Integer>
 		return value;
 	}
 	
+    /**
+     * Set the value of the Pref given an Integer
+     * 
+     * @param  The Integer value the Pref will be set to
+     */
 	public void setValue(Integer newValue)
 	{
 		setValue(newValue.intValue());
 	}
+    /**
+     * Set the value of the Pref given an int
+     * 
+     * @param  The int value the Pref will be set to
+     */
 	public void setValue(int value)
 	{
 		invalidate();
