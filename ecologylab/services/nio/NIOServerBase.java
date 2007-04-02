@@ -69,7 +69,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
      * @throws IOException
      * @throws BindException
      */
-    protected NIOServerBase(int portNumber, InetAddress inetAddress,
+    protected NIOServerBase(int portNumber, InetAddress[] inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
     {
@@ -86,7 +86,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
         this.translationSpace.addTranslation(InitConnectionRequest.class);
     }
     
-    protected NIOServerBackend generateBackend(int portNumber, InetAddress inetAddress,
+    protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout) throws BindException, IOException 
     {

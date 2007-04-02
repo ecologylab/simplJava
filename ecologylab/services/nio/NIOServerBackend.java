@@ -43,16 +43,16 @@ import ecologylab.xml.TranslationSpace;
 public class NIOServerBackend extends NIONetworking implements ServerConstants
 {
     public static NIOServerBackend getInstance(int portNumber,
-            InetAddress inetAddress, NIOServerFrontend sAP,
+            InetAddress[] hostAddresses, NIOServerFrontend sAP,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleSocketTimeout)
             throws IOException, BindException
     {
-        return new NIOServerBackend(portNumber, inetAddress, sAP,
+        return new NIOServerBackend(portNumber, hostAddresses, sAP,
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
 
-    protected ServerSocket                                     serverSocket;
+    protected ServerSocket[]                                   incomingConnectionSockets;
 
     private NIOServerFrontend                                  sAP;
 
@@ -68,20 +68,25 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 
     private long                                               dispensedTokens;
 
-    private InetAddress                                        hostAddress;
+    private InetAddress[]                                      hostAddresses;
 
-    protected NIOServerBackend(int portNumber, InetAddress inetAddress,
+    protected NIOServerBackend(int portNumber, InetAddress[] hostAddresses,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleSocketTimeout)
             throws IOException, BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        this.hostAddress = inetAddress;
+        this.hostAddresses = hostAddresses;
 
         this.sAP = sAP;
 
-        this.selector = initSelector();
+        // acquire the static Selector object
+        this.selector = SelectorProvider.provider().openSelector();
+
+        incomingConnectionSockets = new ServerSocket[hostAddresses.length];
+
+        this.registerAcceptWithSelector();
 
         this.idleSocketTimeout = idleSocketTimeout;
 
@@ -91,14 +96,14 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         }
         catch (NoSuchAlgorithmException e)
         {
-            debug("This can only happen if the local implementation does not include the given hash algorithm.");
+            weird("This can only happen if the local implementation does not include the given hash algorithm.");
             e.printStackTrace();
         }
     }
 
-    public InetAddress getHostAddress()
+    public InetAddress[] getHostAddresses()
     {
-        return hostAddress;
+        return hostAddresses;
     }
 
     /**
@@ -164,10 +169,14 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
                 {
                     debug("Maximum connections reached; disabling accept until a client drops.");
 
-                    key.cancel();
-                    ((ServerSocketChannel) key.channel()).socket().close();
-                    key.channel().close();
-
+                    for (ServerSocket s : this.incomingConnectionSockets)
+                    {
+                        SelectionKey closingKey = s.getChannel().keyFor(this.selector);
+                        closingKey.cancel();
+                        s.close();
+                        closingKey.channel().close();
+                    }
+                    
                     acceptEnabled = false;
                 }
 
@@ -251,41 +260,13 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
     }
 
     /**
-     * Sets up a Selector.
+     * TODO fix this method
      * 
      * @return
-     * @throws IOException
      */
-    private Selector initSelector() throws IOException
-    {
-        // acquire the static Selector object
-        Selector sSelector = SelectorProvider.provider().openSelector();
-
-        // acquire the static ServerSocketChannel object
-        ServerSocketChannel channel = ServerSocketChannel.open();
-
-        // disable blocking
-        channel.configureBlocking(false);
-
-        // get the socket associated with the channel
-        serverSocket = channel.socket();
-        serverSocket.setReuseAddress(true);
-
-        // bind to the port for this server
-        serverSocket.bind(new InetSocketAddress(hostAddress, portNumber));
-        serverSocket.setReuseAddress(true);
-
-        // register the channel with the selector to look for incoming
-        // accept requests
-        acceptEnabled = true;
-        channel.register(sSelector, SelectionKey.OP_ACCEPT);
-
-        return sSelector;
-    }
-
     public SocketAddress getAddress()
     {
-        return this.serverSocket.getLocalSocketAddress();
+        return this.incomingConnectionSockets[0].getLocalSocketAddress();
     }
 
     /**
@@ -353,28 +334,9 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         // max_connections, re-enable
         if (selector.keys().size() < MAX_CONNECTIONS && !acceptEnabled)
         {
-            // acquire the static ServerSocketChannel object
-            ServerSocketChannel channel;
             try
             {
-                channel = ServerSocketChannel.open();
-
-                // disable blocking
-                channel.configureBlocking(false);
-
-                // get the socket associated with the channel
-                serverSocket = channel.socket();
-                serverSocket.setReuseAddress(true);
-
-                // bind to the port for this server
-                serverSocket
-                        .bind(new InetSocketAddress(hostAddress, portNumber));
-                serverSocket.setReuseAddress(true);
-
-                // register the channel with the selector to look for incoming
-                // accept requests
-                acceptEnabled = true;
-                channel.register(selector, SelectionKey.OP_ACCEPT);
+                this.registerAcceptWithSelector();
             }
             catch (IOException e)
             {
@@ -382,6 +344,31 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
                 e.printStackTrace();
             }
         }
+    }
+
+    private void registerAcceptWithSelector() throws IOException
+    {
+        for (int i = 0; i < incomingConnectionSockets.length; i++)
+        {
+            // acquire the static ServerSocketChannel object
+            ServerSocketChannel channel = ServerSocketChannel.open();
+
+            // disable blocking
+            channel.configureBlocking(false);
+
+            // get the socket associated with the channel
+            incomingConnectionSockets[i] = channel.socket();
+
+            // bind to the port for this server
+            incomingConnectionSockets[i].bind(new InetSocketAddress(
+                    hostAddresses[i], portNumber));
+            incomingConnectionSockets[i].setReuseAddress(true);
+
+            channel.register(this.selector, SelectionKey.OP_ACCEPT);
+        }
+        // register the channel with the selector to look for incoming
+        // accept requests
+        acceptEnabled = true;
     }
 
     /**
@@ -401,8 +388,8 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         // client ip, client actual port
         digester.update(String.valueOf(System.currentTimeMillis()).getBytes());
         // digester.update(String.valueOf(System.nanoTime()).getBytes());
-        digester.update(this.serverSocket.getInetAddress().toString()
-                .getBytes());
+        digester.update(this.incomingConnectionSockets[0].getInetAddress()
+                .toString().getBytes());
         digester.update(incomingSocket.getInetAddress().toString().getBytes());
         digester.update(String.valueOf(incomingSocket.getPort()).getBytes());
 
@@ -422,7 +409,10 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
             selector.close();
 
             debug("Unbinding.");
-            this.serverSocket.close();
+            for (ServerSocket s : incomingConnectionSockets)
+            {
+                s.close();
+            }
         }
         catch (IOException e)
         {

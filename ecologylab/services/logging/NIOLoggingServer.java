@@ -33,6 +33,30 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize)
     {
+        InetAddress[] addr =
+        { inetAddress };
+
+        return getInstance(addr, objectRegistry, idleConnectionTimeout,
+                maxPacketSize);
+    }
+
+    /**
+     * This is the actual way to create an instance of this.
+     * 
+     * @param portNumber
+     * @param requestTranslationSpace
+     * @param objectRegistry
+     * @param authListFilename -
+     *            a file name indicating the location of the authentication
+     *            list; this should be an XML file of an AuthenticationList
+     *            object.
+     * @return A server instance, or null if it was not possible to open a
+     *         ServerSocket on the port on this machine.
+     */
+    public static NIOLoggingServer getInstance(InetAddress[] inetAddress,
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize)
+    {
         NIOLoggingServer newServer = null;
 
         try
@@ -62,7 +86,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             {
                 int newMPL = Integer.parseInt(args[1]);
                 mPL = newMPL;
-                System.err.println("Using "+mPL+" as maximum packet length");
+                System.err
+                        .println("Using " + mPL + " as maximum packet length");
             }
             catch (NumberFormatException e)
             {
@@ -74,7 +99,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
         }
         else
         {
-            System.err.println("No max packet length specified, using "+mPL);
+            System.err.println("No max packet length specified, using " + mPL);
         }
 
         NIOLoggingServer loggingServer = getInstance(
@@ -91,15 +116,16 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
         }
     }
 
-    protected NIOLoggingServer(int portNumber, InetAddress inetAddress,
+    protected NIOLoggingServer(int portNumber, InetAddress[] inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
                 idleConnectionTimeout, maxPacketSize);
-        
-        this.translationSpace.setDefaultPackageName("ecologylab.services.logging");
+
+        this.translationSpace
+                .setDefaultPackageName("ecologylab.services.logging");
     }
 
     public void setLogFilesPath(String path)
@@ -112,9 +138,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
         return logFilesPath;
     }
 
-    @Override
-    protected LoggingContextManager generateContextManager(Object token,
-            SocketChannel sc, TranslationSpace translationSpace,
+    @Override protected LoggingContextManager generateContextManager(
+            Object token, SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
         return new LoggingContextManager(token, maxPacketSize, this, this

@@ -56,7 +56,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      *         ServerSocket on the port on this machine.
      */
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
-            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize, String authListFilename)
     {
@@ -99,7 +99,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      *         ServerSocket on the port on this machine.
      */
     public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
-            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize, AuthenticationList authList)
     {
@@ -130,7 +130,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      * @throws BindException
      */
     protected DoubleThreadedAuthNIOServer(int portNumber,
-            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize, AuthenticationList authList) throws IOException,
             BindException

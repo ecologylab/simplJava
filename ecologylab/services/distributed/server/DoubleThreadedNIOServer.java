@@ -31,7 +31,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
         ServerConstants
 {
     public static DoubleThreadedNIOServer getInstance(int portNumber,
-            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            InetAddress[] inetAddress,
+            TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize) throws IOException, BindException
     {
@@ -40,22 +41,34 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
                 maxPacketSize);
     }
 
-    Thread                          t               = null;
+    public static DoubleThreadedNIOServer getInstance(int portNumber,
+            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize) throws IOException, BindException
+    {
+        InetAddress[] address =
+        { inetAddress };
+        return getInstance(portNumber, address, requestTranslationSpace,
+                objectRegistry, idleConnectionTimeout, maxPacketSize);
+    }
 
-    boolean                         running         = false;
+    Thread                          t        = null;
 
-    HashMap<Object, ContextManager> contexts        = new HashMap<Object, ContextManager>();
+    boolean                         running  = false;
 
-    private static CharsetDecoder   decoder         = Charset.forName(
-                                                            CHARACTER_ENCODING)
-                                                            .newDecoder();
+    HashMap<Object, ContextManager> contexts = new HashMap<Object, ContextManager>();
+
+    private static CharsetDecoder   decoder  = Charset.forName(
+                                                     CHARACTER_ENCODING)
+                                                     .newDecoder();
 
     protected int                   maxPacketSize;
 
     /**
      * 
      */
-    protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
+    protected DoubleThreadedNIOServer(int portNumber,
+            InetAddress[] inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize) throws IOException, BindException
@@ -281,7 +294,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      * @param newContextManager
      * @return true if the restore was successful, false if it was not.
      */
-    public boolean restoreContextManagerFromSessionId(Object oldSessionId, ContextManager newContextManager)
+    public boolean restoreContextManagerFromSessionId(Object oldSessionId,
+            ContextManager newContextManager)
     {
         debug("attempting to restore old session...");
 

@@ -43,7 +43,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
      * @throws IOException
      * @throws BindException
      */
-    protected HTTPPostServer(int portNumber, InetAddress inetAddress,
+    protected HTTPPostServer(int portNumber, InetAddress[] inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
@@ -64,7 +64,8 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
         HTTPPostServer httpPostServer = null;
         try
         {
-            httpPostServer = new HTTPPostServer(portNumber, inetAddress,
+            InetAddress[] address = { inetAddress };
+            httpPostServer = new HTTPPostServer(portNumber, address,
                     requestTranslationSpace, objectRegistry);
         }
         catch (BindException e)
