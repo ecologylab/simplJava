@@ -61,7 +61,7 @@ public abstract class NIONetworking extends Debug implements Runnable
     }
 
     private ByteBuffer                            readBuffer                = ByteBuffer
-                                                                                    .allocate(1024);
+                                                                                    .allocate(1024*4);
 
     private Map<SocketChannel, Queue<ByteBuffer>> pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
@@ -165,6 +165,8 @@ public abstract class NIONetworking extends Debug implements Runnable
             {
                 for (ChangeRequest changeReq : pendingSelectionOpChanges)
                 {
+                	debug("making selection op changes...");
+                	
                     if (changeReq.socket.isRegistered())
                     {
                         /*
@@ -203,8 +205,12 @@ public abstract class NIONetworking extends Debug implements Runnable
             {
                 // block until some connection has something to do
                 // if ((timeSelecting = selector.select(selectInterval)) > 0)
-                if (selector.select() > 0)
+            	int numSel = 0;
+            	
+                if ((numSel = selector.select()) > 0)
                 {
+                	debug("selector woke up with "+numSel+" selected.");
+                	
                     // get an iterator of the keys that have something to do
                     Iterator<SelectionKey> selectedKeyIter = selector
                             .selectedKeys().iterator();
@@ -233,9 +239,12 @@ public abstract class NIONetworking extends Debug implements Runnable
                         }
                         else if (key.isWritable())
                         {
+                        	debug("time to write!");
+                        	
                             try
                             {
                                 writeKey(key);
+                                finishWrite(key);
                             }
                             catch (IOException e)
                             {
@@ -253,6 +262,8 @@ public abstract class NIONetworking extends Debug implements Runnable
                                  * validity here, because accept key may have
                                  * rejected an incoming connection
                                  */
+                            	debug("time to read!");
+                            	
                                 if (key.channel().isOpen() && key.isValid())
                                 {
                                     try
@@ -282,6 +293,8 @@ public abstract class NIONetworking extends Debug implements Runnable
                             }
                         }
                     }
+                    
+                    debug("done with all selections.");
                 }
             }
             catch (IOException e)
@@ -301,6 +314,22 @@ public abstract class NIONetworking extends Debug implements Runnable
     }
 
     /**
+	 * Perform any actions necessary after all data has been written from the
+	 * outgoing queue to the client for this key. This is a hook method so that
+	 * subclasses can provide specific functionality (such as, for example,
+	 * invalidating the connection once the data has been sent.
+	 * 
+	 * This method does not do anything.
+	 * 
+	 * @param key -
+	 *            the SelectionKey that is finished writing.
+	 */
+    protected void finishWrite(SelectionKey key) 
+    {
+    	
+	}
+
+	/**
      * Queue up bytes to send.
      * 
      * @param socket
@@ -308,6 +337,8 @@ public abstract class NIONetworking extends Debug implements Runnable
      */
     public void send(SocketChannel socket, ByteBuffer data)
     {
+    	debug("Entering send.");
+    	
         synchronized (this.pendingSelectionOpChanges)
         {
             // queue change
@@ -329,6 +360,8 @@ public abstract class NIONetworking extends Debug implements Runnable
             }
         }
 
+        debug("wakeup selector");
+        
         selector.wakeup();
     }
 
@@ -350,8 +383,11 @@ public abstract class NIONetworking extends Debug implements Runnable
         }
         else
         {
-            this.pendingSelectionOpChanges.offer(new ChangeRequest(chan,
-                    ChangeRequest.INVALIDATE_TEMPORARILY, 0));
+        	synchronized(pendingSelectionOpChanges)
+        	{
+        		this.pendingSelectionOpChanges.offer(new ChangeRequest(chan,
+        				ChangeRequest.INVALIDATE_TEMPORARILY, 0));
+        	}
         }
         selector.wakeup();
     }
@@ -442,6 +478,7 @@ public abstract class NIONetworking extends Debug implements Runnable
      */
     private final void writeKey(SelectionKey key) throws IOException
     {
+    	debug("writing.");
         SocketChannel sc = (SocketChannel) key.channel();
 
         synchronized (this.pendingWrites)
@@ -461,11 +498,11 @@ public abstract class NIONetworking extends Debug implements Runnable
                 }
             }
 
-            if (writes.isEmpty())
-            { // nothing left to write, go back to
+            	// nothing left to write, go back to
                 // listening
                 key.interestOps(SelectionKey.OP_READ);
-            }
+
+                selector.wakeup();
         }
     }
 
