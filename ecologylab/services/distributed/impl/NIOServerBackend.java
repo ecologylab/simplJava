@@ -11,7 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
@@ -51,6 +50,16 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         return new NIOServerBackend(portNumber, hostAddresses, sAP,
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
+    
+    public static NIOServerBackend getInstance(int portNumber,
+            InetAddress hostAddresses, NIOServerFrontend sAP,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleSocketTimeout)
+            throws IOException, BindException
+    {
+        return new NIOServerBackend(portNumber, hostAddresses, sAP,
+                requestTranslationSpace, objectRegistry, idleSocketTimeout);
+    }
 
     protected ServerSocket[]                                   incomingConnectionSockets;
 
@@ -77,6 +86,23 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
+        this.construct(hostAddresses, sAP, idleSocketTimeout);
+    }
+    
+    protected NIOServerBackend(int portNumber, InetAddress hostAddress,
+            NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleSocketTimeout)
+            throws IOException, BindException
+    {
+        super(portNumber, requestTranslationSpace, objectRegistry);
+
+        InetAddress[] hostAddressArray = { hostAddress };
+        
+        this.construct(hostAddressArray, sAP, idleSocketTimeout);
+    }
+
+    private void construct(InetAddress[] hostAddresses, NIOServerFrontend sAP, int idleSocketTimeout) throws IOException
+    {
         this.hostAddresses = hostAddresses;
 
         this.sAP = sAP;
@@ -100,7 +126,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
             e.printStackTrace();
         }
     }
-
+    
     public InetAddress[] getHostAddresses()
     {
         return hostAddresses;

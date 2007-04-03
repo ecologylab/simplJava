@@ -68,7 +68,22 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      * 
      */
     protected DoubleThreadedNIOServer(int portNumber,
-            InetAddress[] inetAddress,
+            InetAddress[] inetAddresses,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleConnectionTimeout,
+            int maxPacketSize) throws IOException, BindException
+    {
+        super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
+                idleConnectionTimeout);
+
+        this.maxPacketSize = maxPacketSize;
+    }
+
+    /**
+     * 
+     */
+    protected DoubleThreadedNIOServer(int portNumber,
+            InetAddress inetAddress,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout,
             int maxPacketSize) throws IOException, BindException
@@ -78,7 +93,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 
         this.maxPacketSize = maxPacketSize;
     }
-
+    
     /**
      * @throws BadClientException
      *             See

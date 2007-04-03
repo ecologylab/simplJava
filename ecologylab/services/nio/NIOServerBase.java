@@ -85,15 +85,53 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
         
         this.translationSpace.addTranslation(InitConnectionRequest.class);
     }
+   
+    /**
+     * Creates an instance of an NIOServer of some flavor. Creates the backend
+     * using the information in the arguments.
+     * 
+     * Registers itself as the MAIN_START_AND_STOPPABLE in the object registry.
+     * 
+     * @param portNumber
+     * @param inetAddress
+     * @param requestTranslationSpace
+     * @param objectRegistry
+     * @throws IOException
+     * @throws BindException
+     */
+    protected NIOServerBase(int portNumber, InetAddress inetAddress,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
+    {
+        backend = this.generateBackend(portNumber, inetAddress,
+                requestTranslationSpace,
+                objectRegistry, idleConnectionTimeout);
+
+        this.translationSpace = requestTranslationSpace;
+        this.registry = objectRegistry;
+        
+        registry.registerObject(MAIN_START_AND_STOPPABLE, this);
+        registry.registerObject(MAIN_SHUTDOWNABLE, this);
+        
+        this.translationSpace.addTranslation(InitConnectionRequest.class);
+    }
     
-    protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddress,
+    protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddresses,
             TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleConnectionTimeout) throws BindException, IOException 
     {
-		return NIOServerBackend.getInstance(portNumber, inetAddress, this,
+		return NIOServerBackend.getInstance(portNumber, inetAddresses, this,
 				requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 	}
 
+    protected NIOServerBackend generateBackend(int portNumber, InetAddress inetAddress,
+            TranslationSpace requestTranslationSpace,
+            ObjectRegistry objectRegistry, int idleConnectionTimeout) throws BindException, IOException 
+    {
+        return NIOServerBackend.getInstance(portNumber, inetAddress, this,
+                requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+    }
+    
 	protected abstract ContextManager generateContextManager(Object token,
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry);

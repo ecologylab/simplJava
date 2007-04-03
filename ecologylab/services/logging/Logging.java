@@ -151,11 +151,20 @@ public class Logging extends ElementState implements Runnable,
     }
     public Logging(TranslationSpace nameSpace, String logFileName, int maxOpsBeforeWrite)
     {
+        this(nameSpace, logFileName, maxOpsBeforeWrite, Pref.lookupInt(
+                LOGGING_MODE_PARAM, NO_LOGGING), Pref
+                .lookupString(LOGGING_HOST_PARAM), Pref.lookupInt(
+                LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT));
+    }
+    public Logging(TranslationSpace nameSpace, String logFileName,
+            int maxOpsBeforeWrite, int logMode, String loggingHost,
+            int loggingPort)
+    {
         super();
         this.maxOpsBeforeWrite   = maxOpsBeforeWrite;
         finished            = false;
         this.nameSpace      = nameSpace;
-        int logMode         = Pref.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING);
+
         switch (logMode)
         {
             case NO_LOGGING:
@@ -229,10 +238,8 @@ public class Logging extends ElementState implements Runnable,
                  * Create the logging client which communicates with the logging
                  * server
                  */
-            	String loggingHost = Pref.lookupString(LOGGING_HOST_PARAM);
-            	if (loggingHost == null)
-            		loggingHost = LOGGING_HOST;
-            	int loggingPort	= Pref.lookupInt(LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT);
+                if (loggingHost == null)
+                    loggingHost = LOGGING_HOST;
 
                 NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, nameSpace, new ObjectRegistry());
                 
@@ -261,6 +268,7 @@ public class Logging extends ElementState implements Runnable,
                 break;
         }
     }
+    
     
     /**
      * Constructor for automatic translation from XML
