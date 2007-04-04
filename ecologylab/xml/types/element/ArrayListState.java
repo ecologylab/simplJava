@@ -42,6 +42,15 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
         return result;
     }
     
+    /**
+     * Returns the underlying ArrayList implementation.
+     * @return
+     */
+    public ArrayList<T> getArrayList()
+    {
+        return set();
+    }
+    
     public boolean add(T elementState)
     {
         return set().add(elementState);
