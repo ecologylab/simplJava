@@ -77,12 +77,24 @@ public class Authenticator extends Debug
                     // and add to collections
                     add(entry.getUsername(), address);
                 }
+                else
+                {
+                    debug ("already logged in.");
+                }
+            }
+            else
+            {
+                debug("invalid entry");
             }
         }
         else if (entry == null)
         {
             debug("<null> attempted login.");
             loggedInSuccessfully = false;
+        }
+        else
+        {
+            debug("username: "+entry.getUsername()+" does not exist in authentication list.");
         }
 
         return loggedInSuccessfully;

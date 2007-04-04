@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -56,63 +58,63 @@ import ecologylab.xml.XmlTranslationException;
 public class NIOClient extends ServicesClientBase implements Runnable,
         ServerConstants, ClientConstants
 {
-    protected Selector                            selector                     = null;
+    protected Selector                  selector                     = null;
 
-    protected boolean                             running                      = false;
+    protected boolean                   running                      = false;
 
-    protected SocketChannel                       channel                      = null;
+    protected SocketChannel             channel                      = null;
 
-    private Thread                                thread;
+    private Thread                      thread;
 
-    protected SelectionKey                        key                          = null;
+    protected SelectionKey              key                          = null;
 
-    private ByteBuffer                            incomingRawBytes             = ByteBuffer
-                                                                                       .allocate(MAX_PACKET_SIZE);
+    private ByteBuffer                  incomingRawBytes             = ByteBuffer
+                                                                             .allocate(MAX_PACKET_SIZE);
 
-    protected CharBuffer                          outgoingChars                = CharBuffer
-                                                                                       .allocate(MAX_PACKET_SIZE);
+    protected CharBuffer                outgoingChars                = CharBuffer
+                                                                             .allocate(MAX_PACKET_SIZE);
 
-    private StringBuilder                         accumulator                  = new StringBuilder(
-                                                                                       MAX_PACKET_SIZE);
+    private StringBuilder               accumulator                  = new StringBuilder(
+                                                                             MAX_PACKET_SIZE);
 
-    private CharsetDecoder                        decoder                      = Charset
-                                                                                       .forName(
-                                                                                               "ASCII")
-                                                                                       .newDecoder();
+    private CharsetDecoder              decoder                      = Charset
+                                                                             .forName(
+                                                                                     "ASCII")
+                                                                             .newDecoder();
 
-    protected CharsetEncoder                      encoder                      = Charset
-                                                                                       .forName(
-                                                                                               "ASCII")
-                                                                                       .newEncoder();
+    protected CharsetEncoder            encoder                      = Charset
+                                                                             .forName(
+                                                                                     "ASCII")
+                                                                             .newEncoder();
 
-    private ResponseMessage                       responseMessage              = null;
+    private ResponseMessage             responseMessage              = null;
 
-    protected Iterator                            incoming;
+    protected Iterator                  incoming;
 
-    private volatile boolean                      blockingRequestPending       = false;
+    private volatile boolean            blockingRequestPending       = false;
 
-    private LinkedBlockingQueue<ResponseMessage>  blockingResponsesQueue       = new LinkedBlockingQueue<ResponseMessage>();
+    private Queue<ResponseMessage>      blockingResponsesQueue       = new LinkedBlockingQueue<ResponseMessage>();
 
-    protected LinkedBlockingQueue<RequestMessage> requestsQueue                = new LinkedBlockingQueue<RequestMessage>();
+    protected Queue<PreppedRequest>     requestsQueue                = new LinkedBlockingQueue<PreppedRequest>();
 
     /**
      * A map that stores all the requests that have not yet gotten responses.
      * Maps UID to RequestMessage.
      */
-    protected HashMap<Long, RequestMessage>       unfulfilledRequests          = new HashMap<Long, RequestMessage>();
+    protected Map<Long, PreppedRequest> unfulfilledRequests          = new HashMap<Long, PreppedRequest>();
 
     /**
      * The number of times a call to reconnect() should attempt to contact the
      * server before giving up and calling stop().
      */
-    protected int                                 reconnectAttempts            = RECONNECT_ATTEMPTS;
+    protected int                       reconnectAttempts            = RECONNECT_ATTEMPTS;
 
     /**
      * The number of milliseconds to wait between reconnect attempts.
      */
-    protected int                                 waitBetweenReconnectAttempts = WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
+    protected int                       waitBetweenReconnectAttempts = WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
 
-    private String                                sessionId                    = null;
+    private String                      sessionId                    = null;
 
     /**
      * selectInterval is passed to select() when it is called in the run loop.
@@ -123,9 +125,9 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * subclassing the sendData() method) to have this send data on an interval,
      * and then select.
      */
-    protected long                                selectInterval               = 0;
+    protected long                      selectInterval               = 0;
 
-    protected boolean                             isSending                    = false;
+    protected boolean                   isSending                    = false;
 
     public NIOClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry)
@@ -181,7 +183,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                 }
             }
         }
-        
+
         debug("connected? " + this.connected());
         return connected();
     }
@@ -192,8 +194,10 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * selector.
      * 
      * @param request
+     * @throws XmlTranslationException
      */
-    protected long enqueueRequest(RequestMessage request)
+    protected PreppedRequest prepareAndEnqueueRequestForSending(
+            RequestMessage request) throws XmlTranslationException
     {
         long uid = request.getUid();
         if (uid == 0)
@@ -202,6 +206,19 @@ public class NIOClient extends ServicesClientBase implements Runnable,
             request.setUid(uid);
         }
 
+        String requestString = request.translateToXML();
+
+//        debug("requestString: "+requestString);
+        
+        PreppedRequest pReq = new PreppedRequest(requestString, uid);
+
+        enqueueRequestForSending(pReq);
+
+        return pReq;
+    }
+
+    protected void enqueueRequestForSending(PreppedRequest request)
+    {
         synchronized (requestsQueue)
         {
             requestsQueue.add(request);
@@ -210,15 +227,13 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         key.interestOps(key.interestOps() | (SelectionKey.OP_WRITE));
 
         selector.wakeup();
-
-        return uid;
     }
 
     public void disconnect(boolean waitForResponses)
     {
-        while (!requestsQueue.isEmpty())
+        while (this.requestsRemaining() > 0 && this.connected())
         {
-            debug("*******************Request queue not empty, finishing messages before disconnecting...");
+            debug("*******************Request queue not empty, finishing "+requestsRemaining()+" messages before disconnecting...");
             synchronized (this)
             {
                 try
@@ -393,10 +408,20 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * 
      * @return the UID of request.
      */
-    public long nonBlockingSendMessage(RequestMessage request)
+    public PreppedRequest nonBlockingSendMessage(RequestMessage request)
             throws IOException
     {
-        return this.enqueueRequest(request);
+        try
+        {
+            return this.prepareAndEnqueueRequestForSending(request);
+        }
+        catch (XmlTranslationException e)
+        {
+            error("error translating message; returning null");
+            e.printStackTrace();
+
+            return null;
+        }
     }
 
     /**
@@ -434,13 +459,25 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         long startTime = System.currentTimeMillis();
         int timeCounter = 0;
 
-        currentMessageUid = this.enqueueRequest(request);
+        try
+        {
+            currentMessageUid = this
+                    .prepareAndEnqueueRequestForSending(request).getUid();
+        }
+        catch (XmlTranslationException e1)
+        {
+            error("error translating to XML; returning null");
+            e1.printStackTrace();
+
+            return null;
+        }
 
         if (request instanceof InitConnectionRequest)
         {
-            debug("init request: "+((InitConnectionRequest)request).getSessionId());
+            debug("init request: "
+                    + ((InitConnectionRequest) request).getSessionId());
         }
-        
+
         // wait to be notified that the response has arrived
         while (blockingRequestPending && !blockingRequestFailed)
         {
@@ -564,8 +601,11 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                                     {
                                         while (this.requestsRemaining() > 0)
                                         {
-                                            this.prepareAndSendMessage(this
-                                                    .dequeueRequest(), key);
+                                            this
+                                                    .createPacketFromMessageAndSend(
+                                                            this
+                                                                    .dequeueRequest(),
+                                                            key);
                                         }
                                     }
 
@@ -601,7 +641,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * 
      * @return the next request in the request queue.
      */
-    protected RequestMessage dequeueRequest()
+    protected PreppedRequest dequeueRequest()
     {
         return this.requestsQueue.poll();
     }
@@ -630,13 +670,15 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                 accumulator.append(decoder.decode(incomingRawBytes));
 
+                // System.out.println("**************************accum:
+                // "+accumulator.toString());
+
                 incomingRawBytes.clear();
 
-                if (accumulator.length() > 0)
-                {
-                    // look for HTTP header
-                    int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
+                int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
 
+                while ((accumulator.length() > 0) || (endOfFirstHeader == -1))
+                {
                     if (endOfFirstHeader == -1)
                         break;
 
@@ -681,6 +723,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                             }
                         }
                     }
+
+                    endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
                 }
             }
 
@@ -755,14 +799,14 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         {
             synchronized (unfulfilledRequests)
             {
-                List<RequestMessage> rerequests = new LinkedList<RequestMessage>(
+                List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(
                         this.unfulfilledRequests.values());
 
                 Collections.sort(rerequests);
 
-                for (RequestMessage req : rerequests)
+                for (PreppedRequest req : rerequests)
                 {
-                    this.enqueueRequest(req);
+                    this.enqueueRequestForSending(req);
                 }
             }
         }
@@ -780,7 +824,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * 
      * @param req
      */
-    protected void addUnfulfilledRequest(RequestMessage req)
+    protected void addUnfulfilledRequest(PreppedRequest req)
     {
         synchronized (unfulfilledRequests)
         {
@@ -793,17 +837,17 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * converts it to XML, prepends the HTTP-like header, then writes it out to
      * the channel. Then re-registers key for reading.
      * 
-     * @param request
+     * @param pReq
      */
-    private void prepareAndSendMessage(RequestMessage request, SelectionKey key)
+    private void createPacketFromMessageAndSend(PreppedRequest pReq,
+            SelectionKey key)
     {
-        String outgoingReq = null;
+        String outgoingReq = pReq.getRequest();
 
-        this.addUnfulfilledRequest(request);
+        this.addUnfulfilledRequest(pReq);
 
         try
         {
-            outgoingReq = request.translateToXML(false);
             StringBuilder message = new StringBuilder("content-length:"
                     + outgoingReq.length() + "\r\n\r\n" + outgoingReq);
 
@@ -850,10 +894,6 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         {
             e.printStackTrace();
             System.out.println("recovering.");
-        }
-        catch (XmlTranslationException e)
-        {
-            e.printStackTrace();
         }
         catch (CharacterCodingException e)
         {

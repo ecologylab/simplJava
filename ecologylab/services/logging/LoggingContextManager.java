@@ -45,63 +45,60 @@ public class LoggingContextManager extends ContextManager
      * @param translationSpace
      * @param registry
      */
-    public LoggingContextManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
-            NIOServerBackend server, SocketChannel socket,
-            TranslationSpace translationSpace, ObjectRegistry registry)
+    public LoggingContextManager(Object token, int maxPacketSize,
+            NIOLoggingServer loggingServer, NIOServerBackend server,
+            SocketChannel socket, TranslationSpace translationSpace,
+            ObjectRegistry registry)
     {
-        super(token, maxPacketSize, server, loggingServer, socket, translationSpace, registry);
+        super(token, maxPacketSize, server, loggingServer, socket,
+                translationSpace, registry);
 
         this.loggingServer = loggingServer;
     }
 
-    @Override
-    protected ResponseMessage performService(RequestMessage requestMessage)
+    @Override protected ResponseMessage performService(
+            RequestMessage requestMessage)
     {
-        if (requestMessage instanceof SendPrologue)
+        ResponseMessage responseMessage;
+        if (requestMessage instanceof InitConnectionRequest)
         {
-            String name = loggingServer.getLogFilesPath()
-                    + ((SendPrologue) requestMessage).getFileName();
-            getFile(name);
-            // servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject,
-            // getFile(name) );
+            responseMessage = super.performService(requestMessage);
         }
-        else if (outputStream == null)
+        else
         {
-            debug("Prologue has not been received OR File has not been created!! "
-                    + requestMessage);
-        }
-
-        //TODO asdf
-        if (requestMessage instanceof LogOps)
-        {
-            for (String s : ((LogOps)requestMessage).getSet())
+            if (requestMessage instanceof SendPrologue)
             {
-                debug(s);
+                String name = loggingServer.getLogFilesPath()
+                        + ((SendPrologue) requestMessage).getFileName();
+                getFile(name);
+                // servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject,
+                // getFile(name) );
+            }
+            else if (outputStream == null)
+            {
+                debug("Prologue has not been received OR File has not been created!! "
+                        + requestMessage);
+            }
+
+            if ((outputStream != null)
+                    && (requestMessage instanceof LogRequestMessage))
+            {
+                ((LogRequestMessage) requestMessage)
+                        .setOutputStream(outputStream);
+            }
+
+            responseMessage = super.performService(requestMessage);
+
+            if (requestMessage instanceof SendEpilogue)
+            {
+                debug("received epiliogue, set end to true");
+                end = true;
+            }
+            else
+            {
+                requestMessage.getClass();
             }
         }
-        else
-        {
-            debug("perform service on a "+requestMessage.getClassName());
-        }
-        
-        if ((outputStream != null)
-                && (requestMessage instanceof LogRequestMessage))
-        {
-            ((LogRequestMessage) requestMessage).setOutputStream(outputStream);
-        }
-
-        ResponseMessage responseMessage = super.performService(requestMessage);
-
-        if (requestMessage instanceof SendEpilogue)
-        {
-        	debug("received epiliogue, set end to true");
-            end = true;
-        }
-        else
-        {
-            requestMessage.getClass();
-        }
-
         return responseMessage;
     }
 
@@ -113,11 +110,11 @@ public class LoggingContextManager extends ContextManager
             {
                 File file = new File(fileName);
                 String dirPath = file.getParent();
-                if( dirPath != null )
+                if (dirPath != null)
                 {
-	                File dir = new File(dirPath);
-	                if (!dir.exists())
-	                    dir.mkdirs();
+                    File dir = new File(dirPath);
+                    if (!dir.exists())
+                        dir.mkdirs();
                 }
                 // TODO what if (file.exists()) ???
                 outputStream = new FileOutputStream(file, true);
@@ -146,8 +143,7 @@ public class LoggingContextManager extends ContextManager
             String messageString) throws XmlTranslationException
     {
         RequestMessage requestMessage = (RequestMessage) ElementState
-                .translateFromXMLString(messageString, translationSpace,
-                        false);
+                .translateFromXMLString(messageString, translationSpace, false);
 
         if (requestMessage instanceof LogRequestMessage)
         { // special processing on log messages
@@ -155,17 +151,16 @@ public class LoggingContextManager extends ContextManager
             lrm.setXmlString(messageString);
         }
         else if (!(requestMessage instanceof InitConnectionRequest))
-        { // if not log message or connection initialization, bad things   
+        { // if not log message or connection initialization, bad things
             throw new XmlTranslationException(
                     "LoggingServer received non logging message: "
                             + requestMessage);
         }
-        
+
         return requestMessage;
     }
 
-    @Override
-    public void shutdown()
+    @Override public void shutdown()
     {
         while (this.messageWaiting || this.requestQueue.size() > 0)
         {
@@ -179,14 +174,14 @@ public class LoggingContextManager extends ContextManager
                 e.printStackTrace();
             }
         }
-        
+
         if (!end)
         {
             SendEpilogue sE = new SendEpilogue();
             sE.setOutputStream(this.outputStream);
             sE.performService(registry);
         }
-        
+
         super.shutdown();
     }
 }

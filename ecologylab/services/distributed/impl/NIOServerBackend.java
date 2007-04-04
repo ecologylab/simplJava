@@ -50,7 +50,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         return new NIOServerBackend(portNumber, hostAddresses, sAP,
                 requestTranslationSpace, objectRegistry, idleSocketTimeout);
     }
-    
+
     public static NIOServerBackend getInstance(int portNumber,
             InetAddress hostAddresses, NIOServerFrontend sAP,
             TranslationSpace requestTranslationSpace,
@@ -88,7 +88,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 
         this.construct(hostAddresses, sAP, idleSocketTimeout);
     }
-    
+
     protected NIOServerBackend(int portNumber, InetAddress hostAddress,
             NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
             ObjectRegistry objectRegistry, int idleSocketTimeout)
@@ -96,12 +96,14 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 
-        InetAddress[] hostAddressArray = { hostAddress };
-        
+        InetAddress[] hostAddressArray =
+        { hostAddress };
+
         this.construct(hostAddressArray, sAP, idleSocketTimeout);
     }
 
-    private void construct(InetAddress[] hostAddresses, NIOServerFrontend sAP, int idleSocketTimeout) throws IOException
+    private void construct(InetAddress[] hostAddresses, NIOServerFrontend sAP,
+            int idleSocketTimeout) throws IOException
     {
         this.hostAddresses = hostAddresses;
 
@@ -126,7 +128,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
             e.printStackTrace();
         }
     }
-    
+
     public InetAddress[] getHostAddresses()
     {
         return hostAddresses;
@@ -197,12 +199,13 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 
                     for (ServerSocket s : this.incomingConnectionSockets)
                     {
-                        SelectionKey closingKey = s.getChannel().keyFor(this.selector);
+                        SelectionKey closingKey = s.getChannel().keyFor(
+                                this.selector);
                         closingKey.cancel();
                         s.close();
                         closingKey.channel().close();
                     }
-                    
+
                     acceptEnabled = false;
                 }
 
@@ -265,21 +268,30 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
             SocketChannel tempChannel = ((ServerSocketChannel) key.channel())
                     .accept();
 
-            InetAddress address = tempChannel.socket().getInetAddress();
+            InetAddress address = null;
 
-            // shut it all down
-            tempChannel.socket().shutdownInput();
-            tempChannel.socket().shutdownOutput();
-            tempChannel.socket().close();
-            tempChannel.close();
+            if (tempChannel != null && tempChannel.socket() != null)
+            {
+                address = tempChannel.socket().getInetAddress();
 
+                // shut it all down
+                tempChannel.socket().shutdownInput();
+                tempChannel.socket().shutdownOutput();
+                tempChannel.socket().close();
+                tempChannel.close();
+            }
             // show a debug message
             if (numConn >= MAX_CONNECTIONS)
                 debug("Rejected connection; already fulfilled max connections.");
             else
                 debug("Evil host attempted to connect: " + address);
+
         }
         catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (NullPointerException e)
         {
             e.printStackTrace();
         }
