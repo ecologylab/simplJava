@@ -5,10 +5,12 @@
 <pref_float name="coolSpaceRatio" value="0.2"/>
 <pref_boolean name="spatial_grid" value="true"/>
 <pref_boolean name="incontext_slider"/>
-<pref_boolean name="use_dashboard"/>
+<pref_boolean name="use_dashboard" value="true"/>
 <pref_float name="elements_per_square_inch" value="0.7"/>
 <pref_int name="undo_levels" value="32"/>
 <pref_int name="log_mode" value="1"/>
 <pref_boolean name="javascript_debug_mode" value="true"/>
 <pref_string name="codebase" value="code/java"/>
+<pref_int name="graphics_device" value="1"/>
+<pref_boolean name="limit_traversal"/>
 </pref_set>
