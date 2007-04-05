@@ -12,6 +12,8 @@ import java.awt.Rectangle;
 import java.util.HashMap;
 
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -205,6 +207,30 @@ public abstract class MetaPref<T> extends ElementState
     public boolean widgetIsTextField()
     {
         if ("TEXT_FIELD".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns whether or not a widget uses check boxes.
+     * 
+     * @return True = Uses check boxes. False = Doesn't.
+     */
+    public boolean widgetIsCheckBoxes()
+    {
+        if ("CHECK_BOXES".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns whether or not a widget uses a drop down menu.
+     * 
+     * @return True = Uses a drop down menu. False = Doesn't.
+     */
+    public boolean widgetIsDropDown()
+    {
+        if ("DROP_DOWN".equals(widget))
             return true;
         return false;
     }
@@ -404,5 +430,74 @@ public abstract class MetaPref<T> extends ElementState
         registerComponent(labelAndName, textField);
         
         return textField;
+    }
+    
+    /**
+     * Creates a check box.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @param panel         JPanel this button will be associated with.
+     * @param initialValue  boolean; true=selected. false=not selected.
+     * @param label         Text label for button
+     * @param name          Name of button
+     * @param row           Row this button is in for GridBagLayout
+     * @param col           Column this button is in for GridBagLayout
+     * 
+     * @return JCheckBox with properties initialized to parameters.
+     */
+    protected JCheckBox createCheckBox(JPanel panel, boolean initialValue, String label, String name, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
+        JCheckBox checkBox = new JCheckBox(label);
+        
+        checkBox.setSelected(initialValue);
+        checkBox.setName(name);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        
+        panel.add(checkBox, c);
+        registerComponent(name, checkBox);
+        
+        return checkBox;
+    }
+    
+    /**
+     * Creates a drop down menu; combo box.
+     * 
+     *  TODO: MOVE THIS
+     * 
+     * @param panel         JPanel this field will be associated with.
+     * @param name          Name of this drop down menu.
+     * @param labels        String array of the labels within this menu.
+     * @param selectedValue The integer value of which of the 0-n labels
+     *                      in the menu is selected by default.
+     * @param row           Row this field is in for GridBagLayout
+     * @param col           Column this field is in for GridBagLayout
+     * 
+     * @return JComboBox with properties initialized to parameters.
+     */
+    protected JComboBox createDropDown(JPanel panel, String name, String[] labels, int selectedValue, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+        
+        JComboBox comboBox = new JComboBox(labels);
+        comboBox.setSelectedIndex(selectedValue);
+        comboBox.setName(name);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        c.ipadx = TEXT_FIELD_PADDING;
+        
+        panel.add(comboBox, c);
+        registerComponent(name, comboBox);
+        
+        return comboBox;
     }
 }

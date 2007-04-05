@@ -15,4 +15,6 @@ public interface WidgetTypes
 	public static final String	TEXT_AREA		= "text_area";
 	
 	public static final String	CHECK_BOXES		= "check_boxes";
+    
+    public static final String  DROP_DOWN       = "drop_down";
 }

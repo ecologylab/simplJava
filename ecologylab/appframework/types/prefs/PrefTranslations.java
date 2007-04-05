@@ -44,6 +44,7 @@ public class PrefTranslations extends Debug
         Choice.class,
         ChoiceInt.class,
         ChoiceBoolean.class,
+        ChoiceFloat.class,
         
 		
 	};

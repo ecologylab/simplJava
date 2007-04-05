@@ -4,9 +4,11 @@
 package ecologylab.appframework.types.prefs;
 
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -82,6 +84,11 @@ public class MetaPrefInt extends MetaPref<Integer>
                 }
             }
         }
+        else if (widgetIsDropDown())
+        {
+            JComboBox comboBox = (JComboBox)lookupComponent(this.id+"dropdown");
+            comboBox.setSelectedIndex(this.getDefaultValue());
+        }
     }
 
     /**
@@ -119,7 +126,20 @@ public class MetaPrefInt extends MetaPref<Integer>
                 }
             }
         }
-        // TODO: drop-down list
+        else if (widgetIsDropDown())
+        {
+            if (choices != null)
+            {
+                String[] choiceLabels = new String[choices.size()];
+                int i = 0;
+                for (Choice choice : choices)
+                {
+                    choiceLabels[i] = choice.label;
+                    i++;
+                }
+                this.createDropDown(panel, "dropdown", choiceLabels, this.getDefaultValue(), 0, 0);
+            }
+        }
 
         panel.setVisible(true);
         
@@ -164,6 +184,11 @@ public class MetaPrefInt extends MetaPref<Integer>
                 }
             }
         }
+        else if (widgetIsDropDown())
+        {
+            JComboBox comboBox = (JComboBox)lookupComponent(this.id+"dropdown");
+            comboBox.setSelectedIndex(prefValue.intValue());
+        }
     }
 
     /**
@@ -193,6 +218,11 @@ public class MetaPrefInt extends MetaPref<Integer>
                     return (Integer)choice.getValue();
                 }
             }
+        }
+        else if (widgetIsDropDown())
+        {
+            JComboBox comboBox = (JComboBox)lookupComponent(this.id+"dropdown");
+            return new Integer(comboBox.getSelectedIndex());
         }
         // if by some miracle we managed to deselect something that
         // automatically has a selected value, return the default value
