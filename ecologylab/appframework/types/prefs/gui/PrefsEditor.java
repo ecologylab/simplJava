@@ -8,11 +8,13 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
@@ -48,6 +50,7 @@ import ecologylab.xml.XmlTranslationException;
  */
 public class PrefsEditor
 extends Debug
+implements WindowListener
 {
     /**
      * The number of characters/columns at which the tooltips will try to wrap.
@@ -121,6 +124,11 @@ extends Debug
     boolean		isStandalone;
     
     /**
+     * Start location on the screen for the gui
+     */
+    static Point startLocation = new Point(100,100);
+    
+    /**
      * The base function that you call to construct the prefs editor GUI.
      * This requires that the MetaPrefSet and PrefSet be instantiated and populated
      * prior to call. This function creates the entire GUI and handles all actions
@@ -139,6 +147,7 @@ extends Debug
         this.isStandalone	= isStandalone;
         
         final JFrame jFrame = fetchJFrame();
+        jFrame.setLocation(startLocation);
         jFrame.addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
@@ -178,6 +187,7 @@ extends Debug
             jFrame.setSize(new Dimension(603, 532));
             jFrame.setTitle("combinFormation Preferences");
             jFrame.setContentPane(createJContentPane());
+            jFrame.addWindowListener(this);
         }
         return jFrame;
     }
@@ -195,6 +205,14 @@ extends Debug
     	if (PrefsEditor.this.isStandalone)
     		System.exit(0);
 	}
+    
+    /**
+     * Function to close the window
+     */
+    private void saveLocation()
+    {
+        startLocation = jFrame.getLocation();
+    }
 	
     /**
      * Create the content pane within the base window for the GUI.
@@ -242,6 +260,7 @@ extends Debug
             		{
             			public void actionPerformed(ActionEvent e)
             			{
+                            saveLocation();
             				closeWindow();
             			}
 	                });
@@ -271,6 +290,7 @@ extends Debug
             		{
             			public void actionPerformed(ActionEvent e) 
             			{
+                            saveLocation();
             				actionSavePreferences();
                             closeWindow();
             			}
@@ -712,4 +732,34 @@ extends Debug
         }
     }
     // end of gui actions for buttons
+
+    public void windowActivated(WindowEvent e)
+    {
+    }
+
+    public void windowClosed(WindowEvent e)
+    {
+    }
+
+    public void windowClosing(WindowEvent e)
+    {
+        System.err.print("window closing");
+        saveLocation();
+    }
+
+    public void windowDeactivated(WindowEvent e)
+    {
+    }
+
+    public void windowDeiconified(WindowEvent e)
+    {
+    }
+
+    public void windowIconified(WindowEvent e)
+    {
+    }
+
+    public void windowOpened(WindowEvent e)
+    {
+    }
 }
