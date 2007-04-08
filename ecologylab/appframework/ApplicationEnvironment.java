@@ -17,6 +17,7 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.PrefTranslations;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
@@ -86,7 +87,7 @@ implements Environment, XmlTranslationExceptionTypes
 	
 	protected enum LaunchType
 	{
-		JNLP, ECLIPSE, JAR,
+		JNLP, ECLIPSE, JAR, STUDY,
 	}
 	
 	LaunchType		launchType;
@@ -286,47 +287,59 @@ implements Environment, XmlTranslationExceptionTypes
 	 * @param uid
 	 * @return
 	 */
-	private String requestPrefFromServlet(String prefServlet)
+	private PrefSet requestPrefFromServlet(String prefServlet)
 	{
+/*
+		try {
+			ParsedURL purl = new ParsedURL(new URL(prefServlet));
+			
+			PrefSet prefSet = (PrefSet) ElementState.translateFromXML(purl, PrefTranslations.get());
+			return prefSet;
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (XmlTranslationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+*/		
 		try 
 		{
-			 URL url = new URL(prefServlet);	
-			 URLConnection connection = url.openConnection();
-			 connection.getOutputStream().toString();
-			 // inform the the connection that we will send output and accept input
-			 connection.setDoOutput(true);
-			 connection.setDoInput(true);
+			URL url = new URL(prefServlet);	
+			URLConnection connection = url.openConnection();
+
+			// specify the content type that binary data is sent
+			connection.setRequestProperty("Content-Type", "text/xml");
+
+		    // define a new BufferedReader on the input stream
+		    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+		    // receive data from the servlet
+		    String prefSetXML = in.readLine();
+		    PrefSet prfs = null;
+			try 
+			{
+				prfs = PrefSet.load(prefSetXML, getPrefTranslations());
+			} 
+			catch (XmlTranslationException e) 
+			{
+				e.printStackTrace();
+			} 
+			in.close();
 			
-			 // don't use a cached version of URL connection
-			 connection.setUseCaches(false);
-			 connection.setDefaultUseCaches(false);
-			
-			 // specify the content type that binary data is sent
-			 connection.setRequestProperty("Content-Type", "text/xml");
-			 
-		     // define a new PrintWriter on the output stream
-		     PrintWriter out = new PrintWriter(connection.getOutputStream());
-
-		     // send data to the servlet 
-		 // No Need because we are sending a Get message with a parameter appended in the URL.     
-		 //    out.print("uid="+uid);
-		     out.close();
-
-		     // define a new BufferedReader on the input stream
-		     BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-		     // receive data from the servlet
-		     String prefSetXML = in.readLine();
-		     
-		     in.close();
-		     
-		     return prefSetXML;
+			return prfs;
 		} 
 		catch (IOException e) 
 		{
 			e.printStackTrace();
-			return null;
 		}
+		return null;
+	}
+	
+	public TranslationSpace getPrefTranslations()
+	{
+		return PrefTranslations.get();
 	}
 
 	/**
@@ -347,9 +360,13 @@ implements Environment, XmlTranslationExceptionTypes
 		if (arg != null)
 		{
 			String uc				= arg.toUpperCase();
-			if ("JNLP".equals(uc))
+			if ("JNLP".equals(uc) )
 			{	// tells us how we were launched: e.g., JNLP, ECLIPSE, ...
 				launchType		= LaunchType.JNLP;
+			}
+			else if ( "STUDY".equals(uc) )
+			{	// For User Study
+				launchType		= LaunchType.STUDY;
 			}
 			else
 			{
@@ -365,6 +382,7 @@ implements Environment, XmlTranslationExceptionTypes
 		switch (launchType)
 		{
 		case JNLP:
+		case STUDY:
 			// next arg *should* be code base
 			if ((arg != null) && arg.endsWith("/"))
 			{					
@@ -396,30 +414,29 @@ implements Environment, XmlTranslationExceptionTypes
 
 	            //TODO for eunyee -- test for studies preference and download special studies preferences
 				// When the JNLP has more than two arguments (study case) -- eunyee
-				String prefXML = null;
 				if( argStack.size() > 0 )
 				{
 					String prefServlet	= "";
 					if( arg.startsWith("http://") )
 					{
 						// PreferencesServlet
-						prefServlet = pop(argStack);
+						prefServlet = pop(argStack);	
+					
+						prefSet = requestPrefFromServlet(prefServlet);
+						if( prefSet == null )
+							error("not prefXML string returned from the servlet=" + prefServlet);
 					}
 
-					prefXML = requestPrefFromServlet(prefServlet);
-					if( prefXML == null )
-						error("not prefXML string returned from the servlet=" + prefServlet);
+
 				}
 				
 	            // from supplied URL instead of from here
 	            try
 				{
-	            	if( prefXML == null ) // Normal Case
+	            	if( prefSet == null ) // Normal Case
 	            		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
-	            	else // The case that the servlet brings prefXML strings. 
-	            		prefSet = PrefSet.load(prefXML, translationSpace);
 	            	
-		            println("OK: Loaded Prefs from " + prefsPURL);
+		            println("OK: Loaded Prefs from " + prefSet.translateToXML(true));
 					if (metaPrefSetException != null)
 					{
 						warning("Couldn't load MetaPrefs:");
