@@ -85,12 +85,6 @@ extends Debug implements BasicFloatSet
     * That is, when the set grows larger than this, it should be prune()ed.
     */
    protected int	pruneSize;
-
-   
-   /**
-    * Number of active elements contained in this floatWeightSet.
-    */
-   protected int	numActive;
    
 /**
  * When there is more than one maximum found by maxSelect(), this ArrayList
@@ -352,9 +346,6 @@ extends Debug implements BasicFloatSet
 	   else
 		   maxArrayList.clear();
 	   
-	   //count how many active elements we have in this set.
-	   numActive = 0;
-	   
 	   //set result in case there's only 1 element in the set.
 	   FloatSetElement result= SENTINEL;
 	   float maxWeight		= result.getWeight();
@@ -364,7 +355,6 @@ extends Debug implements BasicFloatSet
 		   FloatSetElement thatElement	= elements[i];
 		   if (!thatElement.filteredOut())
 		   {
-			   numActive++;
 			   float thatWeight	= thatElement.getWeight();
 			   if (thatWeight > maxWeight)
 			   {
@@ -696,13 +686,6 @@ extends Debug implements BasicFloatSet
    public FloatSetElement lastElement()
    {
    	  return (size == 0) ? null : elements[size - 1];
-   }
-   /**
-    * Get the number of active elements in this set.
-    */
-   public int numActive()
-   {
-	   return numActive;
    }
 
 
