@@ -952,7 +952,7 @@ public class Logging extends ElementState implements Runnable,
         {
             debug("logging client writing prologue");
 
-            int uid = Pref.lookupInt("uid", 0);
+            String uid = Pref.lookupString("uid", "0");
             Logging.this.debug("Logging: Sending Prologue userID:" + uid);
             sendPrologue.prologue.setUserID(uid);
             try

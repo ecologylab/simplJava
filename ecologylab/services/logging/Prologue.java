@@ -19,7 +19,7 @@ public class Prologue extends ElementState
 	
 	@xml_attribute protected String	ip						= NetTools.localHost();
 	
-	@xml_attribute protected int 		userID					= 0;
+	@xml_attribute protected String 	userID				= "0";
 	
 	@xml_attribute protected String		questionId;
 	
@@ -28,17 +28,17 @@ public class Prologue extends ElementState
 	public Prologue()
 	{
 		super();
-		this.userID 	= Pref.lookupInt("uid", 0);
+		this.userID 	= Pref.lookupString("uid", "0");
 		this.questionId = Pref.lookupString("questionId");
 		this.studyName 	= Pref.lookupString("study_name");
 	}
 	
-	public void setUserID(int id)
+	public void setUserID(String id)
 	{
 		this.userID = id;
 	}
 	
-	public int getUserID()
+	public String getUserID()
 	{
 		return this.userID;
 	}

@@ -27,9 +27,9 @@ public class SendPrologue extends LogueMessage
 	
 	@xml_attribute protected String	ip						= NetTools.localHost();
 	
-	@xml_attribute protected int 		userID					= 0;
+	@xml_attribute protected String	userID					= "0";
 	
-	@xml_attribute protected String 	studyName;
+	@xml_attribute protected String studyName;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
