@@ -25,6 +25,8 @@ public class Prologue extends ElementState
 	
 	@xml_attribute protected String 	studyName;
 	
+	@xml_attribute protected String		questionPath;
+	
 	public Prologue()
 	{
 		super();
@@ -71,5 +73,10 @@ public class Prologue extends ElementState
 	public String getDate()
 	{
 		return date;
+	}
+	
+	public String getQuestionPath()
+	{
+		return questionPath;
 	}
 }
