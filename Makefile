@@ -2,7 +2,7 @@
 
 XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss  xml/library/icdl
 
-SERVICES = services services/exceptions services/logging services/messages services/messages/cf
+SERVICES = services services/exceptions services/logging services/messages services/messages/cf services/nio services/nio/servers 
 
 FUNDAMENTAL_DIRS = appframework appframework/types appframework/types/prefs appframework/types/prefs/gui collections generic io net $(XML_DIR) $(SERVICES) appframework/macos
 
