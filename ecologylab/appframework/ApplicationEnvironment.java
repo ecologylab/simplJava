@@ -87,7 +87,7 @@ implements Environment, XmlTranslationExceptionTypes
 	
 	protected enum LaunchType
 	{
-		JNLP, ECLIPSE, JAR, STUDY,
+		JNLP, ECLIPSE, JAR,
 	}
 	
 	LaunchType		launchType;
@@ -364,10 +364,6 @@ implements Environment, XmlTranslationExceptionTypes
 			{	// tells us how we were launched: e.g., JNLP, ECLIPSE, ...
 				launchType		= LaunchType.JNLP;
 			}
-			else if ( "STUDY".equals(uc) )
-			{	// For User Study
-				launchType		= LaunchType.STUDY;
-			}
 			else
 			{
 				//TODO -- recognize JAR here !!!
@@ -382,7 +378,6 @@ implements Environment, XmlTranslationExceptionTypes
 		switch (launchType)
 		{
 		case JNLP:
-		case STUDY:
 			// next arg *should* be code base
 			if ((arg != null) && arg.endsWith("/"))
 			{					
