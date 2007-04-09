@@ -284,10 +284,11 @@ implements Environment, XmlTranslationExceptionTypes
 	 * request User's prefSet from the preferenceServlet and return the prefSetXML string.
 	 * @author eunyee
 	 * @param prefServlet
+	 * @param translationSpace TODO
 	 * @param uid
 	 * @return
 	 */
-	private PrefSet requestPrefFromServlet(String prefServlet)
+	private PrefSet requestPrefFromServlet(String prefServlet, TranslationSpace translationSpace)
 	{
 /*
 		try {
@@ -320,7 +321,7 @@ implements Environment, XmlTranslationExceptionTypes
 		    PrefSet prfs = null;
 			try 
 			{
-				prfs = PrefSet.load(prefSetXML, getPrefTranslations());
+				prfs = PrefSet.load(prefSetXML, translationSpace);
 			} 
 			catch (XmlTranslationException e) 
 			{
@@ -337,11 +338,6 @@ implements Environment, XmlTranslationExceptionTypes
 		return null;
 	}
 	
-	public TranslationSpace getPrefTranslations()
-	{
-		return PrefTranslations.get();
-	}
-
 	/**
 	 * Load MetaPrefs and Prefs, if possible
 	 * 
@@ -417,7 +413,7 @@ implements Environment, XmlTranslationExceptionTypes
 						// PreferencesServlet
 						prefServlet = pop(argStack);	
 					
-						prefSet = requestPrefFromServlet(prefServlet);
+						prefSet = requestPrefFromServlet(prefServlet, translationSpace);
 						if( prefSet == null )
 							error("not prefXML string returned from the servlet=" + prefServlet);
 					}
