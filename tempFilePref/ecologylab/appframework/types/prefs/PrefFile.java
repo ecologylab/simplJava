@@ -10,7 +10,7 @@ import ecologylab.generic.Generic;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Pref for a Float
+ * Pref for a File
  * 
  * @author ross
  * 
@@ -22,7 +22,9 @@ import ecologylab.xml.xml_inherit;
      */
     @xml_attribute String   value;
 
-    @xml_attribute int      relativePath;
+    @xml_attribute int      pathContext = 0;
+    
+    public static final int ABSOLUTE_PATH = 0;
 
     public static final int CODE_BASE    = 1;
 
@@ -69,7 +71,7 @@ import ecologylab.xml.xml_inherit;
 
         if (fileValue == null)
         {
-            switch (relativePath)
+            switch (pathContext)
             {
             case (CODE_BASE):
                 this.fileValue = new File(Generic.codeBase().file(), value);
