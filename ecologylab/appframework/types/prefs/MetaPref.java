@@ -42,19 +42,19 @@ public abstract class MetaPref<T> extends ElementState
      * The padding between the default value in a text field and either 
      * side of the text field.
      */
-	private static final int TEXT_FIELD_PADDING = 50;
+    protected static final int TEXT_FIELD_PADDING = 50;
 
     /**
      * The inset between the right side of the gui panel and the right 
      * side of values.
      */
-    private static final int RIGHT_GUI_INSET = 20;
+    protected static final int RIGHT_GUI_INSET = 20;
 
     /**
      * The inset between the left side of the gui panel and the left 
      * side of the descriptions.
      */
-    private static final int LEFT_GUI_INSET = 15;
+    protected static final int LEFT_GUI_INSET = 15;
 
     /**
 	 * Unique identifier for Preference name with convenient lookup in 
@@ -231,6 +231,18 @@ public abstract class MetaPref<T> extends ElementState
     public boolean widgetIsDropDown()
     {
         if ("DROP_DOWN".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns whether or not a widget uses a color chooser.
+     * 
+     * @return True = Uses a color chooser. False = Doesn't.
+     */
+    public boolean widgetIsColorChooser()
+    {
+        if ("COLOR_CHOOSER".equals(widget))
             return true;
         return false;
     }

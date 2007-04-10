@@ -29,6 +29,7 @@ public class PrefTranslations extends Debug
 		MetaPrefFloat.class,
 		MetaPrefInt.class,
 		MetaPrefString.class,
+        MetaPrefColor.class,
 		
 		Pref.class,
         PrefSet.class,
@@ -37,6 +38,7 @@ public class PrefTranslations extends Debug
         PrefInt.class,
         PrefString.class,
         PrefElementState.class,
+        PrefColor.class,
         
         RangeState.class,
         RangeIntState.class,

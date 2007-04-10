@@ -17,4 +17,6 @@ public interface WidgetTypes
 	public static final String	CHECK_BOXES		= "check_boxes";
     
     public static final String  DROP_DOWN       = "drop_down";
+    
+    public static final String COLOR_CHOOSER    = "color_chooser";
 }
