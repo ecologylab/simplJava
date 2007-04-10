@@ -208,8 +208,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
         String requestString = request.translateToXML();
 
-//        debug("requestString: "+requestString);
-        
+        // debug("requestString: "+requestString);
+
         PreppedRequest pReq = new PreppedRequest(requestString, uid);
 
         enqueueRequestForSending(pReq);
@@ -231,9 +231,10 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
     public void disconnect(boolean waitForResponses)
     {
-        while (this.requestsRemaining() > 0 && this.connected())
+        while (this.requestsRemaining() > 0 && this.connected() && waitForResponses)
         {
-            debug("*******************Request queue not empty, finishing "+requestsRemaining()+" messages before disconnecting...");
+            debug("*******************Request queue not empty, finishing "
+                    + requestsRemaining() + " messages before disconnecting...");
             synchronized (this)
             {
                 try
@@ -665,44 +666,47 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         try
         {
             while ((bytesRead = channel.read(incomingRawBytes)) > 0)
-            {
+            { // read until there's nothing left to read
+
+                // decode bytes and store in accumulator
                 incomingRawBytes.flip();
-
                 accumulator.append(decoder.decode(incomingRawBytes));
-
-                // System.out.println("**************************accum:
-                // "+accumulator.toString());
-
                 incomingRawBytes.clear();
 
+                // debug("**************************accum:"+accumulator.toString());
+
+                // find the first header
                 int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
 
-                while ((accumulator.length() > 0) || (endOfFirstHeader == -1))
+                if ((accumulator.length() > 0) && (endOfFirstHeader != -1))
                 {
-                    if (endOfFirstHeader == -1)
-                        break;
-
-                    int length = ServicesServer.parseHeader(accumulator
+                    int contentLength = ServicesServer.parseHeader(accumulator
                             .substring(0, endOfFirstHeader));
 
-                    if (length == -1)
+                    if (contentLength == -1)
                         break;
 
-                    String firstMessage;
+                    String firstMessage = null;
 
-                    try
+                    int totalSize = endOfFirstHeader + 4 + contentLength;
+
+                    if (accumulator.length() >= totalSize)
                     {
                         firstMessage = accumulator.substring(
-                                endOfFirstHeader + 4, endOfFirstHeader + 4
-                                        + length);
-                        accumulator.delete(0, endOfFirstHeader + 4 + length);
-                        // System.out.println(firstMessage);
+                                endOfFirstHeader + 4, totalSize);
+                        accumulator.delete(0, totalSize);
+                        // debug("finished message:");
+                        // debug(firstMessage);
                     }
-                    catch (IndexOutOfBoundsException e)
+                    else
                     {
-                        debug("don't have a complete message yet; total length is "
-                                + accumulator.length());
-                        e.printStackTrace();
+                        // debug("message not yet complete: need " + totalSize
+                        // + " characters, currently only have "
+                        // + accumulator.length());
+                        // debug("incomplete message: ");
+                        // debug(accumulator.substring(endOfFirstHeader+4,
+                        // accumulator.length()));
+                        endOfFirstHeader = -1;
                         break;
                     }
 

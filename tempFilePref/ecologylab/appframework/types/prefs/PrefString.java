@@ -4,14 +4,12 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Preference that is a String
  * @author andruid
  *
  */
-
 @xml_inherit
 public class PrefString extends Pref<String>
 {
@@ -54,6 +52,7 @@ public class PrefString extends Pref<String>
      * 
      * @param  The value the Pref will be set to
      */
+    @Override
 	public void setValue(String value)
 	{
 		invalidate();

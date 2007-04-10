@@ -5,31 +5,37 @@ package ecologylab.appframework.types.prefs;
 
 import java.io.File;
 
+import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.generic.Generic;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Pref for a Float
  * 
  * @author ross
- *
+ * 
  */
-
-@xml_inherit
-public class PrefFile extends Pref<File>
+@xml_inherit public class PrefFile extends Pref<File>
 {
     /**
      * Value of Pref
      */
-    @xml_attribute File            value;
-    
-    /**
-     * 
-     */
+    @xml_attribute String   value;
+
+    @xml_attribute int      relativePath;
+
+    public static final int CODE_BASE    = 1;
+
+    public static final int APP_DATA_DIR = 2;
+
+    File                    fileValue    = null;
+
+    /** No-argument constructor for XML translation. */
     public PrefFile()
     {
         super();
     }
+
     /**
      * Instantiate Pref to value
      * 
@@ -38,24 +44,44 @@ public class PrefFile extends Pref<File>
     public PrefFile(File value)
     {
         super();
-        this.value  = value;
+        this.setValue(value);
     }
 
     /**
-     * Get the value of the Pref
+     * Get the value of the Pref. If this's file path includes '$FIND_PATH',
+     * then this builds a file based upon the pathname provided by the App
+     * Framework.
      * 
-     * @return  The value of the Pref
+     * @return The value of the Pref
      */
-    @Override
-    File getValue()
+    @Override File getValue()
     {
-        return value;
+        return file();
     }
-    
-    @Override
-    public void setValue(File newValue)
+
+    @Override public void setValue(File newValue)
     {
-        // TODO Auto-generated method stub
-        this.value  = newValue;
+        this.value = newValue.getAbsolutePath();
+    }
+
+    File file()
+    {
+
+        if (fileValue == null)
+        {
+            switch (relativePath)
+            {
+            case (CODE_BASE):
+                this.fileValue = new File(Generic.codeBase().file(), value);
+                break;
+            case (APP_DATA_DIR):
+                this.fileValue = new File(PropertiesAndDirectories.applicationDataDir(), value);
+            break;
+            default:
+                this.fileValue = new File(value);
+            }
+        }
+
+        return fileValue;
     }
 }

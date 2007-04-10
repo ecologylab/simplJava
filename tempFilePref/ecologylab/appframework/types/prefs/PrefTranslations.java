@@ -37,6 +37,7 @@ public class PrefTranslations extends Debug
         PrefInt.class,
         PrefString.class,
         PrefElementState.class,
+        PrefFile.class,
         
         RangeState.class,
         RangeIntState.class,

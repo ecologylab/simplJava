@@ -40,6 +40,7 @@ public class TypeRegistry extends Debug
 		ColorType.class,
 		URLType.class,
 		ParsedURLType.class,
+        FileType.class,
 
 		DateType.class,		
 	};

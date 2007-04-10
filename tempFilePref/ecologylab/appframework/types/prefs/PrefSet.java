@@ -5,8 +5,6 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationPropertyNames;
-import ecologylab.appframework.Environment;
-import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
@@ -26,10 +24,7 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public class PrefSet extends ArrayListState<Pref> implements ApplicationPropertyNames
 {
-    /*
-    /**
-     * 
-     */
+    /** No-argument constructor for XML translation. */
     public PrefSet() 
     {
     }
@@ -74,8 +69,9 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
     public static PrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
     throws XmlTranslationException
     {
-		 return (PrefSet) ElementState.translateFromXML(purl, translationSpace);
-    	
+        PrefSet pS = (PrefSet) ElementState.translateFromXML(purl, translationSpace);
+        
+        return pS;
     }
     /**
      * Read MetaPref declarations from a file or across the net.
@@ -88,6 +84,8 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
     public static PrefSet load(String prefXML, TranslationSpace translationSpace)
     throws XmlTranslationException
     {
-    	return (PrefSet) ElementState.translateFromXMLString(prefXML, translationSpace);
+        PrefSet pS = (PrefSet) ElementState.translateFromXML(prefXML, translationSpace);
+        
+        return pS;
     }
 }

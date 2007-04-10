@@ -13,6 +13,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -56,19 +57,11 @@ public class Logging extends ElementState implements Runnable,
      * null, then there is no logging; conversely, if there is no longging, this
      * is null.
      */
-    LogWriter                            logWriter;
+    ArrayList<LogWriter>                 logWriters                = null;
 
-    /**
-     * Object for sending a batch of ops to the LoggingServer.
-     */
+    /** Object for sending a batch of ops to the LoggingServer. */
     LogOps                               opSet                     = new LogOps();
 
-    /**
-     * Queue of action opperations that have been sent to us for logging. Our
-     * Runnable Thread will actually to the file writes, at a convenient time,
-     * at a low priority.
-     */
-    // Vector opsToWrite = new Vector();
     /**
      * This is the Vector for the operations that are being queued up before
      * they can go to outgoingOps.
@@ -81,32 +74,26 @@ public class Logging extends ElementState implements Runnable,
      */
     Vector<String>                       outgoingOpsQueue          = new Vector<String>();
 
-    /**
-     * Stores the pointer to outgoingOpsQueue for swapQueues.
-     */
+    /** Stores the pointer to outgoingOpsQueue for swapQueues. */
     Vector<String>                       tempQueue                 = null;
 
-    /**
-     * Iterator for writing out ops.
-     */
+    /** Iterator for writing out ops. */
     Iterator                             outgoingOpsQueueIterator  = null;
 
     boolean                              finished;
 
     static final int                     THREAD_PRIORITY           = 1;
 
-    static final int                     SLEEP_TIME                = 15000;                               // 15
-
-    // seconds
+    /** Amount of time for writer thread to sleep; 15 seconds */
+    static final int                     SLEEP_TIME                = 15000;
 
     static final long                    sessionStartTime          = System
                                                                            .currentTimeMillis();
 
     long                                 lastGcTime;
 
-    static final long                    KICK_GC_INTERVAL          = 300000;                              // 5
-
-    // minutes
+    /** Amount of time to wait before booting the garbage collector; 5 minutes */
+    static final long                    KICK_GC_INTERVAL          = 300000;
 
     private static final String          SESSION_LOG_START         = "\n<session_log>\n ";
 
@@ -114,14 +101,10 @@ public class Logging extends ElementState implements Runnable,
 
     static final String                  OP_SEQUENCE_END           = "\n</op_sequence>\n";
 
-    /**
-     * Logging closing message string written to the logging file at the end
-     */
+    /** Logging closing message string written to the logging file at the end */
     public static final String           LOG_CLOSING               = "\n</op_sequence></session_log>\n\n";
 
-    /**
-     * Logging Header message string written to the logging file in the begining
-     */
+    /** Logging Header message string written to the logging file in the begining */
     static final String                  BEGIN_EMIT                = XmlTools
                                                                            .xmlHeader()
                                                                            + SESSION_LOG_START;
@@ -132,7 +115,7 @@ public class Logging extends ElementState implements Runnable,
 
     public static final int              LOG_TO_SERVICES_SERVER    = 2;
 
-    public static final int              LOG_TO_MEMORY_MAPPED_FILE = 3;
+    public static final int              LOG_TO_MEMORY_MAPPED_FILE = 4;
 
     static final int                     MAX_OPS_BEFORE_WRITE      = 10;
 
@@ -176,12 +159,16 @@ public class Logging extends ElementState implements Runnable,
         finished = false;
         this.nameSpace = nameSpace;
 
-        switch (logMode)
+        if (logMode == NO_LOGGING)
         {
-            case NO_LOGGING:
-                debug("logging disabled; NO_LOGGING specified");
-                break;
-            case LOG_TO_FILE:
+            debug("logging disabled; NO_LOGGING specified");
+        }
+        else
+        {
+            logWriters = new ArrayList<LogWriter>(1);
+
+            if ((logMode & LOG_TO_FILE) == LOG_TO_FILE)
+            {
                 if (logFileName == null)
                 {
                     debug("Logging disabled; no file name specified");
@@ -205,8 +192,8 @@ public class Logging extends ElementState implements Runnable,
                         {
                             try
                             {
-                                logWriter = new FileLogWriter(logFile,
-                                        bufferedWriter);
+                                logWriters.add(new FileLogWriter(logFile,
+                                        bufferedWriter));
                             }
                             catch (IOException e)
                             {
@@ -219,8 +206,10 @@ public class Logging extends ElementState implements Runnable,
                         }
                     }
                 }
-                break;
-            case LOG_TO_MEMORY_MAPPED_FILE:
+            }
+
+            if ((logMode & LOG_TO_MEMORY_MAPPED_FILE) == LOG_TO_MEMORY_MAPPED_FILE)
+            {
                 if (logFileName == null)
                 {
                     debug("Logging disabled; no file name specified");
@@ -241,7 +230,8 @@ public class Logging extends ElementState implements Runnable,
 
                         try
                         {
-                            logWriter = new MemoryMappedFileLogWriter(logFile);
+                            logWriters.add(new MemoryMappedFileLogWriter(
+                                    logFile));
                         }
                         catch (IOException e)
                         {
@@ -249,8 +239,10 @@ public class Logging extends ElementState implements Runnable,
                         }
                     }
                 }
-                break;
-            case LOG_TO_SERVICES_SERVER:
+            }
+
+            if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
+            {
                 /**
                  * Create the logging client which communicates with the logging
                  * server
@@ -262,13 +254,13 @@ public class Logging extends ElementState implements Runnable,
                         loggingPort, nameSpace, new ObjectRegistry());
 
                 debug("**************************************************************connecting to server.");
-                
+
                 // CONNECT TO SERVER
                 if (loggingClient.connect())
                 {
                     try
                     {
-                        logWriter = new NetworkLogWriter(loggingClient);
+                        logWriters.add(new NetworkLogWriter(loggingClient));
                     }
                     catch (IOException e)
                     {
@@ -283,11 +275,7 @@ public class Logging extends ElementState implements Runnable,
                     loggingClient = null;
                     debug("Logging disabled: cannot reach server");
                 }
-
-                break;
-
-            default:
-                break;
+            }
         }
     }
 
@@ -328,7 +316,7 @@ public class Logging extends ElementState implements Runnable,
      */
     public void logAction(MixedInitiativeOp op)
     {
-        if (logWriter != null)
+        if (logWriters != null)
         {
             try
             {
@@ -343,7 +331,7 @@ public class Logging extends ElementState implements Runnable,
 
     public void logAction(String translatedXML)
     {
-        if (logWriter != null)
+        if (logWriters != null)
         {
             synchronized (incomingOpsQueue)
             {
@@ -355,7 +343,8 @@ public class Logging extends ElementState implements Runnable,
             {
                 synchronized (threadSemaphore)
                 {
-                    debugA("interrupting thread to do i/o now: "+incomingOpsQueue.size()+"/"+maxOpsBeforeWrite);
+                    debugA("interrupting thread to do i/o now: "
+                            + incomingOpsQueue.size() + "/" + maxOpsBeforeWrite);
                     thread.interrupt(); // end sleep in that thread prematurely
                     // to
                     // do i/o
@@ -372,12 +361,15 @@ public class Logging extends ElementState implements Runnable,
      */
     public void start()
     {
-        if ((logWriter != null) && (thread == null))
+        if ((logWriters != null) && (thread == null))
         {
             SendPrologue sendPrologue = null;
             sendPrologue = new SendPrologue(this, getPrologue());
 
-            logWriter.writePrologue(sendPrologue);
+            for (LogWriter l : logWriters)
+            {
+                l.writePrologue(sendPrologue);
+            }
 
             thread = new Thread(this);
             thread.setPriority(THREAD_PRIORITY);
@@ -391,13 +383,16 @@ public class Logging extends ElementState implements Runnable,
         {
             finished = true;
             thread = null;
-            if (logWriter != null)
+            if (logWriters != null)
             {
                 writeQueuedActions();
 
-                logWriter.writeEpilogueAndClose(new SendEpilogue(this,
-                        getEpilogue()));
-                logWriter = null;
+                for (LogWriter l : logWriters)
+                {
+                    l.writeEpilogueAndClose(new SendEpilogue(this,
+                            getEpilogue()));
+                }
+                logWriters = null;
             }
         }
     }
@@ -420,7 +415,7 @@ public class Logging extends ElementState implements Runnable,
             {
                 writeQueuedActions();
             }
-            
+
             long now = System.currentTimeMillis();
             long deltaT = now - lastGcTime;
 
@@ -440,7 +435,7 @@ public class Logging extends ElementState implements Runnable,
      */
     protected void writeQueuedActions()
     {
-        if (logWriter == null)
+        if (logWriters == null)
         {
             weird("attempting to run logging without a log writer; disabling logging.");
             this.stop();
@@ -451,37 +446,37 @@ public class Logging extends ElementState implements Runnable,
         synchronized (ourQueueToWrite)
         {
             int size = ourQueueToWrite.size();
-            
+
             if (size == 0)
                 return;
             swapQueues();
             // what was incomingOpsQueue is now outgoing!
-//            String firstEntry = ourQueueToWrite.get(0);
-            
-//            debug("Logging: writeQueuedActions() start of output loop.");
-            
+            // String firstEntry = ourQueueToWrite.get(0);
+
+            // debug("Logging: writeQueuedActions() start of output loop.");
+
             for (String s : ourQueueToWrite)
             {
-//                debug("consuming: "+s);
-                logWriter.consumeOp(s);
-            }
-            
-/*            if (size == 1)
-            {
-                logWriter.consumeOp(firstEntry);
-            }
-            else
-            {
-                // allocate storage with a reasonable size estimate
-                logWriter.consumeOp(firstEntry);
-                for (int i = 1; i < size; i++)
+                // debug("consuming: "+s);
+                for (LogWriter l : logWriters)
                 {
-                    String thatEntry = ourQueueToWrite.get(i);
-                    logWriter.consumeOp(thatEntry);
+                    l.consumeOp(s);
                 }
-            }*/
-            logWriter.finishConsumingQueue();
-  //          debug("Logging: writeQueuedActions() after output loop.");
+            }
+
+            /*
+             * if (size == 1) { logWriter.consumeOp(firstEntry); } else { //
+             * allocate storage with a reasonable size estimate
+             * logWriter.consumeOp(firstEntry); for (int i = 1; i < size; i++) {
+             * String thatEntry = ourQueueToWrite.get(i);
+             * logWriter.consumeOp(thatEntry); } }
+             */
+            for (LogWriter l : logWriters)
+            {
+                l.finishConsumingQueue();
+            }
+
+            // debug("Logging: writeQueuedActions() after output loop.");
             ourQueueToWrite.clear();
         }
 
