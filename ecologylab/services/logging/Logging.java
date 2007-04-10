@@ -385,6 +385,10 @@ public class Logging extends ElementState implements Runnable,
         }
     }
 
+    /**
+     * Finishes writing any queued actions, then sends the epilogue; then shuts down.
+     *
+     */
     public synchronized void stop()
     {
         if (thread != null)
@@ -993,15 +997,8 @@ public class Logging extends ElementState implements Runnable,
             debug("write epilogue and close.");
 
             Logging.this.debug("Logging: Sending Epilogue " + LOG_CLOSING);
-            try
-            {
-                loggingClient.nonBlockingSendMessage(sendEpilogue);
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+
+            loggingClient.sendMessage(sendEpilogue, 5000);
 
             loggingClient.disconnect();
             loggingClient = null;
