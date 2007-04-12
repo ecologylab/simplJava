@@ -253,13 +253,13 @@ public class ObjectOrHashMap<K, V> implements Map<K, V>
         
         if (mappings != null)
         {
-            System.out.println("mappings are not null.");
+//            System.out.println("mappings are not null.");
             
             return mappings.values();
         }
         else
         {
-            System.out.println("mappings are null.");
+  //          System.out.println("mappings are null.");
             
             Collection<V> coll = new LinkedHashSet<V>(1);
             

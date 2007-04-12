@@ -219,8 +219,10 @@ public class ContextManager extends Debug implements ServerConstants
         catch (Exception e)
         {
             e.printStackTrace();
-            
-            return new BadSemanticContentResponse("The request, "+requestMessage.toString()+" caused an exception on the server.");
+
+            return new BadSemanticContentResponse("The request, "
+                    + requestMessage.toString()
+                    + " caused an exception on the server.");
         }
     }
 
@@ -441,7 +443,19 @@ public class ContextManager extends Debug implements ServerConstants
 
         if (request == null)
         {
-            debug("ERROR: " + incomingMessage);
+            if (incomingMessage.length() > 100)
+            {
+                debug("ERROR; incoming message could not be translated: "
+                        + incomingMessage.substring(0, 50)
+                        + "..."
+                        + incomingMessage
+                                .substring(incomingMessage.length() - 50));
+            }
+            else
+            {
+                debug("ERROR; incoming message could not be translated: "
+                        + incomingMessage);
+            }
             if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
             {
                 throw new BadClientException(this.socket.socket()
@@ -494,120 +508,131 @@ public class ContextManager extends Debug implements ServerConstants
     public final void enqueueStringMessage(CharBuffer message)
             throws CharacterCodingException, BadClientException
     {
-        incomingMessageBuffer.append(message);
-
-        // look for HTTP header
-        while (incomingMessageBuffer.length() > 0)
+        synchronized (incomingMessageBuffer)
         {
-            if (endOfFirstHeader == -1)
-                endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
+            incomingMessageBuffer.append(message);
 
-            if (endOfFirstHeader == -1)
-            { /*
-                 * no header yet; if it's too large, bad client; if it's not too
-                 * large yet, just exit, it'll get checked again when more data
-                 * comes in the pipe
+            // look for HTTP header
+            while (incomingMessageBuffer.length() > 0)
+            {
+                if (endOfFirstHeader == -1)
+                    endOfFirstHeader = incomingMessageBuffer
+                            .indexOf("\r\n\r\n");
+
+                if (endOfFirstHeader == -1)
+                { /*
+                     * no header yet; if it's too large, bad client; if it's not
+                     * too large yet, just exit, it'll get checked again when
+                     * more data comes down the pipe
+                     */
+                    if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
+                    {
+                        // clear the buffer
+                        BadClientException e = new BadClientException(this.socket.socket()
+                                .getInetAddress().getHostAddress(),
+                                "Maximum HTTP header length exceeded. Read "
+                                        + incomingMessageBuffer.length() + "/"
+                                        + MAX_HTTP_HEADER_LENGTH);
+                        
+                        incomingMessageBuffer.delete(0, incomingMessageBuffer
+                                .length());
+                        
+                        throw e;
+                    }
+
+                    break;
+                }
+                /*
+                 * we have the end of the first header; either just now or from
+                 * a prior invocation of this method. If we have it, but don't
+                 * have the remaining content length, then we first need to
+                 * extract that from the header.
                  */
-                if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
+                if (contentLengthRemaining == -1)
                 {
-                    // clear the buffer
-                    incomingMessageBuffer.delete(0, incomingMessageBuffer
-                            .length());
-                    throw new BadClientException(this.socket.socket()
-                            .getInetAddress().getHostAddress(),
-                            "Maximum HTTP header length exceeded.");
+                    try
+                    {
+                        contentLengthRemaining = ServicesServer
+                                .parseHeader(incomingMessageBuffer.substring(0,
+                                        endOfFirstHeader));
+
+                        /*
+                         * if we still don't have the remaining length, then
+                         * there was a problem
+                         */
+                        if (contentLengthRemaining == -1)
+                        {
+                            break;
+                        }
+                        else if (contentLengthRemaining > maxPacketSize)
+                        {
+                            throw new BadClientException(this.socket.socket()
+                                    .getInetAddress().getHostAddress(),
+                                    "Specified content length too large: "
+                                            + contentLengthRemaining);
+                        }
+
+                        /*
+                         * if we got here, endOfFirstHeader is not -1, so we
+                         * need to add 4 to it to ensure we're just after all
+                         * the header (including the four termination markers)
+                         */
+                        endOfFirstHeader += 4;
+
+                        // done with the header; delete it
+                        incomingMessageBuffer.delete(0, endOfFirstHeader);
+                    }
+                    catch (IllegalStateException e)
+                    {
+                        throw new BadClientException(this.socket.socket()
+                                .getInetAddress().getHostAddress(),
+                                "Malformed header.");
+                    }
                 }
 
-                break;
-            }
-            /*
-             * we have the end of the first header; either just now or from a
-             * previous invokation of this method. If we have it, but don't have
-             * the remaining content length, then we first need to extract that
-             * from the header.
-             */
-            if (contentLengthRemaining == -1)
-            {
                 try
                 {
-                    contentLengthRemaining = ServicesServer
-                            .parseHeader(incomingMessageBuffer.substring(0,
-                                    endOfFirstHeader));
+                    // see if the incoming buffer has enough characters to
+                    // include the specified content length
+                    if (incomingMessageBuffer.length() >= contentLengthRemaining)
+                    {
+                        firstMessageBuffer.append(incomingMessageBuffer
+                                .substring(0, contentLengthRemaining));
 
-                    // if we got here, endOfFirstHeader is not -1, so we
-                    // need to
-                    // add
-                    // 4 to it to ensure we're just after all the header
-                    // (including the four termination markers)
-                    endOfFirstHeader += 4;
+                        incomingMessageBuffer.delete(0, contentLengthRemaining);
 
-                    // done with the header; kill it
-                    incomingMessageBuffer.delete(0, endOfFirstHeader);
+                        // reset to do a new read on the next invocation
+                        contentLengthRemaining = -1;
+                        endOfFirstHeader = -1;
+                    }
+                    else
+                    {
+                        String charsRead = incomingMessageBuffer.toString();
+                        firstMessageBuffer.append(charsRead);
+
+                        // indicate that we need to get more from the buffer in
+                        // the next invocation
+                        contentLengthRemaining -= charsRead.length();
+                        endOfFirstHeader = -2;
+
+                        incomingMessageBuffer.delete(0, charsRead.length());
+                    }
                 }
-                catch (IllegalStateException e)
+                catch (NullPointerException e)
                 {
-                    throw new BadClientException(this.socket.socket()
-                            .getInetAddress().getHostAddress(),
-                            "Malformed header.");
+                    e.printStackTrace();
                 }
-            }
 
-            // if we still don't have the remaining length, then there was a
-            // problem
-            if (contentLengthRemaining == -1)
-                break;
-
-            // make sure contentLength isn't too big
-            if (contentLengthRemaining > maxPacketSize)
-            {
-                throw new BadClientException(this.socket.socket()
-                        .getInetAddress().getHostAddress(),
-                        "Specified content length too large: "
-                                + contentLengthRemaining);
-            }
-
-            try
-            {
-                // see if the incoming buffer has enough characters to
-                // include the specified content length
-                if (incomingMessageBuffer.length() >= contentLengthRemaining)
-                {
-                    firstMessageBuffer.append(incomingMessageBuffer.substring(
-                            0, contentLengthRemaining));
-
-                    incomingMessageBuffer.delete(0, contentLengthRemaining);
-
-                    // reset to do a new read on the next invocation
-                    contentLengthRemaining = -1;
-                    endOfFirstHeader = -1;
+                if ((firstMessageBuffer != null)
+                        && (firstMessageBuffer.length() > 0)
+                        && (contentLengthRemaining == -1))
+                { /*
+                     * if we've read a complete message, then
+                     * contentLengthRemaining will be reset to -1
+                     */
+                    processString(firstMessageBuffer.toString());
+                    firstMessageBuffer.delete(0, firstMessageBuffer.length());
                 }
-                else
-                {
-                    firstMessageBuffer.append(incomingMessageBuffer);
-
-                    // indicate that we need to get more from the buffer in
-                    // the next invocation
-                    contentLengthRemaining -= incomingMessageBuffer.length();
-                    endOfFirstHeader = 0;
-
-                    incomingMessageBuffer.delete(0, incomingMessageBuffer
-                            .length());
-                }
-            }
-            catch (NullPointerException e)
-            {
-                e.printStackTrace();
-            }
-
-            if ((firstMessageBuffer != null)
-                    && (firstMessageBuffer.length() > 0)
-                    && (contentLengthRemaining == -1))
-            { /*
-                 * if we've read a complete message, then contentLengthRemaining
-                 * will be reset to -1
-                 */
-                processString(firstMessageBuffer.toString());
-                firstMessageBuffer.delete(0, firstMessageBuffer.length());
             }
         }
     }

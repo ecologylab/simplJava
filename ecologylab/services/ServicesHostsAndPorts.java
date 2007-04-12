@@ -4,7 +4,6 @@
 package ecologylab.services;
 
 import ecologylab.net.NetTools;
-import ecologylab.services.logging.Logging;
 
 /**
  * A place to gather host and port assignments in the Interface Ecology Lab.

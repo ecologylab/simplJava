@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class FileType extends ScalarType
+public class FileType extends ScalarType<File>
 {
 
     /**
@@ -18,7 +18,7 @@ public class FileType extends ScalarType
         super(File.class);
     }
 
-    @Override public Object getInstance(String value)
+    @Override public File getInstance(String value)
     {
         return new File(value);
     }

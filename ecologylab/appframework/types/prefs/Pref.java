@@ -4,13 +4,10 @@
 package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
-import java.util.HashMap;
+import java.io.File;
 
-import ecologylab.appframework.Environment;
+import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
-import ecologylab.generic.Palette;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -24,27 +21,24 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class Pref<T> extends ArrayListState
 {
-	/**
-	 * The global registry of Pref objects. Used for providing lookup services.
-	 */
-    static final ObjectRegistry<Pref> allPrefsMap	= new ObjectRegistry<Pref>();
-    /**
-     * Name of a Pref
-     */
-    @xml_attribute String name;
-	
-	/**
-	 * 
-	 */
+	/** The global registry of Pref objects. Used for providing lookup services. */
+    static final ObjectRegistry<Pref>   allPrefsMap = new ObjectRegistry<Pref>();
+
+    /** The ApplicationEnvironment associated with this JVM. */
+    static final ApplicationEnvironment aE          = null;
+
+    /** Name of a Pref; provides index into the preferences map. */
+    @xml_attribute String               name;
+
+    /** Cached value */
+    T                                   valueCached;
+    
+	/** No-argument constructor for XML translation. */
 	public Pref()
 	{
 		super();
 	}
-    /**
-     * Cached value
-     */
-	T		valueCached;
-	
+
 	/**
 	 * Public generic accessor for the value.
 	 * Caches autoboxed values, for efficiency.
@@ -354,6 +348,23 @@ public abstract class Pref<T> extends ArrayListState
     public static String lookupString(String name) throws ClassCastException
     {
         return lookupString(name, null);
+    }
+    
+    /**
+     * Look up a PrefFile by name in the map of all Prefs. Return null if the
+     * PrefFile's value is null;
+     * 
+     * @param name
+     *            Name of the PrefFile
+     * @return PrefFile's value or null, if the Pref associated with name does
+     *         not exist
+     * @throws ClassCastException
+     *             if name does not match a PrefFile object
+     */
+    public static File lookupFile(String name) throws ClassCastException
+    {
+        PrefFile prefFile = ((PrefFile) lookupPref(name));
+        return (prefFile == null) ? null : prefFile.value();
     }
     
     /**
