@@ -400,7 +400,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			{
 				// iterate through fields
 				Field thatField			= attributeFields.get(i);				
-				XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision);
+				XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision());
 			}
 			
 			String textNode = this.getTextNodeString();
@@ -526,7 +526,23 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		}
 		return buffy;
 	}
-	/**
+    
+    /**
+     * Returns the precision of floating point numbers associated with this
+     * instance of ElementState.
+     * 
+     * Subclasses may override this method, which is particularly useful if a
+     * class should have a certain floating point precision associated with it.
+     * 
+     * @return the floating point precision to be used when translating this to
+     *         XML.
+     */
+    protected short floatingPrecision()
+    {
+        return this.floatingPrecision;
+    }
+    
+    /**
 	 * Translate our representation of a leaf node to XML.
 	 * 
 	 * @param buffy

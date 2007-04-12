@@ -13,21 +13,56 @@ import ecologylab.xml.xml_inherit;
  */
 public @xml_inherit class Vector2d extends ElementState implements Cloneable
 {
+    /**
+     * Adds two vectors together and returns a new Vector2d object representing
+     * the sum.
+     * 
+     * @param v1
+     * @param v2
+     * @return
+     */
     public static Vector2d add(Vector2d v1, Vector2d v2)
     {
         return new Vector2d(v1.getX() + v2.getX(), v1.getY() + v2.getY());
     }
 
+    /**
+     * Multiplies a vector by a scalar value and returns a new Vector2d
+     * representing the result.
+     * 
+     * @param vector
+     * @param scalar
+     * @return
+     */
     public static Vector2d scalarMultiply(Vector2d vector, double scalar)
     {
         return new Vector2d(vector.getX() * scalar, vector.getY() * scalar);
     }
 
+    /**
+     * Determines the dot product of two vector objects.
+     * 
+     * @param v1
+     * @param v2
+     * @return
+     */
     public static double dot(Vector2d v1, Vector2d v2)
     {
         return (v1.getX() * v2.getX()) + (v1.getY() * v2.getY());
     }
 
+    /**
+     * Subtracts v2 from v1 and returns a new Vector2d representing the result.
+     * 
+     * @param v1
+     * @param v2
+     * @return
+     */
+    public static Vector2d sub(Vector2d v1, Vector2d v2)
+    {
+        return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
+    }
+    
     protected @xml_attribute double x = 0;
 
     protected @xml_attribute double y = 0;
@@ -80,14 +115,14 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
     public double norm()
     {
-        return Math.sqrt(x*x + y*y);
+        return Math.sqrt(x * x + y * y);
     }
 
     public Vector2d mult(double scalar)
     {
         this.x *= scalar;
         this.y *= scalar;
-        
+
         return this;
     }
 
@@ -176,9 +211,7 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         this.setY(this.y / mag);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see java.lang.Object#clone()
      */
     @Override public Vector2d clone()
@@ -197,9 +230,7 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         return new Point2D.Double(x, y);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
+    /**
      * @see ecologylab.generic.Debug#toString()
      */
     @Override public String toString()
@@ -222,10 +253,5 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
     {
         x = 0;
         y = 0;
-    }
-
-    public static Vector2d sub(Vector2d v1, Vector2d v2)
-    {
-        return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
     }
 }
