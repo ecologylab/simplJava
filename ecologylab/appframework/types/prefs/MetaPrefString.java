@@ -3,14 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.GridBagLayout;
-import java.awt.Rectangle;
-
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
 

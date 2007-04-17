@@ -3,16 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.GridBagLayout;
-import java.util.ArrayList;
-
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -25,7 +15,6 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class MetaPrefInt extends MetaPref<Integer>
 {
-	private static final int RADIO_X = 405;
     /**
      * Default value for this MetaPref
      */

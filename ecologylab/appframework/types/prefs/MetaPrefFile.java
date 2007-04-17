@@ -7,7 +7,6 @@ import java.io.File;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Metadata about a File Preference.

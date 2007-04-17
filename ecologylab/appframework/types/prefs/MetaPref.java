@@ -3,26 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.util.HashMap;
-
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.ButtonGroup;
-import javax.swing.SwingConstants;
-
-import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -38,24 +18,6 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class MetaPref<T> extends ElementState
 {
-    /**
-     * The padding between the default value in a text field and either 
-     * side of the text field.
-     */
-    protected static final int TEXT_FIELD_PADDING = 50;
-
-    /**
-     * The inset between the right side of the gui panel and the right 
-     * side of values.
-     */
-    protected static final int RIGHT_GUI_INSET = 20;
-
-    /**
-     * The inset between the left side of the gui panel and the left 
-     * side of the descriptions.
-     */
-    protected static final int LEFT_GUI_INSET = 15;
-
     /**
 	 * Unique identifier for Preference name with convenient lookup in 
      * automatically generated HashMap.
@@ -89,18 +51,6 @@ public abstract class MetaPref<T> extends ElementState
      * Whether or not the application has to restart for this pref change to take effect.
      */
 	@xml_attribute	boolean		requiresRestart;
-    
-    /**
-     * The JPanel associated with this metaPref; this is the values the pref has.
-     * You have to call getWidget() for each panel after initialization.
-     * Doing so here will just give null.
-     */
-    public JPanel               jPanel;
-    
-    /**
-     * The object registry which the metapref gui components are stored in.
-     */
-    ObjectRegistry<JComponent>  jComponentsMap;
     
     /**
      * optional; for preferences with three or more choices
@@ -317,46 +267,5 @@ public abstract class MetaPref<T> extends ElementState
 		return (range == null) ? true :  range.isWithinRange(newValue);
 	}
 	*/
-    
-    /**
-     * Returns the ObjectRegistry for this MetaPref's jComponents.
-     * 
-     * @return ObjectRegistry for MetaPref's jComponents.
-     */
-    private ObjectRegistry<JComponent> jComponentsMap()
-    {
-        ObjectRegistry<JComponent> result   = this.jComponentsMap;
-        if (result == null)
-        {
-            result                          = new ObjectRegistry<JComponent>();
-            this.jComponentsMap             = result;
-        }
-        return result;
-    }
-
-    /**
-     * Registers a JComponent with the ObjectRegistry
-     * 
-     * @param labelAndName
-     * @param jComponent
-     */
-    protected void registerComponent(String labelAndName, JComponent jComponent)
-    {
-        //println("Registering: " + this.id+labelAndName);
-        jComponentsMap().registerObject(this.id+labelAndName,jComponent);
-    }
-    
-    /**
-     * Returns a JComponent from the ObjectRegistry by name
-     * 
-     * @param labelAndName
-     * @return JComponent matching labelAndName from ObjectRegistry
-     */
-    protected JComponent lookupComponent(String labelAndName)
-    {
-        //println("Trying to fetch: " + labelAndName);
-        JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
-        return jComponent;
-    }
 
 }

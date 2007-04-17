@@ -3,13 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.GridBagLayout;
-
-import javax.swing.ButtonGroup;
-import javax.swing.ButtonModel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import ecologylab.xml.xml_inherit;
 
 /**
