@@ -883,6 +883,7 @@ public static boolean insertFile(BufferedWriter writer,
 	   				dirFile.delete();
 	   			}
 	   		}
+	   		succeeded = succeeded && targetDir.delete();
 	   	}
 		return succeeded;
    }

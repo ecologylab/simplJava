@@ -75,6 +75,8 @@ public interface Environment
       boolean		checkedForAgile2D;
       boolean		checkedForMultivalent;
       boolean		hasMultivalent;
+      boolean		checkedForPDFBox;
+      boolean		hasPDFBox;
       
       String		frame;
       
@@ -171,6 +173,13 @@ public interface Environment
 			hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
 		 debug("hasMultivalent() = "+hasMultivalent);
 		 return hasMultivalent;
+      }
+      public boolean hasPDFBox()
+      {
+		 if (!checkedForPDFBox)
+			hasPDFBox	= checkFor("org.pdfbox.pdmodel.PDDocument");
+		 debug("hasPDFBox() = "+hasPDFBox);
+		 return hasPDFBox;
       }
       public boolean hasGL()
       {
