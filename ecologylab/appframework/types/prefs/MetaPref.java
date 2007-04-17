@@ -164,6 +164,16 @@ public abstract class MetaPref<T> extends ElementState
     {
         return id;
     }
+    
+    /**
+     * Gets the Choices of a MetaPref. This is optional and may be null.
+     * 
+     * @return ID (unique) of MetaPref.
+     */
+    public ArrayListState<Choice<T>> getChoices()
+    {
+        return choices;
+    }
 
     /**
      * Gives printed output showing id, description, category, helpText,
@@ -243,6 +253,18 @@ public abstract class MetaPref<T> extends ElementState
     public boolean widgetIsColorChooser()
     {
         if ("COLOR_CHOOSER".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns whether or not a widget uses a file chooser.
+     * 
+     * @return True = Uses a file chooser. False = Doesn't.
+     */
+    public boolean widgetIsFileChooser()
+    {
+        if ("FILE_CHOOSER".equals(widget))
             return true;
         return false;
     }
@@ -336,180 +358,5 @@ public abstract class MetaPref<T> extends ElementState
         JComponent jComponent = jComponentsMap().lookupObject(labelAndName);
         return jComponent;
     }
-    
-    /**
-     * Gets the Pref value for this MetaPref. Type-specific behavior.
-     * @return Pref value
-     */
-    public abstract T getPrefValue();
-    
-    
-    
-    // TODO: the functions below this line need to be moved out of here and subclasses.
-    
-    
-    
-    /**
-     * Gets the JPanel containing the gui components for the choices 
-     * or fields associated with a MetaPref. Type-specific behavior.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @return JPanel of choices/values JComponents.
-     */
-    public abstract JPanel getWidget();
-    
-    /**
-     * Sets the widget value/selection to the default value/selection.
-     * Type-specific behavior.
-     *  TODO: MOVE THIS
-     */
-    public abstract void revertToDefault();
-    /**
-     * Sets the widget value/selection to the value/selection of the Pref.
-     * Type-specific behavior.
-     *  TODO: MOVE THIS
-     */
-    public abstract void setWidgetToPrefValue(T prefValue);
-    
-    /**
-     * Creates a radio button.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @param panel         JPanel this button will be associated with.
-     * @param buttonGroup   ButtonGroup this button is a member of.
-     * @param initialValue  boolean; true=selected. false=not selected.
-     * @param label         Text label for button
-     * @param name          Name of button
-     * @param row           Row this button is in for GridBagLayout
-     * @param col           Column this button is in for GridBagLayout
-     * 
-     * @return JRadioButton with properties initialized to parameters.
-     */
-    protected JRadioButton createRadio(JPanel panel, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int row, int col)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.LINE_START;
-        
-        JRadioButton radioButton = new JRadioButton();
-        
-        radioButton.setSelected(initialValue);
-        radioButton.setName(name);
-        radioButton.setText(label);
-        c.gridx = col;
-        c.gridy = row;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        
-        buttonGroup.add(radioButton);
-        
-        panel.add(radioButton, c);
-        registerComponent(name, radioButton);
-        
-        return radioButton;
-    }
-    
-    /**
-     * Creates a text field.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @param panel         JPanel this field will be associated with.
-     * @param initialValue  String value this field initially contains.
-     * @param labelAndName  Name of text field
-     * @param row           Row this field is in for GridBagLayout
-     * @param col           Column this field is in for GridBagLayout
-     * 
-     * @return JTextField with properties initialized to parameters.
-     */
-    protected JTextField createTextField(JPanel panel, String initialValue, String labelAndName, int row, int col)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-        
-        JTextField textField = new JTextField();
-        textField.setHorizontalAlignment(JTextField.CENTER);
-        textField.setText(initialValue);
-        textField.setName(labelAndName);
-        c.gridx = col;
-        c.gridy = row;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        c.ipadx = TEXT_FIELD_PADDING;
-        
-        panel.add(textField, c);
-        registerComponent(labelAndName, textField);
-        
-        return textField;
-    }
-    
-    /**
-     * Creates a check box.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @param panel         JPanel this button will be associated with.
-     * @param initialValue  boolean; true=selected. false=not selected.
-     * @param label         Text label for button
-     * @param name          Name of button
-     * @param row           Row this button is in for GridBagLayout
-     * @param col           Column this button is in for GridBagLayout
-     * 
-     * @return JCheckBox with properties initialized to parameters.
-     */
-    protected JCheckBox createCheckBox(JPanel panel, boolean initialValue, String label, String name, int row, int col)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.LINE_START;
-        
-        JCheckBox checkBox = new JCheckBox(label);
-        
-        checkBox.setSelected(initialValue);
-        checkBox.setName(name);
-        c.gridx = col;
-        c.gridy = row;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        
-        panel.add(checkBox, c);
-        registerComponent(name, checkBox);
-        
-        return checkBox;
-    }
-    
-    /**
-     * Creates a drop down menu; combo box.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @param panel         JPanel this field will be associated with.
-     * @param name          Name of this drop down menu.
-     * @param labels        String array of the labels within this menu.
-     * @param selectedValue The integer value of which of the 0-n labels
-     *                      in the menu is selected by default.
-     * @param row           Row this field is in for GridBagLayout
-     * @param col           Column this field is in for GridBagLayout
-     * 
-     * @return JComboBox with properties initialized to parameters.
-     */
-    protected JComboBox createDropDown(JPanel panel, String name, String[] labels, int selectedValue, int row, int col)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-        
-        JComboBox comboBox = new JComboBox(labels);
-        comboBox.setSelectedIndex(selectedValue);
-        comboBox.setName(name);
-        c.gridx = col;
-        c.gridy = row;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        c.ipadx = TEXT_FIELD_PADDING;
-        
-        panel.add(comboBox, c);
-        registerComponent(name, comboBox);
-        
-        return comboBox;
-    }
+
 }

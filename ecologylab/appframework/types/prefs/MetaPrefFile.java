@@ -3,25 +3,11 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Metadata about a File Preference.
@@ -38,15 +24,22 @@ public class MetaPrefFile extends MetaPref<File>
      * Default value for this MetaPref
      */
     @xml_attribute  File      defaultValue;
+    @xml_attribute  int       pathContext   = ABSOLUTE_PATH;
     
+    /** Indicates that value is an absolute path. */
+    public static final int ABSOLUTE_PATH = 0;
+
     /**
-     * Color chooser; static so we only have one.
+     * Indicates that value is a path relative to the codebase of the
+     * application using this Pref.
      */
-    static JFileChooser fileChooser = new JFileChooser();
+    public static final int CODE_BASE     = 1;
+
     /**
-     * Color dialog; static so we only have one.
+     * Indicates that value is a path relative to the data directory associated
+     * with the application using this Pref.
      */
-    static JDialog       fileChooserDialog;
+    public static final int APP_DATA_DIR  = 2;
     
     /**
      * Instantiate.
@@ -67,68 +60,6 @@ public class MetaPrefFile extends MetaPref<File>
     }
 
     /**
-     * Sets the widget value/selection to the default value/selection.
-     * TODO: MOVE THIS
-     */
-    public @Override
-    void revertToDefault()
-    {
-        JFileChooser fileChooser = (JFileChooser)lookupComponent(this.id+"fileChooser");
-        fileChooser.setSelectedFile(this.getDefaultValue());
-    }
-
-    /**
-     * Gets the JPanel containing the gui components for the choices 
-     * or fields associated with a MetaPref.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @return JPanel of choices/values JComponents.
-     */
-    public @Override
-    JPanel getWidget()
-    {
-        JPanel panel = new JPanel();
-        panel.setName(this.id);
-        panel.setLayout(new GridBagLayout());
-
-        createFileButton(panel);
-        registerComponent("fileChooser", fileChooser);
-        
-        panel.setVisible(true);
-        
-        return panel;
-    }
-
-    /**
-     * Sets the widget value/selection to the value/selection of the Pref.
-     * 
-     *  TODO: MOVE THIS
-     * 
-     * @param prefValue     Value of Pref
-     */
-    @Override
-    public void setWidgetToPrefValue(File prefValue)
-    {
-        JFileChooser fileChooser = (JFileChooser)lookupComponent(this.id+"fileChooser");
-        fileChooser.setSelectedFile(prefValue);
-    }
-
-    /**
-     * Gets the Pref value for this MetaPref.
-     * 
-     *  TODO: MOVE THIS
-     *  
-     * @return Pref value
-     */
-    @Override
-    public File getPrefValue()
-    {
-        JFileChooser fileChooser = (JFileChooser)lookupComponent(this.id+"fileChooser");
-        return fileChooser.getSelectedFile();
-    }
-
-    /**
      * Construct a new instance of the Pref that matches this.
      * Use this to fill-in the default value.
      * 
@@ -137,27 +68,6 @@ public class MetaPrefFile extends MetaPref<File>
     protected @Override Pref<File> getPrefInstance()
     {
         return new PrefFile();
-    }
-    
-    private void createFileButton(JPanel panel)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.LINE_START;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        
-        JButton jButton = new JButton();
-        jButton.setText("Choose File");
-        jButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-                fileChooser.showOpenDialog(fileChooser.getParent());
-            }
-        });
-        panel.add(jButton,c);
     }
     
     

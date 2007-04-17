@@ -48,91 +48,9 @@ public class MetaPrefColor extends MetaPref<Color>
 	}
 
 	@Override
-	public JPanel getWidget() 
-	{
-        JPanel panel = new JPanel();
-        panel.setName(this.id);
-        panel.setLayout(new GridBagLayout());
-        
-        setupColorChooser(panel,this);
-        createColorButton(panel);
-        registerComponent("colorChooser", colorChooser);
-        
-        panel.setVisible(true);
-
-		return panel;
-	}
-
-    private void createColorButton(JPanel panel)
-    {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.BOTH;
-        c.anchor = GridBagConstraints.LINE_START;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
-        
-        JButton jButton = new JButton();
-        jButton.setText("Choose Color");
-        jButton.addActionListener(new ActionListener() 
-        {
-            public void actionPerformed(ActionEvent e) 
-            {
-                colorChooserDialog.show();
-            }
-        });
-        panel.add(jButton,c);
-    }
-
-	@Override
 	protected Pref<Color> getPrefInstance() 
 	{
 		return new PrefColor();
 	}
 
-	@Override
-	public void revertToDefault() 
-	{
-        JColorChooser colorChooser = (JColorChooser)lookupComponent(this.id+"colorChooser");
-        colorChooser.setColor(this.getDefaultValue());
-	}
-
-	@Override
-	public void setWidgetToPrefValue(Color prefValue) 
-	{
-        JColorChooser colorChooser = (JColorChooser)lookupComponent(this.id+"colorChooser");
-        if (colorChooser != null)
-        {
-            colorChooser.setColor(prefValue);
-        }
-	}
-
-	@Override
-	public Color getPrefValue() 
-	{
-        JColorChooser colorChooser = (JColorChooser)lookupComponent(this.id+"colorChooser");
-		return colorChooser.getColor();
-	}
-
-    public static void setupColorChooser(JPanel jPanel, MetaPref mp)
-    {
-        colorChooserDialog = 
-        JColorChooser.createDialog(jPanel, "Choose Stroke Color", true,
-                    colorChooser,
-                    new ActionListener()
-                    {   // ok listener
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            // nothing here
-                        }
-                    },
-                    new ActionListener()
-                    {   // cancel listener
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            // nothing here
-                        }
-                    }
-                    );
-    }
 }

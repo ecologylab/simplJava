@@ -63,7 +63,6 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 	 */
 	void addEntryToCategoryMap(MetaPref metaPref)
 	{
-        metaPref.jPanel = metaPref.getWidget();
         ArrayList<MetaPref> metaPrefList = categoryToMetaPrefs.get(metaPref.getCategory());
         if (metaPrefList == null)
         {

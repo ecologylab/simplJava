@@ -16,11 +16,21 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.SortedMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,6 +43,9 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import ecologylab.appframework.ApplicationEnvironment;
+import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.types.prefs.Choice;
+import ecologylab.appframework.types.prefs.ChoiceBoolean;
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
@@ -40,6 +53,7 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Create the GUI for preference editing; also responsible for all
@@ -75,6 +89,17 @@ implements WindowListener
      * next object.
      */
     private static final int BOTTOM_GUI_INSET = 10;
+    /**
+     * The padding between the default value in a text field and either 
+     * side of the text field.
+     */
+    protected static final int TEXT_FIELD_PADDING = 50;
+
+    /**
+     * The inset between the right side of the gui panel and the right 
+     * side of values.
+     */
+    protected static final int RIGHT_GUI_INSET = 20;
     /**
      * Set of MetaPrefs
      */
@@ -127,6 +152,30 @@ implements WindowListener
      * Start location on the screen for the gui
      */
     static Point startLocation = new Point(100,100);
+    
+    /**
+     * Okay, this is really, really important. The map goes like this:
+     * CategoryName to (MetaPrefName to (Array of JComponents))
+     * So for each category, you get a sorted map of the metaprefs in
+     * that category. From that map you can get a list of all the components
+     * for a metapref by name.
+     */
+    protected HashMap<String,LinkedHashMap<String,ObjectRegistry<JComponent>>> jCatComponentsMap = new HashMap<String,LinkedHashMap<String,ObjectRegistry<JComponent>>>();
+    
+    /**
+     * Color picker; static so we only have one.
+     */
+    static JColorChooser colorChooser = new JColorChooser();
+    static JDialog       colorChooserDialog;
+    
+    /**
+     * File chooser; static so we only have one.
+     */
+    static JFileChooser fileChooser = new JFileChooser();
+    /**
+     * File dialog; static so we only have one.
+     */
+    static JDialog       fileChooserDialog;
     
     /**
      * The base function that you call to construct the prefs editor GUI.
@@ -391,6 +440,15 @@ implements WindowListener
                 scrollPane.setName(cat);
                 scrollPane.setViewportView(getTabbedBodyFrame(cat,scrollPane));
                 jTabbedPane.addTab(cat, null, scrollPane, null);
+                
+                // add category to components map
+                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(cat);
+                if (catHash == null)
+                {
+                    catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
+                    jCatComponentsMap.put(cat, catHash);
+                    //System.err.print("Adding: " + cat + '\n');
+                }
             }
         }
         return jTabbedPane;
@@ -458,6 +516,21 @@ implements WindowListener
         int rowNum = 0;
         for (MetaPref metaPref : metaPrefSet.getMetaPrefListByCategory(category))
         {
+            // add metapref to components map
+            //System.err.print(category + '\n' + metaPref.getID() + '\n');
+            if (jCatComponentsMap.get(category)==null)
+            {
+                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
+                jCatComponentsMap.put(category, catHash);
+            }
+            ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(category).get(metaPref.getID());
+            if (mpComponents == null)
+            {
+                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(category);
+                mpComponents = new ObjectRegistry<JComponent>();
+                catHash.put(metaPref.getID(), mpComponents);
+            }
+            
             JLabel subDescription = createDescriptionSection(contentPanel, constraints, rowNum, metaPref);
             JPanel subValue       = createValueSection(constraints, metaPref, rowNum);
             
@@ -644,8 +717,141 @@ implements WindowListener
      */
     private JPanel createValueSection(GridBagConstraints constraints, MetaPref metaPref, int rownum)
     {
-        JPanel subValue = metaPref.jPanel;
-        if (subValue != null)
+        JPanel panel = new JPanel();
+        panel.setName(metaPref.getID());
+        panel.setLayout(new GridBagLayout());
+        
+        if (metaPref.widgetIsTextField())
+        {
+            createTextField(panel, metaPref, metaPref.getDefaultValue().toString(),
+                            "textField", 0, 0);
+        }
+        else if (metaPref.widgetIsRadio())
+        {
+            if (metaPref.getClassName().equals("MetaPrefBoolean"))
+            {
+                Boolean defVal = (Boolean)metaPref.getDefaultValue();
+                ArrayListState<Choice<Boolean>> choices = metaPref.getChoices();
+                ButtonGroup radioPair = new ButtonGroup();
+                
+                if (choices != null)
+                {
+                    ChoiceBoolean choice0   = (ChoiceBoolean) choices.get(0);
+                    boolean isDefault       = metaPref.getDefaultValue().equals(choice0.getValue());
+                    String name             = isDefault ? "Yes" : "No";
+                    createRadio(panel, metaPref, radioPair, isDefault, choice0.getLabel(), name, 0, 0);
+                    name                    = !isDefault ? "Yes" : "No";
+                    ChoiceBoolean choice1   = (ChoiceBoolean) choices.get(1);
+                    createRadio(panel, metaPref, radioPair, isDefault, choice1.getLabel(), name, 1, 0);
+                }
+                else
+                {
+                    boolean yesVal  = defVal;
+                    boolean noVal   = !defVal;
+                    createRadio(panel, metaPref, radioPair, yesVal, "Yes", "Yes", 0, 0);
+                    createRadio(panel, metaPref, radioPair, noVal, "No", "No", 1, 0);
+                }
+            }
+            else if (metaPref.getClassName().equals("MetaPrefFloat"))
+            {
+                ArrayListState<Choice<Float>> choices = metaPref.getChoices();
+                if (choices != null)
+                {
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    int rnum = 0;
+                    for (Choice choice : choices)
+                    {
+                        boolean isDefault = metaPref.getDefaultValue().equals(choice.getValue());
+                        createRadio(panel, metaPref, buttonGroup, isDefault, choice.getLabel(), choice.getName(), rnum, 0);
+                        rnum++;
+                    }
+                }
+            }
+            else if (metaPref.getClassName().equals("MetaPrefInt"))
+            {
+                ArrayListState<Choice<Integer>> choices = metaPref.getChoices();
+                if (choices != null)
+                {
+                    ButtonGroup buttonGroup = new ButtonGroup();
+                    int rnum = 0;
+                    for (Choice choice : choices)
+                    {
+                        boolean isDefault = metaPref.getDefaultValue().equals(choice.getValue());
+                        createRadio(panel, metaPref, buttonGroup, isDefault, choice.getLabel(), choice.getName(), rnum, 0);
+                        rnum++;
+                    }
+                }
+            }
+        }
+        else if (metaPref.widgetIsDropDown())
+        {
+            if (metaPref.getClassName().equals("MetaPrefFloat"))
+            {
+                ArrayListState<Choice<Float>> choices = metaPref.getChoices();
+                if (choices != null)
+                {
+                    String[] choiceLabels = new String[choices.size()];
+                    int i = 0;
+                    for (Choice choice : choices)
+                    {
+                        choiceLabels[i] = choice.getLabel();
+                        i++;
+                    }
+                    createDropDown(panel, metaPref, "dropdown", choiceLabels, (Integer)metaPref.getDefaultValue(), 0, 0);
+                }
+            }
+            else if (metaPref.getClassName().equals("MetaPrefInt"))
+            {
+                ArrayListState<Choice<Integer>> choices = metaPref.getChoices();
+                if (choices != null)
+                {
+                    String[] choiceLabels = new String[choices.size()];
+                    int i = 0;
+                    for (Choice choice : choices)
+                    {
+                        choiceLabels[i] = choice.getLabel();
+                        i++;
+                    }
+                    createDropDown(panel, metaPref, "dropdown", choiceLabels, (Integer)metaPref.getDefaultValue(), 0, 0);
+                }
+            }
+        }
+        else if (metaPref.widgetIsCheckBoxes())
+        {
+            // not implemented right now
+        }
+        else if (metaPref.widgetIsColorChooser())
+        {
+            setupColorChooser(panel,metaPref);
+            createColorButton(panel);
+            registerComponent(metaPref, "colorChooser", colorChooser);
+        }
+        else if (metaPref.widgetIsFileChooser())
+        {
+            // get from synced file
+            GridBagConstraints c = new GridBagConstraints();
+            c.fill = GridBagConstraints.BOTH;
+            c.anchor = GridBagConstraints.LINE_START;
+            c.gridx = 0;
+            c.gridy = 0;
+            c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+            
+            JButton jButton = new JButton();
+            jButton.setText("Choose File");
+            jButton.addActionListener(new ActionListener() 
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    fileChooser.showOpenDialog(fileChooser.getParent());
+                }
+            });
+            registerComponent(metaPref, "fileChooser", fileChooser);
+            panel.add(jButton,c);
+        }
+        
+        panel.setVisible(true);
+        
+        if (panel != null)
         {
             constraints.gridx = 1;
             constraints.gridy = rownum;
@@ -657,10 +863,346 @@ implements WindowListener
             // if we have a prefs value, override it now
             if (Pref.hasPref(metaPref.getID()))
             {
-                metaPref.setWidgetToPrefValue(Pref.lookupPref(metaPref.getID()).value());
+                setWidgetToPrefValue(metaPref, Pref.lookupPref(metaPref.getID()));
             }
         }
-        return subValue;
+        return panel;
+    }
+    
+    private void setWidgetToPrefValue(MetaPref mp, Pref pref)
+    {
+        if (mp.widgetIsTextField())
+        {
+            JTextField textField = (JTextField)lookupComponent(mp, mp.getID()+"textField");
+            textField.setText(pref.value().toString());
+        }
+        else if (mp.widgetIsRadio())
+        {
+            if (mp.getClassName().equals("MetaPrefBoolean"))
+            {
+                boolean prefValue = (Boolean)pref.value();
+                if (prefValue)
+                {
+                    JRadioButton yesButton = (JRadioButton)lookupComponent(mp, mp.getID()+"Yes");
+                    ButtonModel yesModel = yesButton.getModel();
+                    yesModel.setSelected(true);
+                }
+                else
+                {
+                    JRadioButton noButton = (JRadioButton)lookupComponent(mp, mp.getID()+"No");
+                    ButtonModel noModel = noButton.getModel();
+                    noModel.setSelected(true);
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be number 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                // find default choice
+                Float prefValue = (Float)pref.value();
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                for(Choice choice1 : choices)
+                {
+                    if (prefValue.equals(choice1.getValue()))
+                    {
+                        // registered name
+                        String regName = mp.getID() + choice1.getName();
+                        //println("we think the name is: " + regName);
+                        JRadioButton defaultButton = (JRadioButton) lookupComponent(mp,regName);
+                        ButtonModel buttonModel = defaultButton.getModel();
+                        buttonModel.setSelected(true);
+                        break;
+                    }
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be number 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                // find default choice
+                Integer prefValue = (Integer)pref.value();
+                ArrayListState<Choice<Integer>> choices = mp.getChoices();
+                for(Choice choice1 : choices)
+                {
+                    if (prefValue.equals(choice1.getValue()))
+                    {
+                        // registered name
+                        String regName = mp.getID() + choice1.getName();
+                        //println("we think the name is: " + regName);
+                        JRadioButton defaultButton = (JRadioButton) lookupComponent(mp,regName);
+                        ButtonModel buttonModel = defaultButton.getModel();
+                        buttonModel.setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
+        else if (mp.widgetIsDropDown())
+        {
+            if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be numbered 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                Float prefValue = (Float)pref.value();
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                int defIndex = 0;
+                for(Choice choice1 : choices)
+                {
+                    //System.out.print(prefValue + ", " + choice1.getValue() + "\n");
+                    if (prefValue.equals(choice1.getValue()))
+                    {
+                        JComboBox comboBox = (JComboBox)lookupComponent(mp, mp.getID() + "dropdown");
+                        comboBox.setSelectedIndex(defIndex);
+                        break;
+                    }
+                    defIndex++;
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                Integer prefValue = (Integer)pref.value();
+                JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+"dropdown");
+                comboBox.setSelectedIndex(prefValue.intValue());
+            }
+        }
+        else if (mp.widgetIsCheckBoxes())
+        {
+            // not implemented right now
+        }
+        else if (mp.widgetIsColorChooser())
+        {
+            Color prefValue = (Color)pref.value();
+            JColorChooser colorChooser = (JColorChooser)lookupComponent(mp,mp.getID()+"colorChooser");
+            if (colorChooser != null)
+            {
+                colorChooser.setColor(prefValue);
+            }
+        }
+        else if (mp.widgetIsFileChooser())
+        {
+            JFileChooser fileChooser = (JFileChooser)lookupComponent(mp,mp.getID()+"fileChooser");
+            fileChooser.setSelectedFile((File)pref.value());
+        }
+    }
+    
+    private void revertToDefault(MetaPref mp)
+    {
+        if (mp.widgetIsTextField())
+        {
+            JTextField textField = (JTextField)lookupComponent(mp, mp.getID()+"textField");
+            textField.setText(mp.getDefaultValue().toString());
+        }
+        else if (mp.widgetIsRadio())
+        {
+            if (mp.getClassName().equals("MetaPrefBoolean"))
+            {
+                // get button
+                JRadioButton yesButton = (JRadioButton)lookupComponent(mp, mp.getID()+"Yes");
+                ButtonModel yesModel = yesButton.getModel();
+                boolean yesVal = (Boolean)mp.getDefaultValue();
+                
+                if (yesVal)
+                {
+                    yesModel.setSelected(true);
+                }
+                else
+                {
+                    JRadioButton noButton = (JRadioButton)lookupComponent(mp, mp.getID()+"No");
+                    ButtonModel noModel = noButton.getModel();
+                    noModel.setSelected(true);
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be number 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                // get default choice
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                Float defValue = (Float)mp.getDefaultValue();
+                for(Choice choice1 : choices)
+                {
+                    if (defValue.equals(choice1.getValue()))
+                    {
+                        // registered name
+                        String regName = mp.getID() + choice1.getName();
+                        //println("we think the name is: " + regName);
+                        JRadioButton defaultButton = (JRadioButton)lookupComponent(mp,regName);
+                        ButtonModel buttonModel = defaultButton.getModel();
+                        buttonModel.setSelected(true);
+                        break;
+                    }
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be number 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                // get default choice
+                ArrayListState<Choice<Integer>> choices = mp.getChoices();
+                Integer defValue = (Integer)mp.getDefaultValue();
+                for(Choice choice1 : choices)
+                {
+                    if (defValue.equals(choice1.getValue()))
+                    {
+                        // registered name
+                        String regName = mp.getID() + choice1.getName();
+                        //println("we think the name is: " + regName);
+                        JRadioButton defaultButton = (JRadioButton)lookupComponent(mp,regName);
+                        ButtonModel buttonModel = defaultButton.getModel();
+                        buttonModel.setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
+        else if (mp.widgetIsDropDown())
+        {
+            if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                /* This is an ugly way to do this, but we can't trust
+                 * choices to be in the right order (0-n), and we can't
+                 * trust the choice values to be number 0-n either.
+                 * We also can't get the index without the object.
+                 */
+                // get default choice
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                Float defValue = (Float)mp.getDefaultValue();
+                int defIndex = 0;
+                for(Choice choice1 : choices)
+                {
+                    if (defValue.equals(choice1.getValue()))
+                    {
+                        // registered name
+                        String regName = mp.getID() + "dropdown";
+                        //println("we think the name is: " + regName);
+                        JComboBox comboBox = (JComboBox)lookupComponent(mp,regName);
+                        comboBox.setSelectedIndex(defIndex);
+                        break;
+                    }
+                    defIndex++;
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+"dropdown");
+                comboBox.setSelectedIndex((Integer)mp.getDefaultValue());
+            }
+        }
+        else if (mp.widgetIsCheckBoxes())
+        {
+            // not implemented right now
+        }
+        else if (mp.widgetIsColorChooser())
+        {
+            JColorChooser colorChooser = (JColorChooser)lookupComponent(mp,mp.getID()+"colorChooser");
+            colorChooser.setColor((Color)mp.getDefaultValue());
+        }
+        else if (mp.widgetIsFileChooser())
+        {
+            JFileChooser fileChooser = (JFileChooser)lookupComponent(mp,mp.getID()+"fileChooser");
+            fileChooser.setSelectedFile((File)mp.getDefaultValue());
+        }
+    }
+    
+    private Object getPrefValue(MetaPref mp)
+    {
+        if (mp.widgetIsTextField())
+        {
+            JTextField textField = (JTextField)lookupComponent(mp, mp.getID()+"textField");
+            if (mp.getClassName().equals("MetaPrefString"))
+            {
+                return new String(textField.getText());
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                return new Integer(textField.getText());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                return new Float(textField.getText());
+            }
+        }
+        else if (mp.widgetIsRadio())
+        {
+            if (mp.getClassName().equals("MetaPrefBoolean"))
+            {
+                JRadioButton yesButton = (JRadioButton)lookupComponent(mp, mp.getID()+"Yes");
+                return new Boolean(yesButton.isSelected());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                // find the selected one and return it
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                for (Choice choice: choices)
+                {
+                    String regName = mp.getID() + choice.getName();
+                    JRadioButton choiceButton = (JRadioButton) lookupComponent(mp,regName);
+                    if (choiceButton.isSelected())
+                    {
+                        return (Float)choice.getValue();
+                    }
+                }
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                // find the selected one and return it
+                ArrayListState<Choice<Integer>> choices = mp.getChoices();
+                for (Choice choice: choices)
+                {
+                    String regName = mp.getID() + choice.getName();
+                    JRadioButton choiceButton = (JRadioButton) lookupComponent(mp,regName);
+                    if (choiceButton.isSelected())
+                    {
+                        return (Integer)choice.getValue();
+                    }
+                }
+            }
+        }
+        else if (mp.widgetIsDropDown())
+        {
+            if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+"dropdown");
+                int selectedIndex = comboBox.getSelectedIndex();
+                return new Float(choices.get(selectedIndex).getValue());
+            }
+            else if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+"dropdown");
+                return new Integer(comboBox.getSelectedIndex());
+            }
+        }
+        else if (mp.widgetIsCheckBoxes())
+        {
+            // not implemented right now
+        }
+        else if (mp.widgetIsColorChooser())
+        {
+            JColorChooser colorChooser = (JColorChooser)lookupComponent(mp,mp.getID()+"colorChooser");
+            return (Color)colorChooser.getColor();
+        }
+        else if (mp.widgetIsFileChooser())
+        {
+            JFileChooser fileChooser = (JFileChooser)lookupComponent(mp,mp.getID()+"fileChooser");
+            return (File)fileChooser.getSelectedFile();
+        }
+        return null;
     }
     // end of bits of gui that are all or part auto-generated
     
@@ -689,7 +1231,8 @@ implements WindowListener
     			//TODO -- i dont believe this lines makes sense -- andruid 3/12/07
     			//mp 			= mp.getClass().cast(mp);
     			Pref pref 	= mp.getAssociatedPref();
-    			pref.setValue(mp.getPrefValue());
+    			pref.setValue(getPrefValue(mp));
+                //System.err.print("pref: " + name + ", value: " + getPrefValue(mp) + '\n');
     			if (!prefSet.contains(pref))
     				prefSet.add(pref);
     			
@@ -727,12 +1270,273 @@ implements WindowListener
         {
             for (MetaPref mp : metaPrefSet.getMetaPrefListByCategory(cat))
             {
-                mp.revertToDefault();
+                revertToDefault(mp);
             }
         }
     }
     // end of gui actions for buttons
 
+    /**
+     * Creates a radio button.
+     * 
+     * @param panel         JPanel this button will be associated with.
+     * @param buttonGroup   ButtonGroup this button is a member of.
+     * @param initialValue  boolean; true=selected. false=not selected.
+     * @param label         Text label for button
+     * @param name          Name of button
+     * @param row           Row this button is in for GridBagLayout
+     * @param col           Column this button is in for GridBagLayout
+     * 
+     * @return JRadioButton with properties initialized to parameters.
+     */
+    protected JRadioButton createRadio(JPanel panel, MetaPref mp, ButtonGroup buttonGroup, boolean initialValue, String label, String name, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
+        JRadioButton radioButton = new JRadioButton();
+        
+        radioButton.setSelected(initialValue);
+        radioButton.setName(name);
+        radioButton.setText(label);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        
+        buttonGroup.add(radioButton);
+        panel.add(radioButton, c);
+
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, name, radioButton);
+        }
+        
+        return radioButton;
+    }
+    
+    /**
+     * Creates a text field.
+     * 
+     * @param panel         JPanel this field will be associated with.
+     * @param initialValue  String value this field initially contains.
+     * @param labelAndName  Name of text field
+     * @param row           Row this field is in for GridBagLayout
+     * @param col           Column this field is in for GridBagLayout
+     * 
+     * @return JTextField with properties initialized to parameters.
+     */
+    protected JTextField createTextField(JPanel panel, MetaPref mp, String initialValue, String labelAndName, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+        
+        JTextField textField = new JTextField();
+        textField.setHorizontalAlignment(JTextField.CENTER);
+        textField.setText(initialValue);
+        textField.setName(labelAndName);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        c.ipadx = TEXT_FIELD_PADDING;
+        
+        panel.add(textField, c);
+        
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, labelAndName, textField);
+        }
+        
+        return textField;
+    }
+    
+    /**
+     * Creates a check box.
+     * 
+     * @param panel         JPanel this button will be associated with.
+     * @param initialValue  boolean; true=selected. false=not selected.
+     * @param label         Text label for button
+     * @param name          Name of button
+     * @param row           Row this button is in for GridBagLayout
+     * @param col           Column this button is in for GridBagLayout
+     * 
+     * @return JCheckBox with properties initialized to parameters.
+     */
+    protected JCheckBox createCheckBox(JPanel panel, MetaPref mp, boolean initialValue, String label, String name, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
+        JCheckBox checkBox = new JCheckBox(label);
+        
+        checkBox.setSelected(initialValue);
+        checkBox.setName(name);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        
+        panel.add(checkBox, c);
+        
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, name, checkBox);
+        }
+        
+        return checkBox;
+    }
+    
+    /**
+     * Creates a drop down menu; combo box.
+     * 
+     * @param panel         JPanel this field will be associated with.
+     * @param name          Name of this drop down menu.
+     * @param labels        String array of the labels within this menu.
+     * @param selectedValue The integer value of which of the 0-n labels
+     *                      in the menu is selected by default.
+     * @param row           Row this field is in for GridBagLayout
+     * @param col           Column this field is in for GridBagLayout
+     * 
+     * @return JComboBox with properties initialized to parameters.
+     */
+    protected JComboBox createDropDown(JPanel panel, MetaPref mp, String name, String[] labels, int selectedValue, int row, int col)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+        
+        JComboBox comboBox = new JComboBox(labels);
+        comboBox.setSelectedIndex(selectedValue);
+        comboBox.setName(name);
+        c.gridx = col;
+        c.gridy = row;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        c.ipadx = TEXT_FIELD_PADDING;
+        
+        panel.add(comboBox, c);
+        
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, name, comboBox);
+        }
+        
+        return comboBox;
+    }
+    
+    private void createFileButton(JPanel panel)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        
+        JButton jButton = new JButton();
+        jButton.setText("Choose File");
+        jButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                fileChooser.showOpenDialog(fileChooser.getParent());
+            }
+        });
+        panel.add(jButton,c);
+    }
+    
+    public static void setupColorChooser(JPanel jPanel, MetaPref mp)
+    {
+        colorChooserDialog = 
+        JColorChooser.createDialog(jPanel, "Choose Stroke Color", true,
+                    colorChooser,
+                    new ActionListener()
+                    {   // ok listener
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            // nothing here
+                        }
+                    },
+                    new ActionListener()
+                    {   // cancel listener
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            // nothing here
+                        }
+                    }
+                    );
+    }
+    private void createColorButton(JPanel panel)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        
+        JButton jButton = new JButton();
+        jButton.setText("Choose Color");
+        jButton.addActionListener(new ActionListener() 
+        {
+            public void actionPerformed(ActionEvent e) 
+            {
+                colorChooserDialog.show();
+            }
+        });
+        panel.add(jButton,c);
+    }
+    
+    /**
+     * Returns the ObjectRegistry for this MetaPref's jComponents.
+     * 
+     * @return ObjectRegistry for MetaPref's jComponents.
+     */
+    private ObjectRegistry<JComponent> jCatComponentsMap(MetaPref mp)
+    {
+        ObjectRegistry<JComponent> result   = this.jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (result == null)
+        {
+            LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(mp.getCategory());
+            result                          = new ObjectRegistry<JComponent>();
+            catHash.put(mp.getID(), result);
+        }
+        return result;
+    }
+
+    /**
+     * Registers a JComponent with the ObjectRegistry
+     * 
+     * @param labelAndName
+     * @param jComponent
+     */
+    protected void registerComponent(MetaPref mp, String labelAndName, JComponent jComponent)
+    {
+        //println("Registering: " + this.id+labelAndName);
+        jCatComponentsMap(mp).registerObject(mp.getID()+labelAndName,jComponent);
+    }
+    
+    /**
+     * Returns a JComponent from the ObjectRegistry by name
+     * 
+     * @param labelAndName
+     * @return JComponent matching labelAndName from ObjectRegistry
+     */
+    protected JComponent lookupComponent(MetaPref mp, String labelAndName)
+    {
+        //println("Trying to fetch: " + labelAndName);
+        JComponent jComponent = jCatComponentsMap(mp).lookupObject(labelAndName);
+        return jComponent;
+    }
+    
     public void windowActivated(WindowEvent e)
     {
     }
