@@ -38,7 +38,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * @author andruid
  */
-public class Logging extends ElementState implements Runnable,
+public class Logging<T extends MixedInitiativeOp> extends ElementState implements Runnable,
         ServicesHostsAndPorts
 {
     /**
@@ -46,7 +46,7 @@ public class Logging extends ElementState implements Runnable,
      * one, because we dont the write the log file all at once, and so can't
      * automatically translate the start tag and end tag for this element.
      */
-    @xml_nested protected ArrayListState opSequence;
+    @xml_nested protected ArrayListState<T> opSequence;
 
     Thread                               thread;
 
@@ -355,6 +355,18 @@ public class Logging extends ElementState implements Runnable,
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the size of the list of log ops. May not be the correct value if
+     * called during logging. This method should only be used for playback
+     * purposes.
+     * 
+     * @return the size of opSequence.
+     */
+    public int size()
+    {
+        return this.opSequence.size();
     }
 
     /**
@@ -975,7 +987,6 @@ public class Logging extends ElementState implements Runnable,
 
         void finishConsumingQueue()
         {
-            debug("================================================================================sending to server!");
             try
             {
                 loggingClient.nonBlockingSendMessage(opSet);
@@ -1007,7 +1018,7 @@ public class Logging extends ElementState implements Runnable,
     /**
      * @return the opSequence
      */
-    public ArrayListState getOpSequence()
+    public ArrayListState<T> getOpSequence()
     {
         return opSequence;
     }

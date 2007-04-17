@@ -373,6 +373,8 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 									int nodeNumber, TagMapEntry tagMapEntry, StringBuilder buffy)
 		throws XmlTranslationException
 	{
+        this.preTranslationProcessingHook();
+        
 		compressed = compression;
 		nodeNumber++;
 		
@@ -2229,4 +2231,15 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 		
 	}
+    
+    /**
+     * Perform custom processing immediately before translating this to XML. 
+     * <p/>
+     * This, the default implementation, does nothing. Sub-classes may wish to override.
+     *
+     */
+    protected void preTranslationProcessingHook()
+    {
+
+    }
 }

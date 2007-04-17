@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -25,7 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
-import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -335,17 +333,27 @@ implements CharacterConstants
                    }
                    
                    // find the decimal, and where we SHOULD cut off...
-                   int endPos = unescapedFieldValue.indexOf(".")+floatingValuePrecision+1;
+                   int endPos = unescapedFieldValue.indexOf(".");
                    
-                   if (endPos > unescapedFieldValue.length())
-                   { // if the cutoff is too far, do nothing
-                       result.append(unescapedFieldValue);
-                   }
-                   else
-                   { // if the cutoff is not too far, then cut off the extra
-                       result.append(unescapedFieldValue, 0, endPos);
-                       result.append(eVal);
-                   }
+                   if (endPos != -1)
+                   {
+                       endPos+=floatingValuePrecision+1;
+
+                       if (endPos > unescapedFieldValue.length())
+                       { // if the cutoff is too far, do nothing
+                           result.append(unescapedFieldValue);
+                       }
+                       else
+                        { // if the cutoff is not too far, then cut off the
+                            // extra
+                            result.append(unescapedFieldValue, 0, endPos);
+                            result.append(eVal);
+                        }
+                    }
+                    else
+                    {
+                        result.append(unescapedFieldValue);
+                    }
                    
                    // if there is nothing after the decimal, remove it
                    if (result.charAt(result.length()-1) == '.')

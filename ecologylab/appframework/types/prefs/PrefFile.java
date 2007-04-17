@@ -27,7 +27,7 @@ import ecologylab.xml.xml_inherit;
      * Context indicating the type of path specified by value. Possible values
      * are ABSOLUTE_PATH, CODE_BASE, or APP_DATA_DIR.
      */
-    @xml_attribute int      pathContext   = 0;
+    @xml_attribute int      pathContext   = ABSOLUTE_PATH;
 
     /** Indicates that value is an absolute path. */
     public static final int ABSOLUTE_PATH = 0;
