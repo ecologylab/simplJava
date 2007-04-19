@@ -10,8 +10,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -21,6 +24,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.SortedMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
@@ -31,16 +36,25 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JToolTip;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.NumberFormatter;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ObjectRegistry;
@@ -64,7 +78,7 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 public class PrefsEditor
 extends Debug
-implements WindowListener
+implements WindowListener, ChangeListener
 {
     /**
      * The number of characters/columns at which the tooltips will try to wrap.
@@ -509,6 +523,8 @@ implements WindowListener
         /*contentPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.yellow),
                 contentPanel.getBorder()));*/
+        // make tooltips display quickly
+        ToolTipManager.sharedInstance().setInitialDelay(10);
         contentPanel.setLayout(new GridBagLayout());
         contentPanel.setMaximumSize(new Dimension(scrollPane.getWidth(),Integer.MAX_VALUE));
         GridBagConstraints constraints = new GridBagConstraints();
@@ -633,12 +649,14 @@ implements WindowListener
         JLabel label = new JLabel();
         String wrapText = "<html>" + mp.getDescription() + "</html>";
         label.setText(wrapText);
+        //label.setIcon(UIManager.getIcon("FileChooser.detailsViewIcon"));
         
         //nasty workaround because there is no API option to wrap tooltips
         String formattedToolTip = wrapTooltip(mp);
         
         label.setToolTipText(formattedToolTip);
-        label.setHorizontalTextPosition(SwingConstants.LEADING);
+        label.setHorizontalAlignment(SwingConstants.LEADING);
+        label.setHorizontalTextPosition(SwingConstants.RIGHT);
         label.setVerticalAlignment(SwingConstants.TOP);
         c.gridx = col;
         c.gridy = row;
@@ -820,6 +838,11 @@ implements WindowListener
         {
             // not implemented right now
         }
+        else if (metaPref.widgetIsSlider())
+        {
+            // this can only be used for ints
+            createSlider(panel, metaPref, "slider");
+        }
         else if (metaPref.widgetIsColorChooser())
         {
             setupColorChooser(panel,metaPref);
@@ -971,12 +994,18 @@ implements WindowListener
             {
                 Integer prefValue = (Integer)pref.value();
                 JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+"dropdown");
-                comboBox.setSelectedIndex(prefValue.intValue());
+                comboBox.setSelectedIndex(prefValue);
             }
         }
         else if (mp.widgetIsCheckBoxes())
         {
             // not implemented right now
+        }
+        else if (mp.widgetIsSlider())
+        {
+            Integer prefValue = (Integer)pref.value();
+            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+            jSlider.setValue(prefValue);
         }
         else if (mp.widgetIsColorChooser())
         {
@@ -1107,6 +1136,11 @@ implements WindowListener
         {
             // not implemented right now
         }
+        else if (mp.widgetIsSlider())
+        {
+            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+            jSlider.setValue((Integer)mp.getDefaultValue());
+        }
         else if (mp.widgetIsColorChooser())
         {
             JColorChooser colorChooser = (JColorChooser)lookupComponent(mp,mp.getID()+"colorChooser");
@@ -1191,6 +1225,11 @@ implements WindowListener
         else if (mp.widgetIsCheckBoxes())
         {
             // not implemented right now
+        }
+        else if (mp.widgetIsSlider())
+        {
+            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+            return new Integer(jSlider.getValue());
         }
         else if (mp.widgetIsColorChooser())
         {
@@ -1432,6 +1471,54 @@ implements WindowListener
         return comboBox;
     }
     
+    /**
+     * Creates a slider.
+     * 
+     * @param panel         JPanel this slider will be associated with.
+     * @param label         Text label for slider
+     * @param name          Name of slider
+     * @param row           Row this slider is in for GridBagLayout
+     * @param col           Column this slider is in for GridBagLayout
+     * 
+     * @return JSlider with properties initialized to parameters.
+     */
+    protected JSlider createSlider(JPanel panel, MetaPref mp, String labelAndName)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
+        JSlider jSlider = new JSlider();
+        jSlider.setValue((Integer)mp.getDefaultValue());
+        jSlider.setName(labelAndName);
+        jSlider.setMajorTickSpacing(10);
+        jSlider.setMinorTickSpacing(1);
+        jSlider.setPaintTicks(true);
+        jSlider.setPaintLabels(true);
+        Integer curValue = jSlider.getValue();
+        jSlider.setToolTipText(curValue.toString());
+        jSlider.addChangeListener(this);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        panel.add(jSlider, c);
+
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, labelAndName, jSlider);
+        }
+        
+        return jSlider;
+    }
+    
+    /**
+     * Creates a "change file" button for file chooser types
+     * and places it in the panel.
+     * 
+     * @param panel
+     */
     private void createFileButton(JPanel panel)
     {
         GridBagConstraints c = new GridBagConstraints();
@@ -1453,6 +1540,13 @@ implements WindowListener
         panel.add(jButton,c);
     }
     
+    /**
+     * Creates a color chooser dialog for a color chooser metapref 
+     * and places it on the panel.
+     * 
+     * @param jPanel
+     * @param mp
+     */
     public static void setupColorChooser(JPanel jPanel, MetaPref mp)
     {
         colorChooserDialog = 
@@ -1474,6 +1568,12 @@ implements WindowListener
                     }
                     );
     }
+    
+    /**
+     * Creates a color chooser button and places it on the panel.
+     * 
+     * @param panel
+     */
     private void createColorButton(JPanel panel)
     {
         GridBagConstraints c = new GridBagConstraints();
@@ -1565,5 +1665,18 @@ implements WindowListener
 
     public void windowOpened(WindowEvent e)
     {
+    }
+
+    public void stateChanged(ChangeEvent e)
+    {
+        JSlider source = (JSlider)e.getSource();
+        Integer curVal = source.getValue();
+        source.setToolTipText(curVal.toString());
+        Action action = source.getActionMap().get("postTip");
+        if (action != null) 
+        {
+            // show me the tooltip, NOW
+            action.actionPerformed(new ActionEvent(source, ActionEvent.ACTION_PERFORMED, "postTip"));
+        }
     }
 }

@@ -160,6 +160,18 @@ public abstract class MetaPref<T> extends ElementState
     }
     
     /**
+     * Returns whether or not a widget uses a slider.
+     * 
+     * @return True = Uses a slider. False = Doesn't.
+     */
+    public boolean widgetIsSlider()
+    {
+        if ("SLIDER".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
      * Returns whether or not a widget uses one or more text fields.
      * 
      * @return True = Uses text field(s). False = Doesn't.

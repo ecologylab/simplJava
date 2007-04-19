@@ -21,4 +21,6 @@ public interface WidgetTypes
     public static final String  COLOR_CHOOSER   = "color_chooser";
     
     public static final String  FILE_CHOOSER    = "file_chooser";
+    
+    public static final String  SLIDER          = "slider";
 }
