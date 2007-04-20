@@ -16,7 +16,7 @@ public class IgnoreRequest extends RequestMessage
 	@Override
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
-		return null;
+		return OkResponse.get();
 	}
 	
 	public static IgnoreRequest get()
