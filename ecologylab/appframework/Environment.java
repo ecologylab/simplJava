@@ -5,6 +5,7 @@
 package ecologylab.appframework;
 
 import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
@@ -170,15 +171,23 @@ public interface Environment
       public boolean hasMultivalent()
       {
 		 if (!checkedForMultivalent)
+		 {
 			hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
-		 debug("hasMultivalent() = "+hasMultivalent);
+			debug("hasMultivalent() = "+hasMultivalent);
+			if (hasMultivalent)
+				ConsoleUtils.obtrusiveConsoleOutput("Multivalent Found");
+		 }
 		 return hasMultivalent;
       }
       public boolean hasPDFBox()
       {
 		 if (!checkedForPDFBox)
+		 {
 			hasPDFBox	= checkFor("org.pdfbox.pdmodel.PDDocument");
-		 debug("hasPDFBox() = "+hasPDFBox);
+			debug("hasPDFBox() = "+hasPDFBox);
+			if (hasPDFBox)
+				ConsoleUtils.obtrusiveConsoleOutput("PDFBox Found");
+		 }
 		 return hasPDFBox;
       }
       public boolean hasGL()
