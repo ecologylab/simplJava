@@ -148,10 +148,20 @@ implements ParseTableEntryTypes
 					this.type	= REGULAR_NESTED_ELEMENT;
 //					this.classOp	= field.getType();
 					// changed 12/2/06 by andruid -- use the type in the TranslationSpace!
-					Class thatClass	= translationSpace.getClassByTag(tag);
-					if (thatClass == null)
-						thatClass	= field.getType();
-					this.classOp	= thatClass;
+					// ah, but that was wrong to do. you must get the class from the Field object,
+					// because the Field object, and not the class is supposed to be a source.
+					// but we need to support having 2 classes with the same simple name, in which one overrides the other,
+					// for internal vs external versions of APIs.
+					//
+					// thus, what we do is:
+					// 1) get the class name from the field
+					// 2) use it as a key into the TranslationSpace (seeking an override)
+					// 3) if that fails, then just use the Class from the field.
+					Class fieldClass			= field.getType();
+					String classNameFromField	= fieldClass.getSimpleName();
+					Class classFromTS			= translationSpace.getClassByName(classNameFromField);
+					
+					this.classOp	= (classFromTS != null) ? classFromTS : fieldClass;
 					return;
 				}
 				// no field object, so we must continue to check stuff out!
