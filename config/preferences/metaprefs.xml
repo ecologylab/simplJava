@@ -17,7 +17,9 @@
     <meta_pref_boolean id="use_dashboard" description="Enable the seeding dashboard?" helpText="Use the seeding dashboard to dynamically filter searches and other seeds." widget="RADIO" category="General" defaultValue="0" />
     <meta_pref_float id="elements_per_square_inch" description="Density: Visible elements per square inch [.1,20]" helpText="Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch. This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements." widget="TEXT_FIELD" category="General" defaultValue="0.7" />
 
-    <meta_pref_int id="undo_levels" description="Undo Levels" helpText="The number of steps backwards you can go, by using undo, or the reverse button." widget="TEXT_FIELD" category="Developer" defaultValue="32" />
+    <meta_pref_int id="undo_levels" description="Undo Levels" helpText="The number of steps backwards you can go, by using undo, or the reverse button." widget="SLIDER" category="Developer" defaultValue="32">
+       	<range min="0" max="50" />
+    </meta_pref_int>
     <meta_pref_int id="log_mode" description="Log Mode" helpText="Controls whether or not logging of actions to a file by you and the program is performed during each session. The default is log to Desktop. With this option, you will have trace information available to help us, in case a bug is discovered." widget="RADIO" category="Developer" defaultValue="1">
     	<choices>
     		<choice_int name="log_none" label="no logging" value="0" />
