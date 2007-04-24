@@ -31,4 +31,16 @@ public class MetaPrefColor extends MetaPref<Color>
 		return new PrefColor();
 	}
 
+    @Override
+    public Color getMaxValue()
+    {
+        return null;
+    }
+
+    @Override
+    public Color getMinValue()
+    {
+        return null;
+    }
+
 }

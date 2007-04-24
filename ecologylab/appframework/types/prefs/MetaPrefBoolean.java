@@ -48,6 +48,18 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 	{
 		return new PrefBoolean();
 	}
+
+    @Override
+    public Boolean getMaxValue()
+    {
+        return null;
+    }
+
+    @Override
+    public Boolean getMinValue()
+    {
+        return null;
+    }
     
 /*
 	public boolean isWithinRange(Boolean newValue)

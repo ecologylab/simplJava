@@ -68,6 +68,18 @@ public class MetaPrefFile extends MetaPref<File>
     {
         return new PrefFile();
     }
+
+    @Override
+    public File getMaxValue()
+    {
+        return null;
+    }
+
+    @Override
+    public File getMinValue()
+    {
+        return null;
+    }
     
     
 /*

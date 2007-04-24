@@ -20,7 +20,11 @@ public class MetaPrefFloat extends MetaPref<Float>
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	float		defaultValue;
+	@xml_attribute	float		        defaultValue;
+    /**
+     * Min/max values
+     */
+    //@xml_nested     RangeState<Float>   range;
 	
     /**
      * Instantiate.
@@ -50,6 +54,20 @@ public class MetaPrefFloat extends MetaPref<Float>
 	{
 		return new PrefFloat();
 	}
+
+    @Override
+    public Float getMaxValue()
+    {
+        return null;
+        //return range.max;
+    }
+
+    @Override
+    public Float getMinValue()
+    {
+        return null;
+        //return range.min;
+    }
 	
 /*
 	public boolean isWithinRange(Float newValue)

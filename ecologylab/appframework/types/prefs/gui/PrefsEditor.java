@@ -44,10 +44,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToolTip;
 import javax.swing.KeyStroke;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -843,6 +845,11 @@ implements WindowListener, ChangeListener
             // this can only be used for ints
             createSlider(panel, metaPref, "slider");
         }
+        else if (metaPref.widgetIsSpinner())
+        {
+            // this can be used for ints or floats
+            createSpinner(panel, metaPref, "spinner");
+        }
         else if (metaPref.widgetIsColorChooser())
         {
             setupColorChooser(panel,metaPref);
@@ -1007,6 +1014,21 @@ implements WindowListener, ChangeListener
             JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
             jSlider.setValue(prefValue);
         }
+        else if (mp.widgetIsSpinner())
+        {
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                Integer prefValue = (Integer)pref.value();
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                jSpinner.setValue(prefValue);
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                Float prefValue = (Float)pref.value();
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                jSpinner.setValue(prefValue);
+            }
+        }
         else if (mp.widgetIsColorChooser())
         {
             Color prefValue = (Color)pref.value();
@@ -1141,6 +1163,19 @@ implements WindowListener, ChangeListener
             JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
             jSlider.setValue((Integer)mp.getDefaultValue());
         }
+        else if (mp.widgetIsSpinner())
+        {
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                jSpinner.setValue((Integer)mp.getDefaultValue());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                jSpinner.setValue((Float)mp.getDefaultValue());
+            }
+        }
         else if (mp.widgetIsColorChooser())
         {
             JColorChooser colorChooser = (JColorChooser)lookupComponent(mp,mp.getID()+"colorChooser");
@@ -1230,6 +1265,19 @@ implements WindowListener, ChangeListener
         {
             JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
             return new Integer(jSlider.getValue());
+        }
+        else if (mp.widgetIsSpinner())
+        {
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                return new Integer((Integer)jSpinner.getValue());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                JSpinner jSpinner = (JSpinner)lookupComponent(mp,mp.getID()+"spinner");
+                return new Float((Float)jSpinner.getValue());
+            }
         }
         else if (mp.widgetIsColorChooser())
         {
@@ -1488,8 +1536,9 @@ implements WindowListener, ChangeListener
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.LINE_START;
         
-        JSlider jSlider = new JSlider();
-        jSlider.setValue((Integer)mp.getDefaultValue());
+        JSlider jSlider = new JSlider((Integer)mp.getMinValue(),
+                                      (Integer)mp.getMaxValue(),
+                                      (Integer)mp.getDefaultValue());
         jSlider.setName(labelAndName);
         jSlider.setMajorTickSpacing(10);
         jSlider.setMinorTickSpacing(1);
@@ -1511,6 +1560,53 @@ implements WindowListener, ChangeListener
         }
         
         return jSlider;
+    }
+    
+    /**
+     * Creates a spinner. This is a text field with up/down arrows
+     * that allow you to increase/decrease the value in the text box.
+     * 
+     * @param panel         JPanel this spinner will be associated with.
+     * @param label         Text label for spinner
+     * @param name          Name of spinner
+     * @param row           Row this spinner is in for GridBagLayout
+     * @param col           Column this spinner is in for GridBagLayout
+     * 
+     * @return JSpinner with properties initialized to parameters.
+     */
+    protected JSpinner createSpinner(JPanel panel, MetaPref mp, String labelAndName)
+    {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.anchor = GridBagConstraints.LINE_START;
+        
+        double stepSize = 1.0;
+        if (mp.getClassName().equals("MetaPrefFloat"))
+            stepSize = 0.1;
+        
+        SpinnerNumberModel numModel = new SpinnerNumberModel();
+        numModel.setMinimum((Float)mp.getMinValue());
+        numModel.setMaximum((Float)mp.getMaxValue());
+        numModel.setValue(mp.getDefaultValue());
+        numModel.setStepSize(stepSize);
+        
+        JSpinner jSpinner = new JSpinner();
+        jSpinner.setModel(numModel);
+        jSpinner.setValue(mp.getDefaultValue());
+        jSpinner.setName(labelAndName);
+        c.gridx = 0;
+        c.gridy = 0;
+        c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
+        panel.add(jSpinner, c);
+
+        // add metapref's component to array
+        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        if (mpComponents != null)
+        {
+            registerComponent(mp, labelAndName, jSpinner);
+        }
+        
+        return jSpinner;
     }
     
     /**

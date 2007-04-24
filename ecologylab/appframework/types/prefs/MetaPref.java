@@ -74,6 +74,16 @@ public abstract class MetaPref<T> extends ElementState
      * @return Default value of MetaPref
      */
 	public abstract T getDefaultValue();
+    /**
+     * Gets the min value of the range of a MetaPref.
+     * @return Min value of a MetaPref
+     */
+    public abstract T getMinValue();
+    /**
+     * Gets the max value of the range of a MetaPref.
+     * @return Max value of a MetaPref
+     */
+    public abstract T getMaxValue();
 
     /**
      * Gets the category for a MetaPref.
@@ -167,6 +177,18 @@ public abstract class MetaPref<T> extends ElementState
     public boolean widgetIsSlider()
     {
         if ("SLIDER".equals(widget))
+            return true;
+        return false;
+    }
+    
+    /**
+     * Returns whether or not a widget uses a spinner.
+     * 
+     * @return True = Uses a spinner. False = Doesn't.
+     */
+    public boolean widgetIsSpinner()
+    {
+        if ("SPINNER".equals(widget))
             return true;
         return false;
     }

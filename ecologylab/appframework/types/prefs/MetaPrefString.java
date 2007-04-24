@@ -50,6 +50,18 @@ public class MetaPrefString extends MetaPref<String>
 	{
 		return new PrefString();
 	}
+
+    @Override
+    public String getMaxValue()
+    {
+        return null;
+    }
+
+    @Override
+    public String getMinValue()
+    {
+        return null;
+    }
 	
 /*
 	public boolean isWithinRange(String newValue)

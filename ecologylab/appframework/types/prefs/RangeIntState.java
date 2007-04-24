@@ -3,11 +3,15 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
+
 /**
  * @author andruid
  *
  */
-public class RangeIntState extends RangeState<Integer>
+@xml_inherit
+public class RangeIntState extends ElementState /* RangeState<Integer> */
 {
 	@xml_attribute	int		min;
 	@xml_attribute	int		max;
@@ -25,11 +29,34 @@ public class RangeIntState extends RangeState<Integer>
  * @param newValue
  * @return
  */
-	@Override
 	protected boolean isWithinRange(Integer newValue)
 	{
 		int value	= newValue.intValue();
 		return (min <= value) && (value <= max);
+	}
+
+
+	public Integer getMax()
+	{
+	    return this.max;
+	}
+
+
+	public Integer getMin()
+	{
+	    return this.min;
+	}
+
+
+	public void setMax(Integer newValue)
+	{
+	    this.max = newValue;
+	}
+
+
+	public void setMin(Integer newValue)
+	{
+        this.min = newValue;
 	}
 
 }

@@ -4,7 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
-
+import ecologylab.appframework.types.prefs.RangeIntState;
+import ecologylab.appframework.types.prefs.RangeState;
 /**
  * Metadata about an Integer Preference.
  * Defines information to enable editing the Preference.
@@ -18,7 +19,12 @@ public class MetaPrefInt extends MetaPref<Integer>
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	int		defaultValue;
+	@xml_attribute	int		               defaultValue;
+   
+    /**
+     * Min/max values
+     */
+    @xml_nested     RangeIntState          range;
 	
     /**
      * Instantiate.
@@ -48,6 +54,20 @@ public class MetaPrefInt extends MetaPref<Integer>
 	{
 		return new PrefInt();
 	}
+
+    @Override
+    public Integer getMaxValue()
+    {
+        return 100;
+        //return range.getMax();
+    }
+
+    @Override
+    public Integer getMinValue()
+    {
+        return 0;
+        //return range.getMin();
+    }
 	
 /*
 	public boolean isWithinRange(Integer newValue)
