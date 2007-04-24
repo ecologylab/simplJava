@@ -414,6 +414,20 @@ public class TranslationSpace extends Debug
 	   
 	   return (entry == null) ? null : entry.classObj;
    }
+   /**
+    * Get the Class object associated with the provided class name, if there is one.
+    * Unlike xmlTagToClass, this call will not generate a new blank NameEntry.
+    * 
+    * @param className
+    * @return
+    */
+   Class getClassByName(String className)
+   {
+	   TranslationEntry entry		= entriesByClassName.get(className);
+	   
+	   return (entry == null) ? null : entry.classObj;
+   }
+
 /**
  * Find an appropriate XML tag name, based on the type of the object passed.
  * 
