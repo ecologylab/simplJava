@@ -21,7 +21,9 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.SortedMap;
 
 import javax.swing.AbstractAction;
@@ -82,6 +84,7 @@ public class PrefsEditor
 extends Debug
 implements WindowListener, ChangeListener
 {
+    private static final int FLOAT_SLIDER_MODIFIER = 10;
     /**
      * The number of characters/columns at which the tooltips will try to wrap.
      * Actual wrapping will be the nearest space AFTER this number.
@@ -842,8 +845,22 @@ implements WindowListener, ChangeListener
         }
         else if (metaPref.widgetIsSlider())
         {
-            // this can only be used for ints
-            createSlider(panel, metaPref, "slider");
+            if (metaPref.getClassName().equals("MetaPrefInt"))
+            {
+                /* pass in panel, metapref, name/label, and that we are not lying
+                 * about its values
+                 */
+                createSlider(panel, metaPref, "slider", false, 0);
+            }
+            else if (metaPref.getClassName().equals("MetaPrefFloat"))
+            {
+                /* pass in panel, etc, but tell it that we are lying about its
+                 * values and that they should be multiplied/divided by 100 to
+                 * get the real values.
+                 * We have to do this because sliders can only accept int values
+                 */
+                createSlider(panel, metaPref, "slider", true, FLOAT_SLIDER_MODIFIER);
+            }
         }
         else if (metaPref.widgetIsSpinner())
         {
@@ -1010,9 +1027,18 @@ implements WindowListener, ChangeListener
         }
         else if (mp.widgetIsSlider())
         {
-            Integer prefValue = (Integer)pref.value();
-            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
-            jSlider.setValue(prefValue);
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                Integer prefValue = (Integer)pref.value();
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                jSlider.setValue(prefValue);
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                Float prefValue = (Float)pref.value();
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                jSlider.setValue((int)(prefValue*FLOAT_SLIDER_MODIFIER));
+            }
         }
         else if (mp.widgetIsSpinner())
         {
@@ -1160,8 +1186,17 @@ implements WindowListener, ChangeListener
         }
         else if (mp.widgetIsSlider())
         {
-            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
-            jSlider.setValue((Integer)mp.getDefaultValue());
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                jSlider.setValue((Integer)mp.getDefaultValue());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                int alteredDefault = (int)((Float)mp.getDefaultValue()*FLOAT_SLIDER_MODIFIER);
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                jSlider.setValue(alteredDefault);
+            }
         }
         else if (mp.widgetIsSpinner())
         {
@@ -1263,8 +1298,17 @@ implements WindowListener, ChangeListener
         }
         else if (mp.widgetIsSlider())
         {
-            JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
-            return new Integer(jSlider.getValue());
+            if (mp.getClassName().equals("MetaPrefInt"))
+            {
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                return new Integer(jSlider.getValue());
+            }
+            else if (mp.getClassName().equals("MetaPrefFloat"))
+            {
+                JSlider jSlider = (JSlider)lookupComponent(mp,mp.getID()+"slider");
+                int sliderValue = jSlider.getValue();
+                return new Float(((float)sliderValue)/FLOAT_SLIDER_MODIFIER);
+            }
         }
         else if (mp.widgetIsSpinner())
         {
@@ -1530,22 +1574,62 @@ implements WindowListener, ChangeListener
      * 
      * @return JSlider with properties initialized to parameters.
      */
-    protected JSlider createSlider(JPanel panel, MetaPref mp, String labelAndName)
+    protected JSlider createSlider(JPanel panel, MetaPref mp, String labelAndName, boolean valuesAreAltered, int valueAlteredBy)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.LINE_START;
         
-        JSlider jSlider = new JSlider((Integer)mp.getMinValue(),
-                                      (Integer)mp.getMaxValue(),
-                                      (Integer)mp.getDefaultValue());
-        jSlider.setName(labelAndName);
-        jSlider.setMajorTickSpacing(10);
-        jSlider.setMinorTickSpacing(1);
+        JSlider jSlider = new JSlider();
+        if (valuesAreAltered)
+        {
+            // values must be altered by the modifier parameter
+            int newMin = (int)((Float)mp.getMinValue()*FLOAT_SLIDER_MODIFIER);
+            int newMax = (int)((Float)mp.getMaxValue()*FLOAT_SLIDER_MODIFIER);
+            int defVal = (int)((Float)mp.getDefaultValue()*FLOAT_SLIDER_MODIFIER);
+            jSlider.setMinimum(newMin);
+            jSlider.setMaximum(newMax);
+            jSlider.setValue(defVal);
+            jSlider.setMajorTickSpacing(FLOAT_SLIDER_MODIFIER*5);
+            jSlider.setMinorTickSpacing(FLOAT_SLIDER_MODIFIER/5);
+            Float curValue = new Float((float)(jSlider.getValue())/FLOAT_SLIDER_MODIFIER);
+            jSlider.setToolTipText(curValue.toString());
+            
+            // we need to mess with the labels so they display the correct values.
+            Hashtable<Integer,JComponent> labelTable = jSlider.createStandardLabels(FLOAT_SLIDER_MODIFIER*5, newMin);
+            // add a label for the max value to the table if one doesn't exist already
+            if (!labelTable.containsKey(newMax))
+            {
+                Hashtable<Integer,JComponent> maxLabelTable = jSlider.createStandardLabels(FLOAT_SLIDER_MODIFIER*5, newMax);
+                labelTable.putAll(maxLabelTable);
+            }
+            for (Map.Entry<Integer,JComponent> entry : labelTable.entrySet())
+            {
+                // changes here ARE reflected in labelTable
+                JLabel label = (JLabel)entry.getValue();
+                Float value = new Float(label.getText());
+                value = value/FLOAT_SLIDER_MODIFIER;
+                label.setText(value.toString());
+            }
+            jSlider.setLabelTable(labelTable);
+            jSlider.setName(labelAndName+"thisisafloat");
+        }
+        else
+        {
+            // default behavior
+            jSlider.setMinimum((Integer)mp.getMinValue());
+            jSlider.setMaximum((Integer)mp.getMaxValue());
+            jSlider.setValue((Integer)mp.getDefaultValue());
+            jSlider.setMajorTickSpacing(10);
+            jSlider.setMinorTickSpacing(1);
+            Integer curValue = jSlider.getValue();
+            jSlider.setToolTipText(curValue.toString());
+            jSlider.setName(labelAndName);
+        }
+        
+        
         jSlider.setPaintTicks(true);
         jSlider.setPaintLabels(true);
-        Integer curValue = jSlider.getValue();
-        jSlider.setToolTipText(curValue.toString());
         jSlider.addChangeListener(this);
         c.gridx = 0;
         c.gridy = 0;
@@ -1766,8 +1850,17 @@ implements WindowListener, ChangeListener
     public void stateChanged(ChangeEvent e)
     {
         JSlider source = (JSlider)e.getSource();
-        Integer curVal = source.getValue();
-        source.setToolTipText(curVal.toString());
+        String name = source.getName();
+        Float curVal = new Float(source.getValue());
+        if (name.indexOf("thisisafloat")!=-1)
+        {
+            curVal = curVal/FLOAT_SLIDER_MODIFIER;
+            source.setToolTipText(curVal.toString());
+        }
+        else
+        {
+            source.setToolTipText(curVal.toString());
+        }
         Action action = source.getActionMap().get("postTip");
         if (action != null) 
         {

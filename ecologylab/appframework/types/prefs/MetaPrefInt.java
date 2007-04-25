@@ -58,15 +58,13 @@ public class MetaPrefInt extends MetaPref<Integer>
     @Override
     public Integer getMaxValue()
     {
-        return 100;
-        //return range.getMax();
+        return range.getMax();
     }
 
     @Override
     public Integer getMinValue()
     {
-        return 0;
-        //return range.getMin();
+        return range.getMin();
     }
 	
 /*

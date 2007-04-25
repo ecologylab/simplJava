@@ -24,7 +24,7 @@ public class MetaPrefFloat extends MetaPref<Float>
     /**
      * Min/max values
      */
-    //@xml_nested     RangeState<Float>   range;
+    @xml_nested     RangeFloatState     range;
 	
     /**
      * Instantiate.
@@ -58,15 +58,13 @@ public class MetaPrefFloat extends MetaPref<Float>
     @Override
     public Float getMaxValue()
     {
-        return null;
-        //return range.max;
+        return range.getMax();
     }
 
     @Override
     public Float getMinValue()
     {
-        return null;
-        //return range.min;
+        return range.getMin();
     }
 	
 /*
