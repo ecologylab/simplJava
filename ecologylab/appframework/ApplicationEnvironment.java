@@ -401,7 +401,7 @@ implements Environment, XmlTranslationExceptionTypes
 				{
 					metaPrefSetException	= e;
 				}
-				ParsedURL prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
+				prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
 
 	            //TODO for eunyee -- test for studies preference and download special studies preferences
 				// When the JNLP has more than two arguments (study case) -- eunyee
@@ -486,7 +486,7 @@ implements Environment, XmlTranslationExceptionTypes
 					File appPrefsFile	= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
 					ParsedURL prefsPURL	= new ParsedURL(appPrefsFile);
 		            try
-					{
+					{            	
 						prefSet 		= PrefSet.load(prefsPURL, translationSpace);
 						if (metaPrefSetException != null)
 						{
