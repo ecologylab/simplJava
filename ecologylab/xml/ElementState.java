@@ -1287,6 +1287,9 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap<String, ElementState>();
 		   	  	 rootState.translateFromXML(xmlNode, stateClass, translationSpace, doRecursiveDescent);
+           
+                 rootState.postTranslationProcessingHook();
+                 
 		   	  	 return rootState;
 		   	  }
 		   }
@@ -2050,7 +2053,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * @author andruid
 	 */
 	protected class ClassToCollectionMap
-	extends HashMap
+	extends HashMap<String, Collection>
 	{
 		public ClassToCollectionMap(Object[][] mappings)
 		{
@@ -2239,6 +2242,24 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
      *
      */
     protected void preTranslationProcessingHook()
+    {
+
+    }
+    
+    /**
+     * Perform custom processing immediately after all translation from XML is
+     * completed. This allows a newly-created ElementState object to perform any
+     * post processing with all the data it will have from XML.
+     * <p/>
+     * This method is called by ParseTableEntry.createChildElement() or
+     * translateToXML depending on whether the element in question is a child or
+     * the top-level parent.
+     * <p/>
+     * This, the default implementation, does nothing. Sub-classes may wish to
+     * override.
+     * 
+     */
+    protected void postTranslationProcessingHook()
     {
 
     }

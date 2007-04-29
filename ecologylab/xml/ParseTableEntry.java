@@ -325,6 +325,7 @@ implements ParseTableEntryTypes
 	{
 		ElementState childElementState = parent.getChildElementState(node, classOp, translationSpace);
 		parent.createChildHook(childElementState);
+        childElementState.postTranslationProcessingHook();
 		return childElementState;
 	}
 	
