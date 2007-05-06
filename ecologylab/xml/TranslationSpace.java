@@ -33,8 +33,18 @@ public class TranslationSpace extends Debug
 	*/
    private boolean			emitPackageNames	= false;
    
-   private HashMap<String, TranslationEntry>			entriesByClassName	= new HashMap<String, TranslationEntry>();
-   private HashMap<String, TranslationEntry>			entriesByTag		= new HashMap<String, TranslationEntry>();
+   /**
+    * Fundamentally, a TranslationSpace consists of a set of class simple names.
+    * These are mapped to tag names (camel case conversion), and to Class objects.
+    * Because there are many packages, globally, there could be more than one class
+    * with one single name.
+    * <p/>
+    * Among other things, a TranslationSpace tells us *which* package's version will be used,
+    * if there are multiple possibilities. This is the case when internal and external versions of
+    * a message and its constituents are defined for a messaging API.
+    */
+   private HashMap<String, TranslationEntry>	entriesByClassSimpleName	= new HashMap<String, TranslationEntry>();
+   private HashMap<String, TranslationEntry>	entriesByTag				= new HashMap<String, TranslationEntry>();
    
    private static HashMap<String, TranslationSpace>	allTranslationSpaces	= new HashMap<String, TranslationSpace>();
       
@@ -287,8 +297,8 @@ public class TranslationSpace extends Debug
 		   {
 			   TranslationEntry translationEntry = translationEntriesIterator.next();
 
-               if (entriesByClassName().containsKey(translationEntry.className))	// look out for redundant entries
-				   debug("WARNING: overriding with " + translationEntry);
+               if (entriesByClassSimpleName.containsKey(translationEntry.classSimpleName))	// look out for redundant entries
+				   warning("Overriding with " + translationEntry);
 			   //debug("adding inherited translation: " + "<"+translationEntry.tag + "/>\t" + translationEntry.className);
 			   //addTranslation(nameEntry.classObj);
 			   addTranslation(translationEntry);
@@ -304,7 +314,7 @@ public class TranslationSpace extends Debug
 	*/
    public void addTranslation(Class classObj)
    {
-	   new TranslationEntry(classObj.getPackage().getName(), classObj);
+	   new TranslationEntry(classObj, classSimpleName(classObj));
    }
 
    
@@ -366,7 +376,7 @@ public class TranslationSpace extends Debug
    private void addTranslation(TranslationEntry translationEntry)
    {
 	   this.entriesByTag.put(translationEntry.tag, translationEntry);
-	   this.entriesByClassName.put(translationEntry.className, translationEntry);
+	   this.entriesByClassSimpleName.put(translationEntry.classSimpleName, translationEntry);
    }
    
    /**
@@ -418,14 +428,27 @@ public class TranslationSpace extends Debug
     * Get the Class object associated with the provided class name, if there is one.
     * Unlike xmlTagToClass, this call will not generate a new blank NameEntry.
     * 
-    * @param className
+    * @param classSimpleName	Simple name of the class (no package).
     * @return
     */
-   Class getClassByName(String className)
+   Class getClassBySimpleName(String classSimpleName)
    {
-	   TranslationEntry entry		= entriesByClassName.get(className);
+	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
 	   
 	   return (entry == null) ? null : entry.classObj;
+   }
+   /**
+    * Use this TranslationSpace to lookup a class that has the same simple name
+    * as the argument passed in here. It may have a different full name, that is,
+    * a different package, which could be quite convenient for overriding with 
+    * subclasses.
+    * 
+    * @param thatClass
+    * @return
+    */
+   Class getClassBySimpleNameOfClass(Class thatClass)
+   {
+	   return getClassBySimpleName(classSimpleName(thatClass));
    }
 
 /**
@@ -445,12 +468,12 @@ public class TranslationSpace extends Debug
    public String classToXmlTag(Class classObj)
    {
 	  String className	= classObj.getName();
-	  TranslationEntry entry	= (TranslationEntry) entriesByClassName.get(className);
+	  TranslationEntry entry	= (TranslationEntry) entriesByClassSimpleName.get(className);
 	  if (entry == null)
 	  {
 	  	 synchronized (this) 
 	  	 {
-	  	 	 entry	= (TranslationEntry) entriesByClassName.get(className);
+	  	 	 entry	= (TranslationEntry) entriesByClassSimpleName.get(className);
 	  	 	 if (entry == null)
 	  	 	 {
 				 String packageName = classObj.getPackage().getName();
@@ -490,7 +513,7 @@ public class TranslationSpace extends Debug
 	   while (translationEntriesIterator.hasNext())
 	   {
 		   TranslationEntry nameEntry = (TranslationEntry) translationEntriesIterator.next();
-		   if (!entriesByClassName().containsKey(nameEntry.className))	// look out for redundant entries
+		   if (!entriesByClassSimpleName.containsKey(nameEntry.classSimpleName))	// look out for redundant entries
 			   addTranslation(nameEntry.classObj);
 		   else
 			   debug("WARNING: union() not overriding " + nameEntry);
@@ -504,14 +527,19 @@ public class TranslationSpace extends Debug
     */
    private Iterator<TranslationEntry> entriesByClassIterator()
    {
-	   Collection<TranslationEntry> values = entriesByClassName().values();
+	   Collection<TranslationEntry> values = entriesByClassSimpleName.values();
 	   return values.iterator();
    }
 
    public class TranslationEntry extends Debug
    {
 	  public final String		packageName;
-	  public final String		className;
+	  /**
+	   * Should this be whole class name, or simple/short class name?
+	   */
+	  public final String		classSimpleName;
+	  
+	  public final String		classWholeName;
 	  public final String		tag;
 
 	  public final String		dottedPackageName;
@@ -531,18 +559,31 @@ public class TranslationSpace extends Debug
 	  /**
 	   * Create the entry by package name and class name.
 	   */
-	  public TranslationEntry(String packageName, Class classObj)
+	  public TranslationEntry(Class classObj, String classSimpleName)
 	  {
-		  this(packageName, getClassName(classObj),
-				  XmlTools.getXmlTagName(getClassName(classObj), "State", false), classObj);
+		  this(classObj.getPackage().getName(), classSimpleName, classObj.getName(),
+				  XmlTools.getXmlTagName(classSimpleName, "State", false), classObj);
 	  }
 	  
-	  public TranslationEntry(String packageName, String className, 
-					   String tag, Class classObj)
+	  public TranslationEntry(String packageName, String classSimpleName, 
+					   		  String tag, Class classObj)
 	  {
-	  	 final String wholeClassName	= packageName + "." + className;
+	  	 this(packageName, classSimpleName, packageName + "." + classSimpleName, tag, classObj);
+	  }
+	  
+	  public TranslationEntry(String packageName, String classSimpleName, String classWholeName,
+			   				  String tag, Class classObj)
+{
 		 this.packageName		= packageName;
-		 this.className			= wholeClassName;
+		 // changed by andruid 5/5/07
+		 // the thinking is that there is only one possible simple class name per tag per TranslationSpace,
+		 // so we don't ever need the whole class name.
+		 // and by ussing the short one, we will be able to support 
+		 // fancy overriding properly, where you change (override!) the mapping of a simple name,
+		 // because the package and whole name are differrent.
+		 this.classSimpleName	= classSimpleName;
+		 this.classWholeName	= classWholeName;
+//		 this.className			= wholeClassName;
 		 this.tag				= tag;
 		 String dottedPackageName		= packageName + ".";
 		 this.dottedPackageName	= dottedPackageName;
@@ -551,14 +592,14 @@ public class TranslationSpace extends Debug
 		 {
 			 try
 			 {  
-				classObj			= Class.forName(wholeClassName);
+				classObj			= Class.forName(classWholeName);
 			 } catch (ClassNotFoundException e)
 			 {
 				// maybe we need to use State
 				try
 				{
 				   //debug("trying " + wholeClassName+"State");
-				   classObj			= Class.forName(wholeClassName+"State");
+				   classObj			= Class.forName(classWholeName+"State");
 				} catch (ClassNotFoundException e2)
 				{
 				   debug("WARNING: can't find class object, create empty entry.");
@@ -572,30 +613,33 @@ public class TranslationSpace extends Debug
 		 }
 		 this.classObj			= classObj;
 
-		 registerTranslation(tag, wholeClassName);
+		 registerTranslation(tag, classSimpleName);
 //		 else
 //			debug("create entry");
 	  }
 	/**
 	 * @param tag
-	 * @param wholeClassName
+	 * @param classSimpleName
 	 */
-	private void registerTranslation(String tag, String wholeClassName)
+	private void registerTranslation(String tag, String classSimpleName)
 	{
 		entriesByTag.put(tag, this);
-		 entriesByClassName.put(wholeClassName, this);
-		 if (wholeClassName.endsWith("State"))
-		 {
-			int beforeState		= wholeClassName.length() - 5;
+		entriesByClassSimpleName.put(classSimpleName, this);
+		/*
+		 * i dont see why this is here. it looks wrong. -- andruid 5/6/07.
+		if (classSimpleName.endsWith("State"))
+		{
+			int beforeState		= classSimpleName.length() - 5;
 			String wholeClassNameNoState = 
-			   wholeClassName.substring(0, beforeState);
+				classSimpleName.substring(0, beforeState);
 //			debug("create entry including " + wholeClassNameNoState);
-			entriesByClassName.put(wholeClassNameNoState, this);
-		 }
+			entriesByClassSimpleName.put(wholeClassNameNoState, this);
+		}
+		*/
 	}
 	private void registerTranslation()
 	{
-		registerTranslation(this.tag, this.className);
+		registerTranslation(this.tag, this.classSimpleName);
 	}
 	  public String getTag()
 	  {
@@ -604,7 +648,7 @@ public class TranslationSpace extends Debug
 	  public String toString()
 	  {
 		  StringBuilder buffy = new StringBuilder(50);
-		 buffy.append("NameEntry[").append(className).
+		 buffy.append("NameEntry[").append(classSimpleName).
 			append(" <").append(tag).append('>');
 		 if (classObj != null)
 			buffy.append(' ').append(classObj);
@@ -639,21 +683,30 @@ public class TranslationSpace extends Debug
 	   return (result != null) ? result : new TranslationSpace(name, name);
    }
    
-   private static TranslationSpace lookupAndCheckDefaultPackage(String name, String defaultPackageName)
+   /**
+    * Look for a TranslationSpace with this name.
+    * If you find one, make sure it also has the same defaultPackageName (internal consistency check).
+    * Throw a RuntimeExcpection if the consistency check fails.
+    * 
+    * @param 	name
+    * @param 	defaultPackageName
+    * @return	existing translations
+    */
+   private static TranslationSpace lookForExistingTS(String name, String defaultPackageName)
    {
 	   TranslationSpace result	= lookup(name);
 	   if (result != null)
-	   {
+	   {  // existing TranslationSpace
 		  if (defaultPackageName != null)
-		  {
+		  {	 // check for package name consistency
 			 String resultDefaultPackageName = result.defaultPackageName;
 			 if (!resultDefaultPackageName.equals(defaultPackageName))
-				throw new RuntimeException("TranslationSpace ERROR: Existing TranslationSpace " + name +
+				throw new RuntimeException("TranslationSpace Consistency Check ERROR: Existing TranslationSpace " + name +
 					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
 		  }
+		  else
+			  println("Returning existing TranslationSpace; " + name);
 	   }
-	   else
-		   println("Returning existing TranslationSpace; " + name);
 	   return result;
    }
    /**
@@ -667,7 +720,7 @@ public class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, String defaultPackageName)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
 		   result	= new TranslationSpace(name, defaultPackageName);
@@ -688,7 +741,7 @@ public class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, String defaultPackageName, String[][] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, defaultPackageName, translations);
@@ -704,7 +757,7 @@ public class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String defaultPackageName, Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(defaultPackageName, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(defaultPackageName, defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(defaultPackageName, defaultPackageName, translations);
@@ -725,7 +778,7 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace inheritedTranslations,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslations, translations);
@@ -759,7 +812,7 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
@@ -830,7 +883,7 @@ public class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslationsSet, Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, name);
+	   TranslationSpace result	= lookForExistingTS(name, name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
@@ -850,7 +903,7 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
@@ -870,7 +923,7 @@ public class TranslationSpace extends Debug
    public static TranslationSpace get(String name, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookupAndCheckDefaultPackage(name, name);
+	   TranslationSpace result	= lookForExistingTS(name, name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
@@ -891,7 +944,7 @@ public class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, String defaultPackageName, Class[] translations)
    {
-	  TranslationSpace result	= lookupAndCheckDefaultPackage(name, defaultPackageName);
+	  TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	  if (result == null)
 	  {
 		  result		= new TranslationSpace(name, defaultPackageName, translations);
@@ -917,7 +970,7 @@ public class TranslationSpace extends Debug
    
    protected HashMap<String, TranslationEntry> entriesByClassName()
    {
-	   return entriesByClassName;
+	   return entriesByClassSimpleName;
    }
    
 	/**
