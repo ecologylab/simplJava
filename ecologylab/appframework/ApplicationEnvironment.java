@@ -882,4 +882,21 @@ implements Environment, XmlTranslationExceptionTypes
 	{
 		return this.launchType;
 	}
+	
+/**
+ * 
+ * @return	MetaPrefSet for this application, loaded from standard locations.
+ */
+	protected MetaPrefSet metaPrefSet()
+	{
+		return metaPrefSet;
+	}
+	/**
+	 * 
+	 * @return	The set of <code>Pref</code>s associated with this application.
+	 */
+	protected PrefSet prefSet()
+	{
+		return prefSet;
+	}
 }
