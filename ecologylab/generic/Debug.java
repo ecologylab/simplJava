@@ -190,15 +190,18 @@ public class Debug
  */
    public static void printlnA(Class c, String message) 
    {
-      println(getClassName(c)+SEPARATOR + message);
+      println(classSimpleName(c)+SEPARATOR + message);
    }
 
    static char PERIOD	= 	'.';
    static char SPACE	=	' ';
 /**
+ * This actually seems to be much more efficient than Class. getSimpleName(),
+ * because we are smart about using lazy evaluation and caching results in a HashMap.
+ * 
  * @return   the abbreviated name of the class - without the package qualifier.
  */
-   public static String getClassName(Class thatClass)
+   public static String classSimpleName(Class thatClass)
    {
       String abbrevName	= (String) classAbbrevNames.get(thatClass); 
       if (abbrevName == null)
@@ -236,7 +239,7 @@ public class Debug
  */
    public static String getClassName(Object o)
    {
-      return (o == null) ? "null" : getClassName(o.getClass());
+      return (o == null) ? "null" : classSimpleName(o.getClass());
    }
 /**
  * @return  the abbreviated name of this class - without the package qualifier.
