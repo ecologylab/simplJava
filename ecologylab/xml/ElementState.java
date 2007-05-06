@@ -2066,7 +2066,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 					Class thatClass				= (Class) thatMapping[0];
 					Collection thatCollection	= (Collection) thatMapping[1];
 //					put(thatClass.getSimpleName(), thatCollection);
-					put(Debug.getClassName(thatClass), thatCollection);
+					put(Debug.classSimpleName(thatClass), thatCollection);
 				} catch (ClassCastException e)
 				{
 					debug("ERROR in ClassToCollectionMap initializer("+i+" has wrong type:\n\t"+
@@ -2080,7 +2080,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		}
 		public Collection lookup(Class thatClass)
 		{
-			return lookup(getClassName(thatClass));
+			return lookup(classSimpleName(thatClass));
 		}
 	}
 

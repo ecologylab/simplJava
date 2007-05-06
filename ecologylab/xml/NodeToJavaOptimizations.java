@@ -158,10 +158,14 @@ implements ParseTableEntryTypes
 					// 2) use it as a key into the TranslationSpace (seeking an override)
 					// 3) if that fails, then just use the Class from the field.
 					Class fieldClass			= field.getType();
-					String classNameFromField	= fieldClass.getSimpleName();
-					Class classFromTS			= translationSpace.getClassByName(classNameFromField);
-					
-					this.classOp	= (classFromTS != null) ? classFromTS : fieldClass;
+					Class classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
+					if (classFromTS == null)
+					{
+						this.classOp	= fieldClass;
+						//TODO - if warnings mode, warn user that class is not in the TranslationSpace
+					}
+					else// the way it should be :-)
+						this.classOp	= classFromTS;
 					return;
 				}
 				// no field object, so we must continue to check stuff out!
