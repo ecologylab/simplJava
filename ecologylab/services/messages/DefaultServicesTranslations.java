@@ -9,6 +9,7 @@ import ecologylab.services.logging.Prologue;
 import ecologylab.services.logging.SendEpilogue;
 import ecologylab.services.logging.SendPrologue;
 import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.types.element.ElementTypeTranslations;
 
 /**
  * Provide XML translation mappings for use in processing CF services requests.
@@ -17,8 +18,6 @@ import ecologylab.xml.TranslationSpace;
  */
 public class DefaultServicesTranslations extends Debug
 {
-	public static final String	NAME			= "ecologylab.services";
-	
 	public static final String	PACKAGE_NAME	= "ecologylab.services.messages";
 
 	public static final Class	TRANSLATIONS[]	= 
@@ -41,11 +40,6 @@ public class DefaultServicesTranslations extends Debug
 		PingRequest.class,
 		UrlMessage.class,
 		
-		//TODO -- get rid of these!
-		Preference.class,
-		PreferencesSet.class,
-		SetPreferences.class,
-		
 	};
 	
 	/**
@@ -61,6 +55,6 @@ public class DefaultServicesTranslations extends Debug
 	 */
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(NAME, PACKAGE_NAME, TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, ElementTypeTranslations.get(), TRANSLATIONS);
 	}
 }

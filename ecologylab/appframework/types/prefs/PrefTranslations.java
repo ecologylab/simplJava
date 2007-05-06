@@ -5,6 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.types.element.ArrayListState;
+import ecologylab.xml.types.element.ElementTypeTranslations;
 /**
  * Translations for the pref/meta_pref system.
  * 
@@ -43,13 +45,13 @@ public class PrefTranslations extends Debug
         
         RangeState.class,
         RangeIntState.class,
+        RangeFloatState.class,
+        
         
         Choice.class,
         ChoiceInt.class,
         ChoiceBoolean.class,
         ChoiceFloat.class,
-        
-		
 	};
 
 	/**
@@ -64,7 +66,7 @@ public class PrefTranslations extends Debug
      */
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, ElementTypeTranslations.get(), TRANSLATIONS);
 	}
 
 }
