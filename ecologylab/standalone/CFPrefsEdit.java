@@ -33,21 +33,22 @@ public class CFPrefsEdit extends ApplicationEnvironment
 	
 	public CFPrefsEdit(String[] args) throws XmlTranslationException 
 	{
-		super("ecologyLabFundamental", DefaultServicesTranslations.get(), args);
+		super("ecologyLabFundamental", PrefTranslations.get(), args);
 		
         // TODO method for this to get prefs dir
-		ParsedURL metaPrefsPURL = this.preferencesDir().getRelative("metaprefs.xml", "");
-        ParsedURL prefsPURL = this.preferencesDir().getRelative("prefs.xml", "");
+		//ParsedURL metaPrefsPURL = this.preferencesDir().getRelative("metaprefs.xml", "");
+        //ParsedURL prefsPURL = this.preferencesDir().getRelative("prefs.xml", "");
+		PrefsEditor mgr = this.createPrefsEditor();
 
-		try 
+/*		try 
 		{
-			println("Loading meta-preferences from: " + metaPrefsPURL);
-			TranslationSpace prefTranslations = PrefTranslations.get();
-			MetaPrefSet metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, prefTranslations);
-            println("Loading preferences from: " + prefsPURL);
-            PrefSet prefSet = PrefSet.load(prefsPURL, prefTranslations);
+//			println("Loading meta-preferences from: " + metaPrefsPURL);
+//			TranslationSpace prefTranslations = PrefTranslations.get();
+//			MetaPrefSet metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, prefTranslations);
+//            println("Loading preferences from: " + prefsPURL);
+//            PrefSet prefSet = PrefSet.load(prefsPURL, prefTranslations);
 
-            PrefsEditor mgr = new PrefsEditor(metaPrefSet, prefSet, prefsPURL, true);
+//            PrefsEditor mgr = new PrefsEditor(metaPrefSet(), prefSet(), prefsPURL, true);
             // could also call: JFrame jFrame = mgr.fetchJFrame();
 		}
 		catch (XmlTranslationException e)
@@ -55,6 +56,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
 			error(metaPrefsPURL, "Caught exception while reading meta-preferences:");
 			e.printStackTrace();
 		}
+ */		
 	}
 	/**
 	 * @param args
