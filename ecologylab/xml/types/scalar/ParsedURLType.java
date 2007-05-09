@@ -28,9 +28,10 @@ public class ParsedURLType extends ScalarType<ParsedURL>
 	}
 
 	/**
-	 * @param value is interpreted as hex-encoded RGB value, in the
-	 * same style as HTML & CSS. A # character at the start is unneccesary,
-	 * but acceptable.
+	 * Looks for file in value, and creates a ParsedURL with file set if appropriate.
+	 * Otherwise, calls ParsedURL.getAbsolute().
+	 * 
+	 * @param value 	String to marshall into a typed instance.
 	 * 
 	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
