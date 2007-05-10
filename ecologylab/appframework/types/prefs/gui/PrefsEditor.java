@@ -31,6 +31,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -56,6 +57,8 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
@@ -73,6 +76,7 @@ import ecologylab.appframework.types.prefs.MetaPrefString;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.Debug;
+import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.types.element.ArrayListState;
@@ -88,14 +92,52 @@ public class PrefsEditor
 extends Debug
 implements WindowListener, ChangeListener
 {
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
+    private static final String IDENTIFIER_CHECK_BOX = "checkBox";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_BOOLEAN_NO = "No";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_BOOLEAN_YES = "Yes";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_FILE_CHOOSER = "fileChooser";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_COLOR_CHOOSER = "colorChooser";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_SPINNER = "spinner";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_SLIDER = "slider";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_DROPDOWN = "dropdown";
+    /**
+     * The string that will be added to the metapref's id, to create
+     * a unique identifier for a jComponent.
+     */
     private static final String IDENTIFIER_TEXT_FIELD = "textField";
+    
     /**
      * The amount by which floats should be multiplied for use with sliders.
      * If this number is 10, you will be able to see the 1 digit after the
@@ -528,7 +570,7 @@ implements WindowListener, ChangeListener
                             JSeparator sep = (JSeparator)this.getComponent(i+2);
 
                             FontMetrics fm = desc.getFontMetrics(desc.getFont());
-                            int actualWidth = (this.getWidth()-val.getWidth());
+                            int actualWidth = (this.getWidth()-val.getWidth())-LEFT_GUI_INSET;
                             int stringWidth = SwingUtilities.computeStringWidth(fm, desc.getText());
                             
                             desc.setPreferredSize(new Dimension(actualWidth,((stringWidth/actualWidth)+1)*fm.getHeight()));
@@ -614,8 +656,7 @@ implements WindowListener, ChangeListener
         
         if (metaPref.widgetIsTextField())
         {
-            createTextField(panel, metaPref, metaPref.getDefaultValue().toString(),
-                            IDENTIFIER_TEXT_FIELD, 0, 0);
+            createTextField(panel, metaPref);
         }
         else if (metaPref.widgetIsRadio())
         {
@@ -632,10 +673,10 @@ implements WindowListener, ChangeListener
         {
             createDropDown(panel, metaPref);
         }
-        else if (metaPref.widgetIsCheckBoxes())
+        else if (metaPref.widgetIsCheckBox())
         {
             // not implemented right now
-            System.err.println("Checkbox widgets are not implemented at this time");
+            createCheckBox(panel, metaPref);
         }
         else if (metaPref.widgetIsSlider())
         {
@@ -712,54 +753,22 @@ implements WindowListener, ChangeListener
             }
             else
             {
-                /* This is an ugly way to do this, but we can't trust
-                 * choices to be in the right order (0-n), and we can't
-                 * trust the choice values to be number 0-n either.
-                 * We also can't get the index without the object.
-                 */
-                // find default choice
-                Object prefValue = pref.value();
-                ArrayListState<Choice<Object>> choices = mp.getChoices();
-                for(Choice choice1 : choices)
-                {
-                    if (prefValue.equals(choice1.getValue()))
-                    {
-                        // registered name
-                        String regName = mp.getID() + choice1.getName();
-                        //println("we think the name is: " + regName);
-                        JRadioButton defaultButton = (JRadioButton) lookupComponent(mp,regName);
-                        ButtonModel buttonModel = defaultButton.getModel();
-                        buttonModel.setSelected(true);
-                        break;
-                    }
-                }
+                // registered name
+                String regName = mp.getID() + mp.getChoiceNameByValue(pref.value().toString());
+                JRadioButton defaultButton = (JRadioButton) lookupComponent(mp,regName);
+                ButtonModel buttonModel = defaultButton.getModel();
+                buttonModel.setSelected(true);
             }
         }
         else if (mp.widgetIsDropDown())
         {
-            /* This is an ugly way to do this, but we can't trust
-             * choices to be in the right order (0-n), and we can't
-             * trust the choice values to be numbered 0-n either.
-             * We also can't get the index without the object.
-             */
-            Object prefValue = pref.value();
-            ArrayListState<Choice<Object>> choices = mp.getChoices();
-            int defIndex = 0;
-            for(Choice choice : choices)
-            {
-                //System.out.print(prefValue + ", " + choice1.getValue() + "\n");
-                if (prefValue.equals(choice.getValue()))
-                {
-                    JComboBox comboBox = (JComboBox)lookupComponent(mp, mp.getID() + IDENTIFIER_DROPDOWN);
-                    comboBox.setSelectedIndex(defIndex);
-                    break;
-                }
-                defIndex++;
-            }
+            JComboBox comboBox = (JComboBox)lookupComponent(mp, mp.getID() + IDENTIFIER_DROPDOWN);
+            comboBox.setSelectedIndex(mp.getIndexByValue(pref.value().toString()));
         }
-        else if (mp.widgetIsCheckBoxes())
+        else if (mp.widgetIsCheckBox())
         {
-            // not implemented right now
+            JCheckBox checkBox = (JCheckBox)lookupComponent(mp, mp.getID() + IDENTIFIER_CHECK_BOX);
+            checkBox.setSelected((Boolean)pref.value());
         }
         else if (mp.widgetIsSlider())
         {
@@ -832,55 +841,22 @@ implements WindowListener, ChangeListener
             }
             else
             {
-                /* This is an ugly way to do this, but we can't trust
-                 * choices to be in the right order (0-n), and we can't
-                 * trust the choice values to be number 0-n either.
-                 * We also can't get the index without the object.
-                 */
-                // get default choice
-                ArrayListState<Choice<Object>> choices = mp.getChoices();
-                Object defValue = mp.getDefaultValue();
-                for(Choice choice1 : choices)
-                {
-                    if (defValue.equals(choice1.getValue()))
-                    {
-                        // registered name
-                        String regName = mp.getID() + choice1.getName();
-                        //println("we think the name is: " + regName);
-                        JRadioButton defaultButton = (JRadioButton)lookupComponent(mp,regName);
-                        ButtonModel buttonModel = defaultButton.getModel();
-                        buttonModel.setSelected(true);
-                        break;
-                    }
-                }
+                String regName = mp.getID() + mp.getChoiceNameByValue(mp.getDefaultValue().toString());
+                //println("we think the name is: " + regName);
+                JRadioButton defaultButton = (JRadioButton)lookupComponent(mp,regName);
+                ButtonModel buttonModel = defaultButton.getModel();
+                buttonModel.setSelected(true);
             }
         }
         else if (mp.widgetIsDropDown())
         {
-            /* This is an ugly way to do this, but we can't trust
-             * choices to be in the right order (0-n), and we can't
-             * trust the choice values to be number 0-n either.
-             * We also can't get the index without the object.
-             */
-            // get default choice
-            ArrayListState<Choice<Object>> choices = mp.getChoices();
-            Object defValue = mp.getDefaultValue();
-            int defIndex = 0;
-            for(Choice choice : choices)
-            {
-                if (defValue.equals(choice.getValue()))
-                {
-                    JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+IDENTIFIER_DROPDOWN);
-                    comboBox.setSelectedIndex(defIndex);
-                    break;
-                }
-                defIndex++;
-            }
+            JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+IDENTIFIER_DROPDOWN);
+            comboBox.setSelectedIndex(mp.getIndexByValue(mp.getDefaultValue().toString()));
         }
-        else if (mp.widgetIsCheckBoxes())
+        else if (mp.widgetIsCheckBox())
         {
-            // not implemented right now
-            System.err.println("Checkbox widgets are not implemented right now");
+            JCheckBox checkBox = (JCheckBox)lookupComponent(mp, mp.getID() + IDENTIFIER_CHECK_BOX);
+            checkBox.setSelected((Boolean)mp.getDefaultValue());
         }
         else if (mp.widgetIsSlider())
         {
@@ -946,8 +922,10 @@ implements WindowListener, ChangeListener
             }
             else
             {
-//              find the selected one and return it
-                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                // TODO: if we could fetch the ButtonGroup, we could do
+                //       this more efficiently.
+                // find the selected one and return it
+                ArrayListState<Choice<Object>> choices = mp.getChoices();
                 for (Choice choice: choices)
                 {
                     String regName = mp.getID() + choice.getName();
@@ -979,10 +957,10 @@ implements WindowListener, ChangeListener
                 return new Integer(comboBox.getSelectedIndex());
             }
         }
-        else if (mp.widgetIsCheckBoxes())
+        else if (mp.widgetIsCheckBox())
         {
-            // not implemented right now
-            System.err.println("Checkbox widgets are not implemented at this time");
+            JCheckBox checkBox = (JCheckBox)lookupComponent(mp, mp.getID() + IDENTIFIER_CHECK_BOX);
+            return new Boolean(checkBox.isSelected());
         }
         else if (mp.widgetIsSlider())
         {
@@ -1158,7 +1136,10 @@ implements WindowListener, ChangeListener
         JLabel label = new JLabel();
         String wrapText = "<html>" + mp.getDescription() + "</html>";
         label.setText(wrapText);
-        //label.setIcon(UIManager.getIcon("FileChooser.detailsViewIcon"));
+        File prefsRoot = Assets.getAsset("preferences");
+        File imgFile = new File(prefsRoot, "question1.png");
+        ImageIcon imgIcon = new ImageIcon(imgFile.getAbsolutePath());
+        label.setIcon(imgIcon);
         
         //nasty workaround because there is no API option to wrap tooltips
         String formattedToolTip = wrapTooltip(mp);
@@ -1273,14 +1254,11 @@ implements WindowListener, ChangeListener
      * Creates a text field.
      * 
      * @param panel         JPanel this field will be associated with.
-     * @param initialValue  String value this field initially contains.
-     * @param labelAndName  Name of text field
-     * @param row           Row this field is in for GridBagLayout
-     * @param col           Column this field is in for GridBagLayout
+     * @param mp            MetaPref this field is for.
      * 
      * @return JTextField with properties initialized to parameters.
      */
-    protected JTextField createTextField(JPanel panel, MetaPref mp, String initialValue, String labelAndName, int row, int col)
+    protected JTextField createTextField(JPanel panel, MetaPref mp)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
@@ -1288,10 +1266,10 @@ implements WindowListener, ChangeListener
         
         JTextField textField = new JTextField();
         textField.setHorizontalAlignment(JTextField.CENTER);
-        textField.setText(initialValue);
-        textField.setName(labelAndName);
-        c.gridx = col;
-        c.gridy = row;
+        textField.setText(mp.getDefaultValue().toString());
+        textField.setName(IDENTIFIER_TEXT_FIELD);
+        c.gridx = 0;
+        c.gridy = 0;
         c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
         c.ipadx = TEXT_FIELD_PADDING;
         
@@ -1301,7 +1279,7 @@ implements WindowListener, ChangeListener
         ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
-            registerComponent(mp, labelAndName, textField);
+            registerComponent(mp, IDENTIFIER_TEXT_FIELD, textField);
         }
         
         return textField;
@@ -1312,26 +1290,21 @@ implements WindowListener, ChangeListener
      * 
      * @param panel         JPanel this button will be associated with.
      * @param mp            MetaPref this checkbox is being created for.
-     * @param initialValue  boolean; true=selected. false=not selected.
-     * @param label         Text label for button
-     * @param name          Name of button
-     * @param row           Row this button is in for GridBagLayout
-     * @param col           Column this button is in for GridBagLayout
      * 
      * @return JCheckBox with properties initialized to parameters.
      */
-    protected JCheckBox createCheckBox(JPanel panel, MetaPref mp, boolean initialValue, String label, String name, int row, int col)
+    protected JCheckBox createCheckBox(JPanel panel, MetaPref mp)
     {
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.LINE_START;
         
-        JCheckBox checkBox = new JCheckBox(label);
+        JCheckBox checkBox = new JCheckBox();
         
-        checkBox.setSelected(initialValue);
-        checkBox.setName(name);
-        c.gridx = col;
-        c.gridy = row;
+        checkBox.setSelected((Boolean)mp.getDefaultValue());
+        checkBox.setName(IDENTIFIER_CHECK_BOX);
+        c.gridx = 0;
+        c.gridy = 0;
         c.insets = new Insets(0,0,0,RIGHT_GUI_INSET); // top,left,bottom,right
         
         panel.add(checkBox, c);
@@ -1340,7 +1313,7 @@ implements WindowListener, ChangeListener
         ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
-            registerComponent(mp, name, checkBox);
+            registerComponent(mp, IDENTIFIER_CHECK_BOX, checkBox);
         }
         
         return checkBox;
@@ -1442,6 +1415,11 @@ implements WindowListener, ChangeListener
             for (Map.Entry<Integer,JComponent> entry : labelTable.entrySet())
             {
                 // changes here ARE reflected in labelTable
+                
+                // NOTE: this is the way you would change/remove entries from list of labels.
+                // you cannot add entries here. see the Java API and:
+                // http://java.sun.com/docs/books/tutorial/uiswing/components/slider.html
+                // for more details
                 JLabel label = (JLabel)entry.getValue();
                 Float value = new Float(label.getText());
                 value = value/FLOAT_SLIDER_MODIFIER;
@@ -1588,6 +1566,7 @@ implements WindowListener, ChangeListener
      * Creates a color chooser button and places it on the panel.
      * 
      * @param panel     panel the button will be associated with
+     * @param mp        MetaPref the button is for
      */
     private void createColorChooser(JPanel panel, MetaPref mp)
     {

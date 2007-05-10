@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.util.LinkedHashMap;
+
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -56,6 +58,7 @@ public abstract class MetaPref<T> extends ElementState
      * optional; for preferences with three or more choices
      */
     @xml_nested ArrayListState<Choice<T>> choices = null;
+    private LinkedHashMap<String,Choice<T>> choiceList;
     
 //	@xml_attribute	T			defaultValue;
 	
@@ -134,6 +137,79 @@ public abstract class MetaPref<T> extends ElementState
     {
         return choices;
     }
+    
+    /**
+     * Get a Choice from the list of choices, whose value matches
+     * the value passed in.
+     * 
+     * @param value     Value to find
+     * @return          Choice whose value equals the passed in value
+     */
+    public Choice getChoiceByValue(String value)
+    {
+        if (choiceList == null)
+            populateChoiceList();
+        return choiceList.get(value);
+    }
+    
+    /**
+     * Get Choice's name, for a choice whose value that matches the 
+     * given value.
+     * 
+     * @param value
+     * @return Name of choice
+     */
+    public String getChoiceNameByValue(String value)
+    {
+        return getChoiceByValue(value).getName();
+    }
+    
+    public String getChoiceNameByIndex(int index)
+    {
+        return choices.get(index).getName();
+    }
+    
+    public Choice getChoiceByIndex(int index)
+    {
+        return choices.get(index);
+    }
+    
+    /**
+     * Get the index of a given Choice.
+     * 
+     * @param choice    Given choice
+     * @return          Index of Choice in choices
+     */
+    public int getIndexByChoice(Choice choice)
+    {
+        if (choiceList == null)
+            populateChoiceList();
+        return choices.indexOf(choice);
+    }
+    
+    /**
+     * Get the index of a Choice with the given value.
+     * 
+     * @param value
+     * @return  index of Choice with given value
+     */
+    public int getIndexByValue(String value)
+    {
+        Choice thisChoice = getChoiceByValue(value);
+        return getIndexByChoice(thisChoice);
+    }
+    
+    /**
+     * Populate choiceList; this allows for easy searching by value.
+     */
+    private void populateChoiceList()
+    {
+        choiceList = new LinkedHashMap<String,Choice<T>>();
+        for (Choice choice : this.choices)
+        {
+            choiceList.put(choice.getValue().toString(), choice);
+        }
+    }
 
     /**
      * Gives printed output showing id, description, category, helpText,
@@ -210,9 +286,9 @@ public abstract class MetaPref<T> extends ElementState
      * 
      * @return True = Uses check boxes. False = Doesn't.
      */
-    public boolean widgetIsCheckBoxes()
+    public boolean widgetIsCheckBox()
     {
-        if ("CHECK_BOXES".equals(widget))
+        if ("CHECK_BOX".equals(widget))
             return true;
         return false;
     }
