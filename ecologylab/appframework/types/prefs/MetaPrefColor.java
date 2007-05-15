@@ -5,6 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 
+import ecologylab.xml.types.scalar.TypeRegistry;
+
 /**
  * @author awebb
  *
@@ -18,7 +20,7 @@ public class MetaPrefColor extends MetaPref<Color>
 	
 	public MetaPrefColor()
 	{
-		super();
+	    super(TypeRegistry.getType(Color.class));
 	}
 	
     /**

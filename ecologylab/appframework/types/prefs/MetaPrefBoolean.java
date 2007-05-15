@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Metadata about a Boolean Preference.
@@ -25,7 +26,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
 	 */
 	public MetaPrefBoolean()
 	{
-		super();
+        super(TypeRegistry.getType(Boolean.class));
 	}
 	
     /**

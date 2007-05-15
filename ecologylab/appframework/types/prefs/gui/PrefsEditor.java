@@ -75,6 +75,7 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefString;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.ValueChangedListener;
 import ecologylab.generic.Debug;
 import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
@@ -895,11 +896,15 @@ implements WindowListener, ChangeListener
      * @param mp    metapref to fetch pref value for
      * @return      pref value or null
      */
-    private Object getPrefValue(MetaPref mp)
+    //FIXME use generics throughout!
+    private <T> /*T*/ Object getPrefValue(MetaPref<T> mp)
     {
         if (mp.widgetIsTextField())
         {
             JTextField textField = (JTextField)lookupComponent(mp, mp.getID()+IDENTIFIER_TEXT_FIELD);
+            //TODO 1 -- why doesnt this line work -- check flow for MetaPrefInt first!
+            //return mp.getInstance(textField.getText());
+            
             if (mp instanceof MetaPrefString)
             {
                 return new String(textField.getText());
@@ -912,20 +917,22 @@ implements WindowListener, ChangeListener
             {
                 return new Float(textField.getText());
             }
+            
         }
         else if (mp.widgetIsRadio())
         {
             if (mp instanceof MetaPrefBoolean)
             {
                 JRadioButton yesButton = (JRadioButton)lookupComponent(mp, mp.getID()+IDENTIFIER_BOOLEAN_YES);
-                return new Boolean(yesButton.isSelected());
+                MetaPref<Boolean> mpb   = (MetaPrefBoolean) mp;
+                return mpb.getInstance(yesButton.isSelected());
             }
             else
             {
                 // TODO: if we could fetch the ButtonGroup, we could do
                 //       this more efficiently.
                 // find the selected one and return it
-                ArrayListState<Choice<Object>> choices = mp.getChoices();
+                ArrayListState<Choice<T>> choices = mp.getChoices();
                 for (Choice choice: choices)
                 {
                     String regName = mp.getID() + choice.getName();
@@ -946,7 +953,8 @@ implements WindowListener, ChangeListener
         {
             if (mp instanceof MetaPrefFloat)
             {
-                ArrayListState<Choice<Float>> choices = mp.getChoices();
+                MetaPrefFloat mpf   = (MetaPrefFloat) mp;
+                ArrayListState<Choice<Float>> choices = mpf.getChoices();
                 JComboBox comboBox = (JComboBox)lookupComponent(mp,mp.getID()+IDENTIFIER_DROPDOWN);
                 int selectedIndex = comboBox.getSelectedIndex();
                 return new Float(choices.get(selectedIndex).getValue());
@@ -1015,20 +1023,19 @@ implements WindowListener, ChangeListener
     	{
     		for (MetaPref mp : metaPrefSet.getMetaPrefListByCategory(cat))
     		{
-    			// by casting here we get the proper return type
-    			// for getPrefValue
     			String name = mp.getID();
-    			//TODO -- i dont believe this lines makes sense -- andruid 3/12/07
-    			//mp 			= mp.getClass().cast(mp);
     			Pref pref 	= mp.getAssociatedPref();
-    			pref.setValue(getPrefValue(mp));
-                //System.err.print("pref: " + name + ", value: " + getPrefValue(mp) + '\n');
+    			Object editedValue      = getPrefValue(mp);
+                Object previousValue    = pref.value();
+                pref.setValue(editedValue);
+                ValueChangedListener valueChangedListener   = mp.getValueChangedListener();
+                if ((valueChangedListener != null) && (editedValue != null))
+                {
+                    if (!editedValue.equals(previousValue))
+                        valueChangedListener.valueChanged(pref);
+                }
     			if (!prefSet.contains(pref))
     				prefSet.add(pref);
-    			
-    			//TODO -- this is not really needed because only the value has been changed. -- andruid 3/12/07
-    			//prefSet.modifyPref(name,pref);
-    			//prefSet.lookupPref(mp.getID()).print();
     		}
     	}
     	if (savePrefsPURL == null)

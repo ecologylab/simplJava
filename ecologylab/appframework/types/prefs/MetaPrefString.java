@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Metadata about a String Preference.
@@ -27,7 +28,7 @@ public class MetaPrefString extends MetaPref<String>
      */
 	public MetaPrefString()
 	{
-		super();
+        super(TypeRegistry.getType(String.class));
 	}
 	
     /**
@@ -67,6 +68,12 @@ public class MetaPrefString extends MetaPref<String>
     public String getMinValue()
     {
         return null;
+    }
+
+    @Override
+    public String getInstance(String string)
+    {
+        return string;
     }
 	
 /*

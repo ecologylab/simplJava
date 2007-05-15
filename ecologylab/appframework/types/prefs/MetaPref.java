@@ -5,9 +5,11 @@ package ecologylab.appframework.types.prefs;
 
 import java.util.LinkedHashMap;
 
+import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
+import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Metadata about a Preference.
@@ -20,6 +22,9 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public abstract class MetaPref<T> extends ElementState
 {
+    /** The global registry of Pref objects. Used for providing lookup services. */
+    static final ObjectRegistry<MetaPref>   allMetaPrefsMap = new ObjectRegistry<MetaPref>();
+    
     /**
 	 * Unique identifier for Preference name with convenient lookup in 
      * automatically generated HashMap.
@@ -59,20 +64,26 @@ public abstract class MetaPref<T> extends ElementState
      */
     @xml_nested ArrayListState<Choice<T>> choices = null;
     
+    ScalarType<T>                  scalarType;
+    
     /**
      * LinkedHashMap to make locating exact choices easier 
      */
     private LinkedHashMap<String,Choice<T>> choiceList;
+    
+    ValueChangedListener        valueChangedListener;
     
 //	@xml_attribute	T			defaultValue;
 	
 //	@xml_nested		RangeState<T>	range;
 	/**
 	 * Instantiate.
+	 * @param scalarType TODO
 	 */
-	public MetaPref()
+	public MetaPref(ScalarType scalarType)
 	{
 		super();
+        this.scalarType     = scalarType;
 	}
 	
     /**
@@ -353,6 +364,22 @@ public abstract class MetaPref<T> extends ElementState
     protected abstract Pref<T> getPrefInstance();
     
     /**
+     * Create an instance of our associated type, from a String.
+     * 
+     * @param string
+     * @return
+     */
+    public T getInstance(String string)
+    {
+        return scalarType.getInstance(string);
+    }
+    
+    public T getInstance(T value)
+    {
+        return value;
+    }
+    
+    /**
      * Construct a new instance of the Pref that matches this.
      * Use this to fill-in the default value.
      * 
@@ -386,6 +413,56 @@ public abstract class MetaPref<T> extends ElementState
     	}
     	return result;
     }
+
+    /**
+     * Set object that receives a callback when the value of a Pref is changed through
+     * the PrefsEditor.
+     * 
+     * @param valueChangedListener
+     */
+    public void setValueChangedListener(ValueChangedListener valueChangedListener)
+    {
+        this.valueChangedListener = valueChangedListener;
+    }
+    /**
+     * Set object that receives a callback when the value of a Pref is changed through
+     * the PrefsEditor.
+     * 
+     * @param valueChangedListener
+     */
+    public static void setValueChangedListener(String metaPrefId, ValueChangedListener valueChangedListener)
+    {
+        MetaPref metaPref   = lookup(metaPrefId);
+        if (metaPref != null)
+            metaPref.setValueChangedListener(valueChangedListener);
+    }
+    
+    /**
+     * Create an entry for this in the allMetaPrefsMap.
+     *
+     */
+    void register()
+    {
+        allMetaPrefsMap.registerObject(this.id, this);
+    }
+    /**
+     * Look up a MetaPref by name in the map of all MetaPrefs
+     * 
+     * @param id  Name of MetaPref
+     * 
+     * @return MetaPref with the given id
+     */
+    public static MetaPref lookup(String id)
+    {
+        MetaPref metaPref = allMetaPrefsMap.lookupObject(id);
+        return metaPref;
+    }
+
+    public ValueChangedListener getValueChangedListener()
+    {
+        return valueChangedListener;
+    }
+    
     
 /*
 	public boolean isWithinRange(T newValue)

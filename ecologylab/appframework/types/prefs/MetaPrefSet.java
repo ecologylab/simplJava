@@ -125,6 +125,17 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
         return categoryToMetaPrefs.get(cat);
     }
 
+    /**
+     * Register the MetaPref in the static global map, as well as adding it to the super ArrayListState.
+     * @param metaPref
+     * @return
+     */
+    public boolean add(MetaPref metaPref)
+    {
+        boolean result  = super.add(metaPref);
+        metaPref.register();
+        return result;
+    }
     
     /**
      * Read MetaPref declarations from a file or across the net.

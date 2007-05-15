@@ -7,6 +7,7 @@ import java.io.File;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Metadata about a File Preference.
@@ -45,7 +46,7 @@ public class MetaPrefFile extends MetaPref<File>
      */
     public MetaPrefFile()
     {
-        super();
+        super(TypeRegistry.getType(File.class));
     }
     
     /**
@@ -85,6 +86,12 @@ public class MetaPrefFile extends MetaPref<File>
     public File getMinValue()
     {
         return null;
+    }
+
+    @Override
+    public File getInstance(String string)
+    {
+        return new File(string);
     }
     
     

@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Metadata about a Float Preference.
@@ -31,7 +32,7 @@ public class MetaPrefFloat extends MetaPref<Float>
      */
 	public MetaPrefFloat()
 	{
-		super();
+        super(TypeRegistry.getType(Float.class));
 	}
 	
     /**
@@ -71,6 +72,13 @@ public class MetaPrefFloat extends MetaPref<Float>
     public Float getMinValue()
     {
         return range.getMin();
+    }
+
+    @Override
+    public Float getInstance(String string)
+    {
+        // return scalarType.getInstance(string);
+        return new Float(string);
     }
 	
 /*

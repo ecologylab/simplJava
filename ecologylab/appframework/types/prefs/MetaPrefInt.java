@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.TypeRegistry;
 import ecologylab.appframework.types.prefs.RangeIntState;
 import ecologylab.appframework.types.prefs.RangeState;
 /**
@@ -31,7 +32,7 @@ public class MetaPrefInt extends MetaPref<Integer>
      */
 	public MetaPrefInt()
 	{
-		super();
+		super(TypeRegistry.getType(Integer.class));
 	}
 	
     /**
@@ -71,6 +72,13 @@ public class MetaPrefInt extends MetaPref<Integer>
     public Integer getMinValue()
     {
         return range.getMin();
+    }
+
+    @Override
+    public Integer getInstance(String string)
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 	
 /*
