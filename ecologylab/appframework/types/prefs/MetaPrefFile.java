@@ -92,11 +92,11 @@ public class MetaPrefFile extends MetaPref<File>
         return null;
     }
 
-    @Override
-    public File getInstance(String string)
-    {
-        return new File(string);
-    }
+//    @Override
+//    public File getInstance(String string)
+//    {
+//        return new File(string);
+//    }
     
     
 /*

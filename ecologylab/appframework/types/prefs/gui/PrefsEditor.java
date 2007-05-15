@@ -903,8 +903,9 @@ implements WindowListener, ChangeListener
         {
             JTextField textField = (JTextField)lookupComponent(mp, mp.getID()+IDENTIFIER_TEXT_FIELD);
             //TODO 1 -- why doesnt this line work -- check flow for MetaPrefInt first!
-            //return mp.getInstance(textField.getText());
-            
+            String textFieldText = textField.getText();
+			return mp.getInstance(textFieldText);
+            /*
             if (mp instanceof MetaPrefString)
             {
                 return new String(textField.getText());
@@ -917,7 +918,7 @@ implements WindowListener, ChangeListener
             {
                 return new Float(textField.getText());
             }
-            
+            */
         }
         else if (mp.widgetIsRadio())
         {

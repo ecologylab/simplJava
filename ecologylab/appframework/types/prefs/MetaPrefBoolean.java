@@ -22,7 +22,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
      */
 	@xml_attribute	boolean		defaultValue;
 	
-	public static final ScalarType BOOLEAN_SCALAR_TYPE	= TypeRegistry.getType(Boolean.class);
+	public static final ScalarType BOOLEAN_SCALAR_TYPE	= TypeRegistry.getType(boolean.class);
 
 	/**
 	 * Instantiate.

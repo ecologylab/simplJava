@@ -28,7 +28,7 @@ public class MetaPrefFloat extends MetaPref<Float>
      */
     @xml_nested     RangeFloatState     range;
 	
-	public static final ScalarType FLOAT_SCALAR_TYPE	= TypeRegistry.getType(Float.class);
+	public static final ScalarType FLOAT_SCALAR_TYPE	= TypeRegistry.getType(float.class);
 
 	     /**
      * Instantiate.
@@ -77,12 +77,12 @@ public class MetaPrefFloat extends MetaPref<Float>
         return range.getMin();
     }
 
-    @Override
-    public Float getInstance(String string)
-    {
-        // return scalarType.getInstance(string);
-        return new Float(string);
-    }
+//    @Override
+//    public Float getInstance(String string)
+//    {
+//        // return scalarType.getInstance(string);
+//        return new Float(string);
+//    }
 	
 /*
 	public boolean isWithinRange(Float newValue)

@@ -29,7 +29,7 @@ public class MetaPrefInt extends MetaPref<Integer>
      */
     @xml_nested     RangeIntState          range;
 	
-	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getType(Integer.class);
+	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getType(int.class);
 
     /**
      * Instantiate.
@@ -78,13 +78,6 @@ public class MetaPrefInt extends MetaPref<Integer>
         return range.getMin();
     }
 
-    @Override
-    public Integer getInstance(String string)
-    {
-        // TODO Auto-generated method stub
-        return null;
-    }
-	
 /*
 	public boolean isWithinRange(Integer newValue)
 	{
