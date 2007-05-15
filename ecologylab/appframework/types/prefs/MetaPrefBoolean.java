@@ -42,19 +42,25 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
      * Construct a new instance of the Pref that matches this.
      * Use this to fill-in the default value.
      * 
-     * @return
+     * @return new Pref instance
      */
 	protected @Override Pref<Boolean> getPrefInstance()
 	{
 		return new PrefBoolean();
 	}
 
+    /**
+     * Get max value; returns null for this type.
+     */
     @Override
     public Boolean getMaxValue()
     {
         return null;
     }
 
+    /**
+     * Get min value; returns null for this type.
+     */
     @Override
     public Boolean getMinValue()
     {

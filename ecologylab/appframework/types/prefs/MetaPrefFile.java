@@ -69,12 +69,18 @@ public class MetaPrefFile extends MetaPref<File>
         return new PrefFile();
     }
 
+    /**
+     * Get max value; returns null for this type.
+     */
     @Override
     public File getMaxValue()
     {
         return null;
     }
 
+    /**
+     * Get min value; returns null for this type.
+     */
     @Override
     public File getMinValue()
     {

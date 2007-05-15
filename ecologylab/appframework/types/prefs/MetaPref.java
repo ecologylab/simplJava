@@ -58,6 +58,10 @@ public abstract class MetaPref<T> extends ElementState
      * optional; for preferences with three or more choices
      */
     @xml_nested ArrayListState<Choice<T>> choices = null;
+    
+    /**
+     * LinkedHashMap to make locating exact choices easier 
+     */
     private LinkedHashMap<String,Choice<T>> choiceList;
     
 //	@xml_attribute	T			defaultValue;
@@ -164,11 +168,23 @@ public abstract class MetaPref<T> extends ElementState
         return getChoiceByValue(value).getName();
     }
     
+    /**
+     * Get Choice's name, for the choice at the given index. 
+     * 
+     * @param index
+     * @return Name of choice
+     */
     public String getChoiceNameByIndex(int index)
     {
         return choices.get(index).getName();
     }
     
+    /**
+     * Get the Choice at the given index. 
+     * 
+     * @param index
+     * @return Name of choice
+     */
     public Choice getChoiceByIndex(int index)
     {
         return choices.get(index);

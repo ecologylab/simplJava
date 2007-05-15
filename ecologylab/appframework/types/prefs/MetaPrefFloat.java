@@ -55,12 +55,18 @@ public class MetaPrefFloat extends MetaPref<Float>
 		return new PrefFloat();
 	}
 
+    /**
+     * Get max value for this MetaPref.
+     */
     @Override
     public Float getMaxValue()
     {
         return range.getMax();
     }
 
+    /**
+     * Get min value for this MetaPref.
+     */
     @Override
     public Float getMinValue()
     {

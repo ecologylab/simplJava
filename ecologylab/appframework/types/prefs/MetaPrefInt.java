@@ -55,12 +55,18 @@ public class MetaPrefInt extends MetaPref<Integer>
 		return new PrefInt();
 	}
 
+    /**
+     * Get max value for this MetaPref.
+     */
     @Override
     public Integer getMaxValue()
     {
         return range.getMax();
     }
 
+    /**
+     * Get min value for this MetaPref.
+     */
     @Override
     public Integer getMinValue()
     {

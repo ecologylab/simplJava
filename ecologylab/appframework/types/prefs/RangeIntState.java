@@ -13,7 +13,13 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class RangeIntState extends ElementState /* RangeState<Integer> */
 {
+    /**
+     * Min value.
+     */
 	@xml_attribute	int		min;
+    /**
+     * Max value.
+     */
 	@xml_attribute	int		max;
 	
 	/**
@@ -35,25 +41,33 @@ public class RangeIntState extends ElementState /* RangeState<Integer> */
 		return (min <= value) && (value <= max);
 	}
 
-
+    /**
+     * Get max value.
+     */
 	public Integer getMax()
 	{
 	    return this.max;
 	}
 
-
+    /**
+     * Get min value.
+     */
 	public Integer getMin()
 	{
 	    return this.min;
 	}
 
-
+    /**
+     * Set max value.
+     */
 	public void setMax(Integer newValue)
 	{
 	    this.max = newValue;
 	}
 
-
+    /**
+     * Set min value.
+     */
 	public void setMin(Integer newValue)
 	{
         this.min = newValue;

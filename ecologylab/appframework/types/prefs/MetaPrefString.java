@@ -51,12 +51,18 @@ public class MetaPrefString extends MetaPref<String>
 		return new PrefString();
 	}
 
+    /**
+     * Get max value; returns null for this type.
+     */
     @Override
     public String getMaxValue()
     {
         return null;
     }
 
+    /**
+     * Get min value; returns null for this type.
+     */
     @Override
     public String getMinValue()
     {
