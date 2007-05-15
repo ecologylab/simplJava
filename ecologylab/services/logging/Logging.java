@@ -127,7 +127,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
     public static final String           LOGGING_PORT_PARAM                  = "logging_port";
 
-    public static final String           LOGGING_MODE_PARAM                  = "logging_mode";
+    public static final String           LOGGING_MODE_PARAM                  = "log_mode";
 
     final int                            maxOpsBeforeWrite;
 
