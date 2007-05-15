@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class BooleanType extends ScalarType 
+public class BooleanType extends ScalarType<Boolean>
 {
 /**
  * This constructor should only be called once per session, through
@@ -35,6 +35,18 @@ public class BooleanType extends ScalarType
 		  lcValue.equals("yes") || (lcValue.equals("1"));
 	}
 	
+    /**
+     * If <code>this</code> is a reference type, build an appropriate Object, given a String
+     * representation. If it is a primitive type, return a boxed value.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Boolean getInstance(String value)
+    {
+        return new Boolean(getValue(value));
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 

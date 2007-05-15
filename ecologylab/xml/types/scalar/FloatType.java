@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class FloatType extends ScalarType
+public class FloatType extends ScalarType<Float>
 {
     /**
      * This constructor should only be called once per session, through a static initializer,
@@ -33,6 +33,19 @@ public class FloatType extends ScalarType
         return Float.parseFloat(valueString);
     }
 
+    /**
+     * If <code>this</code> is a reference type, build an appropriate Object, given a String
+     * representation. If it is a primitive type, return a boxed value.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Float getInstance(String value)
+    {
+        return new Float(getValue(value));
+    }
+
+    
     /**
      * This is a primitive type, so we set it specially.
      * 

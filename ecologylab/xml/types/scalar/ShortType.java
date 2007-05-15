@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class ShortType extends ScalarType 
+public class ShortType extends ScalarType<Short>
 {
 /**
  * This constructor should only be called once per session, through
@@ -33,6 +33,17 @@ public class ShortType extends ScalarType
 		return Short.parseShort(valueString);
 	}
 	
+    /**
+     * Parse the String into the (primitive) type, and return a boxed instance.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Short getInstance(String value)
+    {
+        return new Short(value);
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 

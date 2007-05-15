@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class DoubleType extends ScalarType
+public class DoubleType extends ScalarType<Double>
 {
     /**
      * This constructor should only be called once per session, through a static initializer,
@@ -31,6 +31,17 @@ public class DoubleType extends ScalarType
     public double getValue(String valueString)
     {
         return Double.parseDouble(valueString);
+    }
+
+    /**
+     * Parse the String into the (primitive) type, and return a boxed instance.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Double getInstance(String value)
+    {
+        return new Double(value);
     }
 
     /**

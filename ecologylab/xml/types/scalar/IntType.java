@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class IntType extends ScalarType
+public class IntType extends ScalarType<Integer>
 {
 /**
  * This constructor should only be called once per session, through
@@ -33,6 +33,18 @@ public class IntType extends ScalarType
 		return Integer.parseInt(valueString);
 	}
 	
+    /**
+     * If <code>this</code> is a reference type, build an appropriate Object, given a String
+     * representation. If it is a primitive type, return a boxed value.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Integer getInstance(String value)
+    {
+        return new Integer(getValue(value));
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 

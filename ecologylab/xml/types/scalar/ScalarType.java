@@ -27,6 +27,8 @@ import ecologylab.xml.*;
 public class ScalarType<T> extends Debug
 {
     Class<T>			thatClass;
+    
+    Class<T>			alternativeClass;
 
     // int index;
     boolean             isPrimitive;
@@ -48,7 +50,7 @@ public class ScalarType<T> extends Debug
 
     /**
      * If <code>this</code> is a reference type, build an appropriate Object, given a String
-     * representation. If it is a primitive type, return null.
+     * representation. If it is a primitive type, return a boxed value.
      * 
      * @param value
      *            String representation of the instance.

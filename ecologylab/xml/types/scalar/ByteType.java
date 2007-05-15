@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class ByteType extends ScalarType 
+public class ByteType extends ScalarType<Byte>
 {
 /**
  * This constructor should only be called once per session, through
@@ -33,6 +33,17 @@ public class ByteType extends ScalarType
 		return Byte.parseByte(valueString);
 	}
 	
+    /**
+     * Parse the String into the (primitive) type, and return a boxed instance.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Byte getInstance(String value)
+    {
+        return new Byte(value);
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 

@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class LongType extends ScalarType 
+public class LongType extends ScalarType<Long>
 {
 
 	public LongType()
@@ -26,6 +26,17 @@ public class LongType extends ScalarType
 		return Long.parseLong(valueString);
 	}
 	
+    /**
+     * Parse the String into the (primitive) type, and return a boxed instance.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Long getInstance(String value)
+    {
+        return new Long(value);
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 

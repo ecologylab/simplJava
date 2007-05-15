@@ -10,7 +10,7 @@ import java.lang.reflect.Field;
  * 
  * @author andruid
  */
-public class CharType extends ScalarType 
+public class CharType extends ScalarType<Character>
 {
 /**
  * This constructor should only be called once per session, through
@@ -33,6 +33,17 @@ public class CharType extends ScalarType
 		return valueString.charAt(0);
 	}
 	
+    /**
+     * Parse the String into the (primitive) type, and return a boxed instance.
+     * 
+     * @param value
+     *            String representation of the instance.
+     */
+    public Character getInstance(String value)
+    {
+        return getValue(value);
+    }
+
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
