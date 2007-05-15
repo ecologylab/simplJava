@@ -117,9 +117,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
     public static final int              LOG_TO_MEMORY_MAPPED_FILE           = 4;
 
-    public static final int              LOG_TO_MM_FILE_AND_SERVER_REDUNDANT = 6;
+    public static final int              LOG_TO_MM_FILE_AND_SERVER_REDUNDANT = LOG_TO_MEMORY_MAPPED_FILE & LOG_TO_SERVICES_SERVER;
 
-    public static final int              LOG_TO_FILE_AND_SERVER_REDUNDANT    = 5;
+    public static final int              LOG_TO_FILE_AND_SERVER_REDUNDANT    = LOG_TO_FILE & LOG_TO_SERVICES_SERVER;
 
     static final int                     MAX_OPS_BEFORE_WRITE                = 10;
 
