@@ -3,8 +3,11 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.io.File;
+
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -23,12 +26,14 @@ public class MetaPrefString extends MetaPref<String>
      */
 	@xml_attribute	String		defaultValue;
 	
+	public static final ScalarType STRING_SCALAR_TYPE	= TypeRegistry.getType(String.class);
+
     /**
      * Instantiate.
      */
 	public MetaPrefString()
 	{
-        super(TypeRegistry.getType(String.class));
+        super(STRING_SCALAR_TYPE);
 	}
 	
     /**

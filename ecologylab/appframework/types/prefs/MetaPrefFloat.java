@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -27,12 +28,14 @@ public class MetaPrefFloat extends MetaPref<Float>
      */
     @xml_nested     RangeFloatState     range;
 	
-    /**
+	public static final ScalarType FLOAT_SCALAR_TYPE	= TypeRegistry.getType(Float.class);
+
+	     /**
      * Instantiate.
      */
 	public MetaPrefFloat()
 	{
-        super(TypeRegistry.getType(Float.class));
+        super(FLOAT_SCALAR_TYPE);
 	}
 	
     /**

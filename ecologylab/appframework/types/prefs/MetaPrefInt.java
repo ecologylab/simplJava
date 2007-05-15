@@ -3,7 +3,9 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 import ecologylab.appframework.types.prefs.RangeIntState;
 import ecologylab.appframework.types.prefs.RangeState;
@@ -27,12 +29,14 @@ public class MetaPrefInt extends MetaPref<Integer>
      */
     @xml_nested     RangeIntState          range;
 	
+	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getType(Integer.class);
+
     /**
      * Instantiate.
      */
 	public MetaPrefInt()
 	{
-		super(TypeRegistry.getType(Integer.class));
+		super(INT_SCALAR_TYPE);
 	}
 	
     /**

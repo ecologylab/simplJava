@@ -3,10 +3,12 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.awt.Color;
 import java.io.File;
 
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
@@ -41,12 +43,14 @@ public class MetaPrefFile extends MetaPref<File>
      */
     public static final int APP_DATA_DIR  = 2;
     
+	public static final ScalarType FILE_SCALAR_TYPE	= TypeRegistry.getType(File.class);
+
     /**
      * Instantiate.
      */
     public MetaPrefFile()
     {
-        super(TypeRegistry.getType(File.class));
+        super(FILE_SCALAR_TYPE);
     }
     
     /**
