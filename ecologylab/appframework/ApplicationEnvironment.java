@@ -484,7 +484,7 @@ implements Environment, XmlTranslationExceptionTypes
 				if (arg.endsWith(".xml"))
 				{
 					File appPrefsFile	= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
-					ParsedURL prefsPURL	= new ParsedURL(appPrefsFile);
+					prefsPURL	= new ParsedURL(appPrefsFile);
 		            try
 					{            	
 						prefSet 		= PrefSet.load(prefsPURL, translationSpace);
