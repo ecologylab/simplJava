@@ -439,4 +439,9 @@ public abstract class Pref<T> extends ArrayListState
     {
     	return allPrefsMap.containsKey(key);
     }
+
+    public String getName()
+    {
+        return name;
+    }
 }

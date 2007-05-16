@@ -20,7 +20,7 @@ import ecologylab.xml.types.scalar.ScalarType;
  */
 
 @xml_inherit
-public abstract class MetaPref<T> extends ElementState
+public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 {
     /** The global registry of Pref objects. Used for providing lookup services. */
     static final ObjectRegistry<MetaPref>   allMetaPrefsMap = new ObjectRegistry<MetaPref>();
@@ -267,7 +267,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsRadio()
     {
-        if ("RADIO".equals(widget))
+        if (RADIO_BUTTONS.equals(widget))
             return true;
         return false;
     }
@@ -279,7 +279,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsSlider()
     {
-        if ("SLIDER".equals(widget))
+        if (SLIDER.equals(widget))
             return true;
         return false;
     }
@@ -291,7 +291,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsSpinner()
     {
-        if ("SPINNER".equals(widget))
+        if (SPINNER.equals(widget))
             return true;
         return false;
     }
@@ -303,7 +303,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsTextField()
     {
-        if ("TEXT_FIELD".equals(widget))
+        if (TEXT_FIELD.equals(widget))
             return true;
         return false;
     }
@@ -315,7 +315,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsCheckBox()
     {
-        if ("CHECK_BOX".equals(widget))
+        if (CHECK_BOX.equals(widget))
             return true;
         return false;
     }
@@ -327,7 +327,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsDropDown()
     {
-        if ("DROP_DOWN".equals(widget))
+        if (DROP_DOWN.equals(widget))
             return true;
         return false;
     }
@@ -339,7 +339,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsColorChooser()
     {
-        if ("COLOR_CHOOSER".equals(widget))
+        if (COLOR_CHOOSER.equals(widget))
             return true;
         return false;
     }
@@ -351,7 +351,7 @@ public abstract class MetaPref<T> extends ElementState
      */
     public boolean widgetIsFileChooser()
     {
-        if ("FILE_CHOOSER".equals(widget))
+        if (FILE_CHOOSER.equals(widget))
             return true;
         return false;
     }
