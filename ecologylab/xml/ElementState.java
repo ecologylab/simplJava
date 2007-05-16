@@ -1364,7 +1364,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
      * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	private void translateFromXML(Node xmlNode, Class stateClass,
+	void translateFromXML(Node xmlNode, Class stateClass,
 								  TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
@@ -1427,7 +1427,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= pte.createChildElement(this, null);
+						activeES			= pte.createChildElement(this, null, false);
 						ReflectionTools.setFieldValue(this, pte.field(), activeES);
 					}
 				}
@@ -1439,7 +1439,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 				switch (pte.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-					activePTE.setFieldToNestedElement(activeES, childNode);
+					activePTE.setFieldToNestedElement(activeES, childNode, false);
 					break;
 				case LEAF_NODE_VALUE:
 					activePTE.setScalarFieldWithLeafNode(activeES, childNode);
@@ -1890,7 +1890,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	protected void addNestedElement(ParseTableEntry pte, Node childNode)
 	throws XmlTranslationException
 	{
-		addNestedElement(pte.createChildElement(this, childNode));
+		addNestedElement(pte.createChildElement(this, childNode, false));
 		if (considerWarning == NEED_WARNING)
 		{
 			warning("Ignoring nested elements with tag <" + pte.tag() + ">");

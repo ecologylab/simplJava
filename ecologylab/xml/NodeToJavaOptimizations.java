@@ -321,14 +321,35 @@ implements ParseTableEntryTypes
 	 * 
 	 * @param parent
 	 * @param node
+	 * @param useExistingTree TODO
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	ElementState createChildElement(ElementState parent, Node node)
+	ElementState createChildElement(ElementState parent, Node node, boolean useExistingTree)
 	throws XmlTranslationException
 	{
-		ElementState childElementState = parent.getChildElementState(node, classOp, translationSpace);
-		parent.createChildHook(childElementState);
+		ElementState childElementState	= null;
+		boolean finished			= false;
+		if (useExistingTree)
+		{
+			try
+			{
+				childElementState	= (ElementState) field.get(parent);
+			} catch (Exception e)
+			{
+				throw fieldAccessException(parent, e);
+			}
+			if (childElementState != null)
+			{
+				childElementState.translateFromXML(node, classOp, translationSpace, true);
+				finished			= true;
+			}
+		}
+		if (!finished)
+		{
+			childElementState	= parent.getChildElementState(node, classOp, translationSpace);
+			parent.createChildHook(childElementState);
+		}
         childElementState.postTranslationProcessingHook();
 		return childElementState;
 	}
@@ -433,20 +454,24 @@ implements ParseTableEntryTypes
 	 * Used to set a field in this to a nested ElementState object.
 	 * 
 	 * his method is called during translateFromXML(...).
-	 *
 	 * @param nestedElementState	the nested state-object to be added
+	 * @param childNode				XML doc subtree to use as the source of translation
+	 * @param useExistingTree		if true, re-fill in existing objects, instead of creating new ones.
 	 */
-	protected void setFieldToNestedElement(ElementState context, Node childNode)
+	protected void setFieldToNestedElement(ElementState context, Node childNode, boolean useExistingTree)
 		throws XmlTranslationException
 	{
-		Object nestedElementState	= createChildElement(context, childNode);
-		try
+		Object nestedElementState	= createChildElement(context, childNode, false);
+		if (!useExistingTree)
 		{
-			field.set(context, nestedElementState);
-		}
-		catch (Exception e)
-		{
-		   throw fieldAccessException(nestedElementState, e);
+			try
+			{
+				field.set(context, nestedElementState);
+			}
+			catch (Exception e)
+			{
+			   throw fieldAccessException(nestedElementState, e);
+			}
 		}
 	}
 
@@ -491,7 +516,7 @@ implements ParseTableEntryTypes
 			
 		if (collection != null)
 		{
-			ElementState childElement = createChildElement(activeES, childNode);
+			ElementState childElement = createChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
 	}
@@ -522,7 +547,7 @@ implements ParseTableEntryTypes
 			
 		if (map != null)
 		{
-			Mappable mappable	= (Mappable) createChildElement(activeES, childNode);
+			Mappable mappable	= (Mappable) createChildElement(activeES, childNode, false);
 			map.put(mappable.key(), mappable);
 		}
 	}
