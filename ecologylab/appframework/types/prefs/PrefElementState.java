@@ -39,7 +39,6 @@ public class PrefElementState extends Pref<ElementState>
 	{
 		add(newValue);
         
-        this.prefUpdated();
+        prefChanged();
 	}
-
 }

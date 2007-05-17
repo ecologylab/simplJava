@@ -58,8 +58,6 @@ public class PrefFloat extends Pref<Float>
 	public void setValue(Float newValue)
 	{
 		setValue(newValue.floatValue());
-        
-        this.prefUpdated();
 	}
     /**
      * Set the value of the Pref given a float
@@ -69,9 +67,8 @@ public class PrefFloat extends Pref<Float>
      */
 	public void setValue(float value)
 	{
-		invalidate();
 		this.value	= value;
-        
-        this.prefUpdated();
+
+        prefChanged();
 	}
 }

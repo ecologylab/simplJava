@@ -96,7 +96,7 @@ public abstract class Pref<T> extends ArrayListState
      * @param newValue
      */
 	public abstract void setValue(T newValue);
-    
+	
     /**
      * Performs all housekeeping associated with updating this Pref.
      * prefUpdated() should be called whenever the value of this has been
@@ -104,18 +104,13 @@ public abstract class Pref<T> extends ArrayListState
      * 
      * Notifies all listeners that the pref's value has changed.
      * 
-     */
-    protected void prefUpdated()
-    {
-        Pref.firePrefChangedEvent(this);
-    }
-	
-    /**
      * Set valueCached to null
      */
-	protected void invalidate()
+	protected void prefChanged()
 	{
 		valueCached	= null;
+        
+        Pref.firePrefChangedEvent(this);
 	}
 	
 	/**

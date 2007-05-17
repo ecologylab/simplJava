@@ -57,8 +57,6 @@ public class PrefBoolean extends Pref<Boolean>
 	public void setValue(Boolean newValue)
 	{
 		setValue(newValue.booleanValue());
-        
-        this.prefUpdated();
 	}
     /**
      * Set the value of the Pref given a boolean
@@ -68,9 +66,8 @@ public class PrefBoolean extends Pref<Boolean>
      */
 	public void setValue(boolean value)
 	{
-		invalidate();
 		this.value	= value;
         
-        this.prefUpdated();
+        prefChanged();
 	}
 }

@@ -55,9 +55,8 @@ public class PrefString extends Pref<String>
     @Override
 	public void setValue(String value)
 	{
-		invalidate();
 		this.value	= value;
         
-        this.prefUpdated();
+        prefChanged();
 	}
 }

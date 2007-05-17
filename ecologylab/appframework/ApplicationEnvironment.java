@@ -13,6 +13,7 @@ import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
@@ -77,7 +78,7 @@ implements Environment, XmlTranslationExceptionTypes
 	/**
 	 * Place where <code>Pref</code>s are loaded from and stored to.
 	 */
-	ParsedURL prefsPURL;
+	protected ParsedURL prefsPURL;
 	
 	protected enum LaunchType
 	{
@@ -860,9 +861,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 
 	 * @return
 	 */
-	public PrefsEditor createPrefsEditor()
+	public PrefEditorWidgets createPrefsEditor()
 	{
-		PrefsEditor result	= null;
+		PrefEditorWidgets result	= null;
 		if (metaPrefSet != null)
 		{
 			if (prefSet == null)

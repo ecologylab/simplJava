@@ -40,9 +40,8 @@ public class PrefColor extends Pref<Color>
 	@Override
 	public void setValue(Color newValue) 
 	{
-		this.value = newValue;
+        this.value = newValue;
         
-        this.prefUpdated();
+        prefChanged();
 	}
-
 }

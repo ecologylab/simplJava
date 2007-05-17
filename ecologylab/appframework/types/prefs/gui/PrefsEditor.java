@@ -54,7 +54,6 @@ import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
@@ -93,9 +92,6 @@ implements WindowListener
      */
     private static final int BOTTOM_GUI_INSET = 10;
 
-    /** PURL to save prefs.xml to */
-    ParsedURL   savePrefsPURL;
-    
     // base setup for gui
     /**
      * Base window for the GUI
@@ -164,9 +160,8 @@ implements WindowListener
      */
     public PrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean isStandalone)
     {
-        super (metaPrefSet, prefSet);
+        super (metaPrefSet, prefSet, savePrefsPURL);
 
-        this.savePrefsPURL  = savePrefsPURL;
         this.isStandalone	= isStandalone;
         
         final JFrame jFrame = fetchJFrame();
@@ -302,7 +297,7 @@ implements WindowListener
      * 
      * @return Save button (JButton) for GUI
      */
-    private JButton createSaveButton() 
+    JButton createSaveButton() 
     {
         if (saveButton == null) 
         {
@@ -333,7 +328,7 @@ implements WindowListener
      * 
      * @return Apply button (JButton) for GUI
      */
-    private JButton createApplyButton() 
+    JButton createApplyButton() 
     {
         if (applyButton == null) 
         {
@@ -783,37 +778,6 @@ implements WindowListener
         }
     }
     
-    // gui actions for buttons
-    /**
-     * Save the preferences; called by {@link #createApplyButton()}
-     * and {@link #createSaveButton()}.
-     * Saves the prefs to {@link #savePrefsPURL}.
-     */
-    private void actionSavePreferences()
-    {
-        // update prefs
-    	updatePrefsFromWidgets();
-        
-        // save prefs back to the file
-    	if (savePrefsPURL == null)
-    	{
-    		//TODO provide better feedback to the user here!!!
-    		warning("Not saving Prefs persistently cause savePrefsURL == null.");
-    	}
-    	else
-    	{
-    		try
-    		{
-    			prefSet.saveXmlFile(savePrefsPURL.file(), true, false);
-    		}
-    		catch (XmlTranslationException e)
-    		{
-    			// TODO auto-generated catch block
-    			e.printStackTrace();
-    		}
-    	}
-    }
-
     /**
      * The function that actually performs the revert-to-default actions
      * is in the MetaPrefType classes.

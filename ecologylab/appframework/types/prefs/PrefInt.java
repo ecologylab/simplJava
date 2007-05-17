@@ -62,7 +62,8 @@ public class PrefInt extends Pref<Integer>
      */
 	public void setValue(int value)
 	{
-		invalidate();
 		this.value	= value;
+        
+        prefChanged();
 	}
 }
