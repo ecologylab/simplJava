@@ -776,7 +776,7 @@ static String q(String string)
     }
 	
 	/**
-	 * Pretty printing xml, properly indented according to hierarchy.
+	 * Pretty printing XML, properly indented according to hierarchy.
 	 * @param plainXml	plain xml string
 	 * @param out		the <code>StreamResult</code> object where the output should be written
 	 */    
@@ -794,6 +794,14 @@ static String q(String string)
         }
     } 
     
+    /**
+     * Pretty printing XML, properly indented according to hierarchy.
+     * 
+     * @param xmlFile
+     *            a File containing the XML to transform into pretty XML.
+     * @param out
+     *            the destination for the output.
+     */
     public static void writePrettyXml(File xmlFile, StreamResult out)
     {
     	try
