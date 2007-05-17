@@ -89,6 +89,8 @@ import ecologylab.xml.xml_inherit;
     @Override public void setValue(File newValue)
     {
         this.value = newValue.getAbsolutePath();
+        
+        this.prefUpdated();
     }
 
     /**
@@ -102,6 +104,8 @@ import ecologylab.xml.xml_inherit;
     {
         this.value = newValue;
         this.pathContext = pathContext;
+        
+        this.prefUpdated();
     }
 
     private final File file()

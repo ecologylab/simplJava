@@ -5,6 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ObjectRegistry;
@@ -32,6 +33,12 @@ public abstract class Pref<T> extends ArrayListState
 
     /** Cached value */
     T                                   valueCached;
+
+    /**
+     * The list of PrefChangedListeners registered to respond to changes in
+     * Prefs.
+     */
+    static LinkedList<PrefChangedListener>     listeners = new LinkedList<PrefChangedListener>();
     
 	/** No-argument constructor for XML translation. */
 	public Pref()
@@ -83,12 +90,25 @@ public abstract class Pref<T> extends ArrayListState
 	abstract T getValue();
 	
 	/**
-	 * Generic value setter.
-	 * Uses boxed reference objects for primitives, which are a bit extra expensive.
-	 * 
-	 * @param newValue
-	 */
+     * Generic value setter. Uses boxed reference objects for primitives, which
+     * are a bit extra expensive.
+     * 
+     * @param newValue
+     */
 	public abstract void setValue(T newValue);
+    
+    /**
+     * Performs all housekeeping associated with updating this Pref.
+     * prefUpdated() should be called whenever the value of this has been
+     * changed.
+     * 
+     * Notifies all listeners that the pref's value has changed.
+     * 
+     */
+    protected void prefUpdated()
+    {
+        Pref.firePrefChangedEvent(this);
+    }
 	
     /**
      * Set valueCached to null
@@ -443,5 +463,23 @@ public abstract class Pref<T> extends ArrayListState
     public String getName()
     {
         return name;
+    }
+
+    public static void addPrefChangedListener(PrefChangedListener l)
+    {
+        listeners.add(l);
+    }
+    
+    private static void firePrefChangedEvent(Pref pref)
+    {
+        for (PrefChangedListener l : listeners)
+        {
+            l.prefChanged(pref);
+        }
+    }
+    
+    public static void prefUpdated(Pref pref)
+    {
+        firePrefChangedEvent(pref);
     }
 }

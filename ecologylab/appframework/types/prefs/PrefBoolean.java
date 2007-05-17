@@ -4,7 +4,6 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Pref for a Boolean
@@ -58,6 +57,8 @@ public class PrefBoolean extends Pref<Boolean>
 	public void setValue(Boolean newValue)
 	{
 		setValue(newValue.booleanValue());
+        
+        this.prefUpdated();
 	}
     /**
      * Set the value of the Pref given a boolean
@@ -69,5 +70,7 @@ public class PrefBoolean extends Pref<Boolean>
 	{
 		invalidate();
 		this.value	= value;
+        
+        this.prefUpdated();
 	}
 }

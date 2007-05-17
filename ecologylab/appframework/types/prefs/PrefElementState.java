@@ -38,6 +38,8 @@ public class PrefElementState extends Pref<ElementState>
 	public void setValue(ElementState newValue)
 	{
 		add(newValue);
+        
+        this.prefUpdated();
 	}
 
 }

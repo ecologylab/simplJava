@@ -61,21 +61,27 @@ public class MetaPrefInt extends MetaPref<Integer>
 	}
 
     /**
-     * Get max value for this MetaPref.
+     * Get max value for this MetaPref; returns null if it is not defined.
      */
     @Override
     public Integer getMaxValue()
     {
-        return range.getMax();
+        if (range != null)
+            return range.getMax();
+        else
+            return null;
     }
 
     /**
-     * Get min value for this MetaPref.
+     * Get min value for this MetaPref; returns null if it is not defined.
      */
     @Override
     public Integer getMinValue()
     {
-        return range.getMin();
+        if (range != null)
+            return range.getMin();
+        else
+            return null;
     }
 
 /*

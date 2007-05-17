@@ -57,5 +57,7 @@ public class PrefString extends Pref<String>
 	{
 		invalidate();
 		this.value	= value;
+        
+        this.prefUpdated();
 	}
 }

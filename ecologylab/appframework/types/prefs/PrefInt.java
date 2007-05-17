@@ -4,7 +4,6 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Pref for an Integer

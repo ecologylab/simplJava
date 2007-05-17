@@ -4,7 +4,6 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * Pref for a Float
@@ -59,6 +58,8 @@ public class PrefFloat extends Pref<Float>
 	public void setValue(Float newValue)
 	{
 		setValue(newValue.floatValue());
+        
+        this.prefUpdated();
 	}
     /**
      * Set the value of the Pref given a float
@@ -70,5 +71,7 @@ public class PrefFloat extends Pref<Float>
 	{
 		invalidate();
 		this.value	= value;
+        
+        this.prefUpdated();
 	}
 }

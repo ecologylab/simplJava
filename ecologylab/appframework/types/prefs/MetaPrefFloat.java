@@ -60,21 +60,27 @@ public class MetaPrefFloat extends MetaPref<Float>
 	}
 
     /**
-     * Get max value for this MetaPref.
+     * Get max value for this MetaPref; returns null if it is not defined.
      */
     @Override
     public Float getMaxValue()
     {
-        return range.getMax();
+        if (range != null)
+            return range.getMax();
+        else
+            return null;
     }
 
     /**
-     * Get min value for this MetaPref.
+     * Get min value for this MetaPref; returns null if it is not defined.
      */
     @Override
     public Float getMinValue()
     {
-        return range.getMin();
+        if (range != null)
+            return range.getMin();
+        else
+            return null;
     }
 
 //    @Override
