@@ -47,23 +47,6 @@ public class TypeRegistry extends Debug
 	
 	static
 	{
-	 /*  new StringType();
-	   new IntType();
-	   new BooleanType();
-	   new FloatType();
-	   new DoubleType();
-	   new LongType();
-	   new ShortType();
-	   new ByteType();
-	   new CharType();
-	   new ColorType();
-	   new URLType();
-	   new ParsedURLType();
-
-	   new DateType();
-//	   new CurrencyType();
- * 
- */
 		register(BASIC_TYPES);
 	}
 	
@@ -135,7 +118,7 @@ public class TypeRegistry extends Debug
 	 * @param thatClass
 	 * @return	Type associated with thatClass
 	 */
-	public static ScalarType getType(Class thatClass)
+	public static<U> ScalarType<U> getType(Class<U> thatClass)
 	{
 	   return getType(thatClass.getName());
 	}

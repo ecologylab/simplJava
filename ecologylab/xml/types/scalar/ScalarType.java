@@ -229,4 +229,65 @@ public class ScalarType<T> extends Debug
     {
     	return thatClass;
     }
+    
+	public static final String DEFAULT_DELIMS = " \n\t";
+
+	/**
+	 * For editing: these are the valid delimiters for separating tokens that make up a field
+	 * of this type.
+	 * 
+	 * @return
+	 */
+	public String delimeters()
+	{
+		return DEFAULT_DELIMS;
+	}
+	
+	/**
+	 * When tokenizing an input String to form an object such as TextChunk, determines whether
+	 * or not the space separator can follow it.
+	 * @return
+	 */
+	public boolean spaceAfterEachToken()
+	{
+		return true;
+	}
+	
+	/**
+	 * When editing, determines whether delimiters can be included in token strings.
+	 * 
+	 * @return
+	 */
+	//FIXME -- Add String delimitersAfter to TextChunk -- interleaved with TextTokens, and
+	//get rid of this!!!
+	public boolean allowDelimitersInTokens()
+	{
+		return false;
+	}
+	/**
+	 * When editing, do not allow the user to include these characters in the resulting value String.
+	 * @return
+	 */
+	public String illegalChars()
+	{
+		return "";
+	}
+	/**
+	 * When editing, is the field one that should be part of the Term model?
+	 * 
+	 * @return	true for Strings
+	 */
+	public boolean composedOfTerms()
+	{
+		return true;
+	}
+	/**
+	 * True if the user should be able to express interest in fields of this type.
+	 * 
+	 * @return	true for Strings
+	 */
+	public boolean affordsInterestExpression()
+	{
+		return true;
+	}
 }

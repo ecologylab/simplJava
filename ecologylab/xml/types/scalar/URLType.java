@@ -8,6 +8,8 @@ import java.net.URL;
 
 /**
  * Type system entry for {@link java.net.URL URL}.
+ * This should almost never be used.
+ * ParsedURLType is preferred!
  * 
  * @author andruid
  */
@@ -36,4 +38,16 @@ public class URLType extends ScalarType<URL>
 	   }
 	   return result;
 	}
+	/**
+	 * For editing: these are the valid delimiters for separating tokens that make up a field
+	 * of this type.
+	 * 
+	 * @return
+	 */
+	public String delimeters()
+	{
+		return ParsedURLType.URL_DELIMS;
+	}
+	
+	
 }
