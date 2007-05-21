@@ -10,8 +10,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class OkResponse extends ResponseMessage
 {
-
-	static final OkResponse reusableInstance	= new OkResponse();
+	public static final OkResponse reusableInstance	= new OkResponse();
 	
 	public OkResponse()
 	{

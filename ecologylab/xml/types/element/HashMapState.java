@@ -10,12 +10,13 @@ import java.util.Set;
 import ecologylab.xml.ElementState;
 
 /**
- * An ElementState XML tree node that supports an ArrayList of children (as well as whatever else
- * you add to it).
+ * An ElementState XML tree node that supports a HashMap whose values are
+ * Mappable (capable of supplying their own key into the map).
  * 
  * @author andruid
  */
-public class HashMapState<K, V extends ElementState & Mappable<K>> extends ElementState implements Cloneable, Map<K, V> 
+public class HashMapState<K, V extends ElementState & Mappable<K>> extends
+        ElementState implements Cloneable, Map<K, V>
 {
     /**
      * Stores the actual mappings.
@@ -26,36 +27,48 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends Eleme
     {
         super();
     }
-    
+
     /**
-     * Use lazy evaluation for creating the map, in order to make it possible this
-     * class lightweight enough to use in subclass situations where they may be no elements
-     * added to the set, where the ElementState is only being used for direct fields.
+     * Use lazy evaluation for creating the map, in order to make it possible
+     * this class lightweight enough to use in subclass situations where they
+     * may be no elements added to the set, where the ElementState is only being
+     * used for direct fields.
+     * 
      * @return
      */
     protected HashMap<K, V> map()
     {
-    	HashMap<K, V>	result	= map;
-        
-    	if (result == null)
-    	{
-    		result			= new HashMap<K, V>();
-    		map			 	= result;
-    	}
-        
-    	return result;
+        HashMap<K, V> result = map;
+
+        if (result == null)
+        {
+            result = new HashMap<K, V>();
+            map = result;
+        }
+
+        return result;
     }
 
-    @Override
-	protected <K1 extends Object, V1 extends ElementState & Mappable<K1>>Map<K1, V1> getMap(Class thatClass)
+    @Override protected <K1 extends Object, V1 extends ElementState & Mappable<K1>> Map<K1, V1> getMap(
+            Class thatClass)
     {
-        return (Map<K1,V1>) map();
+        return (Map<K1, V1>) map();
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException
+    @Override protected Object clone() throws CloneNotSupportedException
     {
         return super.clone();
+    }
+
+    /**
+     * Convienence method for adding Mappable elements. This method simply calls
+     * put(value.key(), value).
+     * 
+     * @param value
+     */
+    public V add(V value)
+    {
+        return this.put(value.key(), value);
     }
 
     public void clear()
