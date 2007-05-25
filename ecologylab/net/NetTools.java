@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
@@ -135,5 +136,24 @@ public class NetTools extends Debug
 		}
 		return localHost;
 	}
+
+    public static InetAddress[] getAllInetAddressesForLocalhost() throws UnknownHostException
+    {
+        HashSet<InetAddress> addresses = new HashSet<InetAddress>();
+        
+        for (InetAddress a : InetAddress.getAllByName("localhost"))
+        {
+            addresses.add(a);
+        }
+        
+        for (InetAddress a : InetAddress.getAllByName(InetAddress.getLocalHost().getHostAddress()))
+        {
+            addresses.add(a);
+        }
+        
+        addresses.add(InetAddress.getLocalHost());
+        
+        return addresses.toArray(new InetAddress[addresses.size()]);
+    }
 	
 }
