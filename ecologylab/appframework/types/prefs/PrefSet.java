@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.io.File;
+
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
@@ -69,7 +71,10 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
     public static PrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
     throws XmlTranslationException
     {
-        PrefSet pS = (PrefSet) ElementState.translateFromXML(purl, translationSpace);
+    	File file	= purl.file();
+    	PrefSet pS	= null;
+    	if ((file != null) && file.exists())
+    		pS = (PrefSet) ElementState.translateFromXML(purl, translationSpace);
         
         return pS;
     }
