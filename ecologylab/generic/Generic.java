@@ -454,11 +454,21 @@ public static final String SEP	= "/";
 	
 	private static final String[] DIALOG_OPTIONS = { "ok" };
 	
+	/*
+	 * Show a dialog box to the user, and then exit the VM.
+	 */
 	public static void showDialogAndExit(String msg, int code)
+	{
+		showDialog(msg);
+		Generic.exit(code);
+	}
+	/*
+	 * Show a dialog box to the user.
+	 */
+	public static void showDialog(String msg)
 	{
 		JOptionPane.showOptionDialog(null, msg, "combinFormation exited", JOptionPane.DEFAULT_OPTION, 
 									JOptionPane.WARNING_MESSAGE, null, DIALOG_OPTIONS, DIALOG_OPTIONS[0]);
-		Generic.exit(code);
 	}
     /**
      * Called at the end of an invocation. Calls System.exit(code).
