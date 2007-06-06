@@ -13,7 +13,6 @@ import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
-import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
@@ -78,7 +77,7 @@ implements Environment, XmlTranslationExceptionTypes
 	/**
 	 * Place where <code>Pref</code>s are loaded from and stored to.
 	 */
-	protected ParsedURL prefsPURL;
+	ParsedURL prefsPURL;
 	
 	protected enum LaunchType
 	{
@@ -365,6 +364,11 @@ implements Environment, XmlTranslationExceptionTypes
 		this.launchType			= launchType;
 		// look for codeBase path
 		arg						= pop(argStack);
+
+		// read perhaps meta-preferences and surely preferences from application data dir
+		File applicationDir		= PropertiesAndDirectories.thisApplicationDir();
+		ParsedURL applicationDataPURL	= new ParsedURL(applicationDir);
+		prefsPURL				= applicationDataPURL.getRelative("preferences/prefs.xml");
 		
 		switch (launchType)
 		{
@@ -377,9 +381,6 @@ implements Environment, XmlTranslationExceptionTypes
 				ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
 				this.setCodeBase(codeBase);
 				
-				// read meta-preferences and preferences from application data dir
-				File applicationDir	= PropertiesAndDirectories.thisApplicationDir();
-				ParsedURL applicationDataPURL					= new ParsedURL(applicationDir);
 				XmlTranslationException metaPrefSetException	= null;
 				ParsedURL metaPrefsPURL	= null;
 				try
@@ -396,7 +397,6 @@ implements Environment, XmlTranslationExceptionTypes
 				{
 					metaPrefSetException	= e;
 				}
-				prefsPURL	= applicationDataPURL.getRelative("preferences/prefs.xml");
 
 	            //TODO for eunyee -- test for studies preference and download special studies preferences
 				// When the JNLP has more than two arguments (study case) -- eunyee
@@ -412,10 +412,8 @@ implements Environment, XmlTranslationExceptionTypes
 						if( prefSet == null )
 							error("not prefXML string returned from the servlet=" + prefServlet);
 					}
-
-
 				}
-				
+
 	            // from supplied URL instead of from here
 	            try
 				{
@@ -469,7 +467,13 @@ implements Environment, XmlTranslationExceptionTypes
 				metaPrefSetException	= e;
 			}
 			
-			// now seek the path to an application specific xml preferences file
+			// load the application dir prefs from this machine
+			// (e.g., c:\Documents and Settings\andruid\Application Data\combinFormation\preferences\prefs.xml
+			// these are the ones that get edited interactively!
+			
+    		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+
+    		// now seek the path to an application specific xml preferences file
 			arg						= pop(argStack);
 			//if (arg == null)
 				//return;
@@ -478,11 +482,11 @@ implements Environment, XmlTranslationExceptionTypes
 				// load preferences specific to this invocation
 				if (arg.endsWith(".xml"))
 				{
-					File appPrefsFile	= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
-					prefsPURL	= new ParsedURL(appPrefsFile);
+					File argPrefsFile		= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + arg);
+					ParsedURL argPrefsPURL	= new ParsedURL(argPrefsFile);
 		            try
 					{            	
-						prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+						PrefSet.load(argPrefsPURL, translationSpace);
 						if (metaPrefSetException != null)
 						{
 							warning("Couldn't load MetaPrefs:");
@@ -490,7 +494,7 @@ implements Environment, XmlTranslationExceptionTypes
 							println("\tContinuing.");
 						}
 						else
-				            println("OK: Loaded Prefs from: " + appPrefsFile);
+				            println("OK: Loaded Prefs from: " + argPrefsFile);
 
 					} catch (XmlTranslationException e)
 					{
@@ -504,7 +508,7 @@ implements Environment, XmlTranslationExceptionTypes
 						else
 						{
 							// meta prefs o.k. we can continue without having loaded Prefs now
-							e.printTraceOrMessage(this, "Couldn't load Prefs", prefsPURL);
+							e.printTraceOrMessage(this, "Couldn't load Prefs", argPrefsPURL);
 							println("\tContinuing.");
 						}
 					}
@@ -863,11 +867,11 @@ implements Environment, XmlTranslationExceptionTypes
 	 */
 	public PrefEditorWidgets createPrefsEditor()
 	{
-		PrefEditorWidgets result	= null;
+		PrefsEditor result	= null;
 		if (metaPrefSet != null)
 		{
 			if (prefSet == null)
-				prefSet		= new PrefSet();
+				prefSet		= new PrefSet();		
 			result			= new PrefsEditor(metaPrefSet, prefSet, prefsPURL, false);
 		}
 		return result;
