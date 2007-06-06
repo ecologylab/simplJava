@@ -38,7 +38,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
         // TODO method for this to get prefs dir
 		//ParsedURL metaPrefsPURL = this.preferencesDir().getRelative("metaprefs.xml", "");
         //ParsedURL prefsPURL = this.preferencesDir().getRelative("prefs.xml", "");
-		PrefsEditor mgr = this.createPrefsEditor();
+		PrefsEditor mgr = (PrefsEditor) this.createPrefsEditor();
 
 /*		try 
 		{
