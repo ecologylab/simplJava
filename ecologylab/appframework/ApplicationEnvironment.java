@@ -13,6 +13,7 @@ import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
