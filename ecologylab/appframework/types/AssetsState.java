@@ -1,21 +1,8 @@
 package ecologylab.appframework.types;
 
-import java.io.File;
 import java.util.HashMap;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.appframework.StatusReporter;
-import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.Generic;
-import ecologylab.io.Assets;
-import ecologylab.io.Files;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -23,6 +10,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * Handles the loading and parsing of the asset version XML file
  *  
  * @author robinson
+ * @author andruid
  */
 @xml_inherit public class AssetsState extends ArrayListState<AssetState>
 {
