@@ -33,7 +33,7 @@ public class CFPrefsEdit extends ApplicationEnvironment
 	
 	public CFPrefsEdit(String[] args) throws XmlTranslationException 
 	{
-		super("ecologyLabFundamental", PrefTranslations.get(), args);
+		super("ecologyLabFundamental", PrefTranslations.get(), args, 0);
 		
         // TODO method for this to get prefs dir
 		//ParsedURL metaPrefsPURL = this.preferencesDir().getRelative("metaprefs.xml", "");
