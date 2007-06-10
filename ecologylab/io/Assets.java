@@ -8,15 +8,35 @@ import java.io.File;
 import ecologylab.appframework.ApplicationProperties;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.StatusReporter;
+import ecologylab.appframework.types.AssetState;
 import ecologylab.appframework.types.AssetsState;
+import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.XmlTranslationException;
 
 /**
- * Used to manage cachable assets
+ * Used to manage cachable assets.
+ * <p/>
+ * This class must not be called until codeBase is properly set!
+ * <p/>
+ * Here's how it works:
+ * (1) There is a file called assets.xml. It lives only in applicationDataDir(), the cache root.
+ * 	   There is *no* version of this file in <codeBase>/config/preferences, the assets root.
+ * 
+ * 	   This file stores the *current* cached version # of each asset.
+ * 
+ * (2) The version of each Asset is a constant, which lives *in the code*.
+ * 	   It is passed to Assets.downloadZip().
+ * (3) If there is no local versions of assets.xml (first time ap is run), or if any version turns out to be
+ * 	   stale, the assets.xml file will need to be written to the cache root.
+ * 	   The application *must* call updateAssetsXml() to do this, after it is finished reading all Assets.
+ * 	   This method will know if writing the file is needed or not.
  * 
  * @author blake
+ * @author andruid
  */
 public class Assets
 extends Debug
@@ -37,6 +57,17 @@ implements ApplicationProperties
 	 * The source location of any asset is specified relative to here.
 	 */
 	static ParsedURL	assetsRoot;
+	
+	protected static final String ASSETS_XML_NAME			= "assets.xml";
+
+	static File			assetsXmlFile;
+	
+	/**
+	 * Asset version number info!
+	 */
+	static AssetsState	assetsState;
+	
+	static boolean		needToWriteAssetsXml;
 	
 	/**
 	 * Source URL root of the tree of interface assets for this application.
@@ -89,10 +120,41 @@ implements ApplicationProperties
 	
 	static File			preferencesCacheRoot;
 
+	/*
+	 * Set-up assets and cache roots.
+	 * Read currently downloaded
+	 */
 	static
 	{
-		setAssetsRoot(Generic.configDir());
+		ParsedURL configDir = Generic.configDir();
+		if (configDir != null)
+			setAssetsRoot(configDir);
+		else
+		{
+			ParsedURL codeBaseSlashConfig	= ParsedURL.getRelativeToCodeBase("config/", "Forming assetsPURL");
+			setAssetsRoot(codeBaseSlashConfig);
+		}
 		setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
+		
+		assetsXmlFile	= new File(cacheRoot, ASSETS_XML_NAME);
+		if (assetsXmlFile.exists())
+		{
+			try
+			{
+				assetsState			= (AssetsState) ElementState.translateFromXML(assetsXmlFile, AssetsTranslations.get());
+
+			} catch (XmlTranslationException e)
+			{
+				println("ERROR reading AssetsState from " + assetsXmlFile);
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			println("Assets: no cached assets found at " + assetsXmlFile);
+		}
+		if (assetsState == null)
+			assetsState			= new AssetsState();
 	}
 	//////////////////////////////////////////////////////////////
 	
@@ -240,7 +302,7 @@ implements ApplicationProperties
 	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
 											   boolean forceDownload)
 	{
-		return downloadInterfaceZip(assetRelativePath, status, forceDownload, AssetsState.IGNORE_VERSION);
+		return downloadInterfaceZip(assetRelativePath, status, forceDownload, IGNORE_VERSION);
 	}
 	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
 											   boolean forceDownload, float version)
@@ -264,7 +326,7 @@ implements ApplicationProperties
 	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
 										    boolean forceDownload)
 	{
-		downloadSemanticsZip(assetRelativePath, status, forceDownload, AssetsState.IGNORE_VERSION);
+		downloadSemanticsZip(assetRelativePath, status, forceDownload, IGNORE_VERSION);
 	}
 	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
 											boolean forceDownload, float version)
@@ -274,10 +336,15 @@ implements ApplicationProperties
 	}
 	
 	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
-											  boolean forceDownload)
+			  boolean forceDownload)
+	{
+		downloadPreferencesZip(assetRelativePath,  status, forceDownload, IGNORE_VERSION);
+	}
+	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
+											  boolean forceDownload, float version)
 	{
 		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
-					preferencesCacheRoot, status, forceDownload, AssetsState.IGNORE_VERSION);
+					preferencesCacheRoot, status, forceDownload, version);
 	}
 	/**
 	 * Download the assets zip file from the assetsRoot.
@@ -331,7 +398,7 @@ implements ApplicationProperties
 		
 		zipFileName			= zipFileName.substring(lastSlash+1);
 		File zipFileDestination	= Files.newFile(targetDir, zipFileName);
-		if (forceDownload || !zipFileDestination.canRead() || !AssetsState.localVersionIsUpToDate(zipFileName, version))
+		if (forceDownload || !zipFileDestination.canRead() || !localVersionIsUpToDate(zipFileName, version))
 		{
 			ZipDownload downloadingZip	= ZipDownload.downloadAndPerhapsUncompress(sourceZip, targetDir, status, true);
 			if (downloadingZip != null) // null if already available locally or error
@@ -438,6 +505,63 @@ implements ApplicationProperties
 		}
 		else
 			println("Using cached " + xmlFileDestination);
+	}
+	
+	static public final float	IGNORE_VERSION	= 0f;
+
+	/**
+	 * Determines if a file should be downloaded again, based upon it's file version.
+	 * @param id the name of the file to check
+	 * @param requiredVersion the version of that file
+	 * \
+	 * @return false if the local asset is stale and to download
+	 *         true if the local version is fine and we dont need to download
+	 */
+	public static boolean localVersionIsUpToDate(String id, float requiredVersion)
+	{
+		if (requiredVersion == IGNORE_VERSION)
+			return true;
+		
+		AssetState assetState	= assetsState.lookup(id);
+		boolean result			= assetState != null;
+		if (result)
+		{
+			float localVersion	= assetState.getVersion();
+			result				= requiredVersion <= localVersion;
+		}
+		else
+		{	// create an entry to write later when the application developer calls updateAssetsXml().
+			assetState			= assetsState.update(id);
+		}
+		if (!result)
+		{
+			needToWriteAssetsXml= true;
+			assetState.setVersion(requiredVersion);	// update the version in our data structure
+		}
+
+		return result;
+	}
+	
+	/**
+	 * If necessary, re-write the local (and only) assets.xml file.
+	 *
+	 */
+	public static void updateAssetsXml()
+	{
+		try
+		{
+			if (needToWriteAssetsXml)
+			{
+				needToWriteAssetsXml	= false;
+				assetsState.savePrettyXML(assetsXmlFile);
+				println("Saved Assets XML: " + assetsXmlFile);
+			}
+			else
+				println("NO NEED to Save Assets XML: " + assetsXmlFile);
+		} catch (XmlTranslationException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }
 
