@@ -175,6 +175,8 @@ public class ReflectionTools extends Debug
   				e.printStackTrace();
   			} catch (InvocationTargetException e)
   			{
+  				Throwable cause	= e.getCause();
+  				cause.printStackTrace();
   				e.printStackTrace();
   			}
   		}
