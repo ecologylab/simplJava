@@ -124,11 +124,12 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion TODO
 	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[]) throws XmlTranslationException
+	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[], float prefsAssetVersion) throws XmlTranslationException
 	{
-	   this(null, applicationName, translationSpace, args);
+	   this(null, applicationName, translationSpace, args, prefsAssetVersion);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -154,7 +155,7 @@ implements Environment, XmlTranslationExceptionTypes
 	 */
 	public ApplicationEnvironment(String applicationName, String args[]) throws XmlTranslationException
 	{
-	   this(applicationName, (TranslationSpace) null, args);
+	   this(applicationName, (TranslationSpace) null, args, 0);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -184,7 +185,7 @@ implements Environment, XmlTranslationExceptionTypes
 	 */
 	public ApplicationEnvironment(Class baseClass, String applicationName, String args[]) throws XmlTranslationException
 	{
-	   this(baseClass, applicationName, null, args);
+	   this(baseClass, applicationName, null, args, 0);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -227,9 +228,10 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion TODO
 	 * @throws XmlTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[]) throws XmlTranslationException
+	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[], float prefsAssetVersion) throws XmlTranslationException
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
 		this.translationSpace		= translationSpace;
@@ -241,6 +243,8 @@ implements Environment, XmlTranslationExceptionTypes
 
 		// setup os specific system preferences
 		PropertiesAndDirectories.setOSSpecificProperties();
+
+		ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
 		
 		if (translationSpace == null)
 			translationSpace	= DefaultServicesTranslations.get();
@@ -251,7 +255,7 @@ implements Environment, XmlTranslationExceptionTypes
 			argStack.push(args[i]);
 		
 		String arg;
-		processPrefs(baseClass, translationSpace, argStack);
+		processPrefs(baseClass, translationSpace, argStack, prefsAssetVersion);
 		   
 		Debug.initialize();
 
@@ -339,9 +343,10 @@ implements Environment, XmlTranslationExceptionTypes
 	 * @param baseClass
 	 * @param translationSpace
 	 * @param argStack
+	 * @param prefsAssetVersion TODO
 	 * @throws XmlTranslationException
 	 */
-	private void processPrefs(Class baseClass, TranslationSpace translationSpace, Stack<String> argStack) 
+	private void processPrefs(Class baseClass, TranslationSpace translationSpace, Stack<String> argStack, float prefsAssetVersion) 
 	throws XmlTranslationException
 	{
 		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
@@ -361,15 +366,17 @@ implements Environment, XmlTranslationExceptionTypes
 				argStack.push(arg);
 			}
 		}
-		println("LaunchType = " + launchType);
+		println("see, LaunchType = " + launchType);
 		this.launchType			= launchType;
 		// look for codeBase path
 		arg						= pop(argStack);
 
 		// read perhaps meta-preferences and surely preferences from application data dir
 		File applicationDir		= PropertiesAndDirectories.thisApplicationDir();
+		
 		ParsedURL applicationDataPURL	= new ParsedURL(applicationDir);
 		prefsPURL				= applicationDataPURL.getRelative("preferences/prefs.xml");
+		debugA("prefsPURL= "+prefsPURL);
 		
 		switch (launchType)
 		{
@@ -386,19 +393,15 @@ implements Environment, XmlTranslationExceptionTypes
 				ParsedURL metaPrefsPURL	= null;
 				try
 				{
-					ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
-					Assets.downloadPreferencesZip("prefs", null, true);
+					Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
 					File metaPrefsFile	= Assets.getPreferencesFile(METAPREFS_XML);
 					metaPrefsPURL	= new ParsedURL(metaPrefsFile);
 					metaPrefSet		= MetaPrefSet.load(metaPrefsFile, translationSpace);
 					println("OK: loaded MetaPrefs from " + metaPrefsFile);
-						//MetaPrefSet.load(metaPrefsPURL, translationSpace);
-						//(MetaPrefSet) ElementState.translateFromXML(Assets.getPreferencesFile("metaprefs.xml"), translationSpace);
 				} catch (XmlTranslationException e)
 				{
 					metaPrefSetException	= e;
 				}
-
 	            //TODO for eunyee -- test for studies preference and download special studies preferences
 				// When the JNLP has more than two arguments (study case) -- eunyee
 				if( argStack.size() > 0 )
@@ -414,14 +417,18 @@ implements Environment, XmlTranslationExceptionTypes
 							error("not prefXML string returned from the servlet=" + prefServlet);
 					}
 				}
-
 	            // from supplied URL instead of from here
 	            try
 				{
-	            	if( prefSet == null ) // Normal Case
+	            	debugA("Considering prefSet="+prefSet+"\tprefsPURL="+prefsPURL);
+	            	if (prefSet == null) // Normal Case
+	            	{
 	            		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
-	            	
-		            println("OK: Loaded Prefs from " + prefSet.translateToXML(true));
+	            		if (prefSet != null)
+	            			println("OK: Loaded Prefs from " + prefsPURL);
+	            		else
+	            			println("No Prefs to load from " + prefsPURL);
+	            	}
 					if (metaPrefSetException != null)
 					{
 						warning("Couldn't load MetaPrefs:");
@@ -453,8 +460,10 @@ implements Environment, XmlTranslationExceptionTypes
 		case ECLIPSE:
 		case JAR:
 			// NB: This gets executed even if arg was null!
-			File localCodeBasePath	= deriveLocalFileCodeBase(baseClass);
+			File localCodeBasePath	= deriveLocalFileCodeBase(baseClass); // sets codeBase()!
 			argStack.push(arg);
+
+			Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
 
 			XmlTranslationException metaPrefSetException	= null;
 			File metaPrefsFile		= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
@@ -473,6 +482,10 @@ implements Environment, XmlTranslationExceptionTypes
 			// these are the ones that get edited interactively!
 			
     		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
+    		if (prefSet != null)
+    			println("Loaded Prefs from: " + prefsPURL);
+    		else
+     			println("No Prefs to load from: " + prefsPURL);
 
     		// now seek the path to an application specific xml preferences file
 			arg						= pop(argStack);
@@ -487,15 +500,17 @@ implements Environment, XmlTranslationExceptionTypes
 					ParsedURL argPrefsPURL	= new ParsedURL(argPrefsFile);
 		            try
 					{            	
-						PrefSet.load(argPrefsPURL, translationSpace);
+						PrefSet argPrefSet	= PrefSet.load(argPrefsPURL, translationSpace);
 						if (metaPrefSetException != null)
 						{
 							warning("Couldn't load MetaPrefs:");
 							metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
 							println("\tContinuing.");
 						}
-						else
+						if (argPrefSet != null)
 				            println("OK: Loaded Prefs from: " + argPrefsFile);
+						else
+				            println("ERROR: Loading Prefs from: " + argPrefsFile);
 
 					} catch (XmlTranslationException e)
 					{
@@ -843,16 +858,6 @@ implements Environment, XmlTranslationExceptionTypes
 	public TranslationSpace translationSpace()
 	{
 		return translationSpace;
-	}
-	
-	/**
-	 * The required version number for the MetaPrefs asset.
-	 * 
-	 * @return	0 by default -- ignore version. 
-	 */
-	public float metaPrefsAssetVerison()
-	{
-		return AssetsState.IGNORE_VERSION;
 	}
 	
 	public DownloadProcessor assetsDownloadProcessor()
