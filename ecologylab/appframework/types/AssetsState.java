@@ -26,168 +26,61 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 @xml_inherit public class AssetsState extends ArrayListState<AssetState>
 {
-	// the hashmaps that store the version information.
-	// this stores the version info as specified BY THE CODE 
-	// this stores the version info as specifiec by the XML file.
-	static final HashMap<String, Float> loadedVersionsMap          = new HashMap<String, Float>();
-
-	//this is the name of our asset file.
-	static String assetFileName;
-
-	static AssetsState	assetsState;
-	
-	static public final float	IGNORE_VERSION	= 0f;
+	HashMap<String, AssetState>	assetsMap	= new HashMap<String, AssetState>();
 	
 	/**
-	 * Add the element to the HashMap.
-	 * 
-	 * @param elementState
-	 */
-	protected void addNestedElement(ElementState elementState)
-	{
-		if (elementState instanceof AssetState)
-		{
-			AssetState assetState	= (AssetState) elementState;
-			loadedVersionsMap.put(assetState.id, assetState.version);
-			
-			// default action -- adds to ArrayList
-			add(assetState);
-		}
-		else
-		{
-			error("Trying to add wrong type: " + elementState);
-		}
-	}
-	
-	/**
-	 * Determines if a file should be downloaded again, based upon it's file version.
-	 * @param id the name of the file to check
-	 * @param requiredVersion the version of that file
-	 * \
-	 * @return false if the local asset is stale and to download
-	 *         true if the local version is fine and we dont need to download
-	 */
-	public static boolean localVersionIsUpToDate(String id, float requiredVersion)
-	{
-		if (requiredVersion == IGNORE_VERSION)
-			return true;
-		
-		if (loadedVersionsMap.containsKey(id))
-		{
-			float localVersion = loadedVersionsMap.get(id);
-			boolean result	= requiredVersion <= localVersion;
-			
-			if (!result)
-			{
-				//the wrong version of our asset XML file, so reget!
-				reloadAssetsXML();
-			}
-			return result;
-		}
-		//since it's not there, redownload the asset AND the asset version XML file!!
-		reloadAssetsXML();
-		return false;
-	}
-
-	/**
-	 * forces a reload of the asset file.
-	 * this only happens if we need to reload it.
-	 * @throws NumberFormatException if anything bad happens, this is thrown.
-	 * @throws XmlTranslationException 
-	 */
-	public static void reloadAssetsXML() 
-	{
-		try 
-		{
-			loadAssetVersions(AssetsState.assetFileName, true);
-		} catch (XmlTranslationException e) 
-		{
-			// TODO Auto-generated catch block
-			error("AssetsState", "reload failed.");
-			e.printStackTrace();
-		}
-	}
-	
-
-	/**
-	 * Load the asset.xml file from the assetsCacheRoot,
-	 * which is equivalent to the Application Data dir.
-	 * Build an AssetsState object from it.
-	 * @throws XmlTranslationException 
-	 * @throws XmlTranslationException 
-	 */
-	public static void loadAssetVersions(String assetsVersionFileName, boolean forceDownload) 
-	throws XmlTranslationException
-	{
-		if (assetsVersionFileName == null)
-			throw new XmlTranslationException("Null assetsVersionFileName");
-
-		//set our version file info, so that we can reget our asset version file if necessary
-		// (without knowing the name of the file).
-		AssetsState.assetFileName = assetsVersionFileName;
-		
-		File assetsVersionFile 	= AssetsState.getAssetsVersionFile(assetsVersionFileName);
-		
-		if (!assetsVersionFile.exists() || forceDownload)
-			downloadAssetsXML(assetsVersionFileName, null);
-		
-		assetsState				= (AssetsState) ElementState.translateFromXML(assetsVersionFile, AssetsTranslations.get());
-	}
-
-	/**
-	 * Check each entry in requiredVersionsMap for an associated entry in
-	 * the AssetsState.
+	 * Perform custom processing on the newly created child node,
+	 * just before it is added to this.
 	 * <p/>
-	 * If the version for any required entry is greater than that in AssetsState
-	 * (or if there is a required version # and *no* entry in AssetsState):
-	 *    1) re-download and unzip that Zip file.
-	 *    2) After all such downloads are complete, re-download the
-	 *       assets.xml and re-build the AssetsState object.
+	 * This is part of depth-first traversal during translateFromXML().
 	 * <p/>
-	 * If the dispatchTarget parameter is non-null,
-	 * return immediately, do this asynhronously,
-	 * and then call the dispatchTarget with the reigning AssetsState as arg.
-	 * <p/>
-	 * If the dispatchTarget parameter is null, return when all is complete.
-	 */
-	public static AssetsState resolveAssetDownloads(AssetsState assetsVersion, DispatchTarget target)
-	{
-		return assetsVersion;
-	}
-
-
-	public static File getAssetsVersionFile(String assetRelativePath)
-	{
-		return getCachedAssetsVersionFileFile(assetRelativePath);
-	}
-	/**
-	 * Use the cacheRoot to produce a File object using the specified relative path.
+	 * This, the default implementation, does nothing.
+	 * Sub-classes may wish to override.
 	 * 
-	 * @param assetRelativePath
-	 * @return	File object for the path, relative to the cacheRoot.
+	 * @param child
 	 */
-	protected static File getCachedAssetsVersionFileFile(String assetRelativePath)
+	protected void createChildHook(ElementState child)
 	{
-		return Files.newFile(Assets.cacheRoot(), assetRelativePath);
+		AssetState asset	= (AssetState) child;
+		register(asset);
 	}
 
 	/**
-	 * Download an XML assets file from the AssetsRoot, to the CacheRoot.
-	 * 
-	 * @param assetRelativePath -- This is the name of the interface. It does not end in .zip!
-	 * @return	false if the assetRelativePath is null; otherwise true.
+	 * @param asset
 	 */
-	public static boolean downloadAssetsXML(String assetRelativePath, StatusReporter status)
+	private void register(AssetState asset)
 	{
-		if (assetRelativePath == null)
-			return false;
-		
-
-	//	Assets.downloadXML(Assets.assetsRoot().getRelative(assetRelativePath, "forming File location"), 
-			//	Assets.cacheRoot(), status);
-		Assets.downloadXML(assetRelativePath, "", status);
-
-		return true;
+		assetsMap.put(asset.getId(), asset);
+	}
+	
+	public AssetState lookup(String id)
+	{
+		return assetsMap.get(id);
+	}
+	public AssetState lookupAndUpdate(String id)
+	{
+		AssetState asset = lookup(id);
+		if (asset == null)
+		{
+			asset = update(id);
+		}
+		return asset;
 	}
 
+	/**
+	 * @return
+	 */
+	public AssetState update(String id)
+	{
+		AssetState asset	= new AssetState(id);
+		add(asset);
+		register(asset);
+		return asset;
+	}
+
+	public boolean contains(String id)
+	{
+		HashMap<String, AssetState> hashMap = assetsMap;
+		return hashMap.containsKey(id);
+	}
 }
