@@ -231,7 +231,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
     public void disconnect(boolean waitForResponses)
     {
-        while (this.requestsRemaining() > 0 && this.connected() && waitForResponses)
+        while (this.requestsRemaining() > 0 && this.connected()
+                && waitForResponses)
         {
             debug("*******************Request queue not empty, finishing "
                     + requestsRemaining() + " messages before disconnecting...");
@@ -412,16 +413,23 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     public PreppedRequest nonBlockingSendMessage(RequestMessage request)
             throws IOException
     {
-        try
+        if (connected())
         {
-            return this.prepareAndEnqueueRequestForSending(request);
-        }
-        catch (XmlTranslationException e)
-        {
-            error("error translating message; returning null");
-            e.printStackTrace();
+            try
+            {
+                return this.prepareAndEnqueueRequestForSending(request);
+            }
+            catch (XmlTranslationException e)
+            {
+                error("error translating message; returning null");
+                e.printStackTrace();
 
-            return null;
+                return null;
+            }
+        }
+        else
+        {
+            throw new IOException("Not connected to server.");
         }
     }
 

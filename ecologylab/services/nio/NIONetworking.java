@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
@@ -65,7 +66,7 @@ public abstract class NIONetworking extends Debug implements Runnable
 
     private Map<SocketChannel, Queue<ByteBuffer>> pendingWrites             = new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-    private Queue<ChangeRequest>                  pendingSelectionOpChanges = new LinkedList<ChangeRequest>();
+    private Queue<ChangeRequest>                  pendingSelectionOpChanges = new ConcurrentLinkedQueue<ChangeRequest>();
 
     private boolean                               running;
 

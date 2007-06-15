@@ -21,7 +21,7 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends
     /**
      * Stores the actual mappings.
      */
-    @xml_map private HashMap<K, V> map = null;
+    @xml_map protected HashMap<K, V> map = null;
 
     public HashMapState()
     {
