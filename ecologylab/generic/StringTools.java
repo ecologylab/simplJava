@@ -1,7 +1,11 @@
 package ecologylab.generic;
 
 import java.net.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import sun.misc.BASE64Encoder;
 
 import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
@@ -448,6 +452,27 @@ extends Debug
 		//didn't find a matching parenthesis
 		return -1;
 	}
+    public static final String hash(String message)
+    {
+        try
+        {
+            MessageDigest encrypter = MessageDigest.getInstance("SHA-256");
+    
+            encrypter.update(message.toLowerCase().getBytes());
+    
+            // convert to normal characters and return as a String
+            return new String((new BASE64Encoder()).encode(encrypter.digest()));
+    
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            // this won't happen in practice, once we have the right one! :D
+            e.printStackTrace();
+        }
+    
+        // this should never occur
+        return null;
+    }
 
 }
 
