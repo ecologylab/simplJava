@@ -24,6 +24,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -170,17 +171,27 @@ implements CharacterConstants
       return result.toString();
    }
    
- /**
- * This method name for the attribute given a field name, which is a primitive java type.
- * This is used during the translation from Java to xml. 
- * @param field			the field(primitive type) in the state-class 
- * @param compression	if the name of the field should be abbreviated
- * @return				name of the attribute for the xml
- */
-   public static String attrNameFromField(Field field, boolean compression)
-   {
-   		return field.getName();
-   }
+     /**
+     * This method name for the attribute given a field name, which is a primitive java type. This is used during the
+     * translation from Java to xml.
+     * 
+     * @param field
+     *            the field(primitive type) in the state-class
+     * @param compression
+     *            if the name of the field should be abbreviated
+     * @return name of the attribute for the xml
+     */
+    public static String attrNameFromField(Field field, boolean compression)
+    {
+        if (field.isAnnotationPresent(xml_tag.class))
+        {
+            return field.getAnnotation(xml_tag.class).value();
+        }
+        else
+        {
+            return field.getName();
+        }
+    }
 
    /**
    * This method generates a name for an ElementState object, given an XML element name. 

@@ -327,7 +327,6 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 								  int nodeNumber, StringBuilder buffy)
 	throws XmlTranslationException
 	{
-	   
 	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
 							 getTagMapEntry(thatClass, compression), buffy);
 	}
@@ -509,7 +508,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 							Class thatNewClass			= thatElementState.getClass();
 							//					debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 							TagMapEntry nestedTagMapEntry = (thatNewClass == thatField.getType()) ?
-									getTagMapEntry(fieldName, compression) : getTagMapEntry(thatNewClass, compression);
+									getTagMapEntry(thatField, compression) : getTagMapEntry(thatNewClass, compression);
 									
 							thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
 															nestedTagMapEntry, buffy);
@@ -1162,7 +1161,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 												boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
-		Node rootNode				= (Node) dom.getDocumentElement();
+		Node rootNode				= dom.getDocumentElement();
 		return translateFromXML(rootNode, translationSpace, doRecursiveDescent);
 	}
 	
@@ -1825,9 +1824,9 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	private TagMapEntry getTagMapEntry(String fieldName, boolean compression)
+	private TagMapEntry getTagMapEntry(Field field, boolean compression)
 	{
-		return optimizations.getTagMapEntry(fieldName, compression);
+		return optimizations.getTagMapEntry(field, compression);
 	}
 /**
  * Get a tag translation object that corresponds to the fieldName,
@@ -2203,6 +2202,35 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
     public @interface xml_map
     {
        	String value() default NULL_TAG;
+    }
+    
+    /**
+     * Annotation that tells ecologylab.xml translators that this field has a name that cannot be dynamically generated.
+     * This name is specified by the value of this annotation.
+     * 
+     * Note that programmers should be careful when specifying an xml_tag, to ensure that there are no collisions with
+     * other names. Note that when an xml_tag is specified for a field, it will ALWAYS EMIT AND TRANSLATE FROM USING
+     * THAT NAME.
+     * 
+     * xml_tag's should typically be something that cannot be represented using dynamically-generated names, such as
+     * utilizing characters that are not normally allowed in field names, but that are allowed in XML names. This can be
+     * particularly useful for building ElementState objects out of XML from the wild.
+     * 
+     * Remember, you cannot use XML-forbidden characters or constructs in an xml_tag!
+     * 
+     * @xml_tag you MUST create your translation space using a Class object instead of a pair of Strings!!!
+     * 
+     * TODO we can fix the above issue by translating the Strings into a Class object and checking that -- but that's
+     * for another day.
+     * 
+     * @author Zach
+     * 
+     */
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_tag
+    {
+        String value();
     }
     
 	public void checkAnnotation() throws NoSuchFieldException

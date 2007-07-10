@@ -27,7 +27,7 @@ public class ChoiceFloat extends Choice<Float>
      * 
      * @return value    Value of the choice
      */
-    public void setValue(Float newValue)
+    @Override public void setValue(Float newValue)
     {
         this.value = newValue;
     }
@@ -37,7 +37,7 @@ public class ChoiceFloat extends Choice<Float>
      * 
      * @param newValue  New value the choice will be set to.
      */
-    public Float getValue()
+    @Override public Float getValue()
     {
         return this.value;
     }

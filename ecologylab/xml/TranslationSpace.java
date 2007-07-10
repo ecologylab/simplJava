@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
+import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -455,8 +456,9 @@ public class TranslationSpace extends Debug
  * Find an appropriate XML tag name, based on the type of the object passed.
  * 
  * @param object	Object whose type becomes the basis for the tag name we derive.
+ * @deprecated appears to no longer be used -Zach
  */   
-   public String objectToXmlTag(Object object)
+   @Deprecated public String objectToXmlTag(Object object)
    {
 	  return classToXmlTag(object.getClass());
    }
@@ -464,16 +466,17 @@ public class TranslationSpace extends Debug
     * Find an appropriate XML tag name, based on the class object passed.
     * 
     * @param classObj	The type which becomes the basis for the tag name we derive.
+    * @deprecated appears to no longer be used -Zach
     */   
-   public String classToXmlTag(Class classObj)
+   @Deprecated public String classToXmlTag(Class classObj)
    {
 	  String className	= classObj.getName();
-	  TranslationEntry entry	= (TranslationEntry) entriesByClassSimpleName.get(className);
+	  TranslationEntry entry	= entriesByClassSimpleName.get(className);
 	  if (entry == null)
 	  {
 	  	 synchronized (this) 
 	  	 {
-	  	 	 entry	= (TranslationEntry) entriesByClassSimpleName.get(className);
+	  	 	 entry	= entriesByClassSimpleName.get(className);
 	  	 	 if (entry == null)
 	  	 	 {
 				 String packageName = classObj.getPackage().getName();
@@ -525,12 +528,23 @@ public class TranslationSpace extends Debug
     * 
     * @return
     */
-   private Iterator<TranslationEntry> entriesByClassIterator()
+   public Iterator<TranslationEntry> entriesByClassIterator()
    {
 	   Collection<TranslationEntry> values = entriesByClassSimpleName.values();
 	   return values.iterator();
    }
 
+   /**
+    * @param classObj
+    * @param classSimpleName
+    * @return
+    */
+   private static String determineXMLTag(Class<?> classObj, String classSimpleName)
+   {
+       return classObj.isAnnotationPresent(xml_tag.class) ? classObj.getAnnotation(xml_tag.class).value() : 
+         XmlTools.getXmlTagName(classSimpleName, "State", false);
+   }
+   
    public class TranslationEntry extends Debug
    {
 	  public final String		packageName;
@@ -559,12 +573,17 @@ public class TranslationSpace extends Debug
 	  /**
 	   * Create the entry by package name and class name.
 	   */
-	  public TranslationEntry(Class classObj, String classSimpleName)
+	  public TranslationEntry(Class<?> classObj, String classSimpleName)
 	  {
-		  this(classObj.getPackage().getName(), classSimpleName, classObj.getName(),
-				  XmlTools.getXmlTagName(classSimpleName, "State", false), classObj);
+          // check to see if the class specifies it's tag through @xml_tag; sadly, this is a constructor
+		  this(classObj.getPackage().getName(), 
+                  classSimpleName, 
+                  classObj.getName(),
+                  determineXMLTag(classObj, classSimpleName), 
+                  classObj);
 	  }
-	  
+
+    
 	  public TranslationEntry(String packageName, String classSimpleName, 
 					   		  String tag, Class classObj)
 	  {
@@ -575,12 +594,12 @@ public class TranslationSpace extends Debug
 			   				  String tag, Class classObj)
 {
 		 this.packageName		= packageName;
-		 // changed by andruid 5/5/07
-		 // the thinking is that there is only one possible simple class name per tag per TranslationSpace,
-		 // so we don't ever need the whole class name.
-		 // and by ussing the short one, we will be able to support 
-		 // fancy overriding properly, where you change (override!) the mapping of a simple name,
-		 // because the package and whole name are differrent.
+		 /*
+             * changed by andruid 5/5/07 the thinking is that there is only one possible simple class name per tag per
+             * TranslationSpace, so we don't ever need the whole class name. and by ussing the short one, we will be
+             * able to support fancy overriding properly, where you change (override!) the mapping of a simple name,
+             * because the package and whole name are differrent.
+             */
 		 this.classSimpleName	= classSimpleName;
 		 this.classWholeName	= classWholeName;
 //		 this.className			= wholeClassName;

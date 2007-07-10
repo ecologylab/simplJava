@@ -44,7 +44,7 @@ public class ChoiceBoolean extends Choice<Boolean>
      * 
      * @param newValue  New value the choice will be set to.
      */
-	public void setValue(Boolean newValue) 
+	@Override public void setValue(Boolean newValue) 
 	{
 		this.value	= newValue;
 	}

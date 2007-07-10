@@ -30,31 +30,30 @@ import ecologylab.io.Files;
  */
 public class Debug 
 {
-	private static final String SEPARATOR = ": ";
-	
-/**
- * Global flag for printing "interactive debug" statements.
- * See also {@link #debugI(String) debugI()}.
- */
-   private static boolean	interactive;
-   
-   private static boolean	logToFile = false;
-   
-   private static final HashMap	classAbbrevNames	= new HashMap();
-   private static final HashMap	packageNames	= new HashMap();
-   
-   static final int FLUSH_FREQUENCY	= 10;
-   
-/**
- * Holds class specific debug levels.
- */
-   static final HashMap		classLevels	= new HashMap();
-   
-   /**
-    * Global hi watermark. debug() messages with a level less than or equal
-    *  to this will get printed out.
-    */
-   //private static PrefInt level	= Pref.usePrefInt("debug_global_level", 0);;
+	private static final String                 SEPARATOR        = ": ";
+
+    /**
+     * Global flag for printing "interactive debug" statements. See also {@link #debugI(String) debugI()}.
+     */
+    private static boolean                      interactive;
+
+    private static boolean                      logToFile        = false;
+
+    private static final HashMap<Class, String> classAbbrevNames = new HashMap<Class, String>();
+
+    private static final HashMap<Class, String> packageNames     = new HashMap<Class, String>();
+
+    static final int                            FLUSH_FREQUENCY  = 10;
+
+    /**
+     * Holds class specific debug levels.
+     */
+    static final HashMap<String, IntSlot>       classLevels      = new HashMap<String, IntSlot>();
+
+    /**
+     * Global hi watermark. debug() messages with a level less than or equal to this will get printed out.
+     */
+    // private static PrefInt level = Pref.usePrefInt("debug_global_level", 0);;
 
 
    public static void initialize()
@@ -203,7 +202,7 @@ public class Debug
  */
    public static String classSimpleName(Class thatClass)
    {
-      String abbrevName	= (String) classAbbrevNames.get(thatClass); 
+      String abbrevName	= classAbbrevNames.get(thatClass); 
       if (abbrevName == null)
       {
 		 String fullName	= thatClass.toString();
@@ -221,7 +220,7 @@ public class Debug
    public static String getPackageName(Class thatClass)
    {
       //System.out.println("thatClass.toString() is " + thatClass.toString());
-      String packageName = (String) packageNames.get(thatClass);
+      String packageName = packageNames.get(thatClass);
       if (packageName == null)
       {
 		 String className	= thatClass.toString();
@@ -263,7 +262,7 @@ public class Debug
    {
       return getPackageName(this);
    }
-   public String toString()
+   @Override public String toString()
    {
       return getClassName(this);
    }

@@ -27,7 +27,7 @@ public class ChoiceInt extends Choice<Integer>
      * 
      * @return value    Value of the choice
      */
-    public void setValue(Integer newValue)
+    @Override public void setValue(Integer newValue)
     {
         this.value = newValue;
     }
@@ -37,7 +37,7 @@ public class ChoiceInt extends Choice<Integer>
      * 
      * @param newValue  New value the choice will be set to.
      */
-    public Integer getValue()
+    @Override public Integer getValue()
     {
         return this.value;
     }

@@ -444,7 +444,7 @@ implements WindowListener
         JPanel contentPanel = new JPanel()
         {
             private boolean firstTime = true;
-            public void paintComponent(Graphics g)
+            @Override public void paintComponent(Graphics g)
             {
                 if (firstTime)
                 {
@@ -453,7 +453,7 @@ implements WindowListener
                     for (int i=0; i < numberOfEntries; i+=3)
                     {
                         // TODO: this only works because we alternate adding JLabels and JPanels and JSeparators
-                        if (((JLabel)this.getComponent(i) instanceof JLabel) && ((JPanel)this.getComponent(i+1) instanceof JPanel) && ((JSeparator)this.getComponent(i+2) instanceof JSeparator))
+                        if ((this.getComponent(i) instanceof JLabel) && (this.getComponent(i+1) instanceof JPanel) && (this.getComponent(i+2) instanceof JSeparator))
                         {
                             JLabel desc = (JLabel)this.getComponent(i);
                             JPanel val  = (JPanel)this.getComponent(i+1);

@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -268,6 +269,7 @@ implements ParseTableEntryTypes
  * Set-up PTE for scalar valued field (attribute or leaf node).
  * First look for a set method.
  * Then, look in the type registry.
+ * Finally, if all else fails, get the list of @xml_name tags in the context class, and see if any match
  * Else, we must ignore the field.
  * 
  * @param tag
@@ -291,6 +293,24 @@ implements ParseTableEntryTypes
 		{
 			String fieldName= XmlTools.fieldNameFromElementName(tag);
 			Field field		= optimizations.getField(fieldName);
+            
+            // TODO this might need to be done somewhere else...maybe another method
+            if (field == null)
+            { // we still haven't found the right one; have to check @xml_name in the context
+                for (Field contextField : contextClass.getDeclaredFields())
+                { // iterate through all the fields, and look for ones with xml_name's
+                    if (contextField.isAnnotationPresent(xml_tag.class))
+                    {
+                        if (tag.equals(contextField.getAnnotation(xml_tag.class).value()))
+                        { // if we found a matching xml_name, then that's our field!
+                            field = contextField;
+                            field.setAccessible(true);
+                            break;
+                        }
+                    }
+                }
+            }
+            
 			if (field != null)
 			{
 				ScalarType fieldType		= TypeRegistry.getType(field);

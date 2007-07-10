@@ -611,9 +611,9 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
                     if (choiceButton.isSelected())
                     {
                         if (mp instanceof MetaPrefFloat)
-                            return (Float) choice.getValue();
+                            return choice.getValue();
                         else if (mp instanceof MetaPrefInt)
-                            return (Integer) choice.getValue();
+                            return choice.getValue();
                         else
                             return null;
                     }
@@ -674,14 +674,14 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             JColorChooser colorChooser = (JColorChooser) lookupComponent(mp, mp
                     .getID()
                     + IDENTIFIER_COLOR_CHOOSER);
-            return (Color) colorChooser.getColor();
+            return colorChooser.getColor();
         }
         else if (mp.widgetIsFileChooser())
         {
             JFileChooser fileChooser = (JFileChooser) lookupComponent(mp, mp
                     .getID()
                     + IDENTIFIER_FILE_CHOOSER);
-            return (File) fileChooser.getSelectedFile();
+            return fileChooser.getSelectedFile();
         }
         return null;
     }

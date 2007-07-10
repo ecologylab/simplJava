@@ -1,6 +1,5 @@
 package ecologylab.xml;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -44,7 +43,7 @@ public class Optimizations extends Debug
 	/**
 	 * Used to optimize translateToXML().
 	 */
-	private HashMap<Object, TagMapEntry>		fieldNameOrClassToTagMap	= new HashMap<Object, TagMapEntry>();
+	private HashMap<Object, TagMapEntry>		fieldOrClassToTagMap	= new HashMap<Object, TagMapEntry>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are tag names.
@@ -120,19 +119,19 @@ public class Optimizations extends Debug
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
 	 */
-	TagMapEntry getTagMapEntry(Class thatClass, boolean compression)
+	TagMapEntry getTagMapEntry(Class<? extends ElementState> thatClass, boolean compression)
 	{
-		TagMapEntry result= fieldNameOrClassToTagMap.get(thatClass);
+		TagMapEntry result= fieldOrClassToTagMap.get(thatClass);
 		if (result == null)
 		{
-			synchronized (fieldNameOrClassToTagMap)
+			synchronized (fieldOrClassToTagMap)
 			{
-				result		= fieldNameOrClassToTagMap.get(thatClass);
+				result		= fieldOrClassToTagMap.get(thatClass);
 				if (result == null)
 				{
-					String tagName	= XmlTools.getXmlTagName(thatClass, "State", compression);
-					result	= new TagMapEntry(tagName);
-					fieldNameOrClassToTagMap.put(thatClass, result);
+				    result = new TagMapEntry(thatClass, compression);
+                    
+                    fieldOrClassToTagMap.put(thatClass, result);
 					//debug(tagName.toString());
 				}
 			}
@@ -144,20 +143,19 @@ public class Optimizations extends Debug
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
 	 */
-	TagMapEntry getTagMapEntry(String fieldName, boolean compression)
+	TagMapEntry getTagMapEntry(Field field, boolean compression)
 	{
-		TagMapEntry result= fieldNameOrClassToTagMap.get(fieldName);
+		TagMapEntry result= fieldOrClassToTagMap.get(field);
 		if (result == null)
 		{
-			synchronized (fieldNameOrClassToTagMap)
+			synchronized (fieldOrClassToTagMap)
 			{
-				result		= fieldNameOrClassToTagMap.get(fieldName);
+				result		= fieldOrClassToTagMap.get(field);
 				if (result == null)
 				{
-					String tagName	= XmlTools.getXmlTagName(fieldName, null, compression);
-					result	= new TagMapEntry(tagName);
+					result	= new TagMapEntry(field, compression);
 //					debug(tagName.toString());
-					fieldNameOrClassToTagMap.put(fieldName, result);
+					fieldOrClassToTagMap.put(field, result);
 				}
 			}
 		}
