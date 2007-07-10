@@ -18,7 +18,12 @@ public class Argument extends ElementState
      */
     public Argument()
     {
-        // TODO Auto-generated constructor stub
+        super();
     }
 
+    public Argument(String arg)
+    {
+        super();
+        this.arg = arg;
+    }
 }
