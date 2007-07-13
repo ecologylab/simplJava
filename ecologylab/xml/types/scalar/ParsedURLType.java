@@ -64,12 +64,7 @@ public class ParsedURLType extends ScalarType<ParsedURL>
 		return URL_DELIMS;
 	}
 	
-	/**
-	 * When tokenizing an input String to form an object such as TextChunk, determines whether
-	 * 
-	 * @return	false for URLs
-	 */
-	public boolean spaceAfterEachToken()
+	public boolean allowNewLines()
 	{
 		return false;
 	}

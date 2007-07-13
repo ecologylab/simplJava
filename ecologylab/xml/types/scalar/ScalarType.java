@@ -220,6 +220,11 @@ public class ScalarType<T> extends Debug
         return false;
     }
     
+    public boolean allowNewLines()
+    {
+    	return true;
+    }
+    
     /**
      * Get the class object for the Type for which this manages conversion.
      * 
@@ -241,16 +246,6 @@ public class ScalarType<T> extends Debug
 	public String delimeters()
 	{
 		return DEFAULT_DELIMS;
-	}
-	
-	/**
-	 * When tokenizing an input String to form an object such as TextChunk, determines whether
-	 * or not the space separator can follow it.
-	 * @return
-	 */
-	public boolean spaceAfterEachToken()
-	{
-		return true;
 	}
 	
 	/**

@@ -133,7 +133,7 @@ extends Debug
    {
 	   return getAbsolute(webAddr, "");
    }
-   /* 
+   /** 
     * Create a PURL from an absolute address.
     * 
     * @param	webAddr	url string

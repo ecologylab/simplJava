@@ -712,6 +712,9 @@ static String q(String string)
         	case '>':
         		newLength += 3;
         		break;
+        	case '\n':
+        		newLength += 4;
+        		break;
         	default: 
         		if (c >= ISO_LATIN1_START)
         			newLength += 5;
@@ -748,8 +751,10 @@ static String q(String string)
                 case '>':
                     result.append("&gt;");
                 	break;
+                case '\n':
+                    result.append("&#10;");
+                	break;
                 case TAB:
-                case LF:
                 case CR:
      		       result.append(c);
      		       break;
