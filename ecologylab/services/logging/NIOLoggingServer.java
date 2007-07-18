@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.net.NetTools;
 import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.nio.servers.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
@@ -86,8 +87,6 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             {
                 int newMPL = Integer.parseInt(args[1]);
                 mPL = newMPL;
-                System.err
-                        .println("Using " + mPL + " as maximum packet length");
             }
             catch (NumberFormatException e)
             {
@@ -103,7 +102,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
         }
 
         NIOLoggingServer loggingServer = getInstance(
-                InetAddress.getLocalHost(), new ObjectRegistry(), -1, mPL);
+                NetTools.getAllInetAddressesForLocalhost(), new ObjectRegistry(), -1, mPL);
 
         if (loggingServer != null)
         {
@@ -139,10 +138,31 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
     }
 
     @Override protected LoggingContextManager generateContextManager(
-            Object token, SocketChannel sc, TranslationSpace translationSpace,
-            ObjectRegistry registry)
+            Object token, SocketChannel sc, TranslationSpace translationSpaceIn,
+            ObjectRegistry registryIn)
     {
         return new LoggingContextManager(token, maxPacketSize, this, this
-                .getBackend(), sc, translationSpace, registry);
+                .getBackend(), sc, translationSpaceIn, registryIn);
+    }
+
+    /**
+     * Displays some information about the logging server, then calls super.start()
+     * 
+     * @see ecologylab.services.nio.servers.DoubleThreadedNIOServer#start()
+     */
+    @Override public void start()
+    {
+        this.debug("------------------------Logging Server starting------------------------");
+        this.debug("max packet length: "+this.maxPacketSize);
+        this.debug("saving logs to: "+this.logFilesPath);
+        this.debug("operating on port: "+this.getBackend().getPortNumber());
+        this.debug("using the following interfaces: ");
+        
+        for (InetAddress i : this.getBackend().getHostAddresses())
+        {
+            this.debug(i.toString());
+        }
+        
+        super.start();
     }
 }

@@ -47,7 +47,7 @@ implements LoggingDef
 	 * @return
 	 * @throws IOException
 	 */
-	protected ServerToClientConnection getConnection(Socket incomingSocket)
+	@Override protected ServerToClientConnection getConnection(Socket incomingSocket)
 	throws IOException
 	{
 		return new LoggingServerToClientConnection(incomingSocket, this);
@@ -60,7 +60,7 @@ implements LoggingDef
 	 * @param requestMessage	Message to perform.
 	 * @return					Response to the message.
 	 */
-	public ResponseMessage performService(RequestMessage requestMessage) 
+	@Override public ResponseMessage performService(RequestMessage requestMessage) 
 	{
 		if( requestMessage instanceof SendEpilogue)
 			end = true;
@@ -68,7 +68,7 @@ implements LoggingDef
 		return requestMessage.performService(objectRegistry);
 	}
 	
-	protected void terminationAction()
+	@Override protected void terminationAction()
 	{
 		if( !end )
 		{

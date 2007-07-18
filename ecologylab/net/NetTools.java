@@ -120,21 +120,21 @@ public class NetTools extends Debug
 	 */
 	public static String localHost()
 	{
-		String localHost			= NetTools.localHost;
-		if (localHost == null)
+		String localHost1			= NetTools.localHost;
+		if (localHost1 == null)
 		{
 			try
 			{
-				localHost			= InetAddress.getLocalHost().toString();
+				localHost1			= InetAddress.getLocalHost().toString();
 				//		localHost = localHost.replace('/','_');
-				localHost			= localHost.substring(localHost.indexOf('/')+1);
-				NetTools.localHost	= localHost;
+				localHost1			= localHost1.substring(localHost1.indexOf('/')+1);
+				NetTools.localHost	= localHost1;
 			} catch (UnknownHostException e)
 			{
 				e.printStackTrace();
 			}
 		}
-		return localHost;
+		return localHost1;
 	}
 
     public static InetAddress[] getAllInetAddressesForLocalhost() throws UnknownHostException

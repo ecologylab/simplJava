@@ -543,7 +543,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         ElementState stateObject = null;
         try
         {
-            stateObject = (ElementState) translateFromXML(fileName, nameSpace);
+            stateObject = translateFromXML(fileName, nameSpace);
         }
         catch (XmlTranslationException e)
         {
@@ -698,7 +698,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
          * 
          * @param prologue
          */
-        void writePrologue(SendPrologue sendPrologue)
+        @Override void writePrologue(SendPrologue sendPrologue)
         {
             try
             {
@@ -712,7 +712,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             // Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
         }
 
-        void consumeOp(String op)
+        @Override void consumeOp(String op)
         {
             // Files.writeLine(bufferedWriter, op);
             try
@@ -725,7 +725,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             }
         }
 
-        void finishConsumingQueue()
+        @Override void finishConsumingQueue()
         {
 
         }
@@ -733,7 +733,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         /**
          * Close the local file.
          */
-        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
         {
             System.out.println("writing epilogue and closing");
 
@@ -904,17 +904,17 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
          * 
          * @param prologue
          */
-        void writePrologue(SendPrologue sendPrologue)
+        @Override void writePrologue(SendPrologue sendPrologue)
         {
             Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
         }
 
-        void consumeOp(String op)
+        @Override void consumeOp(String op)
         {
             Files.writeLine(bufferedWriter, op);
         }
 
-        void finishConsumingQueue()
+        @Override void finishConsumingQueue()
         {
 
         }
@@ -922,7 +922,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         /**
          * Close the local file.
          */
-        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
         {
             Files.writeLine(bufferedWriter, sendEpilogue.getMessageString());
             try
@@ -963,7 +963,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
          * 
          * @param prologue
          */
-        void writePrologue(SendPrologue sendPrologue)
+        @Override void writePrologue(SendPrologue sendPrologue)
         {
             debug("logging client writing prologue");
 
@@ -980,12 +980,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             }
         }
 
-        void consumeOp(String op)
+        @Override void consumeOp(String op)
         {
             opSet.recordStringOp(op);
         }
 
-        void finishConsumingQueue()
+        @Override void finishConsumingQueue()
         {
             try
             {
@@ -1002,7 +1002,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         /**
          * Close the connection to the loggingServer.
          */
-        void writeEpilogueAndClose(SendEpilogue sendEpilogue)
+        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
         {
             debug("write epilogue and close.");
 

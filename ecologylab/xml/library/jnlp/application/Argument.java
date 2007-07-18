@@ -26,4 +26,14 @@ public class Argument extends ElementState
         super();
         this.arg = arg;
     }
+    
+    @Override public String getTextNodeString()
+    {
+        return arg;
+    }
+
+    @Override public void setTextNodeString(String str)
+    {
+        this.arg = str;
+    }
 }

@@ -144,16 +144,16 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
      * 
      * @param token
      * @param sc
-     * @param translationSpace
-     * @param registry
+     * @param translationSpaceIn
+     * @param registryIn
      * @return
      */
-    protected ContextManager generateContextManager(Object token,
-            SocketChannel sc, TranslationSpace translationSpace,
-            ObjectRegistry registry)
+    @Override protected ContextManager generateContextManager(Object token,
+            SocketChannel sc, TranslationSpace translationSpaceIn,
+            ObjectRegistry registryIn)
     {
         return new ContextManager(token, maxPacketSize, this.getBackend(),
-                this, sc, translationSpace, registry);
+                this, sc, translationSpaceIn, registryIn);
     }
 
     public void run()
@@ -209,7 +209,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
     /**
      * @see ecologylab.generic.StartAndStoppable#start()
      */
-    public void start()
+    @Override public void start()
     {
         running = true;
 
@@ -226,8 +226,9 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
     /**
      * @see ecologylab.generic.StartAndStoppable#stop()
      */
-    public void stop()
+    @Override public void stop()
     {
+        debug("Server stopping.");
         running = false;
 
         super.stop();

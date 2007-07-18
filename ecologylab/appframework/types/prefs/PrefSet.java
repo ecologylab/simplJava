@@ -36,7 +36,7 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
      * @param pref
      * @return
      */
-    public boolean add(Pref pref)
+    @Override public boolean add(Pref pref)
     {
     	boolean result	= super.add(pref);
     	pref.register();
@@ -55,7 +55,7 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
 	 */
     //TODO -- get rid of this when we make ArrayListState implement Collection!!!
     // (cause then this.add() will get called!)
-	protected void createChildHook(ElementState child)
+	@Override protected void createChildHook(ElementState child)
 	{
 		Pref pref	= (Pref) child;
 		pref.register();
