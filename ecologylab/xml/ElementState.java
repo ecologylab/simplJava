@@ -1333,7 +1333,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		}
 		catch (Exception e)
 		{
-		   throw new XmlTranslationException("Instantiation ERROR for " + stateClass +":", e);
+		   throw new XmlTranslationException("Instantiation ERROR for " + stateClass +". Is there a public constructor with no arguments?", e);
 		}
 		return nestedObject;
 	}
