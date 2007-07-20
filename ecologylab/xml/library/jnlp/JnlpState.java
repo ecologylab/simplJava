@@ -5,8 +5,9 @@ package ecologylab.xml.library.jnlp;
 
 import java.util.ArrayList;
 
+import ecologylab.xml.ElementState;
+import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_collection;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
@@ -23,8 +24,26 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author Zach
  * 
  */
-public @xml_inherit class JnlpState extends ArrayListState<InformationElement>
+public @xml_inherit class JnlpState extends ElementState implements Cloneable
 {
+    /**
+     * @see ecologylab.xml.types.element.ArrayListState#clone()
+     */
+    @Override public JnlpState clone()
+    {
+        // a bit of a hack, but it's easy!  :D
+        try
+        {
+            return (JnlpState) ElementState.translateFromXMLString(this.translateToXML(), JnlpTranslations.get());
+        }
+        catch (XmlTranslationException e)
+        {
+            e.printStackTrace();
+        }
+        
+        return new JnlpState();
+    }
+
     /**
      * This attribute must be 1.0 or higher to work with this release. The default value is "1.0+". Thus, it can
      * typically be omited. Note that this version supports both spec version 1.0 and version 1.5, whereas previous
@@ -126,5 +145,33 @@ public @xml_inherit class JnlpState extends ArrayListState<InformationElement>
     public void setHref(String href)
     {
         this.href = href;
+    }
+
+    /**
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override public boolean equals(Object obj)
+    {
+        if (!(obj instanceof JnlpState))
+        {
+            return false;
+        }
+        else
+        {
+            String thisXml;
+            try
+            {
+                thisXml = this.translateToXML(false);
+                String thatXml = ((ElementState)obj).translateToXML(false);
+                
+                return thisXml.equals(thatXml);
+            }
+            catch (XmlTranslationException e)
+            {
+                e.printStackTrace();
+                
+                return false;
+            }
+        }
     }
 }
