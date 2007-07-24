@@ -382,7 +382,7 @@ implements ParseTableEntryTypes
 	 */
 	void setFieldToScalar(Object context, String value)
 	{
-		if ((value == null) || (value.length() == 0))
+		if ((value == null) /*|| (value.length() == 0) removed by Alex to allow empty delims*/)
 		{
 			error("Can't set scalar field with empty String");
 			return;
