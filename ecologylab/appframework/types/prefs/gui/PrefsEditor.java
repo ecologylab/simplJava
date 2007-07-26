@@ -1,6 +1,7 @@
 package ecologylab.appframework.types.prefs.gui;
 
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -98,10 +99,6 @@ implements WindowListener
      */
     JFrame 		jFrame = null;
     /**
-     * Content pane within base window for GUI
-     */
-    JPanel 		jContentPane = null;
-    /**
      * Cancel button for GUI
      */
     JButton 	cancelButton = null;
@@ -158,22 +155,14 @@ implements WindowListener
      * @param savePrefsPURL     ParsedURL to save prefs.xml to
      * @param isStandalone      Whether or not we're calling this standalone
      */
-    public PrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean isStandalone)
+    public PrefsEditor(MetaPrefSet metaPrefSet, PrefSet prefSet, ParsedURL savePrefsPURL, final boolean createJFrame, final boolean isStandalone)
     {
         super (metaPrefSet, prefSet, savePrefsPURL);
 
         this.isStandalone	= isStandalone;
         
-        final JFrame jFrame = fetchJFrame();
-        jFrame.setLocation(startLocation);
-        jFrame.addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
-            	closeWindow();
-            }
-       });
-        jFrame.setVisible(true);
+        final Container container = setupContainer(createJFrame, isStandalone);
+        //container.setLocation(startLocation);
     }
     
     /**
@@ -181,9 +170,21 @@ implements WindowListener
      * @see #createJFrame()
      * @return Base window (JFrame) for the GUI
      */
-    public JFrame fetchJFrame()
+    public Container setupContainer(final boolean createJFrame, final boolean isStandalone)
     {
-        return createJFrame();
+    	Container result	= createContainer(createJFrame);
+    	if (createJFrame)
+    	{
+    		jFrame.addWindowListener(new WindowAdapter()
+    		{
+    			public void windowClosing(WindowEvent e)
+    			{
+    				closeWindow();
+    			}
+    		});
+    		jFrame.setVisible(true);
+    	}
+    	return result;
     }
 
     /**
@@ -196,19 +197,42 @@ implements WindowListener
      * @return Base window (JFrame) for the GUI
      */
     // static bits of gui
-    private JFrame createJFrame() 
+    private Container createContainer(boolean createJFrame) 
     {
-        if (jFrame == null) 
-        {
-            jFrame = new JFrame();
-            jFrame.setPreferredSize(new Dimension(603, 532));
-            jFrame.setSize(new Dimension(603, 532));
-            jFrame.setTitle("combinFormation Preferences");
-            jFrame.setContentPane(createJContentPane());
-            jFrame.addWindowListener(this);
-        }
-        return jFrame;
+    	Container result	= null;
+    	if (createJFrame)
+    	{
+	        if (jFrame == null) 
+	        {
+	            jFrame = new JFrame();
+	            jFrame.setContentPane(createJContentPane());
+	            jFrame.addWindowListener(this);
+	    		String title	= metaPrefSet.getTitle();
+	    		if (title == null)
+	    			title	= "Preferences Editor";
+	    		jFrame.setTitle(title);
+	        }
+	        result			= jFrame;
+    	}
+    	else
+    	{
+    		result	= createJContentPane();
+    	}
+        setSize(result);
+    	return result;
     }
+
+	private void setSize(Container jContainer)
+	{
+		int width	= metaPrefSet.getWidth();
+		if (width == 0)
+			width	= 603;
+		int height	= metaPrefSet.getHeight();
+		if (height == 0)
+			height	= 532;
+		jContainer.setPreferredSize(new Dimension(width, height));
+		jContainer.setSize(new Dimension(width, height));
+	}
 
     /**
      * Function to close the window

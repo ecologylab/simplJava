@@ -147,6 +147,11 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
     /** PURL to save prefs.xml to */
     protected ParsedURL                                                          savePrefsPURL;
 
+	/**
+	 * Content pane within base window for GUI
+	 */
+	protected JPanel 															jContentPane;
+
     /**
      * The base function that you call to construct the prefs editor GUI. This
      * requires that the MetaPrefSet and PrefSet be instantiated and populated
@@ -738,4 +743,14 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         // save prefs back to the file
     	savePrefs();
     }
+
+    /**
+     * Get the jContentPane for the editor.
+     * 
+     * @return
+     */
+	public JPanel getJContentPane()
+	{
+		return jContentPane;
+	}
 }

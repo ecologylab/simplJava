@@ -873,12 +873,23 @@ implements Environment, XmlTranslationExceptionTypes
 	 */
 	public PrefEditorWidgets createPrefsEditor()
 	{
+		return this.createPrefsEditor(true, false);
+	}
+	
+	/**
+	 * Create and show an editor for preferences, iff the MetaPrefSet and PrefSet are non-null.
+	 * If the PrefSet is null, a new empty one will be created for the editor to use.
+	 * 
+	 * @return
+	 */
+	public PrefEditorWidgets createPrefsEditor(final boolean createJFrame, final boolean isStandalone)
+	{
 		PrefsEditor result	= null;
 		if (metaPrefSet != null)
 		{
 			if (prefSet == null)
-				prefSet		= new PrefSet();		
-			result			= new PrefsEditor(metaPrefSet, prefSet, prefsPURL, false);
+				prefSet		= new PrefSet();	
+			result			= new PrefsEditor(metaPrefSet, prefSet, prefsPURL, createJFrame, isStandalone);
 		}
 		return result;
 	}
