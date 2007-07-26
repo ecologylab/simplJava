@@ -479,4 +479,11 @@ public static final String SEP	= "/";
     {
 	   Environment.the.get().exit(code);   	
     }
+	public static String narrowFloat(float f)
+	   {
+	      String s	= Float.toString(f);
+	      if (s.length() > 7)
+			 s	= s.substring(0,7);
+	      return s;
+	   }
 }
