@@ -21,7 +21,7 @@ public class PrefsEditorAp extends ApplicationEnvironment
 	{
 		super("ecologyLabFundamental", PrefTranslations.get(), args, 0);
 
-		PrefsEditor mgr = (PrefsEditor) this.createPrefsEditor();
+		PrefsEditor mgr = (PrefsEditor) this.createPrefsEditor(true, true);
 
 	}
 	/**
