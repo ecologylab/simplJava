@@ -28,6 +28,10 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_inherit
 public class MetaPrefSet extends ArrayListState<MetaPref>
 {
+	@xml_attribute	String	title;
+	@xml_attribute	int		width;
+	@xml_attribute	int		height;
+	
     /**
      * HashMap of category Strings to ArrayList of MetaPrefs.
      */
@@ -166,4 +170,19 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
 		 return (MetaPrefSet) ElementState.translateFromXML(purl, translationSpace);
     	
     }
+
+	public int getHeight()
+	{
+		return height;
+	}
+
+	public String getTitle()
+	{
+		return title;
+	}
+
+	public int getWidth()
+	{
+		return width;
+	}
 }
