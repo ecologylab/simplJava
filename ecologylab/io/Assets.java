@@ -543,21 +543,22 @@ implements ApplicationProperties
 	}
 	
 	/**
-	 * If necessary, re-write the local (and only) assets.xml file.
+	 * When necessary, re-write the local (and only) assets.xml file.
 	 *
 	 */
-	public static void updateAssetsXml()
+	public static void updateAssetsXml(String sourceSpot)
 	{
 		try
 		{
+			sourceSpot	= " from " + sourceSpot;
 			if (needToWriteAssetsXml)
 			{
 				needToWriteAssetsXml	= false;
 				assetsState.savePrettyXML(assetsXmlFile);
-				println("Saved Assets XML: " + assetsXmlFile);
+				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}
 			else
-				println("NO NEED to Save Assets XML: " + assetsXmlFile);
+				println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
 		} catch (XmlTranslationException e)
 		{
 			e.printStackTrace();
