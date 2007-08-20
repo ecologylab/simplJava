@@ -216,7 +216,21 @@ public abstract class Pref<T> extends ArrayListState
         }
         return pref;
     }
-    
+	/**
+	 * Lookup a Pref associated with name.
+	 * If you find it, it is the operative Pref
+	 * If not, create a new Pref object of the correct type, and register it.
+	 * <p/>
+	 * Set the value of the operative Pref to that passed in here.
+	 * 
+	 * @param name			Name of the Pref to lookup and find or create.
+	 * @param defaultValue	Initial value of the Pref if it didn't already exist.
+     */
+    public static void useAndSetPrefInt(String name, int value)
+    {
+    	PrefInt thatPrefInt	= usePrefInt(name, value);
+    	thatPrefInt.setValue(value);
+    }
     /**
 	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
 	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
