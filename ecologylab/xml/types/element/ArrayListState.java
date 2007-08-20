@@ -227,7 +227,10 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     {
     	if (set != null)
     	{
-    		//FIXME - would like to call recycle() method on each element of set here!!!
+    		for (ElementState e : set)
+    		{
+    			e.recycle();
+    		}
     		set.clear();
     	}
     	super.recycle();
