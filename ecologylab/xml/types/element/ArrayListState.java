@@ -219,4 +219,17 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     {
         return set().subList(fromIndex, toIndex);
     }
+
+    /**
+     * Clear data structures and references to enable garbage collecting of resources associated with this.
+     */
+    public void recycle()
+    {
+    	if (set != null)
+    	{
+    		//FIXME - would like to call recycle() method on each element of set here!!!
+    		set.clear();
+    	}
+    	super.recycle();
+    }
 }

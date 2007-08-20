@@ -2291,4 +2291,23 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
     {
 
     }
+    
+    /**
+     * Clear data structures and references to enable garbage collecting of resources associated with this.
+     */
+    public void recycle()
+    {
+    	if (parent == null)
+    	{
+    		// root state!
+    		elementByIdMap.clear();
+    		
+    	}
+    	else
+    		parent		= null;
+    	
+    	elementByIdMap	= null;
+    	textNodeString	= null;
+    	optimizations	= null;   	
+    }
 }
