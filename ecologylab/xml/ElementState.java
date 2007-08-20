@@ -2298,10 +2298,12 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
     public void recycle()
     {
     	if (parent == null)
-    	{
-    		// root state!
-    		elementByIdMap.clear();
-    		
+    	{	// root state!
+    		if (elementByIdMap != null)
+    		{
+    			elementByIdMap.clear();
+    			elementByIdMap	= null;
+    		}
     	}
     	else
     		parent		= null;
