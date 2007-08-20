@@ -229,7 +229,8 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     	{
     		for (ElementState e : set)
     		{
-    			e.recycle();
+    			if (e != null)
+    				e.recycle();
     		}
     		set.clear();
     	}
