@@ -227,11 +227,13 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     {
     	if (set != null)
     	{
-    		for (ElementState e : set)
-    		{
-    			if (e != null)
-    				e.recycle();
-    		}
+			int last	= size() - 1;
+			for (int i=last; i>=0; i--)
+			{
+				ElementState es	= remove(i);
+				if (es != null)
+					es.recycle();
+			}
     		set.clear();
     	}
     	super.recycle();
