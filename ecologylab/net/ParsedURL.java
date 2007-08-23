@@ -36,25 +36,43 @@ extends Debug
 	 * this is the no hash url, that is, the one with # and anything after it stripped out.
 	 */
    protected URL		url = null;
+
    /**
-    * URL string with hash.
+    * If this is built from an entity of the local file system, store
+    * a reference to the object for that here.
+    */
+   File					file;
+
+   /**
+    * URL with hash, that is, a reference to an anchor within the document.
     */
    protected URL		hashUrl = null;
    
+   /**
+    * Directory that the document referred to by the URL resides in.
+    */
    protected URL		directory = null;
    
-   protected String	string = null;
+   private ParsedURL	directoryPURL;
    
+   /**
+    * String representation of the URL.
+    */
+   protected String		string = null;
+   
+   /**
+    * Shorter version of the string, for printing in tight spaces.
+    */
+   String shortString;
+
    /* lower case of the url string */
-   protected String	lc = null;
+   protected String		lc = null;
    
    /* suffix string of the url */
-   protected String	suffix = null;
+   protected String		suffix = null;
    
    /* domain value string of the ulr */
-   protected String	domain = null;
-   
-   File		file;
+   protected String		domain = null;
    
    public ParsedURL(URL url)
    {
@@ -369,8 +387,6 @@ extends Debug
       }
       return result;
    }
-   private ParsedURL	directoryPURL;
-   
    /**
     * Form a ParsedURL based on this, if this is a directory.
     * Otherwise, form the ParsedURL from the parent of this.
@@ -1076,7 +1092,7 @@ extends Debug
    {
       return /* (url == null) ? -1 : */ url.hashCode();
    }
-   String shortString;
+
 /**
  * A shorter string for displaing in the modeline for debugging, and
  * in popup messages.
@@ -1156,22 +1172,6 @@ extends Debug
     		path		= path.substring(lastSlash+1);
     	}
     	return path;
-    }
-    
-    /**
-     * Promote the freeing of resources!
-     * Free everything except the url, itself.
-     * (Which means all can be reconstituted!)
-     *
-     */
-    public void partialRecycle()
-    {
-    	domain			= null;
-    	suffix			= null;
-    	lc				= null;
-    	string			= null;
-    	directory		= null;
-    	hashUrl			= null;
     }
     
     // Set the URLConnection timeout a little smaller than our DownloadMonitor timeout.
@@ -1303,7 +1303,7 @@ extends Debug
     }
     
     /**
-     * check for timeout while connection or read
+     * If true, check for timeout during connect().
      */
     boolean timeout = false;
     
@@ -1313,5 +1313,37 @@ extends Debug
     public boolean getTimeout()
     {
     	return timeout;
+    }
+    
+    /**
+     * Free some memory resources. They can be re-allocated through subsequent lazy evaluation.
+     * The object is still fully functional after this call.
+     */
+    public void resetCaches()
+    {
+    	this.directory		= null;
+
+    	this.string			= null;
+    	this.shortString	= null;
+    	this.lc				= null;
+    	this.suffix			= null;
+    	this.domain			= null;
+    	
+    	this.directoryPURL.recycle();
+    	this.directoryPURL	= null;
+    	
+    	
+    	//TODO -- is this too agressive?!
+    	this.hashUrl		= null;
+    }
+    
+    /**
+     * Free <b>all</b> all resources associated with this, rendering it no longer usable.
+     */
+    public void recycle()
+    {
+    	resetCaches();
+    	url					= null;
+    	file				= null;
     }
 }
