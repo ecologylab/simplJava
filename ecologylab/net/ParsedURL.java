@@ -1329,9 +1329,11 @@ extends Debug
     	this.suffix			= null;
     	this.domain			= null;
     	
-    	this.directoryPURL.recycle();
-    	this.directoryPURL	= null;
-    	
+    	if (directoryPURL != null)
+    	{
+	    	this.directoryPURL.recycle();
+	    	this.directoryPURL	= null;
+    	}
     	
     	//TODO -- is this too agressive?!
     	this.hashUrl		= null;
