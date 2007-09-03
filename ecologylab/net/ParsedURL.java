@@ -1088,6 +1088,9 @@ extends Debug
 	   return ((a == b) || // both are null or the same string
 			   ((a != null) && a.equals(b))); // now safe to use a.equals()
    }
+   /**
+    * Hash this by its URL.
+    */
    public int hashCode()
    {
       return /* (url == null) ? -1 : */ url.hashCode();
