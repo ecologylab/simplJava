@@ -49,9 +49,9 @@ public class PrefVisual {
 	private JLabel incontext_slider = null;
 	private JRadioButton incontext_sliderYes = null;
 	private JRadioButton incontext_sliderNo = null;
-	private JLabel use_dashboard = null;
-	private JRadioButton use_dashboardYes = null;
-	private JRadioButton use_dashboardNo = null;
+	private JLabel dashboard_enabled = null;
+	private JRadioButton dashboard_enabledYes = null;
+	private JRadioButton dashboard_enabledNo = null;
 	private JLabel elements_per_square_inch = null;
 	private JTextField elements_per_square_inchField = null;
 	private JLabel undo_levels = null;
@@ -180,10 +180,10 @@ public class PrefVisual {
 			elements_per_square_inch.setText("Density: Visible elements per square inch [.1,20]");
 			elements_per_square_inch.setToolTipText("Controls how many elements will appear in the information space, relative to the area of the space. The default value is .5 elements per square inch.<br><br>This lets you decide how many total elements the program will place into the space. Doubling this number, will double the number of elements.");
 			
-			use_dashboard = new JLabel();
-			use_dashboard.setBounds(new Rectangle(30, 255, 224, 16));
-			use_dashboard.setText("Enable the seeding dashboard?");
-			use_dashboard.setToolTipText("Use the seeding dashboard to dynamically filter searches and other seeds.");
+			dashboard_enabled = new JLabel();
+			dashboard_enabled.setBounds(new Rectangle(30, 255, 224, 16));
+			dashboard_enabled.setText("Enable the dashboard?");
+			dashboard_enabled.setToolTipText("Use the dashboard to modify searches and other seeds.");
 			
 			incontext_slider = new JLabel();
 			incontext_slider.setBounds(new Rectangle(30, 210, 341, 16));
@@ -229,7 +229,7 @@ public class PrefVisual {
 			jContentPane1.add(incontext_slider, null);
 			jContentPane1.add(getIncontext_sliderYes(), null);
 			jContentPane1.add(getIncontext_sliderNo(), null);
-			jContentPane1.add(use_dashboard, null);
+			jContentPane1.add(dashboard_enabled, null);
 			jContentPane1.add(getUse_dashboardYes(), null);
 			jContentPane1.add(getUse_dashboardNo(), null);
 			jContentPane1.add(elements_per_square_inch, null);
@@ -471,14 +471,14 @@ public class PrefVisual {
 	 * @return javax.swing.JRadioButton	
 	 */
 	private JRadioButton getUse_dashboardYes() {
-		if (use_dashboardYes == null) {
-			use_dashboardYes = new JRadioButton();
-			use_dashboardYes.setBounds(new Rectangle(419, 251, 46, 24));
-			use_dashboardYes.setSelected(false);
-			use_dashboardYes.setText("Yes");
-			use_dashboardYes.setEnabled(true);
+		if (dashboard_enabledYes == null) {
+			dashboard_enabledYes = new JRadioButton();
+			dashboard_enabledYes.setBounds(new Rectangle(419, 251, 46, 24));
+			dashboard_enabledYes.setSelected(false);
+			dashboard_enabledYes.setText("Yes");
+			dashboard_enabledYes.setEnabled(true);
 		}
-		return use_dashboardYes;
+		return dashboard_enabledYes;
 	}
 
 	/**
@@ -487,14 +487,14 @@ public class PrefVisual {
 	 * @return javax.swing.JRadioButton	
 	 */
 	private JRadioButton getUse_dashboardNo() {
-		if (use_dashboardNo == null) {
-			use_dashboardNo = new JRadioButton();
-			use_dashboardNo.setBounds(new Rectangle(494, 251, 40, 24));
-			use_dashboardNo.setSelected(true);
-			use_dashboardNo.setText("No");
-			use_dashboardNo.setName("No");
+		if (dashboard_enabledNo == null) {
+			dashboard_enabledNo = new JRadioButton();
+			dashboard_enabledNo.setBounds(new Rectangle(494, 251, 40, 24));
+			dashboard_enabledNo.setSelected(true);
+			dashboard_enabledNo.setText("No");
+			dashboard_enabledNo.setName("No");
 		}
-		return use_dashboardNo;
+		return dashboard_enabledNo;
 	}
 
 	/**
