@@ -452,7 +452,7 @@ implements WindowListener
      * 
      * This is contained within {@link #createJTabbedPane()}
      * This contains {@link #createDescriptionSection(JPanel, GridBagConstraints, int, MetaPref)},
-     * and {@link #createValueSection(GridBagConstraints, MetaPref, int)},
+     * and {@link #createWidgetFromMetaPref(GridBagConstraints, MetaPref, int)},
      * and {@link #createSeparator(GridBagConstraints, int)}.
      * 
      * This function includes xml-dependent code.
@@ -512,21 +512,21 @@ implements WindowListener
         {
             // add metapref to components map
             //System.err.print(category + '\n' + metaPref.getID() + '\n');
-            if (jCatComponentsMap.get(category)==null)
+            LinkedHashMap<String, ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(category);
+			if (catHash == null)
             {
-                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
+                catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
                 jCatComponentsMap.put(category, catHash);
             }
-            ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(category).get(metaPref.getID());
-            if (mpComponents == null)
+            ObjectRegistry<JComponent> mpComponentRegistry = catHash.get(metaPref.getID());
+            if (mpComponentRegistry == null)
             {
-                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(category);
-                mpComponents = new ObjectRegistry<JComponent>();
-                catHash.put(metaPref.getID(), mpComponents);
+                mpComponentRegistry = new ObjectRegistry<JComponent>();
+                catHash.put(metaPref.getID(), mpComponentRegistry);
             }
             
             JLabel subDescription = createDescriptionSection(contentPanel, constraints, rowNum, metaPref);
-            JPanel subValue       = createValueSection(constraints, metaPref, rowNum);
+            JPanel subValue       = createWidgetFromMetaPref(constraints, metaPref, rowNum);
             
             subValue.setMaximumSize(new Dimension(scrollPane.getWidth()/2,100));
             subDescription.setMaximumSize(new Dimension(scrollPane.getWidth()/2,50));
@@ -552,17 +552,17 @@ implements WindowListener
     }
 
     /**
-     * Create the value section for a preference.
+     * Create the UI component (aka widget) that enables the user to manipulate the value of the preference.
      * This is contained within {@link #getTabbedBodyFrame(String, JScrollPane)}.
      * This function includes xml-dependent code.
      * 
      * @param constraints       GridBagConstraints - insets, row, col, etc
-     * @param metaPref          MetaPref this description is for
+     * @param metaPref          Description of what widget type to use, default values, ...
      * @param rowNum            Row number for GridBagLayout
      * 
      * @return JLabel           Value section
      */
-    private JPanel createValueSection(GridBagConstraints constraints, MetaPref metaPref, int rownum)
+    private JPanel createWidgetFromMetaPref(GridBagConstraints constraints, MetaPref<?> metaPref, int rownum)
     {
         JPanel panel = new JPanel();
         panel.setName(metaPref.getID());
@@ -576,7 +576,7 @@ implements WindowListener
         {
             if (metaPref instanceof MetaPrefBoolean)
             {
-                createBooleanDefaultRadio(metaPref, panel);
+                createYesNoBooleanRadio((MetaPrefBoolean) metaPref, panel);
             }
             else
             {
@@ -1052,7 +1052,7 @@ implements WindowListener
      * This creates a radio button for a metapref that lists choices, rather
      * than depending on default values. This is what you want for anything that is
      * not: two options with the labels Yes and No.
-     * See also {@link #createBooleanDefaultRadio(MetaPref, JPanel)}.
+     * See also {@link #createYesNoBooleanRadio(MetaPref, JPanel)}.
      * 
      * @param metaPref
      * @param panel
@@ -1066,8 +1066,9 @@ implements WindowListener
             int rnum = 0;
             for (Choice choice : choices)
             {
-                boolean isDefault = metaPref.getDefaultValue().equals(choice.getValue());
-                createRadio(panel, metaPref, buttonGroup, isDefault, choice.getLabel(), choice.getName(), rnum, 0);
+                final Object currentValue = metaPref.getDefaultValue();
+				boolean isSelected = currentValue.equals(choice.getValue());
+                createRadio(panel, metaPref, buttonGroup, isSelected, choice.getLabel(), choice.getName(), rnum, 0);
                 rnum++;
             }
         }
@@ -1080,16 +1081,17 @@ implements WindowListener
      * @param metaPref
      * @param panel
      */
-    private void createBooleanDefaultRadio(MetaPref metaPref, JPanel panel)
+    private void createYesNoBooleanRadio(MetaPrefBoolean metaPref, JPanel panel)
     {
-        Boolean defVal = (Boolean)metaPref.getDefaultValue();
+       // Boolean currentValue 		= (Boolean) metaPref.getDefaultValue(); -- changed by andruid 
+        Boolean currentValue 		= metaPref.usePrefBoolean().value();
         ArrayListState<Choice<Boolean>> choices = metaPref.getChoices();
         ButtonGroup radioPair = new ButtonGroup();
         
         if (choices != null)
         {
             ChoiceBoolean choice0   = (ChoiceBoolean) choices.get(0);
-            boolean isDefault       = metaPref.getDefaultValue().equals(choice0.getValue());
+            boolean isDefault       = currentValue.equals(choice0.getValue());
             String name             = isDefault ? IDENTIFIER_BOOLEAN_YES : IDENTIFIER_BOOLEAN_NO;
             createRadio(panel, metaPref, radioPair, isDefault, choice0.getLabel(), name, 0, 0);
             name                    = !isDefault ? IDENTIFIER_BOOLEAN_YES : IDENTIFIER_BOOLEAN_NO;
@@ -1098,8 +1100,8 @@ implements WindowListener
         }
         else
         {
-            boolean yesVal  = defVal;
-            boolean noVal   = !defVal;
+            boolean yesVal  = currentValue;
+            boolean noVal   = !currentValue;
             createRadio(panel, metaPref, radioPair, yesVal, IDENTIFIER_BOOLEAN_YES, IDENTIFIER_BOOLEAN_YES, 0, 0);
             createRadio(panel, metaPref, radioPair, noVal, IDENTIFIER_BOOLEAN_NO, IDENTIFIER_BOOLEAN_NO, 1, 0);
         }
