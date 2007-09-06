@@ -71,6 +71,16 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
         return null;
     }
     
+    /**
+     * Get the current PrefBoolean object associated with this.
+     * If there is not one yet, create one with the default value specified in this.
+     * 
+     * @return
+     */
+    public PrefBoolean usePrefBoolean()
+    {
+    	return Pref.usePrefBoolean(getID(), getDefaultValue());   	
+    }
 /*
 	public boolean isWithinRange(Boolean newValue)
 	{
