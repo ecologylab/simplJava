@@ -33,7 +33,7 @@ extends Debug implements BasicFloatSet
  * An array representation of the members of the set.
  * Kind of like a java.util.ArrayList, but faster.
  */
-   protected 	FloatSetElement		elements[];
+   private 		FloatSetElement		elements[];
 
 /**
  * Used to maintain a sequential set of areas by weight, in order
