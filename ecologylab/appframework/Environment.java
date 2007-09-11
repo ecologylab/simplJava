@@ -78,6 +78,8 @@ public interface Environment
       boolean		hasMultivalent;
       boolean		checkedForPDFBox;
       boolean		hasPDFBox;
+      boolean		checkedForJTidy;
+      boolean		hasJTidy;
       
       String		frame;
       
@@ -189,6 +191,17 @@ public interface Environment
 				ConsoleUtils.obtrusiveConsoleOutput("PDFBox Found");
 		 }
 		 return hasPDFBox;
+      }
+      public boolean hasJTidy()
+      {
+		 if (!checkedForJTidy)
+		 {
+			 hasJTidy	= checkFor("iTSurrogateExtractor.HTMLParser");
+			debug("hasJTidy() = "+hasJTidy);
+			if (hasJTidy)
+				ConsoleUtils.obtrusiveConsoleOutput("JTidy Found");
+		 }
+		 return hasJTidy;
       }
       public boolean hasGL()
       {
