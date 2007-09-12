@@ -408,4 +408,10 @@ implements Downloadable, DispatchTarget
    {
 	   ZipDownload.downloadProcessor = downloadProcessor;
    }
+
+public boolean isRecycled()
+{
+	// TODO Auto-generated method stub
+	return false;
+}
 }

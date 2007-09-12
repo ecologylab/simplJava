@@ -123,5 +123,11 @@ implements Downloadable, DispatchTarget
 	{
 		System.out.println("Finished download file: " + target + " -> " + destination);
 	}
+
+	public boolean isRecycled()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }
