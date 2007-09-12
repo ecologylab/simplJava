@@ -156,7 +156,7 @@ extends Debug implements BasicFloatSet
    }
    /**
     * Delete all the elements in the set, as fast as possible.
- * @param doRecycleElements TODO
+    * @param doRecycleElements TODO
     *
     */
    public synchronized void clear(boolean doRecycleElements)
@@ -165,14 +165,10 @@ extends Debug implements BasicFloatSet
    		{
    			FloatSetElement element	= elements[i];
    			elements[i]				= null;
+   			// must be called *before* recycle(), because recycle() destroys needed data structures
+            element.clearSynch();
    			if (doRecycleElements)
-   			{
-   				element.setIndex(-1); // during gc() excursion
-   				element.deleteHook();
    				element.recycle();
-                element.clearSynch();
-   			}
-   			element.clear();
    		}
    		size	= 0;
    		this.maxArrayListClear();
@@ -212,6 +208,8 @@ extends Debug implements BasicFloatSet
 	* Delete an element from the set.
 	* Perhaps recompute incremental sums for randomSelect() integrity.
 	* Includes ensuring we cant pick el again.
+	* <p/>
+	* This method MUST ONLY be called by FloatSetElement.delete()!
 	* 
 	* @param el			The FloatSetElement element to delete.
 	* @param recompute	-1 for absolutely no recompute.
@@ -240,7 +238,6 @@ extends Debug implements BasicFloatSet
 		 synchronized (lastElement)
 		 {
 			elements[index]		= lastElement;
-			elements[lastIndex].deleteHook();
 			elements[lastIndex]	= null;	// remove reference to allow gc
 			lastElement.setIndex(index);
 		 }
@@ -444,16 +441,14 @@ extends Debug implements BasicFloatSet
 			elements[i]	= null;	   // its deleted or moved; null either way
 			//	    thatElement.setSet(null); // make sure its treated as not here
 //			debug("recycling " + thatElement);
-			thatElement.setIndex(-1); // during gc() excursion
-			thatElement.deleteHook();
-			if (thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
+			// a&n 9/12/07 - thatElement.setIndex(-1); // during gc() excursion
+			
+			// must be called *before* recycle(), because recycle() destroys needed data structures
+			thatElement.clearSynch();
+			if (!thatElement.recycle())  // ??? create recursive havoc ??? FIX THIS!
 			{
-			   thatElement.clearSynch();
-			}
-			else
-			{
-			   debug("WEIRD: re-inserting pruned element: " + thatElement);
-			   insert(thatElement); // put it back in the right place!
+			   weird("Prune but recycle() returned false: " + thatElement);
+//			 a&n 9/12/07 - insert(thatElement); // put it back in the right place!
 			}
 		 }
       }

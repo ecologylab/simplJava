@@ -17,7 +17,7 @@ extends Debug
 {
    public static final int	NOT_A_MEMBER	= -1;
 
-   protected int		index		= NOT_A_MEMBER;
+   private int		index		= NOT_A_MEMBER;
 
 /**
  * Cached version of weight. Made accessible for efficiency's sake.
@@ -91,7 +91,6 @@ extends Debug
       if (inSet)//prevent double dip deletes
       {
     	  set.delete(this, recompute);
-       	  deleteHook();
        	  clear();
        }
       return inSet;
@@ -124,8 +123,9 @@ extends Debug
     */
    public void clear()
    {
-   	  index	= NOT_A_MEMBER;
-      set	= null;
+	   deleteHook();
+	   index	= NOT_A_MEMBER;
+	   set	= null;
    }
    
    /**
@@ -134,8 +134,7 @@ extends Debug
     */
    synchronized void clearSynch()
    {
-      index	= NOT_A_MEMBER;
-      set	= null;
+      clear();
    }
 /**
  * Change the weight of the element, without propogating the new
