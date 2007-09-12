@@ -334,4 +334,13 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
             return true;
         }
     }
+    
+    /**
+     * 
+     * @return status of server in boolean
+     */
+    public boolean isRunning()
+    {
+    	return running;
+    }
 }
