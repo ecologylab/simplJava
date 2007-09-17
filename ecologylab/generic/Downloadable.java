@@ -35,4 +35,11 @@ public interface Downloadable
     *
     */
    public void downloadDone();
+   
+   /**
+    * True if the Downloadable has been recycled, and thus should not be downloaded.
+    * 
+    * @return
+    */
+   public boolean isRecycled();
 }
