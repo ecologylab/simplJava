@@ -196,7 +196,7 @@ public interface Environment
       {
 		 if (!checkedForJTidy)
 		 {
-			 hasJTidy	= checkFor("iTSurrogateExtractor.HTMLParser");
+			 hasJTidy	= checkFor("org.w3c.tidy.TdNode");
 			debug("hasJTidy() = "+hasJTidy);
 			if (hasJTidy)
 				ConsoleUtils.obtrusiveConsoleOutput("JTidy Found");
