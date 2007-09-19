@@ -28,10 +28,29 @@ extends Debug
 
    public static final String	EMPTY_STRING	= "";
    
-/**
- * Changes the StringBuffer to lower case, in place, without any new storage
- * allocation.
- */
+   /**
+    * Changes the StringBuffer to lower case, in place, without any new storage
+    * allocation.
+    */
+   public static final void toLowerCase(StringBuilder buffer)
+   {
+	   int length	= buffer.length();
+	   for (int i=0; i<length; i++)
+	   {
+		   char c		= buffer.charAt(i);
+//		   if (Character.isUpperCase(c))
+		   // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
+		   if ((c >='A') && (c <= 'Z'))
+		   {
+			   c	       += 0x20;
+			   buffer.setCharAt(i, c);
+		   }
+	   }
+   }
+   /**
+    * Changes the StringBuffer to lower case, in place, without any new storage
+    * allocation.
+    */
    public static final void toLowerCase(StringBuffer buffer)
    {
 	   int length	= buffer.length();
@@ -96,17 +115,27 @@ extends Debug
 	   }
 	   return urlString.substring(domainStartingDot, end + 1);
    }
-   
-/**
- * Use this method to efficiently get a <code>String</code> from a
- * <code>StringBuffer</code> on those occassions when you plan to keep
- * using the <code>StringBuffer</code>, and want an efficiently made copy.
- * In those cases, <i>much</i> better than 
- * <code>new String(StringBuffer)</code>
- */
+   /**
+    * Use this method to efficiently get a <code>String</code> from a
+    * <code>StringBuffer</code> on those occassions when you plan to keep
+    * using the <code>StringBuffer</code>, and want an efficiently made copy.
+    * In those cases, <i>much</i> better than 
+    * <code>new String(StringBuffer)</code>
+    */
    public static final String toString(StringBuffer buffer)
    {
-      return buffer.substring(0);
+	   return buffer.substring(0);
+   }
+   /**
+    * Use this method to efficiently get a <code>String</code> from a
+    * <code>StringBuffer</code> on those occassions when you plan to keep
+    * using the <code>StringBuffer</code>, and want an efficiently made copy.
+    * In those cases, <i>much</i> better than 
+    * <code>new String(StringBuffer)</code>
+    */
+   public static final String toString(StringBuilder buffer)
+   {
+	   return buffer.substring(0);
    }
    public static final boolean contains(String in, String toMatch)
    {
@@ -378,12 +407,27 @@ extends Debug
 		   System.out.println();
 	   }   	
    }
-/**
- * Reset the StringBuffer, so that is empty and ready for reuse.
- * Do this with a minimum of overhead, given the latest vagaries of the
- * JDK implementation.
- */
+   
+   /**
+    * Reset the StringBuffer, so that is empty and ready for reuse.
+    * Do this with a minimum of overhead, given the latest vagaries of the
+    * JDK implementation.
+    */
    public static final void clear(StringBuffer buffy)
+   {
+	   // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
+	   // a tiny buffer, so use this weirdness, which looks like the 
+	   // most reasonable option
+	   int length	= buffy.length();
+	   if (length > 0)
+		   buffy.delete(0, length);
+   }
+   /**
+    * Reset the StringBuffer, so that is empty and ready for reuse.
+    * Do this with a minimum of overhead, given the latest vagaries of the
+    * JDK implementation.
+    */
+   public static final void clear(StringBuilder buffy)
    {
 	   // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
 	   // a tiny buffer, so use this weirdness, which looks like the 
