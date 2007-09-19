@@ -36,18 +36,17 @@ extends Debug
 			int freeIndex = bufferPool.size() - 1;
 			if (freeIndex == -1)
 			{
-				debug("extending pool??!");
+				weird("extending pool size ");
 				return (new StringBuilder(bufferSize));
 			}
-			StringBuilder b = (StringBuilder) bufferPool.remove(freeIndex);
+			StringBuilder b = bufferPool.remove(freeIndex);
 			return b;
 		}
 	}
 	
 	public void release(StringBuilder b)
 	{
-//		b.setLength(0); // UGH! actually reallocates due to Sun stupidity!
-		b.delete(0, b.length());
+		b.setLength(0);
 		bufferPool.add(b);		
 	}
 }

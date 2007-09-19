@@ -418,9 +418,11 @@ extends Debug
 	   // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
 	   // a tiny buffer, so use this weirdness, which looks like the 
 	   // most reasonable option
-	   int length	= buffy.length();
-	   if (length > 0)
-		   buffy.delete(0, length);
+	   //int length	= buffy.length();
+	   //if (length > 0)
+		  // buffy.delete(0, length);
+	   // BUT JDK 1-5 fixes this!!!
+	   buffy.setLength(0);
    }
    /**
     * Reset the StringBuffer, so that is empty and ready for reuse.
@@ -432,9 +434,7 @@ extends Debug
 	   // as of JDK1-4 .setLength(0) initiates horrible re-allocation of
 	   // a tiny buffer, so use this weirdness, which looks like the 
 	   // most reasonable option
-	   int length	= buffy.length();
-	   if (length > 0)
-		   buffy.delete(0, length);
+	   buffy.setLength(0);
    }
    /**
     * Return true iff all the characters in the argument are lower case.
