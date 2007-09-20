@@ -47,7 +47,7 @@ public class HashSetState<T extends ElementState> extends ElementState implement
      * 
      * @return The ArrayList we collect in.
      */
-    protected Collection getCollection(Class thatClass)
+    @SuppressWarnings("unchecked") @Override protected Collection<? extends ElementState> getCollection(Class thatClass)
     {
         return set();
     }
@@ -72,7 +72,7 @@ public class HashSetState<T extends ElementState> extends ElementState implement
         return (set == null ? 0 : set.size());
     }
 
-    @SuppressWarnings("unchecked") public HashSetState<T> clone()
+    @Override @SuppressWarnings("unchecked") public HashSetState<T> clone()
     {
         HashSetState<T> clone = new HashSetState<T>();
 
@@ -80,5 +80,31 @@ public class HashSetState<T extends ElementState> extends ElementState implement
             clone.set = (HashSet<T>) this.set().clone();
 
         return clone;
+    }
+
+    /**
+     * Clear data structures and references to enable garbage collecting of resources associated with this.
+     * 
+     * Calling recycle() on an HashSetState has the side effect of recycling every value contained in the HashSetState.
+     */
+    @Override public void recycle()
+    {
+        if (this.set != null)
+        {
+            Iterator<T> elementIterator = set.iterator();
+
+            while (elementIterator.hasNext())
+            {
+                T element = elementIterator.next();
+                
+                element.recycle();
+                
+                elementIterator.remove();
+            }
+            
+            this.clear();
+        }
+        
+        super.recycle();
     }
 }

@@ -9,12 +9,11 @@ import java.util.ListIterator;
 import ecologylab.xml.ElementState;
 
 /**
- * An ElementState XML tree node for collecting a set of nested elements, using an ArrayList
- * (non-synchronized).
+ * An ElementState XML tree node for collecting a set of nested elements, using an ArrayList (non-synchronized).
  * 
  * @author andruid
  */
-public class ArrayListState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>//, List<T>
+public class ArrayListState<T extends ElementState> extends ElementState implements Cloneable, Iterable<T>, List<T>
 {
     @xml_collection protected ArrayList<T> set;
 
@@ -22,35 +21,37 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     {
         super();
     }
-    
+
     /**
-     * Use lazy evaluation for creating the set, in order to make it possible this
-     * class lightweight enough to use in subclass situations where they may be no elements
-     * added to the set, where the ElementState is only being used for direct fields.
+     * Use lazy evaluation for creating the set, in order to make it possible this class lightweight enough to use in
+     * subclass situations where they may be no elements added to the set, where the ElementState is only being used for
+     * direct fields.
+     * 
      * @return
      */
     protected ArrayList<T> set()
     {
-        ArrayList<T>    result  = set;
-        
+        ArrayList<T> result = set;
+
         if (result == null)
         {
-            result          = new ArrayList<T>();
-            set             = result;
+            result = new ArrayList<T>();
+            set = result;
         }
-        
+
         return result;
     }
-    
+
     /**
      * Returns the underlying ArrayList implementation.
+     * 
      * @return
      */
     public ArrayList<T> getArrayList()
     {
         return set();
     }
-    
+
     public boolean add(T elementState)
     {
         return set().add(elementState);
@@ -74,14 +75,13 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     /**
      * @param i
      *            the index of the element to get.
-     * @return the element located at i; if i is greater than the size of set or less than 0,
-     *         returns null.
+     * @return the element located at i; if i is greater than the size of set or less than 0, returns null.
      */
     public T get(int i)
     {
         if (set == null)
             return null;
-        
+
         if (i < 0)
         {
             return null;
@@ -95,21 +95,22 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
             return set.get(i);
         }
     }
-    
+
     public boolean contains(Object o)
     {
         return (set == null) ? false : set.contains(o);
     }
-    
+
     /**
      * Return the collection object associated with this
      * 
-     * @return  The ArrayList we collect in.
+     * @return The ArrayList we collect in.
      */
-    protected Collection<? extends ElementState> getCollection(Class thatClass)
+    @SuppressWarnings("unchecked") @Override protected Collection<? extends ElementState> getCollection(Class thatClass)
     {
         return set();
     }
+
     /**
      * Remove all elements from our Collection.
      * 
@@ -130,7 +131,7 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
         return (set == null) ? 0 : set.size();
     }
 
-    @SuppressWarnings("unchecked") public ArrayListState<T> clone()
+    @Override @SuppressWarnings("unchecked") public ArrayListState<T> clone()
     {
         ArrayListState<T> clone = new ArrayListState<T>();
 
@@ -139,12 +140,13 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
 
         return clone;
     }
-    
+
     public void trimToSize()
     {
         if (set != null)
             set.trimToSize();
     }
+
     public Object[] toArray()
     {
         return set().toArray();
@@ -222,20 +224,23 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
 
     /**
      * Clear data structures and references to enable garbage collecting of resources associated with this.
+     * 
+     * Calling recycle() on an ArrayListState has the side effect of recycling every object contained in the
+     * ArrayListState. If the elements of the ArrayListState should be retained, then call clear(), then recycle().
      */
-    public void recycle()
+    @Override public void recycle()
     {
-    	if (set != null)
-    	{
-			int last	= size() - 1;
-			for (int i=last; i>=0; i--)
-			{
-				ElementState es	= remove(i);
-				if (es != null)
-					es.recycle();
-			}
-    		set.clear();
-    	}
-    	super.recycle();
+        if (set != null)
+        {
+            int last = size() - 1;
+            for (int i = last; i >= 0; i--)
+            {
+                ElementState es = remove(i);
+                if (es != null)
+                    es.recycle();
+            }
+            set.clear();
+        }
+        super.recycle();
     }
 }

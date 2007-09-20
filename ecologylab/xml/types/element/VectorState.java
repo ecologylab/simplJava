@@ -14,16 +14,16 @@ import ecologylab.xml.ElementState;
  * 
  * @author andruid
  */
-public class VectorState extends ElementState
+public class VectorState<T extends ElementState> extends ElementState
 {
-    public Vector set = new Vector();
+    public Vector<T> set = new Vector<T>();
 
     public VectorState()
     {
         super();
     }
 
-    public void add(ElementState elementState)
+    public void add(T elementState)
     {
     	set.add(elementState);
     }
@@ -33,7 +33,7 @@ public class VectorState extends ElementState
      * 
      * @return	The ArrayList we collect in.
      */
-	protected Collection getCollection(Class thatClass)
+	@SuppressWarnings("unchecked") @Override protected Collection<? extends ElementState> getCollection(Class thatClass)
 	{
 		return set;
 	}
@@ -55,5 +55,24 @@ public class VectorState extends ElementState
     public int size()
     {
         return set.size();
+    }
+
+    /**
+     * @see ecologylab.xml.ElementState#recycle()
+     */
+    @Override public void recycle()
+    {
+        if (this.set != null)
+        {
+            for (int i = 0; i < this.set.size(); i++)
+            {
+                T e = set.remove(i);
+                e.recycle();
+            }
+            
+            this.clear();
+        }
+            
+        super.recycle();
     }
 }

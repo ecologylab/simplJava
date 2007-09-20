@@ -8,7 +8,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Stack;
 
-import ecologylab.appframework.types.AssetsState;
 import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
@@ -79,7 +78,7 @@ implements Environment, XmlTranslationExceptionTypes
 	/**
 	 * Place where <code>Pref</code>s are loaded from and stored to.
 	 */
-	ParsedURL prefsPURL;
+	protected ParsedURL prefsPURL;
 	
 	protected enum LaunchType
 	{

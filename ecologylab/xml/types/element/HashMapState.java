@@ -10,13 +10,12 @@ import java.util.Set;
 import ecologylab.xml.ElementState;
 
 /**
- * An ElementState XML tree node that supports a HashMap whose values are
- * Mappable (capable of supplying their own key into the map).
+ * An ElementState XML tree node that supports a HashMap whose values are Mappable (capable of supplying their own key
+ * into the map).
  * 
  * @author andruid
  */
-public class HashMapState<K, V extends ElementState & Mappable<K>> extends
-        ElementState implements Cloneable, Map<K, V>
+public class HashMapState<K, V extends ElementState & Mappable<K>> extends ElementState implements Cloneable, Map<K, V>
 {
     /**
      * Stores the actual mappings.
@@ -29,10 +28,9 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends
     }
 
     /**
-     * Use lazy evaluation for creating the map, in order to make it possible
-     * this class lightweight enough to use in subclass situations where they
-     * may be no elements added to the set, where the ElementState is only being
-     * used for direct fields.
+     * Use lazy evaluation for creating the map, in order to make it possible this class lightweight enough to use in
+     * subclass situations where they may be no elements added to the set, where the ElementState is only being used for
+     * direct fields.
      * 
      * @return
      */
@@ -49,7 +47,7 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends
         return result;
     }
 
-    @Override protected <K1 extends Object, V1 extends ElementState & Mappable<K1>> Map<K1, V1> getMap(
+    @SuppressWarnings("unchecked") @Override protected <K1 extends Object, V1 extends ElementState & Mappable<K1>> Map<K1, V1> getMap(
             Class thatClass)
     {
         return (Map<K1, V1>) map();
@@ -61,8 +59,7 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends
     }
 
     /**
-     * Convienence method for adding Mappable elements. This method simply calls
-     * put(value.key(), value).
+     * Convienence method for adding Mappable elements. This method simply calls put(value.key(), value).
      * 
      * @param value
      */
@@ -130,5 +127,31 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends
     public Collection<V> values()
     {
         return (map == null ? new ArrayList<V>() : map.values());
+    }
+
+    /**
+     * Clear data structures and references to enable garbage collecting of resources associated with this.
+     * 
+     * Calling recycle() on an HashMapState has the side effect of recycling every value contained in the HashMapState.
+     * If the values of the HashMapState should be retained, then call clear(), then recycle().
+     */
+    @Override public void recycle()
+    {
+        if (this.map != null)
+        {
+            for (K key : map.keySet())
+            {
+                V value = map.remove(key);
+
+                if (value != null)
+                {
+                    value.recycle();
+                }
+            }
+
+            this.clear();
+        }
+
+        super.recycle();
     }
 }
