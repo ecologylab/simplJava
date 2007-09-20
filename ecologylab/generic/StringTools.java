@@ -128,7 +128,7 @@ extends Debug
    }
    /**
     * Use this method to efficiently get a <code>String</code> from a
-    * <code>StringBuffer</code> on those occassions when you plan to keep
+    * <code>StringBuffer</code>, by copying, on those occassions when you plan to keep
     * using the <code>StringBuffer</code>, and want an efficiently made copy.
     * In those cases, <i>much</i> better than 
     * <code>new String(StringBuffer)</code>
