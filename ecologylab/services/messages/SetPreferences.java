@@ -81,12 +81,12 @@ extends RequestMessage
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				debug("performService() Received and loaded preferences: " + preferencesSet);
 			}
 			
 	    	//now internally set the preferences (overriding any identical preferences set from asset file)
 //TODO happens automatically			preferencesSet.loadIntoEnvironment();
 			//print the prefs
-			debug("performService() Received and loaded preferences: " + preferencesSet);
 			
 			ResponseMessage response = setupApplication(objectRegistry);
 			if (response instanceof ErrorResponse)

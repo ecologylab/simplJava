@@ -16,7 +16,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class CfCollaborationGetSurrogate extends RequestMessage {
 
-	@xml_attribute protected String surrogateSetString;
+	@xml_leaf protected String surrogateSetString;
 	
 	static TranslationSpace translationSpace;
 	
@@ -59,13 +59,14 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 	public static void main(String args[])
 	{
 		
-		final String test = "<surrogate_set_string><surrogate_set><surrogate containerURL=\"http://www.flickr.com/services/feeds/photos_public.gne?format=rss_200&amp;tags=sunset\" historyNum=\"1\"><image_element purl=\"http://farm1.static.flickr.com/162/413759072_bc04c76914_m.jpg\" href=\"http://www.flickr.com/photos/lupi75/413759072/\" bias=\"1.0\"><participant/><metadata><metadata_field name=\"Caption\" value=\"Travel to Valpopando\"/><metadata_field name=\"Tags\" value=\"sardegna ca travel sunset red sea sky reflection water clouds boat tramonto nuvole mare sardinia nave porto cielo acqua dedica viaggio cagliari sera riflesso lupi valpopando lupi75\"/><metadata_field name=\"Author\" value=\"LuPi75\"/></metadata></image_element><visual><extent x=\"291\" y=\"331\" width=\"138\" height=\"91\"/></visual></surrogate></surrogate_set></surrogate_set_string>";
+		//final String test = "<surrogate_set_string><surrogate_set><surrogate containerURL=\"http://www.flickr.com/services/feeds/photos_public.gne?format=rss_200&amp;tags=sunset\" historyNum=\"1\"><image_element purl=\"http://farm1.static.flickr.com/162/413759072_bc04c76914_m.jpg\" href=\"http://www.flickr.com/photos/lupi75/413759072/\" bias=\"1.0\"><participant/><metadata><metadata_field name=\"Caption\" value=\"Travel to Valpopando\"/><metadata_field name=\"Tags\" value=\"sardegna ca travel sunset red sea sky reflection water clouds boat tramonto nuvole mare sardinia nave porto cielo acqua dedica viaggio cagliari sera riflesso lupi valpopando lupi75\"/><metadata_field name=\"Author\" value=\"LuPi75\"/></metadata></image_element><visual><extent x=\"291\" y=\"331\" width=\"138\" height=\"91\"/></visual></surrogate></surrogate_set></surrogate_set_string>";
 		//final String test = "<surrogate_set_string>Will this work ?</surrogate_set_string>";
+		final String test = "Will this work ?";
 		try 
 		{
 			CfCollaborationGetSurrogate cfCollabGet = new CfCollaborationGetSurrogate (test, translationSpace);
-			System.out.println("cfCollabGet: " + cfCollabGet.translateToXML(true));
 			System.out.println("cfCollabGet.get: " + cfCollabGet.getSurrogateSetString());
+			System.out.println("cfCollabGet: " + cfCollabGet.translateToXML(true));
 			
 		} catch (XmlTranslationException e) {
 			// TODO Auto-generated catch block

@@ -190,6 +190,17 @@ public abstract class Pref<T> extends ArrayListState
         }
         return pref;
     }
+    /*
+    public static<U> Pref<U> usePref(String name, U defaultValue)
+    {
+    	Pref<U>	result	= null;
+    	if (defaultValue instanceof String)
+    	{
+    		result	= (Pref<U>) usePrefString(name, (String) defaultValue);
+    	}
+    	else if (defaultValue instanceof )
+    	return result;
+    }*/
     
 	/**
 	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
