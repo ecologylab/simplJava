@@ -15,8 +15,9 @@ public class Memory
 {
 /**
  * Less than this many bytes of memory free means danger, baby.
+ * Currently set at 32M.
  */
-   public static final int	DANGER_THRESHOLD= 7000 * 1024;
+   public static final int	DANGER_THRESHOLD= 32 * 1024 * 1024;
    static Runtime		runtime		= Runtime.getRuntime();
 /**
  * Number of times we've called gc().
