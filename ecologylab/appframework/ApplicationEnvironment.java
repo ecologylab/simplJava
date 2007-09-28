@@ -289,6 +289,7 @@ implements Environment, XmlTranslationExceptionTypes
 	 */
 	private PrefSet requestPrefFromServlet(String prefServlet, TranslationSpace translationSpace)
 	{
+	    System.out.println("retrieving preferences set from servlet: "+prefServlet);
 /*
 		try {
 			ParsedURL purl = new ParsedURL(new URL(prefServlet));
@@ -383,75 +384,77 @@ implements Environment, XmlTranslationExceptionTypes
 		case JNLP:
 			// next arg *should* be code base
 			if ((arg != null) && arg.endsWith("/"))
-			{					
-				// JNLP only! (as of now)
-				// right now this only works for http://
-				ParsedURL codeBase	= ParsedURL.getAbsolute(arg, "Setting up codebase");
-				this.setCodeBase(codeBase);
-				
-				XmlTranslationException metaPrefSetException	= null;
-				ParsedURL metaPrefsPURL	= null;
-				try
-				{
-					Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
-					File metaPrefsFile	= Assets.getPreferencesFile(METAPREFS_XML);
-					metaPrefsPURL	= new ParsedURL(metaPrefsFile);
-					metaPrefSet		= MetaPrefSet.load(metaPrefsFile, translationSpace);
-					println("OK: loaded MetaPrefs from " + metaPrefsFile);
-				} catch (XmlTranslationException e)
-				{
-					metaPrefSetException	= e;
-				}
-	            //TODO for eunyee -- test for studies preference and download special studies preferences
-				// When the JNLP has more than two arguments (study case) -- eunyee
-				if( argStack.size() > 0 )
-				{
-					String prefServlet	= "";
-					if( arg.startsWith("http://") )
-					{
-						// PreferencesServlet
-						prefServlet = pop(argStack);	
-					
-						prefSet = requestPrefFromServlet(prefServlet, translationSpace);
-						if( prefSet == null )
-							error("not prefXML string returned from the servlet=" + prefServlet);
-					}
-				}
-	            // from supplied URL instead of from here
-	            try
-				{
-	            	debugA("Considering prefSet="+prefSet+"\tprefsPURL="+prefsPURL);
-	            	if (prefSet == null) // Normal Case
-	            	{
-	            		prefSet 		= PrefSet.load(prefsPURL, translationSpace);
-	            		if (prefSet != null)
-	            			println("OK: Loaded Prefs from " + prefsPURL);
-	            		else
-	            			println("No Prefs to load from " + prefsPURL);
-	            	}
-					if (metaPrefSetException != null)
-					{
-						warning("Couldn't load MetaPrefs:");
-						metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
-						println("\tContinuing.");
-					}
-				} catch (XmlTranslationException e)
-				{
-					if (metaPrefSetException != null)
-					{
-						error("Can't load MetaPrefs or Prefs. Quitting.");
-						metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
-						e.printTraceOrMessage(this, "Prefs", prefsPURL);
-					}
-					else
-					{
-						// meta prefs o.k. we can continue
-						warning("Couldn't load Prefs:");
-						e.printTraceOrMessage(this, "Prefs", prefsPURL);
-						println("\tContinuing.");
-					}
-				}
-			}
+			{
+                // JNLP only! (as of now)
+                // right now this only works for http://
+                ParsedURL codeBase = ParsedURL.getAbsolute(arg, "Setting up codebase");
+                this.setCodeBase(codeBase);
+
+                XmlTranslationException metaPrefSetException = null;
+                ParsedURL metaPrefsPURL = null;
+                try
+                {
+                    Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
+                    File metaPrefsFile = Assets.getPreferencesFile(METAPREFS_XML);
+                    metaPrefsPURL = new ParsedURL(metaPrefsFile);
+                    metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationSpace);
+                    println("OK: loaded MetaPrefs from " + metaPrefsFile);
+                }
+                catch (XmlTranslationException e)
+                {
+                    metaPrefSetException = e;
+                }
+                // TODO for eunyee -- test for studies preference and download special studies preferences
+                // When the JNLP has more than two arguments (study case) -- eunyee
+                if (argStack.size() > 0)
+                {
+                    String prefServlet = "";
+                    if (arg.startsWith("http://"))
+                    {
+                        // PreferencesServlet
+                        prefServlet = pop(argStack);
+
+                        prefSet = requestPrefFromServlet(prefServlet, translationSpace);
+                        if (prefSet == null)
+                            error("incorrect prefXML string returned from the servlet=" + prefServlet);
+                    }
+                }
+                // from supplied URL instead of from here
+                try
+                {
+                    debugA("Considering prefSet=" + prefSet + "\tprefsPURL=" + prefsPURL);
+                    if (prefSet == null) // Normal Case
+                    {
+                        prefSet = PrefSet.load(prefsPURL, translationSpace);
+                        if (prefSet != null)
+                            println("OK: Loaded Prefs from " + prefsPURL);
+                        else
+                            println("No Prefs to load from " + prefsPURL);
+                    }
+                    if (metaPrefSetException != null)
+                    {
+                        warning("Couldn't load MetaPrefs:");
+                        metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
+                        println("\tContinuing.");
+                    }
+                }
+                catch (XmlTranslationException e)
+                {
+                    if (metaPrefSetException != null)
+                    {
+                        error("Can't load MetaPrefs or Prefs. Quitting.");
+                        metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
+                        e.printTraceOrMessage(this, "Prefs", prefsPURL);
+                    }
+                    else
+                    {
+                        // meta prefs o.k. we can continue
+                        warning("Couldn't load Prefs:");
+                        e.printTraceOrMessage(this, "Prefs", prefsPURL);
+                        println("\tContinuing.");
+                    }
+                }
+            }
 			else
 			{
 				error("No code base argument :-( Can't load preferences.");

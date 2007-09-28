@@ -12,10 +12,10 @@ import ecologylab.xml.types.element.HashMapState;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class AuthenticationList extends ElementState
+public class AuthenticationList<E extends AuthenticationListEntry> extends ElementState
 {
     @xml_nested
-    private HashMapState<String, AuthenticationListEntry> authList = new HashMapState<String, AuthenticationListEntry>();
+    private HashMapState<String, E> authList = new HashMapState<String, E>();
 
     public AuthenticationList()
     {
@@ -25,7 +25,7 @@ public class AuthenticationList extends ElementState
     /**
      * Adds the given entry to this.
      */
-    public boolean add(AuthenticationListEntry entry)
+    public boolean add(E entry)
     {
         if (!this.authList.containsKey(entry.getUsername()))
         {

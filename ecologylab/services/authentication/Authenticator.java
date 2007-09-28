@@ -5,12 +5,13 @@ package ecologylab.services.authentication;
 
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Set;
 
 import ecologylab.generic.Debug;
 
 /**
- * Encapsulates all authentication actions, so that Servers don't need to worry
- * about them too much. Requires a backend database of users with passwords.
+ * Encapsulates all authentication actions, so that Servers don't need to worry about them too much. Requires a backend
+ * database of users with passwords.
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
@@ -23,12 +24,10 @@ public class Authenticator extends Debug
     private HashMap<InetAddress, String> authedIPToName = new HashMap<InetAddress, String>();
 
     /**
-     * Creates a new Authenticator using the given AuthenticationList as a
-     * backend database of usernames and passwords.
+     * Creates a new Authenticator using the given AuthenticationList as a backend database of usernames and passwords.
      * 
      * @param source -
-     *            the AuthenticationList of usernames and passwords to use for
-     *            authentication.
+     *            the AuthenticationList of usernames and passwords to use for authentication.
      */
     public Authenticator(AuthenticationList source)
     {
@@ -36,21 +35,18 @@ public class Authenticator extends Debug
     }
 
     /**
-     * Attempts to log-in the given AuthenticationListEntry object. In order for
-     * it to be authenticated, the following MUST be true:
+     * Attempts to log-in the given AuthenticationListEntry object. In order for it to be authenticated, the following
+     * MUST be true:
      * 
-     * 1.) authList must contain a username entry that matches
-     * entry.getUsername().
+     * 1.) authList must contain a username entry that matches entry.getUsername().
      * 
-     * 2.) the entry in authList that matches the username MUST have an
-     * identical hashed password.
+     * 2.) the entry in authList that matches the username MUST have an identical hashed password.
      * 
-     * 3.) the username must not already be contained in authedClientsIdToKey
-     * (i.e., the username must not already be logged in).
+     * 3.) the username must not already be contained in authedClientsIdToKey (i.e., the username must not already be
+     * logged in).
      * 
      * @param entry -
-     *            the AuthenticationListEntry containing a username and password
-     *            that is attempting to authenticate.
+     *            the AuthenticationListEntry containing a username and password that is attempting to authenticate.
      * 
      * @return
      */
@@ -58,7 +54,7 @@ public class Authenticator extends Debug
     {
         System.out.println("*****************************************");
         boolean loggedInSuccessfully = false;
-        System.out.println("entry: "+entry);
+        System.out.println("entry: " + entry);
         System.out.println(entry.getUsername());
         System.out.println(authList.contains(entry));
 
@@ -79,7 +75,7 @@ public class Authenticator extends Debug
                 }
                 else
                 {
-                    debug ("already logged in.");
+                    debug("already logged in.");
                 }
             }
             else
@@ -94,15 +90,53 @@ public class Authenticator extends Debug
         }
         else
         {
-            debug("username: "+entry.getUsername()+" does not exist in authentication list.");
+            debug("username: " + entry.getUsername() + " does not exist in authentication list.");
         }
 
         return loggedInSuccessfully;
     }
 
     /**
-     * Removes the given username from all authenticated client lists if the IP
-     * address matches the one currently stored for the entry.
+     * Looks up the authentication level, if any, of entry. Returns -1 if entry is not authenticatable on this.
+     * 
+     * @param entry -
+     *            an AuthenticationListEntry with a username and password.
+     * @return
+     */
+    public int verifyCredentials(AuthenticationListEntry entry)
+    {
+        if (authList.isValid(entry))
+        {
+            return authList.getAccessLevel(entry);
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    /**
+     * Looks up a list of logged-in users for an administrator.
+     * 
+     * @param administrator -
+     *            the username and password of an administrator.
+     * @return if administrator is valid, an ArrayList<String> of usernames for users that are logged-in; else null.
+     */
+    public Set<String> usersLoggedIn(AuthenticationListEntry administrator)
+    {
+        if (this.verifyCredentials(administrator) >= AuthLevels.ADMINISTRATOR)
+        {
+            return this.authedNameToIP.keySet();
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Removes the given username from all authenticated client lists if the IP address matches the one currently stored
+     * for the entry.
      * 
      * @param entry
      */

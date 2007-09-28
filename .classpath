@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="DO NOT CHANGE FOR CVS!, DO THIS LOCALLY: <ENTIRE PATH TO PLUGIN.JAR>"/>
+	<classpathentry kind="lib" path="E:\Program Files\Java\jre1.5.0_11\lib\plugin.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
