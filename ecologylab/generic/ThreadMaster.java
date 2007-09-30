@@ -12,8 +12,10 @@ ThreadMaster
 {
 /**
  * Pause all the threads we know about.
+ * 
+ * @return	true if threads needed to be paused
  */
-   public void pauseThreads();
+   public boolean pauseThreads();
 /**
  * Unpause (continue) all the threads we know about.
  */
