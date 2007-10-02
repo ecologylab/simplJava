@@ -425,9 +425,12 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 					String thatFieldName	= thatField.getName();
 					ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
 					//if (XmlTools.representAsLeafNode(thatField))
-					if ((pte != null) && pte.isLeafNode())
+					if (((pte != null) && pte.isLeafNode()) || XmlTools.representAsLeafNode(thatField))
 					{
-						String leafElementName	= XmlTools.getXmlTagName(thatFieldName, null, false);
+                        TagMapEntry nestedTagMapEntry = 
+                                getTagMapEntry(thatField, compression);
+                        String leafElementName = nestedTagMapEntry.tagName;
+//						String leafElementName	= XmlTools.getXmlTagName(thatFieldName, null, false);
 						boolean isCDATA			= XmlTools.leafIsCDATA(thatField);
 						ScalarType type			= TypeRegistry.getType(thatField);
 						String leafValue		= type.toString(this, thatField);

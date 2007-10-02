@@ -28,6 +28,14 @@ public class LogRequestMessage extends RequestMessage
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		Debug.println("services: received Logging Messages " );
+        try
+        {
+            Debug.println("contents: "+this.getMessageString());
+        }
+        catch (XmlTranslationException e1)
+        {
+            e1.printStackTrace();
+        }
 //		FileOutputStream outFile = (FileOutputStream) objectRegistry.lookupObject(LoggingDef.keyStringForFileObject);
 		
 		if( outFile != null )

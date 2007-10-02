@@ -141,6 +141,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
             Object token, SocketChannel sc, TranslationSpace translationSpaceIn,
             ObjectRegistry registryIn)
     {
+        debug("NEW LOGGING CONTEXT MANAGER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         return new LoggingContextManager(token, maxPacketSize, this, this
                 .getBackend(), sc, translationSpaceIn, registryIn);
     }

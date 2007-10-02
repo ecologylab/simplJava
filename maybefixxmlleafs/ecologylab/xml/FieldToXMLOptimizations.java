@@ -17,11 +17,14 @@ class TagMapEntry
     public final String startOpenTag;
 
     public final String closeTag;
+    
+    public final String tagName;
 
     private TagMapEntry(String tagName)
     {
         startOpenTag = "<" + tagName;
         closeTag = "</" + tagName + ">";
+        this.tagName = tagName;
     }
 
     TagMapEntry(Class<? extends ElementState> classObj, boolean compression)
