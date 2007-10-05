@@ -36,6 +36,13 @@ public class PrefString extends Pref<String>
 		this.value	= value;
 	}
 
+	public PrefString(String name, String value)
+	{
+	    super(name);
+	    
+	    this.value = value;
+	}
+	
 	/**
      * Get the value of the Pref
      * 

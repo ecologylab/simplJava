@@ -12,6 +12,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
+import ecologylab.xml.types.element.Mappable;
 
 /**
  * Generic base class for application Preference objects.
@@ -20,10 +21,10 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ArrayListState
+public abstract class Pref<T> extends ArrayListState implements Mappable<String>
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
-    static final ObjectRegistry<Pref>   allPrefsMap = new ObjectRegistry<Pref>();
+    static final ObjectRegistry<Pref<?>>   allPrefsMap = new ObjectRegistry<Pref<?>>();
 
     /** The ApplicationEnvironment associated with this JVM. */
     static final ApplicationEnvironment aE          = null;
@@ -44,6 +45,11 @@ public abstract class Pref<T> extends ArrayListState
 	public Pref()
 	{
 		super();
+	}
+	
+	protected Pref(String name)
+	{
+	    this.name = name;
 	}
 
 	/**
@@ -75,7 +81,7 @@ public abstract class Pref<T> extends ArrayListState
      * 
      * @return String of Pref name and value
      */
-    public String toString()
+    @Override public String toString()
     {
         return "Pref: name: "+name+", value: "+this.getValue();
     }
@@ -190,17 +196,6 @@ public abstract class Pref<T> extends ArrayListState
         }
         return pref;
     }
-    /*
-    public static<U> Pref<U> usePref(String name, U defaultValue)
-    {
-    	Pref<U>	result	= null;
-    	if (defaultValue instanceof String)
-    	{
-    		result	= (Pref<U>) usePrefString(name, (String) defaultValue);
-    	}
-    	else if (defaultValue instanceof )
-    	return result;
-    }*/
     
 	/**
 	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
@@ -275,9 +270,9 @@ public abstract class Pref<T> extends ArrayListState
      * 
      * @return Pref with the given name
      */
-    public static Pref lookupPref(String name)
+    public static Pref<?> lookupPref(String name)
     {
-        Pref pref = allPrefsMap.lookupObject(name);
+        Pref<?> pref = allPrefsMap.lookupObject(name);
         return pref;
     }
     
@@ -490,7 +485,7 @@ public abstract class Pref<T> extends ArrayListState
         listeners.add(l);
     }
     
-    private static void firePrefChangedEvent(Pref pref)
+    private static void firePrefChangedEvent(Pref<?> pref)
     {
         for (PrefChangedListener l : listeners)
         {
@@ -498,8 +493,16 @@ public abstract class Pref<T> extends ArrayListState
         }
     }
     
-    public static void prefUpdated(Pref pref)
+    public static void prefUpdated(Pref<?> pref)
     {
         firePrefChangedEvent(pref);
+    }
+
+    /**
+     * @see ecologylab.xml.types.element.Mappable#key()
+     */
+    public String key()
+    {
+        return name;
     }
 }

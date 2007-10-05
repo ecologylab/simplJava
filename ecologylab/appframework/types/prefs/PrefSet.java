@@ -5,14 +5,13 @@ package ecologylab.appframework.types.prefs;
 
 import java.io.File;
 
-import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
+import ecologylab.xml.types.element.HashMapState;
 
 /**
  * A serial set of Pref objects.
@@ -24,7 +23,7 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 
 @xml_inherit
-public class PrefSet extends ArrayListState<Pref> implements ApplicationPropertyNames
+public class PrefSet extends HashMapState<String, Pref<?>> implements ApplicationPropertyNames
 {
     /** No-argument constructor for XML translation. */
     public PrefSet() 
@@ -36,9 +35,9 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
      * @param pref
      * @return
      */
-    @Override public boolean add(Pref pref)
+    @Override public Pref<?> add(Pref<?> pref)
     {
-    	boolean result	= super.add(pref);
+    	Pref<?> result	= super.add(pref);
     	pref.register();
     	return result;
     }
@@ -57,7 +56,7 @@ public class PrefSet extends ArrayListState<Pref> implements ApplicationProperty
     // (cause then this.add() will get called!)
 	@Override protected void createChildHook(ElementState child)
 	{
-		Pref pref	= (Pref) child;
+		Pref<?> pref	= (Pref<?>) child;
 		pref.register();
 	}
     /**

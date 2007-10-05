@@ -545,7 +545,6 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         {
             for (MetaPref mp : metaPrefSet.getMetaPrefListByCategory(cat))
             {
-                String name = mp.getID();
                 Pref pref = mp.getAssociatedPref();
                 Object editedValue = getPrefValue(mp);
                 Object previousValue = pref.value();
@@ -561,7 +560,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
                         valueChangedListener.valueChanged(pref);
                 }
 
-                if (!prefSet.contains(pref))
+                if (!prefSet.containsKey(pref.key()))
                     prefSet.add(pref);
             }
         }

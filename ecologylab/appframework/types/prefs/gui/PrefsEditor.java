@@ -161,8 +161,7 @@ implements WindowListener
 
         this.isStandalone	= isStandalone;
         
-        final Container container = setupContainer(createJFrame, isStandalone);
-        //container.setLocation(startLocation);
+        setupContainer(createJFrame, isStandalone);
     }
     
     /**
@@ -177,7 +176,7 @@ implements WindowListener
     	{
     		jFrame.addWindowListener(new WindowAdapter()
     		{
-    			public void windowClosing(WindowEvent e)
+    			@Override public void windowClosing(WindowEvent e)
     			{
     				closeWindow();
     			}

@@ -37,6 +37,12 @@ public class PrefBoolean extends Pref<Boolean>
 		this.value	= value;
 	}
 
+	public PrefBoolean(String name, boolean value)
+	{
+	    super(name);
+	    this.value = value;
+	}
+	
     /**
      * Get the value of the Pref
      * 
@@ -54,7 +60,7 @@ public class PrefBoolean extends Pref<Boolean>
      * 
      * @param  The Boolean value the Pref will be set to
      */
-	public void setValue(Boolean newValue)
+	@Override public void setValue(Boolean newValue)
 	{
 		setValue(newValue.booleanValue());
 	}
