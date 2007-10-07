@@ -1182,6 +1182,12 @@ extends Debug
     
     public PURLConnection connect(ConnectionHelper connectionHelper)
     {
+    	return connect(connectionHelper, ParsedURL.TIMEOUT, ParsedURL.TIMEOUT);
+    }
+    
+    public PURLConnection connect(ConnectionHelper connectionHelper, 
+    								int connectionTimeout, int readTimeout)
+    {
     	URLConnection connection= null;
     	InputStream inStream	= null;
      	PURLConnection result	= null;
@@ -1228,8 +1234,8 @@ extends Debug
  		    connection.setRequestProperty("user-agent", IE5_USER_AGENT);
  		    
  		    // Set the connection and read timeout.
- 		    connection.setConnectTimeout(ParsedURL.TIMEOUT);
- 		    connection.setReadTimeout(ParsedURL.TIMEOUT);
+ 		    connection.setConnectTimeout(connectionTimeout);
+ 		    connection.setReadTimeout(readTimeout);
 			
 			/*//TODO include more structure instead of this total hack!
 			if ("nytimes.com".equals(this.domain()))

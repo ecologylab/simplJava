@@ -3,7 +3,6 @@ package ecologylab.xml.library.dc;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Dublin Core Metadata Element Set, as defined at
@@ -59,6 +58,8 @@ public class Dc extends ElementState
 	{
 		return TranslationSpace.get(TRANSLATION_SPACE_NAME, PACKAGE_NAME, TRANSLATIONS);
 	}
+	
+	public Dc() {}
 
 	/**
 	 * @return Returns the creator.
@@ -172,4 +173,19 @@ public class Dc extends ElementState
 		this.title = title;
 	}
 	
+	
+	public String toString()
+	{
+		return "Dc {\n" + 
+			"creator: " 	+ creator		+ "\n" +
+			"description: " + description	+ "\n" +
+			"format: " 		+ format		+ "\n" +
+			"identifier: " 	+ identifier	+ "\n" +
+			"publisher: " 	+ publisher		+ "\n" +
+			"subject: " 	+ subject		+ "\n" +
+			"title: " 		+ title			+ "\n" +
+			"type: " 		+ type			+ "\n" +
+		"}";
+			
+	}
 }
