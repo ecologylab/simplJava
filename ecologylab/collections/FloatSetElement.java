@@ -106,9 +106,10 @@ extends Debug
    }
    
    /**
-    * Callback that happens at the end of an insert
-    * This implementation is empty. Override to provide custom behaviors.
-    */
+	 * A callback method for when an element is inserted into a floatWeightSet.
+	 * 
+	 * This implementation is empty. Override to provide custom behaviors.
+	 */
    public void insertHook()
    {
 	   
