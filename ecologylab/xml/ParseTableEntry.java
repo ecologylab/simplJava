@@ -281,6 +281,9 @@ implements ParseTableEntryTypes
 	{
 		int type			= UNSET_TYPE;
 		String methodName	= XmlTools.methodNameFromTagName(tag);
+		String fieldName	= XmlTools.fieldNameFromElementName(tag);
+		Field field			= optimizations.getField(fieldName);
+        
 		Method setMethod	= 
 			ReflectionTools.getMethod(contextClass, methodName, ElementState.MARSHALLING_PARAMS);
 		if (setMethod != null)
@@ -291,9 +294,6 @@ implements ParseTableEntryTypes
 		}
 		else
 		{
-			String fieldName= XmlTools.fieldNameFromElementName(tag);
-			Field field		= optimizations.getField(fieldName);
-            
             // TODO this might need to be done somewhere else...maybe another method
             if (field == null)
             { // we still haven't found the right one; have to check @xml_name in the context
@@ -310,20 +310,20 @@ implements ParseTableEntryTypes
                     }
                 }
             }
-            
-			if (field != null)
-			{
-				ScalarType fieldType		= TypeRegistry.getType(field);
-				if (fieldType != null)
-				{
-					this.scalarType	= fieldType;
-					type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
-					this.field		= field;
-				}
-				else if (!isAttribute)
-					this.field	= field; // for leaf node seekers that can be nested elements
-			}
 		}
+		if (field != null)
+		{
+			ScalarType fieldType		= TypeRegistry.getType(field);
+			if (fieldType != null)
+			{
+				this.scalarType	= fieldType;
+				type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
+				this.field		= field;
+			}
+			else if (!isAttribute)
+				this.field	= field; // for leaf node seekers that can be nested elements
+		}
+
 		if (type == UNSET_TYPE)
 		{
 			type					= isAttribute ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
@@ -522,23 +522,67 @@ implements ParseTableEntryTypes
 		Collection collection	= null;
 		if (field != null)
 		{
-			try
-			{
-				collection		= (Collection) field.get(activeES);
-			} catch (Exception e)
-			{
-				weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
-				e.printStackTrace();
-			}
+			collection			= (Collection<? extends ElementState>) automaticLazyGetCollectionOrMap(activeES);
 		}
 		else
-			collection		= activeES.getCollection(classOp());
-			
+			collection			= activeES.getCollection(classOp());
+
 		if (collection != null)
 		{
 			ElementState childElement = createChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
+		else
+		{
+			warning("Can't add <" + tag + "> to " + activeES.getClassName() + ", because the collection is null.");
+		}
+	}
+
+	/**
+	 * Use the Field of this to seek a Collection or Map object in the activeES.
+	 * If non-null, great -- return it.
+	 * <p/>
+	 * Otherwise, lazy evaluation.
+	 * Since the value of the field is null, use the Type of the Field to instantiate a newInstance.
+	 * Set the instance of the Field in activeES to this newInstance, and return it.
+	 * 
+	 * @param activeES
+	 * @return
+	 */
+	private Object automaticLazyGetCollectionOrMap(ElementState activeES)
+	{
+		Object collection	= null;
+		try
+		{
+			collection		= (Collection) field.get(activeES);
+			if (collection == null)
+			{
+				// initialize the collection for the caller! automatic lazy evaluation :-)
+				Class collectionType	= field.getType();
+				try
+				{
+					collection	= collectionType.newInstance();
+					// set the field to the new collection
+					field.set(activeES, collection);
+				} catch (InstantiationException e)
+				{
+					warning("Can't instantiate collection of type" + collectionType + " for field " + field.getName() + " in " + activeES);
+					e.printStackTrace();
+					// return
+				}
+			}
+		} catch (IllegalArgumentException e)
+		{
+			weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
+			e.printStackTrace();
+			//return;
+		} catch (IllegalAccessException e)
+		{
+			weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
+			e.printStackTrace();
+			//return;
+		}
+		return collection;
 	}
 		
 	/**
@@ -556,7 +600,8 @@ implements ParseTableEntryTypes
 		{
 			try
 			{
-				map		= (Map) field.get(activeES);
+				map		= (Map) automaticLazyGetCollectionOrMap(activeES);
+//			map		= (Map) field.get(activeES);
 			} catch (Exception e)
 			{
 				weird("Trying to addElementToMap(). Can't access map field " + field.getType() + " in " + activeES);
@@ -569,6 +614,10 @@ implements ParseTableEntryTypes
 		{
 			Mappable mappable	= (Mappable) createChildElement(activeES, childNode, false);
 			map.put(mappable.key(), mappable);
+		}
+		else
+		{
+			warning("Can't add <" + tag + "> to " + activeES.getClassName() + ", because the map is null.");
 		}
 	}
 		
