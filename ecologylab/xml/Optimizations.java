@@ -118,8 +118,9 @@ public class Optimizations extends Debug
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
+	 * @param type TODO
 	 */
-	TagMapEntry getTagMapEntry(Class<? extends ElementState> thatClass, boolean compression)
+	TagMapEntry getTagMapEntry(Class<? extends ElementState> thatClass, boolean compression, int type)
 	{
 		TagMapEntry result= fieldOrClassToTagMap.get(thatClass);
 		if (result == null)
@@ -129,7 +130,7 @@ public class Optimizations extends Debug
 				result		= fieldOrClassToTagMap.get(thatClass);
 				if (result == null)
 				{
-				    result = new TagMapEntry(thatClass, compression);
+				    result = new TagMapEntry(thatClass, compression, type);
                     
                     fieldOrClassToTagMap.put(thatClass, result);
 					//debug(tagName.toString());
