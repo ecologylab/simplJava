@@ -494,7 +494,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 									{
 										collectionSubElementState = (ElementState) next;
 										collectionSubElementState.translateToXML(collectionSubElementState.getClass(), compression, true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
-										buffy.append('\n');
+										//buffy.append('\n');
 									} catch(ClassCastException e)
 									{
 										throw new XmlTranslationException("Collections MUST contain " +
@@ -519,13 +519,13 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 									
 							thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
 															nestedTagMapEntry, buffy);
-							buffy.append('\n');						
+							//buffy.append('\n');						
 						}
 					}
 				} //end of for loop
 				
 				// end the element
-				buffy.append(tagMapEntry.closeTag()).append('\n');
+				buffy.append(tagMapEntry.closeTag())/* .append('\n') */;
 				
 			} // end if no nested elements or text node
 		} catch (SecurityException e)
