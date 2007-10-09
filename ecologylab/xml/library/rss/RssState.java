@@ -1,5 +1,6 @@
 package ecologylab.xml.library.rss;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.*;
 
 /**
@@ -44,5 +45,27 @@ public class RssState extends ElementState
 	public void setVersion(float version)
 	{
 		this.version = version;
+	}
+	
+	public static final ParsedURL NYT_TECH_FEED	= ParsedURL.getAbsolute("http://www.nytimes.com/services/xml/rss/nyt/Technology.xml");
+	
+	public static void main(String[] args)
+	{
+		try
+		{
+			RssState rssState	= (RssState) ElementState.translateFromXML(NYT_TECH_FEED, RssTranslations.get());
+			println("items: " + rssState.getChannel()/*.getItems() */.size());
+			
+			String retranslated	= rssState.translateToXML();
+			println(retranslated);
+			println("\n");
+			RssState rssState2	= (RssState) ElementState.translateFromXMLString(retranslated, RssTranslations.get());
+			String reretranslated	= rssState2.translateToXML();
+			println(reretranslated);
+		} catch (XmlTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
