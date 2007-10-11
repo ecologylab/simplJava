@@ -154,6 +154,18 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
     }
     
     /**
+     * Returns true if the metaPref has choices. False otherwise
+     * @return
+     */
+    public boolean hasChoices()
+    {
+    	if (choices == null)
+    		return false;
+    	else
+    		return true;
+    }
+    
+    /**
      * Get a Choice from the list of choices, whose value matches
      * the value passed in.
      * 

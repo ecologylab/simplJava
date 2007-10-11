@@ -573,9 +573,9 @@ implements WindowListener
         }
         else if (metaPref.widgetIsRadio())
         {
-            if (metaPref instanceof MetaPrefBoolean)
+            if (metaPref instanceof MetaPrefBoolean && !metaPref.hasChoices())
             {
-                createYesNoBooleanRadio((MetaPrefBoolean) metaPref, panel);
+				createYesNoBooleanRadio((MetaPrefBoolean) metaPref, panel);
             }
             else
             {
@@ -647,7 +647,7 @@ implements WindowListener
         }
         else if (mp.widgetIsRadio())
         {
-            if (mp instanceof MetaPrefBoolean)
+            if (mp instanceof MetaPrefBoolean && !mp.hasChoices())
             {
                 boolean prefValue = (Boolean)pref.value();
                 if (prefValue)
@@ -733,7 +733,7 @@ implements WindowListener
         }
         else if (mp.widgetIsRadio())
         {
-            if (mp instanceof MetaPrefBoolean)
+            if (mp instanceof MetaPrefBoolean && !mp.hasChoices())
             {
                 // get button
                 JRadioButton yesButton = (JRadioButton)lookupComponent(mp, mp.getID()+IDENTIFIER_BOOLEAN_YES);
@@ -1088,7 +1088,7 @@ implements WindowListener
         ButtonGroup radioPair = new ButtonGroup();
         
         if (choices != null)
-        {
+        {//This won't be used, since we make sure that this metapref has no choices while calling this function
             ChoiceBoolean choice0   = (ChoiceBoolean) choices.get(0);
             boolean isDefault       = currentValue.equals(choice0.getValue());
             String name             = isDefault ? IDENTIFIER_BOOLEAN_YES : IDENTIFIER_BOOLEAN_NO;

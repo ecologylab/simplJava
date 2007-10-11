@@ -593,7 +593,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         }
         else if (mp.widgetIsRadio())
         {
-            if (mp instanceof MetaPrefBoolean)
+            if (mp instanceof MetaPrefBoolean && !mp.hasChoices())
             {
                 JRadioButton yesButton = (JRadioButton) lookupComponent(mp, mp
                         .getID()
@@ -618,6 +618,8 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
                             return choice.getValue();
                         else if (mp instanceof MetaPrefInt)
                             return choice.getValue();
+                        else if(mp instanceof MetaPrefBoolean)
+                        	return choice.getValue();
                         else
                             return null;
                     }
