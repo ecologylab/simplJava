@@ -11,7 +11,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class CfCollaborationGetSurrogate extends RequestMessage {
 
-	@xml_attribute protected String surrogateSetString;
+	@xml_leaf(CDATA) protected String surrogateSetString;
 	
 	TranslationSpace translationSpace;
 	
