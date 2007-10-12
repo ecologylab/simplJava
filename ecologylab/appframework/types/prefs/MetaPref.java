@@ -159,10 +159,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public boolean hasChoices()
     {
-    	if (choices == null)
-    		return false;
-    	else
-    		return true;
+    	return choices != null;
     }
     
     /**
