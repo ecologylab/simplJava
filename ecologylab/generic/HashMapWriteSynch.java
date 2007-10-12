@@ -61,7 +61,9 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 	/**
 	 * If there is already an entry, return it.
 	 * 
-	 * Otherwise, add the entry, and return null.
+	 * Otherwise, create an entry with the factory.
+	 * 
+	 * @return	The entry matching key, found or constructed.
 	 */
 	public V getOrCreateAndPutIfNew(K key, ValueFactory<K, V> factory)
 	{
@@ -72,7 +74,10 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 			{
 				result		= get(key);
 				if (result == null)
-					result	= super.put(key, factory.createValue(key));
+				{
+					result = factory.createValue(key);
+					super.put(key, result);
+				}
 			}
 		}
 		return result;
