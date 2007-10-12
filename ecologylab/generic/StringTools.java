@@ -21,7 +21,7 @@ extends Debug
 {
    static final String[]	oneDotDomainStrings = 
    {
-      "com", "edu", "gov", "org", "net", "tv",
+      "com", "edu", "gov", "org", "net", "tv", "info"
    };
    static final HashMap	oneDotDomains	= 
       CollectionTools.buildHashMapFromStrings(oneDotDomainStrings);
@@ -80,40 +80,32 @@ extends Debug
 /**
  * Useful for finding common domains.
  */
-   public static final String domain(String urlString)
+   public static final String domain(String hostString)
    {
-	   if ((urlString == null) || (urlString.length() == 0))
+	   if ((hostString == null) || (hostString.length() == 0))
 		   return null;
-	   int end	= urlString.length() - 1;
-	   int domainStartingDot	= 0;
-	   boolean foundFirstDot	= false;
-	   boolean foundSecondDot	= false;
-	   boolean international	= false;
-	   for (int i=end; i>0; i--)
+	   int lastDot	= hostString.lastIndexOf('.');
+	   if (lastDot == -1)
+		   return hostString;	// for example, localhost
+	  
+	   int prevDot	= hostString.lastIndexOf('.', lastDot - 1);
+	   if (prevDot == -1)
+		   return hostString;	// for example, earth-netone.com
+	   
+	   String suffix	= hostString.substring(lastDot + 1);
+	   boolean international	= !oneDotDomains.containsKey(suffix);
+	   int domainStart;
+	   if (!international)
 	   {
-		   if (urlString.charAt(i) == '.')
-		   {
-			   if (foundFirstDot)
-			   {
-				   if (international && !foundSecondDot)
-				   {
-					   foundSecondDot	= true;
-				   }
-				   else
-				   {
-					   domainStartingDot	= i + 1;
-					   break;
-				   }
-			   }
-			   else
-			   {
-				   foundFirstDot	= true;
-				   String suffix	= urlString.substring(i+1);
-				   international	= !oneDotDomains.containsKey(suffix);
-			   }
-		   }
+		   domainStart			= prevDot;
 	   }
-	   return urlString.substring(domainStartingDot, end + 1);
+	   else
+	   {
+		   int prevPrevDot		= hostString.lastIndexOf('.', prevDot - 1);
+		   domainStart			= (prevPrevDot != -1) ? prevPrevDot : prevDot;
+	   }
+	   String result = hostString.substring(domainStart + 1);
+	   return result;
    }
    /**
     * Use this method to efficiently get a <code>String</code> from a
