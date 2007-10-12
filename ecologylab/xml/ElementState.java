@@ -275,12 +275,120 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 
 	public String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
 	{
-		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent);
+		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent, null);
 		return (buffy == null) ? "" : buffy.toString();
+	}
+	/**
+	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * @param compression			true to compress the xml while emitting.
+	 * @param buffy 				StringBuilder to translate into, or null if you want one created for you.
+	 * 
+	 * @return 						the generated xml string
+	 * 
+	 * @throws XmlTranslationException if there is a problem with the 
+	 * structure. Specifically, in each ElementState object, fields for 
+	 * attributes must be declared
+	 * before all fields for nested elements (those derived from ElementState).
+	 * If there is any public field which is not derived from ElementState
+	 * declared after the declaration for 1 or more ElementState instance
+	 * variables, this exception will be thrown.
+	 */
+	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, StringBuilder buffy)
+		throws XmlTranslationException
+	{
+	   return translateToXMLBuilder(thatClass, compression, true, buffy);
+	}
+	/**
+	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements
+	 * -- if doRecursiveDescent is true).
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure. A new StringBuilder will be created for the caller.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * @param compression			true to compress the xml while emitting.
+	 * @param doRecursiveDescent 	true for recursive descent parsing.
+	 * 								false to parse just 1 level of attributes.
+	 * 										In this case, only the open tag w attributes is generated.
+	 * 										There is no close.
+	 * 
+	 * @return 						the generated xml string
+	 * 
+	 * @throws XmlTranslationException if there is a problem with the 
+	 * structure. Specifically, in each ElementState object, fields for 
+	 * attributes must be declared
+	 * before all fields for nested elements (those derived from ElementState).
+	 * If there is any public field which is not derived from ElementState
+	 * declared after the declaration for 1 or more ElementState instance
+	 * variables, this exception will be thrown.
+	 */
+	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent) 
+		throws XmlTranslationException
+	{
+		return translateToXMLBuilder(thatClass, compression, doRecursiveDescent, null);
+	}
+	/**
+	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure. A new StringBuilder will be created for the caller.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * @param compression			true to compress the xml while emitting.
+	 * 
+	 * @return 						the generated xml string
+	 * 
+	 * @throws XmlTranslationException if there is a problem with the 
+	 * structure. Specifically, in each ElementState object, fields for 
+	 * attributes must be declared
+	 * before all fields for nested elements (those derived from ElementState).
+	 * If there is any public field which is not derived from ElementState
+	 * declared after the declaration for 1 or more ElementState instance
+	 * variables, this exception will be thrown.
+	 */
+	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression) 
+	throws XmlTranslationException
+	{
+		return translateToXMLBuilder(thatClass, compression, null);
 	}
 
 	/**
-	 * Translates a tree of ElementState objects into an equivalent XML string.
+	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
 	 * 
 	 * Uses Java reflection to iterate through the public fields of the object.
 	 * When primitive types are found, they are translated into attributes.
@@ -297,14 +405,12 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * value for each type.
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
-	 * 
 	 * @param compression			true to compress the xml while emitting.
-	
 	 * @param doRecursiveDescent	true for recursive descent parsing.
 	 * 								false to parse just 1 level of attributes.
 	 * 										In this case, only the open tag w attributes is generated.
 	 * 										There is no close.
-	 * @param nodeNumber			counts the depth of recursive descent.
+	 * @param buffy 				StringBuilder to translate into, or null if you want one created for you.
 	 * 
 	 * @return 						the generated xml string
 	 * 
@@ -316,10 +422,10 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent)
+	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent, StringBuilder buffy)
 		throws XmlTranslationException
 	{
-	   return translateToXML(thatClass, compression, doRecursiveDescent, TOP_LEVEL_NODE, null, ROOT);
+	   return translateToXML(thatClass, compression, doRecursiveDescent, TOP_LEVEL_NODE, buffy, ROOT);
 	}
 	
 	private StringBuilder translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent, 
