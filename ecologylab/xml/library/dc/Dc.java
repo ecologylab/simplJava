@@ -15,25 +15,25 @@ import ecologylab.xml.TranslationSpace;
  */
 public class Dc extends ElementState
 {
-	@xml_leaf	String				title;
-	@xml_leaf	String				creator;
-	@xml_leaf	String				subject;
-	@xml_leaf	String				description;
-	@xml_leaf	String				publisher;
+	@xml_leaf @xml_tag("dc:title") 		String				title;
+	@xml_leaf @xml_tag("dc:creator") 	String				creator;
+	@xml_leaf @xml_tag("dc:subject")	String				subject;
+	@xml_leaf @xml_tag("dc:description")String				description;
+	@xml_leaf @xml_tag("dc:publisher")	String				publisher;
 	// Contributor
 	// public Date 			date; // we need to implement a Date type!
 	// values for type: Collection, Dataset, Event, Image, MovingImage, 
 	// InteractiveResource, PhysicalObject, Service, Software, Sound,
 	// StillImage, Text
-	@xml_leaf	String				type;
+	@xml_leaf @xml_tag("dc:type")		String				type;
 	/**
 	 * Probably the mime-type, but alas not necessarily.
 	 */
-	@xml_leaf	String				format;
+	@xml_leaf @xml_tag("dc:format")		String				format;
 	/**
 	 * Recommended best practice is to identify the resource by means of a string or number conforming to a formal identification system. Formal identification systems include but are not limited to the Uniform Resource Identifier (URI) (including the Uniform Resource Locator (URL)), the Digital Object Identifier (DOI) and the International Standard Book Number (ISBN).
 	 */
-	@xml_leaf	ParsedURL			identifier;
+	@xml_leaf @xml_tag("dc:identifier")	ParsedURL			identifier;
 	// language
 	// relation
 	// coverage

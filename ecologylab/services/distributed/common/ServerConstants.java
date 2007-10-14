@@ -14,7 +14,7 @@ public interface ServerConstants
     static final int    MAXIMUM_TRANSMISSION_ERRORS        = 3;
 
     /** the maximum size of message acceptable by server */
-    static final int    MAX_PACKET_SIZE                    = 96 * 1024;
+    static final int    MAX_PACKET_SIZE                    = 128 * 1024;
 
     /** Limit the maximum number of client connection to the server */
     static final int    MAX_CONNECTIONS                    = 100;
