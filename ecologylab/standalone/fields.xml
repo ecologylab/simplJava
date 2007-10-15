@@ -1,4 +1,5 @@
-<fields>
+<?xml version="1.0" encoding="UTF-8"?>
+<fields xmlns:dc="http://purl.org/dc/elements/1.1/">
 <dc:description>
 Frogs @ The Exploratorium: An online exhibition exploring the amazing, adaptable frog.
 </dc:description>
@@ -13,7 +14,7 @@ Frogs @ The Exploratorium: An online exhibition exploring the amazing, adaptable
 <dc:subject>Frogs</dc:subject>
 <dc:subject>Frogs and toads</dc:subject>
 <dc:title>Exploratorium: Frogs</dc:title>
-<dc:identifier xsi:type="dct:URI">http://www.exploratorium.edu/frogs</dc:identifier>
+<dc:identifier>http://www.exploratorium.edu/frogs</dc:identifier>
 <bestPassage>
 Exploratorium: <B>Frogs</B>   The <B>Frogs</B> exhibition ran at the Exploratorium from February 13, 1999 through...  exhibitions and events at the museum, subscribe to eNews . Here online, you can still enjoy our <B>frog</B> articles, interactive exhibits and hands-on activities. About the <B>frog</B> photographs and images on this page
 </bestPassage>
