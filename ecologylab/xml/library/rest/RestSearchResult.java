@@ -23,7 +23,7 @@ public class RestSearchResult extends ElementState
 	@xml_leaf 	protected 	 String 		responseTime;
 	@xml_leaf   protected 	 URL			request;
 	@xml_nested @xml_tag("SearchResults") 
-				protected 	 SearchResults 	searchResults;
+				protected 	 SearchResults 	SearchResults;
 	
 	public RestSearchResult() {}
 
@@ -64,7 +64,7 @@ public class RestSearchResult extends ElementState
 	 */
 	public void setSearchResults(SearchResults searchResults)
 	{
-		this.searchResults = searchResults;
+		this.SearchResults = searchResults;
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class RestSearchResult extends ElementState
 	 */
 	public SearchResults getSearchResults()
 	{
-		return searchResults;
+		return SearchResults;
 	}
 	
 	public String toString()
@@ -80,7 +80,7 @@ public class RestSearchResult extends ElementState
 		return "RestSearchResult{\n" + 
 				"responseTime: "	+ responseTime 	+ "\n" + 
 				"request: "			+ getRequest()		+ "\n" +
-				"SearchResults: "	+ searchResults + "\n" +
+				"SearchResults: "	+ SearchResults + "\n" +
 				"}";
 	}
 
