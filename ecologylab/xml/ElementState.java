@@ -579,6 +579,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 							final Iterator iterator			= thatCollection.iterator();
 //							final boolean collectionScalar	= (pte != null) && pte.isCollectionScalar();
 //							final boolean mapScalar			= (pte != null) && pte.isMapScalar();
+//							Class childClass				= iterator.hasNext() ? iterator.
 							
 							while (iterator.hasNext())
 							{
