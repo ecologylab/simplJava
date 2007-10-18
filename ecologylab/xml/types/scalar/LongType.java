@@ -12,6 +12,8 @@ import java.lang.reflect.Field;
  */
 public class LongType extends ScalarType<Long>
 {
+	public static final long	DEFAULT_VALUE			= 0;
+	public static final String	DEFAULT_VALUE_STRING	= "0";
 
 	public LongType()
 	{
@@ -71,14 +73,32 @@ public class LongType extends ScalarType<Long>
 	   return result;
 	}
 
+    /**
+     * Copy a string representation for a Field of this type into the StringBuilder, unless
+     * the value of the Field in the Object turns out to be the default value for this ScalarType,
+     * in which case, do nothing.
+     */
+	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
+    {
+        try
+        {
+            long i	= field.getLong(object);
+            if (i != DEFAULT_VALUE)
+            	buffy.append(i);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 /**
  * The default value for this type, as a String.
  * This value is the one that translateToXML(...) wont bother emitting.
  * 
  * In this case, "0".
  */
-	public String defaultValue()
+	protected String defaultValueString()
 	{
-	   return "0";
+	   return DEFAULT_VALUE_STRING;
 	}
 }

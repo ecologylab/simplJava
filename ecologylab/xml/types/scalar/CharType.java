@@ -12,6 +12,9 @@ import java.lang.reflect.Field;
  */
 public class CharType extends ScalarType<Character>
 {
+	public static final char	DEFAULT_VALUE			= ' ';
+	public static final String	DEFAULT_VALUE_STRING	= " ";
+
 /**
  * This constructor should only be called once per session, through
  * a static initializer, typically in TypeRegistry.
@@ -78,15 +81,35 @@ public class CharType extends ScalarType<Character>
 	   return result;
 	}
 
+    /**
+     * Copy a string representation for a Field of this type into the StringBuilder, unless
+     * the value of the Field in the Object turns out to be the default value for this ScalarType,
+     * in which case, do nothing.
+     */
+	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
+    {
+        try
+        {
+            char c	= field.getChar(object);
+            if (c != DEFAULT_VALUE)
+            	buffy.append(c);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+
 /**
  * The default value for this type, as a String.
  * This value is the one that translateToXML(...) wont bother emitting.
  * 
  * In this case, "false".
  */
-	public String defaultValue()
+	protected String defaultValueString()
 	{
-	   return " ";
+	   return DEFAULT_VALUE_STRING;
 	}
 	
     /**

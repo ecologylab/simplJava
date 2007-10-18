@@ -69,15 +69,4 @@ public class ColorType extends ScalarType<Color>
 	   }
 	   return result;
 	}
-
-/**
- * The default value for this type, as a String.
- * This value is the one that translateToXML(...) wont bother emitting.
- * 
- * In this case, "0".
- */
-	public String defaultValue()
-	{
-	   return "0";
-	}
 }

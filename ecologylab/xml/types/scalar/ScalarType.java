@@ -185,24 +185,59 @@ public class ScalarType<T> extends Debug
     }
 
     /**
+     * Copy a string representation for a Field of this type into the StringBuilder, unless
+     * the value of the Field in the Object turns out to be its default value,
+     * in which case, do nothing.
+     */
+    public void copyValue(StringBuilder buffy, Object object, Field field)
+    {
+        try
+        {
+            Object instance = field.get(object);
+           
+            if (instance != null)
+            	appendValueToBuilder((T) instance, buffy);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    protected void appendValueToBuilder(T instance, StringBuilder buffy)
+    {
+    	buffy.append(instance.toString());
+    }
+
+    /**
      * The default value for this type, as a String. This value is the one that translateToXML(...)
      * wont bother emitting.
      * 
      * In this case, "null".
      */
-    public String defaultValue()
+    protected String defaultValueString()
     {
         return NULL_STRING;
     }
     
+    /**
+     * The default value for this, in its own type. Not meaningful for primitive types.
+     * 
+     * @return
+     */
+    protected T defaultValue()
+    {
+    	return null;
+    }
+    
     public final int defaultValueLength()
     {
-    	return defaultValue().length();
+    	return defaultValueString().length();
     }
 
     public boolean isDefaultValue(String value)
     {
-        String defaultValue = defaultValue();
+        String defaultValue = defaultValueString();
 		return (defaultValue.length() == value.length()) && defaultValue.equals(value);
     }
 

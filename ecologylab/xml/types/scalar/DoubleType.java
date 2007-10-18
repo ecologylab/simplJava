@@ -12,6 +12,9 @@ import java.lang.reflect.Field;
  */
 public class DoubleType extends ScalarType<Double>
 {
+	public static final double	DEFAULT_VALUE			= 0;
+	public static final String	DEFAULT_VALUE_STRING	= "0.0";
+
     /**
      * This constructor should only be called once per session, through a static initializer,
      * typically in TypeRegistry.
@@ -82,14 +85,33 @@ public class DoubleType extends ScalarType<Double>
     }
 
     /**
+     * Copy a string representation for a Field of this type into the StringBuilder, unless
+     * the value of the Field in the Object turns out to be the default value for this ScalarType,
+     * in which case, do nothing.
+     */
+	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
+    {
+        try
+        {
+            double d	= field.getDouble(object);
+            if (d != DEFAULT_VALUE)
+            	buffy.append(d);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * The default value for this type, as a String. This value is the one that translateToXML(...)
      * wont bother emitting.
      * 
      * @return "0"
      */
-    public String defaultValue()
+    protected String defaultValueString()
     {
-        return "0.0";
+	   return DEFAULT_VALUE_STRING;
     }
 
     /**

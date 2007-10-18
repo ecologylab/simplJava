@@ -12,6 +12,9 @@ import java.lang.reflect.Field;
  */
 public class BooleanType extends ScalarType<Boolean>
 {
+	public static final boolean	DEFAULT_VALUE			= false;
+	public static final String	DEFAULT_VALUE_STRING	= "false";
+
 /**
  * This constructor should only be called once per session, through
  * a static initializer, typically in TypeRegistry.
@@ -82,14 +85,33 @@ public class BooleanType extends ScalarType<Boolean>
 	   return result;
 	}
 
+    /**
+     * Copy a string representation for a Field of this type into the StringBuilder, unless
+     * the value of the Field in the Object turns out to be the default value for this ScalarType,
+     * in which case, do nothing.
+     */
+	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
+    {
+        try
+        {
+            boolean b	= field.getBoolean(object);
+            if (b != DEFAULT_VALUE)
+            	buffy.append(b);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 /**
  * The default value for this type, as a String.
  * This value is the one that translateToXML(...) wont bother emitting.
  * 
  * @return		"false"
  */
-	public String defaultValue()
+	protected String defaultValueString()
 	{
-	   return "false";
+	   return DEFAULT_VALUE_STRING;
 	}
 }
