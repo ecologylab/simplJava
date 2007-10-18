@@ -41,104 +41,90 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
 /**
- * Services Client using NIO; a major difference with the NIO version is state
- * tracking. Since the sending methods do not wait for the server to return.
+ * Services Client using NIO; a major difference with the NIO version is state tracking. Since the sending methods do
+ * not wait for the server to return.
  * 
- * This object will listen for incoming messages from the server, and will send
- * any messages that it recieves on its end.
+ * This object will listen for incoming messages from the server, and will send any messages that it recieves on its
+ * end.
  * 
- * Since the underlying implementation is TCP/IP, messages sent should be sent
- * in order, and the responses should match that order.
+ * Since the underlying implementation is TCP/IP, messages sent should be sent in order, and the responses should match
+ * that order.
  * 
- * Another major difference between this and the non-NIO version of
- * ServicesClient is that it is StartAndStoppable.
+ * Another major difference between this and the non-NIO version of ServicesClient is that it is StartAndStoppable.
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
-public class NIOClient extends ServicesClientBase implements Runnable,
-        ServerConstants, ClientConstants
+public class NIOClient extends ServicesClientBase implements Runnable, ServerConstants, ClientConstants
 {
-    protected Selector                  selector                     = null;
+    protected Selector                    selector                     = null;
 
-    protected boolean                   running                      = false;
+    protected boolean                     running                      = false;
 
-    protected SocketChannel             channel                      = null;
+    protected SocketChannel               channel                      = null;
 
-    private Thread                      thread;
+    private Thread                        thread;
 
-    protected SelectionKey              key                          = null;
+    protected SelectionKey                key                          = null;
 
-    private ByteBuffer                  incomingRawBytes             = ByteBuffer
-                                                                             .allocate(MAX_PACKET_SIZE);
+    private final ByteBuffer              incomingRawBytes             = ByteBuffer.allocate(MAX_PACKET_SIZE);
 
-    protected CharBuffer                outgoingChars                = CharBuffer
-                                                                             .allocate(MAX_PACKET_SIZE);
+    protected final CharBuffer            outgoingChars                = CharBuffer.allocate(MAX_PACKET_SIZE);
 
-    private StringBuilder               accumulator                  = new StringBuilder(
-                                                                             MAX_PACKET_SIZE);
+    private final StringBuilder           accumulator                  = new StringBuilder(MAX_PACKET_SIZE);
 
-    private CharsetDecoder              decoder                      = Charset
-                                                                             .forName(
-                                                                                     "ASCII")
-                                                                             .newDecoder();
+    private final StringBuilder           requestBuffer                = new StringBuilder(MAX_PACKET_SIZE);
 
-    protected CharsetEncoder            encoder                      = Charset
-                                                                             .forName(
-                                                                                     "ASCII")
-                                                                             .newEncoder();
+    private static final CharsetDecoder   DECODER                      = Charset.forName("ASCII").newDecoder();
 
-    private ResponseMessage             responseMessage              = null;
+    protected static final CharsetEncoder ENCODER                      = Charset.forName("ASCII").newEncoder();
 
-    protected Iterator<SelectionKey>                  incoming;
+    private ResponseMessage               responseMessage              = null;
 
-    private volatile boolean            blockingRequestPending       = false;
+    protected Iterator<SelectionKey>      incoming;
 
-    private Queue<ResponseMessage>      blockingResponsesQueue       = new LinkedBlockingQueue<ResponseMessage>();
+    private volatile boolean              blockingRequestPending       = false;
 
-    protected Queue<PreppedRequest>     requestsQueue                = new LinkedBlockingQueue<PreppedRequest>();
+    private final Queue<ResponseMessage>  blockingResponsesQueue       = new LinkedBlockingQueue<ResponseMessage>();
+
+    protected final Queue<PreppedRequest> requestsQueue                = new LinkedBlockingQueue<PreppedRequest>();
 
     /**
-     * A map that stores all the requests that have not yet gotten responses.
-     * Maps UID to RequestMessage.
+     * A map that stores all the requests that have not yet gotten responses. Maps UID to RequestMessage.
      */
-    protected Map<Long, PreppedRequest> unfulfilledRequests          = new HashMap<Long, PreppedRequest>();
+    protected Map<Long, PreppedRequest>   unfulfilledRequests          = new HashMap<Long, PreppedRequest>();
 
     /**
-     * The number of times a call to reconnect() should attempt to contact the
-     * server before giving up and calling stop().
+     * The number of times a call to reconnect() should attempt to contact the server before giving up and calling
+     * stop().
      */
-    protected int                       reconnectAttempts            = RECONNECT_ATTEMPTS;
+    protected int                         reconnectAttempts            = RECONNECT_ATTEMPTS;
 
     /**
      * The number of milliseconds to wait between reconnect attempts.
      */
-    protected int                       waitBetweenReconnectAttempts = WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
+    protected int                         waitBetweenReconnectAttempts = WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
 
-    private String                      sessionId                    = null;
+    private String                        sessionId                    = null;
 
     /**
-     * selectInterval is passed to select() when it is called in the run loop.
-     * It is set to 0 indicating that the loop should block until the selector
-     * picks up something interesting. However, if this class is subclassed, it
-     * is possible to modify this value so that the select() will only block for
-     * the number of ms supplied by this field. Thus, it is possible (by also
-     * subclassing the sendData() method) to have this send data on an interval,
-     * and then select.
+     * selectInterval is passed to select() when it is called in the run loop. It is set to 0 indicating that the loop
+     * should block until the selector picks up something interesting. However, if this class is subclassed, it is
+     * possible to modify this value so that the select() will only block for the number of ms supplied by this field.
+     * Thus, it is possible (by also subclassing the sendData() method) to have this send data on an interval, and then
+     * select.
      */
-    protected long                      selectInterval               = 0;
+    protected long                        selectInterval               = 0;
 
-    protected boolean                   isSending                    = false;
+    protected boolean                     isSending                    = false;
 
-    public NIOClient(String server, int port, TranslationSpace messageSpace,
-            ObjectRegistry objectRegistry)
+    public NIOClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
     }
 
     /**
-     * If this client is not already connected, connects to the specified server
-     * on the specified port, then calls start() to begin listening for server
-     * responses and processing them, then sends handshake data and establishes
+     * If this client is not already connected, connects to the specified server on the specified port, then calls
+     * start() to begin listening for server responses and processing them, then sends handshake data and establishes
      * the session id.
      * 
      * @see ecologylab.services.ServicesClientBase#connect()
@@ -153,32 +139,25 @@ public class NIOClient extends ServicesClientBase implements Runnable,
             this.start();
 
             // now send first handshake message
-            ResponseMessage initResponse = this
-                    .sendMessage(new InitConnectionRequest(this.sessionId));
+            ResponseMessage initResponse = this.sendMessage(new InitConnectionRequest(this.sessionId));
 
             if (initResponse instanceof InitConnectionResponse)
             {
                 if (this.sessionId == null)
                 {
                     debug("new session...");
-                    this.sessionId = ((InitConnectionResponse) initResponse)
-                            .getSessionId();
+                    this.sessionId = ((InitConnectionResponse) initResponse).getSessionId();
                     debug(this.sessionId);
                 }
-                else if (this.sessionId == ((InitConnectionResponse) initResponse)
-                        .getSessionId())
+                else if (this.sessionId == ((InitConnectionResponse) initResponse).getSessionId())
                 {
-                    debug("reconnected and restored previous connection: "
-                            + this.sessionId);
+                    debug("reconnected and restored previous connection: " + this.sessionId);
                 }
                 else
                 {
-                    String newId = ((InitConnectionResponse) initResponse)
-                            .getSessionId();
-                    debug("unable to restore previous session, "
-                            + this.sessionId + "; new session: " + newId);
-                    this.unableToRestorePreviousConnection(this.sessionId,
-                            newId);
+                    String newId = ((InitConnectionResponse) initResponse).getSessionId();
+                    debug("unable to restore previous session, " + this.sessionId + "; new session: " + newId);
+                    this.unableToRestorePreviousConnection(this.sessionId, newId);
                     this.sessionId = newId;
                 }
             }
@@ -189,15 +168,13 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Sets the UID for request (if necessary), enqueues it then registers write
-     * interest for the NIOClient's selection key and calls wakeup() on the
-     * selector.
+     * Sets the UID for request (if necessary), enqueues it then registers write interest for the NIOClient's selection
+     * key and calls wakeup() on the selector.
      * 
      * @param request
      * @throws XmlTranslationException
      */
-    protected PreppedRequest prepareAndEnqueueRequestForSending(
-            RequestMessage request) throws XmlTranslationException
+    protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XmlTranslationException
     {
         long uid = request.getUid();
         if (uid == 0)
@@ -206,11 +183,12 @@ public class NIOClient extends ServicesClientBase implements Runnable,
             request.setUid(uid);
         }
 
-        String requestString = request.translateToXML();
+        // fill requestBuffer
+        request.translateToXMLBuilder(request.getClass(), false, requestBuffer);
 
-        // debug("requestString: "+requestString);
+        PreppedRequest pReq = new PreppedRequest(requestBuffer.toString(), uid);
 
-        PreppedRequest pReq = new PreppedRequest(requestString, uid);
+        requestBuffer.delete(0, requestBuffer.length());
 
         enqueueRequestForSending(pReq);
 
@@ -231,11 +209,10 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
     public void disconnect(boolean waitForResponses)
     {
-        while (this.requestsRemaining() > 0 && this.connected()
-                && waitForResponses)
+        while (this.requestsRemaining() > 0 && this.connected() && waitForResponses)
         {
-            debug("*******************Request queue not empty, finishing "
-                    + requestsRemaining() + " messages before disconnecting...");
+            debug("*******************Request queue not empty, finishing " + requestsRemaining()
+                    + " messages before disconnecting...");
             synchronized (this)
             {
                 try
@@ -259,8 +236,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                 while (waitForResponses && connected() && !this.shutdownOK())
                 {
-                    debug("*******************"
-                            + this.unfulfilledRequests.size()
+                    debug("*******************" + this.unfulfilledRequests.size()
                             + " requests still pending response from server.");
                     debug("*******************connected: " + connected());
 
@@ -324,8 +300,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
     @Override public boolean connected()
     {
-        return (channel != null) && !channel.isConnectionPending()
-                && channel.isConnected() && socket.isConnected();
+        return (channel != null) && !channel.isConnectionPending() && channel.isConnected() && socket.isConnected();
     }
 
     /**
@@ -359,15 +334,13 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         }
         catch (BindException e)
         {
-            debug("Couldnt create socket connection to server '" + server
-                    + "': " + e);
+            debug("Couldnt create socket connection to server '" + server + "': " + e);
 
             nullOut();
         }
         catch (PortUnreachableException e)
         {
-            debug("Server is alive, but has no daemon on port " + port + ": "
-                    + e);
+            debug("Server is alive, but has no daemon on port " + port + ": " + e);
 
             nullOut();
         }
@@ -388,9 +361,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Hook method to allow subclasses to deal with a failed restore after
-     * disconnect. This should be a rare occurance, but some sublcasses may need
-     * to deal with this case specifically.
+     * Hook method to allow subclasses to deal with a failed restore after disconnect. This should be a rare occurance,
+     * but some sublcasses may need to deal with this case specifically.
      * 
      * @param oldId -
      *            the previous session id.
@@ -402,16 +374,15 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Sends request, but does not wait for the response. The response gets
-     * processed later in a non-stateful way by the run method.
+     * Sends request, but does not wait for the response. The response gets processed later in a non-stateful way by the
+     * run method.
      * 
      * @param request
      *            the request to send to the server.
      * 
      * @return the UID of request.
      */
-    public PreppedRequest nonBlockingSendMessage(RequestMessage request)
-            throws IOException
+    public PreppedRequest nonBlockingSendMessage(RequestMessage request) throws IOException
     {
         if (connected())
         {
@@ -434,8 +405,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Blocking send. Sends the request and waits infinitely for the response,
-     * which it returns.
+     * Blocking send. Sends the request and waits infinitely for the response, which it returns.
      * 
      * @see ecologylab.services.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
      */
@@ -445,17 +415,14 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Blocking send with timeout. Sends the request and waits timeOutMillis
-     * milliseconds for the response, which it returns.
-     * sendMessage(RequestMessage, int) will return null if no message was
-     * recieved in time.
+     * Blocking send with timeout. Sends the request and waits timeOutMillis milliseconds for the response, which it
+     * returns. sendMessage(RequestMessage, int) will return null if no message was recieved in time.
      * 
      * @param request
      * @param timeOutMillis
      * @return
      */
-    public synchronized ResponseMessage sendMessage(RequestMessage request,
-            int timeOutMillis)
+    public synchronized ResponseMessage sendMessage(RequestMessage request, int timeOutMillis)
     {
         ResponseMessage returnValue = null;
 
@@ -470,8 +437,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
         try
         {
-            currentMessageUid = this
-                    .prepareAndEnqueueRequestForSending(request).getUid();
+            currentMessageUid = this.prepareAndEnqueueRequestForSending(request).getUid();
         }
         catch (XmlTranslationException e1)
         {
@@ -483,8 +449,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
         if (request instanceof InitConnectionRequest)
         {
-            debug("init request: "
-                    + ((InitConnectionRequest) request).getSessionId());
+            debug("init request: " + ((InitConnectionRequest) request).getSessionId());
         }
 
         // wait to be notified that the response has arrived
@@ -514,8 +479,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
             timeCounter += System.currentTimeMillis() - startTime;
             startTime = System.currentTimeMillis();
 
-            while ((blockingRequestPending)
-                    && (!blockingResponsesQueue.isEmpty()))
+            while ((blockingRequestPending) && (!blockingResponsesQueue.isEmpty()))
             {
                 returnValue = blockingResponsesQueue.poll();
 
@@ -535,8 +499,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                 }
             }
 
-            if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis)
-                    && (blockingRequestPending))
+            if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis) && (blockingRequestPending))
             {
                 blockingRequestFailed = true;
             }
@@ -558,8 +521,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
             if (thread == null)
             {
-                thread = new Thread(this, "client network handler to "
-                        + this.server + ":" + this.port);
+                thread = new Thread(this, "client network handler to " + this.server + ":" + this.port);
                 thread.start();
             }
         }
@@ -600,31 +562,24 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                             {
                                 if (key.isReadable())
                                 {
-                                    // debug("this key is readable!");
-
                                     readChannel();
                                 }
                                 else if (key.isWritable())
                                 {
+                                    // lock outgoing requests queue, send data from it, then switch out of write mode
                                     synchronized (requestsQueue)
                                     {
                                         while (this.requestsRemaining() > 0)
                                         {
-                                            this
-                                                    .createPacketFromMessageAndSend(
-                                                            this
-                                                                    .dequeueRequest(),
-                                                            key);
+                                            this.createPacketFromMessageAndSend(this.dequeueRequest(), key);
                                         }
                                     }
 
-                                    key.interestOps(key.interestOps()
-                                            & (~SelectionKey.OP_WRITE));
+                                    key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
                                 }
                             }
                             else
-                            { // the key is invalid; server disconnected
-                                // unexpectedly
+                            { // the key is invalid; server disconnected unexpectedly
                                 debug("server disconnected...");
                                 this.disconnect(false);
                                 this.reconnect();
@@ -644,9 +599,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Returns the next request in the request queue and removes it from that
-     * queue. Sublcasses that override the queue functionality will need to
-     * override this method.
+     * Returns the next request in the request queue and removes it from that queue. Sublcasses that override the queue
+     * functionality will need to override this method.
      * 
      * @return the next request in the request queue.
      */
@@ -656,9 +610,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Returns the number of requests remaining in the requests queue.
-     * Subclasses that override the queue functionality will need to change this
-     * method accordingly.
+     * Returns the number of requests remaining in the requests queue. Subclasses that override the queue functionality
+     * will need to change this method accordingly.
      * 
      * @return the size of the request queue.
      */
@@ -678,18 +631,15 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                 // decode bytes and store in accumulator
                 incomingRawBytes.flip();
-                accumulator.append(decoder.decode(incomingRawBytes));
+                accumulator.append(DECODER.decode(incomingRawBytes));
                 incomingRawBytes.clear();
 
-                // debug("**************************accum:"+accumulator.toString());
-
                 // find the first header
-                int endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
+                int endOfFirstHeader = accumulator.indexOf(HTTP_HEADER_TERMINATOR);
 
                 if ((accumulator.length() > 0) && (endOfFirstHeader != -1))
                 {
-                    int contentLength = ServicesServer.parseHeader(accumulator
-                            .substring(0, endOfFirstHeader));
+                    int contentLength = ServicesServer.parseHeader(accumulator.substring(0, endOfFirstHeader));
 
                     if (contentLength == -1)
                         break;
@@ -700,20 +650,11 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                     if (accumulator.length() >= totalSize)
                     {
-                        firstMessage = accumulator.substring(
-                                endOfFirstHeader + 4, totalSize);
+                        firstMessage = accumulator.substring(endOfFirstHeader + 4, totalSize);
                         accumulator.delete(0, totalSize);
-                        // debug("finished message:");
-                        // debug(firstMessage);
                     }
                     else
                     {
-                        // debug("message not yet complete: need " + totalSize
-                        // + " characters, currently only have "
-                        // + accumulator.length());
-                        // debug("incomplete message: ");
-                        // debug(accumulator.substring(endOfFirstHeader+4,
-                        // accumulator.length()));
                         endOfFirstHeader = -1;
                         break;
                     }
@@ -727,8 +668,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                         }
                         else
                         {
-                            blockingResponsesQueue
-                                    .add(processString(firstMessage));
+                            blockingResponsesQueue.add(processString(firstMessage));
                             synchronized (this)
                             {
                                 notify();
@@ -736,7 +676,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                         }
                     }
 
-                    endOfFirstHeader = accumulator.indexOf("\r\n\r\n");
+                    endOfFirstHeader = accumulator.indexOf(HTTP_HEADER_TERMINATOR);
                 }
             }
 
@@ -747,7 +687,6 @@ public class NIOClient extends ServicesClientBase implements Runnable,
                 disconnect(false);
 
                 debug("attempting re-connect...");
-
             }
         }
         catch (CharacterCodingException e1)
@@ -758,8 +697,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         {
             debug("IOException");
 
-            if ("An existing connection was forcibly closed by the remote host"
-                    .equals(e1.getMessage()))
+            if ("An existing connection was forcibly closed by the remote host".equals(e1.getMessage()))
             {
                 debug("Server shut down; disconnecting.");
 
@@ -769,15 +707,12 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Attempts to reconnect this client if it has been disconnected. After
-     * reconnecting, re-queues all requests still in the unfulfilledRequests
-     * map.
+     * Attempts to reconnect this client if it has been disconnected. After reconnecting, re-queues all requests still
+     * in the unfulfilledRequests map.
      * 
-     * If the attempt to reconnect fails, reconnect() will attempt a number of
-     * times equal to reconnectAttempts, waiting waitBetweenReconnectAttempts
-     * milliseconds between attempts. If all such attempts fail, calls stop() on
-     * this to shut down the client. The client will then need to be re-started
-     * manually.
+     * If the attempt to reconnect fails, reconnect() will attempt a number of times equal to reconnectAttempts, waiting
+     * waitBetweenReconnectAttempts milliseconds between attempts. If all such attempts fail, calls stop() on this to
+     * shut down the client. The client will then need to be re-started manually.
      * 
      */
     protected void reconnect()
@@ -811,8 +746,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         {
             synchronized (unfulfilledRequests)
             {
-                List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(
-                        this.unfulfilledRequests.values());
+                List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(this.unfulfilledRequests.values());
 
                 Collections.sort(rerequests);
 
@@ -829,8 +763,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Hook method to allow subclasses to deal with unfulfilled requests in
-     * their own way.
+     * Hook method to allow subclasses to deal with unfulfilled requests in their own way.
      * 
      * Adds req to the unfulfilled requests map.
      * 
@@ -845,14 +778,12 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Stores the request in the unfulfilledRequests map according to its UID,
-     * converts it to XML, prepends the HTTP-like header, then writes it out to
-     * the channel. Then re-registers key for reading.
+     * Stores the request in the unfulfilledRequests map according to its UID, converts it to XML, prepends the
+     * HTTP-like header, then writes it out to the channel. Then re-registers key for reading.
      * 
      * @param pReq
      */
-    private void createPacketFromMessageAndSend(PreppedRequest pReq,
-            SelectionKey incomingKey)
+    private void createPacketFromMessageAndSend(PreppedRequest pReq, SelectionKey incomingKey)
     {
         String outgoingReq = pReq.getRequest();
 
@@ -860,8 +791,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
         try
         {
-            StringBuilder message = new StringBuilder("content-length:"
-                    + outgoingReq.length() + "\r\n\r\n" + outgoingReq);
+            StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + outgoingReq.length()
+                    + HTTP_HEADER_TERMINATOR + outgoingReq);
 
             outgoingChars.clear();
 
@@ -885,7 +816,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                 outgoingChars.flip();
 
-                channel.write(encoder.encode(outgoingChars));
+                channel.write(ENCODER.encode(outgoingChars));
             }
         }
         catch (ClosedChannelException e)
@@ -923,8 +854,8 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     }
 
     /**
-     * Converts incomingMessage to a ResponseMessage, then processes the
-     * response and removes its UID from the unfulfilledRequests map.
+     * Converts incomingMessage to a ResponseMessage, then processes the response and removes its UID from the
+     * unfulfilledRequests map.
      * 
      * @param incomingMessage
      * @return

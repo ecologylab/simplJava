@@ -35,48 +35,31 @@ import ecologylab.xml.XmlTranslationException;
  */
 public abstract class AbstractContextManager extends Debug implements ServerConstants
 {
-
-    protected static final String         CONTENT_LENGTH_STRING        = "content-length:";
-
-    protected static final String         HTTP_HEADER_TERMINATOR       = "\r\n\r\n";
-
-    protected static final int            CONTENT_LENGTH_STRING_LENGTH = CONTENT_LENGTH_STRING.length();
-
-    /**
-     * The encoder to translate from Strings to bytes.
-     */
-    private static final CharsetEncoder   encoder                      = Charset.forName(CHARACTER_ENCODING)
-                                                                               .newEncoder();
+    /** The encoder to translate from Strings to bytes. */
+    private static final CharsetEncoder   ENCODER                     = Charset.forName(CHARACTER_ENCODING)
+                                                                              .newEncoder();
 
     /**
      * Stores incoming character data until it can be parsed into an XML message and turned into a Java object.
      */
-    protected final StringBuilder incomingMessageBuffer = new StringBuilder(MAX_PACKET_SIZE);
+    protected final StringBuilder         incomingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
 
-    /**
-     * Stores outgoing character data for ResponseMessages.
-     */
-    protected final StringBuilder         outgoingMessageBuffer        = new StringBuilder(MAX_PACKET_SIZE);
+    /** Stores outgoing character data for ResponseMessages. */
+    protected final StringBuilder         outgoingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
 
-    /**
-     * Stores outgoing header character data.
-     */
-    protected final StringBuilder         outgoingMessageHeaderBuffer  = new StringBuilder(MAX_PACKET_SIZE);
+    /** Stores outgoing header character data. */
+    protected final StringBuilder         outgoingMessageHeaderBuffer = new StringBuilder(MAX_PACKET_SIZE);
 
-    /**
-     * Indicates whether or not one or more messages are queued for execution by this ContextManager.
-     */
-    protected boolean                     messageWaiting               = false;
+    /** Indicates whether or not one or more messages are queued for execution by this ContextManager. */
+    protected boolean                     messageWaiting              = false;
 
     /**
      * A queue of the requests to be performed by this ContextManager. Subclasses may override functionality and not use
      * requestQueue.
      */
-    protected final Queue<RequestMessage> requestQueue                 = new LinkedBlockingQueue<RequestMessage>();
+    protected final Queue<RequestMessage> requestQueue                = new LinkedBlockingQueue<RequestMessage>();
 
-    /**
-     * The ObjectRegistry that is used by the processRequest method of each incoming RequestMessage.
-     */
+    /** The ObjectRegistry that is used by the processRequest method of each incoming RequestMessage. */
     protected ObjectRegistry              registry;
 
     /**
@@ -89,54 +72,46 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
      * The frontend for the server that is running the ContextManager. This is needed in case the client attempts to
      * restore a session, in which case the frontend must be queried for the old ContextManager.
      */
-    protected NIOServerFrontend           frontend                     = null;
+    protected NIOServerFrontend           frontend                    = null;
 
     protected SocketChannel               socket;
 
-    /**
-     * sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost connection.
-     */
-    protected Object                      sessionId                    = null;
+    /** sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost connection. */
+    protected Object                      sessionId                   = null;
 
     protected int                         maxPacketSize;
 
-    /**
-     * Used to translate incoming message XML strings into RequestMessages.
-     */
+    /** Used to translate incoming message XML strings into RequestMessages. */
     protected TranslationSpace            translationSpace;
 
-    /**
-     * A buffer for data that will be sent back to the client.
-     */
-    private CharBuffer                    outgoingChars                = CharBuffer.allocate(MAX_PACKET_SIZE);
+    /** A buffer for data that will be sent back to the client. */
+    private CharBuffer                    outgoingChars               = CharBuffer.allocate(MAX_PACKET_SIZE);
 
-    /**
-     * Tracks the number of bad transmissions from the client; used for determining if a client is bad.
-     */
+    /** Tracks the number of bad transmissions from the client; used for determining if a client is bad. */
     private int                           badTransmissionCount;
 
-    private int                           endOfFirstHeader             = -1;
+    private int                           endOfFirstHeader            = -1;
 
-    private long                          lastActivity                 = System.currentTimeMillis();
+    private long                          lastActivity                = System.currentTimeMillis();
 
     /**
      * Counts how many characters still need to be extracted from the incomingMessageBuffer before they can be turned
      * into a message (based upon the HTTP header). A value of -1 means that there is not yet a complete header, so no
      * length has been determined (yet).
      */
-    private int                           contentLengthRemaining       = -1;
+    private int                           contentLengthRemaining      = -1;
 
     /**
      * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being read over several
      * invocations).
      */
-    private final StringBuilder           firstMessageBuffer           = new StringBuilder();
+    private final StringBuilder           firstMessageBuffer          = new StringBuilder();
 
     /**
      * Indicates whether the first request message has been received. The first request may be an InitConnection, which
      * has special properties.
      */
-    private boolean                       firstRequestReceived         = false;
+    private boolean                       firstRequestReceived        = false;
 
     /**
      * Creates a new ContextManager.
@@ -149,16 +124,12 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
      * @param translationSpace
      * @param registry
      */
-    public AbstractContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-            SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
+    public AbstractContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server,
+            NIOServerFrontend frontend, SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
     {
         this.frontend = frontend;
         this.socket = socket;
         this.server = server;
-        // this.key = key;
-
-        // channel = (SocketChannel) key.channel();
-        //
         this.registry = registry;
         this.translationSpace = translationSpace;
 
@@ -546,7 +517,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                     this.clearOutgoingMessageBuffer(outgoingMessageBuffer);
                     this.clearOutgoingMessageHeaderBuffer(outgoingMessageHeaderBuffer);
 
-                    ByteBuffer outgoingBuffer = encoder.encode(outgoingChars);
+                    ByteBuffer outgoingBuffer = ENCODER.encode(outgoingChars);
 
                     server.send(this.socket, outgoingBuffer);
                 }

@@ -28,9 +28,13 @@ public interface ServerConstants
     static final String CHARACTER_ENCODING                 = "ASCII";
 
     /**
-     * Maximum amount of time a connection can be idle, even if we don't want to
-     * drop idle connections.
+     * Maximum amount of time a connection can be idle, even if we don't want to drop idle connections.
      */
-    static final int    GARBAGE_CONNECTION_CLEANUP_TIMEOUT = 8 * 60 * 60 * 1000; // 8
-    // hours
+    static final int    GARBAGE_CONNECTION_CLEANUP_TIMEOUT = 8 * 60 * 60 * 1000;            // 8 hours
+
+    static final String CONTENT_LENGTH_STRING              = "content-length:";
+
+    static final String HTTP_HEADER_TERMINATOR             = "\r\n\r\n";
+
+    static final int    CONTENT_LENGTH_STRING_LENGTH       = CONTENT_LENGTH_STRING.length();
 }
