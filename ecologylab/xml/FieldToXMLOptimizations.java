@@ -35,7 +35,10 @@ implements ParseTableEntryTypes
     
     private boolean			needsEscaping;
     
-
+    private ScalarType		scalarType;
+    
+    
+    //TODO -- change to take Field instead of type!!!!!!
     TagMapEntry(Class<? extends ElementState> classObj, boolean compression, int type)
     {
         setTag(classObj.isAnnotationPresent(ElementState.xml_tag.class) ? classObj.getAnnotation(
@@ -58,11 +61,14 @@ implements ParseTableEntryTypes
         setTag(tagName);
         type				= getType(field);
         boolean isLeaf		= (type == LEAF_NODE_VALUE);
-        if (isLeaf)
+        if (isLeaf || (type == REGULAR_ATTRIBUTE))
         {
-        	isCDATA			= XmlTools.leafIsCDATA(field);
-        	ScalarType scalarType	= TypeRegistry.getType(field);
-        	needsEscaping	= scalarType.needsEscaping();
+        	scalarType		= TypeRegistry.getType(field);
+        	if (isLeaf)
+        	{
+	        	isCDATA			= XmlTools.leafIsCDATA(field);
+	        	needsEscaping	= scalarType.needsEscaping();
+        	}
         }
     }
 
@@ -82,7 +88,9 @@ implements ParseTableEntryTypes
 	{
 		int	result			= UNSET_TYPE;
 		if (field.isAnnotationPresent(ElementState.xml_attribute.class))
+		{
 			result			= REGULAR_ATTRIBUTE;
+		}
 		else if (field.isAnnotationPresent(ElementState.xml_leaf.class))
 		{
 			result			= LEAF_NODE_VALUE;
