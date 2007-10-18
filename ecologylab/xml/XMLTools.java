@@ -300,7 +300,6 @@ implements CharacterConstants
 		}
    		return result.toString();
 	}
-	
 	/**
      * This method generates a name value pair corresponding to the primitive Jave field. Returns
      * an empty string if the field contains a default value, which means that there is no need
@@ -310,24 +309,58 @@ implements CharacterConstants
      * 
      * @param result	StringBuilder to append result to. 
      * 					Result is name-value pair of the attribute, nothing if the field has a default value.
-     * @param field     The <code>Field</code> object type corresponding to the primitive type
+     * @param field     A ScalarValued <code>Field</code> object.
      * @param obj       The object which contains the field
      * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
     
      */
     public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision)
     {
+        ScalarType type        = TypeRegistry.getType(field);
+        if (type != null)
+        	generateNameVal(result, field, obj, type, floatingValuePrecision);
+        else
+        	println("WARNING: Can't generate attribute for field " + field.getName() + 
+        			" because there is no ScalarType for it.");
+    }
+	/**
+     * This method generates a name value pair corresponding to the primitive Jave field. Returns
+     * an empty string if the field contains a default value, which means that there is no need
+     * to emit that field. Used while translation of Java to xml.  
+     * <p/>
+     * For efficiency, the result is passed back in the StringBuilder passed in.
+     * 
+     * @param result	StringBuilder to append result to. 
+     * 					Result is name-value pair of the attribute, nothing if the field has a default value.
+     * @param field     A ScalarValued <code>Field</code> object.
+     * @param obj       The object which contains the field
+     * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
+    
+     */
+    public static void generateNameVal(StringBuilder result, Field field, Object obj, ScalarType type, int floatingValuePrecision)
+    {
         if (obj != null)
         {
             //take the field, generate tags and attach name value pair
             try
             {
-               ScalarType type        = TypeRegistry.getType(field);
-               String unescapedFieldValue = type.toString(obj, field);
-               if (type.isDefaultValue(unescapedFieldValue))
+            	/*
+               int startPointer		= result.length();		// the place into the buffer where we start copying our value
+               type.copyValue(result, obj, field);
+               if (startPointer == result.length())	// nothing copied in -- default value
                   return;
-               result.append(' ').append(attrNameFromField(field, false))
-                  .append("=\"");
+               // do the next operations backwards, because we are inserting, not appending!
+               result.insert(startPointer, '"').insert(startPointer, '=');
+               result.insert(startPointer, attrNameFromField(field, false));
+               result.insert(startPointer, '"')
+               // old way -- result.append(' ').append(attrNameFromField(field, false)).append("=\"");
+                  */
+                String unescapedFieldValue = type.toString(obj, field);
+                if (type.isDefaultValue(unescapedFieldValue))
+                   return;
+                result.append(' ').append(attrNameFromField(field, false))
+                   .append("=\"");
+            	
                
                if (type.isFloatingPoint() && 
             	   (floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF))
@@ -681,6 +714,72 @@ static String q(String string)
 	  return unescapeXML(sb, semicolonPos+1);
 	  
    }
+    /**
+     * Table of replacement Strings for characters deemed nasty in XML.
+     */
+    static final String[] ESCAPE_TABLE	= new String[ISO_LATIN1_START];
+    
+    static
+    {
+    	for (char c=0; c<ISO_LATIN1_START; c++)
+    	{
+            switch(c)
+            {
+                case '\"':
+				   ESCAPE_TABLE[c]		= "&quot;";
+                	break;
+                case '\'':
+				   ESCAPE_TABLE[c]		= "&#39;";
+                	break;
+                case '&':
+				   ESCAPE_TABLE[c]		= "&amp;";
+                	break;
+                case '<':
+				   ESCAPE_TABLE[c]		= "&lt;";
+                	break;
+                case '>':
+				   ESCAPE_TABLE[c]		= "&gt;";
+                	break;
+                case '\n':
+				   ESCAPE_TABLE[c]		= "&#10;";
+                	break;
+                case TAB:
+                case CR:
+                default: 
+				   break;
+            }
+    	}
+    }
+    static boolean noCharsNeedEscaping(CharSequence stringToEscape)
+    {
+        int length	= stringToEscape.length();
+        for (int i=0; i<length; i++)
+        {
+        	char c = stringToEscape.charAt(i);
+        	if (c >= ISO_LATIN1_START)
+        	{
+        		return false;
+        	}
+        	else if (ESCAPE_TABLE[c] != null)
+        	{
+        		return false;
+        	}
+        	else
+        	{
+        		switch (c)
+        		{
+        		case TAB:
+        		case CR:
+        			break;
+        		default:
+        			if (c < 0x20)	//TODO we seem, currently to throw these chars away. this would be easy to fix.
+        				return false;
+        		    break;
+        		}
+        	}
+        }
+        return true;
+    }
 	/**
 	* Replaces characters that may be confused by a HTML
 	* parser with their equivalent character entity references.
@@ -689,86 +788,42 @@ static String q(String string)
 	* @return	the string in which the confusing characters are replaced by their 
 	* equivalent entity references
 	*/   
-   public static StringBuilder escapeXML(StringBuilder result, String stringToEscape)
+   public static void escapeXML(StringBuilder result, CharSequence stringToEscape)
    {
-        int length = stringToEscape.length();
-        int newLength = length;
-        // first check for characters that might
-        // be dangerous and calculate a length
-        // of the string that has escapes.
-        for (int i=0; i<length; i++)
-        {
-        	char c = stringToEscape.charAt(i);
-        	switch(c)
-        	{
-        	case '\"':
-        		newLength += 5;
-        		break;
-        	case '&':
-        	case '\'':
-        		newLength += 4;
-        		break;
-        	case '<':
-        	case '>':
-        		newLength += 3;
-        		break;
-        	case '\n':
-        		newLength += 4;
-        		break;
-        	default: 
-        		if (c >= ISO_LATIN1_START)
-        			newLength += 5;
-        	}
-        }
-        if (length == newLength)
-        {
-            // nothing to escape in the string
-        	//result.append(stringToEscape)
-        	if (result != null)
-        		result.append(stringToEscape);
-        	return result;
-//            return stringToEscape;
-        }
-        if (result == null)
-        	result = new StringBuilder(newLength);
-        for (int i=0; i<length; i++)
-        {
-            char c = stringToEscape.charAt(i);
-            switch(c)
-            {
-                case '\"':
-                    result.append("&quot;");
-                	break;
-                case '\'':
-                    result.append("&#39;");
-                	break;
-                case '&':
-                    result.append("&amp;");
-                	break;
-                case '<':
-                    result.append("&lt;");
-                	break;
-                case '>':
-                    result.append("&gt;");
-                	break;
-                case '\n':
-                    result.append("&#10;");
-                	break;
-                case TAB:
-                case CR:
-     		       result.append(c);
-     		       break;
-                default: 
-				   if (c >= 0x20) 
+	   if (noCharsNeedEscaping(stringToEscape))
+		   result.append(stringToEscape);
+	   else
+	   {
+		   int length	= stringToEscape.length();
+		   for (int i=0; i<length; i++)
+		   {
+			   char c = stringToEscape.charAt(i);
+			   if (c >= ISO_LATIN1_START)
+			   {
+				   result.append('&').append('#').append(false).append((int) c).append(';');
+			   }
+			   else 
+			   {
+				   String escaped	= ESCAPE_TABLE[c];
+				   if (escaped != null)
+					   result.append(escaped);
+				   else
 				   {
-				   		if (c >= ISO_LATIN1_START)
-							result.append("&#"+Integer.toString(c) + ";");
-				   		else
-				      		result.append(c);
-		           }
-            }
-        }
-        return result;
+		        		switch (c)
+		        		{
+		        		case TAB:
+		        		case CR:
+		        			result.append(c);
+		        			break;
+		        		default:
+		        			if (c >= 0x20)
+		        				result.append(c);
+		        		    break;
+		        		}
+				   }
+			   }
+		   }
+	   }
     }
     
    /**
