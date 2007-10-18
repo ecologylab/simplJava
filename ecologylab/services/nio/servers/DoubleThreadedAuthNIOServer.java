@@ -24,8 +24,8 @@ import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
-import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
+import ecologylab.services.nio.contextmanager.AbstractContextManager;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -155,7 +155,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      * @param registry
      * @return
      */
-    protected ContextManager generateContextManager(Object token,
+    protected AbstractContextManager generateContextManager(Object token,
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry)
     {
@@ -217,7 +217,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer
      *      ecologylab.services.nio.NIOServerBackend,
      *      java.nio.channels.SocketChannel)
      */
-    @Override public ContextManager invalidate(Object token,
+    @Override public AbstractContextManager invalidate(Object token,
             NIOServerBackend base, SocketChannel sc, boolean permanent)
     {
         if (permanent)

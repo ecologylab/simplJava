@@ -139,7 +139,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
      * and drops them if they have.
      * 
      */
-    protected void checkAndDropIdleKeys()
+    @Override protected void checkAndDropIdleKeys()
     {
         LinkedList<SelectionKey> keysToInvalidate = new LinkedList<SelectionKey>();
         long timeStamp = System.currentTimeMillis();
@@ -182,7 +182,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
         }
     }
 
-    protected final void acceptKey(SelectionKey key)
+    @Override protected final void acceptKey(SelectionKey key)
     {
         try
         {

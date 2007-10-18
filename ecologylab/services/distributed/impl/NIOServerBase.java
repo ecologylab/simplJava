@@ -14,8 +14,8 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.SessionObjects;
 import ecologylab.services.Shutdownable;
 import ecologylab.services.messages.InitConnectionRequest;
-import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
+import ecologylab.services.nio.contextmanager.AbstractContextManager;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -132,7 +132,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend,
                 requestTranslationSpace, objectRegistry, idleConnectionTimeout);
     }
     
-	protected abstract ContextManager generateContextManager(Object token,
+	protected abstract AbstractContextManager generateContextManager(Object token,
             SocketChannel sc, TranslationSpace translationSpace,
             ObjectRegistry registry);
 

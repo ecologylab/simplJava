@@ -89,7 +89,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
     private ResponseMessage             responseMessage              = null;
 
-    protected Iterator                  incoming;
+    protected Iterator<SelectionKey>                  incoming;
 
     private volatile boolean            blockingRequestPending       = false;
 
@@ -322,7 +322,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
         key = null;
     }
 
-    public boolean connected()
+    @Override public boolean connected()
     {
         return (channel != null) && !channel.isConnectionPending()
                 && channel.isConnected() && socket.isConnected();
@@ -331,7 +331,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
     /**
      * Side effect of calling start().
      */
-    protected boolean createConnection()
+    @Override protected boolean createConnection()
     {
         try
         {
@@ -439,7 +439,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * 
      * @see ecologylab.services.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
      */
-    public synchronized ResponseMessage sendMessage(RequestMessage request)
+    @Override public synchronized ResponseMessage sendMessage(RequestMessage request)
     {
         return this.sendMessage(request, -1);
     }
@@ -592,7 +592,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
 
                         while (incoming.hasNext())
                         {
-                            key = (SelectionKey) incoming.next();
+                            key = incoming.next();
 
                             incoming.remove();
 
@@ -852,7 +852,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
      * @param pReq
      */
     private void createPacketFromMessageAndSend(PreppedRequest pReq,
-            SelectionKey key)
+            SelectionKey incomingKey)
     {
         String outgoingReq = pReq.getRequest();
 
@@ -919,7 +919,7 @@ public class NIOClient extends ServicesClientBase implements Runnable,
             this.reconnect();
         }
 
-        key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
+        incomingKey.interestOps(incomingKey.interestOps() & (~SelectionKey.OP_WRITE));
     }
 
     /**

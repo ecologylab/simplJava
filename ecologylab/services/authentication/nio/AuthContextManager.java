@@ -51,7 +51,7 @@ public class AuthContextManager extends ContextManager implements
      * @param requestMessage
      * @return
      */
-    protected ResponseMessage performService(RequestMessage requestMessage)
+    @Override protected ResponseMessage performService(RequestMessage requestMessage)
     {
         ResponseMessage response;
 

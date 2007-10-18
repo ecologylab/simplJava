@@ -166,8 +166,6 @@ public abstract class NIONetworking extends Debug implements Runnable
             {
                 for (ChangeRequest changeReq : pendingSelectionOpChanges)
                 {
-                    // debug("making selection op changes...");
-
                     if (changeReq.socket.isRegistered())
                     {
                         /*
@@ -220,8 +218,7 @@ public abstract class NIONetworking extends Debug implements Runnable
                          * get the key corresponding to the event and process it
                          * appropriately, then remove it
                          */
-                        SelectionKey key = (SelectionKey) selectedKeyIter
-                                .next();
+                        SelectionKey key = selectedKeyIter.next();
 
                         selectedKeyIter.remove();
 
@@ -238,8 +235,6 @@ public abstract class NIONetworking extends Debug implements Runnable
                         }
                         else if (key.isWritable())
                         {
-                            // debug("time to write!");
-
                             try
                             {
                                 writeKey(key);
@@ -261,8 +256,6 @@ public abstract class NIONetworking extends Debug implements Runnable
                                  * validity here, because accept key may have
                                  * rejected an incoming connection
                                  */
-                                // debug("time to read!");
-
                                 if (key.channel().isOpen() && key.isValid())
                                 {
                                     try
@@ -292,8 +285,6 @@ public abstract class NIONetworking extends Debug implements Runnable
                             }
                         }
                     }
-
-                    // debug("done with all selections.");
                 }
             }
             catch (IOException e)
@@ -336,8 +327,6 @@ public abstract class NIONetworking extends Debug implements Runnable
      */
     public void send(SocketChannel socket, ByteBuffer data)
     {
-        // debug("Entering send.");
-
         synchronized (this.pendingSelectionOpChanges)
         {
             // queue change
@@ -358,8 +347,6 @@ public abstract class NIONetworking extends Debug implements Runnable
                 dataQueue.offer(data);
             }
         }
-
-        // debug("wakeup selector");
 
         selector.wakeup();
     }
