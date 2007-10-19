@@ -1,10 +1,18 @@
 package ecologylab.io;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import ecologylab.generic.*;
+import ecologylab.xml.XmlTools;
 /**
  * Utility class for managing memory mapped buffers. 
  * 
@@ -62,5 +70,93 @@ public class NIOTools extends Debug{
         String message = "NIOTools: Error attempting to close a mapped byte buffer : " + buffer.getClass().getName();
         message += "\n JVM : " + System.getProperty("java.version") + " " + System.getProperty("java.vendor");
         Debug.println(message);
+    }
+    
+    public static boolean writeMemoryMapped(File file, StringBuilder buffy)
+    {
+    	boolean ok					= true;
+    	RandomAccessFile rFile		= null;
+    	MappedByteBuffer mMapBuffer	= null;
+		try
+		{
+	    	rFile		    		= new RandomAccessFile(file, "rw");
+	    	FileChannel fileChannel = rFile.getChannel();
+	    	
+	    	int	length				= buffy.length();
+	    	
+			mMapBuffer				= fileChannel.map(FileChannel.MapMode.PRIVATE, 0, length);
+			fileChannel.close();
+			//TODO could write XmlTools.xmlHeader() here
+			
+			for (int i=0; i<length; i++)
+				mMapBuffer.put((byte) buffy.charAt(i));
+			
+			rFile.close();
+			clean(mMapBuffer);
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			ok					= false;
+		}
+/*		finally
+		{
+			try
+			{
+				if (rFile != null)
+					rFile.close();
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			if (mMapBuffer != null)
+				clean(mMapBuffer);
+		}
+*/
+		return ok;
+    }
+    static final int BUFFER_SIZE	= 1024;
+    static final ByteBuffer byteBuffer	= ByteBuffer.allocateDirect(BUFFER_SIZE);
+    
+    public static boolean writeFile(File file, StringBuilder buffy)
+    {
+    	boolean ok					= true;
+    	FileOutputStream oStream	= null;
+
+    	try
+		{
+	    	oStream					= new FileOutputStream(file);
+			FileChannel fileChannel = oStream.getChannel();
+	    	
+	    	int	length				= buffy.length();
+			//TODO could write XmlTools.xmlHeader() here
+			
+	    	int buffyIndex=0;
+			for (buffyIndex=0; buffyIndex<length; buffyIndex+= BUFFER_SIZE)
+			{
+				writeABuffer(fileChannel, buffy, buffyIndex, BUFFER_SIZE);
+				//TODO -- deal with how this will drop bytes at the end
+			}
+			if (buffyIndex > length)
+			{
+				buffyIndex	-= BUFFER_SIZE;
+				int lastCount= length - buffyIndex;
+				//writeABuffer(fileChannel, buffy, buffyIndex, lastCount);
+			}
+			fileChannel.close();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+			ok					= false;
+		}
+		return ok;
+    }
+    private static void writeABuffer(FileChannel fileChannel, StringBuilder buffy, int index, int length)
+    throws IOException
+    {
+		for (int i=0; i<length; i++)
+			byteBuffer.put((byte) buffy.charAt(index));
+		
+		fileChannel.write(byteBuffer);
+		byteBuffer.clear();
     }
 }
