@@ -800,7 +800,7 @@ static String q(String string)
 			   char c = stringToEscape.charAt(i);
 			   if (c >= ISO_LATIN1_START)
 			   {
-				   result.append('&').append('#').append(false).append((int) c).append(';');
+				   result.append('&').append('#').append((int) c).append(';');
 			   }
 			   else 
 			   {
