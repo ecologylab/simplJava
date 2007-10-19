@@ -1231,7 +1231,7 @@ extends Debug
      
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
- 		    connection.setRequestProperty("user-agent", IE5_USER_AGENT);
+ 		    connection.setRequestProperty("user-agent", FIREFOX_2_USER_AGENT);
  		    
  		    // Set the connection and read timeout.
  		    connection.setConnectTimeout(connectionTimeout);
@@ -1318,6 +1318,10 @@ extends Debug
     
     final static String IE5_USER_AGENT	= 
 	      "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 5.0";
+    
+    final static String FIREFOX_2_USER_AGENT	= 
+    	
+    	"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7";
     
     public boolean getTimeout()
     {
