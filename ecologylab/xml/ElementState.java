@@ -272,7 +272,11 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 		return translateToXML(getClass(), compression, doRecursiveDescent);
 	}
-
+	public StringBuilder translateToXMLBuilder(StringBuilder buffy) 
+	throws XmlTranslationException
+	{
+		return this.translateToXMLBuilder(getClass(), false, buffy);
+	}
 	public String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
 	{
 		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent, null);
