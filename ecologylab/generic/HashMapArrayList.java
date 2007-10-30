@@ -4,6 +4,7 @@
 package ecologylab.generic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -90,5 +91,10 @@ public class HashMapArrayList<K, V> extends HashMap<K, V>
 			V that	= arrayList.remove(i);
 			// that.recycle() -- must enforce that implements Recyclable
 		}
+	}
+	
+	@Override public Collection<V> values()
+	{
+		return arrayList;
 	}
 }
