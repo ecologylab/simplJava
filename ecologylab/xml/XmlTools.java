@@ -97,13 +97,12 @@ implements CharacterConstants
  * 
  * @param obj			a java reference type object 
  * @param suffix		string to remove from class name, null if nothing to be removed
- * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
    public static String xmlTagFromObject(Object obj, 
-   										 String suffix, boolean compression)
+   										 String suffix)
    {
-	  return getXmlTagName(obj.getClass(), suffix, compression);
+	  return getXmlTagName(obj.getClass(), suffix);
    }
 /**
  * This method generates a name for the xml tag given a reference type java object.
@@ -113,14 +112,13 @@ implements CharacterConstants
  * 
  * @param thatClass		Class object to translate.
  * @param suffix		string to remove from class name, null if nothing to be removed
- * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
    public static String getXmlTagName(Class thatClass, 
-									  String suffix, boolean compression)
+									  String suffix)
    {
       String className	= 	getClassName(thatClass);
-	  return getXmlTagName(className, suffix, compression);
+	  return getXmlTagName(className, suffix);
    }
 	
 /**
@@ -131,11 +129,10 @@ implements CharacterConstants
  * 
  * @param className		class name of a java reference type object 
  * @param suffix		string to remove from class name, null if nothing to be removed
- * @param compression	if the name of the element should be abbreviated
  * @return				name of the xml tag (element)
  */	
    public static String getXmlTagName(String className,
-   											String suffix, boolean compression)
+   											String suffix)
    {
       if ((suffix != null) && (className.endsWith(suffix)))
       {
@@ -145,28 +142,22 @@ implements CharacterConstants
 
       StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);
       
-	  if (compression && (encodingTable.get(result) != null))
-	  {
-		  result.append((String)encodingTable.get(result));      	
-	  }
-	  else
-	  {   // translate mixed case class name word separation into
-	  	  // _ word separtion
-		 int classNameLength	= className.length();
-	      for (int i=0; i<classNameLength; i++)
-	      {
-		 	char	c	= className.charAt(i);
-			
-			if ((c >= 'A') && (c <= 'Z') )
-			{
-			   char lc = Character.toLowerCase(c);
-				if (i > 0)
-					result.append('_');
-			   result.append(lc);
-			}
-			else
-			    result.append(c);
-	      }
+      // translate mixed case class name word separation into
+      // _ word separtion
+      int classNameLength	= className.length();
+      for (int i=0; i<classNameLength; i++)
+      {
+    	  char	c	= className.charAt(i);
+
+    	  if ((c >= 'A') && (c <= 'Z') )
+    	  {
+    		  char lc = Character.toLowerCase(c);
+    		  if (i > 0)
+    			  result.append('_');
+    		  result.append(lc);
+    	  }
+    	  else
+    		  result.append(c);
 	  }
       return result.toString();
    }
@@ -227,11 +218,6 @@ implements CharacterConstants
     */
    public static String javaNameFromElementName(String elementName, boolean capsOn)
    {
-		if (ElementState.compressed && (decodingTable.get(elementName) != null))
-		{
-			elementName = (String)decodingTable.get(elementName);
-		}
-   		
 	    StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);  
    		
    		for (int i = 0; i < elementName.length(); i++)
@@ -682,6 +668,9 @@ static String q(String string)
 	  
 	  if ((semicolonPos == -1) || (semicolonPos - ampPos > 7))
 		 return sb;
+	  int entityLength			= semicolonPos - ampPos;
+	  if (entityLength > 8)
+		  return sb;
 	  
 	  // find position of & followed by ;
 	  
@@ -713,6 +702,60 @@ static String q(String string)
 	  }	  
 	  return unescapeXML(sb, semicolonPos+1);
 	  
+   }
+	/**
+	* Replaces characters that may be confused by a HTML
+	* parser with their equivalent character entity references.
+	* @param stringToEscape	original string which may contain some characters which are confusing
+	* to the HTML parser, for eg. &lt; and &gt;
+	* @return	the string in which the confusing characters are replaced by their 
+	* equivalent entity references
+	*/   
+   public static void oldEscapeXML(StringBuilder result, CharSequence stringToEscape)
+   {
+        int length = stringToEscape.length();
+        int newLength = length;
+        // first check for characters that might
+        // be dangerous and calculate a length
+        // of the string that has escapes.
+        for (int i=0; i<length; i++)
+        {
+        	char c = stringToEscape.charAt(i);
+        	switch(c)
+        	{
+        	case '\"':
+        		newLength += 5;
+        		break;
+        	case '&':
+        	case '\'':
+        		newLength += 4;
+        		break;
+        	case '<':
+        	case '>':
+        		newLength += 3;
+        		break;
+        	case '\n':
+        		newLength += 4;
+        		break;
+        	default: 
+        		if (c >= ISO_LATIN1_START)
+        			newLength += 5;
+        	}
+        }
+        if (length == newLength)
+        {
+            // nothing to escape in the string
+        	//result.append(stringToEscape)
+        	result.append(stringToEscape);
+        	return;
+//            return stringToEscape;
+        }
+        if (result == null)
+        	result = new StringBuilder(newLength);
+        for (int i=0; i<length; i++)
+        {
+            char c = stringToEscape.charAt(i);
+        }
    }
     /**
      * Table of replacement Strings for characters deemed nasty in XML.
@@ -896,43 +939,6 @@ static String q(String string)
         transformer.transform(new DOMSource(xmlDoc), out);
     }
 
-	/**
-	 * This method needs to be called when the users want compression of the generated xml
-	 * files. The compression is achieved by using abbreviated tag names instead of using 
-	 * the name of the file as the tag name. Normally if the name of the class is Foo, the 
-	 * tag name used is "foo", if the user wants compression, s/he must specify the corresponding
-	 * code to be used instead of "foo", for e.g. "f". The user can set the compression table
-	 * by creating name-vale pairs of class-name and tag-name, adding them to the hashtable
-	 * and then calling this method. If code for a particular class is not found, the name is
-	 * not abbreviated. 
-	 * @param compressionTable	Hashtable of name-value pairs of class-name and tag-name
-	 */
-	public static void setCompressionTable(Hashtable compressionTable)
-	{
-		int num	=	compressionTable.size();
-		elementAbbreviations = new String[num][2];
-		Enumeration keys = compressionTable.keys();
-		
-		int j = 0;
-		while(keys.hasMoreElements())
-		{
-			String elementName	=	(String)keys.nextElement();
-			String elementCode	=	(String)compressionTable.get(elementName);
-			
-			elementAbbreviations[j][0]		=	elementName;
-			elementAbbreviations[j++][1]	=	elementCode;
-		}
-		
-		for(int i=0 ;i<elementAbbreviations.length; i++)
-		{
-			  String[] thisEntry = elementAbbreviations[i];
-			  encodingTable.put(thisEntry[0], thisEntry[1]);
-			
-			  if((String)(decodingTable.get(thisEntry[1])) != null)
-				  throw new RuntimeException("duplicate code: " + thisEntry[1]);
-			  decodingTable.put(thisEntry[1], thisEntry[0]);
-		}
-	}
 	/**
 	 * @param field
 	 * 

@@ -23,6 +23,7 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author andruid
  */
 public class Optimizations extends Debug
+implements ParseTableEntryTypes
 {
 	/**
 	 * Class object that we are holding optimizations for.
@@ -33,6 +34,13 @@ public class Optimizations extends Debug
 	 * The keys are simple class names.
 	 */
 	private static final HashMap<String, Optimizations>	registry	= new HashMap<String, Optimizations>();
+	
+	/**
+	 * Keys are URNs (not NameSpaceIdentifiers!).
+	 * 
+	 * Values are ElementState subclasses.
+	 */
+	private static final HashMap<String, Class<? extends ElementState>>	nameSpaceRegistryByURN = new HashMap<String, Class<? extends ElementState>>();
 		
 	/**
 	 * Found before the colon while translating from;
@@ -56,6 +64,8 @@ public class Optimizations extends Debug
 	 * Used to optimize translateFromXML(...).
 	 */
 	private HashMap<String, ParseTableEntry>	parseTableByFieldNames	= new HashMap<String, ParseTableEntry>();
+	
+	private HashMap<String, Class<? extends ElementState>>	nameSpacesByID	= new HashMap<String, Class<? extends ElementState>>();
 	
 	/**
 	 * The fields that are represented as attributes for the class we're optimizing.
@@ -120,7 +130,7 @@ public class Optimizations extends Debug
 	 * and cache it.
 	 * @param type TODO
 	 */
-	TagMapEntry getTagMapEntry(Class<? extends ElementState> thatClass, boolean compression, int type)
+	TagMapEntry getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
 	{
 		TagMapEntry result= fieldOrClassToTagMap.get(thatClass);
 		if (result == null)
@@ -130,7 +140,7 @@ public class Optimizations extends Debug
 				result		= fieldOrClassToTagMap.get(thatClass);
 				if (result == null)
 				{
-				    result = new TagMapEntry(thatClass, compression, type);
+				    result = new TagMapEntry(field, thatClass);
                     
                     fieldOrClassToTagMap.put(thatClass, result);
 					//debug(tagName.toString());
@@ -139,12 +149,52 @@ public class Optimizations extends Debug
 		}
 		return result;
 	}
+	TagMapEntry getRootTagMapEntry(Class rootClass)
+	{
+		TagMapEntry result= fieldOrClassToTagMap.get(rootClass);
+		if (result == null)
+		{
+			synchronized (fieldOrClassToTagMap)
+			{
+				result		= fieldOrClassToTagMap.get(rootClass);
+				if (result == null)
+				{
+				    result = new TagMapEntry(rootClass);
+                    
+                    fieldOrClassToTagMap.put(rootClass, result);
+				}
+			}
+		}
+		return result;
+		
+	}
+	
+	TagMapEntry getTagMapEntry(TagMapEntry collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
+	{
+		TagMapEntry result= fieldOrClassToTagMap.get(actualCollectionElementClass);
+		if (result == null)
+		{
+			synchronized (fieldOrClassToTagMap)
+			{
+				result		= fieldOrClassToTagMap.get(actualCollectionElementClass);
+				if (result == null)
+				{
+				    result = new TagMapEntry(collectionTagMapEntry, actualCollectionElementClass);
+                    
+                    fieldOrClassToTagMap.put(actualCollectionElementClass, result);
+					//debug(tagName.toString());
+				}
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
 	 */
-	TagMapEntry getTagMapEntry(Field field, boolean compression)
+	TagMapEntry getTagMapEntry(Field field)
 	{
 		TagMapEntry result= fieldOrClassToTagMap.get(field);
 		if (result == null)
@@ -154,7 +204,7 @@ public class Optimizations extends Debug
 				result		= fieldOrClassToTagMap.get(field);
 				if (result == null)
 				{
-					result	= new TagMapEntry(field, compression);
+					result	= new TagMapEntry(field);
 //					debug(tagName.toString());
 					fieldOrClassToTagMap.put(field, result);
 				}
@@ -212,18 +262,49 @@ public class Optimizations extends Debug
 	private void putInParseTables(String tag, ParseTableEntry result)
 	{
 		parseTableByTagNames.put(tag, result);
-		Field field = result.field();
-		if (field != null)
+		switch (result.type())
 		{
-			String fieldName	= field.getName();
-			parseTableByFieldNames.put(fieldName, result);
+		case IGNORED_ATTRIBUTE:
+		case XMLNS_ATTRIBUTE:
+			break;
+		default:
+			Field field = result.field();
+			if (field != null)
+			{
+				String fieldName	= field.getName();
+				parseTableByFieldNames.put(fieldName, result);
+			}
+			break;
 		}
 	}
 	
+	/**
+	 * Lookup, and create if necessary, the ParseTableEntry for an attribute.
+	 * 
+	 * @param translationSpace
+	 * @param context
+	 * @param node
+	 * @return
+	 */
 	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		return parseTableAttrEntry(translationSpace, context, tag);
+		ParseTableEntry result	= parseTableByTagNames.get(tag);
+		
+		if (result == null)
+		{
+			if (tag.startsWith("xmlns:"))
+			{
+				String nameSpaceID	= tag.substring(6);
+				if (!containsNameSpaceByNSID(nameSpaceID))
+				{
+					registerNameSpace(translationSpace, nameSpaceID, node.getNodeValue());
+				}
+			}
+			result				= new ParseTableEntry(translationSpace, this, context, tag, true);
+			putInParseTables(tag, result);
+		}
+		return result;
 	}
 	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, String tag)
 	{
@@ -232,6 +313,13 @@ public class Optimizations extends Debug
 		if (result == null)
 		{
 			result				= new ParseTableEntry(translationSpace, this, context, tag, true);
+			if (result.type() == XMLNS_ATTRIBUTE)
+			{
+				String nameSpaceID	= tag.substring(6);
+				// register namespace here!
+				//optimizations.registerNameSpace(translationSpace, )
+			}
+
 			putInParseTables(tag, result);
 		}
 		return result;
@@ -602,6 +690,40 @@ public class Optimizations extends Debug
 	public String toString()
 	{
 		return "Optimizations[" + thatClass.getName() + "]"; 
+	}
+	
+	/**
+	 * Add an entry to the global table of class to URNs.
+	 * 
+	 * @param urn
+	 * @param nameSpaceElementState
+	 */
+	public void registerNameSpaceByURN(String urn, Class<? extends ElementState> nameSpaceElementState)
+	{
+		nameSpaceRegistryByURN.put(urn, nameSpaceElementState);
+	}
+	void registerNameSpace(TranslationSpace translationSpace, String nsID, String urn)
+	{
+		//TODO first look in the TranslationSpace for a mapping
+		Class<? extends ElementState> nameSpaceClass	= translationSpace.lookupNameSpaceByURN(urn);
+		
+		if (nameSpaceClass == null)
+		{	// now check the global registry
+			nameSpaceClass								= nameSpaceRegistryByURN.get(urn);
+			if (nameSpaceClass == null)
+				return;
+		}
+		
+		nameSpacesByID.put(nsID, nameSpaceClass);
+		//TODO add entries to other useful data structures
+	}
+	boolean containsNameSpaceByNSID(String nsID)
+	{
+		return nameSpacesByID.containsKey(nsID);
+	}
+	Class<? extends ElementState> lookupNameSpaceByNSID(String nsID)
+	{
+		return nameSpacesByID.get(nsID);
 	}
 }
 

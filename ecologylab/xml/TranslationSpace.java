@@ -471,7 +471,7 @@ public final class TranslationSpace extends Debug
    private static String determineXMLTag(Class<?> classObj, String classSimpleName)
    {
        return classObj.isAnnotationPresent(xml_tag.class) ? classObj.getAnnotation(xml_tag.class).value() : 
-         XmlTools.getXmlTagName(classSimpleName, "State", false);
+         XmlTools.getXmlTagName(classSimpleName, "State");
    }
    
    public class TranslationEntry extends Debug
@@ -497,7 +497,7 @@ public final class TranslationSpace extends Debug
 	  public TranslationEntry(String packageName, String className)
 	  {
 		  this(packageName, className,
-				  XmlTools.getXmlTagName(className, "State", false), null);
+				  XmlTools.getXmlTagName(className, "State"), null);
 	  }
 	  /**
 	   * Create the entry by package name and class name.

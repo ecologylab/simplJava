@@ -47,6 +47,8 @@ implements ParseTableEntryTypes
 	
 	private ScalarType			scalarType;
 	
+	private boolean				isElementStateSubclass;
+	
 	/**
 	 * true for LEAF_NODE_VALUE entries. Value not used for other types.
 	 */
@@ -86,8 +88,13 @@ implements ParseTableEntryTypes
 				isID			= true;
 			
 			if (colonIndex > -1)
-			{	//TODO -- make this do the right thing
-				this.type		= IGNORED_ATTRIBUTE;
+			{	
+				if (tag.startsWith("xmlns:"))
+				{
+					this.type		= XMLNS_ATTRIBUTE;
+				}
+				else	//TODO -- support namespace attributes?! (whatever that is)
+					this.type		= IGNORED_ATTRIBUTE;
 				return;
 			}
 			
@@ -162,11 +169,11 @@ implements ParseTableEntryTypes
 					Class classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
 					if (classFromTS == null)
 					{
-						this.classOp	= fieldClass;
+						setClassOp(fieldClass);
 						//TODO - if warnings mode, warn user that class is not in the TranslationSpace
 					}
 					else// the way it should be :-)
-						this.classOp	= classFromTS;
+						setClassOp(classFromTS);
 					return;
 				}
 				// no field object, so we must continue to check stuff out!
@@ -187,7 +194,7 @@ implements ParseTableEntryTypes
 				{
 					Class	collectionElementsType		= (Class) typeArgs[0];
 					debug("!!!collection elements are of type: " + collectionElementsType.getName());
-					this.classOp			= collectionElementsType;
+					setClassOp(collectionElementsType);
 					this.field				= collectionField;
 					// is collectionElementsType a scalar or a nested element
 					if (ElementState.class.isAssignableFrom(collectionElementsType))
@@ -218,7 +225,7 @@ implements ParseTableEntryTypes
 					{
 						Class	mapElementsType		= (Class) typeArgs[1];
 						debug("!!!map elements are of type: " + mapElementsType.getName());
-						this.classOp			= mapElementsType;
+						setClassOp(mapElementsType);
 						this.field				= mapField;
 						// is mapElementsType a scalar or a nested element
 						if (ElementState.class.isAssignableFrom(mapElementsType))
@@ -253,7 +260,7 @@ implements ParseTableEntryTypes
 							this.type	= (collection != null) ?
 									COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
 						}
-						this.classOp= classOp;
+						setClassOp(classOp);
 					}
 					else
 					{
@@ -263,8 +270,14 @@ implements ParseTableEntryTypes
 				}
 			}
 		}
+		
 	}
 
+	private void setClassOp(Class thatClass)
+	{
+		this.classOp	= thatClass;
+		this.isElementStateSubclass	= ElementState.class.isAssignableFrom(thatClass);		
+	}
 /**
  * Set-up PTE for scalar valued field (attribute or leaf node).
  * First look for a set method.
@@ -348,30 +361,30 @@ implements ParseTableEntryTypes
 	ElementState createChildElement(ElementState parent, Node node, boolean useExistingTree)
 	throws XmlTranslationException
 	{
-		ElementState childElementState	= null;
-		boolean finished			= false;
+		ElementState newInstance	= null;
+		boolean finished	= false;
 		if (useExistingTree)
 		{
 			try
 			{
-				childElementState	= (ElementState) field.get(parent);
+				newInstance	= (ElementState) field.get(parent);
 			} catch (Exception e)
 			{
 				throw fieldAccessException(parent, e);
 			}
-			if (childElementState != null)
-			{
-				childElementState.translateFromXML(node, classOp, translationSpace, true);
-				finished			= true;
+			if (newInstance != null)
+			{	// outside of try/catch to enable throwing translation exception
+				newInstance.translateFromXMLNode(node, classOp, translationSpace, true);
+				finished	= true;
 			}
 		}
 		if (!finished)
 		{
-			childElementState	= parent.getChildElementState(node, classOp, translationSpace);
-			parent.createChildHook(childElementState);
+			newInstance		= parent.getChildElementState(node, classOp, translationSpace);
+			parent.createChildHook(newInstance);
 		}
-        childElementState.postTranslationProcessingHook();
-		return childElementState;
+		newInstance.postTranslationProcessingHook();
+		return newInstance;
 	}
 	
 	/**
@@ -472,26 +485,26 @@ implements ParseTableEntryTypes
 	
 	/**
 	 * Used to set a field in this to a nested ElementState object.
+	 * Alas, this currently corresponds to @xml_collection and @xml_map, as well as @xml_nested.
 	 * 
 	 * his method is called during translateFromXML(...).
 	 * @param nestedElementState	the nested state-object to be added
 	 * @param childNode				XML doc subtree to use as the source of translation
 	 * @param useExistingTree		if true, re-fill in existing objects, instead of creating new ones.
 	 */
-	protected void setFieldToNestedElement(ElementState context, Node childNode, boolean useExistingTree)
+	protected void setFieldToNestedElement(ElementState context, Node childNode)
 		throws XmlTranslationException
 	{
-		Object nestedElementState	= createChildElement(context, childNode, false);
-		if (!useExistingTree)
+		Object nestedObject = isElementStateSubclass ? createChildElement(context, childNode, false) 
+				: ReflectionTools.getInstance(classOp);
+		
+		try
 		{
-			try
-			{
-				field.set(context, nestedElementState);
-			}
-			catch (Exception e)
-			{
-			   throw fieldAccessException(nestedElementState, e);
-			}
+			field.set(context, nestedObject);
+		}
+		catch (Exception e)
+		{
+			throw fieldAccessException(nestedObject, e);
 		}
 	}
 
@@ -529,7 +542,7 @@ implements ParseTableEntryTypes
 
 		if (collection != null)
 		{
-			ElementState childElement = createChildElement(activeES, childNode, false);
+			Object childElement = createChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
 		else

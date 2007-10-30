@@ -86,7 +86,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
  * We might want to implement the ability to store multiple text nodes
  * here some time in the future.
  */	
-	String						textNodeString;
+	private StringBuilder		textNodeBuffy;
 	
 	/**
 	 * Just-in time look-up tables to make translation be efficient.
@@ -98,6 +98,8 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * Use for resolving getElementById()
 	 */
 	HashMap<String, ElementState>						elementByIdMap;
+	
+	HashMap<String, ElementState>						nestedNameSpaces;
 
     static final HashMap		fieldsForClassMap	= new HashMap();
 
@@ -122,10 +124,6 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 //	static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" + "\"US-ASCII\"" + "?>";
 	
 	static protected final int	ESTIMATE_CHARS_PER_FIELD	= 80;
-	/**
-	 * whether the generated XML should be in compressed form or not
-	 */
-	protected static boolean 	compressed = false;
 
 	static final int 			TOP_LEVEL_NODE		= 1;
 	
@@ -272,14 +270,10 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 		return translateToXML(getClass(), compression, doRecursiveDescent);
 	}
-	public StringBuilder translateToXMLBuilder(StringBuilder buffy) 
-	throws XmlTranslationException
-	{
-		return this.translateToXMLBuilder(getClass(), false, buffy);
-	}
+
 	public String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
 	{
-		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent, null);
+		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent);
 		return (buffy == null) ? "" : buffy.toString();
 	}
 	/**
@@ -426,18 +420,16 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent, StringBuilder buffy)
+	private StringBuilder translateToXMLBuilder(Class rootClass, boolean compression, boolean doRecursiveDescent, StringBuilder buffy)
 		throws XmlTranslationException
 	{
-	   return translateToXML(thatClass, compression, doRecursiveDescent, TOP_LEVEL_NODE, buffy, ROOT);
+	   return translateToXMLBuilder(rootClass, optimizations.getRootTagMapEntry(rootClass), buffy);
 	}
 	
-	private StringBuilder translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent, 
-								  int nodeNumber, StringBuilder buffy, int type)
+	public StringBuilder translateToXMLBuilder(StringBuilder buffy) 
 	throws XmlTranslationException
 	{
-	   return translateToXML(thatClass, compression, doRecursiveDescent, nodeNumber,
-							 getTagMapEntry(thatClass, compression, type), buffy);
+		return this.translateToXMLBuilder(getClass(), false, buffy);
 	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
@@ -457,15 +449,6 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * value for each type.
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
-	 * 
-	 * @param compression			true to compress the xml while emitting.
-	
-	 * @param doRecursiveDescent	true for recursive descent parsing.
-	 * 								false to parse just 1 level of attributes.
-	 * 										In this case, only the open tag w attributes is generated.
-	 * 										There is no close.
-	 * @param nodeNumber			counts the depth of recursive descent.
-	 * 
 	 * @return 						the generated xml string
 	 * 
 	 * @throws XmlTranslationException if there is a problem with the 
@@ -476,174 +459,160 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private StringBuilder translateToXML(Class thatClass, 
-									boolean compression, boolean doRecursiveDescent, 
-									int nodeNumber, TagMapEntry tagMapEntry, StringBuilder buffy)
+	private StringBuilder translateToXMLBuilder(Class thatClass, TagMapEntry tagMapEntry, StringBuilder buffy)
 		throws XmlTranslationException
 	{
         this.preTranslationProcessingHook();
-        
-		compressed = compression;
-		nodeNumber++;
 		
-		try
+		ArrayList<Field> attributeFields	= optimizations.attributeFields();
+		ArrayList<Field> elementFields		= optimizations.elementFields();
+		int numAttributes 			= attributeFields.size();
+		int numElements				= elementFields.size();
+		int	numFields				= numAttributes + numElements;
+
+		if (buffy == null)
+			buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
+
+		buffy.append(tagMapEntry.startOpenTag());
+
+		for (int i=0; i<numAttributes; i++)
 		{
-			ArrayList<Field> attributeFields	= optimizations.attributeFields();
-			ArrayList<Field> elementFields		= optimizations.elementFields();
-			int numAttributes 			= attributeFields.size();
-			int numElements				= elementFields.size();
-			int	numFields				= numAttributes + numElements;
-			
-			if (buffy == null)
-				buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
-			
-			buffy.append(tagMapEntry.startOpenTag());
-			
-			//emit compresseion = true only for the top node, so this dirty hack
-			//so if the nodeNumber is 1 (top node) then emit the compression attribute
-			if (compression && (nodeNumber == TOP_LEVEL_NODE))
-			{
-				buffy.append(' ').append("compression=\"").append(compression).append("\" ");
+			// iterate through fields
+			Field thatField			= attributeFields.get(i);				
+			XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision());
+		}
+
+		StringBuilder textNode = this.textNodeBuffy;
+		if ((numElements == 0) && (textNode == null))
+		{
+			buffy.append("/>");	// done! completely close element behind attributes				
+		}
+		else
+		{
+			buffy.append('>');	// close open tag behind attributes
+			if (textNode != null) 
+			{	
+				//TODO -- might need to trim the buffy here!
+				//if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text node if trim -> empty string
+				//if (textNode.length() > 0)
+				XmlTools.escapeXML(buffy, textNode);
 			}
-			
-			for (int i=0; i<numAttributes; i++)
+
+			for (int i=0; i<numElements; i++)
 			{
-				// iterate through fields
-				Field thatField			= attributeFields.get(i);				
-				XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision());
-			}
-			
-			String textNode = this.getTextNodeString();
-			if ((numElements == 0) && (textNode == null))
-			{
-				buffy.append("/>");	// done! completely close element behind attributes				
-			}
-			else
-			{
-				buffy.append('>');	// close open tag behind attributes
-				if (textNode != null)
-				{	
-					textNode	= textNode.trim();
-					if (textNode.length() > 0)
-						XmlTools.escapeXML(buffy, textNode);
-				}
-	
-				for (int i=0; i<numElements; i++)
+				Field childField			= elementFields.get(i);
+//				ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
+				TagMapEntry childTagMapEntry= this.getTagMapEntry(childField);
+				//if (XmlTools.representAsLeafNode(thatField))
+				final int childTagMapType 	= childTagMapEntry.type();
+				if (childTagMapType == LEAF_NODE_VALUE)
 				{
-					Field childField			= elementFields.get(i);
-					String childFieldName	= childField.getName();
-//					ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
-					TagMapEntry childTagMapEntry	= this.getTagMapEntry(childField, compression);
-					//if (XmlTools.representAsLeafNode(thatField))
-					final int childTagMapType = childTagMapEntry.type();
-					if (childTagMapType == LEAF_NODE_VALUE)
+					//FIXME -- this could fail if isCDATA not initialized properly by non Field constructor
+					//boolean isCDATA		= XmlTools.leafIsCDATA(thatField);
+					ScalarType scalarType	= TypeRegistry.getType(childField);
+					String leafValue		= scalarType.toString(this, childField);
+					appendLeafXML(buffy, childTagMapEntry, leafValue);
+				}
+				else
+				{
+					Object thatReferenceObject = null;
+					try
 					{
-						String leafElementName	= XmlTools.getXmlTagName(childFieldName, null, false);
-						//FIXME -- this could fail if isCDATA not initialized properly by non Field constructor
-						//boolean isCDATA			= XmlTools.leafIsCDATA(thatField);
-						ScalarType type			= TypeRegistry.getType(childField);
-						String leafValue		= type.toString(this, childField);
-						appendLeafXML(buffy, childTagMapEntry, leafValue);
+						thatReferenceObject	= childField.get(this);
 					}
-					else
+					catch (IllegalAccessException e)
 					{
-						Object thatReferenceObject = null;
+						debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+						childField.setAccessible(true);
 						try
 						{
 							thatReferenceObject	= childField.get(this);
-						}
-						catch (IllegalAccessException e)
+						} catch (IllegalAccessException e1)
 						{
-							debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
-							childField.setAccessible(true);
-							try
-							{
-								thatReferenceObject	= childField.get(this);
-							} catch (IllegalAccessException e1)
-							{
-								error("Can't access " + childField.getName());
-								e1.printStackTrace();
-							}
-						}
-						// ignore null reference objects
-						if (thatReferenceObject == null)
-							continue;
-						
-						final int tagMapType 		= tagMapEntry.type();
-						final boolean isCollection	= (childTagMapType == COLLECTION_ELEMENT) || (childTagMapType == COLLECTION_SCALAR);
-						final boolean isMap			= (childTagMapType == MAP_ELEMENT) || (childTagMapType == MAP_SCALAR);
-						final boolean isScalar		= (childTagMapType == COLLECTION_SCALAR) || (childTagMapType == MAP_SCALAR);
-						// gets Collection object directly or through Map.values()
-						Collection thatCollection = (isCollection || isMap) ? XmlTools.getCollection(thatReferenceObject) : null;
-						
-						if (thatCollection != null)
-						{
-							//if the object is a collection, 
-							//basically iterate thru the collection and emit Xml from each element
-							final Iterator iterator			= thatCollection.iterator();
-//							final boolean collectionScalar	= (pte != null) && pte.isCollectionScalar();
-//							final boolean mapScalar			= (pte != null) && pte.isMapScalar();
-//							Class childClass				= iterator.hasNext() ? iterator.
-							
-							while (iterator.hasNext())
-							{
-								Object next = iterator.next();
-								if (isScalar)
-								{
-									String value = next.toString();
-									appendLeafXML(buffy, childTagMapEntry, value);									
-								}
-								// this is a special hack for working with pre-translated XML Strings (LogOp!)
-								//TODO -- get rid of this crap!!!!!! 
-								// Make sure LogOp uses CDATA!
-								else if (next instanceof String)
-									buffy.append((String) next);
-								else // if (next instanceof ElementState)
-								{
-									ElementState collectionSubElementState;
-									try
-									{
-										collectionSubElementState = (ElementState) next;
-										collectionSubElementState.translateToXML(collectionSubElementState.getClass(), compression, true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
-										//buffy.append('\n');
-									} catch(ClassCastException e)
-									{
-										throw new XmlTranslationException("Collections MUST contain " +
-												"objects of class derived from ElementState or XML Strings, but " +
-												thatReferenceObject +" contains some that aren't.");
-									}
-								}
-							}
-						}
-						else if (thatReferenceObject instanceof ElementState)
-						{	// one of our nested elements, so recurse
-							ElementState thatElementState	= (ElementState) thatReferenceObject;
-							String fieldName		= childField.getName();
-							// if the field type is the same type of the instance (that is, if no subclassing),
-							// then use the field name to determine the XML tag name.
-							// if the field object is an instance of a subclass that extends the declared type of the
-							// field, use the instance's type to determine the XML tag name.
-							Class thatNewClass			= thatElementState.getClass();
-							//					debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-							TagMapEntry nestedTagMapEntry = (thatNewClass == childField.getType()) ?
-									childTagMapEntry : getTagMapEntry(thatNewClass, compression, TagMapEntry.getType(childField));
-									
-							thatElementState.translateToXML(thatNewClass, compression, true, nodeNumber,
-															nestedTagMapEntry, buffy);
-							//buffy.append('\n');						
+							error("Can't access " + childField.getName());
+							e1.printStackTrace();
 						}
 					}
-				} //end of for loop
-				
-				// end the element
-				buffy.append(tagMapEntry.closeTag())/* .append('\n') */;
-				
-			} // end if no nested elements or text node
-		} catch (SecurityException e)
-		{
-			debug("Caught exception:");
-			e.printStackTrace();
-		}
+					// ignore null reference objects
+					if (thatReferenceObject == null)
+						continue;
+
+					final boolean isScalar		= (childTagMapType == COLLECTION_SCALAR) || (childTagMapType == MAP_SCALAR);
+					// gets Collection object directly or through Map.values()
+					Collection thatCollection;
+					switch (childTagMapType)
+					{
+					case COLLECTION_ELEMENT:
+					case COLLECTION_SCALAR:
+					case MAP_ELEMENT:
+					case MAP_SCALAR:
+						thatCollection			= XmlTools.getCollection(thatReferenceObject);
+						break;
+					default:
+						thatCollection			= null;
+					break;
+					}
+
+					if (thatCollection != null)
+					{
+						//if the object is a collection, 
+						//basically iterate thru the collection and emit XML from each element
+						final Iterator iterator			= thatCollection.iterator();
+//						Class childClass				= iterator.hasNext() ? iterator.
+
+						while (iterator.hasNext())
+						{
+							Object next = iterator.next();
+							if (isScalar)	// leaf node!
+							{
+								String value = next.toString();
+								appendLeafXML(buffy, childTagMapEntry, value);									
+							}
+							else if (next instanceof ElementState)
+							{
+								ElementState collectionSubElementState = (ElementState) next;
+								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
+								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
+								TagMapEntry collectionElementEntry		= optimizations.getTagMapEntry(childTagMapEntry, collectionElementClass);
+								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
+							}
+							// this is a special hack for working with pre-translated XML Strings (LogOp!)
+							//TODO -- get rid of this crap!!!!!! 
+							// Make sure LogOp uses CDATA!
+							//FIXME -- support scalar leaf type collections here!!!
+							else if (next instanceof String)
+								buffy.append((String) next);
+							else
+								throw new XmlTranslationException("Collections MUST contain " +
+										"objects of class derived from ElementState or XML Strings, but " +
+										thatReferenceObject +" contains some that aren't.");
+
+						}
+					}
+					else if (thatReferenceObject instanceof ElementState)
+					{	// one of our nested elements, so recurse
+						ElementState thatElementState	= (ElementState) thatReferenceObject;
+						String fieldName		= childField.getName();
+						// if the field type is the same type of the instance (that is, if no subclassing),
+						// then use the field name to determine the XML tag name.
+						// if the field object is an instance of a subclass that extends the declared type of the
+						// field, use the instance's type to determine the XML tag name.
+						Class thatNewClass			= thatElementState.getClass();
+						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
+						TagMapEntry nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
+								childTagMapEntry : getTagMapEntry(childField, thatNewClass);
+
+						thatElementState.translateToXMLBuilder(thatNewClass, nestedTagMapEntry, buffy);
+						//buffy.append('\n');						
+					}
+				}
+			} //end of for each element child
+
+			// end the element
+			buffy.append(tagMapEntry.closeTag())/* .append('\n') */;
+
+		} // end if no nested elements or text node
+
 		return buffy;
 	}
     
@@ -772,7 +741,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		if (!purl.isNotFileOrExists())
 			throw new XmlTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 		
-		return translateFromXML(buildDOM(purl), translationSpace);
+		return translateFromXMLDOM(buildDOM(purl), translationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -839,7 +808,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 	   Document document	= buildDOM(xmlDocumentURL);
 	   return (document == null) ? 
-		  null : translateFromXML(document, translationSpace);
+		  null : translateFromXMLDOM(document, translationSpace);
 	}
 	/**
 	 * Given the URL of a valid XML document,
@@ -868,7 +837,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	   Document document	= buildDOM(xmlFile);
 	   ElementState result	= null;
 	   if (document != null)
-		  result			= translateFromXML(document, translationSpace);
+		  result			= translateFromXMLDOM(document, translationSpace);
 	   return result;
 	}
 	/**
@@ -923,7 +892,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(fileName);
-		return (document == null) ? null : translateFromXML(document, translationSpace);
+		return (document == null) ? null : translateFromXMLDOM(document, translationSpace);
 	}
 	/**
 	 * Given the name of a valid XML file,
@@ -976,7 +945,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(xmlStream);
-		return (document == null) ? null : translateFromXML(document, nameSpace);
+		return (document == null) ? null : translateFromXMLDOM(document, nameSpace);
 	}	
 	/**
 	 * Given an XML-formatted String, 
@@ -1063,7 +1032,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	{
 	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
 	   return (document == null) ? null : 
-		  translateFromXML(document,translationSpace, doRecursiveDescent);
+		  translateFromXMLDOM(document,translationSpace, doRecursiveDescent);
 	}
 	/**
 	 * Given an XML-formatted String, 
@@ -1215,7 +1184,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	public static ElementState translateFromXML(Document doc)
 	throws XmlTranslationException
 	{
-	   return translateFromXML(doc, globalTranslationSpace);
+	   return translateFromXMLDOM(doc, globalTranslationSpace);
 	}
 	
 	/**
@@ -1243,11 +1212,11 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(Document doc, 
+	public static ElementState translateFromXMLDOM(Document doc, 
 												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		return translateFromXML(doc, translationSpace, true);
+		return translateFromXMLDOM(doc, translationSpace, true);
 	}
 	
 	/**
@@ -1275,13 +1244,13 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(Document dom, 
+	public static ElementState translateFromXMLDOM(Document dom, 
 												TranslationSpace translationSpace,
 												boolean doRecursiveDescent)
 	throws XmlTranslationException
 	{
 		Node rootNode				= dom.getDocumentElement();
-		return translateFromXML(rootNode, translationSpace, doRecursiveDescent);
+		return translateFromXMLNode(rootNode, translationSpace, doRecursiveDescent);
 	}
 	
 	/**
@@ -1350,7 +1319,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 												TranslationSpace translationSpace)
 	   throws XmlTranslationException
 	{
-	   return translateFromXML(xmlNode, translationSpace, true);
+	   return translateFromXMLNode(xmlNode, translationSpace, true);
 	   
 	}
 	/**
@@ -1381,7 +1350,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(Node xmlNode,
+	public static ElementState translateFromXMLNode(Node xmlNode,
 												TranslationSpace translationSpace,
 												boolean doRecursiveDescent)
 	   throws XmlTranslationException
@@ -1404,7 +1373,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap<String, ElementState>();
-		   	  	 rootState.translateFromXML(xmlNode, stateClass, translationSpace, doRecursiveDescent);
+		   	  	 rootState.translateFromXMLNode(xmlNode, stateClass, translationSpace, doRecursiveDescent);
            
                  rootState.postTranslationProcessingHook();
                  
@@ -1423,7 +1392,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		   StackTraceElement stackTrace[] = e.getStackTrace();
 		   println("XML Translation WARNING: Exception while trying to translate XML element <" 
 				   + tagName+ "> class="+stateClass + ". Ignored.\nThe exception was " 
-				   + e.getMessage() + " from " +stackTrace[0]);
+				   + e.getMessage() + " from " +stackTrace[0] +" " + stackTrace[1]);
 		   //e.printStackTrace();
 //		   throw new XmlTranslationException("All ElementState subclasses"
 //							       + "MUST contain an empty constructor, but "+
@@ -1482,7 +1451,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
      * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	void translateFromXML(Node xmlNode, Class stateClass,
+	void translateFromXMLNode(Node xmlNode, Class stateClass,
 								  TranslationSpace translationSpace, boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
@@ -1494,14 +1463,13 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			int numAttributes = xmlNodeAttributes.getLength();
 			for (int i = 0; i < numAttributes; i++) 
 			{
-				Node xmlAttr 		= xmlNodeAttributes.item(i);
-				String value		= xmlAttr.getNodeValue();
+				Node attrNode 		= xmlNodeAttributes.item(i);
+				String value		= attrNode.getNodeValue();
                
 				if (value != null)
 				{
-					//TODO consider getting rid of the TranslationSpace parameter here!
 					ParseTableEntry pte	= 
-						optimizations.parseTableAttrEntry(translationSpace, this, xmlAttr);
+						optimizations.parseTableAttrEntry(translationSpace, this, attrNode);
 					switch (pte.type())
 					{
 					case REGULAR_ATTRIBUTE:
@@ -1530,7 +1498,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			short childNodeType	= childNode.getNodeType();
 			if ((childNodeType == Node.TEXT_NODE) || (childNodeType == Node.CDATA_SECTION_NODE))
 			{
-				setTextNodeString(childNode.getNodeValue());
+				appendTextNodeString(childNode.getNodeValue());
 			}
 			else
 			{
@@ -1545,7 +1513,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= pte.createChildElement(this, null, false);
+						activeES			= (ElementState) pte.createChildElement(this, null, false);
 						ReflectionTools.setFieldValue(this, pte.field(), activeES);
 					}
 				}
@@ -1557,7 +1525,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 				switch (pte.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-					activePTE.setFieldToNestedElement(activeES, childNode, false);
+					activePTE.setFieldToNestedElement(activeES, childNode);
 					break;
 				case LEAF_NODE_VALUE:
 					activePTE.setScalarFieldWithLeafNode(activeES, childNode);
@@ -1601,7 +1569,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		childElementState.parent			= this;
 		
 		if (childNode != null)
-			childElementState.translateFromXML(childNode, childClass, translationSpace, true);
+			childElementState.translateFromXMLNode(childNode, childClass, translationSpace, true);
 		return childElementState;
 	}
 	
@@ -1943,18 +1911,18 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	private TagMapEntry getTagMapEntry(Field field, boolean compression)
+	private TagMapEntry getTagMapEntry(Field field)
 	{
-		return optimizations.getTagMapEntry(field, compression);
+		return optimizations.getTagMapEntry(field);
 	}
 /**
  * Get a tag translation object that corresponds to the fieldName,
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	protected TagMapEntry getTagMapEntry(Class thatClass, boolean compression, int type)
+	protected TagMapEntry getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
 	{
-		return optimizations.getTagMapEntry(thatClass, compression, type);
+		return optimizations.getTagMapEntry(field, thatClass);
 	}
 
 	//////////////// helper methods used by translateFromXML() ////////////////
@@ -2008,7 +1976,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	protected void addNestedElement(ParseTableEntry pte, Node childNode)
 	throws XmlTranslationException
 	{
-		addNestedElement(pte.createChildElement(this, childNode, false));
+		addNestedElement((ElementState) pte.createChildElement(this, childNode, false));
 		if (considerWarning == NEED_WARNING)
 		{
 			warning("Ignoring nested elements with tag <" + pte.tag() + ">");
@@ -2058,36 +2026,31 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * If the textNodeString is currently null, assign to.
 	 * Otherwise, append to it.
 	 * 
-	 * @param textNodeString	Text Node value just found parsing the XML.
+	 * @param newText	Text Node value just found parsing the XML.
 	 */
-	public void setTextNodeString(String textNodeString)
+	protected void appendTextNodeString(String newText)
 	{
-	   if (textNodeString != null)
+	   if ((newText != null) && (newText.length() > 0))
 	   {
-		   String unescapedString = XmlTools.unescapeXML(textNodeString);
-		   String previousTextNodeString = this.textNodeString;
-		   this.textNodeString	= (previousTextNodeString == null) ?
-				   unescapedString : previousTextNodeString + unescapedString;
+		   //TODO -- hopefully we can get away with this speed up
+		   String trimmed	=	newText.trim();
+		   if (trimmed.length() > 0)
+		   {
+			   String unescapedString = XmlTools.unescapeXML(newText);
+			   if (this.textNodeBuffy == null)
+				   textNodeBuffy	= new StringBuilder(unescapedString);
+			   else
+				   textNodeBuffy.append(unescapedString);
+		   }
 	   }
 	}
 	public String getTextNodeString()
 	{
-		return textNodeString;
+		return textNodeBuffy.toString();
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
 	}
 	/////////////////////////// other methods //////////////////////////
 
-	/**
-	 * Call this method if the object should be translated using a compression table to
-	 * mininmize space (and legibility :-).
-	 * 
-	 * @param value		String version of a boolean. Use "true" to turn it on.
-	 */
-	public void setCompressed(String value)
-	{
-		if ("true".equals(value))
-			compressed	=	true;
-	}
 	
 	/**
 	 * Add a package name to className mapping to the translation table in the NameSpace.
@@ -2428,7 +2391,31 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
     		parent		= null;
     	
     	elementByIdMap	= null;
-    	textNodeString	= null;
-    	optimizations	= null;   	
+    	textNodeBuffy	= null;
+    	optimizations	= null;  
+    	if (nestedNameSpaces != null)
+    	{
+    		for (ElementState nns : nestedNameSpaces.values())
+    		{
+    			if (nns != null)
+    				nns.recycle();
+    		}
+    		nestedNameSpaces.clear();
+    		nestedNameSpaces	= null;
+    	}
+    }
+    
+    /**
+     * Add a NestedNameSpace object to this.
+     * 
+     * @param id
+     * @param nns
+     */
+    public void putNestedNameSpace(String id, ElementState nns)
+    {
+    	if (nestedNameSpaces == null)
+    		nestedNameSpaces	= new HashMap<String, ElementState>(2);
+    	
+    	nestedNameSpaces.put(id, nns);
     }
 }

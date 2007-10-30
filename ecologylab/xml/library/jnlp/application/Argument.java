@@ -32,7 +32,7 @@ public class Argument extends ElementState
         return arg;
     }
 
-    @Override public void setTextNodeString(String str)
+    @Override public void appendTextNodeString(String str)
     {
         this.arg = str;
     }

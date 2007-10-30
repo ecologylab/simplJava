@@ -28,9 +28,11 @@ public interface ParseTableEntryTypes
 	
 	public static final int	MAP_SCALAR				= 6;
 	
-	public static final int	REGULAR_ATTRIBUTE		= 10;
+	public static final int	REGULAR_ATTRIBUTE		= 0x10;
 	
 	public static final int	IGNORED_ATTRIBUTE		= 0;
+	
+	public static final int	XMLNS_ATTRIBUTE			= 0x11;	
 	
 	/**
 	 * These will be handled by otherNestedElement().
