@@ -34,6 +34,8 @@ implements OptimizationTypes
      */
     private		String		childTagName;
     
+    private		Field		field;
+    
     /**
      * This field is used iff type is COLLECTION or MAP
      */
@@ -71,6 +73,7 @@ implements OptimizationTypes
         setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
                 ElementState.xml_tag.class).value() : XmlTools.getXmlTagName(actualClass, "State"));
         setType(field, actualClass);
+        this.field			= field;
     }
 
     /**
@@ -85,6 +88,7 @@ implements OptimizationTypes
     	this.type	= ROOT;
     }
     /**
+     * Constructor for collection elements (no field).
      * 
      * @param collectionTagMapEntry
      * @param actualCollectionElementClass
@@ -98,6 +102,7 @@ implements OptimizationTypes
         	tagName		= XmlTools.getXmlTagName(actualCollectionElementClass, "State");
 
         setTag(tagName);
+        // no field here?!
 
         //TODO -- do we need to handle scalars here as well?
         this.type		= REGULAR_NESTED_ELEMENT;
@@ -115,6 +120,7 @@ implements OptimizationTypes
     							  (tagAnnotation != null) ? tagAnnotation :
     							   XmlTools.getXmlTagName(field.getName(), null); // generate from class name
         setTag(tagName);
+        this.field				= field;
         setType(field, field.getType());
         boolean isLeaf		= (type == LEAF_NODE_VALUE);
         if (isLeaf || (type == REGULAR_ATTRIBUTE))
@@ -282,12 +288,14 @@ implements OptimizationTypes
     {
     	return (type == REGULAR_ATTRIBUTE) || ((type == LEAF_NODE_VALUE) && !isCDATA);
     }
-    public void appendValueAsAttribute(StringBuilder buffy, Field field, Object context) 
+    public void appendValueAsAttribute(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         if (context != null)
         {
         	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	
         	if (!scalarType.isDefaultValue(field, context))
         	{
 	            //for this field, generate tags and attach name value pair
