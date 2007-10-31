@@ -501,7 +501,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			for (int i=0; i<numElements; i++)
 			{
 				Field childField			= elementFields.get(i);
-//				ElementToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
+//				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
 				FieldToXMLOptimizations childTagMapEntry= this.getTagMapEntry(childField);
 				//if (XmlTools.representAsLeafNode(thatField))
 				final int childTagMapType 	= childTagMapEntry.type();
@@ -1250,42 +1250,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	throws XmlTranslationException
 	{
 		Node rootNode				= dom.getDocumentElement();
-		return translateFromXMLNode(rootNode, translationSpace, doRecursiveDescent);
+		return translateFromXMLRootNode(rootNode, translationSpace, doRecursiveDescent);
 	}
 	
-	/**
-	 * A recursive method.
-	 * Typically, this method is initially passed the root Node of an XML DOM,
-	 * from which it builds a tree of equivalent ElementState objects.
-	 * It does this by recursively calling itself for each node/subtree of 
-	 * ElementState objects.
-	 * 
-	 * The method translates any tree of DOM into a tree of Java objects, each
-	 * of which is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of 
-	 * classes derived from ElementState, which corresponds to the structure 
-	 * of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file, and access the 
-	 * root Node. S/he passes it to this method to create a Java hierarchy 
-	 * equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them 
-	 * into a tree of state-objects.
-	 * <p/>
-	 * Uses the default globalNameSpace as the basis for translation.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlNode	Root node of the DOM tree that needs to be translated.
-	 * @return 			Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXML(Node xmlNode)
-	   throws XmlTranslationException
-	{
-	   return translateFromXML(xmlNode, globalTranslationSpace);
-	}
 
 	/**
 	 * A recursive method.
@@ -1310,17 +1277,16 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param xmlNode	Root node of the DOM tree that needs to be translated.
+	 * @param document	Root node of the DOM tree that needs to be translated.
 	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 			Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(Node xmlNode,
-												TranslationSpace translationSpace)
-	   throws XmlTranslationException
+	public static ElementState translateFromXML(Document document,
+			TranslationSpace translationSpace)
+	throws XmlTranslationException
 	{
-	   return translateFromXMLNode(xmlNode, translationSpace, true);
-	   
+		return translateFromXMLRootNode(document, translationSpace, true);
 	}
 	/**
 	 * A recursive method.
@@ -1345,19 +1311,19 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * This method used to be called builtStateObject(...).
 	 * 
-	 * @param xmlNode		Root node of the DOM tree that needs to be translated.
+	 * @param xmlRootNode		Root node of the DOM tree that needs to be translated.
 	 * @param translationSpace		NameSpace that provides basis for translation.
 	 * 
 	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXMLNode(Node xmlNode,
+	public static ElementState translateFromXMLRootNode(Node xmlRootNode,
 												TranslationSpace translationSpace,
 												boolean doRecursiveDescent)
 	   throws XmlTranslationException
 	{
 	   // find the class for the new object derived from ElementState
 		Class stateClass			= null;
-		String tagName				= xmlNode.getNodeName();
+		String tagName				= xmlRootNode.getNodeName();
 		int colonIndex				= tagName.indexOf(':');
 		if (colonIndex > 1)
 		{   // we are dealing with an XML Namespace
@@ -1369,11 +1335,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		   stateClass= translationSpace.xmlTagToClass(tagName);
 		   if (stateClass != null)
 		   {
-		   	  ElementState rootState= (ElementState) getNestedElementObject(stateClass);
+		   	  ElementState rootState= (ElementState) getInstance(stateClass);
 		   	  if (rootState != null)
 		   	  {
 		   	  	 rootState.elementByIdMap		= new HashMap<String, ElementState>();
-		   	  	 rootState.translateFromXMLNode(xmlNode, stateClass, translationSpace, doRecursiveDescent);
+		   	  	 rootState.translateFromXMLNode(xmlRootNode, translationSpace, doRecursiveDescent);
            
                  rootState.postTranslationProcessingHook();
                  
@@ -1410,7 +1376,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * @throws XmlTranslationException	If its not an ElementState Class object, or
  *  if that class lacks a constructor that takes no paramebers.
  */
-	public static Object getNestedElementObject(Class stateClass)
+	public static Object getInstance(Class stateClass)
 	   throws XmlTranslationException
 	{
 		// form the new object derived from ElementState
@@ -1446,14 +1412,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * a tree of state-objects.
      * 
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
-     * @param stateClass		Must be derived from ElementState. 
-	 *							The type of the object to translate in to.
      * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	void translateFromXMLNode(Node xmlNode, Class stateClass,
-								  TranslationSpace translationSpace, boolean doRecursiveDescent)
-	   throws XmlTranslationException
+	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace, boolean doRecursiveDescent)
+	throws XmlTranslationException
 	{
 		// translate attribtues
 		if (xmlNode.hasAttributes())
@@ -1468,14 +1431,14 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
                
 				if (value != null)
 				{
-					ElementToJavaOptimizations pte	= 
-						optimizations.parseTableAttrEntry(translationSpace, this, attrNode);
-					switch (pte.type())
+					NodeToJavaOptimizations njo	= 
+						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, attrNode);
+					switch (njo.type())
 					{
 					case REGULAR_ATTRIBUTE:
-						pte.setFieldToScalar(this, value);
+						njo.setFieldToScalar(this, value);
 						// the value can become a unique id for looking up this
-						if ("id".equals(pte.tag()))
+						if ("id".equals(njo.tag()))
 							this.elementByIdMap.put(value, this);
 						break;
 					default:
@@ -1502,27 +1465,27 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 			else
 			{
-				ElementToJavaOptimizations pte		= optimizations.elementToJavaOptimizations(translationSpace, this, childNode);
-				ElementToJavaOptimizations nsPTE	= pte.nestedPTE();
-				ElementToJavaOptimizations	activePTE;
+				NodeToJavaOptimizations njo		= optimizations.elementNodeToJavaOptimizations(translationSpace, this, childNode);
+				NodeToJavaOptimizations nsNJO	= njo.nestedPTE();
+				NodeToJavaOptimizations	activePTE;
 				ElementState	activeES;
-				if (nsPTE != null)
+				if (nsNJO != null)
 				{
-					activePTE				= nsPTE;
+					activePTE				= nsNJO;
 					// get (create if necessary) the ElementState object corresponding to the XML Namespace
-					activeES				= (ElementState) ReflectionTools.getFieldValue(this, pte.field());
+					activeES				= (ElementState) ReflectionTools.getFieldValue(this, njo.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= (ElementState) pte.createChildElement(this, null, false);
-						ReflectionTools.setFieldValue(this, pte.field(), activeES);
+						activeES			= (ElementState) njo.createChildElement(this, null, false);
+						ReflectionTools.setFieldValue(this, njo.field(), activeES);
 					}
 				}
 				else
 				{
-					activePTE				= pte;
+					activePTE				= njo;
 					activeES				= this;
 				}
-				switch (pte.type())
+				switch (njo.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
 					activePTE.setFieldToNestedElement(activeES, childNode);
@@ -1564,12 +1527,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			Class childClass, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		ElementState childElementState		= (ElementState) getNestedElementObject(childClass);
+		ElementState childElementState		= (ElementState) getInstance(childClass);
 		childElementState.elementByIdMap	= this.elementByIdMap;
 		childElementState.parent			= this;
 		
 		if (childNode != null)
-			childElementState.translateFromXMLNode(childNode, childClass, translationSpace, true);
+			childElementState.translateFromXMLNode(childNode, translationSpace, true);
 		return childElementState;
 	}
 	
@@ -1973,7 +1936,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	protected void addNestedElement(ElementToJavaOptimizations pte, Node childNode)
+	protected void addNestedElement(NodeToJavaOptimizations pte, Node childNode)
 	throws XmlTranslationException
 	{
 		addNestedElement((ElementState) pte.createChildElement(this, childNode, false));
@@ -2361,7 +2324,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
      * completed. This allows a newly-created ElementState object to perform any
      * post processing with all the data it will have from XML.
      * <p/>
-     * This method is called by ElementToJavaOptimizations.createChildElement() or
+     * This method is called by NodeToJavaOptimizations.createChildElement() or
      * translateToXML depending on whether the element in question is a child or
      * the top-level parent.
      * <p/>

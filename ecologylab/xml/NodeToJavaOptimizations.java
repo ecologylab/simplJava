@@ -24,7 +24,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  * @author andruid
  */
-class ElementToJavaOptimizations extends Debug
+class NodeToJavaOptimizations extends Debug
 implements OptimizationTypes
 {
 	private final String		tag;
@@ -63,7 +63,7 @@ implements OptimizationTypes
 	
 	private TranslationSpace	translationSpace;
 	
-	private ElementToJavaOptimizations		nestedPTE;
+	private NodeToJavaOptimizations		nestedPTE;
 	
 	/**
 	 * 
@@ -73,7 +73,7 @@ implements OptimizationTypes
 	 * @param tag		Tag corresponding to the value in the XML that we're translating.
 	 * @param isAttribute TODO
 	 */
-	ElementToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
+	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -112,7 +112,7 @@ implements OptimizationTypes
 			Field nameSpaceField= optimizations.getField(nameSpaceName);
 			if (nameSpaceField != null)
 			{	// o.k. we know we're working in the object of namespace fields
-				// create a dummy object to get its ElementToJavaOptimizations
+				// create a dummy object to get its NodeToJavaOptimizations
 				Class nsFieldClass			= nameSpaceField.getType();
 				Object dummy				= ReflectionTools.getInstance(nsFieldClass);
 				if (dummy instanceof ElementState)
@@ -121,7 +121,7 @@ implements OptimizationTypes
 					ElementState dummyES 	= (ElementState) dummy;
 					Optimizations nsOptimizations	= Optimizations.lookup(dummyES);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
-					ElementToJavaOptimizations	 nsPTE	= nsOptimizations.elementToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
+					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.elementNodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
 					this.classOp			= nsFieldClass;
 					fillValues(nsPTE);
 					this.nestedPTE			= nsPTE;
@@ -374,7 +374,7 @@ implements OptimizationTypes
 			}
 			if (newInstance != null)
 			{	// outside of try/catch to enable throwing translation exception
-				newInstance.translateFromXMLNode(node, classOp, translationSpace, true);
+				newInstance.translateFromXMLNode(node, translationSpace, true);
 				finished	= true;
 			}
 		}
@@ -678,7 +678,7 @@ implements OptimizationTypes
 		}
 	}
 			
-	private void fillValues(ElementToJavaOptimizations other)
+	private void fillValues(NodeToJavaOptimizations other)
 	{
 		//this.classOp			= other.classOp;
 		this.type				= other.type;
@@ -714,7 +714,7 @@ implements OptimizationTypes
 	/**
 	 * @return the nestedNameSpaceParseTableEntry
 	 */
-	ElementToJavaOptimizations nestedPTE()
+	NodeToJavaOptimizations nestedPTE()
 	{
 		return nestedPTE;
 	}
