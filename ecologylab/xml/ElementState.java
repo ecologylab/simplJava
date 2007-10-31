@@ -476,13 +476,23 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 
 		buffy.append(fieldToXMLOptimizations.startOpenTag());
 
-		for (int i=0; i<numAttributes; i++)
+		if (numAttributes > 0)
 		{
-			// iterate through fields
-			Field thatField			= attributeFields.get(i);				
-			XmlTools.generateNameVal(buffy, thatField, this, floatingPrecision());
+			try
+			{
+				for (int i=0; i<numAttributes; i++)
+				{
+					// iterate through fields
+					Field childField					= attributeFields.get(i);				
+					FieldToXMLOptimizations childF2Xo	= this.fieldToXMLOptimizations(childField);
+					childF2Xo.appendValueAsAttribute(buffy, childField, this);
+				}
+			} catch (Exception e)
+			{
+				// IllegalArgumentException, IllegalAccessException
+				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+			}
 		}
-
 		StringBuilder textNode = this.textNodeBuffy;
 		if ((numElements == 0) && (textNode == null))
 		{
@@ -503,17 +513,18 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			{
 				Field childField			= elementFields.get(i);
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
-				FieldToXMLOptimizations childTagMapEntry= this.getTagMapEntry(childField);
+				FieldToXMLOptimizations childF2Xo	= this.fieldToXMLOptimizations(childField);
 				//if (XmlTools.representAsLeafNode(thatField))
-				final int childTagMapType 	= childTagMapEntry.type();
-				if (childTagMapType == LEAF_NODE_VALUE)
+				final int childOptimizationsType 	= childF2Xo.type();
+				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
-					//FIXME -- this could fail if isCDATA not initialized properly by non Field constructor
-					//boolean isCDATA		= XmlTools.leafIsCDATA(thatField);
-					ScalarType scalarType	= TypeRegistry.getType(childField);
-					String leafValue		= scalarType.toString(this, childField);
-					appendLeafXML(buffy, childTagMapEntry, leafValue);
-				}
+					try
+					{
+						childF2Xo.appendLeafAttribute(buffy, childField, this);
+					} catch (Exception e)
+					{
+						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+					}				}
 				else
 				{
 					Object thatReferenceObject = null;
@@ -538,10 +549,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					if (thatReferenceObject == null)
 						continue;
 
-					final boolean isScalar		= (childTagMapType == COLLECTION_SCALAR) || (childTagMapType == MAP_SCALAR);
+					final boolean isScalar		= (childOptimizationsType == COLLECTION_SCALAR) || (childOptimizationsType == MAP_SCALAR);
 					// gets Collection object directly or through Map.values()
 					Collection thatCollection;
-					switch (childTagMapType)
+					switch (childOptimizationsType)
 					{
 					case COLLECTION_ELEMENT:
 					case COLLECTION_SCALAR:
@@ -567,14 +578,14 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 							if (isScalar)	// leaf node!
 							{
 								String value = next.toString();
-								appendLeafXML(buffy, childTagMapEntry, value);									
+								appendLeafXML(buffy, childF2Xo, value);									
 							}
 							else if (next instanceof ElementState)
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childTagMapEntry, collectionElementClass);
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
 							}
 							// this is a special hack for working with pre-translated XML Strings (LogOp!)
@@ -601,7 +612,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
-								childTagMapEntry : getTagMapEntry(childField, thatNewClass);
+								childF2Xo : getTagMapEntry(childField, thatNewClass);
 
 						thatElementState.translateToXMLBuilder(thatNewClass, nestedTagMapEntry, buffy);
 						//buffy.append('\n');						
@@ -656,7 +667,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	void appendLeafXML(StringBuilder buffy, String leafElementName, String leafValue, boolean needsEscaping, boolean isCDATA)
 	{
-		if (!ecologylab.xml.types.scalar.ScalarType.NULL_STRING.equals(leafValue))
+		if (!ecologylab.xml.types.scalar.ScalarType.DEFAULT_VALUE_STRING.equals(leafValue))
 		{
 			buffy.append('<').append(leafElementName).append('>');
 			
@@ -1923,9 +1934,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	private FieldToXMLOptimizations getTagMapEntry(Field field)
+	private FieldToXMLOptimizations fieldToXMLOptimizations(Field field)
 	{
-		return optimizations.getTagMapEntry(field);
+		return optimizations.fieldToXMLOptimizations(field);
 	}
 /**
  * Get a tag translation object that corresponds to the fieldName,
