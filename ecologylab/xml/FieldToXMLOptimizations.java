@@ -314,25 +314,31 @@ implements OptimizationTypes
         }
     }
     
-    void appendLeaf(StringBuilder buffy, Field field, Object context) 
+    void appendLeaf(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         if (context != null)
         {
         	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
         	if (!scalarType.isDefaultValue(field, context))
         	{
-	            // for this field, generate <tag>value</tag>
-	        	
-	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// for this field, generate <tag>value</tag>
+        		
+        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
         		// (which is an instance variable of this) !!!
         		
         		buffy.append(startOpenTag).append('>');
-	        	
-	        	scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
-	        	
-	        	buffy.append(this.closeTag);
+        		
+        		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+        		
+        		buffy.append(this.closeTag);
         	}
         }
     }
+
+	Field field()
+	{
+		return field;
+	}
 }

@@ -490,8 +490,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
-		ArrayList<Field> elementFields		= optimizations.elementFields();
-		int numElements						= elementFields.size();
+		//ArrayList<Field> elementFields		= optimizations.elementFields();
+		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
+		int numElements						= elementF2XOs.size();
 
 		StringBuilder textNode = this.textNodeBuffy;
 		//TODO -- fix textNode == null -- should be size() == 0 or some such
@@ -511,26 +512,26 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 			for (int i=0; i<numElements; i++)
 			{
-				Field childField			= elementFields.get(i);
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
-				FieldToXMLOptimizations childF2Xo	= this.fieldToXMLOptimizations(childField);
+				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
 				//if (XmlTools.representAsLeafNode(thatField))
 				final int childOptimizationsType 	= childF2Xo.type();
 				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
 					try
 					{
-						childF2Xo.appendLeaf(buffy, childField, this);
+						childF2Xo.appendLeaf(buffy, this);
 					} catch (Exception e)
 					{
 						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
 					}				}
 				else
 				{
-					Object thatReferenceObject = null;
+					Object thatReferenceObject	= null;
+					Field childField			= childF2Xo.field();
 					try
 					{
-						thatReferenceObject	= childField.get(this);
+						thatReferenceObject		= childField.get(this);
 					}
 					catch (IllegalAccessException e)
 					{
