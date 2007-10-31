@@ -465,11 +465,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	{
         this.preTranslationProcessingHook();
 		
-		ArrayList<Field> attributeFields	= optimizations.attributeFields();
-		ArrayList<Field> elementFields		= optimizations.elementFields();
-		int numAttributes 			= attributeFields.size();
-		int numElements				= elementFields.size();
-		int	numFields				= numAttributes + numElements;
+        ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
+		int numAttributes 			= attributeF2XOs.size();
+		int	numFields				= numAttributes + optimizations.quickNumElements();
 
 		if (buffy == null)
 			buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
@@ -483,9 +481,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				for (int i=0; i<numAttributes; i++)
 				{
 					// iterate through fields
-					Field childField					= attributeFields.get(i);				
-					FieldToXMLOptimizations childF2Xo	= this.fieldToXMLOptimizations(childField);
-					childF2Xo.appendValueAsAttribute(buffy, childField, this);
+					FieldToXMLOptimizations childF2Xo	= attributeF2XOs.get(i);
+					childF2Xo.appendValueAsAttribute(buffy, this);
 				}
 			} catch (Exception e)
 			{
@@ -493,10 +490,14 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
+		ArrayList<Field> elementFields		= optimizations.elementFields();
+		int numElements						= elementFields.size();
+
 		StringBuilder textNode = this.textNodeBuffy;
+		//TODO -- fix textNode == null -- should be size() == 0 or some such
 		if ((numElements == 0) && (textNode == null))
 		{
-			buffy.append("/>");	// done! completely close element behind attributes				
+			buffy.append('/').append('>');	// done! completely close element behind attributes				
 		}
 		else
 		{
@@ -508,7 +509,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				//if (textNode.length() > 0)
 				XmlTools.escapeXML(buffy, textNode);
 			}
-
 			for (int i=0; i<numElements; i++)
 			{
 				Field childField			= elementFields.get(i);
