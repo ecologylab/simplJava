@@ -23,7 +23,7 @@ public class LogueMessage extends LogRequestMessage
 	 */
 	public LogueMessage(Logging logging)
 	{
-		logName			= XmlTools.getXmlTagName(logging.getClass(), "State", false);
+		logName			= XmlTools.getXmlTagName(logging.getClass(), "State");
 	}
 	/*
 	 * Constructor for automatic translation;
