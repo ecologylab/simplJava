@@ -45,7 +45,14 @@ implements OptimizationTypes
     
     private boolean			needsEscaping;
     
-
+    /**
+     * This slot makes sense only when scalarType != null && scalarType.isFloatingPoint()
+     */
+    private int				floatValuePrecision;
+    
+    /**
+     * This slot makes sense only for attributes and leaf nodes
+     */
     private ScalarType		scalarType;
 
     FieldToXMLOptimizations(FieldToXMLOptimizations parentCollectionEntry)
@@ -270,4 +277,54 @@ implements OptimizationTypes
 	{
 		return scalarType;
 	}
+    
+    boolean couldNeedEscaping()
+    {
+    	return (type == REGULAR_ATTRIBUTE) || ((type == LEAF_NODE_VALUE) && !isCDATA);
+    }
+    public void appendValueAsAttribute(StringBuilder buffy, Field field, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+	            //for this field, generate tags and attach name value pair
+	        	
+	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+	        	
+	        	buffy.append(' ');
+				buffy.append(this.tagName);
+	        	buffy.append('=');
+	        	buffy.append('"');
+	        	
+	        	scalarType.appendValue(buffy, field, context, true);
+	        	buffy.append('"');
+        	}
+        }
+    }
+    
+    void appendLeaf(StringBuilder buffy, Field field, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+	            // for this field, generate <tag>value</tag>
+	        	
+	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		
+        		buffy.append(startOpenTag).append('>');
+	        	
+	        	scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+	        	
+	        	buffy.append(this.closeTag);
+        	}
+        }
+    }
 }
