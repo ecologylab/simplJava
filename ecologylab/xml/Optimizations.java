@@ -23,7 +23,7 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author andruid
  */
 public class Optimizations extends Debug
-implements ParseTableEntryTypes
+implements OptimizationTypes
 {
 	/**
 	 * Class object that we are holding optimizations for.
@@ -51,19 +51,19 @@ implements ParseTableEntryTypes
 	/**
 	 * Used to optimize translateToXML().
 	 */
-	private HashMap<Object, TagMapEntry>		fieldOrClassToTagMap	= new HashMap<Object, TagMapEntry>();
+	private HashMap<Object, FieldToXMLOptimizations>		fieldOrClassToTagMap	= new HashMap<Object, FieldToXMLOptimizations>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are tag names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, ParseTableEntry>	parseTableByTagNames	= new HashMap<String, ParseTableEntry>();
+	private HashMap<String, ElementToJavaOptimizations>	parseTableByTagNames	= new HashMap<String, ElementToJavaOptimizations>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are field names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, ParseTableEntry>	parseTableByFieldNames	= new HashMap<String, ParseTableEntry>();
+	private HashMap<String, ElementToJavaOptimizations>	parseTableByFieldNames	= new HashMap<String, ElementToJavaOptimizations>();
 	
 	private HashMap<String, Class<? extends ElementState>>	nameSpacesByID	= new HashMap<String, Class<? extends ElementState>>();
 	
@@ -130,9 +130,9 @@ implements ParseTableEntryTypes
 	 * and cache it.
 	 * @param type TODO
 	 */
-	TagMapEntry getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
+	FieldToXMLOptimizations getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
 	{
-		TagMapEntry result= fieldOrClassToTagMap.get(thatClass);
+		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(thatClass);
 		if (result == null)
 		{
 			synchronized (fieldOrClassToTagMap)
@@ -140,7 +140,7 @@ implements ParseTableEntryTypes
 				result		= fieldOrClassToTagMap.get(thatClass);
 				if (result == null)
 				{
-				    result = new TagMapEntry(field, thatClass);
+				    result = new FieldToXMLOptimizations(field, thatClass);
                     
                     fieldOrClassToTagMap.put(thatClass, result);
 					//debug(tagName.toString());
@@ -149,9 +149,9 @@ implements ParseTableEntryTypes
 		}
 		return result;
 	}
-	TagMapEntry getRootTagMapEntry(Class rootClass)
+	FieldToXMLOptimizations getRootTagMapEntry(Class rootClass)
 	{
-		TagMapEntry result= fieldOrClassToTagMap.get(rootClass);
+		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(rootClass);
 		if (result == null)
 		{
 			synchronized (fieldOrClassToTagMap)
@@ -159,7 +159,7 @@ implements ParseTableEntryTypes
 				result		= fieldOrClassToTagMap.get(rootClass);
 				if (result == null)
 				{
-				    result = new TagMapEntry(rootClass);
+				    result = new FieldToXMLOptimizations(rootClass);
                     
                     fieldOrClassToTagMap.put(rootClass, result);
 				}
@@ -169,9 +169,9 @@ implements ParseTableEntryTypes
 		
 	}
 	
-	TagMapEntry getTagMapEntry(TagMapEntry collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
+	FieldToXMLOptimizations getTagMapEntry(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
 	{
-		TagMapEntry result= fieldOrClassToTagMap.get(actualCollectionElementClass);
+		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(actualCollectionElementClass);
 		if (result == null)
 		{
 			synchronized (fieldOrClassToTagMap)
@@ -179,7 +179,7 @@ implements ParseTableEntryTypes
 				result		= fieldOrClassToTagMap.get(actualCollectionElementClass);
 				if (result == null)
 				{
-				    result = new TagMapEntry(collectionTagMapEntry, actualCollectionElementClass);
+				    result = new FieldToXMLOptimizations(collectionTagMapEntry, actualCollectionElementClass);
                     
                     fieldOrClassToTagMap.put(actualCollectionElementClass, result);
 					//debug(tagName.toString());
@@ -194,9 +194,9 @@ implements ParseTableEntryTypes
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
 	 */
-	TagMapEntry getTagMapEntry(Field field)
+	FieldToXMLOptimizations getTagMapEntry(Field field)
 	{
-		TagMapEntry result= fieldOrClassToTagMap.get(field);
+		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(field);
 		if (result == null)
 		{
 			synchronized (fieldOrClassToTagMap)
@@ -204,7 +204,7 @@ implements ParseTableEntryTypes
 				result		= fieldOrClassToTagMap.get(field);
 				if (result == null)
 				{
-					result	= new TagMapEntry(field);
+					result	= new FieldToXMLOptimizations(field);
 //					debug(tagName.toString());
 					fieldOrClassToTagMap.put(field, result);
 				}
@@ -236,30 +236,30 @@ implements ParseTableEntryTypes
 	 * @param context TODO
 	 * @param node TODO
 	 */
-	ParseTableEntry parseTableEntry(TranslationSpace translationSpace, ElementState context, Node node)
+	ElementToJavaOptimizations elementToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		return parseTableEntry(translationSpace, context, tag);
+		return elementToJavaOptimizations(translationSpace, context, tag);
 	}
-	ParseTableEntry parseTableEntry(TranslationSpace translationSpace, ElementState context, String tag)
+	ElementToJavaOptimizations elementToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
 	{
-		ParseTableEntry result	= parseTableByTagNames.get(tag);
+		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
 		
 		if (result == null)
 		{
-			result				= new ParseTableEntry(translationSpace, this, context, tag, false);
+			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, false);
 			putInParseTables(tag, result);
 		}
 		return result;
 	}
 
 	/**
-	 * Add a ParseTableEntry to the parseTables.
+	 * Add a ElementToJavaOptimizations to the parseTables.
 	 * 
 	 * @param tag
 	 * @param result
 	 */
-	private void putInParseTables(String tag, ParseTableEntry result)
+	private void putInParseTables(String tag, ElementToJavaOptimizations result)
 	{
 		parseTableByTagNames.put(tag, result);
 		switch (result.type())
@@ -279,17 +279,17 @@ implements ParseTableEntryTypes
 	}
 	
 	/**
-	 * Lookup, and create if necessary, the ParseTableEntry for an attribute.
+	 * Lookup, and create if necessary, the ElementToJavaOptimizations for an attribute.
 	 * 
 	 * @param translationSpace
 	 * @param context
 	 * @param node
 	 * @return
 	 */
-	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, Node node)
+	ElementToJavaOptimizations parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		ParseTableEntry result	= parseTableByTagNames.get(tag);
+		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
 		
 		if (result == null)
 		{
@@ -301,18 +301,18 @@ implements ParseTableEntryTypes
 					registerNameSpace(translationSpace, nameSpaceID, node.getNodeValue());
 				}
 			}
-			result				= new ParseTableEntry(translationSpace, this, context, tag, true);
+			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, true);
 			putInParseTables(tag, result);
 		}
 		return result;
 	}
-	ParseTableEntry parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, String tag)
+	ElementToJavaOptimizations parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, String tag)
 	{
-		ParseTableEntry result	= parseTableByTagNames.get(tag);
+		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
 		
 		if (result == null)
 		{
-			result				= new ParseTableEntry(translationSpace, this, context, tag, true);
+			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, true);
 			if (result.type() == XMLNS_ATTRIBUTE)
 			{
 				String nameSpaceID	= tag.substring(6);
@@ -326,12 +326,12 @@ implements ParseTableEntryTypes
 	}
 	
 	/**
-	 * Lookup a ParseTableEntry, using a Field name as the key.
+	 * Lookup a ElementToJavaOptimizations, using a Field name as the key.
 	 * 
 	 * @param fieldName
 	 * @return
 	 */
-	ParseTableEntry getPTEByFieldName(String fieldName)
+	ElementToJavaOptimizations getPTEByFieldName(String fieldName)
 	{
 		return parseTableByFieldNames.get(fieldName);
 	}

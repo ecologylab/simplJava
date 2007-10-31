@@ -19,9 +19,9 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * 
  * @author andruid
  */
-class TagMapEntry
+class FieldToXMLOptimizations
 extends Debug
-implements ParseTableEntryTypes
+implements OptimizationTypes
 {
     private 	String 		startOpenTag;
 
@@ -48,7 +48,7 @@ implements ParseTableEntryTypes
 
     private ScalarType		scalarType;
 
-    TagMapEntry(TagMapEntry parentCollectionEntry)
+    FieldToXMLOptimizations(FieldToXMLOptimizations parentCollectionEntry)
     {
     	
     }
@@ -59,7 +59,7 @@ implements ParseTableEntryTypes
      * @param field
      * @param actualClass
      */
-    TagMapEntry(Field field, Class<? extends ElementState> actualClass)
+    FieldToXMLOptimizations(Field field, Class<? extends ElementState> actualClass)
     {
         setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
                 ElementState.xml_tag.class).value() : XmlTools.getXmlTagName(actualClass, "State"));
@@ -67,12 +67,12 @@ implements ParseTableEntryTypes
     }
 
     /**
-     * Build a TagMapEntry for a root element.
+     * Build a FieldToXMLOptimizations for a root element.
      * Use its class name to form the tag name.
      * 
      * @param rootClass
      */
-    TagMapEntry(Class rootClass)
+    FieldToXMLOptimizations(Class rootClass)
     {
     	setTag(XmlTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
@@ -82,7 +82,7 @@ implements ParseTableEntryTypes
      * @param collectionTagMapEntry
      * @param actualCollectionElementClass
      */
-    TagMapEntry(TagMapEntry collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
+    FieldToXMLOptimizations(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
     {
     	//TODO -- is this inheritance good or bad?!
         String tagName	= collectionTagMapEntry.childTagName;
@@ -95,7 +95,7 @@ implements ParseTableEntryTypes
         //TODO -- do we need to handle scalars here as well?
         this.type		= REGULAR_NESTED_ELEMENT;
     }
-    TagMapEntry(Field field)
+    FieldToXMLOptimizations(Field field)
     {
     	final ElementState.xml_collection collectionAnnotationObj	= field.getAnnotation(ElementState.xml_collection.class);
     	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
@@ -123,7 +123,7 @@ implements ParseTableEntryTypes
 
     @Override public String toString()
     {
-        return "TagMapEntry" + closeTag;
+        return "FieldToXMLOptimizations" + closeTag;
     }
     
     private void setTag(String tagName)
@@ -158,7 +158,7 @@ implements ParseTableEntryTypes
 				if (typeArg0 instanceof Class)
 				{	// generic variable is assigned in declaration -- not a field in an ArrayListState or some such
 					Class	collectionElementsType	= (Class) typeArg0;
-					println("TagMapEntry: !!!collection elements are of type: " + collectionElementsType.getName());
+					println("FieldToXMLOptimizations: !!!collection elements are of type: " + collectionElementsType.getName());
 					// is collectionElementsType a scalar or a nested element
 					ElementState.xml_collection collectionAnnotation		= field.getAnnotation(ElementState.xml_collection.class);
 					String	childTagName			= collectionAnnotation.value();
@@ -168,7 +168,7 @@ implements ParseTableEntryTypes
 						//TODO -- is this inheritance good, or should be wait for the actual class object?!
 //						if (childTagName == null)
 //							childTagName			= XmlTools.getXmlTagName(thatClass, "State");
-						println("TagMapEntry: !!!collection elements childTagName = " + childTagName);
+						println("FieldToXMLOptimizations: !!!collection elements childTagName = " + childTagName);
 					}
 					else
 					{	// scalar
@@ -200,7 +200,7 @@ implements ParseTableEntryTypes
 				{	// generic variable is assigned in declaration -- not a field in an ArrayListState or some such
 
 					Class	mapElementsType			= (Class) typeArg0;
-					println("TagMapEntry: !!!map elements are of type: " + mapElementsType.getName());
+					println("FieldToXMLOptimizations: !!!map elements are of type: " + mapElementsType.getName());
 					ElementState.xml_map mapAnnotation		= field.getAnnotation(ElementState.xml_map.class);
 					String	childTagName			= mapAnnotation.value();
 					if (ElementState.class.isAssignableFrom(mapElementsType))

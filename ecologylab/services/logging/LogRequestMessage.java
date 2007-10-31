@@ -89,7 +89,7 @@ public class LogRequestMessage extends RequestMessage
 	 */
 	protected String getMessageString() throws XmlTranslationException
 	{
-//		TagMapEntry	tagMapEntry	= this.getTagMapEntry(getClass(), false);
+//		FieldToXMLOptimizations	tagMapEntry	= this.getTagMapEntry(getClass(), false);
 		String xmlString1	= xmlString();
 	
 		// if not on server, do normal translate to XML

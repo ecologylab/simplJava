@@ -24,8 +24,8 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  * @author andruid
  */
-class ParseTableEntry extends Debug
-implements ParseTableEntryTypes
+class ElementToJavaOptimizations extends Debug
+implements OptimizationTypes
 {
 	private final String		tag;
 	
@@ -63,7 +63,7 @@ implements ParseTableEntryTypes
 	
 	private TranslationSpace	translationSpace;
 	
-	private ParseTableEntry		nestedPTE;
+	private ElementToJavaOptimizations		nestedPTE;
 	
 	/**
 	 * 
@@ -73,7 +73,7 @@ implements ParseTableEntryTypes
 	 * @param tag		Tag corresponding to the value in the XML that we're translating.
 	 * @param isAttribute TODO
 	 */
-	ParseTableEntry(TranslationSpace translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
+	ElementToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -112,7 +112,7 @@ implements ParseTableEntryTypes
 			Field nameSpaceField= optimizations.getField(nameSpaceName);
 			if (nameSpaceField != null)
 			{	// o.k. we know we're working in the object of namespace fields
-				// create a dummy object to get its ParseTableEntry
+				// create a dummy object to get its ElementToJavaOptimizations
 				Class nsFieldClass			= nameSpaceField.getType();
 				Object dummy				= ReflectionTools.getInstance(nsFieldClass);
 				if (dummy instanceof ElementState)
@@ -121,7 +121,7 @@ implements ParseTableEntryTypes
 					ElementState dummyES 	= (ElementState) dummy;
 					Optimizations nsOptimizations	= Optimizations.lookup(dummyES);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
-					ParseTableEntry	 nsPTE	= nsOptimizations.parseTableEntry(nameSpaceTranslations, dummyES, subTag);
+					ElementToJavaOptimizations	 nsPTE	= nsOptimizations.elementToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
 					this.classOp			= nsFieldClass;
 					fillValues(nsPTE);
 					this.nestedPTE			= nsPTE;
@@ -678,7 +678,7 @@ implements ParseTableEntryTypes
 		}
 	}
 			
-	private void fillValues(ParseTableEntry other)
+	private void fillValues(ElementToJavaOptimizations other)
 	{
 		//this.classOp			= other.classOp;
 		this.type				= other.type;
@@ -714,7 +714,7 @@ implements ParseTableEntryTypes
 	/**
 	 * @return the nestedNameSpaceParseTableEntry
 	 */
-	ParseTableEntry nestedPTE()
+	ElementToJavaOptimizations nestedPTE()
 	{
 		return nestedPTE;
 	}

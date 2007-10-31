@@ -72,7 +72,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @version     2.9
  */
 public class ElementState extends Debug
-implements ParseTableEntryTypes, XmlTranslationExceptionTypes
+implements OptimizationTypes, XmlTranslationExceptionTypes
 {
 	/**
 	 * Link for a DOM tree.
@@ -459,7 +459,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private StringBuilder translateToXMLBuilder(Class thatClass, TagMapEntry tagMapEntry, StringBuilder buffy)
+	private StringBuilder translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
 		throws XmlTranslationException
 	{
         this.preTranslationProcessingHook();
@@ -473,7 +473,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 		if (buffy == null)
 			buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
 
-		buffy.append(tagMapEntry.startOpenTag());
+		buffy.append(fieldToXMLOptimizations.startOpenTag());
 
 		for (int i=0; i<numAttributes; i++)
 		{
@@ -501,8 +501,8 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			for (int i=0; i<numElements; i++)
 			{
 				Field childField			= elementFields.get(i);
-//				ParseTableEntry pte		= optimizations.getPTEByFieldName(thatFieldName);
-				TagMapEntry childTagMapEntry= this.getTagMapEntry(childField);
+//				ElementToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
+				FieldToXMLOptimizations childTagMapEntry= this.getTagMapEntry(childField);
 				//if (XmlTools.representAsLeafNode(thatField))
 				final int childTagMapType 	= childTagMapEntry.type();
 				if (childTagMapType == LEAF_NODE_VALUE)
@@ -573,7 +573,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								TagMapEntry collectionElementEntry		= optimizations.getTagMapEntry(childTagMapEntry, collectionElementClass);
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childTagMapEntry, collectionElementClass);
 								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
 							}
 							// this is a special hack for working with pre-translated XML Strings (LogOp!)
@@ -599,7 +599,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 						// field, use the instance's type to determine the XML tag name.
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						TagMapEntry nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
+						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
 								childTagMapEntry : getTagMapEntry(childField, thatNewClass);
 
 						thatElementState.translateToXMLBuilder(thatNewClass, nestedTagMapEntry, buffy);
@@ -609,7 +609,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			} //end of for each element child
 
 			// end the element
-			buffy.append(tagMapEntry.closeTag())/* .append('\n') */;
+			buffy.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
 		} // end if no nested elements or text node
 
@@ -640,9 +640,9 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * @param type
 	 * @param isCDATA
 	 */
-	void appendLeafXML(StringBuilder buffy, TagMapEntry tagMapEntry, String leafValue)
+	void appendLeafXML(StringBuilder buffy, FieldToXMLOptimizations fieldToXMLOptimizations, String leafValue)
 	{
-		appendLeafXML(buffy, tagMapEntry.tagName(), leafValue, tagMapEntry.isNeedsEscaping(), tagMapEntry.isCDATA());
+		appendLeafXML(buffy, fieldToXMLOptimizations.tagName(), leafValue, fieldToXMLOptimizations.isNeedsEscaping(), fieldToXMLOptimizations.isCDATA());
 	}
 	/**
 	 * Translate our representation of a leaf node to XML.
@@ -1468,7 +1468,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
                
 				if (value != null)
 				{
-					ParseTableEntry pte	= 
+					ElementToJavaOptimizations pte	= 
 						optimizations.parseTableAttrEntry(translationSpace, this, attrNode);
 					switch (pte.type())
 					{
@@ -1502,9 +1502,9 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 			}
 			else
 			{
-				ParseTableEntry pte		= optimizations.parseTableEntry(translationSpace, this, childNode);
-				ParseTableEntry nsPTE	= pte.nestedPTE();
-				ParseTableEntry	activePTE;
+				ElementToJavaOptimizations pte		= optimizations.elementToJavaOptimizations(translationSpace, this, childNode);
+				ElementToJavaOptimizations nsPTE	= pte.nestedPTE();
+				ElementToJavaOptimizations	activePTE;
 				ElementState	activeES;
 				if (nsPTE != null)
 				{
@@ -1911,7 +1911,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	private TagMapEntry getTagMapEntry(Field field)
+	private FieldToXMLOptimizations getTagMapEntry(Field field)
 	{
 		return optimizations.getTagMapEntry(field);
 	}
@@ -1920,7 +1920,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	protected TagMapEntry getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
+	protected FieldToXMLOptimizations getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
 	{
 		return optimizations.getTagMapEntry(field, thatClass);
 	}
@@ -1973,7 +1973,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	protected void addNestedElement(ParseTableEntry pte, Node childNode)
+	protected void addNestedElement(ElementToJavaOptimizations pte, Node childNode)
 	throws XmlTranslationException
 	{
 		addNestedElement((ElementState) pte.createChildElement(this, childNode, false));
@@ -2361,7 +2361,7 @@ implements ParseTableEntryTypes, XmlTranslationExceptionTypes
      * completed. This allows a newly-created ElementState object to perform any
      * post processing with all the data it will have from XML.
      * <p/>
-     * This method is called by ParseTableEntry.createChildElement() or
+     * This method is called by ElementToJavaOptimizations.createChildElement() or
      * translateToXML depending on whether the element in question is a child or
      * the top-level parent.
      * <p/>

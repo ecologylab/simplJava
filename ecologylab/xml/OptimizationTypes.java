@@ -1,6 +1,6 @@
 package ecologylab.xml;
 
-public interface ParseTableEntryTypes
+public interface OptimizationTypes
 {
 	public static final int	UNSET_TYPE				= -99;
 	/**
@@ -41,7 +41,7 @@ public interface ParseTableEntryTypes
 
 	
 	/**
-	 * Root node type: for TagMapEntry translateTo only.
+	 * Root node type: for FieldToXMLOptimizations translateTo only.
 	 */
 	public static final int	ROOT					= 0X20;
 }
