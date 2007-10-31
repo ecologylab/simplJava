@@ -42,11 +42,6 @@ public class XmlTools extends TypeRegistry
 implements CharacterConstants
 {
 	private static final int DEFAULT_TAG_LENGTH = 15;
-	private static Hashtable encodingTable 	=	new Hashtable();
-	private static Hashtable decodingTable	=	new Hashtable();
-	
-	//abbreviation table for storing the xml in a compressed form
-	private static String[][] elementAbbreviations;
 
 	static HashMap	entityTable				= new HashMap();
 
