@@ -386,6 +386,17 @@ implements OptimizationTypes
 		newInstance.postTranslationProcessingHook();
 		return newInstance;
 	}
+
+
+	ElementState constructChildElementState(ElementState parent)
+	throws XmlTranslationException
+	{
+		ElementState childElementState		= (ElementState) ElementState.getInstance(classOp);
+		childElementState.elementByIdMap	= parent.elementByIdMap;
+		childElementState.parent			= parent;
+		
+		return childElementState;
+	}
 	
 	/**
 	 * Use a set method or the type system to set our field in the context to the value.
@@ -435,7 +446,7 @@ implements OptimizationTypes
 	public String toString()
 	{
 		String tagString	= (tag == null) ? "NO_TAG?" : tag;
-		return super.toString() + "[" + tagString + "]";
+		return super.toString() + "[" + tagString + " - " + type + "]";
 	}
 	/**
 	 * Set a scalar value using the textElementChild Node as the source,
@@ -498,6 +509,12 @@ implements OptimizationTypes
 		Object nestedObject = isElementStateSubclass ? createChildElement(context, childNode, false) 
 				: ReflectionTools.getInstance(classOp);
 		
+		setFieldToNestedObject(context, nestedObject);
+	}
+
+	void setFieldToNestedObject(ElementState context, Object nestedObject) 
+	throws XmlTranslationException
+	{
 		try
 		{
 			field.set(context, nestedObject);
@@ -529,26 +546,37 @@ implements OptimizationTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	void addElementToCollection(ElementState activeES, Node childNode)
+	void formElementAndAddToCollection(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
-		Collection collection	= null;
-		if (field != null)
-		{
-			collection			= (Collection<? extends ElementState>) automaticLazyGetCollectionOrMap(activeES);
-		}
-		else
-			collection			= activeES.getCollection(classOp());
+		Collection collection = getCollection(activeES);
 
 		if (collection != null)
 		{
-			Object childElement = createChildElement(activeES, childNode, false);
+			ElementState childElement = createChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
 		else
 		{
 			warning("Can't add <" + tag + "> to " + activeES.getClassName() + ", because the collection is null.");
 		}
+	}
+
+	/**
+	 * Get the collection object from the appropriate field, or create it, if necessary.
+	 * @param activeES
+	 * @return
+	 */
+	Collection<? extends ElementState> getCollection(ElementState activeES)
+	{
+		Collection<? extends ElementState> collection	= null;
+		if (field != null)
+		{
+			collection			= (Collection<? extends ElementState>) automaticLazyGetCollectionOrMap(activeES);
+		}
+		else
+			collection			= activeES.getCollection(classOp());
+		return collection;
 	}
 
 	/**
@@ -605,8 +633,23 @@ implements OptimizationTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	void addElementToMap(ElementState activeES, Node childNode)
+	void formElementAndToMap(ElementState activeES, Node childNode)
 	throws XmlTranslationException
+	{
+		Map map = getMap(activeES);
+			
+		if (map != null)
+		{
+			Mappable mappable	= (Mappable) createChildElement(activeES, childNode, false);
+			map.put(mappable.key(), mappable);
+		}
+		else
+		{
+			warning("Can't add <" + tag + "> to " + activeES.getClassName() + ", because the map is null.");
+		}
+	}
+
+	Map getMap(ElementState activeES)
 	{
 		Map map		= null;
 		if (field != null)
@@ -622,16 +665,7 @@ implements OptimizationTypes
 		}
 		else
 			map		= activeES.getMap(classOp());
-			
-		if (map != null)
-		{
-			Mappable mappable	= (Mappable) createChildElement(activeES, childNode, false);
-			map.put(mappable.key(), mappable);
-		}
-		else
-		{
-			warning("Can't add <" + tag + "> to " + activeES.getClassName() + ", because the map is null.");
-		}
+		return map;
 	}
 		
 	/**
@@ -781,4 +815,22 @@ implements OptimizationTypes
 	{
 		return scalarType;
 	}
+	
+	
+	private NodeToJavaOptimizations()
+	{
+		tag	= "UNASSIGNED";
+	}
+	NodeToJavaOptimizations(String tag)
+	{
+		this.tag	= tag;
+		this.type	= IGNORED_ELEMENT;
+	}
+	static final NodeToJavaOptimizations IGNORED_ELEMENT_OPTIMIZATIONS;
+	static
+	{
+		IGNORED_ELEMENT_OPTIMIZATIONS	= new NodeToJavaOptimizations();
+		IGNORED_ELEMENT_OPTIMIZATIONS.type	= IGNORED_ELEMENT;
+	}
+
 }

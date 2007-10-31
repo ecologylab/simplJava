@@ -105,7 +105,8 @@ implements OptimizationTypes
 	static Optimizations lookup(ElementState elementState)
 	{
 		Class thatClass		= elementState.getClass();
-		String className	= classSimpleName(thatClass);
+//		String className	= classSimpleName(thatClass);
+		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
 		Optimizations result= registry.get(className);
 		if (result == null)
@@ -260,6 +261,8 @@ implements OptimizationTypes
 	 * @param context
 	 * @param node
 	 * @return
+	 * 
+	 * @deprecated
 	 */
 	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
 	{
@@ -281,6 +284,35 @@ implements OptimizationTypes
 		}
 		return result;
 	}
+
+	/**
+	 * Lookup, and create if necessary, the NodeToJavaOptimizations for an attribute.
+	 * 
+	 * @param translationSpace
+	 * @param context
+	 * @param node
+	 * @return
+	 */
+	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag, String value)
+	{
+		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
+		
+		if (result == null)
+		{
+			if (tag.startsWith("xmlns:"))
+			{
+				String nameSpaceID	= tag.substring(6);
+				if (!containsNameSpaceByNSID(nameSpaceID))
+				{
+					registerNameSpace(translationSpace, nameSpaceID, value);
+				}
+			}
+			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
+			nodeToJavaOptimizationsMap.put(tag, result);
+		}
+		return result;
+	}
+	
 	
 	/**
 	 * Get the fields that are represented as attributes for the class we're optimizing.

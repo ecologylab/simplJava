@@ -28,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -1348,7 +1349,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		   }
 		   else
 		   {
-			   // else, we dont translate this field; we ignore it.
+			   // else, we dont translate this element; we ignore it.
 			   println("XML Translation WARNING: Cant find class object for Root XML element <"
 					   + tagName + ">: Ignored. ");
 		   }
@@ -1426,13 +1427,14 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			int numAttributes = xmlNodeAttributes.getLength();
 			for (int i = 0; i < numAttributes; i++) 
 			{
-				Node attrNode 		= xmlNodeAttributes.item(i);
-				String value		= attrNode.getNodeValue();
+				final Node attrNode 	= xmlNodeAttributes.item(i);
+				final String tag		= attrNode.getNodeName();
+				final String value		= attrNode.getNodeValue();
                
 				if (value != null)
 				{
-					NodeToJavaOptimizations njo	= 
-						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, attrNode);
+					NodeToJavaOptimizations njo	=
+						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag, value);
 					switch (njo.type())
 					{
 					case REGULAR_ATTRIBUTE:
@@ -1494,13 +1496,13 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
 					break;
 				case COLLECTION_ELEMENT:
-					activeNJO.addElementToCollection(activeES, childNode);
+					activeNJO.formElementAndAddToCollection(activeES, childNode);
 					break;
 				case COLLECTION_SCALAR:
 					activeNJO.addLeafNodeToCollection(activeES, childNode);
 					break;
 				case MAP_ELEMENT:
-					activeNJO.addElementToMap(activeES, childNode);
+					activeNJO.formElementAndToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:
 					activeES.addNestedElement(activeNJO, childNode);
@@ -1509,6 +1511,53 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				case BAD_FIELD:
 				default:
 					break;
+				}
+			}
+		}
+	}
+	
+	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		SAXHandler saxHandler	= new SAXHandler(translationSpace);
+		return saxHandler.parse(purl);
+	}
+	public static ElementState translateFromXMLSAX(File file, TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		SAXHandler saxHandler	= new SAXHandler(translationSpace);
+		return saxHandler.parse(file);
+	}
+	/**
+	 * Used in SAX parsing to unmarshall attributes into fields.
+	 * 
+	 * @param translationSpace
+	 * @param attributes
+	 */
+	void translateAttributes(TranslationSpace translationSpace, Attributes attributes)
+	{
+		int numAttributes	= attributes.getLength();
+		for (int i=0; i<numAttributes; i++)
+		{
+			//TODO -- figure out what we're doing if there's a colon and a namespace
+			final String tag		= attributes.getQName(i);
+			final String value	= attributes.getValue(i);
+			//TODO String attrType = getType()?!
+			if (value != null)
+			{
+				NodeToJavaOptimizations njo	= 
+					optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag, value);
+				switch (njo.type())
+				{
+				case REGULAR_ATTRIBUTE:
+					njo.setFieldToScalar(this, value);
+					// the value can become a unique id for looking up this
+					//TODO -- could support the ID type for the node here!
+					if ("id".equals(njo.tag()))
+						this.elementByIdMap.put(value, this);
+					break;
+				default:
+					break;	
 				}
 			}
 		}
