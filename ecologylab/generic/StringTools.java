@@ -510,5 +510,21 @@ extends Debug
         return null;
     }
 
+    /**
+     * Return true if all the chars in the CharSequence are whitespace.
+     * 
+     * @param charSequence
+     * @return
+     */
+    public static final boolean isWhiteSpace(CharSequence charSequence)
+    {
+    	int length	= charSequence.length();
+    	for (int i=0; i<length; i++)
+    	{
+    		if (!Character.isWhitespace(charSequence.charAt(i)))
+    			return false;
+    	}
+    	return true;
+    }
 }
 
