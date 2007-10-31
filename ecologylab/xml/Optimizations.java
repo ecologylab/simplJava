@@ -195,7 +195,7 @@ implements OptimizationTypes
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
 	 */
-	FieldToXMLOptimizations getTagMapEntry(Field field)
+	FieldToXMLOptimizations fieldToXMLOptimizations(Field field)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(field);
 		if (result == null)

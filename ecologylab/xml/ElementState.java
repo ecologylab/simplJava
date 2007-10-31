@@ -520,7 +520,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				{
 					try
 					{
-						childF2Xo.appendLeafAttribute(buffy, childField, this);
+						childF2Xo.appendLeaf(buffy, childField, this);
 					} catch (Exception e)
 					{
 						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
