@@ -1467,11 +1467,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			{
 				NodeToJavaOptimizations njo		= optimizations.elementNodeToJavaOptimizations(translationSpace, this, childNode);
 				NodeToJavaOptimizations nsNJO	= njo.nestedPTE();
-				NodeToJavaOptimizations	activePTE;
+				NodeToJavaOptimizations	activeNJO;
 				ElementState	activeES;
 				if (nsNJO != null)
 				{
-					activePTE				= nsNJO;
+					activeNJO				= nsNJO;
 					// get (create if necessary) the ElementState object corresponding to the XML Namespace
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, njo.field());
 					if (activeES == null)
@@ -1482,28 +1482,28 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				}
 				else
 				{
-					activePTE				= njo;
+					activeNJO				= njo;
 					activeES				= this;
 				}
 				switch (njo.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-					activePTE.setFieldToNestedElement(activeES, childNode);
+					activeNJO.setFieldToNestedElement(activeES, childNode);
 					break;
 				case LEAF_NODE_VALUE:
-					activePTE.setScalarFieldWithLeafNode(activeES, childNode);
+					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
 					break;
 				case COLLECTION_ELEMENT:
-					activePTE.addElementToCollection(activeES, childNode);
+					activeNJO.addElementToCollection(activeES, childNode);
 					break;
 				case COLLECTION_SCALAR:
-					activePTE.addLeafNodeToCollection(activeES, childNode);
+					activeNJO.addLeafNodeToCollection(activeES, childNode);
 					break;
 				case MAP_ELEMENT:
-					activePTE.addElementToMap(activeES, childNode);
+					activeNJO.addElementToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:
-					activeES.addNestedElement(activePTE, childNode);
+					activeES.addNestedElement(activeNJO, childNode);
 					break;
 				case IGNORED_ELEMENT:
 				case BAD_FIELD:

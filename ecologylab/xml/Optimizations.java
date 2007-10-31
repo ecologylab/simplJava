@@ -46,24 +46,24 @@ implements OptimizationTypes
 	 * Found before the colon while translating from;
 	 * emitted with a colon while translating to.
 	 */
-	private String					nameSpacePrefix;
+	private String										nameSpacePrefix;
 	
 	/**
 	 * Used to optimize translateToXML().
 	 */
-	private HashMap<Object, FieldToXMLOptimizations>		fieldOrClassToTagMap	= new HashMap<Object, FieldToXMLOptimizations>();
+	private HashMap<Object, FieldToXMLOptimizations>	fieldToXMLOptimizationsMap	= new HashMap<Object, FieldToXMLOptimizations>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are tag names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, ElementToJavaOptimizations>	parseTableByTagNames	= new HashMap<String, ElementToJavaOptimizations>();
+	private HashMap<String, NodeToJavaOptimizations>	nodeToJavaOptimizationsMap	= new HashMap<String, NodeToJavaOptimizations>();
 	
 	/**
 	 * Map of ParseTableEntrys. The keys are field names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, ElementToJavaOptimizations>	parseTableByFieldNames	= new HashMap<String, ElementToJavaOptimizations>();
+	private HashMap<String, NodeToJavaOptimizations>	parseTableByFieldNames	= new HashMap<String, NodeToJavaOptimizations>();
 	
 	private HashMap<String, Class<? extends ElementState>>	nameSpacesByID	= new HashMap<String, Class<? extends ElementState>>();
 	
@@ -132,17 +132,17 @@ implements OptimizationTypes
 	 */
 	FieldToXMLOptimizations getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
 	{
-		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(thatClass);
+		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(thatClass);
 		if (result == null)
 		{
-			synchronized (fieldOrClassToTagMap)
+			synchronized (fieldToXMLOptimizationsMap)
 			{
-				result		= fieldOrClassToTagMap.get(thatClass);
+				result		= fieldToXMLOptimizationsMap.get(thatClass);
 				if (result == null)
 				{
 				    result = new FieldToXMLOptimizations(field, thatClass);
                     
-                    fieldOrClassToTagMap.put(thatClass, result);
+                    fieldToXMLOptimizationsMap.put(thatClass, result);
 					//debug(tagName.toString());
 				}
 			}
@@ -151,17 +151,17 @@ implements OptimizationTypes
 	}
 	FieldToXMLOptimizations getRootTagMapEntry(Class rootClass)
 	{
-		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(rootClass);
+		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
 		if (result == null)
 		{
-			synchronized (fieldOrClassToTagMap)
+			synchronized (fieldToXMLOptimizationsMap)
 			{
-				result		= fieldOrClassToTagMap.get(rootClass);
+				result		= fieldToXMLOptimizationsMap.get(rootClass);
 				if (result == null)
 				{
 				    result = new FieldToXMLOptimizations(rootClass);
                     
-                    fieldOrClassToTagMap.put(rootClass, result);
+                    fieldToXMLOptimizationsMap.put(rootClass, result);
 				}
 			}
 		}
@@ -171,17 +171,17 @@ implements OptimizationTypes
 	
 	FieldToXMLOptimizations getTagMapEntry(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
 	{
-		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(actualCollectionElementClass);
+		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
 		if (result == null)
 		{
-			synchronized (fieldOrClassToTagMap)
+			synchronized (fieldToXMLOptimizationsMap)
 			{
-				result		= fieldOrClassToTagMap.get(actualCollectionElementClass);
+				result		= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
 				if (result == null)
 				{
 				    result = new FieldToXMLOptimizations(collectionTagMapEntry, actualCollectionElementClass);
                     
-                    fieldOrClassToTagMap.put(actualCollectionElementClass, result);
+                    fieldToXMLOptimizationsMap.put(actualCollectionElementClass, result);
 					//debug(tagName.toString());
 				}
 			}
@@ -196,17 +196,17 @@ implements OptimizationTypes
 	 */
 	FieldToXMLOptimizations getTagMapEntry(Field field)
 	{
-		FieldToXMLOptimizations result= fieldOrClassToTagMap.get(field);
+		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(field);
 		if (result == null)
 		{
-			synchronized (fieldOrClassToTagMap)
+			synchronized (fieldToXMLOptimizationsMap)
 			{
-				result		= fieldOrClassToTagMap.get(field);
+				result		= fieldToXMLOptimizationsMap.get(field);
 				if (result == null)
 				{
 					result	= new FieldToXMLOptimizations(field);
 //					debug(tagName.toString());
-					fieldOrClassToTagMap.put(field, result);
+					fieldToXMLOptimizationsMap.put(field, result);
 				}
 			}
 		}
@@ -236,60 +236,35 @@ implements OptimizationTypes
 	 * @param context TODO
 	 * @param node TODO
 	 */
-	ElementToJavaOptimizations elementToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
+	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		return elementToJavaOptimizations(translationSpace, context, tag);
+		return elementNodeToJavaOptimizations(translationSpace, context, tag);
 	}
-	ElementToJavaOptimizations elementToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
+	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
 	{
-		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
+		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
 		
 		if (result == null)
 		{
-			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, false);
-			putInParseTables(tag, result);
+			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, false);
+			nodeToJavaOptimizationsMap.put(tag, result);
 		}
 		return result;
 	}
 
 	/**
-	 * Add a ElementToJavaOptimizations to the parseTables.
-	 * 
-	 * @param tag
-	 * @param result
-	 */
-	private void putInParseTables(String tag, ElementToJavaOptimizations result)
-	{
-		parseTableByTagNames.put(tag, result);
-		switch (result.type())
-		{
-		case IGNORED_ATTRIBUTE:
-		case XMLNS_ATTRIBUTE:
-			break;
-		default:
-			Field field = result.field();
-			if (field != null)
-			{
-				String fieldName	= field.getName();
-				parseTableByFieldNames.put(fieldName, result);
-			}
-			break;
-		}
-	}
-	
-	/**
-	 * Lookup, and create if necessary, the ElementToJavaOptimizations for an attribute.
+	 * Lookup, and create if necessary, the NodeToJavaOptimizations for an attribute.
 	 * 
 	 * @param translationSpace
 	 * @param context
 	 * @param node
 	 * @return
 	 */
-	ElementToJavaOptimizations parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, Node node)
+	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
+		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
 		
 		if (result == null)
 		{
@@ -301,39 +276,10 @@ implements OptimizationTypes
 					registerNameSpace(translationSpace, nameSpaceID, node.getNodeValue());
 				}
 			}
-			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, true);
-			putInParseTables(tag, result);
+			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
+			nodeToJavaOptimizationsMap.put(tag, result);
 		}
 		return result;
-	}
-	ElementToJavaOptimizations parseTableAttrEntry(TranslationSpace translationSpace, ElementState context, String tag)
-	{
-		ElementToJavaOptimizations result	= parseTableByTagNames.get(tag);
-		
-		if (result == null)
-		{
-			result				= new ElementToJavaOptimizations(translationSpace, this, context, tag, true);
-			if (result.type() == XMLNS_ATTRIBUTE)
-			{
-				String nameSpaceID	= tag.substring(6);
-				// register namespace here!
-				//optimizations.registerNameSpace(translationSpace, )
-			}
-
-			putInParseTables(tag, result);
-		}
-		return result;
-	}
-	
-	/**
-	 * Lookup a ElementToJavaOptimizations, using a Field name as the key.
-	 * 
-	 * @param fieldName
-	 * @return
-	 */
-	ElementToJavaOptimizations getPTEByFieldName(String fieldName)
-	{
-		return parseTableByFieldNames.get(fieldName);
 	}
 	
 	/**
