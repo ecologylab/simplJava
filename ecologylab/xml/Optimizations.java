@@ -72,11 +72,15 @@ implements OptimizationTypes
 	 */
 	private ArrayList<Field>					attributeFields;
 	
+	private ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations;
+	
 	/**
 	 * The fields that are represented as nested elements (including leaf nodes)
 	 * for the class we're optimizing.
 	 */
 	private ArrayList<Field>					elementFields;
+	
+	private ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations;
 	
 	private HashMap<String, Field>				fieldsMap;
 	
@@ -170,6 +174,13 @@ implements OptimizationTypes
 		
 	}
 	
+	/**
+	 * Accessor for collection elements (no field).
+     * 
+	 * @param collectionTagMapEntry
+	 * @param actualCollectionElementClass
+	 * @return
+	 */
 	FieldToXMLOptimizations getTagMapEntry(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
@@ -312,8 +323,72 @@ implements OptimizationTypes
 		}
 		return result;
 	}
+	final Object AFO_LOCK	= new Object();
 	
+	int quickNumElements()
+	{
+		return elementFields == null ? 0 : elementFields.size();
+	}
 	
+	ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations()
+	{
+		ArrayList<FieldToXMLOptimizations>	result	= attributeFieldOptimizations;
+		if (result == null)
+		{
+			synchronized (AFO_LOCK)
+			{
+				result	= attributeFieldOptimizations;
+				if (result == null)
+				{
+					ArrayList<Field> attributeFields2	= attributeFields();
+					int numAttributes					= attributeFields2.size();
+					if (numAttributes == 0)
+						result				= new ArrayList<FieldToXMLOptimizations>(1);
+					else
+					{
+						result				= new ArrayList<FieldToXMLOptimizations>(numAttributes);
+						for (int i=0; i<numAttributes; i++)
+						{
+							result.add(this.fieldToXMLOptimizations(attributeFields2.get(i)));
+						}
+					}
+				}
+				this.attributeFieldOptimizations		= result;
+			}
+		}
+		return result;
+	}
+	
+	final Object EFO_LOCK	= new Object();
+	
+	ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations()
+	{
+		ArrayList<FieldToXMLOptimizations>	result	= elementFieldOptimizations;
+		if (result == null)
+		{
+			synchronized (EFO_LOCK)
+			{
+				result	= elementFieldOptimizations;
+				if (result == null)
+				{
+					ArrayList<Field> elementFields2	= elementFields();
+					int numElements					= elementFields2.size();
+					if (numElements == 0)
+						result				= new ArrayList<FieldToXMLOptimizations>(1);
+					else
+					{
+						result				= new ArrayList<FieldToXMLOptimizations>(numElements);
+						for (int i=0; i<numElements; i++)
+						{
+							result.add(this.fieldToXMLOptimizations(elementFields2.get(i)));
+						}
+					}
+				}
+				this.elementFieldOptimizations		= result;
+			}
+		}
+		return result;
+	}
 	/**
 	 * Get the fields that are represented as attributes for the class we're optimizing.
 	 * Uses lazy evaluation -- while derive the answer for attributefieldbs and elementFields, and cache it.
