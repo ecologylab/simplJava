@@ -293,13 +293,16 @@ implements CharacterConstants
      * @param field     A ScalarValued <code>Field</code> object.
      * @param obj       The object which contains the field
      * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
     
      */
-    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision)
+    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision) 
+    throws IllegalArgumentException, IllegalAccessException
     {
         ScalarType type        = TypeRegistry.getType(field);
         if (type != null)
-        	generateNameVal(result, field, obj, type, floatingValuePrecision);
+        	generateNameVal(result, type, field, obj, floatingValuePrecision);
         else
         	println("WARNING: Can't generate attribute for field " + field.getName() + 
         			" because there is no ScalarType for it.");
@@ -311,110 +314,37 @@ implements CharacterConstants
      * <p/>
      * For efficiency, the result is passed back in the StringBuilder passed in.
      * 
-     * @param result	StringBuilder to append result to. 
+     * @param buffy	StringBuilder to append result to. 
      * 					Result is name-value pair of the attribute, nothing if the field has a default value.
-     * @param field     A ScalarValued <code>Field</code> object.
-     * @param obj       The object which contains the field
-     * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
+	 * @param field     A ScalarValued <code>Field</code> object.
+	 * @param context       The object which contains the field
+	 * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
     
      */
-    public static void generateNameVal(StringBuilder result, Field field, Object obj, ScalarType type, int floatingValuePrecision)
+    public static void generateNameVal(StringBuilder buffy, ScalarType type, Field field, Object context, int floatingValuePrecision) 
+    throws IllegalArgumentException, IllegalAccessException
     {
-        if (obj != null)
+        if ((context != null) && !type.isDefaultValue(field, context))
         {
             //take the field, generate tags and attach name value pair
-            try
-            {
-            	/*
-               int startPointer		= result.length();		// the place into the buffer where we start copying our value
-               type.copyValue(result, obj, field);
-               if (startPointer == result.length())	// nothing copied in -- default value
-                  return;
-               // do the next operations backwards, because we are inserting, not appending!
-               result.insert(startPointer, '"').insert(startPointer, '=');
-               result.insert(startPointer, attrNameFromField(field, false));
-               result.insert(startPointer, '"')
-               // old way -- result.append(' ').append(attrNameFromField(field, false)).append("=\"");
-                  */
-                String unescapedFieldValue = type.toString(obj, field);
-                if (type.isDefaultValue(unescapedFieldValue))
-                   return;
-                result.append(' ').append(attrNameFromField(field, false))
-                   .append("=\"");
-            	
-               
-               if (type.isFloatingPoint() && 
-            	   (floatingValuePrecision > ElementState.FLOATING_PRECISION_OFF))
-               { // if we need to adjust for precision...
-                   
-                   // if the number is small enough to emit in scientific notation...
-                   // ...then we need to preserve that
-                   int eLoc = unescapedFieldValue.lastIndexOf("E");
-                   String eVal = "";
-
-                   if (eLoc != -1)
-                   {
-                       eVal = unescapedFieldValue.substring(eLoc);
-                   }
-                   
-                   // find the decimal, and where we SHOULD cut off...
-                   int endPos = unescapedFieldValue.indexOf(".");
-                   
-                   if (endPos != -1)
-                   {
-                       endPos+=floatingValuePrecision+1;
-
-                       if (endPos > unescapedFieldValue.length())
-                       { // if the cutoff is too far, do nothing
-                           result.append(unescapedFieldValue);
-                       }
-                       else
-                        { // if the cutoff is not too far, then cut off the
-                            // extra
-                            result.append(unescapedFieldValue, 0, endPos);
-                            result.append(eVal);
-                        }
-                    }
-                    else
-                    {
-                        result.append(unescapedFieldValue);
-                    }
-                   
-                   // if there is nothing after the decimal, remove it
-                   if (result.charAt(result.length()-1) == '.')
-                   {
-                       result.deleteCharAt(result.length()-1);
-                   }
-                   
-                   result.append('"');
-               }
-               else
-               {
-                   //String escapedFieldValue= escapeXML(unescapedFieldValue);
-            	   //TODO only call escape if not a primitive and not char
-            	   if (type.needsEscaping())
-            		   escapeXML(result, unescapedFieldValue);
-            	   else
-            		   result.append(unescapedFieldValue);
-            	   
-                   result.append('"');
-               }
-               
-//             println("generateNameVal() = "+result);
-//               return XmlTools.toString(result);
-                
-            }
-            catch (Exception e)
-            {
-               println("generateNameVal("+field+", "+obj+" ERROR");
-               e.printStackTrace();
-            }
+        	
+        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        	
+        	buffy.append(' ');
+        	String attributeName = attrNameFromField(field, false);
+			buffy.append(attributeName);
+        	buffy.append('=');
+        	buffy.append('"');
+        	
+        	type.appendValue(buffy, field, context, true);
+        	buffy.append('"');
         }
-        
-//        return "";
     }
     
-	public void generateNameVal(StringBuilder result, Field field, Object obj)
+	public void generateNameVal(StringBuilder result, Field field, Object obj) 
+	throws IllegalArgumentException, IllegalAccessException
 	{
 	    generateNameVal(result, field, obj, ElementState.FLOATING_PRECISION_OFF);
     }
@@ -755,7 +685,8 @@ static String q(String string)
     /**
      * Table of replacement Strings for characters deemed nasty in XML.
      */
-    static final String[] ESCAPE_TABLE	= new String[ISO_LATIN1_START];
+//   static final String[] ESCAPE_TABLE	= new String[ISO_LATIN1_START];
+   static final String[] ESCAPE_TABLE	= new String[Character.MAX_VALUE];
     
     static
     {
@@ -786,6 +717,12 @@ static String q(String string)
                 default: 
 				   break;
             }
+    	}
+    	for (char c=ISO_LATIN1_START; c<Character.MAX_VALUE; c++)
+    	{
+    		StringBuilder entry	= new StringBuilder(8);
+    		entry.append('&').append('#').append((int) c).append(';');
+    		ESCAPE_TABLE[c]		= entry.toString();
     	}
     }
     static boolean noCharsNeedEscaping(CharSequence stringToEscape)
@@ -826,38 +763,32 @@ static String q(String string)
 	* @return	the string in which the confusing characters are replaced by their 
 	* equivalent entity references
 	*/   
-   public static void escapeXML(StringBuilder result, CharSequence stringToEscape)
+   public static void escapeXML(StringBuilder buffy, CharSequence stringToEscape)
    {
 	   if (noCharsNeedEscaping(stringToEscape))
-		   result.append(stringToEscape);
+		   buffy.append(stringToEscape);
 	   else
 	   {
 		   int length	= stringToEscape.length();
 		   for (int i=0; i<length; i++)
 		   {
-			   char c = stringToEscape.charAt(i);
-			   if (c >= ISO_LATIN1_START)
+			   final char c 		= stringToEscape.charAt(i);
+			   final String escaped	= ESCAPE_TABLE[c];
+			   
+			   if (escaped != null)
+				   buffy.append(escaped);		// append as String
+			   else
 			   {
-				   result.append('&').append('#').append((int) c).append(';');
-			   }
-			   else 
-			   {
-				   String escaped	= ESCAPE_TABLE[c];
-				   if (escaped != null)
-					   result.append(escaped);
-				   else
+				   switch (c)
 				   {
-		        		switch (c)
-		        		{
-		        		case TAB:
-		        		case CR:
-		        			result.append(c);
-		        			break;
-		        		default:
-		        			if (c >= 0x20)
-		        				result.append(c);
-		        		    break;
-		        		}
+				   case TAB:
+				   case CR:
+					   buffy.append(c);		// append as char (fastest!)
+					   break;
+				   default:
+					   if (c >= 0x20)
+						   buffy.append(c);	// append as char (fastest!)
+				   break;
 				   }
 			   }
 		   }
