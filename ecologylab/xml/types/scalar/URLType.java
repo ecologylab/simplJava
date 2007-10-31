@@ -13,7 +13,7 @@ import java.net.URL;
  * 
  * @author andruid
  */
-public class URLType extends ScalarType<URL>
+public class URLType extends ReferenceType<URL>
 {
 	public URLType()
 	{

@@ -12,7 +12,7 @@ import ecologylab.net.ParsedURL;
  * 
  * @author andruid
  */
-public class ParsedURLType extends ScalarType<ParsedURL>
+public class ParsedURLType extends ReferenceType<ParsedURL>
 {
 /**
  * This constructor should only be called once per session, through

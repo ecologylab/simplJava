@@ -87,25 +87,6 @@ public class FloatType extends ScalarType<Float>
     }
 
     /**
-     * Copy a string representation for a Field of this type into the StringBuilder, unless
-     * the value of the Field in the Object turns out to be the default value for this ScalarType,
-     * in which case, do nothing.
-     */
-	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
-    {
-        try
-        {
-            float f	= field.getFloat(object);
-            if (f != DEFAULT_VALUE)
-            	buffy.append(f);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * The default value for this type, as a String. This value is the one that translateToXML(...)
      * wont bother emitting.
      * 
@@ -120,8 +101,39 @@ public class FloatType extends ScalarType<Float>
      * Since FloatType is a floating point value, returns true.
      * @return true
      */
+    @Override 
     public boolean isFloatingPoint()
     {
         return true;
+    }
+	/**
+	 * True if the value in the Field object matches the default value for this type.
+	 * 
+	 * @param field
+	 * @return
+	 */
+    @Override public boolean isDefaultValue(Field field, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+    	return field.getFloat(context) == DEFAULT_VALUE;
+    }
+
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        float value = field.getFloat(context);
+           
+		buffy.append(value);
     }
 }

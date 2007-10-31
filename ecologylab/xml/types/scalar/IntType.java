@@ -85,26 +85,6 @@ public class IntType extends ScalarType<Integer>
 	}
 
     /**
-     * Copy a string representation for a Field of this type into the StringBuilder, unless
-     * the value of the Field in the Object turns out to be the default value for this ScalarType,
-     * in which case, do nothing.
-     */
-	@Override public void copyValue(StringBuilder buffy, Object object, Field field)
-    {
-        try
-        {
-            int i	= field.getInt(object);
-            if (i != DEFAULT_VALUE)
-            	buffy.append(i);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-    
-
-/**
  * The default value for this type, as a String.
  * This value is the one that translateToXML(...) wont bother emitting.
  * 
@@ -115,4 +95,34 @@ public class IntType extends ScalarType<Integer>
 	   return DEFAULT_VALUE_STRING;
 	}
 
+	/**
+	 * True if the value in the Field object matches the default value for this type.
+	 * 
+	 * @param field
+	 * @return
+	 */
+    @Override public boolean isDefaultValue(Field field, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+    	return field.getInt(context) == DEFAULT_VALUE;
+    }
+
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        int value = field.getInt(context);
+           
+		buffy.append(value);
+    }
 }

@@ -33,7 +33,7 @@ public class StringBuilderType extends ScalarType<StringBuilder>
 		return new StringBuilder(value);
 	}
 
-	@Override protected void appendValueToBuilder(StringBuilder instance, StringBuilder buffy)
+	@Override protected void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping)
     {
     	buffy.append(instance);
     }

@@ -33,7 +33,8 @@ public class ScalarType<T> extends Debug
     // int index;
     boolean             isPrimitive;
 
-    public static final String NULL_STRING = "null";
+	public static final Object	DEFAULT_VALUE			= null;
+    public static final String	DEFAULT_VALUE_STRING 	= "null";
 
     /**
      * Constructor is protected because there should only be 1 instance that gets re-used, for each
@@ -173,7 +174,7 @@ public class ScalarType<T> extends Debug
         {
             Object fieldObj = field.get(object);
             if (fieldObj == null)
-                result = NULL_STRING;
+                result = DEFAULT_VALUE_STRING;
             else
                 result = fieldObj.toString();
         }
@@ -185,26 +186,27 @@ public class ScalarType<T> extends Debug
     }
 
     /**
-     * Copy a string representation for a Field of this type into the StringBuilder, unless
-     * the value of the Field in the Object turns out to be its default value,
-     * in which case, do nothing.
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * <p/>
+     * Should only be called *after* checking !isDefault() yourself.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @param needsEscaping TODO
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
      */
-    public void copyValue(StringBuilder buffy, Object object, Field field)
+    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException
     {
-        try
-        {
-            Object instance = field.get(object);
+        Object instance = field.get(context);
            
-            if (instance != null)
-            	appendValueToBuilder((T) instance, buffy);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        appendValue((T) instance, buffy, needsEscaping);
     }
     
-    protected void appendValueToBuilder(T instance, StringBuilder buffy)
+    protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
     {
     	buffy.append(instance.toString());
     }
@@ -217,7 +219,7 @@ public class ScalarType<T> extends Debug
      */
     protected String defaultValueString()
     {
-        return NULL_STRING;
+        return DEFAULT_VALUE_STRING;
     }
     
     /**
@@ -239,6 +241,12 @@ public class ScalarType<T> extends Debug
     {
         String defaultValue = defaultValueString();
 		return (defaultValue.length() == value.length()) && defaultValue.equals(value);
+    }
+    
+    public boolean isDefaultValue(Field field, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+    	return field.get(context) == null;
     }
 
     /**

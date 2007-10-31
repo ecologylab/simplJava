@@ -3,12 +3,14 @@
  */
 package ecologylab.xml.types.scalar;
 
+import ecologylab.xml.XmlTools;
+
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
  * 
  * @author andruid
  */
-public class StringType extends ScalarType<String>
+public class StringType extends ReferenceType<String>
 {
 /**
  * This constructor should only be called once per session, through
@@ -32,4 +34,20 @@ public class StringType extends ScalarType<String>
 	{
 		return value;
 	}
+
+	/**
+	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
+	 * 
+	 * @param instance
+	 * @param buffy
+	 * @param needsEscaping
+	 */
+	@Override 
+	protected void appendValue(String instance, StringBuilder buffy, boolean needsEscaping)
+    {
+		if (needsEscaping)
+			XmlTools.escapeXML(buffy, instance);
+		else
+			buffy.append(instance);
+    }
 }
