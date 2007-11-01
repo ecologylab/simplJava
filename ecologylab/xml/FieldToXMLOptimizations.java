@@ -116,10 +116,12 @@ implements OptimizationTypes
     	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
     	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
     	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-    	final String tagName	= (collectionAnnotation != null) ? collectionAnnotation :
-    							  (mapAnnotation != null) ? mapAnnotation :
-    							  (tagAnnotation != null) ? tagAnnotation :
-    							   XmlTools.getXmlTagName(field.getName(), null); // generate from class name
+    	final String tagName	= 
+    		((collectionAnnotation != null) && (collectionAnnotation.length() > 0)) ? collectionAnnotation :
+    		((mapAnnotation != null) && (mapAnnotation.length() > 0)) ? mapAnnotation :
+    		((tagAnnotation != null) && (tagAnnotation.length() > 0)) ? tagAnnotation :
+    			XmlTools.getXmlTagName(field.getName(), null); // generate from class name
+
         setTag(tagName);
         this.field				= field;
         setType(field, field.getType());
@@ -151,7 +153,12 @@ implements OptimizationTypes
 	{
 		int	result			= UNSET_TYPE;
 		boolean isScalar	= false;
-		if (field.isAnnotationPresent(ElementState.xml_attribute.class))
+		boolean isCollection= field.isAnnotationPresent(ElementState.xml_collection.class);
+		
+		// help people who confuse @xml_nested and @xml_collection for ArrayListState
+		if (isCollection && (thatClass != null) && ElementState.class.isAssignableFrom(thatClass))
+			result			= REGULAR_NESTED_ELEMENT;			
+		else if (field.isAnnotationPresent(ElementState.xml_attribute.class))
 		{
 			result			= REGULAR_ATTRIBUTE;
 			isScalar		= true;
@@ -163,7 +170,7 @@ implements OptimizationTypes
 		}
 		else if (field.isAnnotationPresent(ElementState.xml_nested.class))
 			result			= REGULAR_NESTED_ELEMENT;
-		else if (field.isAnnotationPresent(ElementState.xml_collection.class))
+		else if (isCollection)
 		{
 			java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(field);
 			if (typeArgs != null)
