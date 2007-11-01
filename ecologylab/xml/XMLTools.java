@@ -1,6 +1,7 @@
 package ecologylab.xml;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -795,6 +796,38 @@ static String q(String string)
 	   }
     }
     
+   public static void escapeXML(Appendable appendable, CharSequence stringToEscape) 
+   throws IOException
+   {
+	   if (noCharsNeedEscaping(stringToEscape))
+		   appendable.append(stringToEscape);
+	   else
+	   {
+		   int length	= stringToEscape.length();
+		   for (int i=0; i<length; i++)
+		   {
+			   final char c 		= stringToEscape.charAt(i);
+			   final String escaped	= ESCAPE_TABLE[c];
+			   
+			   if (escaped != null)
+				   appendable.append(escaped);		// append as String
+			   else
+			   {
+				   switch (c)
+				   {
+				   case TAB:
+				   case CR:
+					   appendable.append(c);		// append as char (fastest!)
+					   break;
+				   default:
+					   if (c >= 0x20)
+						   appendable.append(c);	// append as char (fastest!)
+				   break;
+				   }
+			   }
+		   }
+	   }
+    }
    /**
     * Generate a DOM tree from a given String in the XML form.
     * <p/>

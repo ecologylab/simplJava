@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -122,6 +123,25 @@ public class ByteType extends ScalarType<Byte>
         byte value = field.getByte(context);
            
 		buffy.append(value);
+    }
+    
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        byte value = field.getByte(context);
+           
+		buffy.append(Byte.toString(value));
     }
     
 }

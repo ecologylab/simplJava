@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -112,5 +113,24 @@ public class LongType extends ScalarType<Long>
         long value = field.getLong(context);
            
 		buffy.append(value);
+    }
+    
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        long value = field.getLong(context);
+           
+		buffy.append(Long.toString(value));
     }
 }

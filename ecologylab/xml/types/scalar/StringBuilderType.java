@@ -3,6 +3,8 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
+
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
  * 
@@ -37,5 +39,9 @@ public class StringBuilderType extends ScalarType<StringBuilder>
     {
     	buffy.append(instance);
     }
-
+    protected void appendValue(StringBuilder instance, Appendable buffy, boolean needsEscaping)
+    throws IOException
+    {
+    	buffy.append(instance);    	
+    }
 }

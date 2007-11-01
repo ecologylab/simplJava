@@ -3,6 +3,7 @@
  */
 package ecologylab.xml;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -314,6 +315,32 @@ implements OptimizationTypes
         }
     }
     
+    public void appendValueAsAttribute(Appendable appendable, Object context) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+	            //for this field, generate tags and attach name value pair
+	        	
+	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+	        	
+	        	appendable.append(' ');
+				appendable.append(this.tagName);
+	        	appendable.append('=');
+	        	appendable.append('"');
+	        	
+	        	scalarType.appendValue(appendable, field, context, true);
+	        	appendable.append('"');
+        	}
+        }
+    }
+    
     void appendLeaf(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
@@ -333,6 +360,29 @@ implements OptimizationTypes
         		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
         		
         		buffy.append(this.closeTag);
+        	}
+        }
+    }
+
+    void appendLeaf(Appendable appendable, Object context) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+        		// for this field, generate <tag>value</tag>
+        		
+        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		
+        		appendable.append(startOpenTag).append('>');
+        		
+        		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
+        		
+        		appendable.append(this.closeTag);
         	}
         }
     }

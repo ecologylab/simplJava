@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
@@ -198,6 +199,27 @@ public class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        Object instance = field.get(context);
+           
+        appendValue((T) instance, buffy, needsEscaping);
+    }
+    
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * <p/>
+     * Should only be called *after* checking !isDefault() yourself.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @param needsEscaping TODO
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
     public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
     throws IllegalArgumentException, IllegalAccessException
     {
@@ -207,6 +229,12 @@ public class ScalarType<T> extends Debug
     }
     
     protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
+    {
+    	buffy.append(instance.toString());
+    }
+
+    protected void appendValue(T instance, Appendable buffy, boolean needsEscaping)
+    throws IOException
     {
     	buffy.append(instance.toString());
     }

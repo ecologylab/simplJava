@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -121,5 +122,23 @@ public class ShortType extends ScalarType<Short>
         short value = field.getShort(context);
            
 		buffy.append(value);
+    }
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        short value = field.getShort(context);
+           
+		buffy.append(Short.toString(value));
     }
 }

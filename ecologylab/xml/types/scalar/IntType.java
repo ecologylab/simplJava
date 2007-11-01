@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -124,5 +125,24 @@ public class IntType extends ScalarType<Integer>
         int value = field.getInt(context);
            
 		buffy.append(value);
+    }
+
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        int value = field.getInt(context);
+           
+		buffy.append(Integer.toString(value));
     }
 }

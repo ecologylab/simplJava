@@ -3,6 +3,8 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
+
 import ecologylab.xml.XmlTools;
 
 /**
@@ -29,6 +31,15 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	 */
 	@Override 
 	protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
+    {
+		String instanceString	= instance.toString();
+		if (needsEscaping)
+			XmlTools.escapeXML(buffy, instanceString);
+		else
+			buffy.append(instanceString);
+    }
+    protected void appendValue(T instance, Appendable buffy, boolean needsEscaping)
+    throws IOException
     {
 		String instanceString	= instance.toString();
 		if (needsEscaping)

@@ -154,7 +154,7 @@ implements OptimizationTypes
 		}
 		return result;
 	}
-	FieldToXMLOptimizations getRootTagMapEntry(Class rootClass)
+	FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
 		if (result == null)

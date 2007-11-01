@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 /**
@@ -102,6 +103,27 @@ public class BooleanType extends ScalarType<Boolean>
         boolean value = field.getBoolean(context);
            
 		buffy.append(value);
+    }
+    static final String TRUE	= "true";
+    static final String FALSE	= "false";
+    
+    /**
+     * Get the value from the Field, in the context.
+     * Append its value to the buffy.
+     * 
+     * @param buffy
+     * @param field
+     * @param context
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
+     */
+    @Override
+    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        boolean value = field.getBoolean(context);
+           
+		buffy.append(value ? TRUE : FALSE);
     }
     
 
