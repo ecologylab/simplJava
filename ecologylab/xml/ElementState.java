@@ -310,7 +310,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, StringBuilder buffy)
 		throws XmlTranslationException
 	{
-	   return translateToXMLBuilder(thatClass, compression, true, buffy);
+	   return translateToXMLBuilder(thatClass, buffy);
 	}
 	/**
 	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
@@ -349,7 +349,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent) 
 		throws XmlTranslationException
 	{
-		return translateToXMLBuilder(thatClass, compression, doRecursiveDescent, null);
+		return translateToXMLBuilder(thatClass, null);
 	}
 	/**
 	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
@@ -421,16 +421,47 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private StringBuilder translateToXMLBuilder(Class rootClass, boolean compression, boolean doRecursiveDescent, StringBuilder buffy)
+	private StringBuilder translateToXMLBuilder(Class rootClass, StringBuilder buffy)
 		throws XmlTranslationException
 	{
-	   return translateToXMLBuilder(rootClass, optimizations.getRootTagMapEntry(rootClass), buffy);
+		if (buffy == null)
+	        buffy = allocBuffy();
+
+		 translateToXMLBuilder(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
+		 return buffy;
+	}
+	private void translateToXMLAppendable(Class rootClass, Appendable buffy)
+	throws XmlTranslationException, IOException
+	{
+		if (buffy == null)
+	        throw new XmlTranslationException("Appendable is null");
+	
+		 translateToXMLAppendable(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
+	}
+	private StringBuilder allocBuffy()
+	{
+		ArrayList<Field> attributeFields	= optimizations.attributeFields();
+		int numAttributes 					= attributeFields.size();
+		int	numFields						= numAttributes + optimizations.quickNumElements();
+
+		return new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
 	}
 	
 	public StringBuilder translateToXMLBuilder(StringBuilder buffy) 
 	throws XmlTranslationException
 	{
-		return this.translateToXMLBuilder(getClass(), false, buffy);
+		return this.translateToXMLBuilder(getClass(), buffy);
+	}
+	public void translateToXMLAppendable(Appendable buffy) 
+	throws XmlTranslationException
+	{
+		try
+		{
+			this.translateToXMLAppendable(getClass(), buffy);
+		} catch (IOException e)
+		{
+			throw new XmlTranslationException("IO", e);
+		}
 	}
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
@@ -460,8 +491,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	private StringBuilder translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
-		throws XmlTranslationException
+	private void translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
+	throws XmlTranslationException
 	{
         this.preTranslationProcessingHook();
 		
@@ -578,8 +609,16 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 							Object next = iterator.next();
 							if (isScalar)	// leaf node!
 							{
-								String value = next.toString();
-								appendLeafXML(buffy, childF2Xo, value);									
+								try
+								{
+									childF2Xo.appendLeaf(buffy, this);
+								} catch (IllegalArgumentException e)
+								{
+									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								} catch (IllegalAccessException e)
+								{
+									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								}
 							}
 							else if (next instanceof ElementState)
 							{
@@ -625,10 +664,180 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			buffy.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
 		} // end if no nested elements or text node
-
-		return buffy;
 	}
     
+	private void translateToXMLAppendable(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
+	throws XmlTranslationException, IOException
+	{
+		this.preTranslationProcessingHook();
+
+		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
+		int numAttributes 			= attributeF2XOs.size();
+		int	numFields				= numAttributes + optimizations.quickNumElements();
+
+		appendable.append(fieldToXMLOptimizations.startOpenTag());
+
+		if (numAttributes > 0)
+		{
+			try
+			{
+				for (int i=0; i<numAttributes; i++)
+				{
+					// iterate through fields
+					FieldToXMLOptimizations childF2Xo	= attributeF2XOs.get(i);
+					childF2Xo.appendValueAsAttribute(appendable, this);
+				}
+			} catch (Exception e)
+			{
+				// IllegalArgumentException, IllegalAccessException
+				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+			}
+		}
+		//ArrayList<Field> elementFields		= optimizations.elementFields();
+		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
+		int numElements						= elementF2XOs.size();
+
+		StringBuilder textNode = this.textNodeBuffy;
+		//TODO -- fix textNode == null -- should be size() == 0 or some such
+		if ((numElements == 0) && (textNode == null))
+		{
+			appendable.append('/').append('>');	// done! completely close element behind attributes				
+		}
+		else
+		{
+			appendable.append('>');	// close open tag behind attributes
+			if (textNode != null) 
+			{	
+				//TODO -- might need to trim the buffy here!
+				//if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text node if trim -> empty string
+				//if (textNode.length() > 0)
+				XmlTools.escapeXML(appendable, textNode);
+			}
+			for (int i=0; i<numElements; i++)
+			{
+//				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
+				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
+				//if (XmlTools.representAsLeafNode(thatField))
+				final int childOptimizationsType 	= childF2Xo.type();
+				if (childOptimizationsType == LEAF_NODE_VALUE)
+				{
+					try
+					{
+						childF2Xo.appendLeaf(appendable, this);
+					} catch (Exception e)
+					{
+						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+					}				}
+				else
+				{
+					Object thatReferenceObject	= null;
+					Field childField			= childF2Xo.field();
+					try
+					{
+						thatReferenceObject		= childField.get(this);
+					}
+					catch (IllegalAccessException e)
+					{
+						debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+						childField.setAccessible(true);
+						try
+						{
+							thatReferenceObject	= childField.get(this);
+						} catch (IllegalAccessException e1)
+						{
+							error("Can't access " + childField.getName());
+							e1.printStackTrace();
+						}
+					}
+					// ignore null reference objects
+					if (thatReferenceObject == null)
+						continue;
+
+					final boolean isScalar		= (childOptimizationsType == COLLECTION_SCALAR) || (childOptimizationsType == MAP_SCALAR);
+					// gets Collection object directly or through Map.values()
+					Collection thatCollection;
+					switch (childOptimizationsType)
+					{
+					case COLLECTION_ELEMENT:
+					case COLLECTION_SCALAR:
+					case MAP_ELEMENT:
+					case MAP_SCALAR:
+						thatCollection			= XmlTools.getCollection(thatReferenceObject);
+						break;
+					default:
+						thatCollection			= null;
+					break;
+					}
+
+					if (thatCollection != null)
+					{
+						//if the object is a collection, 
+						//basically iterate thru the collection and emit XML from each element
+						final Iterator iterator			= thatCollection.iterator();
+//						Class childClass				= iterator.hasNext() ? iterator.
+
+						while (iterator.hasNext())
+						{
+							Object next = iterator.next();
+							if (isScalar)	// leaf node!
+							{
+								try
+								{
+									childF2Xo.appendLeaf(appendable, this);
+								} catch (IllegalArgumentException e)
+								{
+									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								} catch (IllegalAccessException e)
+								{
+									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								}
+							}
+							else if (next instanceof ElementState)
+							{
+								ElementState collectionSubElementState = (ElementState) next;
+								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
+								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
+								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementEntry, appendable);
+							}
+							// this is a special hack for working with pre-translated XML Strings (LogOp!)
+							//TODO -- get rid of this crap!!!!!! 
+							// Make sure LogOp uses CDATA!
+							//FIXME -- support scalar leaf type collections here!!!
+							else if (next instanceof String)
+								appendable.append((String) next);
+							else
+								throw new XmlTranslationException("Collections MUST contain " +
+										"objects of class derived from ElementState or XML Strings, but " +
+										thatReferenceObject +" contains some that aren't.");
+
+						}
+					}
+					else if (thatReferenceObject instanceof ElementState)
+					{	// one of our nested elements, so recurse
+						ElementState thatElementState	= (ElementState) thatReferenceObject;
+						String fieldName		= childField.getName();
+						// if the field type is the same type of the instance (that is, if no subclassing),
+						// then use the field name to determine the XML tag name.
+						// if the field object is an instance of a subclass that extends the declared type of the
+						// field, use the instance's type to determine the XML tag name.
+						Class thatNewClass			= thatElementState.getClass();
+						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
+						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
+								childF2Xo : getTagMapEntry(childField, thatNewClass);
+
+						thatElementState.translateToXMLAppendable(thatNewClass, nestedTagMapEntry, appendable);
+						//buffy.append('\n');						
+					}
+				}
+			} //end of for each element child
+
+			// end the element
+			appendable.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
+
+		} // end if no nested elements or text node
+	}
+
     /**
      * Returns the precision of floating point numbers associated with this
      * instance of ElementState.
