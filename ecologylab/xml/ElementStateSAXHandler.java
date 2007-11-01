@@ -3,8 +3,10 @@
  */
 package ecologylab.xml;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -105,14 +107,25 @@ implements ContentHandler, OptimizationTypes
 	{
 		try
 		{
-			FileReader fileReader			= new FileReader(file);
-			BufferedReader bufferedReader	= new BufferedReader(fileReader);
-			return parse(bufferedReader);
+//			FileReader fileReader			= new FileReader(file);
+			FileInputStream fileInputStream			= new FileInputStream(file);
+			BufferedInputStream bufferedStream	= new BufferedInputStream(fileInputStream);
+			ElementState elementState 		= parse(bufferedStream);
+			bufferedStream.close();
+			return elementState;
+//			return parse(fileInputStream);
+//			BufferedReader bufferedReader	= new BufferedReader(fileReader);
+//			BufferedReader bufferedReader	= new BufferedReader(fileReader);
+//			return parse(bufferedReader);
+//			return parse(fileReader);
 			
 		} catch (FileNotFoundException e)
 		{
 			throw new XmlTranslationException("Can't open file " + file.getAbsolutePath(), e);
-		}
+		} catch (IOException e)
+		{
+			throw new XmlTranslationException("Can't close file " + file.getAbsolutePath(), e);
+		}		
 	}	
 	public ElementState parse(String uri)
 	throws XmlTranslationException
