@@ -17,25 +17,21 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 	public HashMapWriteSynch(int arg0, float arg1)
 	{
 		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
 	}
 
 	public HashMapWriteSynch(int arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	public HashMapWriteSynch()
 	{
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public HashMapWriteSynch(Map arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
