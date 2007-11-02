@@ -119,7 +119,8 @@ implements OptimizationTypes
 				{
 					this.field				= nameSpaceField;
 					ElementState dummyES 	= (ElementState) dummy;
-					Optimizations nsOptimizations	= Optimizations.lookupRoot(dummyES);
+					//TODO shouldn't this use in-scope local optimizations?!
+					Optimizations nsOptimizations	= Optimizations.lookupRootOptimizations(dummyES);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
 					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.elementNodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
 					this.classOp			= nsFieldClass;

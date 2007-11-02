@@ -1595,7 +1595,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	void setupRoot()
 	{
 		elementByIdMap		= new HashMap<String, ElementState>();
-		optimizations		= Optimizations.lookupRoot(this);		
+		optimizations		= Optimizations.lookupRootOptimizations(this);		
 	}
 /**
      * A recursive method.

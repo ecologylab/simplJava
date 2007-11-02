@@ -42,6 +42,8 @@ implements OptimizationTypes
 	
 	/**
 	 * Map of Optimizations objects for (the classes of) our children.
+	 * We need to collect these in this scope, because there could be different metalanguage declarations.
+	 * (IS THIS TRUE? EVEN I AM NOT SURE. -- ANDRUID 11/2/07)
 	 */
 	private final OptimizationsMap						childOptimizationsMap	= new OptimizationsMap();
 	
@@ -59,12 +61,14 @@ implements OptimizationTypes
 	private String										nameSpacePrefix;
 	
 	/**
+	 * Map of FieldToXMLOptimizations, with field names as keys.
+	 * 
 	 * Used to optimize translateToXML().
 	 */
 	private HashMap<Object, FieldToXMLOptimizations>	fieldToXMLOptimizationsMap	= new HashMap<Object, FieldToXMLOptimizations>();
 	
 	/**
-	 * Map of ParseTableEntrys. The keys are tag names.
+	 * Map of NodeToJavaOptimizations. The keys are tag names.
 	 * Used to optimize translateFromXML(...).
 	 */
 	private HashMap<String, NodeToJavaOptimizations>	nodeToJavaOptimizationsMap	= new HashMap<String, NodeToJavaOptimizations>();
@@ -86,13 +90,30 @@ implements OptimizationTypes
 	
 	private ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations;
 	
+	/**
+	 * Map of Fields, with field names as keys.
+	 */
+	//TODO -- couldn't we just use the fieldToXMLOptimizationsMap to do these lookups, and thus drop this!?
 	private HashMap<String, Field>				fieldsMap;
 	
+	/**
+	 * Used to see if there are any Map type objects, during the formation of NodeToJavaOptimizations,
+	 * in order to match with declarations of @xml_map.
+	 */
 	private HashMap<String, Field>				mapFieldsByTag;
 	
+	/**
+	 * Used to see if there are any Collection type objects, during the formation of NodeToJavaOptimizations,
+	 * in order to match with declarations of @xml_collection.
+	 */
 	private HashMap<String, Field>				collectionFieldsByTag;
 	
 	
+	/**
+	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
+	 * See also lookupRoot(), lookupChildOptimizations().
+	 * @param thatClass
+	 */
 	private Optimizations(Class thatClass)
 	{
 		super();
@@ -110,7 +131,7 @@ implements OptimizationTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static Optimizations lookupRoot(ElementState elementState)
+	static Optimizations lookupRootOptimizations(ElementState elementState)
 	{
 		Class thatClass		= elementState.getClass();
 //		String className	= classSimpleName(thatClass);
@@ -736,29 +757,7 @@ implements OptimizationTypes
 	{
 		return (mapFieldsByTag == null) ? null : mapFieldsByTag.get(tag);
 	}
-	/**
-	 * If a field declared with @xml_collection(tag) turns out not to be a parameterized
-	 * Collection type, then clear its entry!
-	 * 
-	 * @param tag
-	 */
-	void clearCollectionFieldByTag(String tag)
-	{
-		if (collectionFieldsByTag != null)
-			collectionFieldsByTag.put(tag, null);
-	}
-	/**
-	 * If a field declared with @xml_collection(tag) turns out not to be a parameterized
-	 * Collection type, then clear its entry!
-	 * 
-	 * @param tag
-	 */
-	void clearMapFieldByTag(String tag)
-	{
-		if (mapFieldsByTag != null)
-			mapFieldsByTag.put(tag, null);
-	}
-	
+
 	public String toString()
 	{
 		return "Optimizations[" + thatClass.getName() + "]"; 
