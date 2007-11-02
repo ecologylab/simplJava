@@ -209,10 +209,10 @@ implements ContentHandler, OptimizationTypes
 				ElementState root;
 				try
 				{
-					root = (ElementState) ElementState.getInstance(rootClass);
+					root = (ElementState) XmlTools.getInstance(rootClass);
 					if (root != null)
 					{
-						root.elementByIdMap		= new HashMap<String, ElementState>();
+						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationSpace, attributes);
 					}

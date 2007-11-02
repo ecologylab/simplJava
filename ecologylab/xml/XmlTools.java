@@ -451,6 +451,31 @@ implements CharacterConstants
 	   return getClassName(this);
 	}
 
+	/**
+	 * Get an instance; generate an XmlTranslationException if there's a problem.
+	 * 
+	 * @param thatClass		The type of the object to translate in to.
+	 * 
+	 * @return				The resulting object.
+	 * 
+	 * @throws XmlTranslationException	If the constructor fails, or
+	 *  if that class lacks a constructor that takes no paramebers.
+	 */
+	public static Object getInstance(Class thatClass)
+	throws XmlTranslationException
+	{
+		// form the new object derived from ElementState
+		Object nestedObject		= null;
+		try
+		{			  
+			nestedObject	=	thatClass.newInstance();
+		}
+		catch (Exception e)
+		{
+			throw new XmlTranslationException("Instantiation ERROR for " + thatClass +". Is there a public constructor with no arguments?", e);
+		}
+		return nestedObject;
+	}
 	public static String toString(Object o)
 	{
 	   return getClassName(o);

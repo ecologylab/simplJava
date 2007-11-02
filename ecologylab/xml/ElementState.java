@@ -150,7 +150,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
     
 	public ElementState()
 	{
-	   optimizations			= Optimizations.lookup(this);
 	}
 /**
  * Emit XML header, then the object's XML.
@@ -1553,27 +1552,28 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			tagName					= tagName.substring(colonIndex + 1);
 		}
 		try
-		{			  
-		   stateClass= translationSpace.xmlTagToClass(tagName);
-		   if (stateClass != null)
-		   {
-		   	  ElementState rootState= (ElementState) getInstance(stateClass);
-		   	  if (rootState != null)
-		   	  {
-		   	  	 rootState.elementByIdMap		= new HashMap<String, ElementState>();
-		   	  	 rootState.translateFromXMLNode(xmlRootNode, translationSpace, doRecursiveDescent);
-           
-                 rootState.postTranslationProcessingHook();
-                 
-		   	  	 return rootState;
-		   	  }
-		   }
-		   else
-		   {
-			   // else, we dont translate this element; we ignore it.
-			   println("XML Translation WARNING: Cant find class object for Root XML element <"
-					   + tagName + ">: Ignored. ");
-		   }
+		{
+			//TODO -- use class-level @xml_tag if it was declared?!
+			stateClass= translationSpace.xmlTagToClass(tagName);
+			if (stateClass != null)
+			{
+				ElementState rootState= (ElementState) XmlTools.getInstance(stateClass);
+				if (rootState != null)
+				{
+					rootState.setupRoot();
+					rootState.translateFromXMLNode(xmlRootNode, translationSpace, doRecursiveDescent);
+
+					rootState.postTranslationProcessingHook();
+
+					return rootState;
+				}
+			}
+			else
+			{
+				// else, we don't translate this element; we ignore it.
+				println("XML Translation WARNING: Cant find class object for Root XML element <"
+						+ tagName + ">: Ignored. ");
+			}
 		}
 		catch (Exception e)
 		{
@@ -1587,33 +1587,17 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 //								   stateClass+" doesn't seem to.");
 		}
 		return null;
-	 }		
-/**
- * Get an instance of an ElementState based Class object.
- * 
- * @param stateClass		Must be derived from ElementState. The type of the object to translate in to.
- * 
- * @return				The ElementState subclassed object.
- * 
- * @throws XmlTranslationException	If its not an ElementState Class object, or
- *  if that class lacks a constructor that takes no paramebers.
- */
-	public static Object getInstance(Class stateClass)
-	   throws XmlTranslationException
+	 }	
+	
+	/**
+	 * Link new born root element to its Optimizations and create an elementByIdMap for it.
+	 */
+	void setupRoot()
 	{
-		// form the new object derived from ElementState
-		Object nestedObject		= null;
-		try
-		{			  
-			nestedObject	=	stateClass.newInstance();
-		}
-		catch (Exception e)
-		{
-		   throw new XmlTranslationException("Instantiation ERROR for " + stateClass +". Is there a public constructor with no arguments?", e);
-		}
-		return nestedObject;
+		elementByIdMap		= new HashMap<String, ElementState>();
+		optimizations		= Optimizations.lookupRoot(this);		
 	}
-    /**
+/**
      * A recursive method.
      * Typically, this method is initially passed the root Node of an XML DOM,
      * from which it builds a tree of equivalent ElementState objects.
@@ -1699,7 +1683,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					activeES				= (ElementState) ReflectionTools.getFieldValue(this, njo.field());
 					if (activeES == null)
 					{	// first time using the Namespace element, so we gotta create it
-						activeES			= (ElementState) njo.createChildElement(this, null, false);
+						activeES			= (ElementState) njo.domFormChildElement(this, null, false);
 						ReflectionTools.setFieldValue(this, njo.field(), activeES);
 					}
 				}
@@ -1711,19 +1695,19 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				switch (njo.type())
 				{
 				case REGULAR_NESTED_ELEMENT:
-					activeNJO.setFieldToNestedElement(activeES, childNode);
+					activeNJO.domFormNestedElementAndSetField(activeES, childNode);
 					break;
 				case LEAF_NODE_VALUE:
 					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
 					break;
 				case COLLECTION_ELEMENT:
-					activeNJO.formElementAndAddToCollection(activeES, childNode);
+					activeNJO.domFormElementAndAddToCollection(activeES, childNode);
 					break;
 				case COLLECTION_SCALAR:
 					activeNJO.addLeafNodeToCollection(activeES, childNode);
 					break;
 				case MAP_ELEMENT:
-					activeNJO.formElementAndToMap(activeES, childNode);
+					activeNJO.domFormElementAndToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:
 					activeES.addNestedElement(activeNJO, childNode);
@@ -1783,29 +1767,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 		}
 	}
-	/**
-	 * Construct the ElementState object corresponding to the childClass.
-	 * Set its elementByIdMap to be the same one that this uses.
-	 * @param childNode
-	 * @param childClass
-	 * @param translationSpace
-	 * 
-	 * @return
-	 * @throws XmlTranslationException
-	 */
-	ElementState getChildElementState(Node childNode,
-			Class childClass, TranslationSpace translationSpace)
-	throws XmlTranslationException
-	{
-		ElementState childElementState		= (ElementState) getInstance(childClass);
-		childElementState.elementByIdMap	= this.elementByIdMap;
-		childElementState.parent			= this;
-		
-		if (childNode != null)
-			childElementState.translateFromXMLNode(childNode, translationSpace, true);
-		return childElementState;
-	}
-	
 
 	//////////////// methods to generate DOM objects ///////////////////////
 	/**
@@ -2201,7 +2162,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	private int considerWarning				= HAVENT_TRIED_ADDING;
 	
 	/**
-	 * This provides a warning 
+	 * Old-school DOM approach.
+	 * 
+	 * This base implementation provides a warning.
 	 * @param pte
 	 * @param childNode
 	 * @throws XmlTranslationException
@@ -2209,7 +2172,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	protected void addNestedElement(NodeToJavaOptimizations pte, Node childNode)
 	throws XmlTranslationException
 	{
-		addNestedElement((ElementState) pte.createChildElement(this, childNode, false));
+		addNestedElement((ElementState) pte.domFormChildElement(this, childNode, false));
 		if (considerWarning == NEED_WARNING)
 		{
 			warning("Ignoring nested elements with tag <" + pte.tag() + ">");

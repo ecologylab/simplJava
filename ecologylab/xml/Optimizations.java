@@ -10,12 +10,16 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.HashMapFromStringsWriteSynch;
+import ecologylab.generic.HashMapWriteSynch;
+import ecologylab.generic.HashMapWriteSynch3;
+import ecologylab.generic.ValueFactory;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Cached object that holds all of the structures needed to optimize
  * translations to and from XML for a single subclass of ElementState.
- * A registry keeps track of these, using the XML tag as the key.
+ * A rootOptimizationsMap keeps track of these, using the XML tag as the key.
  * <p/>
  * This structure itself, as well as the structure within it, are created just in time,
  * by lazy evaluation.
@@ -30,10 +34,16 @@ implements OptimizationTypes
 	 */
 	Class							thatClass;
 	/**
-	 * A map of all the Optimizations objects.
+	 * A map of root level Optimizations objects.
 	 * The keys are simple class names.
 	 */
-	private static final HashMap<String, Optimizations>	registry	= new HashMap<String, Optimizations>();
+	//TODO -- replace with OptimizationsMap
+	private static final HashMap<String, Optimizations>	rootOptimizationsMap	= new HashMap<String, Optimizations>();
+	
+	/**
+	 * Map of Optimizations objects for (the classes of) our children.
+	 */
+	private final OptimizationsMap						childOptimizationsMap	= new OptimizationsMap();
 	
 	/**
 	 * Keys are URNs (not NameSpaceIdentifiers!).
@@ -58,12 +68,6 @@ implements OptimizationTypes
 	 * Used to optimize translateFromXML(...).
 	 */
 	private HashMap<String, NodeToJavaOptimizations>	nodeToJavaOptimizationsMap	= new HashMap<String, NodeToJavaOptimizations>();
-	
-	/**
-	 * Map of ParseTableEntrys. The keys are field names.
-	 * Used to optimize translateFromXML(...).
-	 */
-	private HashMap<String, NodeToJavaOptimizations>	parseTableByFieldNames	= new HashMap<String, NodeToJavaOptimizations>();
 	
 	private HashMap<String, Class<? extends ElementState>>	nameSpacesByID	= new HashMap<String, Class<? extends ElementState>>();
 	
@@ -96,39 +100,54 @@ implements OptimizationTypes
 	}
 
 	/**
-	 * The only mechanism for obtaining an Optimizations object, since the constructor is private.
+	 * Obtain Optimizations object in the global scope of root Optimizations.
 	 * Uses just-in-time / lazy evaluation.
 	 * The first time this is called for a given ElementState class, it constructs a new Optimizations
-	 * saves it in our registry, and returns it.
+	 * saves it in our rootOptimizationsMap, and returns it.
 	 * <p/>
-	 * Subsequent calls merely pass back the already created object from the registry.
+	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
 	 * 
-	 * @param elementState
+	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static Optimizations lookup(ElementState elementState)
+	static Optimizations lookupRoot(ElementState elementState)
 	{
 		Class thatClass		= elementState.getClass();
 //		String className	= classSimpleName(thatClass);
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
-		Optimizations result= registry.get(className);
+		Optimizations result= rootOptimizationsMap.get(className);
 		if (result == null)
 		{
 			// but still be thread safe!
-			synchronized (registry)
+			synchronized (rootOptimizationsMap)
 			{
-				result 		= registry.get(className);
+				result 		= rootOptimizationsMap.get(className);
 				if (result == null)
 				{
 					result				= new Optimizations(thatClass);
-					registry.put(className, result);
+					rootOptimizationsMap.put(className, result);
 				}
 			}
 		}
 		return result;
 	}
 	
+	/**
+	 * Obtain child Optimizations object in the local scope of this.
+	 * Uses just-in-time / lazy evaluation.
+	 * The first time this is called for a given ElementState class, it constructs a new Optimizations
+	 * saves it in our rootOptimizationsMap, and returns it.
+	 * <p/>
+	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
+	 * 
+	 * @param elementState		An ElementState object that we're looking up Optimizations for.
+	 * @return
+	 */
+	Optimizations lookupChildOptimizations(ElementState elementState)
+	{
+		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
+	}
 	/**
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
@@ -761,7 +780,7 @@ implements OptimizationTypes
 		Class<? extends ElementState> nameSpaceClass	= translationSpace.lookupNameSpaceByURN(urn);
 		
 		if (nameSpaceClass == null)
-		{	// now check the global registry
+		{	// now check the global rootOptimizationsMap
 			nameSpaceClass								= nameSpaceRegistryByURN.get(urn);
 			if (nameSpaceClass == null)
 				return;
@@ -778,5 +797,24 @@ implements OptimizationTypes
 	{
 		return nameSpacesByID.get(nsID);
 	}
-}
 
+	/* static */ class OptimizationsMap extends HashMapWriteSynch3<String, Class, Optimizations>
+	implements ValueFactory<Class, Optimizations>
+	{
+		public Optimizations getOrCreateAndPutIfNew(ElementState elementState)
+		{
+			return super.getOrCreateAndPutIfNew(elementState.getClass());
+		}
+		
+		@Override
+		protected String createKey(Class intermediate)
+		{
+			return intermediate.getName();
+		}
+		
+		public Optimizations createValue(Class key)
+		{
+			return new Optimizations(key);
+		}
+	}
+}

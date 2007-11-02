@@ -119,7 +119,7 @@ implements OptimizationTypes
 				{
 					this.field				= nameSpaceField;
 					ElementState dummyES 	= (ElementState) dummy;
-					Optimizations nsOptimizations	= Optimizations.lookup(dummyES);
+					Optimizations nsOptimizations	= Optimizations.lookupRoot(dummyES);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
 					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.elementNodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
 					this.classOp			= nsFieldClass;
@@ -358,42 +358,55 @@ implements OptimizationTypes
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	ElementState createChildElement(ElementState parent, Node node, boolean useExistingTree)
+	ElementState domFormChildElement(ElementState parent, Node node, boolean useExistingTree)
 	throws XmlTranslationException
 	{
-		ElementState newInstance	= null;
-		boolean finished	= false;
+		ElementState childElement	= null;
+
 		if (useExistingTree)
 		{
 			try
 			{
-				newInstance	= (ElementState) field.get(parent);
+				childElement		= (ElementState) field.get(parent);
 			} catch (Exception e)
 			{
 				throw fieldAccessException(parent, e);
 			}
-			if (newInstance != null)
-			{	// outside of try/catch to enable throwing translation exception
-				newInstance.translateFromXMLNode(node, translationSpace, true);
-				finished	= true;
-			}
 		}
-		if (!finished)
+		boolean newChild			= false;
+		
+		if (childElement == null)
 		{
-			newInstance		= parent.getChildElementState(node, classOp, translationSpace);
-			parent.createChildHook(newInstance);
+			childElement			= constructChildElementState(parent);
+			newChild				= true;
 		}
-		newInstance.postTranslationProcessingHook();
-		return newInstance;
+			
+		if (node != null)
+			childElement.translateFromXMLNode(node, translationSpace, true);
+		
+		if (newChild)
+			parent.createChildHook(childElement);
+
+		childElement.postTranslationProcessingHook();
+		return childElement;
 	}
 
-
+/**
+ * Based on the classOp in this, form a child element.
+ * Set it's parent field and elementByIdMap.
+ * Look-up Optimizations for it, using the parent's Optimizations as the scope.
+ *
+ * @param parent
+ * @return
+ * @throws XmlTranslationException
+ */
 	ElementState constructChildElementState(ElementState parent)
 	throws XmlTranslationException
 	{
-		ElementState childElementState		= (ElementState) ElementState.getInstance(classOp);
+		ElementState childElementState		= (ElementState) XmlTools.getInstance(classOp);
 		childElementState.elementByIdMap	= parent.elementByIdMap;
 		childElementState.parent			= parent;
+		childElementState.optimizations		= parent.optimizations.lookupChildOptimizations(childElementState);
 		
 		return childElementState;
 	}
@@ -503,10 +516,10 @@ implements OptimizationTypes
 	 * @param childNode				XML doc subtree to use as the source of translation
 	 * @param useExistingTree		if true, re-fill in existing objects, instead of creating new ones.
 	 */
-	protected void setFieldToNestedElement(ElementState context, Node childNode)
+	protected void domFormNestedElementAndSetField(ElementState context, Node childNode)
 		throws XmlTranslationException
 	{
-		Object nestedObject = isElementStateSubclass ? createChildElement(context, childNode, false) 
+		Object nestedObject = isElementStateSubclass ? domFormChildElement(context, childNode, false) 
 				: ReflectionTools.getInstance(classOp);
 		
 		setFieldToNestedObject(context, nestedObject);
@@ -546,14 +559,14 @@ implements OptimizationTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	void formElementAndAddToCollection(ElementState activeES, Node childNode)
+	void domFormElementAndAddToCollection(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
 		Collection collection = getCollection(activeES);
 
 		if (collection != null)
 		{
-			ElementState childElement = createChildElement(activeES, childNode, false);
+			ElementState childElement = domFormChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
 		else
@@ -633,14 +646,14 @@ implements OptimizationTypes
 	 * @param childNode
 	 * @throws XmlTranslationException
 	 */
-	void formElementAndToMap(ElementState activeES, Node childNode)
+	void domFormElementAndToMap(ElementState activeES, Node childNode)
 	throws XmlTranslationException
 	{
 		Map map = getMap(activeES);
 			
 		if (map != null)
 		{
-			Mappable mappable	= (Mappable) createChildElement(activeES, childNode, false);
+			Mappable mappable	= (Mappable) domFormChildElement(activeES, childNode, false);
 			map.put(mappable.key(), mappable);
 		}
 		else
