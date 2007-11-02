@@ -25,6 +25,11 @@ extends Debug
 implements OptimizationTypes
 {
     private 	String 		startOpenTag;
+    
+    /**
+     * Used for leaf nodes.
+     */
+    private		String		openTag;
 
     private		String 		closeTag;
     
@@ -145,7 +150,8 @@ implements OptimizationTypes
     private void setTag(String tagName)
     {
     	this.tagName		= tagName;
-        startOpenTag 		= "<" + tagName;
+        startOpenTag 		= '<' + tagName;
+        openTag				= startOpenTag + '>';
         closeTag			= "</" + tagName + ">";
     }
 	
@@ -362,7 +368,7 @@ implements OptimizationTypes
         		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
         		// (which is an instance variable of this) !!!
         		
-        		buffy.append(startOpenTag).append('>');
+        		buffy.append(openTag);
         		
         		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
         		
@@ -385,7 +391,7 @@ implements OptimizationTypes
         		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
         		// (which is an instance variable of this) !!!
         		
-        		appendable.append(startOpenTag).append('>');
+        		appendable.append(openTag);
         		
         		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
         		
