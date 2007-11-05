@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
@@ -873,54 +874,53 @@ static String q(String string)
         return DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 	
+    
 	/**
-	 * Pretty printing XML, properly indented according to hierarchy.
+	 * Pretty print XML, properly indented according to hierarchy.
+	 * 
 	 * @param plainXml	plain xml string
 	 * @param out		the <code>StreamResult</code> object where the output should be written
 	 */    
     public static void writePrettyXml(String plainXml, StreamResult out)
     {
-        try
-        {
-    		Document doc	= ElementState.buildDOMFromXMLString(plainXml);
-
-    		writePrettyXml(doc, out);
-        }
-        catch(Exception e)
-        {
-             e.printStackTrace();
-        }
+		writePrettyXml(ElementState.buildDOMFromXMLString(plainXml), out);
     } 
-    
-    /**
-     * Pretty printing XML, properly indented according to hierarchy.
-     * 
-     * @param xmlFile
-     *            a File containing the XML to transform into pretty XML.
-     * @param out
-     *            the destination for the output.
-     */
-    public static void writePrettyXml(File xmlFile, StreamResult out)
+  /**
+   * Pretty printing XML, properly indented according to hierarchy.
+   * 
+   * @param xmlDoc
+   * @param outFile
+   */
+    public static void writePrettyXml(Document xmlDoc, File outFile) 
     {
-    	try
-        {
-    		DocumentBuilder builder		= getDocumentBuilder();
-            Document doc                = builder.parse(xmlFile);
-            writePrettyXml(doc, out);
-        }
-        catch(Exception e)
-        {
-             e.printStackTrace();
-        }
+    	writePrettyXml(xmlDoc, new StreamResult(outFile));
     }
-    
-    private static void writePrettyXml(Document xmlDoc, StreamResult out) 
-    throws TransformerFactoryConfigurationError, TransformerException
+
+    /**
+	 * Pretty print XML, properly indented according to hierarchy.
+     * 
+     * @param xmlDoc
+     * @param out
+     */
+    public static void writePrettyXml(Document xmlDoc, StreamResult out)
     {
-    	Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-        transformer.transform(new DOMSource(xmlDoc), out);
+    	Transformer transformer;
+		try
+		{
+			transformer = TransformerFactory.newInstance().newTransformer();
+	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+	        transformer.transform(new DOMSource(xmlDoc), out);
+		} catch (TransformerConfigurationException e)
+		{
+			e.printStackTrace();
+		} catch (TransformerFactoryConfigurationError e)
+		{
+			e.printStackTrace();
+		} catch (TransformerException e)
+		{
+			e.printStackTrace();
+		}
     }
 
 	/**
