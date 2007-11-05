@@ -10,11 +10,8 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.HashMapFromStringsWriteSynch;
-import ecologylab.generic.HashMapWriteSynch;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ValueFactory;
-import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Cached object that holds all of the structures needed to optimize
