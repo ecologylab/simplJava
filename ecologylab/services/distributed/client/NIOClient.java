@@ -184,7 +184,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
         }
 
         // fill requestBuffer
-        request.translateToXMLBuilder(request.getClass(), false, requestBuffer);
+        request.translateToXML(requestBuffer);
 
         PreppedRequest pReq = new PreppedRequest(requestBuffer.toString(), uid);
 

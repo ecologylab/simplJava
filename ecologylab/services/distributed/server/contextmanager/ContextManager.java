@@ -116,6 +116,6 @@ public class ContextManager extends AbstractContextManager implements ServerCons
     @Override protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
             ResponseMessage responseMessage, StringBuilder messageBuffer) throws XmlTranslationException
     {
-        responseMessage.translateToXMLBuilder(responseMessage.getClass(), false, messageBuffer);
+        responseMessage.translateToXML(messageBuffer);
     }
 }
