@@ -29,7 +29,7 @@ implements OptimizationTypes
 	/**
 	 * Class object that we are holding optimizations for.
 	 */
-	Class							thatClass;
+	final Class											thatClass;
 	/**
 	 * A map of root level Optimizations objects.
 	 * The keys are simple class names.
@@ -812,5 +812,13 @@ implements OptimizationTypes
 		{
 			return new Optimizations(key);
 		}
+	}
+
+	/**
+	 * @return the Class Object that this holds Optimizations for.
+	 */
+	Class thatClass()
+	{
+		return thatClass;
 	}
 }
