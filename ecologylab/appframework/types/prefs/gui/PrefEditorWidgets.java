@@ -721,7 +721,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         {
             try
             {
-                prefSet.saveXmlFile(savePrefsPURL.file(), true, false);
+                prefSet.savePrettyXML(savePrefsPURL.file());
             }
             catch (XmlTranslationException e)
             {
