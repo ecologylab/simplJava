@@ -39,7 +39,7 @@ import ecologylab.xml.types.element.Mappable;
  *
  * @author andruid
  */
-public class SAXHandler 
+public class ElementStateSAXHandler 
 extends Debug 
 implements ContentHandler, OptimizationTypes
 {
@@ -66,7 +66,7 @@ implements ContentHandler, OptimizationTypes
 	/**
 	 * 
 	 */
-	public SAXHandler(TranslationSpace translationSpace)
+	public ElementStateSAXHandler(TranslationSpace translationSpace)
 	{
 		this.translationSpace		= translationSpace;
 
