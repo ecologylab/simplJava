@@ -71,12 +71,13 @@ public class DoubleType extends ScalarType<Double>
     /**
      * The string representation for a Field of this type
      */
-    public String toString(Object object, Field field)
+	@Override
+    public String toString(Field field, Object context)
     {
         String result = "COULDN'T CONVERT!";
         try
         {
-            result = Double.toString(field.getDouble(object));
+            result = Double.toString(field.getDouble(context));
         }
         catch (Exception e)
         {

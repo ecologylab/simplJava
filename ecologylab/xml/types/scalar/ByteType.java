@@ -69,7 +69,8 @@ public class ByteType extends ScalarType<Byte>
 /**
  * The string representation for a Field of this type
  */
-	public String toString(Object object, Field field)
+	@Override
+	public String toString(Field field, Object object)
 	{
 	   String result	= "COULDN'T CONVERT!";
 	   try

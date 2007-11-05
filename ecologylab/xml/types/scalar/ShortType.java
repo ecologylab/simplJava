@@ -69,12 +69,13 @@ public class ShortType extends ScalarType<Short>
 /**
  * The string representation for a Field of this type
  */
-	public String toString(Object object, Field field)
+	@Override
+	public String toString(Field field, Object context)
 	{
 	   String result	= "COULDN'T CONVERT!";
 	   try
 	   {
-		  result		= Short.toString(field.getShort(object));
+		  result		= Short.toString(field.getShort(context));
 	   } catch (Exception e)
 	   {
 		  e.printStackTrace();

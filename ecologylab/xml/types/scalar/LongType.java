@@ -61,12 +61,13 @@ public class LongType extends ScalarType<Long>
 /**
  * The string representation for a Field of this type
  */
-	public String toString(Object object, Field field)
+	@Override
+	public String toString(Field field, Object context)
 	{
 	   String result	= "COULDN'T CONVERT!";
 	   try
 	   {
-		  result		= Long.toString(field.getLong(object));
+		  result		= Long.toString(field.getLong(context));
 	   } catch (Exception e)
 	   {
 		  e.printStackTrace();

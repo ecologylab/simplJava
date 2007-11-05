@@ -73,12 +73,13 @@ public class FloatType extends ScalarType<Float>
     /**
      * The string representation for a Field of this type
      */
-    public String toString(Object object, Field field)
+	@Override
+    public String toString(Field field, Object context)
     {
         String result = "COULDN'T CONVERT!";
         try
         {
-            result = Float.toString(field.getFloat(object));
+            result = Float.toString(field.getFloat(context));
         }
         catch (Exception e)
         {

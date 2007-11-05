@@ -168,12 +168,12 @@ public class ScalarType<T> extends Debug
      * Default implementation uses the Object's toString() method. This is usually going to be
      * wrong.
      */
-    public String toString(Object object, Field field)
+    public String toString(Field field, Object context)
     {
         String result = "COULDNT CONVERT!";
         try
         {
-            Object fieldObj = field.get(object);
+            Object fieldObj = field.get(context);
             if (fieldObj == null)
                 result = DEFAULT_VALUE_STRING;
             else
@@ -207,6 +207,18 @@ public class ScalarType<T> extends Debug
         appendValue((T) instance, buffy, needsEscaping);
     }
     
+/**
+ * Get a String representation of the instance, using this.
+ * The default just calls the toString() method on the instance.
+ * @param instance
+ * @return
+ */
+	public String marshall(T instance)
+	{
+		return instance.toString();
+	}
+
+    
     /**
      * Get the value from the Field, in the context.
      * Append its value to the buffy.
@@ -230,13 +242,13 @@ public class ScalarType<T> extends Debug
     
     protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
     {
-    	buffy.append(instance.toString());
+    	buffy.append(marshall(instance));
     }
 
-    protected void appendValue(T instance, Appendable buffy, boolean needsEscaping)
+    protected void appendValue(T instance, Appendable appendable, boolean needsEscaping)
     throws IOException
     {
-    	buffy.append(instance.toString());
+    	appendable.append(marshall(instance));
     }
 
     /**

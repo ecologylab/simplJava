@@ -50,23 +50,38 @@ public class ColorType extends ScalarType<Color>
 /**
  * The string representation for a Field of this type
  */
-	public String toString(Object object, Field field)
+	@Override
+	public String toString(Field field, Object context)
 	{
 	   String result	= "COULDN'T CONVERT!";
 	   try
 	   {
-		  Color color	= (Color) field.get(object);
+		  Color color	= (Color) field.get(context);
 		  // the api says "getRGB()", but they return getARGB()!
-		  int argb		= color.getRGB();
-		  int alpha		= argb & 0xff000000;
-		  if (alpha == 0xff000000)
-			 argb		= argb & 0xffffff;
-//		  debugA("rgba="+Integer.toHexString(argb)+" alpha="+alpha);
-		  result		= Integer.toHexString(argb);
+		  result = marshall(color);
 	   } catch (Exception e)
 	   {
 		  e.printStackTrace();
 	   }
 	   return result;
+	}
+	
+	/**
+	 * Get a String representation of the instance, using this.
+	 * The default just calls the toString() method on the instance.
+	 * @param color
+	 * @return
+	 */
+	@Override
+	public String marshall(Color color)
+	{
+		String result;
+		int argb		= color.getRGB();
+		int alpha		= argb & 0xff000000;
+		if (alpha == 0xff000000)
+			argb		= argb & 0xffffff;
+//		debugA("rgba="+Integer.toHexString(argb)+" alpha="+alpha);
+		result		= Integer.toHexString(argb);
+		return result;
 	}
 }

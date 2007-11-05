@@ -72,12 +72,13 @@ public class IntType extends ScalarType<Integer>
 /**
  * The string representation for a Field of this type
  */
-	@Override public String toString(Object object, Field field)
+	@Override 
+	public String toString(Field field, Object context)
 	{
 	   String result	= "COULDN'T CONVERT!";
 	   try
 	   {
-		  result		= Integer.toString(field.getInt(object));
+		  result		= Integer.toString(field.getInt(context));
 	   } catch (Exception e)
 	   {
 		  e.printStackTrace();
