@@ -8,6 +8,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -302,6 +306,15 @@ implements OptimizationTypes
     {
     	return (type == REGULAR_ATTRIBUTE) || ((type == LEAF_NODE_VALUE) && !isCDATA);
     }
+    
+    /**
+     * Use this and the context to append an attribute / value pair to the StringBuilder passed in.
+     * 
+     * @param buffy
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
     public void appendValueAsAttribute(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
@@ -327,7 +340,82 @@ implements OptimizationTypes
         	}
         }
     }
+
+    /**
+     * Use this and the context to set an attribute (name, value) on the Element DOM Node passed in.
+     * 
+     * @param element
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    public void setAttribute(Element element, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+	            //for this field, generate tags and attach name value pair
+	        	
+	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		
+        		String value		= scalarType.toString(field, context);
+	        	
+        		element.setAttribute(tagName, value);
+        	}
+        }
+    }
     
+    /**
+     * Use this and the context to set an attribute (name, value) on the Element DOM Node passed in.
+     * 
+     * @param element
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    public void appendLeaf(Element element, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+	            //for this field, generate tags and attach name value pair
+	        	
+	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		
+        		String value		= scalarType.toString(field, context);
+        		Document document 	= element.getOwnerDocument();
+				Text textNode		= document.createTextNode(value);
+        		
+        		Element leafNode	= document.createElement(tagName);
+        		leafNode.appendChild(textNode);
+	        	
+        		element.appendChild(leafNode);
+        	}
+        }
+    }
+    
+
+    /**
+     * Use this and the context to append an attribute / value pair to the Appendable passed in.
+     * 
+     * @param appendable
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws IOException
+     */
     public void appendValueAsAttribute(Appendable appendable, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
@@ -353,7 +441,15 @@ implements OptimizationTypes
         	}
         }
     }
-    
+
+    /**
+     * Use this and the context to append a leaf node with value to the StringBuilder passed in.
+     * 
+     * @param buffy
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
     void appendLeaf(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
@@ -377,6 +473,14 @@ implements OptimizationTypes
         }
     }
 
+    /**
+     * Use this and the context to append a leaf node with value to the Appendable passed in.
+     * 
+     * @param buffy
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
     void appendLeaf(Appendable appendable, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
