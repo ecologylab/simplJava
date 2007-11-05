@@ -245,9 +245,7 @@ public class AuthListAdmin
 
             System.out.println("Saving file: " + filename);
 
-            String xmlString = authList.translateToXMLWithHeader(false);
-
-            XmlTools.writePrettyXml(xmlString, new StreamResult(xmlFile));
+            XmlTools.writePrettyXml(authList.translateToDOM(), xmlFile);
 
             System.out.println("Finished.");
         }
