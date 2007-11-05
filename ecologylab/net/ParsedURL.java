@@ -1176,15 +1176,46 @@ extends Debug
     	}
     	return path;
     }
+	/**
+	 * Basic ConnectionHelper. Does *nothing special* when encountering directories, re-directs, ...
+	 */
+	private static final ConnectionAdapter connectionAdapter = new ConnectionAdapter();
+	
     
     // Set the URLConnection timeout a little smaller than our DownloadMonitor timeout.
     public static final int TIMEOUT	= 25000 /*DownloadMonitor.TIMEOUT*/ - 2000;
     
+    /**
+     * Create a connection, using the standard timeouts of 23 seconds, and the super-basic ConnectionAdapter,
+     * which does *nothing special* when encountering directories, re-directs, ...
+     * 
+     * @param connectionHelper
+     * @return
+     */
+    public PURLConnection connect()
+    {
+    	return connect(connectionAdapter);
+    }
+
+    /**
+     * Create a connection, using the standard timeouts of 23 seconds.
+     * 
+     * @param connectionHelper
+     * @return
+     */
     public PURLConnection connect(ConnectionHelper connectionHelper)
     {
     	return connect(connectionHelper, ParsedURL.TIMEOUT, ParsedURL.TIMEOUT);
     }
-    
+ 
+    /**
+     * Create a connection.
+     * 
+     * @param connectionHelper
+     * @param connectionTimeout
+     * @param readTimeout
+     * @return
+     */
     public PURLConnection connect(ConnectionHelper connectionHelper, 
     								int connectionTimeout, int readTimeout)
     {
