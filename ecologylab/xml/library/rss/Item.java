@@ -18,7 +18,13 @@ public class Item extends ElementState
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
+   /**
+    * This version of link often has a special url with rss in it.
+    */
    @xml_leaf	ParsedURL		link;
+   /**
+    * This seems to be the version of link that users want to see.
+    */
    @xml_leaf	ParsedURL		guid;
    @xml_leaf	String			author;
    
@@ -146,6 +152,8 @@ public class Item extends ElementState
    public ParsedURL getDirectLink()
    {
 	   ParsedURL result	= getFeedburnerOrigLink();
+	   if (result == null)
+		   result		= guid;
 	   return (result != null) ? result : link;
    }
 }
