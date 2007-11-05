@@ -1,7 +1,9 @@
 package ecologylab.xml;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -25,6 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,6 +38,7 @@ import org.xml.sax.SAXParseException;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
+import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -148,8 +152,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
      */
     private short                         floatingPrecision = FLOATING_PRECISION_OFF;
     
+    /**
+     * Construct. Create a link to a root optimizations object.
+     */
 	public ElementState()
 	{
+		optimizations			= Optimizations.lookupRootOptimizations(this);		
 	}
 /**
  * Emit XML header, then the object's XML.
@@ -189,9 +197,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public String translateToXML() throws XmlTranslationException
 	{
-		//nodeNumber is just to indicate which node number(#1 is the root node of the DOM)
-		//is being processed. compression attr is emitted only for node number 1
-		return translateToXML(false, true);
+		StringBuilder buffy	= translateToXML((StringBuilder)null);
+		return (buffy == null) ? "" : buffy.toString();
 	}
 	
 	/**
@@ -268,176 +275,15 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public String translateToXML(boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
 	{
-		return translateToXML(getClass(), compression, doRecursiveDescent);
-	}
-
-	public String translateToXML(Class thatClass, boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
-	{
-		StringBuilder buffy	= translateToXMLBuilder(thatClass, compression, doRecursiveDescent);
+		StringBuilder buffy	= translateToXML((StringBuilder)null);
 		return (buffy == null) ? "" : buffy.toString();
 	}
-	/**
-	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements.
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * @param compression			true to compress the xml while emitting.
-	 * @param buffy 				StringBuilder to translate into, or null if you want one created for you.
-	 * 
-	 * @return 						the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, StringBuilder buffy)
-		throws XmlTranslationException
-	{
-	   return translateToXMLBuilder(thatClass, buffy);
-	}
-	/**
-	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements
-	 * -- if doRecursiveDescent is true).
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure. A new StringBuilder will be created for the caller.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * @param compression			true to compress the xml while emitting.
-	 * @param doRecursiveDescent 	true for recursive descent parsing.
-	 * 								false to parse just 1 level of attributes.
-	 * 										In this case, only the open tag w attributes is generated.
-	 * 										There is no close.
-	 * 
-	 * @return 						the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression, boolean doRecursiveDescent) 
-		throws XmlTranslationException
-	{
-		return translateToXMLBuilder(thatClass, null);
-	}
-	/**
-	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements.
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure. A new StringBuilder will be created for the caller.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * @param compression			true to compress the xml while emitting.
-	 * 
-	 * @return 						the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	public StringBuilder translateToXMLBuilder(Class thatClass, boolean compression) 
-	throws XmlTranslationException
-	{
-		return translateToXMLBuilder(thatClass, compression, null);
-	}
 
-	/**
-	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements
-	 * -- if doRecursiveDescent is true).
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * @param compression			true to compress the xml while emitting.
-	 * @param doRecursiveDescent	true for recursive descent parsing.
-	 * 								false to parse just 1 level of attributes.
-	 * 										In this case, only the open tag w attributes is generated.
-	 * 										There is no close.
-	 * @param buffy 				StringBuilder to translate into, or null if you want one created for you.
-	 * 
-	 * @return 						the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	private StringBuilder translateToXMLBuilder(Class rootClass, StringBuilder buffy)
-		throws XmlTranslationException
-	{
-		if (buffy == null)
-	        buffy = allocBuffy();
-
-		 translateToXMLBuilder(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
-		 return buffy;
-	}
-	private void translateToXMLAppendable(Class rootClass, Appendable buffy)
-	throws XmlTranslationException, IOException
-	{
-		if (buffy == null)
-	        throw new XmlTranslationException("Appendable is null");
-	
-		 translateToXMLAppendable(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
-	}
-	private StringBuilder allocBuffy()
+/**
+ * Allocated a StringBuilder for translateToXML(), based on a rough guess of how many fields there are to translate.
+ * @return
+ */
+	private StringBuilder allocStringBuilder()
 	{
 		ArrayList<Field> attributeFields	= optimizations.attributeFields();
 		int numAttributes 					= attributeFields.size();
@@ -445,23 +291,116 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 
 		return new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
 	}
-	
-	public StringBuilder translateToXMLBuilder(StringBuilder buffy) 
+	/**
+	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
+	 * 
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements
+	 * -- if doRecursiveDescent is true).
+	 * <p/>
+	 * Note: in the declaration of <code>this</code>, all nested elements 
+	 * must be after all attributes.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @param buffy 				StringBuilder to translate into, or null if you want one created for you.
+	 * 
+	 * @return 						the generated xml string
+	 * 
+	 * @throws XmlTranslationException if a problem arises during translation.
+	 * Problems with Field access are possible, but very unlikely.
+	 */	
+	public StringBuilder translateToXML(StringBuilder buffy) 
 	throws XmlTranslationException
 	{
-		return this.translateToXMLBuilder(getClass(), buffy);
+		if (buffy == null)
+	        buffy = allocStringBuilder();
+		Class rootClass	= optimizations.thatClass;
+
+		translateToXMLBuilder(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
+		
+		return buffy;
 	}
-	public void translateToXMLAppendable(Appendable buffy) 
+	
+	/**
+	 * Translates a tree of ElementState objects, and writes the output to the File passed in.
+	 * <p/>
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * <p/>
+	 * Makes directories if necessary.
+	 * 
+	 * @param outputFile		File to write the XML to.
+	 * 
+	 * @throws XmlTranslationException if a problem arises during translation. 
+	 * Problems with Field access are possible, but very unlikely.
+	 * @throws IOException		If there are problems with the file.
+	 */
+	public void translateToXML(File outputFile)
+	throws XmlTranslationException, IOException
+	{
+		outputFile.mkdirs();
+		
+		BufferedWriter bufferedWriter	= new BufferedWriter(new FileWriter(outputFile));
+		translateToXML(bufferedWriter);
+		bufferedWriter.close();
+	}
+
+	/**
+	 * Translates a tree of ElementState objects, and writes the output to the Appendable passed in.
+	 * <p/>
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
+	 * 
+	 * @throws XmlTranslationException if a problem arises during translation.
+	 * The most likely cause is an IOException.
+
+	 * <p/>
+	 * Problems with Field access are possible, but very unlikely.
+	 */
+	public void translateToXML(Appendable appendable) 
 	throws XmlTranslationException
 	{
+		if (appendable == null)
+	        throw new XmlTranslationException("Appendable is null");
+	
 		try
 		{
-			this.translateToXMLAppendable(getClass(), buffy);
+			Class rootClass = optimizations.thatClass;
+			translateToXMLAppendable(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), appendable);
 		} catch (IOException e)
 		{
 			throw new XmlTranslationException("IO", e);
 		}
 	}
+
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
 	 * 
@@ -480,15 +419,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * value for each type.
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
+	 * 
 	 * @return 						the generated xml string
 	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
+	 * @throws XmlTranslationException if a problem arises during translation.
+	 * Problems with Field access are possible, but very unlikely.
 	 */
 	private void translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
 	throws XmlTranslationException
@@ -496,14 +431,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
         this.preTranslationProcessingHook();
 		
         ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
-		int numAttributes 			= attributeF2XOs.size();
-		int	numFields				= numAttributes + optimizations.quickNumElements();
-
-		if (buffy == null)
-			buffy		= new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
 
 		buffy.append(fieldToXMLOptimizations.startOpenTag());
 
+		int numAttributes 			= attributeF2XOs.size();
 		if (numAttributes > 0)
 		{
 			try
@@ -643,7 +574,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
 						ElementState thatElementState	= (ElementState) thatReferenceObject;
-						String fieldName		= childField.getName();
 						// if the field type is the same type of the instance (that is, if no subclassing),
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
@@ -651,7 +581,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
-								childF2Xo : getTagMapEntry(childField, thatNewClass);
+								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
 
 						thatElementState.translateToXMLBuilder(thatNewClass, nestedTagMapEntry, buffy);
 						//buffy.append('\n');						
@@ -665,6 +595,30 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		} // end if no nested elements or text node
 	}
     
+	/**
+	/**
+	 * Translates a tree of ElementState objects, and writes the output to the Appendable passed in
+	 * <p/>
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @param thatClass
+	 * @param fieldToXMLOptimizations
+	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
+	 * 
+	 * @throws XmlTranslationException if a problem arises during translation.
+	 * Problems with Field access are possible, but very unlikely.
+	 * @throws IOException
+	 */
 	private void translateToXMLAppendable(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
 	throws XmlTranslationException, IOException
 	{
@@ -672,7 +626,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
 		int numAttributes 			= attributeF2XOs.size();
-		int	numFields				= numAttributes + optimizations.quickNumElements();
 
 		appendable.append(fieldToXMLOptimizations.startOpenTag());
 
@@ -815,7 +768,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
 						ElementState thatElementState	= (ElementState) thatReferenceObject;
-						String fieldName		= childField.getName();
 						// if the field type is the same type of the instance (that is, if no subclassing),
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
@@ -823,10 +775,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
-								childF2Xo : getTagMapEntry(childField, thatNewClass);
+								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
 
 						thatElementState.translateToXMLAppendable(thatNewClass, nestedTagMapEntry, appendable);
-						//buffy.append('\n');						
 					}
 				}
 			} //end of for each element child
@@ -835,6 +786,195 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			appendable.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
 		} // end if no nested elements or text node
+	}
+	
+	/**
+	 * Create a W3C Document object from this. 
+	 * That is, go back, from our nice, strongly typed tree, to an untyped one.
+	 * 
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	public Document translateToDOM() 
+	throws XmlTranslationException
+	{
+		DocumentBuilderFactory factory	= DocumentBuilderFactory.newInstance();
+		try
+		{
+			DocumentBuilder docBuilder 	= factory.newDocumentBuilder();
+			Document dom				= docBuilder.newDocument();
+
+			Class rootClass				= optimizations.thatClass;
+
+			translateToDOM(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), dom, dom);
+		
+			return dom;
+		} catch (ParserConfigurationException e)
+		{
+			throw new XmlTranslationException("Couldn't acquire empty Document.", e);
+		}
+	}
+
+	/**
+	/**
+	 * Translates a tree of ElementState objects, and writes the output to the Appendable passed in
+	 * <p/>
+	 * Uses Java reflection to iterate through the public fields of the object.
+	 * When primitive types are found, they are translated into attributes.
+	 * When objects derived from ElementState are found, 
+	 * they are recursively translated into nested elements.
+	 * <p/>
+	 * The result is a hierarchichal XML structure.
+	 * <p/>
+	 * Note: to keep XML files from growing unduly large, there is a default 
+	 * value for each type.
+	 * Attributes which are set to the default value (for that type), 
+	 * are not emitted.
+	 * 
+	 * @param thatClass
+	 * @param fieldToXMLOptimizations
+	 * @param dom TODO
+	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
+	 * @throws XmlTranslationException if a problem arises during translation.
+	 * Problems with Field access are possible, but very unlikely.
+	 * @throws IOException
+	 */
+	private void translateToDOM(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Node parentNode, Document dom)
+	throws XmlTranslationException
+	{
+		this.preTranslationProcessingHook();
+		
+//		Document dom				= parentNode.getOwnerDocument();
+		
+		Element elementNode			= dom.createElement(fieldToXMLOptimizations.tagName());
+		
+		parentNode.appendChild(elementNode);
+
+		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
+		int numAttributes 			= attributeF2XOs.size();
+		if (numAttributes > 0)
+		{
+			try
+			{
+				for (int i=0; i<numAttributes; i++)
+				{
+					// iterate through fields
+					FieldToXMLOptimizations childF2Xo	= attributeF2XOs.get(i);
+					childF2Xo.setAttribute(elementNode, this);
+				}
+			} catch (Exception e)
+			{
+				// IllegalArgumentException, IllegalAccessException
+				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+			}
+		}
+		
+		//TODO -- deal with text node child
+		
+		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
+		int numElements						= elementF2XOs.size();
+
+		for (int i=0; i<numElements; i++)
+		{
+			FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
+
+			final int childOptimizationsType 	= childF2Xo.type();
+			if (childOptimizationsType == LEAF_NODE_VALUE)
+			{
+				try
+				{
+					childF2Xo.appendLeaf(elementNode, this);
+				} catch (Exception e)
+				{
+					throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+				}				
+			}
+			else
+			{
+				Object thatReferenceObject	= null;
+				Field childField			= childF2Xo.field();
+				try
+				{
+					thatReferenceObject		= childField.get(this);
+				}
+				catch (IllegalAccessException e)
+				{
+					throw new XmlTranslationException("Couldn't access " + childF2Xo.tagName());
+				}
+				// ignore null reference objects
+				if (thatReferenceObject == null)
+					continue;
+
+				final boolean isScalar		= (childOptimizationsType == COLLECTION_SCALAR) || (childOptimizationsType == MAP_SCALAR);
+				// gets Collection object directly or through Map.values()
+				Collection thatCollection;
+				switch (childOptimizationsType)
+				{
+				case COLLECTION_ELEMENT:
+				case COLLECTION_SCALAR:
+				case MAP_ELEMENT:
+				case MAP_SCALAR:
+					thatCollection			= XmlTools.getCollection(thatReferenceObject);
+					break;
+				default:
+					thatCollection			= null;
+				break;
+				}
+
+				if (thatCollection != null)
+				{
+					//if the object is a collection, 
+					//basically iterate thru the collection and emit XML from each element
+					final Iterator iterator			= thatCollection.iterator();
+//					Class childClass				= iterator.hasNext() ? iterator.
+
+					while (iterator.hasNext())
+					{
+						Object next = iterator.next();
+						if (isScalar)	// leaf node!
+						{
+							try
+							{
+								childF2Xo.appendLeaf(elementNode, this);
+							} catch (IllegalArgumentException e)
+							{
+								throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+							} catch (IllegalAccessException e)
+							{
+								throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+							}
+						}
+						else if (next instanceof ElementState)
+						{
+							ElementState collectionSubElementState = (ElementState) next;
+							//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
+							final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
+							FieldToXMLOptimizations collectionElementF2XO		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
+							collectionSubElementState.translateToDOM(collectionElementClass, collectionElementF2XO, elementNode, dom);
+						}
+						else
+							throw new XmlTranslationException("Collections MUST contain " +
+									"objects of class derived from ElementState or XML Strings, but " +
+									thatReferenceObject +" contains some that aren't.");
+
+					}
+				}
+				else if (thatReferenceObject instanceof ElementState)
+				{	// one of our nested elements, so recurse
+					ElementState thatElementState	= (ElementState) thatReferenceObject;
+					// if the field type is the same type of the instance (that is, if no subclassing),
+					// then use the field name to determine the XML tag name.
+					// if the field object is an instance of a subclass that extends the declared type of the
+					// field, use the instance's type to determine the XML tag name.
+					Class thatNewClass			= thatElementState.getClass();
+					// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
+					FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
+							childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
+
+					thatElementState.translateToDOM(thatNewClass, nestedTagMapEntry, elementNode, dom);
+				}
+			}
+		} //end of for each element child
 	}
 
     /**
@@ -1507,7 +1647,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		return translateFromXMLRootNode(document, translationSpace, true);
+		return translateFromXMLRootNode(document.getDocumentElement(), translationSpace, true);
 	}
 	/**
 	 * A recursive method.
@@ -1724,13 +1864,13 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		SAXHandler saxHandler	= new SAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(purl);
 	}
 	public static ElementState translateFromXMLSAX(File file, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		SAXHandler saxHandler	= new SAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(file);
 	}
 	/**
@@ -1767,6 +1907,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 		}
 	}
+	
+	
 
 	//////////////// methods to generate DOM objects ///////////////////////
 	/**
@@ -2008,17 +2150,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		{
 			filePath	= filePath + ".xml";
 		}
-		saveXmlFile(new File(filePath), prettyXml, compression);
+		savePrettyXML(new File(filePath));
 	}
 	
-	/**
-	 * 	Translate to XML, then write the result to a file, while formatting nicely.
-	 */
-	public void savePrettyXML(File xmlFile)
-	throws XmlTranslationException
-	{
-		saveXmlFile(xmlFile, true, false);
-	}
 	/**
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
@@ -2032,74 +2166,15 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * 	Translate to XML, then write the result to a file.
  * 
  * 	@param xmlFile		the file in which the xml needs to be saved
- * 	@param prettyXml	whether the xml should be written in an indented fashion
- *  @param compression	whether the xml should be compressed while being emitted
  */	
-	public void saveXmlFile(File xmlFile, boolean prettyXml, boolean compression)
+	public void savePrettyXML(File xmlFile)
 		throws XmlTranslationException
 	{
-		final String xmlString = translateToXMLWithHeader(compression);
-		println(xmlString);
-		//write the Xml in the file		
-		try
-		{
-		 if (prettyXml)
-		 {
-		 	XmlTools.writePrettyXml(xmlString, new StreamResult(xmlFile));
-		 }
-		 
-			else
-			{
-				FileOutputStream out 	= new FileOutputStream(xmlFile);
-				PrintStream p 			= new PrintStream(out);
-				p.println(xmlString);
-				p.close();
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}		
+	 	XmlTools.writePrettyXml(translateToDOM(), xmlFile);
 	}
 	
 	//////////////// helper methods used by translateToXML() //////////////////
 
-/**
- * Get the map for translating field names to startOpenTags for this.
- * We have to create a HashMap to do this, instead of using a static,
- * because all relevant objects are subclassed from <code>ElementState</code>,
- * so a static declaration wouldn't actually be class wide.
- */
-/*
-	private HashMap NamesToOpenTagsMap()
-	{
-	   Class thisClass= getClass();
-	   HashMap result = (HashMap) eStateToFieldNameOrClassToOpenTagMapMap.get(thisClass);
-	   // stay out of the synchronized block most of the time
-	   if (result == null)
-	   {
-		  synchronized (eStateToFieldNameOrClassToOpenTagMapMap)
-		  {
-			 result = (HashMap) eStateToFieldNameOrClassToOpenTagMapMap.get(thisClass);
-			 if (result == null)
-			 {
-				result	= new HashMap();
-				eStateToFieldNameOrClassToOpenTagMapMap.put(thisClass, result);
-			 }
-		  }
-	   }
-	   return result;
-	}
-*/
-	/**
-	 * @param nameSpace TODO
-	 * @return	the XML element name, or <i>tag</i>, that maps to this ElementState derived class.
-	 */
-	public String tagName(TranslationSpace nameSpace)
-	{
-	   return globalTranslationSpace.objectToXmlTag(this);
-	}
-	
 /**
  * Get a tag translation object that corresponds to the fieldName,
  * with this class. If necessary, form that tag translation object,
@@ -2114,28 +2189,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * with this class. If necessary, form that tag translation object,
  * and cache it.
  */
-	protected FieldToXMLOptimizations getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
+	protected FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
 	{
 		return optimizations.getTagMapEntry(field, thatClass);
 	}
 
 	//////////////// helper methods used by translateFromXML() ////////////////
-	/**
-	 * Set the specified extended primitive field in this, if possible.
-	 * 
-	 * @param fieldName		name of the field to set.
-	 * @param fieldValue	String representation of the value.
-	 * 
-	 * @return true if the field is set successfully. false if it seems to not exist.
-	 */
-	protected boolean setFieldUsingTypeRegistry(String fieldName, String fieldValue)
-	
-	{
-		boolean result	= false;
-		Field field		= optimizations.getField(fieldName);
-		result			= setFieldUsingTypeRegistry(field, fieldValue);
-		return result;
-	}
 	/**
 	 * Set a field that is an extended primitive -- a non ElementState --
 	 * using the type registry.
@@ -2195,28 +2254,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		if (considerWarning == HAVENT_TRIED_ADDING)
 			considerWarning	= NEED_WARNING;
 	}
-	/**
-	 * Used to set a field in this to a nested ElementState object.
-	 * 
-	 * his method is called during translateFromXML(...).
-	 *
-	 * @param nestedElementState	the nested state-object to be added
-	 */
-	protected void setFieldToNestedElement(Field field, ElementState nestedElementState)
-		throws XmlTranslationException
-	{
-//		debug("<<<<<<<<<<<<<<<<<<<<<<<<fieldName is: " + fieldName);
-		try
-		{
-			field.set(this,nestedElementState);
-		}
-		catch (Exception e)
-		{
-		   throw new XmlTranslationException(
-					"Object / Field set mismatch -- unexpected. This should never happen.\n\t"+
-					"with Field = " + field +"\n\tin object " + this +"\n\tbeing set to " + nestedElementState.getClassName(), e);
-		}
-	}
+
 	/**
 	 * Called during translateFromXML().
 	 * If the textNodeString is currently null, assign to.
