@@ -609,7 +609,7 @@ implements OptimizationTypes
 		Object collection	= null;
 		try
 		{
-			collection		= (Collection) field.get(activeES);
+			collection		= field.get(activeES);
 			if (collection == null)
 			{
 				// initialize the collection for the caller! automatic lazy evaluation :-)
@@ -674,7 +674,7 @@ implements OptimizationTypes
 //			map		= (Map) field.get(activeES);
 			} catch (Exception e)
 			{
-				weird("Trying to addElementToMap(). Can't access map field " + field.getType() + " in " + activeES);
+				weird("Trying to addElementToMap(). Can't access map field " + field.getType() + " in " + activeES +"\n\t" + e);
 			}
 		}
 		else
