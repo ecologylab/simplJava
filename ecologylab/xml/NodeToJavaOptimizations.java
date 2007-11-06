@@ -607,6 +607,7 @@ implements OptimizationTypes
 
 		if (collection != null)
 		{
+			
 			ElementState childElement = domFormChildElement(activeES, childNode, false);
 			collection.add(childElement);
 		}
@@ -621,12 +622,12 @@ implements OptimizationTypes
 	 * @param activeES
 	 * @return
 	 */
-	Collection<? extends ElementState> getCollection(ElementState activeES)
+	Collection getCollection(ElementState activeES)
 	{
-		Collection<? extends ElementState> collection	= null;
+		Collection collection	= null;
 		if (field != null)
 		{
-			collection			= (Collection<? extends ElementState>) automaticLazyGetCollectionOrMap(activeES);
+			collection			= (Collection) automaticLazyGetCollectionOrMap(activeES);
 		}
 		else
 			collection			= activeES.getCollection(classOp());
@@ -743,14 +744,15 @@ implements OptimizationTypes
 				//TODO -- should we be doing this check for null here??
 				if (typeConvertedValue != null)
 				{
-					Collection collection	= (Collection) field.get(activeES);
-					if (collection == null)
-					{
-						// well, why not create the collection object for them?!
-						Collection thatCollection	= 
-							ReflectionTools.getInstance((Class<Collection>) field.getType());
-
-					}
+//					Collection collection	= (Collection) field.get(activeES);
+//					if (collection == null)
+//					{
+//						// well, why not create the collection object for them?!
+//						Collection thatCollection	= 
+//							ReflectionTools.getInstance((Class<Collection>) field.getType());
+//
+//					}
+					Collection collection	= (Collection) automaticLazyGetCollectionOrMap(activeES);
 					collection.add(typeConvertedValue);
 				}
 			} catch (Exception e)
@@ -760,10 +762,39 @@ implements OptimizationTypes
 		}
 		else
 		{
-			Node textChild	= childLeafNode.getFirstChild();
-			Object desiredValue	= (textChild == null) ? childLeafNode : textChild.getNodeValue();
-			error("Can't set to " + desiredValue + " because fieldType is unknown.");
+			reportFieldTypeError(childLeafNode);
 		}
+	}
+
+//	void addLeafNodeToMap(ElementState activeES, Node childLeafNode)
+//	throws XmlTranslationException
+//	{
+//		if (scalarType != null)
+//		{
+//			String textNodeValue			= getLeafNodeValue(childLeafNode);
+//			
+//			Object typeConvertedValue		= scalarType.getInstance(textNodeValue);
+//			try
+//			{
+//					Map map					= (Map) automaticLazyGetCollectionOrMap(activeES);
+//					map.put(this.typeConvertedValue);
+//			} catch (Exception e)
+//			{
+//				throw fieldAccessException(typeConvertedValue, e);
+//			}
+//		}
+//		else
+//		{
+//			reportFieldTypeError(childLeafNode);
+//		}
+//	}
+
+	
+	private void reportFieldTypeError(Node childLeafNode)
+	{
+		Node textChild	= childLeafNode.getFirstChild();
+		Object desiredValue	= (textChild == null) ? childLeafNode : textChild.getNodeValue();
+		error("Can't set to " + desiredValue + " because fieldType is unknown.");
 	}
 			
 	private void fillValues(NodeToJavaOptimizations other)
