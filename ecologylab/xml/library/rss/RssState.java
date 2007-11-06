@@ -80,7 +80,7 @@ public class RssState extends ElementState
 			RssState rssState2	= (RssState) ElementState.translateFromXMLString(retranslated, RssTranslations.get());
 			rssState2.translateToXML(System.out);
 
-			rssState.savePrettyXML(outputFile);
+			rssState.writePrettyXML(outputFile);
 		} catch (XmlTranslationException e)
 		{
 			// TODO Auto-generated catch block

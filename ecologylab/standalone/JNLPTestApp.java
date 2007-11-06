@@ -27,7 +27,7 @@ public class JNLPTestApp
         Debug.println("...done.");
         
         Debug.println("translate to...");
-        jnlp.savePrettyXML("c:\\jnlp2.txt");
+        jnlp.writePrettyXML("c:\\jnlp2.txt");
         Debug.println("...done.");
     }
 
