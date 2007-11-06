@@ -253,7 +253,7 @@ implements ContentHandler, OptimizationTypes
 				break;
 			case LEAF_NODE_VALUE:
 				// wait for characters to set scalar field
-				// activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
+				//activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
 			case COLLECTION_ELEMENT:
 				Collection collection			= activeN2JO.getCollection(currentElementState);
@@ -266,7 +266,7 @@ implements ContentHandler, OptimizationTypes
 				break;
 			case COLLECTION_SCALAR:
 				// wait for characters to create scalar reference type and add to collection
-//				activeNJO.addLeafNodeToCollection(activeES, childNode);
+				//activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
 				Map map							= activeN2JO.getMap(currentElementState);

@@ -1848,6 +1848,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				case COLLECTION_SCALAR:
 					activeNJO.addLeafNodeToCollection(activeES, childNode);
 					break;
+//				case MAP_SCALAR:
+//					activeNJO.addLeafNodeToMap(activeES, childNode);
+//					break;
 				case MAP_ELEMENT:
 					activeNJO.domFormElementAndToMap(activeES, childNode);
 					break;
