@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ValueFactory;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -172,7 +173,7 @@ implements OptimizationTypes
 	 * and cache it.
 	 * @param type TODO
 	 */
-	FieldToXMLOptimizations getTagMapEntry(Field field, Class<? extends ElementState> thatClass)
+	FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(thatClass);
 		if (result == null)
@@ -218,7 +219,7 @@ implements OptimizationTypes
 	 * @param actualCollectionElementClass
 	 * @return
 	 */
-	FieldToXMLOptimizations getTagMapEntry(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
+	FieldToXMLOptimizations fieldToJavaOptimizations(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
 		if (result == null)
@@ -301,38 +302,9 @@ implements OptimizationTypes
 		}
 		return result;
 	}
-
-	/**
-	 * Lookup, and create if necessary, the NodeToJavaOptimizations for an attribute.
-	 * 
-	 * @param translationSpace
-	 * @param context
-	 * @param node
-	 * @return
-	 * 
-	 * @deprecated
-	 */
-	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
-	{
-		String tag				= node.getNodeName();
-		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
-		
-		if (result == null)
-		{
-			if (tag.startsWith("xmlns:"))
-			{
-				String nameSpaceID	= tag.substring(6);
-				if (!containsNameSpaceByNSID(nameSpaceID))
-				{
-					registerNameSpace(translationSpace, nameSpaceID, node.getNodeValue());
-				}
-			}
-			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
-			nodeToJavaOptimizationsMap.put(tag, result);
-		}
-		return result;
-	}
-
+	
+	final Object N2JO_TAG_FIELDS_LOCK		= new Object();
+	
 	/**
 	 * Lookup, and create if necessary, the NodeToJavaOptimizations for an attribute.
 	 * 
@@ -347,16 +319,30 @@ implements OptimizationTypes
 		
 		if (result == null)
 		{
-			if (tag.startsWith("xmlns:"))
+			synchronized (N2JO_TAG_FIELDS_LOCK)
 			{
-				String nameSpaceID	= tag.substring(6);
-				if (!containsNameSpaceByNSID(nameSpaceID))
+				result	= nodeToJavaOptimizationsMap.get(tag);
+				if (tag.startsWith("xmlns:"))
 				{
-					registerNameSpace(translationSpace, nameSpaceID, value);
+					String nameSpaceID	= tag.substring(6);
+					if (!containsNameSpaceByNSID(nameSpaceID))
+					{
+						registerNameSpace(translationSpace, nameSpaceID, value);
+					}
+				}
+				if (!xmlTagFieldsAreIndexed)
+				{
+					xmlTagFieldsAreIndexed	= true;
+					indexXmlTagFields(this.attributeFields(), true, translationSpace, context);
+					indexXmlTagFields(this.elementFields(), false, translationSpace, context);
+					result	= nodeToJavaOptimizationsMap.get(tag);
+				}
+				if (result == null)
+				{
+					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
+					nodeToJavaOptimizationsMap.put(tag, result);
 				}
 			}
-			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
-			nodeToJavaOptimizationsMap.put(tag, result);
 		}
 		return result;
 	}
@@ -586,15 +572,12 @@ implements OptimizationTypes
 			//mapField(thatField);
 			if (XmlTools.representAsAttribute(thatField))
 			{
-				mapField(thatField);
-				attributeFields.add(thatField);
-				thatField.setAccessible(true);
+				indexField(attributeFields, thatField);
+//				String tag	= 
 			}
 			else if (XmlTools.representAsLeafOrNested(thatField))
 			{
-				mapField(thatField);
-				elementFields.add(thatField);
-				thatField.setAccessible(true);
+				indexField(elementFields, thatField);
 				
 				// look for declared tag for @xml_collection
 				ElementState.xml_collection collectionAnnotation		
@@ -622,6 +605,72 @@ implements OptimizationTypes
 			if (superClass != null)
 				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
 		}
+	}
+	
+	boolean xmlTagFieldsAreIndexed;
+	
+	/**
+	 * 
+	 * @param themFields
+	 * @param isAttribute
+	 * @param tspace
+	 * @param context
+	 */
+	private void indexXmlTagFields(ArrayList<Field> themFields, boolean isAttribute, TranslationSpace tspace, ElementState context)
+	{
+		for (Field thatField : themFields)
+		{
+			ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(ElementState.xml_tag.class);
+			if (tagAnnotation != null)
+			{
+				registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, tagAnnotation);
+			}
+			// dont really need to look for these in this direction
+//			Class<?> thatClass	= thatField.getType();
+//			if (thatClass.isAnnotationPresent(xml_tag.class))
+//			{
+//				ElementState.xml_tag classTagAnnotation = thatClass.getAnnotation(xml_tag.class);
+//				this.registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, classTagAnnotation);
+//			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param isAttribute
+	 * @param tspace
+	 * @param thatField
+	 * @param tagAnnotation
+	 * @return	true if there was a mapping to register
+	 */
+	private boolean registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_tag tagAnnotation)
+	{
+		String thatTag		= tagAnnotation.value();
+		final boolean result = (thatTag != null) && (thatTag.length() > 0);
+		if (result)
+		{
+			NodeToJavaOptimizations n2jo	= nodeToJavaOptimizationsMap.get(thatTag);
+			if (n2jo == null)
+			{
+				n2jo		= new NodeToJavaOptimizations(tspace, this, thatField, thatTag, isAttribute);
+				nodeToJavaOptimizationsMap.put(thatTag, n2jo);
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Add this Field to various data structures, and make it accessible for reflection.
+	 * 
+	 * @param fieldsArrayList
+	 * @param thatField
+	 */
+	//TODO -- get rid of either fieldsArrayList or isAttribute
+	private void indexField(ArrayList<Field> fieldsArrayList, Field thatField)
+	{
+		mapField(thatField);
+		fieldsArrayList.add(thatField);
+		thatField.setAccessible(true);
 	}
 
 	/**

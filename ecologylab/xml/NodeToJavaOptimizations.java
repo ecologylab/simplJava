@@ -66,6 +66,46 @@ implements OptimizationTypes
 	private NodeToJavaOptimizations		nestedPTE;
 	
 	/**
+	 * Construct from a Fielde object, for Fields declared with @xml_tag
+	 * @param translationSpace
+	 * @param optimizations
+	 * @param field
+	 * @param tag
+	 * @param isAttribute
+	 */
+	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, String tag, boolean isAttribute)
+	{
+		super();
+		this.tag	= tag;
+		this.translationSpace	= translationSpace();
+		
+		this.field				= field;
+		
+		boolean isScalar		= false;
+		
+		if (isAttribute)
+		{
+			isScalar			= true;
+			this.type			= REGULAR_ATTRIBUTE;
+		}
+		else if (XmlTools.representAsLeafNode(field))
+		{
+			isScalar			= true;
+			this.type			= LEAF_NODE_VALUE;
+		}
+		else
+		{
+			this.type			= REGULAR_NESTED_ELEMENT;
+			Class fieldClass	= field.getType();
+			Class classFromTS	= translationSpace.getClassBySimpleNameOfClass(fieldClass);
+			this.setClassOp((classFromTS != null) ? classFromTS : fieldClass);
+		}
+		if (isScalar)
+		{
+			this.scalarType		= TypeRegistry.getType(field);
+		}
+	}
+	/**
 	 * 
 	 * @param translationSpace
 	 * @param optimizations
@@ -306,25 +346,25 @@ implements OptimizationTypes
 			type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
 			// set method is custom code on a per field basis, and so doesnt need field object
 		}
-		else
-		{
-            // TODO this might need to be done somewhere else...maybe another method
-            if (field == null)
-            { // we still haven't found the right one; have to check @xml_name in the context
-                for (Field contextField : contextClass.getDeclaredFields())
-                { // iterate through all the fields, and look for ones with xml_name's
-                    if (contextField.isAnnotationPresent(xml_tag.class))
-                    {
-                        if (tag.equals(contextField.getAnnotation(xml_tag.class).value()))
-                        { // if we found a matching xml_name, then that's our field!
-                            field = contextField;
-                            field.setAccessible(true);
-                            break;
-                        }
-                    }
-                }
-            }
-		}
+//		else
+//		{
+//            // TODO this might need to be done somewhere else...maybe another method
+//            if (field == null)
+//            { // we still haven't found the right one; have to check @xml_name in the context
+//                for (Field contextField : contextClass.getDeclaredFields())
+//                { // iterate through all the fields, and look for ones with xml_name's
+//                    if (contextField.isAnnotationPresent(xml_tag.class))
+//                    {
+//                        if (tag.equals(contextField.getAnnotation(xml_tag.class).value()))
+//                        { // if we found a matching xml_name, then that's our field!
+//                            field = contextField;
+//                            field.setAccessible(true);
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//		}
 		if (field != null)
 		{
 			ScalarType fieldType		= TypeRegistry.getType(field);

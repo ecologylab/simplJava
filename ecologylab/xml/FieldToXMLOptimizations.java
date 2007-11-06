@@ -100,13 +100,20 @@ implements OptimizationTypes
     /**
      * Constructor for collection elements (no field).
      * 
-     * @param collectionTagMapEntry
+     * @param collectionFieldToXMLOptimizations
      * @param actualCollectionElementClass
      */
-    FieldToXMLOptimizations(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
+    FieldToXMLOptimizations(FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
     {
     	//TODO -- is this inheritance good or bad?!
-        String tagName	= collectionTagMapEntry.childTagName;
+        String tagName	= collectionFieldToXMLOptimizations.childTagName;
+        if (actualCollectionElementClass.isAnnotationPresent(ElementState.xml_tag.class))
+        {
+			ElementState.xml_tag tagAnnotation 	= actualCollectionElementClass.getAnnotation(ElementState.xml_tag.class);
+			String tagFromAnnotation			= tagAnnotation.value();
+			if (tagFromAnnotation != null && (tagFromAnnotation.length() > 0))
+				tagName							= tagFromAnnotation;
+        }
         if (tagName == null)
         	// get the tag name from the class of the object in the Collection, if from nowhere else
         	tagName		= XmlTools.getXmlTagName(actualCollectionElementClass, "State");
