@@ -1866,12 +1866,42 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		}
 	}
 	
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
+	 * @param xmlString
+	 * @param translationSpace
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXMLSAX(String xmlString, TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
+		return saxHandler.parseString(xmlString);
+	}
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
+	 * @param purl
+	 * @param translationSpace
+	 * @return
+	 * @throws XmlTranslationException
+	 */
 	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(purl);
 	}
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
+	 * @param file
+	 * @param translationSpace
+	 * @return
+	 * @throws XmlTranslationException
+	 */
 	public static ElementState translateFromXMLSAX(File file, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
