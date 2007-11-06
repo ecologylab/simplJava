@@ -29,7 +29,7 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
      * 
      * @return
      */
-    protected ArrayList<T> set()
+    public ArrayList<T> set()
     {
         ArrayList<T> result = set;
 
