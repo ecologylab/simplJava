@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
@@ -13,6 +14,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -555,7 +557,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
 							}
 							// this is a special hack for working with pre-translated XML Strings (LogOp!)
@@ -749,7 +751,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementEntry, appendable);
 							}
 							// this is a special hack for working with pre-translated XML Strings (LogOp!)
@@ -949,7 +951,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 							ElementState collectionSubElementState = (ElementState) next;
 							//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 							final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-							FieldToXMLOptimizations collectionElementF2XO		= optimizations.getTagMapEntry(childF2Xo, collectionElementClass);
+							FieldToXMLOptimizations collectionElementF2XO		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 							collectionSubElementState.translateToDOM(collectionElementClass, collectionElementF2XO, elementNode, dom);
 						}
 						else
@@ -2173,6 +2175,17 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 	XmlTools.writePrettyXml(translateToDOM(), xmlFile);
 	}
 	
+	/**
+	 * 	Translate to XML, then write the result to a file.
+	 * 
+	 * 	@param xmlFile		the file in which the xml needs to be saved
+	 */	
+	public void writePrettyXML(OutputStream outputStream)
+	throws XmlTranslationException
+	{
+		XmlTools.writePrettyXml(translateToDOM(), new StreamResult(outputStream));
+	}
+		
 	//////////////// helper methods used by translateToXML() //////////////////
 
 /**
@@ -2191,7 +2204,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  */
 	protected FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
 	{
-		return optimizations.getTagMapEntry(field, thatClass);
+		return optimizations.fieldToXMLOptimizations(field, thatClass);
 	}
 
 	//////////////// helper methods used by translateFromXML() ////////////////
@@ -2547,6 +2560,20 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
     public @interface xml_tag
     {
         String value();
+    }
+    
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_class
+    {
+        Class value();
+    }
+    
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_classes
+    {
+        Class[] value();
     }
     
 	public void checkAnnotation() throws NoSuchFieldException
