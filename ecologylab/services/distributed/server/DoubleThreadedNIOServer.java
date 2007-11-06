@@ -17,9 +17,9 @@ import java.util.Iterator;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.nio.ContextManager;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.contextmanager.AbstractContextManager;
+import ecologylab.services.nio.contextmanager.ContextManager;
 import ecologylab.xml.TranslationSpace;
 
 /**

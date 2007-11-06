@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.nio;
+package ecologylab.services.nio.contextmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -12,7 +12,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.HttpGetRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.contextmanager.AbstractContextManager;
+import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
@@ -55,7 +55,7 @@ public class HTTPGetContextManager extends AbstractContextManager
      * This method only handles HttpGetRequest messages; it will report an error for any non-HttpGetRequest. Otherwise,
      * it will not add anything to the outgoingMessageBuf, as HttpGetRequests should only have a header and no contnents
      * 
-     * @see ecologylab.services.nio.ContextManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
+     * @see ecologylab.services.nio.contextmanager.ContextManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
      *      ecologylab.services.messages.ResponseMessage)
      */
     @Override protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
@@ -69,7 +69,7 @@ public class HTTPGetContextManager extends AbstractContextManager
 
     /**
      * @throws UnsupportedEncodingException
-     * @see ecologylab.services.nio.ContextManager#translateStringToRequestMessage(java.lang.String)
+     * @see ecologylab.services.nio.contextmanager.ContextManager#translateStringToRequestMessage(java.lang.String)
      */
     @Override protected RequestMessage translateStringToRequestMessage(String messageString)
             throws XmlTranslationException, UnsupportedEncodingException
@@ -86,7 +86,7 @@ public class HTTPGetContextManager extends AbstractContextManager
     }
 
     /**
-     * @see ecologylab.services.nio.ContextManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
+     * @see ecologylab.services.nio.contextmanager.ContextManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
      */
     @Override protected void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf)
     {
@@ -94,7 +94,7 @@ public class HTTPGetContextManager extends AbstractContextManager
     }
 
     /**
-     * @see ecologylab.services.nio.ContextManager#createHeader(java.lang.StringBuilder, java.lang.StringBuilder,
+     * @see ecologylab.services.nio.contextmanager.ContextManager#createHeader(java.lang.StringBuilder, java.lang.StringBuilder,
      *      RequestMessage, ResponseMessage)
      */
     @Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
