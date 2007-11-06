@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState;
  */
 public class FieldTagged extends ElementState
 {
-
+	@xml_attribute int x = 37;
     /**
      * 
      */

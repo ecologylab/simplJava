@@ -13,11 +13,12 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author toupsz
  *
  */
-@xml_tag("fred") 
+@xml_tag("fred:flintstone") 
 public class Composed extends ElementState
 {
     @xml_nested ArrayListState<ClassTagged> tagged = new ArrayListState<ClassTagged>();
     
+	@xml_attribute int	x = 22;
     /**
      * 
      */
@@ -35,13 +36,17 @@ public class Composed extends ElementState
         
         Composed c = new Composed();
         
-        System.out.println(c.translateToXML());
+        final String translatedXML = c.translateToXML();
         
-         Composed composed	= (Composed) ElementState.translateFromXMLString(c.translateToXML(), ts);
+		System.out.println(translatedXML);
+        
+        Composed retranslated	= (Composed) ElementState.translateFromXMLString(translatedXML, ts);
+//        Composed retranslated	= (Composed) ElementState.translateFromXMLSAX(translatedXML, ts);
         
         c.translateToXML(System.out);
-        System.out.println("\n");
+        System.out.println("\n\nretranslated:");
         
-        composed.writePrettyXML(System.out);
+        retranslated.writePrettyXML(System.out);
+//        retranslated.translateToXML(System.out);
     }
 }
