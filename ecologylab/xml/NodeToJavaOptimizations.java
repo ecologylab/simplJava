@@ -76,8 +76,8 @@ implements OptimizationTypes
 	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, String tag, boolean isAttribute)
 	{
 		super();
-		this.tag	= tag;
-		this.translationSpace	= translationSpace();
+		this.tag				= tag;
+		this.translationSpace	= translationSpace;
 		
 		this.field				= field;
 		
@@ -104,6 +104,17 @@ implements OptimizationTypes
 		{
 			this.scalarType		= TypeRegistry.getType(field);
 		}
+	}
+	
+	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, Class thatClass)
+	{
+		super();
+		this.tag				= XmlTools.getXmlTagName(thatClass, "State");
+		this.translationSpace	= translationSpace;
+		
+		this.field				= field;
+		this.type				= REGULAR_NESTED_ELEMENT;
+		setClassOp(thatClass);
 	}
 	/**
 	 * 

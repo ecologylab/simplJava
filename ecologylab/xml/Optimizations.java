@@ -625,6 +625,31 @@ implements OptimizationTypes
 			{
 				registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, tagAnnotation);
 			}
+			else
+			{
+				if (thatField.isAnnotationPresent(ElementState.xml_nested.class))
+				{
+					ElementState.xml_classes classesAnnotation 	= thatField.getAnnotation(ElementState.xml_classes.class);
+					if (classesAnnotation != null)
+					{
+						Class thoseClasses[]	= classesAnnotation.value();
+						int length				= thoseClasses.length;
+						for (int i=0; i<length; i++)
+						{
+							Class thatClass		= thoseClasses[i];
+							registerN2JOByClass(tspace, thatField, thatClass);
+						}
+					}
+					else
+					{
+						ElementState.xml_class classAnnotation 	= thatField.getAnnotation(ElementState.xml_class.class);
+						if (classAnnotation != null)
+						{
+							registerN2JOByClass(tspace, thatField, classAnnotation.value());
+						}
+					}
+				}
+			}
 			// dont really need to look for these in this direction
 //			Class<?> thatClass	= thatField.getType();
 //			if (thatClass.isAnnotationPresent(xml_tag.class))
@@ -633,6 +658,14 @@ implements OptimizationTypes
 //				this.registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, classTagAnnotation);
 //			}
 		}
+	}
+
+	private void registerN2JOByClass(TranslationSpace tspace, Field thatField,
+			Class thatClass)
+	{
+		NodeToJavaOptimizations n2jo	= 
+			new NodeToJavaOptimizations(tspace, this, thatField, thatClass);
+		nodeToJavaOptimizationsMap.put(n2jo.tag(), n2jo);
 	}
 
 	/**
