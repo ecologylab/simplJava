@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -464,6 +465,8 @@ public final class TranslationSpace extends Debug
    }
 
    /**
+    * Integrate xml tag into tag derivation.
+    * 
     * @param classObj
     * @param classSimpleName
     * @return
