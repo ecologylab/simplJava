@@ -1687,16 +1687,20 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	   // find the class for the new object derived from ElementState
 		Class stateClass			= null;
 		String tagName				= xmlRootNode.getNodeName();
-		int colonIndex				= tagName.indexOf(':');
-		if (colonIndex > 1)
-		{   // we are dealing with an XML Namespace
-			//TODO -- do something more substantial than throwing away the prefix
-			tagName					= tagName.substring(colonIndex + 1);
-		}
 		try
 		{
 			//TODO -- use class-level @xml_tag if it was declared?!
 			stateClass= translationSpace.xmlTagToClass(tagName);
+			if (stateClass == null)
+			{
+				int colonIndex				= tagName.indexOf(':');
+				if (colonIndex > 1)
+				{   // we are dealing with an XML Namespace
+					String nameSpacePrefix	= tagName.substring(0, colonIndex);
+					tagName					= tagName.substring(colonIndex + 1);
+					//TODO -- handle namespace properly!
+				}
+			}
 			if (stateClass != null)
 			{
 				ElementState rootState= (ElementState) XmlTools.getInstance(stateClass);
