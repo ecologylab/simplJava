@@ -1,8 +1,14 @@
 package ecologylab.xml;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -892,52 +898,54 @@ static String q(String string)
     }
 	
     
-	/**
-	 * Pretty print XML, properly indented according to hierarchy.
-	 * 
-	 * @param plainXml	plain xml string
-	 * @param out		the <code>StreamResult</code> object where the output should be written
-	 */    
-    public static void writePrettyXml(String plainXml, StreamResult out)
-    {
-		writePrettyXml(ElementState.buildDOMFromXMLString(plainXml), out);
-    }
   /**
    * Pretty printing XML, properly indented according to hierarchy.
    * 
    * @param xmlDoc
    * @param outFile
+ * @throws FileNotFoundException 
+ * @throws XmlTranslationException 
    */
-    public static void writePrettyXml(Document xmlDoc, File outFile) 
+    public static void writePrettyXML(Document xmlDoc, File outFile) 
+    throws XmlTranslationException 
     {
-    	writePrettyXml(xmlDoc, new StreamResult(outFile));
+    	try
+		{
+			writePrettyXML(xmlDoc, new FileOutputStream(outFile));
+		} catch (FileNotFoundException e)
+		{
+			throw new XmlTranslationException("Writing pretty XML[" + outFile + "]", e);
+		}
     }
 
+    static final int 	INDENT_AMOUNT			= 2;
+    static final String INDENT_AMOUNT_STRING	= Integer.toString(INDENT_AMOUNT);
     /**
 	 * Pretty print XML, properly indented according to hierarchy.
      * 
      * @param xmlDoc
      * @param out
+     * @throws XmlTranslationException 
+     * @throws IOException 
      */
-    public static void writePrettyXml(Document xmlDoc, StreamResult out)
+    public static void writePrettyXML(Document xmlDoc, OutputStream outputStream) 
+    throws XmlTranslationException 
     {
     	Transformer transformer;
 		try
 		{
-			transformer = TransformerFactory.newInstance().newTransformer();
+			TransformerFactory factory	= TransformerFactory.newInstance();
+	        factory.setAttribute("indent-number", new Integer(INDENT_AMOUNT));
+			transformer 				= factory.newTransformer();
 	        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-	        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-	        transformer.transform(new DOMSource(xmlDoc), out);
-		} catch (TransformerConfigurationException e)
+	        //transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", INDENT_AMOUNT_STRING);
+	        OutputStreamWriter osw		= new java.io.OutputStreamWriter(outputStream, "utf-8");
+	        transformer.transform(new DOMSource(xmlDoc), new StreamResult(osw));
+	        osw.close();
+		} catch (Exception e)
 		{
-			e.printStackTrace();
-		} catch (TransformerFactoryConfigurationError e)
-		{
-			e.printStackTrace();
-		} catch (TransformerException e)
-		{
-			e.printStackTrace();
-		}
+			throw new XmlTranslationException("Writing pretty XML", e);
+		} 
     }
 
 	/**

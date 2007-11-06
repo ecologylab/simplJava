@@ -2148,23 +2148,23 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
   	}
 
 	//////////////// methods to generate XML, and write to a file /////////////
-	public void saveXmlFile(String filePath, boolean prettyXml, boolean compression)
+	public void writePrettyXML(String filePath, boolean prettyXml, boolean compression)
 	throws XmlTranslationException
 	{
 		if(!filePath.endsWith(".xml") && !filePath.endsWith(".XML"))
 		{
 			filePath	= filePath + ".xml";
 		}
-		savePrettyXML(new File(filePath));
+		writePrettyXML(new File(filePath));
 	}
 	
 	/**
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
-	public void savePrettyXML(String xmlFileName)
+	public void writePrettyXML(String xmlFileName)
 	throws XmlTranslationException
 	{
-		savePrettyXML(new File(xmlFileName));
+		writePrettyXML(new File(xmlFileName));
 	}
 	
 /**
@@ -2172,10 +2172,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * 
  * 	@param xmlFile		the file in which the xml needs to be saved
  */	
-	public void savePrettyXML(File xmlFile)
+	public void writePrettyXML(File xmlFile)
 		throws XmlTranslationException
 	{
-	 	XmlTools.writePrettyXml(translateToDOM(), xmlFile);
+	 	XmlTools.writePrettyXML(translateToDOM(), xmlFile);
 	}
 	
 	/**
@@ -2186,7 +2186,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	public void writePrettyXML(OutputStream outputStream)
 	throws XmlTranslationException
 	{
-		XmlTools.writePrettyXml(translateToDOM(), new StreamResult(outputStream));
+		XmlTools.writePrettyXML(translateToDOM(), outputStream);
 	}
 		
 	//////////////// helper methods used by translateToXML() //////////////////
