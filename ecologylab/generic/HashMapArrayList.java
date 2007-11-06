@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * A HashMap with an ArrayList backing store, for speedy linear and hashed access.
+ * 
  * @author andruid
  *
  */
@@ -61,6 +63,11 @@ public class HashMapArrayList<K, V> extends HashMap<K, V>
 		arrayList.add(value);
 		
 		return result;
+	}
+	
+	public V get(int index)
+	{
+		return arrayList.get(index);
 	}
 	
 	public Iterator<V> iterator()
