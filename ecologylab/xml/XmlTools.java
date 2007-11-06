@@ -111,11 +111,23 @@ implements CharacterConstants
  * @param suffix		string to remove from class name, null if nothing to be removed
  * @return				name of the xml tag (element)
  */	
-   public static String getXmlTagName(Class thatClass, 
+   public static String getXmlTagName(Class<?> thatClass, 
 									  String suffix)
    {
-      String className	= 	getClassName(thatClass);
-	  return getXmlTagName(className, suffix);
+	   ElementState.xml_tag tagAnnotation 	= thatClass.getAnnotation(ElementState.xml_tag.class);
+	   String result						= null;
+	   if (tagAnnotation != null)
+	   {
+			String thatTag		= tagAnnotation.value();
+			if ((thatTag != null) && (thatTag.length() > 0))
+				result			= thatTag;
+	   }
+	   if (result == null)
+	   {
+		   String className		= getClassName(thatClass);
+		   result				= getXmlTagName(className, suffix);
+	   }
+	   return result;
    }
 	
 /**
@@ -235,6 +247,11 @@ implements CharacterConstants
    				capsOn = true;
    		}
    		return result.toString();
+   }
+   
+   public static String fieldNameFromNodeName(String nodeName)
+   {
+	   return javaNameFromElementName(nodeName, false);
    }
 
    /**
@@ -884,7 +901,7 @@ static String q(String string)
     public static void writePrettyXml(String plainXml, StreamResult out)
     {
 		writePrettyXml(ElementState.buildDOMFromXMLString(plainXml), out);
-    } 
+    }
   /**
    * Pretty printing XML, properly indented according to hierarchy.
    * 
