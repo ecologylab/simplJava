@@ -3,9 +3,11 @@ package ecologylab.xml.library.rss;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.NameSpaceDecl;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.library.dc.Dc;
+import ecologylab.xml.library.media.Media;
 
 /**
  * Translations for all RSS parsing.
@@ -16,7 +18,6 @@ public class RssTranslations
 extends Debug
 {
    private static final String TRANSLATION_SPACE_NAME	= "rss";
-   public  static final String PACKAGE_NAME				= "ecologylab.xml.library.rss";
    
    public static final Class TRANSLATIONS[]	= 
    {
@@ -25,10 +26,23 @@ extends Debug
 	   Item.class,
 	   
 	   Dc.class,
+
 	   
 	   RDFState.class,
    };
 	   
+   public static final TranslationSpace INHERITED_TRANSLATIONS[]	= 
+   {
+	   Media.getTranslations(),
+	   
+   };
+   
+   public static final NameSpaceDecl[] NAME_SPACE_DECLS				=
+   {
+	   new NameSpaceDecl("http://search.yahoo.com/mrss/", Media.class, Media.getTranslations()),
+	   
+   };
+   
    /**
     * Just prevent anyone from new'ing this.
     */
@@ -38,7 +52,7 @@ extends Debug
    
    public static TranslationSpace get()
    {
-	   return TranslationSpace.get(TRANSLATION_SPACE_NAME, PACKAGE_NAME, TRANSLATIONS);
+	   return TranslationSpace.get(TRANSLATION_SPACE_NAME, null, INHERITED_TRANSLATIONS, TRANSLATIONS, NAME_SPACE_DECLS);
    }
    
 	
