@@ -170,27 +170,32 @@ implements OptimizationTypes
 		if (colonIndex > 0)
 		{	// there is an XML namespace specified in the XML!
 			nameSpaceID		= tag.substring(0, colonIndex);
-			
-			// the new way
-//			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
-//			if (nsContext == null)
-//			{
-//				this.type			= NAMESPACE_IGNORED_ELEMENT;
-//				return;
-//			}
 			String subTag			= tag.substring(colonIndex+1);
-//			// ok so there's a context for this. now we need a field
-//			Optimizations nsOpti			= nsContext.optimizations;
-//			NodeToJavaOptimizations nsN2jo	= nsOpti.elementNodeToJavaOptimizations(translationSpace, context, subTag);
-//			final int nsN2joType 			= nsN2jo.type();
-//			if (nsN2joType != IGNORED_ELEMENT)
-//			{
-//				this.type			= nsN2joType + NAME_SPACE_MASK;
-//				//TODO -- what else do we need here
-//			}
-//			else
-//				this.type			= NAMESPACE_IGNORED_ELEMENT;
-			
+			/*
+			// the new way
+			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
+			if (nsContext == null)
+			{
+				this.type			= NAMESPACE_IGNORED_ELEMENT;
+				return;
+			}
+			// ok so there's a context for this. now we need a field
+			Optimizations nsOpti			= nsContext.optimizations;
+			NodeToJavaOptimizations nsN2jo	= nsOpti.elementNodeToJavaOptimizations(translationSpace, context, subTag);
+			final int nsN2joType 			= nsN2jo.type();
+			if (nsN2joType != IGNORED_ELEMENT)
+			{
+				this.type			= nsN2joType + NAME_SPACE_MASK;
+				//TODO -- what else do we need here
+				this.field			= nsN2jo.field;
+				this.setMethod		= nsN2jo.setMethod;
+				this.scalarType		= nsN2jo.scalarType;
+				this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
+				this.classOp		= nsN2jo.classOp;
+			}
+			else
+				this.type			= NAMESPACE_IGNORED_ELEMENT;
+			*/
 			// the old way
 			translationSpace	= TranslationSpace.get(nameSpaceID);
 			// is there a field called nameSpaceID?
