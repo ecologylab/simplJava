@@ -203,13 +203,13 @@ implements ContentHandler, OptimizationTypes
 			return;
 		if (root == null)
 		{	// form the root ElementState!
-			Class rootClass= translationSpace.xmlTagToClass(tagName);
+			Class<ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
 			if (rootClass != null)
 			{
 				ElementState root;
 				try
 				{
-					root = (ElementState) XmlTools.getInstance(rootClass);
+					root					= XmlTools.getInstance(rootClass);
 					if (root != null)
 					{
 						root.setupRoot();

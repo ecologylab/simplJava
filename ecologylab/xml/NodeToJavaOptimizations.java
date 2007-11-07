@@ -1,11 +1,8 @@
 package ecologylab.xml;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -13,7 +10,6 @@ import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -27,13 +23,15 @@ import ecologylab.xml.types.scalar.TypeRegistry;
 class NodeToJavaOptimizations extends Debug
 implements OptimizationTypes
 {
-	private final String		tag;
+	private  String				tag;
 	
 	private boolean				isID;
 	
 	private int					type;
 	
-	private String				nameSpaceName;
+	private final Optimizations	optimizations;
+	
+	private String				nameSpaceID;
 	
 	/**
 	 * The Field object that we should set. 
@@ -78,6 +76,7 @@ implements OptimizationTypes
 		super();
 		this.tag				= tag;
 		this.translationSpace	= translationSpace;
+		this.optimizations		= optimizations;
 		
 		this.field				= field;
 		
@@ -105,18 +104,27 @@ implements OptimizationTypes
 			this.scalarType		= TypeRegistry.getType(field);
 		}
 	}
-	
+	/**
+	 * Construct from a field with @xml_class or @xml_classes.
+	 * 
+	 * @param translationSpace
+	 * @param optimizations
+	 * @param field
+	 * @param thatClass
+	 */
 	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, Class thatClass)
 	{
 		super();
 		this.tag				= XmlTools.getXmlTagName(thatClass, "State");
 		this.translationSpace	= translationSpace;
+		this.optimizations		= optimizations;
 		
 		this.field				= field;
 		this.type				= REGULAR_NESTED_ELEMENT;
 		setClassOp(thatClass);
 	}
 	/**
+	 * Normal constructor.
 	 * 
 	 * @param translationSpace
 	 * @param optimizations
@@ -129,6 +137,7 @@ implements OptimizationTypes
 		super();
 		this.tag				= tag;
 		this.translationSpace	= translationSpace;
+		this.optimizations		= optimizations;
 		
 		Class contextClass 		= context.getClass();
 		int colonIndex			= tag.indexOf(':');
@@ -142,10 +151,14 @@ implements OptimizationTypes
 			{	
 				if (tag.startsWith("xmlns:"))
 				{
-					this.type		= XMLNS_ATTRIBUTE;
+					this.type			= XMLNS_ATTRIBUTE;
+					if (tag.length() > 6)
+					{
+						this.tag		= tag.substring(6);	// save the id that comes after xmlns
+					}
 				}
 				else	//TODO -- support namespace attributes?! (whatever that is)
-					this.type		= IGNORED_ATTRIBUTE;
+					this.type			= IGNORED_ATTRIBUTE;
 				return;
 			}
 			
@@ -156,11 +169,32 @@ implements OptimizationTypes
 		// element, not attribute
 		if (colonIndex > 0)
 		{	// there is an XML namespace specified in the XML!
-			nameSpaceName		= tag.substring(0, colonIndex);
-			translationSpace	= TranslationSpace.get(nameSpaceName);
-			String subTag		= tag.substring(colonIndex+1);
-			// is there a field called nameSpaceName?
-			Field nameSpaceField= optimizations.getField(nameSpaceName);
+			nameSpaceID		= tag.substring(0, colonIndex);
+			
+			// the new way
+//			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
+//			if (nsContext == null)
+//			{
+//				this.type			= NAMESPACE_IGNORED_ELEMENT;
+//				return;
+//			}
+			String subTag			= tag.substring(colonIndex+1);
+//			// ok so there's a context for this. now we need a field
+//			Optimizations nsOpti			= nsContext.optimizations;
+//			NodeToJavaOptimizations nsN2jo	= nsOpti.elementNodeToJavaOptimizations(translationSpace, context, subTag);
+//			final int nsN2joType 			= nsN2jo.type();
+//			if (nsN2joType != IGNORED_ELEMENT)
+//			{
+//				this.type			= nsN2joType + NAME_SPACE_MASK;
+//				//TODO -- what else do we need here
+//			}
+//			else
+//				this.type			= NAMESPACE_IGNORED_ELEMENT;
+			
+			// the old way
+			translationSpace	= TranslationSpace.get(nameSpaceID);
+			// is there a field called nameSpaceID?
+			Field nameSpaceField= optimizations.getField(nameSpaceID);
 			if (nameSpaceField != null)
 			{	// o.k. we know we're working in the object of namespace fields
 				// create a dummy object to get its NodeToJavaOptimizations
@@ -171,8 +205,8 @@ implements OptimizationTypes
 					this.field				= nameSpaceField;
 					ElementState dummyES 	= (ElementState) dummy;
 					//TODO shouldn't this use in-scope local optimizations?!
-					Optimizations nsOptimizations	= Optimizations.lookupRootOptimizations(dummyES);
-					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceName);
+					Optimizations nsOptimizations	= Optimizations.lookupRootOptimizations(dummyES, null);
+					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceID);
 					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.elementNodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
 					this.classOp			= nsFieldClass;
 					fillValues(nsPTE);
@@ -180,7 +214,7 @@ implements OptimizationTypes
 				}
 				else
 				{
-					println("ERROR: there is a field called " + nameSpaceName + " in " + contextClass +
+					println("ERROR: there is a field called " + nameSpaceID + " in " + contextClass +
 							" but it is not of type ElementState!");
 					this.type		= BAD_FIELD;
 					return;
@@ -324,7 +358,21 @@ implements OptimizationTypes
 		}
 		
 	}
+	
+	/**
+	 * Create a name space object, nested in the context, using info saved in this.
+	 * 
+	 * @param context
+	 * @param urn		The value of the xmlns:id attribute is the URL that is mapped to the class.
+	 */
+	void processXMLNS(ElementState context, String urn)
+	{
+		Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
+		optimizations.mapNamespaceIdToClass(translationSpace, tag, nsClass);
+//		context.nestNameSpace(tag, nsClass);
+	}
 
+	
 	private void setClassOp(Class thatClass)
 	{
 		this.classOp	= thatClass;
@@ -458,7 +506,10 @@ implements OptimizationTypes
 		ElementState childElementState		= (ElementState) XmlTools.getInstance(classOp);
 		childElementState.elementByIdMap	= parent.elementByIdMap;
 		childElementState.parent			= parent;
-		childElementState.optimizations		= parent.optimizations.lookupChildOptimizations(childElementState);
+		Optimizations parentOptimizations	= parent.optimizations;
+		Optimizations childOptimizations 	= parentOptimizations.lookupChildOptimizations(childElementState);
+		childElementState.optimizations		= childOptimizations;
+		childOptimizations.setParent(parentOptimizations);
 		
 		return childElementState;
 	}
@@ -834,11 +885,11 @@ implements OptimizationTypes
 	}
 
 	/**
-	 * @return the nameSpaceName
+	 * @return the nameSpaceID
 	 */
 	String nameSpaceName()
 	{
-		return nameSpaceName;
+		return nameSpaceID;
 	}
 
 	/**
@@ -912,15 +963,17 @@ implements OptimizationTypes
 		return scalarType;
 	}
 	
-	
 	private NodeToJavaOptimizations()
 	{
-		tag	= "UNASSIGNED";
+		tag				= "UNASSIGNED";
+		this.type		= IGNORED_ELEMENT;
+		optimizations	= null;
 	}
 	NodeToJavaOptimizations(String tag)
 	{
-		this.tag	= tag;
-		this.type	= IGNORED_ELEMENT;
+		this.tag		= tag;
+		this.type		= IGNORED_ELEMENT;
+		optimizations	= null;
 	}
 	static final NodeToJavaOptimizations IGNORED_ELEMENT_OPTIMIZATIONS;
 	static

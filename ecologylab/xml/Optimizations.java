@@ -31,12 +31,16 @@ implements OptimizationTypes
 	 * Class object that we are holding optimizations for.
 	 */
 	final Class											thatClass;
+	
+	Optimizations										parent;
+	
 	/**
 	 * A map of root level Optimizations objects.
 	 * The keys are simple class names.
 	 */
 	//TODO -- replace with OptimizationsMap
 	private static final HashMap<String, Optimizations>	rootOptimizationsMap	= new HashMap<String, Optimizations>();
+//	private static final OptimizationsMap	rootOptimizationsMap	= new OptimizationsMap();
 	
 	/**
 	 * Map of Optimizations objects for (the classes of) our children.
@@ -71,8 +75,6 @@ implements OptimizationTypes
 	 */
 	private HashMap<String, NodeToJavaOptimizations>	nodeToJavaOptimizationsMap	= new HashMap<String, NodeToJavaOptimizations>();
 	
-	private HashMap<String, Class<? extends ElementState>>	nameSpacesByID	= new HashMap<String, Class<? extends ElementState>>();
-	
 	/**
 	 * The fields that are represented as attributes for the class we're optimizing.
 	 */
@@ -106,6 +108,8 @@ implements OptimizationTypes
 	 */
 	private HashMap<String, Field>				collectionFieldsByTag;
 	
+	private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
+	
 	
 	/**
 	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
@@ -114,10 +118,29 @@ implements OptimizationTypes
 	 */
 	private Optimizations(Class thatClass)
 	{
-		super();
-		this.thatClass		= thatClass;
+		this(thatClass, null);
 	}
 
+	/**
+	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
+	 * See also lookupRoot(), lookupChildOptimizations().
+	 * 
+	 * @param 	thatClass
+	 * @param	parent		Parent optimizations.
+	 */
+	private Optimizations(Class thatClass, Optimizations parent)
+	{
+		super();
+		this.thatClass		= thatClass;
+		setParent(parent);
+	}
+
+	void setParent(Optimizations parent)
+	{
+		this.parent			= parent;
+		if (parent != null)
+			this.nameSpaceClassesById		= parent.nameSpaceClassesById;
+	}
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations.
 	 * Uses just-in-time / lazy evaluation.
@@ -127,9 +150,10 @@ implements OptimizationTypes
 	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
 	 * 
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
+	 * @param parent TODO
 	 * @return
 	 */
-	static Optimizations lookupRootOptimizations(ElementState elementState)
+	static Optimizations lookupRootOptimizations(ElementState elementState, Optimizations parent)
 	{
 		Class thatClass		= elementState.getClass();
 //		String className	= classSimpleName(thatClass);
@@ -313,7 +337,7 @@ implements OptimizationTypes
 	 * @param node
 	 * @return
 	 */
-	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag, String value)
+	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
 	{
 		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
 		
@@ -322,27 +346,32 @@ implements OptimizationTypes
 			synchronized (N2JO_TAG_FIELDS_LOCK)
 			{
 				result	= nodeToJavaOptimizationsMap.get(tag);
-				if (tag.startsWith("xmlns:"))
-				{
-					String nameSpaceID	= tag.substring(6);
-					if (!containsNameSpaceByNSID(nameSpaceID))
-					{
-						registerNameSpace(translationSpace, nameSpaceID, value);
-					}
-				}
-				if (!xmlTagFieldsAreIndexed)
-				{
-					xmlTagFieldsAreIndexed	= true;
-					indexXmlTagFields(this.attributeFields(), true, translationSpace, context);
-					indexXmlTagFields(this.elementFields(), false, translationSpace, context);
-					result	= nodeToJavaOptimizationsMap.get(tag);
-				}
+				
+				if (setupTranslateFromXML(translationSpace, context))
+					result	= nodeToJavaOptimizationsMap.get(tag);	// try again after setup
+					
 				if (result == null)
 				{
 					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
 					nodeToJavaOptimizationsMap.put(tag, result);
 				}
 			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @return		true if setup was performed. false if it was performed previously.
+	 */
+	boolean setupTranslateFromXML(TranslationSpace translationSpace, ElementState context)
+	{
+		boolean result		= !xmlTagFieldsAreIndexed;
+		if (result)
+		{
+			xmlTagFieldsAreIndexed	= true;
+			indexXmlTagFields(this.attributeFields(), true, translationSpace, context);
+			indexXmlTagFields(this.elementFields(), false, translationSpace, context);			
 		}
 		return result;
 	}
@@ -852,31 +881,46 @@ implements OptimizationTypes
 	{
 		nameSpaceRegistryByURN.put(urn, nameSpaceElementState);
 	}
-	void registerNameSpace(TranslationSpace translationSpace, String nsID, String urn)
+	
+	/**
+	 * Map an XML namespace id to the class that should be instantiated to handle it.
+	 * 
+	 * @param translationSpace Used for error messages.
+	 * @param id
+	 * @param nsClass
+	 */
+	void mapNamespaceIdToClass(TranslationSpace translationSpace, String id, Class<? extends ElementState> nsClass)
 	{
-		//TODO first look in the TranslationSpace for a mapping
-		Class<? extends ElementState> nameSpaceClass	= translationSpace.lookupNameSpaceByURN(urn);
-		
-		if (nameSpaceClass == null)
-		{	// now check the global rootOptimizationsMap
-			nameSpaceClass								= nameSpaceRegistryByURN.get(urn);
-			if (nameSpaceClass == null)
-				return;
+		if (!nameSpaceClassesById.containsKey(id))
+		{
+			nameSpaceClassesById().put(id, nsClass);
+			if (nsClass == null)
+				warning("No Namespace found in " + translationSpace + " for ID = " + id);
+			else
+				debug("COOL! -- mapping " + nsClass + " to ID = " + id);
 		}
-		
-		nameSpacesByID.put(nsID, nameSpaceClass);
-		//TODO add entries to other useful data structures
 	}
-	boolean containsNameSpaceByNSID(String nsID)
+	
+	boolean containsNameSpaceClass(String nsID)
 	{
-		return nameSpacesByID.containsKey(nsID);
+		return nameSpaceClassesById().containsKey(nsID);
 	}
-	Class<? extends ElementState> lookupNameSpaceByNSID(String nsID)
+	Class<? extends ElementState> lookupNameSpaceClassById(String nsID)
 	{
-		return nameSpacesByID.get(nsID);
+		return nameSpaceClassesById().get(nsID);
 	}
 
-	/* static */ class OptimizationsMap extends HashMapWriteSynch3<String, Class, Optimizations>
+	HashMap<String, Class<? extends ElementState>> nameSpaceClassesById()
+	{
+		HashMap<String, Class<? extends ElementState>> result = nameSpaceClassesById;
+		if (result == null)
+		{
+			result					= new HashMap<String, Class<? extends ElementState>>(2);
+			nameSpaceClassesById	= result;
+		}
+		return result;
+	}
+	class OptimizationsMap extends HashMapWriteSynch3<String, Class, Optimizations>
 	implements ValueFactory<Class, Optimizations>
 	{
 		public Optimizations getOrCreateAndPutIfNew(ElementState elementState)
@@ -892,7 +936,7 @@ implements OptimizationTypes
 		
 		public Optimizations createValue(Class key)
 		{
-			return new Optimizations(key);
+			return new Optimizations(key, parent);
 		}
 	}
 

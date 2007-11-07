@@ -2,19 +2,16 @@ package ecologylab.xml;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +23,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +36,6 @@ import org.xml.sax.SAXParseException;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
-import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -159,7 +154,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
      */
 	public ElementState()
 	{
-		optimizations			= Optimizations.lookupRootOptimizations(this);		
+		Optimizations parentOptimizations	= (parent == null) ? null : parent.optimizations;
+		
+		optimizations						= Optimizations.lookupRootOptimizations(this, parentOptimizations);		
 	}
 /**
  * Emit XML header, then the object's XML.
@@ -1685,7 +1682,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	   throws XmlTranslationException
 	{
 	   // find the class for the new object derived from ElementState
-		Class stateClass			= null;
+		Class<ElementState> stateClass			= null;
 		String tagName				= xmlRootNode.getNodeName();
 		try
 		{
@@ -1703,7 +1700,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 			if (stateClass != null)
 			{
-				ElementState rootState= (ElementState) XmlTools.getInstance(stateClass);
+				ElementState rootState		= XmlTools.getInstance(stateClass);
 				if (rootState != null)
 				{
 					rootState.setupRoot();
@@ -1741,7 +1738,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	void setupRoot()
 	{
 		elementByIdMap		= new HashMap<String, ElementState>();
-		optimizations		= Optimizations.lookupRootOptimizations(this);		
+		optimizations		= Optimizations.lookupRootOptimizations(this, null);		
 	}
 /**
      * A recursive method.
@@ -1785,7 +1782,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				if (value != null)
 				{
 					NodeToJavaOptimizations njo	=
-						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag, value);
+						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag);
 					switch (njo.type())
 					{
 					case REGULAR_ATTRIBUTE:
@@ -1793,6 +1790,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						// the value can become a unique id for looking up this
 						if ("id".equals(njo.tag()))
 							this.elementByIdMap.put(value, this);
+						break;
+					case XMLNS_ATTRIBUTE:
+						njo.processXMLNS(this, value);
 						break;
 					default:
 						break;	
@@ -1860,6 +1860,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					break;
 				case OTHER_NESTED_ELEMENT:
 					activeES.addNestedElement(activeNJO, childNode);
+					break;
+				case NAME_SPACE_NESTED_ELEMENT:
+					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
 					break;
 				case IGNORED_ELEMENT:
 				case BAD_FIELD:
@@ -1930,7 +1933,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			if (value != null)
 			{
 				NodeToJavaOptimizations njo	= 
-					optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag, value);
+					optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag);
 				switch (njo.type())
 				{
 				case REGULAR_ATTRIBUTE:
@@ -1939,6 +1942,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					//TODO -- could support the ID type for the node here!
 					if ("id".equals(njo.tag()))
 						this.elementByIdMap.put(value, this);
+					break;
+				case XMLNS_ATTRIBUTE:
+					njo.processXMLNS(this, value);
 					break;
 				default:
 					break;	
@@ -2059,7 +2065,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	private static void reportException(SAXParseException spe, String xmlFileOrURLName)
 	{
-		println(xmlFileOrURLName + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", uri " + spe.getSystemId());
+		println(xmlFileOrURLName + ":\n** Parsing error" + ", line " + spe.getLineNumber() + ", urn " + spe.getSystemId());
 		println("   " + spe.getMessage());
   
 		// Use the contained exception, if any
@@ -2091,7 +2097,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		catch (SAXParseException spe)
 		{
 			// Error generated by the parser
-		    println("ERROR parsing DOM in" + inStream + ":\n\t** Parsing error on line " + spe.getLineNumber() + ", uri=" + spe.getSystemId());
+		    println("ERROR parsing DOM in" + inStream + ":\n\t** Parsing error on line " + spe.getLineNumber() + ", urn=" + spe.getSystemId());
 		    println("   " + spe.getMessage());
 	  	}
 	  	catch (SAXException sxe)
@@ -2173,7 +2179,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		    {
 		      println(builder + "** Warning"
 		        + ", line " + err.getLineNumber()
-		        + ", uri " + err.getSystemId());
+		        + ", urn " + err.getSystemId());
 		      println("   " + err.getMessage());
 		    }
 	    
@@ -2706,14 +2712,44 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
     /**
      * Add a NestedNameSpace object to this.
      * 
-     * @param id
+     * @param urn
      * @param nns
      */
-    public void putNestedNameSpace(String id, ElementState nns)
+    private void nestNameSpace(String urn, ElementState nns)
     {
     	if (nestedNameSpaces == null)
     		nestedNameSpaces	= new HashMap<String, ElementState>(2);
     	
-    	nestedNameSpaces.put(id, nns);
+    	nestedNameSpaces.put(urn, nns);
+    }
+    
+    /**
+     * Either lookup an existing Nested Namespace object, 
+     * or form a new one, map it, and return it.
+     * 
+     * @param id
+     * @param esClass
+     * @return		Namespace ElementState object associated with urn.
+     */
+    ElementState getNestedNameSpace(String id)
+    {
+    	ElementState result	= (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
+    	if (result == null)
+    	{
+    		Class<? extends ElementState> esClass	= optimizations.lookupNameSpaceClassById(id);
+    		if (esClass != null)
+    		{
+	    		try
+				{
+					result			= XmlTools.getInstance(esClass);
+		    		nestNameSpace(id, result);
+		    		debug("WOW! Created nested Namespace xmlns:"+id+'\n');
+				} catch (XmlTranslationException e)
+				{
+					e.printStackTrace();
+				}
+    		}
+    	}
+    	return result;
     }
 }

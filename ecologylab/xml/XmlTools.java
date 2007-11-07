@@ -483,13 +483,13 @@ implements CharacterConstants
 	 * @return				The resulting object.
 	 * 
 	 * @throws XmlTranslationException	If the constructor fails, or
-	 *  if that class lacks a constructor that takes no paramebers.
+	 *  if that class lacks a constructor that takes no parameters.
 	 */
-	public static Object getInstance(Class thatClass)
+	public static<T> T getInstance(Class<T> thatClass)
 	throws XmlTranslationException
 	{
 		// form the new object derived from ElementState
-		Object nestedObject		= null;
+		T nestedObject		= null;
 		try
 		{			  
 			nestedObject	=	thatClass.newInstance();

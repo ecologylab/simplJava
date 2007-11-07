@@ -48,6 +48,8 @@ public final class TranslationSpace extends Debug
    private HashMap<String, TranslationEntry>	entriesByClassSimpleName	= new HashMap<String, TranslationEntry>();
    private HashMap<String, TranslationEntry>	entriesByTag				= new HashMap<String, TranslationEntry>();
    
+   private final HashMap<String, Class<? extends ElementState>>	nameSpaceClassesByURN = new HashMap<String, Class<? extends ElementState>>();
+   
    private static HashMap<String, TranslationSpace>	allTranslationSpaces	= new HashMap<String, TranslationSpace>();
       
    /**
@@ -171,8 +173,38 @@ public final class TranslationSpace extends Debug
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
+   /**
+    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Then, add the array of translations, then, make the defaultPackageName available.
+    * Map XML Namespace declarations.
+    *      
+    * @param name
+    * @param defaultPackgeName
+    * @param inheritedTranslations
+    * @param translations
+    * @param nameSpaceDecls
+    */
+   private TranslationSpace(String name, String defaultPackgeName, TranslationSpace[] inheritedTranslations,
+		   Class[] translations, NameSpaceDecl[] nameSpaceDecls)
+   {
+	   this(name, defaultPackgeName, inheritedTranslations, translations);
+	   addNameSpaceDecls(nameSpaceDecls);
+   }
    
    /**
+    * Map XML Namespace ElementState subclasses to URIs.
+    * 
+    * @param nameSpaceDecls
+    */
+   private void addNameSpaceDecls(NameSpaceDecl[] nameSpaceDecls)
+   {
+	   for (NameSpaceDecl nsd: nameSpaceDecls)
+	   {
+		   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
+	   }
+   }
+   
+  /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
     * 
@@ -332,11 +364,14 @@ public final class TranslationSpace extends Debug
 
 	  if (entry == null)
 	  {
-		 String className	= XmlTools.classNameFromElementName(xmlTag);
+		 String classSimpleName	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
-		 entry				= new TranslationEntry(packageName, className, xmlTag, null);
+		 if (packageName != null)
+			 entry				= new TranslationEntry(packageName, classSimpleName, xmlTag, null);
+		 else
+			 entry				= new TranslationEntry(xmlTag);	// new empty entry
 	  }
-	  else if (entry.empty)
+	  if (entry.empty)
 	  {
 //		 debug("using memorized no mapping for " + xmlTag);
 		 return null;
@@ -494,6 +529,25 @@ public final class TranslationSpace extends Debug
 
 	  boolean					empty;
 	  
+	  /**
+	   * Construct an empty entry for tag.
+	   * This means that the TranslationSpace will map tag to no class forever.
+	   * 
+	   * @param tag
+	   */
+	  public TranslationEntry(String tag)
+	  {
+		  this.tag				= tag;
+		  this.empty			= true;
+		  this.packageName		= null;
+		  this.classSimpleName	= null;
+		  this.classWholeName	= null;
+		  this.dottedPackageName= null;
+		  this.tagWithPackage	= null;
+		  this.classObj			= null;
+		  
+		  entriesByTag.put(tag, this);
+	  }
 	  /**
 	   * Create the entry by package name and class name.
 	   */
@@ -750,6 +804,30 @@ public final class TranslationSpace extends Debug
 	   }
 	   return result;	   
    }
+
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * 
+    * @param name
+    * @param defaultPackageName
+    * @param inheritedTranslationsSet
+    * @param translations
+    * @param nameSpaceDecls				Array of NameSpace ElementState class + URI key map entries.
+    * @return
+    */
+   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslationsSet,
+		   Class[] translations, NameSpaceDecl[] nameSpaceDecls)
+   {
+	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations, nameSpaceDecls);
+	   }
+	   return result;	   
+   }
+
+   
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
@@ -846,7 +924,6 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
     * @param inheritedTranslationsSet
     * @param translations
     * @return
@@ -904,8 +981,6 @@ public final class TranslationSpace extends Debug
 	   return entriesByTag;
    }
 	
-   private final HashMap<String, Class<? extends ElementState>>	nameSpaceRegistryByURN = new HashMap<String, Class<? extends ElementState>>();
-   
    /**
     * Lookup a NameSpace ElementState subclass, with a URN as the key.
     * 
@@ -914,6 +989,7 @@ public final class TranslationSpace extends Debug
     */
    public Class<? extends ElementState> lookupNameSpaceByURN(String urn)
    {
-	   return nameSpaceRegistryByURN.get(urn);
+	   return nameSpaceClassesByURN.get(urn);
    }
+
 }
