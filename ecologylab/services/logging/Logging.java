@@ -66,16 +66,16 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * This is the Vector for the operations that are being queued up before
      * they can go to outgoingOps.
      */
-    Vector<String>                       incomingOpsQueue                    = new Vector<String>();
+    private StringBuilder                incomingOpsBuffer;
 
     /**
      * This is the Vector for the operations that are in the process of being
      * written out.
      */
-    Vector<String>                       outgoingOpsQueue                    = new Vector<String>();
+    private StringBuilder                outgoingOpsBuffer;
 
-    /** Stores the pointer to outgoingOpsQueue for swapQueues. */
-    Vector<String>                       tempQueue                           = null;
+    /** Stores the pointer to outgoingOpsBuffer for swapQueues. */
+    private StringBuilder                tempOpsBuffer;
 
     /** Iterator for writing out ops. */
     Iterator                             outgoingOpsQueueIterator            = null;
@@ -87,8 +87,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
     /** Amount of time for writer thread to sleep; 15 seconds */
     static final int                     SLEEP_TIME                          = 15000;
 
-    static final long                    sessionStartTime                    = System
-                                                                                     .currentTimeMillis();
+    static final long                    sessionStartTime                    = System.currentTimeMillis();
 
     long                                 lastGcTime;
 
@@ -129,11 +128,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
     public static final String           LOGGING_MODE_PARAM                  = "log_mode";
 
-    final int                            maxOpsBeforeWrite;
+    final int                          	 maxOpsBeforeWrite;
+    
+    final int							 maxBufferSizeToWrite;
 
     /** used to prevent writes from getting interrupt()'ed */
-    private Boolean                      threadSemaphore                     = new Boolean(
-                                                                                     false);
+    private Object                       threadSemaphore                     = new Object();
 
     public Logging(TranslationSpace nameSpace)
     {
@@ -158,10 +158,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             int maxOpsBeforeWrite, int logMode, String loggingHost,
             int loggingPort)
     {
-        super();
-        this.maxOpsBeforeWrite = maxOpsBeforeWrite;
-        finished = false;
-        this.nameSpace = nameSpace;
+        this(maxOpsBeforeWrite);
+        finished 				= false;
+        this.nameSpace 			= nameSpace;
 
         if (logMode == NO_LOGGING)
         {
@@ -186,9 +185,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
                     }
                     else
                     {
-                        debug("Logging to file: " + logDir + logFileName);
-
                         File logFile = new File(logDir, logFileName);
+                        debug("Logging to file: " + logFile.getAbsolutePath());
+
                         BufferedWriter bufferedWriter = Files
                                 .openWriter(logFile);
 
@@ -228,9 +227,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
                     }
                     else
                     {
-                        debug("Logging to file: " + logDir + logFileName);
-
                         File logFile = new File(logDir, logFileName);
+                        debug("Logging to file: " + logFile.getAbsolutePath());
 
                         try
                         {
@@ -289,24 +287,33 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      */
     public Logging()
     {
-        this.maxOpsBeforeWrite = MAX_OPS_BEFORE_WRITE;
+    	this(MAX_OPS_BEFORE_WRITE);
+    }
+    
+    protected Logging(int maxOpsBeforeWrite)
+    {
+        this.maxOpsBeforeWrite 			= maxOpsBeforeWrite;
+    	final int maxBufferSizeToWrite	= maxOpsBeforeWrite * 1024;
+		incomingOpsBuffer				= new StringBuilder(maxBufferSizeToWrite);
+    	outgoingOpsBuffer				= new StringBuilder(maxBufferSizeToWrite);
+    	this.maxBufferSizeToWrite		= maxBufferSizeToWrite;
     }
 
     /**
      * If
      * 
      */
-    private void swapQueues()
+    private void swapBuffers()
     {
-        synchronized (this.outgoingOpsQueue)
+        synchronized (outgoingOpsBuffer)
         {
-            synchronized (this.incomingOpsQueue)
+            synchronized (incomingOpsBuffer)
             {
-                if (outgoingOpsQueue.isEmpty())
+                if (outgoingOpsBuffer.length() == 0)
                 {
-                    tempQueue = outgoingOpsQueue;
-                    outgoingOpsQueue = incomingOpsQueue;
-                    incomingOpsQueue = tempQueue;
+                    tempOpsBuffer		= outgoingOpsBuffer;
+                    outgoingOpsBuffer	= incomingOpsBuffer;
+                    incomingOpsBuffer	= tempOpsBuffer;
                 }
             }
         }
@@ -324,7 +331,27 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         {
             try
             {
-                logAction(op.translateToXML(false));
+            	if (logWriters != null)
+            	{
+            		synchronized (incomingOpsBuffer)
+            		{
+            			op.translateToXML(incomingOpsBuffer);
+            		}
+
+            		final int bufferLength = incomingOpsBuffer.length();
+					if ((thread != null)
+            				&& (bufferLength > maxBufferSizeToWrite))
+            		{
+            			synchronized (threadSemaphore)
+            			{
+            				debugA("interrupting thread to do i/o now: "
+            						+ bufferLength + "/" + maxOpsBeforeWrite);
+            				thread.interrupt(); // end sleep in that thread prematurely
+            				// to
+            				// do i/o
+            			}
+            		}
+                }
             }
             catch (XmlTranslationException e)
             {
@@ -333,30 +360,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         }
     }
 
-    public void logAction(String translatedXML)
-    {
-        if (logWriters != null)
-        {
-            synchronized (incomingOpsQueue)
-            {
-                incomingOpsQueue.add(translatedXML);
-            }
-
-            if ((thread != null)
-                    && (incomingOpsQueue.size() > maxOpsBeforeWrite))
-            {
-                synchronized (threadSemaphore)
-                {
-                    debugA("interrupting thread to do i/o now: "
-                            + incomingOpsQueue.size() + "/" + maxOpsBeforeWrite);
-                    thread.interrupt(); // end sleep in that thread prematurely
-                    // to
-                    // do i/o
-                }
-            }
-        }
-    }
-    
     /**
      * Returns the size of the list of log ops. May not be the correct value if
      * called during logging. This method should only be used for playback
@@ -462,26 +465,23 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             return;
         }
 
-        Vector<String> ourQueueToWrite = incomingOpsQueue;
-        synchronized (ourQueueToWrite)
+        StringBuilder bufferToWrite = incomingOpsBuffer;
+        synchronized (bufferToWrite)
         {
-            int size = ourQueueToWrite.size();
+            int size = bufferToWrite.length();
 
             if (size == 0)
                 return;
-            swapQueues();
-            // what was incomingOpsQueue is now outgoing!
+            swapBuffers();
+            // what was incomingOps is now outgoing!
             // String firstEntry = ourQueueToWrite.get(0);
 
             // debug("Logging: writeQueuedActions() start of output loop.");
 
-            for (String s : ourQueueToWrite)
+            for (LogWriter l : logWriters)
             {
-                // debug("consuming: "+s);
-                for (LogWriter l : logWriters)
-                {
-                    l.consumeOp(s);
-                }
+                l.consumeOp(bufferToWrite);
+                l.finishConsumingQueue();
             }
 
             /*
@@ -491,13 +491,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
              * String thatEntry = ourQueueToWrite.get(i);
              * logWriter.consumeOp(thatEntry); } }
              */
-            for (LogWriter l : logWriters)
-            {
-                l.finishConsumingQueue();
-            }
 
             // debug("Logging: writeQueuedActions() after output loop.");
-            ourQueueToWrite.clear();
+            bufferToWrite.setLength(0);
         }
 
     }
@@ -628,12 +624,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         abstract void writePrologue(SendPrologue sendPrologue);
 
         /**
-         * Process a single op -- take steps to send to destination, or actually
+         * Record a set of ops recorded as XML. Finish before returning.
          * send it.
          * 
-         * @param op
+         * @param ops
          */
-        abstract void consumeOp(String op);
+        abstract void consumeOp(StringBuilder opsBuffer);
 
         /**
          * Optional: commit changes; complete processing of the queue.
@@ -712,12 +708,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             // Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
         }
 
-        @Override void consumeOp(String op)
+        @Override void consumeOp(StringBuilder ops)
         {
             // Files.writeLine(bufferedWriter, op);
             try
             {
-                putInBuffer(encoder.encode(CharBuffer.wrap(op + "\n")));
+                putInBuffer(encoder.encode(CharBuffer.wrap(ops + "\n")));
             }
             catch (CharacterCodingException e)
             {
@@ -909,9 +905,18 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
         }
 
-        @Override void consumeOp(String op)
+        /**
+         * Write the opsBuffer to a file.
+         */
+        @Override void consumeOp(StringBuilder opsBuffer)
         {
-            Files.writeLine(bufferedWriter, op);
+        	try
+			{
+				bufferedWriter.append(opsBuffer);
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
         }
 
         @Override void finishConsumingQueue()
@@ -980,9 +985,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             }
         }
 
-        @Override void consumeOp(String op)
+        @Override void consumeOp(StringBuilder opsBuffer)
         {
-            opSet.recordStringOp(op);
+            opSet.recordOpBuffer(opsBuffer);
         }
 
         @Override void finishConsumingQueue()

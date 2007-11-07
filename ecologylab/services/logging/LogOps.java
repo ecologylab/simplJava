@@ -29,9 +29,10 @@ import ecologylab.xml.xml_inherit;
      * (elementState instanceof MixedInitiativeOp) set.add(elementState); }
      */
 
-    public void recordStringOp(String string)
+    public void recordOpBuffer(StringBuilder opsBuffer)
     {
-        set.add(string);
+    	//FIXME !!!! 
+//        set.add(string);
     }
 
     public void clearSet()
@@ -42,10 +43,5 @@ import ecologylab.xml.xml_inherit;
     public ArrayList<String> getSet()
     {
         return set;
-    }
-
-    public void setSet(ArrayList<String> set)
-    {
-        this.set = set;
     }
 }
