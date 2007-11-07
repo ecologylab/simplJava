@@ -1,7 +1,13 @@
 package ecologylab.xml.library.media;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.library.dc.Dc;
+import ecologylab.xml.library.rss.Channel;
+import ecologylab.xml.library.rss.Item;
+import ecologylab.xml.library.rss.RDFState;
+import ecologylab.xml.library.rss.RssState;
 
 /**
  * Root class for inserting elements from the Yahoo Media XML Namespace.
@@ -21,6 +27,9 @@ public class Media extends ElementState
 	@xml_nested Content		content;
 	
 	@xml_nested Credit		credit;
+	
+	@xml_nested	Thumbnail	thumbnail;
+	
 	@xml_leaf	String		title;
 	@xml_leaf	String		description;
 	
@@ -110,5 +119,26 @@ public class Media extends ElementState
 	{
 		this.credit = credit;
 	}
+	
+	private static final String TRANSLATION_SPACE_NAME	= "yahoo_media";
 
+	public static final Class TRANSLATIONS[]	= 
+	{
+		Media.class,
+		Thumbnail.class,
+		Content.class,
+		Description.class,
+		Credit.class,
+		
+	};
+
+	/**
+	 * TranslationSpace for Yahoo Media.
+	 * 
+	 * @return
+	 */
+	public static final TranslationSpace getTranslations()
+	{
+		return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+	}
 }
