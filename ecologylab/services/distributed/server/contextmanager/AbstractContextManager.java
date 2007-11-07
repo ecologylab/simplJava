@@ -10,11 +10,13 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
+import ecologylab.generic.StringTools;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.exceptions.BadClientException;
@@ -36,82 +38,99 @@ import ecologylab.xml.XmlTranslationException;
 public abstract class AbstractContextManager extends Debug implements ServerConstants
 {
     /** The encoder to translate from Strings to bytes. */
-    private static final CharsetEncoder   ENCODER                     = Charset.forName(CHARACTER_ENCODING)
-                                                                              .newEncoder();
+    private static final CharsetEncoder     ENCODER                     = Charset.forName(CHARACTER_ENCODING)
+                                                                                .newEncoder();
+
+    /**
+     * stores the sequence of characters read from the header of an incoming message, may need to persist across read
+     * calls, as the entire header may not be sent at once.
+     */
+    private final StringBuilder             currentHeaderSequence       = new StringBuilder();
+
+    /**
+     * stores the sequence of characters read from the header of an incoming message and identified as being a key for a
+     * header entry; may need to persist across read calls.
+     */
+    private final StringBuilder             currentKeyHeaderSequence    = new StringBuilder();
+
+    /** Stores the key-value pairings from a parsed HTTP-like header on an incoming message. */
+    protected final HashMap<String, String> headerMap                   = new HashMap<String, String>();
+
+    protected int                           startReadIndex              = 0;
 
     /**
      * Stores incoming character data until it can be parsed into an XML message and turned into a Java object.
      */
-    protected final StringBuilder         incomingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
+    protected final StringBuilder           incomingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
 
     /** Stores outgoing character data for ResponseMessages. */
-    protected final StringBuilder         outgoingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
+    protected final StringBuilder           outgoingMessageBuffer       = new StringBuilder(MAX_PACKET_SIZE);
 
     /** Stores outgoing header character data. */
-    protected final StringBuilder         outgoingMessageHeaderBuffer = new StringBuilder(MAX_PACKET_SIZE);
+    protected final StringBuilder           outgoingMessageHeaderBuffer = new StringBuilder(MAX_PACKET_SIZE);
 
     /** Indicates whether or not one or more messages are queued for execution by this ContextManager. */
-    protected boolean                     messageWaiting              = false;
+    protected boolean                       messageWaiting              = false;
 
     /**
      * A queue of the requests to be performed by this ContextManager. Subclasses may override functionality and not use
      * requestQueue.
      */
-    protected final Queue<RequestMessage> requestQueue                = new LinkedBlockingQueue<RequestMessage>();
+    protected final Queue<RequestMessage>   requestQueue                = new LinkedBlockingQueue<RequestMessage>();
 
     /** The ObjectRegistry that is used by the processRequest method of each incoming RequestMessage. */
-    protected ObjectRegistry              registry;
+    protected ObjectRegistry                registry;
 
     /**
      * The network communicator that will handle all the reading and writing for the socket associated with this
      * ContextManager
      */
-    protected NIOServerBackend            server;
+    protected NIOServerBackend              server;
 
     /**
      * The frontend for the server that is running the ContextManager. This is needed in case the client attempts to
      * restore a session, in which case the frontend must be queried for the old ContextManager.
      */
-    protected NIOServerFrontend           frontend                    = null;
+    protected NIOServerFrontend             frontend                    = null;
 
-    protected SocketChannel               socket;
+    protected SocketChannel                 socket;
 
     /** sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost connection. */
-    protected Object                      sessionId                   = null;
+    protected Object                        sessionId                   = null;
 
-    protected int                         maxPacketSize;
+    protected int                           maxPacketSize;
 
     /** Used to translate incoming message XML strings into RequestMessages. */
-    protected TranslationSpace            translationSpace;
+    protected TranslationSpace              translationSpace;
 
     /** A buffer for data that will be sent back to the client. */
-    private CharBuffer                    outgoingChars               = CharBuffer.allocate(MAX_PACKET_SIZE);
+    private CharBuffer                      outgoingChars               = CharBuffer.allocate(MAX_PACKET_SIZE);
 
     /** Tracks the number of bad transmissions from the client; used for determining if a client is bad. */
-    private int                           badTransmissionCount;
+    private int                             badTransmissionCount;
 
-    private int                           endOfFirstHeader            = -1;
+    private int                             endOfFirstHeader            = -1;
 
-    private long                          lastActivity                = System.currentTimeMillis();
+    private long                            lastActivity                = System.currentTimeMillis();
 
     /**
      * Counts how many characters still need to be extracted from the incomingMessageBuffer before they can be turned
      * into a message (based upon the HTTP header). A value of -1 means that there is not yet a complete header, so no
      * length has been determined (yet).
      */
-    private int                           contentLengthRemaining      = -1;
+    private int                             contentLengthRemaining      = -1;
 
     /**
      * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being read over several
      * invocations).
      */
-    private final StringBuilder           firstMessageBuffer          = new StringBuilder();
+    private final StringBuilder             firstMessageBuffer          = new StringBuilder();
 
     /**
      * Indicates whether the first request message has been received. The first request may be an InitConnection, which
      * has special properties.
      */
-    private boolean                       firstRequestReceived        = false;
+    private boolean                         firstRequestReceived        = false;
 
     /**
      * Creates a new ContextManager.
@@ -158,7 +177,9 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
             while (incomingMessageBuffer.length() > 0)
             {
                 if (endOfFirstHeader == -1)
-                    endOfFirstHeader = incomingMessageBuffer.indexOf("\r\n\r\n");
+                {
+                    endOfFirstHeader = this.parseHeader(startReadIndex, incomingMessageBuffer);
+                }
 
                 if (endOfFirstHeader == -1)
                 { /*
@@ -172,53 +193,51 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                                 .getHostAddress(), "Maximum HTTP header length exceeded. Read "
                                 + incomingMessageBuffer.length() + "/" + MAX_HTTP_HEADER_LENGTH);
 
-                        incomingMessageBuffer.delete(0, incomingMessageBuffer.length());
+                        incomingMessageBuffer.setLength(0);
 
                         throw e;
                     }
 
+                    // next time around, start reading from where we left off this time
+                    startReadIndex = incomingMessageBuffer.length();
+
                     break;
                 }
+                else
+                { // we've read all of the header, and have it loaded into the map; now we can use it
+                    try
+                    {
+                        contentLengthRemaining = Integer.parseInt(this.headerMap.get("content-length"));
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        e.printStackTrace();
+                        contentLengthRemaining = -1;
+                    }
+                    // next time we read the header (the next message), we need to start from the beginning
+                    startReadIndex = 0;
+                }
+
                 /*
-                 * we have the end of the first header; either just now or from a prior invocation of this method. If we
-                 * have it, but don't have the remaining content length, then we first need to extract that from the
-                 * header.
+                 * we have the end of the first header (otherwise we would have broken out earlier). If we don't have
+                 * the content length, something bad happened, because it should have been read.
                  */
                 if (contentLengthRemaining == -1)
                 {
-                    try
-                    {
-                        contentLengthRemaining = ServicesServer.parseHeader(incomingMessageBuffer.substring(0,
-                                endOfFirstHeader));
-
-                        /*
-                         * if we still don't have the remaining length, then there was a problem
-                         */
-                        if (contentLengthRemaining == -1)
-                        {
-                            break;
-                        }
-                        else if (contentLengthRemaining > maxPacketSize)
-                        {
-                            throw new BadClientException(this.socket.socket().getInetAddress().getHostAddress(),
-                                    "Specified content length too large: " + contentLengthRemaining);
-                        }
-
-                        /*
-                         * if we got here, endOfFirstHeader is not -1, so we need to add 4 to it to ensure we're just
-                         * after all the header (including the four termination markers)
-                         */
-                        endOfFirstHeader += 4;
-
-                        // done with the header; delete it
-                        incomingMessageBuffer.delete(0, endOfFirstHeader);
-                    }
-                    catch (IllegalStateException e)
-                    {
-                        throw new BadClientException(this.socket.socket().getInetAddress().getHostAddress(),
-                                "Malformed header.");
-                    }
+                    /*
+                     * if we still don't have the remaining length, then there was a problem
+                     */
+                    break;
                 }
+                else if (contentLengthRemaining > maxPacketSize)
+                {
+                    throw new BadClientException(this.socket.socket().getInetAddress().getHostAddress(),
+                            "Specified content length too large: " + contentLengthRemaining);
+                }
+
+                // done with the header; delete it
+                incomingMessageBuffer.delete(0, endOfFirstHeader);
+                this.headerMap.clear();
 
                 try
                 {
@@ -257,7 +276,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                      * if we've read a complete message, then contentLengthRemaining will be reset to -1
                      */
                     processString(firstMessageBuffer.toString());
-                    firstMessageBuffer.delete(0, firstMessageBuffer.length());
+                    firstMessageBuffer.setLength(0);
                 }
             }
         }
@@ -543,11 +562,8 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
      */
     private final void processString(String incomingMessage) throws BadClientException
     {
-        if (show(5))
-        {
-            debug("processing: " + incomingMessage);
-            debug("translationSpace: " + translationSpace.toString());
-        }
+        // debug("processing: " + incomingMessage);
+        // debug("translationSpace: " + translationSpace.toString());
 
         RequestMessage request = null;
         try
@@ -593,4 +609,81 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
         }
     }
 
+    /**
+     * Parses the header of an incoming set of characters (i.e. a message from a client to a server), loading all of the
+     * HTTP-like headers into the given headerMap.
+     * 
+     * If headerMap is null, this method will throw a null pointer exception.
+     * 
+     * @param allIncomingChars -
+     *            the characters read from an incoming stream.
+     * @param headerMap -
+     *            the map into which all of the parsed headers will be placed.
+     * @return the length of the parsed header, or -1 if it was not yet found.
+     */
+    protected int parseHeader(int startChar, StringBuilder allIncomingChars)
+    {
+        // indicates that we might be at the end of the header
+        boolean maybeEndSequence = false;
+        char currentChar;
+
+        synchronized (currentHeaderSequence)
+        {
+            StringTools.clear(currentHeaderSequence);
+            StringTools.clear(currentKeyHeaderSequence);
+
+            int length = allIncomingChars.length();
+
+            for (int i = 0; i < length; i++)
+            {
+                currentChar = allIncomingChars.charAt(i);
+
+                switch (currentChar)
+                {
+                case (':'):
+                    /*
+                     * we have the end of a key; move the currentHeaderSequence into the currentKeyHeaderSequence and
+                     * clear it
+                     */
+                    currentKeyHeaderSequence.append(currentHeaderSequence);
+
+                    StringTools.clear(currentHeaderSequence);
+
+                    break;
+                case ('\r'):
+                    /*
+                     * we have the end of a line; if there's a CRLF, then we have the end of the value sequence or the
+                     * end of the header.
+                     */
+                    if (allIncomingChars.charAt(i + 1) == '\n')
+                    {
+                        if (!maybeEndSequence)
+                        {// load the key/value pair
+                            headerMap.put(currentKeyHeaderSequence.toString().toLowerCase(), currentHeaderSequence
+                                    .toString());
+
+                            StringTools.clear(currentKeyHeaderSequence);
+                            StringTools.clear(currentHeaderSequence);
+
+                            i++; // so we don't re-read that last character
+                        }
+                        else
+                        { // end of the header
+                            return i + 2;
+                        }
+
+                        maybeEndSequence = true;
+                    }
+                    break;
+                default:
+                    currentHeaderSequence.append(currentChar);
+                    maybeEndSequence = false;
+                    break;
+                }
+            }
+
+            // if we got here, we didn't finish the header
+            return -1;
+        }
+    }
 }

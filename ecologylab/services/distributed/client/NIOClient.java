@@ -117,7 +117,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
 
     protected boolean                     isSending                    = false;
 
-    public NIOClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry)
+    public NIOClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry<?> objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
     }
