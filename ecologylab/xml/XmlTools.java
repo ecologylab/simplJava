@@ -902,7 +902,7 @@ static String q(String string)
    * Pretty printing XML, properly indented according to hierarchy.
    * 
    * @param xmlDoc
-   * @param outFile
+   * @param outputStreamWriter
  * @throws FileNotFoundException 
  * @throws XmlTranslationException 
    */

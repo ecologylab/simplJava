@@ -149,6 +149,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
      */
     private short                         floatingPrecision = FLOATING_PRECISION_OFF;
     
+    private static boolean				useDOMForTranslateTo;
+    
     /**
      * Construct. Create a link to a root optimizations object.
      */
@@ -2751,5 +2753,16 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
     		}
     	}
     	return result;
+    }
+    
+    /**
+     * Set to true to use the DOM parser by default for translateToXML().
+     * Otherwise, the SAX parser will be used.
+     * 
+     * @param value
+     */
+    public static void setUseDOMForTranslateTo(boolean value)
+    {
+    	useDOMForTranslateTo	= value;
     }
 }
