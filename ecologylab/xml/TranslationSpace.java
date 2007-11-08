@@ -277,7 +277,7 @@ public final class TranslationSpace extends Debug
 	*/
    public void addTranslation(Class classObj)
    {
-	   new TranslationEntry(classObj, classSimpleName(classObj));
+	   new TranslationEntry(classObj);
    }
 
    
@@ -364,6 +364,14 @@ public final class TranslationSpace extends Debug
 
 	  if (entry == null)
 	  {
+		 String className	= XmlTools.classNameFromElementName(xmlTag);
+		 if (defaultPackageName != null)
+		 {
+			 String packageName = defaultPackageName;
+			 entry				= new TranslationEntry(packageName, className, xmlTag, null);
+		 }
+		 else
+			 return null;
 		 String classSimpleName	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
 		 if (packageName != null)
@@ -376,7 +384,7 @@ public final class TranslationSpace extends Debug
 //		 debug("using memorized no mapping for " + xmlTag);
 		 return null;
 	  }
-	  return entry.classObj;
+	  return entry.thisClass;
    }
    /**
     * Get the Class object associated with this tag, if there is one.
@@ -388,7 +396,7 @@ public final class TranslationSpace extends Debug
    {
 	   TranslationEntry entry		= entriesByTag.get(tag);
 	   
-	   return (entry == null) ? null : entry.classObj;
+	   return (entry == null) ? null : entry.thisClass;
    }
    /**
     * Get the Class object associated with the provided class name, if there is one.
@@ -401,7 +409,7 @@ public final class TranslationSpace extends Debug
    {
 	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
 	   
-	   return (entry == null) ? null : entry.classObj;
+	   return (entry == null) ? null : entry.thisClass;
    }
    /**
     * Use this TranslationSpace to lookup a class that has the same simple name
@@ -482,7 +490,7 @@ public final class TranslationSpace extends Debug
 	   {
 		   TranslationEntry nameEntry = (TranslationEntry) translationEntriesIterator.next();
 		   if (!entriesByClassSimpleName.containsKey(nameEntry.classSimpleName))	// look out for redundant entries
-			   addTranslation(nameEntry.classObj);
+			   addTranslation(nameEntry.thisClass);
 		   else
 			   debug("WARNING: union() not overriding " + nameEntry);
 	   }
@@ -525,7 +533,7 @@ public final class TranslationSpace extends Debug
 
 	  public final String		dottedPackageName;
 	  public final String		tagWithPackage;
-	  public final Class		classObj;
+	  public final Class<?>		thisClass;
 
 	  boolean					empty;
 	  
@@ -544,7 +552,7 @@ public final class TranslationSpace extends Debug
 		  this.classWholeName	= null;
 		  this.dottedPackageName= null;
 		  this.tagWithPackage	= null;
-		  this.classObj			= null;
+		  this.thisClass		= null;
 		  
 		  entriesByTag.put(tag, this);
 	  }
@@ -559,25 +567,24 @@ public final class TranslationSpace extends Debug
 	  /**
 	   * Create the entry by package name and class name.
 	   */
-	  public TranslationEntry(Class<?> classObj, String classSimpleName)
+	  public TranslationEntry(Class<?> thisClass)
 	  {
-          // check to see if the class specifies it's tag through @xml_tag; sadly, this is a constructor
-		  this(classObj.getPackage().getName(), 
-                  classSimpleName, 
-                  classObj.getName(),
-                  determineXMLTag(classObj, classSimpleName), 
-                  classObj);
+		  this(thisClass.getPackage().getName(), 
+			   thisClass.getSimpleName(), 
+			   thisClass.getName(),
+			   determineXMLTag(thisClass, thisClass.getSimpleName()), 
+			   thisClass);
 	  }
 
     
 	  public TranslationEntry(String packageName, String classSimpleName, 
-					   		  String tag, Class classObj)
+					   		  String tag, Class<?> thisClass)
 	  {
-	  	 this(packageName, classSimpleName, packageName + "." + classSimpleName, tag, classObj);
+	  	 this(packageName, classSimpleName, packageName + "." + classSimpleName, tag, thisClass);
 	  }
 	  
 	  public TranslationEntry(String packageName, String classSimpleName, String classWholeName,
-			   				  String tag, Class classObj)
+			   				  String tag, Class<?> thisClass)
 {
 		 this.packageName		= packageName;
 		 /*
@@ -593,18 +600,18 @@ public final class TranslationSpace extends Debug
 		 String dottedPackageName		= packageName + ".";
 		 this.dottedPackageName	= dottedPackageName;
 		 this.tagWithPackage	= dottedPackageName + tag;
-		 if (classObj == null)
+		 if (thisClass == null)
 		 {
 			 try
 			 {  
-				classObj			= Class.forName(classWholeName);
+				thisClass			= Class.forName(classWholeName);
 			 } catch (ClassNotFoundException e)
 			 {
 				// maybe we need to use State
 				try
 				{
 				   //debug("trying " + wholeClassName+"State");
-				   classObj			= Class.forName(classWholeName+"State");
+				   thisClass			= Class.forName(classWholeName+"State");
 				} catch (ClassNotFoundException e2)
 				{
 				   debug("WARNING: can't find class object, create empty entry.");
@@ -616,12 +623,16 @@ public final class TranslationSpace extends Debug
 				}
 			 }
 		 }
-		 this.classObj			= classObj;
+		 this.thisClass			= thisClass;
 
 		 registerTranslation(tag, classSimpleName);
 //		 else
 //			debug("create entry");
 	  }
+//	  public TranslationEntry(String tagName)
+//	  {
+//		  empty	= true;
+//	  }
 	/**
 	 * @param tag
 	 * @param classSimpleName
@@ -655,8 +666,8 @@ public final class TranslationSpace extends Debug
 		  StringBuilder buffy = new StringBuilder(50);
 		 buffy.append("NameEntry[").append(classSimpleName).
 			append(" <").append(tag).append('>');
-		 if (classObj != null)
-			buffy.append(' ').append(classObj);
+		 if (thisClass != null)
+			buffy.append(' ').append(thisClass);
 		 buffy.append(']');
 		 return XmlTools.toString(buffy);
 	  }
@@ -705,7 +716,7 @@ public final class TranslationSpace extends Debug
 		  if (defaultPackageName != null)
 		  {	 // check for package name consistency
 			 String resultDefaultPackageName = result.defaultPackageName;
-			 if (!resultDefaultPackageName.equals(defaultPackageName))
+			 if ((resultDefaultPackageName != null) && !defaultPackageName.equals(resultDefaultPackageName))
 				throw new RuntimeException("TranslationSpace Consistency Check ERROR: Existing TranslationSpace " + name +
 					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
 		  }
