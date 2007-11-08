@@ -74,9 +74,9 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
 
     private final StringBuilder           requestBuffer                = new StringBuilder(MAX_PACKET_SIZE);
 
-    private static final CharsetDecoder   DECODER                      = Charset.forName("ASCII").newDecoder();
+    private static final CharsetDecoder   DECODER                      = Charset.forName(ServerConstants.CHARACTER_ENCODING).newDecoder();
 
-    protected static final CharsetEncoder ENCODER                      = Charset.forName("ASCII").newEncoder();
+    protected static final CharsetEncoder ENCODER                      = Charset.forName(ServerConstants.CHARACTER_ENCODING).newEncoder();
 
     private ResponseMessage               responseMessage              = null;
 
