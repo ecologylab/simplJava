@@ -403,7 +403,8 @@ implements OptimizationTypes
         		
         		String value		= scalarType.toString(field, context);
         		Document document 	= element.getOwnerDocument();
-				Text textNode		= document.createTextNode(value);
+
+        		Text textNode		= isCDATA ? document.createCDATASection(value) : document.createTextNode(value);
         		
         		Element leafNode	= document.createElement(tagName);
         		leafNode.appendChild(textNode);
@@ -448,7 +449,9 @@ implements OptimizationTypes
         	}
         }
     }
-
+    static final String START_CDATA	= "<![CDATA[";
+    static final String END_CDATA	= "]]>";
+    
     /**
      * Use this and the context to append a leaf node with value to the StringBuilder passed in.
      * 
@@ -472,8 +475,11 @@ implements OptimizationTypes
         		// (which is an instance variable of this) !!!
         		
         		buffy.append(openTag);
-        		
+        		if (isCDATA)
+        			buffy.append(START_CDATA);
         		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+        		if (isCDATA)
+        			buffy.append(END_CDATA);
         		
         		buffy.append(this.closeTag);
         	}
@@ -504,7 +510,11 @@ implements OptimizationTypes
         		
         		appendable.append(openTag);
         		
+        		if (isCDATA)
+        			appendable.append(START_CDATA);
         		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
+        		if (isCDATA)
+        			appendable.append(END_CDATA);
         		
         		appendable.append(this.closeTag);
         	}
