@@ -50,7 +50,7 @@ implements OptimizationTypes
 	/**
 	 * true for LEAF_NODE_VALUE entries. Value not used for other types.
 	 */
-//	private	boolean				isCDATA;
+	private	boolean				isCDATA;
 	
 	/**
 	 * Usually the class of the field corresponding to the tag in the context of the original ElementState 
@@ -91,6 +91,7 @@ implements OptimizationTypes
 		{
 			isScalar			= true;
 			this.type			= LEAF_NODE_VALUE;
+			setCDATA(field);
 		}
 		else
 		{
@@ -236,10 +237,8 @@ implements OptimizationTypes
 			{
 			case LEAF_NODE_VALUE:
 				this.classOp		= contextClass;
-/*				ElementState.xml_leaf leafAnnotation		= field.getAnnotation(ElementState.xml_leaf.class);
-				if ((leafAnnotation != null) && (leafAnnotation.value() == ElementState.CDATA))
-						this.isCDATA= true;
- */				return;
+				setCDATA(field);
+ 				return;
 			case IGNORED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
 				if (this.field != null)
 				{
@@ -363,6 +362,12 @@ implements OptimizationTypes
 		}
 		
 	}
+	private void setCDATA(Field field)
+	{
+		ElementState.xml_leaf leafAnnotation		= field.getAnnotation(ElementState.xml_leaf.class);
+		if ((leafAnnotation != null) && (leafAnnotation.value() == ElementState.CDATA))
+				this.isCDATA= true;
+	}
 	
 	/**
 	 * Create a name space object, nested in the context, using info saved in this.
@@ -459,7 +464,7 @@ implements OptimizationTypes
 	 * 
 	 * @param parent
 	 * @param node
-	 * @param useExistingTree TODO
+	 * @param useExistingTree
 	 * @return
 	 * @throws XmlTranslationException
 	 */
@@ -602,7 +607,7 @@ implements OptimizationTypes
 				if (textNodeValue != null)
 				{
 					textNodeValue		= textNodeValue.trim();
-					if ((scalarType != null) && scalarType.needsEscaping())
+					if (!isCDATA && (scalarType != null) && scalarType.needsEscaping())
 						textNodeValue	= XmlTools.unescapeXML(textNodeValue);
 					//debug("setting special text node " +childFieldName +"="+textNodeValue);
 					if (textNodeValue.length() > 0)
