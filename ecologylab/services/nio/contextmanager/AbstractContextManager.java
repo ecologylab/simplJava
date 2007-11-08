@@ -205,17 +205,25 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                 }
                 else
                 { // we've read all of the header, and have it loaded into the map; now we can use it
-                    try
-                    {
-                        contentLengthRemaining = Integer.parseInt(this.headerMap.get("content-length"));
-                    }
-                    catch (NumberFormatException e)
-                    {
-                        e.printStackTrace();
-                        contentLengthRemaining = -1;
-                    }
-                    // next time we read the header (the next message), we need to start from the beginning
-                    startReadIndex = 0;
+                	if (contentLengthRemaining == -1)
+                	{
+	                    try
+	                    {
+	                    	// handle all header information here; delete it when done here
+	                        contentLengthRemaining = Integer.parseInt(this.headerMap.get("content-length"));
+
+	                        // done with the header; delete it
+	                        incomingMessageBuffer.delete(0, endOfFirstHeader);
+	                        this.headerMap.clear();
+	                    }
+	                    catch (NumberFormatException e)
+	                    {
+	                        e.printStackTrace();
+	                        contentLengthRemaining = -1;
+	                    }
+	                    // next time we read the header (the next message), we need to start from the beginning
+	                    startReadIndex = 0;
+                	}
                 }
 
                 /*
@@ -235,10 +243,6 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                             "Specified content length too large: " + contentLengthRemaining);
                 }
 
-                // done with the header; delete it
-                incomingMessageBuffer.delete(0, endOfFirstHeader);
-                this.headerMap.clear();
-
                 try
                 {
                     // see if the incoming buffer has enough characters to
@@ -255,15 +259,13 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                     }
                     else
                     {
-                        String charsRead = incomingMessageBuffer.toString();
-                        firstMessageBuffer.append(charsRead);
+                        firstMessageBuffer.append(incomingMessageBuffer);
 
                         // indicate that we need to get more from the buffer in
                         // the next invocation
-                        contentLengthRemaining -= charsRead.length();
-                        endOfFirstHeader = -2;
+                        contentLengthRemaining -= incomingMessageBuffer.length();
 
-                        incomingMessageBuffer.delete(0, charsRead.length());
+                        incomingMessageBuffer.setLength(0);
                     }
                 }
                 catch (NullPointerException e)
@@ -271,7 +273,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
                     e.printStackTrace();
                 }
 
-                if ((firstMessageBuffer != null) && (firstMessageBuffer.length() > 0) && (contentLengthRemaining == -1))
+                if ((firstMessageBuffer.length() > 0) && (contentLengthRemaining == -1))
                 { /*
                      * if we've read a complete message, then contentLengthRemaining will be reset to -1
                      */
