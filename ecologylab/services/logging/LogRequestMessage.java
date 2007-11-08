@@ -1,8 +1,12 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.xml_inherit;
-import java.io.FileOutputStream;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
@@ -10,6 +14,7 @@ import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.ElementState.xml_leaf;
 
 /**
  * Save the request logging messages from the client to the file. 
@@ -17,49 +22,53 @@ import ecologylab.xml.XmlTranslationException;
  *
  */
 @xml_inherit
-public class LogRequestMessage extends RequestMessage
+abstract public class LogRequestMessage extends RequestMessage
 {	
-	protected String			xmlString;
-	FileOutputStream outFile;
+    @xml_leaf(CDATA) protected StringBuilder	bufferToLog;
+
+	Writer 										outputStreamWriter;
 	
+	public LogRequestMessage()
+	{
+		
+	}
+	public LogRequestMessage(int bufferSize)
+	{
+		bufferToLog		= new StringBuilder(bufferSize);
+	}
 	/**
 	 * Save the logging messages to the session log file
 	 */
 	@Override public ResponseMessage performService(ObjectRegistry objectRegistry) 
 	{
 		debug("services: received Logging Messages " );
-        debug(xmlString);
-        try
+/*
+		try
         {
             debug(this.translateToXML());
         }
         catch (XmlTranslationException e1)
         {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-		
-		if( outFile != null )
+	*/	
+		if (outputStreamWriter != null )
 		{
 			try 
 			{	
-				String actionStr	=	getMessageString();
+				final StringBuilder bufferToLog = bufferToLog();
                 
-                debug(actionStr);
+                debug(bufferToLog);
                 
-				outFile.write(actionStr.getBytes());
+				outputStreamWriter.append(bufferToLog);
 			} 
-			catch (XmlTranslationException e) 
-			{
-				e.printStackTrace();
-			}
 			catch (IOException e) 
 			{
 				e.printStackTrace();
 			}
 		}
 		else
-			debug("ERROR: Can't log because FileOutputStream has not been created: " + outFile );
+			error("Can't log because there is no outputStreamWriter.");
 		
 		debug("services: sending OK response");
 		
@@ -67,70 +76,35 @@ public class LogRequestMessage extends RequestMessage
 
 	}
 	
-	/**
-	 * Get message string to be saved in the session log file 
-	 * This method is overrided by the sub-classes to handle specific messages for each request message.
-	 * 
-	 * @return
-	 * @throws XmlTranslationException
-	 */
-/*	String getMessageString() throws XmlTranslationException 
+	public void setWriter(OutputStreamWriter outputStreamWriter)
 	{
-		String xmlString	= xmlString();
-		
-		return (xmlString != null) ? xmlString : this.translateToXML(false);
-	}
-*/
-	/**
-	 * The string that the LoggingServer will write.
-	 * Uses substring() to peel the inner message out of the LogRequestApplication.
-	 * 
-	 * Eliminates the outer XML element, such as <log_request_message> or <log_ops>.
-	 */
-	protected String getMessageString() throws XmlTranslationException
-	{
-//		FieldToXMLOptimizations	tagMapEntry	= this.getTagMapEntry(getClass(), false);
-		String xmlString1	= xmlString();
-	
-		// if not on server, do normal translate to XML
-		if (xmlString1 == null)
-			xmlString1		= this.translateToXML(false);
-
-		// if on server, peel message(s) out of the XML we received, without parsing it!
-		
-//		int start			= xmlString.indexOf(tagMapEntry.openTag) + tagMapEntry.openTag.length();
-		// start of the real stuff is the end of the first tag -- whatever it is
-		int start			= xmlString1.indexOf('>') + 1;
-		// end of the real stuff is the start of the close tag... 
-		// which also should be the start of the last tag -- whatever it is
-		int end				= xmlString1.lastIndexOf('<');
-//		int end				= xmlString.indexOf(tagMapEntry.closeTag);
-		if( (start==0) || (end==-1) )
-		{
-			debug("RECEIVE MESSAGE : " + xmlString1);
-			return "\n";
-		}
-		return xmlString1.substring(start, end) + "\n";
+		this.outputStreamWriter = outputStreamWriter;
 	}
 
+    public void appendToBuffer(StringBuilder opsBuffer)
+    {
+    	bufferToLog.append(opsBuffer);
+    }
+    public void setBuffer(StringBuilder bufferToLog)
+    {
+    	this.bufferToLog	= bufferToLog;
+    }
 	/**
-	 * Full XML for the message to be logged.
+	 * Stuff to write to the log file based on the contents of this message.
 	 * 
-	 * @return
+	 * @return	ops, the buffer in which MixedInitiativeOps have been passed here.
 	 */
-	public String xmlString()
+	protected StringBuilder bufferToLog()
 	{
-		return xmlString;
-	}
-
-	public void setXmlString(String xmlString)
-	{
-		this.xmlString = xmlString;
-	}
-	
-	public void setOutputStream(FileOutputStream outputStream)
-	{
-		this.outFile = outputStream;
-	}
+		return bufferToLog;
+	}    
+    /**
+     * Clear the buffer for re-use, presumably after sending it.
+     */
+    public void clear()
+    {
+//    	bufferToLog.setLength(0);
+    	bufferToLog	= null;
+    }
 
 }

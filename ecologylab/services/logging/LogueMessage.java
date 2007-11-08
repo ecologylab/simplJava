@@ -12,7 +12,7 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  */
 @xml_inherit
-public class LogueMessage extends LogRequestMessage
+abstract public class LogueMessage extends LogRequestMessage
 {
 
 	@xml_attribute protected String logName;

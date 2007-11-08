@@ -59,9 +59,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      */
     ArrayList<LogWriter>                 logWriters                          = null;
 
-    /** Object for sending a batch of ops to the LoggingServer. */
-    LogOps                               opSet                               = new LogOps();
-
     /**
      * This is the Vector for the operations that are being queued up before
      * they can go to outgoingOps.
@@ -150,7 +147,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
     {
         this(nameSpace, logFileName, maxOpsBeforeWrite, Pref.lookupInt(
                 LOGGING_MODE_PARAM, NO_LOGGING), Pref
-                .lookupString(LOGGING_HOST_PARAM), Pref.lookupInt(
+                .lookupString(LOGGING_HOST_PARAM, "localhost"), Pref.lookupInt(
                 LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT));
     }
 
@@ -382,12 +379,17 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
     {
         if ((logWriters != null) && (thread == null))
         {
-            SendPrologue sendPrologue = null;
-            sendPrologue = new SendPrologue(this, getPrologue());
-
-            for (LogWriter l : logWriters)
+            final Prologue prologue = getPrologue();
+    		String uid = Pref.lookupString("uid", "0");
+    		Logging.this.debug("Logging: Sending Prologue userID:" + uid);
+    		prologue.setUserID(uid);
+           
+            // necessary for acquiring wrapper characters, like <op_sequence>
+            final SendPrologue sendPrologue	= new SendPrologue(Logging.this, prologue);
+            
+            for (LogWriter logWriter : logWriters)
             {
-                l.writePrologue(sendPrologue);
+                logWriter.writePrologue(sendPrologue);
             }
 
             thread = new Thread(this);
@@ -408,12 +410,15 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             thread = null;
             if (logWriters != null)
             {
-                writeQueuedActions();
+                writeBufferedOps();
 
-                for (LogWriter l : logWriters)
+                final Epilogue epilogue = getEpilogue();
+                // necessary for acquiring wrapper characters, like </op_sequence>
+                final SendEpilogue sendEpilogue	= new SendEpilogue(this, epilogue);
+                for (LogWriter logWriter : logWriters)
                 {
-                    l.writeEpilogueAndClose(new SendEpilogue(this,
-                            getEpilogue()));
+                	logWriter.writeLogMessage(sendEpilogue);
+                	logWriter.close();
                 }
                 logWriters = null;
             }
@@ -436,7 +441,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
             synchronized (threadSemaphore)
             {
-                writeQueuedActions();
+                writeBufferedOps();
             }
 
             long now = System.currentTimeMillis();
@@ -456,7 +461,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * <p/> NB: This method is SINGLE Threaded! It is not thread safe. It must
      * only be called from the run() method.
      */
-    protected void writeQueuedActions()
+    protected void writeBufferedOps()
     {
         if (logWriters == null)
         {
@@ -478,10 +483,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
             // debug("Logging: writeQueuedActions() start of output loop.");
 
-            for (LogWriter l : logWriters)
+            for (LogWriter logWriter : logWriters)
             {
-                l.consumeOp(bufferToWrite);
-                l.finishConsumingQueue();
+                logWriter.writeBufferedOps(bufferToWrite);
             }
 
             /*
@@ -615,35 +619,29 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         {
 
         }
-
         /**
-         * Write the prologue -- special stuff at the beginning of a session.
+         * Get the bufferToLog() from the LogRequestMessage.
+         * Write it out!
          * 
-         * @param prologue
+         * @param logRequestMessage
          */
-        abstract void writePrologue(SendPrologue sendPrologue);
-
-        /**
-         * Record a set of ops recorded as XML. Finish before returning.
-         * send it.
-         * 
-         * @param ops
-         */
-        abstract void consumeOp(StringBuilder opsBuffer);
-
-        /**
-         * Optional: commit changes; complete processing of the queue.
-         * 
-         */
-        abstract void finishConsumingQueue();
-
-        /**
-         * Close resources associated with this at the end of a session.
-         * 
-         * @param sendEpilogue
-         *            TODO
-         */
-        abstract void writeEpilogueAndClose(SendEpilogue sendEpilogue);
+        void writeLogMessage(LogRequestMessage logRequestMessage)
+        {
+        	StringBuilder buffy	= logRequestMessage.bufferToLog();
+        	writeLogMessage(buffy);
+        	
+        }
+        abstract void writeLogMessage(StringBuilder xmlBuffy);
+               
+        void writePrologue(SendPrologue sendPrologue)
+        {
+        	writeLogMessage(sendPrologue);
+        }
+        void writeBufferedOps(StringBuilder opsBuffer)
+        {
+        	writeLogMessage(opsBuffer);
+        }
+        abstract void close();
     }
 
     /**
@@ -690,120 +688,88 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         }
 
         /**
-         * Write the prologue -- special stuff at the beginning of a session.
+         * Get the bufferToLog() from the LogRequestMessage.
+         * Write it out!
          * 
-         * @param prologue
+         * @param buffy
          */
-        @Override void writePrologue(SendPrologue sendPrologue)
+        @Override void writeLogMessage(StringBuilder buffy)
         {
             try
             {
-                putInBuffer(encoder.encode(CharBuffer.wrap(sendPrologue
-                        .getMessageString())));
+                putInBuffer(encoder.encode(CharBuffer.wrap(buffy)));
             }
             catch (CharacterCodingException e)
             {
                 e.printStackTrace();
             }
-            // Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
+         	
         }
+        @Override
+		public void close()
+		{
+			try
+			{
+				buffy.force();
 
-        @Override void consumeOp(StringBuilder ops)
-        {
-            // Files.writeLine(bufferedWriter, op);
-            try
-            {
-                putInBuffer(encoder.encode(CharBuffer.wrap(ops + "\n")));
-            }
-            catch (CharacterCodingException e)
-            {
-                e.printStackTrace();
-            }
-        }
+				// shrink the file to the appropriate size
+				int fileSize = 0;
 
-        @Override void finishConsumingQueue()
-        {
+				fileSize = endOfMappedBytes - LOG_FILE_INCREMENT
+				+ buffy.position();
 
-        }
+				buffy = null;
 
-        /**
-         * Close the local file.
-         */
-        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
-        {
-            System.out.println("writing epilogue and closing");
+				channel.close();
 
-            try
-            {
-                putInBuffer(encoder.encode(CharBuffer.wrap(sendEpilogue
-                        .getMessageString())));
+				channel = null;
 
-                buffy.force();
+				// do garbage collection to ensure that the file is no longer
+				// mapped
+				System.runFinalization();
+				System.gc();
 
-                // shrink the file to the appropriate size
-                int fileSize = 0;
+				debug("final log file size is " + fileSize + " bytes.");
 
-                fileSize = endOfMappedBytes - LOG_FILE_INCREMENT
-                        + buffy.position();
+				debug("truncating log.");
 
-                buffy = null;
+				boolean truncated = false;
+				int numTries = 0;
 
-                channel.close();
+				while (!truncated)
+				{
+					try
+					{
+						new RandomAccessFile(logFile, "rw").getChannel()
+						.truncate(fileSize);
 
-                channel = null;
+						truncated = true;
+					}
+					catch (IOException e)
+					{
+						debug("truncation failed because the file is still mapped, attempting to garbage collect...AGAIN.");
 
-                // do garbage collection to ensure that the file is no longer
-                // mapped
-                System.runFinalization();
-                System.gc();
+						// do garbage collection to ensure that the file is no
+						// longer mapped
+						System.runFinalization();
+						System.gc();
 
-                debug("final log file size is " + fileSize + " bytes.");
+						numTries++;
+					}
 
-                debug("truncating log.");
+					if (numTries == 10)
+					{
+						debug("Tried to unmap file 10 times; failing now.");
 
-                boolean truncated = false;
-                int numTries = 0;
-
-                while (!truncated)
-                {
-                    try
-                    {
-                        new RandomAccessFile(logFile, "rw").getChannel()
-                                .truncate(fileSize);
-
-                        truncated = true;
-                    }
-                    catch (IOException e)
-                    {
-                        debug("truncation failed because the file is still mapped, attempting to garbage collect...AGAIN.");
-
-                        // do garbage collection to ensure that the file is no
-                        // longer mapped
-                        System.runFinalization();
-                        System.gc();
-
-                        numTries++;
-                    }
-
-                    if (numTries == 10)
-                    {
-                        debug("Tried to unmap file 10 times; failing now.");
-
-                        truncated = true;
-                    }
-                }
-            }
-            catch (CharacterCodingException e)
-            {
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-
-            debug("log file closed.");
-        }
+						truncated = true;
+					}
+				}
+			} catch (IOException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 
         private void putInBuffer(ByteBuffer incoming)
         {
@@ -896,40 +862,21 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         }
 
         /**
-         * Write the prologue -- special stuff at the beginning of a session.
-         * 
-         * @param prologue
-         */
-        @Override void writePrologue(SendPrologue sendPrologue)
-        {
-            Files.writeLine(bufferedWriter, sendPrologue.getMessageString());
-        }
-
-        /**
          * Write the opsBuffer to a file.
          */
-        @Override void consumeOp(StringBuilder opsBuffer)
+        @Override void writeLogMessage(StringBuilder buffy)
         {
         	try
 			{
-				bufferedWriter.append(opsBuffer);
+				bufferedWriter.append(buffy);
 			} catch (IOException e)
 			{
 				e.printStackTrace();
 			}
         }
 
-        @Override void finishConsumingQueue()
+        @Override void close()
         {
-
-        }
-
-        /**
-         * Close the local file.
-         */
-        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
-        {
-            Files.writeLine(bufferedWriter, sendEpilogue.getMessageString());
             try
             {
                 bufferedWriter.close();
@@ -938,10 +885,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             {
                 e.printStackTrace();
             }
-            bufferedWriter = null;
+            bufferedWriter = null;       	
         }
     }
-
     /**
      * LogWriter that connects to the ServicesServer over the network for
      * logging.
@@ -951,73 +897,80 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      */
     protected class NetworkLogWriter extends LogWriter
     {
-        NIOClient loggingClient;
+    	NIOClient loggingClient;
 
-        NetworkLogWriter(NIOClient loggingClient) throws IOException
-        {
-            if (loggingClient == null)
-                throw new IOException(
-                        "Can't log to Network with null loggingClient.");
-            this.loggingClient = loggingClient;
-            Logging.this.debug("Logging to service via connection: "
-                    + loggingClient);
-        }
+    	/** Object for sending a batch of ops to the LoggingServer. */
+    	final LogOps                         logOps;
 
-        /**
-         * Write the prologue -- special stuff at the beginning of a session.
-         * 
-         * @param prologue
-         */
-        @Override void writePrologue(SendPrologue sendPrologue)
-        {
-            debug("logging client writing prologue");
+    	NetworkLogWriter(NIOClient loggingClient) throws IOException
+    	{
+    		if (loggingClient == null)
+    			throw new IOException(
+    					"Can't log to Network with null loggingClient.");
+    		this.loggingClient = loggingClient;
+    		Logging.this.debug("Logging to service via connection: "
+    				+ loggingClient);
 
-            String uid = Pref.lookupString("uid", "0");
-            Logging.this.debug("Logging: Sending Prologue userID:" + uid);
-            sendPrologue.prologue.setUserID(uid);
-            try
-            {
-                loggingClient.nonBlockingSendMessage(sendPrologue);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
+//    		logOps				= new LogOps(maxBufferSizeToWrite);
+    		logOps				= new LogOps();
+    	}
 
-        @Override void consumeOp(StringBuilder opsBuffer)
-        {
-            opSet.recordOpBuffer(opsBuffer);
-        }
+    	/**
+    	 * Write the prologue -- special stuff at the beginning of a session.
+    	 * @param prologue
+    	 */
+    	@Override void writePrologue(SendPrologue sendPrologue)
+    	{
+    		debug("logging client writing prologue");
+    		writeLogMessage(sendPrologue);
+    	}
 
-        @Override void finishConsumingQueue()
-        {
-            try
-            {
-                loggingClient.nonBlockingSendMessage(opSet);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+    	@Override void writeLogMessage(LogRequestMessage message)
+    	{
+    		try
+    		{
+    			loggingClient.nonBlockingSendMessage(message);
+    		}
+    		catch (IOException e)
+    		{
+    			e.printStackTrace();
+    		}
 
-            opSet.clearSet();
-        }
+    	}
 
-        /**
-         * Close the connection to the loggingServer.
-         */
-        @Override void writeEpilogueAndClose(SendEpilogue sendEpilogue)
-        {
-            debug("write epilogue and close.");
+    	@Override void writeBufferedOps(StringBuilder buffy)
+    	{
+    		logOps.setBuffer(buffy);
+//    		logOps.appendToBuffer(buffy);
+    		try
+    		{
+    			loggingClient.nonBlockingSendMessage(logOps);
 
-            Logging.this.debug("Logging: Sending Epilogue " + LOG_CLOSING);
+    			logOps.clear();
+    			buffy.setLength(0);
+    		}
+    		catch (IOException e)
+    		{
+    			e.printStackTrace();
+    		}
+    	}
 
-            loggingClient.sendMessage(sendEpilogue, 5000);
+    	/**
+    	 * Close the connection to the loggingServer.
+    	 */
+    	 @Override void close()
+    	 {
+    		 debug("close.");
 
-            loggingClient.disconnect();
-            loggingClient = null;
-        }
+    		 loggingClient.disconnect();
+    		 loggingClient = null;
+    	 }
+
+		@Override
+		void writeLogMessage(StringBuilder xmlBuffy)
+		{
+			throw new UnsupportedOperationException();
+		}
     }
 
     /**

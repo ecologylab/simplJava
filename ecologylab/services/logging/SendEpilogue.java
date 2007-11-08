@@ -16,12 +16,18 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public final class SendEpilogue extends LogueMessage
 {
-	@xml_nested Epilogue		epilogue;
-	
 	public SendEpilogue(Logging logging, Epilogue epilogue)
 	{
 		super(logging);
-		this.epilogue	= epilogue;
+		try
+		{
+			bufferToLog	= epilogue.translateToXML((StringBuilder) null);
+			bufferToLog.insert(0, Logging.OP_SEQUENCE_END);
+			bufferToLog.append(endLog());
+		} catch (XmlTranslationException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public SendEpilogue()
@@ -29,17 +35,26 @@ public final class SendEpilogue extends LogueMessage
 		super();
 	}
 
-	protected String getMessageString()
-	{
-		try
-		{
-			return (Logging.OP_SEQUENCE_END + super.getMessageString() + endLog() );
-		} catch (XmlTranslationException e) 
-		{
-			e.printStackTrace();
-			return null;
-		}
-	}
+	/**
+	 * Stuff to write to the log file based on the contents of this message.
+	 * 
+	 * @return	The end of the op_sequence element, the epilogue, and the end of the log.
+	 */
+//	@Override
+//	protected StringBuilder bufferToLog()
+//	{
+//		try
+//		{
+//			StringBuilder buffy	= epilogue.translateToXML((StringBuilder) null);
+//			buffy.insert(0, Logging.OP_SEQUENCE_END);
+//			buffy.append(endLog());
+//			return buffy;
+//		} catch (XmlTranslationException e) 
+//		{
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 	
 	public String endLog()
  	{

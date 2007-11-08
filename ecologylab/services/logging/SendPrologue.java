@@ -21,8 +21,6 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class SendPrologue extends LogueMessage
 {
-	@xml_nested protected Prologue		prologue;
-	
 	@xml_attribute protected String	date					= new Date(System.currentTimeMillis()).toString();
 	
 	@xml_attribute protected String	ip						= NetTools.localHost();
@@ -34,11 +32,19 @@ public class SendPrologue extends LogueMessage
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
 		super(logging);
-		this.prologue	= prologue;
 		this.date		= prologue.date;
 		this.ip			= prologue.ip;
 		this.userID		= prologue.userID;
 		this.studyName  = prologue.getStudyName();
+		try
+		{
+			bufferToLog		= prologue.translateToXML((StringBuilder) null);
+			bufferToLog.insert(0, beginLog());
+			bufferToLog.append(Logging.OP_SEQUENCE_START);
+		} catch (XmlTranslationException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public SendPrologue()
@@ -47,21 +53,26 @@ public class SendPrologue extends LogueMessage
 	}
 
 	/**
-	 * Called only in the context of writing directly to a file, not from the
-	 * LoggingService, because in the latter case, the XML for Prologue will be
-	 * peeled out of the SendPrologue message using substring().
+	 * Stuff to write to the log file based on the contents of this message.
+	 * 
+	 * @return	The end of the op_sequence element, the epilogue, and the end of the log.
 	 */
-	protected String getMessageString()
-	{
-		try
-		{
-			return (beginLog() + super.getMessageString() + Logging.OP_SEQUENCE_START);
-		} catch (XmlTranslationException e) 
-		{
-			e.printStackTrace();
-			return null;
-		}
-	}
+//	@Override
+//	protected StringBuilder bufferToLog()
+//	{
+//		try
+//		{
+//			StringBuilder buffy	= prologue.translateToXML((StringBuilder) null);
+//			buffy.insert(0, beginLog());
+//			buffy.append(Logging.OP_SEQUENCE_START);
+//			return buffy;
+//		} catch (XmlTranslationException e) 
+//		{
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
+
 	public String getFileName()
 	{
 		String tempDate = date.replace(' ','_');

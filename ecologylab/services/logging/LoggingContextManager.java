@@ -6,15 +6,19 @@ package ecologylab.services.logging;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.services.ServerConstants;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.contextmanager.ContextManager;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 
@@ -31,11 +35,11 @@ import ecologylab.xml.XmlTranslationException;
 public class LoggingContextManager extends ContextManager
 {
 
-    FileOutputStream outputStream;
+    OutputStreamWriter	outputStreamWriter;
 
-    NIOLoggingServer loggingServer;
+    NIOLoggingServer 	loggingServer;
 
-    boolean          end = false;
+    boolean          	end = false;
 
     /**
      * @param token
@@ -70,21 +74,20 @@ public class LoggingContextManager extends ContextManager
             {
                 String name = loggingServer.getLogFilesPath()
                         + ((SendPrologue) requestMessage).getFileName();
-                getFile(name);
+                getOutputStreamWriter(name);
                 // servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject,
                 // getFile(name) );
             }
-            else if (outputStream == null)
+            else if (outputStreamWriter == null)
             {
                 debug("Prologue has not been received OR File has not been created!! "
                         + requestMessage);
             }
 
-            if ((outputStream != null)
+            if ((outputStreamWriter != null)
                     && (requestMessage instanceof LogRequestMessage))
             {
-                ((LogRequestMessage) requestMessage)
-                        .setOutputStream(outputStream);
+                ((LogRequestMessage) requestMessage).setWriter(outputStreamWriter);
             }
 
             responseMessage = super.performService(requestMessage);
@@ -92,6 +95,13 @@ public class LoggingContextManager extends ContextManager
             if (requestMessage instanceof SendEpilogue)
             {
                 debug("received epiliogue, set end to true");
+                try
+				{
+					outputStreamWriter.close();
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+				}
                 end = true;
             }
             else
@@ -101,10 +111,11 @@ public class LoggingContextManager extends ContextManager
         }
         return responseMessage;
     }
+//    private static final CharsetEncoder     ENCODER                     = Charset.forName(ServerConstants.CHARACTER_ENCODING).newEncoder();
 
-    protected FileOutputStream getFile(String fileName)
+    protected OutputStreamWriter getOutputStreamWriter(String fileName)
     {
-        if (outputStream == null)
+        if (outputStreamWriter == null)
         {
             try
             {
@@ -116,9 +127,14 @@ public class LoggingContextManager extends ContextManager
                     if (!dir.exists())
                         dir.mkdirs();
                 }
+                
+                debug("logging to file at: "+file.getAbsolutePath());
+                
                 // TODO what if (file.exists()) ???
-                outputStream = new FileOutputStream(file, true);
-                return outputStream;
+                FileOutputStream fos		= new FileOutputStream(file, true);
+                CharsetEncoder encoder      = Charset.forName(ServerConstants.CHARACTER_ENCODING).newEncoder();
+                outputStreamWriter			= new OutputStreamWriter(fos, encoder);
+                return outputStreamWriter;
             }
             catch (FileNotFoundException e)
             {
@@ -126,7 +142,7 @@ public class LoggingContextManager extends ContextManager
                 e.printStackTrace();
             }
         }
-        return outputStream;
+        return outputStreamWriter;
     }
 
     /**
@@ -139,26 +155,26 @@ public class LoggingContextManager extends ContextManager
      * @return
      * @throws XmlTranslationException
      */
-    protected RequestMessage translateStringToRequestMessage(
-            String messageString) throws XmlTranslationException
-    {
-        RequestMessage requestMessage = (RequestMessage) ElementState
-                .translateFromXMLString(messageString, translationSpace, false);
-
-        if (requestMessage instanceof LogRequestMessage)
-        { // special processing on log messages
-            LogRequestMessage lrm = (LogRequestMessage) requestMessage;
-            lrm.setXmlString(messageString);
-        }
-        else if (!(requestMessage instanceof InitConnectionRequest))
-        { // if not log message or connection initialization, bad things
-            throw new XmlTranslationException(
-                    "LoggingServer received non logging message: "
-                            + requestMessage);
-        }
-
-        return requestMessage;
-    }
+//    protected RequestMessage translateStringToRequestMessage(
+//            String messageString) throws XmlTranslationException
+//    {
+//        RequestMessage requestMessage = (RequestMessage) ElementState
+//                .translateFromXMLString(messageString, translationSpace, false);
+//
+//        if (requestMessage instanceof LogRequestMessage)
+//        { // special processing on log messages
+//            LogRequestMessage lrm = (LogRequestMessage) requestMessage;
+//            lrm.setXmlString(messageString);
+//        }
+//        else if (!(requestMessage instanceof InitConnectionRequest))
+//        { // if not log message or connection initialization, bad things
+//            throw new XmlTranslationException(
+//                    "LoggingServer received non logging message: "
+//                            + requestMessage);
+//        }
+//
+//        return requestMessage;
+//    }
 
     @Override public void shutdown()
     {
@@ -178,7 +194,7 @@ public class LoggingContextManager extends ContextManager
         if (!end)
         {
             SendEpilogue sE = new SendEpilogue();
-            sE.setOutputStream(this.outputStream);
+            sE.setWriter(outputStreamWriter);
             sE.performService(registry);
         }
 

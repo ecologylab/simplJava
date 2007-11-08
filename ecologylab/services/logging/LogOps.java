@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XmlTranslationException;
 import ecologylab.xml.xml_inherit;
 
@@ -16,32 +18,42 @@ import ecologylab.xml.xml_inherit;
  */
 @xml_inherit public final class LogOps extends LogRequestMessage
 {
-    @xml_collection protected ArrayList<String> set = new ArrayList<String>();
-
     /** Constructor for XML translation. */
     public LogOps()
     {
         super();
     }
 
-    /*
-     * public void addNestedElement(ElementState elementState) { if
-     * (elementState instanceof MixedInitiativeOp) set.add(elementState); }
-     */
-
-    public void recordOpBuffer(StringBuilder opsBuffer)
+    public LogOps(int bufferSize)
     {
-    	//FIXME !!!! 
-//        set.add(string);
+    	super(bufferSize);
     }
-
-    public void clearSet()
+    
+    static final Class[] CLASSES =
     {
-        set.clear();
-    }
+    	LogOps.class,
+    	LogRequestMessage.class
+    };
+    static final TranslationSpace	TS	= TranslationSpace.get("lo", CLASSES);
 
-    public ArrayList<String> getSet()
+    public static void main(String[] a)
     {
-        return set;
+    	LogOps l	= new LogOps();
+    	
+    	l.bufferToLog	= new StringBuilder("<cf_text_token delims_before=\" \" string=\"&quot;an\"/><cf_text_token delims_before=\" \" string=\"unprepared\"/>");
+    	
+    	try
+		{
+			l.translateToXML(System.out);
+			
+			StringBuilder buffy	= l.translateToXML((StringBuilder) null);
+			System.out.println("");
+			ElementState l2		= ElementState.translateFromXMLString(buffy.toString(), TS);
+			l2.translateToXML(System.out);
+		} catch (XmlTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }
