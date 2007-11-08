@@ -10,7 +10,7 @@ import java.io.IOException;
  * 
  * @author andruid
  */
-public class StringBuilderType extends ScalarType<StringBuilder>
+public class StringBuilderType extends ReferenceType<StringBuilder>
 {
 /**
  * This constructor should only be called once per session, through

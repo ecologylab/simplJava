@@ -29,6 +29,7 @@ public class TypeRegistry extends Debug
 	static Class[] BASIC_TYPES	=
 	{
 		StringType.class,
+		StringBuilderType.class,
 		IntType.class,
 		BooleanType.class,
 		FloatType.class,
