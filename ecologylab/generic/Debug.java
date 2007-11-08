@@ -153,10 +153,7 @@ public class Debug
       if (interactive)
 		 println(message);
    }
-   public static void println(StringBuffer message) 
-   {
-      System.out.println();
-   }
+
    public static void println(CharSequence message) 
    {   	
    	  if (logToFile)
@@ -197,7 +194,6 @@ public class Debug
    		  try
    		  {
    			  writer.append(message);
-   			  writer.append('\n');
    		  } catch (IOException e)
    		  {
    			  e.printStackTrace();
@@ -337,21 +333,31 @@ public class Debug
     */
    public static void error(Object that, CharSequence message)
    {
+	   emphasized(that, "ERROR - ", message);
+   }
+   /**
+    * Print a message with emphasis.
+    * 
+    * @param that
+    * @param header
+    * @param message
+    */
+   static void emphasized(Object that, String header, CharSequence message)
+   {
 	   print('\n');
 	   print(that.toString());
-	   print( SEPARATOR);
-	   print("ERROR - ");
+	   print(SEPARATOR);
+	   print(header);
 	   print(message);
 	   print('\n');
-	   print('\n');
+	   print('\n');	   
    }
-  
    /**
     * Print a message about a warning, starting with that.toString().
     */
    public static void warning(Object that, CharSequence message)
    {
-	   println("\n" + that + SEPARATOR + "WARNING - " + message + "\n");
+	   emphasized(that, "WARNING - ", message);
    }
   
    /**
@@ -359,7 +365,7 @@ public class Debug
     */
    public static void weird(Object that, CharSequence message)
    {
-	   println("\n" + that + SEPARATOR + "WEIRD - " + message + "\n");
+	   emphasized(that, "WEIRD - ", message);
    }
   
 /**
