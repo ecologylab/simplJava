@@ -103,8 +103,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	
 	HashMap<String, ElementState>						nestedNameSpaces;
 
-    static final HashMap		fieldsForClassMap	= new HashMap();
-
 	
 	public static final int 	UTF16_LE	= 0;
 	public static final int 	UTF16		= 1;
@@ -559,16 +557,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
 							}
-							// this is a special hack for working with pre-translated XML Strings (LogOp!)
-							//TODO -- get rid of this crap!!!!!! 
-							// Make sure LogOp uses CDATA!
-							//FIXME -- support scalar leaf type collections here!!!
-							else if (next instanceof String)
-								buffy.append((String) next);
 							else
-								throw new XmlTranslationException("Collections MUST contain " +
-										"objects of class derived from ElementState or XML Strings, but " +
-										thatReferenceObject +" contains some that aren't.");
+								throw collectionElementTypeException(thatReferenceObject);
 
 						}
 					}
@@ -594,6 +584,20 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			buffy.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
 		} // end if no nested elements or text node
+	}
+	/**
+	 * Generate an exception during translateToXML()
+	 * when a collection contains elements that are not ElementState subclasses, or ScalarType leafs.
+	 * 
+	 * @param thatReferenceObject
+	 * @return
+	 */
+	private XmlTranslationException collectionElementTypeException(
+			Object thatReferenceObject)
+	{
+		return new XmlTranslationException("Collections MUST contain " +
+				"objects of class derived from ElementState or Scalars, but " +
+				thatReferenceObject +" contains some that aren't.");
 	}
     
 	/**
@@ -753,17 +757,8 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementEntry, appendable);
 							}
-							// this is a special hack for working with pre-translated XML Strings (LogOp!)
-							//TODO -- get rid of this crap!!!!!! 
-							// Make sure LogOp uses CDATA!
-							//FIXME -- support scalar leaf type collections here!!!
-							else if (next instanceof String)
-								appendable.append((String) next);
 							else
-								throw new XmlTranslationException("Collections MUST contain " +
-										"objects of class derived from ElementState or XML Strings, but " +
-										thatReferenceObject +" contains some that aren't.");
-
+								throw collectionElementTypeException(thatReferenceObject);
 						}
 					}
 					else if (thatReferenceObject instanceof ElementState)
