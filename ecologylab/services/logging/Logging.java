@@ -74,9 +74,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
     /** Stores the pointer to outgoingOpsBuffer for swapQueues. */
     private StringBuilder                tempOpsBuffer;
 
-    /** Iterator for writing out ops. */
-    Iterator                             outgoingOpsQueueIterator            = null;
-
     boolean                              finished;
 
     static final int                     THREAD_PRIORITY                     = 1;

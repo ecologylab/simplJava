@@ -36,7 +36,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
      * @param registry
      */
     public ContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-            SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
+            SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry<?> registry)
     {
         super(sessionId, maxPacketSize, server, frontend, socket, translationSpace, registry);
     }

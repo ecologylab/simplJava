@@ -46,7 +46,7 @@ public class HTTPGetContextManager extends AbstractContextManager
      * @param registry
      */
     public HTTPGetContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-            SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
+            SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry<?> registry)
     {
         super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
     }

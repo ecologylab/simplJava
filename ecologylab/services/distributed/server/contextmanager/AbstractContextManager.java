@@ -79,7 +79,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
     protected final Queue<RequestMessage>   requestQueue                = new LinkedBlockingQueue<RequestMessage>();
 
     /** The ObjectRegistry that is used by the processRequest method of each incoming RequestMessage. */
-    protected ObjectRegistry                registry;
+    protected ObjectRegistry<?>                registry;
 
     /**
      * The network communicator that will handle all the reading and writing for the socket associated with this
@@ -144,7 +144,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
      * @param registry
      */
     public AbstractContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server,
-            NIOServerFrontend frontend, SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
+            NIOServerFrontend frontend, SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry<?> registry)
     {
         this.frontend = frontend;
         this.socket = socket;
