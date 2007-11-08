@@ -120,34 +120,35 @@ public class Debug
  * message will get logged. Otherwise, the statement will be ignored.
  */
    //TODO make levels work again
-   public static void println(int messageLevel, String message) 
+   public static void println(int messageLevel, CharSequence message) 
    {
       //if (messageLevel <= level.value())
 		// println(message);
    }
-   public static void printlnI(int messageLevel, String message) 
+   public static void printlnI(int messageLevel, CharSequence message) 
    {
       if (interactive)
 		 println(message);
    }
-   public static void println(Object o, StringBuffer message)
+   public static void println(Object o, CharSequence message)
    {
-      println(o, message.toString());
+	  print(o.toString());
+	  print(SEPARATOR);
+	  println(message);
    }
-   public static void println(Object o, String message)
+
+   public static void println(String className, CharSequence message)
    {
-      println(o + SEPARATOR + message);
+	   print(className);
+	   print(SEPARATOR);
+	   println(message);
    }
-   public static void println(String className, String message)
-   {
-      println(className + SEPARATOR + message);
-   }
-   public static void printlnI(Object o, String message)
+   public static void printlnI(Object o, CharSequence message)
    {
       if (interactive)
 		 println(o, message);
    }
-   public static void printlnI(String message) 
+   public static void printlnI(CharSequence message) 
    {
       if (interactive)
 		 println(message);
@@ -156,22 +157,51 @@ public class Debug
    {
       System.out.println();
    }
-   public static void println(String message) 
+   public static void println(CharSequence message) 
    {   	
    	  if (logToFile)
    	  {
-		 Files.writeLine(writer, message);	 
-	//	 if ((++sinceFlush % FLUSH_FREQUENCY) == 0)
-   	    	Files.flush(writer);	     	   
-   	  }  
+   		  try
+   		  {
+   			  writer.append(message);
+   			  writer.append('\n');
+   			  writer.flush();
+   		  } catch (IOException e)
+   		  {
+   			  e.printStackTrace();
+   		  }
+  	  }  
    	  else
 		 System.err.println(message);
    }
-   public static void print(String message) 
+   public static void print(char c) 
+   {
+	   if (logToFile)
+	   {
+		   try
+		   {
+			   writer.append(c);
+		   } catch (IOException e)
+		   {
+			   e.printStackTrace();
+		   }  
+	   }  
+	   else
+		   System.err.print(c);
+	   
+   }
+   public static void print(CharSequence message) 
    {
    	  if (logToFile)
    	  {
-		 Files.writeLine(writer, message);   	  
+   		  try
+   		  {
+   			  writer.append(message);
+   			  writer.append('\n');
+   		  } catch (IOException e)
+   		  {
+   			  e.printStackTrace();
+   		  }  
    	  }  
    	  else
 		 System.err.print(message);
@@ -180,14 +210,14 @@ public class Debug
  * Print a debug message, starting with the abbreviated class name of
  * the object.
  */
-   public static void printlnA(Object that, String message) 
+   public static void printlnA(Object that, CharSequence message) 
    {
       println(getClassName(that)+SEPARATOR + message/* +" " +level(that) */);
    }
 /**
  * Print a debug message, starting with the abbreviated class name.
  */
-   public static void printlnA(Class c, String message) 
+   public static void printlnA(Class c, CharSequence message) 
    {
       println(classSimpleName(c)+SEPARATOR + message);
    }
@@ -277,43 +307,49 @@ public class Debug
 /**
  * Print a debug message that starts with this.toString().
  */
-   public final void debug(String message)
+   public final void debug(CharSequence message)
    {
       println(this, message);
    }
    /**
     * Print a message about an error, starting with this.toString().
     */
-   public void error(String message)
+   public void error(CharSequence message)
    {
 	   error(this, message);
    }
    /**
     * Print a message about a warning, starting with this.toString().
     */
-   public void warning(String message)
+   public void warning(CharSequence message)
    {
 	   warning(this, message);
    }
    /**
     * Print a message about something that should never happen, starting with this.toString().
     */
-   public void weird(String message)
+   public void weird(CharSequence message)
    {
 	   weird(this, message);
    }
    /**
     * Print a message about an error, starting with that.toString().
     */
-   public static void error(Object that, String message)
+   public static void error(Object that, CharSequence message)
    {
-	   println("\n" + that + SEPARATOR + "ERROR - " + message + "\n");
+	   print('\n');
+	   print(that.toString());
+	   print( SEPARATOR);
+	   print("ERROR - ");
+	   print(message);
+	   print('\n');
+	   print('\n');
    }
   
    /**
     * Print a message about a warning, starting with that.toString().
     */
-   public static void warning(Object that, String message)
+   public static void warning(Object that, CharSequence message)
    {
 	   println("\n" + that + SEPARATOR + "WARNING - " + message + "\n");
    }
@@ -321,7 +357,7 @@ public class Debug
    /**
     * Print a message about something that should never happen, starting with that.toString().
     */
-   public static void weird(Object that, String message)
+   public static void weird(Object that, CharSequence message)
    {
 	   println("\n" + that + SEPARATOR + "WEIRD - " + message + "\n");
    }
@@ -336,7 +372,7 @@ public class Debug
 /**
  * Print a debug message that starts with the abbreviated class name of this.
  */
-   public final void debugA(String message)
+   public final void debugA(CharSequence message)
    {
       printlnA(this, message);
    }
@@ -347,7 +383,7 @@ public class Debug
    {
       printlnA(this, message.toString());
    }
-   public final void debugI(String message)
+   public final void debugI(CharSequence message)
    {
       printlnI(this, message);
    }
@@ -371,47 +407,47 @@ public class Debug
  * but only if messageLevel is greater than the debug <code>level</code> for
  * this class (see above).
  */
-   public final void debug(int messageLevel, String message)
+   public final void debug(int messageLevel, CharSequence message)
    {
 //      if (show(messageLevel))
       if (messageLevel <= level())
 		 println(this, message);
    }
-   public final void debugA(int messageLevel, String message)
+   public final void debugA(int messageLevel, CharSequence message)
    {
       if (messageLevel <= level())
 		 printlnA(this, message);
    }
    public static final void println(Object that, int messageLevel,
-				    String message)
+		   CharSequence message)
    {
       if (messageLevel <= level(that))
 		 println(that, message);
    }
    public static final void println(String className,
-			      int messageLevel, String message) 
+			      int messageLevel, CharSequence message) 
    {
       if (messageLevel <= level(className))
 		 println(message);
    }
    public static final void printlnA(Object that, int messageLevel, 
-				     String message)
+		   CharSequence message)
    {
       if (messageLevel <= level(that))
 		 printlnA(that, message);
    }
    public static final void printlnI(Object that, int messageLevel, 
-				     String message)
+		   CharSequence message)
    {
       if (messageLevel <= level(that))
 		 printlnI(that, message);
    }
-   public final void debugI(int messageLevel, String message)
+   public final void debugI(int messageLevel, CharSequence message)
    {
       if (messageLevel <= level())
 		 printlnI(this, message);
    }
-   public static final void debug(Object o, String message, Exception e)
+   public static final void debug(Object o, CharSequence message, Exception e)
    {
       println(o, message);
       e.printStackTrace();
