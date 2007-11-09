@@ -56,7 +56,7 @@ public class Dc extends ElementState
 
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(TRANSLATION_SPACE_NAME, PACKAGE_NAME, TRANSLATIONS);
+		return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	
 	public Dc() {}
