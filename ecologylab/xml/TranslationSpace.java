@@ -26,7 +26,7 @@ public final class TranslationSpace extends Debug
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
 	*/
-   private String			defaultPackageName	= "cf.state";
+   private String			defaultPackageName;
    
    /**
 	* This boolean controls whether package names are added to the class names
