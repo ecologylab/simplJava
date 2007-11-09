@@ -371,7 +371,11 @@ public final class TranslationSpace extends Debug
 			 entry				= new TranslationEntry(packageName, className, xmlTag, null);
 		 }
 		 else
+		 {
+			 // empty entry construction added by andruid 11/11/07
+			 entry				= new TranslationEntry(xmlTag);	// new empty entry
 			 return null;
+		 }
 		 String classSimpleName	= XmlTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
 		 if (packageName != null)
