@@ -6,7 +6,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
-public class ContinuedHttpGetRequest extends HttpGetRequest
+public class ContinuedHTTPGetRequest extends HttpGetRequest
 {
 	@xml_leaf(CDATA)	String	messageFragment;
 	
@@ -14,7 +14,7 @@ public class ContinuedHttpGetRequest extends HttpGetRequest
 	
 	static final		Hashtable<String, String>	partialMessages	= new Hashtable<String, String>();
 	
-	public ContinuedHttpGetRequest()
+	public ContinuedHTTPGetRequest()
 	{
 		super();
 		// TODO Auto-generated constructor stub

@@ -34,7 +34,7 @@ import ecologylab.xml.TranslationSpace;
  * 
  * Re-written based on the Rox Java NIO Tutorial (http://rox-xmlrpc.sourceforge.net/niotut/index.html).
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class NIOServerBackend extends NIONetworking implements ServerConstants

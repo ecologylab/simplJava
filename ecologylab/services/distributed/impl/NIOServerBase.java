@@ -20,7 +20,7 @@ import ecologylab.xml.TranslationSpace;
 
 /**
  * Combines an NIOServerBackend and NIOServerFrontend
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public abstract class NIOServerBase extends Debug implements NIOServerFrontend,

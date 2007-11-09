@@ -20,7 +20,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * On a server, there will be one ContextManager for each client connection.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class ContextManager extends AbstractContextManager implements ServerConstants
 {

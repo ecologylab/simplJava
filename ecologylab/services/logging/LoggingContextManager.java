@@ -30,7 +30,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author andruid
  * @author eunyee
- * @author toupsz
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class LoggingContextManager extends ContextManager
 {

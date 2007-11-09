@@ -6,7 +6,7 @@ package ecologylab.services;
 /**
  * Interface for objects that should have a shutdown sequence.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface Shutdownable

@@ -4,7 +4,7 @@
 package ecologylab.services.exceptions;
 
 /**
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public class ClientOfflineException extends Exception

@@ -10,7 +10,7 @@ import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * @author toupsz
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 @xml_tag("fred:flintstone") 

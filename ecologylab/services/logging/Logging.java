@@ -608,7 +608,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * or, using the network, to the LoggingServer.
      * 
      * @author andruid
-     * @author toupsz
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
     protected abstract class LogWriter
     {
@@ -645,7 +645,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * LogWriter that uses a memory-mapped local file for logging.
      * 
      * @author andruid
-     * @author toupsz
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
     protected class MemoryMappedFileLogWriter extends LogWriter
     {
@@ -842,7 +842,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * LogWriter that uses a local file for logging.
      * 
      * @author andruid
-     * @author toupsz
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
     protected class FileLogWriter extends LogWriter
     {
@@ -890,7 +890,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
      * logging.
      * 
      * @author andruid
-     * @author toupsz
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
     protected class NetworkLogWriter extends LogWriter
     {

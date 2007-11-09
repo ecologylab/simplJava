@@ -7,7 +7,7 @@ import ecologylab.xml.TranslationSpace;
  * the network communications of the Rogue game. Use MasterNameSpace.get() to
  * acquire a NameSpace object fit for use in the game.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class EndnoteNameSpace

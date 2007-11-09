@@ -16,7 +16,7 @@ import ecologylab.services.nio.contextmanager.AbstractContextManager;
  * connections separate. They are used in conjunction with an NIO services
  * server: it will handle all of the actual communication over the network.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface NIOServerFrontend extends StartAndStoppable

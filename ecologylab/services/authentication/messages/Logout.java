@@ -12,61 +12,57 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
 
 /**
- * A Logout message indicates that the connnected client no longer wants to be
- * connected.
+ * A Logout message indicates that the connnected client no longer wants to be connected.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit public class Logout extends RequestMessage implements AuthMessages,
-        AuthServerRegistryObjects
+@xml_inherit public class Logout extends RequestMessage implements AuthMessages, AuthServerRegistryObjects
 {
-    @xml_nested protected AuthenticationListEntry entry = new AuthenticationListEntry("", "");
+	@xml_nested protected AuthenticationListEntry	entry	= new AuthenticationListEntry("", "");
 
-    /**
-     * Should not normally be used; only for XML translations.
-     */
-    public Logout()
-    {
-        super();
-    }
+	/** Should not normally be used; only for XML translations. */
+	public Logout()
+	{
+		super();
+	}
 
-    /**
-     * Creates a new Logout object using the given AuthenticationListEntry
-     * object, indicating the user that should be logged out of the server.
-     * 
-     * @param entry -
-     *            the entry to use for this Logout object.
-     */
-    public Logout(AuthenticationListEntry entry)
-    {
-        super();
-        this.entry = entry;
-    }
+	/**
+	 * Creates a new Logout object using the given AuthenticationListEntry object, indicating the user that should be
+	 * logged out of the server.
+	 * 
+	 * @param entry -
+	 *           the entry to use for this Logout object.
+	 */
+	public Logout(AuthenticationListEntry entry)
+	{
+		super();
+		this.entry = entry;
+	}
 
-    /**
-     * Attempts to log the user specified by entry from the system; if
-     *           they are already logged in; if not, sends a failure response.
-     */
-    public ResponseMessage performService(ObjectRegistry objectRegistry)
-    {
-        Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
-        
-        if (server.logout(entry, this.getSender()))
-        {
-            return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
-        }
-        else
-        {
-            return new LogoutStatusResponse(LOGOUT_FAILED_IP_MISMATCH);
-        }
-    }
+	/**
+	 * Attempts to log the user specified by entry from the system; if they are already logged in; if not, sends a
+	 * failure response.
+	 */
+	@Override public ResponseMessage performService(ObjectRegistry objectRegistry)
+	{
+		Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
 
-    /**
-     * @return Returns the entry.
-     */
-    public AuthenticationListEntry getEntry()
-    {
-        return entry;
-    }
+		if (server.logout(entry, this.getSender()))
+		{
+			return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
+		}
+		else
+		{
+			return new LogoutStatusResponse(LOGOUT_FAILED_IP_MISMATCH);
+		}
+	}
+
+	/**
+	 * @return Returns the entry.
+	 */
+	public AuthenticationListEntry getEntry()
+	{
+		return entry;
+	}
 
 }

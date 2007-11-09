@@ -32,24 +32,22 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * @author Zach Toups
+ * An authenticating server that uses NIO and two threads (one for handling IO, the other for handling interfacing with
+ * messages).
  * 
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer implements AuthServerRegistryObjects,
-		AuthMessages, AuthLogging, Authenticatable
+public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> extends DoubleThreadedNIOServer implements
+		AuthServerRegistryObjects, AuthMessages, AuthLogging, Authenticatable<A>
 {
 	/** Optional Logging listeners may record authentication events, such as users logging-in. */
-	private List<Logging>	logListeners	= new LinkedList<Logging>();
+	private List<Logging>			logListeners	= new LinkedList<Logging>();
 
-	protected Authenticator	authenticator	= null;
-	
-	public static final Class[] AUTH_CLASSES		=
-	{
-		Login.class, 
-		Logout.class,
-		LoginStatusResponse.class,
-		LogoutStatusResponse.class,
-	};
+	protected Authenticator<A>		authenticator	= null;
+
+	public static final Class[]	AUTH_CLASSES	=
+																{ Login.class, Logout.class, LoginStatusResponse.class,
+			LogoutStatusResponse.class,				};
 
 	/**
 	 * This is the actual way to create an instance of this.
@@ -129,18 +127,17 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, AuthenticationList authList) throws IOException, BindException
 	{
-//		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
-		//MODEL: from Andruid to Zach
-		super(portNumber, inetAddress, 
-			  TranslationSpace.get("double_threaded_auth " + inetAddress[0].toString() + ":" + portNumber, AUTH_CLASSES, requestTranslationSpace),
-			  objectRegistry, idleConnectionTimeout, maxPacketSize);
+		// super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
+		// MODEL: from Andruid to Zach
+		super(portNumber, inetAddress, TranslationSpace.get("double_threaded_auth " + inetAddress[0].toString() + ":"
+				+ portNumber, AUTH_CLASSES, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);
 
 		this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
-//		this.translationSpace.addTranslation(Login.class);
-//		this.translationSpace.addTranslation(Logout.class);
-//		this.translationSpace.addTranslation(LoginStatusResponse.class);
-//		this.translationSpace.addTranslation(LogoutStatusResponse.class);
+		// this.translationSpace.addTranslation(Login.class);
+		// this.translationSpace.addTranslation(Logout.class);
+		// this.translationSpace.addTranslation(LoginStatusResponse.class);
+		// this.translationSpace.addTranslation(LogoutStatusResponse.class);
 
 		authenticator = new Authenticator(authList);
 	}
@@ -184,7 +181,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 		}
 	}
 
-	public boolean logout(AuthenticationListEntry entry, InetAddress address)
+	public boolean logout(A entry, InetAddress address)
 	{
 		return authenticator.logout(entry, address);
 	}
@@ -194,7 +191,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 		return authenticator.isLoggedIn(username);
 	}
 
-	public boolean login(AuthenticationListEntry entry, InetAddress address)
+	public boolean login(A entry, InetAddress address)
 	{
 		return authenticator.login(entry, address);
 	}

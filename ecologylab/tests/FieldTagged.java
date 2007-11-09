@@ -6,7 +6,7 @@ package ecologylab.tests;
 import ecologylab.xml.ElementState;
 
 /**
- * @author toupsz
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public class FieldTagged extends ElementState

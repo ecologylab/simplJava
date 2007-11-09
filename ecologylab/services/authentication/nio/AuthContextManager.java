@@ -21,86 +21,96 @@ import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Stores information about the connection context for the client. Should be
- * extended for more specific implementations. Handles accumulating incoming
- * messages and translating them into RequestMessage objects.
+ * Stores information about the connection context for the client, including authentication status. Only executes
+ * requests from an authenticated client.
  * 
- * @author Zach Toups
+ * Should be extended for more specific implementations. Handles accumulating incoming messages and translating them
+ * into RequestMessage objects.
+ * 
+ * @see ecologylab.services.nio.contextmanager.ContextManager
+ * 
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class AuthContextManager extends ContextManager implements
-        ServerConstants, AuthServerRegistryObjects, AuthMessages
+public class AuthContextManager extends ContextManager implements ServerConstants, AuthServerRegistryObjects,
+		AuthMessages
 {
-    private boolean     loggedIn       = false;
+	private boolean		loggedIn			= false;
 
-    private AuthLogging servicesServer = null;
+	private AuthLogging	servicesServer	= null;
 
-    public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend, SocketChannel socket,
-            TranslationSpace translationSpace, ObjectRegistry registry,
-            AuthLogging servicesServer)
-    {
-        super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
+	/**
+	 * Constructs a new AuthContextManager on a server to handle authenticating client requests.
+	 * 
+	 * @param token
+	 * @param maxPacketSize
+	 * @param server
+	 * @param frontend
+	 * @param socket
+	 * @param translationSpace
+	 * @param registry
+	 * @param servicesServer
+	 */
+	public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
+			SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry, AuthLogging servicesServer)
+	{
+		super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
 
-        this.servicesServer = servicesServer;
-    }
+		this.servicesServer = servicesServer;
+	}
 
-    /**
-     * Calls performService on the given RequestMessage using the local
-     * ObjectRegistry. Can be overridden by subclasses to provide more
-     * specialized functionality.
-     * 
-     * @param requestMessage
-     * @return
-     */
-    @Override protected ResponseMessage performService(RequestMessage requestMessage)
-    {
-        ResponseMessage response;
+	/**
+	 * Calls performService on the given RequestMessage using the local ObjectRegistry, if the client has been
+	 * authenticated, or if the request is to log in. Can be overridden by subclasses to provide more specialized
+	 * functionality.
+	 * 
+	 * @param requestMessage
+	 * @return
+	 */
+	@Override protected ResponseMessage performService(RequestMessage requestMessage)
+	{
+		ResponseMessage response;
 
-        // if not logged in yet, make sure they log in first
-        if (!loggedIn)
-        {
-            if (requestMessage instanceof Login)
-            {
-                // since this is a Login message, perform it.
-                response = super.performService(requestMessage);
+		// if not logged in yet, make sure they log in first
+		if (!loggedIn)
+		{
+			if (requestMessage instanceof Login)
+			{
+				// since this is a Login message, perform it.
+				response = super.performService(requestMessage);
 
-                if (response.isOK())
-                {
-                    // mark as logged in, and add to the authenticated
-                    // clients
-                    // in the object registry
-                    loggedIn = true;
-                }
+				if (response.isOK())
+				{
+					// mark as logged in, and add to the authenticated
+					// clients
+					// in the object registry
+					loggedIn = true;
+				}
 
-                // tell the server to log it
-                servicesServer.fireLoggingEvent(new AuthenticationOp(
-                        ((Login) requestMessage).getEntry().getUsername(),
-                        true, ((LoginStatusResponse) response)
-                                .getResponseMessage(), socket.socket().getInetAddress()
-                                .toString(), socket.socket().getPort()));
-            }
-            else
-            { // otherwise we consider it bad!
-                response = new BadSemanticContentResponse(
-                        REQUEST_FAILED_NOT_AUTHENTICATED);
-            }
+				// tell the server to log it
+				servicesServer.fireLoggingEvent(new AuthenticationOp(((Login) requestMessage).getEntry().getUsername(),
+						true, ((LoginStatusResponse) response).getResponseMessage(), socket.socket().getInetAddress()
+								.toString(), socket.socket().getPort()));
+			}
+			else
+			{ // otherwise we consider it bad!
+				response = new BadSemanticContentResponse(REQUEST_FAILED_NOT_AUTHENTICATED);
+			}
 
-        }
-        else
-        {
-            response = super.performService(requestMessage);
+		}
+		else
+		{
+			response = super.performService(requestMessage);
 
-            if (requestMessage instanceof Logout)
-            {
-                // tell the server to log it
-                servicesServer.fireLoggingEvent(new AuthenticationOp(
-                        ((Logout) requestMessage).getEntry().getUsername(),
-                        false, ((LogoutStatusResponse) response)
-                                .getResponseMessage(), socket.socket().getInetAddress()
-                                .toString(), socket.socket().getPort()));
-            }
-        }
+			if (requestMessage instanceof Logout)
+			{
+				// tell the server to log it
+				servicesServer.fireLoggingEvent(new AuthenticationOp(((Logout) requestMessage).getEntry().getUsername(),
+						false, ((LogoutStatusResponse) response).getResponseMessage(), socket.socket().getInetAddress()
+								.toString(), socket.socket().getPort()));
+			}
+		}
 
-        // return the response message
-        return response;
-    }
+		// return the response message
+		return response;
+	}
 }

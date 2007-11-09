@@ -1,14 +1,16 @@
 package ecologylab.services.authentication;
 
 /**
- * Stores constants for administrator levels.
+ * Constants for administrator levels. May be extended to include other levels.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface AuthLevels
 {
-    final static int ADMINISTRATOR = 10;
+	/** User is an administrator. */
+	final static int	ADMINISTRATOR	= 10;
 
-    final static int NORMAL_USER   = 0;
+	/** User is normal. */
+	final static int	NORMAL_USER		= 0;
 }

@@ -26,7 +26,7 @@ import ecologylab.xml.TranslationSpace;
 /**
  * Operates on its own thread to process messages coming in from a client.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class DoubleThreadedNIOServer extends NIOServerBase implements ServerConstants

@@ -11,7 +11,7 @@ import java.util.Date;
 /**
  * Type system entry for {@link java.util.Date Date}.
  * 
- * @author toupsz
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class DateType extends ScalarType<Date>
 {

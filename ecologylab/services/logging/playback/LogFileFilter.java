@@ -10,7 +10,7 @@ import javax.swing.filechooser.FileFilter;
 /**
  * Log files should be XML files; this file filter only displays files whose filetype is XML.
  * 
- * @author Zach Toups
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class LogFileFilter extends FileFilter
 {
