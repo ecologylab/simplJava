@@ -16,7 +16,7 @@ import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
-import ecologylab.services.nio.servers.NIOServerBase;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;

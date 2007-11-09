@@ -210,7 +210,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	                    try
 	                    {
 	                    	// handle all header information here; delete it when done here
-	                        contentLengthRemaining = Integer.parseInt(this.headerMap.get("content-length"));
+	                        contentLengthRemaining = Integer.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
 
 	                        // done with the header; delete it
 	                        incomingMessageBuffer.delete(0, endOfFirstHeader);

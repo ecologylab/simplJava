@@ -14,7 +14,7 @@ import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.ErrorResponse;
-import ecologylab.services.nio.servers.NIOServerBase;
+import ecologylab.services.nio.NIOServerBase;
 import ecologylab.xml.TranslationSpace;
 
 /**

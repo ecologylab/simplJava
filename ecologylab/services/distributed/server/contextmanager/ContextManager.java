@@ -53,7 +53,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
     @Override protected void prepareBuffers(StringBuilder incomingMessageBuf, StringBuilder outgoingMessageBuf,
             StringBuilder outgoingMessageHeaderBuf)
     {
-        outgoingMessageHeaderBuf.append(CONTENT_LENGTH_STRING);
+        outgoingMessageHeaderBuf.append(CONTENT_LENGTH_STRING+":");
     }
 
     /**
@@ -65,7 +65,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
      */
     @Override protected void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf)
     {
-        outgoingMessageHeaderBuf.delete(CONTENT_LENGTH_STRING_LENGTH, outgoingMessageHeaderBuf.length());
+        outgoingMessageHeaderBuf.delete(CONTENT_LENGTH_STRING_LENGTH+1, outgoingMessageHeaderBuf.length());
     }
 
     /**

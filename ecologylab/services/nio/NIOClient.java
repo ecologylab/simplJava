@@ -791,7 +791,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
 
         try
         {
-            StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + outgoingReq.length()
+            StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + ":" + outgoingReq.length()
                     + HTTP_HEADER_TERMINATOR + outgoingReq);
 
             outgoingChars.clear();
