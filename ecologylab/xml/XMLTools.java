@@ -46,7 +46,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @author      Madhur Khandelwal
  * @version     0.5
  */
-public class XmlTools extends TypeRegistry
+public class XMLTools extends TypeRegistry
 implements CharacterConstants
 {
 	private static final int DEFAULT_TAG_LENGTH = 15;
@@ -482,11 +482,11 @@ implements CharacterConstants
 	 * 
 	 * @return				The resulting object.
 	 * 
-	 * @throws XmlTranslationException	If the constructor fails, or
+	 * @throws XMLTranslationException	If the constructor fails, or
 	 *  if that class lacks a constructor that takes no parameters.
 	 */
 	public static<T> T getInstance(Class<T> thatClass)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		// form the new object derived from ElementState
 		T nestedObject		= null;
@@ -496,7 +496,7 @@ implements CharacterConstants
 		}
 		catch (Exception e)
 		{
-			throw new XmlTranslationException("Instantiation ERROR for " + thatClass +". Is there a public constructor with no arguments?", e);
+			throw new XMLTranslationException("Instantiation ERROR for " + thatClass +". Is there a public constructor with no arguments?", e);
 		}
 		return nestedObject;
 	}
@@ -904,17 +904,17 @@ static String q(String string)
    * @param xmlDoc
    * @param outputStreamWriter
  * @throws FileNotFoundException 
- * @throws XmlTranslationException 
+ * @throws XMLTranslationException 
    */
     public static void writePrettyXML(Document xmlDoc, File outFile) 
-    throws XmlTranslationException 
+    throws XMLTranslationException 
     {
     	try
 		{
 			writePrettyXML(xmlDoc, new FileOutputStream(outFile));
 		} catch (FileNotFoundException e)
 		{
-			throw new XmlTranslationException("Writing pretty XML[" + outFile + "]", e);
+			throw new XMLTranslationException("Writing pretty XML[" + outFile + "]", e);
 		}
     }
 
@@ -925,11 +925,11 @@ static String q(String string)
      * 
      * @param xmlDoc
      * @param out
-     * @throws XmlTranslationException 
+     * @throws XMLTranslationException 
      * @throws IOException 
      */
     public static void writePrettyXML(Document xmlDoc, OutputStream outputStream) 
-    throws XmlTranslationException 
+    throws XMLTranslationException 
     {
     	Transformer transformer;
 		try
@@ -944,7 +944,7 @@ static String q(String string)
 	        osw.close();
 		} catch (Exception e)
 		{
-			throw new XmlTranslationException("Writing pretty XML", e);
+			throw new XMLTranslationException("Writing pretty XML", e);
 		} 
     }
 

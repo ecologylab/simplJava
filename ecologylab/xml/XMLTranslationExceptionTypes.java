@@ -5,7 +5,7 @@ package ecologylab.xml;
  * 
  * @author andruid
  */
-public interface XmlTranslationExceptionTypes
+public interface XMLTranslationExceptionTypes
 {
     static final int UNKNOWN		= 0;
 

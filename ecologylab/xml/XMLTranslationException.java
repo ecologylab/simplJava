@@ -31,24 +31,24 @@ import ecologylab.generic.Debug;
  * @version 0.5
  */
 
-public class XmlTranslationException extends Exception implements
-        XmlTranslationExceptionTypes
+public class XMLTranslationException extends Exception implements
+        XMLTranslationExceptionTypes
 {
     private static final long serialVersionUID = -8326348358064487418L;
 
     private int               exceptionType    = 0;
 
-    public XmlTranslationException()
+    public XMLTranslationException()
     {
         super();
     }
 
-    public XmlTranslationException(String msg)
+    public XMLTranslationException(String msg)
     {
         super(msg);
     }
 
-    public XmlTranslationException(String msg, Exception e)
+    public XMLTranslationException(String msg, Exception e)
     {
         super("XmlTranslationException\n" + msg + "\n\tThe error is "
                 + e.toString() + " in" + "\n\t" + e.getStackTrace()[0] + "\n\t"
@@ -56,21 +56,21 @@ public class XmlTranslationException extends Exception implements
                 + e.getStackTrace()[3] + "\n\t");
     }
 
-    public XmlTranslationException(int exceptionType)
+    public XMLTranslationException(int exceptionType)
     {
         super();
 
         this.exceptionType = exceptionType;
     }
 
-    public XmlTranslationException(String msg, int exceptionType)
+    public XMLTranslationException(String msg, int exceptionType)
     {
         this(msg);
 
         this.exceptionType = exceptionType;
     }
 
-    public XmlTranslationException(String msg, Exception e, int exceptionType)
+    public XMLTranslationException(String msg, Exception e, int exceptionType)
     {
         this(msg, e);
 
