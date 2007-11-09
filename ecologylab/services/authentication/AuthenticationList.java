@@ -10,7 +10,7 @@ import ecologylab.xml.types.element.HashMapState;
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
  * username values.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class AuthenticationList<E extends AuthenticationListEntry> extends ElementState
 {

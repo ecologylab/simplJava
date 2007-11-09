@@ -30,7 +30,7 @@ import ecologylab.xml.XMLTranslationException;
  * "authenticatedClients" entries. These are created by the constructors in this
  * class.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @Deprecated public class AuthServer extends ServicesServer implements
         AuthServerRegistryObjects, AuthLogging, Authenticatable

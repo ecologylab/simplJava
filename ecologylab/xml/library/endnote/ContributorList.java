@@ -7,7 +7,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class ContributorList extends ElementState
 {

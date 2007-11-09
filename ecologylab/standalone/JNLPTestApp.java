@@ -10,7 +10,7 @@ import ecologylab.xml.library.jnlp.JnlpState;
 import ecologylab.xml.library.jnlp.JnlpTranslations;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public class JNLPTestApp

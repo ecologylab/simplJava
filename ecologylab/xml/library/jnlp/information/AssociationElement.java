@@ -6,7 +6,7 @@ package ecologylab.xml.library.jnlp.information;
 import ecologylab.xml.ElementState;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class AssociationElement extends ElementState

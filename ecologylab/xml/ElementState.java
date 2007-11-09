@@ -2227,7 +2227,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
      * TODO we can fix the above issue by translating the Strings into a Class object and checking that -- but that's
      * for another day.
      * 
-     * @author Zach
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      * 
      */
     @Retention(RetentionPolicy.RUNTIME) 

@@ -11,7 +11,7 @@ import ecologylab.xml.library.jnlp.information.AssociationElement;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState

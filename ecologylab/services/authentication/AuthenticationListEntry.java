@@ -19,7 +19,7 @@ import ecologylab.xml.types.element.Mappable;
  * This class can be extended to include other pieces of information, such as
  * real names and email addresses; if desired.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class AuthenticationListEntry extends ElementState implements AuthLevels, Mappable<String>
 {

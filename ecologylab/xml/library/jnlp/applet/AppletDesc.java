@@ -8,7 +8,7 @@ import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public @xml_inherit @xml_tag("applet-desc") class AppletDesc extends ArrayListState<Param>

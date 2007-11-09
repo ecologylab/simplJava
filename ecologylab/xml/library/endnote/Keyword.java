@@ -7,7 +7,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class Keyword extends ElementState
 {

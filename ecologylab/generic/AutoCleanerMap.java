@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This object automatically starts up a monitoring thread whenever it contains items, and shuts itself off when there
  * are no items.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class AutoCleanerMap<KEY, VALUE> extends ConcurrentHashMap<KEY, VALUE> implements Runnable
 {
@@ -182,7 +182,7 @@ public class AutoCleanerMap<KEY, VALUE> extends ConcurrentHashMap<KEY, VALUE> im
     /**
      * TimeTracker matches an object of type KEY to a Date. It is meant to track a Key into a Hash.
      * 
-     * @author Zach
+     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
     class TimeTracker
     {

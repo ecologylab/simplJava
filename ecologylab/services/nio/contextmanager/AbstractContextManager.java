@@ -32,7 +32,7 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public abstract class AbstractContextManager extends Debug implements ServerConstants

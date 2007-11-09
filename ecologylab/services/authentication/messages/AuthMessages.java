@@ -4,7 +4,7 @@ package ecologylab.services.authentication.messages;
  * Interface that contains the list of constant Strings used for Authentication
  * messages. Implement this interface if your class uses Login or Logout.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public interface AuthMessages
 {

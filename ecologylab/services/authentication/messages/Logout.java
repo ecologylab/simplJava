@@ -15,7 +15,7 @@ import ecologylab.xml.xml_inherit;
  * A Logout message indicates that the connnected client no longer wants to be
  * connected.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @xml_inherit public class Logout extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects

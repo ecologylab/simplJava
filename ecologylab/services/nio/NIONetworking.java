@@ -31,7 +31,7 @@ import ecologylab.xml.XMLTranslationException;
  * Handles backend, low-level communication between distributed programs, using NIO. This is the basis for servers for
  * handling network communication.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public abstract class NIONetworking extends Debug implements Runnable
 {

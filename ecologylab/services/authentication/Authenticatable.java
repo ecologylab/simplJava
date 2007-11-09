@@ -8,7 +8,7 @@ import java.net.InetAddress;
 /**
  * Indicates that the implementer can be logged-into and out-of.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public interface Authenticatable
 {

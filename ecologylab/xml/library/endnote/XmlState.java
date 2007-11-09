@@ -6,7 +6,7 @@ package ecologylab.xml.library.endnote;
 import ecologylab.xml.ElementState;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class XmlState extends ElementState
 {

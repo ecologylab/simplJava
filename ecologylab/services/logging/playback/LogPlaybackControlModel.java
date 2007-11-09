@@ -14,7 +14,7 @@ import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logging<E>>
         implements BoundedRangeModel

@@ -18,7 +18,7 @@ import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class HTTPGetContextManager extends AbstractContextManager

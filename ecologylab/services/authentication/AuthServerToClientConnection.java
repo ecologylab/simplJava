@@ -24,7 +24,7 @@ import ecologylab.services.messages.ResponseMessage;
  * makes sure that the client cannot execute any RequestMessages until it has
  * first successfully logged in to the server.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @Deprecated public class AuthServerToClientConnection extends ServerToClientConnection
         implements AuthMessages, AuthServerRegistryObjects

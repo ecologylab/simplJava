@@ -33,7 +33,7 @@ import ecologylab.xml.ElementState;
  * file, the old splash image will still be displayed. The new splash image will appear on the second and subsequent
  * launches of the application.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class Icon extends ElementState

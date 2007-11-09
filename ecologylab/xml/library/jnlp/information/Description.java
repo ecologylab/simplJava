@@ -24,7 +24,7 @@ import ecologylab.xml.types.element.Mappable;
  * 
  * All descriptions contain plain text. No formatting, such as with HTML tags, is supported.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Description extends ElementState implements Mappable<String>
 {

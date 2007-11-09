@@ -9,6 +9,11 @@ import ecologylab.services.authentication.registryobjects.AuthClientRegistryObje
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
 
+/**
+ * Indicates the response from the server 
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ *
+ */
 @xml_inherit public class LoginStatusResponse extends ResponseMessage implements
         AuthMessages, AuthClientRegistryObjects
 {

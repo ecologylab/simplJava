@@ -52,7 +52,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * Another major difference between this and the non-NIO version of ServicesClient is that it is StartAndStoppable.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class NIOClient extends ServicesClientBase implements Runnable, ServerConstants, ClientConstants
 {

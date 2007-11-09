@@ -22,7 +22,7 @@ import ecologylab.xml.TranslationSpace;
  * connected and authenticated with the server before it can begin attempting to
  * process messages.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @Deprecated public class AuthClient extends ServicesClient implements AuthMessages,
         AuthClientRegistryObjects

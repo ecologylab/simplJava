@@ -6,7 +6,7 @@ package ecologylab.services;
 /**
  * Constant settings for client functionality.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface ClientConstants

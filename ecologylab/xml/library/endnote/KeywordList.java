@@ -8,7 +8,7 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class KeywordList extends ArrayListState<Keyword>
 {

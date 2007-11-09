@@ -25,7 +25,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class Line2DDoubleState extends ElementState implements
         Shape

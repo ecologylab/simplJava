@@ -16,7 +16,7 @@ import ecologylab.xml.xml_inherit;
  * password information in strings, and checks them against "authenticationList"
  * in the objectRegistry.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @xml_inherit public class Login extends RequestMessage implements AuthMessages,
         AuthServerRegistryObjects

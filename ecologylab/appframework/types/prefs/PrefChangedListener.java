@@ -7,7 +7,7 @@ package ecologylab.appframework.types.prefs;
  * An object that monitors a Pref or set of Prefs to respond to changes in
  * it/them.
  * 
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface PrefChangedListener

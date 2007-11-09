@@ -8,7 +8,7 @@ package ecologylab.services.nio;
  * Represents a RequestMessage that has been translated to XML. This object
  * encapsulates the XML String, along with the request's UID.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 //FIXME -- Can we use StringBuilders in here directly to utilize memory better
 public class PreppedRequest implements Comparable<PreppedRequest>

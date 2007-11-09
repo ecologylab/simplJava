@@ -20,7 +20,7 @@ import ecologylab.xml.XMLTranslationException;
  * Runs the connection from the server to a client.
  * 
  * @author andruid
- * @author zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * @author eunyee
  */
 public class ServerToClientConnection extends Debug implements Runnable, ServerConstants

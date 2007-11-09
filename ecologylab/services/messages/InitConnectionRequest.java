@@ -6,7 +6,7 @@ package ecologylab.services.messages;
 import ecologylab.appframework.ObjectRegistry;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class InitConnectionRequest extends RequestMessage
 {

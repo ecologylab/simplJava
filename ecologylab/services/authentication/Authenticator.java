@@ -13,7 +13,7 @@ import ecologylab.generic.Debug;
  * Encapsulates all authentication actions, so that Servers don't need to worry about them too much. Requires a backend
  * database of users with passwords.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Authenticator extends Debug
 {

@@ -6,7 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.File;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class FileType extends ScalarType<File>
 {

@@ -8,7 +8,7 @@ import java.awt.LayoutManager;
 import javax.swing.JPanel;
 
 /**
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public abstract class LogPlaybackRenderer extends JPanel
 {

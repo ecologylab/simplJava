@@ -27,7 +27,7 @@ import ecologylab.xml.library.jnlp.resource.ResourceElement;
 import ecologylab.xml.library.jnlp.resource.ResourceElementArray;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class JnlpTranslations

@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 
 /**
- * @author Zach
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public @xml_inherit @xml_tag("information") class InformationElement extends ElementState
