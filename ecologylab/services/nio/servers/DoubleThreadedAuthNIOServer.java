@@ -35,6 +35,9 @@ import ecologylab.xml.XMLTranslationException;
  * An authenticating server that uses NIO and two threads (one for handling IO, the other for handling interfacing with
  * messages).
  * 
+ * Any clients attempting to communicate with this server must either first provide a Login request, or otherwise have
+ * previously been logged in; otherwise, no requests are processed from the client.
+ * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> extends DoubleThreadedNIOServer implements
@@ -149,7 +152,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	 * @param registry
 	 * @return
 	 */
-	protected AbstractContextManager generateContextManager(Object token, SocketChannel sc,
+	@Override protected AbstractContextManager generateContextManager(Object token, SocketChannel sc,
 			TranslationSpace translationSpace, ObjectRegistry registry)
 	{
 		try

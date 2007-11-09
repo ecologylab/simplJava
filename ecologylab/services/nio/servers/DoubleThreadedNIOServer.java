@@ -24,289 +24,290 @@ import ecologylab.services.nio.contextmanager.ContextManager;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Operates on its own thread to process messages coming in from a client.
+ * A server that uses NIO and two threads (one for handling IO, the other for handling interfacing with messages).
+ * 
+ * Automatically processes and responds to any client RequestMessages.
+ * 
+ * Subclasses should generally override the generateContextManager hook method, so that they can use their own, specific
+ * ContextManager in place of the default.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
- * 
  */
 public class DoubleThreadedNIOServer extends NIOServerBase implements ServerConstants
 {
-    public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress[] inetAddress,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            int maxPacketSize) throws IOException, BindException
-    {
-        return new DoubleThreadedNIOServer(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                idleConnectionTimeout, maxPacketSize);
-    }
+	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress[] inetAddress,
+			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
+	{
+		return new DoubleThreadedNIOServer(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
+				idleConnectionTimeout, maxPacketSize);
+	}
 
-    public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress inetAddress,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            int maxPacketSize) throws IOException, BindException
-    {
-        InetAddress[] address =
-        { inetAddress };
-        return getInstance(portNumber, address, requestTranslationSpace, objectRegistry, idleConnectionTimeout,
-                maxPacketSize);
-    }
+	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress inetAddress,
+			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
+	{
+		InetAddress[] address =
+		{ inetAddress };
+		return getInstance(portNumber, address, requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				maxPacketSize);
+	}
 
-    Thread                                  t        = null;
+	Thread												t			= null;
 
-    boolean                                 running  = false;
+	boolean												running	= false;
 
-    HashMap<Object, AbstractContextManager> contexts = new HashMap<Object, AbstractContextManager>();
+	HashMap<Object, AbstractContextManager>	contexts	= new HashMap<Object, AbstractContextManager>();
 
-    private static CharsetDecoder           decoder  = Charset.forName(CHARACTER_ENCODING).newDecoder();
+	private static CharsetDecoder					decoder	= Charset.forName(CHARACTER_ENCODING).newDecoder();
 
-    protected int                           maxPacketSize;
+	protected int										maxPacketSize;
 
-    /**
-     * 
-     */
-    protected DoubleThreadedNIOServer(int portNumber, InetAddress[] inetAddresses,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            int maxPacketSize) throws IOException, BindException
-    {
-        super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+	/**
+	 * 
+	 */
+	protected DoubleThreadedNIOServer(int portNumber, InetAddress[] inetAddresses,
+			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
+	{
+		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 
-        this.maxPacketSize = maxPacketSize;
-    }
+		this.maxPacketSize = maxPacketSize;
+	}
 
-    /**
-     * 
-     */
-    protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-            TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
-            int maxPacketSize) throws IOException, BindException
-    {
-        super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+	/**
+	 * 
+	 */
+	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+			ObjectRegistry objectRegistry, int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
+	{
+		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 
-        this.maxPacketSize = maxPacketSize;
-    }
+		this.maxPacketSize = maxPacketSize;
+	}
 
-    /**
-     * @throws BadClientException
-     *             See
-     *             ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
-     *             java.nio.channels.SocketChannel, byte[], int)
-     */
-    public void processRead(Object sessionId, NIOServerBackend base, SocketChannel sc, byte[] bs, int bytesRead)
-            throws BadClientException
-    {
-        if (bytesRead > 0)
-        {
-            synchronized (contexts)
-            {
-                AbstractContextManager cm = contexts.get(sessionId);
+	/**
+	 * @throws BadClientException
+	 *            See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
+	 *            java.nio.channels.SocketChannel, byte[], int)
+	 */
+	public void processRead(Object sessionId, NIOServerBackend base, SocketChannel sc, byte[] bs, int bytesRead)
+			throws BadClientException
+	{
+		if (bytesRead > 0)
+		{
+			synchronized (contexts)
+			{
+				AbstractContextManager cm = contexts.get(sessionId);
 
-                if (cm == null)
-                {
-                    debug("server creating context manager for " + sessionId);
+				if (cm == null)
+				{
+					debug("server creating context manager for " + sessionId);
 
-                    cm = generateContextManager(sessionId, sc, translationSpace, registry);
-                    contexts.put(sessionId, cm);
-                }
+					cm = generateContextManager(sessionId, sc, translationSpace, registry);
+					contexts.put(sessionId, cm);
+				}
 
-                try
-                {
-                    cm.enqueueStringMessage(decoder.decode(ByteBuffer.wrap(bs)));
-                }
-                catch (CharacterCodingException e)
-                {
-                    e.printStackTrace();
-                }
-            }
+				try
+				{
+					cm.enqueueStringMessage(decoder.decode(ByteBuffer.wrap(bs)));
+				}
+				catch (CharacterCodingException e)
+				{
+					e.printStackTrace();
+				}
+			}
 
-            synchronized (this)
-            {
-                this.notify();
-            }
-        }
-    }
+			synchronized (this)
+			{
+				this.notify();
+			}
+		}
+	}
 
-    /**
-     * Hook method to allow changing the ContextManager to enable specific extra functionality.
-     * 
-     * @param token
-     * @param sc
-     * @param translationSpaceIn
-     * @param registryIn
-     * @return
-     */
-    @Override protected AbstractContextManager generateContextManager(Object token, SocketChannel sc,
-            TranslationSpace translationSpaceIn, ObjectRegistry registryIn)
-    {
-        return new ContextManager(token, maxPacketSize, this.getBackend(), this, sc, translationSpaceIn, registryIn);
-    }
+	/**
+	 * Hook method to allow changing the ContextManager to enable specific extra functionality.
+	 * 
+	 * @param token
+	 * @param sc
+	 * @param translationSpaceIn
+	 * @param registryIn
+	 * @return
+	 */
+	@Override protected AbstractContextManager generateContextManager(Object token, SocketChannel sc,
+			TranslationSpace translationSpaceIn, ObjectRegistry registryIn)
+	{
+		return new ContextManager(token, maxPacketSize, this.getBackend(), this, sc, translationSpaceIn, registryIn);
+	}
 
-    public void run()
-    {
-        Iterator<AbstractContextManager> contextIter;
+	public void run()
+	{
+		Iterator<AbstractContextManager> contextIter;
 
-        while (running)
-        {
-            synchronized (contexts)
-            {
-                contextIter = contexts.values().iterator();
+		while (running)
+		{
+			synchronized (contexts)
+			{
+				contextIter = contexts.values().iterator();
 
-                // process all of the messages in the queues
-                while (contextIter.hasNext())
-                {
-                    AbstractContextManager cm = contextIter.next();
+				// process all of the messages in the queues
+				while (contextIter.hasNext())
+				{
+					AbstractContextManager cm = contextIter.next();
 
-                    try
-                    {
-                        cm.processAllMessagesAndSendResponses();
-                    }
-                    catch (BadClientException e)
-                    {
-                        // Handle BadClientException! -- remove it
-                        error(e.getMessage());
+					try
+					{
+						cm.processAllMessagesAndSendResponses();
+					}
+					catch (BadClientException e)
+					{
+						// Handle BadClientException! -- remove it
+						error(e.getMessage());
 
-                        // invalidate the manager's key
-                        this.getBackend().setPendingInvalidate(cm.getSocket(), true);
+						// invalidate the manager's key
+						this.getBackend().setPendingInvalidate(cm.getSocket(), true);
 
-                        // remove the manager from the collection
-                        contextIter.remove();
-                    }
-                }
-            }
+						// remove the manager from the collection
+						contextIter.remove();
+					}
+				}
+			}
 
-            // sleep until notified of new messages
-            synchronized (this)
-            {
-                try
-                {
-                    wait();
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                    Thread.interrupted();
-                }
-            }
-        }
-    }
+			// sleep until notified of new messages
+			synchronized (this)
+			{
+				try
+				{
+					wait();
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+					Thread.interrupted();
+				}
+			}
+		}
+	}
 
-    /**
-     * @see ecologylab.generic.StartAndStoppable#start()
-     */
-    @Override public void start()
-    {
-        running = true;
+	/**
+	 * @see ecologylab.generic.StartAndStoppable#start()
+	 */
+	@Override public void start()
+	{
+		running = true;
 
-        if (t == null)
-        {
-            t = new Thread(this);
-        }
+		if (t == null)
+		{
+			t = new Thread(this);
+		}
 
-        t.start();
+		t.start();
 
-        super.start();
-    }
+		super.start();
+	}
 
-    /**
-     * @see ecologylab.generic.StartAndStoppable#stop()
-     */
-    @Override public void stop()
-    {
-        debug("Server stopping.");
-        running = false;
+	/**
+	 * @see ecologylab.generic.StartAndStoppable#stop()
+	 */
+	@Override public void stop()
+	{
+		debug("Server stopping.");
+		running = false;
 
-        super.stop();
-    }
+		super.stop();
+	}
 
-    /**
-     * @see ecologylab.services.Shutdownable#shutdown()
-     */
-    public void shutdown()
-    {
-        // TODO Auto-generated method stub
+	/**
+	 * @see ecologylab.services.Shutdownable#shutdown()
+	 */
+	public void shutdown()
+	{
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    /**
-     * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object,
-     *      ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
-     */
-    public AbstractContextManager invalidate(Object sessionId, NIOServerBackend base, SocketChannel sc,
-            boolean permanent)
-    {
-        AbstractContextManager cm;
+	/**
+	 * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object,
+	 *      ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+	 */
+	public AbstractContextManager invalidate(Object sessionId, NIOServerBackend base, SocketChannel sc, boolean permanent)
+	{
+		AbstractContextManager cm;
 
-        if (permanent)
-        {
-            synchronized (contexts)
-            {
-                cm = contexts.remove(sessionId);
-            }
-        }
-        else
-        {
-            synchronized (contexts)
-            {
-                cm = contexts.get(sessionId);
-            }
-        }
+		if (permanent)
+		{
+			synchronized (contexts)
+			{
+				cm = contexts.remove(sessionId);
+			}
+		}
+		else
+		{
+			synchronized (contexts)
+			{
+				cm = contexts.get(sessionId);
+			}
+		}
 
-        if (cm != null)
-        {
-            while (cm.isMessageWaiting())
-            {
-                try
-                {
-                    cm.processAllMessagesAndSendResponses();
-                }
-                catch (BadClientException e)
-                {
-                    e.printStackTrace();
-                }
-            }
+		if (cm != null)
+		{
+			while (cm.isMessageWaiting())
+			{
+				try
+				{
+					cm.processAllMessagesAndSendResponses();
+				}
+				catch (BadClientException e)
+				{
+					e.printStackTrace();
+				}
+			}
 
-            cm.shutdown();
-        }
+			cm.shutdown();
+		}
 
-        return cm;
-    }
+		return cm;
+	}
 
-    /**
-     * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that was used for the
-     * connection previously (in order to find the correct ContextManager) and newContextManager is the recently-created
-     * (and now, no longer necessary) ContextManager for the connection.
-     * 
-     * @param oldId
-     * @param newContextManager
-     * @return true if the restore was successful, false if it was not.
-     */
-    public boolean restoreContextManagerFromSessionId(Object oldSessionId, AbstractContextManager newContextManager)
-    {
-        debug("attempting to restore old session...");
+	/**
+	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that was used for the
+	 * connection previously (in order to find the correct ContextManager) and newContextManager is the recently-created
+	 * (and now, no longer necessary) ContextManager for the connection.
+	 * 
+	 * @param oldId
+	 * @param newContextManager
+	 * @return true if the restore was successful, false if it was not.
+	 */
+	public boolean restoreContextManagerFromSessionId(Object oldSessionId, AbstractContextManager newContextManager)
+	{
+		debug("attempting to restore old session...");
 
-        AbstractContextManager oldContextManager;
+		AbstractContextManager oldContextManager;
 
-        synchronized (contexts)
-        {
-            oldContextManager = this.contexts.get(oldSessionId);
-        }
-        if (oldContextManager == null)
-        { // cannot restore old context
-            debug("restore failed.");
-            return false;
-        }
-        else
-        {
-            oldContextManager.setSocket(newContextManager.getSocket());
+		synchronized (contexts)
+		{
+			oldContextManager = this.contexts.get(oldSessionId);
+		}
+		if (oldContextManager == null)
+		{ // cannot restore old context
+			debug("restore failed.");
+			return false;
+		}
+		else
+		{
+			oldContextManager.setSocket(newContextManager.getSocket());
 
-            debug("old session restored!");
-            return true;
-        }
-    }
+			debug("old session restored!");
+			return true;
+		}
+	}
 
-    /**
-     * 
-     * @return status of server in boolean
-     */
-    public boolean isRunning()
-    {
-        return running;
-    }
+	/**
+	 * 
+	 * @return status of server in boolean
+	 */
+	public boolean isRunning()
+	{
+		return running;
+	}
 }
