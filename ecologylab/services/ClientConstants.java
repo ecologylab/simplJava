@@ -3,13 +3,17 @@
  */
 package ecologylab.services;
 
+/**
+ * Constant settings for client functionality.
+ * 
+ * @author Zach
+ * 
+ */
 public interface ClientConstants
 {
+	/** Number of reconnect attempts to make before giving up. */
+	static final int	RECONNECT_ATTEMPTS					= 50;
 
-    static final int CONNECTION_RETRY_SLEEP_INTERVAL = 250;
-
-    static final int RECONNECT_ATTEMPTS              = 50;
-
-    static final int WAIT_BEWTEEN_RECONNECT_ATTEMPTS = 3000;
-
+	/** Number of milliseconds to sleep bewteen attempts to reconnect. */
+	static final int	WAIT_BEWTEEN_RECONNECT_ATTEMPTS	= 3000;
 }

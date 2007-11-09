@@ -118,7 +118,7 @@ public abstract class ServicesClientBase extends Debug implements
         while (!connect())
         {
             // try again soon
-            Generic.sleep(CONNECTION_RETRY_SLEEP_INTERVAL);
+            Generic.sleep(WAIT_BEWTEEN_RECONNECT_ATTEMPTS);
         }
     }
 
