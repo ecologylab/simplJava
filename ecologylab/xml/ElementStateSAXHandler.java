@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.StringInputStream;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
@@ -79,6 +81,39 @@ implements ContentHandler, OptimizationTypes
 			parser					= null;
 		}
 	}
+/**
+ * Parse the CharSequence of XML, using UTF-8 encoding.
+ * 
+ * @param charSequence
+ * @return
+ * @throws XmlTranslationException
+ */
+	public ElementState parse(CharSequence charSequence)
+	throws XmlTranslationException
+	{
+		return parse(charSequence, StringInputStream.UTF8);
+	}
+	/**
+	 * Parse the CharSequence of XML, given the charsetType encoding info.
+	 * @param charSequence
+	 * @param charsetType
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	public ElementState parse(CharSequence charSequence, int charsetType)
+	throws XmlTranslationException
+	{
+		InputStream xmlStream		= new StringInputStream(charSequence, charsetType);
+		ElementState result 		= parse(xmlStream);
+		try
+		{
+			xmlStream.close();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return result;
+	}
 	
 	public ElementState parseString(String xmlString)
 	throws XmlTranslationException
@@ -91,6 +126,35 @@ implements ContentHandler, OptimizationTypes
 	}
 	static final ConnectionAdapter connectionAdapter = new ConnectionAdapter();
 	
+
+	/**
+	 * Translate an XML document read from a URL to a strongly typed tree of XML objects.
+	 * 
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
+	 * 
+	 * @param purl					XML source material.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
+	 */
+	public ElementState parse(URL url)
+	throws XmlTranslationException
+	{
+		return parse(new ParsedURL(url));
+	}	
+
+	/**
+	 * Translate an XML document read from a ParsedURL to a strongly typed tree of XML objects.
+	 * 
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
+	 * 
+	 * @param purl					XML source material.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
+	 */
 	public ElementState parse(ParsedURL purl)
 	throws XmlTranslationException
 	{
@@ -102,6 +166,18 @@ implements ContentHandler, OptimizationTypes
 		purlConnection.recycle();
 		return result;
 	}	
+	/**
+	 * Translate a file from XML to a strongly typed tree of XML objects.
+	 * 
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
+	 * 
+	 * @param file					XML source material.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
+	 */
+	
 	public ElementState parse(File file)
 	throws XmlTranslationException
 	{
@@ -127,13 +203,7 @@ implements ContentHandler, OptimizationTypes
 			throw new XmlTranslationException("Can't close file " + file.getAbsolutePath(), e);
 		}		
 	}	
-	public ElementState parse(String uri)
-	throws XmlTranslationException
-	{
-		InputSource inputSource = new InputSource(uri);
-		return parse(inputSource);
-		//TODO -- should we close something here, like getCharacterStream?
-	}
+
 	public ElementState parse(Reader reader)
 	throws XmlTranslationException
 	{

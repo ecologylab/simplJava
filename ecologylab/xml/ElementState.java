@@ -127,8 +127,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 
 	static final int 			TOP_LEVEL_NODE		= 1;
 	
-	private static final TranslationSpace globalTranslationSpace	= TranslationSpace.get("global");
-	
 /**
  * Used for argument marshalling with reflection to access 
  * a set method that takes a String as an argument.
@@ -158,13 +156,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		
 		optimizations						= Optimizations.lookupRootOptimizations(this, parentOptimizations);		
 	}
-/**
- * Emit XML header, then the object's XML.
- */
-	public String translateToXMLWithHeader(boolean compression) throws XmlTranslationException
-	{
-	   return XML_FILE_HEADER + translateToXML(compression);
-	}
 
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
@@ -184,7 +175,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
 	 * 
-	 * @return 							the generated xml string
+	 * @return 							the generated xml string, in a Reusable SBtringBuilder
 	 * 
 	 * @throws XmlTranslationException if there is a problem with the 
 	 * structure. Specifically, in each ElementState object, fields for 
@@ -194,90 +185,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	public String translateToXML() throws XmlTranslationException
+	public StringBuilder translateToXML() throws XmlTranslationException
 	{
-		StringBuilder buffy	= translateToXML((StringBuilder)null);
-		return (buffy == null) ? "" : buffy.toString();
+		return translateToXML((StringBuilder)null);
 	}
 	
-	/**
-	 * Translates a tree of ElementState objects into an equivalent XML string.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements.
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * 
-	 * @param compression				if the emitted xml needs to be compressed
-	 * 
-	 * @return 							the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	public String translateToXML(boolean compression) throws XmlTranslationException
-	{
-		//nodeNumber is just to indicate which node number(#1 is the root node of the DOM)
-		//is being processed. compression attr is emitted only for node number 1
-		return translateToXML(compression, true);
-	}
-	
-	/**
-	 * Translates a tree of ElementState objects into an equivalent XML string.
-	 * 
-	 * Uses Java reflection to iterate through the public fields of the object.
-	 * When primitive types are found, they are translated into attributes.
-	 * When objects derived from ElementState are found, 
-	 * they are recursively translated into nested elements
-	 * -- if doRecursiveDescent is true).
-	 * <p/>
-	 * Note: in the declaration of <code>this</code>, all nested elements 
-	 * must be after all attributes.
-	 * <p/>
-	 * The result is a hierarchichal XML structure.
-	 * <p/>
-	 * Note: to keep XML files from growing unduly large, there is a default 
-	 * value for each type.
-	 * Attributes which are set to the default value (for that type), 
-	 * are not emitted.
-	 * 
-	 * @param compression				if the emitted xml needs to be compressed
-	 * @param doRecursiveDescent		true for recursive descent parsing.
-	 * 									false to parse just one level of attributes.
-	 * 										In this case, only the open tag w attributes is generated.
-	 * 										There is no close.
-	 * 
-	 * @return 							the generated xml string
-	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
-	 * structure. Specifically, in each ElementState object, fields for 
-	 * attributes must be declared
-	 * before all fields for nested elements (those derived from ElementState).
-	 * If there is any public field which is not derived from ElementState
-	 * declared after the declaration for 1 or more ElementState instance
-	 * variables, this exception will be thrown.
-	 */
-	public String translateToXML(boolean compression, boolean doRecursiveDescent) throws XmlTranslationException
-	{
-		StringBuilder buffy	= translateToXML((StringBuilder)null);
-		return (buffy == null) ? "" : buffy.toString();
-	}
-
 /**
  * Allocated a StringBuilder for translateToXML(), based on a rough guess of how many fields there are to translate.
  * @return
@@ -1032,36 +944,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			buffy.append("</").append(leafElementName).append('>').append('\n');
 		}
 	}
-	
-	/**
-	 * Given the URL of a valid XML document,
-	 * reads the document and builds a tree of equivalent ElementState objects.
-	 * <p/>
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of
-	 * classes derived from ElementState, which corresponds to the structure
-	 * of the XML DOM that needs to be parsed.
-	 * <p/>
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * <p/>
-	 * Recursively parses the XML nodes in DFS order and translates them into 
-	 * a tree of state-objects.
-	 * <p/>
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlDocumentPURL	ParsedURL for the XML document that needs to be translated.
-	 * @return 	   Parent ElementState object of the corresponding Java tree.
-	 */
 
-	public static ElementState translateFromXML(ParsedURL xmlDocumentPURL)
-	throws XmlTranslationException
-	{
-		return translateFromXML(xmlDocumentPURL, globalTranslationSpace);
-	}
 	/**
 	 * Given the URL of a valid XML document,
 	 * reads the document and builds a tree of equivalent ElementState objects.
@@ -1087,51 +970,36 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 	   Parent ElementState object of the corresponding Java tree.
 	 */
-
-	public static ElementState translateFromXML(ParsedURL purl,
+	public static ElementState translateFromXMLDOM(ParsedURL purl,
 												TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		return translateFromXMLDOM(buildDOM(purl), translationSpace);
+	}
+
+	/**
+	 * Translate data from a ParseURL from XML to a strongly typed tree of XML objects.
+	 * 
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
+	 * 
+	 * @param xmlStream	An InputStream to the XML that needs to be translated.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXML(ParsedURL purl, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		if (purl == null)
 			throw new XmlTranslationException("Null PURL", NULL_PURL);
-		
+
 		if (!purl.isNotFileOrExists())
 			throw new XmlTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 		
-		return translateFromXMLDOM(buildDOM(purl), translationSpace);
+		return useDOMForTranslateTo ? translateFromXMLDOM(purl, translationSpace) : translateFromXMLSAX(purl, translationSpace);	
 	}
-	/**
-	 * Given the URL of a valid XML document,
-	 * reads the document and builds a tree of equivalent ElementState objects.
-	 * <p/>
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of
-	 * classes derived from ElementState, which corresponds to the structure
-	 * of the XML DOM that needs to be parsed.
-	 * <p/>
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * <p/>
-	 * Recursively parses the XML nodes in DFS order and translates them 
-	 * into a tree of state-objects.
-	 * <p/>
-	 * Uses the default globalNameSpace as the basis for translation.
-	 * <p/>
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlDocumentURL	URL for the XML document that needs to be translated.
-	 * @return 		 Parent ElementState object of the corresponding Java tree.
-	 */
-
-	public static ElementState translateFromXML(URL xmlDocumentURL)
-	throws XmlTranslationException
-	{
-	   return translateFromXML(xmlDocumentURL, globalTranslationSpace);
-	}
-	/**
+/**
 	 * Given the URL of a valid XML document,
 	 * reads the document and builds a tree of equivalent ElementState objects.
 	 * <p/>
@@ -1159,7 +1027,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
 	 */
 
-	public static ElementState translateFromXML(URL xmlDocumentURL,
+	public static ElementState translateFromXMLDOM(URL xmlDocumentURL,
 												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
@@ -1167,27 +1035,25 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	   return (document == null) ? 
 		  null : translateFromXMLDOM(document, translationSpace);
 	}
+	
+	public static ElementState translateFromXML(URL url,
+			TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		return useDOMForTranslateTo ? translateFromXMLDOM(url, translationSpace) : translateFromXMLSAX(url, translationSpace);
+	}
 	/**
-	 * Given the URL of a valid XML document,
-	 * reads the document and builds a tree of equivalent ElementState objects.
+	 * Translate a file from XML to a strongly typed tree of XML objects.
 	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * Use DOM parsing -- builds an intermediate DOM object.
 	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * @param xmlFile				XML source material.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlFile		the path to the XML document that needs to be translated.
-	 * @return 					the parent ElementState object of the corresponding Java tree.
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXML(File xmlFile, 
+	public static ElementState translateFromXMLDOM(File xmlFile, 
 												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
@@ -1197,32 +1063,23 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		  result			= translateFromXMLDOM(document, translationSpace);
 	   return result;
 	}
+
 	/**
-	 * Given the URL of a valid XML document,
-	 * reads the document and builds a tree of equivalent ElementState objects.
+	 * Translate a file from XML to a strongly typed tree of XML objects.
 	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * @param xmlFile				XML source material.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * <p/>
-	 * Uses the default globalNameSpace as the basis for translation.
-	 * 
-	 * @param xmlFile		the path to the XML document that needs to be translated.
-	 * @return 					the parent ElementState object of the corresponding Java tree.
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXML(File xmlFile)
+	public static ElementState translateFromXML(File xmlFile, 
+			TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-	   return translateFromXML(xmlFile, globalTranslationSpace);
+		return useDOMForTranslateTo ? translateFromXMLDOM(xmlFile, translationSpace) : translateFromXMLSAX(xmlFile, translationSpace);
 	}
 	/**
 	 * Given the name of a valid XML file,
@@ -1239,309 +1096,162 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
 	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
 	 * @param fileName	the name of the XML file that needs to be translated.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
-	public static ElementState translateFromXML(String fileName,
+	public static ElementState translateFromXMLDOM(String fileName,
 												TranslationSpace translationSpace)
 		throws XmlTranslationException
 	{
 		Document document	= buildDOM(fileName);
 		return (document == null) ? null : translateFromXMLDOM(document, translationSpace);
 	}
+
 	/**
-	 * Given the name of a valid XML file,
-	 * reads the file and builds a tree of equivalent ElementState objects.
+	 * Translate a file XML to a strongly typed tree of XML objects.
 	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
 	 * @param fileName	the name of the XML file that needs to be translated.
-	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXML(String fileName)
-		throws XmlTranslationException
+	public static ElementState translateFromXML(String fileName,
+			TranslationSpace translationSpace)
+	throws XmlTranslationException
 	{
-		return translateFromXML(fileName, globalTranslationSpace);
+		File xmlFile	= new File(fileName);
+		if (!xmlFile.exists() && !xmlFile.canRead())
+			throw new XmlTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
+
+		return useDOMForTranslateTo ? translateFromXMLDOM(xmlFile, translationSpace) : translateFromXMLSAX(xmlFile, translationSpace);	
 	}
-	
+
 	/**
 	 * Given an XML-formatted String, 
 	 * builds a tree of equivalent ElementState objects.
-	 * 
+	 * <p/>
 	 * That is, translates the XML into a tree of Java objects, each of which is 
 	 * an instance of a subclass of ElementState.
 	 * The operation of the method is predicated on the existence of a tree of classes derived
 	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
+	 * <p/>
+	 * Build a DOM first. Then, recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
 	 * 
 	 * @param xmlStream	An InputStream to the XML that needs to be translated.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
 	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXML(InputStream xmlStream,
-												TranslationSpace nameSpace)
-		throws XmlTranslationException
+	public static ElementState translateFromXMLDOM(InputStream xmlStream, TranslationSpace nameSpace)
+	throws XmlTranslationException
 	{
 		Document document	= buildDOM(xmlStream);
 		return (document == null) ? null : translateFromXMLDOM(document, nameSpace);
 	}	
+	
 	/**
-	 * Given an XML-formatted String, 
-	 * builds a tree of equivalent ElementState objects.
+	 * Translate an InputStream from XML to a strongly typed tree of XML objects.
 	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
 	 * @param xmlStream	An InputStream to the XML that needs to be translated.
-	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXML(InputStream xmlStream)
-		throws XmlTranslationException
-	{
-		return translateFromXML(xmlStream, globalTranslationSpace);
-	}	
-	
-	/**
-	 * Given an XML-formatted String, 
-	 * builds a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
-	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
-	 * @return 			the parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString, 
-													  int charsetType,
-													  TranslationSpace translationSpace)
-		throws XmlTranslationException
-	{
-	   return translateFromXMLString(xmlString, charsetType, translationSpace, true);
-	}
-	/**
-	 * Given an XML-formatted String, 
-	 * builds a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
-	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
-	 * @return 			the parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString, 
-													  int charsetType,
-													  TranslationSpace translationSpace,
-													boolean doRecursiveDescent)
-		throws XmlTranslationException
-	{
-	   Document document	= buildDOMFromXMLString(xmlString, charsetType);
-	   return (document == null) ? null : 
-		  translateFromXMLDOM(document,translationSpace, doRecursiveDescent);
-	}
-	/**
-	 * Given an XML-formatted String, 
-	 * builds a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which is 
-	 * an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of classes derived
-	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
-	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
-	 * @return 			the parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString, 
-													  int charsetType)
-		throws XmlTranslationException
-	{
-	   return translateFromXMLString(xmlString, charsetType, globalTranslationSpace);
-	}
-	
-	/**
-	 * Given an XML-formatted String, uses charset type UTF-8 to create
-	 * a stream, and build a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree 
-	 * of classes derived from ElementState, which corresponds to the
-	 * structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into
-	 * a tree of state-objects. Uses the default UTF8 charset.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * @return 		 Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString,
-													  TranslationSpace translationSpace)
-		throws XmlTranslationException
-	{
-
-	   return translateFromXMLString(xmlString, translationSpace, true);
-	}
-	/**
-	 * Given an XML-formatted String, uses charset type UTF-8 to create
-	 * a stream, and build a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree 
-	 * of classes derived from ElementState, which corresponds to the
-	 * structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into
-	 * a tree of state-objects. Uses the default UTF8 charset.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * @return 		 Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString,
-													  TranslationSpace translationSpace,
-													boolean doRecursiveDescent)
-		throws XmlTranslationException
-	{
-
-	   xmlString = XML_FILE_HEADER + xmlString;
-	   return translateFromXMLString(xmlString, StringInputStream.UTF8,
-									 translationSpace, doRecursiveDescent);
-	}
-	/**
-	 * Given an XML-formatted String, uses charset type UTF-8 to create
-	 * a stream, and build a tree of equivalent ElementState objects.
-	 * 
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree 
-	 * of classes derived from ElementState, which corresponds to the
-	 * structure of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into
-	 * a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param xmlString	the actual XML that needs to be translated.
-	 * 
-	 * @return 		 Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLString(String xmlString)
-		throws XmlTranslationException
-	{
-	   return translateFromXMLString(xmlString, globalTranslationSpace);
-	}
-	
-	/**
-	 * Given the Document object for an XML DOM, builds a tree of equivalent
-	 * ElementState objects.
-	 * <p/>
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of 
-	 * classes derived from ElementState, which corresponds to the structure
-	 * of the XML DOM that needs to be parsed.
-	 * <p/>
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * <p/>
-	 * Recursively parses the XML nodes in DFS order and translates them
-	 * into a tree of state-objects.
-	 * <p/>
-	 * Uses the default globalNameSpace as the basis for translation.
-	 * <p/>
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param doc	Document object for DOM tree that needs to be translated.
-	 * @return 	  Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXML(Document doc)
+	public static ElementState translateFromXML(InputStream xmlStream, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-	   return translateFromXMLDOM(doc, globalTranslationSpace);
+		return useDOMForTranslateTo ? translateFromXMLDOM(xmlStream, translationSpace) : translateFromXMLSAX(xmlStream, translationSpace);	
+	}	
+
+	/**
+	 * Given an XML-formatted String, 
+	 * builds a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which is 
+	 * an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of classes derived
+	 * from ElementState, which corresponds to the structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param charSequence	the actual XML that needs to be translated.
+	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
+	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
+	 * @return 			the parent ElementState object of the corresponding Java tree.
+	 */
+	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence, 
+													  int charsetType,
+													  TranslationSpace translationSpace)
+		throws XmlTranslationException
+	{
+		Document dom		= buildDOMFromXMLCharSequence(charSequence, charsetType);
+		return (dom == null) ? null : translateFromXMLRootNode(dom.getDocumentElement(), translationSpace);
+	}
+
+	/**
+	 * Given an XML-formatted String, uses charset type UTF-8 to create
+	 * a stream, and build a tree of equivalent ElementState objects.
+	 * 
+	 * That is, translates the XML into a tree of Java objects, each of which
+	 * is an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree 
+	 * of classes derived from ElementState, which corresponds to the
+	 * structure of the XML DOM that needs to be parsed.
+	 * 
+	 * Before calling the version of this method with this signature,
+	 * the programmer needs to create a DOM from the XML file.
+	 * S/he passes it to this method to create a Java hierarchy equivalent to 
+	 * the DOM.
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into
+	 * a tree of state-objects. Uses the default UTF8 charset.
+	 * 
+	 * This method used to be called builtStateObject(...).
+	 * 
+	 * @param charSequence	the actual XML that needs to be translated.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return 		 Parent ElementState object of the corresponding Java tree.
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence,
+														 TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		   return translateFromXMLDOMCharSequence(charSequence, StringInputStream.UTF8, translationSpace);
+	}
+	
+	/**
+	 * Translate a String of XML to a strongly typed tree of XML objects.
+	 * 
+	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
+	 * 
+	 * @param xmlString				the actual XML that needs to be translated.
+	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * 
+	 * @return						Strongly typed tree of ElementState objects.
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXMLCharSequence(CharSequence xmlString,
+													  		TranslationSpace translationSpace)
+		throws XmlTranslationException
+	{
+		return useDOMForTranslateTo ? translateFromXMLDOMCharSequence(xmlString, translationSpace) : translateFromXMLSAX(xmlString, translationSpace);	
 	}
 	
 	/**
@@ -1573,80 +1283,13 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 												TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
-		return translateFromXMLDOM(doc, translationSpace, true);
+		return translateFromXMLRootNode(doc.getDocumentElement(), translationSpace);
 	}
-	
-	/**
-	 * Given the Document object for an XML DOM, builds a tree of equivalent
-	 * ElementState objects.
-	 * <p/>
-	 * That is, translates the XML into a tree of Java objects, each of which
-	 * is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree 
-	 * of classes derived from ElementState, which corresponds to the 
-	 * structure of the XML DOM that needs to be parsed.
-	 * <p/>
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file.
-	 * S/he passes it to this method to create a Java hierarchy equivalent to 
-	 * the DOM.
-	 * <p/>
-	 * Recursively parses the XML nodes in DFS order and translates them into 
-	 * a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param dom	Document object for DOM tree that needs to be translated.
-	 * @param translationSpace		NameSpace that provides basis for translation.
-	 * 
-	 * @return 		Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXMLDOM(Document dom, 
-												TranslationSpace translationSpace,
-												boolean doRecursiveDescent)
-	throws XmlTranslationException
-	{
-		Node rootNode				= dom.getDocumentElement();
-		return translateFromXMLRootNode(rootNode, translationSpace, doRecursiveDescent);
-	}
-	
 
 	/**
-	 * A recursive method.
-	 * Typically, this method is initially passed the root Node of an XML DOM,
-	 * from which it builds a tree of equivalent ElementState objects.
-	 * It does this by recursively calling itself for each node/subtree of 
-	 * ElementState objects.
-	 * 
-	 * The method translates any tree of DOM into a tree of Java objects, each
-	 * of which is an instance of a subclass of ElementState.
-	 * The operation of the method is predicated on the existence of a tree of 
-	 * classes derived from ElementState, which corresponds to the structure 
-	 * of the XML DOM that needs to be parsed.
-	 * 
-	 * Before calling the version of this method with this signature,
-	 * the programmer needs to create a DOM from the XML file, and access the 
-	 * root Node. S/he passes it to this method to create a Java hierarchy 
-	 * equivalent to the DOM.
-	 * 
-	 * Recursively parses the XML nodes in DFS order and translates them into 
-	 * a tree of state-objects.
-	 * 
-	 * This method used to be called builtStateObject(...).
-	 * 
-	 * @param document	Root node of the DOM tree that needs to be translated.
-	 * @param translationSpace		NameSpace that provides basis for translation.
-	 * 
-	 * @return 			Parent ElementState object of the corresponding Java tree.
-	 */
-	public static ElementState translateFromXML(Document document,
-			TranslationSpace translationSpace)
-	throws XmlTranslationException
-	{
-		return translateFromXMLRootNode(document.getDocumentElement(), translationSpace, true);
-	}
-	/**
-	 * A recursive method.
+	 * A recursive DOM-based translation method.
+	 * Entry point for DOM-based parsing.
+	 * <p/>
 	 * Typically, this method is initially passed the root Node of an XML DOM,
 	 * from which it builds a tree of equivalent ElementState objects.
 	 * It does this by recursively calling itself for each node/subtree of 
@@ -1670,12 +1313,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @param xmlRootNode		Root node of the DOM tree that needs to be translated.
 	 * @param translationSpace		NameSpace that provides basis for translation.
-	 * 
 	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLRootNode(Node xmlRootNode,
-												TranslationSpace translationSpace,
-												boolean doRecursiveDescent)
+												TranslationSpace translationSpace)
 	   throws XmlTranslationException
 	{
 	   // find the class for the new object derived from ElementState
@@ -1701,7 +1342,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				if (rootState != null)
 				{
 					rootState.setupRoot();
-					rootState.translateFromXMLNode(xmlRootNode, translationSpace, doRecursiveDescent);
+					rootState.translateFromXMLNode(xmlRootNode, translationSpace);
 
 					rootState.postTranslationProcessingHook();
 
@@ -1758,10 +1399,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * a tree of state-objects.
      * 
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
-     * @param translationSpace		NameSpace that provides basis for translation.
+ * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace, boolean doRecursiveDescent)
+	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		// translate attribtues
@@ -1797,8 +1438,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				}
 			}
 		}
-		if (!doRecursiveDescent)
-			return;
 		
 		// translate nested elements (aka children):
 		// loop through them, recursively build them, and add them to ourself
@@ -1873,16 +1512,16 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
-	 * @param xmlString
+	 * @param charSequence
 	 * @param translationSpace
 	 * @return
 	 * @throws XmlTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(String xmlString, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(CharSequence charSequence, TranslationSpace translationSpace)
 	throws XmlTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
-		return saxHandler.parseString(xmlString);
+		return saxHandler.parse(charSequence);
 	}
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
@@ -1901,6 +1540,20 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
+	 * @param url
+	 * @param translationSpace
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXMLSAX(URL url, TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
+		return saxHandler.parse(url);
+	}
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
 	 * @param file
 	 * @param translationSpace
 	 * @return
@@ -1911,6 +1564,20 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(file);
+	}
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
+	 * @param inputStream
+	 * @param translationSpace
+	 * @return
+	 * @throws XmlTranslationException
+	 */
+	public static ElementState translateFromXMLSAX(InputStream inputStream, TranslationSpace translationSpace)
+	throws XmlTranslationException
+	{
+		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
+		return saxHandler.parse(inputStream);
 	}
 	/**
 	 * Used in SAX parsing to unmarshall attributes into fields.
@@ -2127,17 +1794,17 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	/**
 	 * This method creates a DOM Document from an XML-formatted String.
 	 *
-	 * @param xmlString	the XML-formatted String from which the DOM is to be created
+	 * @param charSequence	the XML-formatted String from which the DOM is to be created
 	 * @param charsetType	A constant from ecologylab.generic.StringInputStream.
 	 * 						0 for UTF16_LE. 1 for UTF16. 2 for UTF8.
 	 * 
 	 * @return					the Document object
 	 */
-	static public Document buildDOMFromXMLString(String xmlString,
+	static public Document buildDOMFromXMLCharSequence(CharSequence charSequence,
 												 int charsetType)
     {
 	   InputStream xmlStream =
-		  new StringInputStream(xmlString, charsetType);
+		  new StringInputStream(charSequence, charsetType);
 
 	   return buildDOM(xmlStream);
 	}
@@ -2146,13 +1813,13 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * This method creates a DOM Document from an XML-formatted String,
 	 * encoded as UTF8.
 	 *
-	 * @param xmlString	the XML-formatted String from which the DOM is to be created
+	 * @param charSequence		the XML-formatted String from which the DOM is to be created
 	 * 
 	 * @return					the Document object
 	 */
-	static public Document buildDOMFromXMLString(String xmlString)
+	static public Document buildDOMFromXMLString(CharSequence charSequence)
     {
-	   return buildDOMFromXMLString(xmlString, UTF8);
+	   return buildDOMFromXMLCharSequence(charSequence, UTF8);
 	}
 
   	static private void createErrorHandler(final DocumentBuilder builder){
@@ -2185,22 +1852,17 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
   	}
 
 	//////////////// methods to generate XML, and write to a file /////////////
-	public void writePrettyXML(String filePath, boolean prettyXml, boolean compression)
-	throws XmlTranslationException
-	{
-		if(!filePath.endsWith(".xml") && !filePath.endsWith(".XML"))
-		{
-			filePath	= filePath + ".xml";
-		}
-		writePrettyXML(new File(filePath));
-	}
-	
+
 	/**
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
 	public void writePrettyXML(String xmlFileName)
 	throws XmlTranslationException
 	{
+		if(!xmlFileName.endsWith(".xml") && !xmlFileName.endsWith(".XML"))
+		{
+			xmlFileName	= xmlFileName + ".xml";
+		}
 		writePrettyXML(new File(xmlFileName));
 	}
 	
@@ -2337,33 +1999,6 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
 	}
 	/////////////////////////// other methods //////////////////////////
-
-	
-	/**
-	 * Add a package name to className mapping to the translation table in the NameSpace.
-	 * <br/><br/>Example:<br/><code>
-	 * 	  addTranslation("cf.history", "KeyframeState");<br/>
-	 *    addTranslation("cf.history", "KeyframeTimeStampSet");<br/></code>
-	 * <br/>
-	 * The class name will be translated into an xml tag name, using the usual rules.
-	 * 
-	 * @param packageName
-	 * @param className
-	 */
-	public static void addTranslation(String packageName, String className)
-	{
-		globalTranslationSpace.addTranslation(packageName, className);
-	}
-   /**
-	* Set the default package name for XML tag to ElementState sub-class translations,
-	* for the global name space.
-	* 
-	* @param packageName	The new default package name.
-	*/
-   public static void setDefaultPackageName(String packageName)
-   {
-	  globalTranslationSpace.setDefaultPackageName(packageName);
-   }
 
 	/**
 	 * The DOM classic accessor method.

@@ -492,7 +492,7 @@ implements OptimizationTypes
 		}
 			
 		if (node != null)
-			childElement.translateFromXMLNode(node, translationSpace, true);
+			childElement.translateFromXMLNode(node, translationSpace);
 		
 		if (newChild)
 			parent.createChildHook(childElement);
