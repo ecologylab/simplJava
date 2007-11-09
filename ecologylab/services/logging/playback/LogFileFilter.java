@@ -14,32 +14,23 @@ import javax.swing.filechooser.FileFilter;
  */
 public class LogFileFilter extends FileFilter
 {
-    
-    /**
-     * 
-     */
-    public LogFileFilter()
-    {
-        super();
-    }
+	/**
+	 * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
+	 */
+	@Override public boolean accept(File arg0)
+	{
+		if (arg0.isDirectory())
+			return true;
 
-    /**
-     * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
-     */
-    public boolean accept(File arg0)
-    {
-        if (arg0.isDirectory())
-            return true;
-        
-        String fileName = arg0.toString();
-        return ("xml".equalsIgnoreCase(fileName.substring(fileName.lastIndexOf('.')+1)));
-    }
+		String fileName = arg0.toString();
+		return ("xml".equalsIgnoreCase(fileName.substring(fileName.lastIndexOf('.') + 1)));
+	}
 
-    /**
-     * @see javax.swing.filechooser.FileFilter#getDescription()
-     */
-    public String getDescription()
-    {
-        return "Log files (.xml)";
-    }
+	/**
+	 * @see javax.swing.filechooser.FileFilter#getDescription()
+	 */
+	@Override public String getDescription()
+	{
+		return "Log files (.xml)";
+	}
 }

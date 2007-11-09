@@ -35,7 +35,7 @@ import ecologylab.xml.XMLTranslationException;
  */
 public abstract class NIONetworking extends Debug implements Runnable
 {
-	/** 
+	/**
 	 * 
 	 * @author James Greenfield
 	 * 
@@ -68,7 +68,7 @@ public abstract class NIONetworking extends Debug implements Runnable
 
 	private Map<SocketChannel, Queue<ByteBuffer>>	pendingWrites					= new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-	private Queue<SocketModeChangeRequest>							pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
+	private Queue<SocketModeChangeRequest>				pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
 
 	private boolean											running;
 
@@ -308,8 +308,8 @@ public abstract class NIONetworking extends Debug implements Runnable
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue change
-			this.pendingSelectionOpChanges
-					.offer(new SocketModeChangeRequest(socket, SocketModeChangeRequest.CHANGEOPS, SelectionKey.OP_WRITE));
+			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(socket, SocketModeChangeRequest.CHANGEOPS,
+					SelectionKey.OP_WRITE));
 
 			// queue data to write
 			synchronized (this.pendingWrites)
@@ -341,14 +341,16 @@ public abstract class NIONetworking extends Debug implements Runnable
 		{
 			synchronized (pendingSelectionOpChanges)
 			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan, SocketModeChangeRequest.INVALIDATE_PERMANENTLY, 0));
+				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan,
+						SocketModeChangeRequest.INVALIDATE_PERMANENTLY, 0));
 			}
 		}
 		else
 		{
 			synchronized (pendingSelectionOpChanges)
 			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan, SocketModeChangeRequest.INVALIDATE_TEMPORARILY, 0));
+				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan,
+						SocketModeChangeRequest.INVALIDATE_TEMPORARILY, 0));
 			}
 		}
 		selector.wakeup();

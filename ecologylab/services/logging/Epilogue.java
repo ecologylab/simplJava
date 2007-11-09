@@ -2,11 +2,10 @@ package ecologylab.services.logging;
 
 import ecologylab.xml.ElementState;
 
-
 /**
+ * Request message about letting the server to write closing block for xml logs and close the log file.
  * 
- * Request message about letting the server to write closing block for xml logs 
- * and close the log file. 
+ * Subclasses may provide additional information that is written to the end of a log.
  * 
  * @author eunyee
  */
