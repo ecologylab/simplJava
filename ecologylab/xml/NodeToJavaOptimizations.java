@@ -193,6 +193,7 @@ implements OptimizationTypes
 				this.scalarType		= nsN2jo.scalarType;
 				this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
 				this.classOp		= nsN2jo.classOp;
+				this.isCDATA		= nsN2jo.isCDATA;
 			}
 			else
 				this.type			= NAMESPACE_IGNORED_ELEMENT;
