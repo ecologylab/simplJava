@@ -12,15 +12,19 @@ extends InputStream
 {
    public static final int	UTF16_LE	= 0;
    public static final int	UTF16_BE	= 1;
-   public static final int	UTF16		= UTF16_BE;
+   public static final int	UTF16		= UTF16_LE;
    public static final int	UTF8		= 2;
    
+   /**
+    * Little-endian is like Intel.
+    * Big-endian is like Power PC.
+    */
    int	outputFormat	= UTF16_LE;
    
     /**
      * The string from which bytes are read.
      */
-    protected String buffer;
+    protected CharSequence buffer;
 
     /**
      * The index of the next character to read from the input stream buffer.
@@ -39,18 +43,18 @@ extends InputStream
     /**
      * Creates a string input stream to read data from the specified string.
      *
-     * @param      s   the underlying input buffer.
+     * @param      charSequence   the underlying input buffer.
      */
 
-   public StringInputStream(String s, int format)
+   public StringInputStream(CharSequence charSequence, int format)
    {
-      this(s);
+      this(charSequence);
       outputFormat	= format;
    }
-   public StringInputStream(String s)
+   public StringInputStream(CharSequence charSequence)
    {
-      this.buffer = s;
-      count = s.length();
+      this.buffer = charSequence;
+      count = charSequence.length();
    }
     /**
      * Reads the next byte of data from this input stream. The value
@@ -95,7 +99,7 @@ extends InputStream
 	  {
 		 return 0;
       }
-      String	s = buffer;
+      CharSequence	s = buffer;
       int cnt = len;
       while (--cnt >= 0)
       {
