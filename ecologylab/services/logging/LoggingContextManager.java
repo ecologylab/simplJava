@@ -20,7 +20,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.contextmanager.ContextManager;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Special version of ServerToClientConnection for the LoggingServer. Provides a
@@ -153,7 +153,7 @@ public class LoggingContextManager extends ContextManager
      * 
      * @param messageString
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
 //    protected RequestMessage translateStringToRequestMessage(
 //            String messageString) throws XmlTranslationException

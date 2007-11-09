@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
-import ecologylab.xml.XmlTools;
+import ecologylab.xml.XMLTools;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
@@ -46,7 +46,7 @@ public class StringType extends ReferenceType<String>
 	protected void appendValue(String instance, StringBuilder buffy, boolean needsEscaping)
     {
 		if (needsEscaping)
-			XmlTools.escapeXML(buffy, instance);
+			XMLTools.escapeXML(buffy, instance);
 		else
 			buffy.append(instance);
     }

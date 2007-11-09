@@ -7,7 +7,7 @@ import ecologylab.generic.ConsoleUtils;
 import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -46,13 +46,13 @@ extends RequestMessage
 	}
 	
 	public SetPreferences(String preferencesSetString, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
-		this((PrefSet) translateFromXMLString(preferencesSetString, translationSpace));
+		this((PrefSet) translateFromXMLCharSequence(preferencesSetString, translationSpace));
 	}
 	
 	public SetPreferences(String preferencesSetAssetPath, String overridePreferencesSetString, TranslationSpace nameSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		this (overridePreferencesSetString, nameSpace);
 		this.preferencesSetAssetPath = preferencesSetAssetPath;
@@ -77,7 +77,7 @@ extends RequestMessage
 						(PrefSet) ElementState.translateFromXML(Assets.getPreferencesFile(preferencesSetAssetPath + ".xml"), AppFrameworkTranslations.get());
 //TODO happens automatically					preferencesSetAsset.loadIntoEnvironment();
 					debug("performService() Received and loaded preferences: " + preferencesSetAsset);
-				} catch (XmlTranslationException e) {
+				} catch (XMLTranslationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

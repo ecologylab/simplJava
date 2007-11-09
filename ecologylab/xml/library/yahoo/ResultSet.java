@@ -3,7 +3,7 @@ package ecologylab.xml.library.yahoo;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -40,7 +40,7 @@ public class ResultSet extends ArrayListState
 		{
 			ResultSet resultSet	= 
 				(ResultSet) ElementState.translateFromXML(purl, ResultSet.translationSpace());
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}

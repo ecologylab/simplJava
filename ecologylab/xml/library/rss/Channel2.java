@@ -15,7 +15,7 @@ import ecologylab.xml.types.element.ArrayListState;
  *
  * @author andruid
  */
-public @xml_inherit class Channel extends ArrayListState<Item>
+public @xml_inherit class Channel2 extends ElementState //ArrayListState<Item>
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
@@ -24,7 +24,7 @@ public @xml_inherit class Channel extends ArrayListState<Item>
     */
    @xml_leaf	ParsedURL		link;
    
-   //@xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
+   @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
    
    /**
     * @return Returns the description.
@@ -69,7 +69,7 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 	{
 		this.link = link;
 	}
-	/*
+	
 	public ArrayList<Item> getItems()
 	{
 		return items;
@@ -78,7 +78,17 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 	{
 		this.items = items;
 	}
-	*/
+	
+	public int size()
+	{
+		return items == null ? 0 : items.size();
+	}
+	
+	public Item get(int i)
+	{
+		return items == null ? null : items.get(i);
+	}
+	
 //	@Override
 //	protected Collection<? extends ElementState> getCollection(Class thatClass)
 //	{
@@ -87,7 +97,7 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 
 	public static void main(String[] s)
 	{
-		Channel c	= new Channel();
+		Channel2 c	= new Channel2();
 		Item i1		= new Item();
 		i1.author	= "zach";
 		i1.title	= "it is called rogue!";
@@ -97,9 +107,11 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 		i2.author = "andruid";
 		i2.title = "it is called cf!";
 		i2.description	= "its a creativity support tool";
-		/* c.items		= new ArrayList<Item>();
-		c.items. */ c.add(i1);
-		/* c.items. */ c.add(i2);
+		c.items		= new ArrayList<Item>();
+		c.items.add(i1);
+		c.items.add(i2);
+	//	 c.add(i1);
+		// c.add(i2);
 		try
 		{
 			println(c.translateToXML());

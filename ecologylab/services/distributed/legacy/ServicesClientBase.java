@@ -13,7 +13,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Abstract base class for building ecologylab.services clients.
@@ -128,20 +128,20 @@ public abstract class ServicesClientBase extends Debug implements
      * 
      * @param messageString
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     protected ResponseMessage translateXMLStringToResponseMessage(
-            String messageString) throws XmlTranslationException
+            String messageString) throws XMLTranslationException
     {
         return translateXMLStringToResponseMessage(messageString, true);
     }
 
     public ResponseMessage translateXMLStringToResponseMessage(
             String messageString, boolean doRecursiveDescent)
-            throws XmlTranslationException
+            throws XMLTranslationException
     {
-        return (ResponseMessage) ElementState.translateFromXMLString(
-                messageString, translationSpace, doRecursiveDescent);
+        return (ResponseMessage) ElementState.translateFromXMLCharSequence(
+                messageString, translationSpace);
     }
 
     /**

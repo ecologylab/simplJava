@@ -74,14 +74,14 @@ public class RssState extends ElementState
 				println(item.description);
 			}
 
-			String retranslated	= rssState.translateToXML();
+			StringBuilder retranslated	= rssState.translateToXML();
 			println(retranslated);
 			println("\n");
-			RssState rssState2	= (RssState) ElementState.translateFromXMLString(retranslated, RssTranslations.get());
+			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
 			rssState2.translateToXML(System.out);
 
 			rssState.writePrettyXML(outputFile);
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

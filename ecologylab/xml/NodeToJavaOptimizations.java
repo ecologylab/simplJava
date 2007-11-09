@@ -87,7 +87,7 @@ implements OptimizationTypes
 			isScalar			= true;
 			this.type			= REGULAR_ATTRIBUTE;
 		}
-		else if (XmlTools.representAsLeafNode(field))
+		else if (XMLTools.representAsLeafNode(field))
 		{
 			isScalar			= true;
 			this.type			= LEAF_NODE_VALUE;
@@ -116,7 +116,7 @@ implements OptimizationTypes
 	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, Class thatClass)
 	{
 		super();
-		this.tag				= XmlTools.getXmlTagName(thatClass, "State");
+		this.tag				= XMLTools.getXmlTagName(thatClass, "State");
 		this.translationSpace	= translationSpace;
 		this.optimizations		= optimizations;
 		
@@ -403,8 +403,8 @@ implements OptimizationTypes
 	private int setupScalarValue(String tag, Optimizations optimizations, Class contextClass, boolean isAttribute)
 	{
 		int type			= UNSET_TYPE;
-		String methodName	= XmlTools.methodNameFromTagName(tag);
-		String fieldName	= XmlTools.fieldNameFromElementName(tag);
+		String methodName	= XMLTools.methodNameFromTagName(tag);
+		String fieldName	= XMLTools.fieldNameFromElementName(tag);
 		Field field			= optimizations.getField(fieldName);
         
 		Method setMethod	= 
@@ -466,10 +466,10 @@ implements OptimizationTypes
 	 * @param node
 	 * @param useExistingTree
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	ElementState domFormChildElement(ElementState parent, Node node, boolean useExistingTree)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementState childElement	= null;
 
@@ -508,12 +508,12 @@ implements OptimizationTypes
  *
  * @param parent
  * @return
- * @throws XmlTranslationException
+ * @throws XMLTranslationException
  */
 	ElementState constructChildElementState(ElementState parent)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
-		ElementState childElementState		= (ElementState) XmlTools.getInstance(classOp);
+		ElementState childElementState		= (ElementState) XMLTools.getInstance(classOp);
 		childElementState.elementByIdMap	= parent.elementByIdMap;
 		childElementState.parent			= parent;
 		Optimizations parentOptimizations	= parent.optimizations;
@@ -608,7 +608,7 @@ implements OptimizationTypes
 				{
 					textNodeValue		= textNodeValue.trim();
 					if (!isCDATA && (scalarType != null) && scalarType.needsEscaping())
-						textNodeValue	= XmlTools.unescapeXML(textNodeValue);
+						textNodeValue	= XMLTools.unescapeXML(textNodeValue);
 					//debug("setting special text node " +childFieldName +"="+textNodeValue);
 					if (textNodeValue.length() > 0)
 					{
@@ -630,7 +630,7 @@ implements OptimizationTypes
 	 * @param useExistingTree		if true, re-fill in existing objects, instead of creating new ones.
 	 */
 	protected void domFormNestedElementAndSetField(ElementState context, Node childNode)
-		throws XmlTranslationException
+		throws XMLTranslationException
 	{
 		Object nestedObject = isElementStateSubclass ? domFormChildElement(context, childNode, false) 
 				: ReflectionTools.getInstance(classOp);
@@ -639,7 +639,7 @@ implements OptimizationTypes
 	}
 
 	void setFieldToNestedObject(ElementState context, Object nestedObject) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		try
 		{
@@ -658,9 +658,9 @@ implements OptimizationTypes
 	 * @param e
 	 * @return
 	 */
-	private XmlTranslationException fieldAccessException(Object nestedElementState, Exception e)
+	private XMLTranslationException fieldAccessException(Object nestedElementState, Exception e)
 	{
-		return new XmlTranslationException(
+		return new XMLTranslationException(
 					"Unexpected Object / Field set problem. \n\t"+
 					"Field = " + field +"\n\ttrying to set to " + nestedElementState.getClass(), e);
 	}
@@ -670,10 +670,10 @@ implements OptimizationTypes
 	 * 
 	 * @param activeES
 	 * @param childNode
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	void domFormElementAndAddToCollection(ElementState activeES, Node childNode)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		Collection collection = getCollection(activeES);
 
@@ -758,10 +758,10 @@ implements OptimizationTypes
 	 * 
 	 * @param activeES
 	 * @param childNode
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	void domFormElementAndToMap(ElementState activeES, Node childNode)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		Map map = getMap(activeES);
 			
@@ -801,10 +801,10 @@ implements OptimizationTypes
 	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
 	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
 	 * 
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if (scalarType != null)
 		{

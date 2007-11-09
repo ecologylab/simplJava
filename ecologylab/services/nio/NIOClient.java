@@ -38,7 +38,7 @@ import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the sending methods do
@@ -172,9 +172,9 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
      * key and calls wakeup() on the selector.
      * 
      * @param request
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
-    protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XmlTranslationException
+    protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XMLTranslationException
     {
         long uid = request.getUid();
         if (uid == 0)
@@ -390,7 +390,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
             {
                 return this.prepareAndEnqueueRequestForSending(request);
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 error("error translating message; returning null");
                 e.printStackTrace();
@@ -439,7 +439,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
         {
             currentMessageUid = this.prepareAndEnqueueRequestForSending(request).getUid();
         }
-        catch (XmlTranslationException e1)
+        catch (XMLTranslationException e1)
         {
             error("error translating to XML; returning null");
             e1.printStackTrace();
@@ -869,7 +869,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
         {
             responseMessage = translateXMLStringToResponseMessage(incomingMessage);
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             e.printStackTrace();
         }

@@ -46,7 +46,7 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.ValueChangedListener;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
@@ -723,7 +723,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             {
                 prefSet.writePrettyXML(savePrefsPURL.file());
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 // TODO auto-generated catch block
                 e.printStackTrace();

@@ -39,9 +39,7 @@ public class CFServicesClientExample extends Debug
 
 	static final String[] N_QUERIES =
 	{
-		"baker hamilton report",
-		"global warming",
-		"nfl playoffs"
+		"tv"
 	};
 	
 	public static void main(String[] args)
@@ -51,8 +49,8 @@ public class CFServicesClientExample extends Debug
 		// in case the server is not up yet, wait for it.
 		cfClient.waitForConnect();
 
-		sendQueriesToCF(cfClient, "google", G_QUERIES);
-		sendQueriesToCF(cfClient, "yahoo_news", N_QUERIES);
+//		sendQueriesToCF(cfClient, "google", G_QUERIES);
+		sendQueriesToCF(cfClient, "yahoo_buzz", N_QUERIES);
 	}
 
 

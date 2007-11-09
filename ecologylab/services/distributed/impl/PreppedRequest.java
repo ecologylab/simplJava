@@ -10,6 +10,7 @@ package ecologylab.services.nio;
  * 
  * @author Zach Toups (toupsz@gmail.com)
  */
+//FIXME -- Can we use StringBuilders in here directly to utilize memory better
 public class PreppedRequest implements Comparable<PreppedRequest>
 {
     private long   uid;

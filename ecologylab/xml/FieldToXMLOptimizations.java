@@ -81,7 +81,7 @@ implements OptimizationTypes
     FieldToXMLOptimizations(Field field, Class<? extends ElementState> actualClass)
     {
         setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
-                ElementState.xml_tag.class).value() : XmlTools.getXmlTagName(actualClass, "State"));
+                ElementState.xml_tag.class).value() : XMLTools.getXmlTagName(actualClass, "State"));
         setType(field, actualClass);
         this.field			= field;
     }
@@ -94,7 +94,7 @@ implements OptimizationTypes
      */
     FieldToXMLOptimizations(Class rootClass)
     {
-    	setTag(XmlTools.getXmlTagName(rootClass, "State"));
+    	setTag(XMLTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
     }
     /**
@@ -116,7 +116,7 @@ implements OptimizationTypes
         }
         if (tagName == null)
         	// get the tag name from the class of the object in the Collection, if from nowhere else
-        	tagName		= XmlTools.getXmlTagName(actualCollectionElementClass, "State");
+        	tagName		= XMLTools.getXmlTagName(actualCollectionElementClass, "State");
 
         setTag(tagName);
         // no field here?!
@@ -136,7 +136,7 @@ implements OptimizationTypes
     		((collectionAnnotation != null) && (collectionAnnotation.length() > 0)) ? collectionAnnotation :
     		((mapAnnotation != null) && (mapAnnotation.length() > 0)) ? mapAnnotation :
     		((tagAnnotation != null) && (tagAnnotation.length() > 0)) ? tagAnnotation :
-    			XmlTools.getXmlTagName(field.getName(), null); // generate from class name
+    			XMLTools.getXmlTagName(field.getName(), null); // generate from class name
 
         setTag(tagName);
         this.field				= field;
@@ -147,7 +147,7 @@ implements OptimizationTypes
         	scalarType		= TypeRegistry.getType(field);
         	if (isLeaf)
         	{
-	        	isCDATA			= XmlTools.leafIsCDATA(field);
+	        	isCDATA			= XMLTools.leafIsCDATA(field);
 	        	needsEscaping	= scalarType.needsEscaping();
         	}
         }

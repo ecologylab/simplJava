@@ -1,6 +1,6 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -24,7 +24,7 @@ public final class SendEpilogue extends LogueMessage
 			bufferToLog	= epilogue.translateToXML((StringBuilder) null);
 			bufferToLog.insert(0, Logging.OP_SEQUENCE_END);
 			bufferToLog.append(endLog());
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}

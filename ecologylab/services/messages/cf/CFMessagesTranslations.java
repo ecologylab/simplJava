@@ -43,6 +43,6 @@ public class CFMessagesTranslations extends Debug
 	 */
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, DefaultServicesTranslations.get(), TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, DefaultServicesTranslations.get());
 	}
 }

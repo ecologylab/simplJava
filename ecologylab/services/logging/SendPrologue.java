@@ -4,8 +4,8 @@ import java.util.Date;
 
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;
-import ecologylab.xml.XmlTools;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTools;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -41,7 +41,7 @@ public class SendPrologue extends LogueMessage
 			bufferToLog		= prologue.translateToXML((StringBuilder) null);
 			bufferToLog.insert(0, beginLog());
 			bufferToLog.append(Logging.OP_SEQUENCE_START);
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}
@@ -90,7 +90,7 @@ public class SendPrologue extends LogueMessage
 	}
  	public String beginLog()
  	{
- 		return XmlTools.xmlHeader() + "\n<" + logName() + ">\n\n";
+ 		return XMLTools.xmlHeader() + "\n<" + logName() + ">\n\n";
  	}
  	
  	public String getStudyName()

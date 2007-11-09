@@ -10,7 +10,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -84,7 +84,7 @@ implements ApplicationPropertyNames
 				println("Loading preferences from: " + preferencesXMLFile);
 				PreferencesSet ps	= (PreferencesSet) ElementState.translateFromXML(preferencesXMLFile, translationSpace);
 				ps.processPreferences();
-			} catch (XmlTranslationException e)
+			} catch (XMLTranslationException e)
 			{
 				error(preferencesXMLFile, "Caught exception while reading preferences:");
 				e.printStackTrace();

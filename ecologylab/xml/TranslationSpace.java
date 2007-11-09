@@ -70,14 +70,20 @@ public final class TranslationSpace extends Debug
     * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
     * 
     * @param name
-    * @param baseTranslations
+    * @param inheritedTranslations
     */
-   private TranslationSpace(String name, TranslationSpace baseTranslations)
+   private TranslationSpace(String name, TranslationSpace inheritedTranslations)
    {
 	  this(name);
-	  addTranslations(baseTranslations);
+	  addTranslations(inheritedTranslations);
    }
    
+   private TranslationSpace(String name, Class translation, TranslationSpace inheritedTranslations)
+   {
+	  this(name, inheritedTranslations);
+	  addTranslation(translation);
+   }
+  
    /**
     * Create a new TranslationSpace that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
@@ -86,12 +92,12 @@ public final class TranslationSpace extends Debug
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationSpace(String name, TranslationSpace[] baseTranslationsSet)
+   private TranslationSpace(String name, TranslationSpace[] inheritedTranslations)
    {
 	  this(name);
-	  int n	= baseTranslationsSet.length;
+	  int n	= inheritedTranslations.length;
 	  for (int i=0; i< n; i++)
-		  addTranslations(baseTranslationsSet[i]);
+		  addTranslations(inheritedTranslations[i]);
    }
    
    /**
@@ -125,16 +131,34 @@ public final class TranslationSpace extends Debug
    }
    
    /**
+     * Create a new space that defines how to translate xml tag names into
+     * class names of subclasses of ElementState.
+     * 
+     * Set a new default package, and
+ 	* a set of defined translations.
+     * 
+     * @param name		Name of the TranslationSpace to be 
+ 	*					A key for use in the TranslationSpace registry.
+  * @param translations		Set of initially defined translations for this.
+  * @param defaultPackgeName
+     */
+    private TranslationSpace(String name, Class[] translations, 
+ 					String defaultPackgeName)
+    {
+ 	   this(name, translations, (TranslationSpace[]) null, defaultPackgeName);
+    }
+   
+   /**
     * Construct a new TranslationSpace, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
-    * @param defaultPackgeName
-    * @param inheritedTranslationsSet
-    * @param translations
+ * @param translations
+ * @param inheritedTranslationsSet
+ * @param defaultPackgeName
     */
-   private TranslationSpace(String name, String defaultPackgeName, TranslationSpace[] inheritedTranslationsSet,
-		   Class[] translations)
+   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslationsSet);
 	   this.setDefaultPackageName(defaultPackgeName);
@@ -145,12 +169,12 @@ public final class TranslationSpace extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
-    * @param defaultPackgeName
-    * @param baseTranslations
-    * @param translations
+ * @param translations
+ * @param defaultPackgeName
+ * @param baseTranslations
     */
-   private TranslationSpace(String name, String defaultPackgeName, ArrayList<TranslationSpace> inheritedTranslationsSet,
-		   Class[] translations)
+   private TranslationSpace(String name, Class[] translations, ArrayList<TranslationSpace> inheritedTranslationsSet,
+		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslationsSet);
 	   this.setDefaultPackageName(defaultPackgeName);
@@ -162,12 +186,12 @@ public final class TranslationSpace extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
-    * @param defaultPackgeName
-    * @param inheritedTranslations
-    * @param translations
+ * @param translations
+ * @param inheritedTranslations
+ * @param defaultPackgeName
     */
-   private TranslationSpace(String name, String defaultPackgeName, TranslationSpace inheritedTranslations,
-		   Class[] translations)
+   private TranslationSpace(String name, Class[] translations, TranslationSpace inheritedTranslations,
+		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslations);
 	   this.setDefaultPackageName(defaultPackgeName);
@@ -179,15 +203,15 @@ public final class TranslationSpace extends Debug
     * Map XML Namespace declarations.
     *      
     * @param name
-    * @param defaultPackgeName
-    * @param inheritedTranslations
-    * @param translations
-    * @param nameSpaceDecls
+ * @param translations
+ * @param inheritedTranslations
+ * @param defaultPackgeName
+ * @param nameSpaceDecls
     */
-   private TranslationSpace(String name, String defaultPackgeName, TranslationSpace[] inheritedTranslations,
-		   Class[] translations, NameSpaceDecl[] nameSpaceDecls)
+   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslations,
+		   String defaultPackgeName, NameSpaceDecl[] nameSpaceDecls)
    {
-	   this(name, defaultPackgeName, inheritedTranslations, translations);
+	   this(name, translations, inheritedTranslations, defaultPackgeName);
 	   addNameSpaceDecls(nameSpaceDecls);
    }
    
@@ -203,26 +227,6 @@ public final class TranslationSpace extends Debug
 		   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
 	   }
    }
-   
-  /**
-    * Create a new space that defines how to translate xml tag names into
-    * class names of subclasses of ElementState.
-    * 
-    * Set a new default package, and
-	* a set of defined translations.
-    * 
-    * @param name		Name of the TranslationSpace to be 
-	*					A key for use in the TranslationSpace registry.
-    * @param defaultPackgeName
-	* @param translations		Set of initially defined translations for this.
-    */
-   private TranslationSpace(String name, String defaultPackgeName, 
-					Object[] translations)
-   {
-	   this(name);
-	   this.setDefaultPackageName(defaultPackgeName);
-	   addTranslations(translations);
-   }
       
    /**
     * Add translations, where each translation is defined by an actual Class object.
@@ -230,7 +234,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param classes
     */
-   public void addTranslations(Class[] classes)
+   private void addTranslations(Class[] classes)
    {
 	   if (classes != null)
 	   {
@@ -251,7 +255,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param otherTranslations
     */
-   public void addTranslations(TranslationSpace otherTranslations)
+   private void addTranslations(TranslationSpace otherTranslations)
    {
 	   if (otherTranslations != null)
 	   {
@@ -347,7 +351,7 @@ public final class TranslationSpace extends Debug
 	* 
 	* @param packageName	The new default package name.
 	*/
-   public void setDefaultPackageName(String packageName)
+   private void setDefaultPackageName(String packageName)
    {
 	  defaultPackageName	= packageName;
    }
@@ -364,7 +368,7 @@ public final class TranslationSpace extends Debug
 
 	  if (entry == null)
 	  {
-		 String className	= XmlTools.classNameFromElementName(xmlTag);
+		 String className	= XMLTools.classNameFromElementName(xmlTag);
 		 if (defaultPackageName != null)
 		 {
 			 String packageName = defaultPackageName;
@@ -376,7 +380,7 @@ public final class TranslationSpace extends Debug
 			 entry				= new TranslationEntry(xmlTag);	// new empty entry
 			 return null;
 		 }
-		 String classSimpleName	= XmlTools.classNameFromElementName(xmlTag);
+		 String classSimpleName	= XMLTools.classNameFromElementName(xmlTag);
 		 String packageName = defaultPackageName;
 		 if (packageName != null)
 			 entry				= new TranslationEntry(packageName, classSimpleName, xmlTag, null);
@@ -475,37 +479,13 @@ public final class TranslationSpace extends Debug
    {
 	  return emitPackageNames;
    }
-   
-   /**
-    * Combine translations from newTranslationSpace into this one.
-    * 
-    * @param newTranslationSpace
-    */
-   //TODO should this create a new TranslationSpace or add to the existing one???
-   public TranslationSpace union(TranslationSpace newTranslationSpace)
-   {
-	   if (newTranslationSpace == null)
-	   {
-		   error("Can't union with null newTranslationSpace.");
-		   return null;
-	   }
-	   Iterator translationEntriesIterator = newTranslationSpace.entriesByClassIterator();
-	   while (translationEntriesIterator.hasNext())
-	   {
-		   TranslationEntry nameEntry = (TranslationEntry) translationEntriesIterator.next();
-		   if (!entriesByClassSimpleName.containsKey(nameEntry.classSimpleName))	// look out for redundant entries
-			   addTranslation(nameEntry.thisClass);
-		   else
-			   debug("WARNING: union() not overriding " + nameEntry);
-	   }
-	   return this;
-   }
+
    /**
     * Get the values in the entriesByClass HashMap, and form an Iterator for acessing them.
     * 
     * @return
     */
-   public Iterator<TranslationEntry> entriesByClassIterator()
+   private Iterator<TranslationEntry> entriesByClassIterator()
    {
 	   Collection<TranslationEntry> values = entriesByClassSimpleName.values();
 	   return values.iterator();
@@ -521,7 +501,7 @@ public final class TranslationSpace extends Debug
    private static String determineXMLTag(Class<?> classObj, String classSimpleName)
    {
        return classObj.isAnnotationPresent(xml_tag.class) ? classObj.getAnnotation(xml_tag.class).value() : 
-         XmlTools.getXmlTagName(classSimpleName, "State");
+         XMLTools.getXmlTagName(classSimpleName, "State");
    }
    
    public class TranslationEntry extends Debug
@@ -566,7 +546,7 @@ public final class TranslationSpace extends Debug
 	  public TranslationEntry(String packageName, String className)
 	  {
 		  this(packageName, className,
-				  XmlTools.getXmlTagName(className, "State"), null);
+				  XMLTools.getXmlTagName(className, "State"), null);
 	  }
 	  /**
 	   * Create the entry by package name and class name.
@@ -673,7 +653,7 @@ public final class TranslationSpace extends Debug
 		 if (thisClass != null)
 			buffy.append(' ').append(thisClass);
 		 buffy.append(']');
-		 return XmlTools.toString(buffy);
+		 return XMLTools.toString(buffy);
 	  }
    }
    public String toString()
@@ -700,7 +680,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name)
    {
 	   TranslationSpace result	= lookup(name);
-	   return (result != null) ? result : new TranslationSpace(name, name);
+	   return (result != null) ? result : new TranslationSpace(name);
    }
    
    /**
@@ -760,7 +740,7 @@ public final class TranslationSpace extends Debug
 	   TranslationSpace result	= lookForExistingTS(defaultPackageName, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(defaultPackageName, defaultPackageName, translations);
+		   result		= new TranslationSpace(defaultPackageName, translations, defaultPackageName);
 	   }
 	   return result;	   
    }
@@ -770,52 +750,89 @@ public final class TranslationSpace extends Debug
     * Inherit from the previous TranslationSpace, by including all mappings from there.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslations
-    * @param translations
+ * @param translations
+ * @param inheritedTranslations
+ * @param defaultPackageName
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace inheritedTranslations,
-		   							  Class[] translations)
+   public static TranslationSpace get(String name, Class[] translations, TranslationSpace inheritedTranslations,
+		   							  String defaultPackageName)
    {
 	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslations, translations);
+		   result		= new TranslationSpace(name, translations, inheritedTranslations, defaultPackageName);
 	   }
 	   return result;	   
    }
+   
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on a previous TranslationSpace, by including all mappings from there.
+    * Add just a single new class.
+    * 
+    * @param name
+    * @param translation
+    * @param inheritedTranslations
+    * @return
+    */
+   public static TranslationSpace get(String name, Class translation, TranslationSpace inheritedTranslations)
+   {
+	   TranslationSpace result	= lookForExistingTS(name, null);
+	   if (result == null)
+	   {
+		   result		= new TranslationSpace(name, translation, inheritedTranslations);
+	   }
+	   return result;	   
+   }
+  
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on the previous TranslationSpace, by including all mappings from there.
     * 
     * @param name
-    * @param inheritedTranslations
-    * @param translations
+ * @param translations
+ * @param inheritedTranslations
     * @return
     */
-   public static TranslationSpace get(String name, TranslationSpace inheritedTranslations,
-		   							  Class[] translations)
+   public static TranslationSpace get(String name, Class[] translations,
+		   							  TranslationSpace inheritedTranslations)
    {
-	   return get(name, name, inheritedTranslations, translations);
+	   return get(name, translations, inheritedTranslations, name);
    }
+ 
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Build on the previous TranslationSpace, by including all mappings from there.
+    * 
+    * @param name
+    * @param translations
+    * @param inheritedTranslations
+    * @return
+    */
+   public static TranslationSpace get(String name, Class[] translations,
+			  TranslationSpace[] inheritedTranslations)
+	{
+	return get(name, translations, inheritedTranslations, (String) null);
+	}
+
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslationsSet
-    * @param translations
+ * @param translations
+ * @param inheritedTranslationsSet
+ * @param defaultPackageName
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslationsSet,
-		   							  Class[] translations)
+   public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+		   							  String defaultPackageName)
    {
 	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
+		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
 	   }
 	   return result;	   
    }
@@ -825,49 +842,47 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslationsSet
-    * @param translations
-    * @param nameSpaceDecls				Array of NameSpace ElementState class + URI key map entries.
+ * @param translations
+ * @param inheritedTranslationsSet
+ * @param defaultPackageName
+ * @param nameSpaceDecls				Array of ElementState class + URI key map entries for handling XML Namespaces.
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslationsSet,
-		   Class[] translations, NameSpaceDecl[] nameSpaceDecls)
+   public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
    {
 	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations, nameSpaceDecls);
+		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
 	   }
 	   return result;	   
    }
-
-   
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslationsSet
+ * @param defaultPackageName
+ * @param inheritedTranslationsSet
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace[] inheritedTranslations)
+   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations, String defaultPackageName)
    {
-	   return get(name, defaultPackageName, inheritedTranslations, null);	   
+	   return get(name, null, inheritedTranslations, defaultPackageName);	   
    }
 
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
-    * @param defaultPackageName
+    * @param name
     * @param inheritedTranslations
     * @return
     */
-   public static TranslationSpace get(String defaultPackageName, TranslationSpace[] inheritedTranslations)
+   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations)
    {
-	   return get(defaultPackageName, defaultPackageName, inheritedTranslations, null);	   
+	   return get(name, null, inheritedTranslations, null);	   
    }
 
    /**
@@ -875,45 +890,15 @@ public final class TranslationSpace extends Debug
     * Build on an inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslations
+ * @param inheritedTranslations
+ * @param defaultPackageName
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName, TranslationSpace inheritedTranslations)
+   public static TranslationSpace get(String name, TranslationSpace inheritedTranslations, String defaultPackageName)
    {
-	   return get(name, defaultPackageName, inheritedTranslations, null);	   
+	   return get(name, null, inheritedTranslations, defaultPackageName);	   
    }
 
-   /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on an inherited TranslationSpaces, by including all mappings from them.
-    * 
-    * @param defaultPackageName
-    * @param inheritedTranslations
-    * @return
-    */
-   public static TranslationSpace get(String defaultPackageName, TranslationSpace inheritedTranslations)
-   {
-	   return get(defaultPackageName, defaultPackageName, inheritedTranslations, null);	   
-   }
-   /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
-    * 
-    * @param name
-    * @param inheritedTranslationsSet
-    * @param translations
-    * @return
-    */
-   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslationsSet, Class[] translations)
-   {
-	   TranslationSpace result	= lookForExistingTS(name, name);
-	   if (result == null)
-	   {
-		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
-	   }
-	   return result;	   
-   }
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
@@ -930,7 +915,7 @@ public final class TranslationSpace extends Debug
 	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, defaultPackageName, inheritedTranslationsSet, translations);
+		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
 	   }
 	   return result;	   
    }
@@ -939,17 +924,17 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param inheritedTranslationsSet
-    * @param translations
+ * @param translations
+ * @param inheritedTranslationsSet
     * @return
     */
-   public static TranslationSpace get(String name, ArrayList<TranslationSpace> inheritedTranslationsSet,
-		   							  Class[] translations)
+   public static TranslationSpace get(String name, Class[] translations,
+		   							  ArrayList<TranslationSpace> inheritedTranslationsSet)
    {
 	   TranslationSpace result	= lookForExistingTS(name, name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, name, inheritedTranslationsSet, translations);
+		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, name);
 	   }
 	   return result;	   
    }
@@ -965,12 +950,12 @@ public final class TranslationSpace extends Debug
     * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
     * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
-   public static TranslationSpace get(String name, String defaultPackageName, Class[] translations)
+   public static TranslationSpace get(String name, Class[] translations, String defaultPackageName)
    {
 	  TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
 	  if (result == null)
 	  {
-		  result		= new TranslationSpace(name, defaultPackageName, translations);
+		  result		= new TranslationSpace(name, translations, defaultPackageName);
 	  }
 	  return result;
    }

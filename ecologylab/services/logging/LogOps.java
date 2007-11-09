@@ -6,7 +6,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -48,9 +48,9 @@ import ecologylab.xml.xml_inherit;
 			
 			StringBuilder buffy	= l.translateToXML((StringBuilder) null);
 			System.out.println("");
-			ElementState l2		= ElementState.translateFromXMLString(buffy.toString(), TS);
+			ElementState l2		= ElementState.translateFromXMLCharSequence(buffy.toString(), TS);
 			l2.translateToXML(System.out);
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -13,7 +13,7 @@ import ecologylab.generic.Debug;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.xml_leaf;
 
 /**

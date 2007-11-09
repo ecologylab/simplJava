@@ -5,7 +5,7 @@ package ecologylab.standalone;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.jnlp.JnlpState;
 import ecologylab.xml.library.jnlp.JnlpTranslations;
 
@@ -18,9 +18,9 @@ public class JNLPTestApp
 
     /**
      * @param args
-     * @throws XmlTranslationException 
+     * @throws XMLTranslationException 
      */
-    public static void main(String[] args) throws XmlTranslationException
+    public static void main(String[] args) throws XMLTranslationException
     {
         Debug.println("translate from...");
         JnlpState jnlp = (JnlpState) ElementState.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());

@@ -12,7 +12,7 @@ import ecologylab.generic.Debug;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -123,7 +123,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
                 debug("IO ERROR: " + e.getMessage());
                 e.printStackTrace();
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 // report error on XML passed through the socket
                 debug("Bogus Message ERROR: " + messageString);
@@ -139,7 +139,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
                         // sendResponse(ResponseMessage.BADTransmissionResponse());
                         sendResponse(null, new BadTransmissionResponse());
                     }
-                    catch (XmlTranslationException e1)
+                    catch (XMLTranslationException e1)
                     {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
@@ -165,10 +165,10 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      * 
      * @param messageString
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XmlTranslationException,
+            String messageString) throws XMLTranslationException,
             UnsupportedEncodingException
     {
         RequestMessage requestMessage = servicesServer
@@ -207,19 +207,19 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      * 
      * @return True if the connection should be terminated after this.
      * 
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     protected boolean sendResponse(RequestMessage requestMessage,
-            ResponseMessage responseMessage) throws XmlTranslationException
+            ResponseMessage responseMessage) throws XMLTranslationException
     {
         responseMessage.setUid(requestMessage.getUid());
-        sendResponse(responseMessage.translateToXML(false));
+        sendResponse(responseMessage.translateToXML());
 
         return false;
     }
 
-    protected void sendResponse(String responseString)
-            throws XmlTranslationException
+    protected void sendResponse(CharSequence responseString)
+            throws XMLTranslationException
     {
         // send the response
         if (outputStreamWriter != null)

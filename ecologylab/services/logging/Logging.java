@@ -27,8 +27,8 @@ import ecologylab.services.ServicesHostsAndPorts;
 import ecologylab.services.nio.NIOClient;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTools;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTools;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
@@ -98,7 +98,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
     public static final String           LOG_CLOSING                         = "\n</op_sequence></session_log>\n\n";
 
     /** Logging Header message string written to the logging file in the begining */
-    static final String                  BEGIN_EMIT                          = XmlTools
+    static final String                  BEGIN_EMIT                          = XMLTools
                                                                                      .xmlHeader()
                                                                                      + SESSION_LOG_START;
 
@@ -347,7 +347,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
             		}
                 }
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 e.printStackTrace();
             }
@@ -542,7 +542,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
         {
             stateObject = translateFromXML(fileName, nameSpace);
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             e.printStackTrace();
         }

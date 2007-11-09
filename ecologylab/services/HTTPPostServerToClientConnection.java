@@ -6,7 +6,7 @@ import java.net.Socket;
 
 import ecologylab.services.messages.IgnoreRequest;
 import ecologylab.services.messages.RequestMessage;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * parses HTTP Post request message 
@@ -31,10 +31,10 @@ import ecologylab.xml.XmlTranslationException;
      * 
      * @param messageString
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XmlTranslationException, UnsupportedEncodingException
+            String messageString) throws XMLTranslationException, UnsupportedEncodingException
     {
         int messageLineLength = messageString.getBytes().length;
         if (HTTP_HEADER_END)
@@ -42,7 +42,7 @@ import ecologylab.xml.XmlTranslationException;
             RequestMessage requestMessage = servicesServer
                     .translateXMLStringToRequestMessage(messageString, true);
             debug("THIS REQUEST MESSAGE : "
-                    + requestMessage.translateToXML(false));
+                    + requestMessage.translateToXML());
 
             return requestMessage;
         }

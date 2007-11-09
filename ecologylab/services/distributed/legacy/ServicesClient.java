@@ -185,22 +185,25 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
 
             while (!transactionComplete)
             {
-                String requestMessageXML = null;
+                StringBuilder requestMessageXML = null;
                 try
                 {
-                    requestMessageXML = requestMessage.translateToXML(false);
+                    requestMessageXML = requestMessage.translateToXML();
 
-                    if (requestMessageXML.getBytes().length > ServerConstants.MAX_PACKET_SIZE)
+                    if (requestMessageXML.length() > ServerConstants.MAX_PACKET_SIZE)
                     {
-                        debug("requestMessage is Bigger than acceptable server size \n CANNOT SEND : "
-                                + requestMessageXML);
+                        debug("requestMessage is Bigger than acceptable server size \n CANNOT SEND : ");
+                        println(requestMessageXML);
                         break;
                     }
 
                     output.println(requestMessageXML);
 
                     if (show(5))
-                        debug("Services Client: just sent message: " + requestMessageXML);
+                    {
+                        debug("Services Client: just sent message: ");
+                        println(requestMessageXML);
+                    }
 
                     if (show(5))
                         debug("Services Client: awaiting a response");
@@ -215,7 +218,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                     }
                     else
                     {
-                        responseMessage = (ResponseMessage) ResponseMessage.translateFromXMLString(
+                        responseMessage = (ResponseMessage) ResponseMessage.translateFromXMLCharSequence(
                                 response, translationSpace);
                     }
 

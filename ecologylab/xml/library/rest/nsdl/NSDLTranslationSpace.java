@@ -15,10 +15,10 @@ public class NSDLTranslationSpace extends Debug
 		SearchResults.class
 	};
 	
-	protected static final TranslationSpace BASE_SPACE[]= {RESTTranslationSpace.get()};
+	protected static final TranslationSpace INHERITED[]= {RESTTranslationSpace.get()};
 	
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, BASE_SPACE, TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, INHERITED);
 	}
 }

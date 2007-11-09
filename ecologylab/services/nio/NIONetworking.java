@@ -25,7 +25,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * @author Zach Toups (toupsz@gmail.com)
@@ -401,11 +401,10 @@ public abstract class NIONetworking extends Debug implements Runnable
 
     public RequestMessage translateXMLStringToRequestMessage(
             String messageString, boolean doRecursiveDescent)
-            throws XmlTranslationException
+            throws XMLTranslationException
     {
         RequestMessage requestMessage = (RequestMessage) ElementState
-                .translateFromXMLString(messageString, requestTranslationSpace,
-                        doRecursiveDescent);
+                .translateFromXMLCharSequence(messageString, requestTranslationSpace);
         return requestMessage;
     }
 

@@ -59,7 +59,7 @@ public class JnlpTranslations
      */
     public static TranslationSpace get()
     {
-        TranslationSpace result = TranslationSpace.get(JNLP_PACKAGE_NAME, inheritedTranslations);
+        TranslationSpace result = TranslationSpace.get(JNLP_TRANSLATIONS_NAME, JNLP_TRANSLATIONS, inheritedTranslations);
 
         return result;
     }
@@ -69,7 +69,7 @@ public class JnlpTranslations
      */
     private static TranslationSpace getStudyTranslationsOnly()
     {
-        TranslationSpace temp = TranslationSpace.get(JNLP_TRANSLATIONS_NAME, JNLP_PACKAGE_NAME, JNLP_TRANSLATIONS);
+        TranslationSpace temp = TranslationSpace.get(JNLP_TRANSLATIONS_NAME, JNLP_TRANSLATIONS, JNLP_PACKAGE_NAME);
 
         return temp;
     }

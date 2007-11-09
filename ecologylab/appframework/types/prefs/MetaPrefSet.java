@@ -11,7 +11,7 @@ import java.util.Set;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 
@@ -147,10 +147,10 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
      * @param file
      * @param translationSpace
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     public static MetaPrefSet load(File file, TranslationSpace translationSpace) 
-    throws XmlTranslationException
+    throws XMLTranslationException
     {
 		 return load(new ParsedURL(file), translationSpace);
     	
@@ -162,10 +162,10 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
      * @param purl
      * @param translationSpace
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     public static MetaPrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
-    throws XmlTranslationException
+    throws XMLTranslationException
     {
 		 return (MetaPrefSet) ElementState.translateFromXML(purl, translationSpace);
     	

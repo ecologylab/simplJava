@@ -24,8 +24,8 @@ import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
-import ecologylab.xml.XmlTranslationExceptionTypes;
+import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.XMLTranslationExceptionTypes;
 
 /**
  * An instance of Environment, which is an application, rather than an applet,
@@ -38,7 +38,7 @@ import ecologylab.xml.XmlTranslationExceptionTypes;
  */
 public class ApplicationEnvironment
 extends Debug
-implements Environment, XmlTranslationExceptionTypes
+implements Environment, XMLTranslationExceptionTypes
 {
 	private static final String METAPREFS_XML = "metaprefs.xml";
 
@@ -99,9 +99,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName) throws XmlTranslationException
+	public ApplicationEnvironment(String applicationName) throws XMLTranslationException
 	{
 	   this(null, applicationName, null);
 	}
@@ -125,9 +125,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion TODO
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[], float prefsAssetVersion) throws XmlTranslationException
+	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
 	   this(null, applicationName, translationSpace, args, prefsAssetVersion);
 	}
@@ -151,9 +151,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, String args[]) throws XmlTranslationException
+	public ApplicationEnvironment(String applicationName, String args[]) throws XMLTranslationException
 	{
 	   this(applicationName, (TranslationSpace) null, args, 0);
 	}
@@ -181,9 +181,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) graphics_device (screen number)
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, String args[]) throws XmlTranslationException
+	public ApplicationEnvironment(Class baseClass, String applicationName, String args[]) throws XMLTranslationException
 	{
 	   this(baseClass, applicationName, null, args, 0);
 	}
@@ -229,9 +229,9 @@ implements Environment, XmlTranslationExceptionTypes
 	 * 							*) screen_size (used in TopLevel --
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion TODO
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[], float prefsAssetVersion) throws XmlTranslationException
+	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[], float prefsAssetVersion) throws XMLTranslationException
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
 		this.translationSpace		= translationSpace;
@@ -323,7 +323,7 @@ implements Environment, XmlTranslationExceptionTypes
 			{
 				prfs = PrefSet.load(prefSetXML, translationSpace);
 			} 
-			catch (XmlTranslationException e) 
+			catch (XMLTranslationException e) 
 			{
 				e.printStackTrace();
 			} 
@@ -345,10 +345,10 @@ implements Environment, XmlTranslationExceptionTypes
 	 * @param translationSpace
 	 * @param argStack
 	 * @param prefsAssetVersion TODO
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	private void processPrefs(Class baseClass, TranslationSpace translationSpace, Stack<String> argStack, float prefsAssetVersion) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
 		
@@ -390,7 +390,7 @@ implements Environment, XmlTranslationExceptionTypes
                 ParsedURL codeBase = ParsedURL.getAbsolute(arg, "Setting up codebase");
                 this.setCodeBase(codeBase);
 
-                XmlTranslationException metaPrefSetException = null;
+                XMLTranslationException metaPrefSetException = null;
                 ParsedURL metaPrefsPURL = null;
                 try
                 {
@@ -400,7 +400,7 @@ implements Environment, XmlTranslationExceptionTypes
                     metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationSpace);
                     println("OK: loaded MetaPrefs from " + metaPrefsFile);
                 }
-                catch (XmlTranslationException e)
+                catch (XMLTranslationException e)
                 {
                     metaPrefSetException = e;
                 }
@@ -438,7 +438,7 @@ implements Environment, XmlTranslationExceptionTypes
                         println("\tContinuing.");
                     }
                 }
-                catch (XmlTranslationException e)
+                catch (XMLTranslationException e)
                 {
                     if (metaPrefSetException != null)
                     {
@@ -468,14 +468,14 @@ implements Environment, XmlTranslationExceptionTypes
 
 			Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
 
-			XmlTranslationException metaPrefSetException	= null;
+			XMLTranslationException metaPrefSetException	= null;
 			File metaPrefsFile		= new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
 			ParsedURL metaPrefsPURL	= new ParsedURL(metaPrefsFile);
 			try
 			{
 				metaPrefSet	= MetaPrefSet.load(metaPrefsPURL, translationSpace);
 	            println("OK: Loaded MetaPrefs from: " + metaPrefsFile);
-			} catch (XmlTranslationException e)
+			} catch (XMLTranslationException e)
 			{
 				metaPrefSetException	= e;
 			}
@@ -515,7 +515,7 @@ implements Environment, XmlTranslationExceptionTypes
 						else
 				            println("ERROR: Loading Prefs from: " + argPrefsFile);
 
-					} catch (XmlTranslationException e)
+					} catch (XMLTranslationException e)
 					{
 						if (metaPrefSetException != null)
 						{

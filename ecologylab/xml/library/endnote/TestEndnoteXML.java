@@ -4,7 +4,7 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 public class TestEndnoteXML
 {
@@ -18,9 +18,9 @@ public class TestEndnoteXML
         {
             XmlState fromFile = (XmlState) ElementState.translateFromXML("/Users/toupsz/Desktop/RSBib.xml", EndnoteNameSpace.get());
             
-            System.out.println(fromFile.translateToXML(false));
+            System.out.println(fromFile.translateToXML());
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             e.printStackTrace();
         }

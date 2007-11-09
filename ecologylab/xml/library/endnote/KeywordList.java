@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
 

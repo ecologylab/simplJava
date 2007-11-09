@@ -17,7 +17,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers.
@@ -277,10 +277,10 @@ extends Debug
     * 
     * @param translationSpace	Translations that specify package + class names for translating.
     * @return					ElementState object derived from XML at the InputStream of this.
-    * @throws XmlTranslationException
+    * @throws XMLTranslationException
     */
    public ElementState translateFromXML(TranslationSpace translationSpace) 
-   throws XmlTranslationException
+   throws XMLTranslationException
    {
 	   return ElementState.translateFromXML(this, translationSpace);
    }

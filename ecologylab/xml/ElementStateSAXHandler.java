@@ -61,7 +61,7 @@ implements ContentHandler, OptimizationTypes
 	 */
 	NodeToJavaOptimizations			currentN2JO;
 	
-	XmlTranslationException			xmlTranslationException;
+	XMLTranslationException			xmlTranslationException;
 	
 	ArrayList<NodeToJavaOptimizations>	n2joStack	= new ArrayList<NodeToJavaOptimizations>();
 	
@@ -86,10 +86,10 @@ implements ContentHandler, OptimizationTypes
  * 
  * @param charSequence
  * @return
- * @throws XmlTranslationException
+ * @throws XMLTranslationException
  */
 	public ElementState parse(CharSequence charSequence)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return parse(charSequence, StringInputStream.UTF8);
 	}
@@ -98,10 +98,10 @@ implements ContentHandler, OptimizationTypes
 	 * @param charSequence
 	 * @param charsetType
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public ElementState parse(CharSequence charSequence, int charsetType)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		InputStream xmlStream		= new StringInputStream(charSequence, charsetType);
 		ElementState result 		= parse(xmlStream);
@@ -116,7 +116,7 @@ implements ContentHandler, OptimizationTypes
 	}
 	
 	public ElementState parseString(String xmlString)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		StringReader reader	= new StringReader(xmlString);
 		ElementState result = parse(reader);
@@ -136,10 +136,10 @@ implements ContentHandler, OptimizationTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public ElementState parse(URL url)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return parse(new ParsedURL(url));
 	}	
@@ -153,10 +153,10 @@ implements ContentHandler, OptimizationTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public ElementState parse(ParsedURL purl)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if (purl.isFile())
 			return parse(purl.file());
@@ -175,11 +175,11 @@ implements ContentHandler, OptimizationTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	
 	public ElementState parse(File file)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		try
 		{
@@ -197,15 +197,15 @@ implements ContentHandler, OptimizationTypes
 			
 		} catch (FileNotFoundException e)
 		{
-			throw new XmlTranslationException("Can't open file " + file.getAbsolutePath(), e);
+			throw new XMLTranslationException("Can't open file " + file.getAbsolutePath(), e);
 		} catch (IOException e)
 		{
-			throw new XmlTranslationException("Can't close file " + file.getAbsolutePath(), e);
+			throw new XMLTranslationException("Can't close file " + file.getAbsolutePath(), e);
 		}		
 	}	
 
 	public ElementState parse(Reader reader)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		InputSource inputSource = new InputSource(reader);
 		ElementState result		= parse(inputSource);
@@ -215,12 +215,12 @@ implements ContentHandler, OptimizationTypes
 			reader.close();
 		} catch (IOException e)
 		{
-			throw new XmlTranslationException("Can't close reader: " + reader, e);
+			throw new XMLTranslationException("Can't close reader: " + reader, e);
 		}
 		return result;
 	}
 	public ElementState parse(InputStream inputStream)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementState result	= parse(new InputSource(inputStream));
 //		try
@@ -233,17 +233,17 @@ implements ContentHandler, OptimizationTypes
 		return result;
 	}
 	public ElementState parse(InputSource inputSource)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		try
 		{
 			parser.parse(inputSource);
 		} catch (IOException e)
 		{
-			xmlTranslationException	= new XmlTranslationException("IOException durng parsing", e);
+			xmlTranslationException	= new XMLTranslationException("IOException durng parsing", e);
 		} catch (SAXException e)
 		{
-			xmlTranslationException	= new XmlTranslationException("SAXException durng parsing", e);
+			xmlTranslationException	= new XMLTranslationException("SAXException durng parsing", e);
 		}
 		if (xmlTranslationException != null)
 			throw xmlTranslationException;
@@ -279,14 +279,14 @@ implements ContentHandler, OptimizationTypes
 				ElementState root;
 				try
 				{
-					root					= XmlTools.getInstance(rootClass);
+					root					= XMLTools.getInstance(rootClass);
 					if (root != null)
 					{
 						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationSpace, attributes);
 					}
-				} catch (XmlTranslationException e)
+				} catch (XMLTranslationException e)
 				{
 					xmlTranslationException	= e;
 				}
@@ -297,7 +297,7 @@ implements ContentHandler, OptimizationTypes
 				String message = "XML Translation WARNING: Cant find class object for Root XML element <"
 						+ tagName + ">: Ignored. ";
 				println(message);
-				xmlTranslationException		= new XmlTranslationException(message);
+				xmlTranslationException		= new XMLTranslationException(message);
 			}
 			
 			return;
@@ -365,7 +365,7 @@ implements ContentHandler, OptimizationTypes
 				this.currentElementState		= childES;	// childES.parent = old currentElementState
 				this.currentN2JO					= activeN2JO;
 			}
-		} catch (XmlTranslationException e)
+		} catch (XMLTranslationException e)
 		{
 			this.xmlTranslationException		= e;
 		}

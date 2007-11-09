@@ -5,7 +5,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpaceDecl;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.media.Media;
 
@@ -52,7 +52,7 @@ extends Debug
    
    public static TranslationSpace get()
    {
-	   return TranslationSpace.get(TRANSLATION_SPACE_NAME, null, INHERITED_TRANSLATIONS, TRANSLATIONS, NAME_SPACE_DECLS);
+	   return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, INHERITED_TRANSLATIONS, null, NAME_SPACE_DECLS);
    }
    
 	
@@ -64,11 +64,8 @@ extends Debug
 		{
 			RssState rssState	= (RssState) ElementState.translateFromXML(FLICKR_PURL, get());
 			
-			String xml			= rssState.translateToXML(false);
-			
-			println(xml);
-			
-		} catch (XmlTranslationException e)
+			rssState.translateToXML(System.out);
+		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}

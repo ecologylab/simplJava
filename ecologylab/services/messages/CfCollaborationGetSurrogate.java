@@ -5,7 +5,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
@@ -39,7 +39,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 	}
 	
 	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationSpace translationSpace) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		this(surrogateSetString);
 		this.translationSpace = translationSpace;

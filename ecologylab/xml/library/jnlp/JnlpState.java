@@ -6,7 +6,7 @@ package ecologylab.xml.library.jnlp;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
@@ -34,9 +34,9 @@ public @xml_inherit class JnlpState extends ElementState implements Cloneable
         // a bit of a hack, but it's easy!  :D
         try
         {
-            return (JnlpState) ElementState.translateFromXMLString(this.translateToXML(), JnlpTranslations.get());
+            return (JnlpState) ElementState.translateFromXMLCharSequence(this.translateToXML(), JnlpTranslations.get());
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             e.printStackTrace();
         }
@@ -161,12 +161,12 @@ public @xml_inherit class JnlpState extends ElementState implements Cloneable
             String thisXml;
             try
             {
-                thisXml = this.translateToXML(false);
-                String thatXml = ((ElementState)obj).translateToXML(false);
+                thisXml = this.translateToXML().toString();
+                String thatXml = ((ElementState)obj).translateToXML().toString();
                 
                 return thisXml.equals(thatXml);
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 e.printStackTrace();
                 

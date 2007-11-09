@@ -74,7 +74,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @version     2.9
  */
 public class ElementState extends Debug
-implements OptimizationTypes, XmlTranslationExceptionTypes
+implements OptimizationTypes, XMLTranslationExceptionTypes
 {
 	/**
 	 * Link for a DOM tree.
@@ -177,7 +177,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 							the generated xml string, in a Reusable SBtringBuilder
 	 * 
-	 * @throws XmlTranslationException if there is a problem with the 
+	 * @throws XMLTranslationException if there is a problem with the 
 	 * structure. Specifically, in each ElementState object, fields for 
 	 * attributes must be declared
 	 * before all fields for nested elements (those derived from ElementState).
@@ -185,7 +185,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * declared after the declaration for 1 or more ElementState instance
 	 * variables, this exception will be thrown.
 	 */
-	public StringBuilder translateToXML() throws XmlTranslationException
+	public StringBuilder translateToXML() throws XMLTranslationException
 	{
 		return translateToXML((StringBuilder)null);
 	}
@@ -225,11 +225,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 						the generated xml string
 	 * 
-	 * @throws XmlTranslationException if a problem arises during translation.
+	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 */	
 	public StringBuilder translateToXML(StringBuilder buffy) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if (buffy == null)
 	        buffy = allocStringBuilder();
@@ -259,12 +259,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @param outputFile		File to write the XML to.
 	 * 
-	 * @throws XmlTranslationException if a problem arises during translation. 
+	 * @throws XMLTranslationException if a problem arises during translation. 
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException		If there are problems with the file.
 	 */
 	public void translateToXML(File outputFile)
-	throws XmlTranslationException, IOException
+	throws XMLTranslationException, IOException
 	{
 		outputFile.mkdirs();
 		
@@ -290,17 +290,17 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
-	 * @throws XmlTranslationException if a problem arises during translation.
+	 * @throws XMLTranslationException if a problem arises during translation.
 	 * The most likely cause is an IOException.
 
 	 * <p/>
 	 * Problems with Field access are possible, but very unlikely.
 	 */
 	public void translateToXML(Appendable appendable) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if (appendable == null)
-	        throw new XmlTranslationException("Appendable is null");
+	        throw new XMLTranslationException("Appendable is null");
 	
 		try
 		{
@@ -308,7 +308,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			translateToXMLAppendable(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), appendable);
 		} catch (IOException e)
 		{
-			throw new XmlTranslationException("IO", e);
+			throw new XMLTranslationException("IO", e);
 		}
 	}
 
@@ -333,11 +333,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 
 	 * @return 						the generated xml string
 	 * 
-	 * @throws XmlTranslationException if a problem arises during translation.
+	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 */
 	private void translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
         this.preTranslationProcessingHook();
 		
@@ -359,7 +359,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			} catch (Exception e)
 			{
 				// IllegalArgumentException, IllegalAccessException
-				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
 		//ArrayList<Field> elementFields		= optimizations.elementFields();
@@ -380,7 +380,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				//TODO -- might need to trim the buffy here!
 				//if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text node if trim -> empty string
 				//if (textNode.length() > 0)
-				XmlTools.escapeXML(buffy, textNode);
+				XMLTools.escapeXML(buffy, textNode);
 			}
 			for (int i=0; i<numElements; i++)
 			{
@@ -395,7 +395,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						childF2Xo.appendLeaf(buffy, this);
 					} catch (Exception e)
 					{
-						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
 					}				}
 				else
 				{
@@ -431,7 +431,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					case COLLECTION_SCALAR:
 					case MAP_ELEMENT:
 					case MAP_SCALAR:
-						thatCollection			= XmlTools.getCollection(thatReferenceObject);
+						thatCollection			= XMLTools.getCollection(thatReferenceObject);
 						break;
 					default:
 						thatCollection			= null;
@@ -455,10 +455,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 									childF2Xo.appendLeaf(buffy, this);
 								} catch (IllegalArgumentException e)
 								{
-									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 								} catch (IllegalAccessException e)
 								{
-									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 							}
 							else if (next instanceof ElementState)
@@ -504,10 +504,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param thatReferenceObject
 	 * @return
 	 */
-	private XmlTranslationException collectionElementTypeException(
+	private XMLTranslationException collectionElementTypeException(
 			Object thatReferenceObject)
 	{
-		return new XmlTranslationException("Collections MUST contain " +
+		return new XMLTranslationException("Collections MUST contain " +
 				"objects of class derived from ElementState or Scalars, but " +
 				thatReferenceObject +" contains some that aren't.");
 	}
@@ -532,12 +532,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param fieldToXMLOptimizations
 	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
-	 * @throws XmlTranslationException if a problem arises during translation.
+	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException
 	 */
 	private void translateToXMLAppendable(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
-	throws XmlTranslationException, IOException
+	throws XMLTranslationException, IOException
 	{
 		this.preTranslationProcessingHook();
 
@@ -559,7 +559,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			} catch (Exception e)
 			{
 				// IllegalArgumentException, IllegalAccessException
-				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
 		//ArrayList<Field> elementFields		= optimizations.elementFields();
@@ -580,7 +580,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				//TODO -- might need to trim the buffy here!
 				//if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text node if trim -> empty string
 				//if (textNode.length() > 0)
-				XmlTools.escapeXML(appendable, textNode);
+				XMLTools.escapeXML(appendable, textNode);
 			}
 			for (int i=0; i<numElements; i++)
 			{
@@ -595,7 +595,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 						childF2Xo.appendLeaf(appendable, this);
 					} catch (Exception e)
 					{
-						throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
 					}				}
 				else
 				{
@@ -631,7 +631,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					case COLLECTION_SCALAR:
 					case MAP_ELEMENT:
 					case MAP_SCALAR:
-						thatCollection			= XmlTools.getCollection(thatReferenceObject);
+						thatCollection			= XMLTools.getCollection(thatReferenceObject);
 						break;
 					default:
 						thatCollection			= null;
@@ -655,10 +655,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 									childF2Xo.appendLeaf(appendable, this);
 								} catch (IllegalArgumentException e)
 								{
-									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 								} catch (IllegalAccessException e)
 								{
-									throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 							}
 							else if (next instanceof ElementState)
@@ -701,10 +701,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * That is, go back, from our nice, strongly typed tree, to an untyped one.
 	 * 
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public Document translateToDOM() 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		DocumentBuilderFactory factory	= DocumentBuilderFactory.newInstance();
 		try
@@ -719,7 +719,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			return dom;
 		} catch (ParserConfigurationException e)
 		{
-			throw new XmlTranslationException("Couldn't acquire empty Document.", e);
+			throw new XMLTranslationException("Couldn't acquire empty Document.", e);
 		}
 	}
 
@@ -743,12 +743,12 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param fieldToXMLOptimizations
 	 * @param dom TODO
 	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
-	 * @throws XmlTranslationException if a problem arises during translation.
+	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException
 	 */
 	private void translateToDOM(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Node parentNode, Document dom)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		this.preTranslationProcessingHook();
 		
@@ -773,7 +773,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			} catch (Exception e)
 			{
 				// IllegalArgumentException, IllegalAccessException
-				throw new XmlTranslationException("TranslateToXML for attribute " + this, e);
+				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
 		
@@ -794,7 +794,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 					childF2Xo.appendLeaf(elementNode, this);
 				} catch (Exception e)
 				{
-					throw new XmlTranslationException("TranslateToXML for leaf node " + this, e);
+					throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
 				}				
 			}
 			else
@@ -807,7 +807,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				}
 				catch (IllegalAccessException e)
 				{
-					throw new XmlTranslationException("Couldn't access " + childF2Xo.tagName());
+					throw new XMLTranslationException("Couldn't access " + childF2Xo.tagName());
 				}
 				// ignore null reference objects
 				if (thatReferenceObject == null)
@@ -822,7 +822,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 				case COLLECTION_SCALAR:
 				case MAP_ELEMENT:
 				case MAP_SCALAR:
-					thatCollection			= XmlTools.getCollection(thatReferenceObject);
+					thatCollection			= XMLTools.getCollection(thatReferenceObject);
 					break;
 				default:
 					thatCollection			= null;
@@ -846,10 +846,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 								childF2Xo.appendLeaf(elementNode, this);
 							} catch (IllegalArgumentException e)
 							{
-								throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 							} catch (IllegalAccessException e)
 							{
-								throw new XmlTranslationException("TranslateToXML for collection leaf " + this, e);
+								throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
 							}
 						}
 						else if (next instanceof ElementState)
@@ -861,7 +861,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 							collectionSubElementState.translateToDOM(collectionElementClass, collectionElementF2XO, elementNode, dom);
 						}
 						else
-							throw new XmlTranslationException("Collections MUST contain " +
+							throw new XMLTranslationException("Collections MUST contain " +
 									"objects of class derived from ElementState or XML Strings, but " +
 									thatReferenceObject +" contains some that aren't.");
 
@@ -937,7 +937,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			else
 			{
 				if (needsEscaping)
-					XmlTools.escapeXML(buffy, leafValue);
+					XMLTools.escapeXML(buffy, leafValue);
 				else
 					buffy.append(leafValue);
 			}
@@ -972,7 +972,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public static ElementState translateFromXMLDOM(ParsedURL purl,
 												TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return translateFromXMLDOM(buildDOM(purl), translationSpace);
 	}
@@ -986,16 +986,16 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(ParsedURL purl, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if (purl == null)
-			throw new XmlTranslationException("Null PURL", NULL_PURL);
+			throw new XMLTranslationException("Null PURL", NULL_PURL);
 
 		if (!purl.isNotFileOrExists())
-			throw new XmlTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
+			throw new XMLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 		
 		return useDOMForTranslateTo ? translateFromXMLDOM(purl, translationSpace) : translateFromXMLSAX(purl, translationSpace);	
 	}
@@ -1029,7 +1029,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 
 	public static ElementState translateFromXMLDOM(URL xmlDocumentURL,
 												TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 	   Document document	= buildDOM(xmlDocumentURL);
 	   return (document == null) ? 
@@ -1038,7 +1038,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	
 	public static ElementState translateFromXML(URL url,
 			TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(url, translationSpace) : translateFromXMLSAX(url, translationSpace);
 	}
@@ -1051,11 +1051,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLDOM(File xmlFile, 
 												TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 	   Document document	= buildDOM(xmlFile);
 	   ElementState result	= null;
@@ -1073,11 +1073,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(File xmlFile, 
 			TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(xmlFile, translationSpace) : translateFromXMLSAX(xmlFile, translationSpace);
 	}
@@ -1103,7 +1103,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public static ElementState translateFromXMLDOM(String fileName,
 												TranslationSpace translationSpace)
-		throws XmlTranslationException
+		throws XMLTranslationException
 	{
 		Document document	= buildDOM(fileName);
 		return (document == null) ? null : translateFromXMLDOM(document, translationSpace);
@@ -1118,15 +1118,15 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(String fileName,
 			TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		File xmlFile	= new File(fileName);
 		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new XmlTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
+			throw new XMLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
 
 		return useDOMForTranslateTo ? translateFromXMLDOM(xmlFile, translationSpace) : translateFromXMLSAX(xmlFile, translationSpace);	
 	}
@@ -1146,10 +1146,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return 			the parent ElementState object of the corresponding Java tree.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLDOM(InputStream xmlStream, TranslationSpace nameSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		Document document	= buildDOM(xmlStream);
 		return (document == null) ? null : translateFromXMLDOM(document, nameSpace);
@@ -1164,10 +1164,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(InputStream xmlStream, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(xmlStream, translationSpace) : translateFromXMLSAX(xmlStream, translationSpace);	
 	}	
@@ -1197,7 +1197,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence, 
 													  int charsetType,
 													  TranslationSpace translationSpace)
-		throws XmlTranslationException
+		throws XMLTranslationException
 	{
 		Document dom		= buildDOMFromXMLCharSequence(charSequence, charsetType);
 		return (dom == null) ? null : translateFromXMLRootNode(dom.getDocumentElement(), translationSpace);
@@ -1227,11 +1227,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return 		 Parent ElementState object of the corresponding Java tree.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence,
 														 TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		   return translateFromXMLDOMCharSequence(charSequence, StringInputStream.UTF8, translationSpace);
 	}
@@ -1245,11 +1245,11 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLCharSequence(CharSequence xmlString,
 													  		TranslationSpace translationSpace)
-		throws XmlTranslationException
+		throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOMCharSequence(xmlString, translationSpace) : translateFromXMLSAX(xmlString, translationSpace);	
 	}
@@ -1281,7 +1281,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public static ElementState translateFromXMLDOM(Document doc, 
 												TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		return translateFromXMLRootNode(doc.getDocumentElement(), translationSpace);
 	}
@@ -1317,7 +1317,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 */
 	public static ElementState translateFromXMLRootNode(Node xmlRootNode,
 												TranslationSpace translationSpace)
-	   throws XmlTranslationException
+	   throws XMLTranslationException
 	{
 	   // find the class for the new object derived from ElementState
 		Class<ElementState> stateClass			= null;
@@ -1338,7 +1338,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 			}
 			if (stateClass != null)
 			{
-				ElementState rootState		= XmlTools.getInstance(stateClass);
+				ElementState rootState		= XMLTools.getInstance(stateClass);
 				if (rootState != null)
 				{
 					rootState.setupRoot();
@@ -1403,7 +1403,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
 	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		// translate attribtues
 		if (xmlNode.hasAttributes())
@@ -1515,10 +1515,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param charSequence
 	 * @param translationSpace
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLSAX(CharSequence charSequence, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(charSequence);
@@ -1529,10 +1529,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param purl
 	 * @param translationSpace
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(purl);
@@ -1543,10 +1543,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param url
 	 * @param translationSpace
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLSAX(URL url, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(url);
@@ -1557,10 +1557,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param file
 	 * @param translationSpace
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLSAX(File file, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(file);
@@ -1571,10 +1571,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * @param inputStream
 	 * @param translationSpace
 	 * @return
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLSAX(InputStream inputStream, TranslationSpace translationSpace)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
 		return saxHandler.parse(inputStream);
@@ -1648,7 +1648,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		Document document	= null;
 		try
 		{
-    	  DocumentBuilder builder = XmlTools.getDocumentBuilder();
+    	  DocumentBuilder builder = XMLTools.getDocumentBuilder();
     	  createErrorHandler(builder);
      	  document = builder.parse(file);
 		} 
@@ -1682,7 +1682,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		Document document	= null;
 		try
 		{
-    	  DocumentBuilder builder = XmlTools.getDocumentBuilder();
+    	  DocumentBuilder builder = XMLTools.getDocumentBuilder();
     	  createErrorHandler(builder);
     	  if( !xmlFileOrURLName.contains("://") )
     		  xmlFileOrURLName = "file:///" + xmlFileOrURLName;
@@ -1857,7 +1857,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 	Translate to XML, then write the result to a file, while formatting nicely.
 	 */
 	public void writePrettyXML(String xmlFileName)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		if(!xmlFileName.endsWith(".xml") && !xmlFileName.endsWith(".XML"))
 		{
@@ -1872,9 +1872,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
  * 	@param xmlFile		the file in which the xml needs to be saved
  */	
 	public void writePrettyXML(File xmlFile)
-		throws XmlTranslationException
+		throws XMLTranslationException
 	{
-	 	XmlTools.writePrettyXML(translateToDOM(), xmlFile);
+	 	XMLTools.writePrettyXML(translateToDOM(), xmlFile);
 	}
 	
 	/**
@@ -1883,9 +1883,9 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * 	@param xmlFile		the file in which the xml needs to be saved
 	 */	
 	public void writePrettyXML(OutputStream outputStream)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
-		XmlTools.writePrettyXML(translateToDOM(), outputStream);
+		XMLTools.writePrettyXML(translateToDOM(), outputStream);
 	}
 		
 	//////////////// helper methods used by translateToXML() //////////////////
@@ -1941,10 +1941,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * This base implementation provides a warning.
 	 * @param pte
 	 * @param childNode
-	 * @throws XmlTranslationException
+	 * @throws XMLTranslationException
 	 */
 	protected void addNestedElement(NodeToJavaOptimizations pte, Node childNode)
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		addNestedElement((ElementState) pte.domFormChildElement(this, childNode, false));
 		if (considerWarning == NEED_WARNING)
@@ -1962,7 +1962,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	 * fields that get here are ignored.
 	 * 
 	 * @param elementState
-	 * @throws XmlTranslationException 
+	 * @throws XMLTranslationException 
 	 */
 	protected void addNestedElement(ElementState elementState)
 	{
@@ -1985,7 +1985,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 		   String trimmed	=	newText.trim();
 		   if (trimmed.length() > 0)
 		   {
-			   String unescapedString = XmlTools.unescapeXML(newText);
+			   String unescapedString = XMLTools.unescapeXML(newText);
 			   if (this.textNodeBuffy == null)
 				   textNodeBuffy	= new StringBuilder(unescapedString);
 			   else
@@ -2255,7 +2255,7 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
 	{
 		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(xml_inherit.class));
 		Field f		= this.getClass().getField("foo");
-		System.out.println(" is leaf = " + XmlTools.representAsLeafNode(f));
+		System.out.println(" is leaf = " + XMLTools.representAsLeafNode(f));
 	}
 	/**
 	 * @return Returns the optimizations.
@@ -2373,10 +2373,10 @@ implements OptimizationTypes, XmlTranslationExceptionTypes
     		{
 	    		try
 				{
-					result			= XmlTools.getInstance(esClass);
+					result			= XMLTools.getInstance(esClass);
 		    		nestNameSpace(id, result);
 		    		debug("WOW! Created nested Namespace xmlns:"+id+'\n');
-				} catch (XmlTranslationException e)
+				} catch (XMLTranslationException e)
 				{
 					e.printStackTrace();
 				}

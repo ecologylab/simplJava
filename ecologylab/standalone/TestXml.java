@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  *
@@ -19,8 +19,12 @@ public class TestXml extends ElementState
 	
 	@xml_collection("foo bar")	String fooBar;
 	
+	static final Class[] TRANSLATIONS	=
+	{
+		TestXml.class, 
+	};
 	
-	static final TranslationSpace TS	= TranslationSpace.get("ecologylab.standalone");
+	static final TranslationSpace TS	= TranslationSpace.get("testing123", TRANSLATIONS);
 	/**
 	 * 
 	 */
@@ -35,10 +39,9 @@ public class TestXml extends ElementState
     {
     	try
 		{
-			ElementState es		= translateFromXMLString(STUFF, TS);
-			String xmlString	= es.translateToXML(false);
-			println(xmlString);
-		} catch (XmlTranslationException e)
+			ElementState es		= translateFromXMLCharSequence(STUFF, TS);
+			println(es.translateToXML());
+		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}

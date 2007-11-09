@@ -1,6 +1,6 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.XmlTools;
+import ecologylab.xml.XMLTools;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -23,7 +23,7 @@ abstract public class LogueMessage extends LogRequestMessage
 	 */
 	public LogueMessage(Logging logging)
 	{
-		logName			= XmlTools.getXmlTagName(logging.getClass(), "State");
+		logName			= XMLTools.getXmlTagName(logging.getClass(), "State");
 	}
 	/*
 	 * Constructor for automatic translation;

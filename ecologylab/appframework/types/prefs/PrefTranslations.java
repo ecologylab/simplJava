@@ -66,7 +66,7 @@ public class PrefTranslations extends Debug
      */
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, ElementTypeTranslations.get(), TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, ElementTypeTranslations.get());
 	}
 
 }

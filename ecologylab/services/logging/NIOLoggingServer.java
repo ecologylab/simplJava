@@ -123,8 +123,10 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
                 idleConnectionTimeout, maxPacketSize);
 
-        this.translationSpace
-                .setDefaultPackageName("ecologylab.services.logging");
+        //FIXME -- Zach: if you need translations, specify them! you can always build a new TS on the fly.
+        // but DONT use defaultPackageName!
+//        this.translationSpace
+//                .setDefaultPackageName("ecologylab.services.logging");
     }
 
     public void setLogFilesPath(String path)

@@ -11,8 +11,8 @@ import java.io.InputStreamReader;
 import javax.xml.transform.stream.StreamResult;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XmlTools;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTools;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * This program allows users to create and modify AuthenticationList files so
@@ -27,10 +27,10 @@ public class AuthListAdmin
     /**
      * @param args
      * @throws IOException
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     public static void main(String[] args) throws IOException,
-            SecurityException, XmlTranslationException
+            SecurityException, XMLTranslationException
     {
         if (args.length < 1)
         {
@@ -60,7 +60,7 @@ public class AuthListAdmin
                 authList = (AuthenticationList) ElementState.translateFromXML(
                         xmlFile, AuthenticationTranslations.get());
             }
-            catch (XmlTranslationException e)
+            catch (XMLTranslationException e)
             {
                 System.err
                         .println("There was an error translating the authentication list: "
@@ -245,7 +245,7 @@ public class AuthListAdmin
 
             System.out.println("Saving file: " + filename);
 
-            XmlTools.writePrettyXML(authList.translateToDOM(), xmlFile);
+            XMLTools.writePrettyXML(authList.translateToDOM(), xmlFile);
 
             System.out.println("Finished.");
         }

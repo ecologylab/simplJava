@@ -10,7 +10,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
@@ -44,7 +44,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 	}
 	
 	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationSpace translationSpace) 
-	throws XmlTranslationException
+	throws XMLTranslationException
 	{
 		this(surrogateSetString);
 		this.translationSpace = translationSpace;
@@ -66,9 +66,9 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 		{
 			CfCollaborationGetSurrogate cfCollabGet = new CfCollaborationGetSurrogate (test, translationSpace);
 			System.out.println("cfCollabGet.get: " + cfCollabGet.getSurrogateSetString());
-			System.out.println("cfCollabGet: " + cfCollabGet.translateToXML(true));
+			System.out.println("cfCollabGet: " + cfCollabGet.translateToXML());
 			
-		} catch (XmlTranslationException e) {
+		} catch (XMLTranslationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

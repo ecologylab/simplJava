@@ -565,7 +565,7 @@ implements OptimizationTypes
 				continue;
 			}
 			mapField(thatField);
-			if (XmlTools.isScalarValue(thatField) && !XmlTools.representAsLeafNode(thatField))
+			if (XMLTools.isScalarValue(thatField) && !XMLTools.representAsLeafNode(thatField))
 			{
 				attributeFields.add(thatField);
 			}
@@ -599,12 +599,12 @@ implements OptimizationTypes
 				continue;
 			}
 			//mapField(thatField);
-			if (XmlTools.representAsAttribute(thatField))
+			if (XMLTools.representAsAttribute(thatField))
 			{
 				indexField(attributeFields, thatField);
 //				String tag	= 
 			}
-			else if (XmlTools.representAsLeafOrNested(thatField))
+			else if (XMLTools.representAsLeafOrNested(thatField))
 			{
 				indexField(elementFields, thatField);
 				

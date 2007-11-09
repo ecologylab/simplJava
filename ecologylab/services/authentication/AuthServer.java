@@ -16,9 +16,10 @@ import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.logging.Logging;
+import ecologylab.services.nio.servers.NIOServerBase;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * ServiceServerAuthentication is used to handle servers that require
@@ -71,7 +72,7 @@ import ecologylab.xml.XmlTranslationException;
                     + portNumber);
             e.printStackTrace();
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             e.printStackTrace();
         }
@@ -127,13 +128,19 @@ import ecologylab.xml.XmlTranslationException;
             ObjectRegistry objectRegistry, AuthenticationList authList)
             throws IOException, BindException
     {
-        super(portNumber, 0, requestTranslationSpace, objectRegistry);
+        super(portNumber, 0, 
+//        		requestTranslationSpace, 
+        		NIOServerBase.composeTranslations(AuthClient.AUTH_CLASSES, "auth_client: ", portNumber, "", requestTranslationSpace),
 
-        requestTranslationSpace
-                .addTranslation(ecologylab.services.authentication.messages.Login.class);
-        requestTranslationSpace
-                .addTranslation(ecologylab.services.authentication.messages.Logout.class);
+        		objectRegistry);
 
+        //TODO -- zach, did i get this one right?
+        
+//        requestTranslationSpace
+//                .addTranslation(ecologylab.services.authentication.messages.Login.class);
+//        requestTranslationSpace
+//                .addTranslation(ecologylab.services.authentication.messages.Logout.class);
+//
         this.objectRegistry = objectRegistry;
 
         this.authenticator = new Authenticator(authList);

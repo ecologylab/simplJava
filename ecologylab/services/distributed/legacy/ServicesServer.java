@@ -16,7 +16,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -211,10 +211,10 @@ public class ServicesServer extends ServicesServerBase
     }
 
     public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
-            throws XmlTranslationException
+            throws XMLTranslationException
     {
-        RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLString(messageString,
-                requestTranslationSpace, doRecursiveDescent);
+        RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
+                requestTranslationSpace);
         return requestMessage;
     }
 

@@ -5,7 +5,7 @@ package ecologylab.xml.types.scalar;
 
 import java.io.IOException;
 
-import ecologylab.xml.XmlTools;
+import ecologylab.xml.XMLTools;
 
 /**
  *
@@ -34,7 +34,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
     {
 		String instanceString	= instance.toString();
 		if (needsEscaping)
-			XmlTools.escapeXML(buffy, instanceString);
+			XMLTools.escapeXML(buffy, instanceString);
 		else
 			buffy.append(instanceString);
     }
@@ -43,7 +43,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
     {
 		String instanceString	= instance.toString();
 		if (needsEscaping)
-			XmlTools.escapeXML(buffy, instanceString);
+			XMLTools.escapeXML(buffy, instanceString);
 		else
 			buffy.append(instanceString);
     }

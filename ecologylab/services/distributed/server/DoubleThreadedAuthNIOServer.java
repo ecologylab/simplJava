@@ -29,7 +29,7 @@ import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.contextmanager.AbstractContextManager;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * @author Zach Toups
@@ -42,6 +42,14 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 	private List<Logging>	logListeners	= new LinkedList<Logging>();
 
 	protected Authenticator	authenticator	= null;
+	
+	public static final Class[] AUTH_CLASSES		=
+	{
+		Login.class, 
+		Logout.class,
+		LoginStatusResponse.class,
+		LogoutStatusResponse.class,
+	};
 
 	/**
 	 * This is the actual way to create an instance of this.
@@ -71,7 +79,7 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 			println("ServicesServer ERROR: can't open ServerSocket on port " + portNumber);
 			e.printStackTrace();
 		}
-		catch (XmlTranslationException e)
+		catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}
@@ -121,14 +129,18 @@ public class DoubleThreadedAuthNIOServer extends DoubleThreadedNIOServer impleme
 			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, AuthenticationList authList) throws IOException, BindException
 	{
-		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
+//		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
+		//MODEL: from Andruid to Zach
+		super(portNumber, inetAddress, 
+			  TranslationSpace.get("double_threaded_auth " + inetAddress[0].toString() + ":" + portNumber, AUTH_CLASSES, requestTranslationSpace),
+			  objectRegistry, idleConnectionTimeout, maxPacketSize);
 
 		this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
-		this.translationSpace.addTranslation(Login.class);
-		this.translationSpace.addTranslation(Logout.class);
-		this.translationSpace.addTranslation(LoginStatusResponse.class);
-		this.translationSpace.addTranslation(LogoutStatusResponse.class);
+//		this.translationSpace.addTranslation(Login.class);
+//		this.translationSpace.addTranslation(Logout.class);
+//		this.translationSpace.addTranslation(LoginStatusResponse.class);
+//		this.translationSpace.addTranslation(LogoutStatusResponse.class);
 
 		authenticator = new Authenticator(authList);
 	}

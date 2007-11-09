@@ -22,7 +22,7 @@ import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * The main application for playing back log files.
@@ -76,7 +76,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
     protected int                              playbackInterval            = DEFAULT_PLAYBACK_INTERVAL;
 
     public LogPlayer(String appName, String[] args,
-            TranslationSpace translationSpace) throws XmlTranslationException
+            TranslationSpace translationSpace) throws XMLTranslationException
     {
         super(appName, args);
 
@@ -153,9 +153,9 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
      * 
      * @param logToRead
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
-    protected abstract LOG translateXMLFromFile(File logToRead) throws XmlTranslationException;
+    protected abstract LOG translateXMLFromFile(File logToRead) throws XMLTranslationException;
 
     protected LOG readInXMLFile(File logToRead)
     {
@@ -172,7 +172,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
             return translateXMLFromFile(logToRead);
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             System.err.println("READING LOG FAILED!");
             e.printStackTrace();

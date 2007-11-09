@@ -17,10 +17,10 @@ public class RESTTranslationSpace extends Debug
 		Record.class
 	};
 		
-	protected static final TranslationSpace BASE_SPACE[] = {Dc.get()};
+	protected static final TranslationSpace INHERITED[] = {Dc.get()};
 	
 	public static TranslationSpace get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, BASE_SPACE, TRANSLATIONS);
+		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, INHERITED);
 	}
 }

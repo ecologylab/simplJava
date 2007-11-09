@@ -29,7 +29,7 @@ import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * @author Zach
@@ -433,7 +433,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
             StringBuilder outgoingMessageHeaderBuf);
 
     protected abstract void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
-            ResponseMessage responseMessage, StringBuilder messageBuffer) throws XmlTranslationException;
+            ResponseMessage responseMessage, StringBuilder messageBuffer) throws XMLTranslationException;
 
     /**
      * Translates the given XML String into a RequestMessage object.
@@ -444,15 +444,15 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
      * @param messageString -
      *            an XML String representing a RequestMessage object.
      * @return the RequestMessage created by translating messageString into an object.
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      *             if an error occurs when translating from XML into a RequestMessage.
      * @throws UnsupportedEncodingException
      *             if the String is not encoded properly.
      */
-    protected RequestMessage translateStringToRequestMessage(String messageString) throws XmlTranslationException,
+    protected RequestMessage translateStringToRequestMessage(String messageString) throws XMLTranslationException,
             UnsupportedEncodingException
     {
-        return (RequestMessage) ElementState.translateFromXMLString(messageString, translationSpace);
+        return (RequestMessage) ElementState.translateFromXMLCharSequence(messageString, translationSpace);
     }
 
     /**
@@ -542,7 +542,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 
                     server.send(this.socket, outgoingBuffer);
                 }
-                catch (XmlTranslationException e)
+                catch (XMLTranslationException e)
                 {
                     e.printStackTrace();
                 }
@@ -572,7 +572,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
         {
             request = this.translateStringToRequestMessage(incomingMessage);
         }
-        catch (XmlTranslationException e)
+        catch (XMLTranslationException e)
         {
             // drop down to request == null, below
         }

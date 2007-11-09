@@ -9,7 +9,7 @@ import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.HashMapState;
 
@@ -65,10 +65,10 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @param purl
      * @param translationSpace
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     public static PrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
-    throws XmlTranslationException
+    throws XMLTranslationException
     {
     	File file	= purl.file();
     	PrefSet pS	= null;
@@ -83,12 +83,12 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @param prefXML - Preferences in an XML format; to be translated into a PrefSet.
      * @param translationSpace
      * @return
-     * @throws XmlTranslationException
+     * @throws XMLTranslationException
      */
     public static PrefSet load(String prefXML, TranslationSpace translationSpace)
-    throws XmlTranslationException
+    throws XMLTranslationException
     {
-        PrefSet pS = (PrefSet) ElementState.translateFromXMLString(prefXML, translationSpace);
+        PrefSet pS = (PrefSet) ElementState.translateFromXMLCharSequence(prefXML, translationSpace);
         
         return pS;
     }

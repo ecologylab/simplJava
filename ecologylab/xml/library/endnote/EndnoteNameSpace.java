@@ -40,7 +40,7 @@ public class EndnoteNameSpace
 
     public static TranslationSpace get()
     {
-        return TranslationSpace.get(NAME, PACKAGE_NAME, TRANSLATIONS);
+        return TranslationSpace.get(NAME, TRANSLATIONS, PACKAGE_NAME);
     }
 
     /**

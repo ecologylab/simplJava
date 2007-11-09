@@ -8,8 +8,13 @@ import ecologylab.generic.BooleanSlot;
 import ecologylab.services.ServicesClient;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
+import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
+import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
+import ecologylab.services.messages.BadSemanticContentResponse;
+import ecologylab.services.messages.ErrorResponse;
+import ecologylab.services.nio.servers.NIOServerBase;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -70,7 +75,18 @@ import ecologylab.xml.TranslationSpace;
                 "ecologylab.services.authentication"), new ObjectRegistry(),
                 entry);
     }
+	static final Class[] AUTH_CLASSES		=
+	{
+		Login.class, 
+		Logout.class,
+		LoginStatusResponse.class,
+		LogoutStatusResponse.class,
+		AuthenticationListEntry.class,
+		BadSemanticContentResponse.class,
+		ErrorResponse.class,
+	};
 
+	
     /**
      * Main constructor; creates a new AuthClient using the parameters.
      * 
@@ -83,18 +99,21 @@ import ecologylab.xml.TranslationSpace;
     public AuthClient(String server, int port, TranslationSpace messageSpace,
             ObjectRegistry objectRegistry, AuthenticationListEntry entry)
     {
-        super(server, port, messageSpace, objectRegistry);
+        super(server, port, 
+//        		messageSpace, 
+        		NIOServerBase.composeTranslations(AUTH_CLASSES, "auth_client: ", port, "", messageSpace),
+        		objectRegistry);
 
-        messageSpace.addTranslation(
-                ecologylab.services.authentication.messages.Login.class);
-        messageSpace.addTranslation(
-                ecologylab.services.authentication.messages.Logout.class);
-        messageSpace.addTranslation(ecologylab.services.authentication.AuthenticationListEntry.class);
-        messageSpace.addTranslation(
-                ecologylab.services.authentication.messages.LoginStatusResponse.class);
-
-        messageSpace.addTranslation(ecologylab.services.messages.BadSemanticContentResponse.class);
-        messageSpace.addTranslation(ecologylab.services.messages.ErrorResponse.class);
+//        messageSpace.addTranslation(
+//                ecologylab.services.authentication.messages.Login.class);
+//        messageSpace.addTranslation(
+//                ecologylab.services.authentication.messages.Logout.class);
+//        messageSpace.addTranslation(ecologylab.services.authentication.AuthenticationListEntry.class);
+//        messageSpace.addTranslation(
+//                ecologylab.services.authentication.messages.LoginStatusResponse.class);
+//
+//        messageSpace.addTranslation(ecologylab.services.messages.BadSemanticContentResponse.class);
+//        messageSpace.addTranslation(ecologylab.services.messages.ErrorResponse.class);
 
         objectRegistry.registerObject(LOGIN_STATUS, new BooleanSlot(false));
 

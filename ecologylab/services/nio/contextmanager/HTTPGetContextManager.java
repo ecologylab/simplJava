@@ -15,7 +15,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * @author Zach
@@ -59,7 +59,7 @@ public class HTTPGetContextManager extends AbstractContextManager
      *      ecologylab.services.messages.ResponseMessage)
      */
     @Override protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
-            ResponseMessage responseMessage, StringBuilder outgoingMessageBuf) throws XmlTranslationException
+            ResponseMessage responseMessage, StringBuilder outgoingMessageBuf) throws XMLTranslationException
     {
         if (!(requestMessage instanceof HttpGetRequest))
         {
@@ -72,7 +72,7 @@ public class HTTPGetContextManager extends AbstractContextManager
      * @see ecologylab.services.nio.contextmanager.ContextManager#translateStringToRequestMessage(java.lang.String)
      */
     @Override protected RequestMessage translateStringToRequestMessage(String messageString)
-            throws XmlTranslationException, UnsupportedEncodingException
+            throws XMLTranslationException, UnsupportedEncodingException
     {
         if (messageString.startsWith(HTTP_PREPEND))
         {

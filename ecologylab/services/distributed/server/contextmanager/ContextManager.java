@@ -9,7 +9,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.nio.NIOServerBackend;
 import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XmlTranslationException;
+import ecologylab.xml.XMLTranslationException;
 
 /**
  * Stores information about the connection context for the client on the server. Should be extended for more specific
@@ -114,7 +114,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
      * @return a String that constitutes a complete response message in XML with HTTP-like headers.
      */
     @Override protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
-            ResponseMessage responseMessage, StringBuilder messageBuffer) throws XmlTranslationException
+            ResponseMessage responseMessage, StringBuilder messageBuffer) throws XMLTranslationException
     {
         responseMessage.translateToXML(messageBuffer);
     }
