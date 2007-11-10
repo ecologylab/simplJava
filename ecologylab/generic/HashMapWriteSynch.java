@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Hashed data structure with synchronized writes and unsynchronized reads.
+ * Hashed data structure with synchronized writes/deletes and unsynchronized reads.
  * 
- * @author andruid
+ * @author andruid, robinson
  *
  * @param <K>
  * @param <V>
@@ -29,7 +29,7 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 		super();
 	}
 
-	public HashMapWriteSynch(Map arg0)
+	public HashMapWriteSynch(Map<? extends K, ? extends V> arg0)
 	{
 		super(arg0);
 	}
@@ -82,8 +82,18 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 	/**
 	 * Sycnhronizes remove.
 	 */
-	@Override public synchronized V remove(Object key)
+	@Override 
+	public synchronized V remove(Object key)
 	{
-		return remove(key);
+		return super.remove(key);
 	}
+
+	/**
+     * Sycnhronizes if you add another map to this one.
+     */
+    @Override
+    public synchronized void putAll(Map<? extends K, ? extends V> m)
+    {
+        super.putAll(m);
+    }
 }
