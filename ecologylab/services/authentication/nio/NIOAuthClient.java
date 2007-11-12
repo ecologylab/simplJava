@@ -13,9 +13,9 @@ import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
+import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOClient;
 import ecologylab.xml.TranslationSpace;
 
 /**

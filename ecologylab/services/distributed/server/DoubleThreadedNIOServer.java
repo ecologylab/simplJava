@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.nio.servers;
+package ecologylab.services.distributed.server;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -16,11 +16,11 @@ import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerBase;
+import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
+import ecologylab.services.distributed.server.contextmanager.ContextManager;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.NIOServerBase;
-import ecologylab.services.nio.contextmanager.AbstractContextManager;
-import ecologylab.services.nio.contextmanager.ContextManager;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -227,8 +227,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	}
 
 	/**
-	 * @see ecologylab.services.nio.servers.NIOServerFrontend#invalidate(java.lang.Object,
-	 *      ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+	 * @see ecologylab.services.distributed.server.NIOServerFrontend#invalidate(java.lang.Object,
+	 *      ecologylab.services.distributed.impl.NIOServerBackend, java.nio.channels.SocketChannel)
 	 */
 	public AbstractContextManager invalidate(Object sessionId, NIOServerBackend base, SocketChannel sc, boolean permanent)
 	{

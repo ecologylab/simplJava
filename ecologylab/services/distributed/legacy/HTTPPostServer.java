@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.nio.servers.DoubleThreadedNIOServer;
+import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
 
 /**

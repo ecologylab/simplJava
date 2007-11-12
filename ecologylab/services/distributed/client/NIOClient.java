@@ -1,7 +1,7 @@
 /*
  * Created on May 12, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.client;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -29,10 +29,11 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.ClientConstants;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesClientBase;
 import ecologylab.services.ServicesServer;
+import ecologylab.services.distributed.common.ClientConstants;
+import ecologylab.services.distributed.impl.PreppedRequest;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;

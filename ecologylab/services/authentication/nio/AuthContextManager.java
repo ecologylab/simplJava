@@ -12,12 +12,12 @@ import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.NIOServerFrontend;
+import ecologylab.services.distributed.server.contextmanager.ContextManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.contextmanager.ContextManager;
-import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -27,7 +27,7 @@ import ecologylab.xml.TranslationSpace;
  * Should be extended for more specific implementations. Handles accumulating incoming messages and translating them
  * into RequestMessage objects.
  * 
- * @see ecologylab.services.nio.contextmanager.ContextManager
+ * @see ecologylab.services.distributed.server.contextmanager.ContextManager
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */

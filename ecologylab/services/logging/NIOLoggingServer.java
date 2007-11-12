@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.NetTools;
 import ecologylab.services.ServicesHostsAndPorts;
-import ecologylab.services.nio.servers.DoubleThreadedNIOServer;
+import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -159,7 +159,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	/**
 	 * Displays some information about the logging server, then calls super.start()
 	 * 
-	 * @see ecologylab.services.nio.servers.DoubleThreadedNIOServer#start()
+	 * @see ecologylab.services.distributed.server.DoubleThreadedNIOServer#start()
 	 */
 	@Override public void start()
 	{

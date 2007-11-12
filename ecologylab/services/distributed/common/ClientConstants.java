@@ -1,7 +1,7 @@
 /*
  * Created on May 5, 2006
  */
-package ecologylab.services;
+package ecologylab.services.distributed.common;
 
 /**
  * Constant settings for client functionality.

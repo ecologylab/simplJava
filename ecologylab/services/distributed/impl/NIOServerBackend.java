@@ -1,7 +1,7 @@
 /*
  * Created on May 3, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.impl;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -25,8 +25,8 @@ import sun.misc.BASE64Encoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
 /**
@@ -277,7 +277,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * @see ecologylab.services.nio.NIONetworking#removeBadConnections()
+	 * @see ecologylab.services.distributed.impl.NIONetworking#removeBadConnections()
 	 */
 	@Override protected void removeBadConnections(SelectionKey key)
 	{
@@ -304,7 +304,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * @see ecologylab.services.nio.NIONetworking#invalidateKey(java.nio.channels.SocketChannel, boolean)
+	 * @see ecologylab.services.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SocketChannel, boolean)
 	 */
 	@Override protected void invalidateKey(SelectionKey key, boolean permanent)
 	{

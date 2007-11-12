@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.nio.contextmanager;
+package ecologylab.services.distributed.server.contextmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -19,14 +19,14 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesServer;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
@@ -39,7 +39,7 @@ import ecologylab.xml.XMLTranslationException;
  * provide places where subclasses may modify behavior for specific purposes.
  * 
  * For a complete, basic implementation (which is suitable for most uses), see
- * {@link ecologylab.services.nio.contextmanager.ContextManager ContextManager}.
+ * {@link ecologylab.services.distributed.server.contextmanager.ContextManager ContextManager}.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 

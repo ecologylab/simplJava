@@ -1,7 +1,7 @@
 /*
  * Created on May 15, 2006
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.common;
 
 /**
  * States for clients in a networked application.

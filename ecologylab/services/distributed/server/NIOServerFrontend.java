@@ -1,14 +1,14 @@
 /**
  * 
  */
-package ecologylab.services.nio.servers;
+package ecologylab.services.distributed.server;
 
 import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.contextmanager.AbstractContextManager;
 
 /**
  * An interface indicating necessary functionality for a server so that it can properly service ContextManagers.

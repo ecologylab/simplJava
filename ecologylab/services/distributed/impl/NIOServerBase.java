@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.impl;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -13,9 +13,9 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.SessionObjects;
 import ecologylab.services.Shutdownable;
+import ecologylab.services.distributed.server.NIOServerFrontend;
+import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
 import ecologylab.services.messages.InitConnectionRequest;
-import ecologylab.services.nio.contextmanager.AbstractContextManager;
-import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 
 /**

@@ -14,11 +14,11 @@ import java.nio.charset.CharsetEncoder;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.contextmanager.ContextManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.contextmanager.ContextManager;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 

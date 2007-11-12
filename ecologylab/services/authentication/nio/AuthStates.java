@@ -4,12 +4,12 @@
 package ecologylab.services.authentication.nio;
 
 import ecologylab.services.authentication.messages.AuthMessages;
-import ecologylab.services.nio.BaseStates;
+import ecologylab.services.distributed.common.BaseStates;
 
 /**
  * Additional states for authenticating clients.
  * 
- * @see ecologylab.services.nio.BaseStates
+ * @see ecologylab.services.distributed.common.BaseStates
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 

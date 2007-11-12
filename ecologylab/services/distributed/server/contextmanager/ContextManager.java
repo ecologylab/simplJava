@@ -1,13 +1,13 @@
-package ecologylab.services.nio.contextmanager;
+package ecologylab.services.distributed.server.contextmanager;
 
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.servers.NIOServerFrontend;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.nio.servers;
+package ecologylab.services.distributed.server;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -24,9 +24,9 @@ import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
 import ecologylab.services.logging.Logging;
-import ecologylab.services.nio.NIOServerBackend;
-import ecologylab.services.nio.contextmanager.AbstractContextManager;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
@@ -207,8 +207,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	/**
 	 * Ensure that the user associated with sc has been logged out of the authenticator, then call super.invalidate().
 	 * 
-	 * @see ecologylab.services.nio.servers.DoubleThreadedNIOServer#invalidate(java.lang.Object,
-	 *      ecologylab.services.nio.NIOServerBackend, java.nio.channels.SocketChannel)
+	 * @see ecologylab.services.distributed.server.DoubleThreadedNIOServer#invalidate(java.lang.Object,
+	 *      ecologylab.services.distributed.impl.NIOServerBackend, java.nio.channels.SocketChannel)
 	 */
 	@Override public AbstractContextManager invalidate(Object token, NIOServerBackend base, SocketChannel sc,
 			boolean permanent)

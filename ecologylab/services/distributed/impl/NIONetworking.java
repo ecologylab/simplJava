@@ -1,7 +1,7 @@
 /*
  * Created on Mar 2, 2007
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.impl;
 
 import java.io.IOException;
 import java.nio.BufferOverflowException;

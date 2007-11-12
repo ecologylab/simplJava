@@ -1,7 +1,7 @@
 /*
  * Created on Apr 4, 2007
  */
-package ecologylab.services.nio;
+package ecologylab.services.distributed.impl;
 
 
 /**
