@@ -24,7 +24,7 @@ import java.util.Map;
 import sun.misc.BASE64Encoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.ObjectOrHashMap;
-import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationSpace;

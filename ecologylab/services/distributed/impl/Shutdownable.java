@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services;
+package ecologylab.services.distributed.impl;
 
 /**
  * Interface for objects that should have a shutdown sequence.

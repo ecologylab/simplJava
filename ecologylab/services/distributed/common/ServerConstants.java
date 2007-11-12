@@ -1,7 +1,7 @@
 /*
  * Created on May 3, 2006
  */
-package ecologylab.services;
+package ecologylab.services.distributed.common;
 
 /**
  * Constants used by ServicesServers and their components.

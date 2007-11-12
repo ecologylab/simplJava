@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;

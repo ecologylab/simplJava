@@ -4,7 +4,7 @@ package ecologylab.services.messages.cf;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
 import ecologylab.services.ServicesClient;
-import ecologylab.services.ServicesHostsAndPorts;
+import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;

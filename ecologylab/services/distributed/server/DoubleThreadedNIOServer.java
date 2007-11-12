@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.ServerConstants;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.impl.NIOServerBase;
 import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
@@ -218,7 +218,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	}
 
 	/**
-	 * @see ecologylab.services.Shutdownable#shutdown()
+	 * @see ecologylab.services.distributed.impl.Shutdownable#shutdown()
 	 */
 	public void shutdown()
 	{

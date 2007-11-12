@@ -1,7 +1,9 @@
 /**
  * 
  */
-package ecologylab.services;
+package ecologylab.services.distributed.impl;
+
+import ecologylab.services.ServicesServerBase;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

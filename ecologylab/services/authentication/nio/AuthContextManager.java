@@ -3,7 +3,6 @@ package ecologylab.services.authentication.nio;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.ServerConstants;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
@@ -12,6 +11,7 @@ import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.distributed.server.contextmanager.ContextManager;

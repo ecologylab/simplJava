@@ -1,4 +1,4 @@
-package ecologylab.services;
+package ecologylab.services.distributed.common;
 
 import ecologylab.xml.TranslationSpace;
 

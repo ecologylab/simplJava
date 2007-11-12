@@ -8,7 +8,7 @@ import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.NetTools;
-import ecologylab.services.ServicesHostsAndPorts;
+import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
 

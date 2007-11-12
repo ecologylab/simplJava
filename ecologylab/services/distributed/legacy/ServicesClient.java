@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;

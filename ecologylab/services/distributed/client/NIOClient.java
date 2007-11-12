@@ -29,10 +29,10 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.ServerConstants;
 import ecologylab.services.ServicesClientBase;
 import ecologylab.services.ServicesServer;
 import ecologylab.services.distributed.common.ClientConstants;
+import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.PreppedRequest;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;

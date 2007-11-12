@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.StringTools;
+import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

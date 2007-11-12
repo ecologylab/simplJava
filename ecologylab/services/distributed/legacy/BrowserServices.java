@@ -5,6 +5,8 @@ import java.io.IOException;
 
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.services.distributed.common.ServicesHostsAndPorts;
+import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.xml.TranslationSpace;
 
 /**

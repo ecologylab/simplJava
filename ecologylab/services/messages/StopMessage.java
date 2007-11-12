@@ -3,7 +3,7 @@ package ecologylab.services.messages;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.ServicesClient;
-import ecologylab.services.SessionObjects;
+import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.xml.xml_inherit;
 
 /**
