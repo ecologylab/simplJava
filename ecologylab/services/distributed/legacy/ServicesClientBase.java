@@ -1,7 +1,7 @@
 /*
  * Created on May 4, 2006
  */
-package ecologylab.services;
+package ecologylab.services.distributed.legacy;
 
 import java.net.Socket;
 

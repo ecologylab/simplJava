@@ -2,8 +2,8 @@ package ecologylab.services.messages;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.StartAndStoppable;
-import ecologylab.services.ServicesClient;
 import ecologylab.services.distributed.common.SessionObjects;
+import ecologylab.services.distributed.legacy.ServicesClient;
 import ecologylab.xml.xml_inherit;
 
 /**

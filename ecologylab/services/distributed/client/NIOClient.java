@@ -29,11 +29,11 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.services.ServicesClientBase;
-import ecologylab.services.ServicesServer;
 import ecologylab.services.distributed.common.ClientConstants;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.PreppedRequest;
+import ecologylab.services.distributed.legacy.ServicesClientBase;
+import ecologylab.services.distributed.legacy.ServicesServer;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -128,7 +128,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
      * start() to begin listening for server responses and processing them, then sends handshake data and establishes
      * the session id.
      * 
-     * @see ecologylab.services.ServicesClientBase#connect()
+     * @see ecologylab.services.distributed.legacy.ServicesClientBase#connect()
      */
     @Override public boolean connect()
     {
@@ -408,7 +408,7 @@ public class NIOClient extends ServicesClientBase implements Runnable, ServerCon
     /**
      * Blocking send. Sends the request and waits infinitely for the response, which it returns.
      * 
-     * @see ecologylab.services.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
+     * @see ecologylab.services.distributed.legacy.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
      */
     @Override public synchronized ResponseMessage sendMessage(RequestMessage request)
     {

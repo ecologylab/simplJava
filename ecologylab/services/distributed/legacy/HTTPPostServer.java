@@ -1,4 +1,4 @@
-package ecologylab.services;
+package ecologylab.services.distributed.legacy;
 
 import java.io.IOException;
 import java.net.BindException;
