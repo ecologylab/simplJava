@@ -95,9 +95,13 @@ public final class TranslationSpace extends Debug
    private TranslationSpace(String name, TranslationSpace[] inheritedTranslations)
    {
 	  this(name);
-	  int n	= inheritedTranslations.length;
-	  for (int i=0; i< n; i++)
-		  addTranslations(inheritedTranslations[i]);
+	  
+	  if (inheritedTranslations != null)
+	  {
+			int n = inheritedTranslations.length;
+			for (int i = 0; i < n; i++)
+				addTranslations(inheritedTranslations[i]);
+		}
    }
    
    /**
