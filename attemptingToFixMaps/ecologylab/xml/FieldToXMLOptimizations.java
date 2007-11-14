@@ -233,6 +233,7 @@ implements OptimizationTypes
 			java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(field);
 			if (typeArgs != null)
 			{
+				// FIXME -- andruid -- these args are coming in as K for Key and V for Value, not the actual declared classes!
 				final Type typeArg0				= typeArgs[1];	// 2nd generic type arg -- type of values, not keys
 				if (typeArg0 instanceof Class)
 				{	// generic variable is assigned in declaration -- not a field in an ArrayListState or some such
@@ -243,7 +244,9 @@ implements OptimizationTypes
 					String	childTagName			= mapAnnotation.value();
 					if (ElementState.class.isAssignableFrom(mapElementsType))
 					{	// nested element
-						result						= MAP_ELEMENT;						
+						
+						// FIXME -- andruid -- looks like this is the child of a map
+						result						= MAP_ELEMENT_CHILD;						
 						//TODO -- is this inheritance good, or should be wait for the actual class object?!
 //						if (childTagName == null)
 //							childTagName			= XmlTools.getXmlTagName(thatClass, "State");
@@ -259,6 +262,7 @@ implements OptimizationTypes
 				{
 					//FIXME -- assume that if 
 					result							= MAP_ELEMENT;		
+
 				}
 			}
 			else

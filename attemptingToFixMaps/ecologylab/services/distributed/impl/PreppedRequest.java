@@ -3,47 +3,91 @@
  */
 package ecologylab.services.distributed.impl;
 
-
 /**
- * Represents a RequestMessage that has been translated to XML. This object
- * encapsulates the XML String, along with the request's UID.
+ * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML String, along with the
+ * request's UID.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-//FIXME -- Can we use StringBuilders in here directly to utilize memory better
+// FIXME -- Can we use StringBuilders in here directly to utilize memory better
 public class PreppedRequest implements Comparable<PreppedRequest>
 {
-    private long   uid;
+	private long				uid;
 
-    private String request;
+	private StringBuilder	request	= new StringBuilder();
 
-    /**
-     * 
-     */
-    public PreppedRequest(String request, long uid)
-    {
-        this.uid = uid;
-        this.request = request;
-    }
+	private boolean disposable = false;
+	
+	/**
+	 * 
+	 */
+	public PreppedRequest(StringBuilder request, long uid)
+	{
+		this.uid = uid;
 
-    /**
-     * @return the request
-     */
-    public String getRequest()
-    {
-        return request;
-    }
+		this.setRequest(request);
+	}
 
-    /**
-     * @return the uid
-     */
-    public long getUid()
-    {
-        return uid;
-    }
+	/**
+	 * 
+	 */
+	public PreppedRequest(StringBuilder request, long uid, boolean disposable)
+	{
+		this(request, uid);
 
-    public int compareTo(PreppedRequest arg0)
-    {
-        return (int) (this.uid - arg0.getUid());
-    }
+		this.disposable = disposable;
+	}
+
+	
+	/**
+	 * @return the request
+	 */
+	public StringBuilder getRequest()
+	{
+		return request;
+	}
+
+	public void setRequest(StringBuilder request)
+	{
+		this.request.setLength(0);
+		this.request.append(request);
+	}
+
+	/**
+	 * @return the uid
+	 */
+	public long getUid()
+	{
+		return uid;
+	}
+
+	public int compareTo(PreppedRequest arg0)
+	{
+		return (int) (this.uid - arg0.getUid());
+	}
+
+	/**
+	 * @param uid
+	 *           the uid to set
+	 */
+	public void setUid(long uid)
+	{
+		this.uid = uid;
+	}
+
+	/**
+	 * @return the disposable
+	 */
+	public boolean isDisposable()
+	{
+		return disposable;
+	}
+
+	/**
+	 * @param disposable the disposable to set
+	 */
+	public void setDisposable(boolean disposable)
+	{
+		this.disposable = disposable;
+	}
 }

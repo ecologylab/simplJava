@@ -430,6 +430,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					case COLLECTION_ELEMENT:
 					case COLLECTION_SCALAR:
 					case MAP_ELEMENT:
+					case MAP_ELEMENT_CHILD:
 					case MAP_SCALAR:
 						thatCollection			= XMLTools.getCollection(thatReferenceObject);
 						break;
@@ -630,6 +631,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					case COLLECTION_ELEMENT:
 					case COLLECTION_SCALAR:
 					case MAP_ELEMENT:
+					case MAP_ELEMENT_CHILD:
 					case MAP_SCALAR:
 						thatCollection			= XMLTools.getCollection(thatReferenceObject);
 						break;
@@ -821,6 +823,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				case COLLECTION_ELEMENT:
 				case COLLECTION_SCALAR:
 				case MAP_ELEMENT:
+				case MAP_ELEMENT_CHILD:
 				case MAP_SCALAR:
 					thatCollection			= XMLTools.getCollection(thatReferenceObject);
 					break;
@@ -1492,6 +1495,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 //					activeNJO.addLeafNodeToMap(activeES, childNode);
 //					break;
 				case MAP_ELEMENT:
+				case MAP_ELEMENT_CHILD:
 					activeNJO.domFormElementAndToMap(activeES, childNode);
 					break;
 				case OTHER_NESTED_ELEMENT:

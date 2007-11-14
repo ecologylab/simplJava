@@ -34,4 +34,7 @@ public interface ServerConstants
 
 	/** The size of the content-length header indicator. */
 	static final int		CONTENT_LENGTH_STRING_LENGTH			= CONTENT_LENGTH_STRING.length();
+	
+	/** The size of the HTTP header terminator. */
+	static final int		HTTP_HEADER_TERMINATOR_LENGTH			= HTTP_HEADER_TERMINATOR.length();
 }

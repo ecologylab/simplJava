@@ -59,7 +59,7 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends Eleme
     }
 
     /**
-     * Convienence method for adding Mappable elements. This method simply calls put(value.key(), value).
+     * Convienence method for adding Mappable elements. This method is an alias for put(value.key(), value).
      * 
      * @param value
      */

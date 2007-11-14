@@ -189,7 +189,7 @@ public abstract class NIONetworking extends Debug implements Runnable
 
 			try
 			{
-				if ((selector.select()) > 0)
+				if (selector.select() > 0)
 				{
 					/*
 					 * get an iterator of the keys that have something to do we have to do it this way, because we have to be

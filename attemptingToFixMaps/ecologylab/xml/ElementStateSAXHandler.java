@@ -276,15 +276,15 @@ implements ContentHandler, OptimizationTypes
 			Class<ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
 			if (rootClass != null)
 			{
-				ElementState root;
+				ElementState tempRoot;
 				try
 				{
-					root					= XMLTools.getInstance(rootClass);
-					if (root != null)
+					tempRoot					= XMLTools.getInstance(rootClass);
+					if (tempRoot != null)
 					{
-						root.setupRoot();
-						setRoot(root);
-						root.translateAttributes(translationSpace, attributes);
+						tempRoot.setupRoot();
+						setRoot(tempRoot);
+						tempRoot.translateAttributes(translationSpace, attributes);
 					}
 				} catch (XMLTranslationException e)
 				{
@@ -299,6 +299,14 @@ implements ContentHandler, OptimizationTypes
 				println(message);
 				xmlTranslationException		= new XMLTranslationException(message);
 			}
+			
+			NodeToJavaOptimizations activeN2JO	= (currentN2JO != null) && (currentN2JO.type() == IGNORED_ELEMENT) ?
+					// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
+					NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
+					currentOptimizations().elementNodeToJavaOptimizations(translationSpace, currentElementState, tagName);
+				this.currentN2JO						= activeN2JO;
+				pushN2JO(activeN2JO);
+//				printStack("After push");
 			
 			return;
 		}
@@ -339,11 +347,13 @@ implements ContentHandler, OptimizationTypes
 				//activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
+			case MAP_ELEMENT_CHILD:
 				Map map							= activeN2JO.getMap(currentElementState);
 				if (map != null)
 				{
 					childES						= activeN2JO.constructChildElementState(currentElementState);
-					map.put(((Mappable) childES).key(), childES);
+					
+					// we cannot put the value into the map yet, fields that key() relies upon may not yet have been populated					
 				}
 				break;
 			case OTHER_NESTED_ELEMENT:
@@ -362,6 +372,9 @@ implements ContentHandler, OptimizationTypes
 			{
 				// fill in its attributes
 				childES.translateAttributes(translationSpace, attributes);
+				
+				
+				
 				this.currentElementState		= childES;	// childES.parent = old currentElementState
 				this.currentN2JO					= activeN2JO;
 			}
@@ -394,7 +407,7 @@ implements ContentHandler, OptimizationTypes
 	 *
 	 * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void endElement(String arg0, String arg1, String arg2)
+	public void endElement(String uri, String localName, String qName)
 			throws SAXException
 	{
 		if (xmlTranslationException != null)
@@ -418,6 +431,15 @@ implements ContentHandler, OptimizationTypes
 		}
 		switch (this.currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
 		{
+		case MAP_ELEMENT_CHILD:
+			try
+			{
+			((Map)currentElementState.parent).put(((Mappable)this.currentElementState).key(), this.currentElementState);
+			}
+			catch (ClassCastException e)
+			{
+				debug("ate class cast exception...fuck.");
+			}
 		case REGULAR_NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case MAP_ELEMENT:
@@ -427,12 +449,15 @@ implements ContentHandler, OptimizationTypes
 			break;
 		}
 		
+		printStack("before pop and peek w/ tag "+localName);
 		popAndPeekN2JO();
+		printStack("after...");
 		//if (this.startElementPushed)	// every good push deserves a pop :-) (and othertimes, not!)
 	}
 	void printStack(String msg)
 	{
 		currentElementState.debug("Stack -- " + msg);
+
 		for (NodeToJavaOptimizations thatN2JO : n2joStack)
 		{
 			println(thatN2JO.tag() + " - " + thatN2JO.type());

@@ -32,6 +32,8 @@ public interface OptimizationTypes
 	
 	public static final int	MAP_ELEMENT				= 6;
 	
+	public static final int MAP_ELEMENT_CHILD = 60;
+	
 	public static final int	MAP_SCALAR				= 7;
 	
 	/**

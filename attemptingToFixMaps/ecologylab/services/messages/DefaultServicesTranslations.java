@@ -1,11 +1,11 @@
 package ecologylab.services.messages;
 
-import ecologylab.generic.Debug;
 import ecologylab.services.logging.Epilogue;
 import ecologylab.services.logging.LogOps;
 import ecologylab.services.logging.Prologue;
 import ecologylab.services.logging.SendEpilogue;
 import ecologylab.services.logging.SendPrologue;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 

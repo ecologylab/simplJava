@@ -344,7 +344,10 @@ implements OptimizationTypes
 					{
 						Map map					= context.getMap(classOp);
 						if (map != null)
-							this.type			= MAP_ELEMENT;
+						{
+							// FIXME -- andruid -- this looks like a map child element
+							this.type			= MAP_ELEMENT_CHILD;
+						}
 						else
 						{
 							Collection collection = context.getCollection(classOp);
