@@ -17,7 +17,7 @@ public class TestNameSpace
 	 */
 	public static void main(String[] args) 
 	{
-/*		if (args.length < 1)
+		if (args.length < 1)
 		{
 			System.err.println("Usage: TestNameSpace <xml filename>");
 			System.exit(1);
@@ -34,11 +34,7 @@ public class TestNameSpace
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
-		
-		File f = new File("E:\\Documents and Settings\\Zach\\Application Data\\RogueSitDown\\preferences\\prefs.xml");
-		
-		System.out.println(f.exists());
+		}
 	}
 
 }

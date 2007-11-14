@@ -308,6 +308,7 @@ implements OptimizationTypes
 			}
 			else
 			{
+				// was map declared explicitly
 				Field mapField	= optimizations.getMapFieldByTag(tag); 
 				if (mapField != null)
 				{
