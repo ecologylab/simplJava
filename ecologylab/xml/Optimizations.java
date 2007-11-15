@@ -313,18 +313,7 @@ implements OptimizationTypes
 	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
-		return elementNodeToJavaOptimizations(translationSpace, context, tag);
-	}
-	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
-	{
-		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
-		
-		if (result == null)
-		{
-			result				= new NodeToJavaOptimizations(translationSpace, this, context, tag, false);
-			nodeToJavaOptimizationsMap.put(tag, result);
-		}
-		return result;
+		return nodeToJavaOptimizations(translationSpace, context, tag, false);
 	}
 	
 	final Object N2JO_TAG_FIELDS_LOCK		= new Object();
@@ -334,10 +323,11 @@ implements OptimizationTypes
 	 * 
 	 * @param translationSpace
 	 * @param context
+	 * @param isAttribute 	true for attributes, false for elements
 	 * @param node
 	 * @return
 	 */
-	NodeToJavaOptimizations attributeNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag)
+	NodeToJavaOptimizations nodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag, boolean isAttribute)
 	{
 		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
 		
@@ -352,7 +342,7 @@ implements OptimizationTypes
 					
 				if (result == null)
 				{
-					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, true);
+					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, isAttribute);
 					nodeToJavaOptimizationsMap.put(tag, result);
 				}
 			}
