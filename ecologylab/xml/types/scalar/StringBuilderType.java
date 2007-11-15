@@ -35,11 +35,12 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 		return new StringBuilder(value);
 	}
 
-	@Override protected void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping)
+	@Override
+	public void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping)
     {
     	buffy.append(instance);
     }
-    protected void appendValue(StringBuilder instance, Appendable buffy, boolean needsEscaping)
+    public void appendValue(StringBuilder instance, Appendable buffy, boolean needsEscaping)
     throws IOException
     {
     	buffy.append(instance);    	
