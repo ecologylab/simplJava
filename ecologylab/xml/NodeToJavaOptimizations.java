@@ -214,7 +214,7 @@ implements OptimizationTypes
 					//TODO shouldn't this use in-scope local optimizations?!
 					Optimizations nsOptimizations	= Optimizations.lookupRootOptimizations(dummyES, null);
 					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceID);
-					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.elementNodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag);
+					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.nodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag, false);
 					this.classOp			= nsFieldClass;
 					fillValues(nsPTE);
 					this.nestedPTE			= nsPTE;
@@ -284,7 +284,7 @@ implements OptimizationTypes
 				if (typeArgs != null)
 				{
 					Class	collectionElementsType		= (Class) typeArgs[0];
-					debug("!!!collection elements are of type: " + collectionElementsType.getName());
+//					debug("!!!collection elements are of type: " + collectionElementsType.getName());
 					setClassOp(collectionElementsType);
 					this.field				= collectionField;
 					// is collectionElementsType a scalar or a nested element
@@ -807,11 +807,26 @@ implements OptimizationTypes
 	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
 	throws XMLTranslationException
 	{
+		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode));
+	}
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
+	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
+	 * 
+	 * @throws XMLTranslationException
+	 */
+	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue)
+	throws XMLTranslationException
+	{
+		if  (leafNodeValue != null)
+		{
+			// silently ignore null leaf node values
+		}
 		if (scalarType != null)
 		{
-			String textNodeValue			= getLeafNodeValue(childLeafNode);
-			
-			Object typeConvertedValue		= scalarType.getInstance(textNodeValue);
+			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue);
 			try
 			{
 				//TODO -- should we be doing this check for null here??
@@ -835,7 +850,7 @@ implements OptimizationTypes
 		}
 		else
 		{
-			reportFieldTypeError(childLeafNode);
+			reportFieldTypeError(leafNodeValue);
 		}
 	}
 
@@ -863,11 +878,9 @@ implements OptimizationTypes
 //	}
 
 	
-	private void reportFieldTypeError(Node childLeafNode)
+	private void reportFieldTypeError(String textNodeValue)
 	{
-		Node textChild	= childLeafNode.getFirstChild();
-		Object desiredValue	= (textChild == null) ? childLeafNode : textChild.getNodeValue();
-		error("Can't set to " + desiredValue + " because fieldType is unknown.");
+		error("Can't set to " + textNodeValue + " because fieldType is unknown.");
 	}
 			
 	private void fillValues(NodeToJavaOptimizations other)
