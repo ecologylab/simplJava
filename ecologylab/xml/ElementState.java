@@ -1431,7 +1431,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							this.elementByIdMap.put(value, this);
 						break;
 					case XMLNS_ATTRIBUTE:
-						njo.processXMLNS(this, value);
+						njo.registerXMLNS(this, value);
 						break;
 					default:
 						break;	
@@ -1486,6 +1486,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				case COLLECTION_ELEMENT:
 					activeNJO.domFormElementAndAddToCollection(activeES, childNode);
 					break;
+				case NAME_SPACE_NESTED_ELEMENT:
+					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
+					ElementState nsContext			= getNestedNameSpace(activeNJO.nameSpaceID());
+					activeNJO.domFormNestedElementAndSetField(nsContext, childNode);
+					break;
 				case COLLECTION_SCALAR:
 					activeNJO.addLeafNodeToCollection(activeES, childNode);
 					break;
@@ -1497,9 +1502,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					break;
 				case OTHER_NESTED_ELEMENT:
 					activeES.addNestedElement(activeNJO, childNode);
-					break;
-				case NAME_SPACE_NESTED_ELEMENT:
-					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
 					break;
 				case IGNORED_ELEMENT:
 				case BAD_FIELD:
@@ -1609,7 +1611,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						this.elementByIdMap.put(value, this);
 					break;
 				case XMLNS_ATTRIBUTE:
-					njo.processXMLNS(this, value);
+					njo.registerXMLNS(this, value);
 					break;
 				default:
 					break;	
@@ -2364,7 +2366,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
      * @param esClass
      * @return		Namespace ElementState object associated with urn.
      */
-    ElementState getNestedNameSpace(String id)
+    public ElementState getNestedNameSpace(String id)
     {
     	ElementState result	= (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
     	if (result == null)
@@ -2375,6 +2377,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	    		try
 				{
 					result			= XMLTools.getInstance(esClass);
+					result.parent	= this;
 		    		nestNameSpace(id, result);
 		    		debug("WOW! Created nested Namespace xmlns:"+id+'\n');
 				} catch (XMLTranslationException e)

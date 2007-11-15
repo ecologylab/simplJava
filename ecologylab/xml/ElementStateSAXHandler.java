@@ -312,6 +312,7 @@ implements ContentHandler, OptimizationTypes
 				currentOptimizations().nodeToJavaOptimizations(translationSpace, currentElementState, tagName, false);
 		}
 		this.currentN2JO						= activeN2JO;
+		registerXMLNS();
 		//TODO? -- do we need to avoid this if null from an exception in translating root?
 		pushN2JO(activeN2JO);
 //		printStack("After push");
@@ -329,6 +330,11 @@ implements ContentHandler, OptimizationTypes
 			case REGULAR_NESTED_ELEMENT:
 				childES							= activeN2JO.constructChildElementState(currentElementState);
 				activeN2JO.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
+				break;
+			case NAME_SPACE_NESTED_ELEMENT:
+				ElementState nsContext			= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
+				childES							= activeN2JO.constructChildElementState(nsContext);
+				activeN2JO.setFieldToNestedObject(nsContext, childES);
 				break;
 			case LEAF_NODE_VALUE:
 				// wait for characters to set scalar field
@@ -443,7 +449,10 @@ implements ContentHandler, OptimizationTypes
 			((Map) parentES).put(key, currentES);
 		case REGULAR_NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
-			parentES.createChildHook(currentES);
+			if (parentES != null)
+				parentES.createChildHook(currentES);
+			else
+				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
 			this.currentElementState	= parentES;	// restore context!
 			break;
@@ -595,13 +604,42 @@ implements ContentHandler, OptimizationTypes
 	 *
 	 * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
 	 */
-	public void startPrefixMapping(String prefix, String uri)
+	public void startPrefixMapping(String prefix, String urn)
 			throws SAXException
 	{
-		// TODO Auto-generated method stub
-
+		debug("Hi: startPrefixMapping(" + prefix +" := " + urn);
+		this.nameSpacePrefix	= prefix;
+		this.nameSpaceURN		= urn;
+		
+	}
+	
+	String	nameSpacePrefix;
+	
+	String	nameSpaceURN; //FIXME -- this should be a stack!
+	
+	void registerXMLNS()
+	{
+		String urn = nameSpaceURN;
+		if (urn != null)
+		{
+			registerXMLNS(this.currentElementState, nameSpacePrefix, urn);
+			nameSpaceURN	= null;
+			nameSpacePrefix	= null;
+		}
 	}
 
+	
+	/**
+	 * Create a name space object, nested in the context, using info saved in this.
+	 * 
+	 * @param context
+	 * @param urn		The value of the xmlns:id attribute is the URL that is mapped to the class.
+	 */
+	private void registerXMLNS(ElementState context, String prefix, String urn)
+	{
+		Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
+		context.optimizations.mapNamespaceIdToClass(translationSpace, prefix, nsClass);
+	}
 	/**
 	 * @param args
 	 */

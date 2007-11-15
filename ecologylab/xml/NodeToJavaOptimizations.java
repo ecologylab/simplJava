@@ -170,8 +170,9 @@ implements OptimizationTypes
 		// element, not attribute
 		if (colonIndex > 0)
 		{	// there is an XML namespace specified in the XML!
-			nameSpaceID		= tag.substring(0, colonIndex);
+			this.nameSpaceID		= tag.substring(0, colonIndex);
 			String subTag			= tag.substring(colonIndex+1);
+
 			/*
 			// the new way
 			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
@@ -182,7 +183,7 @@ implements OptimizationTypes
 			}
 			// ok so there's a context for this. now we need a field
 			Optimizations nsOpti			= nsContext.optimizations;
-			NodeToJavaOptimizations nsN2jo	= nsOpti.elementNodeToJavaOptimizations(translationSpace, context, subTag);
+			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, context, subTag, false);
 			final int nsN2joType 			= nsN2jo.type();
 			if (nsN2joType != IGNORED_ELEMENT)
 			{
@@ -197,7 +198,9 @@ implements OptimizationTypes
 			}
 			else
 				this.type			= NAMESPACE_IGNORED_ELEMENT;
+
 			*/
+			
 			// the old way
 			translationSpace	= TranslationSpace.get(nameSpaceID);
 			// is there a field called nameSpaceID?
@@ -376,7 +379,7 @@ implements OptimizationTypes
 	 * @param context
 	 * @param urn		The value of the xmlns:id attribute is the URL that is mapped to the class.
 	 */
-	void processXMLNS(ElementState context, String urn)
+	void registerXMLNS(ElementState context, String urn)
 	{
 		Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
 		optimizations.mapNamespaceIdToClass(translationSpace, tag, nsClass);
@@ -1008,6 +1011,15 @@ implements OptimizationTypes
 		
 		ROOT_ELEMENT_OPTIMIZATIONS			= new NodeToJavaOptimizations();
 		ROOT_ELEMENT_OPTIMIZATIONS.type		= ROOT;
+	}
+	/**
+	 * Used for fields that are within a nested Namespace object.
+	 * 
+	 * @return the nameSpaceID
+	 */
+	String nameSpaceID()
+	{
+		return nameSpaceID;
 	}
 
 }
