@@ -3,6 +3,8 @@
  */
 package ecologylab.xml.types.scalar;
 
+import java.io.IOException;
+
 import ecologylab.xml.XMLTools;
 
 /**
@@ -36,18 +38,46 @@ public class StringType extends ReferenceType<String>
 	}
 
 	/**
+	 * Get a String representation of the instance, which is simply this.
+	 * 
+	 * @param instance
+	 * @return
+	 */
+		public String marshall(String instance)
+		{
+			return instance;
+		}
+	    
+	/**
 	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
 	 * 
 	 * @param instance
 	 * @param buffy
 	 * @param needsEscaping
 	 */
-	@Override 
-	protected void appendValue(String instance, StringBuilder buffy, boolean needsEscaping)
+	@Override
+	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping)
     {
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instance);
 		else
 			buffy.append(instance);
+    }
+	/**
+	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
+	 * 
+	 * @param instance
+	 * @param appendable
+	 * @param needsEscaping
+	 * @throws IOException 
+	 */
+	@Override
+	public void appendValue(String instance, Appendable appendable, boolean needsEscaping) 
+	throws IOException
+    {
+		if (needsEscaping)
+			XMLTools.escapeXML(appendable, instance);
+		else
+			appendable.append(instance);
     }
 }
