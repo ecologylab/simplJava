@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public class HashMapArrayList<K, V> extends HashMap<K, V>
 {
-	private	final	ArrayList<V>	arrayList;
+	protected	final	ArrayList<V>	arrayList;
 	
 	/**
 	 * 
