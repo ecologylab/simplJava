@@ -392,7 +392,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				{
 					try
 					{
-						childF2Xo.appendCollectionLeaf(buffy, this);
+						childF2Xo.appendLeaf(buffy, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -596,7 +596,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
-					}				}
+					}				
+				}
 				else
 				{
 					Object thatReferenceObject	= null;
