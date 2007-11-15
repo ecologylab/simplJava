@@ -263,7 +263,7 @@ public final class TranslationSpace extends Debug
    {
 	   if (otherTranslations != null)
 	   {
-		   for (TranslationEntry translationEntry: entriesByClassSimpleName.values())
+		   for (TranslationEntry translationEntry: otherTranslations.entriesByClassSimpleName.values())
 		   {
 			   TranslationEntry existingEntry	= entriesByClassSimpleName.get(translationEntry.classSimpleName);
 
