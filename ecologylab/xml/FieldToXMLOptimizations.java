@@ -196,7 +196,7 @@ implements OptimizationTypes
 				if (typeArg0 instanceof Class)
 				{	// generic variable is assigned in declaration -- not a field in an ArrayListState or some such
 					Class	collectionElementsType	= (Class) typeArg0;
-					println("FieldToXMLOptimizations: !!!collection elements are of type: " + collectionElementsType.getName());
+//					println("FieldToXMLOptimizations: !!!collection elements are of type: " + collectionElementsType.getName());
 					// is collectionElementsType a scalar or a nested element
 					ElementState.xml_collection collectionAnnotation		= field.getAnnotation(ElementState.xml_collection.class);
 					String	childTagName			= collectionAnnotation.value();
@@ -453,7 +453,8 @@ implements OptimizationTypes
     static final String END_CDATA	= "]]>";
     
     /**
-     * Use this and the context to append a leaf node with value to the StringBuilder passed in.
+     * Use this and the context to append a leaf node with value to the StringBuilder passed in,
+     * unless it turns out that the value is the default.
      * 
      * @param buffy
      * @param context
@@ -486,6 +487,61 @@ implements OptimizationTypes
         }
     }
 
+    /**
+     * Use this and the context to append a leaf node with value to the StringBuilder passed in.
+     * Consideration of default values is not evaluated.
+     * 
+     * @param buffy
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    void appendCollectionLeaf(StringBuilder buffy, Object instance) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (instance != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	
+        	buffy.append(openTag);
+        	if (isCDATA)
+        		buffy.append(START_CDATA);
+        	scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
+        	if (isCDATA)
+        		buffy.append(END_CDATA);
+
+        	buffy.append(this.closeTag);
+        }
+    }
+
+    /**
+     * Use this and the context to append a leaf node with value to the Appendable passed in.
+     * Consideration of default values is not evaluated.
+     * 
+     * @param appendable
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws IOException 
+     */
+    void appendCollectionLeaf(Appendable appendable, Object instance) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        if (instance != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	
+        	appendable.append(openTag);
+        	if (isCDATA)
+        		appendable.append(START_CDATA);
+        	scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
+        	if (isCDATA)
+        		appendable.append(END_CDATA);
+
+        	appendable.append(this.closeTag);
+        }
+    }
+   
     /**
      * Use this and the context to append a leaf node with value to the Appendable passed in.
      * 
