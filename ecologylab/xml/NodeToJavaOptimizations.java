@@ -987,10 +987,14 @@ implements OptimizationTypes
 		optimizations	= null;
 	}
 	static final NodeToJavaOptimizations IGNORED_ELEMENT_OPTIMIZATIONS;
+	static final NodeToJavaOptimizations ROOT_ELEMENT_OPTIMIZATIONS;
 	static
 	{
-		IGNORED_ELEMENT_OPTIMIZATIONS	= new NodeToJavaOptimizations();
+		IGNORED_ELEMENT_OPTIMIZATIONS		= new NodeToJavaOptimizations();
 		IGNORED_ELEMENT_OPTIMIZATIONS.type	= IGNORED_ELEMENT;
+		
+		ROOT_ELEMENT_OPTIMIZATIONS			= new NodeToJavaOptimizations();
+		ROOT_ELEMENT_OPTIMIZATIONS.type		= ROOT;
 	}
 
 }

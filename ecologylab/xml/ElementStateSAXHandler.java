@@ -271,7 +271,10 @@ implements ContentHandler, OptimizationTypes
 	{
 		if (xmlTranslationException != null)
 			return;
-		if (root == null)
+
+		NodeToJavaOptimizations activeN2JO		= null;
+		final boolean isRoot 					= (root == null);
+		if (isRoot)
 		{	// form the root ElementState!
 			Class<ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
 			if (rootClass != null)
@@ -285,6 +288,7 @@ implements ContentHandler, OptimizationTypes
 						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationSpace, attributes);
+						activeN2JO				= NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS;
 					}
 				} catch (XMLTranslationException e)
 				{
@@ -299,17 +303,22 @@ implements ContentHandler, OptimizationTypes
 				println(message);
 				xmlTranslationException		= new XMLTranslationException(message);
 			}
-			
-			return;
 		}
-		
-		NodeToJavaOptimizations activeN2JO	= (currentN2JO != null) && (currentN2JO.type() == IGNORED_ELEMENT) ?
-			// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
-			NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
-			currentOptimizations().elementNodeToJavaOptimizations(translationSpace, currentElementState, tagName);
+		else
+		{
+			activeN2JO	= (currentN2JO != null) && (currentN2JO.type() == IGNORED_ELEMENT) ?
+				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
+				NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
+				currentOptimizations().elementNodeToJavaOptimizations(translationSpace, currentElementState, tagName);
+		}
 		this.currentN2JO						= activeN2JO;
+		//TODO? -- do we need to avoid this if null from an exception in translating root?
 		pushN2JO(activeN2JO);
 //		printStack("After push");
+		
+		if (isRoot)
+			return;
+		
 		
 		ElementState currentElementState	= this.currentElementState;
 		ElementState childES				= null;
@@ -343,7 +352,6 @@ implements ContentHandler, OptimizationTypes
 				if (map != null)
 				{
 					childES						= activeN2JO.constructChildElementState(currentElementState);
-					map.put(((Mappable) childES).key(), childES);
 				}
 				break;
 			case OTHER_NESTED_ELEMENT:
@@ -401,6 +409,7 @@ implements ContentHandler, OptimizationTypes
 			return;
 		
 		int length = currentLeafValue.length();
+		ElementState currentES		= this.currentElementState;
 		if (length > 0)
 		{
 			switch (currentN2JO.type())
@@ -409,19 +418,24 @@ implements ContentHandler, OptimizationTypes
 				//TODO -- unmarshall to set field with scalar type
 				// copy from the StringBuilder
 				String value	= new String(currentLeafValue.substring(0, length));
-				currentN2JO.setFieldToScalar(currentElementState, value);
+				currentN2JO.setFieldToScalar(currentES, value);
 				break;
 			default:
 				break;
 			}
 			currentLeafValue.setLength(0);
 		}
+		final ElementState parentES		= currentES.parent;
 		switch (this.currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
 		{
+		case MAP_ELEMENT:
+			final Object key = ((Mappable) currentES).key();
+			((Map) parentES).put(key, currentES);
 		case REGULAR_NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
-		case MAP_ELEMENT:
-			this.currentElementState	= currentElementState.parent;	// restore context!
+			parentES.createChildHook(currentES);
+			currentES.postTranslationProcessingHook();
+			this.currentElementState	= parentES;	// restore context!
 			break;
 		default:
 			break;
