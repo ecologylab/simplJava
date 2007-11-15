@@ -309,7 +309,7 @@ implements ContentHandler, OptimizationTypes
 			activeN2JO	= (currentN2JO != null) && (currentN2JO.type() == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
 				NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
-				currentOptimizations().elementNodeToJavaOptimizations(translationSpace, currentElementState, tagName);
+				currentOptimizations().nodeToJavaOptimizations(translationSpace, currentElementState, tagName, false);
 		}
 		this.currentN2JO						= activeN2JO;
 		//TODO? -- do we need to avoid this if null from an exception in translating root?
@@ -410,20 +410,30 @@ implements ContentHandler, OptimizationTypes
 		
 		int length = currentLeafValue.length();
 		ElementState currentES		= this.currentElementState;
-		if (length > 0)
+		try
 		{
-			switch (currentN2JO.type())
+			if (length > 0)
 			{
-			case LEAF_NODE_VALUE:
-				//TODO -- unmarshall to set field with scalar type
-				// copy from the StringBuilder
-				String value	= new String(currentLeafValue.substring(0, length));
-				currentN2JO.setFieldToScalar(currentES, value);
-				break;
-			default:
-				break;
+				switch (currentN2JO.type())
+				{
+				case LEAF_NODE_VALUE:
+					//TODO -- unmarshall to set field with scalar type
+					// copy from the StringBuilder
+					String value	= new String(currentLeafValue.substring(0, length));
+					currentN2JO.setFieldToScalar(currentES, value);
+					break;
+				case COLLECTION_SCALAR:
+					value			= new String(currentLeafValue.substring(0, length));
+					currentN2JO.addLeafNodeToCollection(currentES, value);
+					break;
+				default:
+					break;
+				}
+				currentLeafValue.setLength(0);
 			}
-			currentLeafValue.setLength(0);
+		} catch (XMLTranslationException e)
+		{
+			this.xmlTranslationException	= e;
 		}
 		final ElementState parentES		= currentES.parent;
 		switch (this.currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
@@ -471,15 +481,16 @@ implements ContentHandler, OptimizationTypes
 			switch (currentN2JO.type())
 			{
 			case LEAF_NODE_VALUE:
+			case COLLECTION_SCALAR:
 				String leafValue = new String(chars, startIndex, length);
 				//debug(currentElementState + " - hi LEAF_NODE_VALUE characters(): " + leafValue);
 				currentLeafValue.append(chars, startIndex, length);
 				//TODO -- unmarshall to set field with scalar type
 				break;
-			case COLLECTION_SCALAR:
-				//TODO -- unmarshall to get scalar reference type value
-				//TODO -- add value to collection
-				break;
+//			case COLLECTION_SCALAR:
+//				//TODO -- unmarshall to get scalar reference type value
+//				//TODO -- add value to collection
+//				break;
 			case MAP_SCALAR:
 				//TODO -- unmarshall to get scalar reference type value
 				//TODO -- put value in map
