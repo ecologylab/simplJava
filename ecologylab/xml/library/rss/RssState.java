@@ -69,6 +69,15 @@ public class RssState extends ElementState
 			"      <category>South Asia</category>  \r\n" + 
 			"      <media:thumbnail width=\"66\" height=\"49\" url=\"http://newsimg.bbc.co.uk/media/images/44240000/jpg/_44240298_mush66.jpg\"/> \r\n" + 
 			"    </item>  \r\n" + 
+			"    <item> \r\n" + 
+			"      <title>Canadian stun gun death on video</title>  \r\n" + 
+			"      <description>A video is released of a Polish immigrant\'s death after he was stun gunned by police at Vancouver airport.</description>  \r\n" + 
+			"      <link>http://news.bbc.co.uk/go/rss/-/2/hi/americas/7095875.stm</link>  \r\n" + 
+			"      <guid isPermaLink=\"false\">http://news.bbc.co.uk/2/hi/americas/7095875.stm</guid>  \r\n" + 
+			"      <pubDate>Thu, 15 Nov 2007 11:18:54 GMT</pubDate>  \r\n" + 
+			"      <category>Americas</category>  \r\n" + 
+			"      <media:thumbnail width=\"66\" height=\"49\" url=\"http://newsimg.bbc.co.uk/media/images/44240000/jpg/_44240669_taserpolice66.jpg\"/> \r\n" + 
+			"    </item>  \r\n" + 
 			"  </channel>\r\n" + 
 			"</rss>";
 	
