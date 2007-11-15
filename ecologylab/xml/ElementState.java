@@ -392,7 +392,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				{
 					try
 					{
-						childF2Xo.appendLeaf(buffy, this);
+						childF2Xo.appendCollectionLeaf(buffy, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -452,7 +452,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2Xo.appendLeaf(buffy, this);
+									childF2Xo.appendCollectionLeaf(buffy, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -652,7 +652,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2Xo.appendLeaf(appendable, this);
+									childF2Xo.appendCollectionLeaf(appendable, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -1376,7 +1376,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	void setupRoot()
 	{
 		elementByIdMap		= new HashMap<String, ElementState>();
-		optimizations		= Optimizations.lookupRootOptimizations(this, null);		
+		optimizations		= Optimizations.lookupRootOptimizations(this, null);	
 	}
 /**
      * A recursive method.
@@ -1420,7 +1420,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				if (value != null)
 				{
 					NodeToJavaOptimizations njo	=
-						optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag);
+						optimizations.nodeToJavaOptimizations(translationSpace, this, tag, true);
 					switch (njo.type())
 					{
 					case REGULAR_ATTRIBUTE:
@@ -1597,7 +1597,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 			if (value != null)
 			{
 				NodeToJavaOptimizations njo	= 
-					optimizations.attributeNodeToJavaOptimizations(translationSpace, this, tag);
+					optimizations.nodeToJavaOptimizations(translationSpace, this, tag, true);
 				switch (njo.type())
 				{
 				case REGULAR_ATTRIBUTE:
