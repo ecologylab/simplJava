@@ -263,16 +263,17 @@ public final class TranslationSpace extends Debug
    {
 	   if (otherTranslations != null)
 	   {
-		   Iterator<TranslationEntry> translationEntriesIterator = otherTranslations.entriesByClassIterator();
-		   while (translationEntriesIterator.hasNext())
+		   for (TranslationEntry translationEntry: entriesByClassSimpleName.values())
 		   {
-			   TranslationEntry translationEntry = translationEntriesIterator.next();
+			   TranslationEntry existingEntry	= entriesByClassSimpleName.get(translationEntry.classSimpleName);
 
-               if (entriesByClassSimpleName.containsKey(translationEntry.classSimpleName))	// look out for redundant entries
+               final boolean entryExists		= existingEntry != null;
+               final boolean newEntry			= existingEntry != translationEntry;
+               if (entryExists && newEntry)	// look out for redundant entries
 				   warning("Overriding with " + translationEntry);
-			   //debug("adding inherited translation: " + "<"+translationEntry.tag + "/>\t" + translationEntry.className);
-			   //addTranslation(nameEntry.classObj);
-			   addTranslation(translationEntry);
+
+               if (!entryExists || newEntry)
+            	   addTranslation(translationEntry);
 		   }
 	   }
    }
