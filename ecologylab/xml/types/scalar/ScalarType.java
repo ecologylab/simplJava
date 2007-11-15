@@ -25,7 +25,7 @@ import ecologylab.xml.*;
  * 
  * @author andruid
  */
-public class ScalarType<T> extends Debug
+public abstract class ScalarType<T> extends Debug
 {
     Class<T>			thatClass;
     
@@ -57,10 +57,7 @@ public class ScalarType<T> extends Debug
      * @param value
      *            String representation of the instance.
      */
-    public T getInstance(String value)
-    {
-        return null;
-    }
+    abstract public T getInstance(String value);
 
     /**
      * Set the field represented to the value of
@@ -217,7 +214,6 @@ public class ScalarType<T> extends Debug
 	{
 		return instance.toString();
 	}
-
     
     /**
      * Get the value from the Field, in the context.
@@ -240,12 +236,12 @@ public class ScalarType<T> extends Debug
         appendValue((T) instance, buffy, needsEscaping);
     }
     
-    protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
+    public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
     {
     	buffy.append(marshall(instance));
     }
 
-    protected void appendValue(T instance, Appendable appendable, boolean needsEscaping)
+    public void appendValue(T instance, Appendable appendable, boolean needsEscaping)
     throws IOException
     {
     	appendable.append(marshall(instance));

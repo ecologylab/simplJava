@@ -30,7 +30,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	 * @param needsEscaping
 	 */
 	@Override 
-	protected void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
+	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
     {
 		String instanceString	= instance.toString();
 		if (needsEscaping)
@@ -38,7 +38,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 		else
 			buffy.append(instanceString);
     }
-    protected void appendValue(T instance, Appendable buffy, boolean needsEscaping)
+    public void appendValue(T instance, Appendable buffy, boolean needsEscaping)
     throws IOException
     {
 		String instanceString	= instance.toString();
