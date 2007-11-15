@@ -568,7 +568,8 @@ public final class TranslationSpace extends Debug
 	  public TranslationEntry(String packageName, String classSimpleName, 
 					   		  String tag, Class<?> thisClass)
 	  {
-	  	 this(packageName, classSimpleName, packageName + "." + classSimpleName, tag, thisClass);
+	  	 this(packageName, classSimpleName, (packageName == null) ? null : packageName + "." + classSimpleName, 
+	  		  tag, thisClass);
 	  }
 	  
 	  public TranslationEntry(String packageName, String classSimpleName, String classWholeName,
@@ -585,42 +586,45 @@ public final class TranslationSpace extends Debug
 		 this.classWholeName	= classWholeName;
 //		 this.className			= wholeClassName;
 		 this.tag				= tag;
-		 String dottedPackageName		= packageName + ".";
-		 this.dottedPackageName	= dottedPackageName;
-		 this.tagWithPackage	= dottedPackageName + tag;
-		 if (thisClass == null)
+		 if (packageName != null)
+		 {
+			 String dottedPackageName	= packageName + ".";
+			 this.dottedPackageName	= dottedPackageName;
+			 this.tagWithPackage	= dottedPackageName + tag;
+		 }
+		 else
+		 {
+			 this.dottedPackageName	= null;
+			 this.tagWithPackage	= null;
+			 
+		 }
+		 if ((thisClass == null) && (classWholeName != null))
 		 {
 			 try
 			 {  
-				thisClass			= Class.forName(classWholeName);
+				thisClass		= Class.forName(classWholeName);
 			 } catch (ClassNotFoundException e)
 			 {
 				// maybe we need to use State
 				try
 				{
-				   //debug("trying " + wholeClassName+"State");
-				   thisClass			= Class.forName(classWholeName+"State");
+				   thisClass	= Class.forName(classWholeName+"State");
 				} catch (ClassNotFoundException e2)
 				{
-				   debug("WARNING: can't find class object, create empty entry.");
-				   //Thread.dumpStack();
-	
-	//			   this.classObj			= classObj;
-				   this.empty				= true;
-	//			   return;
 				}
 			 }
 		 }
-		 this.thisClass			= thisClass;
+		 if (thisClass == null)
+		 {
+			   debug("WARNING: can't find class object, create empty entry.");
 
+			   this.empty		= true;
+		 }
+
+		 this.thisClass			= thisClass;
 		 registerTranslation(tag, classSimpleName);
-//		 else
-//			debug("create entry");
 	  }
-//	  public TranslationEntry(String tagName)
-//	  {
-//		  empty	= true;
-//	  }
+
 	/**
 	 * @param tag
 	 * @param classSimpleName
