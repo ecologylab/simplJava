@@ -441,12 +441,14 @@ implements ContentHandler, OptimizationTypes
 		{
 			this.xmlTranslationException	= e;
 		}
-		final ElementState parentES		= currentES.parent;
-		switch (this.currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
+		final ElementState parentES					= currentES.parent;
+		final NodeToJavaOptimizations currentN2JO	= this.currentN2JO;
+		switch (currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			final Object key = ((Mappable) currentES).key();
-			((Map) parentES).put(key, currentES);
+			final Object key 				= ((Mappable) currentES).key();
+			Map map							= currentN2JO.getMap(parentES);
+			map.put(key, currentES);
 		case REGULAR_NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
 			if (parentES != null)
@@ -454,7 +456,7 @@ implements ContentHandler, OptimizationTypes
 			else
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
-			this.currentElementState	= parentES;	// restore context!
+			this.currentElementState		= parentES;	// restore context!
 			break;
 		default:
 			break;
