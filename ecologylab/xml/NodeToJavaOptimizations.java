@@ -990,12 +990,6 @@ implements OptimizationTypes
 		return scalarType;
 	}
 	
-	private NodeToJavaOptimizations()
-	{
-		tag				= "UNASSIGNED";
-		this.type		= IGNORED_ELEMENT;
-		optimizations	= null;
-	}
 	NodeToJavaOptimizations(String tag)
 	{
 		this.tag		= tag;
@@ -1006,10 +1000,10 @@ implements OptimizationTypes
 	static final NodeToJavaOptimizations ROOT_ELEMENT_OPTIMIZATIONS;
 	static
 	{
-		IGNORED_ELEMENT_OPTIMIZATIONS		= new NodeToJavaOptimizations();
+		IGNORED_ELEMENT_OPTIMIZATIONS		= new NodeToJavaOptimizations("IGNORED");
 		IGNORED_ELEMENT_OPTIMIZATIONS.type	= IGNORED_ELEMENT;
 		
-		ROOT_ELEMENT_OPTIMIZATIONS			= new NodeToJavaOptimizations();
+		ROOT_ELEMENT_OPTIMIZATIONS			= new NodeToJavaOptimizations("ROOT");
 		ROOT_ELEMENT_OPTIMIZATIONS.type		= ROOT;
 	}
 	/**
