@@ -257,13 +257,13 @@ public final class TranslationSpace extends Debug
     * 
     * Unlike in union(), if there are duplicates, they will override identical entries in this.
     * 
-    * @param otherTranslations
+    * @param inheritedTranslations
     */
-   private void addTranslations(TranslationSpace otherTranslations)
+   private void addTranslations(TranslationSpace inheritedTranslations)
    {
-	   if (otherTranslations != null)
+	   if (inheritedTranslations != null)
 	   {
-		   for (TranslationEntry translationEntry: otherTranslations.entriesByClassSimpleName.values())
+		   for (TranslationEntry translationEntry: inheritedTranslations.entriesByClassSimpleName.values())
 		   {
 			   TranslationEntry existingEntry	= entriesByClassSimpleName.get(translationEntry.classSimpleName);
 
@@ -794,7 +794,20 @@ public final class TranslationSpace extends Debug
 	   }
 	   return result;	   
    }
-  
+ 
+   /**
+    * Find an existing TranslationSpace by this name, or create a new one.
+    * Add just a single new class.
+    * 
+    * @param name
+    * @param translation
+    * @return
+    */
+   public static TranslationSpace get(String name, Class translation)
+   {
+	   return get(name, translation, null);
+   }
+
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on the previous TranslationSpace, by including all mappings from there.
