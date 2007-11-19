@@ -129,7 +129,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 							}
 							catch (IllegalArgumentException e1)
 							{
-								debug("illegal argument for interestOps: "+changeReq.ops);
+								debug("illegal argument for interestOps: " + changeReq.ops);
 							}
 							break;
 						case SocketModeChangeRequest.INVALIDATE_PERMANENTLY:
@@ -141,7 +141,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 						}
 					}
 				}
-				
+
 				this.pendingSelectionOpChanges.clear();
 			}
 
@@ -172,8 +172,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 						else if (key.isReadable())
 						{
 							/*
-							 * incoming readable, valid key; have to double-check validity here, because accept key may have rejected
-							 * an incoming connection
+							 * incoming readable, valid key; have to double-check validity here, because accept key may have
+							 * rejected an incoming connection
 							 */
 							if (key.channel().isOpen() && key.isValid())
 							{
@@ -381,7 +381,10 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 			thread = new Thread(this, networkingIdentifier + " running on port " + portNumber);
 		}
 
-		thread.start();
+		synchronized (thread)
+		{
+			thread.start();
+		}
 	}
 
 	public synchronized void stop()
@@ -389,6 +392,14 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		running = false;
 
 		this.close();
+
+		if (thread != null)
+		{
+			synchronized (thread)
+			{ // we cannot re-use the Thread object.
+				thread = null;
+			}
+		}
 	}
 
 	protected void close()

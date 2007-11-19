@@ -198,17 +198,6 @@ public abstract class NIONetworking extends NIOCore
 			readBuffer.flip();
 			readBuffer.get(bytes);
 
-			// TODO
-			try
-			{
-				debug("Read bytes: ");
-				debug(DECODER.decode(ByteBuffer.wrap(bytes)));
-			}
-			catch (CharacterCodingException e)
-			{
-				e.printStackTrace();
-			}
-			
 			this.processReadData(key.attachment(), sc, bytes, bytesRead);
 		}
 	}
@@ -221,7 +210,6 @@ public abstract class NIONetworking extends NIOCore
 	 */
 	protected void writeKey(SelectionKey key) throws IOException
 	{
-		// debug("writing.");
 		SocketChannel sc = (SocketChannel) key.channel();
 
 		synchronized (this.pendingWrites)
@@ -232,23 +220,11 @@ public abstract class NIONetworking extends NIOCore
 			{ // write everything
 				ByteBuffer bytes = writes.poll();
 
-			// TODO
-				try
-				{
-					debug("Writing bytes: ");
-					debug(DECODER.decode(bytes.duplicate()));
-				}
-				catch (CharacterCodingException e)
-				{
-					e.printStackTrace();
-				}
-				
 				bytes.flip();
 				sc.write(bytes);
 
 				if (bytes.remaining() > 0)
-				{ // the socket's buffer filled
-					// up! OH NOES!
+				{ // the socket's buffer filled up!
 					break;
 				}
 			}

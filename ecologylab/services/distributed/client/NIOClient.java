@@ -59,7 +59,7 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class NIOClient extends NIONetworking implements Runnable, ClientConstants
 {
-   protected String									serverAddress;
+	protected String									serverAddress;
 
 	protected final CharBuffer						outgoingChars						= CharBuffer
 																											.allocate(MAX_PACKET_SIZE_CHARACTERS);
@@ -147,109 +147,108 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * invocations).
 	 */
 	private final StringBuilder					firstMessageBuffer				= new StringBuilder();
-    
 
 	/** Stores the key-value pairings from a parsed HTTP-like header on an incoming message. */
 	protected final HashMap<String, String>	headerMap							= new HashMap<String, String>();
-	
-	protected SocketChannel thisSocket = null;
-	
-    public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace, ObjectRegistry<?> objectRegistry) throws IOException    
-    {
-        super("NIOClient", portNumber, messageSpace, objectRegistry);
-        
-        this.serverAddress = serverAddress;
-        
-        this.networkingIdentifier = "NIO Client";
-    }
 
-    /**
-		 * If this client is not already connected, connects to the specified serverAddress on the specified portNumber,
-		 * then calls start() to begin listening for server responses and processing them, then sends handshake data and
-		 * establishes the session id.
-		 * 
-		 * @see ecologylab.services.distributed.legacy.ServicesClientBase#connect()
-		 */
-    public boolean connect()
-    {
-        debug("initializing connection...");
-        if (this.connectImpl())
-        {
+	protected SocketChannel							thisSocket							= null;
 
-            debug("starting listener thread...");
-            this.start();
+	public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace,
+			ObjectRegistry<?> objectRegistry) throws IOException
+	{
+		super("NIOClient", portNumber, messageSpace, objectRegistry);
 
-            // now send first handshake message
-            ResponseMessage initResponse = this.sendMessage(new InitConnectionRequest(this.sessionId));
+		this.serverAddress = serverAddress;
 
-            if (initResponse instanceof InitConnectionResponse)
-            {
-                if (this.sessionId == null)
-                {
-                    debug("new session...");
-                    this.sessionId = ((InitConnectionResponse) initResponse).getSessionId();
-                    debug(this.sessionId);
-                }
-                else if (this.sessionId == ((InitConnectionResponse) initResponse).getSessionId())
-                {
-                    debug("reconnected and restored previous connection: " + this.sessionId);
-                }
-                else
-                {
-                    String newId = ((InitConnectionResponse) initResponse).getSessionId();
-                    debug("unable to restore previous session, " + this.sessionId + "; new session: " + newId);
-                    this.unableToRestorePreviousConnection(this.sessionId, newId);
-                    this.sessionId = newId;
-                }
-            }
-        }
+		this.networkingIdentifier = "NIO Client";
+	}
 
-        debug("connected? " + this.connected());
-        return connected();
-    }
+	/**
+	 * If this client is not already connected, connects to the specified serverAddress on the specified portNumber, then
+	 * calls start() to begin listening for server responses and processing them, then sends handshake data and
+	 * establishes the session id.
+	 * 
+	 * @see ecologylab.services.distributed.legacy.ServicesClientBase#connect()
+	 */
+	public boolean connect()
+	{
+		debug("initializing connection...");
+		if (this.connectImpl())
+		{
 
-    /**
-     * Connect to the server (if not already connected). Return connection
-     * status.
-     * 
-     * @return True if connected, false if not.
-     */
-    private boolean connectImpl()
-    {
-   	 return connected() ? true : createConnection();
-    }
-    
-    /**
-     * Sets the UID for request (if necessary), enqueues it then registers write interest for the NIOClient's selection
-     * key and calls wakeup() on the selector.
-     * 
-     * @param request
-     * @throws XMLTranslationException
-     */
-    protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XMLTranslationException
-    {
-        long uid = request.getUid();
-        
-        if (uid == 0)
-        {
-            uid = this.generateUid();
-            request.setUid(uid);
-        }
+			debug("starting listener thread...");
+			this.start();
 
-        // fill requestBuffer
-        request.translateToXML(requestBuffer);
+			// now send first handshake message
+			ResponseMessage initResponse = this.sendMessage(new InitConnectionRequest(this.sessionId));
 
-        PreppedRequest pReq = new PreppedRequest(requestBuffer, uid, request.isDisposable());
+			if (initResponse instanceof InitConnectionResponse)
+			{
+				if (this.sessionId == null)
+				{
+					debug("new session...");
+					this.sessionId = ((InitConnectionResponse) initResponse).getSessionId();
+					debug(this.sessionId);
+				}
+				else if (this.sessionId == ((InitConnectionResponse) initResponse).getSessionId())
+				{
+					debug("reconnected and restored previous connection: " + this.sessionId);
+				}
+				else
+				{
+					String newId = ((InitConnectionResponse) initResponse).getSessionId();
+					debug("unable to restore previous session, " + this.sessionId + "; new session: " + newId);
+					this.unableToRestorePreviousConnection(this.sessionId, newId);
+					this.sessionId = newId;
+				}
+			}
+		}
 
-        requestBuffer.delete(0, requestBuffer.length());
+		debug("connected? " + this.connected());
+		return connected();
+	}
 
-        enqueueRequestForSending(pReq);
+	/**
+	 * Connect to the server (if not already connected). Return connection status.
+	 * 
+	 * @return True if connected, false if not.
+	 */
+	private boolean connectImpl()
+	{
+		return connected() ? true : createConnection();
+	}
 
-        return pReq;
-    }
+	/**
+	 * Sets the UID for request (if necessary), enqueues it then registers write interest for the NIOClient's selection
+	 * key and calls wakeup() on the selector.
+	 * 
+	 * @param request
+	 * @throws XMLTranslationException
+	 */
+	protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XMLTranslationException
+	{
+		long uid = request.getUid();
 
-    protected void enqueueRequestForSending(PreppedRequest request)
-    {
+		if (uid == 0)
+		{
+			uid = this.generateUid();
+			request.setUid(uid);
+		}
+
+		// fill requestBuffer
+		request.translateToXML(requestBuffer);
+
+		PreppedRequest pReq = new PreppedRequest(requestBuffer, uid, request.isDisposable());
+
+		requestBuffer.delete(0, requestBuffer.length());
+
+		enqueueRequestForSending(pReq);
+
+		return pReq;
+	}
+
+	protected void enqueueRequestForSending(PreppedRequest request)
+	{
 
 		synchronized (requestsQueue)
 		{
@@ -261,556 +260,570 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 		selector.wakeup();
 	}
 
-    public void disconnect(boolean waitForResponses)
-    {
-        while (this.requestsRemaining() > 0 && this.connected() && waitForResponses)
-        {
-            debug("*******************Request queue not empty, finishing " + requestsRemaining()
-                    + " messages before disconnecting...");
-            synchronized (this)
-            {
-                try
-                {
-                    wait(100);
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        debug("*******************disconnecting...");
-
-        try
-        {
-            if (connected())
-            {
-                debug("*******************client is connected...");
-
-                while (waitForResponses && connected() && !this.shutdownOK())
-                {
-                    debug("*******************" + this.unfulfilledRequests.size()
-                            + " requests still pending response from server.");
-                    debug("*******************connected: " + connected());
-
-                    synchronized (this)
-                    {
-                        try
-                        {
-                            wait(100);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                debug("*******************shutting down output.");
-                // shut down output
-                thisSocket.socket().shutdownOutput();
-
-                debug("*******************closing down output.");
-                // now that there's nothing coming back, shut down input
-                thisSocket.socket().shutdownInput();
-
-                debug("*******************close down all.");
-                // close it all out
-                thisSocket.close();
-                thisSocket.keyFor(selector).cancel();
-            }
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        finally
-        {
-            debug("null out");
-            nullOut();
-
-            stop();
-        }
-    }
-
-    /**
-     * @return
-     */
-    protected boolean shutdownOK()
-    {
-        return !(this.unfulfilledRequests.size() > 0);
-    }
-
-    protected void nullOut()
-    {
-        debug("null out");
-
-        thisSocket = null;
-    }
-
-    public boolean connected()
-    {
-        return (thisSocket != null) && !thisSocket.isConnectionPending() && thisSocket.isConnected();
-    }
-
-    /**
-     * Side effect of calling start().
-     */
-    protected boolean createConnection()
-    {
-        try
-        {
-            // create the channel and connect it to the server
-            thisSocket = SocketChannel.open(new InetSocketAddress(serverAddress, portNumber));
-
-            // disable blocking
-            thisSocket.configureBlocking(false);
-
-            if (connected())
-            {
-                // register the channel for read operations, now that it is
-                // connected
-            	thisSocket.register(selector, SelectionKey.OP_READ);
-            }
-        }
-        catch (BindException e)
-        {
-            debug("Couldnt create socket connection to server '" + serverAddress + "': " + e);
-
-            nullOut();
-        }
-        catch (PortUnreachableException e)
-        {
-            debug("Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
-
-            nullOut();
-        }
-        catch (SocketException e)
-        {
-            debug("Server '" + serverAddress + "' unreachable: " + e);
-
-            nullOut();
-        }
-        catch (IOException e)
-        {
-            debug("Bad response from server: " + e);
-
-            nullOut();
-        }
-
-        return connected();
-    }
-
-    /**
-     * Hook method to allow subclasses to deal with a failed restore after disconnect. This should be a rare occurance,
-     * but some sublcasses may need to deal with this case specifically.
-     * 
-     * @param oldId -
-     *            the previous session id.
-     * @param newId -
-     *            the new session id given by the server after reconnect.
-     */
-    protected void unableToRestorePreviousConnection(String oldId, String newId)
-    {
-    }
-
-    /**
-     * Sends request, but does not wait for the response. The response gets processed later in a non-stateful way by the
-     * run method.
-     * 
-     * @param request
-     *            the request to send to the server.
-     * 
-     * @return the UID of request.
-     */
-    public PreppedRequest nonBlockingSendMessage(RequestMessage request) throws IOException
-    {
-        if (connected())
-        {
-            try
-            {
-                return this.prepareAndEnqueueRequestForSending(request);
-            }
-            catch (XMLTranslationException e)
-            {
-                error("error translating message; returning null");
-                e.printStackTrace();
-
-                return null;
-            }
-        }
-        else
-        {
-            throw new IOException("Not connected to server.");
-        }
-    }
-
-    /**
-     * Blocking send. Sends the request and waits infinitely for the response, which it returns.
-     * 
-     * @see ecologylab.services.distributed.legacy.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
-     */
-    public synchronized ResponseMessage sendMessage(RequestMessage request)
-    {
-        return this.sendMessage(request, -1);
-    }
-
-    /**
-     * Blocking send with timeout. Sends the request and waits timeOutMillis milliseconds for the response, which it
-     * returns. sendMessage(RequestMessage, int) will return null if no message was recieved in time.
-     * 
-     * @param request
-     * @param timeOutMillis
-     * @return
-     */
-    public synchronized ResponseMessage sendMessage(RequestMessage request, int timeOutMillis)
-    {
-        ResponseMessage returnValue = null;
-
-        // notify the connection thread that we are waiting on a response
-        blockingRequestPending = true;
-
-        long currentMessageUid;
-
-        boolean blockingRequestFailed = false;
-        long startTime = System.currentTimeMillis();
-        int timeCounter = 0;
-
-        try
-        {
-            currentMessageUid = this.prepareAndEnqueueRequestForSending(request).getUid();
-        }
-        catch (XMLTranslationException e1)
-        {
-            error("error translating to XML; returning null");
-            e1.printStackTrace();
-
-            return null;
-        }
-
-        if (request instanceof InitConnectionRequest)
-        {
-            debug("init request: " + ((InitConnectionRequest) request).getSessionId());
-        }
-
-        // wait to be notified that the response has arrived
-        while (blockingRequestPending && !blockingRequestFailed)
-        {
-            debug("waiting on blocking request");
-
-            try
-            {
-                if (timeOutMillis > -1)
-                {
-                    wait(timeOutMillis);
-                }
-                else
-                {
-                    wait();
-                }
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-                Thread.interrupted();
-            }
-
-            debug("waking");
-
-            timeCounter += System.currentTimeMillis() - startTime;
-            startTime = System.currentTimeMillis();
-
-            while ((blockingRequestPending) && (!blockingResponsesQueue.isEmpty()))
-            {
-                returnValue = blockingResponsesQueue.poll();
-
-                if (returnValue.getUid() == currentMessageUid)
-                {
-                    debug("got the right response");
-
-                    blockingRequestPending = false;
-
-                    blockingResponsesQueue.clear();
-
-                    return returnValue;
-                }
-                else
-                {
-                    returnValue = null;
-                }
-            }
-
-            if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis) && (blockingRequestPending))
-            {
-                blockingRequestFailed = true;
-            }
-        }
-
-        if (blockingRequestFailed)
-        {
-            debug("Request failed due to timeout!");
-        }
-
-        return returnValue;
-    }
-
-    @Override public void start()
-    {
-        if (connected())
-        {
-      	  super.start();
-        }
-    }
-
-    @Override public void stop()
-    {
-        System.err.println("shutting down client listening thread.");
-
-        super.stop();
-    }
-
-    /**
-     * Returns the next request in the request queue and removes it from that queue. Sublcasses that override the queue
-     * functionality will need to override this method.
-     * 
-     * @return the next request in the request queue.
-     */
-    protected PreppedRequest dequeueRequest()
-    {
-        return this.requestsQueue.poll();
-    }
-
-    /**
-     * Returns the number of requests remaining in the requests queue. Subclasses that override the queue functionality
-     * will need to change this method accordingly.
-     * 
-     * @return the size of the request queue.
-     */
-    protected int requestsRemaining()
-    {
-        return this.requestsQueue.size();
-    }
-
-    /**
-     * Attempts to reconnect this client if it has been disconnected. After reconnecting, re-queues all requests still
-     * in the unfulfilledRequests map.
-     * 
-     * If the attempt to reconnect fails, reconnect() will attempt a number of times equal to reconnectAttempts, waiting
-     * waitBetweenReconnectAttempts milliseconds between attempts. If all such attempts fail, calls stop() on this to
-     * shut down the client. The client will then need to be re-started manually.
-     * 
-     */
-    protected void reconnect()
-    {
-        debug("attempting to reconnect...");
-        int reconnectsRemaining = this.reconnectAttempts;
-        if (reconnectsRemaining < 0)
-        {
-            reconnectsRemaining = 1;
-        }
-
-        while (!connected() && reconnectsRemaining > 0)
-        {
-            this.nullOut();
-
-            // attempt to connect, if failed, wait
-            if (!this.connect() && --reconnectsRemaining > 0)
-            {
-                try
-                {
-                    this.wait(this.waitBetweenReconnectAttempts);
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (connected())
-        {
-            synchronized (unfulfilledRequests)
-            {
-                List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(this.unfulfilledRequests.values());
-
-                Collections.sort(rerequests);
-
-                for (PreppedRequest req : rerequests)
-                {
-                    this.enqueueRequestForSending(req);
-                }
-            }
-        }
-        else
-        {
-            this.stop();
-        }
-    }
-
-    /**
-     * Hook method to allow subclasses to deal with unfulfilled requests in their own way.
-     * 
-     * Adds req to the unfulfilled requests map.
-     * 
-     * @param req
-     */
-    protected void addUnfulfilledRequest(PreppedRequest req)
-    {
-        synchronized (unfulfilledRequests)
-        {
-            this.unfulfilledRequests.put(req.getUid(), req);
-        }
-    }
-
-    /**
-     * Stores the request in the unfulfilledRequests map according to its UID, converts it to XML, prepends the
-     * HTTP-like header, then writes it out to the channel. Then re-registers key for reading.
-     * 
-     * @param pReq
-     */
-    private void createPacketFromMessageAndSend(PreppedRequest pReq, SelectionKey incomingKey)
-    {
-        StringBuilder outgoingReq = pReq.getRequest();
-
-        this.addUnfulfilledRequest(pReq);
-
-        try
-        {
-            StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + ":" + outgoingReq.length()
-                    + HTTP_HEADER_TERMINATOR + outgoingReq);
-
-            outgoingChars.clear();
-
-            int capacity;
-
-            while (message.length() > 0)
-            {
-                outgoingChars.clear();
-                capacity = outgoingChars.capacity();
-
-                if (message.length() > capacity)
-                {
-                    outgoingChars.put(message.toString(), 0, capacity);
-                    message.delete(0, capacity);
-                }
-                else
-                {
-                    outgoingChars.put(message.toString());
-                    message.delete(0, message.length());
-                }
-
-                outgoingChars.flip();
-                
-                synchronized(ENCODER)
-                {
-                thisSocket.write(ENCODER.encode(outgoingChars));
-                }
-            }
-        }
-        catch (ClosedChannelException e)
-        {
-            debug("connection severed; disconnecting and storing requests...");
-            this.disconnect(false);
-
-            this.reconnect();
-        }
-        catch (BufferOverflowException e)
-        {
-            debug("buffer overflow.");
-            e.printStackTrace();
-            System.out.println("capacity: " + outgoingChars.capacity());
-            System.out.println("outgoing request: " + outgoingReq);
-        }
-        catch (NullPointerException e)
-        {
-            e.printStackTrace();
-            System.out.println("recovering.");
-        }
-        catch (CharacterCodingException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            debug("connection severed; disconnecting...");
-            this.disconnect(false);
-
-            this.reconnect();
-        }
-
-//        incomingKey.interestOps(incomingKey.interestOps() & (~SelectionKey.OP_WRITE));
-    }
-
-    /**
-     * Converts incomingMessage to a ResponseMessage, then processes the response and removes its UID from the
-     * unfulfilledRequests map.
-     * 
-     * @param incomingMessage
-     * @return
-     */
-    private ResponseMessage processString(String incomingMessage)
-    {
-
-   	 // TODO ZACH if (show(5))
-            debug("incoming message: " + incomingMessage);
-
-        try
-        {
-            responseMessage = translateXMLStringToResponseMessage(incomingMessage);
-        }
-        catch (XMLTranslationException e)
-        {
-            e.printStackTrace();
-        }
-
-        if (responseMessage == null)
-        {
-            debug("ERROR: translation failed: ");
-        }
-        else
-        {
-            // perform the service being requested
-            processResponse(responseMessage);
-
-            synchronized (unfulfilledRequests)
-            {
-                unfulfilledRequests.remove(responseMessage.getUid());
-            }
-        }
-
-        // debug("just translated response: "+responseMessage.getUid());
-
-        return responseMessage;
-    }
-
-    public void disconnect()
-    {
-        disconnect(true);
-    }
-
-    /**
-     * @param reconnectAttempts
-     *            the reconnectAttempts to set
-     */
-    public void setReconnectAttempts(int reconnectAttempts)
-    {
-        this.reconnectAttempts = reconnectAttempts;
-    }
-
-    /**
-     * @param waitBetweenReconnectAttempts
-     *            the waitBetweenReconnectAttempts to set
-     */
-    public void setWaitBetweenReconnectAttempts(int waitBetweenReconnectAttempts)
-    {
-        this.waitBetweenReconnectAttempts = waitBetweenReconnectAttempts;
-    }
-
-    protected void clearSessionId()
-    {
-        this.sessionId = null;
-    }
+	public void disconnect(boolean waitForResponses)
+	{
+		while (this.requestsRemaining() > 0 && this.connected() && waitForResponses)
+		{
+			debug("*******************Request queue not empty, finishing " + requestsRemaining()
+					+ " messages before disconnecting...");
+			synchronized (this)
+			{
+				try
+				{
+					wait(100);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		debug("*******************disconnecting...");
+
+		try
+		{
+			if (connected())
+			{
+				debug("*******************client is connected...");
+
+				while (waitForResponses && connected() && !this.shutdownOK())
+				{
+					debug("*******************" + this.unfulfilledRequests.size()
+							+ " requests still pending response from server.");
+					debug("*******************connected: " + connected());
+
+					synchronized (this)
+					{
+						try
+						{
+							wait(100);
+						}
+						catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
+
+				if (thisSocket != null)
+				{
+					synchronized (thisSocket)
+					{
+						debug("*******************shutting down output.");
+						// shut down output
+						thisSocket.socket().shutdownOutput();
+
+						debug("*******************closing down output.");
+						// now that there's nothing coming back, shut down input
+						thisSocket.socket().shutdownInput();
+
+						debug("*******************close down all.");
+						// close it all out
+						thisSocket.close();
+						thisSocket.keyFor(selector).cancel();
+					}
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			nullOut();
+
+			stop();
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	protected boolean shutdownOK()
+	{
+		return !(this.unfulfilledRequests.size() > 0);
+	}
+
+	protected void nullOut()
+	{
+		if (thisSocket != null)
+		{
+			synchronized (thisSocket)
+			{
+				debug("null out");
+
+				thisSocket = null;
+			}
+		}
+	}
+
+	public boolean connected()
+	{
+		return (thisSocket != null) && !thisSocket.isConnectionPending() && thisSocket.isConnected();
+	}
+
+	/**
+	 * Side effect of calling start().
+	 */
+	protected boolean createConnection()
+	{
+		try
+		{
+			// create the channel and connect it to the server
+			thisSocket = SocketChannel.open(new InetSocketAddress(serverAddress, portNumber));
+
+			// disable blocking
+			thisSocket.configureBlocking(false);
+
+			if (connected())
+			{
+				// register the channel for read operations, now that it is
+				// connected
+				thisSocket.register(selector, SelectionKey.OP_READ);
+			}
+		}
+		catch (BindException e)
+		{
+			debug("Couldnt create socket connection to server '" + serverAddress + "': " + e);
+
+			nullOut();
+		}
+		catch (PortUnreachableException e)
+		{
+			debug("Server is alive, but has no daemon on portNumber " + portNumber + ": " + e);
+
+			nullOut();
+		}
+		catch (SocketException e)
+		{
+			debug("Server '" + serverAddress + "' unreachable: " + e);
+
+			nullOut();
+		}
+		catch (IOException e)
+		{
+			debug("Bad response from server: " + e);
+
+			nullOut();
+		}
+
+		return connected();
+	}
+
+	/**
+	 * Hook method to allow subclasses to deal with a failed restore after disconnect. This should be a rare occurance,
+	 * but some sublcasses may need to deal with this case specifically.
+	 * 
+	 * @param oldId -
+	 *           the previous session id.
+	 * @param newId -
+	 *           the new session id given by the server after reconnect.
+	 */
+	protected void unableToRestorePreviousConnection(String oldId, String newId)
+	{
+	}
+
+	/**
+	 * Sends request, but does not wait for the response. The response gets processed later in a non-stateful way by the
+	 * run method.
+	 * 
+	 * @param request
+	 *           the request to send to the server.
+	 * 
+	 * @return the UID of request.
+	 */
+	public PreppedRequest nonBlockingSendMessage(RequestMessage request) throws IOException
+	{
+		if (connected())
+		{
+			try
+			{
+				return this.prepareAndEnqueueRequestForSending(request);
+			}
+			catch (XMLTranslationException e)
+			{
+				error("error translating message; returning null");
+				e.printStackTrace();
+
+				return null;
+			}
+		}
+		else
+		{
+			throw new IOException("Not connected to server.");
+		}
+	}
+
+	/**
+	 * Blocking send. Sends the request and waits infinitely for the response, which it returns.
+	 * 
+	 * @see ecologylab.services.distributed.legacy.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
+	 */
+	public synchronized ResponseMessage sendMessage(RequestMessage request)
+	{
+		return this.sendMessage(request, -1);
+	}
+
+	/**
+	 * Blocking send with timeout. Sends the request and waits timeOutMillis milliseconds for the response, which it
+	 * returns. sendMessage(RequestMessage, int) will return null if no message was recieved in time.
+	 * 
+	 * @param request
+	 * @param timeOutMillis
+	 * @return
+	 */
+	public synchronized ResponseMessage sendMessage(RequestMessage request, int timeOutMillis)
+	{
+		ResponseMessage returnValue = null;
+
+		// notify the connection thread that we are waiting on a response
+		blockingRequestPending = true;
+
+		long currentMessageUid;
+
+		boolean blockingRequestFailed = false;
+		long startTime = System.currentTimeMillis();
+		int timeCounter = 0;
+
+		try
+		{
+			currentMessageUid = this.prepareAndEnqueueRequestForSending(request).getUid();
+		}
+		catch (XMLTranslationException e1)
+		{
+			error("error translating to XML; returning null");
+			e1.printStackTrace();
+
+			return null;
+		}
+
+		if (request instanceof InitConnectionRequest)
+		{
+			debug("init request: " + ((InitConnectionRequest) request).getSessionId());
+		}
+
+		// wait to be notified that the response has arrived
+		while (blockingRequestPending && !blockingRequestFailed)
+		{
+			if (timeOutMillis <= -1)
+			{
+				debug("waiting on blocking request");
+			}
+
+			try
+			{
+				if (timeOutMillis > -1)
+				{
+					wait(timeOutMillis);
+				}
+				else
+				{
+					wait();
+				}
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+				Thread.interrupted();
+			}
+
+			debug("waking");
+
+			timeCounter += System.currentTimeMillis() - startTime;
+			startTime = System.currentTimeMillis();
+
+			while ((blockingRequestPending) && (!blockingResponsesQueue.isEmpty()))
+			{
+				returnValue = blockingResponsesQueue.poll();
+
+				if (returnValue.getUid() == currentMessageUid)
+				{
+					debug("got the right response");
+
+					blockingRequestPending = false;
+
+					blockingResponsesQueue.clear();
+
+					return returnValue;
+				}
+				else
+				{
+					returnValue = null;
+				}
+			}
+
+			if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis) && (blockingRequestPending))
+			{
+				blockingRequestFailed = true;
+			}
+		}
+
+		if (blockingRequestFailed)
+		{
+			debug("Request failed due to timeout!");
+		}
+
+		return returnValue;
+	}
+
+	@Override public void start()
+	{
+		if (connected())
+		{
+			super.start();
+		}
+	}
+
+	@Override public void stop()
+	{
+		System.err.println("shutting down client listening thread.");
+
+		super.stop();
+	}
+
+	/**
+	 * Returns the next request in the request queue and removes it from that queue. Sublcasses that override the queue
+	 * functionality will need to override this method.
+	 * 
+	 * @return the next request in the request queue.
+	 */
+	protected PreppedRequest dequeueRequest()
+	{
+		return this.requestsQueue.poll();
+	}
+
+	/**
+	 * Returns the number of requests remaining in the requests queue. Subclasses that override the queue functionality
+	 * will need to change this method accordingly.
+	 * 
+	 * @return the size of the request queue.
+	 */
+	protected int requestsRemaining()
+	{
+		return this.requestsQueue.size();
+	}
+
+	/**
+	 * Attempts to reconnect this client if it has been disconnected. After reconnecting, re-queues all requests still in
+	 * the unfulfilledRequests map.
+	 * 
+	 * If the attempt to reconnect fails, reconnect() will attempt a number of times equal to reconnectAttempts, waiting
+	 * waitBetweenReconnectAttempts milliseconds between attempts. If all such attempts fail, calls stop() on this to
+	 * shut down the client. The client will then need to be re-started manually.
+	 * 
+	 */
+	protected void reconnect()
+	{
+		debug("attempting to reconnect...");
+		int reconnectsRemaining = this.reconnectAttempts;
+		if (reconnectsRemaining < 0)
+		{
+			reconnectsRemaining = 1;
+		}
+
+		while (!connected() && reconnectsRemaining > 0)
+		{
+			this.nullOut();
+
+			// attempt to connect, if failed, wait
+			if (!this.connect() && --reconnectsRemaining > 0)
+			{
+				try
+				{
+					this.wait(this.waitBetweenReconnectAttempts);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		if (connected())
+		{
+			synchronized (unfulfilledRequests)
+			{
+				List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(this.unfulfilledRequests.values());
+
+				Collections.sort(rerequests);
+
+				for (PreppedRequest req : rerequests)
+				{
+					this.enqueueRequestForSending(req);
+				}
+			}
+		}
+		else
+		{
+			this.stop();
+		}
+	}
+
+	/**
+	 * Hook method to allow subclasses to deal with unfulfilled requests in their own way.
+	 * 
+	 * Adds req to the unfulfilled requests map.
+	 * 
+	 * @param req
+	 */
+	protected void addUnfulfilledRequest(PreppedRequest req)
+	{
+		synchronized (unfulfilledRequests)
+		{
+			this.unfulfilledRequests.put(req.getUid(), req);
+		}
+	}
+
+	/**
+	 * Stores the request in the unfulfilledRequests map according to its UID, converts it to XML, prepends the HTTP-like
+	 * header, then writes it out to the channel. Then re-registers key for reading.
+	 * 
+	 * @param pReq
+	 */
+	private void createPacketFromMessageAndSend(PreppedRequest pReq, SelectionKey incomingKey)
+	{
+		StringBuilder outgoingReq = pReq.getRequest();
+
+		this.addUnfulfilledRequest(pReq);
+
+		try
+		{
+			StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + ":" + outgoingReq.length()
+					+ HTTP_HEADER_TERMINATOR + outgoingReq);
+
+			outgoingChars.clear();
+
+			int capacity;
+
+			while (message.length() > 0)
+			{
+				outgoingChars.clear();
+				capacity = outgoingChars.capacity();
+
+				if (message.length() > capacity)
+				{
+					outgoingChars.put(message.toString(), 0, capacity);
+					message.delete(0, capacity);
+				}
+				else
+				{
+					outgoingChars.put(message.toString());
+					message.delete(0, message.length());
+				}
+
+				outgoingChars.flip();
+
+				synchronized (ENCODER)
+				{
+					thisSocket.write(ENCODER.encode(outgoingChars));
+				}
+			}
+		}
+		catch (ClosedChannelException e)
+		{
+			debug("connection severed; disconnecting and storing requests...");
+			this.disconnect(false);
+
+			this.reconnect();
+		}
+		catch (BufferOverflowException e)
+		{
+			debug("buffer overflow.");
+			e.printStackTrace();
+			System.out.println("capacity: " + outgoingChars.capacity());
+			System.out.println("outgoing request: " + outgoingReq);
+		}
+		catch (NullPointerException e)
+		{
+			e.printStackTrace();
+			System.out.println("recovering.");
+		}
+		catch (CharacterCodingException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			debug("connection severed; disconnecting...");
+			this.disconnect(false);
+
+			this.reconnect();
+		}
+
+		// incomingKey.interestOps(incomingKey.interestOps() & (~SelectionKey.OP_WRITE));
+	}
+
+	/**
+	 * Converts incomingMessage to a ResponseMessage, then processes the response and removes its UID from the
+	 * unfulfilledRequests map.
+	 * 
+	 * @param incomingMessage
+	 * @return
+	 */
+	private ResponseMessage processString(String incomingMessage)
+	{
+
+		if (show(5))
+			debug("incoming message: " + incomingMessage);
+
+		try
+		{
+			responseMessage = translateXMLStringToResponseMessage(incomingMessage);
+		}
+		catch (XMLTranslationException e)
+		{
+			e.printStackTrace();
+		}
+
+		if (responseMessage == null)
+		{
+			debug("ERROR: translation failed: ");
+		}
+		else
+		{
+			// perform the service being requested
+			processResponse(responseMessage);
+
+			synchronized (unfulfilledRequests)
+			{
+				unfulfilledRequests.remove(responseMessage.getUid());
+			}
+		}
+
+		// debug("just translated response: "+responseMessage.getUid());
+
+		return responseMessage;
+	}
+
+	public void disconnect()
+	{
+		disconnect(true);
+	}
+
+	/**
+	 * @param reconnectAttempts
+	 *           the reconnectAttempts to set
+	 */
+	public void setReconnectAttempts(int reconnectAttempts)
+	{
+		this.reconnectAttempts = reconnectAttempts;
+	}
+
+	/**
+	 * @param waitBetweenReconnectAttempts
+	 *           the waitBetweenReconnectAttempts to set
+	 */
+	public void setWaitBetweenReconnectAttempts(int waitBetweenReconnectAttempts)
+	{
+		this.waitBetweenReconnectAttempts = waitBetweenReconnectAttempts;
+	}
+
+	protected void clearSessionId()
+	{
+		this.sessionId = null;
+	}
 
 	/**
 	 * This method does nothing, as NIOClients do not accept incoming connections.
@@ -827,21 +840,24 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	@Override protected void checkAndDropIdleKeys()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	/**
 	 * @see ecologylab.services.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SelectionKey, boolean)
 	 */
 	@Override protected void invalidateKey(SelectionKey key, boolean permanent)
-	{debug("server disconnected...");
-   this.disconnect(false);
-   this.reconnect();}
+	{
+		debug("server disconnected...");
+		this.disconnect(false);
+		this.reconnect();
+	}
 
 	/**
-	 * @see ecologylab.services.distributed.impl.NIONetworking#processReadData(java.lang.Object, java.nio.channels.SocketChannel, byte[], int)
+	 * @see ecologylab.services.distributed.impl.NIONetworking#processReadData(java.lang.Object,
+	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
-	@Override protected void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead)
+	@Override protected void processReadData(Object readSessionId, SocketChannel sc, byte[] bytes, int bytesRead)
 			throws BadClientException
 	{
 		synchronized (incomingMessageBuffer)
@@ -954,19 +970,19 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 					{ /*
 						 * if we've read a complete message, then contentLengthRemaining will be reset to -1
 						 */
-                  // we got a response
-                  if (!this.blockingRequestPending)
-                  {
-                      processString(firstMessageBuffer.toString());
-                  }
-                  else
-                  {
-                      blockingResponsesQueue.add(processString(firstMessageBuffer.toString()));
-                      synchronized (this)
-                      {
-                          notify();
-                      }
-                  }
+						// we got a response
+						if (!this.blockingRequestPending)
+						{
+							processString(firstMessageBuffer.toString());
+						}
+						else
+						{
+							blockingResponsesQueue.add(processString(firstMessageBuffer.toString()));
+							synchronized (this)
+							{
+								notify();
+							}
+						}
 
 						firstMessageBuffer.setLength(0);
 					}
@@ -986,115 +1002,111 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	@Override protected void removeBadConnections(SelectionKey key)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-   /**
-    * Increments the internal tracker of the next UID, and returns the current
-    * one.
-    * 
-    * @return the current uidIndex.
-    */
-   public long generateUid()
-   {
-       // return the current value of uidIndex, then increment.
-       return uidIndex++;
-   }
-   
-   /**
-    * Use the ServicesClient and its NameSpace to do the translation. Can be
-    * overridden to provide special functionalities
-    * 
-    * @param messageString
-    * @return
-    * @throws XMLTranslationException
-    */
-   protected ResponseMessage translateXMLStringToResponseMessage(
-           String messageString) throws XMLTranslationException
-   {
-       return translateXMLStringToResponseMessage(messageString, true);
-   }
 
-   /**
-    * Translate a decoded String of characters from the server into a ResponseMessage.
-    * 
-    * @param messageString
-    * @param doRecursiveDescent
-    * @return
-    * @throws XMLTranslationException
-    */
-   public ResponseMessage translateXMLStringToResponseMessage(
-           String messageString, boolean doRecursiveDescent)
-           throws XMLTranslationException
-   {
-       return (ResponseMessage) ElementState.translateFromXMLCharSequence(
-               messageString, translationSpace);
-   }
-   
-   /**
-    * Process a ResponseMessage received from the server in response to a previously-sent RequestMessage.
-    * @param responseMessage
-    */
-   protected void processResponse(ResponseMessage responseMessage)
-   {
-       responseMessage.processResponse(objectRegistry);
-   }
-   
-   public String getServer()
-   {
-   	return this.serverAddress;
-   }
-   
-   public void setServer(String serverAddress)
-   {
-   	this.serverAddress = serverAddress;
-   }
-   
-   /**
-    * Returns the most recently used UID.
-    * 
-    * @return the current uidIndex.
-    */
-   public long getUidNoIncrement()
-   {
-       // return the current value of uidIndex
-       return uidIndex;
-   }
-   
-   /**
-    * Check to see if the server is running.
-    * 
-    * @return true if the server is running, false otherwise.
-    */
-   public boolean isServerRunning()
-   {
-       debug("checking availability of server");
-       boolean serverIsRunning = createConnection();
+	/**
+	 * Increments the internal tracker of the next UID, and returns the current one.
+	 * 
+	 * @return the current uidIndex.
+	 */
+	public long generateUid()
+	{
+		// return the current value of uidIndex, then increment.
+		return uidIndex++;
+	}
 
-       // we're just checking, don't keep the connection
-       if (connected())
-       {
-           debug("server is running; disconnecting");
-           disconnect();
-       }
+	/**
+	 * Use the ServicesClient and its NameSpace to do the translation. Can be overridden to provide special
+	 * functionalities
+	 * 
+	 * @param messageString
+	 * @return
+	 * @throws XMLTranslationException
+	 */
+	protected ResponseMessage translateXMLStringToResponseMessage(String messageString) throws XMLTranslationException
+	{
+		return translateXMLStringToResponseMessage(messageString, true);
+	}
 
-       return serverIsRunning;
-   }
-   
-   /**
-    * Try and connect to the server. If we fail, wait
-    * CONNECTION_RETRY_SLEEP_INTERVAL and try again. Repeat ad nauseum.
-    */
-   public void waitForConnect()
-   {
-       System.out.println("Waiting for a server on port " + portNumber);
-       while (!connect())
-       {
-           // try again soon
-           Generic.sleep(WAIT_BEWTEEN_RECONNECT_ATTEMPTS);
-       }
-   }
-   
+	/**
+	 * Translate a decoded String of characters from the server into a ResponseMessage.
+	 * 
+	 * @param messageString
+	 * @param doRecursiveDescent
+	 * @return
+	 * @throws XMLTranslationException
+	 */
+	public ResponseMessage translateXMLStringToResponseMessage(String messageString, boolean doRecursiveDescent)
+			throws XMLTranslationException
+	{
+		return (ResponseMessage) ElementState.translateFromXMLCharSequence(messageString, translationSpace);
+	}
+
+	/**
+	 * Process a ResponseMessage received from the server in response to a previously-sent RequestMessage.
+	 * 
+	 * @param responseMessageToProcess
+	 */
+	protected void processResponse(ResponseMessage responseMessageToProcess)
+	{
+		responseMessageToProcess.processResponse(objectRegistry);
+	}
+
+	public String getServer()
+	{
+		return this.serverAddress;
+	}
+
+	public void setServer(String serverAddress)
+	{
+		this.serverAddress = serverAddress;
+	}
+
+	/**
+	 * Returns the most recently used UID.
+	 * 
+	 * @return the current uidIndex.
+	 */
+	public long getUidNoIncrement()
+	{
+		// return the current value of uidIndex
+		return uidIndex;
+	}
+
+	/**
+	 * Check to see if the server is running.
+	 * 
+	 * @return true if the server is running, false otherwise.
+	 */
+	public boolean isServerRunning()
+	{
+		debug("checking availability of server");
+		boolean serverIsRunning = createConnection();
+
+		// we're just checking, don't keep the connection
+		if (connected())
+		{
+			debug("server is running; disconnecting");
+			disconnect();
+		}
+
+		return serverIsRunning;
+	}
+
+	/**
+	 * Try and connect to the server. If we fail, wait CONNECTION_RETRY_SLEEP_INTERVAL and try again. Repeat ad nauseum.
+	 */
+	public void waitForConnect()
+	{
+		System.out.println("Waiting for a server on port " + portNumber);
+		while (!connect())
+		{
+			// try again soon
+			Generic.sleep(WAIT_BEWTEEN_RECONNECT_ATTEMPTS);
+		}
+	}
+
 	/**
 	 * Parses the header of an incoming set of characters (i.e. a message from a client to a server), loading all of the
 	 * HTTP-like headers into the given headerMap.
@@ -1177,19 +1189,19 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 */
 	@Override protected void writeKey(SelectionKey key) throws IOException
 	{
-      // lock outgoing requests queue, send data from it, then switch out of write mode
-      synchronized (requestsQueue)
-      {
-          while (this.requestsRemaining() > 0)
-          {
-              this.createPacketFromMessageAndSend(this.dequeueRequest(), key);
-          }
-      }
+		// lock outgoing requests queue, send data from it, then switch out of write mode
+		synchronized (requestsQueue)
+		{
+			while (this.requestsRemaining() > 0)
+			{
+				this.createPacketFromMessageAndSend(this.dequeueRequest(), key);
+			}
+		}
 
 		// nothing left to write, go back to listening
-//      key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
-	//	selector.wakeup();
-  }
+		// key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
+		// selector.wakeup();
+	}
 
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#acceptReady(java.nio.channels.SelectionKey)

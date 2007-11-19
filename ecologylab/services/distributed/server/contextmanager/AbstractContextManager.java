@@ -543,28 +543,13 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 					// move the characters from the outgoing buffers into outgoingChars using bulk get and put methods
 					outgoingChars.clear();
 					
-					debug("HEADER: ");
-					debug(outgoingMessageHeaderBuffer.toString());
-					debug("CONTENTS: ");
-					debug(outgoingMessageBuffer.toString());
-					
 					outgoingMessageHeaderBuffer.getChars(0, outgoingMessageHeaderBuffer.length(), characterMover, 0);
 					outgoingChars.put(characterMover, 0, outgoingMessageHeaderBuffer.length());
-					
-					debug(new String(characterMover, 0, outgoingMessageHeaderBuffer.length()));
 					
 					outgoingMessageBuffer.getChars(0, outgoingMessageBuffer.length(), characterMover, 0);
 					outgoingChars.put(characterMover, 0, outgoingMessageBuffer.length());
 
-					debug(new String(characterMover, 0, outgoingMessageBuffer.length()));
-
-					
-					//TODO ZACH
-					debug("ASREWARQ@Q##%FQCEARXGSFZDG");
 					outgoingChars.flip();
-
-					debug(Integer.toString(outgoingChars.length())+"/"+(outgoingMessageBuffer.length()+outgoingMessageHeaderBuffer.length()));
-					
 
 					this.clearOutgoingMessageBuffer(outgoingMessageBuffer);
 					this.clearOutgoingMessageHeaderBuffer(outgoingMessageHeaderBuffer);
@@ -580,11 +565,6 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 						ENCODER.flush(outgoingBuffer);
 					}
 
-//TODO  ZACH
-					debug("context manager has come up with: ");
-					outgoingChars.flip();
-					debug(outgoingChars);
-					
 					server.enqueueBytesForWriting(this.socket, outgoingBuffer);
 				}
 				catch (XMLTranslationException e)
