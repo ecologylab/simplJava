@@ -47,14 +47,6 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 				idleSocketTimeout);
 	}
 
-	static NIOServerBackend getInstance(int portNumber, InetAddress hostAddresses, NIOServerFrontend sAP,
-			TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry, int idleSocketTimeout)
-			throws IOException, BindException
-	{
-		return new NIOServerBackend(portNumber, hostAddresses, sAP, requestTranslationSpace, objectRegistry,
-				idleSocketTimeout);
-	}
-
 	protected ServerSocket[]												incomingConnectionSockets;
 
 	private NIOServerFrontend												sAP;
@@ -77,21 +69,9 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 			TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry, int idleSocketTimeout)
 			throws IOException, BindException
 	{
-		super(portNumber, requestTranslationSpace, objectRegistry);
+		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry);
 
 		this.construct(hostAddresses, sAP, idleSocketTimeout);
-	}
-
-	protected NIOServerBackend(int portNumber, InetAddress hostAddress, NIOServerFrontend sAP,
-			TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry, int idleSocketTimeout)
-			throws IOException, BindException
-	{
-		super(portNumber, requestTranslationSpace, objectRegistry);
-
-		InetAddress[] hostAddressArray =
-		{ hostAddress };
-
-		this.construct(hostAddressArray, sAP, idleSocketTimeout);
 	}
 
 	private void construct(InetAddress[] newHostAddresses, NIOServerFrontend newFrontend, int newIdleSocketTimeout)
@@ -100,9 +80,6 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 		this.hostAddresses = newHostAddresses;
 
 		this.sAP = newFrontend;
-
-		// acquire the static Selector object
-		this.selector = SelectorProvider.provider().openSelector();
 
 		incomingConnectionSockets = new ServerSocket[newHostAddresses.length];
 
@@ -170,7 +147,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 		{
 			debug(keyToInvalidate.attachment() + " took too long to request; disconnecting.");
 			keyActivityTimes.remove(keyToInvalidate);
-			this.setPendingInvalidate((SocketChannel) keyToInvalidate.channel(), true);
+			this.setPendingInvalidate(keyToInvalidate, true);
 		}
 	}
 
@@ -296,7 +273,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 
 			debug("shutting down " + ((SocketChannel) keyForIp.channel()).socket().getInetAddress());
 
-			this.setPendingInvalidate((SocketChannel) keyForIp.channel(), true);
+			this.setPendingInvalidate(keyForIp, true);
 		}
 
 		keyOrKeys.clear();
@@ -313,7 +290,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 
 		sAP.invalidate(key.attachment(), this, chan, permanent);
 
-		super.invalidateKey(chan, permanent);
+		super.invalidateKey(chan);
 
 		ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys.get(address.getHostAddress());
 
@@ -349,6 +326,8 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 	{
 		for (int i = 0; i < incomingConnectionSockets.length; i++)
 		{
+			debug("setting up accept on "+hostAddresses[i]);
+			
 			// acquire the static ServerSocketChannel object
 			ServerSocketChannel channel = ServerSocketChannel.open();
 
@@ -422,5 +401,43 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 	{
 		this.sAP.processRead(sessionId, this, sc, bytes, bytesRead);
 		this.keyActivityTimes.put(sc.keyFor(this.selector), System.currentTimeMillis());
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.impl.NIOCore#acceptReady(java.nio.channels.SelectionKey)
+	 */
+	@Override protected void acceptReady(SelectionKey key)
+	{
+		this.acceptKey(key);
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.impl.NIOCore#connectReady(java.nio.channels.SelectionKey)
+	 */
+	@Override protected void connectReady(SelectionKey key)
+	{
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.impl.NIOCore#readFinished(java.nio.channels.SelectionKey)
+	 */
+	@Override protected void readFinished(SelectionKey key)
+	{
+	}
+
+	/**
+	 * @param socket
+	 * @param permanent
+	 */
+	public void setPendingInvalidate(SocketChannel socket, boolean permanent)
+	{
+		this.setPendingInvalidate(socket.keyFor(selector), permanent);
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.impl.NIOCore#acceptFinished(java.nio.channels.SelectionKey)
+	 */
+	@Override public void acceptFinished(SelectionKey key)
+	{
 	}
 }

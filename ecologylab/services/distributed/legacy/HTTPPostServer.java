@@ -38,7 +38,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
      * 
      * @param portNumber
      * @param inetAddress
-     * @param requestTranslationSpace
+     * @param translationSpace
      * @param objectRegistry
      * @throws IOException
      * @throws BindException
@@ -48,7 +48,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
             ObjectRegistry objectRegistry) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                -1, MAX_PACKET_SIZE);
+                -1, MAX_PACKET_SIZE_CHARACTERS);
     }
 
     /**

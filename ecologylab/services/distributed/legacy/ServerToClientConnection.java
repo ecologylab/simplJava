@@ -285,10 +285,10 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      */
     public String readToMax(InputStream in) throws Exception
     {
-        char[] ch_array = new char[MAX_PACKET_SIZE];
+        char[] ch_array = new char[MAX_PACKET_SIZE_CHARACTERS];
         int count = 0;
 
-        while (count < MAX_PACKET_SIZE)
+        while (count < MAX_PACKET_SIZE_CHARACTERS)
         {
             int c = in.read();
             if (c == -1)

@@ -56,7 +56,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @param authListFilename -
 	 *           a file name indicating the location of the authentication list; this should be an XML file of an
@@ -92,7 +92,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @param authList -
 	 *           the AuthorizationList object to be used to determine possible users.
@@ -121,7 +121,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	/**
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException
@@ -130,7 +130,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, AuthenticationList authList) throws IOException, BindException
 	{
-		// super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
+		// super(portNumber, inetAddress, translationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
 		// MODEL: from Andruid to Zach
 		super(portNumber, inetAddress, TranslationSpace.get("double_threaded_auth " + inetAddress[0].toString() + ":"
 				+ portNumber, AUTH_CLASSES, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);

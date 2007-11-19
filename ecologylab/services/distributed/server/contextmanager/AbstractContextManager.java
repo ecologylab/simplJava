@@ -46,10 +46,6 @@ import ecologylab.xml.XMLTranslationException;
  */
 public abstract class AbstractContextManager extends Debug implements ServerConstants
 {
-	/** The encoder to translate from Strings to bytes. */
-	private static final CharsetEncoder			ENCODER								= Charset.forName(CHARACTER_ENCODING)
-																											.newEncoder();
-
 	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to persist across read
 	 * calls, as the entire header may not be sent at once.
@@ -70,13 +66,13 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	/**
 	 * Stores incoming character data until it can be parsed into an XML message and turned into a Java object.
 	 */
-	protected final StringBuilder					incomingMessageBuffer			= new StringBuilder(MAX_PACKET_SIZE);
+	protected final StringBuilder					incomingMessageBuffer			= new StringBuilder(MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder					outgoingMessageBuffer			= new StringBuilder(MAX_PACKET_SIZE);
+	protected final StringBuilder					outgoingMessageBuffer			= new StringBuilder(MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Stores outgoing header character data. */
-	protected final StringBuilder					outgoingMessageHeaderBuffer	= new StringBuilder(MAX_PACKET_SIZE);
+	protected final StringBuilder					outgoingMessageHeaderBuffer	= new StringBuilder(MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Indicates whether or not one or more messages are queued for execution by this ContextManager. */
 	protected boolean									messageWaiting						= false;
@@ -113,7 +109,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	protected TranslationSpace						translationSpace;
 
 	/** A buffer for data that will be sent back to the client. */
-	private CharBuffer								outgoingChars						= CharBuffer.allocate(MAX_PACKET_SIZE);
+	private CharBuffer								outgoingChars						= CharBuffer.allocate(MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Tracks the number of bad transmissions from the client; used for determining if a client is bad. */
 	private int											badTransmissionCount;
@@ -140,6 +136,8 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	 * has special properties.
 	 */
 	private boolean									firstRequestReceived				= false;
+	
+	private char[] characterMover = new char[MAX_PACKET_SIZE_CHARACTERS];
 
 	/**
 	 * Creates a new ContextManager.
@@ -542,26 +540,61 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 					// setup outgoingMessageHeaderBuffer
 					this.createHeader(outgoingMessageBuffer, outgoingMessageHeaderBuffer, request, response);
 
+					// move the characters from the outgoing buffers into outgoingChars using bulk get and put methods
 					outgoingChars.clear();
-					outgoingChars.put(outgoingMessageHeaderBuffer.toString());
-					outgoingChars.put(outgoingMessageBuffer.toString());
+					
+					debug("HEADER: ");
+					debug(outgoingMessageHeaderBuffer.toString());
+					debug("CONTENTS: ");
+					debug(outgoingMessageBuffer.toString());
+					
+					outgoingMessageHeaderBuffer.getChars(0, outgoingMessageHeaderBuffer.length(), characterMover, 0);
+					outgoingChars.put(characterMover, 0, outgoingMessageHeaderBuffer.length());
+					
+					debug(new String(characterMover, 0, outgoingMessageHeaderBuffer.length()));
+					
+					outgoingMessageBuffer.getChars(0, outgoingMessageBuffer.length(), characterMover, 0);
+					outgoingChars.put(characterMover, 0, outgoingMessageBuffer.length());
+
+					debug(new String(characterMover, 0, outgoingMessageBuffer.length()));
+
+					
+					//TODO ZACH
+					debug("ASREWARQ@Q##%FQCEARXGSFZDG");
 					outgoingChars.flip();
+
+					debug(Integer.toString(outgoingChars.length())+"/"+(outgoingMessageBuffer.length()+outgoingMessageHeaderBuffer.length()));
+					
 
 					this.clearOutgoingMessageBuffer(outgoingMessageBuffer);
 					this.clearOutgoingMessageHeaderBuffer(outgoingMessageHeaderBuffer);
 
-					ByteBuffer outgoingBuffer = ENCODER.encode(outgoingChars);
+					ByteBuffer outgoingBuffer = ByteBuffer.allocate((int)ENCODER.maxBytesPerChar() * outgoingChars.length());
 
-					server.send(this.socket, outgoingBuffer);
+					synchronized(ENCODER)
+					{
+						ENCODER.reset();
+						
+						ENCODER.encode(outgoingChars, outgoingBuffer, true);
+						
+						ENCODER.flush(outgoingBuffer);
+					}
+
+//TODO  ZACH
+					debug("context manager has come up with: ");
+					outgoingChars.flip();
+					debug(outgoingChars);
+					
+					server.enqueueBytesForWriting(this.socket, outgoingBuffer);
 				}
 				catch (XMLTranslationException e)
 				{
 					e.printStackTrace();
 				}
-				catch (CharacterCodingException e)
-				{
-					e.printStackTrace();
-				}
+			}
+			else
+			{
+				debug("context manager did not produce as response message.");
 			}
 		}
 	}

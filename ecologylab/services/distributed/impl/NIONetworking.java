@@ -10,6 +10,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,10 +18,14 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.naming.OperationNotSupportedException;
+
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
+import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
+import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -33,61 +38,24 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public abstract class NIONetworking extends Debug implements Runnable
+public abstract class NIONetworking extends NIOCore
 {
+	/** ByteBuffer that holds all incoming communication temporarily, immediately after it is read. */
+	private ByteBuffer										readBuffer						= ByteBuffer
+																												.allocateDirect(MAX_PACKET_SIZE_BYTES);
+
 	/**
-	 * 
-	 * @author James Greenfield
-	 * 
+	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers. Whenever a SocketChannel is marked for
+	 * writing, and comes up for writing, the server will write the set of ByteBuffers to the socket.
 	 */
-	private class SocketModeChangeRequest
-	{
-		public static final int	REGISTER						= 1;
-
-		public static final int	CHANGEOPS					= 2;
-
-		public static final int	INVALIDATE_PERMANENTLY	= 3;
-
-		public static final int	INVALIDATE_TEMPORARILY	= 4;
-
-		public SocketChannel		socket;
-
-		public int					type;
-
-		public int					ops;
-
-		public SocketModeChangeRequest(SocketChannel socket, int type, int ops)
-		{
-			this.socket = socket;
-			this.type = type;
-			this.ops = ops;
-		}
-	}
-
-	private ByteBuffer										readBuffer						= ByteBuffer.allocate(1024 * 4);
-
 	private Map<SocketChannel, Queue<ByteBuffer>>	pendingWrites					= new HashMap<SocketChannel, Queue<ByteBuffer>>();
-
-	private Queue<SocketModeChangeRequest>				pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
-
-	private boolean											running;
-
-	private Thread												thread;
-
-	protected int												portNumber;
 
 	protected boolean											shuttingDown					= false;
 
-	protected Selector										selector;
+	/** Space that defines mappings between xml names, and Java class names, for request messages. */
+	protected TranslationSpace								translationSpace;
 
-	/**
-	 * Space that defines mappings between xml names, and Java class names, for request messages.
-	 */
-	protected TranslationSpace								requestTranslationSpace;
-
-	/**
-	 * Provides a context for request processing.
-	 */
+	/** Provides a context for request processing. */
 	protected ObjectRegistry<?>							objectRegistry;
 
 	protected int												connectionCount				= 0;
@@ -97,28 +65,29 @@ public abstract class NIONetworking extends Debug implements Runnable
 	 * by sublcasses.
 	 * 
 	 * @param portNumber
-	 * @param requestTranslationSpace
+	 *           the port number to use for communicating.
+	 * @param translationSpace
+	 *           the TranslationSpace to use for incoming messages; if this is null, uses DefaultServicesTranslations
+	 *           instead.
 	 * @param objectRegistry
-	 *           Provides a context for request processing.
+	 *           Provides a context for request processing; if this is null, creates a new ObjectRegistry.
 	 * @throws IOException
+	 *            if an I/O error occurs while trying to open a Selector from the system.
 	 */
-	protected NIONetworking(int portNumber, TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry)
-			throws IOException, java.net.BindException
+	protected NIONetworking(String networkIdentifier, int portNumber, TranslationSpace translationSpace,
+			ObjectRegistry<?> objectRegistry) throws IOException
 	{
-		this.portNumber = portNumber;
-		this.requestTranslationSpace = requestTranslationSpace;
+		super(networkIdentifier, portNumber);
+
+		if (translationSpace == null)
+			translationSpace = DefaultServicesTranslations.get();
+
+		this.translationSpace = translationSpace;
+
 		if (objectRegistry == null)
-			objectRegistry = new ObjectRegistry();
+			objectRegistry = new ObjectRegistry<Object>();
+
 		this.objectRegistry = objectRegistry;
-
-	}
-
-	/**
-	 * @return the port number the server is listening on.
-	 */
-	public int getPortNumber()
-	{
-		return portNumber;
 	}
 
 	/**
@@ -128,9 +97,10 @@ public abstract class NIONetworking extends Debug implements Runnable
 	 *           Message to perform.
 	 * @return Response to the message.
 	 */
-	public ResponseMessage performService(RequestMessage requestMessage)
+	protected ResponseMessage performService(RequestMessage requestMessage)
 	{
 		ResponseMessage temp = requestMessage.performService(objectRegistry);
+		
 		if (temp != null)
 			temp.setUid(requestMessage.getUid());
 
@@ -138,249 +108,54 @@ public abstract class NIONetworking extends Debug implements Runnable
 	}
 
 	/**
-	 * THIS METHOD SHOULD NOT BE CALLED DIRECTLY!
-	 * 
-	 * Proper use of this method is through the start / stop methods.
-	 * 
-	 * Main run method. Performs a loop of changing the mode (read/write) for each socket, if requested, then checks for
-	 * and performs appropriate I/O for each socket that is ready. Ends when running is set to false (through the stop
-	 * method).
-	 * 
-	 * @see java.lang.Runnable#run()
+	 * @see ecologylab.services.distributed.impl.NIOCore#readReady(java.nio.channels.SelectionKey)
 	 */
-	public final void run()
+	@Override protected void readReady(SelectionKey key) throws ClientOfflineException, BadClientException
 	{
-		while (running)
-		{
-			// handle any selection op changes
-			synchronized (this.pendingSelectionOpChanges)
-			{
-				for (SocketModeChangeRequest changeReq : pendingSelectionOpChanges)
-				{
-					if (changeReq.socket.isRegistered())
-					{
-						/*
-						 * Perform any changes to the interest ops on the keys, before selecting.
-						 */
-						switch (changeReq.type)
-						{
-						case SocketModeChangeRequest.CHANGEOPS:
-							try
-							{
-								changeReq.socket.keyFor(this.selector).interestOps(changeReq.ops);
-							}
-							catch (CancelledKeyException e)
-							{
-								debug("tried to change ops after key was cancelled.");
-							}
-							break;
-						case SocketModeChangeRequest.INVALIDATE_PERMANENTLY:
-							invalidateKey(changeReq.socket.keyFor(this.selector), true);
-							break;
-						case SocketModeChangeRequest.INVALIDATE_TEMPORARILY:
-							invalidateKey(changeReq.socket.keyFor(this.selector), false);
-							break;
-						}
-					}
-				}
-
-				this.pendingSelectionOpChanges.clear();
-			}
-
-			try
-			{
-				if ((selector.select()) > 0)
-				{
-					/*
-					 * get an iterator of the keys that have something to do we have to do it this way, because we have to be
-					 * able to call remove() which will not work in a foreach loop
-					 */
-					Iterator<SelectionKey> selectedKeyIter = selector.selectedKeys().iterator();
-
-					while (selectedKeyIter.hasNext())
-					{
-						/*
-						 * get the key corresponding to the event and process it appropriately, then remove it
-						 */
-						SelectionKey key = selectedKeyIter.next();
-
-						selectedKeyIter.remove();
-
-						if (!key.isValid())
-						{
-							setPendingInvalidate((SocketChannel) key.channel(), false);
-							continue;
-						}
-
-						if (key.isAcceptable())
-						{ // incoming connection; accept
-							acceptKey(key);
-						}
-						else if (key.isWritable())
-						{
-							try
-							{
-								writeKey(key);
-								finishWrite(key);
-							}
-							catch (IOException e)
-							{
-								debug("IO error when attempting to write to socket; stack trace follows.");
-
-								e.printStackTrace();
-							}
-
-						}
-						else
-						{
-							if (key.isReadable())
-							{ /*
-								 * incoming readable, valid key have to check validity here, because accept key may have
-								 * rejected an incoming connection
-								 */
-								if (key.channel().isOpen() && key.isValid())
-								{
-									try
-									{
-										readKey(key);
-									}
-									catch (ClientOfflineException e)
-									{
-										error(e.getMessage());
-										setPendingInvalidate((SocketChannel) key.channel(), false);
-									}
-									catch (BadClientException e)
-									{
-										// close down this evil connection!
-										error(e.getMessage());
-										this.removeBadConnections(key);
-									}
-								}
-								else
-								{
-									debug("Channel closed on " + key.attachment() + ", removing.");
-									invalidateKey(key, false);
-								}
-							}
-						}
-					}
-				}
-			}
-			catch (IOException e)
-			{
-				this.stop();
-
-				debug("attempted to access selector after it was closed! shutting down");
-
-				e.printStackTrace();
-			}
-
-			// remove any that were idle for too long
-			this.checkAndDropIdleKeys();
-		}
-
-		this.close();
+		readKey(key);
 	}
 
 	/**
-	 * Perform any actions necessary after all data has been written from the outgoing queue to the client for this key.
-	 * This is a hook method so that subclasses can provide specific functionality (such as, for example, invalidating
-	 * the connection once the data has been sent.
-	 * 
-	 * This method does not do anything.
-	 * 
-	 * @param key -
-	 *           the SelectionKey that is finished writing.
+	 * @see ecologylab.services.distributed.impl.NIOCore#writeReady(java.nio.channels.SelectionKey)
 	 */
-	protected void finishWrite(SelectionKey key)
+	@Override protected void writeReady(SelectionKey key) throws IOException
 	{
-
+		writeKey(key);
 	}
 
 	/**
-	 * Queue up bytes to send.
+	 * Queue up bytes to send on a particular socket. This method is typically called by some outside context manager,
+	 * that has produced an encoded message to send out.
 	 * 
 	 * @param socket
 	 * @param data
 	 */
-	public void send(SocketChannel socket, ByteBuffer data)
+	public void enqueueBytesForWriting(SocketChannel socket, ByteBuffer data)
 	{
-		synchronized (this.pendingSelectionOpChanges)
+		// queue data to write
+		synchronized (this.pendingWrites)
 		{
-			// queue change
-			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(socket, SocketModeChangeRequest.CHANGEOPS,
-					SelectionKey.OP_WRITE));
+			Queue<ByteBuffer> dataQueue = pendingWrites.get(socket);
 
-			// queue data to write
-			synchronized (this.pendingWrites)
+			if (dataQueue == null)
 			{
-				Queue<ByteBuffer> dataQueue = pendingWrites.get(socket);
-
-				if (dataQueue == null)
-				{
-					dataQueue = new LinkedList<ByteBuffer>();
-					pendingWrites.put(socket, dataQueue);
-				}
-
-				dataQueue.offer(data);
+				dataQueue = new LinkedList<ByteBuffer>();
+				pendingWrites.put(socket, dataQueue);
 			}
+
+			dataQueue.offer(data);
 		}
+
+		this.queueForWrite(socket.keyFor(selector));
 
 		selector.wakeup();
-	}
-
-	/**
-	 * Sets up a pending invalidate command for the given input.
-	 * 
-	 * @param chan -
-	 *           the SocketChannel to invalidate.
-	 */
-	public void setPendingInvalidate(SocketChannel chan, boolean permanent)
-	{
-		if (permanent)
-		{
-			synchronized (pendingSelectionOpChanges)
-			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan,
-						SocketModeChangeRequest.INVALIDATE_PERMANENTLY, 0));
-			}
-		}
-		else
-		{
-			synchronized (pendingSelectionOpChanges)
-			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(chan,
-						SocketModeChangeRequest.INVALIDATE_TEMPORARILY, 0));
-			}
-		}
-		selector.wakeup();
-	}
-
-	public void start()
-	{
-		// start the server running
-		running = true;
-
-		if (thread == null)
-		{
-			thread = new Thread(this, "NIO Server running on port " + portNumber);
-		}
-
-		thread.start();
-	}
-
-	public synchronized void stop()
-	{
-		running = false;
-
-		this.close();
 	}
 
 	public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
 			throws XMLTranslationException
 	{
 		RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
-				requestTranslationSpace);
+				translationSpace);
 		return requestMessage;
 	}
 
@@ -423,6 +198,17 @@ public abstract class NIONetworking extends Debug implements Runnable
 			readBuffer.flip();
 			readBuffer.get(bytes);
 
+			// TODO
+			try
+			{
+				debug("Read bytes: ");
+				debug(DECODER.decode(ByteBuffer.wrap(bytes)));
+			}
+			catch (CharacterCodingException e)
+			{
+				e.printStackTrace();
+			}
+			
 			this.processReadData(key.attachment(), sc, bytes, bytesRead);
 		}
 	}
@@ -433,7 +219,7 @@ public abstract class NIONetworking extends Debug implements Runnable
 	 * @param key
 	 * @throws IOException
 	 */
-	private final void writeKey(SelectionKey key) throws IOException
+	protected void writeKey(SelectionKey key) throws IOException
 	{
 		// debug("writing.");
 		SocketChannel sc = (SocketChannel) key.channel();
@@ -446,6 +232,18 @@ public abstract class NIONetworking extends Debug implements Runnable
 			{ // write everything
 				ByteBuffer bytes = writes.poll();
 
+			// TODO
+				try
+				{
+					debug("Writing bytes: ");
+					debug(DECODER.decode(bytes.duplicate()));
+				}
+				catch (CharacterCodingException e)
+				{
+					e.printStackTrace();
+				}
+				
+				bytes.flip();
 				sc.write(bytes);
 
 				if (bytes.remaining() > 0)
@@ -454,22 +252,19 @@ public abstract class NIONetworking extends Debug implements Runnable
 					break;
 				}
 			}
-
-			// nothing left to write, go back to
-			// listening
-			key.interestOps(SelectionKey.OP_READ);
-
-			selector.wakeup();
 		}
 	}
 
+	/**
+	 * Optional operation.
+	 * 
+	 * Called when a key has been marked for accepting. This method should be implemented by servers, but clients should
+	 * leave this blank, unless they are also acting as servers (accepting incoming connections).
+	 * 
+	 * @param key
+	 * @throws OperationNotSupportedException
+	 */
 	protected abstract void acceptKey(SelectionKey key);
-
-	protected abstract void checkAndDropIdleKeys();
-
-	protected void close()
-	{
-	}
 
 	/**
 	 * Remove the argument passed in from the set of connections we know about.
@@ -482,43 +277,25 @@ public abstract class NIONetworking extends Debug implements Runnable
 		terminationAction();
 	}
 
-	protected abstract void invalidateKey(SelectionKey key, boolean permanent);
-
 	/**
-	 * Shut down the connection associated with this SelectionKey. Subclasses should override to do your own
-	 * housekeeping, then call super.invalidateKey(SelectionKey) to utilize the functionality here.
+	 * This method is called whenever bytes have been read from a socket. There is no guaranty that the bytes will be a
+	 * valid or complete message, nor is there a guaranty about what said bytes encode. Implementations should be
+	 * prepared to handle incomplete messages, multiple messages, or malformed messages in this method.
 	 * 
-	 * @param chan
-	 *           The SocketChannel that needs to be shut down.
+	 * @param sessionId
+	 *           the id being use for this session.
+	 * @param sc
+	 *           the SocketChannel from which the bytes originated.
+	 * @param bytes
+	 *           the bytes read from the SocketChannel.
+	 * @param bytesRead
+	 *           the number of bytes in the bytes array.
+	 * @throws BadClientException
+	 *            if the client from which the bytes were read has transmitted something inappropriate, such as data too
+	 *            large for a buffer or a possibly malicious message.
 	 */
-	protected void invalidateKey(SocketChannel chan, boolean permanent)
-	{
-		try
-		{
-			chan.close();
-		}
-		catch (IOException e)
-		{
-			debug(e.getMessage());
-		}
-		catch (NullPointerException e)
-		{
-			debug(e.getMessage());
-		}
-
-		if (chan.keyFor(selector) != null)
-		{ // it's possible that they key
-			// was somehow disposed of
-			// already,
-			// perhaps it was already invalidated once
-			chan.keyFor(selector).cancel();
-		}
-	}
-
 	protected abstract void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead)
 			throws BadClientException;
-
-	protected abstract void removeBadConnections(SelectionKey key);
 
 	/**
 	 * This defines the actions that server needs to perform when the client ends unexpected way. Detail implementations

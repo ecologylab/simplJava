@@ -251,30 +251,33 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				if (loggingHost == null)
 					loggingHost = LOGGING_HOST;
 
-				NIOClient loggingClient = new NIOClient(loggingHost, loggingPort, DefaultServicesTranslations.get(),
-						new ObjectRegistry());
+				NIOClient loggingClient = null;
+				try
+				{
+					loggingClient = new NIOClient(loggingHost, loggingPort, DefaultServicesTranslations.get(),
+							new ObjectRegistry());
+
+					// CONNECT TO SERVER
+					if (loggingClient.connect())
+					{
+						logWriters.add(new NetworkLogWriter(loggingClient));
+
+						debug("logging to server: " + loggingHost + ":" + loggingPort);
+					}
+					else
+					{
+						loggingClient = null;
+						debug("Logging disabled: cannot reach server");
+					}
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
 
 				debug("**************************************************************connecting to server.");
 
-				// CONNECT TO SERVER
-				if (loggingClient.connect())
-				{
-					try
-					{
-						logWriters.add(new NetworkLogWriter(loggingClient));
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-
-					debug("logging to server: " + loggingHost + ":" + loggingPort);
-				}
-				else
-				{
-					loggingClient = null;
-					debug("Logging disabled: cannot reach server");
-				}
+				
 			}
 		}
 	}

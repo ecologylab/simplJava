@@ -21,7 +21,7 @@ public class ServiceMessage extends ElementState implements Comparable<ServiceMe
      * associates it with the IP address from it's packet and/or channel.
      */
     protected InetAddress sender    = null;
-
+    
     /**
      * Sets timeStamp to equal the current system time in milliseconds.
      * 

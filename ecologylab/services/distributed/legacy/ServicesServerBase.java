@@ -65,7 +65,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      * bind the port. Port binding is to be handled by sublcasses.
      * 
      * @param portNumber
-     * @param requestTranslationSpace
+     * @param translationSpace
      * @param objectRegistry
      *            Provides a context for request processing.
      * @throws IOException
@@ -179,7 +179,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     }
 
     /**
-     * @return Returns the requestTranslationSpace.
+     * @return Returns the translationSpace.
      */
     public TranslationSpace getRequestTranslationSpace()
     {

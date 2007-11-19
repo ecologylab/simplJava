@@ -40,8 +40,9 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * 
 	 * @param server
 	 * @param port
+	 * @throws IOException 
 	 */
-	public NIOAuthClient(String server, int port)
+	public NIOAuthClient(String server, int port) throws IOException
 	{
 		this(server, port, null, 0, null);
 	}
@@ -53,9 +54,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param port
 	 * @param messageSpace
 	 * @param objectRegistry
+	 * @throws IOException 
 	 */
 	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
-			int interval, RequestMessage messageToSend)
+			int interval, RequestMessage messageToSend) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, null, interval, messageToSend);
 	}
@@ -66,16 +68,17 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param server
 	 * @param port
 	 * @param entry
+	 * @throws IOException 
 	 */
 	public NIOAuthClient(String server, int port, AuthenticationListEntry entry, int interval,
-			RequestMessage messageToSend)
+			RequestMessage messageToSend) throws IOException
 	{
 		this(server, port, TranslationSpace.get("authClient", "ecologylab.services.authentication"),
 				new ObjectRegistry(), entry, interval, messageToSend);
 	}
 
 	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
-			AuthenticationListEntry entry)
+			AuthenticationListEntry entry) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, entry, 0, null);
 	}
@@ -88,9 +91,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param messageSpace
 	 * @param objectRegistry
 	 * @param entry
+	 * @throws IOException 
 	 */
 	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
-			AuthenticationListEntry entry, int interval, RequestMessage messageToSend)
+			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
 	{
 		super(server, port, messageSpace, objectRegistry);
 

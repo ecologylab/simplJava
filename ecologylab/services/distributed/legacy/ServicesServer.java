@@ -58,7 +58,7 @@ public class ServicesServer extends ServicesServerBase
      * @param portNumber
      * @param serverType
      *            TODO
-     * @param requestTranslationSpace
+     * @param translationSpace
      * @param objectRegistry
      *            TODO
      * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
@@ -85,7 +85,7 @@ public class ServicesServer extends ServicesServerBase
      * 
      * @param portNumber
      * @param serverType
-     * @param requestTranslationSpace
+     * @param translationSpace
      * @param objectRegistry
      *            Provides a context for request processing.
      * @throws IOException

@@ -11,6 +11,7 @@ import java.nio.channels.SocketChannel;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
@@ -63,7 +64,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	 * 
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException
@@ -72,22 +73,22 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 			ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress,
-				// requestTranslationSpace,
 				composeTranslations(portNumber, inetAddress[0], requestTranslationSpace), objectRegistry,
 				idleConnectionTimeout);
+		
+		debug("setting up NIO Server...");
 
-		this.translationSpace = requestTranslationSpace;
-		this.registry = objectRegistry;
+		// we get these from the backend, because it ensures that they are configured if they are passed in null
+		this.translationSpace = backend.translationSpace;
+		this.registry = backend.objectRegistry;
 
-		registry.registerObject(MAIN_START_AND_STOPPABLE, this);
-		registry.registerObject(MAIN_SHUTDOWNABLE, this);
-
-		// this.translationSpace.addTranslation(InitConnectionRequest.class);
+		this.registry.registerObject(MAIN_START_AND_STOPPABLE, this);
+		this.registry.registerObject(MAIN_SHUTDOWNABLE, this);
 	}
 
 	static final Class[]	OUR_TRANSLATIONS	=
 														{ InitConnectionRequest.class, };
-
+	
 	public static TranslationSpace composeTranslations(int portNumber, InetAddress inetAddress,
 			TranslationSpace requestTranslationSpace)
 	{
@@ -109,7 +110,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	 * 
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException
@@ -117,18 +118,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	protected NIOServerBase(int portNumber, InetAddress inetAddress, TranslationSpace requestTranslationSpace,
 			ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
 	{
-		backend = this.generateBackend(portNumber, inetAddress,
-				// requestTranslationSpace,
-				composeTranslations(portNumber, inetAddress, requestTranslationSpace), objectRegistry,
-				idleConnectionTimeout);
-
-		this.translationSpace = requestTranslationSpace;
-		this.registry = objectRegistry;
-
-		registry.registerObject(MAIN_START_AND_STOPPABLE, this);
-		registry.registerObject(MAIN_SHUTDOWNABLE, this);
-
-		// this.translationSpace.addTranslation(InitConnectionRequest.class);
+		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 	}
 
 	protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddresses,
@@ -136,14 +126,6 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 			throws BindException, IOException
 	{
 		return NIOServerBackend.getInstance(portNumber, inetAddresses, this, requestTranslationSpace, objectRegistry,
-				idleConnectionTimeout);
-	}
-
-	protected NIOServerBackend generateBackend(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout)
-			throws BindException, IOException
-	{
-		return NIOServerBackend.getInstance(portNumber, inetAddress, this, requestTranslationSpace, objectRegistry,
 				idleConnectionTimeout);
 	}
 

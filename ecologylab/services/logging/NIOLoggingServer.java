@@ -33,7 +33,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @param authListFilename -
 	 *           a file name indicating the location of the authentication list; this should be an XML file of an
@@ -53,7 +53,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param requestTranslationSpace
+	 * @param translationSpace
 	 * @param objectRegistry
 	 * @param authListFilename -
 	 *           a file name indicating the location of the authentication list; this should be an XML file of an
@@ -89,7 +89,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 */
 	public static void main(String args[]) throws UnknownHostException
 	{
-		int mPL = MAX_PACKET_SIZE;
+		int mPL = MAX_PACKET_SIZE_CHARACTERS;
 
 		if (args.length > 1)
 		{
@@ -100,7 +100,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 			}
 			catch (NumberFormatException e)
 			{
-				System.err.println("second argument was not an integer, using MAX_PACKET_SIZE: " + MAX_PACKET_SIZE);
+				System.err.println("second argument was not an integer, using MAX_PACKET_SIZE_CHARACTERS: " + MAX_PACKET_SIZE_CHARACTERS);
 				e.printStackTrace();
 			}
 		}

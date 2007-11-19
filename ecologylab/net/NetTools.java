@@ -30,7 +30,7 @@ public class NetTools extends Debug
 		"koi8-r", "utf-8", "utf-16", "utf-16be", "utf-16le",
 		"UTF-8", "UTF-16", "UTF-16be", "UTF-16le"
 	};
-	final static HashMap supportedCharsetMap	= CollectionTools.buildHashMapFromStrings(SUPPORTED_CHARSETS);
+	final static HashMap<String, String> supportedCharsetMap	= CollectionTools.buildHashMapFromStrings(SUPPORTED_CHARSETS);
 	
 	/**
 	 * Seek a charset specification in the MimeType header of the HTTP request.
@@ -137,23 +137,38 @@ public class NetTools extends Debug
 		return localHost1;
 	}
 
-    public static InetAddress[] getAllInetAddressesForLocalhost() throws UnknownHostException
-    {
-        HashSet<InetAddress> addresses = new HashSet<InetAddress>();
-        
-        for (InetAddress a : InetAddress.getAllByName("localhost"))
-        {
-            addresses.add(a);
-        }
-        
-        for (InetAddress a : InetAddress.getAllByName(InetAddress.getLocalHost().getHostAddress()))
-        {
-            addresses.add(a);
-        }
-        
-        addresses.add(InetAddress.getLocalHost());
-        
-        return addresses.toArray(new InetAddress[addresses.size()]);
-    }
-	
+	public static InetAddress[] getAllInetAddressesForLocalhost() throws UnknownHostException
+	{
+		HashSet<InetAddress> addresses = new HashSet<InetAddress>();
+
+		for (InetAddress a : InetAddress.getAllByName("localhost"))
+		{
+			addresses.add(a);
+		}
+
+		for (InetAddress a : InetAddress.getAllByName(InetAddress.getLocalHost().getHostAddress()))
+		{
+			addresses.add(a);
+		}
+
+		addresses.add(InetAddress.getLocalHost());
+
+		return addresses.toArray(new InetAddress[addresses.size()]);
+	}
+
+	/**
+	 * Convienence method for getting a single-element array of InetAddresses for servers that normally take an array,
+	 * but when only one is available.
+	 * 
+	 * @param address
+	 *           the address to wrap.
+	 * @return a single-element array containing address.
+	 */
+	public static final InetAddress[] wrapSingleAddress(InetAddress address)
+	{
+		InetAddress[] wrappedAddress =
+		{ address };
+
+		return wrappedAddress;
+	}
 }

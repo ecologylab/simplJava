@@ -9,7 +9,7 @@ package ecologylab.services.distributed.common;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public interface ClientConstants
+public interface ClientConstants extends NetworkingConstants
 {
 	/** Number of reconnect attempts to make before giving up. */
 	static final int	RECONNECT_ATTEMPTS					= 50;

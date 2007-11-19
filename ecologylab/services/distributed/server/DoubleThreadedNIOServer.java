@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.impl.NIOServerBase;
@@ -59,7 +60,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 	HashMap<Object, AbstractContextManager>	contexts	= new HashMap<Object, AbstractContextManager>();
 
-	private static CharsetDecoder					decoder	= Charset.forName(CHARACTER_ENCODING).newDecoder();
+	private static CharsetDecoder					DECODER	= Charset.forName(CHARACTER_ENCODING).newDecoder();
 
 	protected int										maxPacketSize;
 
@@ -81,11 +82,10 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress, TranslationSpace requestTranslationSpace,
 			ObjectRegistry objectRegistry, int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
-
-		this.maxPacketSize = maxPacketSize;
+		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry,
+				idleConnectionTimeout, maxPacketSize);
 	}
-
+	
 	/**
 	 * @throws BadClientException
 	 *            See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
@@ -110,7 +110,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 				try
 				{
-					cm.enqueueStringMessage(decoder.decode(ByteBuffer.wrap(bs)));
+					cm.enqueueStringMessage(DECODER.decode(ByteBuffer.wrap(bs)));
 				}
 				catch (CharacterCodingException e)
 				{
