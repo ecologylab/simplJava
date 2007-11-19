@@ -9,6 +9,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
@@ -73,7 +74,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	public NIOAuthClient(String server, int port, AuthenticationListEntry entry, int interval,
 			RequestMessage messageToSend) throws IOException
 	{
-		this(server, port, TranslationSpace.get("authClient", "ecologylab.services.authentication"),
+		this(server, port, null,
 				new ObjectRegistry(), entry, interval, messageToSend);
 	}
 
@@ -96,16 +97,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
 			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
 	{
-		super(server, port, messageSpace, objectRegistry);
-
-		// XXX Zach
-		messageSpace.addTranslation("ecologylab.services.authentication.messages", "Login");
-		messageSpace.addTranslation("ecologylab.services.authentication.messages", "Logout");
-		messageSpace.addTranslation("ecologylab.services.authentication", "AuthenticationListEntry");
-		messageSpace.addTranslation("ecologylab.services.authentication.messages", "LoginStatusResponse");
-
-		messageSpace.addTranslation("ecologylab.services.messages", "BadSemanticContentResponse");
-		messageSpace.addTranslation("ecologylab.services.messages", "ErrorResponse");
+		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);
 
 		objectRegistry.registerObject(LOGIN_STATUS, new BooleanSlot(false));
 		objectRegistry.registerObject(LOGIN_STATUS_STRING, null);
@@ -231,10 +223,8 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 		{
 			return "";
 		}
-		else
-		{
-			return temp;
-		}
+		
+        return temp;
 	}
 
 	/**
@@ -244,7 +234,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	{
 		if (this.connected())
 			return ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value;
-		else
-			return false;
+		
+        return false;
 	}
 }

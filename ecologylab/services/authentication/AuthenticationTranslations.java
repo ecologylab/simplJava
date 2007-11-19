@@ -16,7 +16,7 @@ public class AuthenticationTranslations
 
 	protected static final String	DEFAULT_PACKAGE	= "ecologylab.services.authentication";
 
-	protected static final Class	TRANSLATIONS[]		=
+	static final Class	TRANSLATIONS[]		=
 																	{ ecologylab.services.authentication.messages.Login.class,
 			ecologylab.services.authentication.messages.Logout.class,
 			ecologylab.services.authentication.messages.LoginStatusResponse.class,
@@ -27,5 +27,12 @@ public class AuthenticationTranslations
 	public static TranslationSpace get()
 	{
 		return TranslationSpace.get(NAME, TRANSLATIONS, DefaultServicesTranslations.get(), DEFAULT_PACKAGE);
+	}
+	
+	public static TranslationSpace get(String customName, TranslationSpace otherSpaceToCompose)
+	{
+	    TranslationSpace[] spaces = {DefaultServicesTranslations.get(), otherSpaceToCompose};
+	    
+	    return TranslationSpace.get(customName, TRANSLATIONS, spaces, DEFAULT_PACKAGE);
 	}
 }

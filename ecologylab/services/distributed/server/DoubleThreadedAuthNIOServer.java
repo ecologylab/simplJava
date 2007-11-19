@@ -14,6 +14,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
@@ -48,10 +49,6 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 	protected Authenticator<A>		authenticator	= null;
 
-	public static final Class[]	AUTH_CLASSES	=
-																{ Login.class, Logout.class, LoginStatusResponse.class,
-			LogoutStatusResponse.class,				};
-
 	/**
 	 * This is the actual way to create an instance of this.
 	 * 
@@ -73,7 +70,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 		{
 			newServer = new DoubleThreadedAuthNIOServer(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
 					idleConnectionTimeout, maxPacketSize, (AuthenticationList) ElementState.translateFromXML(
-							authListFilename, TranslationSpace.get("authListNameSpace", "ecologylab.services.authentication")));
+							authListFilename, AuthenticationTranslations.get()));
 		}
 		catch (IOException e)
 		{
@@ -132,8 +129,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	{
 		// super(portNumber, inetAddress, translationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
 		// MODEL: from Andruid to Zach
-		super(portNumber, inetAddress, TranslationSpace.get("double_threaded_auth " + inetAddress[0].toString() + ":"
-				+ portNumber, AUTH_CLASSES, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);
+		super(portNumber, inetAddress, AuthenticationTranslations.get("double_threaded_auth " + inetAddress[0].toString() + ":"
+				+ portNumber, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);
 
 		this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
@@ -144,7 +141,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 		authenticator = new Authenticator(authList);
 	}
-
+	
 	/**
 	 * 
 	 * @param token
