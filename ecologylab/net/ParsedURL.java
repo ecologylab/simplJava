@@ -1262,7 +1262,7 @@ extends Debug
      
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
- 		    connection.setRequestProperty("user-agent", FIREFOX_2_USER_AGENT);
+ 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
  		    
  		    // Set the connection and read timeout.
  		    connection.setConnectTimeout(connectionTimeout);
@@ -1353,6 +1353,12 @@ extends Debug
     final static String FIREFOX_2_USER_AGENT	= 
     	
     	"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7";
+    
+    final static String GOOGLE_BOT_USER_AGENT_0	= "Googlebot/2.1 (+http://www.google.com/bot.html)";
+    
+    final static String GOOGLE_BOT_USER_AGENT_1	= "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
+    
+    final static String GOOGLE_BOT_USER_AGENT_2	= "Googlebot/2.1 (+http://www.googlebot.com/bot.html)";
     
     public boolean getTimeout()
     {
