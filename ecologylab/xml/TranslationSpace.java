@@ -26,14 +26,9 @@ public final class TranslationSpace extends Debug
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
 	*/
-   private String			defaultPackageName;
+   private String				defaultPackageName;
    
-   /**
-	* This boolean controls whether package names are added to the class names
-	* in the corresponding XML file. If its false, the package names are not added, otherwise
-	* every class name is prepended by its package name.
-	*/
-   private boolean			emitPackageNames	= false;
+   private TranslationSpace[]	inheritedTranslationSpaces;
    
    /**
     * Fundamentally, a TranslationSpace consists of a set of class simple names.
@@ -70,20 +65,23 @@ public final class TranslationSpace extends Debug
     * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
     * 
     * @param name
-    * @param inheritedTranslations
+    * @param inheritedTranslationSpace
     */
-   private TranslationSpace(String name, TranslationSpace inheritedTranslations)
+   private TranslationSpace(String name, TranslationSpace inheritedTranslationSpace)
    {
-	  this(name);
-	  addTranslations(inheritedTranslations);
+	   this(name);
+	   addTranslations(inheritedTranslationSpace);
+	   TranslationSpace[] inheritedTranslationSpaces	= new TranslationSpace[1];
+	   inheritedTranslationSpaces[0]					= inheritedTranslationSpace;
+	   this.inheritedTranslationSpaces				= this.inheritedTranslationSpaces;
    }
-   
-   private TranslationSpace(String name, Class translation, TranslationSpace inheritedTranslations)
+
+   private TranslationSpace(String name, Class translation, TranslationSpace inheritedTranslationSpaces)
    {
-	  this(name, inheritedTranslations);
-	  addTranslation(translation);
+	   this(name, inheritedTranslationSpaces);
+	   addTranslation(translation);
    }
-  
+
    /**
     * Create a new TranslationSpace that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
@@ -92,16 +90,17 @@ public final class TranslationSpace extends Debug
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationSpace(String name, TranslationSpace[] inheritedTranslations)
+   private TranslationSpace(String name, TranslationSpace[] inheritedTranslationSpaces)
    {
-	  this(name);
-	  
-	  if (inheritedTranslations != null)
-	  {
-			int n = inheritedTranslations.length;
-			for (int i = 0; i < n; i++)
-				addTranslations(inheritedTranslations[i]);
-		}
+	   this(name);
+
+	   if (inheritedTranslationSpaces != null)
+	   {
+		   this.inheritedTranslationSpaces		= inheritedTranslationSpaces;
+		   int n = inheritedTranslationSpaces.length;
+		   for (int i = 0; i < n; i++)
+			   addTranslations(inheritedTranslationSpaces[i]);
+	   }
    }
    
    /**
@@ -117,13 +116,14 @@ public final class TranslationSpace extends Debug
 	  this(name);
 	  for (TranslationSpace thatTranslationSpace: baseTranslationsSet)
 		  addTranslations(thatTranslationSpace);
+	  inheritedTranslationSpaces		= (TranslationSpace[]) baseTranslationsSet.toArray();
    }
    
    /**
     * Create a new space that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
     * 
-    * Set a new default packge.
+    * Set a new default package.
     * 
     * @param name
     * @param defaultPackgeName
@@ -158,13 +158,13 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
  * @param translations
- * @param inheritedTranslationsSet
+ * @param inheritedTranslationSpaces
  * @param defaultPackgeName
     */
-   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslationSpaces,
 		   String defaultPackgeName)
    {
-	   this(name, inheritedTranslationsSet);
+	   this(name, inheritedTranslationSpaces);
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
@@ -191,7 +191,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
  * @param translations
- * @param inheritedTranslations
+ * @param inheritedTranslationSpaces
  * @param defaultPackgeName
     */
    private TranslationSpace(String name, Class[] translations, TranslationSpace inheritedTranslations,
@@ -208,7 +208,7 @@ public final class TranslationSpace extends Debug
     *      
     * @param name
  * @param translations
- * @param inheritedTranslations
+ * @param inheritedTranslationSpaces
  * @param defaultPackgeName
  * @param nameSpaceDecls
     */
@@ -226,10 +226,11 @@ public final class TranslationSpace extends Debug
     */
    private void addNameSpaceDecls(NameSpaceDecl[] nameSpaceDecls)
    {
-	   for (NameSpaceDecl nsd: nameSpaceDecls)
-	   {
-		   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
-	   }
+	   if (nameSpaceDecls != null)
+		   for (NameSpaceDecl nsd: nameSpaceDecls)
+		   {
+			   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
+		   }
    }
       
    /**
@@ -257,7 +258,7 @@ public final class TranslationSpace extends Debug
     * 
     * Unlike in union(), if there are duplicates, they will override identical entries in this.
     * 
-    * @param inheritedTranslations
+    * @param inheritedTranslationSpaces
     */
    private void addTranslations(TranslationSpace inheritedTranslations)
    {
@@ -289,62 +290,10 @@ public final class TranslationSpace extends Debug
 	   new TranslationEntry(classObj);
    }
 
-   
-   /**
-    * Add translations, where each translation can be heterogeneously either a Class object,
-    * or an array with 2 String elements, package name and class name.
-    * 
-    * @param translations
-    */
-   public void addTranslations(Object[] translations)
+   public void addTranslation(Class thatClass, String alternativeXmlTag)
    {
-	   if (translations != null)
-	   {
-		   int		numTranslations	= translations.length;
-		   for (int i=0; i< numTranslations; i++)
-		   {
-			   Object thatTranslation		= translations[i];
-			   if (thatTranslation instanceof String[])
-			   {
-				   String[] thatStringTrans	= (String[]) thatTranslation;
-				   addTranslation(thatStringTrans[0], thatStringTrans[1]);
-			   }
-			   else if (thatTranslation instanceof Class)
-			   {
-				   addTranslation((Class) thatTranslation);
-			   }
-			  }
-		  }
-	   }
-
-   /**
-	* Add a translation table entry for an ElementState derived sub-class.
-	* Assumes that the xmlTag can be derived automatically from the className,
-	* by translating case-based separators to "_"-based separators.
-	* 
-	* @param packageName	Package that the class lives in.
-	* @param className		Name of the class.
-	*/
-   public void addTranslation(String packageName, String className)
-   {
-   	  new TranslationEntry(packageName, className);
+	   new TranslationEntry(thatClass, alternativeXmlTag);	   
    }
-
-   /**
-	* Add a translation table entry for an ElementState derived sub-class.
-	* Use this signature when the xmlTag cannot be generated automatically from the className.
-	* 
-	* @param packageName	Package that the class lives in.
-	* @param className		Name of the class.
-	* @param xmlTag		XML tag that the class maps to.
-	*/
-   public void addTranslation(String packageName, String className,
-							  String xmlTag)
-   {
-//	  debugA("addTranslation: "+ className " : " + packageName);
-	  new TranslationEntry(packageName, className, xmlTag, null);
-   }
-   
    private void addTranslation(TranslationEntry translationEntry)
    {
 	   this.entriesByTag.put(translationEntry.tag, translationEntry);
@@ -361,44 +310,65 @@ public final class TranslationSpace extends Debug
 	  defaultPackageName	= packageName;
    }
    /**
-	* creates a <code>Class</code> object from a given element name (aka tag) in the xml.
-	* Also keeps it in the hashtable, so that when requested for the same class again
-	* it doesnt have to create one.
-	* @param xmlTag	name of the state class along with its package name
-	* @return 						a <code>Class</code> object for the given state class
+	* Look-up a <code>Class</code> object for the xmlTag, using translations in this,
+	* and in inherited TranslationSpaces.
+	* Will use defaultPackage name here and, recursivley, in inherited spaces, as necessary.
+	* 
+	* @param	xmlTag	XML node name that we're seeking a Class for.
+	* @return 			Class object, or null if there is no associated translation.
 	*/
    public Class xmlTagToClass(String xmlTag)
    {
-	  TranslationEntry entry		= entriesByTag.get(xmlTag);
-
-	  if (entry == null)
-	  {
-		 String className	= XMLTools.classNameFromElementName(xmlTag);
-		 if (defaultPackageName != null)
-		 {
-			 String packageName = defaultPackageName;
-			 entry				= new TranslationEntry(packageName, className, xmlTag, null);
-		 }
-		 else
-		 {
-			 // empty entry construction added by andruid 11/11/07
-			 entry				= new TranslationEntry(xmlTag);	// new empty entry
-			 return null;
-		 }
-		 String classSimpleName	= XMLTools.classNameFromElementName(xmlTag);
-		 String packageName = defaultPackageName;
-		 if (packageName != null)
-			 entry				= new TranslationEntry(packageName, classSimpleName, xmlTag, null);
-		 else
-			 entry				= new TranslationEntry(xmlTag);	// new empty entry
-	  }
-	  if (entry.empty)
-	  {
-//		 debug("using memorized no mapping for " + xmlTag);
-		 return null;
-	  }
-	  return entry.thisClass;
+	  TranslationEntry entry = xmlTagToTranslationEntry(xmlTag);
+	  return entry.empty ? null : entry.thisClass;
    }
+
+   /**
+    * Seek the entry associated with the tag.
+    * Recurse through inheritedTranslationSpaces, if necessary.
+    * 
+    * @param xmlTag
+    * @return
+    */
+   private TranslationEntry xmlTagToTranslationEntry(String xmlTag)
+   {
+	   TranslationEntry entry		= entriesByTag.get(xmlTag);
+
+	   if (entry == null)
+	   {
+		   String className				= XMLTools.classNameFromElementName(xmlTag);
+		   String defaultPackageName	= this.defaultPackageName;
+		   if (defaultPackageName != null)
+		   {
+			   String classSimpleName	= XMLTools.classNameFromElementName(xmlTag);
+			   entry					= new TranslationEntry(defaultPackageName, classSimpleName, xmlTag);
+			   if (entry.empty)
+			   {
+				   if (inheritedTranslationSpaces != null)
+				   {   // recurse through inherited, continuing to seek a translation
+					   for (TranslationSpace inherited : inheritedTranslationSpaces)
+					   {
+						   entry			= inherited.xmlTagToTranslationEntry(xmlTag);
+						   if (entry != null)
+						   {   // got one from an inherited TranslationSpace
+							   // register translation for the inherited entry in this
+							   entriesByTag.put(xmlTag, entry);
+							   entriesByClassSimpleName.put(classSimpleName, entry);
+							   break;
+						   }
+					   }
+				   }
+			   }
+		   }
+		   else
+		   {
+			   // empty entry construction added by andruid 11/11/07
+			   entry					= new TranslationEntry(xmlTag);	// new empty entry
+		   }
+	   }
+	   return entry;
+   }
+
    /**
     * Get the Class object associated with this tag, if there is one.
     * Unlike xmlTagToClass, this call will not generate a new blank NameEntry.
@@ -438,204 +408,139 @@ public final class TranslationSpace extends Debug
 	   return getClassBySimpleName(classSimpleName(thatClass));
    }
 
-/**
- * Find an appropriate XML tag name, based on the type of the object passed.
- * 
- * @param object	Object whose type becomes the basis for the tag name we derive.
- * @deprecated appears to no longer be used -Zach
- */   
-   @Deprecated public String objectToXmlTag(Object object)
-   {
-	  return classToXmlTag(object.getClass());
-   }
    /**
-    * Find an appropriate XML tag name, based on the class object passed.
+    * Derive the XML tag from the Class object, using camel case conversion, or
+    * the @xml_tag annotation that may be present in a class declaration.
     * 
-    * @param classObj	The type which becomes the basis for the tag name we derive.
-    * @deprecated appears to no longer be used -Zach
-    */   
-   @Deprecated public String classToXmlTag(Class classObj)
-   {
-	  String className	= classObj.getName();
-	  TranslationEntry entry	= entriesByClassSimpleName.get(className);
-	  if (entry == null)
-	  {
-	  	 synchronized (this) 
-	  	 {
-	  	 	 entry	= entriesByClassSimpleName.get(className);
-	  	 	 if (entry == null)
-	  	 	 {
-				 String packageName = classObj.getPackage().getName();
-				 int index			= className.lastIndexOf('.') + 1;
-				 className			= className.substring(index);
-				 entry				= new TranslationEntry(packageName, className);
-	  	 	 }
-	  	 }
-	  }
-	  return entry.getTag();
-   }
-   
-   /**
-	* @return	true	If package names should be emitted as part of tags 
-	*  while translating to XML.
-	*					This corresponds to quite verbose XML.
-	*/
-   public boolean emitPackageNames()
-   {
-	  return emitPackageNames;
-   }
-
-   /**
-    * Get the values in the entriesByClass HashMap, and form an Iterator for acessing them.
-    * 
+    * @param thatClass
     * @return
     */
-   private Iterator<TranslationEntry> entriesByClassIterator()
+   private static String determineXMLTag(Class<?> thatClass)
    {
-	   Collection<TranslationEntry> values = entriesByClassSimpleName.values();
-	   return values.iterator();
-   }
-
-   /**
-    * Integrate xml tag into tag derivation.
-    * 
-    * @param classObj
-    * @param classSimpleName
-    * @return
-    */
-   private static String determineXMLTag(Class<?> classObj, String classSimpleName)
-   {
-       return classObj.isAnnotationPresent(xml_tag.class) ? classObj.getAnnotation(xml_tag.class).value() : 
-         XMLTools.getXmlTagName(classSimpleName, "State");
+       return thatClass.isAnnotationPresent(xml_tag.class) ? thatClass.getAnnotation(xml_tag.class).value() : 
+         XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
    }
    
    public class TranslationEntry extends Debug
    {
-	  public final String		packageName;
-	  /**
-	   * Should this be whole class name, or simple/short class name?
-	   */
-	  public final String		classSimpleName;
-	  
-	  public final String		classWholeName;
-	  public final String		tag;
+	   public final String		packageName;
+	   /**
+	    * Should this be whole class name, or simple/short class name?
+	    */
+	   public final String		classSimpleName;
 
-	  public final String		dottedPackageName;
-	  public final String		tagWithPackage;
-	  public final Class<?>		thisClass;
+	   public final String		tag;
 
-	  boolean					empty;
-	  
-	  /**
-	   * Construct an empty entry for tag.
-	   * This means that the TranslationSpace will map tag to no class forever.
-	   * 
-	   * @param tag
-	   */
-	  public TranslationEntry(String tag)
-	  {
-		  this.tag				= tag;
-		  this.empty			= true;
-		  this.packageName		= null;
-		  this.classSimpleName	= null;
-		  this.classWholeName	= null;
-		  this.dottedPackageName= null;
-		  this.tagWithPackage	= null;
-		  this.thisClass		= null;
-		  
-		  entriesByTag.put(tag, this);
-	  }
-	  /**
-	   * Create the entry by package name and class name.
-	   */
-	  public TranslationEntry(String packageName, String className)
-	  {
-		  this(packageName, className,
-				  XMLTools.getXmlTagName(className, "State"), null);
-	  }
-	  /**
-	   * Create the entry by package name and class name.
-	   */
-	  public TranslationEntry(Class<?> thisClass)
-	  {
-		  this(thisClass.getPackage().getName(), 
-			   thisClass.getSimpleName(), 
-			   thisClass.getName(),
-			   determineXMLTag(thisClass, thisClass.getSimpleName()), 
-			   thisClass);
-	  }
+	   public final Class<?>	thisClass;
 
-    
-	  public TranslationEntry(String packageName, String classSimpleName, 
-					   		  String tag, Class<?> thisClass)
-	  {
-	  	 this(packageName, classSimpleName, (packageName == null) ? null : packageName + "." + classSimpleName, 
-	  		  tag, thisClass);
-	  }
-	  
-	  public TranslationEntry(String packageName, String classSimpleName, String classWholeName,
-			   				  String tag, Class<?> thisClass)
-{
-		 this.packageName		= packageName;
-		 /*
-             * changed by andruid 5/5/07 the thinking is that there is only one possible simple class name per tag per
-             * TranslationSpace, so we don't ever need the whole class name. and by ussing the short one, we will be
-             * able to support fancy overriding properly, where you change (override!) the mapping of a simple name,
-             * because the package and whole name are differrent.
-             */
-		 this.classSimpleName	= classSimpleName;
-		 this.classWholeName	= classWholeName;
-//		 this.className			= wholeClassName;
-		 this.tag				= tag;
-		 if (packageName != null)
-		 {
-			 String dottedPackageName	= packageName + ".";
-			 this.dottedPackageName	= dottedPackageName;
-			 this.tagWithPackage	= dottedPackageName + tag;
-		 }
-		 else
-		 {
-			 this.dottedPackageName	= null;
-			 this.tagWithPackage	= null;
-			 
-		 }
-		 if ((thisClass == null) && (classWholeName != null))
-		 {
-			 try
-			 {  
-				thisClass		= Class.forName(classWholeName);
-			 } catch (ClassNotFoundException e)
-			 {
-				// maybe we need to use State
-				try
-				{
-				   thisClass	= Class.forName(classWholeName+"State");
-				} catch (ClassNotFoundException e2)
-				{
-				}
-			 }
-		 }
-		 if (thisClass == null)
-		 {
+	   boolean					empty;
+
+	   /**
+	    * Construct an empty entry for tag.
+	    * This means that the TranslationSpace will map tag to no class forever.
+	    * 
+	    * @param tag
+	    */
+	   public TranslationEntry(String tag)
+	   {
+		   this.tag				= tag;
+		   this.packageName		= null;
+		   this.classSimpleName	= null;
+		   this.thisClass		= null;
+
+		   this.empty			= true;
+
+		   entriesByTag.put(tag, this);
+	   }
+
+	   /**
+	    * Create the entry, deriving all from its class object, perhaps including an @xml_tag declaration.
+	    */
+	   TranslationEntry(Class<?> thisClass)
+	   {
+		   this(thisClass, determineXMLTag(thisClass));
+	   }
+
+	   /**
+	    * Create the entry using Class object and a tag passed in.
+	    * This is used for alternative mappings.
+	    */
+	   TranslationEntry(Class<?> thisClass, String tag)
+	   {
+		   this(thisClass.getPackage().getName(), 
+				   thisClass.getSimpleName(), 
+				   thisClass.getName(),
+				   tag, 
+				   thisClass);
+	   }
+
+
+	   /**
+	    * Form an entry, using packageName, classSimpleName, and tag.
+	    * It may turn out to be an empty one -- if class.forName() fails.
+	    * 
+	    * @param packageName
+	    * @param classSimpleName
+	    * @param tag
+	    */
+	   TranslationEntry(String packageName, String classSimpleName, String tag)
+	   {
+		   this(packageName, classSimpleName, (packageName == null) ? null : packageName + "." + classSimpleName, 
+				   tag, null);
+	   }
+
+	   TranslationEntry(String packageName, String classSimpleName, String classWholeName,
+			   String tag, Class<?> thisClass)
+	   {
+		   this.packageName		= packageName;
+		   /*
+		    * changed by andruid 5/5/07 the thinking is that there is only one possible simple class name per tag per
+		    * TranslationSpace, so we don't ever need the whole class name. and by ussing the short one, we will be
+		    * able to support fancy overriding properly, where you change (override!) the mapping of a simple name,
+		    * because the package and whole name are differrent.
+		    */
+		   this.classSimpleName	= classSimpleName;
+
+		   this.tag				= tag;
+
+		   // look for a class if we dont' have one already
+		   if ((thisClass == null) && (classWholeName != null))
+		   {
+			   try
+			   {  
+				   thisClass		= Class.forName(classWholeName);
+			   } catch (ClassNotFoundException e)
+			   {
+				   // maybe we need to use State
+				   try
+				   {
+					   thisClass	= Class.forName(classWholeName+"State");
+				   } catch (ClassNotFoundException e2)
+				   {
+				   }
+			   }
+		   }
+		   if (thisClass == null)
+		   {
 			   debug("WARNING: can't find class object, create empty entry.");
 
 			   this.empty		= true;
-		 }
+		   }
 
-		 this.thisClass			= thisClass;
-		 registerTranslation(tag, classSimpleName);
-	  }
+		   this.thisClass			= thisClass;
+		   registerTranslation(tag, classSimpleName);
+	   }
 
-	/**
-	 * @param tag
-	 * @param classSimpleName
-	 */
-	private void registerTranslation(String tag, String classSimpleName)
-	{
-		entriesByTag.put(tag, this);
-		entriesByClassSimpleName.put(classSimpleName, this);
-		/*
-		 * i dont see why this is here. it looks wrong. -- andruid 5/6/07.
+	   /**
+	    * @param tag
+	    * @param classSimpleName
+	    */
+	   private void registerTranslation(String tag, String classSimpleName)
+	   {
+		   entriesByTag.put(tag, this);
+		   entriesByClassSimpleName.put(classSimpleName, this);
+		   /*
+		    * i dont see why this is here. it looks wrong. -- andruid 5/6/07.
 		if (classSimpleName.endsWith("State"))
 		{
 			int beforeState		= classSimpleName.length() - 5;
@@ -644,27 +549,28 @@ public final class TranslationSpace extends Debug
 //			debug("create entry including " + wholeClassNameNoState);
 			entriesByClassSimpleName.put(wholeClassNameNoState, this);
 		}
-		*/
-	}
-	private void registerTranslation()
-	{
-		registerTranslation(this.tag, this.classSimpleName);
-	}
-	  public String getTag()
-	  {
-		 return emitPackageNames() ? tagWithPackage : tag;
-	  }
-	  public String toString()
-	  {
-		  StringBuilder buffy = new StringBuilder(50);
-		 buffy.append("NameEntry[").append(classSimpleName).
-			append(" <").append(tag).append('>');
-		 if (thisClass != null)
-			buffy.append(' ').append(thisClass);
-		 buffy.append(']');
-		 return XMLTools.toString(buffy);
-	  }
+		    */
+	   }
+	   private void registerTranslation()
+	   {
+		   registerTranslation(this.tag, this.classSimpleName);
+	   }
+	   public String getTag()
+	   {
+		   return tag;
+	   }
+	   public String toString()
+	   {
+		   StringBuilder buffy = new StringBuilder(50);
+		   buffy.append("NameEntry[").append(classSimpleName).
+		   append(" <").append(tag).append('>');
+		   if (thisClass != null)
+			   buffy.append(' ').append(thisClass);
+		   buffy.append(']');
+		   return XMLTools.toString(buffy);
+	   }
    }
+
    public String toString()
    {
       return "TranslationSpace[" + name +"]";
@@ -760,7 +666,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
  * @param translations
- * @param inheritedTranslations
+ * @param inheritedTranslationSpaces
  * @param defaultPackageName
     * @return
     */
@@ -782,7 +688,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
     * @param translation
-    * @param inheritedTranslations
+    * @param inheritedTranslationSpaces
     * @return
     */
    public static TranslationSpace get(String name, Class translation, TranslationSpace inheritedTranslations)
@@ -814,7 +720,7 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
  * @param translations
- * @param inheritedTranslations
+ * @param inheritedTranslationSpaces
     * @return
     */
    public static TranslationSpace get(String name, Class[] translations,
@@ -829,14 +735,14 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
     * @param translations
-    * @param inheritedTranslations
+    * @param inheritedTranslationSpaces
     * @return
     */
    public static TranslationSpace get(String name, Class[] translations,
 			  TranslationSpace[] inheritedTranslations)
-	{
-	return get(name, translations, inheritedTranslations, (String) null);
-	}
+   {
+	   return get(name, translations, inheritedTranslations, (String) null);
+   }
 
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
@@ -899,7 +805,7 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param inheritedTranslations
+    * @param inheritedTranslationSpaces
     * @return
     */
    public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations)
@@ -912,7 +818,7 @@ public final class TranslationSpace extends Debug
     * Build on an inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
- * @param inheritedTranslations
+ * @param inheritedTranslationSpaces
  * @param defaultPackageName
     * @return
     */
