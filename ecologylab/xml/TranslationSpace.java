@@ -229,8 +229,17 @@ public final class TranslationSpace extends Debug
 	   if (nameSpaceDecls != null)
 		   for (NameSpaceDecl nsd: nameSpaceDecls)
 		   {
-			   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
+			   registerNameSpaceDecl(nsd);
 		   }
+   }
+   
+   /**
+    * Enter a NameSpaceDecl into nameSpaceClassesByURN.
+    * @param nsd
+    */
+   private void registerNameSpaceDecl(NameSpaceDecl nsd)
+   {
+	   nameSpaceClassesByURN.put(nsd.urn, nsd.esClass);
    }
       
    /**
@@ -275,6 +284,14 @@ public final class TranslationSpace extends Debug
 
                if (!entryExists || newEntry)
             	   addTranslation(translationEntry);
+		   }
+		   HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslations.nameSpaceClassesByURN;
+		   if (inheritedNameSpaceClassesByURN != null)
+		   {
+			   for (String urn : inheritedNameSpaceClassesByURN.keySet())
+			   {
+				   nameSpaceClassesByURN.put(urn, inheritedNameSpaceClassesByURN.get(urn));
+			   }
 		   }
 	   }
    }
