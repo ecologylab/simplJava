@@ -173,7 +173,7 @@ implements OptimizationTypes
 			this.nameSpaceID		= tag.substring(0, colonIndex);
 			String subTag			= tag.substring(colonIndex+1);
 
-			/*
+			
 			// the new way
 			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
 			if (nsContext == null)
@@ -199,8 +199,8 @@ implements OptimizationTypes
 			else
 				this.type			= NAMESPACE_IGNORED_ELEMENT;
 
-			*/
 			
+			/*
 			// the old way
 			translationSpace	= TranslationSpace.get(nameSpaceID);
 			// is there a field called nameSpaceID?
@@ -230,6 +230,7 @@ implements OptimizationTypes
 					return;
 				}
 			}
+			*/
 			
 		}
 		else
@@ -237,6 +238,7 @@ implements OptimizationTypes
 			
 			// try as leaf node
 			int diganosedType		= setupScalarValue(tag, optimizations, contextClass, false);
+			Field field				= this.field;
 			switch (diganosedType)
 			{
 			case LEAF_NODE_VALUE:
@@ -244,7 +246,7 @@ implements OptimizationTypes
 				setCDATA(field);
  				return;
 			case IGNORED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
-				if (this.field != null)
+				if ((field != null) && field.isAnnotationPresent(ElementState.xml_nested.class))
 				{
 					// this is actually a regular nested element
 					this.type	= REGULAR_NESTED_ELEMENT;
@@ -381,8 +383,7 @@ implements OptimizationTypes
 	 */
 	void registerXMLNS(ElementState context, String urn)
 	{
-		Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
-		optimizations.mapNamespaceIdToClass(translationSpace, tag, nsClass);
+		optimizations.mapNamespaceIdToClass(translationSpace, tag, urn);
 //		context.nestNameSpace(tag, nsClass);
 	}
 
@@ -518,12 +519,7 @@ implements OptimizationTypes
 	throws XMLTranslationException
 	{
 		ElementState childElementState		= (ElementState) XMLTools.getInstance(classOp);
-		childElementState.elementByIdMap	= parent.elementByIdMap;
-		childElementState.parent			= parent;
-		Optimizations parentOptimizations	= parent.optimizations;
-		Optimizations childOptimizations 	= parentOptimizations.lookupChildOptimizations(childElementState);
-		childElementState.optimizations		= childOptimizations;
-		childOptimizations.setParent(parentOptimizations);
+		parent.setupChildElementState(childElementState);
 		
 		return childElementState;
 	}
@@ -538,7 +534,7 @@ implements OptimizationTypes
 	{
 		if ((value == null) /*|| (value.length() == 0) removed by Alex to allow empty delims*/)
 		{
-			error("Can't set scalar field with empty String");
+//			error("Can't set scalar field with empty String");
 			return;
 		}
 		if (setMethod != null)

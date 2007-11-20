@@ -4,11 +4,9 @@
 package ecologylab.xml;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -16,11 +14,8 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Stack;
 
-import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -290,6 +285,12 @@ implements ContentHandler, OptimizationTypes
 						root.translateAttributes(translationSpace, attributes);
 						activeN2JO				= NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS;
 					}
+					else
+					{
+						this.xmlTranslationException	= 
+							new XMLTranslationException("Can't form root element for " + tagName);
+						return;
+					}
 				} catch (XMLTranslationException e)
 				{
 					xmlTranslationException	= e;
@@ -302,6 +303,7 @@ implements ContentHandler, OptimizationTypes
 						+ tagName + ">: Ignored. ";
 				println(message);
 				xmlTranslationException		= new XMLTranslationException(message);
+				return;
 			}
 		}
 		else
@@ -335,6 +337,10 @@ implements ContentHandler, OptimizationTypes
 				ElementState nsContext			= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
 				childES							= activeN2JO.constructChildElementState(nsContext);
 				activeN2JO.setFieldToNestedObject(nsContext, childES);
+				break;
+			case NAME_SPACE_LEAF_NODE:
+				childES							= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
+				
 				break;
 			case LEAF_NODE_VALUE:
 				// wait for characters to set scalar field
@@ -422,6 +428,7 @@ implements ContentHandler, OptimizationTypes
 			{
 				switch (currentN2JO.type())
 				{
+				case NAME_SPACE_LEAF_NODE:
 				case LEAF_NODE_VALUE:
 					//TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
@@ -443,7 +450,8 @@ implements ContentHandler, OptimizationTypes
 		}
 		final ElementState parentES					= currentES.parent;
 		final NodeToJavaOptimizations currentN2JO	= this.currentN2JO;
-		switch (currentN2JO.type())	// every good push deserves a pop :-) (and othertimes, not!)
+		final int currentN2JOtype = currentN2JO.type();
+		switch (currentN2JOtype)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
 			final Object key 				= ((Mappable) currentES).key();
@@ -451,26 +459,31 @@ implements ContentHandler, OptimizationTypes
 			map.put(key, currentES);
 		case REGULAR_NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
+		case NAME_SPACE_NESTED_ELEMENT:
 			if (parentES != null)
 				parentES.createChildHook(currentES);
 			else
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
+		case NAME_SPACE_LEAF_NODE:
+		case OTHER_NESTED_ELEMENT:
 			this.currentElementState		= parentES;	// restore context!
 			break;
 		default:
 			break;
 		}
-		
+		// end of the Namespace object, so we gotta pop it off, too.
+		if (currentN2JOtype == NAME_SPACE_NESTED_ELEMENT)
+			this.currentElementState		= this.currentElementState.parent;
 		popAndPeekN2JO();
 		//if (this.startElementPushed)	// every good push deserves a pop :-) (and othertimes, not!)
 	}
 	void printStack(String msg)
 	{
-		currentElementState.debug("Stack -- " + msg);
+		currentElementState.debug("Stack -- " + msg + "\t[" + this.currentElementState + "]");
 		for (NodeToJavaOptimizations thatN2JO : n2joStack)
 		{
-			println(thatN2JO.tag() + " - " + thatN2JO.type());
+			println(thatN2JO.tag() + " - 0x" + Integer.toHexString(thatN2JO.type()));
 		}
 		println("");
 	}
@@ -493,18 +506,11 @@ implements ContentHandler, OptimizationTypes
 			{
 			case LEAF_NODE_VALUE:
 			case COLLECTION_SCALAR:
+			case NAME_SPACE_LEAF_NODE:
 				String leafValue = new String(chars, startIndex, length);
 				//debug(currentElementState + " - hi LEAF_NODE_VALUE characters(): " + leafValue);
 				currentLeafValue.append(chars, startIndex, length);
 				//TODO -- unmarshall to set field with scalar type
-				break;
-//			case COLLECTION_SCALAR:
-//				//TODO -- unmarshall to get scalar reference type value
-//				//TODO -- add value to collection
-//				break;
-			case MAP_SCALAR:
-				//TODO -- unmarshall to get scalar reference type value
-				//TODO -- put value in map
 				break;
 			default:
 				//TODO ?! can we dump characters in this case, or should we append to textNode?!
@@ -606,28 +612,46 @@ implements ContentHandler, OptimizationTypes
 	 *
 	 * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
 	 */
-	public void startPrefixMapping(String prefix, String urn)
+	public void startPrefixMapping(String nsID, String urn)
 			throws SAXException
 	{
-		debug("Hi: startPrefixMapping(" + prefix +" := " + urn);
-		this.nameSpacePrefix	= prefix;
-		this.nameSpaceURN		= urn;
-		
+//		debug("Hi: startPrefixMapping(" + nsID +" := " + urn);
+//		this.nameSpacePrefix	= prefix;
+//		this.nameSpaceURN		= urn;
+		if (nsID.length() > 0)	// these days, ignore ns decls without an id (default ones)
+		{
+			// push the urn in first; pop it off 2nd
+			xmlnsStack.add(urn);
+			// push the nsID in 2nd; pop it off 1st
+			xmlnsStack.add(nsID);
+		}
 	}
 	
-	String	nameSpacePrefix;
+//	String	nameSpacePrefix;
+//	
+//	String	nameSpaceURN; //FIXME -- this should be a stack!
 	
-	String	nameSpaceURN; //FIXME -- this should be a stack!
+	ArrayList<String>	xmlnsStack	= new ArrayList<String>(2);
 	
 	void registerXMLNS()
 	{
-		String urn = nameSpaceURN;
-		if (urn != null)
+		int size	= xmlnsStack.size();
+		while (size >= 2)
 		{
-			registerXMLNS(this.currentElementState, nameSpacePrefix, urn);
-			nameSpaceURN	= null;
-			nameSpacePrefix	= null;
+			String nameSpaceID	= xmlnsStack.remove(--size);
+			String urn			= xmlnsStack.remove(--size);
+			if ((nameSpaceID != null) && (urn != null))
+			{
+				registerXMLNS(this.currentElementState, nameSpaceID, urn);
+			}
 		}
+//		String urn = nameSpaceURN;
+//		if (urn != null)
+//		{
+//			registerXMLNS(this.currentElementState, nameSpacePrefix, urn);
+//			nameSpaceURN	= null;
+//			nameSpacePrefix	= null;
+//		}
 	}
 
 	
@@ -639,8 +663,10 @@ implements ContentHandler, OptimizationTypes
 	 */
 	private void registerXMLNS(ElementState context, String prefix, String urn)
 	{
-		Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
-		context.optimizations.mapNamespaceIdToClass(translationSpace, prefix, nsClass);
+		if (context != null)
+			context.optimizations.mapNamespaceIdToClass(translationSpace, prefix, urn);
+		else
+			println("ERROR: Null context. Can't register xmlns:" + prefix + "=" + urn);
 	}
 	/**
 	 * @param args

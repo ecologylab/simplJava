@@ -34,6 +34,8 @@ implements OptimizationTypes
 	
 	Optimizations										parent;
 	
+	private String										nameSpaceID;
+	
 	/**
 	 * A map of root level Optimizations objects.
 	 * The keys are simple class names.
@@ -81,6 +83,12 @@ implements OptimizationTypes
 	private ArrayList<Field>					attributeFields;
 	
 	private ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations;
+	
+	/**
+	 * These are pseudo-FieldOptimizations, used to generate xmnls: 
+	 * "attributes".
+	 */
+	private ArrayList<FieldToXMLOptimizations>	xmlnsAttributeOptimizations;
 	
 	/**
 	 * The fields that are represented as nested elements (including leaf nodes)
@@ -176,6 +184,10 @@ implements OptimizationTypes
 		return result;
 	}
 	
+	void setNameSpaceID(String nameSpaceID)
+	{
+		this.nameSpaceID	= nameSpaceID + ":";
+	}
 	/**
 	 * Obtain child Optimizations object in the local scope of this.
 	 * Uses just-in-time / lazy evaluation.
@@ -187,6 +199,7 @@ implements OptimizationTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
+	//TODO -- do we need to pass NamespaceID through here!?
 	Optimizations lookupChildOptimizations(ElementState elementState)
 	{
 		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
@@ -216,6 +229,15 @@ implements OptimizationTypes
 		}
 		return result;
 	}
+	
+	/**
+	 * Form a pseudo-FieldToXMLOptimizations-object for a root element.
+	 * We say pseudo, because there is no Field corresponding to this element.
+	 * The pseudo-FieldToXMLOptimizations-object still guides the translation process.
+	 * 
+	 * @param rootClass
+	 * @return
+	 */
 	FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
@@ -226,7 +248,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(rootClass);
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(rootClass);
+				    result = new FieldToXMLOptimizations(rootClass, this.nameSpaceID);
                     
                     fieldToXMLOptimizationsMap.put(rootClass, result);
 				}
@@ -267,8 +289,9 @@ implements OptimizationTypes
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
 	 * and cache it.
+	 * @param nameSpacePrefix TODO
 	 */
-	FieldToXMLOptimizations fieldToXMLOptimizations(Field field)
+	FieldToXMLOptimizations fieldToXMLOptimizations(Field field, String nameSpacePrefix)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(field);
 		if (result == null)
@@ -278,7 +301,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(field);
 				if (result == null)
 				{
-					result	= new FieldToXMLOptimizations(field);
+					result	= new FieldToXMLOptimizations(field, nameSpacePrefix);
 //					debug(tagName.toString());
 					fieldToXMLOptimizationsMap.put(field, result);
 				}
@@ -391,7 +414,7 @@ implements OptimizationTypes
 						result				= new ArrayList<FieldToXMLOptimizations>(numAttributes);
 						for (int i=0; i<numAttributes; i++)
 						{
-							result.add(this.fieldToXMLOptimizations(attributeFields2.get(i)));
+							result.add(this.fieldToXMLOptimizations(attributeFields2.get(i), (String) null));
 						}
 					}
 				}
@@ -422,7 +445,7 @@ implements OptimizationTypes
 						result				= new ArrayList<FieldToXMLOptimizations>(numElements);
 						for (int i=0; i<numElements; i++)
 						{
-							result.add(this.fieldToXMLOptimizations(elementFields2.get(i)));
+							result.add(this.fieldToXMLOptimizations(elementFields2.get(i), this.nameSpaceID));
 						}
 					}
 				}
@@ -876,21 +899,42 @@ implements OptimizationTypes
 	 * Map an XML namespace id to the class that should be instantiated to handle it.
 	 * 
 	 * @param translationSpace Used for error messages.
-	 * @param id
-	 * @param nsClass
+	 * @param nsID
+	 * @param urn TODO
 	 */
-	void mapNamespaceIdToClass(TranslationSpace translationSpace, String id, Class<? extends ElementState> nsClass)
+	void mapNamespaceIdToClass(TranslationSpace translationSpace, String nsID, String urn)
 	{
-		if (!nameSpaceClassesById.containsKey(id))
+		if (!nameSpaceClassesById.containsKey(nsID))
 		{
-			nameSpaceClassesById().put(id, nsClass);
-			if (nsClass == null)
-				warning("No Namespace found in " + translationSpace + " for ID = " + id);
+			Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
+			final boolean nsUnsupported				= (nsClass == null);
+			nameSpaceClassesById().put(nsID, nsClass);
+			FieldToXMLOptimizations xmlnsF2XO = new FieldToXMLOptimizations(nsID, urn, nsUnsupported);
+			if (nsUnsupported)
+				warning("No Namespace found in " + translationSpace + " for\t\txmlns:" + nsID +"=" + urn);
 			else
-				debug("COOL! -- mapping " + nsClass + " to ID = " + id);
+			{
+				debug("COOL! " + translationSpace + " \t" + nsClass.getName() + " ->\t\txmlns:" + nsID +"=" + urn);
+				xmlnsAttributeOptimizations().add(xmlnsF2XO);
+			}
 		}
 	}
-	
+	/**
+	 * Lazy evaluation creation of Collection of pseudo-FieldOptimizations for generating
+	 * xmlns: "attributes".
+	 * 
+	 * @return
+	 */
+	ArrayList<FieldToXMLOptimizations> xmlnsAttributeOptimizations()
+	{
+		ArrayList<FieldToXMLOptimizations>	result	= this.xmlnsAttributeOptimizations;
+		if (result == null)
+		{
+			result		= new ArrayList<FieldToXMLOptimizations>(2);
+			this.xmlnsAttributeOptimizations		= result;
+		}
+		return result;
+	}
 	boolean containsNameSpaceClass(String nsID)
 	{
 		return nameSpaceClassesById().containsKey(nsID);

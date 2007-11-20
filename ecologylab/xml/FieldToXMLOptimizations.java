@@ -8,8 +8,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import ecologylab.generic.Debug;
@@ -28,7 +34,9 @@ class FieldToXMLOptimizations
 extends Debug
 implements OptimizationTypes
 {
-    private 	String 		startOpenTag;
+    public static final String XMLNS_URN = "http://www.w3.org/2000/xmlns/";
+
+	private 	String 		startOpenTag;
     
     /**
      * Used for leaf nodes.
@@ -39,8 +47,12 @@ implements OptimizationTypes
     
     private		String		tagName;
     
+    private		String		nameSpacePrefix;
+    
     /**
-     * This field is used iff type is COLLECTION or MAP
+     * This field is used iff type is COLLECTION or MAP.
+     * 
+     * We also borrow it for use for the URN in for type XMLNS_ATTRIBUTE.
      */
     private		String		childTagName;
     
@@ -88,14 +100,118 @@ implements OptimizationTypes
 
     /**
      * Build a FieldToXMLOptimizations for a root element.
+     * There is no field!
      * Use its class name to form the tag name.
      * 
      * @param rootClass
+     * @param nameSpaceID TODO
      */
-    FieldToXMLOptimizations(Class rootClass)
+    FieldToXMLOptimizations(Class rootClass, String nameSpaceID)
     {
     	setTag(XMLTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
+    	if (nameSpaceID != null)
+    	{
+    		this.nameSpacePrefix	= nameSpaceID + ":";	// set-up the prefix
+    		// with the prefix, we dont create an enclosing element!
+    		this.startOpenTag		= "";
+    		this.openTag			= "";
+    		this.closeTag			= "";
+    	}
+    }
+    
+    /**
+     * Build a FieldToXMLOptimizations pseudo-object for an XML Namespace scope declaration
+     * attribute.
+     * We stuff the entire xmlns:id="http://blah" into the tagName for efficiency's sake.
+     * 
+     * @param nameSpaceID
+     */
+    FieldToXMLOptimizations(String nameSpaceID, String urn, boolean ignored)
+    {
+    	this.tagName				= nameSpaceID;
+    	String xmlnsPrefixed		= "xmlns:" + tagName;
+		this.startOpenTag			= xmlnsPrefixed;
+    	this.openTag				= " " + xmlnsPrefixed + "=\"" + urn + "\"";
+    	this.childTagName			= urn;
+    	this.type					= ignored ? XMLNS_IGNORED : XMLNS_ATTRIBUTE;
+    }
+    
+    /**
+     * Return a well-formed xmlns: attribute with namespace id and urn.
+     * Or, if this is not an XMLNS_ATTRIBUTE, do nothing.
+     * 
+     * @return
+     * @throws IOException 
+     */
+    void xmlnsAttr(StringBuilder buffy)
+    {
+    	if (type == XMLNS_ATTRIBUTE)
+    	{
+    		buffy.append(xmlnsDecl());
+//    		buffy.append(this.startOpenTag);
+//    		buffy.append('=');
+//    		buffy.append('"');
+//    		buffy.append(this.childTagName);
+//    		buffy.append('"');  
+    	}
+    }
+    
+    String xmlnsURN()
+    {
+    	return childTagName;
+    }
+    
+    String prefixedXMLNS()
+    {
+    	return this.startOpenTag;
+    }
+    
+    String xmlnsDecl()
+    {
+    	return this.openTag;
+    }
+    /**
+     * Append to the DOM a well-formed xmlns: attribute with namespace id and urn.
+     * Or, if this is not an XMLNS_ATTRIBUTE, do nothing.
+     * 
+     * @return
+     * @throws XMLTranslationException 
+     * @throws IOException 
+     */
+    void xmlnsAttr(Element elementNode, Document dom) throws XMLTranslationException
+    {
+    	if (type == XMLNS_ATTRIBUTE)
+		{
+			String xmlnsURN				= xmlnsURN();
+    		String prefixedNSDecl 		= prefixedXMLNS();
+
+			Attr attr 					= dom.createAttribute(prefixedNSDecl);
+			attr.setValue(xmlnsURN);
+			elementNode.setAttributeNode(attr);
+		}
+    	else
+    		throw new XMLTranslationException("Trying to output XMLNS_ATTRIBUTE, but FieldToXMLOptimizations.type = "+type);
+//    		element.setAttribute(this.tagName, this.childTagName);
+    }
+    /**
+     * Return a well-formed xmlns: attribute with namespace id and urn.
+     * Or, if this is not an XMLNS_ATTRIBUTE, do nothing.
+     * 
+     * @return
+     * @throws IOException 
+     */
+    void xmlnsAttr(Appendable appendable) throws IOException
+    {
+    	if (type == XMLNS_ATTRIBUTE)
+    	{
+    		appendable.append(xmlnsDecl());
+//    		appendable.append(this.startOpenTag);
+//    		appendable.append('=');
+//    		appendable.append('"');
+//    		appendable.append(this.childTagName);
+//    		appendable.append('"');  
+    	}
     }
     /**
      * Constructor for collection elements (no field).
@@ -124,7 +240,7 @@ implements OptimizationTypes
         //TODO -- do we need to handle scalars here as well?
         this.type		= REGULAR_NESTED_ELEMENT;
     }
-    FieldToXMLOptimizations(Field field)
+    FieldToXMLOptimizations(Field field, String nameSpacePrefix)
     {
     	final ElementState.xml_collection collectionAnnotationObj	= field.getAnnotation(ElementState.xml_collection.class);
     	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
@@ -132,12 +248,15 @@ implements OptimizationTypes
     	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
     	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
     	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-    	final String tagName	= 
+    	String tagName	= 
     		((collectionAnnotation != null) && (collectionAnnotation.length() > 0)) ? collectionAnnotation :
     		((mapAnnotation != null) && (mapAnnotation.length() > 0)) ? mapAnnotation :
     		((tagAnnotation != null) && (tagAnnotation.length() > 0)) ? tagAnnotation :
     			XMLTools.getXmlTagName(field.getName(), null); // generate from class name
-
+    	if (nameSpacePrefix != null)
+    	{
+    		tagName				= nameSpacePrefix + tagName;
+    	}
         setTag(tagName);
         this.field				= field;
         setType(field, field.getType());
@@ -151,6 +270,16 @@ implements OptimizationTypes
 	        	needsEscaping	= scalarType.needsEscaping();
         	}
         }
+    }
+    
+    /**
+     * If this Optimizations object represents a NameSpace, then return the prefix for it, in the current context.
+     * 
+     * @return
+     */
+    public String nameSpacePrefix()
+    {
+    	return this.nameSpacePrefix;
     }
 
     @Override public String toString()
@@ -203,10 +332,10 @@ implements OptimizationTypes
 					if (ElementState.class.isAssignableFrom(collectionElementsType))
 					{	// nested element
 						result						= COLLECTION_ELEMENT;
-						//TODO -- is this inheritance good, or should be wait for the actual class object?!
+						//TODO -- is this inheritance good, or should we wait for the actual class object?!
 //						if (childTagName == null)
 //							childTagName			= XmlTools.getXmlTagName(thatClass, "State");
-						println("FieldToXMLOptimizations: !!!collection elements childTagName = " + childTagName);
+//						println("FieldToXMLOptimizations: !!!collection elements childTagName = " + childTagName);
 					}
 					else
 					{	// scalar
@@ -580,5 +709,30 @@ implements OptimizationTypes
 	Field field()
 	{
 		return field;
+	}
+	
+	public static void main(String[] a)
+	{
+		DocumentBuilderFactory factory	= DocumentBuilderFactory.newInstance();
+		try
+		{
+			DocumentBuilder docBuilder 	= factory.newDocumentBuilder();
+			Document doc				= docBuilder.newDocument();
+			
+//			String nsURN				= "urn:users";
+			String nsURN				= "http://rssnamespace.org/feedburner/ext/1.0";
+//			Element root 				= doc.createElementNS("urn:users", "root");
+			Element root 				= doc.createElementNS(nsURN, "rss");
+			doc.appendChild(root);
+			
+			Attr attr 					= doc.createAttribute("xmlns:feedburner");
+			attr.setValue(nsURN);
+			root.setAttributeNode(attr);
+			println("yo!");
+		} catch (ParserConfigurationException e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

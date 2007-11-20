@@ -24,6 +24,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -341,11 +342,22 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
         this.preTranslationProcessingHook();
 		
+		final String startOpenTag = fieldToXMLOptimizations.startOpenTag();
+		buffy.append(startOpenTag);
+
+		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= optimizations.xmlnsAttributeOptimizations();
+		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
+		if (numXmlnsAttributes > 0)
+		{
+			for (int i=0; i<numXmlnsAttributes; i++)
+			{
+				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
+				xmlnsF2Xo.xmlnsAttr(buffy);
+			}			
+		}
         ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
-
-		buffy.append(fieldToXMLOptimizations.startOpenTag());
-
 		int numAttributes 			= attributeF2XOs.size();
+		
 		if (numAttributes > 0)
 		{
 			try
@@ -374,7 +386,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		}
 		else
 		{
-			buffy.append('>');	// close open tag behind attributes
+			if (startOpenTag.length() > 0)
+				buffy.append('>');	// close open tag behind attributes
 			if (textNode != null) 
 			{	
 				//TODO -- might need to trim the buffy here!
@@ -483,15 +496,26 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						// field, use the instance's type to determine the XML tag name.
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
+						FieldToXMLOptimizations nestedF2Xo = thatNewClass.equals(childField.getType()) ?
 								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
 
-						thatElementState.translateToXMLBuilder(thatNewClass, nestedTagMapEntry, buffy);
+						thatElementState.translateToXMLBuilder(thatNewClass, nestedF2Xo, buffy);
 						//buffy.append('\n');						
 					}
 				}
 			} //end of for each element child
-
+			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
+			if (nestedNameSpaces != null)
+			{
+				for (ElementState nestedNSE : nestedNameSpaces.values())
+				{
+					//TODO -- where do we get optimizations for nested namespace elements?
+					Class<? extends ElementState> nestedNSClass = nestedNSE.getClass();
+					FieldToXMLOptimizations nestedNsF2XO	=
+						nestedNSE.optimizations.rootFieldToXMLOptimizations(nestedNSClass);
+					nestedNSE.translateToXMLBuilder(nestedNSClass, nestedNsF2XO, buffy);
+				}
+			}
 			// end the element
 			buffy.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
@@ -541,10 +565,21 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
 		this.preTranslationProcessingHook();
 
+		final String startOpenTag = fieldToXMLOptimizations.startOpenTag();
+		appendable.append(startOpenTag);
+
+		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= optimizations.xmlnsAttributeOptimizations();
+		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
+		if (numXmlnsAttributes > 0)
+		{
+			for (int i=0; i<numXmlnsAttributes; i++)
+			{
+				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
+				xmlnsF2Xo.xmlnsAttr(appendable);
+			}			
+		}
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
 		int numAttributes 			= attributeF2XOs.size();
-
-		appendable.append(fieldToXMLOptimizations.startOpenTag());
 
 		if (numAttributes > 0)
 		{
@@ -574,7 +609,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		}
 		else
 		{
-			appendable.append('>');	// close open tag behind attributes
+			if (startOpenTag.length() > 0)
+				appendable.append('>');	// close open tag behind attributes unless in a nested namespace root
 			if (textNode != null) 
 			{	
 				//TODO -- might need to trim the buffy here!
@@ -585,14 +621,14 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 			for (int i=0; i<numElements; i++)
 			{
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
-				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
+				FieldToXMLOptimizations childF2XO	= elementF2XOs.get(i);
 				//if (XmlTools.representAsLeafNode(thatField))
-				final int childOptimizationsType 	= childF2Xo.type();
+				final int childOptimizationsType 	= childF2XO.type();
 				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
 					try
 					{
-						childF2Xo.appendLeaf(appendable, this);
+						childF2XO.appendLeaf(appendable, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -601,7 +637,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				else
 				{
 					Object thatReferenceObject	= null;
-					Field childField			= childF2Xo.field();
+					Field childField			= childF2XO.field();
 					try
 					{
 						thatReferenceObject		= childField.get(this);
@@ -653,7 +689,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2Xo.appendCollectionLeaf(appendable, next);
+									childF2XO.appendCollectionLeaf(appendable, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -667,7 +703,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
+								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementEntry, appendable);
 							}
 							else
@@ -683,14 +719,26 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						// field, use the instance's type to determine the XML tag name.
 						Class thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						FieldToXMLOptimizations nestedTagMapEntry = thatNewClass.equals(childField.getType()) ?
-								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
+						FieldToXMLOptimizations nestedF2XO = thatNewClass.equals(childField.getType()) ?
+								childF2XO : fieldToXMLOptimizations(childField, thatNewClass);
 
-						thatElementState.translateToXMLAppendable(thatNewClass, nestedTagMapEntry, appendable);
+						thatElementState.translateToXMLAppendable(thatNewClass, nestedF2XO, appendable);
 					}
 				}
 			} //end of for each element child
+			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
+			if (nestedNameSpaces != null)
+			{
+				for (ElementState nestedNSE : nestedNameSpaces.values())
+				{
+					Class<? extends ElementState> nestedNSClass = nestedNSE.getClass();
+					// translate nested namespace root
+					FieldToXMLOptimizations nestedNsF2XO	=
+						nestedNSE.optimizations.rootFieldToXMLOptimizations(nestedNSClass);
+					nestedNSE.translateToXMLAppendable(nestedNSClass, nestedNsF2XO, appendable);
+				}
 
+			}
 			// end the element
 			appendable.append(fieldToXMLOptimizations.closeTag())/* .append('\n') */;
 
@@ -712,7 +760,20 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		{
 			DocumentBuilder docBuilder 	= factory.newDocumentBuilder();
 			Document dom				= docBuilder.newDocument();
-
+/*			
+			String nsURN				= "http://rssnamespace.org/feedburner/ext/1.0";
+//			Element root 				= dom.createElementNS(nsURN, "rss");
+			Element root 				= dom.createElement("rss");
+			dom.appendChild(root);
+			
+			Attr attr 					= dom.createAttribute("xmlns:feedburner");
+			attr.setValue(nsURN);
+			root.setAttributeNode(attr);
+			attr 					= dom.createAttribute("xmlns:media");
+			attr.setValue(nsURN);
+			root.setAttributeNode(attr);
+			println("yo!");
+*/
 			Class rootClass				= optimizations.thatClass;
 
 			translateToDOM(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), dom, dom);
@@ -753,11 +814,25 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
 		this.preTranslationProcessingHook();
 		
-//		Document dom				= parentNode.getOwnerDocument();
-		
-		Element elementNode			= dom.createElement(fieldToXMLOptimizations.tagName());
-		
-		parentNode.appendChild(elementNode);
+		Element elementNode;
+		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= optimizations.xmlnsAttributeOptimizations();
+		if (fieldToXMLOptimizations.startOpenTag().length() > 0)
+		{
+			String tagName 							= fieldToXMLOptimizations.tagName();
+			elementNode								= dom.createElement(tagName);		
+			parentNode.appendChild(elementNode);
+			if ((xmlnsF2XOs != null) && (xmlnsF2XOs.size() > 0))
+			{
+				int numXmlnsAttributes 					= xmlnsF2XOs.size();
+				for (int i=0; i<numXmlnsAttributes; i++)
+				{
+					FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
+					xmlnsF2Xo.xmlnsAttr(elementNode, dom);
+				}
+			}
+		}
+		else	// nested namespace
+			elementNode								= (Element) parentNode;
 
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= optimizations.attributeFieldOptimizations();
 		int numAttributes 			= attributeF2XOs.size();
@@ -884,6 +959,17 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				}
 			}
 		} //end of for each element child
+		if (nestedNameSpaces != null)
+		{
+			for (ElementState nestedNSE : nestedNameSpaces.values())
+			{
+				//TODO -- where do we get optimizations for nested namespace elements?
+				Class<? extends ElementState> nestedNSClass = nestedNSE.getClass();
+				FieldToXMLOptimizations nestedNsF2XO	=
+					nestedNSE.optimizations.rootFieldToXMLOptimizations(nestedNSClass);
+				nestedNSE.translateToDOM(nestedNSClass, nestedNsF2XO, elementNode, dom);
+			}
+		}
 	}
 
     /**
@@ -1487,7 +1573,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					activeNJO.domFormElementAndAddToCollection(activeES, childNode);
 					break;
 				case NAME_SPACE_NESTED_ELEMENT:
-					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
+//					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
 					ElementState nsContext			= getNestedNameSpace(activeNJO.nameSpaceID());
 					activeNJO.domFormNestedElementAndSetField(nsContext, childNode);
 					break;
@@ -1893,15 +1979,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		
 	//////////////// helper methods used by translateToXML() //////////////////
 
-/**
- * Get a tag translation object that corresponds to the fieldName,
- * with this class. If necessary, form that tag translation object,
- * and cache it.
- */
-	private FieldToXMLOptimizations fieldToXMLOptimizations(Field field)
-	{
-		return optimizations.fieldToXMLOptimizations(field);
-	}
 /**
  * Get a tag translation object that corresponds to the fieldName,
  * with this class. If necessary, form that tag translation object,
@@ -2359,8 +2436,26 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     }
     
     /**
+     * Set-up referential chains for a newly born child of this.
+     * 
+     * @param newChildES
+     */
+    void setupChildElementState(ElementState newChildES)
+	{
+		newChildES.elementByIdMap			= elementByIdMap;
+		newChildES.parent					= this;
+		Optimizations parentOptimizations	= optimizations;
+		Optimizations childOptimizations 	= parentOptimizations.lookupChildOptimizations(newChildES);
+		newChildES.optimizations			= childOptimizations;
+		childOptimizations.setParent(parentOptimizations);
+	}
+
+    
+    /**
      * Either lookup an existing Nested Namespace object, 
-     * or form a new one, map it, and return it.
+     * or form a new one, map it, and return it. 
+     * This lazy evaluation type call is invoked either in translateFromXML(), or,
+     * when procedurally building an element with Namespace children.
      * 
      * @param id
      * @param esClass
@@ -2377,9 +2472,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	    		try
 				{
 					result			= XMLTools.getInstance(esClass);
-					result.parent	= this;
+					this.setupChildElementState(result);
+					result.optimizations.setNameSpaceID(id);
+//					result.parent	= this;
 		    		nestNameSpace(id, result);
-		    		debug("WOW! Created nested Namespace xmlns:"+id+'\n');
+//		    		debug("WOW! Created nested Namespace xmlns:"+id+'\n');
 				} catch (XMLTranslationException e)
 				{
 					e.printStackTrace();
@@ -2389,6 +2486,17 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     	return result;
     }
     
+    /**
+     * Lookup an ElementState subclass representing the scope of the nested XML Namespace in this.
+     * 
+     * @param 	id
+     * @return	The ElementState subclass associated with xmlns:id, if there is one.
+     * 			Otherwise, null.
+     */
+    public ElementState lookupNestedNameSpace(String id)
+    {
+    	return(nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
+    }
     /**
      * Set to true to use the DOM parser by default for translateToXML().
      * Otherwise, the SAX parser will be used.

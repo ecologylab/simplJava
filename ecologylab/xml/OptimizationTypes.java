@@ -48,6 +48,8 @@ public interface OptimizationTypes
 	
 	public static final int	XMLNS_ATTRIBUTE			= 0x0a;	
 	
+	public static final int	XMLNS_IGNORED			= 0x0b;	
+	
 	
 	public static final int NAME_SPACE_MASK			= 0x10;
 	
