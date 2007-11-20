@@ -151,14 +151,6 @@ public abstract class NIONetworking extends NIOCore
 		selector.wakeup();
 	}
 
-	public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
-			throws XMLTranslationException
-	{
-		RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
-				translationSpace);
-		return requestMessage;
-	}
-
 	/**
 	 * Reads all the data from the key into the readBuffer, then pushes that information to the action processor for
 	 * processing.
