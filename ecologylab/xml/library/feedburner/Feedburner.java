@@ -5,6 +5,7 @@ package ecologylab.xml.library.feedburner;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationSpace;
 
 /**
  * @author andruid
@@ -30,6 +31,10 @@ public class Feedburner extends ElementState
 	public void setOrigLink(ParsedURL origLink)
 	{
 		this.origLink = origLink;
+	}
+	public static TranslationSpace get()
+	{
+		return TranslationSpace.get("feedburner", Feedburner.class);
 	}
 
 }
