@@ -30,6 +30,8 @@ public class Media extends ElementState
 	
 	@xml_nested	Thumbnail	thumbnail;
 	
+	@xml_nested	Group		group;
+	
 	@xml_leaf	String		title;
 	@xml_leaf	String		description;
 	
@@ -140,5 +142,46 @@ public class Media extends ElementState
 	public static final TranslationSpace getTranslations()
 	{
 		return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+	}
+	/**
+	 * @return the thumbnail
+	 */
+	public Thumbnail getThumbnail()
+	{
+		Thumbnail result	= thumbnail;
+		
+		if (result == null)
+		{
+			Group group				= this.group;
+			if (group != null)
+			{
+				Media nestedMedia	= group.lookupMedia();
+				if (nestedMedia != null)
+					result			= nestedMedia.getThumbnail();
+			}
+		}
+		
+		return result;
+	}
+	/**
+	 * @param thumbnail the thumbnail to set
+	 */
+	public void setThumbnail(Thumbnail thumbnail)
+	{
+		this.thumbnail = thumbnail;
+	}
+	/**
+	 * @return the group
+	 */
+	public Group getGroup()
+	{
+		return group;
+	}
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(Group group)
+	{
+		this.group = group;
 	}
 }
