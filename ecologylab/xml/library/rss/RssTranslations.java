@@ -7,6 +7,7 @@ import ecologylab.xml.NameSpaceDecl;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.dc.Dc;
+import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
 
 /**
@@ -40,6 +41,8 @@ extends Debug
    public static final NameSpaceDecl[] NAME_SPACE_DECLS				=
    {
 	   new NameSpaceDecl("http://search.yahoo.com/mrss/", Media.class, Media.getTranslations()),
+	   new NameSpaceDecl("http://rssnamespace.org/feedburner/ext/1.0", Feedburner.class, Feedburner.get()),
+	   new NameSpaceDecl("http://purl.org/dc/elements/1.1/", Dc.class, Dc.get()),
 	   
    };
    
