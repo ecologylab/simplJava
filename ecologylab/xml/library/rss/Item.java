@@ -27,15 +27,6 @@ public class Item extends ElementState
     */
    @xml_leaf	ParsedURL		guid;
    @xml_leaf	String			author;
-   
-   /**
-    * Some people put Dublin Core fields into their items. Go figure :-)
-    */
-   @xml_nested	Dc				dc;
-   
-   @xml_nested	Media			media;
-   
-   @xml_nested	Feedburner		feedburner;
 
    /**
     * @return Returns the author.
@@ -51,22 +42,6 @@ public class Item extends ElementState
    public void setAuthor(String author)
    {
 	   this.author = author;
-   }
-   
-   /**
-    * @return Returns the dc.
-    */
-   public Dc getDc()
-   {
-	   return dc;
-   }
-   
-   /**
-    * @param dc The dc to set.
-    */
-   public void setDc(Dc dc)
-   {
-	   this.dc = dc;
    }
    
    /**
@@ -102,22 +77,6 @@ public class Item extends ElementState
    }
    
    /**
-    * @return Returns the media.
-    */
-   public Media getMedia()
-   {
-	   return media;
-   }
-   
-   /**
-    * @param media The media to set.
-    */
-   public void setMedia(Media media)
-   {
-	   this.media = media;
-   }
-   
-   /**
     * @return Returns the title.
     */
    public String getTitle()
@@ -134,6 +93,44 @@ public class Item extends ElementState
    }
    
    /**
+    * Some people put Dublin Core fields into their items. Go figure :-)
+	* <p/>
+    * Lookup a NestedNameSpace element child of this, in case there is one,
+    * declared as xmlns:dc.
+    * (Example: del.icio.us)
+    * 
+    * @return Returns the Dc nested namespace element, or null..
+    */
+   public Dc lookupDc()
+   {
+	   return (Dc) lookupNestedNameSpace("dc");
+   }
+   
+   /**
+    * Lookup a NestedNameSpace element child of this, in case there is one,
+    * declared as xmlns:media.
+    * Yahoo Media metadata declarations.
+    * 
+    * @return Returns the Media nested namespace element, or null..
+    */
+   public Media lookupMedia()
+   {
+	   return (Media) lookupNestedNameSpace("media");
+   }
+   
+   
+   /**
+    * Lookup a NestedNameSpace element child of this, in case there is one,
+    * declared as xmlns:feedburner.
+    * 
+    * @return Returns the Feedburner nested namespace element, or null..
+    */
+   public Feedburner lookupFeedburner()
+   {
+	   return (Feedburner) lookupNestedNameSpace("feedburner");
+   }
+
+   /**
     * If there is an embedded object handling the feedburner namespace, get the origLink
     * leaf_node from it.
     * 
@@ -141,7 +138,14 @@ public class Item extends ElementState
     */
    public ParsedURL getFeedburnerOrigLink()
    {
+	   Feedburner feedburner	= lookupFeedburner();
 	   return (feedburner == null) ? null : feedburner.getOrigLink();
+   }
+   
+   public ParsedURL getDcIdentifier()
+   {
+	   Dc dc					= lookupDc();
+	   return (dc == null) ? null : dc.getIdentifier();
    }
    
    /**
@@ -151,9 +155,12 @@ public class Item extends ElementState
     */
    public ParsedURL getDirectLink()
    {
-	   ParsedURL result	= getFeedburnerOrigLink();
+	   ParsedURL result	= guid;
 	   if (result == null)
-		   result		= guid;
+		   result		= getFeedburnerOrigLink();
+	   if (result == null)
+		   result		= getDcIdentifier();
+	   
 	   return (result != null) ? result : link;
    }
 }
