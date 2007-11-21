@@ -63,15 +63,15 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 
 	private Queue<SocketModeChangeRequest>	pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
 
-	public Selector								selector;
+	protected Selector							selector;
 
-	public String									networkingIdentifier			= "NIOCore";
+	private String									networkingIdentifier			= "NIOCore";
 
-	public boolean									running;
+	private volatile boolean					running;
 
-	public Thread									thread;
+	private Thread									thread;
 
-	public int										portNumber;
+	protected int									portNumber;
 
 	/**
 	 * Instantiates a new NIOCore object.

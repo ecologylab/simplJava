@@ -13,14 +13,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +30,7 @@ import ecologylab.services.distributed.common.ClientConstants;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIONetworking;
 import ecologylab.services.distributed.impl.PreppedRequest;
+import ecologylab.services.distributed.impl.PreppedRequestPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
@@ -64,7 +61,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	protected final CharBuffer						outgoingChars						= CharBuffer
 																											.allocate(MAX_PACKET_SIZE_CHARACTERS);
 
-	private final StringBuilder					requestBuffer						= new StringBuilder(
+	protected final StringBuilder					requestBuffer						= new StringBuilder(
 																											MAX_PACKET_SIZE_CHARACTERS);
 
 	/**
@@ -104,7 +101,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	/**
 	 * A map that stores all the requests that have not yet gotten responses. Maps UID to RequestMessage.
 	 */
-	protected Map<Long, PreppedRequest>			unfulfilledRequests				= new HashMap<Long, PreppedRequest>();
+	protected final Map<Long, PreppedRequest>	unfulfilledRequests				= new HashMap<Long, PreppedRequest>();
 
 	/**
 	 * The number of times a call to reconnect() should attempt to contact the server before giving up and calling
@@ -152,6 +149,8 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	protected final HashMap<String, String>	headerMap							= new HashMap<String, String>();
 
 	protected SocketChannel							thisSocket							= null;
+	
+	protected PreppedRequestPool pRequestPool;
 
 	public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace,
 			ObjectRegistry<?> objectRegistry) throws IOException
@@ -159,8 +158,8 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 		super("NIOClient", portNumber, messageSpace, objectRegistry);
 
 		this.serverAddress = serverAddress;
-
-		this.networkingIdentifier = "NIO Client";
+		
+		this.pRequestPool = new PreppedRequestPool(10, 10, MAX_PACKET_SIZE_CHARACTERS);
 	}
 
 	/**
@@ -238,9 +237,12 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 		// fill requestBuffer
 		request.translateToXML(requestBuffer);
 
-		PreppedRequest pReq = new PreppedRequest(requestBuffer, uid, request.isDisposable());
+		PreppedRequest pReq = this.pRequestPool.acquire();
+		pReq.setRequest(requestBuffer);
+		pReq.setUid(uid);
+		pReq.setDisposable(request.isDisposable());
 
-		requestBuffer.delete(0, requestBuffer.length());
+		requestBuffer.setLength(0);
 
 		enqueueRequestForSending(pReq);
 
@@ -690,8 +692,11 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 		try
 		{
-			StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING + ":" + outgoingReq.length()
-					+ HTTP_HEADER_TERMINATOR + outgoingReq);
+			StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING);
+			message.append(':');
+			message.append(outgoingReq.length());
+			message.append(HTTP_HEADER_TERMINATOR);
+			message.append(outgoingReq);
 
 			outgoingChars.clear();
 
@@ -788,7 +793,8 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 			synchronized (unfulfilledRequests)
 			{
-				unfulfilledRequests.remove(responseMessage.getUid());
+				PreppedRequest finishedReq = unfulfilledRequests.remove(responseMessage.getUid());
+				finishedReq = this.pRequestPool.release(finishedReq);
 			}
 		}
 

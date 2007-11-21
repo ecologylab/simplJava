@@ -14,30 +14,38 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 {
 	private long				uid;
 
-	private StringBuilder	request	= new StringBuilder();
+	private StringBuilder	request;
 
-	private boolean disposable = false;
-	
+	private boolean			disposable;
+
 	/**
 	 * 
 	 */
-	public PreppedRequest(StringBuilder request, long uid)
+	public PreppedRequest(StringBuilder request, long uid, int requestSize, boolean disposable)
 	{
+		this(requestSize);
+		
 		this.uid = uid;
-
+		
 		this.setRequest(request);
-	}
-
-	/**
-	 * 
-	 */
-	public PreppedRequest(StringBuilder request, long uid, boolean disposable)
-	{
-		this(request, uid);
-
+	
 		this.disposable = disposable;
 	}
+	
+	public PreppedRequest(int requestSize)
+	{
+		this.request = new StringBuilder(requestSize);
+	}
 
+	/**
+	 * Resets this PreppedRequest for re-use.
+	 */
+	public void clear()
+	{
+		this.uid = -1;
+		request.setLength(0);
+		this.disposable = false;
+	}
 	
 	/**
 	 * @return the request
@@ -84,7 +92,8 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 	}
 
 	/**
-	 * @param disposable the disposable to set
+	 * @param disposable
+	 *           the disposable to set
 	 */
 	public void setDisposable(boolean disposable)
 	{

@@ -440,10 +440,7 @@ public abstract class AbstractContextManager extends Debug implements
 	 */
 	protected void enqueueRequest(RequestMessage request)
 	{
-		if (requestQueue.offer(request))
-		{
-			messageWaiting = true;
-		}
+		messageWaiting = this.requestQueue.offer(request);
 	}
 
 	/**
