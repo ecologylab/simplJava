@@ -1,12 +1,12 @@
 package ecologylab.generic;
 
 
-import java.util.*;
+import java.util.Vector;
 
 /**
  * A pool of reusable {@link java.lang.StringBuilder StringBuilder}s.
  */
-public class StringBuffersPool
+@Deprecated public class StringBuffersPool
 extends Debug
 {
 	public static int DEFAULT_POOL_SIZE	=	64;
