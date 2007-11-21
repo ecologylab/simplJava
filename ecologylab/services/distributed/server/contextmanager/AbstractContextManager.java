@@ -633,16 +633,14 @@ public abstract class AbstractContextManager extends Debug implements
 					this.clearOutgoingMessageBuffer(outgoingMessageBuf);
 					this.clearOutgoingMessageHeaderBuffer(outgoingHeaderBuf);
 
-					ByteBuffer outgoingBuffer = ByteBuffer.allocate((int) ENCODER
-							.maxBytesPerChar()
-							* outgoingChars.length());
+					ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
 
 					synchronized (ENCODER)
 					{
 						ENCODER.reset();
 
 						ENCODER.encode(outgoingChars, outgoingBuffer, true);
-
+						
 						ENCODER.flush(outgoingBuffer);
 					}
 

@@ -32,8 +32,33 @@ public abstract class ResourcePool<T> extends Debug
 	float								loadFactor			= .75f;
 
 	/**
+	 * Special constructor that will only instantiate the backing pool resources if the first argument is true. This
+	 * method can be used by subclasses to set up member variables before calling instantiateResourcesInPool(), so that
+	 * the instantiation will use the member variables.
+	 * 
+	 * @param instantiateResourcesInPool
+	 * @param initialPoolSize
+	 * @param minimumPoolSize
+	 */
+	protected ResourcePool(boolean instantiateResourcesInPool, int initialPoolSize, int minimumPoolSize)
+	{
+		this.capacity = Math.max(initialPoolSize, minimumPoolSize);
+
+		this.pool = new ArrayList<T>(capacity);
+
+		if (instantiateResourcesInPool)
+			instantiateResourcesInPool();
+
+		this.minCapacity = minimumPoolSize;
+	}
+
+	/**
 	 * Creates a new ResourcePool with the specified initialPoolSize (or minimumPoolSize, minimumPoolSize >
 	 * initialPoolSize) and minimum capacity.
+	 * 
+	 * Note that this constructor will call generateNewResource (capacity) times to fill in the backing collection. If
+	 * generateNewResource relies upon setting fields, the subclass should *NOT* call this constructor and should instead
+	 * call ResourcePool(boolean, int, int).
 	 * 
 	 * @param initialPoolSize
 	 *           the initial size of the backing pool of objects.
@@ -43,16 +68,7 @@ public abstract class ResourcePool<T> extends Debug
 	 */
 	public ResourcePool(int initialPoolSize, int minimumPoolSize)
 	{
-		this.capacity = (Math.max(initialPoolSize, minimumPoolSize));
-
-		this.pool = new ArrayList<T>(capacity);
-
-		for (int i = 0; i < capacity; i++)
-		{
-			pool.add(this.generateNewResource());
-		}
-
-		this.minCapacity = minimumPoolSize;
+		this(true, initialPoolSize, minimumPoolSize);
 	}
 
 	/**
@@ -101,7 +117,7 @@ public abstract class ResourcePool<T> extends Debug
 			pool.add(resourceToRelease);
 
 			int poolSize = pool.size();
-			
+
 			if (capacity > minCapacity && poolSize > loadFactor * capacity)
 			{
 				this.contractPool();
@@ -141,10 +157,7 @@ public abstract class ResourcePool<T> extends Debug
 
 		if (capacity > 0)
 		{
-			for (int i = 0; i < capacity; i++)
-			{
-				this.pool.add(this.generateNewResource());
-			}
+			instantiateResourcesInPool();
 
 			capacity *= 2;
 		}
@@ -168,7 +181,7 @@ public abstract class ResourcePool<T> extends Debug
 		{
 			pool.remove(pool.size() - 1);
 		}
-		
+
 		if (capacity < minCapacity)
 		{
 			capacity = minCapacity;
@@ -178,7 +191,19 @@ public abstract class ResourcePool<T> extends Debug
 		// alternative is to end up with an arrayCopy on each subsequent add().
 		pool.trimToSize();
 		pool.ensureCapacity(capacity);
-		
+
 		debug("to " + capacity + " elements");
 	}
+	
+	/**
+	 * 
+	 */
+	protected void instantiateResourcesInPool()
+	{
+		for (int i = 0; i < capacity; i++)
+		{
+			pool.add(this.generateNewResource());
+		}
+	}
+
 }

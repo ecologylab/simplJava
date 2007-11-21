@@ -6,31 +6,23 @@ package ecologylab.services.distributed.impl;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.CharacterCodingException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.naming.OperationNotSupportedException;
 
 import ecologylab.appframework.ObjectRegistry;
-import ecologylab.generic.Debug;
-import ecologylab.services.distributed.common.NetworkingConstants;
+import ecologylab.io.ByteBufferPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XMLTranslationException;
 
 /**
  * Handles backend, low-level communication between distributed programs, using NIO. This is the basis for servers for
@@ -41,16 +33,15 @@ import ecologylab.xml.XMLTranslationException;
 public abstract class NIONetworking extends NIOCore
 {
 	/** ByteBuffer that holds all incoming communication temporarily, immediately after it is read. */
-	private ByteBuffer										readBuffer						= ByteBuffer
-																												.allocateDirect(MAX_PACKET_SIZE_BYTES);
+	private ByteBuffer										readBuffer			= ByteBuffer.allocateDirect(MAX_PACKET_SIZE_BYTES);
 
 	/**
 	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers. Whenever a SocketChannel is marked for
 	 * writing, and comes up for writing, the server will write the set of ByteBuffers to the socket.
 	 */
-	private Map<SocketChannel, Queue<ByteBuffer>>	pendingWrites					= new HashMap<SocketChannel, Queue<ByteBuffer>>();
+	private Map<SocketChannel, Queue<ByteBuffer>>	pendingWrites		= new HashMap<SocketChannel, Queue<ByteBuffer>>();
 
-	protected boolean											shuttingDown					= false;
+	protected boolean											shuttingDown		= false;
 
 	/** Space that defines mappings between xml names, and Java class names, for request messages. */
 	protected TranslationSpace								translationSpace;
@@ -58,7 +49,9 @@ public abstract class NIONetworking extends NIOCore
 	/** Provides a context for request processing. */
 	protected ObjectRegistry<?>							objectRegistry;
 
-	protected int												connectionCount				= 0;
+	protected int												connectionCount	= 0;
+
+	protected ByteBufferPool								byteBufferPool;
 
 	/**
 	 * Creates a Services Server Base. Sets internal variables, but does not bind the port. Port binding is to be handled
@@ -88,6 +81,8 @@ public abstract class NIONetworking extends NIOCore
 			objectRegistry = new ObjectRegistry<Object>();
 
 		this.objectRegistry = objectRegistry;
+
+		this.byteBufferPool = new ByteBufferPool(10, 10, MAX_PACKET_SIZE_BYTES);
 	}
 
 	/**
@@ -100,7 +95,7 @@ public abstract class NIONetworking extends NIOCore
 	protected ResponseMessage performService(RequestMessage requestMessage)
 	{
 		ResponseMessage temp = requestMessage.performService(objectRegistry);
-		
+
 		if (temp != null)
 			temp.setUid(requestMessage.getUid());
 
@@ -216,8 +211,13 @@ public abstract class NIONetworking extends NIOCore
 				sc.write(bytes);
 
 				if (bytes.remaining() > 0)
-				{ // the socket's buffer filled up!
+				{ // the socket's buffer filled up!; should go out again next time
+					writes.offer(bytes);
 					break;
+				}
+				else
+				{
+					bytes = this.byteBufferPool.release(bytes);
 				}
 			}
 		}
@@ -272,5 +272,16 @@ public abstract class NIONetworking extends NIOCore
 	protected void terminationAction()
 	{
 
+	}
+
+	/**
+	 * Retrieves a ByteBuffer object from this's pool of ByteBuffers. Typically used by a ContextManager to store bytes
+	 * that will be later enqueued to write (and thus released by that method).
+	 * 
+	 * @return
+	 */
+	public ByteBuffer acquireByteBufferFromPool()
+	{
+		return this.byteBufferPool.acquire();
 	}
 }

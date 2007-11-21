@@ -3,6 +3,7 @@
  */
 package ecologylab.services.distributed.server;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;

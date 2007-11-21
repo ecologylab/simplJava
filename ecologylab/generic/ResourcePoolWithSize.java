@@ -20,8 +20,10 @@ public abstract class ResourcePoolWithSize<T> extends ResourcePool<T>
 	 */
 	public ResourcePoolWithSize(int initialPoolSize, int minimumPoolSize, int resourceObjectCapacity)
 	{
-		super(initialPoolSize, minimumPoolSize);
+		super(false, initialPoolSize, minimumPoolSize);
 		
 		this.resourceObjectCapacity = resourceObjectCapacity;
+		
+		this.instantiateResourcesInPool();
 	}
 }
