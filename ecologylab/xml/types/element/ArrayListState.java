@@ -52,9 +52,16 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
         return set();
     }
 
+    /**
+     * Add the element to this. If succesful, also set its parent to be this.
+     * 
+     */
     public boolean add(T elementState)
     {
-        return set().add(elementState);
+        final boolean result = set().add(elementState);
+        if (result)
+        	elementState.setParent(this);
+		return result;
     }
 
     public T remove(int i)

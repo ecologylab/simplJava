@@ -2181,13 +2181,19 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	/**
 	 * @return the parent
 	 */
-	protected ElementState parent()
+	public ElementState parent()
 	{
 		return parent;
 	}
-    /**
-     * @param floatingPrecision the floatingPrecision to set
-     */
+	/**
+	 * Set the parent of this, to create the tree structure.
+	 * 
+	 * @param parent
+	 */
+	public void setParent(ElementState parent)
+	{
+		this.parent		= parent;
+	}
     public void setFloatingPrecision(short floatingPrecision)
     {
         this.floatingPrecision = floatingPrecision;
