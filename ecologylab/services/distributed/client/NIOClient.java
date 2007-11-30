@@ -159,7 +159,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 		this.serverAddress = serverAddress;
 		
-		this.pRequestPool = new PreppedRequestPool(10, 10, MAX_PACKET_SIZE_CHARACTERS);
+		this.pRequestPool = new PreppedRequestPool(2, 4, MAX_PACKET_SIZE_CHARACTERS);
 	}
 
 	/**

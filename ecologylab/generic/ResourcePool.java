@@ -83,9 +83,11 @@ public abstract class ResourcePool<T> extends Debug
 	{
 		T retVal;
 
+		int freeIndex;
+
 		synchronized (this)
 		{ // when acquire()'ing it might be necessary to expand the size of the backing store
-			int freeIndex = this.pool.size() - 1;
+			freeIndex = this.pool.size() - 1;
 
 			if (freeIndex == -1)
 			{
@@ -96,7 +98,13 @@ public abstract class ResourcePool<T> extends Debug
 			retVal = pool.remove(freeIndex);
 		}
 
-		this.clean(retVal);
+		if (retVal == null)
+		{// XXX
+			debug("WTF");
+			debug("ARG");
+		}
+
+// TODO		this.clean(retVal);
 
 		return retVal;
 	}
@@ -114,6 +122,8 @@ public abstract class ResourcePool<T> extends Debug
 	{
 		synchronized (this)
 		{
+			this.clean(resourceToRelease);
+			
 			pool.add(resourceToRelease);
 
 			int poolSize = pool.size();
@@ -157,12 +167,16 @@ public abstract class ResourcePool<T> extends Debug
 
 		if (capacity > 0)
 		{
+			/*
+			 * double capacity by instantiating <capacity> new objects; this doubles, b/c when this method is called, we
+			 * are empty and have already dealt-out <capacity> objects
+			 */
 			instantiateResourcesInPool();
 
 			capacity *= 2;
 		}
 		else
-		{
+		{ // capacity is 0, just put one in there
 			this.pool.add(this.generateNewResource());
 			capacity = 1;
 		}
@@ -194,7 +208,7 @@ public abstract class ResourcePool<T> extends Debug
 
 		debug("to " + capacity + " elements");
 	}
-	
+
 	/**
 	 * 
 	 */

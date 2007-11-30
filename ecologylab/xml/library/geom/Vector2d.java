@@ -63,9 +63,9 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
     }
     
-    protected @xml_attribute double x = 0;
+    protected @xml_attribute double x;
 
-    protected @xml_attribute double y = 0;
+    protected @xml_attribute double y;
 
     /**
      * 
@@ -73,6 +73,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
     public Vector2d()
     {
         super();
+        
+        zero();
     }
 
     public Vector2d(double x, double y)
@@ -89,28 +91,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
     public void add(Vector2d v)
     {
-        // System.out.println("----------add: "+this.toString()+" +
-        // "+v.toString());
         this.x += v.getX();
         this.y += v.getY();
-
-        // System.out.println("-------result: "+this.toString());
-    }
-
-    /**
-     * @return the x
-     */
-    public double getX()
-    {
-        return x;
-    }
-
-    /**
-     * @return the y
-     */
-    public double getY()
-    {
-        return y;
     }
 
     public double norm()
@@ -118,12 +100,10 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         return Math.sqrt(x * x + y * y);
     }
 
-    public Vector2d mult(double scalar)
+    public void mult(double scalar)
     {
         this.x *= scalar;
         this.y *= scalar;
-
-        return this;
     }
 
     /**
@@ -134,22 +114,14 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
      */
     public void rotate(double angle)
     {
-        // System.out.println("x: "+x+", y: "+y);
-
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        // double mag = this.norm();
-
-        // this.x += ((cos / sin) * mag);
-        // this.y += ((sin / cos) * mag);
 
         double x1 = this.x;
         double y1 = this.y;
 
         this.x = (x1 * cos) - (y1 * sin);
         this.y = (y1 * cos) + (x1 * sin);
-
-        // System.out.println("x: "+x+", y: "+y);
     }
 
     /**
@@ -165,24 +137,6 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
         this.rotate(angle - this.toRadians());
     }
 
-    /**
-     * @param x
-     *            the x to set
-     */
-    public void setX(double x)
-    {
-        this.x = x;
-    }
-
-    /**
-     * @param y
-     *            the y to set
-     */
-    public void setY(double y)
-    {
-        this.y = y;
-    }
-
     public void sub(Vector2d v)
     {
         this.x -= v.getX();
@@ -191,8 +145,6 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
     public double toRadians()
     {
-        // System.out.println("("+x+", "+y+") "+Math.atan2(y,
-        // x)/Math.PI+"rads");
         return Math.atan2(y, x);
     }
 
@@ -253,5 +205,39 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
     {
         x = 0;
         y = 0;
+    }
+    
+    /**
+     * @param x
+     *            the x to set
+     */
+    public void setX(double x)
+    {
+        this.x = x;
+    }
+
+    /**
+     * @param y
+     *            the y to set
+     */
+    public void setY(double y)
+    {
+        this.y = y;
+    }
+    
+    /**
+     * @return the x
+     */
+    public double getX()
+    {
+        return x;
+    }
+
+    /**
+     * @return the y
+     */
+    public double getY()
+    {
+        return y;
     }
 }
