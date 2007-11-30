@@ -98,13 +98,7 @@ public abstract class ResourcePool<T> extends Debug
 			retVal = pool.remove(freeIndex);
 		}
 
-		if (retVal == null)
-		{// XXX
-			debug("WTF");
-			debug("ARG");
-		}
-
-// TODO		this.clean(retVal);
+		this.clean(retVal);
 
 		return retVal;
 	}
@@ -122,8 +116,6 @@ public abstract class ResourcePool<T> extends Debug
 	{
 		synchronized (this)
 		{
-			this.clean(resourceToRelease);
-			
 			pool.add(resourceToRelease);
 
 			int poolSize = pool.size();
