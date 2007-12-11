@@ -114,16 +114,23 @@ public abstract class ResourcePool<T> extends Debug
 	 */
 	public final synchronized T release(T resourceToRelease)
 	{
-		synchronized (this)
+		if (resourceToRelease != null)
 		{
-			pool.add(resourceToRelease);
-
-			int poolSize = pool.size();
-
-			if (capacity > minCapacity && poolSize > loadFactor * capacity)
+			synchronized (this)
 			{
-				this.contractPool();
+				pool.add(resourceToRelease);
+
+				int poolSize = pool.size();
+
+				if (capacity > minCapacity && poolSize > loadFactor * capacity)
+				{
+					this.contractPool();
+				}
 			}
+		}
+		else
+		{
+			
 		}
 
 		return null;

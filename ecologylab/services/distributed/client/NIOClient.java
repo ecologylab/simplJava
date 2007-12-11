@@ -15,6 +15,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -149,8 +150,8 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	protected final HashMap<String, String>	headerMap							= new HashMap<String, String>();
 
 	protected SocketChannel							thisSocket							= null;
-	
-	protected PreppedRequestPool pRequestPool;
+
+	protected PreppedRequestPool					pRequestPool;
 
 	public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace,
 			ObjectRegistry<?> objectRegistry) throws IOException
@@ -158,7 +159,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 		super("NIOClient", portNumber, messageSpace, objectRegistry);
 
 		this.serverAddress = serverAddress;
-		
+
 		this.pRequestPool = new PreppedRequestPool(2, 4, MAX_PACKET_SIZE_CHARACTERS);
 	}
 
@@ -226,13 +227,8 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 */
 	protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XMLTranslationException
 	{
-		long uid = request.getUid();
-
-		if (uid == 0)
-		{
-			uid = this.generateUid();
-			request.setUid(uid);
-		}
+		long uid = this.generateUid();
+		request.setUid(uid);
 
 		// fill requestBuffer
 		request.translateToXML(requestBuffer);
@@ -501,10 +497,10 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 			return null;
 		}
 
-		if (request instanceof InitConnectionRequest)
-		{
-			debug("init request: " + ((InitConnectionRequest) request).getSessionId());
-		}
+		// if (request instanceof InitConnectionRequest)
+		// {
+		// debug("init request: " + ((InitConnectionRequest) request).getSessionId());
+		// }
 
 		// wait to be notified that the response has arrived
 		while (blockingRequestPending && !blockingRequestFailed)
@@ -794,6 +790,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 			synchronized (unfulfilledRequests)
 			{
 				PreppedRequest finishedReq = unfulfilledRequests.remove(responseMessage.getUid());
+
 				finishedReq = this.pRequestPool.release(finishedReq);
 			}
 		}
@@ -863,14 +860,14 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * @see ecologylab.services.distributed.impl.NIONetworking#processReadData(java.lang.Object,
 	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
-	@Override protected void processReadData(Object readSessionId, SocketChannel sc, byte[] bytes, int bytesRead)
+	@Override protected void processReadData(Object readSessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
 			throws BadClientException
 	{
 		synchronized (incomingMessageBuffer)
 		{
 			try
 			{
-				incomingMessageBuffer.append(DECODER.decode(ByteBuffer.wrap(bytes)));
+				incomingMessageBuffer.append(DECODER.decode(bytes));
 
 				// look for HTTP header
 				while (incomingMessageBuffer.length() > 0)
@@ -1016,7 +1013,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * 
 	 * @return the current uidIndex.
 	 */
-	public long generateUid()
+	public synchronized long generateUid()
 	{
 		// return the current value of uidIndex, then increment.
 		return uidIndex++;
@@ -1203,10 +1200,6 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 				this.createPacketFromMessageAndSend(this.dequeueRequest(), key);
 			}
 		}
-
-		// nothing left to write, go back to listening
-		// key.interestOps(key.interestOps() & (~SelectionKey.OP_WRITE));
-		// selector.wakeup();
 	}
 
 	/**

@@ -91,7 +91,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	 *            See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
 	 *            java.nio.channels.SocketChannel, byte[], int)
 	 */
-	public void processRead(Object sessionId, NIOServerBackend base, SocketChannel sc, byte[] bs, int bytesRead)
+	public void processRead(Object sessionId, NIOServerBackend base, SocketChannel sc, ByteBuffer bs, int bytesRead)
 			throws BadClientException
 	{
 		if (bytesRead > 0)
@@ -110,7 +110,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 				try
 				{
-					cm.enqueueStringMessage(DECODER.decode(ByteBuffer.wrap(bs)));
+					cm.enqueueStringMessage(DECODER.decode(bs));
 				}
 				catch (CharacterCodingException e)
 				{

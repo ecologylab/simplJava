@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -396,7 +397,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 		}
 	}
 
-	@Override protected void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead)
+	@Override protected void processReadData(Object sessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
 			throws BadClientException
 	{
 		this.sAP.processRead(sessionId, this, sc, bytes, bytesRead);

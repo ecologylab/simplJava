@@ -180,12 +180,9 @@ public abstract class NIONetworking extends NIOCore
 		}
 		else if (bytesRead > 0)
 		{
-			byte[] bytes = new byte[bytesRead];
-
 			readBuffer.flip();
-			readBuffer.get(bytes);
 
-			this.processReadData(key.attachment(), sc, bytes, bytesRead);
+			this.processReadData(key.attachment(), sc, readBuffer, bytesRead);
 		}
 	}
 
@@ -262,7 +259,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            if the client from which the bytes were read has transmitted something inappropriate, such as data too
 	 *            large for a buffer or a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionId, SocketChannel sc, byte[] bytes, int bytesRead)
+	protected abstract void processReadData(Object sessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
 			throws BadClientException;
 
 	/**
