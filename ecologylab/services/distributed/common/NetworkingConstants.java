@@ -30,8 +30,13 @@ public interface NetworkingConstants
 	/** The content-length http-like header indicator. */
 	static final String				CONTENT_LENGTH_STRING			= "content-length";
 
+	static final String				UNIQUE_IDENTIFIER_STRING		= "uid";
+
+	static final String				HTTP_HEADER_LINE_DELIMITER		= "\r\n";
+
 	/** The terminator string for the end of http-like headers. */
-	static final String				HTTP_HEADER_TERMINATOR			= "\r\n\r\n";
+	static final String				HTTP_HEADER_TERMINATOR			= HTTP_HEADER_LINE_DELIMITER
+																							+ HTTP_HEADER_LINE_DELIMITER;
 
 	/** The size of the content-length header indicator. */
 	static final int					CONTENT_LENGTH_STRING_LENGTH	= CONTENT_LENGTH_STRING.length();

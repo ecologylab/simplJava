@@ -96,9 +96,6 @@ public abstract class NIONetworking extends NIOCore
 	{
 		ResponseMessage temp = requestMessage.performService(objectRegistry);
 
-		if (temp != null)
-			temp.setUid(requestMessage.getUid());
-
 		return temp;
 	}
 

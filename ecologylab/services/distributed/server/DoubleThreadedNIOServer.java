@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.appframework.ObjectRegistry;
+import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
@@ -54,15 +56,21 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 				maxPacketSize);
 	}
 
-	Thread												t			= null;
+	Thread												t					= null;
 
-	boolean												running	= false;
+	boolean												running			= false;
 
-	HashMap<Object, AbstractContextManager>	contexts	= new HashMap<Object, AbstractContextManager>();
+	HashMap<Object, AbstractContextManager>	contexts			= new HashMap<Object, AbstractContextManager>();
 
-	private static CharsetDecoder					DECODER	= Charset.forName(CHARACTER_ENCODING).newDecoder();
+	private static CharsetDecoder					DECODER			= Charset.forName(CHARACTER_ENCODING).newDecoder();
 
 	protected int										maxPacketSize;
+
+	/**
+	 * CharBuffers for use with translating from bytes to chars; may need to support having many messages come through at
+	 * once.
+	 */
+	private CharBufferPool							charBufferPool	= new CharBufferPool(MAX_PACKET_SIZE_CHARACTERS * 3);
 
 	/**
 	 * 
@@ -85,7 +93,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
 	}
-	
+
 	/**
 	 * @throws BadClientException
 	 *            See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
@@ -110,7 +118,13 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 				try
 				{
-					cm.enqueueStringMessage(DECODER.decode(bs));
+					CharBuffer buf = this.charBufferPool.acquire();
+					
+					DECODER.decode(bs, buf, true);
+					buf.flip();
+					cm.processIncomingSequenceBufToQueue(buf);
+					
+					buf = this.charBufferPool.release(buf);
 				}
 				catch (CharacterCodingException e)
 				{

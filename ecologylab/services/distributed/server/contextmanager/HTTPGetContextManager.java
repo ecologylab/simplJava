@@ -55,7 +55,7 @@ public class HTTPGetContextManager extends AbstractContextManager
 
 	/**
 	 * This method only handles HttpGetRequest messages; it will report an error for any non-HttpGetRequest. Otherwise,
-	 * it will not add anything to the outgoingMessageBuf, as HttpGetRequests should only have a header and no contnents
+	 * it will not add anything to the msgBufOutgoing, as HttpGetRequests should only have a header and no contnents
 	 * 
 	 * @see ecologylab.services.distributed.server.contextmanager.ContextManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
 	 *      ecologylab.services.messages.ResponseMessage)
@@ -100,7 +100,7 @@ public class HTTPGetContextManager extends AbstractContextManager
 	 *      java.lang.StringBuilder, RequestMessage, ResponseMessage)
 	 */
 	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
-			RequestMessage incomingRequest, ResponseMessage outgoingResponse)
+			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
 		if (incomingRequest instanceof HttpGetRequest)
 		{

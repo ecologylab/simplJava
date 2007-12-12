@@ -13,7 +13,8 @@ public class ServiceMessage extends ElementState implements Comparable<ServiceMe
 {
     @xml_attribute protected long           timeStamp = 0;
 
-    @xml_attribute protected long           uid;
+    /** Used to carry uid for messages, now only used by legacy code. Retained temporarily for backwards compatability. */
+    @xml_attribute @Deprecated protected long           uid;
 
     /**
      * Contains the IP address of the host that sent this message. sender
@@ -39,12 +40,12 @@ public class ServiceMessage extends ElementState implements Comparable<ServiceMe
         return timeStamp;
     }
 
-    public void setUid(long uid)
+    @Deprecated public void setUid(long uid)
     {
         this.uid = uid;
     }
 
-    public long getUid()
+    @Deprecated public long getUid()
     {
         return uid;
     }
@@ -68,7 +69,7 @@ public class ServiceMessage extends ElementState implements Comparable<ServiceMe
         this.sender = sender;
     }
 
-    public int compareTo(ServiceMessage otherRequest)
+    @Deprecated public int compareTo(ServiceMessage otherRequest)
     {
         return (int)(this.uid - otherRequest.getUid());
     }

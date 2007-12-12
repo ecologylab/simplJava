@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObjectOrHashMap;
+import ecologylab.generic.ResourcePool;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.exceptions.BadClientException;
@@ -61,6 +62,37 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		}
 	}
 
+	class SocketModeChangeRequestPool extends ResourcePool<SocketModeChangeRequest>
+	{
+		/**
+		 * @param initialPoolSize
+		 * @param minimumPoolSize
+		 */
+		public SocketModeChangeRequestPool(int initialPoolSize, int minimumPoolSize)
+		{
+			super(initialPoolSize, minimumPoolSize);
+		}
+
+		/**
+		 * @see ecologylab.generic.ResourcePool#clean(java.lang.Object)
+		 */
+		@Override protected void clean(SocketModeChangeRequest objectToClean)
+		{
+			objectToClean.key = null;
+			objectToClean.ops = 0;
+			objectToClean.type = 0;
+		}
+
+		/**
+		 * @see ecologylab.generic.ResourcePool#generateNewResource()
+		 */
+		@Override protected SocketModeChangeRequest generateNewResource()
+		{
+			return new SocketModeChangeRequest(null, 0, 0);
+		}
+
+	}
+
 	private Queue<SocketModeChangeRequest>	pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
 
 	protected Selector							selector;
@@ -72,6 +104,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	private Thread									thread;
 
 	protected int									portNumber;
+
+	private SocketModeChangeRequestPool		mReqPool							= new SocketModeChangeRequestPool(20, 10);
 
 	/**
 	 * Instantiates a new NIOCore object.
@@ -140,6 +174,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 							break;
 						}
 					}
+					
+					// release the SocketModeChangeRequest when done
+					changeReq = this.mReqPool.release(changeReq);
 				}
 
 				this.pendingSelectionOpChanges.clear();
@@ -316,22 +353,16 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 */
 	public void setPendingInvalidate(SelectionKey key, boolean permanent)
 	{
-		if (permanent)
+		SocketModeChangeRequest req = this.mReqPool.acquire();
+		req.key = key;
+		req.type = (permanent ? SocketModeChangeRequest.INVALIDATE_PERMANENTLY
+				: SocketModeChangeRequest.INVALIDATE_TEMPORARILY);
+
+		synchronized (pendingSelectionOpChanges)
 		{
-			synchronized (pendingSelectionOpChanges)
-			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key,
-						SocketModeChangeRequest.INVALIDATE_PERMANENTLY, 0));
-			}
+			this.pendingSelectionOpChanges.offer(req);
 		}
-		else
-		{
-			synchronized (pendingSelectionOpChanges)
-			{
-				this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key,
-						SocketModeChangeRequest.INVALIDATE_TEMPORARILY, 0));
-			}
-		}
+
 		selector.wakeup();
 	}
 
@@ -418,41 +449,57 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 
 	protected void queueForAccept(SelectionKey key)
 	{
+		SocketModeChangeRequest req = this.mReqPool.acquire();
+		req.key = key;
+		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.ops = SelectionKey.OP_ACCEPT;
+		
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
-			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key, SocketModeChangeRequest.CHANGEOPS,
-					SelectionKey.OP_ACCEPT));
+			this.pendingSelectionOpChanges.offer(req);
 		}
 	}
 
 	protected void queueForConnect(SelectionKey key)
 	{
+		SocketModeChangeRequest req = this.mReqPool.acquire();
+		req.key = key;
+		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.ops = SelectionKey.OP_CONNECT;
+
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
-			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key, SocketModeChangeRequest.CHANGEOPS,
-					SelectionKey.OP_CONNECT));
+			this.pendingSelectionOpChanges.offer(req);
 		}
 	}
 
 	protected void queueForRead(SelectionKey key)
 	{
+		SocketModeChangeRequest req = this.mReqPool.acquire();
+		req.key = key;
+		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.ops = SelectionKey.OP_READ;
+
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
-			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key, SocketModeChangeRequest.CHANGEOPS,
-					SelectionKey.OP_READ));
+			this.pendingSelectionOpChanges.offer(req);
 		}
 	}
 
 	protected void queueForWrite(SelectionKey key)
 	{
+		SocketModeChangeRequest req = this.mReqPool.acquire();
+		req.key = key;
+		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.ops = SelectionKey.OP_WRITE;
+
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
-			this.pendingSelectionOpChanges.offer(new SocketModeChangeRequest(key, SocketModeChangeRequest.CHANGEOPS,
-					SelectionKey.OP_WRITE));
+			this.pendingSelectionOpChanges.offer(req);
 		}
 	}
 

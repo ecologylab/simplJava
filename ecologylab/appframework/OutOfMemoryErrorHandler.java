@@ -15,7 +15,7 @@ import ecologylab.generic.ExceptionHandler;
 public class OutOfMemoryErrorHandler  
 extends Debug
 {
-	private static ArrayList 		handlers 		= new ArrayList();
+	private static ArrayList<ExceptionHandler> 		handlers 		= new ArrayList<ExceptionHandler>();
 	private static ObjectRegistry 	objectRegistry;
 	
 	private static boolean			previouslyRanOut			= false;
@@ -69,7 +69,7 @@ extends Debug
 		e.printStackTrace();
 		for (int i=0; i<handlers.size(); i++)
 		{
-			((ExceptionHandler)handlers.get(i)).handleException(new Exception(e.getMessage()),
+			handlers.get(i).handleException(new Exception(e.getMessage()),
 												objectRegistry);
 		}
 	}

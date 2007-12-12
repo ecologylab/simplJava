@@ -15,7 +15,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,12 +25,15 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Generic;
+import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ClientConstants;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIONetworking;
 import ecologylab.services.distributed.impl.PreppedRequest;
 import ecologylab.services.distributed.impl.PreppedRequestPool;
+import ecologylab.services.distributed.impl.MessageWithMetadata;
+import ecologylab.services.distributed.impl.MessageWithMetadataPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
@@ -57,63 +59,63 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class NIOClient extends NIONetworking implements Runnable, ClientConstants
 {
-	protected String									serverAddress;
+	protected String															serverAddress;
 
-	protected final CharBuffer						outgoingChars						= CharBuffer
-																											.allocate(MAX_PACKET_SIZE_CHARACTERS);
+	protected final CharBuffer												outgoingChars						= CharBuffer
+																																	.allocate(MAX_PACKET_SIZE_CHARACTERS);
 
-	protected final StringBuilder					requestBuffer						= new StringBuilder(
-																											MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											requestBuffer						= new StringBuilder(
+																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	/**
 	 * Stores incoming character data until it can be parsed into an XML message and turned into a Java object.
 	 */
-	protected final StringBuilder					incomingMessageBuffer			= new StringBuilder(
-																											MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											incomingMessageBuffer			= new StringBuilder(
+																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder					outgoingMessageBuffer			= new StringBuilder(
-																											MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											outgoingMessageBuffer			= new StringBuilder(
+																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	/** Stores outgoing header character data. */
-	protected final StringBuilder					outgoingMessageHeaderBuffer	= new StringBuilder(
-																											MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											outgoingMessageHeaderBuffer	= new StringBuilder(
+																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to persist across read
 	 * calls, as the entire header may not be sent at once.
 	 */
-	private final StringBuilder					currentHeaderSequence			= new StringBuilder();
+	private final StringBuilder											currentHeaderSequence			= new StringBuilder();
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming message and identified as being a key for a
 	 * header entry; may need to persist across read calls.
 	 */
-	private final StringBuilder					currentKeyHeaderSequence		= new StringBuilder();
+	private final StringBuilder											currentKeyHeaderSequence		= new StringBuilder();
 
-	private ResponseMessage							responseMessage					= null;
+	private MessageWithMetadata<ResponseMessage>						response								= null;
 
-	private volatile boolean						blockingRequestPending			= false;
+	private volatile boolean												blockingRequestPending			= false;
 
-	private final Queue<ResponseMessage>		blockingResponsesQueue			= new LinkedBlockingQueue<ResponseMessage>();
+	private final Queue<MessageWithMetadata<ResponseMessage>>	blockingResponsesQueue			= new LinkedBlockingQueue<MessageWithMetadata<ResponseMessage>>();
 
-	protected final Queue<PreppedRequest>		requestsQueue						= new LinkedBlockingQueue<PreppedRequest>();
+	protected final Queue<PreppedRequest>								requestsQueue						= new LinkedBlockingQueue<PreppedRequest>();
 
 	/**
 	 * A map that stores all the requests that have not yet gotten responses. Maps UID to RequestMessage.
 	 */
-	protected final Map<Long, PreppedRequest>	unfulfilledRequests				= new HashMap<Long, PreppedRequest>();
+	protected final Map<Long, PreppedRequest>							unfulfilledRequests				= new HashMap<Long, PreppedRequest>();
 
 	/**
 	 * The number of times a call to reconnect() should attempt to contact the server before giving up and calling
 	 * stop().
 	 */
-	protected int										reconnectAttempts					= RECONNECT_ATTEMPTS;
+	protected int																reconnectAttempts					= RECONNECT_ATTEMPTS;
 
 	/** The number of milliseconds to wait between reconnect attempts. */
-	protected int										waitBetweenReconnectAttempts	= WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
+	protected int																waitBetweenReconnectAttempts	= WAIT_BEWTEEN_RECONNECT_ATTEMPTS;
 
-	private String										sessionId							= null;
+	private String																sessionId							= null;
 
 	/**
 	 * selectInterval is passed to select() when it is called in the run loop. It is set to 0 indicating that the loop
@@ -122,36 +124,47 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * Thus, it is possible (by also subclassing the sendData() method) to have this send data on an interval, and then
 	 * select.
 	 */
-	protected long										selectInterval						= 0;
+	protected long																selectInterval						= 0;
 
-	protected boolean									isSending							= false;
+	protected boolean															isSending							= false;
 
 	/** Contains the unique identifier for the next message that the client will send. */
-	private long										uidIndex								= 1;
+	private long																uidIndex								= 1;
 
-	private int											endOfFirstHeader					= -1;
+	private int																	endOfFirstHeader					= -1;
 
-	protected int										startReadIndex						= 0;
+	protected int																startReadIndex						= 0;
+
+	private int																	uidOfCurrentMessage				= -1;
 
 	/**
 	 * Counts how many characters still need to be extracted from the incomingMessageBuffer before they can be turned
 	 * into a message (based upon the HTTP header). A value of -1 means that there is not yet a complete header, so no
 	 * length has been determined (yet).
 	 */
-	private int											contentLengthRemaining			= -1;
+	private int																	contentLengthRemaining			= -1;
 
 	/**
 	 * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being read over several
 	 * invocations).
 	 */
-	private final StringBuilder					firstMessageBuffer				= new StringBuilder();
+	private final StringBuilder											firstMessageBuffer				= new StringBuilder();
 
 	/** Stores the key-value pairings from a parsed HTTP-like header on an incoming message. */
-	protected final HashMap<String, String>	headerMap							= new HashMap<String, String>();
+	protected final HashMap<String, String>							headerMap							= new HashMap<String, String>();
 
-	protected SocketChannel							thisSocket							= null;
+	protected SocketChannel													thisSocket							= null;
 
-	protected PreppedRequestPool					pRequestPool;
+	protected final PreppedRequestPool									pRequestPool						= new PreppedRequestPool(
+																																	2, 4,
+																																	MAX_PACKET_SIZE_CHARACTERS);
+
+	protected final MessageWithMetadataPool<ResponseMessage>		responsePool						= new MessageWithMetadataPool<ResponseMessage>(
+																																	2, 4);
+
+	private final StringBuilderPool										builderPool							= new StringBuilderPool(2,
+																																	4,
+																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace,
 			ObjectRegistry<?> objectRegistry) throws IOException
@@ -159,8 +172,6 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 		super("NIOClient", portNumber, messageSpace, objectRegistry);
 
 		this.serverAddress = serverAddress;
-
-		this.pRequestPool = new PreppedRequestPool(2, 4, MAX_PACKET_SIZE_CHARACTERS);
 	}
 
 	/**
@@ -228,7 +239,6 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	protected PreppedRequest prepareAndEnqueueRequestForSending(RequestMessage request) throws XMLTranslationException
 	{
 		long uid = this.generateUid();
-		request.setUid(uid);
 
 		// fill requestBuffer
 		request.translateToXML(requestBuffer);
@@ -474,7 +484,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 */
 	public synchronized ResponseMessage sendMessage(RequestMessage request, int timeOutMillis)
 	{
-		ResponseMessage returnValue = null;
+		MessageWithMetadata<ResponseMessage> responseMessage = null;
 
 		// notify the connection thread that we are waiting on a response
 		blockingRequestPending = true;
@@ -496,11 +506,6 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 			return null;
 		}
-
-		// if (request instanceof InitConnectionRequest)
-		// {
-		// debug("init request: " + ((InitConnectionRequest) request).getSessionId());
-		// }
 
 		// wait to be notified that the response has arrived
 		while (blockingRequestPending && !blockingRequestFailed)
@@ -534,9 +539,9 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 			while ((blockingRequestPending) && (!blockingResponsesQueue.isEmpty()))
 			{
-				returnValue = blockingResponsesQueue.poll();
+				responseMessage = blockingResponsesQueue.poll();
 
-				if (returnValue.getUid() == currentMessageUid)
+				if (responseMessage.getUid() == currentMessageUid)
 				{
 					debug("got the right response");
 
@@ -544,12 +549,14 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 					blockingResponsesQueue.clear();
 
-					return returnValue;
+					ResponseMessage respMsg = responseMessage.getMessage();
+
+					responseMessage = responsePool.release(responseMessage);
+
+					return respMsg;
 				}
-				else
-				{
-					returnValue = null;
-				}
+
+				responseMessage = responsePool.release(responseMessage);
 			}
 
 			if ((timeOutMillis > -1) && (timeCounter >= timeOutMillis) && (blockingRequestPending))
@@ -563,7 +570,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 			debug("Request failed due to timeout!");
 		}
 
-		return returnValue;
+		return null;
 	}
 
 	@Override public void start()
@@ -686,12 +693,22 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 		this.addUnfulfilledRequest(pReq);
 
+		StringBuilder message = null;
+
 		try
 		{
-			StringBuilder message = new StringBuilder(CONTENT_LENGTH_STRING);
+			message = builderPool.acquire();
+
+			message.append(CONTENT_LENGTH_STRING);
 			message.append(':');
 			message.append(outgoingReq.length());
+			message.append(HTTP_HEADER_LINE_DELIMITER);
+
+			message.append(UNIQUE_IDENTIFIER_STRING);
+			message.append(':');
+			message.append(pReq.getUid());
 			message.append(HTTP_HEADER_TERMINATOR);
+
 			message.append(outgoingReq);
 
 			outgoingChars.clear();
@@ -752,8 +769,10 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 			this.reconnect();
 		}
-
-		// incomingKey.interestOps(incomingKey.interestOps() & (~SelectionKey.OP_WRITE));
+		finally
+		{
+			message = builderPool.release(message);
+		}
 	}
 
 	/**
@@ -763,7 +782,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * @param incomingMessage
 	 * @return
 	 */
-	private ResponseMessage processString(String incomingMessage)
+	private MessageWithMetadata<ResponseMessage> processString(String incomingMessage, int incomingUid)
 	{
 
 		if (show(5))
@@ -771,33 +790,35 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 
 		try
 		{
-			responseMessage = translateXMLStringToResponseMessage(incomingMessage);
+			response = translateXMLStringToResponse(incomingMessage, incomingUid);
 		}
 		catch (XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}
 
-		if (responseMessage == null)
+		if (response == null)
 		{
 			debug("ERROR: translation failed: ");
 		}
 		else
 		{
 			// perform the service being requested
-			processResponse(responseMessage);
+			processResponse(response.getMessage());
 
 			synchronized (unfulfilledRequests)
 			{
-				PreppedRequest finishedReq = unfulfilledRequests.remove(responseMessage.getUid());
+				PreppedRequest finishedReq = unfulfilledRequests.remove(response.getUid());
 
-				finishedReq = this.pRequestPool.release(finishedReq);
+				if (finishedReq != null)
+				{ // subclasses might choose not to use unfulfilledRequests; this avoids problems with releasing resources;
+					// NOTE -- it may be necessary to release elsewhere in this case.
+					finishedReq = this.pRequestPool.release(finishedReq);
+				}
 			}
 		}
 
-		// debug("just translated response: "+responseMessage.getUid());
-
-		return responseMessage;
+		return response;
 	}
 
 	public void disconnect()
@@ -842,7 +863,6 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 */
 	@Override protected void checkAndDropIdleKeys()
 	{
-		// TODO Auto-generated method stub
 
 	}
 
@@ -907,6 +927,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 							{
 								// handle all header information here; delete it when done here
 								contentLengthRemaining = Integer.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
+								uidOfCurrentMessage = Integer.parseInt(this.headerMap.get(UNIQUE_IDENTIFIER_STRING));
 
 								// done with the header; delete it
 								incomingMessageBuffer.delete(0, endOfFirstHeader);
@@ -976,11 +997,14 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 						// we got a response
 						if (!this.blockingRequestPending)
 						{
-							processString(firstMessageBuffer.toString());
+							// we process the read data into a response message, let it perform its response, then dispose of
+							// the
+							// resulting MessageWithMetadata object
+							this.responsePool.release(processString(firstMessageBuffer.toString(), uidOfCurrentMessage));
 						}
 						else
 						{
-							blockingResponsesQueue.add(processString(firstMessageBuffer.toString()));
+							blockingResponsesQueue.add(processString(firstMessageBuffer.toString(), uidOfCurrentMessage));
 							synchronized (this)
 							{
 								notify();
@@ -1027,23 +1051,23 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	protected ResponseMessage translateXMLStringToResponseMessage(String messageString) throws XMLTranslationException
-	{
-		return translateXMLStringToResponseMessage(messageString, true);
-	}
-
-	/**
-	 * Translate a decoded String of characters from the server into a ResponseMessage.
-	 * 
-	 * @param messageString
-	 * @param doRecursiveDescent
-	 * @return
-	 * @throws XMLTranslationException
-	 */
-	public ResponseMessage translateXMLStringToResponseMessage(String messageString, boolean doRecursiveDescent)
+	protected MessageWithMetadata<ResponseMessage> translateXMLStringToResponse(String messageString, int incomingUid)
 			throws XMLTranslationException
 	{
-		return (ResponseMessage) ElementState.translateFromXMLCharSequence(messageString, translationSpace);
+		ResponseMessage resp = (ResponseMessage) ElementState.translateFromXMLCharSequence(messageString,
+				translationSpace);
+
+		if (resp == null)
+		{
+			return null;
+		}
+
+		MessageWithMetadata<ResponseMessage> retVal = this.responsePool.acquire();
+
+		retVal.setMessage(resp);
+		retVal.setUid(incomingUid);
+
+		return retVal;
 	}
 
 	/**

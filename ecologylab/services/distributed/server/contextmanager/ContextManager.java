@@ -71,7 +71,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
 	/**
 	 * Clears the contents of the outgoingMessageBuffer so that it is empty and ready to recieve a new outgoing message.
 	 * 
-	 * @param outgoingMessageBuf
+	 * @param msgBufOutgoing
 	 */
 	@Override protected void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf)
 	{
@@ -80,10 +80,10 @@ public class ContextManager extends AbstractContextManager implements ServerCons
 
 	/**
 	 * Generates the outgoing message header. This implementation assumes that the outgoingMessageHeaderBuf contains
-	 * "content-length: " and will add the content length, based on the contents of outgoingMessageBuf, however, custom
+	 * "content-length: " and will add the content length, based on the contents of msgBufOutgoing, however, custom
 	 * implementations for more specific purposes may be constructed.
 	 * 
-	 * @param outgoingMessageBuf
+	 * @param msgBufOutgoing
 	 * @param outgoingMessageHeaderBuf
 	 * @param incomingRequest
 	 *           TODO
@@ -91,9 +91,14 @@ public class ContextManager extends AbstractContextManager implements ServerCons
 	 *           TODO
 	 */
 	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
-			RequestMessage incomingRequest, ResponseMessage outgoingResponse)
+			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
 		outgoingMessageHeaderBuf.append(outgoingMessageBuf.length());
+		outgoingMessageHeaderBuf.append(HTTP_HEADER_LINE_DELIMITER);
+		
+		outgoingMessageHeaderBuf.append(UNIQUE_IDENTIFIER_STRING);
+		outgoingMessageHeaderBuf.append(':');
+		outgoingMessageHeaderBuf.append(uid);
 		outgoingMessageHeaderBuf.append(HTTP_HEADER_TERMINATOR);
 	}
 

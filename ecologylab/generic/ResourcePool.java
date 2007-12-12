@@ -130,7 +130,7 @@ public abstract class ResourcePool<T> extends Debug
 		}
 		else
 		{
-			
+			warning("attempt to load a null reference into resource pool.");
 		}
 
 		return null;
