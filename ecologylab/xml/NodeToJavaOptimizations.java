@@ -190,7 +190,8 @@ implements OptimizationTypes
 				this.type			= nsN2joType + NAME_SPACE_MASK;
 				//TODO -- what else do we need here
 				this.field			= nsN2jo.field;
-				this.setMethod		= nsN2jo.setMethod;
+				//FIXME -- this isn't working with flickr -- andruid 12/6/07
+//				this.setMethod		= nsN2jo.setMethod;
 				this.scalarType		= nsN2jo.scalarType;
 				this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
 				this.classOp		= nsN2jo.classOp;
