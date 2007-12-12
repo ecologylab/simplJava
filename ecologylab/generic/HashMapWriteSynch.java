@@ -11,7 +11,7 @@ import java.util.Map;
  * @param <K>
  * @param <V>
  */
-public class HashMapWriteSynch<K, V> extends HashMap<K, V>
+public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 {
 
 	public HashMapWriteSynch(int arg0, float arg1)
@@ -79,21 +79,4 @@ public class HashMapWriteSynch<K, V> extends HashMap<K, V>
 		return result;
 	}
 	
-	/**
-	 * Sycnhronizes remove.
-	 */
-	@Override 
-	public synchronized V remove(Object key)
-	{
-		return super.remove(key);
-	}
-
-	/**
-     * Sycnhronizes if you add another map to this one.
-     */
-    @Override
-    public synchronized void putAll(Map<? extends K, ? extends V> m)
-    {
-        super.putAll(m);
-    }
 }
