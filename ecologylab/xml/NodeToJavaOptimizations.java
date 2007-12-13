@@ -191,7 +191,7 @@ implements OptimizationTypes
 				//TODO -- what else do we need here
 				this.field			= nsN2jo.field;
 				//FIXME -- this isn't working with flickr -- andruid 12/6/07
-//				this.setMethod		= nsN2jo.setMethod;
+				this.setMethod		= nsN2jo.setMethod;
 				this.scalarType		= nsN2jo.scalarType;
 				this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
 				this.classOp		= nsN2jo.classOp;
