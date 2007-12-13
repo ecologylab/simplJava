@@ -120,7 +120,10 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public String getDescription()
     {
-        return description;
+    	String result	= description;
+    	if (requiresRestart)
+    		result		+= "<br><weak><i>Requires restart to take effect.</i></weak>";
+        return result;
     }
     
     /**
