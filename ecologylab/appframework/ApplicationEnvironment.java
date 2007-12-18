@@ -251,8 +251,11 @@ implements Environment, XMLTranslationExceptionTypes
 		
 		Stack<String> argStack	= new Stack<String>();
 		
-		for (int i = args.length - 1; i>=0; i--)
-			argStack.push(args[i]);
+		if (args!= null)
+		{
+			for (int i = args.length - 1; i>=0; i--)
+				argStack.push(args[i]);
+		}
 		
 		String arg;
 		processPrefs(baseClass, translationSpace, argStack, prefsAssetVersion);
