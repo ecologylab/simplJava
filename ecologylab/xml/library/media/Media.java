@@ -37,7 +37,12 @@ public class Media extends ElementState
 	
 	@xml_leaf	String		category;
 	
-	@xml_leaf	String		text;
+	//FIXME -- need to implement @xml_text directive to parse this properly.
+	// not a leaf! may have type attribute.
+	// it would also be very nice if the parser knew to warn about and then
+	// throw away attributes found inside elements declared as leaf.
+	
+//	@xml_leaf	String		text;
 	@xml_leaf	String		rating;
 	/**
 	 * @return Returns the category.
@@ -84,17 +89,7 @@ public class Media extends ElementState
 	/**
 	 * @return Returns the text.
 	 */
-	public String getText()
-	{
-		return text;
-	}
-	/**
-	 * @param text The text to set.
-	 */
-	public void setText(String text)
-	{
-		this.text = text;
-	}
+
 	public String getTitle() {
 		return title;
 	}
