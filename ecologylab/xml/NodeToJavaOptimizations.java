@@ -159,7 +159,9 @@ implements OptimizationTypes
 					}
 				}
 				else	//TODO -- support namespace attributes?! (whatever that is)
+				{
 					this.type			= IGNORED_ATTRIBUTE;
+				}
 				return;
 			}
 			
@@ -183,7 +185,30 @@ implements OptimizationTypes
 			}
 			// ok so there's a context for this. now we need a field
 			Optimizations nsOpti			= nsContext.optimizations;
-			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, context, subTag, false);
+			// figure out the proper context for setting the value resulting from parsing this element
+			// if this is a nested element of any kind, then we are forming an ElementState object,
+			// and setting its value in context.
+			// However, if this is is a leaf, then we are forming a scalar value,
+			// and setting the slot for it in the 
+			ElementState optiContext		= context;
+			// is this a leaf element?? -- need to find a field first
+			//FIXME -- look out for @xml_text declarations here, too, when we institute them!
+//			try
+//			{
+//				optiContext.getClass().getField(subTag);
+//				{
+//					int i = 0;
+//				}
+//			} catch (SecurityException e)
+//			{
+//
+//			} catch (NoSuchFieldException e)
+//			{
+//				// normal for nested element
+//				int j = 0;
+//			}
+//			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, context, subTag, false);
+			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
 			final int nsN2joType 			= nsN2jo.type();
 			if (nsN2joType != IGNORED_ELEMENT)
 			{
