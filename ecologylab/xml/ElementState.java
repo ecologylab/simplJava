@@ -2075,7 +2075,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	}
 	public String getTextNodeString()
 	{
-		return textNodeBuffy.toString();
+		return (textNodeBuffy == null) ? null : textNodeBuffy.toString();
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
 	}
 	/////////////////////////// other methods //////////////////////////
