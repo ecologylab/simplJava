@@ -49,7 +49,7 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		   file		= ecologylab.io.Files.newFile(value);
 	   }
 	   return (file != null) ? new ParsedURL(file)
-		   : ParsedURL.getAbsolute(value, " getInstance()");
+		   : ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
 	}
 	
 	public static final String URL_DELIMS = "/&?";
