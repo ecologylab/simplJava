@@ -149,7 +149,7 @@ extends Debug
     */
    public static ParsedURL getAbsolute(String webAddr)
    {
-	   return getAbsolute(webAddr, "");
+	   return getAbsolute(webAddr, "getAbsolute(String) ");
    }
    /** 
     * Create a PURL from an absolute address.
@@ -331,8 +331,8 @@ extends Debug
  */
    static String urlErrorMsg(String webAddr, String errorDescriptor)
    {
-      return "CANT open " + errorDescriptor + " " + webAddr +
-	      " because it doesn't look like a web address.";
+      return "ParsedURL.ERROR " + errorDescriptor + ": " + webAddr +
+	      " does not look like a web address.";
    }    
 
 /**
@@ -1262,7 +1262,8 @@ extends Debug
      
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
- 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
+// 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
+ 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_1);
  		    
  		    // Set the connection and read timeout.
  		    connection.setConnectTimeout(connectionTimeout);
