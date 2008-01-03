@@ -61,6 +61,10 @@ public class RssState extends ElementState
 	
 	public static final ParsedURL ABC_SPORTS_FEED	= ParsedURL.getAbsolute("http://my.abcnews.go.com/rsspublic/sports_rss20.xml");
 	
+	public static final ParsedURL FLICKR_FEED	= ParsedURL.getAbsolute("http://www.flickr.com/services/feeds/photos_public.gne?format=rss_200&tags=sunset");
+	
+	public static final ParsedURL DELICIOUS_FEED	= ParsedURL.getAbsolute("http://del.icio.us/rss/andruid/");
+
 	public static final String ABC_EXAMPLE		=
 		"<rss xmlns:media=\"http://search.yahoo.com/mrss/\" xmlns:feedburner=\"http://rssnamespace.org/feedburner/ext/1.0\" version=\"2.0\">\r\n" + 
 		"<channel> \r\n" + 
@@ -121,18 +125,35 @@ public class RssState extends ElementState
 			"</channel>\r\n" + 
 			"</rss>\r\n";
 	
+	public static final String FLICKR_EXAMPLE =
+		"<rss version=\"2.0\"\r\n" + 
+		"        xmlns:media=\"http://search.yahoo.com/mrss/\"\r\n" + 
+		"	xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\r\n" + 
+		"        >\r\n" + 
+		"	<channel>\r\n" + 
+		"		<title>Photos from everyone tagged water</title>\r\n" + 
+		"		<link>http://www.flickr.com/photos/tags/water/</link>\r\n" + 
+		"		<item>\r\n" + 
+		"			<title>Fire-Works</title>\r\n" + 
+		"			<link>http://www.flickr.com/photos/meemz/2161548299/</link>\r\n" + 
+		"			<media:title>Fire-Works</media:title>\r\n" + 
+		"\r\n" + 
+		"		</item>\r\n" + 
+		"</channel>\r\n" + 
+		"</rss>\r\n";
+	
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	public static void main(String[] args)
 	{
 //		ElementState.setUseDOMForTranslateTo(true);
 		try
 		{
-//			ParsedURL feedPURL	= CNN_TOP_FEED;
-			ParsedURL feedPURL	= ABC_SPORTS_FEED;
+//			ParsedURL feedPURL	= ABC_SPORTS_FEED; // CNN_TOP_FEED;
+			ParsedURL feedPURL	= DELICIOUS_FEED; // FLICKR_FEED;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
-//			RssState rssState	= (RssState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
-			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(ABC_EXAMPLE, RssTranslations.get());
+			RssState rssState	= (RssState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
+//			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
 			ArrayList<Item> items	= rssState.getChannel().set(); //rssState.getChannel().getItems();
 			println("items: " +  items.size());

@@ -119,6 +119,8 @@ public class RDFState extends ElementState // ArrayListState<Item>
 	
 	static final ParsedURL DELICIOUS_POPULAR	= ParsedURL.getAbsolute("http://del.icio.us/rss/popular/");
 
+	public static final ParsedURL DELICIOUS_FEED	= ParsedURL.getAbsolute("http://del.icio.us/rss/andruid/");
+
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	public static void main(String[] args)
 	{
@@ -126,7 +128,7 @@ public class RDFState extends ElementState // ArrayListState<Item>
 		try
 		{
 //			ParsedURL feedPURL	= CNN_TOP_FEED;
-			ParsedURL feedPURL	= DELICIOUS_POPULAR;
+			ParsedURL feedPURL	= DELICIOUS_FEED; // DELICIOUS_POPULAR;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
 			RDFState rdfState	= (RDFState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
