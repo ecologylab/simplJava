@@ -137,21 +137,42 @@ public class NetTools extends Debug
 		return localHost1;
 	}
 
-	public static InetAddress[] getAllInetAddressesForLocalhost() throws UnknownHostException
+	public static InetAddress[] getAllInetAddressesForLocalhost()
 	{
 		HashSet<InetAddress> addresses = new HashSet<InetAddress>();
 
-		for (InetAddress a : InetAddress.getAllByName("localhost"))
+		try
 		{
-			addresses.add(a);
+			for (InetAddress a : InetAddress.getAllByName("localhost"))
+			{
+				addresses.add(a);
+			}
+		}
+		catch (UnknownHostException e)
+		{
+			e.printStackTrace();
 		}
 
-		for (InetAddress a : InetAddress.getAllByName(InetAddress.getLocalHost().getHostAddress()))
+		try
 		{
-			addresses.add(a);
+			for (InetAddress a : InetAddress.getAllByName(InetAddress.getLocalHost().getHostAddress()))
+			{
+				addresses.add(a);
+			}
+		}
+		catch (UnknownHostException e)
+		{
+			e.printStackTrace();
 		}
 
-		addresses.add(InetAddress.getLocalHost());
+		try
+		{
+			addresses.add(InetAddress.getLocalHost());
+		}
+		catch (UnknownHostException e)
+		{
+			e.printStackTrace();
+		}
 
 		return addresses.toArray(new InetAddress[addresses.size()]);
 	}
