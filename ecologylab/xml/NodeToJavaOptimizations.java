@@ -482,7 +482,7 @@ implements OptimizationTypes
 		{
 			type					= isAttribute ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 			if (isAttribute)
-				error("no set method or type to set value for this tag in " + 
+				error(fieldName+": no set method or type to set value for this tag in " + 
 						contextClass.getName() + ".");
 		}
 		this.type				= type;
@@ -865,7 +865,7 @@ implements OptimizationTypes
 //							ReflectionTools.getInstance((Class<Collection>) field.getType());
 //
 //					}
-					Collection collection	= (Collection) automaticLazyGetCollectionOrMap(activeES);
+					Collection<Object> collection	= (Collection<Object>) automaticLazyGetCollectionOrMap(activeES);
 					collection.add(typeConvertedValue);
 				}
 			} catch (Exception e)

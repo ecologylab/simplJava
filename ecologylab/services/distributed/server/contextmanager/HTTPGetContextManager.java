@@ -73,9 +73,10 @@ public class HTTPGetContextManager extends AbstractContextManager
 	 * @throws UnsupportedEncodingException
 	 * @see ecologylab.services.distributed.server.contextmanager.ContextManager#translateStringToRequestMessage(java.lang.String)
 	 */
-	@Override protected RequestMessage translateStringToRequestMessage(String messageString)
+	@Override protected RequestMessage translateStringToRequestMessage(CharSequence messageSequence)
 			throws XMLTranslationException, UnsupportedEncodingException
 	{
+		String messageString = messageSequence.toString();
 		if (messageString.startsWith(HTTP_PREPEND))
 		{
 			int endIndex = messageString.lastIndexOf(HTTP_APPEND);

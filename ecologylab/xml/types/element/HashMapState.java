@@ -47,10 +47,10 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends Eleme
         return result;
     }
 
-    @SuppressWarnings("unchecked") @Override protected <K1 extends Object, V1 extends ElementState & Mappable<K1>> Map<K1, V1> getMap(
+    @Override protected Map getMap(
             Class thatClass)
     {
-        return (Map<K1, V1>) map();
+        return map();
     }
 
     @Override protected Object clone() throws CloneNotSupportedException

@@ -318,7 +318,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 				{ /*
 					 * if we've read a complete message, then contentLengthRemaining will be reset to -1
 					 */
-					processString(firstMessageBuffer.toString(), contentUid);
+					processString(firstMessageBuffer, contentUid);
 					firstMessageBuffer.setLength(0);
 				}
 			}
@@ -564,7 +564,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	 * @throws UnsupportedEncodingException
 	 *            if the String is not encoded properly.
 	 */
-	protected RequestMessage translateStringToRequestMessage(String messageString) throws XMLTranslationException,
+	protected RequestMessage translateStringToRequestMessage(CharSequence messageString) throws XMLTranslationException,
 			UnsupportedEncodingException
 	{
 		return (RequestMessage) ElementState.translateFromXMLCharSequence(messageString, translationSpace);
@@ -693,7 +693,7 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 	 * @param incomingMessage
 	 * @throws BadClientException
 	 */
-	private final void processString(String incomingMessage, long incomingUid) throws BadClientException
+	private final void processString(CharSequence incomingMessage, long incomingUid) throws BadClientException
 	{
 		RequestMessage request = null;
 		try
@@ -713,8 +713,8 @@ public abstract class AbstractContextManager extends Debug implements ServerCons
 		{
 			if (incomingMessage.length() > 100)
 			{
-				debug("ERROR; incoming message could not be translated: " + incomingMessage.substring(0, 50) + "..."
-						+ incomingMessage.substring(incomingMessage.length() - 50));
+				debug("ERROR; incoming message could not be translated: " + incomingMessage.subSequence(0, 50) + "..."
+						+ incomingMessage.subSequence(incomingMessage.length() - 50, incomingMessage.length()));
 			}
 			else
 			{

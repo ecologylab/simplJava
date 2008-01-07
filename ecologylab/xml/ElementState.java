@@ -41,6 +41,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
+import ecologylab.xml.ElementStateSAXHandler;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code>
@@ -2112,7 +2113,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @param thatClass		The class of the ElementState superclass that could be stored in a Collection.
 	 * @return
 	 */
-	protected <K extends Object, V extends ElementState & Mappable<K>>Map<K, V> getMap(Class thatClass)
+	protected Map getMap(Class thatClass)
 	{
 		return null;
 	}

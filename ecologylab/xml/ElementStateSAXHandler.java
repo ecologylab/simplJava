@@ -30,6 +30,7 @@ import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.Mappable;
+import ecologylab.xml.NodeToJavaOptimizations;
 
 /**
  * Use SAX to translate XML into a typed tree of ElementState objects.
