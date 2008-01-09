@@ -26,8 +26,8 @@ import ecologylab.generic.ThreadMaster;
  * Seems no operations can safely occur concurrently.
  * There are a bunch of synchronized methods to affect this.
  **/
-public class FloatWeightSet
-extends Debug implements BasicFloatSet
+public class FloatWeightSet<E extends FloatSetElement>
+extends Debug implements BasicFloatSet<E>
 {
 /**
  * An array representation of the members of the set.
@@ -91,7 +91,7 @@ extends Debug implements BasicFloatSet
  * holds the tied elements. That this is not either a temporary, or
  * passed back as the result of the sort operation, is hackish.
  */
-   protected ArrayList		maxArrayList;
+   protected ArrayList<E>		maxArrayList;
 
    /**
  * For managing sort operations
@@ -144,7 +144,7 @@ extends Debug implements BasicFloatSet
       
       alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
       SENTINEL.weight	= - Float.MAX_VALUE;
-      insert(SENTINEL);
+      basicInsert(SENTINEL);
       debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
@@ -173,7 +173,7 @@ extends Debug implements BasicFloatSet
    		size	= 0;
    		this.maxArrayListClear();
    }
-   public synchronized void insert(FloatSetElement el)
+   public synchronized void insert(E el)
    {
       if (el == null)
 		 return;
@@ -199,11 +199,20 @@ extends Debug implements BasicFloatSet
 		 }
       }
       // start insert
-      el.setSet(this);
-      elements[size]			= el;
-      el.setIndex(size++);
+      basicInsert(el);
       el.insertHook();
    }
+   /**
+    * Internals of the insert.
+    * 
+    * @param el
+    */
+	private void basicInsert(FloatSetElement el)
+	{
+		el.setSet(this);
+	      elements[size]			= el;
+	      el.setIndex(size++);
+	}
    /**
 	* Delete an element from the set.
 	* Perhaps recompute incremental sums for randomSelect() integrity.
@@ -216,7 +225,7 @@ extends Debug implements BasicFloatSet
 	* 			 0 for recompute upwards from el.
 	* 			 1 for recompute all.
 	**/
-   public synchronized void delete(FloatSetElement el, int recompute)
+   public synchronized void delete(E el, int recompute)
    {
       int index		= el.getIndex();
       if ((size == 0) || (index < 0))
@@ -274,7 +283,7 @@ extends Debug implements BasicFloatSet
     * @return	element in the set with the highest weight, or in case of a tie,
     * 			a random pick of those.
     */
-   public synchronized FloatSetElement pruneAndMaxSelect()
+   public synchronized E pruneAndMaxSelect()
    {
    	  return maxSelect(pruneSize);
    }
@@ -285,7 +294,7 @@ extends Debug implements BasicFloatSet
     * @return	element in the set with the highest weight, or in case of a tie,
     * 			a random pick of those.
     */
-   public synchronized FloatSetElement maxSelect(int desiredSize)
+   public synchronized E maxSelect(int desiredSize)
    {
       if (isOversize(desiredSize))
 		 prune(desiredSize);
@@ -302,7 +311,7 @@ extends Debug implements BasicFloatSet
       }
       if (result != null)
 		 result.delete(NO_RECOMPUTE);
-      return result;
+      return (E) result;
    }
    /**
     * Clear the ArrayList of tied elements from the last maxSelect().
@@ -319,7 +328,7 @@ extends Debug implements BasicFloatSet
 	* @return	the maximum in the set. If there are ties, pick
 	* randomly among them
 	*/
-   public synchronized FloatSetElement maxSelect()
+   public synchronized E maxSelect()
    {
 	   int size			= this.size;
 	   switch (size)
@@ -328,7 +337,7 @@ extends Debug implements BasicFloatSet
 	   case 1:	// degenerate case (look out for the sentinel!)
 		   return null;
 	   case 2:
-		   return elements[1];
+		   return (E) elements[1];
 	   default:	// now, size >= 3!
 		   break;
 	   }
@@ -349,7 +358,7 @@ extends Debug implements BasicFloatSet
 	   
 	   for (int i=1; i<size; i++)
 	   {
-		   FloatSetElement thatElement	= elements[i];
+		   E thatElement	= (E) elements[i];
 		   if (!thatElement.filteredOut())
 		   {
 			   float thatWeight	= thatElement.getWeight();
@@ -382,7 +391,7 @@ extends Debug implements BasicFloatSet
 			   (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
 	   //maxArrayListClear();
 	   
-	   return result;
+	   return (E) result;
    }
    
    /**
@@ -390,7 +399,7 @@ extends Debug implements BasicFloatSet
     * 
     * @return
     */
-   public ArrayList tiedForMax()
+   public ArrayList<E> tiedForMax()
    {
 	   return maxArrayList;
    }
@@ -669,18 +678,18 @@ extends Debug implements BasicFloatSet
     * @param i
     * @return
     */
-   public FloatSetElement getElement(int i)
+   public E getElement(int i)
    {
-   	  return elements[i];
+   	  return (E) elements[i];
    }
    /**
     * Get the last element in the set, or null if the set is empty.
     * 
     * @return
     */
-   public FloatSetElement lastElement()
+   public E lastElement()
    {
-   	  return (size == 0) ? null : elements[size - 1];
+   	  return (size == 0) ? null : (E) elements[size - 1];
    }
 
 
@@ -769,7 +778,7 @@ extends Debug implements BasicFloatSet
     * @return	element in the set with the highest weight, or in case of a tie,
     * 			a random pick of those.
     */
-   public synchronized FloatSetElement pruneAndWeightedRandomSelect()
+   public synchronized E pruneAndWeightedRandomSelect()
    {
    	  return weightedRandomSelect(pruneSize);
    }
@@ -783,13 +792,13 @@ extends Debug implements BasicFloatSet
     * @param desiredSize
     * @return	an element from the set.
     */
-   public synchronized FloatSetElement weightedRandomSelect(int desiredSize)
+   public synchronized E weightedRandomSelect(int desiredSize)
    {
       if (isOversize(desiredSize))
 		 prune(desiredSize);
       boolean ok	= syncRecompute();
       Generic.sleep(10);
-      FloatSetElement element	= null;
+      E element	= null;
       if (ok)
 		 element	= weightedRandomSelect();
       if (element != null)
@@ -800,7 +809,7 @@ extends Debug implements BasicFloatSet
 	* weighted randomSelect() with no recompute to update the data structure. 
 	* Assumes caller is responsible for that updating via syncRecompute(...).
 	*/
-   public synchronized FloatSetElement weightedRandomSelect()
+   public synchronized E weightedRandomSelect()
    {
       if (size <= 1)		// degenerate case
 		 return null;
@@ -858,7 +867,7 @@ extends Debug implements BasicFloatSet
       }
 	  //     debug("randomSelect() " + pick + " => " + result + " from:");
 	  //     println(this);
-      return result;
+      return (E) result;
    }
 
 
@@ -883,6 +892,7 @@ extends Debug implements BasicFloatSet
    {
 	   return elements;
    }
+   //TODO -- this looks like it will break sentinel!
    public void setElements(FloatSetElement[] newElements)
    {
 	   elements = newElements;
