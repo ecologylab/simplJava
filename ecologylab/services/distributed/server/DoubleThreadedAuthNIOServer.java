@@ -16,13 +16,10 @@ import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.Authenticator;
+import ecologylab.services.authentication.listener.AuthenticationListener;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
-import ecologylab.services.authentication.messages.Login;
-import ecologylab.services.authentication.messages.LoginStatusResponse;
-import ecologylab.services.authentication.messages.Logout;
-import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.nio.AuthContextManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.impl.NIOServerBackend;
@@ -45,9 +42,11 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 		AuthServerRegistryObjects, AuthMessages, AuthLogging, Authenticatable<A>
 {
 	/** Optional Logging listeners may record authentication events, such as users logging-in. */
-	private List<Logging>			logListeners	= new LinkedList<Logging>();
+	private List<Logging>						logListeners	= new LinkedList<Logging>();
 
-	protected Authenticator<A>		authenticator	= null;
+	private List<AuthenticationListener>	authListeners	= new LinkedList<AuthenticationListener>();
+
+	protected Authenticator<A>					authenticator	= null;
 
 	/**
 	 * This is the actual way to create an instance of this.
@@ -129,19 +128,14 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	{
 		// super(portNumber, inetAddress, translationSpace, objectRegistry, idleConnectionTimeout, maxPacketSize);
 		// MODEL: from Andruid to Zach
-		super(portNumber, inetAddress, AuthenticationTranslations.get("double_threaded_auth " + inetAddress[0].toString() + ":"
-				+ portNumber, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);
+		super(portNumber, inetAddress, AuthenticationTranslations.get("double_threaded_auth " + inetAddress[0].toString()
+				+ ":" + portNumber, requestTranslationSpace), objectRegistry, idleConnectionTimeout, maxPacketSize);
 
 		this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
 
-		// this.translationSpace.addTranslation(Login.class);
-		// this.translationSpace.addTranslation(Logout.class);
-		// this.translationSpace.addTranslation(LoginStatusResponse.class);
-		// this.translationSpace.addTranslation(LogoutStatusResponse.class);
-
 		authenticator = new Authenticator(authList);
 	}
-	
+
 	/**
 	 * 
 	 * @param token
@@ -173,6 +167,27 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 		logListeners.add(log);
 	}
 
+	public void addAuthenticationListener(AuthenticationListener authListener)
+	{
+		authListeners.add(authListener);
+	}
+	
+	protected void fireLogoutEvent(String username, InetAddress addr)
+	{
+		for (AuthenticationListener a : authListeners)
+		{
+			a.userLoggedOut(username, addr);
+		}
+	}
+
+	protected void fireLoginEvent(String username, InetAddress addr)
+	{
+		for (AuthenticationListener a : authListeners)
+		{
+			a.userLoggedIn(username, addr);
+		}
+	}
+ 
 	public void fireLoggingEvent(AuthenticationOp op)
 	{
 		for (Logging logListener : logListeners)
@@ -183,7 +198,14 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 	public boolean logout(A entry, InetAddress address)
 	{
-		return authenticator.logout(entry, address);
+		boolean logoutSuccess = authenticator.logout(entry, address);
+		
+		if (logoutSuccess)
+		{
+			fireLogoutEvent(entry.getUsername(), address);
+		}
+		
+		return logoutSuccess;
 	}
 
 	public boolean isLoggedIn(String username)
@@ -193,7 +215,14 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 	public boolean login(A entry, InetAddress address)
 	{
-		return authenticator.login(entry, address);
+		boolean loginSuccess = authenticator.login(entry, address);
+		
+		if (loginSuccess)
+		{
+			fireLoginEvent(entry.getUsername(), address);
+		}
+		
+		return loginSuccess;
 	}
 
 	private void remove(InetAddress address)

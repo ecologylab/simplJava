@@ -12,6 +12,7 @@ import javax.swing.event.ChangeListener;
 
 import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
+import ecologylab.services.logging.Prologue;
 
 /**
  * Model of playback for logged operations. Controls advancement through a log during playback, as well as rewind, etc.
@@ -220,5 +221,10 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 		{
 			return this.getCurrentOp();
 		}
+	}
+	
+	public Prologue getLogPrologue()
+	{
+		return this.log.getPrologue();
 	}
 }

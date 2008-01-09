@@ -73,9 +73,11 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	 */
 	protected int											playbackInterval					= DEFAULT_PLAYBACK_INTERVAL;
 
+	private boolean	logLoadComplete = false;
+
 	public LogPlayer(String appName, String[] args, TranslationSpace translationSpace) throws XMLTranslationException
 	{
-		super(appName, args);
+		super(appName, translationSpace, args, 0);
 
 		this.translationSpace = translationSpace;
 
@@ -86,6 +88,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		{ // a log was specified
 			logFile = new File(args[1]);
 			mode = LOG_LOADING;
+			
+			logLoadComplete = false;
 		}
 
 		while (incomingLog == null)
@@ -129,6 +133,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 				// System.exit(0);
 
 				mode = LOG_NOT_SELECTED;
+				
+				logLoadComplete = false;
 			}
 
 			// Schedule a job for the event-dispatching thread:
@@ -259,11 +265,15 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	public void showLogPlaybackGUI()
 	{
-		logDisplay.load(log.getCurrentOp());
+		logDisplay.load(log.getCurrentOp(), log.getLogPrologue());
 
 		controlsDisplay = generateLogPlaybackControls();
 		controlsDisplay.setPreferredSize(new Dimension(825, 100));
 		controlsDisplay.setLoading(true);
+		
+		logDisplay.setPreferredSize(new Dimension(825, 600));
+		logDisplay.setMinimumSize(new Dimension(825, 600));
+		logDisplay.setMaximumSize(new Dimension(825, 600));
 
 		mainFrame.getContentPane().removeAll();
 		mainFrame.getContentPane().add(logDisplay);
@@ -286,9 +296,11 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		controlsDisplay.setupImportantEvents();
 
-		mainFrame.validate();
+		mainFrame.invalidate();
 		mainFrame.pack();
 		mainFrame.setVisible(true);
+		
+		logLoadComplete = true;
 	}
 
 	private void showLoadingGUI()
@@ -344,6 +356,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		logDisplay = this.generateView();
 		logDisplay.setPreferredSize(new Dimension(825, 625));
+		logDisplay.setMinimumSize(new Dimension(825, 625));
 
 		mainFrame.getContentPane().add(logDisplay);
 
@@ -389,20 +402,23 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 			guiShown = true;
 		}
 
-		debug("mode is: " + mode);
-
-		switch (mode)
+		if (!logLoadComplete )
 		{
-		case (LOG_NOT_SELECTED):
-			// no file selected
-			this.showFileSelectGUI();
-			break;
-		case (LOG_LOADING):
-			this.showLoadingGUI();
-			break;
-		case (LOG_LOADED):
-			this.showLogPlaybackGUI();
-			break;
+			debug("mode is: " + mode);
+
+			switch (mode)
+			{
+			case (LOG_NOT_SELECTED):
+				// no file selected
+				this.showFileSelectGUI();
+				break;
+			case (LOG_LOADING):
+				this.showLoadingGUI();
+				break;
+			case (LOG_LOADED):
+				this.showLogPlaybackGUI();
+				break;
+			}
 		}
 	}
 

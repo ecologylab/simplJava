@@ -499,7 +499,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * 
 	 * @return
 	 */
-	protected Prologue getPrologue()
+	public Prologue getPrologue()
 	{
 		return new Prologue();
 	}

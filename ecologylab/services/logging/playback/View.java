@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 
 import ecologylab.services.logging.MixedInitiativeOp;
+import ecologylab.services.logging.Prologue;
 
 /**
  * Abstract class for displaying logged operations. Subclasses provide specific visualization of log ops.
@@ -21,13 +22,15 @@ import ecologylab.services.logging.MixedInitiativeOp;
  */
 public abstract class View<T extends MixedInitiativeOp> extends JPanel
 {
-	protected T			currentOp;
+	protected T				currentOp;
 
-	protected boolean	loaded	= false;
+	protected Prologue	prologue;
 
-	protected int		width;
+	protected boolean		loaded	= false;
 
-	protected int		height;
+	protected int			width;
+
+	protected int			height;
 
 	public View(int width, int height)
 	{
@@ -46,11 +49,16 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 			this.renderLoading(arg0);
 	}
 
-	protected void load(T firstOp)
+	protected void load(T firstOp, Prologue prologue)
 	{
-		this.loaded = true;
+		if (!loaded)
+		{
+			this.prologue = prologue;
 
-		this.currentOp = firstOp;
+			this.currentOp = firstOp;
+
+			this.loaded = true;
+		}
 	}
 
 	protected abstract void render(Graphics g);
