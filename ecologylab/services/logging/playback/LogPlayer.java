@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.io.FileFilter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -187,7 +188,25 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		JFileChooser fC = new JFileChooser(PropertiesAndDirectories.logDir());
 
 		fC.addChoosableFileFilter(fC.getAcceptAllFileFilter());
-		fC.addChoosableFileFilter(new LogFileFilter());
+		fC.addChoosableFileFilter(LogFileFilter.staticInstance);
+		
+		// find the most recent log file in the directory
+		File[] logDirContents = PropertiesAndDirectories.logDir().listFiles(LogFileFilter.staticInstance);
+		
+		if (logDirContents.length > 0)
+		{
+			File newestLog = logDirContents[0];
+
+			for (int i = 1; i < logDirContents.length; i++)
+			{
+				if (logDirContents[i].lastModified() > newestLog.lastModified())
+				{
+					newestLog = logDirContents[i];
+				}
+			}
+			
+			fC.setSelectedFile(newestLog);
+		}
 
 		return fC;
 	}
@@ -268,18 +287,22 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		logDisplay.load(log.getCurrentOp(), log.getLogPrologue());
 
 		controlsDisplay = generateLogPlaybackControls();
-		controlsDisplay.setPreferredSize(new Dimension(825, 100));
+		controlsDisplay.setPreferredSize(new Dimension(800, 100));
 		controlsDisplay.setLoading(true);
-		
-		logDisplay.setPreferredSize(new Dimension(825, 600));
-		logDisplay.setMinimumSize(new Dimension(825, 600));
-		logDisplay.setMaximumSize(new Dimension(825, 600));
+
+		controlsDisplay.setLog(log);
+		controlsDisplay.setLoading(false);
+
+		controlsDisplay.setupImportantEvents();
+
+		logDisplay.setPreferredSize(new Dimension(800, 600));
+		logDisplay.setMinimumSize(new Dimension(800, 600));
+		logDisplay.setMaximumSize(new Dimension(800, 600));
+		logDisplay.invalidate();
 
 		mainFrame.getContentPane().removeAll();
 		mainFrame.getContentPane().add(logDisplay);
 		mainFrame.getContentPane().add(controlsDisplay);
-
-		logDisplay.invalidate();
 
 		if (logDisplay.hasKeyListenerSubObject())
 		{
@@ -291,11 +314,6 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 			t.addActionListener(logDisplay.getActionListenerSubObject());
 		}
 
-		controlsDisplay.setLog(log);
-		controlsDisplay.setLoading(false);
-
-		controlsDisplay.setupImportantEvents();
-
 		mainFrame.invalidate();
 		mainFrame.pack();
 		mainFrame.setVisible(true);
@@ -305,7 +323,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private void showLoadingGUI()
 	{
-		logDisplay.setPreferredSize(new Dimension(825, 625));
+		logDisplay.setPreferredSize(new Dimension(800, 600));
 
 		logDisplay.invalidate();
 	}
@@ -355,8 +373,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		mainFrame.getContentPane().setLayout(new BoxLayout(mainFrame.getContentPane(), BoxLayout.PAGE_AXIS));
 
 		logDisplay = this.generateView();
-		logDisplay.setPreferredSize(new Dimension(825, 625));
-		logDisplay.setMinimumSize(new Dimension(825, 625));
+		logDisplay.setPreferredSize(new Dimension(800, 600));
+		logDisplay.setMinimumSize(new Dimension(800, 600));
 
 		mainFrame.getContentPane().add(logDisplay);
 

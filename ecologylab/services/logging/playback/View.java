@@ -8,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import ecologylab.services.logging.MixedInitiativeOp;
@@ -28,14 +29,9 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 
 	protected boolean		loaded	= false;
 
-	protected int			width;
-
-	protected int			height;
-
-	public View(int width, int height)
+	public View()
 	{
-		this.width = width;
-		this.height = height;
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 	}
 
 	/**
