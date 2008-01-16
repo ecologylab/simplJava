@@ -44,6 +44,10 @@ public class TypeRegistry extends Debug
         FileType.class,
 
 		DateType.class,		
+		
+		ScalarTypeType.class,
+		
+		
 	};
 	
 	static
