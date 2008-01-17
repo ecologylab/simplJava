@@ -40,6 +40,9 @@ extends Debug implements BasicFloatSet<E>
  * to implement fast weighted randomSelect().
  */
    protected 	float				incrementalSums[];
+   
+   protected 	float				setSum	= 0;
+  
 
 /**
  * Used as a boundary condition for fast implementations of sort.
@@ -151,8 +154,11 @@ extends Debug implements BasicFloatSet<E>
    {
       elements		= new FloatSetElement[allocSize];
       numSlots		= allocSize;
+      
    	  if (supportWeightedRandomSelect)
-   	  	incrementalSums	= new float[allocSize];
+   	  {
+ 		incrementalSums	= new float[allocSize];
+   	  }
    }
    /**
     * Delete all the elements in the set, as fast as possible.
@@ -177,10 +183,10 @@ extends Debug implements BasicFloatSet<E>
    {
       if (el == null)
 		 return;
-      if (el.set != null)
+      if (el.set == this )//!= null)
       {
 		 debug("ERROR: tryed to double insert "+el+ " into this.\nIgnored.");
-//		 return;
+		 return;
       }
       if (size == numSlots)
       {	 // start housekeeping if we need more space
@@ -209,9 +215,15 @@ extends Debug implements BasicFloatSet<E>
     */
 	private void basicInsert(FloatSetElement el)
 	{
-		el.setSet(this);
+		  el.setSet(this);
 	      elements[size]			= el;
+	      
+	      if( size!= 0 )
+	    	  setSum += el.getWeight(); 
+	      
 	      el.setIndex(size++);
+	      
+
 	}
    /**
 	* Delete an element from the set.
@@ -249,6 +261,8 @@ extends Debug implements BasicFloatSet<E>
 			elements[index]		= lastElement;
 			elements[lastIndex]	= null;	// remove reference to allow gc
 			lastElement.setIndex(index);
+			
+			setSum -= el.getWeight();
 		 }
 		 if (recompute != NO_RECOMPUTE)
 		 {
@@ -329,7 +343,7 @@ extends Debug implements BasicFloatSet<E>
 	* randomly among them
 	*/
    public synchronized E maxSelect()
-   {
+   {	   
 	   int size			= this.size;
 	   switch (size)
 	   {
@@ -356,12 +370,17 @@ extends Debug implements BasicFloatSet<E>
 	   FloatSetElement result= SENTINEL;
 	   float maxWeight		= result.getWeight();
 	   
+	   setSum				= 0;
+	   
 	   for (int i=1; i<size; i++)
 	   {
-		   E thatElement	= (E) elements[i];
+		   E thatElement	= (E) elements[i];	
+		   setSum			+= thatElement.getWeight();
+		   
 		   if (!thatElement.filteredOut())
 		   {
-			   float thatWeight	= thatElement.getWeight();
+			   float thatWeight	= thatElement.getWeight();		   
+			   
 			   if (thatWeight > maxWeight)
 			   {
 				   maxArrayList.clear();
@@ -374,12 +393,12 @@ extends Debug implements BasicFloatSet<E>
 				   maxArrayList.add(thatElement);
 			   }
 		   }
-/*		   else
+		   else
 		   {
 			  // debug("MAX SELECT FILTERED " + thatElement);
 		   }
-*/	   }
-	   
+	   }
+
 	   if (result == SENTINEL)
 		   return null;
 	   
@@ -434,9 +453,13 @@ extends Debug implements BasicFloatSet<E>
       quickSort(elements, 0, size-1, false);
 	  //      println("gc() after sort: " + size);
 
+      setSum = 0;
       //-------------- lowest weight elements are on top -------------//
       for (int i=1; i!=numToKeep; i++)
+      {
 		 elements[i].setIndex(i);  // renumber cref index
+		 setSum += elements[i].getWeight();
+      }
 	  //      println("gc() after renumber: " + size);
       int oldSize	= size;
       this.size	= numToKeep;
@@ -477,25 +500,68 @@ extends Debug implements BasicFloatSet<E>
    //      quickSort(elements, 1, size-1, false);
    // always do insertion sort, cause we leave short runs untouched
    // by quicksort, as per Sedgewick via Siegel and Cole
-   public float mean()
+   public synchronized float mean()
    {
       float result;
-      if (size == 0)
+      if (size == 0 || size==1)
 		 result		= 1;
       else
 	  {
-		 if (incrementalSums != null)
-			result		= incrementalSums[size - 1] / size;
+		 if ( incrementalSums != null )
+			result		= incrementalSums[size - 1] / (float)(size-1);
+		 else if( setSum != 0 )
+		 {
+			result		= (float) (setSum / ((float)(size-1)));
+		 }
 		 else
 		 {
-			double sum	= 0;
-			for (int i=0; i<size; i++)
-			   sum		+= elements[i].weight;
-			result		= (float) (sum / ((double) size));
+			float sum	= 0;
+    	  	int num = 0;
+			for (int i=1; i<size; i++)
+			{
+				float w = elements[i].getWeight();
+//				System.out.println("----- FloatWeightSet e.weight:" + w );   //eunyee
+			    sum		+= elements[i].getWeight();
+			    num++;
+			}
+			
+			if( num==0 )
+				result = 0;
+			else
+				result		= (float) (sum / ((float) num));
+			
 		 }
+		 
+//		 System.out.println("\n\n " + this + " Sums=" + setSum + " Size=" + size + " mean : " + result +"\n\n");
 	  }
+      
       return result;
    }
+   
+   public synchronized float meanByIteration()
+   {
+		float sum	= 0;
+		float result = 0;
+	  	int num = 0;
+		for (int i=1; i<size; i++)
+		{
+//			if( !elements[i].filteredOut() )
+//			{
+			float w = elements[i].getWeight();
+		//	System.out.println("----- FloatWeightSet e.weight:" + w );   //eunyee
+		    sum		+= w;
+		    num++;
+//			}
+		}
+		
+		if( num==0 )
+			result = 0;
+		else
+			result		= (float) (sum / ((float) (size-1)));
+//System.out.println("Mean By Iteration SUM=" + sum + " size="+ size + " result="+result );		
+		return result;
+   }
+   
    void insertionSort(FloatSetElement buffer[], int n)
    {
       SENTINEL.weight	= Float.POSITIVE_INFINITY;
@@ -678,7 +744,7 @@ extends Debug implements BasicFloatSet<E>
     * @param i
     * @return
     */
-   public E getElement(int i)
+   public E get(int i)
    {
    	  return (E) elements[i];
    }
@@ -870,6 +936,40 @@ extends Debug implements BasicFloatSet<E>
       return (E) result;
    }
 
+	public E findElement(E element)
+	{
+	   for (int i=1; i<size; i++)
+	   {
+		   E thatElement	= (E) elements()[i];
+		   if( element.equals(thatElement) )
+		   {
+			   return thatElement;
+		   }
+	   }
+	   
+	   return null;
+	}
+	
+	public int indexOf(E element)
+	{
+	   for (int i=1; i<size; i++)
+	   {
+		   E thatElement	= (E) elements()[i];
+		   if( element.equals(thatElement) )
+		   {
+			   return i;
+		   }
+	   }		
+	   return -1;
+	}
+	
+	public boolean contains(E element)
+	{
+		if(findElement(element)==null)
+			return false;
+		else
+			return true;
+	}
 
    public static void main(String a[])
    {
