@@ -83,7 +83,6 @@ implements BasicFloatSet<T>
    	  return (size == 0) ? null : get(size - 1);
    }
 
-	@Override
 	public void decrement(T el) 
 	{
 	}
