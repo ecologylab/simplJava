@@ -307,9 +307,18 @@ public final class TranslationSpace extends Debug
 	   new TranslationEntry(classObj);
    }
 
+   /**
+    * Find a prior TranslationEntry for thatClass.
+    * Add an alternative tag mapping for it.
+    * 
+    * @param thatClass
+    * @param alternativeXmlTag
+    */
    public void addTranslation(Class thatClass, String alternativeXmlTag)
    {
-	   new TranslationEntry(thatClass, alternativeXmlTag);	   
+	   String classSimpleName		= thatClass.getSimpleName();
+	   TranslationEntry thatEntry	= this.entriesByClassSimpleName.get(classSimpleName);
+	   entriesByTag.put(alternativeXmlTag, thatEntry);
    }
    private void addTranslation(TranslationEntry translationEntry)
    {
