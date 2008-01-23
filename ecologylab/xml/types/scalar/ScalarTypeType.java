@@ -3,6 +3,8 @@
  */
 package ecologylab.xml.types.scalar;
 
+import ecologylab.xml.xml_inherit;
+
 /**
  * For storing actual ScalarType values as meta-metadata.
  * 
@@ -39,6 +41,8 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 				if (length > 1)
 					buffy.append(value, 1, length - 1);
 			}
+			else
+				buffy.append(value);
 			buffy.append("Type");
 			
 			result	= TypeRegistry.getType(buffy.toString());

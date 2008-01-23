@@ -25,7 +25,7 @@ import ecologylab.xml.*;
  * 
  * @author andruid
  */
-public abstract class ScalarType<T> extends Debug
+public abstract class ScalarType<T> extends ElementState
 {
     Class<T>			thatClass;
     

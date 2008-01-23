@@ -77,6 +77,8 @@ public class TypeRegistry extends Debug
 	static boolean register(ScalarType type)
 	{ 
 		String typeName	= type.getTypeClass().getName();
+		String simpleName	= type.getClass().getSimpleName();
+		register(simpleName, type);
 		return register(typeName, type);
 	}
 
