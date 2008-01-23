@@ -1039,4 +1039,6 @@ extends Debug implements BasicFloatSet<E>
    {
 	   return pruneSize;
    }
+   
+   public void decrement(E el) {}
 }

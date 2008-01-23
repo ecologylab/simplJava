@@ -61,4 +61,6 @@ extends LinearAccess<E>
 	 * @return
 	 */
 	public boolean isEmpty();
+	
+	public void decrement(E el);
 }
