@@ -4,6 +4,7 @@
 package ecologylab.services.distributed.server;
 
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
@@ -26,7 +27,7 @@ public interface NIOServerFrontend extends StartAndStoppable
 	 * @param bytesRead
 	 * @throws BadClientException
 	 */
-	void processRead(Object token, NIOServerBackend base, SocketChannel sc, ByteBuffer bs, int bytesRead)
+	void processRead(Object token, NIOServerBackend base, SelectionKey sk, ByteBuffer bs, int bytesRead)
 			throws BadClientException;
 
 	/**
@@ -40,7 +41,7 @@ public interface NIOServerFrontend extends StartAndStoppable
 	 *           given connection.
 	 * @return the ContextManager object associated with sc that has been removed from the system.
 	 */
-	AbstractContextManager invalidate(Object token, NIOServerBackend base, SocketChannel sc, boolean permanent);
+	AbstractContextManager invalidate(Object token, boolean permanent);
 
 	/**
 	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that was used for the

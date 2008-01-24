@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.NetTools;
@@ -149,10 +149,10 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 		return logFilesPath;
 	}
 
-	@Override protected LoggingContextManager generateContextManager(Object token, SocketChannel sc,
+	@Override protected LoggingContextManager generateContextManager(Object token, SelectionKey sk,
 			TranslationSpace translationSpaceIn, ObjectRegistry registryIn)
 	{
-		return new LoggingContextManager(token, maxPacketSize, this, this.getBackend(), sc, translationSpaceIn,
+		return new LoggingContextManager(token, maxPacketSize, this, this.getBackend(), sk, translationSpaceIn,
 				registryIn);
 	}
 

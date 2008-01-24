@@ -39,7 +39,7 @@ public abstract class NIONetworking extends NIOCore
 	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers. Whenever a SocketChannel is marked for
 	 * writing, and comes up for writing, the server will write the set of ByteBuffers to the socket.
 	 */
-	private Map<SocketChannel, Queue<ByteBuffer>>	pendingWrites		= new HashMap<SocketChannel, Queue<ByteBuffer>>();
+	private Map<SelectionKey, Queue<ByteBuffer>>	pendingWrites		= new HashMap<SelectionKey, Queue<ByteBuffer>>();
 
 	protected boolean											shuttingDown		= false;
 
@@ -86,20 +86,6 @@ public abstract class NIONetworking extends NIOCore
 	}
 
 	/**
-	 * Perform the service associated with a RequestMessage, by calling the performService() method on that message.
-	 * 
-	 * @param requestMessage
-	 *           Message to perform.
-	 * @return Response to the message.
-	 */
-	protected ResponseMessage performService(RequestMessage requestMessage)
-	{
-		ResponseMessage temp = requestMessage.performService(objectRegistry);
-
-		return temp;
-	}
-
-	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#readReady(java.nio.channels.SelectionKey)
 	 */
 	@Override protected void readReady(SelectionKey key) throws ClientOfflineException, BadClientException
@@ -119,26 +105,26 @@ public abstract class NIONetworking extends NIOCore
 	 * Queue up bytes to send on a particular socket. This method is typically called by some outside context manager,
 	 * that has produced an encoded message to send out.
 	 * 
-	 * @param socket
+	 * @param socketKey
 	 * @param data
 	 */
-	public void enqueueBytesForWriting(SocketChannel socket, ByteBuffer data)
+	public void enqueueBytesForWriting(SelectionKey socketKey, ByteBuffer data)
 	{
 		// queue data to write
 		synchronized (this.pendingWrites)
 		{
-			Queue<ByteBuffer> dataQueue = pendingWrites.get(socket);
+			Queue<ByteBuffer> dataQueue = pendingWrites.get(socketKey);
 
 			if (dataQueue == null)
 			{
 				dataQueue = new LinkedList<ByteBuffer>();
-				pendingWrites.put(socket, dataQueue);
+				pendingWrites.put(socketKey, dataQueue);
 			}
 
 			dataQueue.offer(data);
 		}
 
-		this.queueForWrite(socket.keyFor(selector));
+		this.queueForWrite(socketKey);
 
 		selector.wakeup();
 	}
@@ -179,7 +165,7 @@ public abstract class NIONetworking extends NIOCore
 		{
 			readBuffer.flip();
 
-			this.processReadData(key.attachment(), sc, readBuffer, bytesRead);
+			this.processReadData(key.attachment(), key, readBuffer, bytesRead);
 		}
 	}
 
@@ -195,7 +181,7 @@ public abstract class NIONetworking extends NIOCore
 
 		synchronized (this.pendingWrites)
 		{
-			Queue<ByteBuffer> writes = pendingWrites.get(sc);
+			Queue<ByteBuffer> writes = pendingWrites.get(key);
 
 			while (!writes.isEmpty())
 			{ // write everything
@@ -256,7 +242,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            if the client from which the bytes were read has transmitted something inappropriate, such as data too
 	 *            large for a buffer or a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
+	protected abstract void processReadData(Object sessionId, SelectionKey sk, ByteBuffer bytes, int bytesRead)
 			throws BadClientException;
 
 	/**

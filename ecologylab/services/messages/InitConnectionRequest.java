@@ -24,13 +24,12 @@ public class InitConnectionRequest extends RequestMessage
         this.sessionId = sessionId;
     }
 
-    /**
-     * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.appframework.ObjectRegistry)
+	/**
+     * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.appframework.ObjectRegistry, String)
      */
     @Override public ResponseMessage performService(
-            ObjectRegistry objectRegistry)
+            ObjectRegistry objectRegistry, String sessionId)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 

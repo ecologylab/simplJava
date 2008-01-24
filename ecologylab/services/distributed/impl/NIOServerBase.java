@@ -6,7 +6,7 @@ package ecologylab.services.distributed.impl;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.generic.Debug;
@@ -129,7 +129,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 				idleConnectionTimeout);
 	}
 
-	protected abstract AbstractContextManager generateContextManager(Object token, SocketChannel sc,
+	protected abstract AbstractContextManager generateContextManager(Object token, SelectionKey sk,
 			TranslationSpace translationSpace, ObjectRegistry registry);
 
 	/**

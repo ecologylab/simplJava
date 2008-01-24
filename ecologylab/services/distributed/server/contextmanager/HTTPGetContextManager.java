@@ -5,7 +5,7 @@ package ecologylab.services.distributed.server.contextmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.ParsedURL;
@@ -43,14 +43,14 @@ public class HTTPGetContextManager extends AbstractContextManager
 	/**
 	 * @param token
 	 * @param server
-	 * @param socket
+	 * @param socketKey
 	 * @param translationSpace
 	 * @param registry
 	 */
 	public HTTPGetContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-			SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry<?> registry)
+			SelectionKey socketKey, TranslationSpace translationSpace, ObjectRegistry<?> registry)
 	{
-		super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
+		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
 	}
 
 	/**

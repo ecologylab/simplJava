@@ -51,7 +51,7 @@ import ecologylab.xml.ElementState.xml_leaf;
 	/**
 	 * Save the logging messages to the pre-set writer.
 	 */
-	@Override public ResponseMessage performService(ObjectRegistry objectRegistry)
+	@Override public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
 	{
 		debug("services: received Logging Messages ");
 

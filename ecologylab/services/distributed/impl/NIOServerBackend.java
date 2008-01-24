@@ -289,7 +289,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 		SocketChannel chan = (SocketChannel) key.channel();
 		InetAddress address = chan.socket().getInetAddress();
 
-		sAP.invalidate(key.attachment(), this, chan, permanent);
+		sAP.invalidate(key.attachment(), permanent);
 
 		super.invalidateKey(chan);
 
@@ -397,11 +397,11 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 		}
 	}
 
-	@Override protected void processReadData(Object sessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
+	@Override protected void processReadData(Object sessionId, SelectionKey sk, ByteBuffer bytes, int bytesRead)
 			throws BadClientException
 	{
-		this.sAP.processRead(sessionId, this, sc, bytes, bytesRead);
-		this.keyActivityTimes.put(sc.keyFor(this.selector), System.currentTimeMillis());
+		this.sAP.processRead(sessionId, this, sk, bytes, bytesRead);
+		this.keyActivityTimes.put(sk, System.currentTimeMillis());
 	}
 
 	/**

@@ -14,12 +14,29 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * Perform the service associated with the request, using the supplied context as needed.
 	 * 
+	 * Calls performService(objectRegistry, null);
+	 * 
 	 * @param objectRegistry
 	 *           Context to perform it in/with.
 	 * 
 	 * @return Response to pass back to the (remote) caller.
+	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
 	 */
-	public abstract ResponseMessage performService(ObjectRegistry objectRegistry);
+	public ResponseMessage performService(ObjectRegistry objectRegistry)
+	{
+		return this.performService(objectRegistry, null);
+	}
+
+	/**
+	 * Perform the service associated with the request, using the supplied context as needed.
+	 * 
+	 * @param objectRegistry
+	 *           Context to perform it in/with.
+	 * @param sessionId TODO
+	 * 
+	 * @return Response to pass back to the (remote) caller.
+	 */
+	public abstract ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId);
 
 	/**
 	 * Indicates whether or not this type of message may be ignored by the server, if the server becomes backed-up. For
@@ -33,15 +50,5 @@ import ecologylab.xml.xml_inherit;
 	public boolean isDisposable()
 	{
 		return false;
-	}
-
-	/**
-	 * Perform the service associated with the request, using a null ObjectRegistry context.
-	 * 
-	 * @return Response to pass back to the (remote) caller.
-	 */
-	public ResponseMessage performService()
-	{
-		return performService(null);
 	}
 }

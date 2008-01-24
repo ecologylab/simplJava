@@ -880,7 +880,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 	 * @see ecologylab.services.distributed.impl.NIONetworking#processReadData(java.lang.Object,
 	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
-	@Override protected void processReadData(Object readSessionId, SocketChannel sc, ByteBuffer bytes, int bytesRead)
+	@Override protected void processReadData(Object readSessionId, SelectionKey sk, ByteBuffer bytes, int bytesRead)
 			throws BadClientException
 	{
 		synchronized (incomingMessageBuffer)
@@ -905,7 +905,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 						if (incomingMessageBuffer.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
 						{
 							// clear the buffer
-							BadClientException e = new BadClientException(sc.socket().getInetAddress().getHostAddress(),
+							BadClientException e = new BadClientException(((SocketChannel)sk.channel()).socket().getInetAddress().getHostAddress(),
 									"Maximum HTTP header length exceeded. Read " + incomingMessageBuffer.length() + "/"
 											+ MAX_HTTP_HEADER_LENGTH);
 
@@ -956,7 +956,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 					}
 					else if (contentLengthRemaining > MAX_PACKET_SIZE_CHARACTERS)
 					{
-						throw new BadClientException(sc.socket().getInetAddress().getHostAddress(),
+						throw new BadClientException(((SocketChannel)sk.channel()).socket().getInetAddress().getHostAddress(),
 								"Specified content length too large: " + contentLengthRemaining);
 					}
 

@@ -78,6 +78,7 @@ public class SeedCf extends RequestMessage
 	{
 		seedSet().add(seed);
 	}
+
 	/**
 	 * Dummy version -- will never get called, because this version lives only on the client,
 	 * and the real functionality is on the server.
@@ -86,9 +87,8 @@ public class SeedCf extends RequestMessage
 	 * @return	null
 	 */
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry)
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

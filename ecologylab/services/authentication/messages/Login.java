@@ -62,7 +62,7 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return A ResponseMessage indicating whether or not the username/password were accepted.
 	 */
-	@Override public ResponseMessage performService(ObjectRegistry objectRegistry)
+	@Override public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
 	{
 		Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
 
@@ -73,7 +73,7 @@ import ecologylab.xml.xml_inherit;
 
 		if (this.getSender() != null)
 		{
-			loginSuccess = server.login(this.entry, this.getSender());
+			loginSuccess = server.login(this.entry, sessionId);
 		}
 
 		if (loginSuccess)

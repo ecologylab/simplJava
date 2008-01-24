@@ -13,8 +13,9 @@ import ecologylab.xml.xml_inherit;
 public class IgnoreRequest extends RequestMessage
 {
 	static final IgnoreRequest reusableInstance = new IgnoreRequest();
+
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
 	{
 		return OkResponse.get();
 	}

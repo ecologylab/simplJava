@@ -17,11 +17,10 @@ public class ContinuedHTTPGetRequest extends HttpGetRequest
 	public ContinuedHTTPGetRequest()
 	{
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
 	{
 		if (!isLast)
 		{

@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
@@ -27,33 +28,39 @@ import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * A server that uses NIO and two threads (one for handling IO, the other for handling interfacing with messages).
+ * A server that uses NIO and two threads (one for handling IO, the other for
+ * handling interfacing with messages).
  * 
  * Automatically processes and responds to any client RequestMessages.
  * 
- * Subclasses should generally override the generateContextManager hook method, so that they can use their own, specific
- * ContextManager in place of the default.
+ * Subclasses should generally override the generateContextManager hook method,
+ * so that they can use their own, specific ContextManager in place of the
+ * default.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedNIOServer extends NIOServerBase implements ServerConstants
+public class DoubleThreadedNIOServer extends NIOServerBase implements
+		ServerConstants
 {
-	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress[] inetAddress,
-			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+	public static DoubleThreadedNIOServer getInstance(int portNumber,
+			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
+			ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
-		return new DoubleThreadedNIOServer(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-				idleConnectionTimeout, maxPacketSize);
+		return new DoubleThreadedNIOServer(portNumber, inetAddress,
+				requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				maxPacketSize);
 	}
 
-	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+	public static DoubleThreadedNIOServer getInstance(int portNumber,
+			InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+			ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		InetAddress[] address =
 		{ inetAddress };
-		return getInstance(portNumber, address, requestTranslationSpace, objectRegistry, idleConnectionTimeout,
-				maxPacketSize);
+		return getInstance(portNumber, address, requestTranslationSpace,
+				objectRegistry, idleConnectionTimeout, maxPacketSize);
 	}
 
 	Thread												t					= null;
@@ -62,24 +69,30 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 	HashMap<Object, AbstractContextManager>	contexts			= new HashMap<Object, AbstractContextManager>();
 
-	private static CharsetDecoder					DECODER			= Charset.forName(CHARACTER_ENCODING).newDecoder();
+	private static CharsetDecoder					DECODER			= Charset
+																						.forName(
+																								CHARACTER_ENCODING)
+																						.newDecoder();
 
 	protected int										maxPacketSize;
 
 	/**
-	 * CharBuffers for use with translating from bytes to chars; may need to support having many messages come through at
-	 * once.
+	 * CharBuffers for use with translating from bytes to chars; may need to
+	 * support having many messages come through at once.
 	 */
-	private CharBufferPool							charBufferPool	= new CharBufferPool(MAX_PACKET_SIZE_CHARACTERS * 3);
+	private CharBufferPool							charBufferPool	= new CharBufferPool(
+																						MAX_PACKET_SIZE_CHARACTERS * 3);
 
 	/**
 	 * 
 	 */
-	protected DoubleThreadedNIOServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout,
+	protected DoubleThreadedNIOServer(int portNumber,
+			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
+			ObjectRegistry objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
+				idleConnectionTimeout);
 
 		this.maxPacketSize = maxPacketSize;
 	}
@@ -87,19 +100,24 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	/**
 	 * 
 	 */
-	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
+	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
+			TranslationSpace requestTranslationSpace,
+			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
-		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry,
-				idleConnectionTimeout, maxPacketSize);
+		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
+				requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				maxPacketSize);
 	}
 
 	/**
 	 * @throws BadClientException
-	 *            See ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
+	 *            See
+	 *            ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
 	 *            java.nio.channels.SocketChannel, byte[], int)
 	 */
-	public void processRead(Object sessionId, NIOServerBackend base, SocketChannel sc, ByteBuffer bs, int bytesRead)
+	public void processRead(Object sessionId, NIOServerBackend base,
+			SelectionKey sk, ByteBuffer bs, int bytesRead)
 			throws BadClientException
 	{
 		if (bytesRead > 0)
@@ -112,18 +130,19 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 				{
 					debug("server creating context manager for " + sessionId);
 
-					cm = generateContextManager(sessionId, sc, translationSpace, registry);
+					cm = generateContextManager(sessionId, sk, translationSpace,
+							registry);
 					contexts.put(sessionId, cm);
 				}
 
 				try
 				{
 					CharBuffer buf = this.charBufferPool.acquire();
-					
+
 					DECODER.decode(bs, buf, true);
 					buf.flip();
 					cm.processIncomingSequenceBufToQueue(buf);
-					
+
 					buf = this.charBufferPool.release(buf);
 				}
 				catch (CharacterCodingException e)
@@ -140,7 +159,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	}
 
 	/**
-	 * Hook method to allow changing the ContextManager to enable specific extra functionality.
+	 * Hook method to allow changing the ContextManager to enable specific extra
+	 * functionality.
 	 * 
 	 * @param token
 	 * @param sc
@@ -148,10 +168,12 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	 * @param registryIn
 	 * @return
 	 */
-	@Override protected AbstractContextManager generateContextManager(Object token, SocketChannel sc,
-			TranslationSpace translationSpaceIn, ObjectRegistry registryIn)
+	@Override protected AbstractContextManager generateContextManager(
+			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
+			ObjectRegistry registryIn)
 	{
-		return new ContextManager(token, maxPacketSize, this.getBackend(), this, sc, translationSpaceIn, registryIn);
+		return new ContextManager(token, maxPacketSize, this.getBackend(), this,
+				sk, translationSpaceIn, registryIn);
 	}
 
 	public void run()
@@ -179,7 +201,8 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 						error(e.getMessage());
 
 						// invalidate the manager's key
-						this.getBackend().setPendingInvalidate(cm.getSocket(), true);
+						this.getBackend().setPendingInvalidate(cm.getSocketKey(),
+								true);
 
 						// remove the manager from the collection
 						contextIter.remove();
@@ -242,29 +265,32 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 
 	/**
 	 * @see ecologylab.services.distributed.server.NIOServerFrontend#invalidate(java.lang.Object,
-	 *      ecologylab.services.distributed.impl.NIOServerBackend, java.nio.channels.SocketChannel)
+	 *      ecologylab.services.distributed.impl.NIOServerBackend,
+	 *      java.nio.channels.SocketChannel)
 	 */
-	public AbstractContextManager invalidate(Object sessionId, NIOServerBackend base, SocketChannel sc, boolean permanent)
+	public AbstractContextManager invalidate(Object sessionId, boolean permanent)
 	{
 		AbstractContextManager cm;
 
+		// get the context manager...
 		if (permanent)
 		{
 			synchronized (contexts)
-			{
+			{ // ...if this session will not be restored, remove the context
+				// manager
 				cm = contexts.remove(sessionId);
 			}
 		}
 		else
 		{
 			synchronized (contexts)
-			{
+			{ // ...if this session may be restored, just get the context manager
 				cm = contexts.get(sessionId);
 			}
 		}
 
 		if (cm != null)
-		{
+		{ // finish what the context manager was working on
 			while (cm.isMessageWaiting())
 			{
 				try
@@ -284,15 +310,18 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 	}
 
 	/**
-	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that was used for the
-	 * connection previously (in order to find the correct ContextManager) and newContextManager is the recently-created
-	 * (and now, no longer necessary) ContextManager for the connection.
+	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates
+	 * the session id that was used for the connection previously (in order to
+	 * find the correct ContextManager) and newContextManager is the
+	 * recently-created (and now, no longer necessary) ContextManager for the
+	 * connection.
 	 * 
 	 * @param oldId
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
-	public boolean restoreContextManagerFromSessionId(Object oldSessionId, AbstractContextManager newContextManager)
+	public boolean restoreContextManagerFromSessionId(Object oldSessionId,
+			AbstractContextManager newContextManager)
 	{
 		debug("attempting to restore old session...");
 
@@ -309,7 +338,9 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements ServerCons
 		}
 		else
 		{
-			oldContextManager.setSocket(newContextManager.getSocket());
+			oldContextManager.setSocket(newContextManager.getSocketKey());
+
+			this.getBackend().
 
 			debug("old session restored!");
 			return true;

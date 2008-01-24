@@ -1,6 +1,6 @@
 package ecologylab.services.distributed.server.contextmanager;
 
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.distributed.common.ServerConstants;
@@ -31,14 +31,14 @@ public class ContextManager extends AbstractContextManager implements ServerCons
 	 * @param maxPacketSize
 	 * @param server
 	 * @param frontend
-	 * @param socket
+	 * @param socketKey
 	 * @param translationSpace
 	 * @param registry
 	 */
 	public ContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-			SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry<?> registry)
+			SelectionKey socketKey, TranslationSpace translationSpace, ObjectRegistry<?> registry)
 	{
-		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace, registry);
+		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
 	}
 
 	/**

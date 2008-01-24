@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.SelectionKey;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
@@ -20,7 +20,6 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.XMLTranslationException;
 
 /**
  * Provides a special implementation of performService(), that open()'s an OutputStream as necessary to the appropriate
@@ -49,9 +48,9 @@ public class LoggingContextManager extends ContextManager
 	 * @param registry
 	 */
 	public LoggingContextManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
-			NIOServerBackend server, SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry)
+			NIOServerBackend server, SelectionKey sk, TranslationSpace translationSpace, ObjectRegistry registry)
 	{
-		super(token, maxPacketSize, server, loggingServer, socket, translationSpace, registry);
+		super(token, maxPacketSize, server, loggingServer, sk, translationSpace, registry);
 
 		this.loggingServer = loggingServer;
 	}
@@ -156,7 +155,7 @@ public class LoggingContextManager extends ContextManager
 		{
 			SendEpilogue sE = new SendEpilogue();
 			sE.setWriter(outputStreamWriter);
-			sE.performService(registry);
+			sE.performService(registry, null);
 		}
 
 		super.shutdown();

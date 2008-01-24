@@ -43,11 +43,11 @@ import ecologylab.xml.xml_inherit;
 	 * Attempts to log the user specified by entry from the system; if they are already logged in; if not, sends a
 	 * failure response.
 	 */
-	@Override public ResponseMessage performService(ObjectRegistry objectRegistry)
+	@Override public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
 	{
 		Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
 
-		if (server.logout(entry, this.getSender()))
+		if (server.logout(entry, sessionId))
 		{
 			return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
 		}

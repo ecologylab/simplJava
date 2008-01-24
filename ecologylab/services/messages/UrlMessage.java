@@ -12,7 +12,7 @@ public class UrlMessage extends RequestMessage
 	@xml_attribute protected	String collection = "";
 
 
-	public @Override ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public @Override ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
 	{
 //		String datastore = HTTPPostServer.datastore + collection +"//"+(new Date()).getTime() + "//";
 //		HTMLDom.downloadHTMLPage(url, collection, datastore);

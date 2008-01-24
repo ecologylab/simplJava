@@ -20,8 +20,17 @@ implements SessionObjects
 	/**
 	 * This message doesn't DO anything. It just 
 	 * indicates that a stop (or shutdown) event should occur.
+	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
 	 */
 	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	{
+		return performService(objectRegistry, null);
+	}
+	/**
+	 * This message doesn't DO anything. It just 
+	 * indicates that a stop (or shutdown) event should occur.
+	 */
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
 	{
 		StartAndStoppable sas = (StartAndStoppable) objectRegistry.lookupObject(MAIN_START_AND_STOPPABLE);
 		debug("performService(): call stop(" + sas);

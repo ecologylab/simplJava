@@ -1,5 +1,6 @@
 package ecologylab.services.authentication.nio;
 
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.appframework.ObjectRegistry;
@@ -21,25 +22,26 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Stores information about the connection context for the client, including authentication status. Only executes
- * requests from an authenticated client.
+ * Stores information about the connection context for the client, including
+ * authentication status. Only executes requests from an authenticated client.
  * 
- * Should be extended for more specific implementations. Handles accumulating incoming messages and translating them
- * into RequestMessage objects.
+ * Should be extended for more specific implementations. Handles accumulating
+ * incoming messages and translating them into RequestMessage objects.
  * 
  * @see ecologylab.services.distributed.server.contextmanager.ContextManager
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class AuthContextManager extends ContextManager implements ServerConstants, AuthServerRegistryObjects,
-		AuthMessages
+public class AuthContextManager extends ContextManager implements
+		ServerConstants, AuthServerRegistryObjects, AuthMessages
 {
 	private boolean		loggedIn			= false;
 
 	private AuthLogging	servicesServer	= null;
 
 	/**
-	 * Constructs a new AuthContextManager on a server to handle authenticating client requests.
+	 * Constructs a new AuthContextManager on a server to handle authenticating
+	 * client requests.
 	 * 
 	 * @param token
 	 * @param maxPacketSize
@@ -50,23 +52,28 @@ public class AuthContextManager extends ContextManager implements ServerConstant
 	 * @param registry
 	 * @param servicesServer
 	 */
-	public AuthContextManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
-			SocketChannel socket, TranslationSpace translationSpace, ObjectRegistry registry, AuthLogging servicesServer)
+	@SuppressWarnings("unchecked") public AuthContextManager(Object token, int maxPacketSize,
+			NIOServerBackend server, NIOServerFrontend frontend, SelectionKey sk,
+			TranslationSpace translationSpace, ObjectRegistry registry,
+			AuthLogging servicesServer)
 	{
-		super(token, maxPacketSize, server, frontend, socket, translationSpace, registry);
+		super(token, maxPacketSize, server, frontend, sk, translationSpace,
+				registry);
 
 		this.servicesServer = servicesServer;
 	}
 
 	/**
-	 * Calls performService on the given RequestMessage using the local ObjectRegistry, if the client has been
-	 * authenticated, or if the request is to log in. Can be overridden by subclasses to provide more specialized
+	 * Calls performService on the given RequestMessage using the local
+	 * ObjectRegistry, if the client has been authenticated, or if the request is
+	 * to log in. Can be overridden by subclasses to provide more specialized
 	 * functionality.
 	 * 
 	 * @param requestMessage
 	 * @return
 	 */
-	@Override protected ResponseMessage performService(RequestMessage requestMessage)
+	@Override protected ResponseMessage performService(
+			RequestMessage requestMessage)
 	{
 		ResponseMessage response;
 
@@ -87,13 +94,17 @@ public class AuthContextManager extends ContextManager implements ServerConstant
 				}
 
 				// tell the server to log it
-				servicesServer.fireLoggingEvent(new AuthenticationOp(((Login) requestMessage).getEntry().getUsername(),
-						true, ((LoginStatusResponse) response).getResponseMessage(), socket.socket().getInetAddress()
-								.toString(), socket.socket().getPort()));
+				servicesServer.fireLoggingEvent(new AuthenticationOp(
+						((Login) requestMessage).getEntry().getUsername(), true,
+						((LoginStatusResponse) response).getResponseMessage(),
+						((SocketChannel) socketKey.channel()).socket()
+								.getInetAddress().toString(),
+						((SocketChannel) socketKey.channel()).socket().getPort()));
 			}
 			else
 			{ // otherwise we consider it bad!
-				response = new BadSemanticContentResponse(REQUEST_FAILED_NOT_AUTHENTICATED);
+				response = new BadSemanticContentResponse(
+						REQUEST_FAILED_NOT_AUTHENTICATED);
 			}
 
 		}
@@ -104,9 +115,12 @@ public class AuthContextManager extends ContextManager implements ServerConstant
 			if (requestMessage instanceof Logout)
 			{
 				// tell the server to log it
-				servicesServer.fireLoggingEvent(new AuthenticationOp(((Logout) requestMessage).getEntry().getUsername(),
-						false, ((LogoutStatusResponse) response).getResponseMessage(), socket.socket().getInetAddress()
-								.toString(), socket.socket().getPort()));
+				servicesServer.fireLoggingEvent(new AuthenticationOp(
+						((Logout) requestMessage).getEntry().getUsername(), false,
+						((LogoutStatusResponse) response).getResponseMessage(),
+						((SocketChannel) socketKey.channel()).socket()
+								.getInetAddress().toString(),
+						((SocketChannel) socketKey.channel()).socket().getPort()));
 			}
 		}
 

@@ -3,7 +3,6 @@
  */
 package ecologylab.services.authentication;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -19,9 +18,9 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 {
 	protected AuthenticationList<A>			authList			= new AuthenticationList<A>();
 
-	private HashMap<String, InetAddress>	authedNameToIP	= new HashMap<String, InetAddress>();
+	private HashMap<String, Object>	authedNameToSessionId	= new HashMap<String, Object>();
 
-	private HashMap<InetAddress, String>	authedIPToName	= new HashMap<InetAddress, String>();
+	private HashMap<Object, String>	authedSessionIdToName	= new HashMap<Object, String>();
 
 	/**
 	 * Creates a new Authenticator using the given AuthenticationList as a backend database of usernames and passwords.
@@ -50,7 +49,7 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	 * 
 	 * @return
 	 */
-	public boolean login(A entry, InetAddress address)
+	public boolean login(A entry, String sessionId)
 	{
 		System.out.println("*****************************************");
 		boolean loggedInSuccessfully = false;
@@ -65,13 +64,13 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 			if (authList.isValid(entry))
 			{
 				// now make sure that the user isn't already logged-in
-				if (!authedNameToIP.containsKey(entry.getUsername()))
+				if (!authedSessionIdToName.containsKey(entry.getUsername()))
 				{
 					// mark login successful
 					loggedInSuccessfully = true;
 
 					// and add to collections
-					add(entry.getUsername(), address);
+					add(entry.getUsername(), sessionId);
 				}
 				else
 				{
@@ -126,7 +125,7 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	{
 		if (this.verifyCredentials(administrator) >= AuthLevels.ADMINISTRATOR)
 		{
-			return this.authedNameToIP.keySet();
+			return this.authedNameToSessionId.keySet();
 		}
 		else
 		{
@@ -140,11 +139,11 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	 * 
 	 * @param entry
 	 */
-	public boolean logout(A entry, InetAddress address)
+	public boolean logout(A entry, String sessionId)
 	{
 		try
 		{
-			if (this.authedIPToName.get(address).equals(entry.getUsername()))
+			if (entry.getUsername().equals(this.authedSessionIdToName.get(sessionId)))
 			{
 				remove(entry.getUsername());
 				return true;
@@ -169,32 +168,32 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	 */
 	public boolean isLoggedIn(String username)
 	{
-		return (authedNameToIP.containsKey(username));
+		return (authedNameToSessionId.containsKey(username));
 	}
 
 	protected void remove(String username)
 	{
-		InetAddress key = authedNameToIP.remove(username);
+		Object key = authedNameToSessionId.remove(username);
 
 		if (key != null)
 		{
-			this.authedIPToName.remove(key);
+			this.authedSessionIdToName.remove(key);
 		}
 	}
 
-	public void remove(InetAddress address)
+	public void removeBySessionId(Object sessionId)
 	{
-		String key = authedIPToName.remove(address);
+		Object key = authedSessionIdToName.remove(sessionId);
 
 		if (key != null)
 		{
-			this.authedNameToIP.remove(key);
+			this.authedNameToSessionId.remove(key);
 		}
 	}
 
-	protected void add(String username, InetAddress address)
+	protected void add(String username, String sessionId)
 	{
-		this.authedIPToName.put(address, username);
-		this.authedNameToIP.put(username, address);
+		this.authedSessionIdToName.put(sessionId, username);
+		this.authedNameToSessionId.put(username, sessionId);
 	}
 }

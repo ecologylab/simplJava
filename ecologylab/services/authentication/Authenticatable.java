@@ -18,11 +18,11 @@ public interface Authenticatable<E extends AuthenticationListEntry>
 	 * 
 	 * @param entry
 	 *           the information about the user attempting to log in (username / password, etc.).
-	 * @param address
-	 *           the originating IP address for the login attempt.
+	 * @param sessionId
+	 *           the session id for the connected socket.
 	 * @return true if the user successfully logged in, false otherwise.
 	 */
-	public boolean login(E entry, InetAddress address);
+	public boolean login(E entry, String sessionId);
 
 	/**
 	 * Logs the user out of the system (based on the content of entry and its originating IP address (address)). Handles
@@ -35,7 +35,7 @@ public interface Authenticatable<E extends AuthenticationListEntry>
 	 * @return true if the user successfully logged out, false otherwise. This method may return false if the user was
 	 *         never logged in, or if the attempt appears to be a spoof.
 	 */
-	public boolean logout(E entry, InetAddress address);
+	public boolean logout(E entry, String sessionId);
 
 	/**
 	 * Indicates whether or not the supplied username is currently logged-in to the system.

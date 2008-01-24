@@ -59,9 +59,18 @@ extends RequestMessage
 	}
 
     /**
+	  * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
+	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
+	  */
+	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	{
+		return performService(objectRegistry, null);
+	}
+
+	/**
      * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
      */
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
 	{
 		debug("performService(): " + preferencesSet +" " + preferencesSet.size());
 		if (firstTime)

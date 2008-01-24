@@ -22,9 +22,9 @@ public @xml_inherit class HttpGetRequest extends RequestMessage
 	 * Redirect URL if an error or problem occured.
 	 */
 	protected @xml_attribute ParsedURL errorResponseUrl;
-	
+
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry) {
+	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) {
 		// TODO Auto-generated method stub
 		return OkResponse.get();
 	}
