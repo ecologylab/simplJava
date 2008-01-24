@@ -59,6 +59,12 @@ extends Debug
    {
       set		= setArg;
    }
+   
+   public boolean isInSet()
+   {
+	   return (set != null) && (index != NOT_A_MEMBER);
+   }
+   
 /**
  * Delete in the most expedient manner possible.
  * This is final because you should override deleteHook() to provide
@@ -67,11 +73,6 @@ extends Debug
    public final void delete()
    {
       delete(BasicFloatSet.NO_RECOMPUTE);
-   }
-   
-   public boolean isInSet()
-   {
-	   return (set != null) && (index != NOT_A_MEMBER);
    }
 /**
  * Delete the element from the set.
