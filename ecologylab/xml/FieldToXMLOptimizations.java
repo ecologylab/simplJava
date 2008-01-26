@@ -511,36 +511,28 @@ implements OptimizationTypes
      * Use this and the context to set an attribute (name, value) on the Element DOM Node passed in.
      * 
      * @param element
-     * @param context
+     * @param instance
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    public void appendLeaf(Element element, Object context) 
+    public void appendLeaf(Element element, Object instance) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        if (context != null)
+        if (instance != null)
         {
         	ScalarType scalarType	= this.scalarType;
-        	Field field				= this.field;
         	
-        	if (!scalarType.isDefaultValue(field, context))
-        	{
-	            //for this field, generate tags and attach name value pair
-	        	
-	        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-        		// (which is an instance variable of this) !!!
-        		
-        		String value		= scalarType.toString(field, context);
-        		Document document 	= element.getOwnerDocument();
+        	Document document 		= element.getOwnerDocument();
+        	
+        	String  instanceString	= instance.toString();
 
-        		Text textNode		= isCDATA ? document.createCDATASection(value) : document.createTextNode(value);
-        		
-        		Element leafNode	= document.createElement(tagName);
-        		leafNode.appendChild(textNode);
-	        	
-        		element.appendChild(leafNode);
-        	}
-        }
+        	Text textNode			= isCDATA ? document.createCDATASection(instanceString) : document.createTextNode(instanceString);
+
+        	Element leafNode		= document.createElement(tagName);
+        	leafNode.appendChild(textNode);
+
+        	element.appendChild(leafNode);
+         }
     }
     
 

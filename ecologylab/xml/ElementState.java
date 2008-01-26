@@ -920,7 +920,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						{
 							try
 							{
-								childF2Xo.appendLeaf(elementNode, this);
+								childF2Xo.appendLeaf(elementNode, next);
 							} catch (IllegalArgumentException e)
 							{
 								throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
