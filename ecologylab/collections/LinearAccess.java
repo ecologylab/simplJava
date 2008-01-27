@@ -17,4 +17,7 @@ public interface LinearAccess<E>
 	public E get(int i);
 	
 	public int size();
+
+	public boolean isEmpty();
+
 }
