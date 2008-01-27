@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
+import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.xml.ElementState;
@@ -31,6 +32,7 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class ParsedURL
 extends Debug
+implements MimeType
 {
 	/**
 	 * this is the no hash url, that is, the one with # and anything after it stripped out.
@@ -608,8 +610,19 @@ extends Debug
    
    static final String[] jpegMimeStrings	=
    {
-      "jpg", "jpeg", "pjpg", "pjpeg", 
+      "jpg", "JPG", "jpeg", "JPEG", "pjpg", "pjpeg", 
    };
+   
+   static final String[] gifMimeStrings 	=
+   {
+	   "gif", "GIF",
+   };
+   
+   static final String[] pngMimeStrings		=
+   {
+	   "png", "PNG",
+   };
+   
    static final HashMap jpegSuffixMap = 
 	      CollectionTools.buildHashMapFromStrings(jpegMimeStrings);
     static final String[] htmlMimeStrings	=
@@ -637,6 +650,23 @@ extends Debug
    };
    static final HashMap rssSuffixMap =
    	  CollectionTools.buildHashMapFromStrings(rssMimeStrings);
+   
+   static final HashMap<String, IntSlot> suffixesToMap = new HashMap<String, IntSlot>();
+   static
+   {
+	   for( int i=0; i<pdfMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, pdfMimeStrings[i], PDF);
+	   for( int i=0; i<htmlMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, htmlMimeStrings[i], HTML);
+	   for( int i=0; i<rssMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, rssMimeStrings[i], RSS);
+	   for( int i=0; i<jpegMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, jpegMimeStrings[i], JPG);
+	   for( int i=0; i<gifMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, gifMimeStrings[i], GIF);
+	   for( int i=0; i<pngMimeStrings.length; i++ )
+		   CollectionTools.stringIntMapEntry(suffixesToMap, pngMimeStrings[i], PNG);
+   }
 
 
 /**
@@ -989,15 +1019,18 @@ extends Debug
    {
    	   return rssSuffixMap.containsKey(suffix());
    }
-   
-/**
- * 
- * @return	Typical MIME type associated with this.
- */
-   public String mimeType()
-   {
-	   return isHTML() ? "text/html" : isPDF() ? "application/pdf" : isRSS() ? "xml/rss" : null;
-   }
+
+	/**  
+	 * Get index indicating mimeType.
+	 * ImageElement mime indexes may be used for designRole() and in weighting.
+	 * 
+	 * @param parsedURL
+	 */
+	public int mimeIndex()
+	{
+		IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix());
+		return (mimeSlot != null) ? mimeSlot.value : UNKNOWN_MIME;
+	}   
    
    /*
     * Check the suffix whether it is in the unsupportedMimes or not. 
