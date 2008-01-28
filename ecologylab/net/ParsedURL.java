@@ -1020,17 +1020,35 @@ implements MimeType
    	   return rssSuffixMap.containsKey(suffix());
    }
 
+   int mimeIndex = -1;
+   
 	/**  
-	 * Get index indicating mimeType.
-	 * ImageElement mime indexes may be used for designRole() and in weighting.
+	 * Get MimeType index by seeing suffix().
 	 * 
 	 * @param parsedURL
 	 */
 	public int mimeIndex()
 	{
-		IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix());
-		return (mimeSlot != null) ? mimeSlot.value : UNKNOWN_MIME;
-	}   
+		if( mimeIndex == -1 )
+		{
+			IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix());
+			mimeIndex = (mimeSlot != null) ? mimeSlot.value : UNKNOWN_MIME;
+			return mimeIndex;
+		}
+		else
+			return mimeIndex;
+	}
+	
+	/**  
+	 * Get Media MimeType indexes.
+	 * Media MimeTypes are currently text and all kinds of images such as JPG, GIF, and PNG. 
+	 * 
+	 * @param parsedURL
+	 */
+	public int mediaMimeIndex()
+	{
+		return (mimeIndex()>=MimeType.UNKNOWN_MIME)? MimeType.UNKNOWN_MIME : mimeIndex();
+	}	
    
    /*
     * Check the suffix whether it is in the unsupportedMimes or not. 
