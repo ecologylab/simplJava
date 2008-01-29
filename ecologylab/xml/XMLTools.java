@@ -40,13 +40,13 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @version     0.5
  */
 public class XMLTools extends TypeRegistry
-implements CharacterConstants
+implements CharacterConstants, SpecialCharacterEntities
 {
 	private static final int DEFAULT_TAG_LENGTH = 15;
 
 	static HashMap	entityTable				= new HashMap();
 
-	static final String entities[]=
+	static final String SPECIAL_SPELLINGS[]=
 	{
 	   "nbsp", "iexcl", "cent", "pound", "curren", "yen", "brvbar",
 	   "sect", "uml", "copy", "ordf", "laquo", "not", "shy", "reg",
@@ -63,19 +63,46 @@ implements CharacterConstants
 	   "ouml", "divide", "oslash", "ugrave", "uacute", "ucirc", "uuml",
 	   "yacute", "thorn" 
 	};
+	
+	static final char[] SPECIAL_CHARS =
+	{
+		402, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 9204, 9205, 8206, 8207, 8211, 8212, 8216, 8217, 8218, 
+		8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, EURO,
+		
+		// greek to you and me
+		
+	};
 
 	static
 	{
       // special spellings
-      for (char i = 0; i != entities.length; i++)
-		 entityTable.put(entities[i], new Character((char) (i + 160)));
+      for (char i = 0; i < SPECIAL_SPELLINGS.length; i++)
+		 entityTable.put(SPECIAL_SPELLINGS[i], new Character((char) (i + 160)));
       
+      // even though we fill the table from 0-255, actually
+      // 0-8 are illegal. 9,10 (decimal) are legal. 11-31 are illegal. 31-127 are legal.
       // syntax such as &#38;
-      for (int i = 0; i != 255; i++)
-      {
-		 entityTable.put("#"+(int)i, new Character((char)i));
-      }
+      for (char c = 0; c < 255; c++)
+		putNumberedEntityInTable(c);
+
+      for (char c = 913; c < 982; c++)	// greek letters
+		putNumberedEntityInTable(c);
+
+      // the rest of the special chars:
+      for (int i= 0; i < SPECIAL_CHARACTER_ENTITIES.length; i++)
+    	  putNumberedEntityInTable(SPECIAL_CHARACTER_ENTITIES[i]);
       
+      // magic chars from the NY TIMES
+      // &#8217; is really ' (ascii 39)
+      entityTable.put("#8217", new Character('\''));
+     // &#8220; is really “ = &#147;
+      entityTable.put("#8220", new Character('“'));
+     // &#8221; is really ” = &#148;
+      entityTable.put("#8221", new Character('”'));
+      // &#8212; is really — = &#151; -- em dash
+      entityTable.put("#8212", new Character('—'));
+      
+       
       // defined in the XML 1.0 spec: "predefined entities"
       entityTable.put("amp", new Character('&'));
       entityTable.put("quot", new Character('"'));
@@ -84,6 +111,17 @@ implements CharacterConstants
       entityTable.put("apos", new Character('\''));
       entityTable.put("nbsp", new Character(' '));
    }
+
+	/**
+	 * Generate lookup from numbered XML entity character reference (e.g., &#123;) to the actual Character.
+	 * 
+	 * @param i
+	 */
+	private static void putNumberedEntityInTable(char c)
+	{
+		String entityString = "#"+ (int) c;
+		entityTable.put(entityString, new Character(c));
+	}
 	
 /**
  * This method generates a name for the xml tag given a reference type java object.
