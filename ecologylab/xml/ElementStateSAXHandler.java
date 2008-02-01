@@ -25,6 +25,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
@@ -70,12 +71,41 @@ implements ContentHandler, OptimizationTypes
 
 		try 
 		{
-			parser 					= XMLReaderFactory.createXMLReader();
+			parser 					= createXMLReader();
 			parser.setContentHandler(this);
 		} catch (Exception e)
 		{
 			parser					= null;
 		}
+	}
+	
+	static final String SUN_XERCES_PARSER_NAME		= "com.sun.org.apache.xerces.internal.parsers.SAXParser";
+	
+	static Class<? extends XMLReader> 		parserClass;
+	
+	static boolean		triedToFindParserClass;
+	
+	public static XMLReader createXMLReader() 
+	throws SAXException
+	{
+		if (parserClass != null)
+			return ReflectionTools.getInstance(parserClass);
+		// else
+	
+		if (!triedToFindParserClass)
+		{
+			triedToFindParserClass	= true;
+			try
+			{
+				parserClass				= (Class<? extends XMLReader>) Class.forName(SUN_XERCES_PARSER_NAME);
+				return createXMLReader();
+			} catch (Exception e)
+			{
+				
+			}
+		}
+		// stuck doin it the slow way :-(
+		return XMLReaderFactory.createXMLReader();
 	}
 /**
  * Parse the CharSequence of XML, using UTF-8 encoding.
