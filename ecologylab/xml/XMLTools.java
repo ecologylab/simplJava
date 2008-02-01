@@ -799,13 +799,22 @@ static String q(String string)
 				   break;
             }
     	}
-    	for (char c=ISO_LATIN1_START; c<Character.MAX_VALUE; c++)
-    	{
-    		StringBuilder entry	= new StringBuilder(8);
-    		entry.append('&').append('#').append((int) c).append(';');
-    		ESCAPE_TABLE[c]		= entry.toString();
-    	}
+    	int n	= SPECIAL_CHARACTER_ENTITIES.length;
+    	for (int i=0; i< n; i++)
+       		addEscapeTableEntry(SPECIAL_CHARACTER_ENTITIES[i]);
+   		
+//    	for (char c=ISO_LATIN1_START; c<Character.MAX_VALUE; c++)
+//    	{
+//    		addEscapeTableEntry(c);
+//    	}
     }
+
+	private static void addEscapeTableEntry(char c)
+	{
+		StringBuilder entry	= new StringBuilder(7);
+		entry.append('&').append('#').append((int) c).append(';');
+		ESCAPE_TABLE[c]		= entry.toString();
+	}
     static boolean noCharsNeedEscaping(CharSequence stringToEscape)
     {
         int length	= stringToEscape.length();
