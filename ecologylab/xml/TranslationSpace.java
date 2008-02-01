@@ -630,25 +630,11 @@ public final class TranslationSpace extends Debug
     * Throw a RuntimeExcpection if the consistency check fails.
     * 
     * @param 	name
-    * @param 	defaultPackageName
     * @return	existing translations
     */
-   private static TranslationSpace lookForExistingTS(String name, String defaultPackageName)
+   private static TranslationSpace lookForExistingTS(String name)
    {
-	   TranslationSpace result	= lookup(name);
-	   if (result != null)
-	   {  // existing TranslationSpace
-		  if (defaultPackageName != null)
-		  {	 // check for package name consistency
-			 String resultDefaultPackageName = result.defaultPackageName;
-			 if ((resultDefaultPackageName != null) && !defaultPackageName.equals(resultDefaultPackageName))
-				throw new RuntimeException("TranslationSpace Consistency Check ERROR: Existing TranslationSpace " + name +
-					   " has defaultPackageName="+resultDefaultPackageName +", not " +defaultPackageName);
-		  }
-		  else
-			  println("Returning existing TranslationSpace; " + name);
-	   }
-	   return result;
+	   return lookup(name);
    }
    /**
     * Find the TranslationSpace called <code>name</code>, if there is one.
@@ -661,7 +647,7 @@ public final class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result	= new TranslationSpace(name, defaultPackageName);
@@ -678,7 +664,7 @@ public final class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String defaultPackageName, Class[] translations)
    {
-	   TranslationSpace result	= lookForExistingTS(defaultPackageName, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(defaultPackageName);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(defaultPackageName, translations, defaultPackageName);
@@ -699,7 +685,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace inheritedTranslations,
 		   							  String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translations, inheritedTranslations, defaultPackageName);
@@ -719,7 +705,7 @@ public final class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, Class translation, TranslationSpace inheritedTranslations)
    {
-	   TranslationSpace result	= lookForExistingTS(name, null);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translation, inheritedTranslations);
@@ -783,7 +769,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
 		   							  String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
@@ -805,7 +791,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
 		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
    {
-	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
@@ -866,7 +852,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name, String defaultPackageName, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
@@ -885,7 +871,7 @@ public final class TranslationSpace extends Debug
    public static TranslationSpace get(String name, Class[] translations,
 		   							  ArrayList<TranslationSpace> inheritedTranslationsSet)
    {
-	   TranslationSpace result	= lookForExistingTS(name, name);
+	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
 		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, name);
@@ -906,7 +892,7 @@ public final class TranslationSpace extends Debug
     */
    public static TranslationSpace get(String name, Class[] translations, String defaultPackageName)
    {
-	  TranslationSpace result	= lookForExistingTS(name, defaultPackageName);
+	  TranslationSpace result	= lookForExistingTS(name);
 	  if (result == null)
 	  {
 		  result		= new TranslationSpace(name, translations, defaultPackageName);
