@@ -46,7 +46,7 @@ implements ContentHandler, OptimizationTypes
 	
 	ElementState					root;
 	
-	private XMLReader 				parser;
+//	private XMLReader 				parser;
 	
 	/**
 	 * Current "DOM" frame state.
@@ -62,6 +62,8 @@ implements ContentHandler, OptimizationTypes
 	
 	ArrayList<NodeToJavaOptimizations>	n2joStack	= new ArrayList<NodeToJavaOptimizations>();
 	
+	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
+	
 	/**
 	 * 
 	 */
@@ -69,14 +71,14 @@ implements ContentHandler, OptimizationTypes
 	{
 		this.translationSpace		= translationSpace;
 
-		try 
-		{
-			parser 					= createXMLReader();
-			parser.setContentHandler(this);
-		} catch (Exception e)
-		{
-			parser					= null;
-		}
+//		try 
+//		{
+//			parser 					= createXMLReader();
+//			parser.setContentHandler(this);
+//		} catch (Exception e)
+//		{
+//			parser					= null;
+//		}
 	}
 	
 	static final String SUN_XERCES_PARSER_NAME		= "com.sun.org.apache.xerces.internal.parsers.SAXParser";
@@ -248,21 +250,16 @@ implements ContentHandler, OptimizationTypes
 	public ElementState parse(InputStream inputStream)
 	throws XMLTranslationException
 	{
-		ElementState result	= parse(new InputSource(inputStream));
-//		try
-//		{
-//			inputStream.close();
-//		} catch (IOException e)
-//		{
-//			e.printStackTrace();
-//		}
-		return result;
+		return parse(new InputSource(inputStream));
 	}
 	public ElementState parse(InputSource inputSource)
 	throws XMLTranslationException
 	{
+		XMLReader parser		= null;
 		try
 		{
+			parser				= xmlReaderPool.acquire();
+			parser.setContentHandler(this);
 			parser.parse(inputSource);
 		} catch (IOException e)
 		{
@@ -270,6 +267,11 @@ implements ContentHandler, OptimizationTypes
 		} catch (SAXException e)
 		{
 			xmlTranslationException	= new XMLTranslationException("SAXException durng parsing", e);
+		}
+		finally
+		{
+			if (parser != null)
+				xmlReaderPool.release(parser);
 		}
 		if (xmlTranslationException != null)
 			throw xmlTranslationException;
@@ -709,10 +711,6 @@ implements ContentHandler, OptimizationTypes
 
 	}
 
-	public XMLReader getParser()
-	{
-		return parser;
-	}
 	/**
 	 * @return the root
 	 */
