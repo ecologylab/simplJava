@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import javax.swing.JOptionPane;
 
 import ecologylab.appframework.Environment;
+import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -298,7 +299,7 @@ public class Generic
 	public static void showDialogAndExit(String msg, int code)
 	{
 		showDialog(msg);
-		Generic.exit(code);
+		EnvironmentGeneric.exit(code);
 	}
 	/*
 	 * Show a dialog box to the user.
@@ -308,16 +309,7 @@ public class Generic
 		JOptionPane.showOptionDialog(null, msg, "combinFormation exited", JOptionPane.DEFAULT_OPTION, 
 									JOptionPane.WARNING_MESSAGE, null, DIALOG_OPTIONS, DIALOG_OPTIONS[0]);
 	}
-    /**
-     * Called at the end of an invocation. Calls System.exit(code).
-     * 
-     * @param	code -- 0 for normal. other values are application specific.
-     */
-    public static void exit(int code)
-    {
-	   Environment.the.get().exit(code);   	
-    }
-	public static String narrowFloat(float f)
+    public static String narrowFloat(float f)
 	   {
 	      String s	= Float.toString(f);
 	      if (s.length() > 7)

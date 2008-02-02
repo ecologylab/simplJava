@@ -126,5 +126,15 @@ public class EnvironmentGeneric extends Generic
 	      Environment.the.get().navigate(purl, Environment.the.frame());
 	   }
 
+	/**
+	 * Called at the end of an invocation. Calls System.exit(code).
+	 * 
+	 * @param	code -- 0 for normal. other values are application specific.
+	 */
+	public static void exit(int code)
+	{
+	   Environment.the.get().exit(code);   	
+	}
+
 
 }
