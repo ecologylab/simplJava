@@ -116,5 +116,15 @@ public class EnvironmentGeneric extends Generic
 	      Environment.the.get().status(msg);
 	   }
 
+	/**
+	    * Open a document in a web browser.
+	    * 
+	    * @param purl	The address of the web document.
+	    */
+	   public static void navigate(ParsedURL purl)
+	   {
+	      Environment.the.get().navigate(purl, Environment.the.frame());
+	   }
+
 
 }

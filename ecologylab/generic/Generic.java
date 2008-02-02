@@ -1,10 +1,6 @@
 package ecologylab.generic;
 
-import java.awt.*;
-import java.net.URL;
-import java.util.*;
-import java.net.*;
-import java.io.*;
+import java.awt.Toolkit;
 
 import javax.swing.JOptionPane;
 
@@ -249,16 +245,6 @@ public class Generic
       Debug.println(round(22, 3));
    }
    static final float	LN_EMPTY_WEIGHT	= Float.MAX_VALUE / 1000;
-   
-   /**
-    * Open a document in a web browser.
-    * 
-    * @param purl	The address of the web document.
-    */
-   public static void navigate(ParsedURL purl)
-   {
-      Environment.the.get().navigate(purl, Environment.the.frame());
-   }
    
    public static void beep()
    {
