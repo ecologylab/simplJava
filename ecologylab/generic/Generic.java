@@ -4,9 +4,6 @@ import java.awt.Toolkit;
 
 import javax.swing.JOptionPane;
 
-import ecologylab.appframework.Environment;
-import ecologylab.appframework.EnvironmentGeneric;
-import ecologylab.net.ParsedURL;
 
 /**
  * A set of generic convenience methods for doing things like getting
@@ -88,15 +85,6 @@ public class Generic
 
    public static final String SEP	= "/";
    
-   /**
-    * Where to navigate to to download the lastest Java.
-    */
-   public static ParsedURL	SUN_JAVA_PURL	= ParsedURL.getAbsolute("http://www.java.com/en/download/", "Java download");
-   /**
-    * Where to navigate to to download the lastest Java for the Macintosh.
-    */
-   public static ParsedURL	MAC_JAVA_PURL	= ParsedURL.getAbsolute("http://www.apple.com/java/", "Java download");
-
    /**
  * Set the priority of the current thread.
  */
@@ -293,14 +281,6 @@ public class Generic
 	
 	private static final String[] DIALOG_OPTIONS = { "ok" };
 	
-	/*
-	 * Show a dialog box to the user, and then exit the VM.
-	 */
-	public static void showDialogAndExit(String msg, int code)
-	{
-		showDialog(msg);
-		EnvironmentGeneric.exit(code);
-	}
 	/*
 	 * Show a dialog box to the user.
 	 */

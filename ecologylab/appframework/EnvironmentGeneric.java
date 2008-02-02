@@ -102,11 +102,11 @@ public class EnvironmentGeneric extends Generic
 		   switch (PropertiesAndDirectories.os())
 		   {
 		   case PropertiesAndDirectories.MAC:
-			   result	= Generic.MAC_JAVA_PURL;
+			   result	= EnvironmentGeneric.MAC_JAVA_PURL;
 		   case PropertiesAndDirectories.WINDOWS:
 		   case PropertiesAndDirectories.LINUX:
 		   default:
-			   result	= Generic.SUN_JAVA_PURL;
+			   result	= EnvironmentGeneric.SUN_JAVA_PURL;
 		   }
 		   return result;
 	   }
@@ -135,6 +135,24 @@ public class EnvironmentGeneric extends Generic
 	{
 	   Environment.the.get().exit(code);   	
 	}
+
+	/*
+	 * Show a dialog box to the user, and then exit the VM.
+	 */
+	public static void showDialogAndExit(String msg, int code)
+	{
+		Generic.showDialog(msg);
+		EnvironmentGeneric.exit(code);
+	}
+
+	/**
+	    * Where to navigate to to download the lastest Java.
+	    */
+	   public static ParsedURL	SUN_JAVA_PURL	= ParsedURL.getAbsolute("http://www.java.com/en/download/", "Java download");
+	/**
+	    * Where to navigate to to download the lastest Java for the Macintosh.
+	    */
+	   public static ParsedURL	MAC_JAVA_PURL	= ParsedURL.getAbsolute("http://www.apple.com/java/", "Java download");
 
 
 }
