@@ -5,6 +5,7 @@ import java.util.*;
 import java.net.*;
 import java.nio.channels.FileChannel;
 
+import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
@@ -145,7 +146,7 @@ extends Debug
    public static BufferedReader openWebReader(String webAddr)
    {
    	  /* get ParsedURL from url string. */
-      ParsedURL purl = ParsedURL.getRelativeOrAbsolute(webAddr, "");
+      ParsedURL purl = EnvironmentGeneric.getRelativeOrAbsolute(webAddr, "");
       return openReader(purl.url());
    }
    public static BufferedReader openReader(File file)

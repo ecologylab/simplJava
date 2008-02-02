@@ -131,7 +131,7 @@ implements ApplicationProperties
 			setAssetsRoot(configDir);
 		else
 		{
-			ParsedURL codeBaseSlashConfig	= ParsedURL.getRelativeToCodeBase("config/", "Forming assetsPURL");
+			ParsedURL codeBaseSlashConfig	= EnvironmentGeneric.getRelativeToCodeBase("config/", "Forming assetsPURL");
 			setAssetsRoot(codeBaseSlashConfig);
 		}
 		setCacheRoot(PropertiesAndDirectories.thisApplicationDir());

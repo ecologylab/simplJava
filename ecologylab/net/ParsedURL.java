@@ -10,7 +10,6 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
-import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
@@ -190,34 +189,7 @@ implements MimeType
 	   String host = url.getHost().trim();
 	   return ((!isFileProtocol && (host == "" || host == "/")) || (isFileProtocol && url.getPath().trim() != ""));
    }
-/*   
-   public URL getURL(String webAddr)
-   {
-      return getURL(webAddr, "");
-   }
-*/   
 /**
- * Uses an absolute URL, if the String parameter looks like that,
- * or one that's relative to docBase, if it looks a relative URL.
- */
-   public static ParsedURL getRelativeOrAbsolute(String webAddr, String errorDescriptor)
-   {
-      if (webAddr == null)
-      	return null;
-      
-      ParsedURL result	= null;
-      // if its not an absolute url string, parse url as relative
-      if (webAddr.indexOf("://") == -1)
-    	  result		= getRelativeToDocBase(webAddr, errorDescriptor);
-      // otherwise, try forming it absolutely
-      if (result == null)
-      {
-      	result		= getAbsolute(webAddr, errorDescriptor);
-      }
-      return result;
-   }
-   
-   /**
     * Form a ParsedURL, based on a relative path, using this as the base.
     * 
     * @param relativeURLPath	Path relative to this.
@@ -305,28 +277,6 @@ implements MimeType
 		 return null;
       }
    }
-   
-/** 
- * Create ParsedURL with doc base and relative url string. 
- * 
- * @return null if the docBase is null.
- */
-   public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
-   {
-   		ParsedURL docBase = EnvironmentGeneric.docBase();
-   		return (docBase == null) ? null : docBase.getRelative(relativeURLPath, errorDescriptor);
-   } 
-   
-/** 
- * Create ParsedURL using the codeBase(), and a relative url string. 
- * 
- * @return null if the codeBase is null.
- */
-   public static ParsedURL getRelativeToCodeBase(String relativeURLPath, String errorDescriptor)
-   {
-	  ParsedURL codeBase = EnvironmentGeneric.codeBase();
-	  return (codeBase == null) ? null : codeBase.getRelative(relativeURLPath, errorDescriptor);
-   } 
    
 /**
  * Return url error message string.

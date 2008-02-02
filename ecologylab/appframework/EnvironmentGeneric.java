@@ -35,7 +35,7 @@ public class EnvironmentGeneric extends Generic
 		   ParsedURL result	= configDir;
 		   if (result == null)
 		   {
-			   result		= ParsedURL.getRelativeToCodeBase("config/", "Error forming config dir.");
+			   result		= EnvironmentGeneric.getRelativeToCodeBase("config/", "Error forming config dir.");
 			   configDir	= result;
 		   }
 		   return result;
@@ -153,6 +153,55 @@ public class EnvironmentGeneric extends Generic
 	    * Where to navigate to to download the lastest Java for the Macintosh.
 	    */
 	   public static ParsedURL	MAC_JAVA_PURL	= ParsedURL.getAbsolute("http://www.apple.com/java/", "Java download");
+
+	/*   
+	   public URL getURL(String webAddr)
+	   {
+	      return getURL(webAddr, "");
+	   }
+	*/   
+	/**
+	 * Uses an absolute URL, if the String parameter looks like that,
+	 * or one that's relative to docBase, if it looks a relative URL.
+	 */
+	   public static ParsedURL getRelativeOrAbsolute(String webAddr, String errorDescriptor)
+	   {
+	      if (webAddr == null)
+	      	return null;
+	      
+	      ParsedURL result	= null;
+	      // if its not an absolute url string, parse url as relative
+	      if (webAddr.indexOf("://") == -1)
+	    	  result		= getRelativeToDocBase(webAddr, errorDescriptor);
+	      // otherwise, try forming it absolutely
+	      if (result == null)
+	      {
+	      	result		= ParsedURL.getAbsolute(webAddr, errorDescriptor);
+	      }
+	      return result;
+	   }
+
+	/** 
+	 * Create ParsedURL with doc base and relative url string. 
+	 * 
+	 * @return null if the docBase is null.
+	 */
+	   public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
+	   {
+	   		ParsedURL docBase = docBase();
+	   		return (docBase == null) ? null : docBase.getRelative(relativeURLPath, errorDescriptor);
+	   }
+
+	/** 
+	 * Create ParsedURL using the codeBase(), and a relative url string. 
+	 * 
+	 * @return null if the codeBase is null.
+	 */
+	   public static ParsedURL getRelativeToCodeBase(String relativeURLPath, String errorDescriptor)
+	   {
+		  ParsedURL codeBase = codeBase();
+		  return (codeBase == null) ? null : codeBase.getRelative(relativeURLPath, errorDescriptor);
+	   }
 
 
 }
