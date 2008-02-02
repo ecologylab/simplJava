@@ -10,9 +10,9 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
+import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
@@ -313,7 +313,7 @@ implements MimeType
  */
    public static ParsedURL getRelativeToDocBase(String relativeURLPath, String errorDescriptor)
    {
-   		ParsedURL docBase = Generic.docBase();
+   		ParsedURL docBase = EnvironmentGeneric.docBase();
    		return (docBase == null) ? null : docBase.getRelative(relativeURLPath, errorDescriptor);
    } 
    
@@ -324,7 +324,7 @@ implements MimeType
  */
    public static ParsedURL getRelativeToCodeBase(String relativeURLPath, String errorDescriptor)
    {
-	  ParsedURL codeBase = Generic.codeBase();
+	  ParsedURL codeBase = EnvironmentGeneric.codeBase();
 	  return (codeBase == null) ? null : codeBase.getRelative(relativeURLPath, errorDescriptor);
    } 
    

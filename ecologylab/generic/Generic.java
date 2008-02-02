@@ -9,7 +9,6 @@ import java.io.*;
 import javax.swing.JOptionPane;
 
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -36,12 +35,7 @@ public class Generic
 	  return value.equalsIgnoreCase("true") ||
 				value.equalsIgnoreCase("yes") || value.equals("1");
    }
-   public static void status(String msg)
-   {
-      Environment.the.get().status(msg);
-   }
-
-/**
+   /**
  * Turn a string into a float.
  * 
  * @return	the float, if the String is cool; else Float.NaN
@@ -95,69 +89,7 @@ public class Generic
       }
    }
 
-   public static ParsedURL codeBase()
-   {
-	   return Environment.the.get().codeBase();
-   }
-   
-   static ParsedURL configDir;
-   
-   /**
-    * The config directory, as located relative to the codebase, with the jar file and perhaps the sources.
-    * This is where the tree of configuration assets is rooted.
-    * Examples of configuration assets include interface graphics, interface semantic descriptions (xml),
-    * dictionary, ...
-    * These are files that don't change often, and are needed for an application.
-    * 
-    * @return
-    */
-   public static ParsedURL configDir()
-   {
-	   ParsedURL result	= configDir;
-	   if (result == null)
-	   {
-		   result		= ParsedURL.getRelativeToCodeBase("config/", "Error forming config dir.");
-		   configDir	= result;
-	   }
-	   return result;
-   }
-   /**
-    * Obtain a path relative to the configDir().
-    * 
-    * @param relativePath
-    * @return
-    */
-   public static ParsedURL configPath(String relativePath)
-   {
-	   return configDir().getRelative(relativePath, "Error forming config directory path.");
-   }
-public static final String SEP	= "/";
-   
-   /**
- * @return	The version of Java we're using (but not the specific release),
- *		as in 1.2, 1.3, 1.4,...
- */
-   public static float javaVersion()
-   {
-      return Environment.the.javaVersion();
-   }
-   /**
-    * Check to see if we're running on what we consider to be a decent, usable version of Java.
-    * For 1.5, this means rel 4 or more; for 1.4, it means 1.42_04 or more.
-    * 
-    * @return	true if the Java we're running on is good; false if its crap.
-    */
-   public static boolean hasGoodJava()
-   {
-	   return Environment.the.hasGoodJava();
-   }
-   /**
-    * @return The version of Java we're using (with the specific release)
-    */
-   public static String javaVersionFull()
-   {
-	   return System.getProperty("java.version");
-   }
+   public static final String SEP	= "/";
    
    /**
     * Where to navigate to to download the lastest Java.
@@ -169,32 +101,6 @@ public static final String SEP	= "/";
    public static ParsedURL	MAC_JAVA_PURL	= ParsedURL.getAbsolute("http://www.apple.com/java/", "Java download");
 
    /**
-    * Checks what platform we're on, and returns a suitable PURL that you would navigate to,
-    * to download the current Java.
-    * 
-    * @return	PURL of www.java.com, or www.apple.com/java.
-    */
-   public static ParsedURL downloadJavaPURL()
-   {
-	   ParsedURL result;
-	   switch (PropertiesAndDirectories.os())
-	   {
-	   case PropertiesAndDirectories.MAC:
-		   result	= MAC_JAVA_PURL;
-	   case PropertiesAndDirectories.WINDOWS:
-	   case PropertiesAndDirectories.LINUX:
-	   default:
-		   result	= SUN_JAVA_PURL;
-	   }
-	   return result;
-   }
-   
-   public static boolean hasXML()
-   {
-      return Environment.the.hasXML();
-   }
-
-/**
  * Set the priority of the current thread.
  */
    static final public void setPriority(int priority)
@@ -209,11 +115,6 @@ public static final String SEP	= "/";
       int oldPriority	= t.getPriority();
       if (oldPriority != priority)
       	 t.setPriority(priority);
-   }
-
-   public static final boolean contains(String in, String toMatch)
-   {
-      return StringTools.contains(in, toMatch);
    }
 
    //////////////////////////////////////////////////////////////
@@ -244,55 +145,6 @@ public static final String SEP	= "/";
       return result ;
    }
 
-/**
- * Get the IP number for the user's machine.
- * returns:	the ip number as a string, or unknown if JDK 1.0x or
- * other error (like security).
- * !!! for error cases, could create somewhat elaborate scheme to synthesize
- * some kind of id from a cookie, but current usage is just for the study --
- * doesnt need to be perfect. nb: getting ip addr on server side
- * isn't adequate cause proxy servers are so popular w mongo isps like aol!!!
- */
-   public static String getLocalIp(URL remote)
-   {
-      String result	= null;
-
-      try
-      {
-		 InetAddress server = InetAddress.getByName(remote.getHost());
-		 
-		 //	 println("getByName() = " + server);
-		 
-		 Socket socket	= new Socket(server, 80);
-
-		 try
-		 {
-			InetAddress localHost	= socket.getLocalAddress();
-			result		= localHost.getHostAddress();
-		 } catch (Exception e)
-		 {
-			// no such method in JDK 1.0x: getLocalAddress()
-			if (!(e instanceof NoSuchMethodException))
-			   Debug.println("UserStudy.getLocalIp() unknown error: " +
-							 e);
-			result		= "unknown";
-		 }
-		 //	 println("localHost=" + result);
-		 socket.close();
-      } catch (UnknownHostException e)
-      {
-		 Debug.println("getByName() failed.\n" + e);
-      } catch (IOException e)
-      {
-		 Debug.println("new Socket() failed.\n" + e);
-      }
-      return result;
-   }
-
-   public static ParsedURL docBase()
-   {
-      return Environment.the.get().docBase();
-   }
    /**
     * Raise the priority of the current thread to the priority level,
     * if the current priority level is less than it.

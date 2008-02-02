@@ -6,6 +6,7 @@ import java.util.Properties;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
+import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 
 
@@ -41,17 +42,17 @@ extends Debug
 		if (osName != null)
 		{
 			osName		= osName.toLowerCase();
-			if (Generic.contains(osName, "windows"))
+			if (StringTools.contains(osName, "windows"))
 				os		= WINDOWS;
-			else if (Generic.contains(osName, "mac os x"))
+			else if (StringTools.contains(osName, "mac os x"))
 				os		= MAC;
-			else if (Generic.contains(osName, "mac os"))
+			else if (StringTools.contains(osName, "mac os"))
 				os		= MAC_OLD;
-			else if (Generic.contains(osName, "linux"))
+			else if (StringTools.contains(osName, "linux"))
 				os		= LINUX;
-			else if (Generic.contains(osName, "sunos") || Generic.contains(osName, "solaris") ||
-					  Generic.contains(osName, "hp-ux") || Generic.contains(osName, "freebsd") ||
-					  Generic.contains(osName, "irix") || Generic.contains(osName, "aix"))
+			else if (StringTools.contains(osName, "sunos") || StringTools.contains(osName, "solaris") ||
+					 StringTools.contains(osName, "hp-ux") || StringTools.contains(osName, "freebsd") ||
+					 StringTools.contains(osName, "irix") ||  StringTools.contains(osName, "aix"))
 				os		= OTHER_UNIX;
 			else
 				os		= UNKNOWN;			

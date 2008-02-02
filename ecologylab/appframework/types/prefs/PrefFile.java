@@ -5,8 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import java.io.File;
 
+import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.generic.Generic;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -115,7 +115,7 @@ import ecologylab.xml.xml_inherit;
             switch (pathContext)
             {
                 case (CODE_BASE):
-                    this.fileValue = new File(Generic.codeBase().file(), value);
+                    this.fileValue = new File(EnvironmentGeneric.codeBase().file(), value);
                     break;
                 case (APP_DATA_DIR):
                     this.fileValue = new File(PropertiesAndDirectories

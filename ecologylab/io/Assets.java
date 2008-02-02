@@ -6,13 +6,13 @@ package ecologylab.io;
 import java.io.File;
 
 import ecologylab.appframework.ApplicationProperties;
+import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.appframework.types.AssetState;
 import ecologylab.appframework.types.AssetsState;
 import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
@@ -126,7 +126,7 @@ implements ApplicationProperties
 	 */
 	static
 	{
-		ParsedURL configDir = Generic.configDir();
+		ParsedURL configDir = EnvironmentGeneric.configDir();
 		if (configDir != null)
 			setAssetsRoot(configDir);
 		else
