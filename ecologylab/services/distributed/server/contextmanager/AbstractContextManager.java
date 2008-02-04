@@ -283,9 +283,9 @@ public abstract class AbstractContextManager extends Debug implements
 							contentLengthRemaining = Integer.parseInt(this.headerMap
 									.get(CONTENT_LENGTH_STRING));
 
-							contentUid = Long.parseLong(this.headerMap
-									.get(UNIQUE_IDENTIFIER_STRING));
-
+							String uidString = this.headerMap.get(UNIQUE_IDENTIFIER_STRING);
+							contentUid = (uidString != null) ? Long.parseLong(uidString) : 0;
+							
 							// done with the header; delete it
 							msgBufIncoming.delete(0, endOfFirstHeader);
 							this.headerMap.clear();
@@ -676,7 +676,7 @@ public abstract class AbstractContextManager extends Debug implements
 		}
 		else
 		{
-			if (!firstRequestReceived)
+			if (!isFirstRequestReceived())
 			{
 				// special processing for InitConnectionRequest
 				if (request instanceof InitConnectionRequest)
@@ -703,7 +703,7 @@ public abstract class AbstractContextManager extends Debug implements
 					}
 				}
 
-				firstRequestReceived = true;
+				setFirstRequestReceived(true);
 			}
 			else
 			{
@@ -831,5 +831,15 @@ public abstract class AbstractContextManager extends Debug implements
 				this.enqueueRequest(pReq);
 			}
 		}
+	}
+
+	public void setFirstRequestReceived(boolean firstRequestReceived) 
+	{
+		this.firstRequestReceived = firstRequestReceived;
+	}
+
+	public boolean isFirstRequestReceived() 
+	{
+		return firstRequestReceived;
 	}
 }
