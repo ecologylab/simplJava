@@ -50,13 +50,6 @@ implements OptimizationTypes
 	 * (IS THIS TRUE? EVEN I AM NOT SURE. -- ANDRUID 11/2/07)
 	 */
 	private final OptimizationsMap						childOptimizationsMap	= new OptimizationsMap();
-	
-	/**
-	 * Keys are URNs (not NameSpaceIdentifiers!).
-	 * 
-	 * Values are ElementState subclasses.
-	 */
-	private static final HashMap<String, Class<? extends ElementState>>	nameSpaceRegistryByURN = new HashMap<String, Class<? extends ElementState>>();
 		
 	/**
 	 * Found before the colon while translating from;
@@ -882,17 +875,6 @@ implements OptimizationTypes
 	public String toString()
 	{
 		return "Optimizations[" + thatClass.getName() + "]"; 
-	}
-	
-	/**
-	 * Add an entry to the global table of class to URNs.
-	 * 
-	 * @param urn
-	 * @param nameSpaceElementState
-	 */
-	public void registerNameSpaceByURN(String urn, Class<? extends ElementState> nameSpaceElementState)
-	{
-		nameSpaceRegistryByURN.put(urn, nameSpaceElementState);
 	}
 	
 	/**
