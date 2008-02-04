@@ -174,58 +174,10 @@ implements OptimizationTypes
 		{	// there is an XML namespace specified in the XML!
 			this.nameSpaceID		= tag.substring(0, colonIndex);
 			String subTag			= tag.substring(colonIndex+1);
-
 			
 			// the new way
-			ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
-			if (nsContext == null)
-			{
-				this.type			= NAMESPACE_IGNORED_ELEMENT;
-				//TODO -- new idea!
-//				this.type			= NAMESPACE_TRIAL_ELEMENT;
+			if (!setupNamespaceElement(translationSpace, subTag, context))
 				return;
-			}
-			// ok so there's a context for this. now we need a field
-			Optimizations nsOpti			= nsContext.optimizations;
-			// figure out the proper context for setting the value resulting from parsing this element
-			// if this is a nested element of any kind, then we are forming an ElementState object,
-			// and setting its value in context.
-			// However, if this is is a leaf, then we are forming a scalar value,
-			// and setting the slot for it in the 
-			ElementState optiContext		= context;
-			// is this a leaf element?? -- need to find a field first
-			//FIXME -- look out for @xml_text declarations here, too, when we institute them!
-//			try
-//			{
-//				optiContext.getClass().getField(subTag);
-//				{
-//					int i = 0;
-//				}
-//			} catch (SecurityException e)
-//			{
-//
-//			} catch (NoSuchFieldException e)
-//			{
-//				// normal for nested element
-//				int j = 0;
-//			}
-//			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, context, subTag, false);
-			NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
-			final int nsN2joType 			= nsN2jo.type();
-			if (nsN2joType != IGNORED_ELEMENT)
-			{
-				this.type			= nsN2joType + NAME_SPACE_MASK;
-				//TODO -- what else do we need here
-				this.field			= nsN2jo.field;
-				//FIXME -- this isn't working with flickr -- andruid 12/6/07
-				this.setMethod		= nsN2jo.setMethod;
-				this.scalarType		= nsN2jo.scalarType;
-				this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
-				this.classOp		= nsN2jo.classOp;
-				this.isCDATA		= nsN2jo.isCDATA;
-			}
-			else
-				this.type			= NAMESPACE_IGNORED_ELEMENT;			
 		}
 		else
 		{	// no XML namespace; life is simpler.
@@ -361,6 +313,47 @@ implements OptimizationTypes
 			}
 		}
 		
+	}
+	/**
+	 * Set-up this for a Namespace Element. 
+	 * Begin by finding using the nameSpaceID to look for a NestedNameSpace already in scope.
+	 * If its there, then we can just use it as the context of the subtag.
+	 * <p/>
+	 * If not, we will set type to NAMESPACE_TRIAL_ELEMENT, and return.
+	 * In case the xmlns attribute we need turns out to be present in the *current* element.
+	 * 
+	 * @param translationSpace
+	 * @param subTag
+	 */
+	private boolean setupNamespaceElement(TranslationSpace translationSpace, String subTag, ElementState context)
+	{
+		ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
+		if (nsContext == null)
+		{
+			this.type			= NAMESPACE_IGNORED_ELEMENT;
+			//TODO -- new idea!
+//			this.type			= NAMESPACE_TRIAL_ELEMENT;
+			return false;
+		}
+		Optimizations nsOpti			= nsContext.optimizations;
+
+		NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
+		final int nsN2joType 			= nsN2jo.type();
+		if (nsN2joType != IGNORED_ELEMENT)
+		{
+			this.type			= nsN2joType + NAME_SPACE_MASK;
+			//TODO -- what else do we need here
+			this.field			= nsN2jo.field;
+			this.setMethod		= nsN2jo.setMethod;
+			this.scalarType		= nsN2jo.scalarType;
+			this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
+			this.classOp		= nsN2jo.classOp;
+			this.isCDATA		= nsN2jo.isCDATA;
+		}
+		else
+			this.type			= NAMESPACE_IGNORED_ELEMENT;
+		
+		return true;
 	}
 	private void setCDATA(Field field)
 	{

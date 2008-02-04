@@ -53,6 +53,8 @@ public interface OptimizationTypes
 	
 	public static final int NAME_SPACE_MASK			= 0x10;
 	
+	public static final	int NAMESPACE_TRIAL_ELEMENT	= NAME_SPACE_MASK;
+	
 	public static final int	NAME_SPACE_ATTRIBUTE		= NAME_SPACE_MASK + REGULAR_ATTRIBUTE;
 
 	public static final int	NAME_SPACE_NESTED_ELEMENT	= NAME_SPACE_MASK + REGULAR_NESTED_ELEMENT;

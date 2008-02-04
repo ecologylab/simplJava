@@ -453,13 +453,22 @@ implements ContentHandler, OptimizationTypes
 		if (xmlTranslationException != null)
 			return;
 		
-		int length = currentLeafValue.length();
+		final int curentN2JOType = currentN2JO.type();
+		
+		if (curentN2JOType == NAMESPACE_TRIAL_ELEMENT)
+		{
+			// re-attempt lookup in case we figured out how
+			
+			// if not, we will have to set curentN2JOType = NAMESPACE_IGNORED_ELEMENT
+		}
+		
+		final int length = currentLeafValue.length();
 		ElementState currentES		= this.currentElementState;
 		try
 		{
 			if (length > 0)
 			{
-				switch (currentN2JO.type())
+				switch (curentN2JOType)
 				{
 				case NAME_SPACE_LEAF_NODE:
 				case LEAF_NODE_VALUE:
