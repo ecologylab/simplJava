@@ -139,6 +139,7 @@ implements OptimizationTypes
 	void setParent(Optimizations parent)
 	{
 		this.parent			= parent;
+		//FIXME -- instead of inheriting fully, implement static lexical scoping
 		if (parent != null)
 			this.nameSpaceClassesById		= parent.nameSpaceClassesById;
 	}
