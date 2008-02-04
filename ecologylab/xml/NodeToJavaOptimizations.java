@@ -181,6 +181,8 @@ implements OptimizationTypes
 			if (nsContext == null)
 			{
 				this.type			= NAMESPACE_IGNORED_ELEMENT;
+				//TODO -- new idea!
+//				this.type			= NAMESPACE_TRIAL_ELEMENT;
 				return;
 			}
 			// ok so there's a context for this. now we need a field
@@ -223,41 +225,7 @@ implements OptimizationTypes
 				this.isCDATA		= nsN2jo.isCDATA;
 			}
 			else
-				this.type			= NAMESPACE_IGNORED_ELEMENT;
-
-			
-			/*
-			// the old way
-			translationSpace	= TranslationSpace.get(nameSpaceID);
-			// is there a field called nameSpaceID?
-			Field nameSpaceField= optimizations.getField(nameSpaceID);
-			if (nameSpaceField != null)
-			{	// o.k. we know we're working in the object of namespace fields
-				// create a dummy object to get its NodeToJavaOptimizations
-				Class nsFieldClass			= nameSpaceField.getType();
-				Object dummy				= ReflectionTools.getInstance(nsFieldClass);
-				if (dummy instanceof ElementState)
-				{
-					this.field				= nameSpaceField;
-					ElementState dummyES 	= (ElementState) dummy;
-					//TODO shouldn't this use in-scope local optimizations?!
-					Optimizations nsOptimizations	= Optimizations.lookupRootOptimizations(dummyES, null);
-					TranslationSpace nameSpaceTranslations	= TranslationSpace.get(nameSpaceID);
-					NodeToJavaOptimizations	 nsPTE	= nsOptimizations.nodeToJavaOptimizations(nameSpaceTranslations, dummyES, subTag, false);
-					this.classOp			= nsFieldClass;
-					fillValues(nsPTE);
-					this.nestedPTE			= nsPTE;
-				}
-				else
-				{
-					println("ERROR: there is a field called " + nameSpaceID + " in " + contextClass +
-							" but it is not of type ElementState!");
-					this.type		= BAD_FIELD;
-					return;
-				}
-			}
-			*/
-			
+				this.type			= NAMESPACE_IGNORED_ELEMENT;			
 		}
 		else
 		{	// no XML namespace; life is simpler.
