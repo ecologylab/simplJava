@@ -3,13 +3,9 @@
  */
 package ecologylab.collections;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.generic.HashMapWriteSynch;
-import ecologylab.generic.ValueFactory;
 
 /**
  * Recursive unit (bucket) for prefix pattern matching.
@@ -23,7 +19,7 @@ class PrefixPhrase extends Debug
 	
 	final	PrefixPhrase	parent;
 	
-	HashMapArrayList<String, PrefixPhrase>	childPhraseMap	= new HashMapArrayList<String, PrefixPhrase>();
+	HashMap<String, PrefixPhrase>	childPhraseMap	= new HashMap<String, PrefixPhrase>();
 
 	/**
 	 * 
@@ -98,7 +94,89 @@ class PrefixPhrase extends Debug
 		}
 	}
 	
-
+	public boolean match(String string, char separator)
+	{
+		return match(string, 0, separator);
+	}
+	protected boolean match(String string, int start, char separator)
+	{
+		if (isTerminal())
+			return true;
+		
+		int end				= string.length();
+		boolean terminate	= false;
+		
+		if (start == end)
+			terminate		= true;
+		else
+		{		
+			if (string.charAt(start) == separator)
+				start++;
+			if (start == end)
+				terminate	= true;
+		}
+		if (terminate)
+		{
+			return false;
+		}
+		
+		int nextSeparator	= string.indexOf(separator, start);
+		if (nextSeparator == -1)
+			nextSeparator	= end;
+		
+//		String phraseString	= string.substring(start, nextSeparator);
+//		PrefixPhrase nextPrefixPhrase	= lookupChild(phraseString);
+		PrefixPhrase nextPrefixPhrase	= matchChild(string, start, nextSeparator);
+		if (nextPrefixPhrase != null)
+		{
+			return nextPrefixPhrase.match(string, nextSeparator, separator);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	/**
+	 * Match child prefix by iterating, instead of using HashMap, to avoid allocating substring keys.
+	 * 
+	 * @param source	String to get key from.
+	 * @param start		start of substring for key in string
+	 * @param end		end of substring for key in string
+	 * 
+	 * @return			Matching PrefixPhrase for the substring key from source, or null if there is no match.
+	 */
+	private PrefixPhrase matchChild(String source, int start, int end)
+	{
+		for (String thatPhrase : childPhraseMap.keySet())
+		{
+			if (match(thatPhrase, source, start, end))
+				return childPhraseMap.get(thatPhrase);
+		}
+		return null;
+	}
+	/**
+	 * 
+	 * @param target
+	 * @param source
+	 * @param start
+	 * @param end
+	 * 
+	 * @return	true if the substring of source running from start to end is the same String as target.
+	 */
+	private static boolean match(String target, String source, int start, int end)
+	{
+		int	targetLength	= target.length();
+		int sourceLength	= end - start;
+		if (targetLength != sourceLength)
+			return false;
+		for (int i=0; i<sourceLength; i++)
+		{
+			if (source.charAt(start++) != target.charAt(i))
+				return false;
+		}
+		return true;
+	}
 	/**
 	 * Seek the PrefixPhrase corresponding to the argument.
 	 * If it does not exist, return it.
@@ -146,10 +224,6 @@ class PrefixPhrase extends Debug
 			buffy.append(separator);
 		}
 		buffy.append(phrase);
-	}
-	public PrefixPhrase createValue(String phrase)
-	{
-		return new PrefixPhrase(this, phrase);
 	}
 	
 	public int numChildren()

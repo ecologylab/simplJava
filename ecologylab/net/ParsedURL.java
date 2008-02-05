@@ -1045,16 +1045,13 @@ implements MimeType
     */
    public String pathDirectoryString()
    {
-	   //	   String path	= url.getFile();
-	   String path	= url.getPath();
-	   int	args		= path.indexOf("?");
+	   String path		= url.getPath();
 
-	   if (args > -1)
-		   path		= path.substring(0,args);
 	   int	lastSlash	= path.lastIndexOf("/");
 	   int	lastDot		= path.lastIndexOf(".");
 	   if (lastDot > lastSlash)
-		   path		= path.substring(0,lastSlash);
+		   path			= path.substring(0,lastSlash);
+	   
 	   return path;
    }
    /**
