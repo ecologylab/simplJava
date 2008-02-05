@@ -3,8 +3,6 @@
  */
 package ecologylab.services.distributed.common;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 
 /**
  * Constants used by ServicesServers and their components.
