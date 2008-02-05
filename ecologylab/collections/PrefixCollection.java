@@ -45,6 +45,11 @@ public class PrefixCollection  extends PrefixPhrase
 		// children of hostPrefix
 		return (hostPrefix == null) ? false : hostPrefix.match(purl.pathDirectoryString(), separator);
 	}
+	
+	public ArrayList<String> values()
+	{
+		return values(separator);
+	}
 
 	static final ParsedURL[] TEST_ADD	=
 	{
@@ -52,9 +57,9 @@ public class PrefixCollection  extends PrefixPhrase
 //		ParsedURL.getAbsolute("http://www.nytimes.com/2008"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo"),
+		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo/bar/baz/bloch"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo"),
+		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/foo"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/arts"),
 		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/football/26giants.html?ref=sports"),
@@ -67,9 +72,9 @@ public class PrefixCollection  extends PrefixPhrase
 		ParsedURL.getAbsolute("http://nytimes.com/pages/"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/sports/"),
 		ParsedURL.getAbsolute("http://nytimes.mom/"),
+		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
 		ParsedURL.getAbsolute("http://nytimes.com/"),
 		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/"),
-		ParsedURL.getAbsolute("http://nytimes.com/pages/arts/interactive"),
 		ParsedURL.getAbsolute("http://www.nytimes.com/2008/01/26/sports/baseball"),
 
 	};
@@ -85,15 +90,22 @@ public class PrefixCollection  extends PrefixPhrase
 //			println(TEST[i].directoryString());
 			PrefixPhrase pp	=	pc.add(TEST_ADD[i]);
 			buffy.setLength(0);
-			pp.toBuffy(buffy, separator);
-			System.out.println(buffy);
+			pp.toStringBuilder(buffy, separator);
+			println(buffy);
 		}
+		println("\n");
 		
 		for (int i=0; i<TEST_MATCH.length; i++)
 		{
 			ParsedURL purl	= TEST_MATCH[i];
 			
 			println(purl.toString() + "\t" + pc.match(purl));
+		}
+		println("\n");
+		
+		for (String phrase : pc.values())
+		{
+			println(phrase);
 		}
 	}
 }

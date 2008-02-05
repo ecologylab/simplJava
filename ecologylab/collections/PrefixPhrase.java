@@ -3,6 +3,7 @@
  */
 package ecologylab.collections;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.generic.Debug;
@@ -191,17 +192,22 @@ class PrefixPhrase extends Debug
 	protected PrefixPhrase getPrefix(PrefixPhrase parent, String prefixPhrase)
 	{
 		PrefixPhrase domainPrefix	= childPhraseMap.get(prefixPhrase);
+		boolean createNew			= false;
 		
 		if (domainPrefix == null)
 		{
-			domainPrefix	= new PrefixPhrase(parent, prefixPhrase);
-			childPhraseMap.put(prefixPhrase, domainPrefix);
+			synchronized (childPhraseMap)
+			{
+				if (domainPrefix == null)
+				{
+					domainPrefix	= new PrefixPhrase(parent, prefixPhrase);
+					childPhraseMap.put(prefixPhrase, domainPrefix);
+					createNew		= true;
+				}
+			}
 		}
-		else
-		{
-			if (domainPrefix.isTerminal())
-				return null;
-		}
+		if (!createNew && domainPrefix.isTerminal())
+			return null;
 		
 		return domainPrefix;
 	}
@@ -216,14 +222,33 @@ class PrefixPhrase extends Debug
 		childPhraseMap.clear();
 	}
 
-	void toBuffy(StringBuilder buffy, char separator)
+	void toStringBuilder(StringBuilder buffy, char separator)
 	{
 		if (parent != null)
 		{
-			parent.toBuffy(buffy, separator);
+			parent.toStringBuilder(buffy, separator);
 			buffy.append(separator);
 		}
 		buffy.append(phrase);
+	}
+	
+	/**
+	 * From this root, find eac the terminal children.
+	 * 
+	 * @param buffy
+	 * @param separator
+	 */
+	void findTerminals(ArrayList<PrefixPhrase> phraseSet)
+	{
+		if (isTerminal())
+		{
+			phraseSet.add(this);
+		}
+		else
+		{
+			for (PrefixPhrase childPhrase: childPhraseMap.values())
+				childPhrase.findTerminals(phraseSet);
+		}
 	}
 	
 	public int numChildren()
@@ -239,5 +264,23 @@ class PrefixPhrase extends Debug
 	public boolean isTerminal()
 	{
 		return numChildren() == 0;
+	}
+	
+	public ArrayList<String> values(char separator)
+	{
+		ArrayList<PrefixPhrase>	terminalPrefixPhrases	= new ArrayList<PrefixPhrase>();
+		findTerminals(terminalPrefixPhrases);
+		
+		ArrayList<String>	result	= new ArrayList<String>(terminalPrefixPhrases.size());
+		StringBuilder 		buffy	= new StringBuilder();
+		
+		for (PrefixPhrase thatPhrase : terminalPrefixPhrases)
+		{
+			buffy.setLength(0);
+			thatPhrase.toStringBuilder(buffy, separator);
+			result.add(buffy.substring(0, buffy.length()));
+		}
+		
+		return result;
 	}
 }
