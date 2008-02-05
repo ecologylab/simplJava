@@ -13,43 +13,47 @@ import ecologylab.net.ParsedURL;
  * A map 
  * @author andruid
  */
-public class PrefixCollection  extends Debug 
+public class PrefixCollection  extends PrefixPhrase 
 {
-	HashMap<String, PrefixPhrase>	domainMap	= new HashMap<String, PrefixPhrase>();
-	
-	char							separator;
+	final char						separator;
 	
 	/**
 	 * 
 	 */
 	public PrefixCollection(char separator) 
 	{
-		// TODO Auto-generated constructor stub
+		super(null, null);
+		this.separator				= separator;
 	}
 
 	public void add(ParsedURL purl)
 	{
+		// domainPrefix is a child of this, the root (with no parent)
 		PrefixPhrase domainPrefix	= getDomainPrefix(purl);
 		
-		domainPrefix.add(purl.directoryString(), separator);
+		// children of domainPrefix
+		if (domainPrefix != null)
+			domainPrefix.add(this, purl.directoryString(), separator);
 		
 		
 	}
 
+	/**
+	 * Seek the PrefixPhrase corresponding to the argument.
+	 * If it does not exist, return it.
+	 * <p/>
+	 * If it does exist, does it have 0 children?
+	 * 		If so, return null. No need to insert for the argument's phrase.
+	 * 		If not, return it.
+	 * 
+	 * @param purl
+	 * @return
+	 */
 	private PrefixPhrase getDomainPrefix(ParsedURL purl)
 	{
 		String domain				= purl.domain();		
-		PrefixPhrase domainPrefix	= domainMap.get(domain);
-		
-		if (domainPrefix == null)
-		{
-			domainPrefix	= new PrefixPhrase(null, domain);
-			domainMap.put(domain, domainPrefix);
-		}
-		
-		return domainPrefix;
+		return getPrefix(null, domain);
 	}
-	
 	
 	static final ParsedURL[] TEST	=
 	{
