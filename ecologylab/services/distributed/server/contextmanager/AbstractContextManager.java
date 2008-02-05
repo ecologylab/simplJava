@@ -176,7 +176,7 @@ public abstract class AbstractContextManager extends Debug implements
 	 * Indicates whether the first request message has been received. The first
 	 * request may be an InitConnection, which has special properties.
 	 */
-	private boolean															firstRequestReceived			= false;
+	protected boolean															initialized						= false;
 
 	private final MessageWithMetadataPool<RequestMessage>			reqPool							= new MessageWithMetadataPool<RequestMessage>(
 																																2,
@@ -254,8 +254,9 @@ public abstract class AbstractContextManager extends Debug implements
 					if (msgBufIncoming.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
 					{
 						// clear the buffer
-						BadClientException e = new BadClientException(((SocketChannel)this.socketKey.channel())
-								.socket().getInetAddress().getHostAddress(),
+						BadClientException e = new BadClientException(
+								((SocketChannel) this.socketKey.channel()).socket()
+										.getInetAddress().getHostAddress(),
 								"Maximum HTTP header length exceeded. Read "
 										+ msgBufIncoming.length() + "/"
 										+ MAX_HTTP_HEADER_LENGTH);
@@ -280,12 +281,17 @@ public abstract class AbstractContextManager extends Debug implements
 						{
 							// handle all header information here; delete it when done
 							// here
-							contentLengthRemaining = Integer.parseInt(this.headerMap
-									.get(CONTENT_LENGTH_STRING));
+							String contentLengthString = this.headerMap
+									.get(CONTENT_LENGTH_STRING);
+							contentLengthRemaining = (contentLengthString != null) ? Integer
+									.parseInt(contentLengthString)
+									: 0;
 
-							String uidString = this.headerMap.get(UNIQUE_IDENTIFIER_STRING);
-							contentUid = (uidString != null) ? Long.parseLong(uidString) : 0;
-							
+							String uidString = this.headerMap
+									.get(UNIQUE_IDENTIFIER_STRING);
+							contentUid = (uidString != null) ? Long
+									.parseLong(uidString) : 0;
+
 							// done with the header; delete it
 							msgBufIncoming.delete(0, endOfFirstHeader);
 							this.headerMap.clear();
@@ -302,9 +308,9 @@ public abstract class AbstractContextManager extends Debug implements
 				}
 
 				/*
-				 * we have the end of the first header (otherwise we would have
-				 * broken out earlier). If we don't have the content length,
-				 * something bad happened, because it should have been read.
+				 * we have the end of the header (otherwise we would have broken out
+				 * earlier). If we don't have the content length, something bad
+				 * happened, because it should have been read.
 				 */
 				if (contentLengthRemaining == -1)
 				{
@@ -316,8 +322,8 @@ public abstract class AbstractContextManager extends Debug implements
 				}
 				else if (contentLengthRemaining > maxPacketSize)
 				{
-					throw new BadClientException(((SocketChannel)this.socketKey.channel()).socket()
-							.getInetAddress().getHostAddress(),
+					throw new BadClientException(((SocketChannel) this.socketKey
+							.channel()).socket().getInetAddress().getHostAddress(),
 							"Specified content length too large: "
 									+ contentLengthRemaining);
 				}
@@ -421,7 +427,8 @@ public abstract class AbstractContextManager extends Debug implements
 	}
 
 	/**
-	 * Sets the SelectionKey, and sets the new SelectionKey to have the same attachment (session id) as the old one.
+	 * Sets the SelectionKey, and sets the new SelectionKey to have the same
+	 * attachment (session id) as the old one.
 	 * 
 	 * @param socket
 	 *           the socket to set
@@ -431,7 +438,7 @@ public abstract class AbstractContextManager extends Debug implements
 		String sessionId = (String) this.socketKey.attachment();
 
 		this.socketKey = socket;
-		
+
 		this.socketKey.attach(sessionId);
 	}
 
@@ -591,11 +598,13 @@ public abstract class AbstractContextManager extends Debug implements
 	 */
 	protected ResponseMessage performService(RequestMessage requestMessage)
 	{
-		requestMessage.setSender(((SocketChannel)this.socketKey.channel()).socket().getInetAddress());
+		requestMessage.setSender(((SocketChannel) this.socketKey.channel())
+				.socket().getInetAddress());
 
 		try
 		{
-			return requestMessage.performService(registry, (String)this.sessionId);
+			return requestMessage
+					.performService(registry, (String) this.sessionId);
 		}
 		catch (Exception e)
 		{
@@ -676,7 +685,7 @@ public abstract class AbstractContextManager extends Debug implements
 		}
 		else
 		{
-			if (!isFirstRequestReceived())
+			if (!isInitialized())
 			{
 				// special processing for InitConnectionRequest
 				if (request instanceof InitConnectionRequest)
@@ -703,7 +712,7 @@ public abstract class AbstractContextManager extends Debug implements
 					}
 				}
 
-				setFirstRequestReceived(true);
+				initialized = true;
 			}
 			else
 			{
@@ -809,9 +818,9 @@ public abstract class AbstractContextManager extends Debug implements
 			}
 			if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
 			{
-				throw new BadClientException(((SocketChannel)this.socketKey.channel()).socket().getInetAddress()
-						.getHostAddress(), "Too many Bad Transmissions: "
-						+ badTransmissionCount);
+				throw new BadClientException(((SocketChannel) this.socketKey
+						.channel()).socket().getInetAddress().getHostAddress(),
+						"Too many Bad Transmissions: " + badTransmissionCount);
 			}
 			// else
 			error("translation failed: badTransmissionCount="
@@ -833,13 +842,14 @@ public abstract class AbstractContextManager extends Debug implements
 		}
 	}
 
-	public void setFirstRequestReceived(boolean firstRequestReceived) 
+	/**
+	 * Indicates whether or not this context manager has been initialized.
+	 * Normally, this means that it has shared a session id with the client.
+	 * 
+	 * @return
+	 */
+	public boolean isInitialized()
 	{
-		this.firstRequestReceived = firstRequestReceived;
-	}
-
-	public boolean isFirstRequestReceived() 
-	{
-		return firstRequestReceived;
+		return initialized;
 	}
 }

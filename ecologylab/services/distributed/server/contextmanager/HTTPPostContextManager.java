@@ -29,7 +29,7 @@ public class HTTPPostContextManager extends HTTPContextManager
 			SelectionKey socketKey, TranslationSpace translationSpace, ObjectRegistry<?> registry)
 	{	
 		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
-		this.setFirstRequestReceived(true);
+		this.initialized = true;
 	}
 
 	/**
