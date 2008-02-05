@@ -1018,19 +1018,11 @@ implements MimeType
       return !isUnsupported();
    }
    /**
-    * @return		the path to the directory assosciated w this URL.
+    * @return	The directory of this, with protocol and host.
     */
    public String directoryString()
    {
-	   String path	= url.getFile();
-	   int	args		= path.indexOf("?");
-	   
-	   if (args > -1)
-		   path		= path.substring(0,args);
-	   int	lastSlash	= path.lastIndexOf("/");
-	   int	lastDot		= path.lastIndexOf(".");
-	   if (lastDot > lastSlash)
-		   path		= path.substring(0,lastSlash); 
+	   String path = pathDirectoryString(); 
 	   
 	   int portNum		= url.getPort();
 	   String port		= (portNum == -1) ? "" : ":" + portNum;
@@ -1045,6 +1037,25 @@ implements MimeType
 	   append(port).append(path);
 	   
 	   return buffy.toString();  // dont copy; wont reuse buffy
+   }
+
+   /**
+    * 
+    * @return	The directory of this, without protocol and host.
+    */
+   public String pathDirectoryString()
+   {
+	   //	   String path	= url.getFile();
+	   String path	= url.getPath();
+	   int	args		= path.indexOf("?");
+
+	   if (args > -1)
+		   path		= path.substring(0,args);
+	   int	lastSlash	= path.lastIndexOf("/");
+	   int	lastDot		= path.lastIndexOf(".");
+	   if (lastDot > lastSlash)
+		   path		= path.substring(0,lastSlash);
+	   return path;
    }
    /**
     * Return true if the other object is either a ParsedURL or a URL
