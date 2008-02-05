@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch;
 import ecologylab.generic.ValueFactory;
 
@@ -17,13 +18,12 @@ import ecologylab.generic.ValueFactory;
  *
  */
 class PrefixPhrase extends Debug
-implements ValueFactory<String, PrefixPhrase>
 {
 	final	String			phrase;
 	
 	final	PrefixPhrase	parent;
 	
-	HashMapWriteSynch<String, PrefixPhrase>	childPhraseMap	= new HashMapWriteSynch<String, PrefixPhrase>();
+	HashMapArrayList<String, PrefixPhrase>	childPhraseMap	= new HashMapArrayList<String, PrefixPhrase>();
 
 	/**
 	 * 
@@ -34,18 +34,30 @@ implements ValueFactory<String, PrefixPhrase>
 		this.phrase		= phrase;
 	}
 
-	public PrefixPhrase add(PrefixPhrase parent, String string, char separator)
+	public PrefixPhrase add(String string, char separator)
 	{
-		return add(parent, string, 0, separator);
+		return add(string, 0, separator);
 	}
 	
-	protected PrefixPhrase add(PrefixPhrase parent, String string, int start, char separator)
+	protected PrefixPhrase add(String string, int start, char separator)
 	{
 		int end				= string.length();
-		if (start == end)
-			return null;
+		boolean terminate	= false;
 		
-		PrefixPhrase result	= null;
+		if (start == end)
+			terminate		= true;
+		else
+		{		
+			if (string.charAt(start) == separator)
+				start++;
+			if (start == end)
+				terminate	= true;
+		}
+		if (terminate)
+		{
+			clear();
+			return this;
+		}
 		int nextSeparator	= string.indexOf(separator, start);
 		if (nextSeparator == -1)
 			nextSeparator	= end;
@@ -56,10 +68,17 @@ implements ValueFactory<String, PrefixPhrase>
 			// extra round of messing with synch, because we need to know if we
 			// are creating a new Phrase
 			PrefixPhrase nextPrefixPhrase	= getPrefix(this, phraseString);
-			if (nextPrefixPhrase == null)
+			if (nextPrefixPhrase != null)
+			{
+				return nextPrefixPhrase.add(string, nextSeparator, separator);
+			}
+			else
 			{
 				// done!
-				return null;
+				PrefixPhrase newTerminal	= lookupChild(phraseString);
+				
+				newTerminal.clear();
+				return newTerminal;
 //				synchronized (this)
 //				{
 //					nextPrefixPhrase	= getPrefix(this, phraseString);
@@ -70,26 +89,13 @@ implements ValueFactory<String, PrefixPhrase>
 //					}
 //				}
 			}
-			else
-			{
-				PrefixPhrase recursion			= add(this, string, nextSeparator, separator);
-				return (result == null) ? recursion : nextPrefixPhrase;
-			}
 		}
 		else
 		{
 			Debug.println("help! wrong block!!!");
 			// last segment
-			if (start == string.length() - 1)
-			{
-				
-			}
-			else
-			{
-				
-			}
+			return null;
 		}
-		return result;
 	}
 	
 
@@ -122,6 +128,15 @@ implements ValueFactory<String, PrefixPhrase>
 		return domainPrefix;
 	}
 
+	protected PrefixPhrase lookupChild(String prefix)
+	{
+		return childPhraseMap.get(prefix);
+	}
+	
+	protected void clear()
+	{
+		childPhraseMap.clear();
+	}
 
 	void toBuffy(StringBuilder buffy, char separator)
 	{
