@@ -9,34 +9,10 @@ import ecologylab.xml.xml_inherit;
  * respond with an HTTP redirect URL based on whether there was an error or not.
  * 
  * @author andrew
+ * @deprecated
  */
 
-public @xml_inherit class HttpGetRequest extends RequestMessage 
+public @xml_inherit class HttpGetRequest extends HttpRequest 
 {
-	/**
-	 * Redirect URL if no errors or problems occured.
-	 */
-	protected @xml_attribute ParsedURL okResponseUrl;
-	
-	/**
-	 * Redirect URL if an error or problem occured.
-	 */
-	protected @xml_attribute ParsedURL errorResponseUrl;
-
-	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) {
-		// TODO Auto-generated method stub
-		return OkResponse.get();
-	}
-	
-	public ParsedURL okResponseUrl()
-	{
-		return okResponseUrl;
-	}
-	
-	public ParsedURL errorResponseUrl()
-	{
-		return errorResponseUrl;
-	}
 
 }
