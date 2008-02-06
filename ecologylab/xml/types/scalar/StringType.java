@@ -32,7 +32,7 @@ public class StringType extends ReferenceType<String>
 	 * 
 	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
 	 */
-	public String getInstance(String value)
+	@Override public String getInstance(String value)
 	{
 		return value;
 	}
@@ -43,7 +43,7 @@ public class StringType extends ReferenceType<String>
 	 * @param instance
 	 * @return
 	 */
-		public String marshall(String instance)
+		@Override public String marshall(String instance)
 		{
 			return instance;
 		}

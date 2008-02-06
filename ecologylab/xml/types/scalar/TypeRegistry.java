@@ -59,7 +59,7 @@ public class TypeRegistry extends Debug
 	 * Enter this type in the registry, which is a map in which the Type's Class object's
 	 * fully qualified named is used as a key.
 	 */
-	static boolean register(Class<? extends ScalarType> typeClass)
+	public static boolean register(Class<? extends ScalarType> typeClass)
 	{ 
 		ScalarType type		= (ScalarType) ReflectionTools.getInstance(typeClass);
 		if (type == null)
