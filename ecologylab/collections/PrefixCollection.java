@@ -10,22 +10,38 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 
 /**
- * A map 
+ * An optimized data structure for managing a hierarchical collection of prefixes, automatically 
+ * merging and removing entries, and providing a fast matching function.
+ * 
  * @author andruid
  */
 public class PrefixCollection  extends PrefixPhrase 
 {
 	final char						separator;
 	
-	/**
-	 * 
-	 */
+/**
+ * Construct a PrefixCollection in which each prefix can be parsed into PrefixPhrases,
+ * using the separator to split the phrases.
+ * 
+ * @param separator
+ */
 	public PrefixCollection(char separator) 
 	{
 		super(null, null);
 		this.separator				= separator;
 	}
 
+	/**
+	 * Construct a PrefixCollection in which each prefix can be parsed into PrefixPhrases,
+	 * using the separator to split the phrases.
+	 * 
+	 * @param separator
+	 */
+	public PrefixCollection() 
+	{
+		this('/');
+	}
+		
 	public PrefixPhrase add(ParsedURL purl)
 	{
 		String host				= purl.url().getHost();		
@@ -107,5 +123,10 @@ public class PrefixCollection  extends PrefixPhrase
 		{
 			println(phrase);
 		}
+	}
+	
+	public char separator()
+	{
+		return separator;
 	}
 }

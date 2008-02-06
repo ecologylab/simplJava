@@ -14,7 +14,7 @@ import ecologylab.generic.Debug;
  * @author andruid
  *
  */
-class PrefixPhrase extends Debug
+public class PrefixPhrase extends Debug
 {
 	final	String			phrase;
 	
@@ -222,7 +222,7 @@ class PrefixPhrase extends Debug
 		childPhraseMap.clear();
 	}
 
-	void toStringBuilder(StringBuilder buffy, char separator)
+	public void toStringBuilder(StringBuilder buffy, char separator)
 	{
 		if (parent != null)
 		{
