@@ -557,7 +557,7 @@ public abstract class AbstractContextManager extends Debug implements
 						if (!maybeEndSequence)
 						{// load the key/value pair
 							headerMap.put(currentKeyHeaderSequence.toString()
-									.toLowerCase(), currentHeaderSequence.toString());
+									.toLowerCase(), currentHeaderSequence.toString().trim());
 
 							StringTools.clear(currentKeyHeaderSequence);
 							StringTools.clear(currentHeaderSequence);
