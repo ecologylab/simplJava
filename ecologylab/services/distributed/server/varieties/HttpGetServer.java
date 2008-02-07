@@ -11,8 +11,8 @@ import java.nio.channels.SelectionKey;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
-import ecologylab.services.distributed.server.clientmanager.HTTPGetClientManager;
+import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.contextmanager.HTTPGetClientManager;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationSpace;
 

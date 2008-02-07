@@ -15,7 +15,7 @@ import ecologylab.services.authentication.registryobjects.AuthServerRegistryObje
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;
-import ecologylab.services.distributed.server.clientmanager.ClientManager;
+import ecologylab.services.distributed.server.contextmanager.ClientManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;

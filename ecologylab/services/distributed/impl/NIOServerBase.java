@@ -14,7 +14,7 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.server.NIOServerFrontend;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.xml.TranslationSpace;
 

@@ -5,11 +5,10 @@ package ecologylab.services.distributed.server;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
 import ecologylab.services.exceptions.BadClientException;
 
 /**
