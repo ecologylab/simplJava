@@ -24,7 +24,7 @@ public class DefaultServicesTranslations
 															StopMessage.class, OkResponse.class, BadSemanticContentResponse.class,
 			ErrorResponse.class, Prologue.class, Epilogue.class, LogOps.class, SendEpilogue.class, SendPrologue.class,
 
-			HttpGetRequest.class, PingRequest.class, UrlMessage.class,
+			HttpRequest.class, HttpGetRequest.class, PingRequest.class, UrlMessage.class,
 
 			CfCollaborationGetSurrogate.class, ContinuedHTTPGetRequest.class, IgnoreRequest.class,
 			InitConnectionRequest.class, InitConnectionResponse.class, ServiceMessage.class, StopMessage.class,

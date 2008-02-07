@@ -6,7 +6,7 @@ import ecologylab.appframework.ObjectRegistry;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
-public class ContinuedHTTPGetRequest extends HttpGetRequest
+public class ContinuedHTTPGetRequest extends HttpRequest
 {
 	@xml_leaf(CDATA)	String	messageFragment;
 	
