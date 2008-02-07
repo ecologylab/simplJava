@@ -228,16 +228,28 @@ implements OptimizationTypes
 			// else there is no Field to resolve. but there may be a class!
 			
 			// was collection declared explicitly?
-			Field collectionField	= optimizations.getCollectionFieldByTag(tag);
-			if (collectionField != null)
+			Field collectionFieldByTag	= optimizations.getCollectionFieldByTag(tag);
+			if (collectionFieldByTag != null)
 			{
-				java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(collectionField);
+				ElementState.xml_classes classesAnnotation	= collectionFieldByTag.getAnnotation(ElementState.xml_classes.class);
+				if (classesAnnotation != null)
+				{
+					Class classFromTag	= translationSpace.getClassByTag(tag);
+					if (classFromTag != null)
+					{
+						setClassOp(classFromTag);
+						this.field		= collectionFieldByTag;
+						this.type		= COLLECTION_ELEMENT;
+						return;
+					}
+				}
+				java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(collectionFieldByTag);
 				if (typeArgs != null)
 				{
 					Class	collectionElementsType		= (Class) typeArgs[0];
 //					debug("!!!collection elements are of type: " + collectionElementsType.getName());
 					setClassOp(collectionElementsType);
-					this.field				= collectionField;
+					this.field				= collectionFieldByTag;
 					// is collectionElementsType a scalar or a nested element
 					if (ElementState.class.isAssignableFrom(collectionElementsType))
 					{	// nested element

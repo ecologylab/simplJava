@@ -757,6 +757,23 @@ implements OptimizationTypes
 				//note! we *really* want to wait until here before we allocate storage for this HashMap!
 				collectionFieldsByTag().put(tagFromAnnotation, thatField);
 			}
+			else
+			{
+				// no direct annotation of tag for children. how about classes?
+				ElementState.xml_classes classesAnnotation	= thatField.getAnnotation(ElementState.xml_classes.class);
+				if (classesAnnotation != null)
+				{
+					Class[]	classes	= classesAnnotation.value();
+					if (classes != null)
+					{
+						for (int i=0; i<classes.length; i++)
+						{
+							String	tagFromClass	= XMLTools.getXmlTagName(classes[i], "State");
+							collectionFieldsByTag().put(tagFromClass, thatField);
+						}
+					}
+				}
+			}
 		} 
 		else
 			annotatedFieldError(thatField, tagFromAnnotation, "collection");

@@ -2267,6 +2267,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 
     }
     static final String NULL_TAG	= "";
+    
+    static final Class[] NO_CLASSES	= 
+    {
+    	
+    };
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a complex nested field, which requires further translation.
@@ -2281,6 +2286,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
        	String value() default NULL_TAG;
     }
     
+
     /**
      * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
      * is a complex nested field, which requires further translation.
@@ -2335,7 +2341,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     @Inherited 
     public @interface xml_classes
     {
-        Class[] value();
+        Class<ElementState>[] value();
     }
     
 	public void checkAnnotation() throws NoSuchFieldException
