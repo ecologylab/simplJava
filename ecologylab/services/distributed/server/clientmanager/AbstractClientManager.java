@@ -232,6 +232,8 @@ public abstract class AbstractClientManager extends Debug implements
 			CharBuffer incomingSequenceBuf) throws CharacterCodingException,
 			BadClientException
 	{
+		debug("incoming: " + incomingSequenceBuf);
+
 		synchronized (msgBufIncoming)
 		{
 			msgBufIncoming.append(incomingSequenceBuf);
@@ -292,9 +294,9 @@ public abstract class AbstractClientManager extends Debug implements
 							contentUid = (uidString != null) ? Long
 									.parseLong(uidString) : 0;
 
-							// done with the header; delete it
+							// done with the header text; delete it; header values will
+							// be retained for later processing by subclasses
 							msgBufIncoming.delete(0, endOfFirstHeader);
-							this.headerMap.clear();
 						}
 						catch (NumberFormatException e)
 						{
@@ -365,7 +367,10 @@ public abstract class AbstractClientManager extends Debug implements
 					 * will be reset to -1
 					 */
 					processString(firstMessageBuffer, contentUid);
+
+					// clean up: clear the message buffer and the header values
 					firstMessageBuffer.setLength(0);
+					this.headerMap.clear();
 				}
 			}
 		}
@@ -521,8 +526,10 @@ public abstract class AbstractClientManager extends Debug implements
 	{
 		// indicates that we might be at the end of the header
 		boolean maybeEndSequence = false;
+		boolean haveKey = false;
+		
 		char currentChar;
-
+		
 		synchronized (currentHeaderSequence)
 		{
 			StringTools.clear(currentHeaderSequence);
@@ -544,6 +551,8 @@ public abstract class AbstractClientManager extends Debug implements
 					currentKeyHeaderSequence.append(currentHeaderSequence);
 
 					StringTools.clear(currentHeaderSequence);
+					
+					haveKey = true;
 
 					break;
 				case ('\r'):
@@ -554,14 +563,22 @@ public abstract class AbstractClientManager extends Debug implements
 					if (allIncomingChars.charAt(i + 1) == '\n')
 					{
 						if (!maybeEndSequence)
-						{// load the key/value pair
+						{
+							if (haveKey)
+							{	// load the key/value pair
 							headerMap.put(currentKeyHeaderSequence.toString()
-									.toLowerCase(), currentHeaderSequence.toString().trim());
+									.toLowerCase(), currentHeaderSequence.toString()
+									.trim());
 
 							StringTools.clear(currentKeyHeaderSequence);
 							StringTools.clear(currentHeaderSequence);
 
 							i++; // so we don't re-read that last character
+							}
+							else
+							{ // we potentially have data w/o a key-value pair; this is likely to be the first line of an HTTP header
+								
+							}
 						}
 						else
 						{ // end of the header
