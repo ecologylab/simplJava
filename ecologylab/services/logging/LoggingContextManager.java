@@ -15,7 +15,7 @@ import java.nio.charset.CharsetEncoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.contextmanager.ContextManager;
+import ecologylab.services.distributed.server.contextmanager.ClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -30,7 +30,7 @@ import ecologylab.xml.TranslationSpace;
  * @author eunyee
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class LoggingContextManager extends ContextManager
+public class LoggingContextManager extends ClientManager
 {
 
 	OutputStreamWriter	outputStreamWriter;

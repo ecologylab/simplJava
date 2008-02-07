@@ -15,7 +15,7 @@ import ecologylab.services.authentication.registryobjects.AuthServerRegistryObje
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;
-import ecologylab.services.distributed.server.contextmanager.ContextManager;
+import ecologylab.services.distributed.server.contextmanager.ClientManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -28,11 +28,11 @@ import ecologylab.xml.TranslationSpace;
  * Should be extended for more specific implementations. Handles accumulating
  * incoming messages and translating them into RequestMessage objects.
  * 
- * @see ecologylab.services.distributed.server.contextmanager.ContextManager
+ * @see ecologylab.services.distributed.server.contextmanager.ClientManager
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class AuthContextManager extends ContextManager implements
+public class AuthContextManager extends ClientManager implements
 		ServerConstants, AuthServerRegistryObjects, AuthMessages
 {
 	private boolean		loggedIn			= false;

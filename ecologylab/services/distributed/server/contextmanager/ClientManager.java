@@ -22,7 +22,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class ContextManager extends AbstractClientManager implements ServerConstants
+public class ClientManager extends AbstractClientManager implements ServerConstants
 {
 	/**
 	 * Creates a new ContextManager.
@@ -35,7 +35,7 @@ public class ContextManager extends AbstractClientManager implements ServerConst
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public ContextManager(Object sessionId, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
+	public ClientManager(Object sessionId, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socketKey, TranslationSpace translationSpace, ObjectRegistry<?> registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);

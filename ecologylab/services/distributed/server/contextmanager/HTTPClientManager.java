@@ -13,7 +13,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
 
-public abstract class HTTPContextManager extends AbstractClientManager
+public abstract class HTTPClientManager extends AbstractClientManager
 {
 
 	static final String	HTTP_VERSION					= "HTTP/1.1";
@@ -29,7 +29,7 @@ public abstract class HTTPContextManager extends AbstractClientManager
 	
 	protected boolean					ALLOW_HTTP_STYLE_REQUESTS	= true;
 	
-	public HTTPContextManager(Object sessionId, int maxPacketSize,
+	public HTTPClientManager(Object sessionId, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
 			ObjectRegistry<?> registry) {
@@ -39,7 +39,7 @@ public abstract class HTTPContextManager extends AbstractClientManager
 	}
 	
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.ContextManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
+	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
 	 */
 	@Override protected void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf)
 	{
@@ -47,7 +47,7 @@ public abstract class HTTPContextManager extends AbstractClientManager
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.ContextManager#createHeader(java.lang.StringBuilder,
+	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#createHeader(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, RequestMessage, ResponseMessage)
 	 */
 	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,

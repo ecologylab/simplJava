@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.contextmanager.AbstractContextManager;
+import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
 import ecologylab.services.exceptions.BadClientException;
 
 /**
@@ -41,7 +41,7 @@ public interface NIOServerFrontend extends StartAndStoppable
 	 *           given connection.
 	 * @return the ContextManager object associated with sc that has been removed from the system.
 	 */
-	AbstractContextManager invalidate(Object token, boolean permanent);
+	AbstractClientManager invalidate(Object token, boolean permanent);
 
 	/**
 	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that was used for the
@@ -52,5 +52,5 @@ public interface NIOServerFrontend extends StartAndStoppable
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
-	public boolean restoreContextManagerFromSessionId(Object oldId, AbstractContextManager newContextManager);
+	public boolean restoreContextManagerFromSessionId(Object oldId, AbstractClientManager newContextManager);
 }

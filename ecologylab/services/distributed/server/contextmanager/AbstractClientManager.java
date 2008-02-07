@@ -51,7 +51,7 @@ import ecologylab.xml.XMLTranslationException;
  * messages into objects as they become available.
  * 
  * For a complete, basic implementation (which is suitable for most uses), see
- * {@link ecologylab.services.distributed.server.contextmanager.ContextManager ContextManager}.
+ * {@link ecologylab.services.distributed.server.contextmanager.ClientManager ContextManager}.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
