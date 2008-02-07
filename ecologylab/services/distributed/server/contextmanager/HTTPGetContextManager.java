@@ -74,7 +74,4 @@ public class HTTPGetContextManager extends HTTPContextManager
 
 		return super.translateStringToRequestMessage(messageString);
 	}
-
-	
-
 }

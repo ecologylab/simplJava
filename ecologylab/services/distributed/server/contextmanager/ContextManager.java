@@ -22,7 +22,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class ContextManager extends AbstractContextManager implements ServerConstants
+public class ContextManager extends AbstractClientManager implements ServerConstants
 {
 	/**
 	 * Creates a new ContextManager.
@@ -106,7 +106,7 @@ public class ContextManager extends AbstractContextManager implements ServerCons
 	 * Translates response into an XML string and adds an HTTP-like header, then returns the result.
 	 * 
 	 * translateResponseMessageToString(RequestMessage, ResponseMessage) may be overridden to provide more specific
-	 * functionality; for example, for servers that do not use HTTP-like headers or that use customized messages instead
+	 * functionality; for example, for servers that use customized messages instead
 	 * of XML.
 	 * 
 	 * @param requestMessage -

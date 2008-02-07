@@ -13,7 +13,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
 
-public abstract class HTTPContextManager extends AbstractContextManager
+public abstract class HTTPContextManager extends AbstractClientManager
 {
 
 	static final String	HTTP_VERSION					= "HTTP/1.1";
@@ -73,14 +73,14 @@ public abstract class HTTPContextManager extends AbstractContextManager
 	}
 	
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.AbstractContextManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
+	 * @see ecologylab.services.distributed.server.contextmanager.AbstractClientManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
 	 */
 	@Override protected void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf)
 	{
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.AbstractContextManager#prepareBuffers(java.lang.StringBuilder,
+	 * @see ecologylab.services.distributed.server.contextmanager.AbstractClientManager#prepareBuffers(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, java.lang.StringBuilder)
 	 */
 	@Override protected void prepareBuffers(StringBuilder incomingMessageBuf, StringBuilder outgoingMessageBuf,

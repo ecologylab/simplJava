@@ -56,7 +56,7 @@ import ecologylab.xml.XMLTranslationException;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public abstract class AbstractContextManager extends Debug implements
+public abstract class AbstractClientManager extends Debug implements
 		ServerConstants
 {
 	/**
@@ -195,7 +195,7 @@ public abstract class AbstractContextManager extends Debug implements
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public AbstractContextManager(Object sessionId, int maxPacketSize,
+	public AbstractClientManager(Object sessionId, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
 			ObjectRegistry<?> registry)
@@ -359,8 +359,7 @@ public abstract class AbstractContextManager extends Debug implements
 					e.printStackTrace();
 				}
 
-				if ((firstMessageBuffer.length() > 0)
-						&& (contentLengthRemaining == -1))
+				if ((contentLengthRemaining == -1))
 				{ /*
 					 * if we've read a complete message, then contentLengthRemaining
 					 * will be reset to -1
