@@ -2341,7 +2341,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     @Inherited 
     public @interface xml_classes
     {
-        Class<ElementState>[] value();
+        Class<? extends ElementState>[] value();
     }
     
 	public void checkAnnotation() throws NoSuchFieldException
