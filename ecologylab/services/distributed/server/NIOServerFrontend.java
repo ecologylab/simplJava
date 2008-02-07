@@ -8,7 +8,7 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.exceptions.BadClientException;
 
 /**

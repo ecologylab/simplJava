@@ -22,7 +22,7 @@ import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.nio.AuthClientManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.distributed.server.contextmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.logging.Logging;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

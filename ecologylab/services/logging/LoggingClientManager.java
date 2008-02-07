@@ -15,7 +15,7 @@ import java.nio.charset.CharsetEncoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.contextmanager.ClientManager;
+import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;

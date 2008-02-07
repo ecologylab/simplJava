@@ -1,4 +1,4 @@
-package ecologylab.services.distributed.server.contextmanager;
+package ecologylab.services.distributed.server.clientmanager;
 
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -39,7 +39,7 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	}
 	
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
+	 * @see ecologylab.services.distributed.server.clientmanager.ClientManager#clearOutgoingMessageHeaderBuffer(java.lang.StringBuilder)
 	 */
 	@Override protected void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf)
 	{
@@ -47,7 +47,7 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#createHeader(java.lang.StringBuilder,
+	 * @see ecologylab.services.distributed.server.clientmanager.ClientManager#createHeader(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, RequestMessage, ResponseMessage)
 	 */
 	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
@@ -73,14 +73,14 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	}
 	
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.AbstractClientManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
+	 * @see ecologylab.services.distributed.server.clientmanager.AbstractClientManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
 	 */
 	@Override protected void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf)
 	{
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.contextmanager.AbstractClientManager#prepareBuffers(java.lang.StringBuilder,
+	 * @see ecologylab.services.distributed.server.clientmanager.AbstractClientManager#prepareBuffers(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, java.lang.StringBuilder)
 	 */
 	@Override protected void prepareBuffers(StringBuilder incomingMessageBuf, StringBuilder outgoingMessageBuf,

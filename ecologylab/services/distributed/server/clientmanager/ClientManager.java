@@ -1,4 +1,4 @@
-package ecologylab.services.distributed.server.contextmanager;
+package ecologylab.services.distributed.server.clientmanager;
 
 import java.nio.channels.SelectionKey;
 

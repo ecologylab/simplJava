@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.distributed.server.contextmanager;
+package ecologylab.services.distributed.server.clientmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -51,7 +51,7 @@ import ecologylab.xml.XMLTranslationException;
  * messages into objects as they become available.
  * 
  * For a complete, basic implementation (which is suitable for most uses), see
- * {@link ecologylab.services.distributed.server.contextmanager.ClientManager ContextManager}.
+ * {@link ecologylab.services.distributed.server.clientmanager.ClientManager ContextManager}.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 

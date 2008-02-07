@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.services.distributed.server.contextmanager;
+package ecologylab.services.distributed.server.clientmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -44,7 +44,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 	 * This method only handles HttpGetRequest messages; it will report an error for any non-HttpGetRequest. Otherwise,
 	 * it will not add anything to the msgBufOutgoing, as HttpGetRequests should only have a header and no contnents
 	 * 
-	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
+	 * @see ecologylab.services.distributed.server.clientmanager.ClientManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
 	 *      ecologylab.services.messages.ResponseMessage)
 	 */
 	@Override protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
@@ -58,7 +58,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 
 	/**
 	 * @throws UnsupportedEncodingException
-	 * @see ecologylab.services.distributed.server.contextmanager.ClientManager#translateStringToRequestMessage(java.lang.String)
+	 * @see ecologylab.services.distributed.server.clientmanager.ClientManager#translateStringToRequestMessage(java.lang.String)
 	 */
 	@Override protected RequestMessage translateStringToRequestMessage(CharSequence messageSequence)
 			throws XMLTranslationException, UnsupportedEncodingException
