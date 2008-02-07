@@ -15,7 +15,7 @@ import java.nio.charset.CharsetEncoder;
 import ecologylab.appframework.ObjectRegistry;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
-import ecologylab.services.distributed.server.contextmanager.ClientManager;
+import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -30,7 +30,7 @@ import ecologylab.xml.TranslationSpace;
  * @author eunyee
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class LoggingContextManager extends ClientManager
+public class LoggingClientManager extends ClientManager
 {
 
 	OutputStreamWriter	outputStreamWriter;
@@ -47,7 +47,7 @@ public class LoggingContextManager extends ClientManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public LoggingContextManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
+	public LoggingClientManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
 			NIOServerBackend server, SelectionKey sk, TranslationSpace translationSpace, ObjectRegistry registry)
 	{
 		super(token, maxPacketSize, server, loggingServer, sk, translationSpace, registry);
