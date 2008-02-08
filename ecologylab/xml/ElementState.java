@@ -156,7 +156,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
 		Optimizations parentOptimizations	= (parent == null) ? null : parent.optimizations;
 		
-		optimizations						= Optimizations.lookupRootOptimizations(this, parentOptimizations);		
+		optimizations						= Optimizations.lookupRootOptimizations(this);
+		optimizations.setParent(parentOptimizations);	// andruid 2/8/08
 	}
 
 	/**
@@ -1375,8 +1376,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	}
 
 	/**
-	 * A recursive DOM-based translation method.
-	 * Entry point for DOM-based parsing.
+	 * A recursive DOM-based translation translateFromXML(...).
+	 * Entry point for the old DOM-based parsing.
 	 * <p/>
 	 * Typically, this method is initially passed the root Node of an XML DOM,
 	 * from which it builds a tree of equivalent ElementState objects.
@@ -1408,12 +1409,12 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	   throws XMLTranslationException
 	{
 	   // find the class for the new object derived from ElementState
-		Class<ElementState> stateClass			= null;
-		String tagName				= xmlRootNode.getNodeName();
+		Class<ElementState> stateClass		= null;
+		String tagName						= xmlRootNode.getNodeName();
 		try
 		{
 			//TODO -- use class-level @xml_tag if it was declared?!
-			stateClass= translationSpace.xmlTagToClass(tagName);
+			stateClass						= translationSpace.xmlTagToClass(tagName);
 			if (stateClass == null)
 			{
 				int colonIndex				= tagName.indexOf(':');
@@ -1464,14 +1465,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	void setupRoot()
 	{
 		elementByIdMap		= new HashMap<String, ElementState>();
-		optimizations		= Optimizations.lookupRootOptimizations(this, null);	
+		optimizations		= Optimizations.lookupRootOptimizations(this);	
 	}
 /**
-     * A recursive method.
-     * Typically, this method is initially passed the root Node of an XML DOM,
-     * from which it builds a tree of equivalent ElementState objects.
-     * It does this by recursively calling itself for each node/subtree of ElementState objects.
-     * 
+     * A recursive method -- the core of the old DOM-Based translateFromXML(...).
+     * <p/>
      * The method translates any tree of DOM into a tree of Java objects, each
      * of which is an instance of a subclass of ElementState.
      * The operation of the method is predicated on the existence of a tree of
