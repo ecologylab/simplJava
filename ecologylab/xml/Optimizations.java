@@ -30,7 +30,7 @@ implements OptimizationTypes
 	/**
 	 * Class object that we are holding optimizations for.
 	 */
-	final Class											thatClass;
+	final Class<? extends ElementState>					thatClass;
 	
 	Optimizations										parent;
 	
@@ -117,7 +117,7 @@ implements OptimizationTypes
 	 * See also lookupRoot(), lookupChildOptimizations().
 	 * @param thatClass
 	 */
-	private Optimizations(Class thatClass)
+	private Optimizations(Class<? extends ElementState> thatClass)
 	{
 		this(thatClass, null);
 	}
@@ -129,7 +129,7 @@ implements OptimizationTypes
 	 * @param 	thatClass
 	 * @param	parent		Parent optimizations.
 	 */
-	private Optimizations(Class thatClass, Optimizations parent)
+	private Optimizations(Class<? extends ElementState> thatClass, Optimizations parent)
 	{
 		super();
 		this.thatClass		= thatClass;
@@ -152,13 +152,28 @@ implements OptimizationTypes
 	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
 	 * 
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
-	 * @param parent TODO
 	 * @return
 	 */
-	static Optimizations lookupRootOptimizations(ElementState elementState, Optimizations parent)
+	static Optimizations lookupRootOptimizations(ElementState elementState)
 	{
-		Class thatClass		= elementState.getClass();
-//		String className	= classSimpleName(thatClass);
+		Class<? extends ElementState> thatClass		= elementState.getClass();
+
+		return lookupRootOptimizations(thatClass);
+	}
+
+	/**
+	 * Obtain Optimizations object in the global scope of root Optimizations.
+	 * Uses just-in-time / lazy evaluation.
+	 * The first time this is called for a given ElementState class, it constructs a new Optimizations
+	 * saves it in our rootOptimizationsMap, and returns it.
+	 * <p/>
+	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
+	 * 
+	 * @param thatClass
+	 * @return
+	 */
+	private static Optimizations lookupRootOptimizations(Class<? extends ElementState> thatClass)
+	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
 		Optimizations result= rootOptimizationsMap.get(className);
@@ -446,6 +461,26 @@ implements OptimizationTypes
 				this.elementFieldOptimizations		= result;
 			}
 		}
+		return result;
+	}
+	
+	/**
+	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
+	 * 
+	 * @return	ArrayList of Field objects. Could be empty. Never null.
+	 */
+	public ArrayList<Field> getFields()
+	{
+		ArrayList<Field> attributeFields	= attributeFields();
+		ArrayList<Field> elementFields		= elementFields();
+		ArrayList<Field> result				= new ArrayList<Field>(attributeFields.size() + elementFields.size());
+		
+		for (Field attrField : attributeFields)
+			result.add(attrField);
+		
+		for (Field elementField : elementFields)
+			result.add(elementField);
+		
 		return result;
 	}
 	/**
