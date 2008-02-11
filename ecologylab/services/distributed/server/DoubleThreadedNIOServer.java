@@ -41,6 +41,14 @@ import ecologylab.xml.TranslationSpace;
 public class DoubleThreadedNIOServer extends NIOServerBase implements
 		ServerConstants
 {
+	protected static InetAddress[] addressToAddresses(InetAddress address)
+	{
+		InetAddress[] addresses = new InetAddress[1];
+		addresses[0] = address;
+		
+		return addresses;
+	}
+	
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
 			ObjectRegistry objectRegistry, int idleConnectionTimeout,

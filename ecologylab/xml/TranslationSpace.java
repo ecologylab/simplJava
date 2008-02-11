@@ -751,7 +751,7 @@ public final class TranslationSpace extends Debug
     * @return
     */
    public static TranslationSpace get(String name, Class[] translations,
-			  TranslationSpace[] inheritedTranslations)
+			  TranslationSpace... inheritedTranslations)
    {
 	   return get(name, translations, inheritedTranslations, (String) null);
    }

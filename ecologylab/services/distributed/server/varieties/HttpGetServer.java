@@ -22,7 +22,6 @@ import ecologylab.xml.TranslationSpace;
  */
 public class HttpGetServer extends DoubleThreadedNIOServer
 {
-
 	/**
 	 * @param portNumber
 	 * @param inetAddresses
@@ -40,7 +39,6 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -60,21 +58,6 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	{
 		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @param args
-	 * @throws IOException 
-	 * @throws BindException 
-	 */
-	public static void main(String[] args) throws BindException, IOException
-	{
-		TranslationSpace serverTranslations = DefaultServicesTranslations.get();
-		
-		HttpGetServer s = new HttpGetServer(8080, NetTools.getAllInetAddressesForLocalhost(), serverTranslations, new ObjectRegistry(), 1000000, 1000000);
-
-		s.start();
 	}
 
 	@Override protected AbstractClientManager generateContextManager(

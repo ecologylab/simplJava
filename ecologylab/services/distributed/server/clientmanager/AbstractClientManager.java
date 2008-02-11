@@ -82,6 +82,9 @@ public abstract class AbstractClientManager extends Debug implements
 	protected final StringBuilder											headerBufOutgoing				= new StringBuilder(
 																																MAX_HTTP_HEADER_LENGTH);
 
+	protected final StringBuilder											startLine						= new StringBuilder(
+																																MAX_HTTP_HEADER_LENGTH);
+
 	/**
 	 * Indicates whether or not one or more messages are queued for execution by
 	 * this ContextManager.
@@ -232,7 +235,7 @@ public abstract class AbstractClientManager extends Debug implements
 			CharBuffer incomingSequenceBuf) throws CharacterCodingException,
 			BadClientException
 	{
-		debug("incoming: " + incomingSequenceBuf);
+//		debug("incoming: " + incomingSequenceBuf);
 
 		synchronized (msgBufIncoming)
 		{
@@ -371,6 +374,7 @@ public abstract class AbstractClientManager extends Debug implements
 					// clean up: clear the message buffer and the header values
 					firstMessageBuffer.setLength(0);
 					this.headerMap.clear();
+					StringTools.clear(this.startLine);
 				}
 			}
 		}
@@ -526,10 +530,13 @@ public abstract class AbstractClientManager extends Debug implements
 	{
 		// indicates that we might be at the end of the header
 		boolean maybeEndSequence = false;
-		boolean haveKey = false;
-		
+
+		// true if the start line has been found, or if a key has been found
+		// instead
+		boolean noMoreStartLine = false;
+
 		char currentChar;
-		
+
 		synchronized (currentHeaderSequence)
 		{
 			StringTools.clear(currentHeaderSequence);
@@ -551,8 +558,8 @@ public abstract class AbstractClientManager extends Debug implements
 					currentKeyHeaderSequence.append(currentHeaderSequence);
 
 					StringTools.clear(currentHeaderSequence);
-					
-					haveKey = true;
+
+					noMoreStartLine = true;
 
 					break;
 				case ('\r'):
@@ -564,21 +571,25 @@ public abstract class AbstractClientManager extends Debug implements
 					{
 						if (!maybeEndSequence)
 						{
-							if (haveKey)
-							{	// load the key/value pair
-							headerMap.put(currentKeyHeaderSequence.toString()
-									.toLowerCase(), currentHeaderSequence.toString()
-									.trim());
+							if (noMoreStartLine)
+							{ // load the key/value pair
+								headerMap.put(currentKeyHeaderSequence.toString()
+										.toLowerCase(), currentHeaderSequence.toString()
+										.trim());
+							}
+							else
+							{ // we potentially have data w/o a key-value pair; this
+								// is the start-line of an HTTP header
+								StringTools.clear(startLine);
+								this.startLine.append(currentHeaderSequence);
+
+								noMoreStartLine = true;
+							}
 
 							StringTools.clear(currentKeyHeaderSequence);
 							StringTools.clear(currentHeaderSequence);
 
 							i++; // so we don't re-read that last character
-							}
-							else
-							{ // we potentially have data w/o a key-value pair; this is likely to be the first line of an HTTP header
-								
-							}
 						}
 						else
 						{ // end of the header
