@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import sun.misc.BASE64Encoder;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.server.NIOServerFrontend;
@@ -39,7 +39,7 @@ import ecologylab.xml.TranslationSpace;
 public class NIOServerBackend extends NIONetworking implements ServerConstants
 {
 	static NIOServerBackend getInstance(int portNumber, InetAddress[] hostAddresses, NIOServerFrontend sAP,
-			TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry, int idleSocketTimeout)
+			TranslationSpace requestTranslationSpace, Scope<?> objectRegistry, int idleSocketTimeout)
 			throws IOException, BindException
 	{
 		return new NIOServerBackend(portNumber, hostAddresses, sAP, requestTranslationSpace, objectRegistry,
@@ -65,7 +65,7 @@ public class NIOServerBackend extends NIONetworking implements ServerConstants
 	private InetAddress[]													hostAddresses;
 
 	protected NIOServerBackend(int portNumber, InetAddress[] hostAddresses, NIOServerFrontend sAP,
-			TranslationSpace requestTranslationSpace, ObjectRegistry<?> objectRegistry, int idleSocketTimeout)
+			TranslationSpace requestTranslationSpace, Scope<?> objectRegistry, int idleSocketTimeout)
 			throws IOException, BindException
 	{
 		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry);

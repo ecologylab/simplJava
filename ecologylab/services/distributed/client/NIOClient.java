@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;
@@ -167,7 +167,7 @@ public class NIOClient extends NIONetworking implements Runnable, ClientConstant
 																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	public NIOClient(String serverAddress, int portNumber, TranslationSpace messageSpace,
-			ObjectRegistry<?> objectRegistry) throws IOException
+			Scope<?> objectRegistry) throws IOException
 	{
 		super("NIOClient", portNumber, messageSpace, objectRegistry);
 

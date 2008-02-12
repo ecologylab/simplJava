@@ -11,7 +11,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.messages.RequestMessage;
@@ -64,7 +64,7 @@ public class ServicesServer extends ServicesServerBase
      * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
      */
     public static ServicesServer get(int portNumber, int serverType, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry)
+            Scope objectRegistry)
     {
         ServicesServer newServer = null;
         try
@@ -91,7 +91,7 @@ public class ServicesServer extends ServicesServerBase
      * @throws IOException
      */
     protected ServicesServer(int portNumber, int serverType, TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException, java.net.BindException
+            Scope objectRegistry) throws IOException, java.net.BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);
 

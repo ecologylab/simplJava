@@ -10,7 +10,7 @@ import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketException;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -67,7 +67,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
     }
 
     public ServicesClient(String server, int port, TranslationSpace messageSpace,
-            ObjectRegistry objectRegistry)
+            Scope objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);
     }

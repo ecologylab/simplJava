@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.xml_inherit;
 

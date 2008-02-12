@@ -5,7 +5,7 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
@@ -57,7 +57,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param objectRegistry
 	 * @throws IOException 
 	 */
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
 			int interval, RequestMessage messageToSend) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, null, interval, messageToSend);
@@ -75,10 +75,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 			RequestMessage messageToSend) throws IOException
 	{
 		this(server, port, null,
-				new ObjectRegistry(), entry, interval, messageToSend);
+				new Scope(), entry, interval, messageToSend);
 	}
 
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
 			AuthenticationListEntry entry) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, entry, 0, null);
@@ -94,13 +94,13 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param entry
 	 * @throws IOException 
 	 */
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, ObjectRegistry objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
 			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
 	{
 		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);
 
-		objectRegistry.registerObject(LOGIN_STATUS, new BooleanSlot(false));
-		objectRegistry.registerObject(LOGIN_STATUS_STRING, null);
+		objectRegistry.bind(LOGIN_STATUS, new BooleanSlot(false));
+		objectRegistry.bind(LOGIN_STATUS_STRING, null);
 
 		this.entry = entry;
 	}
@@ -217,7 +217,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 */
 	public String getExplanation()
 	{
-		String temp = (String) objectRegistry.lookupObject(LOGIN_STATUS_STRING);
+		String temp = (String) objectRegistry.lookup(LOGIN_STATUS_STRING);
 
 		if (temp == null)
 		{
@@ -233,7 +233,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	public boolean isLoggedIn()
 	{
 		if (this.connected())
-			return ((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value;
+			return ((BooleanSlot) objectRegistry.lookup(LOGIN_STATUS)).value;
 		
         return false;
 	}

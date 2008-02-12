@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.AppFrameworkTranslations;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.generic.ConsoleUtils;
@@ -60,9 +60,9 @@ extends RequestMessage
 
     /**
 	  * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
-	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
+	 * @deprecated Use {@link #performService(Scope,String)} instead
 	  */
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(Scope objectRegistry) 
 	{
 		return performService(objectRegistry, null);
 	}
@@ -70,7 +70,7 @@ extends RequestMessage
 	/**
      * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
      */
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
 		debug("performService(): " + preferencesSet +" " + preferencesSet.size());
 		if (firstTime)
@@ -121,7 +121,7 @@ extends RequestMessage
 	 * 
 	 * @param objectRegistry
 	 */
-	protected ResponseMessage setupApplication(ObjectRegistry objectRegistry) { return OkResponse.get(); }
+	protected ResponseMessage setupApplication(Scope objectRegistry) { return OkResponse.get(); }
 
 	/**
 	 * Set the Asset path used for setPreferences.
@@ -138,12 +138,12 @@ extends RequestMessage
 	 * any class that extends this object to properly handle these situations on message specific basis.
 	 *
 	 */
-	protected void handleAlreadyLoaded(ObjectRegistry objectRegistry)
+	protected void handleAlreadyLoaded(Scope objectRegistry)
 	{
 		debug("IGNORING: preferences were previously loaded.");
 	}
 	
-	protected void handleErrorWhileLoading(ObjectRegistry objectRegistry)
+	protected void handleErrorWhileLoading(Scope objectRegistry)
 	{
 		
 	}

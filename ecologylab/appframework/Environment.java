@@ -58,7 +58,7 @@ public interface Environment
       /**
        * Holds preferences for use in servicing parameter(String) requests.
        */
-      private final	ObjectRegistry	preferencesRegistry	= new ObjectRegistry();
+      private final	Scope	preferencesRegistry	= new Scope();
   	
 
       float			javaVersion	= 1.1f;	// minimum expected
@@ -252,7 +252,7 @@ public interface Environment
        * The registry of Preferences for this Environment.
        * @return registry of Preferences for this Environment.
        */
-      public ObjectRegistry preferencesRegistry()
+      public Scope preferencesRegistry()
       {
     	  return preferencesRegistry;
       }

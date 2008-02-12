@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 
 /**
  * An exception handler used for callbacks. 
@@ -11,9 +11,9 @@ public abstract class ExceptionHandler
 implements Runnable
 {
 	protected Exception 		exception;
-	protected ObjectRegistry 	objectRegistry;
+	protected Scope 	objectRegistry;
 	
-	public void handleException(Exception e, ObjectRegistry objectRegistry)
+	public void handleException(Exception e, Scope objectRegistry)
 	{
 		this.exception = e;
 		this.objectRegistry = objectRegistry;

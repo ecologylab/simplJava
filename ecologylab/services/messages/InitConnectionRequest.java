@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -25,10 +25,10 @@ public class InitConnectionRequest extends RequestMessage
     }
 
 	/**
-     * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.appframework.ObjectRegistry, String)
+     * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.appframework.Scope, String)
      */
     @Override public ResponseMessage performService(
-            ObjectRegistry objectRegistry, String sessionId)
+            Scope objectRegistry, String sessionId)
     {
         return null;
     }

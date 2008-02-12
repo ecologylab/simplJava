@@ -4,7 +4,7 @@ package ecologylab.services.distributed.legacy;
 import java.io.IOException;
 
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.xml.TranslationSpace;
@@ -21,7 +21,7 @@ implements SessionObjects, ServicesHostsAndPorts
 	/**
 	 * Creates a new instance of the BrowserServer listening on the default port
 	 */
-	public BrowserServices(int portNumber, ObjectRegistry objectRegistry)
+	public BrowserServices(int portNumber, Scope objectRegistry)
 	throws IOException, java.net.BindException
 	{
 		//Create the socket server. For now don't use a socket manager because we expect
@@ -32,7 +32,7 @@ implements SessionObjects, ServicesHostsAndPorts
 	/**
 	 * Creates a new instance of the BrowserServer listening on the default port
 	 */
-	public BrowserServices(ObjectRegistry objectRegistry)
+	public BrowserServices(Scope objectRegistry)
 	throws IOException, java.net.BindException
 	{
 		//Create the socket server. For now don't use a socket manager because we expect
@@ -40,7 +40,7 @@ implements SessionObjects, ServicesHostsAndPorts
 		super(BROWSER_SERVICES_PORT, 0, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
-	public BrowserServices(int portNumber, TranslationSpace translations, ObjectRegistry objectRegistry)
+	public BrowserServices(int portNumber, TranslationSpace translations, Scope objectRegistry)
 	throws IOException, java.net.BindException
 	{
 		super(portNumber, 0, translations, objectRegistry);
@@ -54,12 +54,12 @@ implements SessionObjects, ServicesHostsAndPorts
 	 * @return	A server instance, or null if it was not possible to open a ServerSocket
 	 * 			on the port on this machine.
 	 */
-	public static BrowserServices get(int portNumber, ObjectRegistry objectRegistry)
+	public static BrowserServices get(int portNumber, Scope objectRegistry)
 	{
 		return (BrowserServices) get(portNumber, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
-	public static ServicesServer get(int portNumber, TranslationSpace translations, ObjectRegistry objectRegistry)
+	public static ServicesServer get(int portNumber, TranslationSpace translations, Scope objectRegistry)
 	{
 		BrowserServices newServer	= null;
 		try

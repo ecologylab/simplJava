@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.xml_inherit;
 
@@ -24,7 +24,7 @@ public @xml_inherit class HttpRequest extends RequestMessage
 	protected @xml_attribute ParsedURL errorResponseUrl;
 
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) {
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) {
 		// TODO Auto-generated method stub
 		return OkResponse.get();
 	}

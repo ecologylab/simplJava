@@ -15,7 +15,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
@@ -51,7 +51,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		return new DoubleThreadedNIOServer(portNumber, inetAddress,
@@ -61,7 +61,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
 			InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		InetAddress[] address =
@@ -95,7 +95,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
 			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
@@ -109,7 +109,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
 			TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
@@ -177,7 +177,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	 */
 	@Override protected AbstractClientManager generateContextManager(
 			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
-			ObjectRegistry registryIn)
+			Scope registryIn)
 	{
 		return new ClientManager(token, maxPacketSize, this.getBackend(), this,
 				sk, translationSpaceIn, registryIn);

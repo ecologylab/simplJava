@@ -8,7 +8,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.net.NetTools;
@@ -31,7 +31,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 
 	protected TranslationSpace	translationSpace;
 
-	protected ObjectRegistry	registry;
+	protected Scope	registry;
 
 	/**
 	 * @return the backend
@@ -44,7 +44,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	/**
 	 * @return the registry
 	 */
-	public ObjectRegistry getRegistry()
+	public Scope getRegistry()
 	{
 		return registry;
 	}
@@ -70,7 +70,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	 * @throws BindException
 	 */
 	protected NIOServerBase(int portNumber, InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
+			Scope objectRegistry, int idleConnectionTimeout) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress,
 				composeTranslations(portNumber, inetAddress[0], requestTranslationSpace), objectRegistry,
@@ -82,8 +82,8 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 		this.translationSpace = backend.translationSpace;
 		this.registry = backend.objectRegistry;
 
-		this.registry.registerObject(MAIN_START_AND_STOPPABLE, this);
-		this.registry.registerObject(MAIN_SHUTDOWNABLE, this);
+		this.registry.bind(MAIN_START_AND_STOPPABLE, this);
+		this.registry.bind(MAIN_SHUTDOWNABLE, this);
 	}
 
 	static final Class[]	OUR_TRANSLATIONS	=
@@ -116,13 +116,13 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	 * @throws BindException
 	 */
 	protected NIOServerBase(int portNumber, InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout) throws IOException, BindException
+			Scope objectRegistry, int idleConnectionTimeout) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 	}
 
 	protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddresses,
-			TranslationSpace requestTranslationSpace, ObjectRegistry objectRegistry, int idleConnectionTimeout)
+			TranslationSpace requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout)
 			throws BindException, IOException
 	{
 		return NIOServerBackend.getInstance(portNumber, inetAddresses, this, requestTranslationSpace, objectRegistry,
@@ -130,7 +130,7 @@ public abstract class NIOServerBase extends Debug implements NIOServerFrontend, 
 	}
 
 	protected abstract AbstractClientManager generateContextManager(Object token, SelectionKey sk,
-			TranslationSpace translationSpace, ObjectRegistry registry);
+			TranslationSpace translationSpace, Scope registry);
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()

@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -20,9 +20,9 @@ import ecologylab.xml.xml_inherit;
 	 *           Context to perform it in/with.
 	 * 
 	 * @return Response to pass back to the (remote) caller.
-	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
+	 * @deprecated Use {@link #performService(Scope,String)} instead
 	 */
-	public ResponseMessage performService(ObjectRegistry objectRegistry)
+	public ResponseMessage performService(Scope objectRegistry)
 	{
 		return this.performService(objectRegistry, null);
 	}
@@ -36,7 +36,7 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return Response to pass back to the (remote) caller.
 	 */
-	public abstract ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId);
+	public abstract ResponseMessage performService(Scope objectRegistry, String sessionId);
 
 	/**
 	 * Indicates whether or not this type of message may be ignored by the server, if the server becomes backed-up. For

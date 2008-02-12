@@ -5,7 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.util.LinkedHashMap;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -23,7 +23,7 @@ import ecologylab.xml.types.scalar.ScalarType;
 public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 {
     /** The global registry of Pref objects. Used for providing lookup services. */
-    static final ObjectRegistry<MetaPref>   allMetaPrefsMap = new ObjectRegistry<MetaPref>();
+    static final Scope<MetaPref>   allMetaPrefsMap = new Scope<MetaPref>();
     
     /**
 	 * Unique identifier for Preference name with convenient lookup in 
@@ -455,7 +455,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     void register()
     {
-        allMetaPrefsMap.registerObject(this.id, this);
+        allMetaPrefsMap.bind(this.id, this);
     }
     /**
      * Look up a MetaPref by name in the map of all MetaPrefs
@@ -466,7 +466,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public static MetaPref lookup(String id)
     {
-        MetaPref metaPref = allMetaPrefsMap.lookupObject(id);
+        MetaPref metaPref = allMetaPrefsMap.lookup(id);
         return metaPref;
     }
 

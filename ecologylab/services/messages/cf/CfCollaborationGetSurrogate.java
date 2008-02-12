@@ -1,7 +1,7 @@
 package ecologylab.services.messages.cf;
 
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.legacy.ServicesClient;
@@ -36,7 +36,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 	}
 
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
 		Debug.println("Received loud and clear: " + surrogateSetString);
 		

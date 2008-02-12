@@ -7,7 +7,7 @@ package ecologylab.appframework;
  *
  * @author andruid
  */
-public class ClassRegistry<U> extends ObjectRegistry<Class<U>>
+public class ClassRegistry<U> extends Scope<Class<U>>
 {
 
 	/**
@@ -21,7 +21,7 @@ public class ClassRegistry<U> extends ObjectRegistry<Class<U>>
 
     public U lookupInstance(String key)
     {
-    	return getInstance(this.lookupObject(key));
+    	return getInstance(this.lookup(key));
     }
     
     /**

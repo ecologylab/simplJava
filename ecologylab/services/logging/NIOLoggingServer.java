@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
@@ -40,7 +40,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 *           AuthenticationList object.
 	 * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
 	 */
-	public static NIOLoggingServer getInstance(InetAddress inetAddress, ObjectRegistry objectRegistry,
+	public static NIOLoggingServer getInstance(InetAddress inetAddress, Scope objectRegistry,
 			int idleConnectionTimeout, int maxPacketSize)
 	{
 		InetAddress[] addr =
@@ -60,7 +60,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 *           AuthenticationList object.
 	 * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
 	 */
-	public static NIOLoggingServer getInstance(InetAddress[] inetAddress, ObjectRegistry objectRegistry,
+	public static NIOLoggingServer getInstance(InetAddress[] inetAddress, Scope objectRegistry,
 			int idleConnectionTimeout, int maxPacketSize)
 	{
 		NIOLoggingServer newServer = null;
@@ -109,7 +109,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 			System.err.println("No max packet length specified, using " + mPL);
 		}
 
-		NIOLoggingServer loggingServer = getInstance(NetTools.getAllInetAddressesForLocalhost(), new ObjectRegistry(),
+		NIOLoggingServer loggingServer = getInstance(NetTools.getAllInetAddressesForLocalhost(), new Scope(),
 				-1, mPL);
 
 		if (loggingServer != null)
@@ -124,7 +124,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	}
 
 	protected NIOLoggingServer(int portNumber, InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddress, TranslationSpace.get("double_threaded_logging " + inetAddress[0].toString() + ":"
 				+ portNumber, LOGGING_CLASSES, requestTranslationSpace), objectRegistry, idleConnectionTimeout,
@@ -150,7 +150,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	}
 
 	@Override protected LoggingClientManager generateContextManager(Object token, SelectionKey sk,
-			TranslationSpace translationSpaceIn, ObjectRegistry registryIn)
+			TranslationSpace translationSpaceIn, Scope registryIn)
 	{
 		return new LoggingClientManager(token, maxPacketSize, this, this.getBackend(), sk, translationSpaceIn,
 				registryIn);

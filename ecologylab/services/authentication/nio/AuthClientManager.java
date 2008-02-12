@@ -3,7 +3,7 @@ package ecologylab.services.authentication.nio;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
@@ -54,7 +54,7 @@ public class AuthClientManager extends ClientManager implements
 	 */
 	@SuppressWarnings("unchecked") public AuthClientManager(Object token, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend, SelectionKey sk,
-			TranslationSpace translationSpace, ObjectRegistry registry,
+			TranslationSpace translationSpace, Scope registry,
 			AuthLogging servicesServer)
 	{
 		super(token, maxPacketSize, server, frontend, sk, translationSpace,

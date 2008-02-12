@@ -5,7 +5,7 @@ package ecologylab.services.distributed.legacy;
 
 import java.net.Socket;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.services.distributed.common.ClientConstants;
@@ -32,7 +32,7 @@ public abstract class ServicesClientBase extends Debug implements
 
     protected TranslationSpace      translationSpace = null;
 
-    protected ObjectRegistry objectRegistry;
+    protected Scope objectRegistry;
 
     /**
      * Contains the unique identifier for the next message that the client will
@@ -41,14 +41,14 @@ public abstract class ServicesClientBase extends Debug implements
     private long             uidIndex         = 1;
 
     public ServicesClientBase(String server, int port, TranslationSpace messageSpace,
-            ObjectRegistry objectRegistry)
+            Scope objectRegistry)
     {
         this.port = port;
         this.server = server;
         this.translationSpace = messageSpace;
 
         if (objectRegistry == null)
-            objectRegistry = new ObjectRegistry();
+            objectRegistry = new Scope();
         this.objectRegistry = objectRegistry;
         
         this.translationSpace.addTranslation(InitConnectionResponse.class);

@@ -8,7 +8,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
@@ -34,7 +34,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 */
 	public HttpGetServer(int portNumber, InetAddress[] inetAddresses,
 			TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
@@ -53,7 +53,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 */
 	public HttpGetServer(int portNumber, InetAddress inetAddress,
 			TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
@@ -62,7 +62,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 
 	@Override protected AbstractClientManager generateContextManager(
 			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
-			ObjectRegistry registryIn)
+			Scope registryIn)
 	{
 		return new HTTPGetClientManager(token, maxPacketSize, this.getBackend(),
 				this, sk, translationSpaceIn, registryIn);

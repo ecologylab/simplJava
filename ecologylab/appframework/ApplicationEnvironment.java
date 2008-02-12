@@ -613,7 +613,7 @@ implements Environment, XMLTranslationExceptionTypes
 	public String lookupStringPreference(String name)
 	{
 //		return properties.getProperty(name);
-		return ((Preference) preferencesRegistry().lookupObject(name)).getValue();
+		return ((Preference) preferencesRegistry().lookup(name)).getValue();
 	}
 
 	/**
@@ -831,7 +831,7 @@ implements Environment, XMLTranslationExceptionTypes
 	/**
 	 * @return Returns the preferencesRegistry.
 	 */
-	public static ObjectRegistry preferencesRegistry()
+	public static Scope preferencesRegistry()
 	{
 		return Environment.the.preferencesRegistry();
 	}
@@ -843,7 +843,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 */
 	public static ElementState lookupElementStatePreference(String name)
 	{
-		return (ElementState) preferencesRegistry().lookupObject(name);
+		return (ElementState) preferencesRegistry().lookup(name);
 	}
 	
 	static <T> T pop(Stack<T> stack)

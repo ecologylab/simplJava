@@ -12,7 +12,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
@@ -48,7 +48,7 @@ public class LoggingClientManager extends ClientManager
 	 * @param registry
 	 */
 	public LoggingClientManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
-			NIOServerBackend server, SelectionKey sk, TranslationSpace translationSpace, ObjectRegistry registry)
+			NIOServerBackend server, SelectionKey sk, TranslationSpace translationSpace, Scope registry)
 	{
 		super(token, maxPacketSize, server, loggingServer, sk, translationSpace, registry);
 

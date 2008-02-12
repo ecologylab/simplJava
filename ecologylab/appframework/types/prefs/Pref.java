@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -24,7 +24,7 @@ import ecologylab.xml.types.element.Mappable;
 public abstract class Pref<T> extends ArrayListState implements Mappable<String>
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
-    static final ObjectRegistry<Pref<?>>   allPrefsMap = new ObjectRegistry<Pref<?>>();
+    static final Scope<Pref<?>>   allPrefsMap = new Scope<Pref<?>>();
 
     /** The ApplicationEnvironment associated with this JVM. */
     static final ApplicationEnvironment aE          = null;
@@ -272,7 +272,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static Pref<?> lookupPref(String name)
     {
-        Pref<?> pref = allPrefsMap.lookupObject(name);
+        Pref<?> pref = allPrefsMap.lookup(name);
         return pref;
     }
     
@@ -451,7 +451,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static boolean hasPref(String name)
     {
-        return allPrefsMap.containsKey(name);
+        return allPrefsMap.isBound(name);
     }
 
     /**
@@ -460,7 +460,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     void register()
     {
-    	allPrefsMap.registerObject(this.name, this);
+    	allPrefsMap.bind(this.name, this);
     }
     
     /**
@@ -472,7 +472,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static boolean containsKey(String key)
     {
-    	return allPrefsMap.containsKey(key);
+    	return allPrefsMap.isBound(key);
     }
 
     public String getName()

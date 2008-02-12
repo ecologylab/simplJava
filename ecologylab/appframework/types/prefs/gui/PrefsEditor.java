@@ -43,7 +43,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeListener;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.ChoiceBoolean;
 import ecologylab.appframework.types.prefs.MetaPref;
@@ -434,10 +434,10 @@ implements WindowListener
                 jTabbedPane.addTab(cat, null, scrollPane, null);
                 
                 // add category to components map
-                LinkedHashMap<String,ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(cat);
+                LinkedHashMap<String,Scope<JComponent>> catHash = jCatComponentsMap.get(cat);
                 if (catHash == null)
                 {
-                    catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
+                    catHash = new LinkedHashMap<String,Scope<JComponent>>();
                     jCatComponentsMap.put(cat, catHash);
                     //System.err.print("Adding: " + cat + '\n');
                 }
@@ -511,16 +511,16 @@ implements WindowListener
         {
             // add metapref to components map
             //System.err.print(category + '\n' + metaPref.getID() + '\n');
-            LinkedHashMap<String, ObjectRegistry<JComponent>> catHash = jCatComponentsMap.get(category);
+            LinkedHashMap<String, Scope<JComponent>> catHash = jCatComponentsMap.get(category);
 			if (catHash == null)
             {
-                catHash = new LinkedHashMap<String,ObjectRegistry<JComponent>>();
+                catHash = new LinkedHashMap<String,Scope<JComponent>>();
                 jCatComponentsMap.put(category, catHash);
             }
-            ObjectRegistry<JComponent> mpComponentRegistry = catHash.get(metaPref.getID());
+            Scope<JComponent> mpComponentRegistry = catHash.get(metaPref.getID());
             if (mpComponentRegistry == null)
             {
-                mpComponentRegistry = new ObjectRegistry<JComponent>();
+                mpComponentRegistry = new Scope<JComponent>();
                 catHash.put(metaPref.getID(), mpComponentRegistry);
             }
             
@@ -1174,7 +1174,7 @@ implements WindowListener
         panel.add(radioButton, c);
     
         // add metapref's component to array
-        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
+        Scope<JComponent> mpComponents = jCatComponentsMap.get(mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
             registerComponent(mp, name, radioButton);

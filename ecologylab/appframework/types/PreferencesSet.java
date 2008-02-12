@@ -6,7 +6,7 @@ import java.util.Collection;
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;
@@ -42,7 +42,7 @@ implements ApplicationPropertyNames
 	
 	public void processPreferences()
 	{
-		ObjectRegistry preferencesRegistry		= Preference.preferencesRegistry();
+		Scope preferencesRegistry		= Preference.preferencesRegistry();
 		for (int i=0; i<size(); i++)
 		{
 			Preference pref = (Preference) get(i);

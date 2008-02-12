@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -15,7 +15,7 @@ public class IgnoreRequest extends RequestMessage
 	static final IgnoreRequest reusableInstance = new IgnoreRequest();
 
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
 		return OkResponse.get();
 	}

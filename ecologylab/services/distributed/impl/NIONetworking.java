@@ -15,7 +15,7 @@ import java.util.Queue;
 
 import javax.naming.OperationNotSupportedException;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.io.ByteBufferPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
@@ -47,7 +47,7 @@ public abstract class NIONetworking extends NIOCore
 	protected TranslationSpace								translationSpace;
 
 	/** Provides a context for request processing. */
-	protected ObjectRegistry<?>							objectRegistry;
+	protected Scope<?>							objectRegistry;
 
 	protected int												connectionCount	= 0;
 
@@ -68,7 +68,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            if an I/O error occurs while trying to open a Selector from the system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber, TranslationSpace translationSpace,
-			ObjectRegistry<?> objectRegistry) throws IOException
+			Scope<?> objectRegistry) throws IOException
 	{
 		super(networkIdentifier, portNumber);
 
@@ -78,7 +78,7 @@ public abstract class NIONetworking extends NIOCore
 		this.translationSpace = translationSpace;
 
 		if (objectRegistry == null)
-			objectRegistry = new ObjectRegistry<Object>();
+			objectRegistry = new Scope<Object>();
 
 		this.objectRegistry = objectRegistry;
 

@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -30,7 +30,7 @@ import ecologylab.xml.xml_inherit;
      *            provide a context for response message processing.
      * 
      */
-    public void processResponse(ObjectRegistry objectRegistry)
+    public void processResponse(Scope objectRegistry)
     {
 
     }

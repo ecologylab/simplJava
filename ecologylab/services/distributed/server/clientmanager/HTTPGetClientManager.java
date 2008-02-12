@@ -7,7 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.messages.HttpGetRequest;
@@ -39,7 +39,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 	public HTTPGetClientManager(Object token, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socketKey, TranslationSpace translationSpace,
-			ObjectRegistry<?> registry)
+			Scope<?> registry)
 	{
 		super(token, maxPacketSize, server, frontend, socketKey,
 				translationSpace, registry);

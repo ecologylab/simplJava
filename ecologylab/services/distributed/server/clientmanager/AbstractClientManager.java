@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ServerConstants;
@@ -101,7 +101,7 @@ public abstract class AbstractClientManager extends Debug implements
 	 * The ObjectRegistry that is used by the processRequest method of each
 	 * incoming RequestMessage.
 	 */
-	protected ObjectRegistry<?>											registry;
+	protected Scope<?>											registry;
 
 	/**
 	 * The network communicator that will handle all the reading and writing for
@@ -201,7 +201,7 @@ public abstract class AbstractClientManager extends Debug implements
 	public AbstractClientManager(Object sessionId, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
-			ObjectRegistry<?> registry)
+			Scope<?> registry)
 	{
 		this.frontend = frontend;
 		this.socketKey = socket;

@@ -2,7 +2,7 @@ package ecologylab.services.messages;
 
 import java.util.Hashtable;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
@@ -20,7 +20,7 @@ public class ContinuedHTTPGetRequest extends HttpRequest
 	}
 
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
 		if (!isLast)
 		{

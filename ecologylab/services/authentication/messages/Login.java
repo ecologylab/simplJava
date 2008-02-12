@@ -3,7 +3,7 @@
  */
 package ecologylab.services.authentication.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
@@ -62,9 +62,9 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return A ResponseMessage indicating whether or not the username/password were accepted.
 	 */
-	@Override public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
+	@Override public ResponseMessage performService(Scope objectRegistry, String sessionId)
 	{
-		Authenticatable server = (Authenticatable) objectRegistry.lookupObject(MAIN_AUTHENTICATABLE);
+		Authenticatable server = (Authenticatable) objectRegistry.lookup(MAIN_AUTHENTICATABLE);
 
 		// set to the default failure message
 		LoginStatusResponse loginConfirm = new LoginStatusResponse(LOGIN_FAILED_PASSWORD);

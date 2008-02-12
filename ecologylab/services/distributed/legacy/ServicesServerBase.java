@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 
 import sun.misc.BASE64Encoder;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.ServerEvent;
@@ -52,7 +52,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
     /**
      * Provides a context for request processing.
      */
-    protected ObjectRegistry   objectRegistry;
+    protected Scope   objectRegistry;
 
     protected int              connectionCount = 0;
 
@@ -72,13 +72,13 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      */
     protected ServicesServerBase(int portNumber,
             TranslationSpace requestTranslationSpace,
-            ObjectRegistry objectRegistry) throws IOException,
+            Scope objectRegistry) throws IOException,
             java.net.BindException
     {
         this.portNumber = portNumber;
         this.requestTranslationSpace = requestTranslationSpace;
         if (objectRegistry == null)
-            objectRegistry = new ObjectRegistry();
+            objectRegistry = new Scope();
         this.objectRegistry = objectRegistry;
 
         try
@@ -173,7 +173,7 @@ public abstract class ServicesServerBase extends Debug implements Runnable,
      * 
      * @return
      */
-    public ObjectRegistry getObjectRegistry()
+    public Scope getObjectRegistry()
     {
         return objectRegistry;
     }

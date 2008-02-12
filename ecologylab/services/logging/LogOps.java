@@ -2,7 +2,7 @@ package ecologylab.services.logging;
 
 import java.util.ArrayList;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

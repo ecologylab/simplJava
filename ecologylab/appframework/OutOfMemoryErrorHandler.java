@@ -16,7 +16,7 @@ public class OutOfMemoryErrorHandler
 extends Debug
 {
 	private static ArrayList<ExceptionHandler> 		handlers 		= new ArrayList<ExceptionHandler>();
-	private static ObjectRegistry 	objectRegistry;
+	private static Scope 	objectRegistry;
 	
 	private static boolean			previouslyRanOut			= false;
 	
@@ -27,7 +27,7 @@ extends Debug
 	
 	private OutOfMemoryErrorHandler() {}
 	
-	public static void registerObjectRegistry(ObjectRegistry oRegistry)
+	public static void registerObjectRegistry(Scope oRegistry)
 	{
 		objectRegistry = oRegistry;
 	}

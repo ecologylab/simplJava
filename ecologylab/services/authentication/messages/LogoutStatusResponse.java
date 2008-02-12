@@ -3,7 +3,7 @@
  */
 package ecologylab.services.authentication.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
@@ -56,13 +56,13 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * Sets the LOGIN_STATUS BooleanSlot in the ObjectRegistry for the client to false.
 	 * 
-	 * @see ecologylab.services.messages.ResponseMessage#processResponse(ecologylab.appframework.ObjectRegistry)
+	 * @see ecologylab.services.messages.ResponseMessage#processResponse(ecologylab.appframework.Scope)
 	 */
-	@Override public void processResponse(ObjectRegistry objectRegistry)
+	@Override public void processResponse(Scope objectRegistry)
 	{
-		((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value = false;
+		((BooleanSlot) objectRegistry.lookup(LOGIN_STATUS)).value = false;
 
-		objectRegistry.modifyObject(LOGIN_STATUS_STRING, responseMessage);
+		objectRegistry.bind(LOGIN_STATUS_STRING, responseMessage);
 	}
 
 	/**

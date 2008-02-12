@@ -3,7 +3,7 @@ package ecologylab.services.distributed.server.clientmanager;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;
@@ -32,7 +32,7 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	public HTTPClientManager(Object sessionId, int maxPacketSize,
 			NIOServerBackend server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
-			ObjectRegistry<?> registry) {
+			Scope<?> registry) {
 		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace,
 				registry);
 		// TODO Auto-generated constructor stub

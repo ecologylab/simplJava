@@ -15,7 +15,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 
 import ecologylab.appframework.Memory;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Generic;
@@ -255,7 +255,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				try
 				{
 					loggingClient = new NIOClient(loggingHost, loggingPort, DefaultServicesTranslations.get(),
-							new ObjectRegistry());
+							new Scope());
 
 					// CONNECT TO SERVER
 					if (loggingClient.connect())

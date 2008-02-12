@@ -3,7 +3,7 @@ package ecologylab.appframework.types;
 import java.awt.Color;
 
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Palette;
@@ -90,7 +90,7 @@ import ecologylab.xml.types.element.ArrayListState;
 	 * 
 	 * @return	ObjectRegistry that Preferences are stored in
 	 */
-	protected static ObjectRegistry preferencesRegistry()
+	protected static Scope preferencesRegistry()
 	{
 		return Environment.the.preferencesRegistry();
 	}
@@ -112,14 +112,14 @@ import ecologylab.xml.types.element.ArrayListState;
 	 * 
 	 * @param preferencesRegistry
 	 */
-	public void register(ObjectRegistry preferencesRegistry)
+	public void register(Scope preferencesRegistry)
 	{
 		//debug("registering");
 		ElementState child	= child();
 		// is there at least one child?
 /*		if (child != null)
 		{
- */			preferencesRegistry.registerObject(this.name, this);
+ */			preferencesRegistry.bind(this.name, this);
 /*		}
 		else
 		{
@@ -138,7 +138,7 @@ import ecologylab.xml.types.element.ArrayListState;
 	 */
 	public static Preference lookup(String name)
 	{
-		Object lookupObject = preferencesRegistry().lookupObject(name);
+		Object lookupObject = preferencesRegistry().lookup(name);
 		//println("lookup(" + name + ") got " + lookupObject);
 		return (Preference) lookupObject;
 	}

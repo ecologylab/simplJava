@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages.cf;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
@@ -87,7 +87,7 @@ public class SeedCf extends RequestMessage
 	 * @return	null
 	 */
 	@Override
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId)
+	public ResponseMessage performService(Scope objectRegistry, String sessionId)
 	{
 		return null;
 	}

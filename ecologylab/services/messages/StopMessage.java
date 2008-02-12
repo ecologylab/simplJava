@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.legacy.ServicesClient;
@@ -20,9 +20,9 @@ implements SessionObjects
 	/**
 	 * This message doesn't DO anything. It just 
 	 * indicates that a stop (or shutdown) event should occur.
-	 * @deprecated Use {@link #performService(ObjectRegistry,String)} instead
+	 * @deprecated Use {@link #performService(Scope,String)} instead
 	 */
-	public ResponseMessage performService(ObjectRegistry objectRegistry) 
+	public ResponseMessage performService(Scope objectRegistry) 
 	{
 		return performService(objectRegistry, null);
 	}
@@ -30,9 +30,9 @@ implements SessionObjects
 	 * This message doesn't DO anything. It just 
 	 * indicates that a stop (or shutdown) event should occur.
 	 */
-	public ResponseMessage performService(ObjectRegistry objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
-		StartAndStoppable sas = (StartAndStoppable) objectRegistry.lookupObject(MAIN_START_AND_STOPPABLE);
+		StartAndStoppable sas = (StartAndStoppable) objectRegistry.lookup(MAIN_START_AND_STOPPABLE);
 		debug("performService(): call stop(" + sas);
 		if (sas != null)
 			sas.stop();
@@ -44,9 +44,9 @@ implements SessionObjects
      * 
      * @param objectRegistry provide a context for response message processing.
      */
-    public void processResponse(ObjectRegistry objectRegistry)
+    public void processResponse(Scope objectRegistry)
     {
-		 ServicesClient browserServicesClient	= (ServicesClient) objectRegistry.lookupObject(BROWSER_SERVICES_CLIENT);
+		 ServicesClient browserServicesClient	= (ServicesClient) objectRegistry.lookup(BROWSER_SERVICES_CLIENT);
 		 if (browserServicesClient != null)
 		 {
 			 browserServicesClient.disconnect();

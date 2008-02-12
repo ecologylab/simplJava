@@ -10,7 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 import java.util.List;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;
@@ -66,7 +66,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, String authListFilename)
 	{
 		DoubleThreadedAuthNIOServer newServer = null;
@@ -107,7 +107,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, AuthenticationList authList)
 	{
 		DoubleThreadedAuthNIOServer newServer = null;
@@ -138,7 +138,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	protected DoubleThreadedAuthNIOServer(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			ObjectRegistry objectRegistry, int idleConnectionTimeout,
+			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize, AuthenticationList authList) throws IOException,
 			BindException
 	{
@@ -148,7 +148,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 						+ portNumber, requestTranslationSpace), objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
 
-		this.registry.registerObject(MAIN_AUTHENTICATABLE, this);
+		this.registry.bind(MAIN_AUTHENTICATABLE, this);
 
 		authenticator = new Authenticator(authList);
 	}
@@ -162,7 +162,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	@Override protected AbstractClientManager generateContextManager(
 			Object sessionId, SelectionKey sk, TranslationSpace translationSpace,
-			ObjectRegistry registry)
+			Scope registry)
 	{
 		try
 		{

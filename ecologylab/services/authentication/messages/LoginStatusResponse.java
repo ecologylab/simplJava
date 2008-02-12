@@ -3,7 +3,7 @@
  */
 package ecologylab.services.authentication.messages;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.messages.ResponseMessage;
@@ -65,14 +65,14 @@ import ecologylab.xml.xml_inherit;
 	 * Sets the LOGIN_STATUS BooleanSlot in the ObjectRegistry for the client, indicating whether or not login was
 	 * successful.
 	 * 
-	 * @see ecologylab.services.messages.ResponseMessage#processResponse(ecologylab.appframework.ObjectRegistry)
+	 * @see ecologylab.services.messages.ResponseMessage#processResponse(ecologylab.appframework.Scope)
 	 */
-	@Override public void processResponse(ObjectRegistry objectRegistry)
+	@Override public void processResponse(Scope objectRegistry)
 	{
 		System.out.println("response about login: " + isOK());
 
-		((BooleanSlot) objectRegistry.lookupObject(LOGIN_STATUS)).value = isOK();
-		objectRegistry.modifyObject(LOGIN_STATUS_STRING, responseMessage);
+		((BooleanSlot) objectRegistry.lookup(LOGIN_STATUS)).value = isOK();
+		objectRegistry.bind(LOGIN_STATUS_STRING, responseMessage);
 	}
 
 	/**

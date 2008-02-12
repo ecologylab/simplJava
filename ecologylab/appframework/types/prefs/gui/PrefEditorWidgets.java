@@ -34,7 +34,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ecologylab.appframework.ObjectRegistry;
+import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefBoolean;
@@ -136,7 +136,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
      * category, you get a sorted map of the metaprefs in that category. From
      * that map you can get a list of all the components for a metapref by name.
      */
-    protected HashMap<String, LinkedHashMap<String, ObjectRegistry<JComponent>>> jCatComponentsMap        = new HashMap<String, LinkedHashMap<String, ObjectRegistry<JComponent>>>();
+    protected HashMap<String, LinkedHashMap<String, Scope<JComponent>>> jCatComponentsMap        = new HashMap<String, LinkedHashMap<String, Scope<JComponent>>>();
 
     /** Set of MetaPrefs */
     protected MetaPrefSet                                                        metaPrefSet;
@@ -203,7 +203,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         panel.add(textField, c);
 
         // add metapref's component to array
-        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(
+        Scope<JComponent> mpComponents = jCatComponentsMap.get(
                 mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
@@ -240,7 +240,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         panel.add(checkBox, c);
 
         // add metapref's component to array
-        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(
+        Scope<JComponent> mpComponents = jCatComponentsMap.get(
                 mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
@@ -292,7 +292,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             panel.add(comboBox, c);
 
             // add metapref's component to array
-            ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(
+            Scope<JComponent> mpComponents = jCatComponentsMap.get(
                     mp.getCategory()).get(mp.getID());
             if (mpComponents != null)
             {
@@ -396,7 +396,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         panel.add(jSlider, c);
 
         // add metapref's component to array
-        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(
+        Scope<JComponent> mpComponents = jCatComponentsMap.get(
                 mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
@@ -443,7 +443,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         panel.add(jSpinner, c);
 
         // add metapref's component to array
-        ObjectRegistry<JComponent> mpComponents = jCatComponentsMap.get(
+        Scope<JComponent> mpComponents = jCatComponentsMap.get(
                 mp.getCategory()).get(mp.getID());
         if (mpComponents != null)
         {
@@ -461,23 +461,23 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
      * 
      * @return ObjectRegistry for MetaPref's jComponents.
      */
-    protected ObjectRegistry<JComponent> jCatComponentsMap(MetaPref mp)
+    protected Scope<JComponent> jCatComponentsMap(MetaPref mp)
     {
-        LinkedHashMap<String, ObjectRegistry<JComponent>> categoryMap = this.jCatComponentsMap
+        LinkedHashMap<String, Scope<JComponent>> categoryMap = this.jCatComponentsMap
                 .get(mp.getCategory());
 
         if (categoryMap == null)
         {
-            categoryMap = new LinkedHashMap<String, ObjectRegistry<JComponent>>();
+            categoryMap = new LinkedHashMap<String, Scope<JComponent>>();
             this.jCatComponentsMap.put(mp.getCategory(), categoryMap);
         }
 
-        ObjectRegistry<JComponent> result = categoryMap.get(mp.getID());
+        Scope<JComponent> result = categoryMap.get(mp.getID());
         if (result == null)
         {
-            LinkedHashMap<String, ObjectRegistry<JComponent>> catHash = jCatComponentsMap
+            LinkedHashMap<String, Scope<JComponent>> catHash = jCatComponentsMap
                     .get(mp.getCategory());
-            result = new ObjectRegistry<JComponent>();
+            result = new Scope<JComponent>();
             catHash.put(mp.getID(), result);
         }
         return result;
@@ -498,7 +498,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             JComponent jComponent)
     {
         // println("Registering: " + this.id+labelAndName);
-        jCatComponentsMap(mp).registerObject(mp.getID() + labelAndName,
+        jCatComponentsMap(mp).bind(mp.getID() + labelAndName,
                 jComponent);
     }
 
@@ -706,7 +706,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
     {
         // println("Trying to fetch: " + labelAndName);
         JComponent jComponent = jCatComponentsMap(mp)
-                .lookupObject(labelAndName);
+                .lookup(labelAndName);
         return jComponent;
     }
 
