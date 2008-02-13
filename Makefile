@@ -4,7 +4,7 @@ XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/d
 
 SERVICES = services/authentication services/authentication/listener services/authentication/logging services/authentication/messages services/authentication/nio services/authentication/registryobjects services/distributed/client services/distributed/common services/distributed/impl services/distributed/legacy services/distributed/server services/distributed/server/clientmanager services/distributed/server/varieties services/exceptions services/logging services/logging/playback services/messages services/messages/cf   
 
-FUNDAMENTAL_DIRS = appframework appframework/types appframework/types/prefs appframework/types/prefs/gui collections generic io net $(XML_DIR) $(SERVICES) appframework/macos
+FUNDAMENTAL_DIRS = appframework appframework/types appframework/types/prefs appframework/types/prefs/gui collections generic io net $(XML_DIR) $(SERVICES)
 
 JAR_DIRS = $(FUNDAMENTAL_DIRS:%=ecologylab/%)
 
