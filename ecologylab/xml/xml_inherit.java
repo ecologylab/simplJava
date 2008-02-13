@@ -7,8 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation for scalar-valued fields that should be translated to XML
- * as leaf nodes, instead of as attributes.
+ * Metalanguage declaration for classes with metalanguage inside, 
+ * which are derived from other classes that also have metalanguage that needs interpreting.
  * 
  * @author andruid
  */

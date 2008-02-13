@@ -392,8 +392,8 @@ implements OptimizationTypes
 		if (result)
 		{
 			xmlTagFieldsAreIndexed	= true;
-			indexXmlTagFields(this.attributeFields(), true, translationSpace, context);
-			indexXmlTagFields(this.elementFields(), false, translationSpace, context);			
+			indexSpecialMappingsForFields(this.attributeFields(), true, translationSpace, context);
+			indexSpecialMappingsForFields(this.elementFields(), false, translationSpace, context);			
 		}
 		return result;
 	}
@@ -681,13 +681,16 @@ implements OptimizationTypes
 	boolean xmlTagFieldsAreIndexed;
 	
 	/**
+	 * For a set of fields, establish special tag-object mappings for use in translating from XML.
+	 * <p/>
+	 * Effects fields declared with <code>@xml_tag</code>, <code>@xml_class</code>, or <code>@xml_classes</code>.
 	 * 
 	 * @param themFields
 	 * @param isAttribute
 	 * @param tspace
 	 * @param context
 	 */
-	private void indexXmlTagFields(ArrayList<Field> themFields, boolean isAttribute, TranslationSpace tspace, ElementState context)
+	private void indexSpecialMappingsForFields(ArrayList<Field> themFields, boolean isAttribute, TranslationSpace tspace, ElementState context)
 	{
 		for (Field thatField : themFields)
 		{
@@ -731,6 +734,14 @@ implements OptimizationTypes
 		}
 	}
 
+	/**
+	 * Identify or create a NodeToJavaOptimizations object.
+	 * Create a mapping between that and a tag derived from its class name.
+	 * 
+	 * @param tspace
+	 * @param thatField
+	 * @param thatClass
+	 */
 	private void registerN2JOByClass(TranslationSpace tspace, Field thatField,
 			Class thatClass)
 	{
@@ -740,6 +751,8 @@ implements OptimizationTypes
 	}
 
 	/**
+	 * Identify or create a NodeToJavaOptimizations object.
+	 * Create a mapping between that and the value of a tag annotation.
 	 * 
 	 * @param isAttribute
 	 * @param tspace

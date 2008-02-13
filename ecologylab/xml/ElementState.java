@@ -1485,7 +1485,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * a tree of state-objects.
      * 
      * @param xmlNode	Root node of the DOM tree that needs to be translated.
- * @param translationSpace		NameSpace that provides basis for translation.
+     * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
 	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace)
@@ -2212,9 +2212,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     	return declarationStyle() == DeclarationStyle.PUBLIC;
     }
     /**
-     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
      * is a scalar-value,
      * which should be represented in XML as an attribute.
+     * <p/>
+     * The attribute name will be derived from the field name, using camel case conversion, unless @xml_tag is used.
      *
      * @author andruid
      */
@@ -2237,9 +2239,14 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     
     static final 		String	EMPTY	= "";
     /**
-     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
+     * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
      * is a scalar-value,
-     * which should be represented in XML as a leaf node.
+     * which should be represented in XML as a leaf node:
+     * an XML element with a single text node child, which represents the value.
+     * <p/>
+     * Can be passed the optional argument CDATA (a constant defined here), to make a CDATA declaration in the XML for the leaf node.
+     * <p/>
+     * The node name will be derived from the field name, using camel case conversion, unless @xml_tag is used.
      *
      * @author andruid
      */
@@ -2252,8 +2259,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     }
 
     /**
-     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
-     * is a complex nested field, which requires further translation.
+     * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
+     * is represented in XML by a (non-leaf) nested child element.
+     * The field must be a subclass of ElementState.
+     * <p/>
+     * The nested child element name will be derived from the field name, using camel case conversion, unless @xml_tag is used.
      *
      * @author andruid
      */
@@ -2271,9 +2281,24 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     	
     };
     /**
-     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
-     * is a complex nested field, which requires further translation.
-     *
+     * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
+     * is of type Collection. 
+     * An argument may be passed to declare the tag name of the child elements.
+     * The XML may define any number of child elements with this tag.
+     * In this case, the class of the elements will be dervied from the instantiated generic type declaration of the children.
+     * For example,		<code>@xml_collection("item")    ArrayList&lt;Item&gt;	items;</code>
+     * <p/>
+     * For that formulation, the type of the children may be a subclass of ElementState, for full nested elements, 
+     * or it may be a ScalarType, for leaf nodes.
+     * <p/>
+     * Without the tag name declaration, the tag name will be derived from the class name of the children, and
+     * in translate from XML, the class name will be derived from the tag name, and then resolved in the TranslationSpace.
+     * <p/>
+     * Alternatively, to achieve polymorphism, for children subclassed from ElementState  only,
+     * this declaration can be combined with @xml_classes.
+     * In such cases, items of the various classes will be collected together in the declared Collection.
+     * Then, the tag names for these elements will be derived from their class declarations.
+     * 
      * @author andruid
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -2286,9 +2311,19 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     
 
     /**
-     * Annotation that tells ecologylab.xml translators that each Field it is applied to as a keyword
-     * is a complex nested field, which requires further translation.
-     *
+     * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
+     * is of type Map. 
+     * An argument may be passed to declare the tag name of the child elements.
+     * The XML may define any number of child elements with this tag.
+     * In this case, the class of the elements will be dervied from the instantiated generic type declaration of the children.
+     * <p/>
+     * For example,		<code>@xml_map("foo")    HashMap&lt;String, FooFoo&gt;	items;</code><br/>
+     * The values of the Map must implement the Mappable interface, to supply a key which matches the key declaration
+     * in the Map's instantiated generic types.
+     * <p/>
+     * Without the tag name declaration, the tag name will be derived from the class name of the children, and
+     * in translate from XML, the class name will be derived from the tag name, and then resolved in the TranslationSpace.
+     * 
      * @author andruid
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -2300,26 +2335,27 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     }
     
     /**
-     * Annotation that tells ecologylab.xml translators that this field has a name that cannot be dynamically generated.
-     * This name is specified by the value of this annotation.
+     * Metalanguage declaration that can be applied either to field or to class declarations.
      * 
+     * Annotation that tells ecologylab.xml translators that instead of
+     * generating a name for XML elements corresponding to the field or class using camel case conversion, 
+     * one is specified explicitly.
+     * This name is specified by the value of this annotation.
+     * <p/>
      * Note that programmers should be careful when specifying an xml_tag, to ensure that there are no collisions with
-     * other names. Note that when an xml_tag is specified for a field, it will ALWAYS EMIT AND TRANSLATE FROM USING
+     * other names. Note that when an xml_tag is specified for a field or class, it will ALWAYS EMIT AND TRANSLATE FROM USING
      * THAT NAME.
      * 
-     * xml_tag's should typically be something that cannot be represented using dynamically-generated names, such as
+     * xml_tag's should typically be something that cannot be represented using camel case name conversion, such as
      * utilizing characters that are not normally allowed in field names, but that are allowed in XML names. This can be
      * particularly useful for building ElementState objects out of XML from the wild.
+     * <p/>
+     * You cannot use XML-forbidden characters or constructs in an xml_tag!
      * 
-     * Remember, you cannot use XML-forbidden characters or constructs in an xml_tag!
-     * 
-     * @xml_tag you MUST create your translation space using a Class object instead of a pair of Strings!!!
-     * 
-     * TODO we can fix the above issue by translating the Strings into a Class object and checking that -- but that's
-     * for another day.
+     * When using @xml_tag, you MUST create your corresponding TranslationSpace entry using a Class object,
+     * instead of using a default package name.
      * 
      * @author Zachary O. Toups (toupsz@cs.tamu.edu)
-     * 
      */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
@@ -2328,6 +2364,16 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
         String value();
     }
     
+    /**
+     * Supplementary metalanguage declaration that can be applied only to a field.
+     * The argument is a single Class object.
+     * <p/>
+     * Annotation forms a tag name from the class name, using camel case conversion.
+     * It then creates a mapping from the tag and class name to the field it is applied to, 
+     * so that translateFromXML(...) will set a value based on an element with the tag, 
+     * if field is also declared with @xml_nested,
+     * or collect values when elements have the tag, if the field is declared with @xml_collection.
+     */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
     public @interface xml_class
@@ -2335,6 +2381,16 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
         Class value();
     }
     
+    /**
+     * Supplementary metalanguage declaration that can be applied only to a field.
+     * The argument is an array of Class objects.
+     * <p/>
+     * Annotation forms tag names from each of the class names, using camel case conversion.
+     * It then creates a mapping from the tag and class names to the field it is applied to, 
+     * so that translateFromXML(...) will set a value based on an element with the tags, 
+     * if field is also declared with @xml_nested,
+     * or collect values when elements have the tags, if the field is declared with @xml_collection.
+     */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
     public @interface xml_classes
