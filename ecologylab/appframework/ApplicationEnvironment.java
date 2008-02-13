@@ -648,6 +648,7 @@ implements Environment, XMLTranslationExceptionTypes
 	static final String FIREFOX_PATH_MAC		= "/Applications/Firefox.app/Contents/MacOS/firefox";
 //	static final String FIREFOX_PATH_MAC		= null;
 	static final String SAFARI_PATH_MAC			= "/Applications/Safari.app/Contents/MacOS/Safari";
+	static final String FIREFOX_PATH_LINUX		= "/usr/bin/firefox";
 	static final String IE_PATH_WINDOWS			= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
 	
 	static String browserPath;
@@ -744,6 +745,10 @@ implements Environment, XMLTranslationExceptionTypes
 				result[0]	= "/usr/bin/open";
 				result[1]	= "-a";
 				result[2]	= "firefox";
+				break;
+			case PropertiesAndDirectories.LINUX:
+				result		= new String[2];
+				result[0]	= FIREFOX_PATH_LINUX;
 				break;
 			default:
 				error(PropertiesAndDirectories.getOsName(), "go(ParsedURL) not supported");
