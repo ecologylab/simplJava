@@ -4,6 +4,8 @@
 package ecologylab.xml.types.scalar;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import ecologylab.net.ParsedURL;
 
@@ -42,6 +44,14 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	   {
 		   int startIndex	= value.startsWith("file:///") ? 8 : 7;
 		   value	= value.substring(startIndex);
+//		   value	= URLDecoder.decode(value);
+		   try
+		   {
+			   value	= URLDecoder.decode(value, "US-ASCII");
+		   } catch (UnsupportedEncodingException e)
+		   {
+			   e.printStackTrace();
+		   }
 		   file		= ecologylab.io.Files.newFile(value);
 	   }
 	   else if (value.indexOf(':') == 1)
