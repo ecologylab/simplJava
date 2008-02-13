@@ -10,22 +10,22 @@ import ecologylab.generic.Debug;
 /**
  * Doubly linked list of GUI components. Maintains family tree.
  */
-public class DLL
+public class DLL<T>
 extends Debug
 {
-   private DLL			prevSib;
-   private DLL			nextSib;
+   private DLL<T>			prevSib;
+   private DLL<T>			nextSib;
 
-   private Object		object;
+   private T				object;
 
-   public DLL(Object objectArg)
+   public DLL(T objectArg)
    {
       object	= objectArg;
    }
 /**
  * Add sibs after ourself.
  */
-   public synchronized void addAfter(DLL sibs)
+   public synchronized void addAfter(DLL<T> sibs)
    {
       sibs.setNext(nextSib);
       addToEnd(sibs);
@@ -35,7 +35,7 @@ extends Debug
  * 
  * @param sibs	DLL for object added to the end of this.
  */
-   public void addToEnd(DLL sibs)
+   public void addToEnd(DLL<T> sibs)
    {
    		if (sibs == this)
    		{
@@ -53,7 +53,7 @@ extends Debug
  * 
  * @param sibs	DLL for object added before this.
  */
-   public void addAtBeginning(DLL sibs)
+   public void addAtBeginning(DLL<T> sibs)
    {
    		if (sibs == this)
    		{
@@ -71,13 +71,13 @@ extends Debug
  */
    public synchronized void remove()
    {
-      if (nextSib != null)
-	 nextSib.setPrev(prevSib);
-      if (prevSib != null)
-	 prevSib.setNext(nextSib);
-      prevSib	= null;
-      nextSib	= null;
-//      object	= null;		   // encourage gc
+	   if (nextSib != null)
+		   nextSib.setPrev(prevSib);
+	   if (prevSib != null)
+		   prevSib.setNext(nextSib);
+	   prevSib	= null;
+	   nextSib	= null;
+//	   object	= null;		   // encourage gc
    }
 /**
  * Remove the relations of this node, while it is being manipulated in
@@ -112,77 +112,77 @@ extends Debug
  * With a getKey interface, the sort could be brought here, which will
  * be better oo design.
  */
-   public synchronized void setNext(DLL next)
+   public synchronized void setNext(DLL<T> next)
    {
       nextSib	= next;
    }
-   public synchronized void setPrev(DLL prev)
+   public synchronized void setPrev(DLL<T> prev)
    {
       prevSib	= prev;
    }
-   public Object getThis()
+   public T getThis()
    {
       return object;
    }
-   public synchronized Object getNext()
+   public synchronized T getNext()
    {
       return (nextSib == null) ? null : nextSib.object;
    }
-   public synchronized Object getPrev()
+   public synchronized T getPrev()
    {
       return (prevSib == null) ? null : prevSib.object;
    }
-   public DLL prev()
+   public DLL<T> prev()
    {
       return prevSib;
    }
-   public DLL next()
+   public DLL<T> next()
    {
       return nextSib;
    }
-   public DLL mergeSortDescending(MergeD mergeD, DLL zSibs)
+   public DLL<T> mergeSortDescending(MergeD mergeD, DLL<T> zSibs)
    {
-      DLL c		= this;
-      int n		= 1;
-      DLL head		= new DLL(null);
-      head.setNext(c);
-      DLL a;
-      do 
-      {
-	 DLL todo	= head.next();
-	 c		= head;
-	 int toMove	= n - 1;
-//	 System.out.println("");
-//	 visualize.CollageElement.printPieces(c.next(), zSibs);
-//	 System.out.println("start inner loop moving " + toMove);
-	 do
-	 {
-	    // merge lists of size n
-	    DLL t	= todo;
-	    a		= t;
-	    for (int i=1; i<=toMove; i++)
-	       t	= t.next();
-	    DLL b	= t.next();
-	    t.setNext(zSibs);
-	    t		= b;
-	    for (int i=1; i<=toMove; i++)
-	       t	= t.next();
-	    todo	= t.next();
-	    t.setNext(zSibs);
-//	    System.out.println("mergeDescending(a: ");
-//	    visualize.CollageElement.printPieces(a, zSibs);
-//	    System.out.println("mergeDescending(b: ");
-//	    visualize.CollageElement.printPieces(b, zSibs);
-	    c.setNext(mergeD.mergeDescending(a,b));
-//	    System.out.println("returns: ");
-//	    visualize.CollageElement.printPieces(c.next(), zSibs);
-	    int twoN	= n + n;
-	    for (int i=1; i<=twoN; i++)
-	       c	= c.next();
-	 } while (todo != zSibs);
-	 n	       += n;
-      } while (a != head.next());
+	   DLL<T> c			= this;
+	   int n			= 1;
+	   DLL<T> head		= new DLL<T>(null);
+	   head.setNext(c);
+	   DLL<T> a;
+	   do 
+	   {
+		   DLL<T> todo	= head.next();
+		   c			= head;
+		   int toMove	= n - 1;
+//		   System.out.println("");
+//		   visualize.CollageElement.printPieces(c.next(), zSibs);
+//		   System.out.println("start inner loop moving " + toMove);
+		   do
+		   {
+			   // merge lists of size n
+			   DLL<T> t	= todo;
+			   a		= t;
+			   for (int i=1; i<=toMove; i++)
+				   t	= t.next();
+			   DLL<T> b	= t.next();
+			   t.setNext(zSibs);
+			   t		= b;
+			   for (int i=1; i<=toMove; i++)
+				   t	= t.next();
+			   todo	= t.next();
+			   t.setNext(zSibs);
+//			   System.out.println("mergeDescending(a: ");
+//			   visualize.CollageElement.printPieces(a, zSibs);
+//			   System.out.println("mergeDescending(b: ");
+//			   visualize.CollageElement.printPieces(b, zSibs);
+			   c.setNext(mergeD.mergeDescending(a,b));
+//			   System.out.println("returns: ");
+//			   visualize.CollageElement.printPieces(c.next(), zSibs);
+			   int twoN	= n + n;
+			   for (int i=1; i<=twoN; i++)
+				   c	= c.next();
+		   } while (todo != zSibs);
+		   n	       += n;
+	   } while (a != head.next());
 
-      return head.next();
+	   return head.next();
    }
 }

@@ -8,7 +8,7 @@ package ecologylab.collections;
 /**
  * Building block for merge sort implementation.
  */
-public interface MergeD
+public interface MergeD<T>
 {
 /**
  * Descending merge operation for merge sort descending.
@@ -18,5 +18,5 @@ public interface MergeD
  * 
  * @return	The 2 {@link DLL DLL}s merged, in descending order.
  */
-   public DLL mergeDescending(DLL list1, DLL list2);
+   public DLL<T> mergeDescending(DLL<T> list1, DLL<T> list2);
 }
