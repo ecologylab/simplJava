@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -47,7 +48,7 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 //		   value	= URLDecoder.decode(value);
 		   try
 		   {
-			   value	= URLDecoder.decode(value, "US-ASCII");
+			   value	= URLDecoder.decode(value, "UTF-8");
 		   } catch (UnsupportedEncodingException e)
 		   {
 			   e.printStackTrace();
