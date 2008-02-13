@@ -77,7 +77,8 @@ extends Debug
 		   prevSib.setNext(nextSib);
 	   prevSib	= null;
 	   nextSib	= null;
-//	   object	= null;		   // encourage gc
+	   //FIXME -- uncomment this out!
+//	   object	= null;		   // encourage gc ?? -- why is this commented out??? andruid 2/10/08
    }
 /**
  * Remove the relations of this node, while it is being manipulated in
