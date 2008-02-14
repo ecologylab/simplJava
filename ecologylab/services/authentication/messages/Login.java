@@ -7,6 +7,7 @@ import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
+import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
@@ -62,9 +63,9 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return A ResponseMessage indicating whether or not the username/password were accepted.
 	 */
-	@Override public ResponseMessage performService(Scope objectRegistry, String sessionId)
+	@Override public ResponseMessage performService(Scope localScope)
 	{
-		Authenticatable server = (Authenticatable) objectRegistry.get(MAIN_AUTHENTICATABLE);
+		Authenticatable server = (Authenticatable) localScope.get(MAIN_AUTHENTICATABLE);
 
 		// set to the default failure message
 		LoginStatusResponse loginConfirm = new LoginStatusResponse(LOGIN_FAILED_PASSWORD);
@@ -73,6 +74,7 @@ import ecologylab.xml.xml_inherit;
 
 		if (this.getSender() != null)
 		{
+			String sessionId = (String) localScope.get(AbstractClientManager.SESSION_ID);
 			loginSuccess = server.login(this.entry, sessionId);
 		}
 

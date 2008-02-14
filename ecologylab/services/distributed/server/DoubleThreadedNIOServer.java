@@ -20,7 +20,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.impl.NIOServerBase;
 import ecologylab.services.distributed.impl.Shutdownable;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
@@ -125,7 +125,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	 *            ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
 	 *            java.nio.channels.SocketChannel, byte[], int)
 	 */
-	public void processRead(Object sessionId, NIOServerBackend base,
+	public void processRead(Object sessionId, NIOServerIOThread base,
 			SelectionKey sk, ByteBuffer bs, int bytesRead)
 			throws BadClientException
 	{
@@ -274,7 +274,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 
 	/**
 	 * @see ecologylab.services.distributed.server.NIOServerFrontend#invalidate(java.lang.Object,
-	 *      ecologylab.services.distributed.impl.NIOServerBackend,
+	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
 	 *      java.nio.channels.SocketChannel)
 	 */
 	public AbstractClientManager invalidate(Object sessionId, boolean permanent)

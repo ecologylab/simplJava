@@ -36,7 +36,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 	}
 
 	@Override
-	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry) 
 	{
 		Debug.println("Received loud and clear: " + surrogateSetString);
 		

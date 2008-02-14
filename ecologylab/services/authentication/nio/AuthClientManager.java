@@ -13,7 +13,7 @@ import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
@@ -53,7 +53,7 @@ public class AuthClientManager extends ClientManager implements
 	 * @param servicesServer
 	 */
 	@SuppressWarnings("unchecked") public AuthClientManager(Object token, int maxPacketSize,
-			NIOServerBackend server, NIOServerFrontend frontend, SelectionKey sk,
+			NIOServerIOThread server, NIOServerFrontend frontend, SelectionKey sk,
 			TranslationSpace translationSpace, Scope registry,
 			AuthLogging servicesServer)
 	{

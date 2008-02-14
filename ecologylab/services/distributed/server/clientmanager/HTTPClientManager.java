@@ -5,7 +5,7 @@ import java.nio.channels.SocketChannel;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.HttpRequest;
@@ -30,7 +30,7 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	protected boolean					ALLOW_HTTP_STYLE_REQUESTS	= true;
 	
 	public HTTPClientManager(Object sessionId, int maxPacketSize,
-			NIOServerBackend server, NIOServerFrontend frontend,
+			NIOServerIOThread server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
 			Scope<?> registry) {
 		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace,
@@ -88,13 +88,13 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	{
 	}
 	
-	protected ResponseMessage performService(RequestMessage requestMessage)
+	@Override protected ResponseMessage performService(RequestMessage requestMessage)
 	{
 		requestMessage.setSender(((SocketChannel)this.socketKey.channel()).socket().getInetAddress());
 
 		try
 		{
-			return requestMessage.performService(registry, (String)this.sessionId);
+			return requestMessage.performService(localScope);
 		}
 		catch (Exception e)
 		{

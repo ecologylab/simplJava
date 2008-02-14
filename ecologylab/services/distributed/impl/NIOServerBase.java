@@ -22,7 +22,7 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Combines an NIOServerBackend and NIOServerFrontend
+ * Combines an NIOServerIOThread and NIOServerFrontend
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
@@ -30,7 +30,7 @@ import ecologylab.xml.TranslationSpace;
 public abstract class NIOServerBase extends Manager implements NIOServerFrontend, Runnable, StartAndStoppable,
 		SessionObjects
 {
-	private NIOServerBackend	backend;
+	private NIOServerIOThread	backend;
 
 	protected TranslationSpace	translationSpace;
 
@@ -43,7 +43,7 @@ public abstract class NIOServerBase extends Manager implements NIOServerFrontend
 	/**
 	 * @return the backend
 	 */
-	public NIOServerBackend getBackend()
+	public NIOServerIOThread getBackend()
 	{
 		return backend;
 	}
@@ -128,11 +128,11 @@ public abstract class NIOServerBase extends Manager implements NIOServerFrontend
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 	}
 
-	protected NIOServerBackend generateBackend(int portNumber, InetAddress[] inetAddresses,
+	protected NIOServerIOThread generateBackend(int portNumber, InetAddress[] inetAddresses,
 			TranslationSpace requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout)
 			throws BindException, IOException
 	{
-		return NIOServerBackend.getInstance(portNumber, inetAddresses, this, requestTranslationSpace, objectRegistry,
+		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this, requestTranslationSpace, objectRegistry,
 				idleConnectionTimeout);
 	}
 

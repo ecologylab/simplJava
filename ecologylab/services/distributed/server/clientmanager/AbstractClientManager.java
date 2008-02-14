@@ -19,7 +19,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.MessageWithMetadata;
 import ecologylab.services.distributed.impl.MessageWithMetadataPool;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.BadSemanticContentResponse;
@@ -98,16 +98,10 @@ public abstract class AbstractClientManager extends Debug implements
 	protected final Queue<MessageWithMetadata<RequestMessage>>	requestQueue					= new LinkedBlockingQueue<MessageWithMetadata<RequestMessage>>();
 
 	/**
-	 * The ObjectRegistry that is used by the processRequest method of each
-	 * incoming RequestMessage.
-	 */
-	protected Scope<?>											registry;
-
-	/**
 	 * The network communicator that will handle all the reading and writing for
 	 * the socket associated with this ContextManager
 	 */
-	protected NIOServerBackend												server;
+	protected NIOServerIOThread											server;
 
 	/**
 	 * The frontend for the server that is running the ContextManager. This is
@@ -187,6 +181,12 @@ public abstract class AbstractClientManager extends Debug implements
 
 	private long																contentUid						= -1;
 
+	protected Scope															localScope;
+
+	public static final String												SESSION_ID						= "SESSION_ID";
+
+	public static final String												CLIENT_MANAGER					= "CLIENT_MANAGER";
+
 	/**
 	 * Creates a new ContextManager.
 	 * 
@@ -199,15 +199,19 @@ public abstract class AbstractClientManager extends Debug implements
 	 * @param registry
 	 */
 	public AbstractClientManager(Object sessionId, int maxPacketSize,
-			NIOServerBackend server, NIOServerFrontend frontend,
+			NIOServerIOThread server, NIOServerFrontend frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
 			Scope<?> registry)
 	{
 		this.frontend = frontend;
 		this.socketKey = socket;
 		this.server = server;
-		this.registry = registry;
 		this.translationSpace = translationSpace;
+
+		this.localScope = new Scope(registry);
+
+		this.localScope.put(SESSION_ID, sessionId);
+		this.localScope.put(CLIENT_MANAGER, this);
 
 		// set up session id
 		this.sessionId = sessionId;
@@ -235,7 +239,7 @@ public abstract class AbstractClientManager extends Debug implements
 			CharBuffer incomingSequenceBuf) throws CharacterCodingException,
 			BadClientException
 	{
-//		debug("incoming: " + incomingSequenceBuf);
+		// debug("incoming: " + incomingSequenceBuf);
 
 		synchronized (msgBufIncoming)
 		{
@@ -453,8 +457,8 @@ public abstract class AbstractClientManager extends Debug implements
 	/**
 	 * Hook method for having shutdown behavior.
 	 * 
-	 * This method is called whenever the client terminates their connection or
-	 * when the server is shutting down.
+	 * This method is called whenever the server is closing down the connection
+	 * to this client.
 	 */
 	public void shutdown()
 	{
@@ -630,8 +634,7 @@ public abstract class AbstractClientManager extends Debug implements
 
 		try
 		{
-			return requestMessage
-					.performService(registry, (String) this.sessionId);
+			return requestMessage.performService(localScope);
 		}
 		catch (Exception e)
 		{
@@ -867,6 +870,18 @@ public abstract class AbstractClientManager extends Debug implements
 				this.enqueueRequest(pReq);
 			}
 		}
+	}
+
+	/**
+	 * Signals to the IO thread that this client is disconnecting and should be
+	 * removed from the IO pool. If permanent, then the client manager should
+	 * also be destroyed.
+	 * 
+	 * @param permanent
+	 */
+	public void invalidateClientManager(boolean permanent)
+	{
+		this.server.setPendingInvalidate(this.socketKey, permanent);
 	}
 
 	/**

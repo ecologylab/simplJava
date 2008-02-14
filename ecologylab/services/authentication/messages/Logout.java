@@ -7,7 +7,8 @@ import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.messages.RequestMessage;
+import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.messages.DisconnectRequest;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
 
@@ -16,7 +17,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit public class Logout extends RequestMessage implements AuthMessages, AuthServerRegistryObjects
+@xml_inherit public class Logout extends DisconnectRequest implements AuthMessages, AuthServerRegistryObjects
 {
 	@xml_nested protected AuthenticationListEntry	entry	= new AuthenticationListEntry("", "");
 
@@ -43,12 +44,14 @@ import ecologylab.xml.xml_inherit;
 	 * Attempts to log the user specified by entry from the system; if they are already logged in; if not, sends a
 	 * failure response.
 	 */
-	@Override public ResponseMessage performService(Scope objectRegistry, String sessionId)
+	@Override public ResponseMessage performService(Scope localScope)
 	{
-		Authenticatable server = (Authenticatable) objectRegistry.get(MAIN_AUTHENTICATABLE);
-
+		Authenticatable server = (Authenticatable) localScope.get(MAIN_AUTHENTICATABLE);
+		String sessionId = (String) localScope.get(AbstractClientManager.SESSION_ID);
+		
 		if (server.logout(entry, sessionId))
 		{
+			super.performService(localScope);
 			return new LogoutStatusResponse(LOGOUT_SUCCESSFUL);
 		}
 		else

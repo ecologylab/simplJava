@@ -14,29 +14,11 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * Perform the service associated with the request, using the supplied context as needed.
 	 * 
-	 * Calls performService(objectRegistry, null);
-	 * 
-	 * @param objectRegistry
+	 * @param localScope
 	 *           Context to perform it in/with.
-	 * 
-	 * @return Response to pass back to the (remote) caller.
-	 * @deprecated Use {@link #performService(Scope,String)} instead
-	 */
-	public ResponseMessage performService(Scope objectRegistry)
-	{
-		return this.performService(objectRegistry, null);
-	}
-
-	/**
-	 * Perform the service associated with the request, using the supplied context as needed.
-	 * 
-	 * @param objectRegistry
-	 *           Context to perform it in/with.
-	 * @param sessionId TODO
-	 * 
 	 * @return Response to pass back to the (remote) caller.
 	 */
-	public abstract ResponseMessage performService(Scope objectRegistry, String sessionId);
+	public abstract ResponseMessage performService(Scope localScope);
 
 	/**
 	 * Indicates whether or not this type of message may be ignored by the server, if the server becomes backed-up. For

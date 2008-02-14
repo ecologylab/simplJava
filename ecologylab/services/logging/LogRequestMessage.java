@@ -1,20 +1,14 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.xml_inherit;
-
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import ecologylab.collections.Scope;
-import ecologylab.generic.Debug;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.xml_inherit;
 
 /**
  * Transport for getting log data to the server, without need for any additional translation.
@@ -51,7 +45,7 @@ import ecologylab.xml.ElementState.xml_leaf;
 	/**
 	 * Save the logging messages to the pre-set writer.
 	 */
-	@Override public ResponseMessage performService(Scope objectRegistry, String sessionId)
+	@Override public ResponseMessage performService(Scope objectRegistry)
 	{
 		debug("services: received Logging Messages ");
 

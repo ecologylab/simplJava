@@ -1,6 +1,5 @@
 package ecologylab.services.messages;
 
-import ecologylab.generic.Debug;
 import ecologylab.services.logging.Epilogue;
 import ecologylab.services.logging.LogOps;
 import ecologylab.services.logging.Prologue;
@@ -27,7 +26,10 @@ public class DefaultServicesTranslations
 			HttpRequest.class, HttpGetRequest.class, PingRequest.class, UrlMessage.class,
 
 			CfCollaborationGetSurrogate.class, ContinuedHTTPGetRequest.class, IgnoreRequest.class,
-			InitConnectionRequest.class, InitConnectionResponse.class, ServiceMessage.class, StopMessage.class,
+			
+			InitConnectionRequest.class, InitConnectionResponse.class, DisconnectRequest.class,			
+			
+			ServiceMessage.class, StopMessage.class,
 			UrlMessage.class							};
 
 	/**

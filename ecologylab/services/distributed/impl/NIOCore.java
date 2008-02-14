@@ -4,7 +4,6 @@
 package ecologylab.services.distributed.impl;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -14,7 +13,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.generic.ResourcePool;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.NetworkingConstants;
@@ -22,77 +20,19 @@ import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
 
 /**
- * Provides core functionality for NIO-based servers or clients. This class is Runnable and StartAndStoppable; it's run
- * method automatically handles interest-switching on a selector's keys, as well as calling appropriate abstract methods
- * whenever interest ops are selected.
+ * Provides core functionality for NIO-based servers or clients. This class is
+ * Runnable and StartAndStoppable; it's run method automatically handles
+ * interest-switching on a selector's keys, as well as calling appropriate
+ * abstract methods whenever interest ops are selected.
  * 
  * Subclasses are required to configure their own selector.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public abstract class NIOCore extends Debug implements StartAndStoppable, NetworkingConstants
+public abstract class NIOCore extends Debug implements StartAndStoppable,
+		NetworkingConstants
 {
-	/**
-	 * 
-	 * @author James Greenfield
-	 * 
-	 */
-	class SocketModeChangeRequest
-	{
-		public static final int	REGISTER						= 1;
-
-		public static final int	CHANGEOPS					= 2;
-
-		public static final int	INVALIDATE_PERMANENTLY	= 3;
-
-		public static final int	INVALIDATE_TEMPORARILY	= 4;
-
-		public SelectionKey		key;
-
-		public int					type;
-
-		public int					ops;
-
-		public SocketModeChangeRequest(SelectionKey key, int type, int ops)
-		{
-			this.key = key;
-			this.type = type;
-			this.ops = ops;
-		}
-	}
-
-	class SocketModeChangeRequestPool extends ResourcePool<SocketModeChangeRequest>
-	{
-		/**
-		 * @param initialPoolSize
-		 * @param minimumPoolSize
-		 */
-		public SocketModeChangeRequestPool(int initialPoolSize, int minimumPoolSize)
-		{
-			super(initialPoolSize, minimumPoolSize);
-		}
-
-		/**
-		 * @see ecologylab.generic.ResourcePool#clean(java.lang.Object)
-		 */
-		@Override protected void clean(SocketModeChangeRequest objectToClean)
-		{
-			objectToClean.key = null;
-			objectToClean.ops = 0;
-			objectToClean.type = 0;
-		}
-
-		/**
-		 * @see ecologylab.generic.ResourcePool#generateNewResource()
-		 */
-		@Override protected SocketModeChangeRequest generateNewResource()
-		{
-			return new SocketModeChangeRequest(null, 0, 0);
-		}
-
-	}
-
 	private Queue<SocketModeChangeRequest>	pendingSelectionOpChanges	= new ConcurrentLinkedQueue<SocketModeChangeRequest>();
 
 	protected Selector							selector;
@@ -105,7 +45,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 
 	protected int									portNumber;
 
-	private SocketModeChangeRequestPool		mReqPool							= new SocketModeChangeRequestPool(20, 10);
+	private SocketModeChangeRequestPool		mReqPool							= new SocketModeChangeRequestPool(
+																									20,
+																									10);
 
 	/**
 	 * Instantiates a new NIOCore object.
@@ -113,11 +55,14 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 * @param networkingIdentifier
 	 *           the name to identify this object when its thread is created.
 	 * @param portNumber
-	 *           the port number that this object will use for network communications.
+	 *           the port number that this object will use for network
+	 *           communications.
 	 * @throws IOException
-	 *            if an I/O error occurs while trying to open a Selector from the system.
+	 *            if an I/O error occurs while trying to open a Selector from the
+	 *            system.
 	 */
-	protected NIOCore(String networkingIdentifier, int portNumber) throws IOException
+	protected NIOCore(String networkingIdentifier, int portNumber)
+			throws IOException
 	{
 		this.selector = Selector.open();
 
@@ -130,9 +75,10 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 * 
 	 * Proper use of this method is through the start / stop methods.
 	 * 
-	 * Main run method. Performs a loop of changing the mode (read/write) for each socket, if requested, then checks for
-	 * and performs appropriate I/O for each socket that is ready. Ends when running is set to false (through the stop
-	 * method).
+	 * Main run method. Performs a loop of changing the mode (read/write) for
+	 * each socket, if requested, then checks for and performs appropriate I/O
+	 * for each socket that is ready. Ends when running is set to false (through
+	 * the stop method).
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
@@ -148,11 +94,12 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 					if (changeReq.key.channel().isRegistered())
 					{
 						/*
-						 * Perform any changes to the interest ops on the keys, before selecting.
+						 * Perform any changes to the interest ops on the keys, before
+						 * selecting.
 						 */
 						switch (changeReq.type)
 						{
-						case SocketModeChangeRequest.CHANGEOPS:
+						case CHANGEOPS:
 							try
 							{
 								changeReq.key.interestOps(changeReq.ops);
@@ -163,18 +110,19 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 							}
 							catch (IllegalArgumentException e1)
 							{
-								debug("illegal argument for interestOps: " + changeReq.ops);
+								debug("illegal argument for interestOps: "
+										+ changeReq.ops);
 							}
 							break;
-						case SocketModeChangeRequest.INVALIDATE_PERMANENTLY:
+						case INVALIDATE_PERMANENTLY:
 							invalidateKey(changeReq.key, true);
 							break;
-						case SocketModeChangeRequest.INVALIDATE_TEMPORARILY:
+						case INVALIDATE_TEMPORARILY:
 							invalidateKey(changeReq.key, false);
 							break;
 						}
 					}
-					
+
 					// release the SocketModeChangeRequest when done
 					changeReq = this.mReqPool.release(changeReq);
 				}
@@ -188,15 +136,18 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 				if (selector.select() > 0)
 				{
 					/*
-					 * get an iterator of the keys that have something to do we have to do it this way, because we have to be
-					 * able to call remove() which will not work in a foreach loop
+					 * get an iterator of the keys that have something to do we have
+					 * to do it this way, because we have to be able to call remove()
+					 * which will not work in a foreach loop
 					 */
-					Iterator<SelectionKey> selectedKeyIter = selector.selectedKeys().iterator();
+					Iterator<SelectionKey> selectedKeyIter = selector.selectedKeys()
+							.iterator();
 
 					while (selectedKeyIter.hasNext())
 					{
 						/*
-						 * get the key corresponding to the event and process it appropriately, then remove it
+						 * get the key corresponding to the event and process it
+						 * appropriately, then remove it
 						 */
 						SelectionKey key = selectedKeyIter.next();
 
@@ -209,8 +160,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 						else if (key.isReadable())
 						{
 							/*
-							 * incoming readable, valid key; have to double-check validity here, because accept key may have
-							 * rejected an incoming connection
+							 * incoming readable, valid key; have to double-check
+							 * validity here, because accept key may have rejected an
+							 * incoming connection
 							 */
 							if (key.channel().isOpen() && key.isValid())
 							{
@@ -233,7 +185,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 							}
 							else
 							{
-								debug("Channel closed on " + key.attachment() + ", removing.");
+								debug("Channel closed on " + key.attachment()
+										+ ", removing.");
 								invalidateKey(key, false);
 							}
 						}
@@ -299,12 +252,14 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	/**
 	 * @param key
 	 */
-	protected abstract void readReady(SelectionKey key) throws ClientOfflineException, BadClientException;
+	protected abstract void readReady(SelectionKey key)
+			throws ClientOfflineException, BadClientException;
 
 	/**
 	 * Queues a request to change key's interest operations back to READ.
 	 * 
-	 * This method is automatically called after acceptReady(SelectionKey) in the main operating loop.
+	 * This method is automatically called after acceptReady(SelectionKey) in the
+	 * main operating loop.
 	 * 
 	 * @param key
 	 */
@@ -313,7 +268,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	/**
 	 * Queues a request to change key's interest operations back to READ.
 	 * 
-	 * This method is automatically called after connectReady(SelectionKey) in the main operating loop.
+	 * This method is automatically called after connectReady(SelectionKey) in
+	 * the main operating loop.
 	 * 
 	 * @param key
 	 */
@@ -327,11 +283,13 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	/**
 	 * Queues a request to change key's interest operations back to READ.
 	 * 
-	 * This method is automatically called after writeReady(SelectionKey) in the main operating loop.
+	 * This method is automatically called after writeReady(SelectionKey) in the
+	 * main operating loop.
 	 * 
-	 * Perform any actions necessary after all data has been written from the outgoing queue to the client for this key.
-	 * This is a hook method so that subclasses can provide specific functionality (such as, for example, invalidating
-	 * the connection once the data has been sent.
+	 * Perform any actions necessary after all data has been written from the
+	 * outgoing queue to the client for this key. This is a hook method so that
+	 * subclasses can provide specific functionality (such as, for example,
+	 * invalidating the connection once the data has been sent.
 	 * 
 	 * @param key -
 	 *           the SelectionKey that is finished writing.
@@ -355,8 +313,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	{
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = (permanent ? SocketModeChangeRequest.INVALIDATE_PERMANENTLY
-				: SocketModeChangeRequest.INVALIDATE_TEMPORARILY);
+		req.type = (permanent ? SocketModeChangeRequestType.INVALIDATE_PERMANENTLY
+				: SocketModeChangeRequestType.INVALIDATE_TEMPORARILY);
 
 		synchronized (pendingSelectionOpChanges)
 		{
@@ -367,8 +325,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	}
 
 	/**
-	 * Shut down the connection associated with this SelectionKey. Subclasses should override to do your own
-	 * housekeeping, then call super.invalidateKey(SelectionKey) to utilize the functionality here.
+	 * Shut down the connection associated with this SelectionKey. Subclasses
+	 * should override to do your own housekeeping, then call
+	 * super.invalidateKey(SelectionKey) to utilize the functionality here.
 	 * 
 	 * @param chan
 	 *           The SocketChannel that needs to be shut down.
@@ -398,7 +357,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SocketChannel, boolean)
+	 * @see ecologylab.services.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SocketChannel,
+	 *      boolean)
 	 */
 	protected abstract void invalidateKey(SelectionKey key, boolean permanent);
 
@@ -409,7 +369,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 
 		if (thread == null)
 		{
-			thread = new Thread(this, networkingIdentifier + " running on port " + portNumber);
+			thread = new Thread(this, networkingIdentifier + " running on port "
+					+ portNumber);
 		}
 
 		synchronized (thread)
@@ -438,7 +399,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	}
 
 	/**
-	 * Check for timeout on all allocated keys; deallocate those that are hanging around, but no longer in use.
+	 * Check for timeout on all allocated keys; deallocate those that are hanging
+	 * around, but no longer in use.
 	 */
 	protected abstract void checkAndDropIdleKeys();
 
@@ -451,9 +413,9 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	{
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_ACCEPT;
-		
+
 		synchronized (this.pendingSelectionOpChanges)
 		{
 			// queue the socket channel for writing
@@ -465,7 +427,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	{
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_CONNECT;
 
 		synchronized (this.pendingSelectionOpChanges)
@@ -479,7 +441,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	{
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_READ;
 
 		synchronized (this.pendingSelectionOpChanges)
@@ -493,7 +455,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	{
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = SocketModeChangeRequest.CHANGEOPS;
+		req.type = SocketModeChangeRequestType.CHANGEOPS;
 		req.ops = SelectionKey.OP_WRITE;
 
 		synchronized (this.pendingSelectionOpChanges)
@@ -509,5 +471,100 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	public int getPortNumber()
 	{
 		return portNumber;
+	}
+
+	protected enum SocketModeChangeRequestType
+	{
+		/**
+		 * Indicates that the socket mode should not actually be changed; only
+		 * used for fresh SocketModeChangeRequests that have not yet been
+		 * specified.
+		 */
+		NONE,
+
+		/**
+		 * Indicates that the socket mode should change it's interest ops to those
+		 * specified by the SocketModeChangeRequest.
+		 */
+		CHANGEOPS,
+
+		/**
+		 * Indicates that the socket should be permanently invalidated and it's
+		 * matching client manager should be destroyed. This should only happen
+		 * when clients purposefully disconnect or when they have been banned.
+		 * Some special servers (such as HTTP servers) may also invalidate
+		 * permanently when the socket disconnects.
+		 */
+		INVALIDATE_PERMANENTLY,
+
+		/**
+		 * Indicates that the socket should be temporarily disconnected. This
+		 * results from an unexpected disconnect by the client. The result is that
+		 * the matching client manager should be retained for some period of time,
+		 * so that the client can reconnect if desired.
+		 */
+		INVALIDATE_TEMPORARILY
+	}
+
+	/**
+	 * A signalling object for modifying interest ops and socket invalidation in
+	 * a thread-safe way.
+	 * 
+	 * @author James Greenfield
+	 */
+	class SocketModeChangeRequest
+	{
+		public SelectionKey						key;
+
+		public SocketModeChangeRequestType	type;
+
+		public int									ops;
+
+		public SocketModeChangeRequest(SelectionKey key,
+				SocketModeChangeRequestType type, int ops)
+		{
+			this.key = key;
+			this.type = type;
+			this.ops = ops;
+		}
+	}
+
+	/**
+	 * A resource pool that handles socket mode change requests to prevent
+	 * unnecessary instantiations.
+	 * 
+	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 */
+	class SocketModeChangeRequestPool extends
+			ResourcePool<SocketModeChangeRequest>
+	{
+		/**
+		 * @param initialPoolSize
+		 * @param minimumPoolSize
+		 */
+		public SocketModeChangeRequestPool(int initialPoolSize,
+				int minimumPoolSize)
+		{
+			super(initialPoolSize, minimumPoolSize);
+		}
+
+		/**
+		 * @see ecologylab.generic.ResourcePool#clean(java.lang.Object)
+		 */
+		@Override protected void clean(SocketModeChangeRequest objectToClean)
+		{
+			objectToClean.key = null;
+			objectToClean.ops = 0;
+			objectToClean.type = SocketModeChangeRequestType.NONE;
+		}
+
+		/**
+		 * @see ecologylab.generic.ResourcePool#generateNewResource()
+		 */
+		@Override protected SocketModeChangeRequest generateNewResource()
+		{
+			return new SocketModeChangeRequest(null,
+					SocketModeChangeRequestType.NONE, 0);
+		}
 	}
 }

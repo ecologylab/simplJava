@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.messages.HttpRequest;
 import ecologylab.services.messages.RequestMessage;
@@ -25,7 +25,7 @@ public class HTTPPostClientManager extends HTTPClientManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public HTTPPostClientManager(Object token, int maxPacketSize, NIOServerBackend server, NIOServerFrontend frontend,
+	public HTTPPostClientManager(Object token, int maxPacketSize, NIOServerIOThread server, NIOServerFrontend frontend,
 			SelectionKey socketKey, TranslationSpace translationSpace, Scope<?> registry)
 	{	
 		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);

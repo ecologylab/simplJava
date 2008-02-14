@@ -34,11 +34,9 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	/**
-	 * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.collections.Scope,
-	 *      java.lang.String)
+	 * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.collections.Scope)
 	 */
-	@Override public ResponseMessage performService(Scope objectRegistry,
-			String sessionId)
+	@Override public ResponseMessage performService(Scope objectRegistry)
 	{
 		try
 		{

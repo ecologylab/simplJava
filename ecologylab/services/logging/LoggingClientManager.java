@@ -14,7 +14,7 @@ import java.nio.charset.CharsetEncoder;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.RequestMessage;
@@ -22,8 +22,9 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Provides a special implementation of performService(), that open()'s an OutputStream as necessary to the appropriate
- * directory for logging, based on the headers in the message, then logs the message to there with a minimum of
+ * Provides a special implementation of performService(), that open()'s an
+ * OutputStream as necessary to the appropriate directory for logging, based on
+ * the headers in the message, then logs the message to there with a minimum of
  * translation.
  * 
  * @author andruid
@@ -47,15 +48,18 @@ public class LoggingClientManager extends ClientManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public LoggingClientManager(Object token, int maxPacketSize, NIOLoggingServer loggingServer,
-			NIOServerBackend server, SelectionKey sk, TranslationSpace translationSpace, Scope registry)
+	public LoggingClientManager(Object token, int maxPacketSize,
+			NIOLoggingServer loggingServer, NIOServerIOThread server,
+			SelectionKey sk, TranslationSpace translationSpace, Scope registry)
 	{
-		super(token, maxPacketSize, server, loggingServer, sk, translationSpace, registry);
+		super(token, maxPacketSize, server, loggingServer, sk, translationSpace,
+				registry);
 
 		this.loggingServer = loggingServer;
 	}
 
-	@Override protected ResponseMessage performService(RequestMessage requestMessage)
+	@Override protected ResponseMessage performService(
+			RequestMessage requestMessage)
 	{
 		ResponseMessage responseMessage;
 		if (requestMessage instanceof InitConnectionRequest)
@@ -66,17 +70,20 @@ public class LoggingClientManager extends ClientManager
 		{
 			if (requestMessage instanceof SendPrologue)
 			{
-				String name = loggingServer.getLogFilesPath() + ((SendPrologue) requestMessage).getFileName();
+				String name = loggingServer.getLogFilesPath()
+						+ ((SendPrologue) requestMessage).getFileName();
 				getOutputStreamWriter(name);
 				// servicesServer.getObjectRegistry().registerObject(LoggingDef.keyStringForFileObject,
 				// getFile(name) );
 			}
 			else if (outputStreamWriter == null)
 			{
-				debug("Prologue has not been received OR File has not been created!! " + requestMessage);
+				debug("Prologue has not been received OR File has not been created!! "
+						+ requestMessage);
 			}
 
-			if ((outputStreamWriter != null) && (requestMessage instanceof LogRequestMessage))
+			if ((outputStreamWriter != null)
+					&& (requestMessage instanceof LogRequestMessage))
 			{
 				((LogRequestMessage) requestMessage).setWriter(outputStreamWriter);
 			}
@@ -123,7 +130,8 @@ public class LoggingClientManager extends ClientManager
 
 				// TODO what if (file.exists()) ???
 				FileOutputStream fos = new FileOutputStream(file, true);
-				CharsetEncoder encoder = Charset.forName(ServerConstants.CHARACTER_ENCODING).newEncoder();
+				CharsetEncoder encoder = Charset.forName(
+						ServerConstants.CHARACTER_ENCODING).newEncoder();
 				outputStreamWriter = new OutputStreamWriter(fos, encoder);
 				return outputStreamWriter;
 			}
@@ -146,7 +154,6 @@ public class LoggingClientManager extends ClientManager
 			}
 			catch (InterruptedException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -155,7 +162,7 @@ public class LoggingClientManager extends ClientManager
 		{
 			SendEpilogue sE = new SendEpilogue();
 			sE.setWriter(outputStreamWriter);
-			sE.performService(registry, null);
+			sE.performService(localScope);
 		}
 
 		super.shutdown();

@@ -87,7 +87,7 @@ public class SeedCf extends RequestMessage
 	 * @return	null
 	 */
 	@Override
-	public ResponseMessage performService(Scope objectRegistry, String sessionId)
+	public ResponseMessage performService(Scope objectRegistry)
 	{
 		return null;
 	}

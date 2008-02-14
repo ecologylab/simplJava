@@ -8,7 +8,7 @@ import java.net.URLDecoder;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerFrontend;
 import ecologylab.services.messages.HttpGetRequest;
 import ecologylab.services.messages.RequestMessage;
@@ -37,7 +37,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 	 * @param registry
 	 */
 	public HTTPGetClientManager(Object token, int maxPacketSize,
-			NIOServerBackend server, NIOServerFrontend frontend,
+			NIOServerIOThread server, NIOServerFrontend frontend,
 			SelectionKey socketKey, TranslationSpace translationSpace,
 			Scope<?> registry)
 	{

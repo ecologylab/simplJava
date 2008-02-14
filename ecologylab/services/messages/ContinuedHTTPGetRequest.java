@@ -20,7 +20,7 @@ public class ContinuedHTTPGetRequest extends HttpRequest
 	}
 
 	@Override
-	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry) 
 	{
 		if (!isLast)
 		{

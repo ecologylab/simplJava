@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.StartAndStoppable;
-import ecologylab.services.distributed.impl.NIOServerBackend;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.exceptions.BadClientException;
 
@@ -26,7 +26,7 @@ public interface NIOServerFrontend extends StartAndStoppable
 	 * @param bytesRead
 	 * @throws BadClientException
 	 */
-	void processRead(Object token, NIOServerBackend base, SelectionKey sk, ByteBuffer bs, int bytesRead)
+	void processRead(Object token, NIOServerIOThread base, SelectionKey sk, ByteBuffer bs, int bytesRead)
 			throws BadClientException;
 
 	/**

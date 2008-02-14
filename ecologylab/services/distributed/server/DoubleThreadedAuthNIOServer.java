@@ -224,8 +224,6 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 			fireLogoutEvent(entry.getUsername(), sessionId);
 		}
 
-		this.invalidate(sessionId, true);
-
 		return logoutSuccess;
 	}
 
@@ -256,7 +254,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * authenticator, then call super.invalidate().
 	 * 
 	 * @see ecologylab.services.distributed.server.DoubleThreadedNIOServer#invalidate(java.lang.Object,
-	 *      ecologylab.services.distributed.impl.NIOServerBackend,
+	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
 	 *      java.nio.channels.SocketChannel)
 	 */
 	@Override public AbstractClientManager invalidate(Object sessionId,

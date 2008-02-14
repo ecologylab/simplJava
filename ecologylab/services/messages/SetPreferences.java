@@ -58,19 +58,10 @@ extends RequestMessage
 		this.preferencesSetAssetPath = preferencesSetAssetPath;
 	}
 
-    /**
-	  * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
-	 * @deprecated Use {@link #performService(Scope,String)} instead
-	  */
-	public ResponseMessage performService(Scope objectRegistry) 
-	{
-		return performService(objectRegistry, null);
-	}
-
 	/**
      * Adds the set of Prefs to the Preferences registry on the host machine. This is now generally handled automatically.
      */
-	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
+	@Override public ResponseMessage performService(Scope objectRegistry) 
 	{
 		debug("performService(): " + preferencesSet +" " + preferencesSet.size());
 		if (firstTime)

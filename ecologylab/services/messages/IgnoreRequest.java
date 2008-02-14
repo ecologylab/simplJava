@@ -15,7 +15,7 @@ public class IgnoreRequest extends RequestMessage
 	static final IgnoreRequest reusableInstance = new IgnoreRequest();
 
 	@Override
-	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
+	public ResponseMessage performService(Scope objectRegistry) 
 	{
 		return OkResponse.get();
 	}
