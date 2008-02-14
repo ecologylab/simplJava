@@ -21,7 +21,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public final class TranslationSpace extends Debug
 {
-   protected String			name;
+   private final String			name;
    /**
 	* The default package. If an entry for a class is not found in the hashtable,
 	* this package name is returned.
@@ -73,10 +73,10 @@ public final class TranslationSpace extends Debug
 	   addTranslations(inheritedTranslationSpace);
 	   TranslationSpace[] inheritedTranslationSpaces	= new TranslationSpace[1];
 	   inheritedTranslationSpaces[0]					= inheritedTranslationSpace;
-	   this.inheritedTranslationSpaces				= this.inheritedTranslationSpaces;
+	   this.inheritedTranslationSpaces					= inheritedTranslationSpaces;
    }
 
-   private TranslationSpace(String name, Class translation, TranslationSpace inheritedTranslationSpaces)
+   private TranslationSpace(String name, Class<? extends ElementState> translation, TranslationSpace inheritedTranslationSpaces)
    {
 	   this(name, inheritedTranslationSpaces);
 	   addTranslation(translation);
@@ -146,7 +146,7 @@ public final class TranslationSpace extends Debug
   * @param translations		Set of initially defined translations for this.
   * @param defaultPackgeName
      */
-    private TranslationSpace(String name, Class[] translations, 
+    private TranslationSpace(String name, Class<? extends ElementState>[] translations, 
  					String defaultPackgeName)
     {
  	   this(name, translations, (TranslationSpace[]) null, defaultPackgeName);
@@ -161,7 +161,7 @@ public final class TranslationSpace extends Debug
  * @param inheritedTranslationSpaces
  * @param defaultPackgeName
     */
-   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslationSpaces,
+   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace[] inheritedTranslationSpaces,
 		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslationSpaces);
@@ -177,7 +177,7 @@ public final class TranslationSpace extends Debug
  * @param defaultPackgeName
  * @param baseTranslations
     */
-   private TranslationSpace(String name, Class[] translations, ArrayList<TranslationSpace> inheritedTranslationsSet,
+   private TranslationSpace(String name, Class<? extends ElementState>[] translations, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslationsSet);
@@ -190,29 +190,30 @@ public final class TranslationSpace extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
- * @param translations
- * @param inheritedTranslationSpaces
- * @param defaultPackgeName
+    * @param translations
+    * @param inheritedTranslations
+    * @param defaultPackgeName
     */
-   private TranslationSpace(String name, Class[] translations, TranslationSpace inheritedTranslations,
+   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace inheritedTranslations,
 		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslations);
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
+
    /**
     * Construct a new TranslationSpace, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * Map XML Namespace declarations.
     *      
     * @param name
- * @param translations
- * @param inheritedTranslationSpaces
- * @param defaultPackgeName
- * @param nameSpaceDecls
+    * @param translations
+    * @param inheritedTranslations
+    * @param defaultPackgeName
+    * @param nameSpaceDecls
     */
-   private TranslationSpace(String name, Class[] translations, TranslationSpace[] inheritedTranslations,
+   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace[] inheritedTranslations,
 		   String defaultPackgeName, NameSpaceDecl[] nameSpaceDecls)
    {
 	   this(name, translations, inheritedTranslations, defaultPackgeName);
@@ -248,26 +249,26 @@ public final class TranslationSpace extends Debug
     * 
     * @param classes
     */
-   private void addTranslations(Class[] classes)
+   private void addTranslations(Class<? extends ElementState>[] classes)
    {
 	   if (classes != null)
 	   {
 		   int numClasses	= classes.length;
 		   for (int i=0; i<numClasses; i++)
 		   {
-			   Class thatClass	= classes[i];
+			   Class<? extends ElementState> thatClass	= classes[i];
 			   addTranslation(thatClass);
 		   }
 	   }
    }
-   
+
    /**
     * Utility for composing <code>TranslationSpace</code>s.
     * Performs composition by value. That is, the entries are copied.
     * 
     * Unlike in union(), if there are duplicates, they will override identical entries in this.
     * 
-    * @param inheritedTranslationSpaces
+    * @param inheritedTranslations
     */
    private void addTranslations(TranslationSpace inheritedTranslations)
    {
@@ -302,7 +303,7 @@ public final class TranslationSpace extends Debug
 	* 
 	* @param classObj		The object for the class.
 	*/
-   public void addTranslation(Class classObj)
+   public void addTranslation(Class<? extends ElementState> classObj)
    {
 	   new TranslationEntry(classObj);
    }
@@ -314,10 +315,10 @@ public final class TranslationSpace extends Debug
     * @param thatClass
     * @param alternativeXmlTag
     */
-   public void addTranslation(Class thatClass, String alternativeXmlTag)
+   public void addTranslation(Class<? extends ElementState> thatClass, String alternativeXmlTag)
    {
 	   String classSimpleName		= thatClass.getSimpleName();
-	   TranslationEntry thatEntry	= this.entriesByClassSimpleName.get(classSimpleName);
+	   TranslationEntry thatEntry	= entriesByClassSimpleName.get(classSimpleName);
 	   entriesByTag.put(alternativeXmlTag, thatEntry);
    }
    private void addTranslation(TranslationEntry translationEntry)
@@ -343,7 +344,7 @@ public final class TranslationSpace extends Debug
 	* @param	xmlTag	XML node name that we're seeking a Class for.
 	* @return 			Class object, or null if there is no associated translation.
 	*/
-   public Class xmlTagToClass(String xmlTag)
+   public Class<? extends ElementState>  xmlTagToClass(String xmlTag)
    {
 	  TranslationEntry entry = xmlTagToTranslationEntry(xmlTag);
 	  return entry.empty ? null : entry.thisClass;
@@ -362,7 +363,6 @@ public final class TranslationSpace extends Debug
 
 	   if (entry == null)
 	   {
-		   String className				= XMLTools.classNameFromElementName(xmlTag);
 		   String defaultPackageName	= this.defaultPackageName;
 		   if (defaultPackageName != null)
 		   {
@@ -401,7 +401,7 @@ public final class TranslationSpace extends Debug
     * @param tag
     * @return
     */
-   Class getClassByTag(String tag)
+   Class<? extends ElementState> getClassByTag(String tag)
    {
 	   TranslationEntry entry		= entriesByTag.get(tag);
 	   
@@ -414,7 +414,7 @@ public final class TranslationSpace extends Debug
     * @param classSimpleName	Simple name of the class (no package).
     * @return
     */
-   Class getClassBySimpleName(String classSimpleName)
+   Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
    {
 	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
 	   
@@ -429,7 +429,7 @@ public final class TranslationSpace extends Debug
     * @param thatClass
     * @return
     */
-   Class getClassBySimpleNameOfClass(Class thatClass)
+   Class<? extends ElementState>  getClassBySimpleNameOfClass(Class<? extends ElementState> thatClass)
    {
 	   return getClassBySimpleName(classSimpleName(thatClass));
    }
@@ -441,7 +441,7 @@ public final class TranslationSpace extends Debug
     * @param thatClass
     * @return
     */
-   private static String determineXMLTag(Class<?> thatClass)
+   private static String determineXMLTag(Class<? extends ElementState>  thatClass)
    {
        return thatClass.isAnnotationPresent(xml_tag.class) ? thatClass.getAnnotation(xml_tag.class).value() : 
          XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
@@ -457,7 +457,7 @@ public final class TranslationSpace extends Debug
 
 	   public final String		tag;
 
-	   public final Class<?>	thisClass;
+	   public final Class<? extends ElementState>	thisClass;
 
 	   boolean					empty;
 
@@ -482,7 +482,7 @@ public final class TranslationSpace extends Debug
 	   /**
 	    * Create the entry, deriving all from its class object, perhaps including an @xml_tag declaration.
 	    */
-	   TranslationEntry(Class<?> thisClass)
+	   TranslationEntry(Class<? extends ElementState> thisClass)
 	   {
 		   this(thisClass, determineXMLTag(thisClass));
 	   }
@@ -491,7 +491,7 @@ public final class TranslationSpace extends Debug
 	    * Create the entry using Class object and a tag passed in.
 	    * This is used for alternative mappings.
 	    */
-	   TranslationEntry(Class<?> thisClass, String tag)
+	   TranslationEntry(Class<? extends ElementState> thisClass, String tag)
 	   {
 		   this(thisClass.getPackage().getName(), 
 				   thisClass.getSimpleName(), 
@@ -515,8 +515,9 @@ public final class TranslationSpace extends Debug
 				   tag, null);
 	   }
 
+	   @SuppressWarnings("unchecked")
 	   TranslationEntry(String packageName, String classSimpleName, String classWholeName,
-			   String tag, Class<?> thisClass)
+			   String tag, Class<? extends ElementState> thisClass)
 	   {
 		   this.packageName		= packageName;
 		   /*
@@ -534,13 +535,13 @@ public final class TranslationSpace extends Debug
 		   {
 			   try
 			   {  
-				   thisClass		= Class.forName(classWholeName);
+				   thisClass		= (Class<? extends ElementState>) Class.forName(classWholeName);
 			   } catch (ClassNotFoundException e)
 			   {
 				   // maybe we need to use State
 				   try
 				   {
-					   thisClass	= Class.forName(classWholeName+"State");
+					   thisClass	= (Class<? extends ElementState>) Class.forName(classWholeName + "State");
 				   } catch (ClassNotFoundException e2)
 				   {
 				   }
@@ -577,10 +578,7 @@ public final class TranslationSpace extends Debug
 		}
 		    */
 	   }
-	   private void registerTranslation()
-	   {
-		   registerTranslation(this.tag, this.classSimpleName);
-	   }
+
 	   public String getTag()
 	   {
 		   return tag;
@@ -662,6 +660,7 @@ public final class TranslationSpace extends Debug
     * @param translations
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String defaultPackageName, Class[] translations)
    {
 	   TranslationSpace result	= lookForExistingTS(defaultPackageName);
@@ -677,11 +676,12 @@ public final class TranslationSpace extends Debug
     * Inherit from the previous TranslationSpace, by including all mappings from there.
     * 
     * @param name
- * @param translations
- * @param inheritedTranslationSpaces
- * @param defaultPackageName
+    * @param translations
+    * @param inheritedTranslations
+    * @param defaultPackageName
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace inheritedTranslations,
 		   							  String defaultPackageName)
    {
@@ -692,7 +692,7 @@ public final class TranslationSpace extends Debug
 	   }
 	   return result;	   
    }
-   
+
    /**
     * Find an existing TranslationSpace by this name, or create a new one.
     * Build on a previous TranslationSpace, by including all mappings from there.
@@ -700,10 +700,10 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
     * @param translation
-    * @param inheritedTranslationSpaces
+    * @param inheritedTranslations
     * @return
     */
-   public static TranslationSpace get(String name, Class translation, TranslationSpace inheritedTranslations)
+   public static TranslationSpace get(String name, Class<? extends ElementState> translation, TranslationSpace inheritedTranslations)
    {
 	   TranslationSpace result	= lookForExistingTS(name);
 	   if (result == null)
@@ -721,7 +721,7 @@ public final class TranslationSpace extends Debug
     * @param translation
     * @return
     */
-   public static TranslationSpace get(String name, Class translation)
+   public static TranslationSpace get(String name, Class<? extends ElementState> translation)
    {
 	   return get(name, translation, null);
    }
@@ -731,10 +731,10 @@ public final class TranslationSpace extends Debug
     * Build on the previous TranslationSpace, by including all mappings from there.
     * 
     * @param name
- * @param translations
- * @param inheritedTranslationSpaces
+    * @param translations
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations,
 		   							  TranslationSpace inheritedTranslations)
    {
@@ -747,9 +747,9 @@ public final class TranslationSpace extends Debug
     * 
     * @param name
     * @param translations
-    * @param inheritedTranslationSpaces
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations,
 			  TranslationSpace... inheritedTranslations)
    {
@@ -766,6 +766,7 @@ public final class TranslationSpace extends Debug
  * @param defaultPackageName
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
 		   							  String defaultPackageName)
    {
@@ -788,6 +789,7 @@ public final class TranslationSpace extends Debug
  * @param nameSpaceDecls				Array of ElementState class + URI key map entries for handling XML Namespaces.
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
 		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
    {
@@ -803,8 +805,8 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
- * @param defaultPackageName
- * @param inheritedTranslationsSet
+    * @param defaultPackageName
+    * @param inheritedTranslationsSet
     * @return
     */
    public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations, String defaultPackageName)
@@ -817,7 +819,7 @@ public final class TranslationSpace extends Debug
     * Build on a set of inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
-    * @param inheritedTranslationSpaces
+    * @param inheritedTranslations
     * @return
     */
    public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations)
@@ -830,8 +832,8 @@ public final class TranslationSpace extends Debug
     * Build on an inherited TranslationSpaces, by including all mappings from them.
     * 
     * @param name
- * @param inheritedTranslationSpaces
- * @param defaultPackageName
+    * @param inheritedTranslations
+    * @param defaultPackageName
     * @return
     */
    public static TranslationSpace get(String name, TranslationSpace inheritedTranslations, String defaultPackageName)
@@ -849,6 +851,7 @@ public final class TranslationSpace extends Debug
     * @param translations
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, String defaultPackageName, ArrayList<TranslationSpace> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
@@ -868,6 +871,7 @@ public final class TranslationSpace extends Debug
  * @param inheritedTranslationsSet
     * @return
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations,
 		   							  ArrayList<TranslationSpace> inheritedTranslationsSet)
    {
@@ -890,6 +894,7 @@ public final class TranslationSpace extends Debug
     * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
     * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
     */
+   @SuppressWarnings("unchecked")
    public static TranslationSpace get(String name, Class[] translations, String defaultPackageName)
    {
 	  TranslationSpace result	= lookForExistingTS(name);
@@ -911,16 +916,11 @@ public final class TranslationSpace extends Debug
 	 * @param thatClass
 	 * @return	Type associated with thatClass
 	 */
-   ScalarType getType(Class thatClass)
+   <U> ScalarType<U> getType(Class<U> thatClass)
    {
 	   return TypeRegistry.getType(thatClass);
    }
-   
-   public HashMap entriesByTag()
-   {
-	   return entriesByTag;
-   }
-	
+   	
    /**
     * Lookup a NameSpace ElementState subclass, with a URN as the key.
     * 
@@ -930,6 +930,15 @@ public final class TranslationSpace extends Debug
    public Class<? extends ElementState> lookupNameSpaceByURN(String urn)
    {
 	   return nameSpaceClassesByURN.get(urn);
+   }
+
+   /**
+    * 
+    * @return	The unique name of this.
+    */
+   public String getName()
+   {
+	   return name;
    }
 
 }
