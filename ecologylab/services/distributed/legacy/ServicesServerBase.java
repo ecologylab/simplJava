@@ -13,11 +13,10 @@ import java.util.LinkedList;
 
 import sun.misc.BASE64Encoder;
 import ecologylab.appframework.Scope;
-import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.services.distributed.impl.Manager;
 import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.distributed.impl.ServerListener;
-import ecologylab.services.distributed.impl.Shutdownable;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -30,8 +29,8 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public abstract class ServicesServerBase extends Debug implements Runnable,
-        StartAndStoppable, Shutdownable
+public abstract class ServicesServerBase extends Manager implements Runnable,
+        StartAndStoppable
 {
     protected int              portNumber;
 

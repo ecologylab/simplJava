@@ -280,7 +280,7 @@ public class ServicesServer extends ServicesServerBase
      * 
      * See ecologylab.services.ServicesServerBase#shutdownAndNotify(java.util.Collection)
      */
-    public void shutdown()
+    @Override public void shutdownImpl()
     {
         this.shuttingDown = true;
 

@@ -17,7 +17,7 @@ public class OkResponse extends ResponseMessage
 		super();
 	}
 
-	public boolean isOK()
+	@Override public boolean isOK()
 	{
 		return true;
 	}

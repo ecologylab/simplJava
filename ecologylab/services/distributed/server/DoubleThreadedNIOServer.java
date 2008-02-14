@@ -3,6 +3,7 @@
  */
 package ecologylab.services.distributed.server;
 
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
@@ -21,6 +22,7 @@ import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.impl.NIOServerBase;
+import ecologylab.services.distributed.impl.Shutdownable;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.exceptions.BadClientException;
@@ -361,5 +363,11 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	public boolean isRunning()
 	{
 		return running;
+	}
+
+	@Override protected void shutdownImpl()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

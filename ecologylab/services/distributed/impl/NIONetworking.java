@@ -20,8 +20,6 @@ import ecologylab.io.ByteBufferPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.services.messages.RequestMessage;
-import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
 
 /**

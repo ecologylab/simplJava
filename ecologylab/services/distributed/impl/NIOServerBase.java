@@ -3,10 +3,13 @@
  */
 package ecologylab.services.distributed.impl;
 
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
+import java.util.LinkedList;
+import java.util.List;
 
 import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
@@ -24,14 +27,18 @@ import ecologylab.xml.TranslationSpace;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public abstract class NIOServerBase extends Debug implements NIOServerFrontend, Runnable, StartAndStoppable,
-		SessionObjects, Shutdownable
+public abstract class NIOServerBase extends Manager implements NIOServerFrontend, Runnable, StartAndStoppable,
+		SessionObjects
 {
 	private NIOServerBackend	backend;
 
 	protected TranslationSpace	translationSpace;
 
 	protected Scope	registry;
+	
+	private List<Shutdownable> dependentShutdownables = new LinkedList<Shutdownable>();
+	
+	private List<ActionListener> shutdownListeners = new LinkedList<ActionListener>();
 
 	/**
 	 * @return the backend
