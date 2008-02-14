@@ -304,7 +304,7 @@ implements ContentHandler, OptimizationTypes
 		final boolean isRoot 					= (root == null);
 		if (isRoot)
 		{	// form the root ElementState!
-			Class<ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
+			Class<? extends ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
 			if (rootClass != null)
 			{
 				ElementState root;
@@ -320,8 +320,7 @@ implements ContentHandler, OptimizationTypes
 					}
 					else
 					{
-						this.xmlTranslationException	= 
-							new XMLTranslationException("Can't form root element for " + tagName);
+						this.xmlTranslationException	= new RootElementException(tagName, translationSpace);
 						return;
 					}
 				} catch (XMLTranslationException e)

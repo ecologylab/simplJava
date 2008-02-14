@@ -1409,7 +1409,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	   throws XMLTranslationException
 	{
 	   // find the class for the new object derived from ElementState
-		Class<ElementState> stateClass		= null;
+		Class<? extends ElementState> stateClass		= null;
 		String tagName						= xmlRootNode.getNodeName();
 		try
 		{
@@ -1440,9 +1440,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 			}
 			else
 			{
-				// else, we don't translate this element; we ignore it.
-				println("XML Translation WARNING: Cant find class object for Root XML element <"
-						+ tagName + ">: Ignored. ");
+				throw new RootElementException(tagName, translationSpace);
 			}
 		}
 		catch (Exception e)
