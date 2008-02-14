@@ -1,5 +1,6 @@
 package ecologylab.appframework;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -63,5 +64,23 @@ public class Scope<T>
     public boolean isBound(String key)
     {
     	return bindingsMap.containsKey(key);
+    }
+    
+    /**
+     * 
+     * @return	A Collection of all the bound values in this.
+     */
+    public Collection<T> values()
+    {
+    	return bindingsMap.values();
+    }
+ 
+    /**
+     * 
+     * @return	A Collection of all the names to which values are bound in this.
+     */
+    public Collection<String> keySet()
+    {
+    	return bindingsMap.keySet();
     }
 }
