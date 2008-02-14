@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import ecologylab.appframework.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -40,8 +41,8 @@ public final class TranslationSpace extends Debug
     * if there are multiple possibilities. This is the case when internal and external versions of
     * a message and its constituents are defined for a messaging API.
     */
-   private HashMap<String, TranslationEntry>	entriesByClassSimpleName	= new HashMap<String, TranslationEntry>();
-   private HashMap<String, TranslationEntry>	entriesByTag				= new HashMap<String, TranslationEntry>();
+   private Scope<TranslationEntry>	entriesByClassSimpleName	= new Scope<TranslationEntry>();
+   private Scope<TranslationEntry>	entriesByTag				= new Scope<TranslationEntry>();
    
    private final HashMap<String, Class<? extends ElementState>>	nameSpaceClassesByURN = new HashMap<String, Class<? extends ElementState>>();
    
@@ -274,9 +275,9 @@ public final class TranslationSpace extends Debug
    {
 	   if (inheritedTranslations != null)
 	   {
-		   for (TranslationEntry translationEntry: inheritedTranslations.entriesByClassSimpleName.values())
+		   for (TranslationEntry translationEntry: entriesByClassSimpleName.values())
 		   {
-			   TranslationEntry existingEntry	= entriesByClassSimpleName.get(translationEntry.classSimpleName);
+			   TranslationEntry existingEntry	= entriesByClassSimpleName.lookup(translationEntry.classSimpleName);
 
                final boolean entryExists		= existingEntry != null;
                final boolean newEntry			= existingEntry != translationEntry;
@@ -318,13 +319,13 @@ public final class TranslationSpace extends Debug
    public void addTranslation(Class<? extends ElementState> thatClass, String alternativeXmlTag)
    {
 	   String classSimpleName		= thatClass.getSimpleName();
-	   TranslationEntry thatEntry	= entriesByClassSimpleName.get(classSimpleName);
-	   entriesByTag.put(alternativeXmlTag, thatEntry);
+	   TranslationEntry thatEntry	= entriesByClassSimpleName.lookup(classSimpleName);
+	   entriesByTag.bind(alternativeXmlTag, thatEntry);
    }
    private void addTranslation(TranslationEntry translationEntry)
    {
-	   this.entriesByTag.put(translationEntry.tag, translationEntry);
-	   this.entriesByClassSimpleName.put(translationEntry.classSimpleName, translationEntry);
+	   this.entriesByTag.bind(translationEntry.tag, translationEntry);
+	   this.entriesByClassSimpleName.bind(translationEntry.classSimpleName, translationEntry);
    }
    
    /**
@@ -359,7 +360,7 @@ public final class TranslationSpace extends Debug
     */
    private TranslationEntry xmlTagToTranslationEntry(String xmlTag)
    {
-	   TranslationEntry entry		= entriesByTag.get(xmlTag);
+	   TranslationEntry entry			= entriesByTag.lookup(xmlTag);
 
 	   if (entry == null)
 	   {
@@ -378,8 +379,8 @@ public final class TranslationSpace extends Debug
 						   if (entry != null)
 						   {   // got one from an inherited TranslationSpace
 							   // register translation for the inherited entry in this
-							   entriesByTag.put(xmlTag, entry);
-							   entriesByClassSimpleName.put(classSimpleName, entry);
+							   entriesByTag.bind(xmlTag, entry);
+							   entriesByClassSimpleName.bind(classSimpleName, entry);
 							   break;
 						   }
 					   }
@@ -403,7 +404,7 @@ public final class TranslationSpace extends Debug
     */
    Class<? extends ElementState> getClassByTag(String tag)
    {
-	   TranslationEntry entry		= entriesByTag.get(tag);
+	   TranslationEntry entry		= entriesByTag.lookup(tag);
 	   
 	   return (entry == null) ? null : entry.thisClass;
    }
@@ -416,7 +417,7 @@ public final class TranslationSpace extends Debug
     */
    Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
    {
-	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
+	   TranslationEntry entry		= entriesByClassSimpleName.lookup(classSimpleName);
 	   
 	   return (entry == null) ? null : entry.thisClass;
    }
@@ -476,7 +477,7 @@ public final class TranslationSpace extends Debug
 
 		   this.empty			= true;
 
-		   entriesByTag.put(tag, this);
+		   entriesByTag.bind(tag, this);
 	   }
 
 	   /**
@@ -564,19 +565,8 @@ public final class TranslationSpace extends Debug
 	    */
 	   private void registerTranslation(String tag, String classSimpleName)
 	   {
-		   entriesByTag.put(tag, this);
-		   entriesByClassSimpleName.put(classSimpleName, this);
-		   /*
-		    * i dont see why this is here. it looks wrong. -- andruid 5/6/07.
-		if (classSimpleName.endsWith("State"))
-		{
-			int beforeState		= classSimpleName.length() - 5;
-			String wholeClassNameNoState = 
-				classSimpleName.substring(0, beforeState);
-//			debug("create entry including " + wholeClassNameNoState);
-			entriesByClassSimpleName.put(wholeClassNameNoState, this);
-		}
-		    */
+		   entriesByTag.bind(tag, this);
+		   entriesByClassSimpleName.bind(classSimpleName, this);
 	   }
 
 	   public String getTag()
@@ -903,11 +893,6 @@ public final class TranslationSpace extends Debug
 		  result		= new TranslationSpace(name, translations, defaultPackageName);
 	  }
 	  return result;
-   }
-
-   protected HashMap<String, TranslationEntry> entriesByClassName()
-   {
-	   return entriesByClassSimpleName;
    }
    
 	/**
