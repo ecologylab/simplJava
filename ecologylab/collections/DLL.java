@@ -141,7 +141,7 @@ extends Debug
    {
       return nextSib;
    }
-   public DLL<T> mergeSortDescending(MergeD mergeD, DLL<T> zSibs)
+   public DLL<T> mergeSortDescending(MergeD<T> mergeD, DLL<T> zSibs)
    {
 	   DLL<T> c			= this;
 	   int n			= 1;
