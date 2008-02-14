@@ -43,7 +43,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeListener;
 
-import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.ChoiceBoolean;
 import ecologylab.appframework.types.prefs.MetaPref;
@@ -53,6 +52,7 @@ import ecologylab.appframework.types.prefs.MetaPrefInt;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.collections.Scope;
 import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.ArrayListState;

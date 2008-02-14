@@ -15,6 +15,7 @@ import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DownloadProcessor;
 import ecologylab.io.Assets;
@@ -613,7 +614,7 @@ implements Environment, XMLTranslationExceptionTypes
 	public String lookupStringPreference(String name)
 	{
 //		return properties.getProperty(name);
-		return ((Preference) preferencesRegistry().lookup(name)).getValue();
+		return ((Preference) preferencesRegistry().get(name)).getValue();
 	}
 
 	/**
@@ -848,7 +849,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 */
 	public static ElementState lookupElementStatePreference(String name)
 	{
-		return (ElementState) preferencesRegistry().lookup(name);
+		return (ElementState) preferencesRegistry().get(name);
 	}
 	
 	static <T> T pop(Stack<T> stack)

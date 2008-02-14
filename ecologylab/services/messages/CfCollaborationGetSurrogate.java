@@ -1,7 +1,7 @@
 package ecologylab.services.messages;
 
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

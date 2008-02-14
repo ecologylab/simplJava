@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ServerConstants;

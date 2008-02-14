@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages.cf;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;

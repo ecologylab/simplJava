@@ -10,7 +10,7 @@ import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.SocketException;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;

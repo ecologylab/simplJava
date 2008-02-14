@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;

@@ -1,8 +1,8 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.AppFrameworkTranslations;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.io.Assets;
 import ecologylab.xml.ElementState;

@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;

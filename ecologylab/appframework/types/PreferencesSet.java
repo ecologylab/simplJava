@@ -6,7 +6,7 @@ import java.util.Collection;
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationSpace;

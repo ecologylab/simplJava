@@ -15,7 +15,7 @@ import java.util.Queue;
 
 import javax.naming.OperationNotSupportedException;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.io.ByteBufferPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;

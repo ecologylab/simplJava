@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.legacy.ServicesClient;
@@ -32,7 +32,7 @@ implements SessionObjects
 	 */
 	public ResponseMessage performService(Scope objectRegistry, String sessionId) 
 	{
-		StartAndStoppable sas = (StartAndStoppable) objectRegistry.lookup(MAIN_START_AND_STOPPABLE);
+		StartAndStoppable sas = (StartAndStoppable) objectRegistry.get(MAIN_START_AND_STOPPABLE);
 		debug("performService(): call stop(" + sas);
 		if (sas != null)
 			sas.stop();
@@ -46,7 +46,7 @@ implements SessionObjects
      */
     public void processResponse(Scope objectRegistry)
     {
-		 ServicesClient browserServicesClient	= (ServicesClient) objectRegistry.lookup(BROWSER_SERVICES_CLIENT);
+		 ServicesClient browserServicesClient	= (ServicesClient) objectRegistry.get(BROWSER_SERVICES_CLIENT);
 		 if (browserServicesClient != null)
 		 {
 			 browserServicesClient.disconnect();

@@ -11,7 +11,7 @@ import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 import java.util.List;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.net.NetTools;
@@ -89,8 +89,8 @@ public abstract class NIOServerBase extends Manager implements NIOServerFrontend
 		this.translationSpace = backend.translationSpace;
 		this.registry = backend.objectRegistry;
 
-		this.registry.bind(MAIN_START_AND_STOPPABLE, this);
-		this.registry.bind(MAIN_SHUTDOWNABLE, this);
+		this.registry.put(MAIN_START_AND_STOPPABLE, this);
+		this.registry.put(MAIN_SHUTDOWNABLE, this);
 	}
 
 	static final Class[]	OUR_TRANSLATIONS	=

@@ -3,6 +3,8 @@
  */
 package ecologylab.appframework;
 
+import ecologylab.collections.Scope;
+
 /**
  *
  * @author andruid
@@ -21,7 +23,7 @@ public class ClassRegistry<U> extends Scope<Class<U>>
 
     public U lookupInstance(String key)
     {
-    	return getInstance(this.lookup(key));
+    	return getInstance(this.get(key));
     }
     
     /**

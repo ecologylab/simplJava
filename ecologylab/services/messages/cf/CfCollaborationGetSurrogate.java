@@ -1,7 +1,7 @@
 package ecologylab.services.messages.cf;
 
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.legacy.ServicesClient;

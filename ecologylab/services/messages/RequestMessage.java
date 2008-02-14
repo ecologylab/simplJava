@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.xml.xml_inherit;
 
 /**

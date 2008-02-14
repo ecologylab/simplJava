@@ -16,7 +16,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;

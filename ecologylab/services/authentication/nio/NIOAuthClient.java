@@ -5,7 +5,7 @@ package ecologylab.services.authentication.nio;
 
 import java.io.IOException;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.AuthConstants;
 import ecologylab.services.authentication.AuthenticationListEntry;
@@ -99,8 +99,8 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	{
 		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);
 
-		objectRegistry.bind(LOGIN_STATUS, new BooleanSlot(false));
-		objectRegistry.bind(LOGIN_STATUS_STRING, null);
+		objectRegistry.put(LOGIN_STATUS, new BooleanSlot(false));
+		objectRegistry.put(LOGIN_STATUS_STRING, null);
 
 		this.entry = entry;
 	}
@@ -217,7 +217,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 */
 	public String getExplanation()
 	{
-		String temp = (String) objectRegistry.lookup(LOGIN_STATUS_STRING);
+		String temp = (String) objectRegistry.get(LOGIN_STATUS_STRING);
 
 		if (temp == null)
 		{
@@ -233,7 +233,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	public boolean isLoggedIn()
 	{
 		if (this.connected())
-			return ((BooleanSlot) objectRegistry.lookup(LOGIN_STATUS)).value;
+			return ((BooleanSlot) objectRegistry.get(LOGIN_STATUS)).value;
 		
         return false;
 	}

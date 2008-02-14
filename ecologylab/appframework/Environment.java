@@ -5,6 +5,7 @@
 package ecologylab.appframework;
 
 import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;

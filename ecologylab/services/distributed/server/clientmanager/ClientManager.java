@@ -2,7 +2,7 @@ package ecologylab.services.distributed.server.clientmanager;
 
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;

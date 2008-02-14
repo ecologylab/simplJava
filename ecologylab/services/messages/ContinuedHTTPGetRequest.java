@@ -2,7 +2,7 @@ package ecologylab.services.messages;
 
 import java.util.Hashtable;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit

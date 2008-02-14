@@ -3,7 +3,7 @@ package ecologylab.services.distributed.server.clientmanager;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.distributed.impl.NIOServerBackend;
 import ecologylab.services.distributed.server.NIOServerFrontend;

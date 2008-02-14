@@ -3,7 +3,7 @@
  */
 package ecologylab.services.authentication.messages;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
@@ -45,7 +45,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public ResponseMessage performService(Scope objectRegistry, String sessionId)
 	{
-		Authenticatable server = (Authenticatable) objectRegistry.lookup(MAIN_AUTHENTICATABLE);
+		Authenticatable server = (Authenticatable) objectRegistry.get(MAIN_AUTHENTICATABLE);
 
 		if (server.logout(entry, sessionId))
 		{

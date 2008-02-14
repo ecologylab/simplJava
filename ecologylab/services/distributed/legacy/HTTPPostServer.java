@@ -5,7 +5,7 @@ import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.xml.TranslationSpace;
 

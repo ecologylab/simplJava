@@ -34,7 +34,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import ecologylab.appframework.Scope;
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.appframework.types.prefs.MetaPrefBoolean;
@@ -44,6 +43,7 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.ValueChangedListener;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XMLTranslationException;
@@ -498,7 +498,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             JComponent jComponent)
     {
         // println("Registering: " + this.id+labelAndName);
-        jCatComponentsMap(mp).bind(mp.getID() + labelAndName,
+        jCatComponentsMap(mp).put(mp.getID() + labelAndName,
                 jComponent);
     }
 
@@ -706,7 +706,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
     {
         // println("Trying to fetch: " + labelAndName);
         JComponent jComponent = jCatComponentsMap(mp)
-                .lookup(labelAndName);
+                .get(labelAndName);
         return jComponent;
     }
 

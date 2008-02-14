@@ -3,7 +3,7 @@ package ecologylab.services.authentication.nio;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;

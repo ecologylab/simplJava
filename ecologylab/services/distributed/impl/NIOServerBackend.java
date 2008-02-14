@@ -21,7 +21,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import sun.misc.BASE64Encoder;
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.server.NIOServerFrontend;

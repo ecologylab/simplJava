@@ -10,7 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.util.LinkedList;
 import java.util.List;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;
@@ -148,7 +148,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 						+ portNumber, requestTranslationSpace), objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
 
-		this.registry.bind(MAIN_AUTHENTICATABLE, this);
+		this.registry.put(MAIN_AUTHENTICATABLE, this);
 
 		authenticator = new Authenticator(authList);
 	}

@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.Shutdownable;
 import ecologylab.xml.xml_inherit;
@@ -34,7 +34,7 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	/**
-	 * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.appframework.Scope,
+	 * @see ecologylab.services.messages.RequestMessage#performService(ecologylab.collections.Scope,
 	 *      java.lang.String)
 	 */
 	@Override public ResponseMessage performService(Scope objectRegistry,
@@ -43,7 +43,7 @@ import ecologylab.xml.xml_inherit;
 		try
 		{
 			Shutdownable s = (Shutdownable) objectRegistry
-					.lookup(MAIN_SHUTDOWNABLE);
+					.get(MAIN_SHUTDOWNABLE);
 
 			if (s != null)
 			{

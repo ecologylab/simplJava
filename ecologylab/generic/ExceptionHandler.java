@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 
 /**
  * An exception handler used for callbacks. 

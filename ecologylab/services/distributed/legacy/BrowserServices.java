@@ -4,7 +4,7 @@ package ecologylab.services.distributed.legacy;
 import java.io.IOException;
 
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.xml.TranslationSpace;

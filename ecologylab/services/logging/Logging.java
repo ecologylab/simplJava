@@ -15,9 +15,9 @@ import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 
 import ecologylab.appframework.Memory;
-import ecologylab.appframework.Scope;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.distributed.client.NIOClient;

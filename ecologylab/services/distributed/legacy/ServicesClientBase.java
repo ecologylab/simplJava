@@ -5,7 +5,7 @@ package ecologylab.services.distributed.legacy;
 
 import java.net.Socket;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.services.distributed.common.ClientConstants;

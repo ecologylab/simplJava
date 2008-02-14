@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -272,7 +272,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static Pref<?> lookupPref(String name)
     {
-        Pref<?> pref = allPrefsMap.lookup(name);
+        Pref<?> pref = allPrefsMap.get(name);
         return pref;
     }
     
@@ -451,7 +451,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static boolean hasPref(String name)
     {
-        return allPrefsMap.isBound(name);
+        return allPrefsMap.containsKey(name);
     }
 
     /**
@@ -460,7 +460,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     void register()
     {
-    	allPrefsMap.bind(this.name, this);
+    	allPrefsMap.put(this.name, this);
     }
     
     /**
@@ -472,7 +472,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
      */
     public static boolean containsKey(String key)
     {
-    	return allPrefsMap.isBound(key);
+    	return allPrefsMap.containsKey(key);
     }
 
     public String getName()

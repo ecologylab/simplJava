@@ -5,7 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.util.LinkedHashMap;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -455,7 +455,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     void register()
     {
-        allMetaPrefsMap.bind(this.id, this);
+        allMetaPrefsMap.put(this.id, this);
     }
     /**
      * Look up a MetaPref by name in the map of all MetaPrefs
@@ -466,7 +466,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public static MetaPref lookup(String id)
     {
-        MetaPref metaPref = allMetaPrefsMap.lookup(id);
+        MetaPref metaPref = allMetaPrefsMap.get(id);
         return metaPref;
     }
 

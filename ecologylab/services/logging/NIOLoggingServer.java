@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SelectionKey;
 
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;

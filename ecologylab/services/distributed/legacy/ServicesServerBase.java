@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 
 import sun.misc.BASE64Encoder;
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.Manager;
 import ecologylab.services.distributed.impl.ServerEvent;

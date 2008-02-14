@@ -3,7 +3,7 @@ package ecologylab.appframework.types;
 import java.awt.Color;
 
 import ecologylab.appframework.Environment;
-import ecologylab.appframework.Scope;
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.Palette;
@@ -119,7 +119,7 @@ import ecologylab.xml.types.element.ArrayListState;
 		// is there at least one child?
 /*		if (child != null)
 		{
- */			preferencesRegistry.bind(this.name, this);
+ */			preferencesRegistry.put(this.name, this);
 /*		}
 		else
 		{
@@ -138,7 +138,7 @@ import ecologylab.xml.types.element.ArrayListState;
 	 */
 	public static Preference lookup(String name)
 	{
-		Object lookupObject = preferencesRegistry().lookup(name);
+		Object lookupObject = preferencesRegistry().get(name);
 		//println("lookup(" + name + ") got " + lookupObject);
 		return (Preference) lookupObject;
 	}
