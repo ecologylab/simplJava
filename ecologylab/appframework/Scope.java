@@ -3,6 +3,8 @@ package ecologylab.appframework;
 import java.util.Collection;
 import java.util.HashMap;
 
+import ecologylab.generic.Debug;
+
 /**
  * A lexical Scope of bindings from names to values.
  * Lexical Scopes can be nested. However, bind operations are only performed on the current Scope.
@@ -10,7 +12,7 @@ import java.util.HashMap;
  * <p/>
  * These replace statics and are much more flexible.
  */
-public class Scope<T>
+public class Scope<T> extends Debug
 {
    /**
     * Map of bindings from names to values.
@@ -82,5 +84,18 @@ public class Scope<T>
     public Collection<String> keySet()
     {
     	return bindingsMap.keySet();
+    }
+    
+    /**
+     * Enable this Scope to inherit bindings from a parent.
+     * 
+     * @param parent
+     */
+    public void setParent(Scope<T> parent)
+    {
+    	if (this.parent != null)
+    		warning("Setting parent to " + parent + " but it was already " + this.parent);
+    	
+    	this.parent	= parent;
     }
 }
