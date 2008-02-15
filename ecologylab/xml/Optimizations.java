@@ -377,24 +377,6 @@ implements OptimizationTypes
 				{
 					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, isAttribute);
 					nodeToJavaOptimizationsMap.put(tag, result);
-
-					// look for other tags. if some were defined, bind them.
-					Field field	= result.field();
-					if (field != null)
-					{
-						ElementState.xml_other_tags tagAnnotation 	= field.getAnnotation(ElementState.xml_other_tags.class);
-						if (tagAnnotation != null)
-						{
-							String[] otherTags						= tagAnnotation.value();
-							if ((otherTags != null) && (otherTags.length > 0))
-							{
-								for (String otherTag : otherTags)
-								{
-									nodeToJavaOptimizationsMap.put(otherTag, result);
-								}
-							}
-						}
-					}
 				}
 			}
 		}
@@ -775,14 +757,16 @@ implements OptimizationTypes
 	{
 		for (Field thatField : themFields)
 		{
+			NodeToJavaOptimizations n2jo		= null;
 			ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(ElementState.xml_tag.class);
+			boolean isNested 					= thatField.isAnnotationPresent(ElementState.xml_nested.class);
 			if (tagAnnotation != null)
 			{
-				registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, tagAnnotation);
+				n2jo	= registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, tagAnnotation);
 			}
 			else
 			{
-				if (thatField.isAnnotationPresent(ElementState.xml_nested.class))
+				if (isNested)
 				{
 					ElementState.xml_classes classesAnnotation 	= thatField.getAnnotation(ElementState.xml_classes.class);
 					if (classesAnnotation != null)
@@ -800,15 +784,18 @@ implements OptimizationTypes
 						ElementState.xml_class classAnnotation 	= thatField.getAnnotation(ElementState.xml_class.class);
 						if (classAnnotation != null)
 						{
-							registerN2JOByClass(tspace, thatField, classAnnotation.value());
+							n2jo				= registerN2JOByClass(tspace, thatField, classAnnotation.value());
 						}
 					}
 				}
 			}
-			ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
-			if (otherTagsAnnotation != null)
+			if (isNested || (n2jo != null))
 			{
-				registerOtherTagsOptimizationsIfNeeded(isAttribute, tspace, thatField, otherTagsAnnotation);
+				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
+				if (otherTagsAnnotation != null)
+				{
+					registerOtherTagsOptimizationsIfNeeded(n2jo, isAttribute, tspace, thatField, otherTagsAnnotation);
+				}
 			}
 		}
 	}
@@ -821,12 +808,13 @@ implements OptimizationTypes
 	 * @param thatField
 	 * @param thatClass
 	 */
-	private void registerN2JOByClass(TranslationSpace tspace, Field thatField,
+	private NodeToJavaOptimizations registerN2JOByClass(TranslationSpace tspace, Field thatField,
 			Class thatClass)
 	{
 		NodeToJavaOptimizations n2jo	= 
 			new NodeToJavaOptimizations(tspace, this, thatField, thatClass);
 		nodeToJavaOptimizationsMap.put(n2jo.tag(), n2jo);
+		return n2jo;
 	}
 
 	/**
@@ -837,25 +825,26 @@ implements OptimizationTypes
 	 * @param tspace
 	 * @param thatField
 	 * @param tagAnnotation
-	 * @return	true if there was a mapping to register
+	 * 
+	 * @return	NodeToJavaOptimizations that was registered, or null.
 	 */
-	private boolean registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_tag tagAnnotation)
+	private NodeToJavaOptimizations registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_tag tagAnnotation)
 	{
-		String thatTag		= tagAnnotation.value();
-		final boolean result = (thatTag != null) && (thatTag.length() > 0);
-		if (result)
+		String thatTag					= tagAnnotation.value();
+		NodeToJavaOptimizations	result	= null;
+		if ((thatTag != null) && (thatTag.length() > 0))
 		{
-			NodeToJavaOptimizations n2jo	= nodeToJavaOptimizationsMap.get(thatTag);
-			if (n2jo == null)
+			result						= nodeToJavaOptimizationsMap.get(thatTag);
+			if (result == null)
 			{
-				n2jo		= new NodeToJavaOptimizations(tspace, this, thatField, thatTag, isAttribute);
-				nodeToJavaOptimizationsMap.put(thatTag, n2jo);
+				result					= new NodeToJavaOptimizations(tspace, this, thatField, thatTag, isAttribute);
+				nodeToJavaOptimizationsMap.put(thatTag, result);
 			}
 		}
 		return result;
 	}
 	
-	private boolean registerOtherTagsOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
+	private boolean registerOtherTagsOptimizationsIfNeeded(NodeToJavaOptimizations fieldN2jo, boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
 	{
 		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
 		final boolean result	= (otherTags != null);
@@ -863,10 +852,14 @@ implements OptimizationTypes
 		{
 			for (String otherTag : otherTags)
 			{
+				
 				NodeToJavaOptimizations n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
 				if (n2jo == null)
 				{
-					n2jo		= new NodeToJavaOptimizations(tspace, this, thatField, otherTag, isAttribute);
+					if (fieldN2jo != null)
+						n2jo					= fieldN2jo;
+					else
+						n2jo					= new NodeToJavaOptimizations(tspace, this, thatField, otherTag, isAttribute);
 					nodeToJavaOptimizationsMap.put(otherTag, n2jo);
 				}
 			}
@@ -898,10 +891,24 @@ implements OptimizationTypes
 		Class fieldClass			= thatField.getType();
 		if (Collection.class.isAssignableFrom(fieldClass))
 		{
+			HashMap<String, Field> collectionFieldsByTag = collectionFieldsByTag();
 			if ((tagFromAnnotation != null) && !"".equals(tagFromAnnotation))
 			{ 
 				//note! we *really* want to wait until here before we allocate storage for this HashMap!
-				collectionFieldsByTag().put(tagFromAnnotation, thatField);
+				collectionFieldsByTag.put(tagFromAnnotation, thatField);
+				
+				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
+				if (otherTagsAnnotation != null)
+				{
+					String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
+					for (String otherTag : otherTags)
+					{
+						if ((otherTag != null) && (otherTag.length() > 0))
+						{
+							collectionFieldsByTag.put(otherTag, thatField);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -915,7 +922,7 @@ implements OptimizationTypes
 						for (int i=0; i<classes.length; i++)
 						{
 							String	tagFromClass	= XMLTools.getXmlTagName(classes[i], "State");
-							collectionFieldsByTag().put(tagFromClass, thatField);
+							collectionFieldsByTag.put(tagFromClass, thatField);
 						}
 					}
 				}
