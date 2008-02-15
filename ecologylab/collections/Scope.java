@@ -14,18 +14,74 @@ public class Scope<T> extends HashMap<String, T>
 {
    private		Map<String, T>				parent;
    
+   /**
+    * Create a Scope with no parent, using default HashMap size and loadFactor.
+    */
    public Scope()
    {
 	   
    }
    
+   /**
+    * Create a lexical Scope, chained to a parent Scope for resolving lookup/get.
+    * Use the default HashMap size and loadFactor.
+    * 
+    * @param parent
+    */
    public Scope(Map<String, T> parent)
    {
 	   this.parent	= parent;
    }
 
    /**
-	 * Lookup an object in this.
+    * Create a Scope with no parent, using the specified HashMap size and default loadFactor.
+    * 
+    * @param size
+    */
+   public Scope(int size)
+   {
+	   super(size);
+   }
+
+   /**
+    * Create a lexical Scope, chained to a parent Scope for resolving lookup/get.
+    * Use the specified HashMap size and default loadFactor.
+    * 
+    * @param size
+    */
+   public Scope(Map<String, T> parent, int size)
+   {
+	   super(size);
+	   this.parent	= parent;
+  }
+
+   /**
+    * Create a Scope with no parent, using the specified HashMap size and loadFactor.
+    * 
+    * @param size
+    * @param loadFactor
+    */
+   public Scope(int size, float loadFactor)
+   {
+	   super(size, loadFactor);
+   }
+
+   /**
+    * Create a lexical Scope, chained to a parent Scope for resolving lookup/get.
+    * Use the specified HashMap size and loadFactor.
+    * 
+    * @param parent
+    * @param size
+    * @param loadFactor
+    */
+   public Scope(Map<String, T> parent, int size, float loadFactor)
+   {
+	   super(size, loadFactor);
+	   this.parent	= parent;
+   }
+
+   /**
+    * Lookup an object in this.
 	 * 
 	 * @param name
 	 * 
