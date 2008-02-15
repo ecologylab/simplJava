@@ -18,11 +18,13 @@ public class FieldAccessor extends Debug
 {
 	final Field				field;
 	final ScalarType<?>		scalarType;
+	final String			tagName;
 	
-	public FieldAccessor(Field field, ScalarType<?> scalarType)
+	public FieldAccessor(Field field, ScalarType<?> scalarType, String tagName)
 	{
 		this.field		= field;
 		this.scalarType	= scalarType;
+		this.tagName	= tagName;
 	}
 	
 	/**
@@ -77,9 +79,19 @@ public class FieldAccessor extends Debug
 	 * 
 	 * @return	The Java name of the field.
 	 */
-	public String fieldName()
+	public String getFieldName()
 	{
 		return field.getName();
 	}
+
+	/**
+	 * 
+	 * @return	The XML tag name of the field.
+	 */
+	public String getTagName()
+	{
+		return tagName;
+	}
+	
 }
 
