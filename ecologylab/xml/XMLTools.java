@@ -1133,4 +1133,12 @@ static String q(String string)
 		return 
 		  buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
 	}
+	
+	static String[] otherTags(ElementState.xml_other_tags otherTagsAnnotation)
+	{
+		String[]	result	= otherTagsAnnotation.value();
+		if ((result != null) && (result.length == 0))
+			result			= null;
+		return result;
+	}
 }

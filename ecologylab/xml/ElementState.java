@@ -2362,6 +2362,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
         String value();
     }
     
+    /**
+     * This optional metalanguage declaration is used to add extra tags to a field or class,
+     * in order to enable backwards compatability with a previous dialect of XML.
+     * It affects only translate from XML; translateToXML() never uses these entries.
+     * 
+     * @author andruid
+     */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
     public @interface xml_other_tags

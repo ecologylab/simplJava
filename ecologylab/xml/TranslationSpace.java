@@ -580,6 +580,22 @@ public final class TranslationSpace extends Debug
 
 		   this.thisClass			= thisClass;
 		   registerTranslation(tag, classSimpleName);
+
+		   if (thisClass != null)
+		   {
+			   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+			   if (otherTagsAnnotation != null)
+			   {
+				   String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
+				   for (String otherTag : otherTags)
+				   {
+					   if ((otherTag != null) && (otherTag.length() > 0))
+					   {
+						   entriesByTag.put(otherTag, this);
+					   }
+				   }
+			   }
+		   }
 	   }
 
 	   /**

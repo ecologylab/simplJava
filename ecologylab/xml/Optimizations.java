@@ -787,11 +787,11 @@ implements OptimizationTypes
 					ElementState.xml_classes classesAnnotation 	= thatField.getAnnotation(ElementState.xml_classes.class);
 					if (classesAnnotation != null)
 					{
-						Class thoseClasses[]	= classesAnnotation.value();
+						Class<? extends ElementState> thoseClasses[]	= classesAnnotation.value();
 						int length				= thoseClasses.length;
 						for (int i=0; i<length; i++)
 						{
-							Class thatClass		= thoseClasses[i];
+							Class<? extends ElementState> thatClass		= thoseClasses[i];
 							registerN2JOByClass(tspace, thatField, thatClass);
 						}
 					}
@@ -805,13 +805,11 @@ implements OptimizationTypes
 					}
 				}
 			}
-			// dont really need to look for these in this direction
-//			Class<?> thatClass	= thatField.getType();
-//			if (thatClass.isAnnotationPresent(xml_tag.class))
-//			{
-//				ElementState.xml_tag classTagAnnotation = thatClass.getAnnotation(xml_tag.class);
-//				this.registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, classTagAnnotation);
-//			}
+			ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
+			if (otherTagsAnnotation != null)
+			{
+				registerOtherTagsOptimizationsIfNeeded(isAttribute, tspace, thatField, otherTagsAnnotation);
+			}
 		}
 	}
 
@@ -852,6 +850,25 @@ implements OptimizationTypes
 			{
 				n2jo		= new NodeToJavaOptimizations(tspace, this, thatField, thatTag, isAttribute);
 				nodeToJavaOptimizationsMap.put(thatTag, n2jo);
+			}
+		}
+		return result;
+	}
+	
+	private boolean registerOtherTagsOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
+	{
+		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
+		final boolean result	= (otherTags != null);
+		if (result)
+		{
+			for (String otherTag : otherTags)
+			{
+				NodeToJavaOptimizations n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
+				if (n2jo == null)
+				{
+					n2jo		= new NodeToJavaOptimizations(tspace, this, thatField, otherTag, isAttribute);
+					nodeToJavaOptimizationsMap.put(otherTag, n2jo);
+				}
 			}
 		}
 		return result;
