@@ -90,21 +90,33 @@ public class Scope<T> extends HashMap<String, T>
 	 */
 	public T get(Object name)
 	{
-		T result = super.get(name);
-		return (result != null) ? result : ((parent != null) ? parent.get(name) : null);
+		T result	= super.get(name);
+		Map<String, T> operativeParent = parent;
+		return (result != null) ? result : ((operativeParent != null) ? operativeParent.get(name) : null);
 	}
     /**
-     * Enable this Scope to inherit bindings from a parent.
+     * Enable this Scope to inherit bindings from a parent, by setting the parent instance variable in this.
      * 
-     * @param parent
+     * @param newParent
      */
-    public void setParent(Map<String, T> parent)
+    public void setParent(Map<String, T> newParent)
     {
-    	if (this.parent != null)
-    		Debug.warning(this, "Setting parent to " + parent + " but it was already " + this.parent);
-    	
-    	this.parent	= parent;
+    	Map<String, T> thisParent = this.parent;
+		if (thisParent != null)
+    		Debug.warning(this, "Setting parent to " + newParent + " but it was already " + thisParent);
+
+    	this.parent		= newParent;
     }
     
+    /**
+     * The chained parent Map used for resolving lookup/get operations, if they cannot be resolved in this.
+     * 
+     * @return		The parent instance variable in this.
+     */
+    public Map<String, T> operativeParent()
+    {
+    	return this.parent;
+    }
+
 	private static final long serialVersionUID = 5840169416933494011L;
 }
