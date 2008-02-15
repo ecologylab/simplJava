@@ -10,6 +10,7 @@ import java.util.Map;
 import org.w3c.dom.Node;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ValueFactory;
 import ecologylab.xml.ElementState.xml_tag;
@@ -481,6 +482,33 @@ implements OptimizationTypes
 		for (Field elementField : elementFields)
 			result.add(elementField);
 		
+		return result;
+	}
+	
+	/**
+	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
+	 * 
+	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
+	 * (not its Java field name!) as the keys. Could be empty. Never null.
+	 */
+	public HashMapArrayList<String, FieldAccessor> getFieldAccessors()
+	{
+		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= attributeFieldOptimizations();
+		ArrayList<FieldToXMLOptimizations> elementF2XOs		= elementFieldOptimizations();
+		
+		HashMapArrayList<String, FieldAccessor> result		= new HashMapArrayList<String, FieldAccessor>(attributeF2XOs.size() + elementF2XOs.size());
+
+		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
+		{
+			FieldAccessor	fAccessor	= new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType());
+			result.put(attrF2XO.tagName(), fAccessor);
+		}
+		
+		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
+		{
+			FieldAccessor	fAccessor	= new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType());
+			result.put(elementF2XO.tagName(), fAccessor);
+		}
 		return result;
 	}
 	/**
