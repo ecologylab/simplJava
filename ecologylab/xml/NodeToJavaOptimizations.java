@@ -57,9 +57,9 @@ implements OptimizationTypes
 	 * object passed to the constructor. However, n the case of an XML Namespace, it may be the class
 	 * of a nested Namespace object.
 	 */
-	private Class				classOp;
+	private Class						classOp;
 	
-	private TranslationSpace	translationSpace;
+	private TranslationSpace			translationSpace;
 	
 	private NodeToJavaOptimizations		nestedPTE;
 	
