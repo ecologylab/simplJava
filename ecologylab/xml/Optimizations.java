@@ -377,6 +377,24 @@ implements OptimizationTypes
 				{
 					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, isAttribute);
 					nodeToJavaOptimizationsMap.put(tag, result);
+
+					// look for other tags. if some were defined, bind them.
+					Field field	= result.field();
+					if (field != null)
+					{
+						ElementState.xml_other_tags tagAnnotation 	= field.getAnnotation(ElementState.xml_other_tags.class);
+						if (tagAnnotation != null)
+						{
+							String[] otherTags						= tagAnnotation.value();
+							if ((otherTags != null) && (otherTags.length > 0))
+							{
+								for (String otherTag : otherTags)
+								{
+									nodeToJavaOptimizationsMap.put(otherTag, result);
+								}
+							}
+						}
+					}
 				}
 			}
 		}

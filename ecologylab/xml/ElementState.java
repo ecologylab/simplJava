@@ -2362,6 +2362,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
         String value();
     }
     
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_other_tags
+    {
+        String[] value();
+    }
+    
     /**
      * Supplementary metalanguage declaration that can be applied only to a field.
      * The argument is a single Class object.
