@@ -485,13 +485,46 @@ implements OptimizationTypes
 		return result;
 	}
 	
+	private HashMapArrayList<String, FieldAccessor>	fieldAccessors;
+	
+	/**
+	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
+	 * Use lazy evaluation to cache this value.
+	 * 
+	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
+	 * (not its Java field name!) as the keys. Could be empty. Never null.
+	 */
+	public HashMapArrayList<String, FieldAccessor> getFieldAccessors()
+	{
+		HashMapArrayList<String, FieldAccessor> result	= fieldAccessors;
+		if (result == null)
+		{
+			result				= createFieldAccessors();
+			this.fieldAccessors	= result;
+		}
+		return result;
+	}
+	
+	public static HashMapArrayList<String, FieldAccessor> getFieldAccessors(Class<? extends ElementState> thatClass)
+	{
+		Optimizations thatClassOptimizations	= lookupRootOptimizations(thatClass);
+		
+		HashMapArrayList<String, FieldAccessor> result	= null;
+		
+		if (thatClass != null)
+		{
+			result								= thatClassOptimizations.getFieldAccessors();
+		}
+		return result;
+	}
+
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
 	 * 
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	public HashMapArrayList<String, FieldAccessor> getFieldAccessors()
+	private HashMapArrayList<String, FieldAccessor> createFieldAccessors()
 	{
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= attributeFieldOptimizations();
 		ArrayList<FieldToXMLOptimizations> elementF2XOs		= elementFieldOptimizations();
@@ -500,14 +533,16 @@ implements OptimizationTypes
 
 		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
 		{
-			FieldAccessor	fAccessor	= new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType());
-			result.put(attrF2XO.tagName(), fAccessor);
+			String tagName 				= attrF2XO.tagName();
+			FieldAccessor	fAccessor	= new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType(), tagName);
+			result.put(tagName, fAccessor);
 		}
 		
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
 		{
-			FieldAccessor	fAccessor	= new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType());
-			result.put(elementF2XO.tagName(), fAccessor);
+			String tagName 				= elementF2XO.tagName();
+			FieldAccessor	fAccessor	= new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType(), tagName);
+			result.put(tagName, fAccessor);
 		}
 		return result;
 	}
