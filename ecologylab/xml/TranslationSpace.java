@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState.xml_tag;
@@ -274,18 +275,10 @@ public final class TranslationSpace extends Debug
    {
 	   if (inheritedTranslations != null)
 	   {
-		   for (TranslationEntry translationEntry: inheritedTranslations.entriesByClassSimpleName.values())
-		   {
-			   TranslationEntry existingEntry	= entriesByClassSimpleName.get(translationEntry.classSimpleName);
-
-               final boolean entryExists		= existingEntry != null;
-               final boolean newEntry			= existingEntry != translationEntry;
-               if (entryExists && newEntry)	// look out for redundant entries
-				   warning("Overriding with " + translationEntry);
-
-               if (!entryExists || newEntry)
-            	   addTranslation(translationEntry);
-		   }
+		   // copy map entries from inherited maps into new maps
+		   updateMapWithValues(inheritedTranslations.entriesByClassSimpleName, entriesByClassSimpleName, "classSimpleName");
+		   updateMapWithValues(inheritedTranslations.entriesByTag, entriesByTag, "tagName");
+		   
 		   HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslations.nameSpaceClassesByURN;
 		   if (inheritedNameSpaceClassesByURN != null)
 		   {
@@ -295,6 +288,42 @@ public final class TranslationSpace extends Debug
 			   }
 		   }
 	   }
+   }
+   
+   /**
+    * Update the Map with all the entries in the inherited Map.
+    * 
+    * @param inheritedMap
+ * @param warn
+    */
+   private void updateMapWithValues(Map<String, TranslationEntry> inheritedMap, Map<String, TranslationEntry> newMap, String warn)
+   {
+	   for (String key : inheritedMap.keySet())
+	   {
+		   TranslationEntry translationEntry	= inheritedMap.get(key);
+		   updateMapWithEntry(newMap, key, translationEntry, warn);
+	   }
+   }
+
+   /**
+    * Update the Map with the entry.
+    * 
+    * @param newMap
+    * @param key
+    * @param translationEntry
+    * @param warn
+    */
+   private void updateMapWithEntry(Map<String, TranslationEntry> newMap, String key, TranslationEntry translationEntry, String warn)
+   {
+	   TranslationEntry existingEntry	= newMap.get(key);
+
+	   final boolean entryExists		= existingEntry != null;
+	   final boolean newEntry			= existingEntry != translationEntry;
+	   if (entryExists && newEntry)	// look out for redundant entries
+		   warning("Overriding " + warn + " " + key + " with " + translationEntry);
+
+	   if (!entryExists || newEntry)
+		   newMap.put(key, translationEntry);
    }
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
@@ -320,11 +349,6 @@ public final class TranslationSpace extends Debug
 	   String classSimpleName		= thatClass.getSimpleName();
 	   TranslationEntry thatEntry	= entriesByClassSimpleName.get(classSimpleName);
 	   entriesByTag.put(alternativeXmlTag, thatEntry);
-   }
-   private void addTranslation(TranslationEntry translationEntry)
-   {
-	   this.entriesByTag.put(translationEntry.tag, translationEntry);
-	   this.entriesByClassSimpleName.put(translationEntry.classSimpleName, translationEntry);
    }
    
    /**
