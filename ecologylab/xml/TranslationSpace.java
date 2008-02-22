@@ -425,7 +425,7 @@ public final class TranslationSpace extends Debug
     * @param tag
     * @return
     */
-   Class<? extends ElementState> getClassByTag(String tag)
+   public Class<? extends ElementState> getClassByTag(String tag)
    {
 	   TranslationEntry entry		= entriesByTag.get(tag);
 	   
@@ -438,7 +438,7 @@ public final class TranslationSpace extends Debug
     * @param classSimpleName	Simple name of the class (no package).
     * @return
     */
-   Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
+   public Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
    {
 	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
 	   
@@ -453,7 +453,7 @@ public final class TranslationSpace extends Debug
     * @param thatClass
     * @return
     */
-   Class<? extends ElementState>  getClassBySimpleNameOfClass(Class<? extends ElementState> thatClass)
+   public Class<? extends ElementState>  getClassBySimpleNameOfClass(Class<? extends ElementState> thatClass)
    {
 	   return getClassBySimpleName(classSimpleName(thatClass));
    }
