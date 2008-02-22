@@ -14,7 +14,7 @@ package ecologylab.generic;
  * <code>delivery</code> method at some later point in time. Usually, the service provider
  * must guarantee that it will make such calls, even in cases of error.
  */
-public interface DispatchTarget
+public interface DispatchTarget<T>
 {
 	/**
 	 * Called, probably later asynchronously, when the requested service is complete.
@@ -22,6 +22,6 @@ public interface DispatchTarget
 	 * @param o -- enables an argument of any type to be passed back.
 	 */
    // notification to the Client that event id is complete
-   public void delivery(Object o);
+   public void delivery(T o);
 }
 
