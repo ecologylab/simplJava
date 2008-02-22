@@ -1192,7 +1192,8 @@ implements MimeType
 	
     
     // Set the URLConnection timeout a little smaller than our DownloadMonitor timeout.
-    public static final int TIMEOUT	= 25000 /*DownloadMonitor.TIMEOUT*/ - 2000;
+    public static final int CONNECT_TIMEOUT	= 6000;
+    public static final int READ_TIMEOUT	= 25000;
     
     /**
      * Create a connection, using the standard timeouts of 23 seconds, and the super-basic ConnectionAdapter,
@@ -1214,7 +1215,7 @@ implements MimeType
      */
     public PURLConnection connect(ConnectionHelper connectionHelper)
     {
-    	return connect(connectionHelper, ParsedURL.TIMEOUT, ParsedURL.TIMEOUT);
+    	return connect(connectionHelper, CONNECT_TIMEOUT, READ_TIMEOUT);
     }
  
     /**
@@ -1322,29 +1323,27 @@ implements MimeType
  	      }
  	      catch (SocketTimeoutException e)
  	      {
- 	    	  bad = true;
- 	    	  timeout = true;
- 	    	  println( e + ": from url=" + this.toString());
-// 	    	  e.printStackTrace();
+ 	    	  bad 			= true;
+ 	    	  timeout 		= true;
+ 	    	  error("connect() " + e);
  	      }
  	      catch (FileNotFoundException e)
  	      { 
- 			 bad			= true;
- 			 println("Can't open because FileNotFoundException: " + this);
- 	     }
+ 	    	  bad			= true;
+ 	    	  error("connect() " + e);
+ 	      }
  	      catch (IOException e)
  	      { 
- 			 bad			= true;
- 			 println("Can't open because " + e +" " + this);
- 		  }
+ 	    	  bad			= true;
+ 	    	  error("connect() " + e);
+ 	      }
  	      catch (Exception e)	   // catch all exceptions, including security
  	      { 
- 	      	bad				= true;
- 	      	println("connect() caught " + e);
- 	      	e.printStackTrace();
+ 	    	  bad				= true;
+ 	    	  error("connect() " + e);
  	      }
  	      return ((inStream == null) || bad)? null : new PURLConnection(connection, inStream);
-       } // end else network based URL
+     } // end else network based URL
 
        //TODO -- how are the headers (like ContentType) read?
        // is the inputStream really created automatically for us behind the scences???
