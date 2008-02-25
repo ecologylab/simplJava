@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.*;
 
 /**
  * Basic unit of the scalar type system.
