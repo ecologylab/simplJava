@@ -23,50 +23,61 @@ import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * Handles backend, low-level communication between distributed programs, using NIO. This is the basis for servers for
- * handling network communication.
+ * Handles backend, low-level communication between distributed programs, using
+ * NIO. This is the basis for servers for handling network communication.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public abstract class NIONetworking extends NIOCore
 {
-	/** ByteBuffer that holds all incoming communication temporarily, immediately after it is read. */
-	private ByteBuffer										readBuffer			= ByteBuffer.allocateDirect(MAX_PACKET_SIZE_BYTES);
+	/**
+	 * ByteBuffer that holds all incoming communication temporarily, immediately
+	 * after it is read.
+	 */
+	private ByteBuffer									readBuffer			= ByteBuffer
+																								.allocateDirect(MAX_PACKET_SIZE_BYTES);
 
 	/**
-	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers. Whenever a SocketChannel is marked for
-	 * writing, and comes up for writing, the server will write the set of ByteBuffers to the socket.
+	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers.
+	 * Whenever a SocketChannel is marked for writing, and comes up for writing,
+	 * the server will write the set of ByteBuffers to the socket.
 	 */
 	private Map<SelectionKey, Queue<ByteBuffer>>	pendingWrites		= new HashMap<SelectionKey, Queue<ByteBuffer>>();
 
-	protected boolean											shuttingDown		= false;
-
-	/** Space that defines mappings between xml names, and Java class names, for request messages. */
-	protected TranslationSpace								translationSpace;
-
-	/** Provides a context for request processing. */
-	protected Scope<?>							objectRegistry;
-
-	protected int												connectionCount	= 0;
-
-	protected ByteBufferPool								byteBufferPool;
+	protected boolean										shuttingDown		= false;
 
 	/**
-	 * Creates a Services Server Base. Sets internal variables, but does not bind the port. Port binding is to be handled
-	 * by sublcasses.
+	 * Space that defines mappings between xml names, and Java class names, for
+	 * request messages.
+	 */
+	protected TranslationSpace							translationSpace;
+
+	/** Provides a context for request processing. */
+	protected Scope<?>									objectRegistry;
+
+	protected int											connectionCount	= 0;
+
+	protected ByteBufferPool							byteBufferPool;
+
+	/**
+	 * Creates a Services Server Base. Sets internal variables, but does not bind
+	 * the port. Port binding is to be handled by sublcasses.
 	 * 
 	 * @param portNumber
 	 *           the port number to use for communicating.
 	 * @param translationSpace
-	 *           the TranslationSpace to use for incoming messages; if this is null, uses DefaultServicesTranslations
-	 *           instead.
+	 *           the TranslationSpace to use for incoming messages; if this is
+	 *           null, uses DefaultServicesTranslations instead.
 	 * @param objectRegistry
-	 *           Provides a context for request processing; if this is null, creates a new ObjectRegistry.
+	 *           Provides a context for request processing; if this is null,
+	 *           creates a new ObjectRegistry.
 	 * @throws IOException
-	 *            if an I/O error occurs while trying to open a Selector from the system.
+	 *            if an I/O error occurs while trying to open a Selector from the
+	 *            system.
 	 */
-	protected NIONetworking(String networkIdentifier, int portNumber, TranslationSpace translationSpace,
-			Scope<?> objectRegistry) throws IOException
+	protected NIONetworking(String networkIdentifier, int portNumber,
+			TranslationSpace translationSpace, Scope<?> objectRegistry)
+			throws IOException
 	{
 		super(networkIdentifier, portNumber);
 
@@ -86,7 +97,8 @@ public abstract class NIONetworking extends NIOCore
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#readReady(java.nio.channels.SelectionKey)
 	 */
-	@Override protected void readReady(SelectionKey key) throws ClientOfflineException, BadClientException
+	@Override protected void readReady(SelectionKey key)
+			throws ClientOfflineException, BadClientException
 	{
 		readKey(key);
 	}
@@ -100,8 +112,9 @@ public abstract class NIONetworking extends NIOCore
 	}
 
 	/**
-	 * Queue up bytes to send on a particular socket. This method is typically called by some outside context manager,
-	 * that has produced an encoded message to send out.
+	 * Queue up bytes to send on a particular socket. This method is typically
+	 * called by some outside context manager, that has produced an encoded
+	 * message to send out.
 	 * 
 	 * @param socketKey
 	 * @param data
@@ -128,13 +141,14 @@ public abstract class NIONetworking extends NIOCore
 	}
 
 	/**
-	 * Reads all the data from the key into the readBuffer, then pushes that information to the action processor for
-	 * processing.
+	 * Reads all the data from the key into the readBuffer, then pushes that
+	 * information to the action processor for processing.
 	 * 
 	 * @param key
 	 * @throws BadClientException
 	 */
-	private final void readKey(SelectionKey key) throws BadClientException, ClientOfflineException
+	private final void readKey(SelectionKey key) throws BadClientException,
+			ClientOfflineException
 	{
 		SocketChannel sc = (SocketChannel) key.channel();
 		int bytesRead;
@@ -148,7 +162,8 @@ public abstract class NIONetworking extends NIOCore
 		}
 		catch (BufferOverflowException e)
 		{
-			throw new BadClientException(sc.socket().getInetAddress().getHostAddress(), "Client overflowed the buffer.");
+			throw new BadClientException(sc.socket().getInetAddress()
+					.getHostAddress(), "Client overflowed the buffer.");
 		}
 		catch (IOException e)
 		{ // error trying to read; client disconnected
@@ -204,8 +219,9 @@ public abstract class NIONetworking extends NIOCore
 	/**
 	 * Optional operation.
 	 * 
-	 * Called when a key has been marked for accepting. This method should be implemented by servers, but clients should
-	 * leave this blank, unless they are also acting as servers (accepting incoming connections).
+	 * Called when a key has been marked for accepting. This method should be
+	 * implemented by servers, but clients should leave this blank, unless they
+	 * are also acting as servers (accepting incoming connections).
 	 * 
 	 * @param key
 	 * @throws OperationNotSupportedException
@@ -224,9 +240,11 @@ public abstract class NIONetworking extends NIOCore
 	}
 
 	/**
-	 * This method is called whenever bytes have been read from a socket. There is no guaranty that the bytes will be a
-	 * valid or complete message, nor is there a guaranty about what said bytes encode. Implementations should be
-	 * prepared to handle incomplete messages, multiple messages, or malformed messages in this method.
+	 * This method is called whenever bytes have been read from a socket. There
+	 * is no guaranty that the bytes will be a valid or complete message, nor is
+	 * there a guaranty about what said bytes encode. Implementations should be
+	 * prepared to handle incomplete messages, multiple messages, or malformed
+	 * messages in this method.
 	 * 
 	 * @param sessionId
 	 *           the id being use for this session.
@@ -237,15 +255,16 @@ public abstract class NIONetworking extends NIOCore
 	 * @param bytesRead
 	 *           the number of bytes in the bytes array.
 	 * @throws BadClientException
-	 *            if the client from which the bytes were read has transmitted something inappropriate, such as data too
-	 *            large for a buffer or a possibly malicious message.
+	 *            if the client from which the bytes were read has transmitted
+	 *            something inappropriate, such as data too large for a buffer or
+	 *            a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionId, SelectionKey sk, ByteBuffer bytes, int bytesRead)
-			throws BadClientException;
+	protected abstract void processReadData(Object sessionId, SelectionKey sk,
+			ByteBuffer bytes, int bytesRead) throws BadClientException;
 
 	/**
-	 * This defines the actions that server needs to perform when the client ends unexpected way. Detail implementations
-	 * will be in subclasses.
+	 * This defines the actions that server needs to perform when the client ends
+	 * unexpected way. Detail implementations will be in subclasses.
 	 */
 	protected void terminationAction()
 	{
@@ -253,8 +272,9 @@ public abstract class NIONetworking extends NIOCore
 	}
 
 	/**
-	 * Retrieves a ByteBuffer object from this's pool of ByteBuffers. Typically used by a ContextManager to store bytes
-	 * that will be later enqueued to write (and thus released by that method).
+	 * Retrieves a ByteBuffer object from this's pool of ByteBuffers. Typically
+	 * used by a ContextManager to store bytes that will be later enqueued to
+	 * write (and thus released by that method).
 	 * 
 	 * @return
 	 */

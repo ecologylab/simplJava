@@ -46,6 +46,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public ResponseMessage performService(Scope localScope)
 	{
+		debug("*************************** LOGOUT "+this.entry.getUsername());
 		Authenticatable server = (Authenticatable) localScope.get(MAIN_AUTHENTICATABLE);
 		String sessionId = (String) localScope.get(AbstractClientManager.SESSION_ID);
 		

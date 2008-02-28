@@ -115,9 +115,11 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 							}
 							break;
 						case INVALIDATE_PERMANENTLY:
+							debug(">>>>>>>>>>>>>>>> invalidating permanently: "+changeReq.key.attachment());
 							invalidateKey(changeReq.key, true);
 							break;
 						case INVALIDATE_TEMPORARILY:
+							debug(">>>>>>>>>>>>>>>> invalidating temporarily: "+changeReq.key.attachment());
 							invalidateKey(changeReq.key, false);
 							break;
 						}
@@ -173,7 +175,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 								}
 								catch (ClientOfflineException e)
 								{
-									error(e.getMessage());
+									warning(e.getMessage());
 									setPendingInvalidate(key, false);
 								}
 								catch (BadClientException e)

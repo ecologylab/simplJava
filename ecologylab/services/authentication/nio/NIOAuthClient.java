@@ -15,6 +15,7 @@ import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.distributed.client.NIOClient;
+import ecologylab.services.messages.DisconnectRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
@@ -151,11 +152,9 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * 
 	 * @throws IOException
 	 */
-	public boolean logout() throws IOException
+	protected boolean logout() throws IOException
 	{
-		/*
-		 * if we have an entry (username + password), then we can try to logout of the server.
-		 */
+		// if we have an entry (username + password), then we can try to logout of the server.
 		if (entry != null)
 		{
 			loggingIn = false;
@@ -236,5 +235,21 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 			return ((BooleanSlot) objectRegistry.get(LOGIN_STATUS)).value;
 		
         return false;
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.client.NIOClient#handleDisconnectingMessages()
+	 */
+	@Override protected void handleDisconnectingMessages()
+	{
+		try
+		{
+			this.logout();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

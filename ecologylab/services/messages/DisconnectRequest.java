@@ -22,6 +22,7 @@ import ecologylab.xml.xml_inherit;
  */
 @xml_inherit public class DisconnectRequest extends RequestMessage
 {
+	public static final DisconnectRequest	RESUABLE_INSTANCE	= new DisconnectRequest();
 
 	/**
 	 * 
@@ -47,24 +48,26 @@ import ecologylab.xml.xml_inherit;
 	public static void main(String[] args) throws BindException,
 			UnknownHostException, IOException
 	{
-		DoubleThreadedNIOServer server = DoubleThreadedNIOServer.getInstance(10000,
-				InetAddress.getLocalHost(), DefaultServicesTranslations.get(),
-				new Scope(), 9999, 99999);
+		DoubleThreadedNIOServer server = DoubleThreadedNIOServer.getInstance(
+				10000, InetAddress.getLocalHost(), DefaultServicesTranslations
+						.get(), new Scope(), 9999, 99999);
 
 		server.start();
-		
+
 		System.err.println("c1 instantiate");
-		NIOClient c1 = new NIOClient("128.194.147.181", 10000, DefaultServicesTranslations.get(), new Scope());
+		NIOClient c1 = new NIOClient("128.194.147.181", 10000,
+				DefaultServicesTranslations.get(), new Scope());
 
 		System.err.println("c1 connect");
 		c1.connect();
-		
+
 		System.err.println("c2 instantiate");
-		NIOClient c2 = new NIOClient("128.194.147.181", 10000, DefaultServicesTranslations.get(), new Scope());
+		NIOClient c2 = new NIOClient("128.194.147.181", 10000,
+				DefaultServicesTranslations.get(), new Scope());
 
 		System.err.println("c2 connect");
 		c2.connect();
-		
+
 		System.err.println("c1 disconnect");
 		c1.sendMessage(new DisconnectRequest());
 

@@ -221,6 +221,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 
 		if (logoutSuccess)
 		{
+			debug(entry.getUsername() + " has been logged out.");
 			fireLogoutEvent(entry.getUsername(), sessionId);
 		}
 

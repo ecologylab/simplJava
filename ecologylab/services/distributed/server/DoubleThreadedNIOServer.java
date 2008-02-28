@@ -3,7 +3,6 @@
  */
 package ecologylab.services.distributed.server;
 
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
@@ -20,9 +19,8 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.impl.NIOServerBase;
-import ecologylab.services.distributed.impl.Shutdownable;
+import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.exceptions.BadClientException;
