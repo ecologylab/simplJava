@@ -166,7 +166,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 		try
 		{
 			return new AuthClientManager(sessionId, maxPacketSize, getBackend(),
-					this, sk, translationSpace, registry, this);
+					this, sk, translationSpace, registry, this, authenticator);
 		}
 		catch (ClassCastException e)
 		{
@@ -214,6 +214,18 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 		}
 	}
 
+	/**
+	 * Force logout of an entry; do not require the session id.
+	 * @param entry
+	 * @return
+	 */
+	protected boolean logout(A entry)
+	{
+		Object sessionId = authenticator.getSessionId(entry);
+		
+		return this.logout(entry, (String) sessionId);
+	}
+	
 	public boolean logout(A entry, String sessionId)
 	{
 		boolean logoutSuccess = authenticator.logout(entry, sessionId);

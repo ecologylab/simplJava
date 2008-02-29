@@ -9,24 +9,26 @@ import java.util.Set;
 import ecologylab.generic.Debug;
 
 /**
- * Encapsulates all authentication actions, so that Servers don't need to. Requires a backend database of users with
- * passwords (an AuthenticationList).
+ * Encapsulates all authentication actions, so that Servers don't need to.
+ * Requires a backend database of users with passwords (an AuthenticationList).
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Authenticator<A extends AuthenticationListEntry> extends Debug
 {
-	protected AuthenticationList<A>			authList			= new AuthenticationList<A>();
+	protected AuthenticationList<A>	authList						= new AuthenticationList<A>();
 
 	private HashMap<String, Object>	authedNameToSessionId	= new HashMap<String, Object>();
 
 	private HashMap<Object, String>	authedSessionIdToName	= new HashMap<Object, String>();
 
 	/**
-	 * Creates a new Authenticator using the given AuthenticationList as a backend database of usernames and passwords.
+	 * Creates a new Authenticator using the given AuthenticationList as a
+	 * backend database of usernames and passwords.
 	 * 
 	 * @param source -
-	 *           the AuthenticationList of usernames and passwords to use for authentication.
+	 *           the AuthenticationList of usernames and passwords to use for
+	 *           authentication.
 	 */
 	public Authenticator(AuthenticationList<A> source)
 	{
@@ -34,19 +36,16 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	}
 
 	/**
-	 * Attempts to log-in the given AuthenticationListEntry object. In order for it to be authenticated, the following
-	 * MUST be true:
-	 * 
-	 * 1.) authList must contain a username entry that matches entry.getUsername().
-	 * 
-	 * 2.) the entry in authList that matches the username MUST have an identical hashed password.
-	 * 
-	 * 3.) the username must not already be contained in authedClientsIdToKey (i.e., the username must not already be
-	 * logged in).
+	 * Attempts to log-in the given AuthenticationListEntry object. In order for
+	 * it to be authenticated, the following MUST be true: 1.) authList must
+	 * contain a username entry that matches entry.getUsername(). 2.) the entry
+	 * in authList that matches the username MUST have an identical hashed
+	 * password. 3.) the username must not already be contained in
+	 * authedClientsIdToKey (i.e., the username must not already be logged in).
 	 * 
 	 * @param entry -
-	 *           the AuthenticationListEntry containing a username and password that is attempting to authenticate.
-	 * 
+	 *           the AuthenticationListEntry containing a username and password
+	 *           that is attempting to authenticate.
 	 * @return
 	 */
 	public boolean login(A entry, String sessionId)
@@ -89,17 +88,20 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 		}
 		else
 		{
-			debug("username: " + entry.getUsername() + " does not exist in authentication list.");
+			debug("username: " + entry.getUsername()
+					+ " does not exist in authentication list.");
 		}
 
 		return loggedInSuccessfully;
 	}
 
 	/**
-	 * Looks up the authentication level, if any, of entry. Returns -1 if entry is not authenticatable on this.
+	 * Looks up the authentication level, if any, of entry. Returns -1 if entry
+	 * is not authenticatable on this.
 	 * 
 	 * @param entry -
-	 *           an instance of a subclass of AuthenticationListEntry with a username and password.
+	 *           an instance of a subclass of AuthenticationListEntry with a
+	 *           username and password.
 	 * @return
 	 */
 	public int verifyCredentials(A entry)
@@ -119,7 +121,8 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	 * 
 	 * @param administrator -
 	 *           the username and password of an administrator.
-	 * @return if administrator is valid, an ArrayList<String> of usernames for users that are logged-in; else null.
+	 * @return if administrator is valid, an ArrayList<String> of usernames for
+	 *         users that are logged-in; else null.
 	 */
 	public Set<String> usersLoggedIn(A administrator)
 	{
@@ -134,8 +137,8 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	}
 
 	/**
-	 * Removes the given username from all authenticated client lists if the IP address matches the one currently stored
-	 * for the entry.
+	 * Removes the given username from all authenticated client lists if the IP
+	 * address matches the one currently stored for the entry.
 	 * 
 	 * @param entry
 	 */
@@ -143,7 +146,8 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	{
 		try
 		{
-			if (entry.getUsername().equals(this.authedSessionIdToName.get(sessionId)))
+			if (entry.getUsername().equals(
+					this.authedSessionIdToName.get(sessionId)))
 			{
 				remove(entry.getUsername());
 				return true;
@@ -158,6 +162,11 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public Object getSessionId(A entry)
+	{
+		return this.authedNameToSessionId.get(entry.getUsername());
 	}
 
 	/**
@@ -195,5 +204,10 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	{
 		this.authedSessionIdToName.put(sessionId, username);
 		this.authedNameToSessionId.put(username, sessionId);
+	}
+
+	public boolean sessionValid(Object sessionId)
+	{
+		return this.authedSessionIdToName.containsKey(sessionId);
 	}
 }

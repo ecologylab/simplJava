@@ -310,8 +310,9 @@ implements Downloadable, DispatchTarget
 			}
 		} catch(IOException e)
 		{
-			System.out.println("Error, zip file not found on the server!");
-			e.printStackTrace();
+			System.err.println("Error, zip file not found on the server!");
+			// hiding stack trace -- it's annoying.
+			//			e.printStackTrace();
 			return null;
 		}      
 	}
