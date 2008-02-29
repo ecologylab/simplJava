@@ -5,7 +5,7 @@ import java.nio.channels.SelectionKey;
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.NIOServerFrontend;
+import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationSpace;
@@ -35,7 +35,7 @@ public class ClientManager extends AbstractClientManager implements ServerConsta
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public ClientManager(Object sessionId, int maxPacketSize, NIOServerIOThread server, NIOServerFrontend frontend,
+	public ClientManager(Object sessionId, int maxPacketSize, NIOServerIOThread server, NIOServerProcessor frontend,
 			SelectionKey socketKey, TranslationSpace translationSpace, Scope<?> registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);

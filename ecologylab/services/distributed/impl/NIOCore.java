@@ -115,11 +115,13 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 							}
 							break;
 						case INVALIDATE_PERMANENTLY:
-							debug(">>>>>>>>>>>>>>>> invalidating permanently: "+changeReq.key.attachment());
+							debug(">>>>>>>>>>>>>>>> invalidating permanently: "
+									+ changeReq.key.attachment());
 							invalidateKey(changeReq.key, true);
 							break;
 						case INVALIDATE_TEMPORARILY:
-							debug(">>>>>>>>>>>>>>>> invalidating temporarily: "+changeReq.key.attachment());
+							debug(">>>>>>>>>>>>>>>> invalidating temporarily: "
+									+ changeReq.key.attachment());
 							invalidateKey(changeReq.key, false);
 							break;
 						}
@@ -157,6 +159,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 
 						if (!key.isValid())
 						{
+							debug("invalid key");
 							setPendingInvalidate(key, false);
 						}
 						else if (key.isReadable())
@@ -308,14 +311,21 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 	/**
 	 * Sets up a pending invalidate command for the given input.
 	 * 
-	 * @param chan -
-	 *           the SocketChannel to invalidate.
+	 * @param key
+	 *           the key to invalidate
+	 * @param forcePermanent
+	 *           ignore any settings for the client and invalidate permanently no
+	 *           matter what
 	 */
-	public void setPendingInvalidate(SelectionKey key, boolean permanent)
+	public void setPendingInvalidate(SelectionKey key, boolean forcePermanent)
 	{
+		// allow subclass processing of the key being invalidated, and find out if
+		// it should be permanent
+		boolean permanent = this.handleInvalidate(key, forcePermanent);
+
 		SocketModeChangeRequest req = this.mReqPool.acquire();
 		req.key = key;
-		req.type = (permanent ? SocketModeChangeRequestType.INVALIDATE_PERMANENTLY
+		req.type = ((forcePermanent ? true : permanent) ? SocketModeChangeRequestType.INVALIDATE_PERMANENTLY
 				: SocketModeChangeRequestType.INVALIDATE_TEMPORARILY);
 
 		synchronized (pendingSelectionOpChanges)
@@ -325,6 +335,20 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 
 		selector.wakeup();
 	}
+
+	/**
+	 * Checks the key to see what type of invalidation it should be (permanent,
+	 * or temporary) and handles any housecleaning associated with invalidating
+	 * that key.
+	 * 
+	 * @param key -
+	 *           the key
+	 * @param forcePermanent
+	 * @return true if the key should be invalidated permanently, or false
+	 *         otherwise
+	 */
+	protected abstract boolean handleInvalidate(SelectionKey key,
+			boolean forcePermanent);
 
 	/**
 	 * Shut down the connection associated with this SelectionKey. Subclasses
@@ -350,10 +374,10 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 		}
 
 		if (chan.keyFor(selector) != null)
-		{ // it's possible that they key
-			// was somehow disposed of
-			// already,
-			// perhaps it was already invalidated once
+		{ /*
+			 * it's possible that they key was somehow disposed of already, perhaps
+			 * it was already invalidated once
+			 */
 			chan.keyFor(selector).cancel();
 		}
 	}
@@ -384,6 +408,8 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 	public synchronized void stop()
 	{
 		running = false;
+
+		this.selector.wakeup();
 
 		this.close();
 

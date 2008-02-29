@@ -207,7 +207,6 @@ public class NIOClient extends NIONetworking implements Runnable,
 		debug("initializing connection...");
 		if (this.connectImpl())
 		{
-
 			debug("starting listener thread...");
 			this.start();
 
@@ -219,10 +218,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 			{
 				if (this.sessionId == null)
 				{
-					debug("new session...");
 					this.sessionId = ((InitConnectionResponse) initResponse)
 							.getSessionId();
-					debug(this.sessionId);
+
+					debug("new session: " + this.sessionId);
 				}
 				else if (this.sessionId == ((InitConnectionResponse) initResponse)
 						.getSessionId())
@@ -239,6 +238,8 @@ public class NIOClient extends NIONetworking implements Runnable,
 					this.unableToRestorePreviousConnection(this.sessionId, newId);
 					this.sessionId = newId;
 				}
+
+				this.thisSocket.keyFor(this.selector).attach(this.sessionId);
 			}
 		}
 
@@ -352,30 +353,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 					this.handleDisconnectingMessages();
 					this.sessionId = null;
 				}
-
-				if (thisSocket != null)
-				{
-					synchronized (thisSocket)
-					{
-						debug("***** shutting down output.");
-						// shut down output
-						thisSocket.socket().shutdownOutput();
-
-						debug("***** shutting down input.");
-						// now that there's nothing coming back, shut down input
-						thisSocket.socket().shutdownInput();
-
-						debug("****** close down all.");
-						// close it all out
-						thisSocket.close();
-						thisSocket.keyFor(selector).cancel();
-					}
-				}
 			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
 		}
 		finally
 		{
@@ -391,6 +369,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 */
 	protected void handleDisconnectingMessages()
 	{
+		debug("************** sending disconnect request");
 		this.sendMessage(DisconnectRequest.RESUABLE_INSTANCE, 10000);
 	}
 
@@ -643,7 +622,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 
 	@Override public void stop()
 	{
-		System.err.println("shutting down client listening thread.");
+		debug("shutting down client listening thread.");
 
 		super.stop();
 	}
@@ -810,7 +789,6 @@ public class NIOClient extends NIONetworking implements Runnable,
 		catch (ClosedChannelException e)
 		{
 			debug("connection severed; disconnecting and storing requests...");
-			this.disconnect(false);
 
 			this.reconnect();
 		}
@@ -945,8 +923,14 @@ public class NIOClient extends NIONetworking implements Runnable,
 	@Override protected void invalidateKey(SelectionKey key, boolean permanent)
 	{
 		debug("server disconnected...");
-		this.disconnect(false);
-		this.reconnect();
+
+		// clean up
+		this.invalidateKey((SocketChannel) key.channel());
+		
+		if (!permanent)
+		{
+			this.reconnect();
+		}
 	}
 
 	/**
@@ -1354,5 +1338,11 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 */
 	@Override public void acceptFinished(SelectionKey key)
 	{
+	}
+
+	@Override protected boolean handleInvalidate(SelectionKey key,
+			boolean forcePermanent)
+	{
+		return true;
 	}
 }

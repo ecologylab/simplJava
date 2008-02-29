@@ -19,7 +19,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.impl.NIOServerBase;
+import ecologylab.services.distributed.impl.AbstractNIOServer;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
@@ -38,67 +38,66 @@ import ecologylab.xml.TranslationSpace;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedNIOServer extends NIOServerBase implements
+public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 		ServerConstants
 {
 	protected static InetAddress[] addressToAddresses(InetAddress address)
 	{
-		InetAddress[] addresses = new InetAddress[1];
-		addresses[0] = address;
-		
+		InetAddress[] addresses =
+		{ address };
 		return addresses;
 	}
-	
+
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize) throws IOException, BindException
+			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
+			throws IOException, BindException
 	{
 		return new DoubleThreadedNIOServer(portNumber, inetAddress,
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				requestTranslationSpace, globalScope, idleConnectionTimeout,
 				maxPacketSize);
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
 			InetAddress inetAddress, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize) throws IOException, BindException
+			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
+			throws IOException, BindException
 	{
 		InetAddress[] address =
 		{ inetAddress };
 		return getInstance(portNumber, address, requestTranslationSpace,
-				objectRegistry, idleConnectionTimeout, maxPacketSize);
+				globalScope, idleConnectionTimeout, maxPacketSize);
 	}
 
-	Thread												t					= null;
+	Thread											t					= null;
 
-	boolean												running			= false;
+	boolean											running			= false;
 
 	HashMap<Object, AbstractClientManager>	contexts			= new HashMap<Object, AbstractClientManager>();
 
-	private static CharsetDecoder					DECODER			= Charset
-																						.forName(
-																								CHARACTER_ENCODING)
-																						.newDecoder();
+	private static CharsetDecoder				DECODER			= Charset
+																					.forName(
+																							CHARACTER_ENCODING)
+																					.newDecoder();
 
-	protected int										maxPacketSize;
+	protected int									maxPacketSize;
 
 	/**
 	 * CharBuffers for use with translating from bytes to chars; may need to
 	 * support having many messages come through at once.
 	 */
-	private CharBufferPool							charBufferPool	= new CharBufferPool(
-																						MAX_PACKET_SIZE_CHARACTERS * 3);
+	private CharBufferPool						charBufferPool	= new CharBufferPool(
+																					MAX_PACKET_SIZE_CHARACTERS * 3);
 
 	/**
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
 			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize) throws IOException, BindException
+			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
+			throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
+		super(portNumber, inetAddresses, requestTranslationSpace, globalScope,
 				idleConnectionTimeout);
 
 		this.maxPacketSize = maxPacketSize;
@@ -108,12 +107,12 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize) throws IOException, BindException
+			TranslationSpace requestTranslationSpace, Scope globalScope,
+			int idleConnectionTimeout, int maxPacketSize) throws IOException,
+			BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				requestTranslationSpace, globalScope, idleConnectionTimeout,
 				maxPacketSize);
 	}
 
@@ -138,7 +137,7 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 					debug("server creating context manager for " + sessionId);
 
 					cm = generateContextManager(sessionId, sk, translationSpace,
-							registry);
+							globalScope);
 					contexts.put(sessionId, cm);
 				}
 
@@ -271,13 +270,20 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.NIOServerFrontend#invalidate(java.lang.Object,
+	 * @see ecologylab.services.distributed.server.NIOServerProcessor#invalidate(java.lang.Object,
 	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
 	 *      java.nio.channels.SocketChannel)
 	 */
-	public AbstractClientManager invalidate(Object sessionId, boolean permanent)
+	public boolean invalidate(Object sessionId, boolean forcePermanent)
 	{
-		AbstractClientManager cm;
+		AbstractClientManager cm = contexts.get(sessionId);
+
+		// figure out if the disconnect is permanent; will be permanent if forcing
+		// (usually bad client), if there is no context manager (client never sent
+		// data), or if the client manager says it is invalidating (client
+		// disconnected properly)
+		boolean permanent = (forcePermanent ? true : (cm == null ? true : cm
+				.isInvalidating()));
 
 		// get the context manager...
 		if (permanent)
@@ -285,35 +291,23 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 			synchronized (contexts)
 			{ // ...if this session will not be restored, remove the context
 				// manager
-				cm = contexts.remove(sessionId);
-			}
-		}
-		else
-		{
-			synchronized (contexts)
-			{ // ...if this session may be restored, just get the context manager
-				cm = contexts.get(sessionId);
+				contexts.remove(sessionId);
 			}
 		}
 
 		if (cm != null)
-		{ // finish what the context manager was working on
-			while (cm.isMessageWaiting())
-			{
-				try
-				{
-					cm.processAllMessagesAndSendResponses();
-				}
-				catch (BadClientException e)
-				{
-					e.printStackTrace();
-				}
-			}
-
+		{
+			/*
+			 * if we've gotten here, then the client has disconnected already, no
+			 * reason to deal w/ the remaining messages // finish what the context
+			 * manager was working on while (cm.isMessageWaiting()) { try {
+			 * cm.processAllMessagesAndSendResponses(); } catch (BadClientException
+			 * e) { e.printStackTrace(); } }
+			 */
 			cm.shutdown();
 		}
 
-		return cm;
+		return permanent;
 	}
 
 	/**
@@ -366,6 +360,6 @@ public class DoubleThreadedNIOServer extends NIOServerBase implements
 	@Override protected void shutdownImpl()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 }

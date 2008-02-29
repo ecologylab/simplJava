@@ -24,7 +24,7 @@ import sun.misc.BASE64Encoder;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.server.NIOServerFrontend;
+import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationSpace;
 
@@ -41,7 +41,7 @@ import ecologylab.xml.TranslationSpace;
 public class NIOServerIOThread extends NIONetworking implements ServerConstants
 {
 	static NIOServerIOThread getInstance(int portNumber,
-			InetAddress[] hostAddresses, NIOServerFrontend sAP,
+			InetAddress[] hostAddresses, NIOServerProcessor sAP,
 			TranslationSpace requestTranslationSpace, Scope<?> objectRegistry,
 			int idleSocketTimeout) throws IOException, BindException
 	{
@@ -51,7 +51,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 	protected ServerSocket[]												incomingConnectionSockets;
 
-	private NIOServerFrontend												sAP;
+	private NIOServerProcessor												sAP;
 
 	private int																	idleSocketTimeout;
 
@@ -68,7 +68,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	private InetAddress[]													hostAddresses;
 
 	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses,
-			NIOServerFrontend sAP, TranslationSpace requestTranslationSpace,
+			NIOServerProcessor sAP, TranslationSpace requestTranslationSpace,
 			Scope<?> objectRegistry, int idleSocketTimeout) throws IOException,
 			BindException
 	{
@@ -78,7 +78,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	private void construct(InetAddress[] newHostAddresses,
-			NIOServerFrontend newFrontend, int newIdleSocketTimeout)
+			NIOServerProcessor newFrontend, int newIdleSocketTimeout)
 			throws IOException
 	{
 		this.hostAddresses = newHostAddresses;
@@ -168,7 +168,6 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 			if (numConn < MAX_CONNECTIONS)
 			{ // the keyset includes this side of the connection
-
 				if (numConn - 1 == MAX_CONNECTIONS)
 				{
 					debug("Maximum connections reached; disabling accept until a client drops.");
@@ -472,5 +471,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	 */
 	@Override public void acceptFinished(SelectionKey key)
 	{
+	}
+
+	@Override protected boolean handleInvalidate(SelectionKey key, boolean forcePermanent)
+	{
+		return this.sAP.invalidate(key.attachment(), forcePermanent);
 	}
 }

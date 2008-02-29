@@ -66,8 +66,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize, String authListFilename)
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			String authListFilename)
 	{
 		DoubleThreadedAuthNIOServer newServer = null;
 
@@ -107,8 +107,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize, AuthenticationList authList)
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			AuthenticationList authList)
 	{
 		DoubleThreadedAuthNIOServer newServer = null;
 
@@ -138,9 +138,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	protected DoubleThreadedAuthNIOServer(int portNumber,
 			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize, AuthenticationList authList) throws IOException,
-			BindException
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			AuthenticationList authList) throws IOException, BindException
 	{
 		// MODEL for translation space
 		super(portNumber, inetAddress, AuthenticationTranslations.get(
@@ -148,7 +147,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 						+ portNumber, requestTranslationSpace), objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
 
-		this.registry.put(MAIN_AUTHENTICATABLE, this);
+		this.globalScope.put(MAIN_AUTHENTICATABLE, this);
 
 		authenticator = new Authenticator(authList);
 	}
@@ -258,14 +257,15 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
 	 *      java.nio.channels.SocketChannel)
 	 */
-	@Override public AbstractClientManager invalidate(Object sessionId,
-			boolean permanent)
+	@Override public boolean invalidate(Object sessionId, boolean forcePermanent)
 	{
-		if (permanent)
+		boolean retVal = super.invalidate(sessionId, forcePermanent);
+
+		if (retVal)
 		{
 			this.remove((String) sessionId);
 		}
 
-		return super.invalidate(sessionId, permanent);
+		return retVal;
 	}
 }

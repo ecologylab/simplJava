@@ -20,7 +20,7 @@ import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.MessageWithMetadata;
 import ecologylab.services.distributed.impl.MessageWithMetadataPool;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.NIOServerFrontend;
+import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.InitConnectionRequest;
@@ -108,7 +108,7 @@ public abstract class AbstractClientManager extends Debug implements
 	 * needed in case the client attempts to restore a session, in which case the
 	 * frontend must be queried for the old ContextManager.
 	 */
-	protected NIOServerFrontend											frontend							= null;
+	protected NIOServerProcessor											frontend							= null;
 
 	/**
 	 * The selection key for this context manager.
@@ -156,6 +156,14 @@ public abstract class AbstractClientManager extends Debug implements
 																																.currentTimeMillis();
 
 	/**
+	 * Used for disconnecting. A disconnect message will call the setInvalidating
+	 * method, which will set this value to true. The processing method will set
+	 * itself as pending invalidation after it has produces the bytes for the
+	 * response to the disconnect message.
+	 */
+	private boolean															invalidating					= false;
+
+	/**
 	 * Counts how many characters still need to be extracted from the
 	 * incomingMessageBuffer before they can be turned into a message (based upon
 	 * the HTTP header). A value of -1 means that there is not yet a complete
@@ -199,7 +207,7 @@ public abstract class AbstractClientManager extends Debug implements
 	 * @param registry
 	 */
 	public AbstractClientManager(Object sessionId, int maxPacketSize,
-			NIOServerIOThread server, NIOServerFrontend frontend,
+			NIOServerIOThread server, NIOServerProcessor frontend,
 			SelectionKey socket, TranslationSpace translationSpace,
 			Scope<?> registry)
 	{
@@ -698,8 +706,6 @@ public abstract class AbstractClientManager extends Debug implements
 	 * 
 	 * @param request -
 	 *           the request message to process.
-	 * @param uid
-	 *           TODO
 	 */
 	private final void processRequest(
 			MessageWithMetadata<RequestMessage> requestWithMetadata)
@@ -873,18 +879,6 @@ public abstract class AbstractClientManager extends Debug implements
 	}
 
 	/**
-	 * Signals to the IO thread that this client is disconnecting and should be
-	 * removed from the IO pool. If permanent, then the client manager should
-	 * also be destroyed.
-	 * 
-	 * @param permanent
-	 */
-	public void invalidateClientManager(boolean permanent)
-	{
-		this.server.setPendingInvalidate(this.socketKey, permanent);
-	}
-
-	/**
 	 * Indicates whether or not this context manager has been initialized.
 	 * Normally, this means that it has shared a session id with the client.
 	 * 
@@ -893,5 +887,28 @@ public abstract class AbstractClientManager extends Debug implements
 	public boolean isInitialized()
 	{
 		return initialized;
+	}
+
+	/**
+	 * @param invalidating
+	 *           the invalidating to set
+	 */
+	public void setInvalidating(boolean invalidating)
+	{
+		this.invalidating = invalidating;
+	}
+
+	/**
+	 * Indicates whether or not the client manager is expecting a disconnect. If
+	 * this method returns true, then this client manager should be disposed of
+	 * when the client disconnects; otherwise, it should be retained until the
+	 * client comes back, or the client managers are cleaned up.
+	 * 
+	 * @return true if the client manager is expecting the client to disconnect,
+	 *         false otherwise
+	 */
+	public boolean isInvalidating()
+	{
+		return invalidating;
 	}
 }

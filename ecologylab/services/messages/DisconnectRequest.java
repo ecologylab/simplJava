@@ -37,10 +37,12 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public ResponseMessage performService(Scope localScope)
 	{
+		debug("**** running disconnect request ****");
+		
 		AbstractClientManager cm = (AbstractClientManager) localScope
 				.get(AbstractClientManager.CLIENT_MANAGER);
 
-		cm.invalidateClientManager(true);
+		cm.setInvalidating(true);
 
 		return OkResponse.reusableInstance;
 	}
