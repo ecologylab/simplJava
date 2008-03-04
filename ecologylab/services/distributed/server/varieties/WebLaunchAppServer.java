@@ -18,13 +18,12 @@ import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationSpace;
 
 /**
- * A server that runs on an application that uses web launch. This server
- * expects communications to come from a web-browser, to which it responds with
- * a redirect command.
- * 
- * This server can also be used to shut down the launched-web app using a
- * browser. In order for this to work, the application must implement
- * Shutdownable and must be passed into the static get(...) method.
+ * A server that runs on an application that uses web launch, listening for
+ * commands from the web browser that launched it. This server expects
+ * communications to come from a web-browser, to which it responds with a
+ * redirect command. This server can also be used to shut down the launched-web
+ * app using a browser. In order for this to work, the application must
+ * implement Shutdownable and must be passed into the static get(...) method.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
