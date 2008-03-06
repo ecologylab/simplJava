@@ -155,7 +155,7 @@ implements OptimizationTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static Optimizations lookupRootOptimizations(ElementState elementState)
+	public static Optimizations lookupRootOptimizations(ElementState elementState)
 	{
 		Class<? extends ElementState> thatClass		= elementState.getClass();
 
