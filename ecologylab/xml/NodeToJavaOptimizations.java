@@ -43,10 +43,13 @@ implements OptimizationTypes
 	
 	private Method				setMethod;
 	
-	private ScalarType			scalarType;
+	private ScalarType<?>	 	scalarType;
 	
-	private boolean				isElementStateSubclass;
-	
+	/**
+	 * Array of format annotation Strings.
+	 */
+	private String[] 			format;
+
 	/**
 	 * true for LEAF_NODE_VALUE entries. Value not used for other types.
 	 */
@@ -57,14 +60,14 @@ implements OptimizationTypes
 	 * object passed to the constructor. However, n the case of an XML Namespace, it may be the class
 	 * of a nested Namespace object.
 	 */
-	private Class						classOp;
+	private Class<? extends ElementState>	classOp;
 	
-	private TranslationSpace			translationSpace;
+	private TranslationSpace				translationSpace;
 	
-	private NodeToJavaOptimizations		nestedPTE;
+	private NodeToJavaOptimizations			nestedPTE;
 	
 	/**
-	 * Construct from a Fielde object, for Fields declared with @xml_tag
+	 * Construct from a Field object, for Fields declared with @xml_tag
 	 * @param translationSpace
 	 * @param optimizations
 	 * @param field
@@ -96,13 +99,21 @@ implements OptimizationTypes
 		else
 		{
 			this.type			= REGULAR_NESTED_ELEMENT;
-			Class fieldClass	= field.getType();
-			Class classFromTS	= translationSpace.getClassBySimpleNameOfClass(fieldClass);
-			this.setClassOp((classFromTS != null) ? classFromTS : fieldClass);
+			Class<?> fieldClass = field.getType();
+			if (!ElementState.class.isAssignableFrom(fieldClass))
+			{	//FIXME -- should throw XMLTranslationException!? (but its *so* messy!!!)
+				error("Java Field " + field.getName() + 
+						" (mapped to XML tag <" + tag + ">) has metalanguage declarations indicating it should be a subclass of ElementState, but it is not.");
+				return;
+			}
+			Class<? extends ElementState> esFieldClass	= (Class<? extends ElementState>) fieldClass;
+			Class<? extends ElementState> classFromTS	= translationSpace.getClassBySimpleNameOfClass(esFieldClass);
+			this.setClassOp((classFromTS != null) ? classFromTS : esFieldClass);
 		}
 		if (isScalar)
 		{
 			this.scalarType		= TypeRegistry.getType(field);
+			format				= XMLTools.getFormatAnnotation(field);
 		}
 	}
 	/**
@@ -140,7 +151,7 @@ implements OptimizationTypes
 		this.translationSpace	= translationSpace;
 		this.optimizations		= optimizations;
 		
-		Class contextClass 		= context.getClass();
+		Class<? extends ElementState> contextClass 		= context.getClass();
 		int colonIndex			= tag.indexOf(':');
 		
 		if (isAttribute)
@@ -208,14 +219,16 @@ implements OptimizationTypes
 					// 2) use it as a key into the TranslationSpace (seeking an override)
 					// 3) if that fails, then just use the Class from the field.
 					Class fieldClass			= field.getType();
-					Class classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
+					Class<? extends ElementState> classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
 					if (classFromTS == null)
 					{
 						setClassOp(fieldClass);
 						//TODO - if warnings mode, warn user that class is not in the TranslationSpace
 					}
-					else// the way it should be :-)
+					else if (ElementState.class.isAssignableFrom(classFromTS))// the way it should be :-)
 						setClassOp(classFromTS);
+					else
+						warning("Field for " + tag + " not a subclass of ElementState. Ignored.");
 					return;
 				}
 				// no field object, so we must continue to check stuff out!
@@ -259,6 +272,7 @@ implements OptimizationTypes
 					{	// scalar
 						this.type				= COLLECTION_SCALAR;
 						this.scalarType			= translationSpace.getType(collectionElementsType);
+						format					= XMLTools.getFormatAnnotation(collectionFieldByTag);
 					}
 				}
 				else
@@ -358,7 +372,6 @@ implements OptimizationTypes
 			this.field			= nsN2jo.field;
 			this.setMethod		= nsN2jo.setMethod;
 			this.scalarType		= nsN2jo.scalarType;
-			this.isElementStateSubclass	= nsN2jo.isElementStateSubclass;
 			this.classOp		= nsN2jo.classOp;
 			this.isCDATA		= nsN2jo.isCDATA;
 		}
@@ -387,10 +400,9 @@ implements OptimizationTypes
 	}
 
 	
-	private void setClassOp(Class thatClass)
+	private void setClassOp(Class<? extends ElementState> thatClass)
 	{
 		this.classOp	= thatClass;
-		this.isElementStateSubclass	= ElementState.class.isAssignableFrom(thatClass);		
 	}
 /**
  * Set-up PTE for scalar valued field (attribute or leaf node).
@@ -517,7 +529,7 @@ implements OptimizationTypes
 	ElementState constructChildElementState(ElementState parent)
 	throws XMLTranslationException
 	{
-		ElementState childElementState		= (ElementState) XMLTools.getInstance(classOp);
+		ElementState childElementState		= XMLTools.getInstance(classOp);
 		parent.setupChildElementState(childElementState);
 		
 		return childElementState;
@@ -564,7 +576,10 @@ implements OptimizationTypes
 		}
 		else if (scalarType != null)
 		{
-			scalarType.setField(context, field, value);
+			if (format != null)
+				scalarType.setField(context, field, value, format);
+			else
+				scalarType.setField(context, field, value);
 		}
 	}
 		
@@ -631,8 +646,8 @@ implements OptimizationTypes
 	protected void domFormNestedElementAndSetField(ElementState context, Node childNode)
 		throws XMLTranslationException
 	{
-		Object nestedObject = isElementStateSubclass ? domFormChildElement(context, childNode, false) 
-				: ReflectionTools.getInstance(classOp);
+		ElementState nestedObject =  domFormChildElement(context, childNode, false);
+				//isElementStateSubclass ?: ReflectionTools.getInstance(classOp);
 		
 		setFieldToNestedObject(context, nestedObject);
 	}
@@ -824,7 +839,9 @@ implements OptimizationTypes
 		}
 		if (scalarType != null)
 		{
-			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue);
+			//TODO -- for performance reasons, should we call without format if format is null, and
+			// let the ScalarTypes that don't use format implement the 1 argument signature?!
+			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue, format);
 			try
 			{
 				//TODO -- should we be doing this check for null here??
@@ -893,7 +910,7 @@ implements OptimizationTypes
 	/**
 	 * @return the Class operand that we need to work with in translation from XML.
 	 */
-	Class classOp()
+	Class<? extends ElementState> classOp()
 	{
 		return classOp;
 	}
