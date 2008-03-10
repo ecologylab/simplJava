@@ -78,6 +78,8 @@ implements OptimizationTypes
      * This slot makes sense only for attributes and leaf nodes
      */
     private ScalarType		scalarType;
+    
+    private String[]		format;
 
     FieldToXMLOptimizations(FieldToXMLOptimizations parentCollectionEntry)
     {
@@ -269,6 +271,7 @@ implements OptimizationTypes
 	        	isCDATA			= XMLTools.leafIsCDATA(field);
 	        	needsEscaping	= scalarType.needsEscaping();
         	}
+        	format			= XMLTools.getFormatAnnotation(field);
         }
     }
     
@@ -341,6 +344,7 @@ implements OptimizationTypes
 					{	// scalar
 						result						= COLLECTION_SCALAR;
 						this.scalarType				= TypeRegistry.getType(collectionElementsType);
+						format						= XMLTools.getFormatAnnotation(field);
 					}
 					this.childTagName				= childTagName;
 				}
