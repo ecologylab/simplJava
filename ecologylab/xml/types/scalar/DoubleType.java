@@ -43,7 +43,7 @@ public class DoubleType extends ScalarType<Double>
      * @param value
      *            String representation of the instance.
      */
-    public Double getInstance(String value)
+    public Double getInstance(String value, String[] formatStrings)
     {
         return new Double(value);
     }
@@ -53,6 +53,7 @@ public class DoubleType extends ScalarType<Double>
      * 
      * @see ecologylab.xml.types.scalar.ScalarType#setField(Object, Field, String)
      */
+    @Override
     public boolean setField(Object object, Field field, String value)
     {
         boolean result = false;

@@ -30,9 +30,9 @@ public class StringType extends ReferenceType<String>
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
 	 */
-	@Override public String getInstance(String value)
+	@Override public String getInstance(String value, String[] formatStrings)
 	{
 		return value;
 	}

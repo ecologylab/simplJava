@@ -36,9 +36,9 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	 * 
 	 * @param value 	String to marshall into a typed instance.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
 	 */
-	public ParsedURL getInstance(String value)
+	public ParsedURL getInstance(String value, String[] formatStrings)
 	{
 	   File file	= null;
 	   if (value.startsWith("file://"))

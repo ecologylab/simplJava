@@ -3,6 +3,7 @@ package ecologylab.xml.library.rss;
 import java.util.ArrayList;
 
 import java.io.File;
+import java.lang.reflect.Field;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.*;
@@ -20,7 +21,7 @@ public class RssState extends ElementState
 {
 	@xml_attribute	float		version;
    
-	@xml_nested		Channel		channel;
+	public @xml_nested		Channel		channel;
 
 	/**
 	 * @return Returns the channel.
@@ -145,7 +146,45 @@ public class RssState extends ElementState
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	public static void main(String[] args)
 	{
-//		ElementState.setUseDOMForTranslateTo(true);
+		//doMain();
+		long	initialTime	= System.currentTimeMillis();
+		RssState rss	= new RssState();
+		Field field		= null;
+		try
+		{
+			field 		= RssState.class.getField("channel");
+		} catch (SecurityException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (int i=0; i< 32000; i++)
+		{
+			try
+			{
+				Channel channel	= (Channel) field.get(rss);
+//				String[] format	= XMLTools.getFormatAnnotation(field);
+			} catch (IllegalArgumentException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		long deltaT			= System.currentTimeMillis() - initialTime;
+		
+		System.out.println(deltaT + " milliseconds");
+	}
+
+	private static void doMain()
+	{
 		try
 		{
 //			ParsedURL feedPURL	= ABC_SPORTS_FEED; // CNN_TOP_FEED;

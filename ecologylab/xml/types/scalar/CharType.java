@@ -43,7 +43,7 @@ public class CharType extends ScalarType<Character>
      * @param value
      *            String representation of the instance.
      */
-    public Character getInstance(String value)
+    public Character getInstance(String value, String[] formatStrings)
     {
         return getValue(value);
     }

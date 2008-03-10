@@ -44,7 +44,7 @@ public class FloatType extends ScalarType<Float>
      * @param value
      *            String representation of the instance.
      */
-    public Float getInstance(String value)
+    public Float getInstance(String value, String[] formatStrings)
     {
         return new Float(getValue(value));
     }

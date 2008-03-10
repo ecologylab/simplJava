@@ -43,7 +43,7 @@ public class ShortType extends ScalarType<Short>
      * @param value
      *            String representation of the instance.
      */
-    public Short getInstance(String value)
+    public Short getInstance(String value, String[] formatStrings)
     {
         return new Short(value);
     }

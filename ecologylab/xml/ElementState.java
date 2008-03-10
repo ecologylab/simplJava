@@ -2257,6 +2257,40 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     }
 
     /**
+     * Optional metalanguage declaration.
+     * Enables specificaition of one or more formatting strings.
+     * Only affects ScalarTyped Fields (ignored otherwise).
+     * The format string will be passed to the ScalarType for type-specific interpretation.
+     * <p/>
+     * An example of use is to pass DateFormat info to the DateType.
+     *
+     * @author andruid
+     * @author toupsz
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Inherited
+    public @interface xml_format
+    {
+    	String[] value();
+    }
+    
+/**
+ * Meta-language declaration for a single text node child, in the case where the parent
+ * also has attributes, so @xml_leaf is insufficient.
+ * 
+ * @author andruid
+ * @author toupsz
+ */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Inherited
+    public @interface xml_text
+    {
+    	int value() default NORMAL;
+    }
+   
+    /**
      * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
      * is represented in XML by a (non-leaf) nested child element.
      * The field must be a subclass of ElementState.

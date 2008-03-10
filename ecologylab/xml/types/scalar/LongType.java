@@ -35,7 +35,7 @@ public class LongType extends ScalarType<Long>
      * @param value
      *            String representation of the instance.
      */
-    public Long getInstance(String value)
+    public Long getInstance(String value, String[] formatStrings)
     {
         return new Long(value);
     }

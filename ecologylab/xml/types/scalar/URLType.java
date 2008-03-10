@@ -23,9 +23,9 @@ public class URLType extends ReferenceType<URL>
 	/**
 	 * @param value is interpreted as an absolute internet address.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
 	 */
-	public URL getInstance(String value)
+	public URL getInstance(String value, String[] formatStrings)
 	{
 	   URL result	= null;
 	   try

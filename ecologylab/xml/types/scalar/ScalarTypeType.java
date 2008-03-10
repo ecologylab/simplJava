@@ -27,7 +27,7 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 	 * Use this to call TypeRegistry.getType().
 	 */
 	@Override
-	public ScalarType getInstance(String value)
+	public ScalarType getInstance(String value, String[] formatStrings)
 	{
 		ScalarType result	= null;
 		int length			= value.length();

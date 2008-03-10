@@ -34,6 +34,8 @@ public interface OptimizationTypes
 	
 	public static final int	MAP_SCALAR				= 7;
 	
+	public static final int	TEXT_NODE_VALUE			= 0x0c;	
+	
 	/**
 	 * Root node type: for FieldToXMLOptimizations translateTo only.
 	 */

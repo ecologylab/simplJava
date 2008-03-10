@@ -28,9 +28,9 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	/**
 	 * Return the value wrapped inside a StringBuilder. A call to avoid!
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
 	 */
-	@Override public StringBuilder getInstance(String value)
+	@Override public StringBuilder getInstance(String value, String[] formatStrings)
 	{
 		return new StringBuilder(value);
 	}

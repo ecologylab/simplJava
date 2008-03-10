@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
+import ecologylab.xml.XMLTools;
 
 /**
  * Basic unit of the scalar type system.
@@ -55,22 +56,83 @@ public abstract class ScalarType<T> extends Debug
      * 
      * @param value
      *            String representation of the instance.
+     * @param formatStrings Array of formatting values.
      */
-    abstract public T getInstance(String value);
+    abstract public T getInstance(String value, String[] formatStrings);
+    
+    /**
+     * Construct an instance, using the subclass of this for marshalling, with null for the format Strings.
+     * 
+     * @param value
+     * @return
+     */
+    public T getInstance(String value)
+    {
+    	return getInstance(value, null);
+    }
 
     /**
-     * Set the field represented to the value of
-     * 
+     * Set the field in the context, using the valueString, converting it to the
+     * appropriate type using a subclass of this.
+     * <p/>
      * Many different types of exceptions may be thrown. These include IllegalAccessException on the
-     * one hand, which would come from problemswith using reflection to access the Field. This is
+     * one hand, which would come from problems with using reflection to access the Field. This is
      * very unlikely. <p/> More likely are problems with conversion of the parameter value into into
      * an object or primitive of the proper type.
      * 
-     * @param object
+     * @param context
      *            The object whose field should be modified.
      * @param field
      *            The field to be set.
-     * @param value
+     * @param valueString
+     *            String representation of the value to set the field to. This Type will convert the
+     *            value to the appropriate type, using getInstance(String) for reference types, and
+     *            type specific getValue(String) methods for primitive types.
+     * 
+     * @return true if the field is set properly, or if the parameter value that is passed in is
+     *         null. false if the field cannot be accessed, or if value cannot be converted to the
+     *         appropriate type.
+     */
+    public boolean setField(Object context, Field field, String valueString, String[] format)
+    {
+        if (valueString == null)
+            return true;
+
+        boolean result		= false;
+        T referenceObject;
+
+        try
+        {
+            referenceObject = getInstance(valueString, format);
+            if (referenceObject != null)
+            {
+                field.set(context, referenceObject);
+                result 		= true;
+            }
+        }
+        catch (Exception e)
+        {
+            setFieldError(field, valueString, e);
+        }
+        return result;
+    }
+
+    /**
+     * Set the field in the context, using the valueString, converting it to the
+     * appropriate type using a subclass of this.
+     * <p/>
+     * The format annotations passed through to the ScalarType subclass will be null.
+     * <p/>
+     * Many different types of exceptions may be thrown. These include IllegalAccessException on the
+     * one hand, which would come from problems with using reflection to access the Field. This is
+     * very unlikely. <p/> More likely are problems with conversion of the parameter value into into
+     * an object or primitive of the proper type.
+     * 
+     * @param context
+     *            The object whose field should be modified.
+     * @param field
+     *            The field to be set.
+     * @param valueString
      *            String representation of the value to set the field to. This Type will convert the
      *            value to the appropriate type, using getInstance(String) for reference types, and
      *            type specific getValue(String) methods for primitive types.
@@ -81,29 +143,10 @@ public abstract class ScalarType<T> extends Debug
      */
     public boolean setField(Object object, Field field, String value)
     {
-        if (value == null)
-            return true;
-
-        boolean result = false;
-        T referenceObject;
-
-        try
-        {
-            referenceObject = getInstance(value);
-            if (referenceObject != null)
-            {
-                field.set(object, referenceObject);
-                result = true;
-            }
-        }
-        catch (Exception e)
-        {
-            setFieldError(field, value, e);
-        }
-        return result;
+    	return setField(object, field, value, null);
     }
-
-    /**
+    
+	/**
      * Display an error message that arose while setting field to value.
      * 
      * @param field

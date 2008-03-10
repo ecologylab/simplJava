@@ -18,7 +18,7 @@ public class FileType extends ScalarType<File>
         super(File.class);
     }
 
-    @Override public File getInstance(String value)
+    @Override public File getInstance(String value, String[] formatStrings)
     {
         return new File(value);
     }

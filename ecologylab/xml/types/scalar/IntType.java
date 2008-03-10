@@ -43,7 +43,7 @@ public class IntType extends ScalarType<Integer>
      * @param value
      *            String representation of the instance.
      */
-	@Override public Integer getInstance(String value)
+	@Override public Integer getInstance(String value, String[] formatStrings)
     {
         return new Integer(getValue(value));
     }

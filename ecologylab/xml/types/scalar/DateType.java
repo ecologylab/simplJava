@@ -30,9 +30,9 @@ public class DateType extends ScalarType<Date>
      *            example Wed Aug 02 13:12:50 CDT 2006); if that does not work, then attempts to use
      *            the DateFormat for the current locale instead.
      * 
-     * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+     * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
      */
-    public Date getInstance(String value)
+    public Date getInstance(String value, String[] formatStrings)
     {
     	Date result = null;
 

@@ -46,7 +46,7 @@ public class BooleanType extends ScalarType<Boolean>
      * @param value
      *            String representation of the instance.
      */
-    public Boolean getInstance(String value)
+    public Boolean getInstance(String value, String[] formatStrings)
     {
         return new Boolean(getValue(value));
     }

@@ -43,7 +43,7 @@ public class ByteType extends ScalarType<Byte>
      * @param value
      *            String representation of the instance.
      */
-    public Byte getInstance(String value)
+    public Byte getInstance(String value, String[] formatStrings)
     {
         return new Byte(value);
     }

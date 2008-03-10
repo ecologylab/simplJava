@@ -25,6 +25,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import ecologylab.xml.ElementState.xml_format;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -504,6 +505,27 @@ implements CharacterConstants, SpecialCharacterEntities
 	public String toString()
 	{
 	   return getClassName(this);
+	}
+
+	/**
+	 * Seek an @xml_format annotaion on the Field object.
+	 * If there is one with a non-zero length, return it.
+	 * 
+	 * @param field
+	 * 
+	 * @return		An array of Strings with format info in them, or null if there wasn't one or it was empty.
+	 */
+	public static String[] getFormatAnnotation(Field field)
+	{
+		String format[]				= null;
+		ElementState.xml_format formatAnnotation 	= field.getAnnotation(ElementState.xml_format.class);
+		if (formatAnnotation != null)
+		{
+			String[] formatStrings	= formatAnnotation.value();
+			if (formatStrings.length > 0)
+				format	= formatStrings;
+		}
+		return format;
 	}
 
 	/**

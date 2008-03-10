@@ -33,9 +33,9 @@ public class ColorType extends ScalarType<Color>
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String)
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
 	 */
-	public Color getInstance(String value)
+	public Color getInstance(String value, String[] formatStrings)
 	{
 	   if (value.indexOf('#') == 0)
 		  value			= value.substring(1);
