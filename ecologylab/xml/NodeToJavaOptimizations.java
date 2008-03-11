@@ -1048,14 +1048,4 @@ implements OptimizationTypes
 	{
 		return nameSpaceID;
 	}
-	
-	/**
-	 * If the element associated with this is annotated with a field for @xml_text, make that available here.
-	 * @return
-	 */
-	NodeToJavaOptimizations scalarTextChildN2jo()
-	{
-		return optimizations.scalarTextN2jo();
-	}
-
 }

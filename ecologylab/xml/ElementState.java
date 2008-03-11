@@ -24,7 +24,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -38,10 +37,8 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.types.element.Mappable;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
-import ecologylab.xml.ElementStateSAXHandler;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code>
@@ -2614,4 +2611,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     {
     	useDOMForTranslateTo	= value;
     }
+
+ 	/**
+ 	 * If the element associated with this is annotated with a field for @xml_text, make that available here.
+ 	 * @return
+ 	 */
+ 	NodeToJavaOptimizations scalarTextChildN2jo()
+ 	{
+ 		return optimizations.scalarTextN2jo();
+ 	}
 }

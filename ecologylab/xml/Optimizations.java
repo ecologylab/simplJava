@@ -13,7 +13,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ValueFactory;
-import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -94,6 +93,9 @@ implements OptimizationTypes
 	
 	private Field								scalarTextField;
 	
+	/**
+	 * Handles a text node.
+	 */
 	private NodeToJavaOptimizations				scalarTextN2jo;
 	
 	/**
@@ -744,6 +746,11 @@ implements OptimizationTypes
 			{
 				// Special field for a typed text node value
 				scalarTextField		= thatField;
+				
+				thatField.setAccessible(true);
+            
+            //TODO -- is this line necessary? desirable?
+            mapField(thatField);
 			}
 			// else -- ignore non-annotated fields
 		}

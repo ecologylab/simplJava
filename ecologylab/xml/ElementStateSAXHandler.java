@@ -31,7 +31,6 @@ import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.Mappable;
-import ecologylab.xml.NodeToJavaOptimizations;
 
 /**
  * Use SAX to translate XML into a typed tree of ElementState objects.
@@ -482,7 +481,9 @@ implements ContentHandler, OptimizationTypes
 					break;
 				case REGULAR_NESTED_ELEMENT:
 				case COLLECTION_ELEMENT:
-					NodeToJavaOptimizations scalarTextChildN2jo = currentN2JO.scalarTextChildN2jo();
+					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
+					// so we get the optimizations we need from the currentElementState
+					NodeToJavaOptimizations scalarTextChildN2jo = currentES.scalarTextChildN2jo();
 					if (scalarTextChildN2jo != null)
 					{
 						value		= new String(currentLeafValue.substring(0, length));
@@ -562,7 +563,9 @@ implements ContentHandler, OptimizationTypes
 				break;
 			case REGULAR_NESTED_ELEMENT:
 			case COLLECTION_ELEMENT:
-				if (currentN2JO.scalarTextChildN2jo() != null)
+				// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
+				// so we get the optimizations we need from the currentElementState
+				if (currentElementState.scalarTextChildN2jo() != null)
 					currentLeafValue.append(chars, startIndex, length);
 				break;
 			default:
