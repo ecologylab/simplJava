@@ -480,6 +480,15 @@ implements ContentHandler, OptimizationTypes
 					value			= new String(currentLeafValue.substring(0, length));
 					currentN2JO.addLeafNodeToCollection(currentES, value);
 					break;
+				case REGULAR_NESTED_ELEMENT:
+				case COLLECTION_ELEMENT:
+					NodeToJavaOptimizations scalarTextChildN2jo = currentN2JO.scalarTextChildN2jo();
+					if (scalarTextChildN2jo != null)
+					{
+						value		= new String(currentLeafValue.substring(0, length));
+						scalarTextChildN2jo.setFieldToScalar(currentES, value);
+					}
+					break;
 				default:
 					break;
 				}
@@ -548,10 +557,13 @@ implements ContentHandler, OptimizationTypes
 			case LEAF_NODE_VALUE:
 			case COLLECTION_SCALAR:
 			case NAME_SPACE_LEAF_NODE:
-				String leafValue = new String(chars, startIndex, length);
-				//debug(currentElementState + " - hi LEAF_NODE_VALUE characters(): " + leafValue);
 				currentLeafValue.append(chars, startIndex, length);
 				//TODO -- unmarshall to set field with scalar type
+				break;
+			case REGULAR_NESTED_ELEMENT:
+			case COLLECTION_ELEMENT:
+				if (currentN2JO.scalarTextChildN2jo() != null)
+					currentLeafValue.append(chars, startIndex, length);
 				break;
 			default:
 				//TODO ?! can we dump characters in this case, or should we append to textNode?!

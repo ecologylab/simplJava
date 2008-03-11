@@ -135,6 +135,27 @@ implements OptimizationTypes
 		this.type				= REGULAR_NESTED_ELEMENT;
 		setClassOp(thatClass);
 	}
+	
+	/**
+	 * Construct from a Field for @xml_tag. NB: MUST BE A SCALAR TYPED FIELD.
+	 * 
+	 * @param translationSpace
+	 * @param optimizations
+	 * @param field
+	 */
+	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field)
+	{
+		super();
+		Class<?> scalarTypeClass = field.getType();
+		this.tag				= XMLTools.getXmlTagName(scalarTypeClass, "");
+		this.translationSpace	= translationSpace;
+		this.optimizations		= optimizations;
+		
+		this.field				= field;
+		this.type				= TEXT_NODE_VALUE;
+		this.scalarType			= TypeRegistry.getType(scalarTypeClass);
+	}
+
 	/**
 	 * Normal constructor.
 	 * 
@@ -1026,6 +1047,15 @@ implements OptimizationTypes
 	String nameSpaceID()
 	{
 		return nameSpaceID;
+	}
+	
+	/**
+	 * If the element associated with this is annotated with a field for @xml_text, make that available here.
+	 * @return
+	 */
+	NodeToJavaOptimizations scalarTextChildN2jo()
+	{
+		return optimizations.scalarTextN2jo();
 	}
 
 }

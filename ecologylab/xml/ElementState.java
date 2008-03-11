@@ -376,13 +376,14 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
-		//ArrayList<Field> elementFields		= optimizations.elementFields();
+
 		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
 		int numElements						= elementF2XOs.size();
 
-		StringBuilder textNode = this.textNodeBuffy;
-		//TODO -- fix textNode == null -- should be size() == 0 or some such
-		if ((numElements == 0) && (textNode == null))
+		StringBuilder textNode				= this.textNodeBuffy;
+		//TODO or if there is a special @xml_text field!
+		
+		if ((numElements == 0) && ((textNode == null) || (textNode.length() == 0)))
 		{
 			buffy.append('/').append('>');	// done! completely close element behind attributes				
 		}
@@ -392,16 +393,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				buffy.append('>');	// close open tag behind attributes
 			if (textNode != null) 
 			{	
-				//TODO -- might need to trim the buffy here!
-				//if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text node if trim -> empty string
-				//if (textNode.length() > 0)
 				XMLTools.escapeXML(buffy, textNode);
 			}
 			for (int i=0; i<numElements; i++)
 			{
-//				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
 				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
-				//if (XmlTools.representAsLeafNode(thatField))
 				final int childOptimizationsType 	= childF2Xo.type();
 				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
@@ -458,8 +454,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						//if the object is a collection, 
 						//basically iterate thru the collection and emit XML from each element
 						final Iterator iterator			= thatCollection.iterator();
-//						Class childClass				= iterator.hasNext() ? iterator.
-
 						while (iterator.hasNext())
 						{
 							Object next = iterator.next();

@@ -92,6 +92,10 @@ implements OptimizationTypes
 	
 	private ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations;
 	
+	private Field								scalarTextField;
+	
+	private NodeToJavaOptimizations				scalarTextN2jo;
+	
 	/**
 	 * Map of Fields, with field names as keys.
 	 */
@@ -382,7 +386,7 @@ implements OptimizationTypes
 		}
 		return result;
 	}
-	
+
 	/**
 	 * 
 	 * @return		true if setup was performed. false if it was performed previously.
@@ -394,7 +398,12 @@ implements OptimizationTypes
 		{
 			xmlTagFieldsAreIndexed	= true;
 			indexSpecialMappingsForFields(this.attributeFields(), true, translationSpace, context);
-			indexSpecialMappingsForFields(this.elementFields(), false, translationSpace, context);			
+			indexSpecialMappingsForFields(this.elementFields(), false, translationSpace, context);
+			
+			if (this.scalarTextField != null)
+			{
+				scalarTextN2jo 		= new NodeToJavaOptimizations(translationSpace, this, scalarTextField);
+			}
 		}
 		return result;
 	}
@@ -730,6 +739,11 @@ implements OptimizationTypes
 						processMapDeclaredWithTag(thatField, mapAnnotation);
 					}				
 				}
+			}
+			else if (thatField.isAnnotationPresent(ElementState.xml_text.class))
+			{
+				// Special field for a typed text node value
+				scalarTextField		= thatField;
 			}
 			// else -- ignore non-annotated fields
 		}
@@ -1133,5 +1147,10 @@ implements OptimizationTypes
 	Class thatClass()
 	{
 		return thatClass;
+	}
+
+	NodeToJavaOptimizations scalarTextN2jo()
+	{
+		return scalarTextN2jo;
 	}
 }
