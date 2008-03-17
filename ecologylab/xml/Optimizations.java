@@ -141,6 +141,8 @@ implements OptimizationTypes
 		super();
 		this.thatClass		= thatClass;
 		setParent(parent);
+		
+		getAndOrganizeFields();
 	}
 
 	void setParent(Optimizations parent)
@@ -559,76 +561,22 @@ implements OptimizationTypes
 	}
 	/**
 	 * Get the fields that are represented as attributes for the class we're optimizing.
-	 * Uses lazy evaluation -- while derive the answer for attributefieldbs and elementFields, and cache it.
 	 * 
 	 * @return	ArrayList of Field objects.
 	 */
 	ArrayList<Field> attributeFields()
 	{
-		ArrayList<Field> result	= attributeFields;
-		if (result == null)
-		{
-			synchronized (this)
-			{
-				result		= attributeFields;	// check again inside the synchronized block
-				if (result == null)
-				{
-					getAndOrganizeFields();
-				}
-			}
-			result			= attributeFields;
-		}
-		return result;
+		return attributeFields;
 	}
 	/**
 	 * Get the fields that are represented as nested elements (including leaf nodes)
 	 * for the class we're optimizing.
-	 * Uses lazy evaluation -- while derive the answer for attributefieldbs and elementFields, and cache it.
 	 * 
 	 * @return	ArrayList of Field objects.
 	 */
 	public ArrayList<Field> elementFields()
 	{
-		ArrayList<Field> result	= elementFields;
-		if (result == null)
-		{
-			synchronized (this)
-			{
-				result		= elementFields;	// check again inside the synchronized block
-				if (result == null)
-				{
-					getAndOrganizeFields();
-				}
-			}
-			result			= elementFields;
-		}
-		return result;
-	}
-	
-	/**
-	 * Get the map of fields that we translate for this class.
-	 * Uses lazy evaluation; will call getAndOrganizeFields() to build it
-	 * (and also the attributeFields and elementFields ArrayLists) if this is the 1st
-	 * call for the class.
-	 * 
-	 * @return
-	 */
-	private HashMap<String, Field> fieldsMap()
-	{
-		HashMap<String, Field> result	= fieldsMap;
-		if (result == null)
-		{
-			synchronized (this)
-			{
-				result		= fieldsMap;	// check again inside the synchronized block
-				if (result == null)
-				{
-					getAndOrganizeFields();
-				}
-			}
-			result			= fieldsMap;
-		}
-		return result;
+		return elementFields;
 	}
 	
 	/**
@@ -638,7 +586,7 @@ implements OptimizationTypes
 	 */
 	private synchronized void getAndOrganizeFields()
 	{
-		attributeFields		= new ArrayList<Field>();
+		attributeFields	= new ArrayList<Field>();
 		elementFields		= new ArrayList<Field>();
 		fieldsMap			= new HashMap<String, Field>();
 		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
@@ -1038,7 +986,7 @@ implements OptimizationTypes
 	 */
 	Field getField(String fieldName)
 	{
-		return fieldsMap().get(fieldName);
+		return fieldsMap.get(fieldName);
 	}
 	
 	/**

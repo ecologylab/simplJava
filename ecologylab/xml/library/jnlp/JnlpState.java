@@ -174,4 +174,9 @@ public @xml_inherit class JnlpState extends ElementState implements Cloneable
             }
         }
     }
+    
+    public static void main(String[] args)
+    {
+   	 
+    }
 }

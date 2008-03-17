@@ -2061,7 +2061,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		   }
 	   }
 	}
-	public String getTextNodeString()
+	/**
+	 * @deprecated should use @xml_text or @xml_leaf to specify text child
+	 * @return
+	 */
+	@Deprecated public String getTextNodeString()
 	{
 		return (textNodeBuffy == null) ? null : textNodeBuffy.toString();
 //		return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);

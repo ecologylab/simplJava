@@ -94,10 +94,10 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
 			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
-			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
+			Scope applicationObjectScope, int idleConnectionTimeout, int maxPacketSize)
 			throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, requestTranslationSpace, globalScope,
+		super(portNumber, inetAddresses, requestTranslationSpace, applicationObjectScope,
 				idleConnectionTimeout);
 
 		this.maxPacketSize = maxPacketSize;
@@ -137,7 +137,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 					debug("server creating context manager for " + sessionId);
 
 					cm = generateContextManager(sessionId, sk, translationSpace,
-							globalScope);
+							applicationObjectScope);
 					contexts.put(sessionId, cm);
 				}
 

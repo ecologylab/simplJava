@@ -3,25 +3,37 @@
  */
 package ecologylab.xml.library.jnlp.application;
 
-import ecologylab.xml.xml_inherit;
+import java.util.ArrayList;
+
+import ecologylab.xml.ElementState;
 import ecologylab.xml.ElementState.xml_tag;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
- *
+ * 
  */
-public @xml_inherit @xml_tag("application-desc") class ApplicationDesc extends ArrayListState<Argument>
+public @xml_tag("application-desc") class ApplicationDesc extends ElementState
 {
-    @xml_attribute @xml_tag("main-class") private String mainClass;
-    
+	@xml_attribute @xml_tag("main-class") String		mainClass;
 
-    /**
-     * 
-     */
-    public ApplicationDesc()
-    {
-        super();
-    }
+	@xml_collection("arguments") ArrayList<String>	arguments	= new ArrayList<String>();
+
+	/**
+	 * 
+	 */
+	public ApplicationDesc()
+	{
+		super();
+	}
+
+	/**
+	 * Add the argument to the JNLP application description.
+	 * 
+	 * @param argument
+	 */
+	public void add(String argument)
+	{
+		this.arguments.add(argument);
+	}
 
 }

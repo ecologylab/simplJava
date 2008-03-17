@@ -147,7 +147,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 						+ portNumber, requestTranslationSpace), objectRegistry,
 				idleConnectionTimeout, maxPacketSize);
 
-		this.globalScope.put(MAIN_AUTHENTICATABLE, this);
+		this.applicationObjectScope.put(MAIN_AUTHENTICATABLE, this);
 
 		authenticator = new Authenticator(authList);
 	}

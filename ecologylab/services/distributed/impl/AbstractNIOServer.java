@@ -31,7 +31,7 @@ public abstract class AbstractNIOServer extends Manager implements
 
 	protected TranslationSpace		translationSpace;
 
-	protected Scope					globalScope;
+	protected Scope					applicationObjectScope;
 
 	/**
 	 * Creates an instance of an NIOServer of some flavor. Creates the backend
@@ -60,10 +60,10 @@ public abstract class AbstractNIOServer extends Manager implements
 		// we get these from the backend, because it ensures that they are
 		// configured if they are passed in null
 		this.translationSpace = backend.translationSpace;
-		this.globalScope = backend.objectRegistry;
+		this.applicationObjectScope = backend.objectRegistry;
 
-		this.globalScope.put(MAIN_START_AND_STOPPABLE, this);
-		this.globalScope.put(MAIN_SHUTDOWNABLE, this);
+		this.applicationObjectScope.put(MAIN_START_AND_STOPPABLE, this);
+		this.applicationObjectScope.put(MAIN_SHUTDOWNABLE, this);
 	}
 
 	static final Class[]	OUR_TRANSLATIONS	=
@@ -147,7 +147,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	 */
 	public Scope getGlobalScope()
 	{
-		return globalScope;
+		return applicationObjectScope;
 	}
 
 	/**
