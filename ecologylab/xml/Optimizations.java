@@ -12,7 +12,9 @@ import org.w3c.dom.Node;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
+import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.ValueFactory;
+import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -507,18 +509,38 @@ implements OptimizationTypes
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	public HashMapArrayList<String, FieldAccessor> getFieldAccessors()
+	HashMapArrayList<String, FieldAccessor> getFieldAccessorsForThis(Class<? extends FieldAccessor> fieldAccessorClass)
 	{
 		HashMapArrayList<String, FieldAccessor> result	= fieldAccessors;
 		if (result == null)
 		{
-			result				= createFieldAccessors();
+			result				= createFieldAccessors(fieldAccessorClass);
 			this.fieldAccessors	= result;
 		}
 		return result;
 	}
 	
+	/**
+	 * Construct a set of FieldAccessor objects for the class.
+	 * 
+	 * @param thatClass
+	 * @return
+	 */
 	public static HashMapArrayList<String, FieldAccessor> getFieldAccessors(Class<? extends ElementState> thatClass)
+	{
+		return getFieldAccessors(thatClass, null);
+	}
+
+	/**
+	 * Construct a set of FieldAccessor objects for the class.
+	 * 
+	 * @param <T>
+	 * @param thatClass
+	 * @param fieldAccessorClass		Subclass of FieldAccessor to use to construct.
+	 * @return
+	 */
+	public static<T extends FieldAccessor> HashMapArrayList<String, FieldAccessor> 
+	getFieldAccessors(Class<? extends ElementState> thatClass, Class<T> fieldAccessorClass)
 	{
 		Optimizations thatClassOptimizations	= lookupRootOptimizations(thatClass);
 		
@@ -526,18 +548,23 @@ implements OptimizationTypes
 		
 		if (thatClass != null)
 		{
-			result								= thatClassOptimizations.getFieldAccessors();
+			result								= thatClassOptimizations.getFieldAccessorsForThis(fieldAccessorClass);
 		}
 		return result;
 	}
 
+	static final Class[] NEW_FIELD_ACCESSOR_TYPES =
+	{
+		Field.class, ScalarType.class, String.class,
+	};
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
+	 * @param fieldAccessorClass TODO
 	 * 
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	private HashMapArrayList<String, FieldAccessor> createFieldAccessors()
+	private HashMapArrayList<String, FieldAccessor> createFieldAccessors(Class<? extends FieldAccessor> fieldAccessorClass)
 	{
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= attributeFieldOptimizations();
 		ArrayList<FieldToXMLOptimizations> elementF2XOs		= elementFieldOptimizations();
@@ -547,17 +574,29 @@ implements OptimizationTypes
 		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
 		{
 			String tagName 				= attrF2XO.tagName();
-			FieldAccessor	fAccessor	= new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType(), tagName);
+			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType(), tagName) :
+																		 createFieldAccessor(fieldAccessorClass, attrF2XO, tagName);
 			result.put(tagName, fAccessor);
 		}
 		
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
 		{
 			String tagName 				= elementF2XO.tagName();
-			FieldAccessor	fAccessor	= new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType(), tagName);
+			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType(), tagName) :
+				 createFieldAccessor(fieldAccessorClass, elementF2XO, tagName);
 			result.put(tagName, fAccessor);
 		}
 		return result;
+	}
+	
+	private FieldAccessor createFieldAccessor(Class<? extends FieldAccessor> fieldAccessorClass, FieldToXMLOptimizations attrF2XO, String tagName)
+	{
+		Object[] args	= new Object[3];
+		args[0]			= attrF2XO.field();
+		args[1]			= attrF2XO.scalarType();
+		args[2]			= tagName;
+		
+		return ReflectionTools.getInstance(fieldAccessorClass, NEW_FIELD_ACCESSOR_TYPES, args);
 	}
 	/**
 	 * Get the fields that are represented as attributes for the class we're optimizing.
