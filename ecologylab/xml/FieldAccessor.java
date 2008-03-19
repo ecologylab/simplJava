@@ -92,6 +92,22 @@ public class FieldAccessor extends Debug
 	{
 		return tagName;
 	}
+
+	/**
+	 * @return the scalarType of the field
+	 */
+	public ScalarType<?> getScalarType()
+	{
+		return scalarType;
+	}
+
+	/**
+	 * @return the field
+	 */
+	public Field getField()
+	{
+		return field;
+	}
 	
 }
 
