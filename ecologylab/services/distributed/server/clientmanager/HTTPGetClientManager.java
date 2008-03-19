@@ -78,6 +78,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 			UnsupportedEncodingException
 	{
 		String messageString = messageSequence.toString();
+		
 		if (messageString.startsWith(HTTP_PREPEND))
 		{
 			int endIndex = messageString.lastIndexOf(HTTP_APPEND);

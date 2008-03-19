@@ -195,6 +195,10 @@ public abstract class AbstractClientManager extends Debug implements
 
 	public static final String												CLIENT_MANAGER					= "CLIENT_MANAGER";
 
+	private static final String											POST_PREFIX						= "POST ";
+
+	private static final String											GET_PREFIX						= "GET ";
+
 	/**
 	 * Creates a new ContextManager.
 	 * 
@@ -669,7 +673,7 @@ public abstract class AbstractClientManager extends Debug implements
 	 * specific functionality, such as a ContextManager that does not use XML
 	 * Strings.
 	 * 
-	 * @param messageString -
+	 * @param messageCharSequence -
 	 *           an XML String representing a RequestMessage object.
 	 * @return the RequestMessage created by translating messageString into an
 	 *         object.
@@ -680,11 +684,40 @@ public abstract class AbstractClientManager extends Debug implements
 	 *            if the String is not encoded properly.
 	 */
 	protected RequestMessage translateStringToRequestMessage(
-			CharSequence messageString) throws XMLTranslationException,
+			CharSequence messageCharSequence) throws XMLTranslationException,
 			UnsupportedEncodingException
 	{
-		return (RequestMessage) ElementState.translateFromXMLCharSequence(
-				messageString, translationSpace);
+		String startLineString = null;
+		if (this.startLine == null
+				|| (startLineString = startLine.toString()).equals(""))
+		{
+			return (RequestMessage) ElementState.translateFromXMLCharSequence(
+					messageCharSequence, translationSpace);
+		}
+		else if (startLineString.startsWith(GET_PREFIX))
+		{
+			// XXX
+			// XXX
+			// XXX
+			// TODO when we figure out the right kind of response, we need to
+			// handle get
+			return (RequestMessage) null;
+		}
+		else if (startLineString.startsWith(POST_PREFIX))
+		{
+			String messageString = messageCharSequence.toString();
+
+			if (!messageString.startsWith("<"))
+				messageString = messageString
+						.substring(messageString.indexOf('=') + 1);
+
+			return (RequestMessage) ElementState.translateFromXMLCharSequence(
+					messageString, translationSpace);
+		}
+		else
+		{
+			return (RequestMessage) null;
+		}
 	}
 
 	/**

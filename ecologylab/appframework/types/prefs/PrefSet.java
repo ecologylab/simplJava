@@ -60,7 +60,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
 		pref.register();
 	}
     /**
-     * Read MetaPref declarations from a file or across the net.
+     * Read Pref declarations from a file or across the net.
      * 
      * @param purl
      * @param translationSpace
@@ -78,14 +78,29 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
         return pS;
     }
     /**
-     * Read MetaPref declarations from a file or across the net.
+     * Read Pref declarations from a file or across the net.
      * 
      * @param prefXML - Preferences in an XML format; to be translated into a PrefSet.
      * @param translationSpace
      * @return
      * @throws XMLTranslationException
      */
-    public static PrefSet load(String prefXML, TranslationSpace translationSpace)
+    public static PrefSet load(String filename, TranslationSpace translationSpace)
+    throws XMLTranslationException
+    {
+        PrefSet pS = (PrefSet) ElementState.translateFromXML(filename, translationSpace);
+        
+        return pS;
+    }
+    /**
+     * Read Pref declarations from a file or across the net.
+     * 
+     * @param prefXML - Preferences in an XML format; to be translated into a PrefSet.
+     * @param translationSpace
+     * @return
+     * @throws XMLTranslationException
+     */
+    public static PrefSet loadFromCharSequence(String prefXML, TranslationSpace translationSpace)
     throws XMLTranslationException
     {
         PrefSet pS = (PrefSet) ElementState.translateFromXMLCharSequence(prefXML, translationSpace);

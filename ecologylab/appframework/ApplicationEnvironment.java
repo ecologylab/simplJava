@@ -325,7 +325,7 @@ implements Environment, XMLTranslationExceptionTypes
 		    PrefSet prfs = null;
 			try 
 			{
-				prfs = PrefSet.load(prefSetXML, translationSpace);
+				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationSpace);
 			} 
 			catch (XMLTranslationException e) 
 			{

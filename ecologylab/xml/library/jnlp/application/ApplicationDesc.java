@@ -16,7 +16,7 @@ public @xml_tag("application-desc") class ApplicationDesc extends ElementState
 {
 	@xml_attribute @xml_tag("main-class") String		mainClass;
 
-	@xml_collection("arguments") ArrayList<String>	arguments	= new ArrayList<String>();
+	@xml_collection("argument") ArrayList<String>	arguments	= new ArrayList<String>();
 
 	/**
 	 * 
@@ -34,6 +34,11 @@ public @xml_tag("application-desc") class ApplicationDesc extends ElementState
 	public void add(String argument)
 	{
 		this.arguments.add(argument);
+	}
+
+	public ArrayList<String> getArguments()
+	{
+		return arguments;
 	}
 
 }

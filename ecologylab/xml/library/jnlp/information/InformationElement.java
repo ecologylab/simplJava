@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_tag;
-import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -16,20 +15,20 @@ import ecologylab.xml.library.jnlp.application.ApplicationDesc;
  */
 public @xml_inherit @xml_tag("information") class InformationElement extends ElementState
 {
-    @xml_attribute private String                                               os;
+    @xml_attribute protected String                                               os;
 
     /** The name of the application. This element is required. */
-    @xml_nested private String                                                  title;
+    @xml_leaf protected String                                                  title;
 
     /** The name of the vendor of the application. This element is required. */
-    @xml_nested private String                                                  vendor;
+    @xml_leaf protected String                                                  vendor;
 
     /**
      * Contains a single attribute, href, which is a URL locating the home page for the Application. It is used by the
      * Java Application Cache Viewer to point the user to a Web page where more information about the application can be
      * found.
      */
-    @xml_nested private HomepageElement                                         homepage;
+    @xml_nested protected HomepageElement                                         homepage;
 
     /**
      * A short statement about the application. Description elements are optional. The kind attribute defines how the
@@ -49,7 +48,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * 
      * All descriptions contain plain text. No formatting, such as with HTML tags, is supported.
      */
-    @xml_collection("description") private ArrayList<Description>               descriptions   = new ArrayList<Description>();
+    @xml_collection("description") protected ArrayList<Description>               descriptions   = new ArrayList<Description>();
 
     /**
      * Contains an HTTP URL to an image file in either GIF or JPEG format. The icons are used to represents the
@@ -80,7 +79,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * file, the old splash image will still be displayed. The new splash image will appear on the second and subsequent
      * launches of the application.
      */
-    @xml_collection("icon") private ArrayList<Icon>                             icons          = new ArrayList<Icon>();
+    @xml_collection("icon") protected ArrayList<Icon>                             icons          = new ArrayList<Icon>();
 
     /**
      * offline-allowed element: The optional offline-allowed element indicates if the application can be launched
@@ -103,14 +102,14 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * application will be launched instead. Given a reasonably fast server connection, the latest version of the
      * application will usually be run, but it is not guaranteed. The application, however, can be run offline.
      */
-    @xml_collection("offline-allowed") private ArrayList<OfflineAllowedElement> offlineAllowed = new ArrayList<OfflineAllowedElement>();
+    @xml_collection("offline-allowed") protected ArrayList<OfflineAllowedElement> offlineAllowed = new ArrayList<OfflineAllowedElement>();
 
     /**
      * The optional association element is a hint to the JNLP client that it wishes to be registered with the operating
      * system as the primary handler of certain extensions and a certain mime-type. The association element must have
      * the extensions and mime-type attributes.
      */
-    @xml_nested private AssociationElement                                      association;
+    @xml_nested protected AssociationElement                                      association;
 
     /**
      * shortcut element: The optional shortcut element can be used to indicate an application's preferences for desktop
@@ -118,7 +117,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * The shortcut element can contain the optional online attribute, and the two optional sub-elements, desktop and
      * menu.
      */
-    @xml_nested private ShortcutElement                                         shortcut;
+    @xml_nested protected ShortcutElement                                         shortcut;
 
     /**
      * related-content element: The optional related-content element describes an additional piece of related content,
@@ -152,4 +151,14 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
     {
         return icons;
     }
+
+	public String getTitle()
+	{
+		return title;
+	}
+
+	public String getVendor()
+	{
+		return vendor;
+	}
 }
