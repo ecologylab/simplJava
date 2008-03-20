@@ -28,6 +28,7 @@ public class ConfParser
 		
 		if (!confFile.exists() || !confFile.canRead())
 		{
+			System.err.println("Failed to parse conf file: " + confFile);
 			throw new FileNotFoundException();
 		}
 		
