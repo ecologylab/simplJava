@@ -5,7 +5,6 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.TranslationSpace;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 /**
  * Translations for the pref/meta_pref system.

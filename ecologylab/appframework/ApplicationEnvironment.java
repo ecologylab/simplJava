@@ -291,7 +291,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param uid
 	 * @return
 	 */
-	private PrefSet requestPrefFromServlet(String prefServlet, TranslationSpace translationSpace)
+	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationSpace translationSpace)
 	{
 	    System.out.println("retrieving preferences set from servlet: "+prefServlet);
 /*
@@ -926,5 +926,22 @@ implements Environment, XMLTranslationExceptionTypes
 	protected PrefSet prefSet()
 	{
 		return prefSet;
+	}
+	
+	/**
+	 * Adds otherPrefs to this.prefSet, replacing any entries with the same name.
+	 * @param otherPrefs
+	 */
+	protected void augmentPrefSet(PrefSet otherPrefs)
+	{
+		if (prefSet == null)
+		{ // TODO this should be thread safe; it is NOT
+			this.prefSet = new PrefSet();
+		}
+		
+		for (String k : otherPrefs.keySet())
+		{
+			this.prefSet.put(k, otherPrefs.get(k));
+		}
 	}
 }
