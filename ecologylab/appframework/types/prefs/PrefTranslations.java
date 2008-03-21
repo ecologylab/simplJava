@@ -4,6 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.xml.TranslationSpace;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 /**
@@ -41,6 +43,10 @@ public class PrefTranslations extends Debug
         PrefElementState.class,
         PrefColor.class,
         PrefFile.class,
+        
+        PrefAuthList.class,
+        AuthenticationList.class,
+        AuthenticationListEntry.class,
         
         RangeState.class,
         RangeIntState.class,
