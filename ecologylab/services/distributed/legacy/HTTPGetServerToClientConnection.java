@@ -81,9 +81,9 @@ public class HTTPGetServerToClientConnection extends ServerToClientConnection
         	
         	ParsedURL responseUrl = null;
         	if (responseMessage instanceof OkResponse)
-        		responseUrl = httpRequest.okResponseUrl();
+        		responseUrl = httpRequest.okRedirectUrl(null);
         	else
-        		responseUrl = httpRequest.errorResponseUrl();
+        		responseUrl = httpRequest.errorRedirectUrl(null);
         	
         	String responseString;
         	debugA("responseUrl: " + responseUrl);
