@@ -1,6 +1,7 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -18,7 +19,7 @@ import ecologylab.xml.xml_inherit;
 	 *           Context to perform it in/with.
 	 * @return Response to pass back to the (remote) caller.
 	 */
-	public abstract ResponseMessage performService(Scope localScope);
+	public abstract ResponseMessage performService(Scope clientSessionScope);
 
 	/**
 	 * Indicates whether or not this type of message may be ignored by the server, if the server becomes backed-up. For
@@ -33,4 +34,35 @@ import ecologylab.xml.xml_inherit;
 	{
 		return false;
 	}
+	
+	/**
+	 * A URL can be provided, indicating the response should be accomplished with HTTP redirect.
+	 * Used when browser security is an issue.
+	 * <p/>
+	 * This is the redirect URL for response when processing is successful.
+	 * 
+	 * @param clientSessionScope	Can be used to generate HTTP GET style arguments in the redirect URL.
+	 * 
+	 * @return		null in this the base class case.
+	 */
+	public ParsedURL okRedirectUrl(Scope clientSessionScope)
+	{
+		return null;
+	}
+	
+	/**
+	 * A URL can be provided, indicating the response should be accomplished with HTTP redirect.
+	 * Used when browser security is an issue.
+	 * <p/>
+	 * This is the redirect URL for response when processing results in an error.
+	 * 
+	 * @param clientSessionScope	Can be used to generate HTTP GET style arguments in the redirect URL.
+	 * 
+	 * @return		null in this the base class case.
+	 */
+	public ParsedURL errorRedirectUrl(Scope clientSessionScope)
+	{
+		return null;
+	}
+
 }
