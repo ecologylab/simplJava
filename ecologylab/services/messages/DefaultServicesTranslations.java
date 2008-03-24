@@ -21,7 +21,9 @@ public class DefaultServicesTranslations
 															{ RequestMessage.class, ResponseMessage.class, CloseMessage.class,
 
 															StopMessage.class, OkResponse.class, BadSemanticContentResponse.class,
-			ErrorResponse.class, Prologue.class, Epilogue.class, LogOps.class, SendEpilogue.class, SendPrologue.class,
+			ErrorResponse.class, 
+			
+			Prologue.class, Epilogue.class, LogOps.class, SendEpilogue.class, SendPrologue.class,
 
 			HttpRequest.class, HttpGetRequest.class, PingRequest.class, Ping.class, Pong.class, UrlMessage.class,
 

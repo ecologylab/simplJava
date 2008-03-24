@@ -14,7 +14,7 @@ public class LoggingTranslations
 
 	public static final Class	TRANSLATIONS[]	=
 															{ Logging.class, LogOps.class,
-			LogRequestMessage.class, LogueMessage.class, Prologue.class,
+			LogEvent.class, LogueMessage.class, Prologue.class,
 			SendEpilogue.class, SendPrologue.class, MixedInitiativeOp.class,
 			Epilogue.class							};
 

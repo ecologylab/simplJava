@@ -9,7 +9,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author andruid
  */
-@xml_inherit abstract public class LogueMessage extends LogRequestMessage
+@xml_inherit abstract public class LogueMessage extends LogEvent
 {
 	@xml_attribute protected String	logName;
 

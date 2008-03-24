@@ -429,7 +429,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						synchronized (threadSemaphore)
 						{
 							debugA("interrupting thread to do i/o now: "
-									+ bufferLength + "/" + maxOpsBeforeWrite);
+									+ bufferLength + "/" + maxBufferSizeToWrite);
 							thread.interrupt();
 							// end sleep in that thread prematurely to do i/o
 						}
@@ -644,7 +644,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		 * 
 		 * @param logRequestMessage
 		 */
-		void writeLogMessage(LogRequestMessage logRequestMessage)
+		void writeLogMessage(LogEvent logRequestMessage)
 		{
 			StringBuilder buffy = logRequestMessage.bufferToLog();
 			writeLogMessage(buffy);
@@ -947,7 +947,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			writeLogMessage(sendPrologue);
 		}
 
-		@Override void writeLogMessage(LogRequestMessage message)
+		@Override void writeLogMessage(LogEvent message)
 		{
 			try
 			{

@@ -16,7 +16,7 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit public final class LogOps extends LogRequestMessage
+@xml_inherit public final class LogOps extends LogEvent
 {
 	/** Constructor for XML translation. */
 	public LogOps()
@@ -30,7 +30,7 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	static final Class[]				CLASSES	=
-														{ LogOps.class, LogRequestMessage.class };
+														{ LogOps.class, LogEvent.class };
 
 	static final TranslationSpace	TS			= TranslationSpace.get("lo", CLASSES);
 
