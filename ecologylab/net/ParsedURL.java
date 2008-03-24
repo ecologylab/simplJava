@@ -16,7 +16,7 @@ import ecologylab.generic.IntSlot;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -253,7 +253,7 @@ implements MimeType
     * @return					ElementState object derived from XML at the InputStream of this.
     * @throws XMLTranslationException
     */
-   public ElementState translateFromXML(TranslationSpace translationSpace) 
+   public ElementState translateFromXML(TranslationScope translationSpace) 
    throws XMLTranslationException
    {
 	   return ElementState.translateFromXML(this, translationSpace);

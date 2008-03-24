@@ -2,7 +2,7 @@ package ecologylab.xml.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Dublin Core Metadata Element Set, as defined at
@@ -54,9 +54,9 @@ public class DcTag extends ElementState
 		Dc.class,
 	};
 
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	
 	public DcTag() 

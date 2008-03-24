@@ -8,7 +8,7 @@ import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -36,7 +36,7 @@ public class ClientManager extends AbstractClientManager implements ServerConsta
 	 * @param registry
 	 */
 	public ClientManager(Object sessionId, int maxPacketSize, NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socketKey, TranslationSpace translationSpace, Scope<?> registry)
+			SelectionKey socketKey, TranslationScope translationSpace, Scope<?> registry)
 	{
 		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
 	}

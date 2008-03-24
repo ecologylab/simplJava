@@ -1,6 +1,6 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 
 /**
@@ -23,9 +23,9 @@ public class LoggingTranslations
 	 * 
 	 * @return TranslationSpace for basic ecologylab.services
 	 */
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS,
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS,
 				ElementTypeTranslations.get());
 	}
 }

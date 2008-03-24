@@ -6,7 +6,7 @@ package ecologylab.standalone;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -24,7 +24,7 @@ public class TestXml extends ElementState
 		TestXml.class, 
 	};
 	
-	static final TranslationSpace TS	= TranslationSpace.get("testing123", TRANSLATIONS);
+	static final TranslationScope TS	= TranslationScope.get("testing123", TRANSLATIONS);
 	/**
 	 * 
 	 */

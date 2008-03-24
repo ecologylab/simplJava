@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey;
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Provides a special implementation of performService(), that open()'s an
@@ -35,7 +35,7 @@ public class LoggingClientManager extends ClientManager
 	 */
 	public LoggingClientManager(Object token, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server,
-			SelectionKey sk, TranslationSpace translationSpace, Scope registry)
+			SelectionKey sk, TranslationScope translationSpace, Scope registry)
 	{
 		super(token, maxPacketSize, server, loggingServer, sk, translationSpace,
 				registry);

@@ -2,7 +2,7 @@ package ecologylab.xml.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -26,9 +26,9 @@ public class ResultSet extends ArrayListState
 	public String		xsi;
 	
 	
-	public static TranslationSpace translationSpace()
+	public static TranslationScope translationSpace()
 	{
-		return TranslationSpace.get("yahoo", "ecologylab.xml.library.yahoo");
+		return TranslationScope.get("yahoo", "ecologylab.xml.library.yahoo");
 	}
 	
 	public static String SEOUL_SHOPPING		= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";

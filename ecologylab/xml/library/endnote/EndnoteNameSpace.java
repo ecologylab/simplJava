@@ -1,6 +1,6 @@
 package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Contains all of the information necessary to translate XML objects used in
@@ -38,9 +38,9 @@ public class EndnoteNameSpace
             ecologylab.xml.library.geom.Ellipse2DDoubleState.class,
             ecologylab.xml.library.geom.RectangularShape.class };
 
-    public static TranslationSpace get()
+    public static TranslationScope get()
     {
-        return TranslationSpace.get(NAME, TRANSLATIONS, PACKAGE_NAME);
+        return TranslationScope.get(NAME, TRANSLATIONS, PACKAGE_NAME);
     }
 
     /**

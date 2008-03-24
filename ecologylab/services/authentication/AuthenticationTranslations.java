@@ -1,7 +1,7 @@
 package ecologylab.services.authentication;
 
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Contains all of the information necessary to translate XML objects used in an authenticating server. Use
@@ -24,15 +24,15 @@ public class AuthenticationTranslations
 			ecologylab.services.authentication.AuthenticationListEntry.class,
 			ecologylab.services.authentication.AuthenticationList.class };
 
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(NAME, TRANSLATIONS, DefaultServicesTranslations.get(), DEFAULT_PACKAGE);
+		return TranslationScope.get(NAME, TRANSLATIONS, DefaultServicesTranslations.get(), DEFAULT_PACKAGE);
 	}
 	
-	public static TranslationSpace get(String customName, TranslationSpace otherSpaceToCompose)
+	public static TranslationScope get(String customName, TranslationScope otherSpaceToCompose)
 	{
-	    TranslationSpace[] spaces = {DefaultServicesTranslations.get(), otherSpaceToCompose};
+	    TranslationScope[] spaces = {DefaultServicesTranslations.get(), otherSpaceToCompose};
 	    
-	    return TranslationSpace.get(customName, TRANSLATIONS, spaces, DEFAULT_PACKAGE);
+	    return TranslationScope.get(customName, TRANSLATIONS, spaces, DEFAULT_PACKAGE);
 	}
 }

@@ -4,7 +4,7 @@
 package ecologylab.xml.types.element;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Translations for built-in element types.
@@ -44,9 +44,9 @@ public class ElementTypeTranslations extends Debug
     /**
      * Get the translation space
      */
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
 
 }

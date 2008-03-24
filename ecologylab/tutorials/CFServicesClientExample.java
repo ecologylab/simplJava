@@ -9,7 +9,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.cf.CFMessagesTranslations;
 import ecologylab.services.messages.cf.SearchState;
 import ecologylab.services.messages.cf.SeedCf;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Example of how to use ecologylab.services to form a combinFormation client,
@@ -19,7 +19,7 @@ import ecologylab.xml.TranslationSpace;
  */
 public class CFServicesClientExample extends Debug
 {
-	static final TranslationSpace	CF_TRANSLATIONS		= CFMessagesTranslations.get();
+	static final TranslationScope	CF_TRANSLATIONS		= CFMessagesTranslations.get();
 	 
 	/**
 	 * 

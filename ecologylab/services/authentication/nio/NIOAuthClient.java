@@ -18,7 +18,7 @@ import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.messages.DisconnectRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * A client application that uses authentication and communicates using NIO.
@@ -58,7 +58,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param objectRegistry
 	 * @throws IOException 
 	 */
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
 			int interval, RequestMessage messageToSend) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, null, interval, messageToSend);
@@ -79,7 +79,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 				new Scope(), entry, interval, messageToSend);
 	}
 
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
 			AuthenticationListEntry entry) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, entry, 0, null);
@@ -95,7 +95,7 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param entry
 	 * @throws IOException 
 	 */
-	public NIOAuthClient(String server, int port, TranslationSpace messageSpace, Scope objectRegistry,
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
 			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
 	{
 		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);

@@ -4,7 +4,7 @@ package ecologylab.services.messages;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
@@ -13,7 +13,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 
 	@xml_leaf(CDATA) protected String surrogateSetString;
 	
-	TranslationSpace translationSpace;
+	TranslationScope translationSpace;
 	
 	public CfCollaborationGetSurrogate()
 	{
@@ -38,7 +38,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 		return OkResponse.get();
 	}
 	
-	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationSpace translationSpace) 
+	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationScope translationSpace) 
 	throws XMLTranslationException
 	{
 		this(surrogateSetString);

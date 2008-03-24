@@ -11,7 +11,7 @@ import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.HttpRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 public abstract class HTTPClientManager extends AbstractClientManager
 {
@@ -31,7 +31,7 @@ public abstract class HTTPClientManager extends AbstractClientManager
 	
 	public HTTPClientManager(Object sessionId, int maxPacketSize,
 			NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socket, TranslationSpace translationSpace,
+			SelectionKey socket, TranslationScope translationSpace,
 			Scope<?> registry) {
 		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace,
 				registry);

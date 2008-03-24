@@ -1,7 +1,7 @@
 package ecologylab.xml.library.rest.nsdl;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.rest.RESTTranslationSpace;
 import ecologylab.xml.library.rest.SearchResults;
 
@@ -15,10 +15,10 @@ public class NSDLTranslationSpace extends Debug
 		SearchResults.class
 	};
 	
-	protected static final TranslationSpace INHERITED[]= {RESTTranslationSpace.get()};
+	protected static final TranslationScope INHERITED[]= {RESTTranslationSpace.get()};
 	
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, INHERITED);
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, INHERITED);
 	}
 }

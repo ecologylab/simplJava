@@ -7,7 +7,7 @@ import java.io.IOException;
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.common.SessionObjects;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Provide socket based browser services.
@@ -40,7 +40,7 @@ implements SessionObjects, ServicesHostsAndPorts
 		super(BROWSER_SERVICES_PORT, 0, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
-	public BrowserServices(int portNumber, TranslationSpace translations, Scope objectRegistry)
+	public BrowserServices(int portNumber, TranslationScope translations, Scope objectRegistry)
 	throws IOException, java.net.BindException
 	{
 		super(portNumber, 0, translations, objectRegistry);
@@ -59,7 +59,7 @@ implements SessionObjects, ServicesHostsAndPorts
 		return (BrowserServices) get(portNumber, BROWSER_SERVICES_TRANSLATIONS, objectRegistry);
 	}
 	
-	public static ServicesServer get(int portNumber, TranslationSpace translations, Scope objectRegistry)
+	public static ServicesServer get(int portNumber, TranslationScope translations, Scope objectRegistry)
 	{
 		BrowserServices newServer	= null;
 		try

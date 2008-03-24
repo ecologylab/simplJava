@@ -3,7 +3,7 @@ package ecologylab.services.messages;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
@@ -32,7 +32,7 @@ extends RequestMessage
 		super();
 		this.preferencesSet = preferencesSet;
 	}
-	public SetPreferences(String preferencesSetString, TranslationSpace translationSpace)
+	public SetPreferences(String preferencesSetString, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		this((PrefSet) translateFromXMLCharSequence(preferencesSetString, translationSpace));

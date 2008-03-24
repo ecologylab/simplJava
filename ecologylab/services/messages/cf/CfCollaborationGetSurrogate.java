@@ -9,7 +9,7 @@ import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
@@ -18,7 +18,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 
 	@xml_leaf protected String surrogateSetString;
 	
-	static TranslationSpace translationSpace;
+	static TranslationScope translationSpace;
 	
 	public CfCollaborationGetSurrogate()
 	{
@@ -43,7 +43,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 		return OkResponse.get();
 	}
 	
-	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationSpace translationSpace) 
+	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationScope translationSpace) 
 	throws XMLTranslationException
 	{
 		this(surrogateSetString);

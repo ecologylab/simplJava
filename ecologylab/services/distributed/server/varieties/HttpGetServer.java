@@ -14,7 +14,7 @@ import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.HTTPGetClientManager;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * @author toupsz
@@ -33,7 +33,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationSpace requestTranslationSpace,
+			TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
@@ -52,7 +52,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace,
+			TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
@@ -61,7 +61,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	}
 
 	@Override protected AbstractClientManager generateContextManager(
-			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
+			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
 		return new HTTPGetClientManager(token, maxPacketSize, this.getBackend(),

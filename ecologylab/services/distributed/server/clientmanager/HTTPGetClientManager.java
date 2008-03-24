@@ -13,7 +13,7 @@ import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.messages.HttpGetRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -38,7 +38,7 @@ public class HTTPGetClientManager extends HTTPClientManager
 	 */
 	public HTTPGetClientManager(Object token, int maxPacketSize,
 			NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socketKey, TranslationSpace translationSpace,
+			SelectionKey socketKey, TranslationScope translationSpace,
 			Scope<?> registry)
 	{
 		super(token, maxPacketSize, server, frontend, socketKey,

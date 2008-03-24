@@ -4,7 +4,7 @@
 package ecologylab.standalone;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.jnlp.information.AssociationElement;
@@ -50,11 +50,11 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         
         System.out.println(test.translateToXML());
         System.out.println(ElementState.translateFromXMLCharSequence(test.translateToXML(),
-                TranslationSpace.get("test", classes, "test")).translateToXML());
+                TranslationScope.get("test", classes, "test")).translateToXML());
         
         System.out.println(taggies.translateToXML());
         System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
-                TranslationSpace.get("test", classes, "test")).translateToXML());
+                TranslationScope.get("test", classes, "test")).translateToXML());
 
     }
 }

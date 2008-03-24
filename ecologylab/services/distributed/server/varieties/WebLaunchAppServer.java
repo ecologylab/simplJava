@@ -15,7 +15,7 @@ import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.HTTPPostClientManager;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * A server that runs on an application that uses web launch, listening for
@@ -53,7 +53,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 	 * @throws BindException
 	 */
 	protected WebLaunchAppServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationSpace requestTranslationSpace, Scope objectRegistry,
+			TranslationScope requestTranslationSpace, Scope objectRegistry,
 			int idleConnectionTimeout, int maxPacketSize) throws IOException,
 			BindException
 	{
@@ -62,7 +62,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 	}
 
 	@Override protected AbstractClientManager generateContextManager(
-			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
+			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
 		return new HTTPPostClientManager(token, maxPacketSize, this.getBackend(),

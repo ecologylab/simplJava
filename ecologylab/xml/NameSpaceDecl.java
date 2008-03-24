@@ -14,12 +14,12 @@ public class NameSpaceDecl extends Debug
 {
 	final String							urn;
 	final Class<? extends ElementState>		esClass;
-	final TranslationSpace					translationSpace;
+	final TranslationScope					translationSpace;
 	
 	/**
 	 * 
 	 */
-	public NameSpaceDecl(String urn, Class<? extends ElementState> esClass, TranslationSpace translationSpace)
+	public NameSpaceDecl(String urn, Class<? extends ElementState> esClass, TranslationScope translationSpace)
 	{
 		this.urn				= urn;
 		this.esClass			= esClass;

@@ -11,7 +11,7 @@ import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * A server that automatically records any incoming log data to a local file.
@@ -136,13 +136,13 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 	}
 
 	protected NIOLoggingServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationSpace requestTranslationSpace,
+			TranslationScope requestTranslationSpace,
 			Scope applicationObjectScope, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, 
 				inetAddresses, 
-				TranslationSpace.get(
+				TranslationScope.get(
 				"double_threaded_logging " + inetAddresses[0].toString() + ":"
 						+ portNumber, LOGGING_CLASSES, DefaultServicesTranslations.get(), requestTranslationSpace),
 				applicationObjectScope, 
@@ -175,7 +175,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 	}
 
 	@Override protected LoggingClientManager generateContextManager(
-			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
+			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
 		return new LoggingClientManager(token, maxPacketSize, this, this

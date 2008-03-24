@@ -9,7 +9,7 @@ import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.messages.HttpRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 public class HTTPPostClientManager extends HTTPClientManager
@@ -26,7 +26,7 @@ public class HTTPPostClientManager extends HTTPClientManager
 	 * @param registry
 	 */
 	public HTTPPostClientManager(Object token, int maxPacketSize, NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socketKey, TranslationSpace translationSpace, Scope<?> registry)
+			SelectionKey socketKey, TranslationScope translationSpace, Scope<?> registry)
 	{	
 		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
 		this.initialized = true;

@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
         System.out.println("localhost: " + InetAddress.getLocalHost());
         System.out.println(InetAddress.getByName("localhost"));
         HTTPPostServer validateionTestServer = get(postServerPort, InetAddress
-                .getByName("localhost"), TranslationSpace.get(
+                .getByName("localhost"), TranslationScope.get(
                 "validateMessage", "ecologylab.services.messages"), new Scope());
 
         if (validateionTestServer != null)
@@ -44,7 +44,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
      * @throws BindException
      */
     protected HTTPPostServer(int portNumber, InetAddress[] inetAddress,
-            TranslationSpace requestTranslationSpace,
+            TranslationScope requestTranslationSpace,
             Scope objectRegistry) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
@@ -58,7 +58,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
      * @return The TestDataServer instance, or null if exceptions are thrown.
      */
     protected static HTTPPostServer get(int portNumber,
-            InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+            InetAddress inetAddress, TranslationScope requestTranslationSpace,
             Scope objectRegistry)
     {
         HTTPPostServer httpPostServer = null;

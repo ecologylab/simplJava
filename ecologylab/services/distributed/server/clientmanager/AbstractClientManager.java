@@ -28,7 +28,7 @@ import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -124,7 +124,7 @@ public abstract class AbstractClientManager extends Debug implements
 	protected int																maxPacketSize;
 
 	/** Used to translate incoming message XML strings into RequestMessages. */
-	protected TranslationSpace												translationSpace;
+	protected TranslationScope												translationSpace;
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming
@@ -212,7 +212,7 @@ public abstract class AbstractClientManager extends Debug implements
 	 */
 	public AbstractClientManager(Object sessionId, int maxPacketSize,
 			NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socket, TranslationSpace translationSpace,
+			SelectionKey socket, TranslationScope translationSpace,
 			Scope<?> registry)
 	{
 		this.frontend = frontend;

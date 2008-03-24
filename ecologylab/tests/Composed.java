@@ -4,7 +4,7 @@
 package ecologylab.tests;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.ArrayListState;
@@ -32,7 +32,7 @@ public class Composed extends ElementState
 
     public static void main(String[] args) throws XMLTranslationException
     {
-        TranslationSpace ts = TranslationSpace.get("testXMLTag", classes);
+        TranslationScope ts = TranslationScope.get("testXMLTag", classes);
         
         Composed c = new Composed();
         

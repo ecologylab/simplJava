@@ -24,7 +24,7 @@ import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.XMLTranslationExceptionTypes;
 
@@ -51,7 +51,7 @@ implements Environment, XMLTranslationExceptionTypes
 //	private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String ECLIPSE_BASE_PREFERENCE_PATH = ECLIPSE_PREFS_DIR+"preferences.xml";
 	
-	TranslationSpace		translationSpace;
+	TranslationScope		translationSpace;
 	
 	/**
 	 * Used for forming codeBase relative ParsedURLs.
@@ -128,7 +128,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param prefsAssetVersion TODO
 	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(String applicationName, TranslationSpace translationSpace, String args[], float prefsAssetVersion) throws XMLTranslationException
+	public ApplicationEnvironment(String applicationName, TranslationScope translationSpace, String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
 	   this(null, applicationName, translationSpace, args, prefsAssetVersion);
 	}
@@ -156,7 +156,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 */
 	public ApplicationEnvironment(String applicationName, String args[]) throws XMLTranslationException
 	{
-	   this(applicationName, (TranslationSpace) null, args, 0);
+	   this(applicationName, (TranslationScope) null, args, 0);
 	}
 	/**
 	 * Create an ApplicationEnvironment.
@@ -232,7 +232,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param prefsAssetVersion TODO
 	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationSpace translationSpace,  String args[], float prefsAssetVersion) throws XMLTranslationException
+	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationScope translationSpace,  String args[], float prefsAssetVersion) throws XMLTranslationException
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
 		this.translationSpace		= translationSpace;
@@ -291,7 +291,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param uid
 	 * @return
 	 */
-	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationSpace translationSpace)
+	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationScope translationSpace)
 	{
 	    System.out.println("retrieving preferences set from servlet: "+prefServlet);
 /*
@@ -351,7 +351,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param prefsAssetVersion TODO
 	 * @throws XMLTranslationException
 	 */
-	private void processPrefs(Class baseClass, TranslationSpace translationSpace, Stack<String> argStack, float prefsAssetVersion) 
+	private void processPrefs(Class baseClass, TranslationScope translationSpace, Stack<String> argStack, float prefsAssetVersion) 
 	throws XMLTranslationException
 	{
 		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
@@ -867,7 +867,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * 
 	 * @return	TranslationSpace in use for parsing Preferences
 	 */
-	public TranslationSpace translationSpace()
+	public TranslationScope translationSpace()
 	{
 		return translationSpace;
 	}

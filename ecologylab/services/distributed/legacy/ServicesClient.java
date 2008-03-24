@@ -14,7 +14,7 @@ import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -51,7 +51,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         this(port, null);
     }
 
-    public ServicesClient(int port, TranslationSpace messageSpace)
+    public ServicesClient(int port, TranslationScope messageSpace)
     {
         this("localhost", port, messageSpace);
     }
@@ -61,12 +61,12 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
         this(server, port, null);
     }
 
-    public ServicesClient(String server, int port, TranslationSpace messageSpace)
+    public ServicesClient(String server, int port, TranslationScope messageSpace)
     {
         this(server, port, messageSpace, null);
     }
 
-    public ServicesClient(String server, int port, TranslationSpace messageSpace,
+    public ServicesClient(String server, int port, TranslationScope messageSpace,
             Scope objectRegistry)
     {
         super(server, port, messageSpace, objectRegistry);

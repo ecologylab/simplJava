@@ -16,7 +16,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -63,7 +63,7 @@ public class ServicesServer extends ServicesServerBase
      *            TODO
      * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
      */
-    public static ServicesServer get(int portNumber, int serverType, TranslationSpace requestTranslationSpace,
+    public static ServicesServer get(int portNumber, int serverType, TranslationScope requestTranslationSpace,
             Scope objectRegistry)
     {
         ServicesServer newServer = null;
@@ -90,7 +90,7 @@ public class ServicesServer extends ServicesServerBase
      *            Provides a context for request processing.
      * @throws IOException
      */
-    protected ServicesServer(int portNumber, int serverType, TranslationSpace requestTranslationSpace,
+    protected ServicesServer(int portNumber, int serverType, TranslationScope requestTranslationSpace,
             Scope objectRegistry) throws IOException, java.net.BindException
     {
         super(portNumber, requestTranslationSpace, objectRegistry);

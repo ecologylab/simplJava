@@ -3,7 +3,7 @@ package ecologylab.standalone;
 import java.io.File;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.rest.Fields;
 import ecologylab.xml.library.rest.RESTTranslationSpace;
@@ -24,7 +24,7 @@ public class TestNameSpace
 		}
 		
 		File xmlFile 	= new File(args[0]);
-		TranslationSpace tSpace
+		TranslationScope tSpace
 						= RESTTranslationSpace.get(); 
 		try 
 		{

@@ -4,7 +4,7 @@
 package ecologylab.xml.library.icdl;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Translations for parsing International Childrens Digital Library stuff.
@@ -29,8 +29,8 @@ public class ICDLTranslations extends Debug
 	   {
 	   }
 	   
-	   public static TranslationSpace get()
+	   public static TranslationScope get()
 	   {
-		   return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, PACKAGE_NAME);
+		   return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, PACKAGE_NAME);
 	   }
 }

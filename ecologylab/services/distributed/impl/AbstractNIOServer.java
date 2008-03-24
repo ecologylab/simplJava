@@ -15,7 +15,7 @@ import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.messages.InitConnectionRequest;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Provides access to an NIOServerIOThread, which handles the details of network
@@ -29,7 +29,7 @@ public abstract class AbstractNIOServer extends Manager implements
 {
 	private NIOServerIOThread		backend;
 
-	protected TranslationSpace		translationSpace;
+	protected TranslationScope		translationSpace;
 
 	protected Scope					applicationObjectScope;
 
@@ -47,7 +47,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress[] inetAddress,
-			TranslationSpace requestTranslationSpace, Scope objectRegistry,
+			TranslationScope requestTranslationSpace, Scope objectRegistry,
 			int idleConnectionTimeout) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress,
@@ -69,18 +69,18 @@ public abstract class AbstractNIOServer extends Manager implements
 	static final Class[]	OUR_TRANSLATIONS	=
 														{ InitConnectionRequest.class, };
 
-	public static TranslationSpace composeTranslations(int portNumber,
-			InetAddress inetAddress, TranslationSpace requestTranslationSpace)
+	public static TranslationScope composeTranslations(int portNumber,
+			InetAddress inetAddress, TranslationScope requestTranslationSpace)
 	{
 		return composeTranslations(OUR_TRANSLATIONS, "nio_server_base: ",
 				portNumber, inetAddress.toString(), requestTranslationSpace);
 	}
 
-	public static TranslationSpace composeTranslations(Class[] newTranslations,
+	public static TranslationScope composeTranslations(Class[] newTranslations,
 			String prefix, int portNumber, String inetAddress,
-			TranslationSpace requestTranslationSpace)
+			TranslationScope requestTranslationSpace)
 	{
-		return TranslationSpace.get(prefix + inetAddress.toString() + ":"
+		return TranslationScope.get(prefix + inetAddress.toString() + ":"
 				+ portNumber, newTranslations, requestTranslationSpace);
 	}
 
@@ -98,7 +98,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace, Scope objectRegistry,
+			TranslationScope requestTranslationSpace, Scope objectRegistry,
 			int idleConnectionTimeout) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
@@ -106,7 +106,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	}
 
 	protected NIOServerIOThread generateBackend(int portNumber,
-			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout) throws BindException,
 			IOException
 	{
@@ -115,7 +115,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	}
 
 	protected abstract AbstractClientManager generateContextManager(
-			Object token, SelectionKey sk, TranslationSpace translationSpace,
+			Object token, SelectionKey sk, TranslationScope translationSpace,
 			Scope globalScope);
 
 	/**
@@ -153,7 +153,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	/**
 	 * @return the translationSpace
 	 */
-	public TranslationSpace getTranslationSpace()
+	public TranslationScope getTranslationSpace()
 	{
 		return translationSpace;
 	}

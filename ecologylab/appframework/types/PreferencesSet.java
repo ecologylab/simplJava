@@ -9,7 +9,7 @@ import ecologylab.appframework.Environment;
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.ArrayListState;
@@ -74,7 +74,7 @@ implements ApplicationPropertyNames
 	 * @param path
 	 * @param prefFilePath
 	 */
-	public static void loadPreferencesXML(TranslationSpace translationSpace, File path, String prefFilePath)
+	public static void loadPreferencesXML(TranslationScope translationSpace, File path, String prefFilePath)
 	{
 		File preferencesXMLFile	= new File(path, prefFilePath);
 		if (preferencesXMLFile.exists())

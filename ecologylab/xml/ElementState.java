@@ -1051,7 +1051,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return 	   Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLDOM(ParsedURL purl,
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		return translateFromXMLDOM(buildDOM(purl), translationSpace);
@@ -1068,7 +1068,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return						Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXML(ParsedURL purl, TranslationSpace translationSpace)
+	public static ElementState translateFromXML(ParsedURL purl, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		if (purl == null)
@@ -1108,7 +1108,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 */
 
 	public static ElementState translateFromXMLDOM(URL xmlDocumentURL,
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 	   Document document	= buildDOM(xmlDocumentURL);
@@ -1117,7 +1117,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	}
 	
 	public static ElementState translateFromXML(URL url,
-			TranslationSpace translationSpace)
+			TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(url, translationSpace) : translateFromXMLSAX(url, translationSpace);
@@ -1134,7 +1134,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLDOM(File xmlFile, 
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 	   Document document	= buildDOM(xmlFile);
@@ -1156,7 +1156,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(File xmlFile, 
-			TranslationSpace translationSpace)
+			TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(xmlFile, translationSpace) : translateFromXMLSAX(xmlFile, translationSpace);
@@ -1182,7 +1182,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLDOM(String fileName,
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 		throws XMLTranslationException
 	{
 		Document document	= buildDOM(fileName);
@@ -1201,7 +1201,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXML(String fileName,
-			TranslationSpace translationSpace)
+			TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		File xmlFile	= new File(fileName);
@@ -1228,7 +1228,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLDOM(InputStream xmlStream, TranslationSpace nameSpace)
+	public static ElementState translateFromXMLDOM(InputStream xmlStream, TranslationScope nameSpace)
 	throws XMLTranslationException
 	{
 		Document document	= buildDOM(xmlStream);
@@ -1246,7 +1246,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return						Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXML(InputStream xmlStream, TranslationSpace translationSpace)
+	public static ElementState translateFromXML(InputStream xmlStream, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOM(xmlStream, translationSpace) : translateFromXMLSAX(xmlStream, translationSpace);	
@@ -1276,7 +1276,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 */
 	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence, 
 													  int charsetType,
-													  TranslationSpace translationSpace)
+													  TranslationScope translationSpace)
 		throws XMLTranslationException
 	{
 		Document dom		= buildDOMFromXMLCharSequence(charSequence, charsetType);
@@ -1310,7 +1310,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLDOMCharSequence(CharSequence charSequence,
-														 TranslationSpace translationSpace)
+														 TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		   return translateFromXMLDOMCharSequence(charSequence, StringInputStream.UTF8, translationSpace);
@@ -1328,7 +1328,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException
 	 */
 	public static ElementState translateFromXMLCharSequence(CharSequence xmlString,
-													  		TranslationSpace translationSpace)
+													  		TranslationScope translationSpace)
 		throws XMLTranslationException
 	{
 		return useDOMForTranslateTo ? translateFromXMLDOMCharSequence(xmlString, translationSpace) : translateFromXMLSAX(xmlString, translationSpace);	
@@ -1360,7 +1360,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return 		Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLDOM(Document doc, 
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		return translateFromXMLRootNode(doc.getDocumentElement(), translationSpace);
@@ -1396,7 +1396,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return 				Parent ElementState object of the corresponding Java tree.
 	 */
 	public static ElementState translateFromXMLRootNode(Node xmlRootNode,
-												TranslationSpace translationSpace)
+												TranslationScope translationSpace)
 	   throws XMLTranslationException
 	{
 	   // find the class for the new object derived from ElementState
@@ -1477,7 +1477,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
      * @param translationSpace		NameSpace that provides basis for translation.
      * @return 			Parent ElementState object of the corresponding Java tree.
      */
-	void translateFromXMLNode(Node xmlNode, TranslationSpace translationSpace)
+	void translateFromXMLNode(Node xmlNode, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		// translate attribtues
@@ -1594,7 +1594,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(CharSequence charSequence, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(CharSequence charSequence, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
@@ -1608,7 +1608,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(ParsedURL purl, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
@@ -1622,7 +1622,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(URL url, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(URL url, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
@@ -1636,7 +1636,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(File file, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(File file, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
@@ -1650,7 +1650,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	public static ElementState translateFromXMLSAX(InputStream inputStream, TranslationSpace translationSpace)
+	public static ElementState translateFromXMLSAX(InputStream inputStream, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
 		ElementStateSAXHandler saxHandler	= new ElementStateSAXHandler(translationSpace);
@@ -1662,7 +1662,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @param translationSpace
 	 * @param attributes
 	 */
-	void translateAttributes(TranslationSpace translationSpace, Attributes attributes)
+	void translateAttributes(TranslationScope translationSpace, Attributes attributes)
 	{
 		int numAttributes	= attributes.getLength();
 		for (int i=0; i<numAttributes; i++)

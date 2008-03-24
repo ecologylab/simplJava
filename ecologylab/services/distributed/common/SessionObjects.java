@@ -1,6 +1,6 @@
 package ecologylab.services.distributed.common;
 
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Constants that define general ecologylab objects that get stored in the
@@ -15,7 +15,7 @@ public interface SessionObjects
 
     public static final String           MAIN_SHUTDOWNABLE             = "main_shutdownable";
 
-    public static final TranslationSpace BROWSER_SERVICES_TRANSLATIONS = TranslationSpace
+    public static final TranslationScope BROWSER_SERVICES_TRANSLATIONS = TranslationScope
                                                                                .get(
                                                                                        "Browse",
                                                                                        "ecologylab.services.messages");

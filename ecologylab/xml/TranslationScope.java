@@ -13,14 +13,10 @@ import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
- * A set of translations between XML element names (tags) and associated Java ElementState
- * class names.
- * This is done by maintaining a HashMap containing
- * the name of the class as the key and its package as the value. If no entry is 
- * present in the map, then the default package is returned. This is used when
- * an XML is converted back to its Java State-Object
+ * A set of bindings between XML element names (tags) and associated simple (without package) class names,
+ * and associated Java ElementState classes. Inheritance is supported.
  */
-public final class TranslationSpace extends Debug
+public final class TranslationScope extends Debug
 {
    private final String			name;
    /**
@@ -29,15 +25,15 @@ public final class TranslationSpace extends Debug
 	*/
    private String				defaultPackageName;
    
-   private TranslationSpace[]	inheritedTranslationSpaces;
+   private TranslationScope[]	inheritedTranslationScopes;
    
    /**
-    * Fundamentally, a TranslationSpace consists of a set of class simple names.
+    * Fundamentally, a TranslationScope consists of a set of class simple names.
     * These are mapped to tag names (camel case conversion), and to Class objects.
     * Because there are many packages, globally, there could be more than one class
     * with one single name.
     * <p/>
-    * Among other things, a TranslationSpace tells us *which* package's version will be used,
+    * Among other things, a TranslationScope tells us *which* package's version will be used,
     * if there are multiple possibilities. This is the case when internal and external versions of
     * a message and its constituents are defined for a messaging API.
     */
@@ -46,82 +42,82 @@ public final class TranslationSpace extends Debug
    
    private final HashMap<String, Class<? extends ElementState>>	nameSpaceClassesByURN = new HashMap<String, Class<? extends ElementState>>();
    
-   private static HashMap<String, TranslationSpace>	allTranslationSpaces	= new HashMap<String, TranslationSpace>();
+   private static HashMap<String, TranslationScope>	allTranslationScopes	= new HashMap<String, TranslationScope>();
       
    /**
-    * Create a new space that defines how to translate xml tag names into
+    * Create a new TranslationScope that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
     * 
     * @param name
     */
-   private TranslationSpace(String name)
+   private TranslationScope(String name)
    {
 	  this.name	= name;
-	  allTranslationSpaces.put(name, this);
+	  allTranslationScopes.put(name, this);
    }
 
    /**
-    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * Create a new TranslationScope that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
-    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationScope.
     * 
     * @param name
-    * @param inheritedTranslationSpace
+    * @param inheritedTranslationScope
     */
-   private TranslationSpace(String name, TranslationSpace inheritedTranslationSpace)
+   private TranslationScope(String name, TranslationScope inheritedTranslationScope)
    {
 	   this(name);
-	   addTranslations(inheritedTranslationSpace);
-	   TranslationSpace[] inheritedTranslationSpaces	= new TranslationSpace[1];
-	   inheritedTranslationSpaces[0]					= inheritedTranslationSpace;
-	   this.inheritedTranslationSpaces					= inheritedTranslationSpaces;
+	   addTranslations(inheritedTranslationScope);
+	   TranslationScope[] inheritedTranslationScopes	= new TranslationScope[1];
+	   inheritedTranslationScopes[0]					= inheritedTranslationScope;
+	   this.inheritedTranslationScopes					= inheritedTranslationScopes;
    }
 
-   private TranslationSpace(String name, Class<? extends ElementState> translation, TranslationSpace inheritedTranslationSpaces)
+   private TranslationScope(String name, Class<? extends ElementState> translation, TranslationScope inheritedTranslationScopes)
    {
-	   this(name, inheritedTranslationSpaces);
+	   this(name, inheritedTranslationScopes);
 	   addTranslation(translation);
    }
 
    /**
-    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * Create a new TranslationScope that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
-    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationScope.
     * 
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationSpace(String name, TranslationSpace[] inheritedTranslationSpaces)
+   private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes)
    {
 	   this(name);
 
-	   if (inheritedTranslationSpaces != null)
+	   if (inheritedTranslationScopes != null)
 	   {
-		   this.inheritedTranslationSpaces		= inheritedTranslationSpaces;
-		   int n = inheritedTranslationSpaces.length;
+		   this.inheritedTranslationScopes		= inheritedTranslationScopes;
+		   int n = inheritedTranslationScopes.length;
 		   for (int i = 0; i < n; i++)
-			   addTranslations(inheritedTranslationSpaces[i]);
+			   addTranslations(inheritedTranslationScopes[i]);
 	   }
    }
    
    /**
-    * Create a new TranslationSpace that defines how to translate xml tag names into
+    * Create a new TranslationScope that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
-    * Begin by copying in the translations from another, pre-existing "base" TranslationSpace.
+    * Begin by copying in the translations from another, pre-existing "base" TranslationScope.
     * 
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationSpace(String name, ArrayList<TranslationSpace> baseTranslationsSet)
+   private TranslationScope(String name, ArrayList<TranslationScope> baseTranslationsSet)
    {
 	  this(name);
-	  for (TranslationSpace thatTranslationSpace: baseTranslationsSet)
-		  addTranslations(thatTranslationSpace);
-	  inheritedTranslationSpaces		= (TranslationSpace[]) baseTranslationsSet.toArray();
+	  for (TranslationScope thatTranslationScope: baseTranslationsSet)
+		  addTranslations(thatTranslationScope);
+	  inheritedTranslationScopes		= (TranslationScope[]) baseTranslationsSet.toArray();
    }
    
    /**
-    * Create a new space that defines how to translate xml tag names into
+    * Create a new TranslationScope that defines how to translate xml tag names into
     * class names of subclasses of ElementState.
     * 
     * Set a new default package.
@@ -129,48 +125,48 @@ public final class TranslationSpace extends Debug
     * @param name
     * @param defaultPackgeName
     */
-   private TranslationSpace(String name, String defaultPackgeName)
+   private TranslationScope(String name, String defaultPackgeName)
    {
 	   this(name);
 	   this.setDefaultPackageName(defaultPackgeName);
    }
    
    /**
-     * Create a new space that defines how to translate xml tag names into
-     * class names of subclasses of ElementState.
-     * 
-     * Set a new default package, and
- 	* a set of defined translations.
-     * 
-     * @param name		Name of the TranslationSpace to be 
- 	*					A key for use in the TranslationSpace registry.
-  * @param translations		Set of initially defined translations for this.
-  * @param defaultPackgeName
-     */
-    private TranslationSpace(String name, Class<? extends ElementState>[] translations, 
- 					String defaultPackgeName)
-    {
- 	   this(name, translations, (TranslationSpace[]) null, defaultPackgeName);
-    }
-   
+    * Create a new TranslationScope that defines how to translate xml tag names into
+    * class names of subclasses of ElementState.
+    * 
+    * Set a new default package, and
+    * a set of defined translations.
+    * 
+    * @param name		Name of the TranslationSpace to be 
+    *					A key for use in the TranslationSpace registry.
+    * @param translations		Set of initially defined translations for this.
+    * @param defaultPackgeName
+    */
+   private TranslationScope(String name, Class<? extends ElementState>[] translations, 
+		   String defaultPackgeName)
+   {
+	   this(name, translations, (TranslationScope[]) null, defaultPackgeName);
+   }
+
    /**
-    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Construct a new TranslationScope, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
  * @param translations
- * @param inheritedTranslationSpaces
+ * @param inheritedTranslationScopes
  * @param defaultPackgeName
     */
-   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace[] inheritedTranslationSpaces,
+   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope[] inheritedTranslationScopes,
 		   String defaultPackgeName)
    {
-	   this(name, inheritedTranslationSpaces);
+	   this(name, inheritedTranslationScopes);
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
    /**
-    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Construct a new TranslationScope, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
@@ -178,7 +174,7 @@ public final class TranslationSpace extends Debug
  * @param defaultPackgeName
  * @param baseTranslations
     */
-   private TranslationSpace(String name, Class<? extends ElementState>[] translations, ArrayList<TranslationSpace> inheritedTranslationsSet,
+   private TranslationScope(String name, Class<? extends ElementState>[] translations, ArrayList<TranslationScope> inheritedTranslationsSet,
 		   String defaultPackgeName)
    {
 	   this(name, inheritedTranslationsSet);
@@ -187,37 +183,37 @@ public final class TranslationSpace extends Debug
    }
    
    /**
-    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Construct a new TranslationScope, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
     * @param translations
-    * @param inheritedTranslations
+    * @param inheritedTranslationScope
     * @param defaultPackgeName
     */
-   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace inheritedTranslations,
+   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope inheritedTranslationScope,
 		   String defaultPackgeName)
    {
-	   this(name, inheritedTranslations);
+	   this(name, inheritedTranslationScope);
 	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
 
    /**
-    * Construct a new TranslationSpace, with this name, using the baseTranslations first.
+    * Construct a new TranslationScope, with this name, using the baseTranslations first.
     * Then, add the array of translations, then, make the defaultPackageName available.
     * Map XML Namespace declarations.
     *      
     * @param name
     * @param translations
-    * @param inheritedTranslations
+    * @param inheritedTranslationScopes
     * @param defaultPackgeName
     * @param nameSpaceDecls
     */
-   private TranslationSpace(String name, Class<? extends ElementState>[] translations, TranslationSpace[] inheritedTranslations,
+   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope[] inheritedTranslationScopes,
 		   String defaultPackgeName, NameSpaceDecl[] nameSpaceDecls)
    {
-	   this(name, translations, inheritedTranslations, defaultPackgeName);
+	   this(name, translations, inheritedTranslationScopes, defaultPackgeName);
 	   addNameSpaceDecls(nameSpaceDecls);
    }
    
@@ -264,22 +260,22 @@ public final class TranslationSpace extends Debug
    }
 
    /**
-    * Utility for composing <code>TranslationSpace</code>s.
+    * Utility for composing <code>TranslationScope</code>s.
     * Performs composition by value. That is, the entries are copied.
     * 
     * Unlike in union(), if there are duplicates, they will override identical entries in this.
     * 
-    * @param inheritedTranslations
+    * @param inheritedTranslationScope
     */
-   private void addTranslations(TranslationSpace inheritedTranslations)
+   private void addTranslations(TranslationScope inheritedTranslationScope)
    {
-	   if (inheritedTranslations != null)
+	   if (inheritedTranslationScope != null)
 	   {
 		   // copy map entries from inherited maps into new maps
-		   updateMapWithValues(inheritedTranslations.entriesByClassSimpleName, entriesByClassSimpleName, "classSimpleName");
-		   updateMapWithValues(inheritedTranslations.entriesByTag, entriesByTag, "tagName");
+		   updateMapWithValues(inheritedTranslationScope.entriesByClassSimpleName, entriesByClassSimpleName, "classSimpleName");
+		   updateMapWithValues(inheritedTranslationScope.entriesByTag, entriesByTag, "tagName");
 		   
-		   HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslations.nameSpaceClassesByURN;
+		   HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslationScope.nameSpaceClassesByURN;
 		   if (inheritedNameSpaceClassesByURN != null)
 		   {
 			   for (String urn : inheritedNameSpaceClassesByURN.keySet())
@@ -362,8 +358,8 @@ public final class TranslationSpace extends Debug
    }
    /**
 	* Look-up a <code>Class</code> object for the xmlTag, using translations in this,
-	* and in inherited TranslationSpaces.
-	* Will use defaultPackage name here and, recursivley, in inherited spaces, as necessary.
+	* and in inherited TranslationScopes.
+	* Will use defaultPackage name here and, recursivley, in inherited scopes, as necessary.
 	* 
 	* @param	xmlTag	XML node name that we're seeking a Class for.
 	* @return 			Class object, or null if there is no associated translation.
@@ -376,7 +372,7 @@ public final class TranslationSpace extends Debug
 
    /**
     * Seek the entry associated with the tag.
-    * Recurse through inheritedTranslationSpaces, if necessary.
+    * Recurse through inherited TranslationScopes, if necessary.
     * 
     * @param xmlTag
     * @return
@@ -394,13 +390,13 @@ public final class TranslationSpace extends Debug
 			   entry					= new TranslationEntry(defaultPackageName, classSimpleName, xmlTag);
 			   if (entry.empty)
 			   {
-				   if (inheritedTranslationSpaces != null)
+				   if (inheritedTranslationScopes != null)
 				   {   // recurse through inherited, continuing to seek a translation
-					   for (TranslationSpace inherited : inheritedTranslationSpaces)
+					   for (TranslationScope inherited : inheritedTranslationScopes)
 					   {
 						   entry			= inherited.xmlTagToTranslationEntry(xmlTag);
 						   if (entry != null)
-						   {   // got one from an inherited TranslationSpace
+						   {   // got one from an inherited TranslationScope
 							   // register translation for the inherited entry in this
 							   entriesByTag.put(xmlTag, entry);
 							   entriesByClassSimpleName.put(classSimpleName, entry);
@@ -445,7 +441,7 @@ public final class TranslationSpace extends Debug
 	   return (entry == null) ? null : entry.thisClass;
    }
    /**
-    * Use this TranslationSpace to lookup a class that has the same simple name
+    * Use this TranslationScope to lookup a class that has the same simple name
     * as the argument passed in here. It may have a different full name, that is,
     * a different package, which could be quite convenient for overriding with 
     * subclasses.
@@ -487,7 +483,7 @@ public final class TranslationSpace extends Debug
 
 	   /**
 	    * Construct an empty entry for tag.
-	    * This means that the TranslationSpace will map tag to no class forever.
+	    * This means that the TranslationScope will map tag to no class forever.
 	    * 
 	    * @param tag
 	    */
@@ -546,7 +542,7 @@ public final class TranslationSpace extends Debug
 		   this.packageName		= packageName;
 		   /*
 		    * changed by andruid 5/5/07 the thinking is that there is only one possible simple class name per tag per
-		    * TranslationSpace, so we don't ever need the whole class name. and by ussing the short one, we will be
+		    * TranslationScope, so we don't ever need the whole class name. and by ussing the short one, we will be
 		    * able to support fancy overriding properly, where you change (override!) the mapping of a simple name,
 		    * because the package and whole name are differrent.
 		    */
@@ -635,85 +631,91 @@ public final class TranslationSpace extends Debug
 	   }
    }
 
+   private String toStringCache;
+   
    public String toString()
    {
-      return "TranslationSpace[" + name +"]";
+	   if (toStringCache == null)
+	   {
+		   toStringCache	= "TranslationScope[" + name +"]";
+	   }
+      return toStringCache;
    }
    /**
-    * Find the TranslationSpace called <code>name</code>, if there is one.
+    * Find the TranslationScope called <code>name</code>, if there is one.
     * 
     * @param name
     * @return
     */
-   public static TranslationSpace lookup(String name)
+   public static TranslationScope lookup(String name)
    {
-	   return (TranslationSpace) allTranslationSpaces.get(name);
+	   return (TranslationScope) allTranslationScopes.get(name);
    }
    /**
-    * Find the TranslationSpace called <code>name</code>, if there is one.
+    * Find the TranslationScope called <code>name</code>, if there is one.
     * Otherwise, create a new one with this name, and return it.
     * 
     * @param name
     * @return
     */
-   public static TranslationSpace get(String name)
+   public static TranslationScope get(String name)
    {
-	   TranslationSpace result	= lookup(name);
-	   return (result != null) ? result : new TranslationSpace(name);
+	   TranslationScope result	= lookup(name);
+	   return (result != null) ? result : new TranslationScope(name);
    }
    
    /**
-    * Look for a TranslationSpace with this name.
+    * Look for a TranslationScope with this name.
     * If you find one, make sure it also has the same defaultPackageName (internal consistency check).
     * Throw a RuntimeExcpection if the consistency check fails.
     * 
     * @param 	name
     * @return	existing translations
     */
-   private static TranslationSpace lookForExistingTS(String name)
+   private static TranslationScope lookForExistingTS(String name)
    {
 	   return lookup(name);
    }
    /**
-    * Find the TranslationSpace called <code>name</code>, if there is one.
+    * Find the TranslationScope called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no TranslationSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is no TranslationScope with this name, create a new one, and set its defaultPackageName.
     * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
     * 
     * @param name
     * @return
     */
-   public static TranslationSpace get(String name, String defaultPackageName)
+   public static TranslationScope get(String name, String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result	= new TranslationSpace(name, defaultPackageName);
+		   result	= new TranslationScope(name, defaultPackageName);
 	   }
 	   return result;
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
+    * Find an existing TranslationScope by this name, or create a new one.
     * 
     * @param defaultPackageName
     * @param translations
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String defaultPackageName, Class[] translations)
+   public static TranslationScope get(String defaultPackageName, Class[] translations)
    {
-	   TranslationSpace result	= lookForExistingTS(defaultPackageName);
+	   TranslationScope result	= lookForExistingTS(defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(defaultPackageName, translations, defaultPackageName);
+		   result		= new TranslationScope(defaultPackageName, translations, defaultPackageName);
 	   }
 	   return result;	   
    }
    
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Inherit from the previous TranslationSpace, by including all mappings from there.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Inherit from the previous TranslationScope, by including all mappings from there.
     * 
     * @param name
     * @param translations
@@ -722,20 +724,20 @@ public final class TranslationSpace extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations, TranslationSpace inheritedTranslations,
+   public static TranslationScope get(String name, Class[] translations, TranslationScope inheritedTranslations,
 		   							  String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translations, inheritedTranslations, defaultPackageName);
+		   result		= new TranslationScope(name, translations, inheritedTranslations, defaultPackageName);
 	   }
 	   return result;	   
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a previous TranslationSpace, by including all mappings from there.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a previous TranslationScope, by including all mappings from there.
     * Add just a single new class.
     * 
     * @param name
@@ -743,62 +745,62 @@ public final class TranslationSpace extends Debug
     * @param inheritedTranslations
     * @return
     */
-   public static TranslationSpace get(String name, Class<? extends ElementState> translation, TranslationSpace inheritedTranslations)
+   public static TranslationScope get(String name, Class<? extends ElementState> translation, TranslationScope inheritedTranslations)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translation, inheritedTranslations);
+		   result		= new TranslationScope(name, translation, inheritedTranslations);
 	   }
 	   return result;	   
    }
  
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
+    * Find an existing TranslationScope by this name, or create a new one.
     * Add just a single new class.
     * 
     * @param name
     * @param translation
     * @return
     */
-   public static TranslationSpace get(String name, Class<? extends ElementState> translation)
+   public static TranslationScope get(String name, Class<? extends ElementState> translation)
    {
 	   return get(name, translation, null);
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on the previous TranslationSpace, by including all mappings from there.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on the previous TranslationScope, by including all mappings from there.
     * 
     * @param name
     * @param translations
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations,
-		   							  TranslationSpace inheritedTranslations)
+   public static TranslationScope get(String name, Class[] translations,
+		   							  TranslationScope inheritedTranslations)
    {
 	   return get(name, translations, inheritedTranslations, name);
    }
  
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on the previous TranslationSpace, by including all mappings from there.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on the previous TranslationScope, by including all mappings from there.
     * 
     * @param name
     * @param translations
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations,
-			  TranslationSpace... inheritedTranslations)
+   public static TranslationScope get(String name, Class[] translations,
+			  TranslationScope... inheritedTranslations)
    {
 	   return get(name, translations, inheritedTranslations, (String) null);
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
  * @param translations
@@ -807,20 +809,20 @@ public final class TranslationSpace extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+   public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
 		   							  String defaultPackageName)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
 	   }
 	   return result;	   
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
  * @param translations
@@ -830,60 +832,60 @@ public final class TranslationSpace extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations, TranslationSpace[] inheritedTranslationsSet,
+   public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
 		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
+		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
 	   }
 	   return result;	   
    }
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
     * @param defaultPackageName
     * @param inheritedTranslationsSet
     * @return
     */
-   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations, String defaultPackageName)
+   public static TranslationScope get(String name, TranslationScope[] inheritedTranslations, String defaultPackageName)
    {
 	   return get(name, null, inheritedTranslations, defaultPackageName);	   
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
     * @param inheritedTranslations
     * @return
     */
-   public static TranslationSpace get(String name, TranslationSpace[] inheritedTranslations)
+   public static TranslationScope get(String name, TranslationScope[] inheritedTranslations)
    {
 	   return get(name, null, inheritedTranslations, null);	   
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on an inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on an inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
     * @param inheritedTranslations
     * @param defaultPackageName
     * @return
     */
-   public static TranslationSpace get(String name, TranslationSpace inheritedTranslations, String defaultPackageName)
+   public static TranslationScope get(String name, TranslationScope inheritedTranslations, String defaultPackageName)
    {
 	   return get(name, null, inheritedTranslations, defaultPackageName);	   
    }
 
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
     * @param defaultPackageName
@@ -892,19 +894,19 @@ public final class TranslationSpace extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, String defaultPackageName, ArrayList<TranslationSpace> inheritedTranslationsSet,
+   public static TranslationScope get(String name, String defaultPackageName, ArrayList<TranslationScope> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
 	   }
 	   return result;	   
    }
    /**
-    * Find an existing TranslationSpace by this name, or create a new one.
-    * Build on a set of inherited TranslationSpaces, by including all mappings from them.
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
  * @param translations
@@ -912,35 +914,35 @@ public final class TranslationSpace extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations,
-		   							  ArrayList<TranslationSpace> inheritedTranslationsSet)
+   public static TranslationScope get(String name, Class[] translations,
+		   							  ArrayList<TranslationScope> inheritedTranslationsSet)
    {
-	   TranslationSpace result	= lookForExistingTS(name);
+	   TranslationScope result	= lookForExistingTS(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationSpace(name, translations, inheritedTranslationsSet, name);
+		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, name);
 	   }
 	   return result;	   
    }
    /**
-    * Find the TranslationSpace called <code>name</code>, if there is one.
+    * Find the TranslationScope called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no TranslationSpace with this name, create a new one, and set its defaultPackageName.
+    * If there is no TranslationScope with this name, create a new one, and set its defaultPackageName.
     * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
     * 
-    * Add the translations to the TranslationSpace.
+    * Add the translations to the TranslationScope.
     * 
     * @param name
-    * @return Either an existing or new TranslationSpace, with this defaultPackageName, and these translations.
-    * A RuntimeException will be thrown if there was already such a TranslationSpace, but with different defaultPackageName.
+    * @return Either an existing or new TranslationScope, with this defaultPackageName, and these translations.
+    * A RuntimeException will be thrown if there was already such a TranslationScope, but with different defaultPackageName.
     */
    @SuppressWarnings("unchecked")
-   public static TranslationSpace get(String name, Class[] translations, String defaultPackageName)
+   public static TranslationScope get(String name, Class[] translations, String defaultPackageName)
    {
-	  TranslationSpace result	= lookForExistingTS(name);
+	  TranslationScope result	= lookForExistingTS(name);
 	  if (result == null)
 	  {
-		  result		= new TranslationSpace(name, translations, defaultPackageName);
+		  result		= new TranslationScope(name, translations, defaultPackageName);
 	  }
 	  return result;
    }

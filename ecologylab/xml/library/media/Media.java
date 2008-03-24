@@ -1,7 +1,7 @@
 package ecologylab.xml.library.media;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.ElementState.xml_leaf;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.rss.Channel;
@@ -134,9 +134,9 @@ public class Media extends ElementState
 	 * 
 	 * @return
 	 */
-	public static final TranslationSpace getTranslations()
+	public static final TranslationScope getTranslations()
 	{
-		return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	}
 	/**
 	 * @return the thumbnail

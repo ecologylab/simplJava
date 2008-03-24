@@ -4,7 +4,7 @@ import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefString;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.types.element.HashMapState;
 
@@ -21,7 +21,7 @@ public class TestMaps extends Debug
 		{
 				HashMapState.class, PrefString.class
 		};
-		TranslationSpace TS	= TranslationSpace.get("foo", CLASSES);
+		TranslationScope TS	= TranslationScope.get("foo", CLASSES);
 		
 		HashMapState<String, Pref<?>> prefs = new HashMapState<String, Pref<?>>();
 		

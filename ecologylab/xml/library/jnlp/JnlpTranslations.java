@@ -4,7 +4,7 @@
 package ecologylab.xml.library.jnlp;
 
 import ecologylab.appframework.types.AppFrameworkTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.applet.Param;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
@@ -50,7 +50,7 @@ public class JnlpTranslations
 			Jar.class, Nativelib.class, Property.class, ResourceElement.class,
 			ResourceElementArray.class, JnlpState.class					};
 
-	private static final TranslationSpace	inheritedTranslations[]	=
+	private static final TranslationScope	inheritedTranslations[]	=
 																						{
 			AppFrameworkTranslations.get(),
 			JnlpTranslations.getStudyTranslationsOnly()					};
@@ -60,9 +60,9 @@ public class JnlpTranslations
 	 * 
 	 * @return
 	 */
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		TranslationSpace result = TranslationSpace.get(JNLP_TRANSLATIONS_NAME,
+		TranslationScope result = TranslationScope.get(JNLP_TRANSLATIONS_NAME,
 				JNLP_TRANSLATIONS, inheritedTranslations);
 
 		return result;
@@ -71,9 +71,9 @@ public class JnlpTranslations
 	/**
 	 * @return
 	 */
-	private static TranslationSpace getStudyTranslationsOnly()
+	private static TranslationScope getStudyTranslationsOnly()
 	{
-		TranslationSpace temp = TranslationSpace.get(JNLP_TRANSLATIONS_NAME,
+		TranslationScope temp = TranslationScope.get(JNLP_TRANSLATIONS_NAME,
 				JNLP_TRANSLATIONS, JNLP_PACKAGE_NAME);
 
 		return temp;

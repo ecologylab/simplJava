@@ -25,7 +25,7 @@ import ecologylab.services.authentication.registryobjects.AuthServerRegistryObje
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.logging.Logging;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -65,7 +65,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 *         ServerSocket on the port on this machine.
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
-			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
 			String authListFilename)
 	{
@@ -106,7 +106,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 *         ServerSocket on the port on this machine.
 	 */
 	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
-			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
 			AuthenticationList authList)
 	{
@@ -137,7 +137,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * @throws BindException
 	 */
 	protected DoubleThreadedAuthNIOServer(int portNumber,
-			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
 			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
 			AuthenticationList authList) throws IOException, BindException
 	{
@@ -160,7 +160,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * @return
 	 */
 	@Override protected AbstractClientManager generateContextManager(
-			Object sessionId, SelectionKey sk, TranslationSpace translationSpace,
+			Object sessionId, SelectionKey sk, TranslationScope translationSpace,
 			Scope registry)
 	{
 		try

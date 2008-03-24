@@ -6,7 +6,7 @@ package ecologylab.appframework.types.prefs;
 import ecologylab.generic.Debug;
 import ecologylab.services.authentication.AuthenticationList;
 import ecologylab.services.authentication.AuthenticationListEntry;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 /**
  * Translations for the pref/meta_pref system.
@@ -69,9 +69,9 @@ public class PrefTranslations extends Debug
     /**
      * Get the translation space
      */
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, ElementTypeTranslations.get());
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, ElementTypeTranslations.get());
 	}
 
 }

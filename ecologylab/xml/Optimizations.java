@@ -353,7 +353,7 @@ implements OptimizationTypes
 	 * @param context TODO
 	 * @param node TODO
 	 */
-	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, Node node)
+	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
 		return nodeToJavaOptimizations(translationSpace, context, tag, false);
@@ -370,7 +370,7 @@ implements OptimizationTypes
 	 * @param node
 	 * @return
 	 */
-	NodeToJavaOptimizations nodeToJavaOptimizations(TranslationSpace translationSpace, ElementState context, String tag, boolean isAttribute)
+	NodeToJavaOptimizations nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
 	{
 		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
 		
@@ -397,7 +397,7 @@ implements OptimizationTypes
 	 * 
 	 * @return		true if setup was performed. false if it was performed previously.
 	 */
-	boolean setupTranslateFromXML(TranslationSpace translationSpace, ElementState context)
+	boolean setupTranslateFromXML(TranslationScope translationSpace, ElementState context)
 	{
 		boolean result		= !xmlTagFieldsAreIndexed;
 		if (result)
@@ -761,7 +761,7 @@ implements OptimizationTypes
 	 * @param tspace
 	 * @param context
 	 */
-	private void indexSpecialMappingsForFields(ArrayList<Field> themFields, boolean isAttribute, TranslationSpace tspace, ElementState context)
+	private void indexSpecialMappingsForFields(ArrayList<Field> themFields, boolean isAttribute, TranslationScope tspace, ElementState context)
 	{
 		for (Field thatField : themFields)
 		{
@@ -816,7 +816,7 @@ implements OptimizationTypes
 	 * @param thatField
 	 * @param thatClass
 	 */
-	private NodeToJavaOptimizations registerN2JOByClass(TranslationSpace tspace, Field thatField,
+	private NodeToJavaOptimizations registerN2JOByClass(TranslationScope tspace, Field thatField,
 			Class thatClass)
 	{
 		NodeToJavaOptimizations n2jo	= 
@@ -836,7 +836,7 @@ implements OptimizationTypes
 	 * 
 	 * @return	NodeToJavaOptimizations that was registered, or null.
 	 */
-	private NodeToJavaOptimizations registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_tag tagAnnotation)
+	private NodeToJavaOptimizations registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
 	{
 		String thatTag					= tagAnnotation.value();
 		NodeToJavaOptimizations	result	= null;
@@ -852,7 +852,7 @@ implements OptimizationTypes
 		return result;
 	}
 	
-	private boolean registerOtherTagsOptimizationsIfNeeded(NodeToJavaOptimizations fieldN2jo, boolean isAttribute, TranslationSpace tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
+	private boolean registerOtherTagsOptimizationsIfNeeded(NodeToJavaOptimizations fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
 	{
 		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
 		final boolean result	= (otherTags != null);
@@ -1063,7 +1063,7 @@ implements OptimizationTypes
 	 * @param nsID
 	 * @param urn TODO
 	 */
-	void mapNamespaceIdToClass(TranslationSpace translationSpace, String nsID, String urn)
+	void mapNamespaceIdToClass(TranslationScope translationSpace, String nsID, String urn)
 	{
 		if (!nameSpaceClassesById.containsKey(nsID))
 		{

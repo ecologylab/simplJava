@@ -4,7 +4,7 @@
 package ecologylab.xml.library.opml;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Outline Processor Markup Language root element.
@@ -36,9 +36,9 @@ public class Opml extends ElementState
 	 * 
 	 * @return
 	 */  
-	public static TranslationSpace translationSpace()
+	public static TranslationScope translationSpace()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
 	/**
 	 * @return Returns the body.

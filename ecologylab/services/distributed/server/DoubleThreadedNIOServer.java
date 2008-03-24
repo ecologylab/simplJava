@@ -24,7 +24,7 @@ import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
 import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * A server that uses NIO and two threads (one for handling IO, the other for
@@ -49,7 +49,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
-			InetAddress[] inetAddress, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
 			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
 			throws IOException, BindException
 	{
@@ -59,7 +59,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
-			InetAddress inetAddress, TranslationSpace requestTranslationSpace,
+			InetAddress inetAddress, TranslationScope requestTranslationSpace,
 			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
 			throws IOException, BindException
 	{
@@ -93,7 +93,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
-			InetAddress[] inetAddresses, TranslationSpace requestTranslationSpace,
+			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
 			Scope applicationObjectScope, int idleConnectionTimeout, int maxPacketSize)
 			throws IOException, BindException
 	{
@@ -107,7 +107,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationSpace requestTranslationSpace, Scope globalScope,
+			TranslationScope requestTranslationSpace, Scope globalScope,
 			int idleConnectionTimeout, int maxPacketSize) throws IOException,
 			BindException
 	{
@@ -175,7 +175,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * @return
 	 */
 	@Override protected AbstractClientManager generateContextManager(
-			Object token, SelectionKey sk, TranslationSpace translationSpaceIn,
+			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
 		return new ClientManager(token, maxPacketSize, this.getBackend(), this,

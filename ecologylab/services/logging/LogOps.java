@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import ecologylab.collections.Scope;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
@@ -32,7 +32,7 @@ import ecologylab.xml.xml_inherit;
 	static final Class[]				CLASSES	=
 														{ LogOps.class, LogEvent.class };
 
-	static final TranslationSpace	TS			= TranslationSpace.get("lo", CLASSES);
+	static final TranslationScope	TS			= TranslationScope.get("lo", CLASSES);
 
 	public static void main(String[] a)
 	{

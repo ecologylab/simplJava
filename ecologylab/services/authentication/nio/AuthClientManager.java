@@ -21,7 +21,7 @@ import ecologylab.services.distributed.server.clientmanager.ClientManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Stores information about the connection context for the client, including
@@ -57,7 +57,7 @@ public class AuthClientManager extends ClientManager implements
 	@SuppressWarnings("unchecked") public AuthClientManager(Object token,
 			int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey sk,
-			TranslationSpace translationSpace, Scope registry,
+			TranslationScope translationSpace, Scope registry,
 			AuthLogging servicesServer, Authenticator authenticator)
 	{
 		super(token, maxPacketSize, server, frontend, sk, translationSpace,

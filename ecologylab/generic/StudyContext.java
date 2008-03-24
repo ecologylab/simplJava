@@ -1,8 +1,8 @@
 package ecologylab.generic;
 
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 public interface StudyContext 
 {
-	public TranslationSpace getTranslationSpace();
+	public TranslationScope getTranslationSpace();
 }

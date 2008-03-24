@@ -20,7 +20,7 @@ import ecologylab.io.ByteBufferPool;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.exceptions.ClientOfflineException;
 import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Handles backend, low-level communication between distributed programs, using
@@ -50,7 +50,7 @@ public abstract class NIONetworking extends NIOCore
 	 * Space that defines mappings between xml names, and Java class names, for
 	 * request messages.
 	 */
-	protected TranslationSpace							translationSpace;
+	protected TranslationScope							translationSpace;
 
 	/** Provides a context for request processing. */
 	protected Scope<?>									objectRegistry;
@@ -76,7 +76,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber,
-			TranslationSpace translationSpace, Scope<?> objectRegistry)
+			TranslationScope translationSpace, Scope<?> objectRegistry)
 			throws IOException
 	{
 		super(networkIdentifier, portNumber);

@@ -20,7 +20,7 @@ import ecologylab.services.distributed.impl.ServerListener;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -46,7 +46,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
      * Space that defines mappings between xml names, and Java class names, for
      * request messages.
      */
-    protected TranslationSpace requestTranslationSpace;
+    protected TranslationScope requestTranslationSpace;
 
     /**
      * Provides a context for request processing.
@@ -70,7 +70,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
      * @throws IOException
      */
     protected ServicesServerBase(int portNumber,
-            TranslationSpace requestTranslationSpace,
+            TranslationScope requestTranslationSpace,
             Scope objectRegistry) throws IOException,
             java.net.BindException
     {
@@ -180,7 +180,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
     /**
      * @return Returns the translationSpace.
      */
-    public TranslationSpace getRequestTranslationSpace()
+    public TranslationScope getRequestTranslationSpace()
     {
         return requestTranslationSpace;
     }

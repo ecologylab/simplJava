@@ -8,7 +8,7 @@ import java.io.File;
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.HashMapState;
@@ -67,7 +67,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @return
      * @throws XMLTranslationException
      */
-    public static PrefSet load(ParsedURL purl, TranslationSpace translationSpace) 
+    public static PrefSet load(ParsedURL purl, TranslationScope translationSpace) 
     throws XMLTranslationException
     {
     	File file	= purl.file();
@@ -85,7 +85,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @return
      * @throws XMLTranslationException
      */
-    public static PrefSet load(String filename, TranslationSpace translationSpace)
+    public static PrefSet load(String filename, TranslationScope translationSpace)
     throws XMLTranslationException
     {
         PrefSet pS = (PrefSet) ElementState.translateFromXML(filename, translationSpace);
@@ -100,7 +100,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @return
      * @throws XMLTranslationException
      */
-    public static PrefSet loadFromCharSequence(String prefXML, TranslationSpace translationSpace)
+    public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationSpace)
     throws XMLTranslationException
     {
         PrefSet pS = (PrefSet) ElementState.translateFromXMLCharSequence(prefXML, translationSpace);

@@ -62,7 +62,7 @@ implements OptimizationTypes
 	 */
 	private Class<? extends ElementState>	classOp;
 	
-	private TranslationSpace				translationSpace;
+	private TranslationScope				translationSpace;
 	
 	private NodeToJavaOptimizations			nestedPTE;
 	
@@ -74,7 +74,7 @@ implements OptimizationTypes
 	 * @param tag
 	 * @param isAttribute
 	 */
-	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, String tag, boolean isAttribute)
+	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -124,7 +124,7 @@ implements OptimizationTypes
 	 * @param field
 	 * @param thatClass
 	 */
-	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field, Class thatClass)
+	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, Class thatClass)
 	{
 		super();
 		this.tag				= XMLTools.getXmlTagName(thatClass, "State");
@@ -143,7 +143,7 @@ implements OptimizationTypes
 	 * @param optimizations
 	 * @param field
 	 */
-	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, Field field)
+	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field)
 	{
 		super();
 		Class<?> scalarTypeClass = field.getType();
@@ -165,7 +165,7 @@ implements OptimizationTypes
 	 * @param tag		Tag corresponding to the value in the XML that we're translating.
 	 * @param isAttribute TODO
 	 */
-	NodeToJavaOptimizations(TranslationSpace translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
+	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -372,7 +372,7 @@ implements OptimizationTypes
 	 * @param translationSpace
 	 * @param subTag
 	 */
-	private boolean setupNamespaceElement(TranslationSpace translationSpace, String subTag, ElementState context)
+	private boolean setupNamespaceElement(TranslationScope translationSpace, String subTag, ElementState context)
 	{
 		ElementState nsContext	= context.getNestedNameSpace(nameSpaceID);
 		if (nsContext == null)
@@ -971,7 +971,7 @@ implements OptimizationTypes
 	/**
 	 * @return the translationSpace
 	 */
-	TranslationSpace translationSpace()
+	TranslationScope translationSpace()
 	{
 		return translationSpace;
 	}

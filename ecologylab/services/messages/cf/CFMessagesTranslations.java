@@ -5,7 +5,7 @@ package ecologylab.services.messages.cf;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.*;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * TranslationSpace for client-side CFServices.
@@ -41,8 +41,8 @@ public class CFMessagesTranslations extends Debug
 	 * This accessor will work from anywhere, in any order, and stay efficient.
 	 * @return	TranslationSpace for cF services.
 	 */
-	public static TranslationSpace get()
+	public static TranslationScope get()
 	{
-		return TranslationSpace.get(PACKAGE_NAME, TRANSLATIONS, DefaultServicesTranslations.get());
+		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, DefaultServicesTranslations.get());
 	}
 }

@@ -41,7 +41,7 @@ import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -186,7 +186,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 																																	MAX_PACKET_SIZE_CHARACTERS);
 
 	public NIOClient(String serverAddress, int portNumber,
-			TranslationSpace messageSpace, Scope<?> objectRegistry)
+			TranslationScope messageSpace, Scope<?> objectRegistry)
 			throws IOException
 	{
 		super("NIOClient", portNumber, messageSpace, objectRegistry);

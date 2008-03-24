@@ -4,7 +4,7 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.NameSpaceDecl;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.feedburner.Feedburner;
@@ -32,7 +32,7 @@ extends Debug
 	   RDFState.class,
    };
 	   
-   public static final TranslationSpace INHERITED_TRANSLATIONS[]	= 
+   public static final TranslationScope INHERITED_TRANSLATIONS[]	= 
    {
 	   Media.getTranslations(),
 	   
@@ -53,9 +53,9 @@ extends Debug
    {
    }
    
-   public static TranslationSpace get()
+   public static TranslationScope get()
    {
-	   return TranslationSpace.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, INHERITED_TRANSLATIONS, null, NAME_SPACE_DECLS);
+	   return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, INHERITED_TRANSLATIONS, null, NAME_SPACE_DECLS);
    }
    
 	

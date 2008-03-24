@@ -41,7 +41,7 @@ public class ElementStateSAXHandler
 extends Debug 
 implements ContentHandler, OptimizationTypes
 {
-	final TranslationSpace	translationSpace;
+	final TranslationScope	translationSpace;
 	
 	ElementState					root;
 	
@@ -66,7 +66,7 @@ implements ContentHandler, OptimizationTypes
 	/**
 	 * 
 	 */
-	public ElementStateSAXHandler(TranslationSpace translationSpace)
+	public ElementStateSAXHandler(TranslationScope translationSpace)
 	{
 		this.translationSpace		= translationSpace;
 

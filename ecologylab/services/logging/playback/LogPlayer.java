@@ -22,7 +22,7 @@ import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
@@ -63,7 +63,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean										guiShown								= false;
 
-	protected TranslationSpace							translationSpace;
+	protected TranslationScope							translationSpace;
 
 	public final static int								DEFAULT_PLAYBACK_INTERVAL		= 100;
 
@@ -76,7 +76,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean	logLoadComplete = false;
 
-	public LogPlayer(String appName, String[] args, TranslationSpace translationSpace) throws XMLTranslationException
+	public LogPlayer(String appName, String[] args, TranslationScope translationSpace) throws XMLTranslationException
 	{
 		super(appName, translationSpace, args, 0);
 

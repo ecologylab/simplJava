@@ -26,7 +26,7 @@ import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.xml.TranslationSpace;
+import ecologylab.xml.TranslationScope;
 
 /**
  * The backend portion of the NIO Server, which handles low-level communication
@@ -42,7 +42,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 {
 	static NIOServerIOThread getInstance(int portNumber,
 			InetAddress[] hostAddresses, NIOServerProcessor sAP,
-			TranslationSpace requestTranslationSpace, Scope<?> objectRegistry,
+			TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
 			int idleSocketTimeout) throws IOException, BindException
 	{
 		return new NIOServerIOThread(portNumber, hostAddresses, sAP,
@@ -68,7 +68,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	private InetAddress[]													hostAddresses;
 
 	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses,
-			NIOServerProcessor sAP, TranslationSpace requestTranslationSpace,
+			NIOServerProcessor sAP, TranslationScope requestTranslationSpace,
 			Scope<?> objectRegistry, int idleSocketTimeout) throws IOException,
 			BindException
 	{
