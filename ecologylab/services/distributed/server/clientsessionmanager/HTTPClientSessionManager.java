@@ -53,16 +53,13 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
 			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
-		if (incomingRequest instanceof HttpRequest)
+		boolean isOK = outgoingResponse.isOK();
+		ParsedURL responseUrl = isOK ?
+				incomingRequest.okRedirectUrl(localScope) :
+				incomingRequest.errorRedirectUrl(localScope);
+
+		if (responseUrl != null)
 		{
-			HttpRequest httpRequest = (HttpRequest) incomingRequest;
-
-			ParsedURL responseUrl = null;
-			if (outgoingResponse.isOK())
-				responseUrl = httpRequest.okResponseUrl();
-			else
-				responseUrl = httpRequest.errorResponseUrl();
-
 			debugA("responseUrl: " + responseUrl);
 
 			if (responseUrl != null)
@@ -70,6 +67,8 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 
 			debugA("Server sending response!!!\n" + outgoingMessageHeaderBuf.toString());
 		}
+		else
+			warning("isOK="+isOK + " but responseUrl=null. Can't send redirect response.");
 	}
 	
 	/**
