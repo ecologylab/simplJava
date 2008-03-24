@@ -17,7 +17,7 @@ import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.DoubleThreadedAuthNIOServer;
 import ecologylab.services.distributed.server.NIOServerProcessor;
-import ecologylab.services.distributed.server.clientmanager.ClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
@@ -29,10 +29,10 @@ import ecologylab.xml.TranslationScope;
  * Should be extended for more specific implementations. Handles accumulating
  * incoming messages and translating them into RequestMessage objects.
  * 
- * @see ecologylab.services.distributed.server.clientmanager.ClientManager
+ * @see ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class AuthClientManager extends ClientManager implements
+public class AuthClientSessionManager extends ClientSessionManager implements
 		ServerConstants, AuthServerRegistryObjects, AuthMessages
 {
 	private boolean			loggedIn			= false;
@@ -42,7 +42,7 @@ public class AuthClientManager extends ClientManager implements
 	private Authenticator	authenticator	= null;
 
 	/**
-	 * Constructs a new AuthContextManager on a server to handle authenticating
+	 * Constructs a new AuthClientSessionManager on a server to handle authenticating
 	 * client requests.
 	 * 
 	 * @param token
@@ -54,7 +54,7 @@ public class AuthClientManager extends ClientManager implements
 	 * @param registry
 	 * @param servicesServer
 	 */
-	@SuppressWarnings("unchecked") public AuthClientManager(Object token,
+	@SuppressWarnings("unchecked") public AuthClientSessionManager(Object token,
 			int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey sk,
 			TranslationScope translationSpace, Scope registry,

@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -39,8 +39,8 @@ import ecologylab.xml.xml_inherit;
 	{
 		debug("**** running disconnect request ****");
 		
-		AbstractClientManager cm = (AbstractClientManager) localScope
-				.get(AbstractClientManager.CLIENT_MANAGER);
+		AbstractClientSessionManager cm = (AbstractClientSessionManager) localScope
+				.get(AbstractClientSessionManager.CLIENT_MANAGER);
 
 		cm.setInvalidating(true);
 

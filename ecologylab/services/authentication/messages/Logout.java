@@ -7,7 +7,7 @@ import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.DisconnectRequest;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
@@ -53,7 +53,7 @@ import ecologylab.xml.xml_inherit;
 		Authenticatable server = (Authenticatable) localScope
 				.get(MAIN_AUTHENTICATABLE);
 		String sessionId = (String) localScope
-				.get(AbstractClientManager.SESSION_ID);
+				.get(AbstractClientSessionManager.SESSION_ID);
 
 		if (server.logout(entry, sessionId))
 		{ // logout successful, return response and disconnect

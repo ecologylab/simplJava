@@ -20,9 +20,9 @@ import ecologylab.services.authentication.listener.AuthenticationListener;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
-import ecologylab.services.authentication.nio.AuthClientManager;
+import ecologylab.services.authentication.nio.AuthClientSessionManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.logging.Logging;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
@@ -159,13 +159,13 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * @param registry
 	 * @return
 	 */
-	@Override protected AbstractClientManager generateContextManager(
+	@Override protected AbstractClientSessionManager generateContextManager(
 			Object sessionId, SelectionKey sk, TranslationScope translationSpace,
 			Scope registry)
 	{
 		try
 		{
-			return new AuthClientManager(sessionId, maxPacketSize, getBackend(),
+			return new AuthClientSessionManager(sessionId, maxPacketSize, getBackend(),
 					this, sk, translationSpace, registry, this, authenticator);
 		}
 		catch (ClassCastException e)

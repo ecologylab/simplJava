@@ -8,7 +8,7 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.exceptions.BadClientException;
 
 /**
@@ -20,14 +20,18 @@ import ecologylab.services.exceptions.BadClientException;
  */
 public interface NIOServerProcessor extends StartAndStoppable
 {
-	/**
-	 * @param base
-	 * @param sc
-	 * @param bs
-	 * @param bytesRead
-	 * @throws BadClientException
-	 */
-	void processRead(Object token, NIOServerIOThread base, SelectionKey sk,
+/**
+ * Handles passing incoming bytes to the appropriate ClientSessionManager.
+ * 
+ * @param sessionToken		Identifies which ClientSessionManager to pass the bytes to. 
+ * 							If this is the first time a new ClientSessionManger will be constructed.
+ * @param base
+ * @param sk
+ * @param bs
+ * @param bytesRead
+ * @throws BadClientException
+ */
+	void processRead(Object sessionToken, NIOServerIOThread base, SelectionKey sk,
 			ByteBuffer bs, int bytesRead) throws BadClientException;
 
 	/**
@@ -54,5 +58,5 @@ public interface NIOServerProcessor extends StartAndStoppable
 	 * @return true if the restore was successful, false if it was not.
 	 */
 	public boolean restoreContextManagerFromSessionId(Object oldId,
-			AbstractClientManager newContextManager);
+			AbstractClientSessionManager newContextManager);
 }

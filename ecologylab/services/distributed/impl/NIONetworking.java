@@ -178,6 +178,7 @@ public abstract class NIONetworking extends NIOCore
 		{
 			readBuffer.flip();
 
+			// get the session key that was formed at accept(), and send it over as the sessionId
 			this.processReadData(key.attachment(), key, readBuffer, bytesRead);
 		}
 	}
@@ -246,7 +247,7 @@ public abstract class NIONetworking extends NIOCore
 	 * prepared to handle incomplete messages, multiple messages, or malformed
 	 * messages in this method.
 	 * 
-	 * @param sessionId
+	 * @param sessionToken
 	 *           the id being use for this session.
 	 * @param sc
 	 *           the SocketChannel from which the bytes originated.
@@ -259,7 +260,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            something inappropriate, such as data too large for a buffer or
 	 *            a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionId, SelectionKey sk,
+	protected abstract void processReadData(Object sessionToken, SelectionKey sk,
 			ByteBuffer bytes, int bytesRead) throws BadClientException;
 
 	/**

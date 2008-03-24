@@ -158,6 +158,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 	}
 
+	/**
+	 * Accept an incoming connection from a client to a server, if the server has connections available and the client is not bad. 
+	 * Generate a session identifier and attach it to the newly-connected client's SelectionKey, so that a client session manager can be associated with the connection.
+	 */
 	@Override protected final void acceptKey(SelectionKey key)
 	{
 		try
@@ -382,6 +386,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	/**
 	 * Generates a unique identifier String for the given socket, based upon
 	 * actual ports used and ip addresses with a hash.
+	 * Called by the server at accept() time, and used to identify the connection thereafter.
 	 * 
 	 * @param incomingSocket
 	 * @return
@@ -428,10 +433,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 	}
 
-	@Override protected void processReadData(Object sessionId, SelectionKey sk,
+	@Override protected void processReadData(Object sessionToken, SelectionKey sk,
 			ByteBuffer bytes, int bytesRead) throws BadClientException
 	{
-		this.sAP.processRead(sessionId, this, sk, bytes, bytesRead);
+		this.sAP.processRead(sessionToken, this, sk, bytes, bytesRead);
 		this.keyActivityTimes.put(sk, System.currentTimeMillis());
 	}
 

@@ -17,12 +17,13 @@ import java.util.Iterator;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.AbstractNIOServer;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
-import ecologylab.services.distributed.server.clientmanager.ClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationScope;
 
@@ -69,18 +70,20 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 				globalScope, idleConnectionTimeout, maxPacketSize);
 	}
 
-	Thread											t					= null;
+	Thread										t				= null;
 
-	boolean											running			= false;
+	boolean										running			= false;
 
-	HashMap<Object, AbstractClientManager>	contexts			= new HashMap<Object, AbstractClientManager>();
+	/**
+	 * Map in which keys are sessionTokens, and values are associated ClientSessionManagers.
+	 */
+	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap			= new HashMapArrayList<Object, AbstractClientSessionManager>();
 
-	private static CharsetDecoder				DECODER			= Charset
-																					.forName(
-																							CHARACTER_ENCODING)
-																					.newDecoder();
+	private static final Charset 				ENCODED_CHARSET = Charset.forName(CHARACTER_ENCODING);
 
-	protected int									maxPacketSize;
+	private static CharsetDecoder				DECODER			= ENCODED_CHARSET.newDecoder();
+
+	protected int								maxPacketSize;
 
 	/**
 	 * CharBuffers for use with translating from bytes to chars; may need to
@@ -116,29 +119,24 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 				maxPacketSize);
 	}
 
-	/**
-	 * @throws BadClientException
-	 *            See
-	 *            ecologylab.services.nio.servers.NIOServerFrontend#process(ecologylab.services.nio.NIOServerBackend,
-	 *            java.nio.channels.SocketChannel, byte[], int)
-	 */
-	public void processRead(Object sessionId, NIOServerIOThread base,
+
+	public void processRead(Object sessionToken, NIOServerIOThread base,
 			SelectionKey sk, ByteBuffer bs, int bytesRead)
 			throws BadClientException
 	{
 		if (bytesRead > 0)
 		{
-			synchronized (contexts)
+			synchronized (clientSessionManagerMap)
 			{
-				AbstractClientManager cm = contexts.get(sessionId);
+				AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionToken);
 
 				if (cm == null)
 				{
-					debug("server creating context manager for " + sessionId);
+					debug("server creating context manager for " + sessionToken);
 
-					cm = generateContextManager(sessionId, sk, translationSpace,
+					cm = generateContextManager(sessionToken, sk, translationSpace,
 							applicationObjectScope);
-					contexts.put(sessionId, cm);
+					clientSessionManagerMap.put(sessionToken, cm);
 				}
 
 				try
@@ -174,28 +172,28 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * @param registryIn
 	 * @return
 	 */
-	@Override protected AbstractClientManager generateContextManager(
+	@Override protected AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new ClientManager(token, maxPacketSize, this.getBackend(), this,
+		return new ClientSessionManager(token, maxPacketSize, this.getBackend(), this,
 				sk, translationSpaceIn, registryIn);
 	}
 
 	public void run()
 	{
-		Iterator<AbstractClientManager> contextIter;
+		Iterator<AbstractClientSessionManager> contextIter;
 
 		while (running)
 		{
-			synchronized (contexts)
+			synchronized (clientSessionManagerMap)
 			{
-				contextIter = contexts.values().iterator();
+				contextIter = clientSessionManagerMap.values().iterator();
 
 				// process all of the messages in the queues
 				while (contextIter.hasNext())
 				{
-					AbstractClientManager cm = contextIter.next();
+					AbstractClientSessionManager cm = contextIter.next();
 
 					try
 					{
@@ -276,7 +274,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 */
 	public boolean invalidate(Object sessionId, boolean forcePermanent)
 	{
-		AbstractClientManager cm = contexts.get(sessionId);
+		AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionId);
 
 		// figure out if the disconnect is permanent; will be permanent if forcing
 		// (usually bad client), if there is no context manager (client never sent
@@ -288,10 +286,10 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 		// get the context manager...
 		if (permanent)
 		{
-			synchronized (contexts)
+			synchronized (clientSessionManagerMap)
 			{ // ...if this session will not be restored, remove the context
 				// manager
-				contexts.remove(sessionId);
+				clientSessionManagerMap.remove(sessionId);
 			}
 		}
 
@@ -322,15 +320,15 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * @return true if the restore was successful, false if it was not.
 	 */
 	public boolean restoreContextManagerFromSessionId(Object oldSessionId,
-			AbstractClientManager newContextManager)
+			AbstractClientSessionManager newContextManager)
 	{
 		debug("attempting to restore old session...");
 
-		AbstractClientManager oldContextManager;
+		AbstractClientSessionManager oldContextManager;
 
-		synchronized (contexts)
+		synchronized (clientSessionManagerMap)
 		{
-			oldContextManager = this.contexts.get(oldSessionId);
+			oldContextManager = this.clientSessionManagerMap.get(oldSessionId);
 		}
 		if (oldContextManager == null)
 		{ // cannot restore old context

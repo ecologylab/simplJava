@@ -12,8 +12,8 @@ import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
-import ecologylab.services.distributed.server.clientmanager.HTTPPostClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.HTTPPostClientSessionManager;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationScope;
 
@@ -61,11 +61,11 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 				idleConnectionTimeout, maxPacketSize);
 	}
 
-	@Override protected AbstractClientManager generateContextManager(
+	@Override protected AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new HTTPPostClientManager(token, maxPacketSize, this.getBackend(),
+		return new HTTPPostClientSessionManager(token, maxPacketSize, this.getBackend(),
 				this, sk, translationSpaceIn, registryIn);
 	}
 }

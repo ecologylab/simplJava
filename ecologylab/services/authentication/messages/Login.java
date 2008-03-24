@@ -7,7 +7,7 @@ import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
@@ -74,7 +74,7 @@ import ecologylab.xml.xml_inherit;
 
 		if (this.getSender() != null)
 		{
-			String sessionId = (String) localScope.get(AbstractClientManager.SESSION_ID);
+			String sessionId = (String) localScope.get(AbstractClientSessionManager.SESSION_ID);
 			loginSuccess = server.login(this.entry, sessionId);
 		}
 

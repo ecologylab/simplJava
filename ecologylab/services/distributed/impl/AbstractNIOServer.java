@@ -13,7 +13,7 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.server.NIOServerProcessor;
-import ecologylab.services.distributed.server.clientmanager.AbstractClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.xml.TranslationScope;
 
@@ -114,7 +114,7 @@ public abstract class AbstractNIOServer extends Manager implements
 				requestTranslationSpace, objectRegistry, idleConnectionTimeout);
 	}
 
-	protected abstract AbstractClientManager generateContextManager(
+	protected abstract AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpace,
 			Scope globalScope);
 

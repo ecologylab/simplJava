@@ -937,7 +937,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * @see ecologylab.services.distributed.impl.NIONetworking#processReadData(java.lang.Object,
 	 *      java.nio.channels.SocketChannel, byte[], int)
 	 */
-	@Override protected void processReadData(Object readSessionId,
+	@Override protected void processReadData(Object sessionToken,
 			SelectionKey sk, ByteBuffer bytes, int bytesRead)
 			throws BadClientException
 	{

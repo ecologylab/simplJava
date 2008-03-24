@@ -174,11 +174,11 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 		return logFilesPath;
 	}
 
-	@Override protected LoggingClientManager generateContextManager(
+	@Override protected LoggingClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new LoggingClientManager(token, maxPacketSize, this, this
+		return new LoggingClientSessionManager(token, maxPacketSize, this, this
 				.getBackend(), sk, translationSpaceIn, registryIn);
 	}
 

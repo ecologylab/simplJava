@@ -8,7 +8,7 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.clientmanager.ClientManager;
+import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
 import ecologylab.xml.TranslationScope;
 
 /**
@@ -21,7 +21,7 @@ import ecologylab.xml.TranslationScope;
  * @author eunyee
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class LoggingClientManager extends ClientManager
+public class LoggingClientSessionManager extends ClientSessionManager
 {
 	boolean					end	= false;
 
@@ -33,7 +33,7 @@ public class LoggingClientManager extends ClientManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public LoggingClientManager(Object token, int maxPacketSize,
+	public LoggingClientSessionManager(Object token, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server,
 			SelectionKey sk, TranslationScope translationSpace, Scope registry)
 	{
