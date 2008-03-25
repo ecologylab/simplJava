@@ -3,17 +3,9 @@
  */
 package ecologylab.services.distributed.common;
 
-import java.io.IOException;
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.util.Iterator;
-
-import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.exceptions.ClientOfflineException;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -22,7 +14,9 @@ import ecologylab.services.exceptions.ClientOfflineException;
 public interface NetworkingConstants
 {
 	/** the maximum size of message acceptable by server in encoded CHARs */
-	static final int					MAX_PACKET_SIZE_CHARACTERS		= 128 * 1024;
+	static final int					MAX_PACKET_SIZE_CHARACTERS		= 8 * 1024 * 2;								// 2MB
+
+	static final int					DEFAULT_IDLE_TIMEOUT				= 10000;
 
 	/** The maximum size an http-like header on a message may be, in bytes. */
 	static final int					MAX_HTTP_HEADER_LENGTH			= 4096;
@@ -39,18 +33,27 @@ public interface NetworkingConstants
 																							+ HTTP_HEADER_LINE_DELIMITER;
 
 	/** The size of the content-length header indicator. */
-	static final int					CONTENT_LENGTH_STRING_LENGTH	= CONTENT_LENGTH_STRING.length();
+	static final int					CONTENT_LENGTH_STRING_LENGTH	= CONTENT_LENGTH_STRING
+																							.length();
 
 	/** Character encoding for messages sent through the network. */
 	static final String				CHARACTER_ENCODING				= "US-ASCII";
 
+	/** Charset for CHARACTER_ENCODING; to avoid calling forName too much. */
+	static final Charset				CHARSET								= Charset
+																							.forName(CHARACTER_ENCODING);
+
 	/** The encoder to translate from Strings to bytes. */
-	static final CharsetEncoder	ENCODER								= Charset.forName(CHARACTER_ENCODING).newEncoder();
+	static final CharsetEncoder	ENCODER								= CHARSET
+																							.newEncoder();
 
 	/** The decoder to translate from bytes to Strings. */
-	static final CharsetDecoder	DECODER								= Charset.forName(CHARACTER_ENCODING).newDecoder();
+	static final CharsetDecoder	DECODER								= CHARSET
+																							.newDecoder();
 
 	/** the maximum size of message acceptable by server in encoded BYTEs */
-	static final int					MAX_PACKET_SIZE_BYTES			= (int) Math.ceil(MAX_PACKET_SIZE_CHARACTERS
-																							* ENCODER.maxBytesPerChar());
+	static final int					MAX_PACKET_SIZE_BYTES			= (int) Math
+																							.ceil(MAX_PACKET_SIZE_CHARACTERS
+																									* ENCODER
+																											.maxBytesPerChar());
 }

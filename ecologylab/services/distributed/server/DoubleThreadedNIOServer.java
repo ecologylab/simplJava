@@ -12,7 +12,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.collections.Scope;
@@ -50,75 +49,102 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
-			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
-			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
-			throws IOException, BindException
+			InetAddress[] inetAddress, TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
 		return new DoubleThreadedNIOServer(portNumber, inetAddress,
-				requestTranslationSpace, globalScope, idleConnectionTimeout,
-				maxPacketSize);
+				requestTranslationScope, applicationObjectScope,
+				idleConnectionTimeout, maxPacketSize);
 	}
 
 	public static DoubleThreadedNIOServer getInstance(int portNumber,
-			InetAddress inetAddress, TranslationScope requestTranslationSpace,
-			Scope globalScope, int idleConnectionTimeout, int maxPacketSize)
-			throws IOException, BindException
+			InetAddress inetAddress, TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
 		InetAddress[] address =
 		{ inetAddress };
-		return getInstance(portNumber, address, requestTranslationSpace,
-				globalScope, idleConnectionTimeout, maxPacketSize);
+		return getInstance(portNumber, address, requestTranslationScope,
+				applicationObjectScope, idleConnectionTimeout, maxPacketSize);
 	}
 
-	Thread										t				= null;
+	Thread																			t								= null;
 
-	boolean										running			= false;
+	boolean																			running						= false;
 
 	/**
-	 * Map in which keys are sessionTokens, and values are associated ClientSessionManagers.
+	 * Map in which keys are sessionTokens, and values are associated
+	 * ClientSessionManagers.
 	 */
-	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap			= new HashMapArrayList<Object, AbstractClientSessionManager>();
+	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap	= new HashMapArrayList<Object, AbstractClientSessionManager>();
 
-	private static final Charset 				ENCODED_CHARSET = Charset.forName(CHARACTER_ENCODING);
+	private static final Charset												ENCODED_CHARSET			= Charset
+																																.forName(CHARACTER_ENCODING);
 
-	private static CharsetDecoder				DECODER			= ENCODED_CHARSET.newDecoder();
+	private static CharsetDecoder												DECODER						= ENCODED_CHARSET
+																																.newDecoder();
 
-	protected int								maxPacketSize;
+	protected int																	maxPacketSize;
 
 	/**
 	 * CharBuffers for use with translating from bytes to chars; may need to
 	 * support having many messages come through at once.
 	 */
-	private CharBufferPool						charBufferPool	= new CharBufferPool(
-																					MAX_PACKET_SIZE_CHARACTERS * 3);
+	private final CharBufferPool												charBufferPool;
 
 	/**
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
-			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
-			Scope applicationObjectScope, int idleConnectionTimeout, int maxPacketSize)
-			throws IOException, BindException
+			InetAddress[] inetAddresses, TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, requestTranslationSpace, applicationObjectScope,
-				idleConnectionTimeout);
+		super(portNumber, inetAddresses, requestTranslationScope,
+				applicationObjectScope, idleConnectionTimeout);
 
 		this.maxPacketSize = maxPacketSize;
+
+		// make them a little bigger, in case more than one mega-huge message
+		// comes in completely unlikely, but just to be safe
+		this.charBufferPool = new CharBufferPool(maxPacketSize * 2);
 	}
 
 	/**
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace, Scope globalScope,
-			int idleConnectionTimeout, int maxPacketSize) throws IOException,
-			BindException
+			TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
-				requestTranslationSpace, globalScope, idleConnectionTimeout,
-				maxPacketSize);
+				requestTranslationScope, applicationObjectScope,
+				idleConnectionTimeout, maxPacketSize);
 	}
 
+	/**
+	 * Assumes that the server should be running on the local host (including
+	 * external interfaces) with default sizes for everything.
+	 * 
+	 * @param portNumber -
+	 *           the port number the server will run on.
+	 * @param requestTranslationScope -
+	 *           the scope of translation for incoming requests.
+	 * @param applicationObjectScope -
+	 *           the application object scope, containing application state
+	 *           objects that messages will access and manipulate.
+	 * @throws IOException 
+	 * @throws BindException 
+	 */
+	protected DoubleThreadedNIOServer(int portNumber,
+			TranslationScope requestTranslationScope, Scope applicationObjectScope) throws BindException, IOException
+	{
+		this(portNumber, NetTools.getAllInetAddressesForLocalhost(),
+				requestTranslationScope, applicationObjectScope, DEFAULT_IDLE_TIMEOUT,
+				MAX_PACKET_SIZE_CHARACTERS);
+	}
 
 	public void processRead(Object sessionToken, NIOServerIOThread base,
 			SelectionKey sk, ByteBuffer bs, int bytesRead)
@@ -128,7 +154,8 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 		{
 			synchronized (clientSessionManagerMap)
 			{
-				AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionToken);
+				AbstractClientSessionManager cm = clientSessionManagerMap
+						.get(sessionToken);
 
 				if (cm == null)
 				{
@@ -176,8 +203,8 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new ClientSessionManager(token, maxPacketSize, this.getBackend(), this,
-				sk, translationSpaceIn, registryIn);
+		return new ClientSessionManager(token, maxPacketSize, this.getBackend(),
+				this, sk, translationSpaceIn, registryIn);
 	}
 
 	public void run()
