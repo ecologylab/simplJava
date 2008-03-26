@@ -294,6 +294,7 @@ public final class TranslationScope extends Debug
     */
    private void updateMapWithValues(Map<String, TranslationEntry> inheritedMap, Map<String, TranslationEntry> newMap, String warn)
    {
+   	// XXX ANDRUID + ZACH -> concurrent modification exception can occur here (for loop) if inheritedMap is modified elsewhere
 	   for (String key : inheritedMap.keySet())
 	   {
 		   TranslationEntry translationEntry	= inheritedMap.get(key);
