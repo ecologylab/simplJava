@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
@@ -26,25 +25,6 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 public class JnlpState extends ElementState implements Cloneable
 {
-	/**
-	 * @see ecologylab.xml.types.element.ArrayListState#clone()
-	 */
-	@Override public JnlpState clone()
-	{
-		// a bit of a hack, but it's easy! :D
-		try
-		{
-			return (JnlpState) ElementState.translateFromXMLCharSequence(this
-					.translateToXML(), JnlpTranslations.get());
-		}
-		catch (XMLTranslationException e)
-		{
-			e.printStackTrace();
-		}
-
-		return new JnlpState();
-	}
-
 	/**
 	 * This attribute must be 1.0 or higher to work with this release. The
 	 * default value is "1.0+". Thus, it can typically be omited. Note that this
@@ -229,6 +209,34 @@ public class JnlpState extends ElementState implements Cloneable
 		}
 	}
 
+	/**
+	 * @param codebase
+	 *           the codebase to set
+	 */
+	public void setCodebase(String codebase)
+	{
+		this.codebase = codebase;
+	}
+
+	/**
+	 * @see ecologylab.xml.types.element.ArrayListState#clone()
+	 */
+	@Override public JnlpState clone()
+	{
+		// a bit of a hack, but it's easy! :D
+		try
+		{
+			return (JnlpState) ElementState.translateFromXMLCharSequence(this
+					.translateToXML(), JnlpTranslations.get());
+		}
+		catch (XMLTranslationException e)
+		{
+			e.printStackTrace();
+		}
+
+		return new JnlpState();
+	}
+	
 	public ArrayList<InformationElement> getInformations()
 	{
 		return informations;

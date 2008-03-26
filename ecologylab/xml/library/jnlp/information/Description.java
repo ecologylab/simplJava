@@ -30,7 +30,7 @@ public class Description extends ElementState implements Mappable<String>
 {
     @xml_attribute private String kind;
 
-    @xml_leaf private String      desc;
+    @xml_text private String      desc;
 
     /**
      * 
