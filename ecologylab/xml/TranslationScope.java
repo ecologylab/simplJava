@@ -1,10 +1,7 @@
 package ecologylab.xml;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import ecologylab.generic.Debug;
@@ -652,46 +649,31 @@ public final class TranslationScope extends Debug
    {
 	   return (TranslationScope) allTranslationScopes.get(name);
    }
-   /**
-    * Find the TranslationScope called <code>name</code>, if there is one.
-    * Otherwise, create a new one with this name, and return it.
-    * 
-    * @param name
-    * @return
-    */
-   public static TranslationScope get(String name)
-   {
-	   TranslationScope result	= lookup(name);
-	   return (result != null) ? result : new TranslationScope(name);
-   }
    
-   /**
-    * Look for a TranslationScope with this name.
-    * If you find one, make sure it also has the same defaultPackageName (internal consistency check).
-    * Throw a RuntimeExcpection if the consistency check fails.
-    * 
-    * @param 	name
-    * @return	existing translations
-    */
-   private static TranslationScope lookForExistingTS(String name)
-   {
-	   return lookup(name);
-   }
    /**
     * Find the TranslationScope called <code>name</code>, if there is one.
     * It must also have its defaultPackageName = to that passed in as the 2nd argument.
     * If there is no TranslationScope with this name, create a new one, and set its defaultPackageName.
-    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
+    * <p/>
+    * If the lookup fails initially, it is performed again, in a synchronized block, using the name String literal
+    * as the lock for mutual exclusion. Thus, make sure to use *the same string literal* across calls, to ensure
+    * proper concurrency support.
     * 
-    * @param name
+    * @param name	String literal for lookup of the TranslationScope. 
+    * 				Also used for locking construction of the initial instance.
     * @return
     */
    public static TranslationScope get(String name, String defaultPackageName)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result	= new TranslationScope(name, defaultPackageName);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result	= new TranslationScope(name, defaultPackageName);
+		   }
 	   }
 	   return result;
    }
@@ -706,10 +688,15 @@ public final class TranslationScope extends Debug
    @SuppressWarnings("unchecked")
    public static TranslationScope get(String defaultPackageName, Class[] translations)
    {
-	   TranslationScope result	= lookForExistingTS(defaultPackageName);
+	   TranslationScope result	= lookup(defaultPackageName);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(defaultPackageName, translations, defaultPackageName);
+		   synchronized (defaultPackageName)
+		   {
+			   result	= lookup(defaultPackageName);
+			   if (result == null)
+				   result		= new TranslationScope(defaultPackageName, translations, defaultPackageName);
+		   }
 	   }
 	   return result;	   
    }
@@ -728,10 +715,15 @@ public final class TranslationScope extends Debug
    public static TranslationScope get(String name, Class[] translations, TranslationScope inheritedTranslations,
 		   							  String defaultPackageName)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translations, inheritedTranslations, defaultPackageName);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, inheritedTranslations, defaultPackageName);
+		   }
 	   }
 	   return result;	   
    }
@@ -748,10 +740,15 @@ public final class TranslationScope extends Debug
     */
    public static TranslationScope get(String name, Class<? extends ElementState> translation, TranslationScope inheritedTranslations)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translation, inheritedTranslations);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translation, inheritedTranslations);
+		   }
 	   }
 	   return result;	   
    }
@@ -813,10 +810,15 @@ public final class TranslationScope extends Debug
    public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
 		   							  String defaultPackageName)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   }
 	   }
 	   return result;	   
    }
@@ -836,10 +838,15 @@ public final class TranslationScope extends Debug
    public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
 		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
+		   }
 	   }
 	   return result;	   
    }
@@ -898,10 +905,15 @@ public final class TranslationScope extends Debug
    public static TranslationScope get(String name, String defaultPackageName, ArrayList<TranslationScope> inheritedTranslationsSet,
 		   							  Class[] translations)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+		   }
 	   }
 	   return result;	   
    }
@@ -918,10 +930,15 @@ public final class TranslationScope extends Debug
    public static TranslationScope get(String name, Class[] translations,
 		   							  ArrayList<TranslationScope> inheritedTranslationsSet)
    {
-	   TranslationScope result	= lookForExistingTS(name);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   result		= new TranslationScope(name, translations, inheritedTranslationsSet, name);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, name);
+		   }
 	   }
 	   return result;	   
    }
@@ -940,10 +957,15 @@ public final class TranslationScope extends Debug
    @SuppressWarnings("unchecked")
    public static TranslationScope get(String name, Class[] translations, String defaultPackageName)
    {
-	  TranslationScope result	= lookForExistingTS(name);
+	  TranslationScope result	= lookup(name);
 	  if (result == null)
 	  {
-		  result		= new TranslationScope(name, translations, defaultPackageName);
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, translations, defaultPackageName);
+		   }
 	  }
 	  return result;
    }
