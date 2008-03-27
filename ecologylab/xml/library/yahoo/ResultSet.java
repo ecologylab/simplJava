@@ -14,21 +14,27 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author andruid
  */
 @xml_inherit
-public class ResultSet extends ArrayListState
+public class ResultSet extends ArrayListState<Result>
 {
-	public int			totalResultsAvailable;
-	public int			totalResultsReturned;
+	@xml_attribute	int			totalResultsAvailable;
+	@xml_attribute	int			totalResultsReturned;
 	
-	public int			firstResultPosition;
+	@xml_attribute	int			firstResultPosition;
 	
-	public String		xmlns;
-	public String		schemaLocation;
-	public String		xsi;
+	String		xmlns;
+	String		schemaLocation;
+	String		xsi;
 	
+	private static final String YAHOO = "yahoo";
 	
-	public static TranslationScope translationSpace()
+	public static final Class[]	YAHOO_CLASSES	= 
 	{
-		return TranslationScope.get("yahoo", "ecologylab.xml.library.yahoo");
+		ResultSet.class, Result.class, ThumbnailState.class,
+	};
+	
+	public static TranslationScope getTranslationScope()
+	{
+		return TranslationScope.get(YAHOO, YAHOO_CLASSES);
 	}
 	
 	public static String SEOUL_SHOPPING		= "http://api.search.yahoo.com/WebSearchService/V1/webSearch?appid=yahoosearchwebrss&results=15&start=1&query=shopping+seoul";
@@ -39,7 +45,7 @@ public class ResultSet extends ArrayListState
 		try
 		{
 			ResultSet resultSet	= 
-				(ResultSet) ElementState.translateFromXML(purl, ResultSet.translationSpace());
+				(ResultSet) ElementState.translateFromXML(purl, ResultSet.getTranslationScope());
 		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();

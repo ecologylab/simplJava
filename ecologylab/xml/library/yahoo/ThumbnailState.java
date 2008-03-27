@@ -11,10 +11,10 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class ThumbnailState extends ElementState
 {
-	@xml_leaf	public ParsedURL		Url;
+	@xml_leaf	ParsedURL		Url;
 	
-	@xml_leaf	public int				Width;
-	@xml_leaf	public int				Height;
+	@xml_leaf	int				Width;
+	@xml_leaf	int				Height;
 
 	static final String[]	LEAF_ELEMENT_FIELD_NAMES	= 
 	{"Url", "Width", "Height"};
@@ -25,6 +25,41 @@ public class ThumbnailState extends ElementState
 	 * @return
 	 */
 	protected String[] leafElementFieldNames()
+	{
+		return LEAF_ELEMENT_FIELD_NAMES;
+	}
+
+	public ParsedURL getUrl()
+	{
+		return Url;
+	}
+
+	public void setUrl(ParsedURL url)
+	{
+		Url = url;
+	}
+
+	public int getWidth()
+	{
+		return Width;
+	}
+
+	public void setWidth(int width)
+	{
+		Width = width;
+	}
+
+	public int getHeight()
+	{
+		return Height;
+	}
+
+	public void setHeight(int height)
+	{
+		Height = height;
+	}
+
+	public static String[] getLEAF_ELEMENT_FIELD_NAMES()
 	{
 		return LEAF_ELEMENT_FIELD_NAMES;
 	}
