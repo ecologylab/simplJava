@@ -36,7 +36,7 @@ public class Opml extends ElementState
 	 * 
 	 * @return
 	 */  
-	public static TranslationScope translationSpace()
+	public static TranslationScope getTranslationScope()
 	{
 		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS);
 	}
