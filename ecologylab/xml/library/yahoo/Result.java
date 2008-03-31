@@ -2,6 +2,7 @@ package ecologylab.xml.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Result from a Yahoo Search.
@@ -11,48 +12,54 @@ import ecologylab.xml.ElementState;
  *
  * @author andruid
  */
-public class Result extends ElementState
+public 
+@xml_tag("Result")
+class Result extends ElementState
 {
-	@xml_leaf	String				Title;
-	@xml_leaf	String				Summary;
+	@xml_leaf	@xml_tag("Title")	String				title;
+	@xml_leaf	@xml_tag("Summary")	String				summary;
 	/**
 	 * For web search, the URL of the document.
 	 * For image search, the URL of the image.
 	 */
-	@xml_leaf	ParsedURL			Url;
+	@xml_leaf	@xml_tag("Url")		ParsedURL			url;
+
+	// this is a mess double-stuffed url from yahoo. nice to ignore.
+//	@xml_leaf	@xml_tag("ClickUrl")		ParsedURL	clickUrl;
+	
 	// there is also a field called ClickUrl. for image search, it duplicates Url.
 	// for web search ClickUrl is that nasty url that takes you through yahoo, and includes
 	// a url-encoded : after http, in the middle
 	/**
 	 * For image search, this is the Container web page!
 	 */
-	@xml_leaf	ParsedURL			RefererUrl;
+	@xml_leaf	@xml_tag("RefererUrl")	ParsedURL		refererUrl;
 	
 	/**
 	 * Another field for image search only. How useful! 
 	 * Lets us know if we want to work with the thumbnail or just download the whole image.
 	 * Seems to be in bytes.
 	 */
-	@xml_leaf	int					FileSize;
+	@xml_leaf	@xml_tag("FileSize")	int				fileSize;
 	
-	@xml_leaf	int					Width;
-	@xml_leaf	int					Height;
+	@xml_leaf	@xml_tag("Width")		int				width;
+	@xml_leaf	@xml_tag("Height")		int				height;
 	
 	/**
 	 * For image search only. This seems to be the file suffix, though they use jpeg instead of jpg.
 	 */
-	@xml_leaf	String				FileFormat;
+	@xml_leaf	@xml_tag("FileFormat")	String			fileFormat;
 	
 	/**
 	 * Specific to news search.
 	 */
-	@xml_leaf	String				NewsSource;
+	@xml_leaf	@xml_tag("NewsSource")	String			newsSource;
 	
 	/**
 	 * For web search only. Like file format, except its true mime type, like text/html.
 	 * Very nice.
 	 */
-	@xml_leaf	String				MimeType;
+	@xml_leaf	@xml_tag("MimeType")	String			mimeType;
 	
 	// DisplayUrl -- boring. Web search only.
 	
@@ -62,130 +69,116 @@ public class Result extends ElementState
 	/**
 	 * Cool! For image search, direct access to their thumbnail image.
 	 */
-	@xml_nested	ThumbnailState			Thumbnail;
+	@xml_nested	@xml_tag("thumnail")	ThumbnailState	thumbnail;
 	
 	   
-	static final String[]		LEAF_ELEMENT_FIELD_NAMES	= 
-	{"Title", "Summary", "Url", "RefererUrl", "FileSize", "Width",
-	 "Height", "FileFormat", "MimeType", "NewsSource"};
-	
-	/**
-	 * The array of Strings with the names of the leaf elements.
-	 * 
-	 * @return
-	 */
-	protected String[] leafElementFieldNames()
-	{
-		return LEAF_ELEMENT_FIELD_NAMES;
-	}
-
 	public String getTitle()
 	{
-		return Title;
+		return title;
 	}
 
 	public void setTitle(String title)
 	{
-		Title = title;
+		this.title = title;
 	}
 
 	public String getSummary()
 	{
-		return Summary;
+		return summary;
 	}
 
 	public void setSummary(String summary)
 	{
-		Summary = summary;
+		this.summary = summary;
 	}
 
 	public ParsedURL getUrl()
 	{
-		return Url;
+		return url;
 	}
 
 	public void setUrl(ParsedURL url)
 	{
-		Url = url;
+		this.url = url;
 	}
 
 	public ParsedURL getRefererUrl()
 	{
-		return RefererUrl;
+		return refererUrl;
 	}
 
 	public void setRefererUrl(ParsedURL refererUrl)
 	{
-		RefererUrl = refererUrl;
+	    this.refererUrl = refererUrl;
 	}
 
 	public int getFileSize()
 	{
-		return FileSize;
+		return fileSize;
 	}
 
 	public void setFileSize(int fileSize)
 	{
-		FileSize = fileSize;
+		this.fileSize = fileSize;
 	}
 
 	public int getWidth()
 	{
-		return Width;
+		return width;
 	}
 
 	public void setWidth(int width)
 	{
-		Width = width;
+		this.width = width;
 	}
 
 	public int getHeight()
 	{
-		return Height;
+		return height;
 	}
 
 	public void setHeight(int height)
 	{
-		Height = height;
+		this.height = height;
 	}
 
 	public String getFileFormat()
 	{
-		return FileFormat;
+		return fileFormat;
 	}
 
 	public void setFileFormat(String fileFormat)
 	{
-		FileFormat = fileFormat;
+		this.fileFormat = fileFormat;
 	}
 
 	public String getNewsSource()
 	{
-		return NewsSource;
+		return newsSource;
 	}
 
 	public void setNewsSource(String newsSource)
 	{
-		NewsSource = newsSource;
+		this.newsSource = newsSource;
 	}
 
 	public String getMimeType()
 	{
-		return MimeType;
+		return mimeType;
 	}
 
 	public void setMimeType(String mimeType)
 	{
-		MimeType = mimeType;
+		this.mimeType = mimeType;
 	}
 
 	public ThumbnailState getThumbnail()
 	{
-		return Thumbnail;
+		return this.thumbnail;
 	}
 
 	public void setThumbnail(ThumbnailState thumbnail)
 	{
-		Thumbnail = thumbnail;
+		this.thumbnail = thumbnail;
 	}
 }
