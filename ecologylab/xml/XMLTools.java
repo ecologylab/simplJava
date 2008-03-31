@@ -111,6 +111,12 @@ implements CharacterConstants, SpecialCharacterEntities
       entityTable.put("gt", new Character('>'));
       entityTable.put("apos", new Character('\''));
       entityTable.put("nbsp", new Character(' '));
+      entityTable.put("lsquo", new Character((char)8216));
+      entityTable.put("rsquo", new Character((char)8217));
+      entityTable.put("sbquo", new Character((char)8218));
+      entityTable.put("ldquo", new Character((char)8220));
+      entityTable.put("rdquo", new Character((char)8221));
+      entityTable.put("euro", new Character((char)8364));
    }
 
 	/**
@@ -686,6 +692,7 @@ static String q(String string)
  */
     public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
    {
+//System.out.println("\nUnescape!!! " + sb.toString() );    	
 	  int		ampPos		= sb.indexOf("&", startPos);
 	  
 	  if (ampPos == -1)
