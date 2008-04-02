@@ -26,6 +26,14 @@ public class PrefInt extends Pref<Integer>
 	{
 		super();
 	}
+	
+	public PrefInt(String name, int value)
+	{
+		super(name);
+		
+		this.value = value;
+	}
+	
     /**
      * Instantiate Pref to value
      * 
@@ -33,8 +41,7 @@ public class PrefInt extends Pref<Integer>
      */
 	public PrefInt(int value)
 	{
-		super();
-		this.value	= value;
+		this(null, value);
 	}
 
 	/**

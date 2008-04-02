@@ -266,7 +266,12 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	public void translateToXML(File outputFile)
 	throws XMLTranslationException, IOException
 	{
-		outputFile.mkdirs();
+		if (outputFile.isDirectory())
+			throw new XMLTranslationException("Output path is already a directory, so it can't be a file: " + outputFile.getAbsolutePath());
+		
+		String outputDirName	= outputFile.getParent();
+		File outputDir			= new File(outputDirName);
+		outputDir.mkdirs();
 		
 		BufferedWriter bufferedWriter	= new BufferedWriter(new FileWriter(outputFile));
 		translateToXML(bufferedWriter);
