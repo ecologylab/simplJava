@@ -102,6 +102,7 @@ implements CharacterConstants, SpecialCharacterEntities
       entityTable.put("#8221", new Character('”'));
       // &#8212; is really — = &#151; -- em dash
       entityTable.put("#8212", new Character('—'));
+      entityTable.put("#151", new Character('—'));
       
        
       // defined in the XML 1.0 spec: "predefined entities"
@@ -692,50 +693,55 @@ static String q(String string)
  */
     public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
    {
-//System.out.println("\nUnescape!!! " + sb.toString() );    	
-	  int		ampPos		= sb.indexOf("&", startPos);
+	  int		ampPos		= sb.indexOf("&"); //, startPos); 
 	  
 	  if (ampPos == -1)
 		 return sb;
 	  
-	  int		entityPos		= ampPos + 1;
-	  int		semicolonPos	= sb.indexOf(";", entityPos);
-	  
-	  if ((semicolonPos == -1) || (semicolonPos - ampPos > 7))
-		 return sb;
-	  int entityLength			= semicolonPos - ampPos;
-	  if (entityLength > 8)
-		  return sb;
-	  
-	  // find position of & followed by ;
-	  
-	  // lookup entity in the middle of that in the HashMap
-	  // if you find a match, do a replacement *in place*
-	  
-	  // this includes shifting the rest of the string up, and 
-	  
-	  // resetting the length of the StringBuilder to be shorter 
-	  // (since the entity is always longer than the char it maps to)
-	  
-	  // then call recursively, setting the startPos index to after the last
-	  // entity that we found
-	  
-	  String encoded = sb.substring(entityPos, semicolonPos);
-
-	  if( encoded.startsWith("#") )
+	  while( ampPos != -1 )
 	  {
-	  	String temp = encoded.substring(1);
-	  	encoded = "#"+Integer.valueOf(temp).toString();
+		  int		entityPos		= ampPos + 1;
+		  int		semicolonPos	= sb.indexOf(";", entityPos);
+		  
+		  if ((semicolonPos == -1) || (semicolonPos - ampPos > 7))
+			 return sb;
+		  int entityLength			= semicolonPos - ampPos;
+		  if (entityLength > 8)
+			  return sb;
+		  
+		  // find position of & followed by ;
+		  
+		  // lookup entity in the middle of that in the HashMap
+		  // if you find a match, do a replacement *in place*
+		  
+		  // this includes shifting the rest of the string up, and 
+		  
+		  // resetting the length of the StringBuilder to be shorter 
+		  // (since the entity is always longer than the char it maps to)
+		  
+		  // then call recursively, setting the startPos index to after the last
+		  // entity that we found
+		  
+		  String encoded = sb.substring(entityPos, semicolonPos);
+	
+		  if( encoded.startsWith("#") )
+		  {
+		  	String temp = encoded.substring(1);
+		  	encoded = "#"+Integer.valueOf(temp).toString();
+		  }
+		  	
+		  Character lookup = (Character)entityTable.get(encoded);
+		  println("unescapeXML: from " +encoded + " -> " + lookup );
+	
+		  if ((semicolonPos+1 < sb.length()) && (lookup != null))
+		  {
+			  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
+		  }
+		  
+		  ampPos = sb.indexOf("&");
 	  }
-	  	
-	  Character lookup = (Character)entityTable.get(encoded);
-	  println("unescapeXML: from " +encoded + " -> " + lookup );
-
-	  if ((semicolonPos+1 < sb.length()) && (lookup != null))
-	  {
-		  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
-	  }	  
-	  return unescapeXML(sb, semicolonPos+1);
+	  
+	  return sb;
 	  
    }
 	/**
