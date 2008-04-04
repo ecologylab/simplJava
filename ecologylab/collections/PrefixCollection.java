@@ -18,17 +18,27 @@ import ecologylab.net.ParsedURL;
 public class PrefixCollection  extends PrefixPhrase 
 {
 	final char						separator;
-	
+	/**
+	 * true means use file portion of the path when creating entries.
+	 * false means use host and directory portions of the path only.
+	 * 
+	 */
+	boolean 						usePathFile;
 /**
  * Construct a PrefixCollection in which each prefix can be parsed into PrefixPhrases,
  * using the separator to split the phrases.
  * 
  * @param separator
  */
-	public PrefixCollection(char separator) 
+	public PrefixCollection(char separator, boolean usePathFile) 
 	{
 		super(null, null);
 		this.separator				= separator;
+		this.usePathFile			= usePathFile;
+	}
+	public PrefixCollection(char separator) 
+	{
+		this(separator, false);
 	}
 
 	/**
@@ -36,12 +46,27 @@ public class PrefixCollection  extends PrefixPhrase
 	 * using the separator to split the phrases.
 	 * 
 	 * @param separator
+	 * @param usePathFile
 	 */
 	public PrefixCollection() 
 	{
-		this('/');
+		this(false);
 	}
-		
+	/**
+	 * Construct a PrefixCollection in which each prefix can be parsed into PrefixPhrases,
+	 * using '/' as the separator to split the phrases.
+	 * 
+	 * @param usePathFile	true to include file portion of path as a p
+	 */
+	public PrefixCollection(boolean usePathFile)
+	{
+		this('/', usePathFile);
+	}
+	/**
+	 * 
+	 * @param purl
+	 * @return
+	 */
 	public PrefixPhrase add(ParsedURL purl)
 	{
 		String host				= purl.url().getHost();		
@@ -49,7 +74,8 @@ public class PrefixCollection  extends PrefixPhrase
 		PrefixPhrase hostPrefix	= getPrefix(null, host);
 		
 		// children of hostPrefix
-		return (hostPrefix != null) ? hostPrefix.add(purl.pathDirectoryString(), separator) : lookupChild(host);
+		String pathStringToParse = usePathFile ? purl.toString() : purl.pathDirectoryString();
+		return (hostPrefix != null) ? hostPrefix.add(pathStringToParse, separator) : lookupChild(host);
 	}
 
 	public boolean match(ParsedURL purl)
