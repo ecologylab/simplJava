@@ -674,16 +674,13 @@ static String q(String string)
    {
 	  if( s == null )
 	   	 return null;
-	  int		ampPos		= s.indexOf('&');
 	  
-	  
-	  
-	  if (ampPos == -1)
+	  if (s.indexOf('&') == -1)
 		 return s;
 	  else
 	  {
 //	  	println("unescapeXML( found amp " + s);
-	  	return unescapeXML(new StringBuilder(s), ampPos).toString();
+	  	return unescapeXML(new StringBuilder(s)).toString();
 	  }
    }
 	
@@ -691,14 +688,11 @@ static String q(String string)
  * Translate XML named entity special characters into their Unicode char
  * equivalents.
  */
-    public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
+    public static StringBuilder unescapeXML(StringBuilder sb)
    {
-	  int		ampPos		= sb.indexOf("&"); //, startPos); 
+	  int		ampPos; //, startPos); 
 	  
-	  if (ampPos == -1)
-		 return sb;
-	  
-	  while( ampPos != -1 )
+	  while( (ampPos=sb.indexOf("&")) != -1 )
 	  {
 		  int		entityPos		= ampPos + 1;
 		  int		semicolonPos	= sb.indexOf(";", entityPos);
@@ -737,8 +731,6 @@ static String q(String string)
 		  {
 			  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
 		  }
-		  
-		  ampPos = sb.indexOf("&");
 	  }
 	  
 	  return sb;
