@@ -674,13 +674,14 @@ static String q(String string)
    {
 	  if( s == null )
 	   	 return null;
-	  
-	  if (s.indexOf('&') == -1)
+	  int		ampPos		= s.indexOf('&');
+	    
+	  if (ampPos == -1)
 		 return s;
 	  else
 	  {
 //	  	println("unescapeXML( found amp " + s);
-	  	return unescapeXML(new StringBuilder(s)).toString();
+	  	return unescapeXML(new StringBuilder(s), ampPos).toString();
 	  }
    }
 	
@@ -688,20 +689,29 @@ static String q(String string)
  * Translate XML named entity special characters into their Unicode char
  * equivalents.
  */
-    public static StringBuilder unescapeXML(StringBuilder sb)
+    public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
    {
 	  int		ampPos; //, startPos); 
-	  
-	  while( (ampPos=sb.indexOf("&")) != -1 )
+
+	  while( (ampPos=sb.indexOf("&", startPos)) != -1 )
 	  {
 		  int		entityPos		= ampPos + 1;
 		  int		semicolonPos	= sb.indexOf(";", entityPos);
 		  
-		  if ((semicolonPos == -1) || (semicolonPos - ampPos > 7))
-			 return sb;
+		  if (semicolonPos == -1) 
+			  return sb;
+		  else if (semicolonPos - ampPos > 7)
+		  {
+			  startPos = semicolonPos+1;
+			  continue;
+		  }
+		  
+		  /* We are aready checking whether entityLenth is larger than 7, so we don't need the below 
+		  	 - Eunyee
 		  int entityLength			= semicolonPos - ampPos;
 		  if (entityLength > 8)
 			  return sb;
+		  */
 		  
 		  // find position of & followed by ;
 		  
@@ -717,20 +727,17 @@ static String q(String string)
 		  // entity that we found
 		  
 		  String encoded = sb.substring(entityPos, semicolonPos);
-	
-		  if( encoded.startsWith("#") )
-		  {
-		  	String temp = encoded.substring(1);
-		  	encoded = "#"+Integer.valueOf(temp).toString();
-		  }
+
 		  	
 		  Character lookup = (Character)entityTable.get(encoded);
 		  println("unescapeXML: from " +encoded + " -> " + lookup );
-	
-		  if ((semicolonPos+1 < sb.length()) && (lookup != null))
+		  if ((semicolonPos < sb.length()) && (lookup != null))
 		  {
 			  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
 		  }
+
+		  startPos = ampPos+1;
+
 	  }
 	  
 	  return sb;
