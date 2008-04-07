@@ -828,7 +828,7 @@ static String q(String string)
 		  }
 		  else 
 		  {
-			  println("unescapeXML: lookup failed for " +encoded);
+			  println("unescapeXML[" +encoded + "] FAILED");
 			  startPos	= semicolonPos+1;
 			  if (startPos >= buffy.length())
 				  return;
@@ -1266,5 +1266,12 @@ static String q(String string)
 		if ((result != null) && (result.length == 0))
 			result			= null;
 		return result;
+	}
+	
+	public static void main(String[] a)
+	{
+		String s	= "This is the first&amp; this is the next&rsquo;";
+		
+		System.err.println(unescapeXML(s));
 	}
 }
