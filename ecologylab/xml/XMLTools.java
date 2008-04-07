@@ -43,9 +43,9 @@ import ecologylab.xml.types.scalar.TypeRegistry;
 public class XMLTools extends TypeRegistry
 implements CharacterConstants, SpecialCharacterEntities
 {
-	private static final int DEFAULT_TAG_LENGTH = 15;
+	private static final int DEFAULT_TAG_LENGTH 		= 15;
 
-	static HashMap	entityTable				= new HashMap();
+	static HashMap<String, String>	entityTable		= new HashMap<String, String>();
 
 	static final String SPECIAL_SPELLINGS[]=
 	{
@@ -65,20 +65,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	   "yacute", "thorn" 
 	};
 	
-	static final char[] SPECIAL_CHARS =
-	{
-		402, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 9204, 9205, 8206, 8207, 8211, 8212, 8216, 8217, 8218, 
-		8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, EURO,
-		
-		// greek to you and me
-		
-	};
-
 	static
 	{
       // special spellings
       for (char i = 0; i < SPECIAL_SPELLINGS.length; i++)
-		 entityTable.put(SPECIAL_SPELLINGS[i], new Character((char) (i + 160)));
+		 entityTable.put(SPECIAL_SPELLINGS[i], Character.toString((char) (i + 160)));
       
       // even though we fill the table from 0-255, actually
       // 0-8 are illegal. 9,10 (decimal) are legal. 11-31 are illegal. 31-127 are legal.
@@ -95,29 +86,116 @@ implements CharacterConstants, SpecialCharacterEntities
       
       // magic chars from the NY TIMES
       // &#8217; is really ' (ascii 39)
-      entityTable.put("#8217", new Character('\''));
-     // &#8220; is really “ = &#147;
-      entityTable.put("#8220", new Character('“'));
-     // &#8221; is really ” = &#148;
-      entityTable.put("#8221", new Character('”'));
-      // &#8212; is really — = &#151; -- em dash
-      entityTable.put("#8212", new Character('—'));
-      entityTable.put("#151", new Character('—'));
       
+      putEntityInTable("#8217", '\'');
+      // &#8220; is really “ = &#147;
+       putEntityInTable("#8220", '“');
+      // &#8221; is really ” = &#148;
+       putEntityInTable("#8221", '”');
+       // &#8212; is really — = &#151; -- em dash
+       putEntityInTable("#8212", '—');
+       putEntityInTable("#151", '—');
        
-      // defined in the XML 1.0 spec: "predefined entities"
-      entityTable.put("amp", new Character('&'));
-      entityTable.put("quot", new Character('"'));
-      entityTable.put("lt", new Character('<'));
-      entityTable.put("gt", new Character('>'));
-      entityTable.put("apos", new Character('\''));
-      entityTable.put("nbsp", new Character(' '));
-      entityTable.put("lsquo", new Character((char)8216));
-      entityTable.put("rsquo", new Character((char)8217));
-      entityTable.put("sbquo", new Character((char)8218));
-      entityTable.put("ldquo", new Character((char)8220));
-      entityTable.put("rdquo", new Character((char)8221));
-      entityTable.put("euro", new Character((char)8364));
+        
+       // defined in the XML 1.0 spec: "predefined entities"
+       putEntityInTable("amp", '&');
+       putEntityInTable("quot", '"');
+       putEntityInTable("lt", '<');
+       putEntityInTable("gt", '>');
+       putEntityInTable("apos", '\'');
+       putEntityInTable("nbsp", ' ');	//TODO -- start handling nbsp as a char and in TextTokn
+       
+ 	  putEntityInTable("bull", BULL);
+	  putEntityInTable("hellip", HELLIP);
+	  putEntityInTable("prime", PRIME);
+	  putEntityInTable("oline", OLINE);
+	  putEntityInTable("frasl", FRASL);
+	  putEntityInTable("weierp", WEIERP);
+	  putEntityInTable("image", IMAGE);
+	  putEntityInTable("real", REAL);
+	  putEntityInTable("trade", TRADE);
+	  putEntityInTable("alefsym", ALEFSYM);
+	  putEntityInTable("larr", LARR);
+	  putEntityInTable("uarr", UARR);
+	  putEntityInTable("rarr", RARR);
+	  putEntityInTable("darr", DARR);
+	  putEntityInTable("harr", HARR);
+	  putEntityInTable("crarr", CRARR);
+
+	  putEntityInTable("forall",FORALL);
+	  putEntityInTable("part", PART);
+	  putEntityInTable("exist", EXIST);
+	  putEntityInTable("empty", EMPTY);
+	  putEntityInTable("nabla", NABLA);
+	  putEntityInTable("isin", ISIN);
+	  putEntityInTable("notin", NOTIN);
+	  putEntityInTable("ni", NI);
+	  putEntityInTable("prod", PROD);
+	  putEntityInTable("sum", SUM);
+	  putEntityInTable("minus", MINUS);
+	  putEntityInTable("lowast", LOWAST);
+	  putEntityInTable("radic", RADIC);
+	  putEntityInTable("prop", PROP);
+	  putEntityInTable("infin", INFIN);
+	  putEntityInTable("ang", ANG);
+	  putEntityInTable("and", AND);
+	  putEntityInTable("or", OR);
+	  putEntityInTable("cap", CAP);
+	  putEntityInTable("cup", CUP);
+	  putEntityInTable("int", INT);
+	  putEntityInTable("there4", THERE4);
+	  putEntityInTable("sim", SIM);
+	  putEntityInTable("cong", CONG);
+	  putEntityInTable("asymp", ASYMP);
+	  putEntityInTable("ne", NE);
+	  putEntityInTable("equiv", EQUIV);
+	  putEntityInTable("le", LE);
+	  putEntityInTable("ge", GE);
+	  putEntityInTable("sub", SUB);
+	  putEntityInTable("sup", SUP);
+	  putEntityInTable("nsub", NSUB);
+	  putEntityInTable("sube", SUBE);
+	  putEntityInTable("supe", SUPE);
+	  putEntityInTable("oplus", OPLUS);
+	  putEntityInTable("otimes", OTIMES);
+	  putEntityInTable("perp", PERP);
+	  putEntityInTable("sdot", SDOT);
+	  putEntityInTable("lceil", LCEIL);
+	  putEntityInTable("rceil", RCEIL);
+	  putEntityInTable("lfloor", LFLOOR);
+	  putEntityInTable("rfloor", RFLOOR);
+	  putEntityInTable("lang", LANG);
+	  putEntityInTable("rang", RANG);
+	  putEntityInTable("loz", LOZ);
+	  putEntityInTable("spades", SPADES);
+	  putEntityInTable("clubs", CLUBS);
+	  putEntityInTable("hearts", HEARTS);
+	  putEntityInTable("diams", DIAMS);
+	  putEntityInTable("oelig", OELIG);
+	  putEntityInTable("scaron", SCARON);
+	  putEntityInTable("yuml", YUML);
+	  putEntityInTable("circ", CIRC);
+	  putEntityInTable("tilde", TILDE);
+	  putEntityInTable("ensp", ENSP);
+	  putEntityInTable("emsp", EMSP);
+	  putEntityInTable("thinsp", THINSP);
+	  putEntityInTable("zwnj", ZWNJ);
+	  putEntityInTable("zwj", ZWJ);
+	  putEntityInTable("lrm", LRM);
+	  putEntityInTable("rlm", RLM);
+	  putEntityInTable("ndash", NDASH);
+	  putEntityInTable("mdash", MDASH);
+	  putEntityInTable("lsquo", LSQUO);
+	  putEntityInTable("rsquo", RSQUO);
+	  putEntityInTable("sbquo", SBQUO);
+	  putEntityInTable("ldquo", LDQUO);
+	  putEntityInTable("rdquo", RDQUO);
+	  putEntityInTable("bdquo", BDQUO);
+	  putEntityInTable("dagger", DAGGER);
+	  putEntityInTable("permil", PERMIL);
+	  putEntityInTable("lsaquo", LSAQUO);
+	  putEntityInTable("rsaquo", RSAQUO);
+	  putEntityInTable("euro", EURO);
    }
 
 	/**
@@ -128,7 +206,12 @@ implements CharacterConstants, SpecialCharacterEntities
 	private static void putNumberedEntityInTable(char c)
 	{
 		String entityString = "#"+ (int) c;
-		entityTable.put(entityString, new Character(c));
+		putEntityInTable(entityString, c);
+	}
+	
+	private static void putEntityInTable(String name, char c)
+	{
+		entityTable.put(name, Character.toString(c));
 	}
 	
 /**
@@ -674,32 +757,37 @@ static String q(String string)
    {
 	  if( s == null )
 	   	 return null;
-	  int		ampPos		= s.indexOf('&');
+	  int		ampPos			= s.indexOf('&');
 	    
-	  if (ampPos == -1)
-		 return s;
+	  if (ampPos == -1) 
+		  return s;
 	  else
 	  {
-//	  	println("unescapeXML( found amp " + s);
-	  	return unescapeXML(new StringBuilder(s), ampPos).toString();
+		  StringBuilder buffy	= new StringBuilder(s);
+		  unescapeXML(buffy, ampPos);
+		  return buffy.toString();
 	  }
    }
 	
+   public static void unescapeXML(StringBuilder buffy)
+   {
+	   unescapeXML(buffy, 0);
+   }
 /**
  * Translate XML named entity special characters into their Unicode char
  * equivalents.
  */
-    public static StringBuilder unescapeXML(StringBuilder sb, int startPos)
-   {
+   public static void unescapeXML(StringBuilder buffy, int startPos)
+    {
 	  int		ampPos; //, startPos); 
 
-	  while( (ampPos=sb.indexOf("&", startPos)) != -1 )
+	  while( (ampPos=buffy.indexOf("&", startPos)) != -1 )
 	  {
 		  int		entityPos		= ampPos + 1;
-		  int		semicolonPos	= sb.indexOf(";", entityPos);
+		  int		semicolonPos	= buffy.indexOf(";", entityPos);
 		  
 		  if (semicolonPos == -1) 
-			  return sb;
+			  return;
 		  else if (semicolonPos - ampPos > 7)
 		  {
 			  startPos = semicolonPos+1;
@@ -726,22 +814,26 @@ static String q(String string)
 		  // then call recursively, setting the startPos index to after the last
 		  // entity that we found
 		  
-		  String encoded = sb.substring(entityPos, semicolonPos);
+		  String encoded = buffy.substring(entityPos, semicolonPos);
 
 		  	
-		  Character lookup = (Character)entityTable.get(encoded);
-		  println("unescapeXML: from " +encoded + " -> " + lookup );
-		  if ((semicolonPos < sb.length()) && (lookup != null))
+		  String lookup = entityTable.get(encoded);
+
+		  if (lookup != null)
 		  {
-			  sb = sb.replace(ampPos, semicolonPos+1, ""+lookup.charValue());
+			  if (!"nbsp".equals(encoded))
+				  println("unescapeXML[" +encoded + "] -> " + lookup );
+			  buffy = buffy.replace(ampPos, semicolonPos+1, lookup);
+			  startPos = ampPos+1;
 		  }
-
-		  startPos = ampPos+1;
-
+		  else 
+		  {
+			  println("unescapeXML: lookup failed for " +encoded);
+			  startPos	= semicolonPos+1;
+			  if (startPos >= buffy.length())
+				  return;
+		  }
 	  }
-	  
-	  return sb;
-	  
    }
 	/**
 	* Replaces characters that may be confused by a HTML
