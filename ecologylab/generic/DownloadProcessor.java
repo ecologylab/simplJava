@@ -1,5 +1,7 @@
 package ecologylab.generic;
 
+import java.io.IOException;
+
 
 /**
  * Interface to a module that performs downloads, perhaps concurrently.
@@ -17,7 +19,8 @@ public interface DownloadProcessor
  * 
  * @param thatDownloadable
  * @param dispatchTarget
+ * @throws IOException 
  */
 	public void download(Downloadable thatDownloadable,
-			DispatchTarget dispatchTarget);
+			DispatchTarget dispatchTarget) throws IOException;
 }

@@ -80,28 +80,18 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
     }
 
     /**
-     * @param i
-     *            the index of the element to get.
-     * @return the element located at i; if i is greater than the size of set or less than 0, returns null.
-     */
-    public T get(int i)
-    {
-        if (set == null)
-            return null;
+		 * @param i
+		 *           the index of the element to get.
+		 * @return the element located at i; if i is greater than the size of set
+		 *         or less than 0, returns null.
+		 */
+	public T get(int i)
+	{
+		if (set == null || i < 0 || i >= set.size())
+			return null;
 
-        if (i < 0)
-        {
-            return null;
-        }
-        else if (i >= set.size())
-        {
-            return null;
-        }
-        else
-        {
-            return set.get(i);
-        }
-    }
+		return set.get(i);
+	}
 
     public boolean contains(Object o)
     {

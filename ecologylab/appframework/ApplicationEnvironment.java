@@ -82,7 +82,7 @@ implements Environment, XMLTranslationExceptionTypes
 	
 	protected enum LaunchType
 	{
-		JNLP, ECLIPSE, JAR,
+		JNLP, ECLIPSE, JAR, STUDIES,
 	}
 	
 	LaunchType		launchType;
@@ -364,6 +364,10 @@ implements Environment, XMLTranslationExceptionTypes
 			{	// tells us how we were launched: e.g., JNLP, ECLIPSE, ...
 				launchType		= LaunchType.JNLP;
 			}
+			else if ("STUDIES".equals(uc))
+			{
+				launchType = LaunchType.STUDIES;
+			}
 			else
 			{
 				//TODO -- recognize JAR here !!!
@@ -382,8 +386,89 @@ implements Environment, XMLTranslationExceptionTypes
 		prefsPURL				= applicationDataPURL.getRelative("preferences/prefs.xml");
 		debugA("prefsPURL= "+prefsPURL);
 		
+		System.out.println("arg: "+arg);
+		
 		switch (launchType)
 		{
+		case STUDIES:
+			// next arg *should* be code base
+			if ((arg != null) && arg.endsWith("/"))
+			{
+             // JNLP only! (as of now)
+             // right now this only works for http://
+             ParsedURL codeBase = ParsedURL.getAbsolute(arg, "Setting up codebase");
+             this.setCodeBase(codeBase);
+
+             XMLTranslationException metaPrefSetException = null;
+             ParsedURL metaPrefsPURL = null;
+             try
+             {
+                 Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
+                 File metaPrefsFile = Assets.getPreferencesFile(METAPREFS_XML);
+                 metaPrefsPURL = new ParsedURL(metaPrefsFile);
+                 metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationSpace);
+                 println("OK: loaded MetaPrefs from " + metaPrefsFile);
+             }
+             catch (XMLTranslationException e)
+             {
+                 metaPrefSetException = e;
+             }
+             // TODO for eunyee -- test for studies preference and download special studies preferences
+             // When the JNLP has more than two arguments (study case) -- eunyee
+             if (argStack.size() > 0)
+             {
+                 String prefServlet = "";
+                 if (arg.startsWith("http://"))
+                 {
+                     // PreferencesServlet
+                     prefServlet = pop(argStack);
+
+                     prefSet = requestPrefFromServlet(prefServlet, translationSpace);
+                     if (prefSet == null)
+                         error("incorrect prefXML string returned from the servlet=" + prefServlet);
+                 }
+             }
+             // from supplied URL instead of from here
+             try
+             {
+                 debugA("Considering prefSet=" + prefSet + "\tprefsPURL=" + prefsPURL);
+                 if (prefSet == null) // Normal Case
+                 {
+                     prefSet = PrefSet.load(prefsPURL, translationSpace);
+                     if (prefSet != null)
+                         println("OK: Loaded Prefs from " + prefsPURL);
+                     else
+                         println("No Prefs to load from " + prefsPURL);
+                 }
+                 if (metaPrefSetException != null)
+                 {
+                     warning("Couldn't load MetaPrefs:");
+                     metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
+                     println("\tContinuing.");
+                 }
+             }
+             catch (XMLTranslationException e)
+             {
+                 if (metaPrefSetException != null)
+                 {
+                     error("Can't load MetaPrefs or Prefs. Quitting.");
+                     metaPrefSetException.printTraceOrMessage(this, "MetaPrefs", metaPrefsPURL);
+                     e.printTraceOrMessage(this, "Prefs", prefsPURL);
+                 }
+                 else
+                 {
+                     // meta prefs o.k. we can continue
+                     warning("Couldn't load Prefs:");
+                     e.printTraceOrMessage(this, "Prefs", prefsPURL);
+                     println("\tContinuing.");
+                 }
+             }
+         }
+			else
+			{
+				error("No code base argument :-( Can't load preferences.");
+			}
+			break;
 		case JNLP:
 			// next arg *should* be code base
 			if ((arg != null) && arg.endsWith("/"))
@@ -856,11 +941,12 @@ implements Environment, XMLTranslationExceptionTypes
 		return stack.isEmpty() ? null : stack.pop();
 	}
 	
-	static <T> void push(Stack<T> stack, T stuff)
-	{
-		if (stuff != null)
-			stack.push(stuff);
-	}
+	// TODO appears not to be called anywhere -- I find its presence misleading :( -Zach
+//	static <T> void push(Stack<T> stack, T stuff)
+//	{
+//		if (stuff != null)
+//			stack.push(stuff);
+//	}
 	/**
 	 * Translation space used to parse Preferences for this Application.
 	 * 

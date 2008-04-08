@@ -72,8 +72,9 @@ implements Downloadable, DispatchTarget
 	/**
 	 * Initiate the download and writing of the zip file. This
 	 * is called by outsiders.
+	 * @throws IOException 
 	 */
-	public void downloadAndWrite(boolean extractWhenComplete)
+	public void downloadAndWrite(boolean extractWhenComplete) throws IOException
 	{
 		this.extractWhenComplete 	= extractWhenComplete;
 		debug("downloadAndWrite() calling downloadMonitor");
@@ -89,7 +90,7 @@ implements Downloadable, DispatchTarget
 			downloadProcessor.stop();
 	}
 	
-	public void downloadAndWrite()
+	public void downloadAndWrite() throws IOException
 	{
 		downloadAndWrite(false);
 	}
@@ -97,9 +98,9 @@ implements Downloadable, DispatchTarget
 	/**
 	 * ONLY called by <code>DownloadProcessor</code>s to actually download the 
 	 * zip file! Not called by outsiders!
+	 * @throws IOException 
 	 */
-	public void performDownload() 
-	throws Exception 
+	public void performDownload() throws IOException
 	{
 		debug("performDOwnload() top");
 		if (downloadStarted)
@@ -308,7 +309,8 @@ implements Downloadable, DispatchTarget
 				zipDownload.downloadAndWrite(unCompress);
 				return zipDownload;
 			}
-		} catch(IOException e)
+		} 
+		catch(IOException e)
 		{
 			System.err.println("Error, zip file not found on the server!");
 			// hiding stack trace -- it's annoying.

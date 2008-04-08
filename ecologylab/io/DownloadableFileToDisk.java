@@ -3,6 +3,7 @@ package ecologylab.io;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -62,7 +63,7 @@ implements Downloadable, DispatchTarget
 		return downloadDone;
 	}
 
-	public void performDownload() throws Exception
+	public void performDownload() throws IOException
 	{
 		debug("performDownload() top");
 		if (downloadStarted)

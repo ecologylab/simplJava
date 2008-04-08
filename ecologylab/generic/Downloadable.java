@@ -1,5 +1,7 @@
 package ecologylab.generic;
 
+import java.io.IOException;
+
 /**
  * Objects that implement this interface can be passed to a {@link DownloadProcessor DownloadProcessor}.
  *
@@ -11,7 +13,7 @@ public interface Downloadable
  * Called to start download.
  */
    public void performDownload()
-      throws Exception;
+      throws IOException;
 /**
  * Called to inquire on the status of a download.<br>
  * @return	true if the download is complete.

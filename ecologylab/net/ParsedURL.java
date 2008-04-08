@@ -167,11 +167,12 @@ implements MimeType
       {
       	URL url		= new URL(webAddr);
       	if (isUndetectedMalformedURL(url))
-  			return null;
+      		return null;
       	return new ParsedURL(url);
       }
       catch (MalformedURLException e)
       {
+      	e.printStackTrace();
       	Debug.println(urlErrorMsg(webAddr, errorDescriptor));
       	return null;
       }
@@ -185,9 +186,12 @@ implements MimeType
     */
    private static boolean isUndetectedMalformedURL(URL url)
    {
-	   boolean isFileProtocol = url.getProtocol() == "file:";
+   	// originally checked against "file:", but on OS X, we just get "file"; this is probably true everywhere else too, but I will leave "file:" for the time being. -Zach
+	   boolean isFileProtocol = url.getProtocol() == "file" || url.getProtocol() == "file:";
 	   String host = url.getHost().trim();
-	   return ((!isFileProtocol && (host == "" || host == "/")) || (isFileProtocol && url.getPath().trim() != ""));
+	   
+	   return ((!isFileProtocol && (host == "" || host == "/")) 
+	   		|| (isFileProtocol && (url.getPath().trim() != "" || "localhost".equalsIgnoreCase(host))));
    }
 /**
     * Form a ParsedURL, based on a relative path, using this as the base.
