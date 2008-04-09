@@ -16,6 +16,34 @@ import javax.imageio.plugins.jpeg.*;
 public class ImageTools 
 extends Debug
 {
+	
+	
+	/**
+	 * Returns the new rectangle, which is the bounding box for <code>rect</code> rotated by <code>theta</code> around the center
+	 * @param rect
+	 * @param theta
+	 * @return
+	 */
+	public static Rectangle getRotatedExtent(Rectangle rect, double theta)
+	{
+		return getRotatedExtent(rect.width, rect.height, theta);
+	}
+	/**
+	 * Calculates the new bounding box for a rectangle with width, height rotated by an angle theta around the center
+	 * @param width
+	 * @param height
+	 * @param theta
+	 * @return
+	 */
+	public static Rectangle getRotatedExtent(int width, int height, double theta)
+	{
+		double diag 		= Math.sqrt(width*width + height*height);
+		double alpha 		= Math.atan2(height, width);
+		double newWidth 	= diag * Math.cos(theta - alpha);
+		double newHeight 	= diag  * Math.cos(Math.PI / 2 - theta - alpha);
+		return new Rectangle((int)newWidth, (int)newHeight);
+	}
+	
 	/**
 	 * Make a copy of the BufferedImage.
 	 * 
@@ -45,6 +73,7 @@ extends Debug
 
 		Graphics2D g2		= destImage.createGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.rotate(Math.PI /2, newWidth/2, newHeight / 2);
 		g2.drawImage(srcImage, 0,0, newWidth,newHeight, null);
 		g2.dispose();
 	}
