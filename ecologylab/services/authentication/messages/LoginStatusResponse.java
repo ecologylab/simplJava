@@ -6,7 +6,7 @@ package ecologylab.services.authentication.messages;
 import ecologylab.collections.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
-import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.ExplanationResponse;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -15,15 +15,9 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-@xml_inherit public class LoginStatusResponse extends ResponseMessage implements AuthMessages,
+@xml_inherit public class LoginStatusResponse extends ExplanationResponse implements AuthMessages,
 		AuthClientRegistryObjects
 {
-	/**
-	 * The response from the server regarding the attempt to log in; indicates whether or not login was successful and
-	 * why not, if it was not.
-	 */
-	@xml_attribute private String	responseMessage	= new String();
-
 	/**
 	 * Constructs a new LoginStatusResponse with the given responseMessage.
 	 * 
@@ -32,21 +26,13 @@ import ecologylab.xml.xml_inherit;
 	 */
 	public LoginStatusResponse(String responseMessage)
 	{
-		this.responseMessage = responseMessage;
+		super(responseMessage);
 	}
 
 	/** No-argument constructor for serialization. */
 	public LoginStatusResponse()
 	{
 		super();
-	}
-
-	/**
-	 * @return Returns the responseMessage.
-	 */
-	public String getResponseMessage()
-	{
-		return responseMessage;
 	}
 
 	/**
@@ -58,7 +44,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public boolean isOK()
 	{
-		return LOGIN_SUCCESSFUL.equals(responseMessage);
+		return LOGIN_SUCCESSFUL.equals(explanation);
 	}
 
 	/**
@@ -72,16 +58,6 @@ import ecologylab.xml.xml_inherit;
 		System.out.println("response about login: " + isOK());
 
 		((BooleanSlot) objectRegistry.get(LOGIN_STATUS)).value = isOK();
-		objectRegistry.put(LOGIN_STATUS_STRING, responseMessage);
+		objectRegistry.put(LOGIN_STATUS_STRING, explanation);
 	}
-
-	/**
-	 * @param responseMessage
-	 *           The responseMessage to set.
-	 */
-	public void setResponseMessage(String responseMessage)
-	{
-		this.responseMessage = responseMessage;
-	}
-
 }

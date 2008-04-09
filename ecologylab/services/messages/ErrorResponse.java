@@ -9,10 +9,8 @@ import ecologylab.xml.ElementState.xml_attribute;
  * @author andruid
  */
 @xml_inherit
-public class ErrorResponse extends ResponseMessage
+public class ErrorResponse extends ExplanationResponse
 {
-	@xml_attribute protected String explanation;
-	
 	public ErrorResponse()
 	{
 		super();
@@ -28,13 +26,4 @@ public class ErrorResponse extends ResponseMessage
 	{
 		return false;
 	}
-
-    /**
-     * @return Returns the explanation.
-     */
-    public String getExplanation()
-    {
-        return explanation;
-    }
-
 }

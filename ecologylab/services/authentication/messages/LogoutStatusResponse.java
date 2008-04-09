@@ -6,7 +6,7 @@ package ecologylab.services.authentication.messages;
 import ecologylab.collections.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
-import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.ExplanationResponse;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -15,15 +15,9 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-@xml_inherit public class LogoutStatusResponse extends ResponseMessage implements AuthMessages,
+@xml_inherit public class LogoutStatusResponse extends ExplanationResponse implements AuthMessages,
 		AuthClientRegistryObjects
 {
-	/**
-	 * The response from the server regarding the attempt to log out; indicates whether or not logout was successful and
-	 * why not, if it was not.
-	 */
-	@xml_attribute private String	responseMessage	= new String();
-
 	/**
 	 * Constructs a new LogoutStatusResponse with the given responseMessage.
 	 * 
@@ -32,7 +26,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	public LogoutStatusResponse(String responseMessage)
 	{
-		this.responseMessage = responseMessage;
+		super(responseMessage);
 	}
 
 	/** No-argument constructor for serialization. */
@@ -50,7 +44,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public boolean isOK()
 	{
-		return LOGOUT_SUCCESSFUL.equals(responseMessage);
+		return LOGOUT_SUCCESSFUL.equals(this.explanation);
 	}
 
 	/**
@@ -62,15 +56,6 @@ import ecologylab.xml.xml_inherit;
 	{
 		((BooleanSlot) objectRegistry.get(LOGIN_STATUS)).value = false;
 
-		objectRegistry.put(LOGIN_STATUS_STRING, responseMessage);
+		objectRegistry.put(LOGIN_STATUS_STRING, explanation);
 	}
-
-	/**
-	 * @return Returns the responseMessage.
-	 */
-	public String getResponseMessage()
-	{
-		return responseMessage;
-	}
-
 }

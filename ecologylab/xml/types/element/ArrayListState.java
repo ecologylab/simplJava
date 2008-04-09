@@ -66,7 +66,7 @@ public class ArrayListState<T extends ElementState> extends ElementState impleme
 
     public T remove(int i)
     {
-        return (set == null) ? null : set.remove(i);
+        return ((set == null) || (set.size() <= i)) ? null : set.remove(i);
     }
 
     public Iterator<T> iterator()

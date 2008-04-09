@@ -9,16 +9,15 @@ import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
-import ecologylab.services.authentication.messages.LoginStatusResponse;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.DoubleThreadedAuthNIOServer;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
 import ecologylab.services.messages.BadSemanticContentResponse;
+import ecologylab.services.messages.ExplanationResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationScope;
@@ -100,7 +99,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 				// tell the server to log it
 				servicesServer.fireLoggingEvent(new AuthenticationOp(
 						((Login) requestMessage).getEntry().getUsername(), true,
-						((LoginStatusResponse) response).getResponseMessage(),
+						((ExplanationResponse) response).getExplanation(),
 						((SocketChannel) socketKey.channel()).socket()
 								.getInetAddress().toString(),
 						((SocketChannel) socketKey.channel()).socket().getPort()));
@@ -121,7 +120,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 				// tell the server to log it
 				servicesServer.fireLoggingEvent(new AuthenticationOp(
 						((Logout) requestMessage).getEntry().getUsername(), false,
-						((LogoutStatusResponse) response).getResponseMessage(),
+						((ExplanationResponse) response).getExplanation(),
 						((SocketChannel) socketKey.channel()).socket()
 								.getInetAddress().toString(),
 						((SocketChannel) socketKey.channel()).socket().getPort()));

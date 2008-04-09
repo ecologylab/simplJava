@@ -51,10 +51,9 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 	public boolean login(A entry, String sessionId)
 	{
 		System.out.println("*****************************************");
+		System.out.println("entry: " + entry.toString());
+
 		boolean loggedInSuccessfully = false;
-		System.out.println("entry: " + entry);
-		System.out.println(entry.getUsername());
-		System.out.println(authList.contains(entry));
 
 		// first see if the username exists
 		if (entry != null && authList.contains(entry.getUsername()))

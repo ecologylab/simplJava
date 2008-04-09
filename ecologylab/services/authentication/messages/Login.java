@@ -80,18 +80,18 @@ import ecologylab.xml.xml_inherit;
 
 		if (loginSuccess)
 		{ // we're logged in!
-			loginConfirm.setResponseMessage(LOGIN_SUCCESSFUL);
+			loginConfirm.setExplanation(LOGIN_SUCCESSFUL);
 		}
 		else
 		{
 			// figure out why it failed
 			if (this.getSender() == null)
 			{
-				loginConfirm.setResponseMessage(LOGIN_FAILED_NO_IP_SUPPLIED);
+				loginConfirm.setExplanation(LOGIN_FAILED_NO_IP_SUPPLIED);
 			}
 			else if (server.isLoggedIn(entry.getUsername()))
 			{
-				loginConfirm.setResponseMessage(LOGIN_FAILED_LOGGEDIN);
+				loginConfirm.setExplanation(LOGIN_FAILED_LOGGEDIN);
 			}
 		}
 
