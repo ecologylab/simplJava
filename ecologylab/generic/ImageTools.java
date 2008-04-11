@@ -73,7 +73,6 @@ extends Debug
 
 		Graphics2D g2		= destImage.createGraphics();
 		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g2.rotate(Math.PI /2, newWidth/2, newHeight / 2);
 		g2.drawImage(srcImage, 0,0, newWidth,newHeight, null);
 		g2.dispose();
 	}
