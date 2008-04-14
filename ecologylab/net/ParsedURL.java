@@ -174,7 +174,8 @@ implements MimeType
 	   {
 		   Debug.println(urlErrorMsg(webAddr, errorDescriptor));
 		   Debug.println("Ignoring this exception and returning null.");
-		   e.printStackTrace();
+		   if (!webAddr.startsWith("tag"))
+			   e.printStackTrace();
 		   return null;
 	   }
     }
