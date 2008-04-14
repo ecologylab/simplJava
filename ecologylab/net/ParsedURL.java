@@ -163,20 +163,20 @@ implements MimeType
     */
    public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
    {
-      try
-      {
-      	URL url		= new URL(webAddr);
-      	if (isUndetectedMalformedURL(url))
-      		return null;
-      	return new ParsedURL(url);
-      }
-      catch (MalformedURLException e)
-      {
-      	e.printStackTrace();
-      	Debug.println(urlErrorMsg(webAddr, errorDescriptor));
-      	return null;
-      }
-      
+	   try
+	   {
+		   URL url		= new URL(webAddr);
+		   if (isUndetectedMalformedURL(url))
+			   return null;
+		   return new ParsedURL(url);
+	   }
+	   catch (MalformedURLException e)
+	   {
+		   Debug.println(urlErrorMsg(webAddr, errorDescriptor));
+		   Debug.println("Ignoring this exception and returning null.");
+		   e.printStackTrace();
+		   return null;
+	   }
     }
    
    /**
