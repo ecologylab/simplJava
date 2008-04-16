@@ -798,6 +798,8 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					this.translateResponseMessageToStringBufferContents(request,
 							response, msgBufOutgoing);
 
+//					System.out.println("REQUEST / RESPONSE: "+request.translateToXML().toString() +" / "+response.translateToXML().toString());
+					
 					// setup outgoingMessageHeaderBuffer
 					this.createHeader(msgBufOutgoing, headerBufOutgoing, request,
 							response, requestWithMetadata.getUid());
