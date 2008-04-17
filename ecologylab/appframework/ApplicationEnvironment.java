@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 import java.util.Stack;
 
 import ecologylab.appframework.types.Preference;
@@ -336,7 +338,7 @@ implements Environment, XMLTranslationExceptionTypes
 		} 
 		catch (IOException e) 
 		{
-			e.printStackTrace();
+			warning("not a <pref_set> servlet URL: " + prefServlet);
 		}
 		return null;
 	}
@@ -494,17 +496,30 @@ implements Environment, XMLTranslationExceptionTypes
              }
              // TODO for eunyee -- test for studies preference and download special studies preferences
              // When the JNLP has more than two arguments (study case) -- eunyee
+             debugA("argStack.size() =  " + argStack.size());
              if (argStack.size() > 0)
              {
-                 String prefServlet = "";
+                 String prefSpec = "";
                  if (arg.startsWith("http://"))
                  {
                      // PreferencesServlet
-                     prefServlet = pop(argStack);
-
-                     prefSet = requestPrefFromServlet(prefServlet, translationSpace);
-                     if (prefSet == null)
-                         error("incorrect prefXML string returned from the servlet=" + prefServlet);
+                     prefSpec 		= pop(argStack);
+                     
+                     if (prefSpec != null)
+                     {
+                    	 prefSet	= loadPrefsFromJNLP(prefSpec);
+                    	 
+                    	 // if we got args straight from jnlp, then continue
+                    	 if (prefSet != null)
+                    		 prefSpec 		= pop(argStack);
+                    	 
+                    	 if (prefSpec != null)
+                    	 {
+	                    	 prefSet 	= requestPrefFromServlet(prefSpec, translationSpace);
+	                    	 if (prefSet == null)
+	                    		 error("incorrect prefXML string returned from the servlet=" + prefSpec);
+                    	 }
+                     }
                  }
              }
              // from supplied URL instead of from here
@@ -627,6 +642,31 @@ implements Environment, XMLTranslationExceptionTypes
 				argStack.push(arg);	// let the next code handle returning.
 			break;
 		}
+	}
+	
+	private PrefSet loadPrefsFromJNLP(String prefSpec)
+	{
+		PrefSet prefSet	= null;
+		
+		debugA("loadPrefsFromJNLP()");
+        if (prefSpec.startsWith("%3Cpref_set"))
+        {
+        	try
+			{
+				String decodedPrefsXML	= URLDecoder.decode(prefSpec, "UTF-8");
+				debugA("Loading prefs from JNLP: " + decodedPrefsXML);
+				prefSet 				= PrefSet.loadFromCharSequence(decodedPrefsXML, translationSpace);
+			} catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (XMLTranslationException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+		return prefSet;
 	}
 	
 	/**
