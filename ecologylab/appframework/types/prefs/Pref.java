@@ -277,6 +277,16 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
     }
     
     /**
+     * Turn the entry for a pref name to null in the global map.
+     * 
+     * @param name
+     */
+    public static void clearPref(String name)
+    {
+    	allPrefsMap.remove(name);
+    }
+    
+    /**
      * Look up a PrefInt by name in the map of all Prefs.
      * Return defaultValue if PrefInt's value is null.
      * 

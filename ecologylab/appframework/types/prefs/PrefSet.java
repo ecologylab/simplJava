@@ -107,4 +107,17 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
         
         return pS;
     }
+    
+    /**
+     * Remove the Pref from this, and from the global set.
+     * 
+     * @param key
+     * @return
+     */
+    public Pref<?> clearPref(String key)
+    {
+    	Pref.clearPref(key);
+    	return super.remove(key);
+    }
+
 }

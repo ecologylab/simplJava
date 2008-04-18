@@ -1031,6 +1031,18 @@ implements Environment, XMLTranslationExceptionTypes
 		return result;
 	}
 	
+    /**
+     * Remove the Pref from the PrefSet associated with this, and from the global set.
+     * 
+     * @param key
+     * @return
+     */
+	public void clearPref(String key)
+	{
+		if (prefSet != null)
+			prefSet.clearPref(key);
+	}
+	
 	protected LaunchType launchType()
 	{
 		return this.launchType;
