@@ -497,7 +497,12 @@ implements OptimizationTypes
         	ScalarType scalarType	= this.scalarType;
         	Field field				= this.field;
         	
-        	if (!scalarType.isDefaultValue(field, context))
+        	/*
+        	 * The scalarType is becoming NULL in the Text Metadata where the "text"
+        	 * attribute is not a ScalarType. For now we can neglect it.
+        	 * Metdata Transition
+        	 */
+        	if (scalarType != null && !scalarType.isDefaultValue(field, context))
         	{
 	            //for this field, generate tags and attach name value pair
 	        	
