@@ -495,16 +495,34 @@ extends Debug implements BasicFloatSet<E>
       }
       debug("prune() finished " + duration);
    }
-   //      System.out.println("Before sort :\n"+ this);
-   // sentinel always in position 0 -- avoid it!!!
-   //      quickSort(elements, 1, size-1, false);
-   // always do insertion sort, cause we leave short runs untouched
-   // by quicksort, as per Sedgewick via Siegel and Cole
+
+   /**
+    * Mean of elements in this set and another set.
+    * 
+    * @param other	The other FloatWeightSet, to include (weighted by number of elements) in the mean calculation.
+    * 
+    * @return
+    */
+   public synchronized float mean(FloatWeightSet other)
+   {
+	   int numThis	= other.size();
+	   int numOther	= this.size();
+	   int numTotal	= numThis + numOther;
+	   if (numTotal == 0)
+		   return 0;
+	   return (numThis*other.mean() + numOther*this.mean()) / numTotal;
+   }
+
+ 
+   /**
+    * 
+    * @return	Mean of elements in the set. 0 if the set is empty.
+    */
    public synchronized float mean()
    {
       float result;
       if (size == 0 || size==1)
-		 result		= 1;
+		 result		= 0;
       else
 	  {
 		 if ( incrementalSums != null )
