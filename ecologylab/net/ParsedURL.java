@@ -33,6 +33,8 @@ public class ParsedURL
 extends Debug
 implements MimeType
 {
+	private static final String NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS = " is not in the format of a web address";
+
 	/**
 	 * this is the no hash url, that is, the one with # and anything after it stripped out.
 	 */
@@ -163,21 +165,28 @@ implements MimeType
     */
    public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
    {
-	   try
+	   if (webAddr == null)
 	   {
-		   URL url		= new URL(webAddr);
-		   if (isUndetectedMalformedURL(url))
-			   return null;
-		   return new ParsedURL(url);
+		   println("ERROR: ParsedURL.getAbsoltute() webAddr = null!");
+		   Thread.dumpStack();
 	   }
-	   catch (MalformedURLException e)
+	   else
 	   {
-		   Debug.println(urlErrorMsg(webAddr, errorDescriptor));
-		   Debug.println("Ignoring this exception and returning null.");
-		   if (!webAddr.startsWith("tag"))
-			   e.printStackTrace();
-		   return null;
+		   try
+		   {
+			   URL url		= new URL(webAddr);
+			   if (isUndetectedMalformedURL(url))
+				   return null;
+			   return new ParsedURL(url);
+		   }
+		   catch (MalformedURLException e)
+		   {
+			   if (!"".equals(errorDescriptor))
+				   errorDescriptor	= "\n" + errorDescriptor;
+			   Debug.error(webAddr, NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS + "." + errorDescriptor);
+		   }
 	   }
+	   return null;
     }
    
    /**
@@ -244,7 +253,9 @@ implements MimeType
 		  }
 		  catch (MalformedURLException e)
 		  {
-		     println(urlErrorMsg(relativeURLPath, errorDescriptor));
+			   if (!"".equals(errorDescriptor))
+				   errorDescriptor	= "\n" + errorDescriptor;
+			   Debug.error(relativeURLPath, NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS + "[" + base + "]." + errorDescriptor);
 		  }
        }      
       
@@ -282,15 +293,6 @@ implements MimeType
 		 return null;
       }
    }
-   
-/**
- * Return url error message string.
- */
-   static String urlErrorMsg(String webAddr, String errorDescriptor)
-   {
-      return "ParsedURL.ERROR " + errorDescriptor + ": " + webAddr +
-	      " does not look like a web address.";
-   }    
 
 /**
  * Uses lazy evaluation to minimize storage allocation.
