@@ -40,6 +40,8 @@ import ecologylab.xml.xml_inherit;
 	@xml_attribute protected String	userID	= "0";
 
 	@xml_attribute protected String	studyName;
+	
+	@xml_attribute protected boolean performEpilogueNow;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
@@ -97,6 +99,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public ResponseMessage performService(Scope clientSessionScope)
 	{
+		debug("performService()");
 		String logFilesPath = (String) clientSessionScope
 				.get(NIOLoggingServer.LOG_FILES_PATH);
 
@@ -141,7 +144,7 @@ import ecologylab.xml.xml_inherit;
 				throw new IOException("Could not create the logging file.");
 			}
 			
-			debug("logging to file at: " + file.getAbsolutePath());
+			debug("Logging to file at: " + file.getAbsolutePath());
 
 			FileOutputStream fos = new FileOutputStream(file, true);
 			CharsetEncoder encoder = Charset.forName(
@@ -149,8 +152,16 @@ import ecologylab.xml.xml_inherit;
 
 			clientSessionScope.put(OUTPUT_STREAM, new OutputStreamWriter(fos,
 					encoder));
-
-			return super.performService(clientSessionScope);
+			
+			if (this.performEpilogueNow)
+			{
+				SendEpilogue se			= new SendEpilogue();
+				
+				// this will write the buffer and then close the file
+				return se.performService(clientSessionScope);
+			}
+			else
+				return super.performService(clientSessionScope);
 		}
 		catch (FileNotFoundException e)
 		{

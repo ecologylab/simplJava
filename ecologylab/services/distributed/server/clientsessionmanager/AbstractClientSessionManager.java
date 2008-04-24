@@ -754,6 +754,13 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		}
 		else
 		{
+			//TODO apologize to zach for this (-- andruid)
+			// try to make http post work seamlessly cause it seems like it doesnt yet :-(
+			if (!isInitialized() && !(request instanceof InitConnectionRequest))
+			{
+				debug("Andruid hack.");
+				initialized		= true;
+			}
 			if (!isInitialized())
 			{
 				// special processing for InitConnectionRequest
