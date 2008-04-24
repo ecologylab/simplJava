@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
@@ -110,7 +111,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			}
 			catch (NumberFormatException e)
 			{
-				System.err
+				Debug
 						.println("second argument was not an integer, using MAX_PACKET_SIZE_CHARACTERS: "
 								+ MAX_PACKET_SIZE_CHARACTERS);
 				e.printStackTrace();
@@ -118,7 +119,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 		}
 		else
 		{
-			System.err.println("No max packet length specified, using " + mPL);
+			Debug.println("No max packet length specified, using " + mPL);
 		}
 
 		NIOLoggingServer loggingServer = getInstance(NetTools
@@ -130,6 +131,9 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			{
 				loggingServer.setLogFilesPath(args[0]);
 			}
+			
+			if( args.length>2 )
+				Debug.setLoggingFile(args[2]);
 
 			loggingServer.start();
 		}
