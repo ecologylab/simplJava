@@ -14,7 +14,7 @@ import java.nio.charset.CharsetEncoder;
 public interface NetworkingConstants
 {
 	/** the maximum size of message acceptable by server in encoded CHARs */
-	static final int					MAX_PACKET_SIZE_CHARACTERS		= 8 * 1024 * 2;								// 2MB
+	static final int					MAX_PACKET_SIZE_CHARACTERS		= 512 * 1024;								// 512K
 
 	static final int					DEFAULT_IDLE_TIMEOUT				= 10000;
 
