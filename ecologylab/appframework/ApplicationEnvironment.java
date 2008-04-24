@@ -10,7 +10,6 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.Stack;
 
-import ecologylab.appframework.types.Preference;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
@@ -494,34 +493,6 @@ implements Environment, XMLTranslationExceptionTypes
              {
                  metaPrefSetException = e;
              }
-             // TODO for eunyee -- test for studies preference and download special studies preferences
-             // When the JNLP has more than two arguments (study case) -- eunyee
-             debugA("argStack.size() =  " + argStack.size());
-             if (argStack.size() > 0)
-             {
-                 String prefSpec = "";
-                 if (arg.startsWith("http://"))
-                 {
-                     // PreferencesServlet
-                     prefSpec 		= pop(argStack);
-                     
-                     if (prefSpec != null)
-                     {
-                    	 prefSet	= loadPrefsFromJNLP(prefSpec);
-                    	 
-                    	 // if we got args straight from jnlp, then continue
-                    	 if (prefSet != null)
-                    		 prefSpec 		= pop(argStack);
-                    	 
-                    	 if (prefSpec != null)
-                    	 {
-	                    	 prefSet 	= requestPrefFromServlet(prefSpec, translationSpace);
-	                    	 if (prefSet == null)
-	                    		 error("incorrect prefXML string returned from the servlet=" + prefSpec);
-                    	 }
-                     }
-                 }
-             }
              // from supplied URL instead of from here
              try
              {
@@ -555,6 +526,51 @@ implements Environment, XMLTranslationExceptionTypes
                      warning("Couldn't load Prefs:");
                      e.printTraceOrMessage(this, "Prefs", prefsPURL);
                      println("\tContinuing.");
+                 }
+             }
+             // TODO for eunyee -- test for studies preference and download special studies preferences
+             // When the JNLP has more than two arguments (study case) -- eunyee
+             debugA("argStack.size() =  " + argStack.size());
+             if (argStack.size() > 0)
+             {
+                 String prefSpec = "";
+                 if (arg.startsWith("http://"))
+                 {
+                     // PreferencesServlet
+                     prefSpec 		= pop(argStack);
+                     
+                     if (prefSpec != null)
+                     {
+                    	 // load URLEncoded prefs XML straight from the argument
+                    	 PrefSet JNLPPrefSet	= loadPrefsFromJNLP(prefSpec);
+                    	 
+                    	 if (JNLPPrefSet != null)
+                    	 {
+                    		 if (prefSet == null)
+                    			 prefSet		= JNLPPrefSet;
+                    		 else
+                    			 prefSet.append(JNLPPrefSet);
+                    	 }
+                    	 else
+                    	 { 	// if we got args straight from jnlp, then continue
+                    		 if (JNLPPrefSet != null)
+                    			 prefSpec 		= pop(argStack);
+
+                    		 if (prefSpec != null)
+                    		 {
+                    			 PrefSet servletPrefSet	= requestPrefFromServlet(prefSpec, translationSpace);
+                    			 if (servletPrefSet == null)
+                    				 error("incorrect prefXML string returned from the servlet=" + prefSpec);
+                    			 else
+                    			 {
+                    				 if (prefSet == null)
+                    					 prefSet		= servletPrefSet;
+                    				 else
+                    					 prefSet.append(servletPrefSet);
+                    			 }
+                    		 }
+                    	 }
+                     }
                  }
              }
          }
@@ -738,7 +754,7 @@ implements Environment, XMLTranslationExceptionTypes
 	public String lookupStringPreference(String name)
 	{
 //		return properties.getProperty(name);
-		return ((Preference) preferencesRegistry().get(name)).getValue();
+		return Pref.lookupString(name);
 	}
 
 	/**
@@ -842,7 +858,7 @@ implements Environment, XMLTranslationExceptionTypes
 			{
 			case PropertiesAndDirectories.WINDOWS:
 				String path		= null;
-				if (!Preference.lookupBoolean("navigate_with_ie"))
+				if (!Pref.lookupBoolean("navigate_with_ie"))
 					path		= FIREFOX_PATH_WINDOWS;
 				if (path != null)
 				{
