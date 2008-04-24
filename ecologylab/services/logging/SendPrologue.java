@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Date;
 
+import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.collections.Scope;
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;
@@ -78,6 +79,29 @@ import ecologylab.xml.xml_inherit;
 		// "LogFiles/" +
 		ip + "__" + tempDate + "_" + userID + ".xml";
 		String studyName = getStudyName();
+		if (studyName != null)
+			sessionLogFile = studyName + Files.sep + sessionLogFile;
+		return sessionLogFile;
+	}
+
+	public static String constructFileName()
+	{
+		return getFileName(new Date(), Pref.lookupString("study_name"));
+	}
+	
+	public static String getFileName(Date date, String studyName)
+	{
+		String tempDate = date.toString().replace(' ', '_');
+		tempDate 		= tempDate.replace(':', '_');
+		
+		String ip		= NetTools.localHost();
+		/**
+		 * A session log file name of a user
+		 */
+		String sessionLogFile = // "/project/ecologylab/studyResults/CF_LOG/" +
+		// "LogFiles/" +
+			ip + "__" + tempDate + "_" +  Pref.lookupString("uid", "No UID") + ".xml";
+		
 		if (studyName != null)
 			sessionLogFile = studyName + Files.sep + sessionLogFile;
 		return sessionLogFile;
