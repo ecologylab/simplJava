@@ -156,7 +156,7 @@ import ecologylab.xml.xml_inherit;
 			if (this.performEpilogueNow)
 			{
 				SendEpilogue se			= new SendEpilogue();
-				
+				se.bufferToLog = this.bufferToLog;
 				// this will write the buffer and then close the file
 				return se.performService(clientSessionScope);
 			}
