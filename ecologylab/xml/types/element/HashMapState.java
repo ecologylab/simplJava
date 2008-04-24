@@ -154,4 +154,20 @@ public class HashMapState<K, V extends ElementState & Mappable<K>> extends Eleme
 
         super.recycle();
     }
+    
+    /**
+     * Put all the key/value pairs from another (type compatible) Map into this.
+     * 
+     * @param otherMap
+     */
+    public void append(Map<K, V> otherMap)
+    {
+        for (K key : otherMap.keySet())
+        {
+            V value = otherMap.get(key);
+
+            put(key, value);
+        }
+    	
+    }
 }
