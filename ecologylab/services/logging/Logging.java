@@ -132,6 +132,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 	/** used to prevent writes from getting interrupt()'ed */
 	private Object										threadSemaphore							= new Object();
+	
+	private volatile boolean runMethodDone = false;
 
 	/**
 	 * Instantiates a Logging object based on the given log file name. This
@@ -261,6 +263,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						}
 						debug("Logging to file: " + logFile.getAbsolutePath());
 
+						try {
+							ElementState.createParentDirs(logFile);
+						} catch (XMLTranslationException e) {
+							e.printStackTrace();
+						}
+						
 						BufferedWriter bufferedWriter = Files.openWriter(logFile);
 
 						if (bufferedWriter != null)
@@ -316,6 +324,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						else
 						{
 							logFile = logDir;
+						}
+						
+						try {
+							ElementState.createParentDirs(logFile);
+						} catch (XMLTranslationException e) {
+							e.printStackTrace();
 						}
 						debug("Logging to file: " + logFile.getAbsolutePath());
 
@@ -412,6 +426,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 */
 	public void logAction(MixedInitiativeOp op)
 	{
+		if (!this.finished)
+		{
 		if (logWriters != null)
 		{
 			try
@@ -440,6 +456,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			{
 				e.printStackTrace();
 			}
+		}
 		}
 	}
 
@@ -492,13 +509,27 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 */
 	public synchronized void stop()
 	{
+		debug("Logging shutting down...");
+		
 		if (thread != null)
 		{
+			debug("logging still running, initiating shutdown sequence...");
 			finished = true;
 			thread = null;
+			
+			int timesToWait = 100;
+			
+			while (!this.runMethodDone && timesToWait-- > 0)
+			{
+				debug("logging waiting on run method to finish log writing");
+				Generic.sleep(500);
+			}
+			
+			debug("done");
+			
 			if (logWriters != null)
 			{
-				writeBufferedOps();
+//				writeBufferedOps();
 
 				final Epilogue epilogue = getEpilogue();
 				// necessary for acquiring wrapper characters, like </op_sequence>
@@ -508,9 +539,11 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					logWriter.writeLogMessage(sendEpilogue);
 					logWriter.close();
 				}
+	
 				logWriters = null;
 			}
 		}
+		debug("Logging shutdown complete.");
 	}
 
 	/**
@@ -542,6 +575,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				Memory.reclaim();
 			}
 		}
+		
+		// now that we are finished, we let everyone else know
+		this.runMethodDone = true;
 	}
 
 	/**

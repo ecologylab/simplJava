@@ -266,16 +266,27 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	public void translateToXML(File outputFile)
 	throws XMLTranslationException, IOException
 	{
+		createParentDirs(outputFile);
+		
+		BufferedWriter bufferedWriter	= new BufferedWriter(new FileWriter(outputFile));
+		translateToXML(bufferedWriter);
+		bufferedWriter.close();
+	}
+
+	/**
+	 * Assumes that outputFile should be a file, whose parent directories may not exist. Creates the parent directories for the given 
+	 * File, and throws an XMLTranslationException if outputFile is a directory and not a file.
+	 * @param outputFile
+	 * @throws XMLTranslationException
+	 */
+	public static void createParentDirs(File outputFile)
+			throws XMLTranslationException {
 		if (outputFile.isDirectory())
 			throw new XMLTranslationException("Output path is already a directory, so it can't be a file: " + outputFile.getAbsolutePath());
 		
 		String outputDirName	= outputFile.getParent();
 		File outputDir			= new File(outputDirName);
 		outputDir.mkdirs();
-		
-		BufferedWriter bufferedWriter	= new BufferedWriter(new FileWriter(outputFile));
-		translateToXML(bufferedWriter);
-		bufferedWriter.close();
 	}
 
 	/**
