@@ -821,8 +821,8 @@ static String q(String string)
 
 		  if (lookup != null)
 		  {
-			  if (!"nbsp".equals(encoded))
-				  println("unescapeXML[" +encoded + "] -> " + lookup );
+//			  if (!"nbsp".equals(encoded))
+//				  println("unescapeXML[" +encoded + "] -> " + lookup );
 			  buffy = buffy.replace(ampPos, semicolonPos+1, lookup);
 			  startPos = ampPos+1;
 		  }
