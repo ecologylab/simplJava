@@ -535,15 +535,19 @@ implements OptimizationTypes
         	
         	Document document 		= element.getOwnerDocument();
         	
-        	Object fieldInstance 	= field.get(instance);        	
-        	String  fieldValueString= fieldInstance.toString();
+        	Object fieldInstance 	= field.get(instance); 
+        	if(fieldInstance != null)
+        	{
 
-        	Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
+        		String  fieldValueString= fieldInstance.toString();
 
-        	Element leafNode		= document.createElement(tagName);
-        	leafNode.appendChild(textNode);
+        		Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
 
-        	element.appendChild(leafNode);
+        		Element leafNode		= document.createElement(tagName);
+        		leafNode.appendChild(textNode);
+
+        		element.appendChild(leafNode);
+        	}
          }
     }
     
