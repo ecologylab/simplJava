@@ -19,12 +19,14 @@ public class FieldAccessor extends Debug
 	final Field				field;
 	final ScalarType<?>		scalarType;
 	final String			tagName;
+	final int				type;
 	
-	public FieldAccessor(Field field, ScalarType<?> scalarType, String tagName)
+	public FieldAccessor(FieldToXMLOptimizations f2XO)
 	{
-		this.field		= field;
-		this.scalarType	= scalarType;
-		this.tagName	= tagName;
+		this.field		= f2XO.field();
+		this.scalarType	= f2XO.scalarType();
+		this.tagName	= f2XO.tagName();
+		this.type		= f2XO.type();
 	}
 	
 	/**
@@ -52,6 +54,32 @@ public class FieldAccessor extends Debug
 			if (isScalar())
 			{
 				scalarType.setField(context, field, valueString);
+			}
+		}
+	}
+	
+	/**
+	 * In the supplied context object, set the non-scalar field to a non-scalar value.
+	 * 
+	 * @param context
+	 * 
+	 * @param value		An ElementState, or a Collection, or a Map.
+	 */
+	public void set(ElementState context, Object value)
+	{
+		if (!isScalar())
+		{
+			try
+			{
+				field.set(context, value);
+			} catch (IllegalArgumentException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -107,6 +135,15 @@ public class FieldAccessor extends Debug
 	public Field getField()
 	{
 		return field;
+	}
+
+	/**
+	 * 
+	 * @return	The OptimizationTypes type of the field.
+	 */
+	public int getType()
+	{
+		return type;
 	}
 	
 }

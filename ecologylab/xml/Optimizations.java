@@ -555,11 +555,13 @@ implements OptimizationTypes
 
 	static final Class[] NEW_FIELD_ACCESSOR_TYPES =
 	{
-		Field.class, ScalarType.class, String.class,
+		FieldToXMLOptimizations.class,
 	};
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
-	 * @param fieldAccessorClass TODO
+	 * 
+	 * @param fieldAccessorClass	The Class to use for instantiating each FieldAccessor.
+	 * 								The default is FieldAccessor, but class objects may be passed in that extend that class.
 	 * 
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
@@ -573,28 +575,33 @@ implements OptimizationTypes
 
 		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
 		{
-			String tagName 				= attrF2XO.tagName();
-			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? new FieldAccessor(attrF2XO.field(), attrF2XO.scalarType(), tagName) :
-																		 createFieldAccessor(fieldAccessorClass, attrF2XO, tagName);
-			result.put(tagName, fAccessor);
+			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
+					new FieldAccessor(attrF2XO) : createFieldAccessor(fieldAccessorClass, attrF2XO);
+					
+			result.put(attrF2XO.tagName(), fAccessor);
 		}
 		
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
 		{
-			String tagName 				= elementF2XO.tagName();
-			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? new FieldAccessor(elementF2XO.field(), elementF2XO.scalarType(), tagName) :
-				 createFieldAccessor(fieldAccessorClass, elementF2XO, tagName);
-			result.put(tagName, fAccessor);
+			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
+					new FieldAccessor(elementF2XO) : createFieldAccessor(fieldAccessorClass, elementF2XO);
+					
+			result.put(elementF2XO.tagName(), fAccessor);
+			
+//			Class<?> thatFieldClass 	= thatField.getType();
+//			if (thatFieldClass.isAssignableFrom(ElementState.class))
+//			{
+//				//Optimization thatOptimizations	= 
+//			}
+			//TODO if thatField.getType() get Optimizations for that 
 		}
 		return result;
 	}
 	
-	private FieldAccessor createFieldAccessor(Class<? extends FieldAccessor> fieldAccessorClass, FieldToXMLOptimizations attrF2XO, String tagName)
+	private FieldAccessor createFieldAccessor(Class<? extends FieldAccessor> fieldAccessorClass, FieldToXMLOptimizations attrF2XO)
 	{
-		Object[] args	= new Object[3];
-		args[0]			= attrF2XO.field();
-		args[1]			= attrF2XO.scalarType();
-		args[2]			= tagName;
+		Object[] args	= new Object[1];
+		args[0]			= attrF2XO;
 		
 		return ReflectionTools.getInstance(fieldAccessorClass, NEW_FIELD_ACCESSOR_TYPES, args);
 	}
@@ -736,8 +743,8 @@ implements OptimizationTypes
 				
 				thatField.setAccessible(true);
             
-            //TODO -- is this line necessary? desirable?
-            mapField(thatField);
+				//TODO -- is this line necessary? desirable?
+				mapField(thatField);
 			}
 			// else -- ignore non-annotated fields
 		}
