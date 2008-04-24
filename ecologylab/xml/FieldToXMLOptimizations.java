@@ -30,7 +30,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * 
  * @author andruid
  */
-class FieldToXMLOptimizations
+public class FieldToXMLOptimizations
 extends Debug
 implements OptimizationTypes
 {
@@ -463,7 +463,11 @@ implements OptimizationTypes
         	ScalarType scalarType	= this.scalarType;
         	Field field				= this.field;
         	
-        	if (!scalarType.isDefaultValue(field, context))
+        	if (scalarType == null)
+        	{
+        		weird("scalarType = null!");
+        	}      	
+        	else if (!scalarType.isDefaultValue(field, context))
         	{
 	            //for this field, generate tags and attach name value pair
 	        	
@@ -531,7 +535,31 @@ implements OptimizationTypes
         	
         	Document document 		= element.getOwnerDocument();
         	
+        	Object fieldInstance 	= field.get(instance);        	
+        	String  fieldValueString= fieldInstance.toString();
+
+        	Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
+
+        	Element leafNode		= document.createElement(tagName);
+        	leafNode.appendChild(textNode);
+
+        	element.appendChild(leafNode);
+         }
+    }
+    
+    public void appendCollectionLeaf(Element element, Object instance) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (instance != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	
+        	Document document 		= element.getOwnerDocument();
+        	
         	String  instanceString	= instance.toString();
+
+//            Object fieldInstance 	= field.get(instance);        	
+//        	String  fieldValueString= fieldInstance.toString();
 
         	Text textNode			= isCDATA ? document.createCDATASection(instanceString) : document.createTextNode(instanceString);
 
