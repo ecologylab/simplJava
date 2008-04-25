@@ -133,8 +133,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 	/** used to prevent writes from getting interrupt()'ed */
 	private Object										threadSemaphore							= new Object();
-	
-	private volatile boolean runMethodDone = false;
+
+	private volatile boolean						runMethodDone								= false;
 
 	/**
 	 * Instantiates a Logging object based on the given log file name. This
@@ -235,12 +235,15 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						}
 						debug("Logging to file: " + logFile.getAbsolutePath());
 
-						try {
+						try
+						{
 							ElementState.createParentDirs(logFile);
-						} catch (XMLTranslationException e) {
+						}
+						catch (XMLTranslationException e)
+						{
 							e.printStackTrace();
 						}
-						
+
 						BufferedWriter bufferedWriter = Files.openWriter(logFile);
 
 						if (bufferedWriter != null)
@@ -297,10 +300,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						{
 							logFile = logDir;
 						}
-						
-						try {
+
+						try
+						{
 							ElementState.createParentDirs(logFile);
-						} catch (XMLTranslationException e) {
+						}
+						catch (XMLTranslationException e)
+						{
 							e.printStackTrace();
 						}
 						debug("Logging to file: " + logFile.getAbsolutePath());
@@ -335,7 +341,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					// CONNECT TO SERVER
 					if (loggingClient.connect())
 					{
-						logWriters.add(new NetworkLogWriter(loggingClient));
+						logWriters.add(new NetworkLogWriter(loggingClient, this));
 
 						debug("logging to server: " + loggingHost + ":" + loggingPort);
 					}
@@ -482,26 +488,26 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	public synchronized void stop()
 	{
 		debug("Logging shutting down...");
-		
+
 		if (thread != null)
 		{
 			debug("logging still running, initiating shutdown sequence...");
 			finished = true;
 			thread = null;
-			
+
 			int timesToWait = 100;
-			
+
 			while (!this.runMethodDone && timesToWait-- > 0)
 			{
 				debug("logging waiting on run method to finish log writing");
 				Generic.sleep(500);
 			}
-			
+
 			debug("done");
-			
+
 			if (logWriters != null)
 			{
-//				writeBufferedOps();
+				// writeBufferedOps();
 
 				final Epilogue epilogue = getEpilogue();
 				// necessary for acquiring wrapper characters, like </op_sequence>
@@ -511,7 +517,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					logWriter.writeLogMessage(sendEpilogue);
 					logWriter.close();
 				}
-	
+
 				logWriters = null;
 			}
 		}
@@ -547,7 +553,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				Memory.reclaim();
 			}
 		}
-		
+
 		// now that we are finished, we let everyone else know
 		this.runMethodDone = true;
 	}
@@ -687,7 +693,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		FileChannel					channel					= null;
 
-		private CharsetEncoder	encoder					= Charset.forName(NetworkingConstants.CHARACTER_ENCODING)
+		private CharsetEncoder	encoder					= Charset
+																			.forName(
+																					NetworkingConstants.CHARACTER_ENCODING)
 																			.newEncoder();
 
 		private File				logFile;
@@ -931,7 +939,14 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		/** Object for sending a batch of ops to the LoggingServer. */
 		final LogOps	logOps;
 
-		NetworkLogWriter(NIOClient loggingClient) throws IOException
+		/**
+		 * The owner of this Logging object, used to ensure that, during shutdown,
+		 * this object blocks until it is finished sending; needed to determine
+		 * the current status.
+		 */
+		final Logging	loggingParent;
+
+		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent) throws IOException
 		{
 			if (loggingClient == null)
 				throw new IOException(
@@ -942,6 +957,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			// logOps = new LogOps(maxBufferSizeToWrite);
 			logOps = new LogOps();
+			
+			this.loggingParent = loggingParent;
 		}
 
 		/**
@@ -974,7 +991,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			try
 			{
-				loggingClient.nonBlockingSendMessage(logOps);
+				if (!this.loggingParent.finished)
+					loggingClient.nonBlockingSendMessage(logOps);
+				else
+					loggingClient.sendMessage(logOps, 50000); // we're finishing, wait 50 frickin' seconds on this thing!
 
 				logOps.clear();
 				buffy.setLength(0);
