@@ -1004,7 +1004,11 @@ static String q(String string)
 					   break;
 				   default:
 					   if (c >= 255)
-						   println("escapeXML() ERROR: " + c);
+					   {
+//						   println("escapeXML() ERROR: " + ((int) c));
+						   int cInt	= (int) c;
+						   buffy.append('&').append(cInt).append(';');
+					   }
 					   else if (c >= 0x20)
 						   buffy.append(c);	// append as char (fastest!)
 				   break;
@@ -1038,7 +1042,13 @@ static String q(String string)
 					   appendable.append(c);		// append as char (fastest!)
 					   break;
 				   default:
-					   if (c >= 0x20)
+					   if (c >= 255)
+					   {
+//						   println("escapeXML() ERROR: " + ((int) c));
+						   int cInt	= (int) c;
+						   appendable.append('&').append(String.valueOf(cInt)).append(';');
+					   }
+					   else if (c >= 0x20)
 						   appendable.append(c);	// append as char (fastest!)
 				   break;
 				   }
