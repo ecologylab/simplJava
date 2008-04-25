@@ -930,9 +930,10 @@ static String q(String string)
        		addEscapeTableEntry(SPECIAL_CHARACTER_ENTITIES[i]);
    		
 //    	for (char c=ISO_LATIN1_START; c<Character.MAX_VALUE; c++)
-//    	{
-//    		addEscapeTableEntry(c);
-//    	}
+    	for (char c=ISO_LATIN1_START; c<256; c++)
+    	{
+    		addEscapeTableEntry(c);
+    	}
     }
 
 	private static void addEscapeTableEntry(char c)
@@ -1002,7 +1003,9 @@ static String q(String string)
 					   buffy.append(c);		// append as char (fastest!)
 					   break;
 				   default:
-					   if (c >= 0x20)
+					   if (c >= 255)
+						   println("escapeXML() ERROR: " + c);
+					   else if (c >= 0x20)
 						   buffy.append(c);	// append as char (fastest!)
 				   break;
 				   }
