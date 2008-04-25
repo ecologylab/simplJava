@@ -1007,7 +1007,7 @@ static String q(String string)
 					   {
 //						   println("escapeXML() ERROR: " + ((int) c));
 						   int cInt	= (int) c;
-						   buffy.append('&').append(cInt).append(';');
+						   buffy.append('&').append('#').append(cInt).append(';');
 					   }
 					   else if (c >= 0x20)
 						   buffy.append(c);	// append as char (fastest!)
@@ -1046,7 +1046,7 @@ static String q(String string)
 					   {
 //						   println("escapeXML() ERROR: " + ((int) c));
 						   int cInt	= (int) c;
-						   appendable.append('&').append(String.valueOf(cInt)).append(';');
+						   appendable.append('&').append('#').append(String.valueOf(cInt)).append(';');
 					   }
 					   else if (c >= 0x20)
 						   appendable.append(c);	// append as char (fastest!)
