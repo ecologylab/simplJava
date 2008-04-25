@@ -200,43 +200,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		{
 			logWriters = new ArrayList<LogWriter>(1);
 
-			if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
-			{
-				/**
-				 * Create the logging client which communicates with the logging
-				 * server
-				 */
-				if (loggingHost == null)
-					loggingHost = LOGGING_HOST;
-
-				NIOClient loggingClient = null;
-				try
-				{
-					loggingClient = new NIOClient(loggingHost, loggingPort,
-							DefaultServicesTranslations.get(), new Scope());
-
-					// CONNECT TO SERVER
-					if (loggingClient.connect())
-					{
-						logWriters.add(new NetworkLogWriter(loggingClient, this));
-
-						debug("logging to server: " + loggingHost + ":" + loggingPort);
-					}
-					else
-					{
-						loggingClient = null;
-						debug("Logging disabled: cannot reach server");
-					}
-				}
-				catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}
-
-				debug("**************************************************************connecting to server.");
-
-			}
-
 			if ((logMode & LOG_TO_FILE) == LOG_TO_FILE)
 			{
 				if (logFileName == null)
@@ -360,6 +323,42 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					}
 				}
 			}
+			if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
+			{
+				/**
+				 * Create the logging client which communicates with the logging
+				 * server
+				 */
+				if (loggingHost == null)
+					loggingHost = LOGGING_HOST;
+
+				NIOClient loggingClient = null;
+				try
+				{
+					loggingClient = new NIOClient(loggingHost, loggingPort,
+							DefaultServicesTranslations.get(), new Scope());
+
+					// CONNECT TO SERVER
+					if (loggingClient.connect())
+					{
+						logWriters.add(new NetworkLogWriter(loggingClient, this));
+
+						debug("logging to server: " + loggingHost + ":" + loggingPort);
+					}
+					else
+					{
+						loggingClient = null;
+						debug("Logging disabled: cannot reach server");
+					}
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
+
+				debug("**************************************************************connecting to server.");
+
+			}
 		}
 	}
 
@@ -411,23 +410,20 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			{
 				try
 				{
-					if (logWriters != null)
+					synchronized (incomingOpsBuffer)
 					{
-						synchronized (incomingOpsBuffer)
-						{
-							op.translateToXML(incomingOpsBuffer);
-						}
+						op.translateToXML(incomingOpsBuffer);
+					}
 
-						final int bufferLength = incomingOpsBuffer.length();
-						if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+					final int bufferLength = incomingOpsBuffer.length();
+					if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+					{
+						synchronized (threadSemaphore)
 						{
-							synchronized (threadSemaphore)
-							{
-								debugA("interrupting thread to do i/o now: "
-										+ bufferLength + "/" + maxBufferSizeToWrite);
-								thread.interrupt();
-								// end sleep in that thread prematurely to do i/o
-							}
+							debugA("interrupting thread to do i/o now: "
+									+ bufferLength + "/" + maxBufferSizeToWrite);
+							thread.interrupt();
+							// end sleep in that thread prematurely to do i/o
 						}
 					}
 				}
@@ -513,6 +509,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				final Epilogue epilogue = getEpilogue();
 				// necessary for acquiring wrapper characters, like </op_sequence>
 				final SendEpilogue sendEpilogue = new SendEpilogue(this, epilogue);
+				
 				for (LogWriter logWriter : logWriters)
 				{
 					logWriter.setPriority(9);
