@@ -239,6 +239,14 @@ public abstract class NIOCore extends Debug implements StartAndStoppable,
 		this.close();
 	}
 
+	public void setPriority(int priority)
+	{
+		Thread thread	= this.thread;
+		if (thread != null)
+		{
+			thread.setPriority(priority);
+		}
+	}
 	/**
 	 * @param key
 	 */
