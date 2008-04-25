@@ -21,6 +21,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.distributed.client.NIOClient;
+import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
@@ -686,7 +687,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		FileChannel					channel					= null;
 
-		private CharsetEncoder	encoder					= Charset.forName("UTF-8")
+		private CharsetEncoder	encoder					= Charset.forName(NetworkingConstants.CHARACTER_ENCODING)
 																			.newEncoder();
 
 		private File				logFile;
