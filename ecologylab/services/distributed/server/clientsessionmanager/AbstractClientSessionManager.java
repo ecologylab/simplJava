@@ -865,6 +865,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	private final void processString(CharSequence incomingMessage,
 			long incomingUid) throws BadClientException
 	{
+		Exception failReason = null;
 		RequestMessage request = null;
 		try
 		{
@@ -873,10 +874,12 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		catch (XMLTranslationException e)
 		{
 			// drop down to request == null, below
+			failReason = e;
 		}
 		catch (UnsupportedEncodingException e)
 		{
 			// drop down to request == null, below
+			failReason = e;
 		}
 
 		if (request == null)
@@ -888,6 +891,11 @@ public abstract class AbstractClientSessionManager extends Debug implements
 						+ "..."
 						+ incomingMessage.subSequence(incomingMessage.length() - 50,
 								incomingMessage.length()));
+				if (failReason != null)
+				{
+				debug("exception: "+failReason.getMessage());
+				failReason.printStackTrace();
+				}				
 			}
 			else
 			{
