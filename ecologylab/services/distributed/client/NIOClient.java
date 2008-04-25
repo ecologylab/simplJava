@@ -328,10 +328,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 			{
 				debug("** currently connected...");
 
-				while (waitForResponses && connected() && !this.shutdownOK())
+				while (waitForResponses && connected() && !this.shutdownOK() && attemptsCounter-- > 0)
 				{
 					debug("*** " + this.unfulfilledRequests.size()
-							+ " requests still pending response from server.");
+							+ " requests still pending response from server (attempt "+attemptsCounter+").");
 					debug("*** connected: " + connected());
 
 					synchronized (this)
