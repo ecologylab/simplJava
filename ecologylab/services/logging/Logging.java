@@ -169,35 +169,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 * 
 	 * @param logFileName
 	 *           the name of the file to which the log will be written.
-	 * @param maxOpsBeforeWrite
-	 *           the maximum number of ops to record in memory before writing
-	 *           them to the set media.
-	 * @param logMode
-	 *           the media to which the logger will write, such as a
-	 *           memory-mapped file or a server.
-	 * @param loggingHost
-	 *           the host to which to log if using networked logging (may be null
-	 *           if local logging is desired).
-	 * @param loggingPort
-	 *           the port of the host to which to log if using networked logging
-	 *           (may be 0 if local logging is desired).
-	 * @deprecated Use {@link #Logging(String,boolean,int,int,String,int)}
-	 *             instead
-	 */
-	public Logging(String logFileName, int maxOpsBeforeWrite, int logMode,
-			String loggingHost, int loggingPort)
-	{
-		this(logFileName, false, maxOpsBeforeWrite, logMode, loggingHost,
-				loggingPort);
-	}
-
-	/**
-	 * Instantiates a Logging object based on the supplied parameters. This
-	 * constructor does not rely on
-	 * {@link ecologylab.appframework.types.prefs.Pref Pref}s.
-	 * 
-	 * @param logFileName
-	 *           the name of the file to which the log will be written.
 	 * @param logFileNameAbsolute
 	 *           TODO
 	 * @param maxOpsBeforeWrite
@@ -428,35 +399,35 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	{
 		if (!this.finished)
 		{
-		if (logWriters != null)
-		{
-			try
+			if (logWriters != null)
 			{
-				if (logWriters != null)
+				try
 				{
-					synchronized (incomingOpsBuffer)
+					if (logWriters != null)
 					{
-						op.translateToXML(incomingOpsBuffer);
-					}
-
-					final int bufferLength = incomingOpsBuffer.length();
-					if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
-					{
-						synchronized (threadSemaphore)
+						synchronized (incomingOpsBuffer)
 						{
-							debugA("interrupting thread to do i/o now: "
-									+ bufferLength + "/" + maxBufferSizeToWrite);
-							thread.interrupt();
-							// end sleep in that thread prematurely to do i/o
+							op.translateToXML(incomingOpsBuffer);
+						}
+
+						final int bufferLength = incomingOpsBuffer.length();
+						if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+						{
+							synchronized (threadSemaphore)
+							{
+								debugA("interrupting thread to do i/o now: "
+										+ bufferLength + "/" + maxBufferSizeToWrite);
+								thread.interrupt();
+								// end sleep in that thread prematurely to do i/o
+							}
 						}
 					}
 				}
+				catch (XMLTranslationException e)
+				{
+					e.printStackTrace();
+				}
 			}
-			catch (XMLTranslationException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		}
 	}
 

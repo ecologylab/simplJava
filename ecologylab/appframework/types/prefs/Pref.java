@@ -276,6 +276,14 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
         return pref;
     }
     
+    public static void printAllPrefsMap()
+    {
+   	 for (Pref p : allPrefsMap.values())
+   	 {
+   		 System.out.println("PREF: "+p.getName()+" = "+p.value());
+   	 }
+    }
+    
     /**
      * Turn the entry for a pref name to null in the global map.
      * 
@@ -302,6 +310,7 @@ public abstract class Pref<T> extends ArrayListState implements Mappable<String>
         return prefInt.value();
         */
         PrefInt prefInt = ((PrefInt)lookupPref(name));
+        
 		return (prefInt == null) ? defaultValue : prefInt.value();
     }
     /**

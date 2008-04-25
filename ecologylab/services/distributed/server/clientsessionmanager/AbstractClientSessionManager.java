@@ -690,12 +690,12 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		String startLineString = null;
 		if (this.startLine == null
 				|| (startLineString = startLine.toString()).equals(""))
-		{
+		{ // normal case
 			return (RequestMessage) ElementState.translateFromXMLCharSequence(
 					messageCharSequence, translationSpace);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
-		{
+		{ // get case
 			// XXX
 			// XXX
 			// XXX
@@ -704,7 +704,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 			return (RequestMessage) null;
 		}
 		else if (startLineString.startsWith(POST_PREFIX))
-		{
+		{ // post case
 			String messageString = messageCharSequence.toString();
 
 			if (!messageString.startsWith("<"))
@@ -715,7 +715,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					messageString, translationSpace);
 		}
 		else
-		{
+		{ // made of fail case
 			return (RequestMessage) null;
 		}
 	}
