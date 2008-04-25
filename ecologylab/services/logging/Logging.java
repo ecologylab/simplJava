@@ -20,11 +20,13 @@ import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
+import ecologylab.generic.StartAndStoppable;
 import ecologylab.io.Files;
 import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.messages.DefaultServicesTranslations;
+import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
@@ -36,9 +38,10 @@ import ecologylab.xml.types.element.ArrayListState;
  * user's local machine, or, across the network, to the LoggingServer.
  * 
  * @author andruid
+ * @author Zachary O. Toups (toupsz@ecologylab.net)
  */
 public class Logging<T extends MixedInitiativeOp> extends ElementState
-		implements Runnable, ServicesHostsAndPorts
+		implements StartAndStoppable, ServicesHostsAndPorts
 {
 	/**
 	 * This field is used for reading a log in from a file, but not for writing
@@ -70,8 +73,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 	/** Stores the pointer to outgoingOpsBuffer for swapQueues. */
 	private StringBuilder							tempOpsBuffer;
-
-	boolean												finished;
 
 	static final int									THREAD_PRIORITY							= 1;
 
@@ -137,6 +138,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 	private volatile boolean						runMethodDone								= false;
 
+	volatile boolean									finished;
+
 	/**
 	 * Instantiates a Logging object based on the given log file name. This
 	 * constructor assumes that a set of loaded
@@ -190,7 +193,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			int maxOpsBeforeWrite, int logMode, String loggingHost, int loggingPort)
 	{
 		this(maxOpsBeforeWrite);
-		finished = false;
 
 		if (logMode == NO_LOGGING)
 		{
@@ -397,42 +399,47 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	}
 
 	/**
-	 * Translates op to XML then logs it.
+	 * Translates op to XML then logs it, if this Logging object is running.
+	 * Returns true if the operation was placed in the buffer to be written,
+	 * false if it failed (either because this Logging object is not configured,
+	 * because it is not running, or because the op could not be translated to
+	 * XML).
 	 * 
 	 * @param op -
 	 *           the operation to be logged.
 	 */
-	public void logAction(MixedInitiativeOp op)
+	public boolean logAction(MixedInitiativeOp op)
 	{
-		if (!this.finished)
+		if (!this.finished && logWriters != null)
 		{
-			if (logWriters != null)
+			try
 			{
-				try
+				synchronized (incomingOpsBuffer)
 				{
-					synchronized (incomingOpsBuffer)
-					{
-						op.translateToXML(incomingOpsBuffer);
-					}
+					op.translateToXML(incomingOpsBuffer);
+				}
 
-					final int bufferLength = incomingOpsBuffer.length();
-					if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+				final int bufferLength = incomingOpsBuffer.length();
+				if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+				{
+					synchronized (threadSemaphore)
 					{
-						synchronized (threadSemaphore)
-						{
-							debugA("interrupting thread to do i/o now: "
-									+ bufferLength + "/" + maxBufferSizeToWrite);
-							thread.interrupt();
-							// end sleep in that thread prematurely to do i/o
-						}
+						debugA("interrupting thread to do i/o now: " + bufferLength
+								+ "/" + maxBufferSizeToWrite);
+						thread.interrupt();
+						// end sleep in that thread prematurely to do i/o
 					}
 				}
-				catch (XMLTranslationException e)
-				{
-					e.printStackTrace();
-				}
+
+				return true;
+			}
+			catch (XMLTranslationException e)
+			{
+				e.printStackTrace();
 			}
 		}
+
+		return false;
 	}
 
 	/**
@@ -457,20 +464,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	{
 		if ((logWriters != null) && (thread == null))
 		{
-			final Prologue prologue = getPrologue();
-			String uid = Pref.lookupString("uid", "0");
-			Logging.this.debug("Logging: Sending Prologue userID:" + uid);
-			prologue.setUserID(uid);
-
-			// necessary for acquiring wrapper characters, like <op_sequence>
-			final SendPrologue sendPrologue = new SendPrologue(Logging.this,
-					prologue);
-
-			for (LogWriter logWriter : logWriters)
-			{
-				logWriter.writePrologue(sendPrologue);
-			}
-
 			thread = new Thread(this);
 			thread.setPriority(THREAD_PRIORITY);
 			thread.start();
@@ -484,46 +477,75 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 */
 	public synchronized void stop()
 	{
-		debug("Logging shutting down...");
+		debug("shutting down...");
 
-		if (thread != null)
+		if (!finished && thread != null)
 		{
-			debug("logging still running, initiating shutdown sequence...");
 			finished = true;
-			thread = null;
+
+			debug("initiating shutdown sequence...");
 
 			int timesToWait = 100;
 
 			while (!this.runMethodDone && timesToWait-- > 0)
 			{
+				debug("waiting on run method to finish log writing (attempts remaining "
+						+ timesToWait + ")...");
+				thread.interrupt();
 				Generic.sleep(500);
-				debug("logging waiting on run method to finish log writing");
 			}
 
-			debug("done");
+			if (timesToWait == 0)
+			{
+				debug("...giving up on waiting for run thread; continuing shutdown.");
+			}
+			else
+			{
+				debug("...done.");
+			}
+
+			this.thread = null;
 
 			if (logWriters != null)
 			{
-				// writeBufferedOps();
-
 				final Epilogue epilogue = getEpilogue();
 				// necessary for acquiring wrapper characters, like </op_sequence>
 				final SendEpilogue sendEpilogue = new SendEpilogue(this, epilogue);
-				
+
 				for (LogWriter logWriter : logWriters)
 				{
 					logWriter.setPriority(9);
 					debug("stop() writing epilogue to " + logWriter);
 					logWriter.writeLogMessage(sendEpilogue);
+				}
+				
+				try
+				{
+					debug("epilogue contents: "+sendEpilogue.translateToXML());
+				}
+				catch (XMLTranslationException e)
+				{
+					e.printStackTrace();
+				}
+
+				synchronized (threadSemaphore)
+				{
+					debug("forcing final write");
+					writeBufferedOps();
+				}
+
+				for (LogWriter logWriter : logWriters)
+				{
 					debug("stop() closing " + logWriter);
 					logWriter.close();
 				}
-				debug("stop() finished ");
+
+				debug("...stop() finished.");
 
 				logWriters = null;
 			}
 		}
-		debug("Logging shutdown complete.");
+		debug("...shutdown complete.");
 	}
 
 	/**
@@ -534,11 +556,31 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 */
 	public void run()
 	{
+		this.runMethodDone = false;
+		this.finished = false;
+
+		final Prologue prologue = getPrologue();
+		String uid = Pref.lookupString("uid", "0");
+		Logging.this.debug("Logging: Sending Prologue userID:" + uid);
+		prologue.setUserID(uid);
+
+		// necessary for acquiring wrapper characters, like <op_sequence>
+		final SendPrologue sendPrologue = new SendPrologue(Logging.this, prologue);
+
+		for (LogWriter logWriter : logWriters)
+		{
+			debug("sending prologue");
+			logWriter.writeLogMessage(sendPrologue);
+		}
+
 		lastGcTime = System.currentTimeMillis();
 		while (!finished)
 		{
 			Thread.interrupted();
 			Generic.sleep(SLEEP_TIME, false);
+
+			if (finished)
+				debug("run thread awakened for final run");
 
 			synchronized (threadSemaphore)
 			{
@@ -554,8 +596,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				lastGcTime = now;
 				Memory.reclaim();
 			}
+
+			if (finished)
+				debug("run thread finishing");
 		}
 
+		debug("run thread finished.");
 		// now that we are finished, we let everyone else know
 		this.runMethodDone = true;
 	}
@@ -567,13 +613,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 */
 	protected void writeBufferedOps()
 	{
-		if (logWriters == null)
-		{
-			weird("attempting to run logging without a log writer; disabling logging.");
-			this.stop();
-			return;
-		}
-
 		StringBuilder bufferToWrite = incomingOpsBuffer;
 		synchronized (bufferToWrite)
 		{
@@ -583,27 +622,16 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				return;
 			swapBuffers();
 			// what was incomingOps is now outgoing!
-			// String firstEntry = ourQueueToWrite.get(0);
-
-			// debug("Logging: writeQueuedActions() start of output loop.");
-
-			for (LogWriter logWriter : logWriters)
+			if (logWriters != null)
 			{
-				logWriter.writeBufferedOps(bufferToWrite);
+				for (LogWriter logWriter : logWriters)
+				{
+					logWriter.writeBufferedOps(bufferToWrite);
+				}
 			}
-
-			/*
-			 * if (size == 1) { logWriter.consumeOp(firstEntry); } else { //
-			 * allocate storage with a reasonable size estimate
-			 * logWriter.consumeOp(firstEntry); for (int i = 1; i < size; i++) {
-			 * String thatEntry = ourQueueToWrite.get(i);
-			 * logWriter.consumeOp(thatEntry); } }
-			 */
-
 			// debug("Logging: writeQueuedActions() after output loop.");
 			bufferToWrite.setLength(0);
 		}
-
 	}
 
 	/**
@@ -648,7 +676,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 * @author andruid
 	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
-	protected abstract class LogWriter extends Debug 
+	protected abstract class LogWriter extends Debug
 	{
 		LogWriter() throws IOException
 		{
@@ -669,21 +697,16 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		abstract void writeLogMessage(StringBuilder xmlBuffy);
 
-		void writePrologue(SendPrologue sendPrologue)
-		{
-			writeLogMessage(sendPrologue);
-		}
-
 		void writeBufferedOps(StringBuilder opsBuffer)
 		{
 			writeLogMessage(opsBuffer);
 		}
 
 		abstract void close();
-		
+
 		public void setPriority(int priority)
 		{
-			
+
 		}
 	}
 
@@ -943,6 +966,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	{
 		NIOClient		loggingClient;
 
+		final int		maxMessageLengthChars;
+
 		/** Object for sending a batch of ops to the LoggingServer. */
 		final LogOps	logOps;
 
@@ -953,7 +978,15 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		 */
 		final Logging	loggingParent;
 
-		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent) throws IOException
+		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent)
+				throws IOException
+		{
+			this(loggingClient, loggingParent,
+					NetworkingConstants.MAX_PACKET_SIZE_CHARACTERS);
+		}
+
+		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent,
+				int maxMessageLengthChars) throws IOException
 		{
 			if (loggingClient == null)
 				throw new IOException(
@@ -964,33 +997,44 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			// logOps = new LogOps(maxBufferSizeToWrite);
 			logOps = new LogOps();
-			
+
+			this.maxMessageLengthChars = maxMessageLengthChars;
 			this.loggingParent = loggingParent;
 		}
-		
-		public void setPriority(int priority)
+
+		@Override public void setPriority(int priority)
 		{
-			NIOClient loggingClient	= this.loggingClient;
+			NIOClient loggingClient = this.loggingClient;
 			if (loggingClient != null)
 				loggingClient.setPriority(priority);
 		}
 
-		/**
-		 * Write the prologue -- special stuff at the beginning of a session.
-		 * 
-		 * @param prologue
-		 */
-		@Override void writePrologue(SendPrologue sendPrologue)
-		{
-			debug("logging client writing prologue");
-			writeLogMessage(sendPrologue);
-		}
-
 		@Override void writeLogMessage(LogEvent message)
 		{
+			if (message instanceof SendEpilogue)
+			{
+				debug("GOT THE EPILOGUE, WE SHOULD BE SHUTTING DOWN!!!");
+			}
 			try
 			{
-				loggingClient.nonBlockingSendMessage(message);
+				if (!this.loggingParent.finished)
+				{
+					loggingClient.nonBlockingSendMessage(message);
+				}
+				else
+				{
+					debug("network logging finishing, waiting up to 50 seconds");
+					// finishing, wait 500 seconds
+					ResponseMessage rm = loggingClient.sendMessage(message, 50000);
+					if (rm == null)
+					{
+						debug("gave up after 50 seconds.");
+					}
+					else
+					{
+						debug("network logging finished sending final log ops");
+					}
+				}
 			}
 			catch (IOException e)
 			{
@@ -1001,22 +1045,26 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		@Override void writeBufferedOps(StringBuilder buffy)
 		{
+			if (buffy.length() > this.maxMessageLengthChars)
+			{
+				debug("incoming message too big; recursively splitting");
+
+				int halfwayPoint = buffy.length() / 2;
+
+				writeBufferedOps(new StringBuilder(buffy.subSequence(0,
+						halfwayPoint)));
+				writeBufferedOps(new StringBuilder(buffy.subSequence(halfwayPoint,
+						buffy.length())));
+
+				return;
+			}
+
 			logOps.setBuffer(buffy);
 
-			try
-			{
-				if (!this.loggingParent.finished)
-					loggingClient.nonBlockingSendMessage(logOps);
-				else
-					loggingClient.sendMessage(logOps, 500000); // we're finishing, wait 500 frickin' seconds on this thing!
+			writeLogMessage(logOps);
 
-				logOps.clear();
-				buffy.setLength(0);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			logOps.clear();
+			buffy.setLength(0);
 		}
 
 		/**
