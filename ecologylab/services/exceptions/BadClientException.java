@@ -5,6 +5,8 @@ package ecologylab.services.exceptions;
 
 import java.util.HashMap;
 
+import ecologylab.generic.Debug;
+
 /**
  * Throw this Exception when we detect that the client is evil or lame.
  * 
@@ -54,7 +56,7 @@ public class BadClientException extends Exception
 	{
 		super(message);
 		badClientIncident(ipNumber, timeStamp);
-		System.out.println(ipNumber + " flagged because " + message);
+		Debug.println(ipNumber + " flagged because " + message);
 	}
 
 	static class EvilHostEntry
@@ -107,10 +109,10 @@ public class BadClientException extends Exception
 
 	public static boolean isEvilHostByNumber(String ipNumber)
 	{
-		System.out.println("I'm looking up " + ipNumber);
+		Debug.println("I'm looking up " + ipNumber);
 		for (String s : evilHostsMap.keySet())
 		{
-			System.out.println(s);
+			Debug.println(s);
 		}
 		EvilHostEntry entry = evilHostsMap.get(ipNumber);
 		if (entry == null)
@@ -126,7 +128,7 @@ public class BadClientException extends Exception
 			}
 		}
 
-		System.out.println(ipNumber + " is evil? " + entry.isEvil());
+		Debug.println(ipNumber + " is evil? " + entry.isEvil());
 
 		return entry.isEvil();
 	}
@@ -143,7 +145,7 @@ public class BadClientException extends Exception
 	 */
 	private static boolean badClientIncident(String ipNumber, long timeStamp)
 	{
-		System.out.println("client at " + ipNumber + " was naughty and is going into timeout.");
+		Debug.println("client at " + ipNumber + " was naughty and is going into timeout.");
 		EvilHostEntry entry = evilHostsMap.get(ipNumber);
 		if ((entry == null) || (entry == OK_HOST_ENTRY))
 		{
