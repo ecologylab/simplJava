@@ -18,6 +18,7 @@ import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.io.Files;
 import ecologylab.services.distributed.client.NIOClient;
@@ -199,6 +200,43 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		{
 			logWriters = new ArrayList<LogWriter>(1);
 
+			if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
+			{
+				/**
+				 * Create the logging client which communicates with the logging
+				 * server
+				 */
+				if (loggingHost == null)
+					loggingHost = LOGGING_HOST;
+
+				NIOClient loggingClient = null;
+				try
+				{
+					loggingClient = new NIOClient(loggingHost, loggingPort,
+							DefaultServicesTranslations.get(), new Scope());
+
+					// CONNECT TO SERVER
+					if (loggingClient.connect())
+					{
+						logWriters.add(new NetworkLogWriter(loggingClient, this));
+
+						debug("logging to server: " + loggingHost + ":" + loggingPort);
+					}
+					else
+					{
+						loggingClient = null;
+						debug("Logging disabled: cannot reach server");
+					}
+				}
+				catch (IOException e1)
+				{
+					e1.printStackTrace();
+				}
+
+				debug("**************************************************************connecting to server.");
+
+			}
+
 			if ((logMode & LOG_TO_FILE) == LOG_TO_FILE)
 			{
 				if (logFileName == null)
@@ -321,43 +359,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 						}
 					}
 				}
-			}
-
-			if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
-			{
-				/**
-				 * Create the logging client which communicates with the logging
-				 * server
-				 */
-				if (loggingHost == null)
-					loggingHost = LOGGING_HOST;
-
-				NIOClient loggingClient = null;
-				try
-				{
-					loggingClient = new NIOClient(loggingHost, loggingPort,
-							DefaultServicesTranslations.get(), new Scope());
-
-					// CONNECT TO SERVER
-					if (loggingClient.connect())
-					{
-						logWriters.add(new NetworkLogWriter(loggingClient, this));
-
-						debug("logging to server: " + loggingHost + ":" + loggingPort);
-					}
-					else
-					{
-						loggingClient = null;
-						debug("Logging disabled: cannot reach server");
-					}
-				}
-				catch (IOException e1)
-				{
-					e1.printStackTrace();
-				}
-
-				debug("**************************************************************connecting to server.");
-
 			}
 		}
 	}
@@ -499,8 +500,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			while (!this.runMethodDone && timesToWait-- > 0)
 			{
-				debug("logging waiting on run method to finish log writing");
 				Generic.sleep(500);
+				debug("logging waiting on run method to finish log writing");
 			}
 
 			debug("done");
@@ -514,9 +515,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				final SendEpilogue sendEpilogue = new SendEpilogue(this, epilogue);
 				for (LogWriter logWriter : logWriters)
 				{
+					logWriter.setPriority(9);
+					debug("stop() writing epilogue to " + logWriter);
 					logWriter.writeLogMessage(sendEpilogue);
+					debug("stop() closing " + logWriter);
 					logWriter.close();
 				}
+				debug("stop() finished ");
 
 				logWriters = null;
 			}
@@ -646,7 +651,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 * @author andruid
 	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
-	protected abstract class LogWriter
+	protected abstract class LogWriter extends Debug 
 	{
 		LogWriter() throws IOException
 		{
@@ -678,6 +683,11 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		}
 
 		abstract void close();
+		
+		public void setPriority(int priority)
+		{
+			
+		}
 	}
 
 	/**
@@ -959,6 +969,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			logOps = new LogOps();
 			
 			this.loggingParent = loggingParent;
+		}
+		
+		public void setPriority(int priority)
+		{
+			NIOClient loggingClient	= this.loggingClient;
+			if (loggingClient != null)
+				loggingClient.setPriority(priority);
 		}
 
 		/**
