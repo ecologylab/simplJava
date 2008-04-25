@@ -887,10 +887,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 			if (incomingMessage.length() > 100)
 			{
 				debug("ERROR; incoming message could not be translated: "
-						+ incomingMessage.subSequence(0, 50)
-						+ "..."
-						+ incomingMessage.subSequence(incomingMessage.length() - 50,
-								incomingMessage.length()));
+						+ incomingMessage.toString());
 				if (failReason != null)
 				{
 				debug("exception: "+failReason.getMessage());
