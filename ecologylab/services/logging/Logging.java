@@ -994,7 +994,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				if (!this.loggingParent.finished)
 					loggingClient.nonBlockingSendMessage(logOps);
 				else
-					loggingClient.sendMessage(logOps, 50000); // we're finishing, wait 50 frickin' seconds on this thing!
+					loggingClient.sendMessage(logOps, 500000); // we're finishing, wait 500 frickin' seconds on this thing!
 
 				logOps.clear();
 				buffy.setLength(0);
