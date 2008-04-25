@@ -64,7 +64,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new HTTPGetClientSessionManager(token, maxPacketSize, this.getBackend(),
+		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(),
 				this, sk, translationSpaceIn, registryIn);
 	}
 }

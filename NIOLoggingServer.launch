@@ -13,5 +13,5 @@
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ecologylab.services.logging.NIOLoggingServer"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="/logs/ 999999"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ecologylabFundamental"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms32m -Xmx256m"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms32m -Xmx512m"/>
 </launchConfiguration>

@@ -25,6 +25,7 @@ import ecologylab.io.Files;
 import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
+import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -54,7 +55,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 	/**
 	 * Does all the work of logging, if there is any work to be done. If this is
-	 * null, then there is no logging; conversely, if there is no longging, this
+	 * null, then there is no logging; conversely, if there is no logging, this
 	 * is null.
 	 */
 	ArrayList<LogWriter>								logWriters									= null;
@@ -338,7 +339,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				try
 				{
 					loggingClient = new NIOClient(loggingHost, loggingPort,
-							DefaultServicesTranslations.get(), new Scope());
+							DefaultServicesTranslations.get(), new Scope(), NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
 
 					// CONNECT TO SERVER
 					if (loggingClient.connect())
@@ -518,10 +519,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					debug("stop() writing epilogue to " + logWriter);
 					logWriter.writeLogMessage(sendEpilogue);
 				}
-				
+
 				try
 				{
-					debug("epilogue contents: "+sendEpilogue.translateToXML());
+					debug("epilogue contents: " + sendEpilogue.translateToXML());
 				}
 				catch (XMLTranslationException e)
 				{
@@ -981,13 +982,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent)
 				throws IOException
 		{
-			this(loggingClient, loggingParent,
-					NetworkingConstants.MAX_PACKET_SIZE_CHARACTERS);
-		}
-
-		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent,
-				int maxMessageLengthChars) throws IOException
-		{
 			if (loggingClient == null)
 				throw new IOException(
 						"Can't log to Network with null loggingClient.");
@@ -998,7 +992,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			// logOps = new LogOps(maxBufferSizeToWrite);
 			logOps = new LogOps();
 
-			this.maxMessageLengthChars = maxMessageLengthChars;
+			this.maxMessageLengthChars = loggingClient.getMaxMessageLengthChars();
 			this.loggingParent = loggingParent;
 		}
 
@@ -1011,10 +1005,6 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		@Override void writeLogMessage(LogEvent message)
 		{
-			if (message instanceof SendEpilogue)
-			{
-				debug("GOT THE EPILOGUE, WE SHOULD BE SHUTTING DOWN!!!");
-			}
 			try
 			{
 				if (!this.loggingParent.finished)
@@ -1040,25 +1030,41 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 			{
 				e.printStackTrace();
 			}
+			catch (MessageTooLargeException e)
+			{
+				warning("message too large, splitting in half and trying again recursively");
 
+				StringBuilder bufferToLog = message.bufferToLog();
+				int half = bufferToLog.length() / 2;
+
+				if (message instanceof SendPrologue)
+				{ // if this is a send prologue, send prologue has to happen first
+					message.setBuffer(new StringBuilder(bufferToLog.subSequence(0,
+							half)));
+					this.writeLogMessage(message);
+				}
+				else
+				{
+					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(
+							0, half)));
+				}
+
+				if (message instanceof SendEpilogue)
+				{ // if this is a send epilogue, send epilogue has to happen last
+					message.setBuffer(new StringBuilder(bufferToLog.subSequence(
+							half, bufferToLog.length())));
+					this.writeLogMessage(message);
+				}
+				else
+				{
+					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(
+							half, bufferToLog.length())));
+				}
+			}
 		}
 
 		@Override void writeBufferedOps(StringBuilder buffy)
 		{
-			if (buffy.length() > this.maxMessageLengthChars)
-			{
-				debug("incoming message too big; recursively splitting");
-
-				int halfwayPoint = buffy.length() / 2;
-
-				writeBufferedOps(new StringBuilder(buffy.subSequence(0,
-						halfwayPoint)));
-				writeBufferedOps(new StringBuilder(buffy.subSequence(halfwayPoint,
-						buffy.length())));
-
-				return;
-			}
-
 			logOps.setBuffer(buffy);
 
 			writeLogMessage(logOps);

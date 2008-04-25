@@ -48,12 +48,12 @@ public abstract class AbstractNIOServer extends Manager implements
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress[] inetAddress,
 			TranslationScope requestTranslationSpace, Scope objectRegistry,
-			int idleConnectionTimeout) throws IOException, BindException
+			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress,
 				composeTranslations(portNumber, inetAddress[0],
 						requestTranslationSpace), objectRegistry,
-				idleConnectionTimeout);
+				idleConnectionTimeout, maxMessageLength);
 
 		debug("setting up NIO Server...");
 
@@ -99,19 +99,19 @@ public abstract class AbstractNIOServer extends Manager implements
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress inetAddress,
 			TranslationScope requestTranslationSpace, Scope objectRegistry,
-			int idleConnectionTimeout) throws IOException, BindException
+			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+				requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxMessageLength);
 	}
 
 	protected NIOServerIOThread generateBackend(int portNumber,
 			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout) throws BindException,
+			Scope objectRegistry, int idleConnectionTimeout, int maxMessageLength) throws BindException,
 			IOException
 	{
 		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this,
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout);
+				requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxMessageLength);
 	}
 
 	protected abstract AbstractClientSessionManager generateContextManager(

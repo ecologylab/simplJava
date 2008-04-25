@@ -39,7 +39,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 				ServicesHostsAndPorts.WEB_START_APP_SERVICES_PORT, NetTools
 						.getAllInetAddressesForLocalhost(),
 				DefaultServicesTranslations.get(), scope, DEFAULT_IDLE_TIMEOUT,
-				MAX_PACKET_SIZE_CHARACTERS);
+				DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new HTTPPostClientSessionManager(token, maxPacketSize, this.getBackend(),
+		return new HTTPPostClientSessionManager(token, maxMessageSize, this.getBackend(),
 				this, sk, translationSpaceIn, registryIn);
 	}
 }

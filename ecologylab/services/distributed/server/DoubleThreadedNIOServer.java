@@ -85,7 +85,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	private static CharsetDecoder												DECODER						= ENCODED_CHARSET
 																																.newDecoder();
 
-	protected int																	maxPacketSize;
+	protected int																	maxMessageSize;
 
 	/**
 	 * CharBuffers for use with translating from bytes to chars; may need to
@@ -99,16 +99,16 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	protected DoubleThreadedNIOServer(int portNumber,
 			InetAddress[] inetAddresses, TranslationScope requestTranslationScope,
 			Scope applicationObjectScope, int idleConnectionTimeout,
-			int maxPacketSize) throws IOException, BindException
+			int maxMessageSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationScope,
-				applicationObjectScope, idleConnectionTimeout);
+				applicationObjectScope, idleConnectionTimeout, maxMessageSize);
 
-		this.maxPacketSize = maxPacketSize;
+		this.maxMessageSize = maxMessageSize;
 
 		// make them a little bigger, in case more than one mega-huge message
 		// comes in completely unlikely, but just to be safe
-		this.charBufferPool = new CharBufferPool(maxPacketSize * 2);
+		this.charBufferPool = new CharBufferPool(maxMessageSize * 2);
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	{
 		this(portNumber, NetTools.getAllInetAddressesForLocalhost(),
 				requestTranslationScope, applicationObjectScope, DEFAULT_IDLE_TIMEOUT,
-				MAX_PACKET_SIZE_CHARACTERS);
+				DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
 	public void processRead(Object sessionToken, NIOServerIOThread base,
@@ -203,7 +203,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new ClientSessionManager(token, maxPacketSize, this.getBackend(),
+		return new ClientSessionManager(token, maxMessageSize, this.getBackend(),
 				this, sk, translationSpaceIn, registryIn);
 	}
 

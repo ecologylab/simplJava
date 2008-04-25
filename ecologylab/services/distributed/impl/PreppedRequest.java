@@ -9,7 +9,6 @@ package ecologylab.services.distributed.impl;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-// FIXME -- Can we use StringBuilders in here directly to utilize memory better
 public class PreppedRequest implements Comparable<PreppedRequest>
 {
 	private long				uid;

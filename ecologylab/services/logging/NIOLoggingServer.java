@@ -26,14 +26,17 @@ import ecologylab.xml.TranslationScope;
 public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 		ServicesHostsAndPorts
 {
-	String							logFilesPath		= "";
+	String							logFilesPath							= "";
 
-	public static final String	LOG_FILES_PATH		= "LOG_FILES_PATH";
+	public static final String	LOG_FILES_PATH							= "LOG_FILES_PATH";
 
-	public static final Class	LOGGING_CLASSES[]	=
-																{ LogOps.class, LogEvent.class,
-			LogueMessage.class, Prologue.class, SendEpilogue.class,
-			SendPrologue.class, MixedInitiativeOp.class, Epilogue.class };
+	public static final Class	LOGGING_CLASSES[]						=
+																					{ LogOps.class,
+			LogEvent.class, LogueMessage.class, Prologue.class,
+			SendEpilogue.class, SendPrologue.class, MixedInitiativeOp.class,
+			Epilogue.class													};
+
+	public static final int		MAX_MESSAGE_SIZE_CHARS_LOGGING	= 1024 * 1024;		// 1MB
 
 	/**
 	 * This is the actual way to create an instance of this.
@@ -100,7 +103,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 	 */
 	public static void main(String args[]) throws UnknownHostException
 	{
-		int mPL = MAX_PACKET_SIZE_CHARACTERS;
+		int mPL = MAX_MESSAGE_SIZE_CHARS_LOGGING;
 
 		if (args.length > 1)
 		{
@@ -112,8 +115,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			catch (NumberFormatException e)
 			{
 				Debug
-						.println("second argument was not an integer, using MAX_PACKET_SIZE_CHARACTERS: "
-								+ MAX_PACKET_SIZE_CHARACTERS);
+						.println("second argument was not an integer, using MAX_MESSAGE_SIZE_CHARS_LOGGING: "
+								+ MAX_MESSAGE_SIZE_CHARS_LOGGING);
 				e.printStackTrace();
 			}
 		}
@@ -131,8 +134,8 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			{
 				loggingServer.setLogFilesPath(args[0]);
 			}
-			
-			if( args.length>2 )
+
+			if (args.length > 2)
 				Debug.setLoggingFile(args[2]);
 
 			loggingServer.start();
@@ -144,14 +147,11 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			Scope applicationObjectScope, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, 
-				inetAddresses, 
-				TranslationScope.get(
+		super(portNumber, inetAddresses, TranslationScope.get(
 				"double_threaded_logging " + inetAddresses[0].toString() + ":"
-						+ portNumber, LOGGING_CLASSES, DefaultServicesTranslations.get(), requestTranslationSpace),
-				applicationObjectScope, 
-				idleConnectionTimeout, 
-				maxPacketSize);
+						+ portNumber, LOGGING_CLASSES, DefaultServicesTranslations
+						.get(), requestTranslationSpace), applicationObjectScope,
+				idleConnectionTimeout, maxPacketSize);
 
 		// add the necessary scope object mappings for logging
 		// note this is probably null right now...
@@ -182,7 +182,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
 			Scope registryIn)
 	{
-		return new LoggingClientSessionManager(token, maxPacketSize, this, this
+		return new LoggingClientSessionManager(token, maxMessageSize, this, this
 				.getBackend(), sk, translationSpaceIn, registryIn);
 	}
 
@@ -196,7 +196,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 	{
 		this
 				.debug("------------------------ Logging Server starting ------------------------");
-		this.debug("             max packet length: " + this.maxPacketSize);
+		this.debug("             max packet length: " + this.maxMessageSize);
 		this.debug("                saving logs to: " + this.logFilesPath);
 		this.debug("             operating on port: "
 				+ this.getBackend().getPortNumber());

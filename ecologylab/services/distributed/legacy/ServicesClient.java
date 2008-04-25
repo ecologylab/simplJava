@@ -191,7 +191,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                 {
                     requestMessageXML = requestMessage.translateToXML();
 
-                    if (requestMessageXML.length() > ServerConstants.MAX_PACKET_SIZE_CHARACTERS)
+                    if (requestMessageXML.length() > ServerConstants.DEFAULT_MAX_MESSAGE_LENGTH_CHARS)
                     {
                         debug("requestMessage is Bigger than acceptable server size \n CANNOT SEND : ");
                         println(requestMessageXML);

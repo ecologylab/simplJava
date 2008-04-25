@@ -71,12 +71,10 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 * Stores incoming character data until it can be parsed into an XML message
 	 * and turned into a Java object.
 	 */
-	protected final StringBuilder											msgBufIncoming					= new StringBuilder(
-																																MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											msgBufIncoming;
 
 	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder											msgBufOutgoing					= new StringBuilder(
-																																MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											msgBufOutgoing;
 
 	/** Stores outgoing header character data. */
 	protected final StringBuilder											headerBufOutgoing				= new StringBuilder(
@@ -121,7 +119,13 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 */
 	protected Object															sessionId						= null;
 
-	protected int																maxPacketSize;
+	/**
+	 * The maximum message length allowed for clients that connect to this
+	 * session manager. Note that most of the buffers used by
+	 * AbstractClientManager are mutable in size, and will dynamically reallocate
+	 * as necessary if they were initialized to be too small.
+	 */
+	protected int																maxMessageSize;
 
 	/** Used to translate incoming message XML strings into RequestMessages. */
 	protected TranslationScope												translationSpace;
@@ -141,8 +145,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	private final StringBuilder											currentKeyHeaderSequence	= new StringBuilder();
 
 	/** A buffer for data that will be sent back to the client. */
-	private CharBuffer														outgoingChars					= CharBuffer
-																																.allocate(MAX_PACKET_SIZE_CHARACTERS);
+	private final CharBuffer												outgoingChars;
 
 	/**
 	 * Tracks the number of bad transmissions from the client; used for
@@ -203,14 +206,14 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 * Creates a new ContextManager.
 	 * 
 	 * @param sessionId
-	 * @param maxPacketSize
+	 * @param maxMessageSizeIn
 	 * @param server
 	 * @param frontend
 	 * @param socket
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public AbstractClientSessionManager(Object sessionId, int maxPacketSize,
+	public AbstractClientSessionManager(Object sessionId, int maxMessageSizeIn,
 			NIOServerIOThread server, NIOServerProcessor frontend,
 			SelectionKey socket, TranslationScope translationSpace,
 			Scope<?> registry)
@@ -228,7 +231,16 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		// set up session id
 		this.sessionId = sessionId;
 
-		this.maxPacketSize = maxPacketSize;
+		this.maxMessageSize = maxMessageSizeIn;
+
+		this.outgoingChars = CharBuffer.allocate(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
+
+		msgBufIncoming = new StringBuilder(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
+
+		msgBufOutgoing = new StringBuilder(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
 
 		this.prepareBuffers(msgBufIncoming, msgBufOutgoing, headerBufOutgoing);
 	}
@@ -341,7 +353,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					 */
 					break;
 				}
-				else if (contentLengthRemaining > maxPacketSize)
+				else if (contentLengthRemaining > maxMessageSize)
 				{
 					throw new BadClientException(((SocketChannel) this.socketKey
 							.channel()).socket().getInetAddress().getHostAddress(),
@@ -754,12 +766,13 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		}
 		else
 		{
-			//TODO apologize to zach for this (-- andruid)
-			// try to make http post work seamlessly cause it seems like it doesnt yet :-(
+			// TODO apologize to zach for this (-- andruid)
+			// try to make http post work seamlessly cause it seems like it doesnt
+			// yet :-(
 			if (!isInitialized() && !(request instanceof InitConnectionRequest))
 			{
 				debug("Andruid hack.");
-				initialized		= true;
+				initialized = true;
 			}
 			if (!isInitialized())
 			{
@@ -805,8 +818,10 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					this.translateResponseMessageToStringBufferContents(request,
 							response, msgBufOutgoing);
 
-//					System.out.println("REQUEST / RESPONSE: "+request.translateToXML().toString() +" / "+response.translateToXML().toString());
-					
+					// System.out.println("REQUEST / RESPONSE:
+					// "+request.translateToXML().toString() +" /
+					// "+response.translateToXML().toString());
+
 					// setup outgoingMessageHeaderBuffer
 					this.createHeader(msgBufOutgoing, headerBufOutgoing, request,
 							response, requestWithMetadata.getUid());
@@ -890,9 +905,9 @@ public abstract class AbstractClientSessionManager extends Debug implements
 						+ incomingMessage.toString());
 				if (failReason != null)
 				{
-				debug("exception: "+failReason.getMessage());
-				failReason.printStackTrace();
-				}				
+					debug("exception: " + failReason.getMessage());
+					failReason.printStackTrace();
+				}
 			}
 			else
 			{

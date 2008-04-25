@@ -34,8 +34,7 @@ public abstract class NIONetworking extends NIOCore
 	 * ByteBuffer that holds all incoming communication temporarily, immediately
 	 * after it is read.
 	 */
-	private ByteBuffer									readBuffer			= ByteBuffer
-																								.allocateDirect(MAX_PACKET_SIZE_BYTES);
+	private final ByteBuffer							readBuffer;
 
 	/**
 	 * Maps SocketChannels (connections) to their write Queues of ByteBuffers.
@@ -76,8 +75,8 @@ public abstract class NIONetworking extends NIOCore
 	 *            system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber,
-			TranslationScope translationSpace, Scope<?> objectRegistry)
-			throws IOException
+			TranslationScope translationSpace, Scope<?> objectRegistry,
+			int maxMessageSizeChars) throws IOException
 	{
 		super(networkIdentifier, portNumber);
 
@@ -91,7 +90,10 @@ public abstract class NIONetworking extends NIOCore
 
 		this.objectRegistry = objectRegistry;
 
-		this.byteBufferPool = new ByteBufferPool(10, 10, MAX_PACKET_SIZE_BYTES);
+		readBuffer = ByteBuffer.allocateDirect((int) Math
+				.ceil(maxMessageSizeChars * ENCODER.maxBytesPerChar()));
+		this.byteBufferPool = new ByteBufferPool(10, 10, (int) Math
+				.ceil(maxMessageSizeChars * ENCODER.maxBytesPerChar()));
 	}
 
 	/**
@@ -178,7 +180,8 @@ public abstract class NIONetworking extends NIOCore
 		{
 			readBuffer.flip();
 
-			// get the session key that was formed at accept(), and send it over as the sessionId
+			// get the session key that was formed at accept(), and send it over as
+			// the sessionId
 			this.processReadData(key.attachment(), key, readBuffer, bytesRead);
 		}
 	}
@@ -260,8 +263,9 @@ public abstract class NIONetworking extends NIOCore
 	 *            something inappropriate, such as data too large for a buffer or
 	 *            a possibly malicious message.
 	 */
-	protected abstract void processReadData(Object sessionToken, SelectionKey sk,
-			ByteBuffer bytes, int bytesRead) throws BadClientException;
+	protected abstract void processReadData(Object sessionToken,
+			SelectionKey sk, ByteBuffer bytes, int bytesRead)
+			throws BadClientException;
 
 	/**
 	 * This defines the actions that server needs to perform when the client ends

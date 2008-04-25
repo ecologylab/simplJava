@@ -15,7 +15,7 @@ import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthClientRegistryObjects;
 import ecologylab.services.distributed.client.NIOClient;
-import ecologylab.services.messages.DisconnectRequest;
+import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationScope;
@@ -120,8 +120,9 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * the connection. Does not block for connection.
 	 * 
 	 * @throws IOException
+	 * @throws MessageTooLargeException 
 	 */
-	public boolean login() throws IOException
+	public boolean login() throws IOException, MessageTooLargeException
 	{
 		// if we have an entry (username + password), then we can try to connect
 		// to the server.
@@ -151,8 +152,9 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * the connection. Blocks until a response is received or until LOGIN_WAIT_TIME passes, whichever comes first.
 	 * 
 	 * @throws IOException
+	 * @throws MessageTooLargeException 
 	 */
-	protected boolean logout() throws IOException
+	protected boolean logout() throws IOException, MessageTooLargeException
 	{
 		// if we have an entry (username + password), then we can try to logout of the server.
 		if (entry != null)
@@ -175,9 +177,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	/**
 	 * Sends a Logout message to the server; may be overridden by subclasses that need to add addtional information to
 	 * the Logout message.
+	 * @throws MessageTooLargeException 
 	 * 
 	 */
-	protected ResponseMessage sendLogoutMessage() throws IOException
+	protected ResponseMessage sendLogoutMessage() throws IOException, MessageTooLargeException
 	{
 		return this.sendMessage(new Logout(entry), 5000);
 	}
@@ -185,9 +188,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	/**
 	 * Sends a Login message to the server; may be overridden by subclasses that need to add addtional information to the
 	 * Login message.
+	 * @throws MessageTooLargeException 
 	 * 
 	 */
-	protected ResponseMessage sendLoginMessage() throws IOException
+	protected ResponseMessage sendLoginMessage() throws IOException, MessageTooLargeException
 	{
 		ResponseMessage temp = this.sendMessage(new Login(entry), 5000);
 
@@ -248,7 +252,10 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (MessageTooLargeException e)
+		{
 			e.printStackTrace();
 		}
 	}

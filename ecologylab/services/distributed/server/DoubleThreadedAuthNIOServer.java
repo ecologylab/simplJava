@@ -165,7 +165,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	{
 		try
 		{
-			return new AuthClientSessionManager(sessionId, maxPacketSize, getBackend(),
+			return new AuthClientSessionManager(sessionId, maxMessageSize, getBackend(),
 					this, sk, translationSpace, registry, this, authenticator);
 		}
 		catch (ClassCastException e)

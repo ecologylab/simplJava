@@ -48,7 +48,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
             Scope objectRegistry) throws IOException, BindException
     {
         super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-                -1, MAX_PACKET_SIZE_CHARACTERS);
+                -1, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
     }
 
     /**

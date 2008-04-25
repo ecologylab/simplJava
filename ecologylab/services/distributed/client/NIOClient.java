@@ -29,6 +29,7 @@ import ecologylab.generic.StringBuilderPool;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ClientConstants;
 import ecologylab.services.distributed.common.ServerConstants;
+import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.distributed.impl.MessageWithMetadata;
 import ecologylab.services.distributed.impl.MessageWithMetadataPool;
 import ecologylab.services.distributed.impl.NIONetworking;
@@ -64,26 +65,21 @@ public class NIOClient extends NIONetworking implements Runnable,
 {
 	protected String															serverAddress;
 
-	protected final CharBuffer												outgoingChars						= CharBuffer
-																																	.allocate(MAX_PACKET_SIZE_CHARACTERS);
+	protected final CharBuffer												outgoingChars;
 
-	protected final StringBuilder											requestBuffer						= new StringBuilder(
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											requestBuffer;
 
 	/**
 	 * Stores incoming character data until it can be parsed into an XML message
 	 * and turned into a Java object.
 	 */
-	protected final StringBuilder											incomingMessageBuffer			= new StringBuilder(
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											incomingMessageBuffer;
 
 	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder											outgoingMessageBuffer			= new StringBuilder(
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											outgoingMessageBuffer;
 
 	/** Stores outgoing header character data. */
-	protected final StringBuilder											outgoingMessageHeaderBuffer	= new StringBuilder(
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	protected final StringBuilder											outgoingMessageHeaderBuffer;
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming
@@ -171,27 +167,45 @@ public class NIOClient extends NIONetworking implements Runnable,
 
 	protected SocketChannel													thisSocket							= null;
 
-	protected final PreppedRequestPool									pRequestPool						= new PreppedRequestPool(
-																																	2,
-																																	4,
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	protected final PreppedRequestPool									pRequestPool;
 
 	protected final MessageWithMetadataPool<ResponseMessage>		responsePool						= new MessageWithMetadataPool<ResponseMessage>(
 																																	2,
 																																	4);
 
-	private final StringBuilderPool										builderPool							= new StringBuilderPool(
-																																	2,
-																																	4,
-																																	MAX_PACKET_SIZE_CHARACTERS);
+	private final StringBuilderPool										builderPool;
+
+	private int																	maxMessageLengthChars;
+
+	public NIOClient(String serverAddress, int portNumber,
+			TranslationScope messageSpace, Scope<?> objectRegistry,
+			int maxMessageLengthChars) throws IOException
+	{
+		super("NIOClient", portNumber, messageSpace, objectRegistry,
+				maxMessageLengthChars);
+
+		this.maxMessageLengthChars = maxMessageLengthChars;
+
+		this.outgoingChars = CharBuffer.allocate(maxMessageLengthChars);
+
+		this.outgoingMessageBuffer = new StringBuilder(maxMessageLengthChars);
+		this.outgoingMessageHeaderBuffer = new StringBuilder(
+				MAX_HTTP_HEADER_LENGTH);
+		this.requestBuffer = new StringBuilder(maxMessageLengthChars);
+		this.incomingMessageBuffer = new StringBuilder(maxMessageLengthChars);
+
+		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
+		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
+
+		this.serverAddress = serverAddress;
+	}
 
 	public NIOClient(String serverAddress, int portNumber,
 			TranslationScope messageSpace, Scope<?> objectRegistry)
 			throws IOException
 	{
-		super("NIOClient", portNumber, messageSpace, objectRegistry);
-
-		this.serverAddress = serverAddress;
+		this(serverAddress, portNumber, messageSpace, objectRegistry,
+				DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
 	/**
@@ -211,8 +225,17 @@ public class NIOClient extends NIONetworking implements Runnable,
 			this.start();
 
 			// now send first handshake message
-			ResponseMessage initResponse = this
-					.sendMessage(new InitConnectionRequest(this.sessionId));
+			ResponseMessage initResponse = null;
+			try
+			{
+				initResponse = this.sendMessage(new InitConnectionRequest(
+						this.sessionId));
+			}
+			catch (MessageTooLargeException e)
+			{
+				// this shouldn't be able to happen
+				e.printStackTrace();
+			}
 
 			if (initResponse instanceof InitConnectionResponse)
 			{
@@ -267,12 +290,21 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * @throws XMLTranslationException
 	 */
 	protected PreppedRequest prepareAndEnqueueRequestForSending(
-			RequestMessage request) throws XMLTranslationException
+			RequestMessage request) throws XMLTranslationException,
+			MessageTooLargeException
 	{
 		long uid = this.generateUid();
 
 		// fill requestBuffer
 		request.translateToXML(requestBuffer);
+
+		int reqLength;
+		if ((reqLength = requestBuffer.length()) > this.maxMessageLengthChars)
+		{
+			requestBuffer.setLength(0);
+			throw new MessageTooLargeException(this.maxMessageLengthChars,
+					reqLength);
+		}
 
 		PreppedRequest pReq = this.pRequestPool.acquire();
 		pReq.setRequest(requestBuffer);
@@ -288,7 +320,6 @@ public class NIOClient extends NIONetworking implements Runnable,
 
 	protected void enqueueRequestForSending(PreppedRequest request)
 	{
-
 		synchronized (requestsQueue)
 		{
 			requestsQueue.add(request);
@@ -301,12 +332,14 @@ public class NIOClient extends NIONetworking implements Runnable,
 
 	public void disconnect(boolean waitForResponses)
 	{
-		int attemptsCounter		= 0;
+		int attemptsCounter = 0;
 		while (this.requestsRemaining() > 0 && this.connected()
 				&& waitForResponses && attemptsCounter++ < 10)
 		{
 			debug("******************* Request queue not empty, finishing "
-					+ requestsRemaining() + " messages before disconnecting (attempt "+attemptsCounter+")...");
+					+ requestsRemaining()
+					+ " messages before disconnecting (attempt " + attemptsCounter
+					+ ")...");
 			synchronized (this)
 			{
 				try
@@ -328,10 +361,12 @@ public class NIOClient extends NIONetworking implements Runnable,
 			{
 				debug("** currently connected...");
 
-				while (waitForResponses && connected() && !this.shutdownOK() && attemptsCounter-- > 0)
+				while (waitForResponses && connected() && !this.shutdownOK()
+						&& attemptsCounter-- > 0)
 				{
 					debug("*** " + this.unfulfilledRequests.size()
-							+ " requests still pending response from server (attempt "+attemptsCounter+").");
+							+ " requests still pending response from server (attempt "
+							+ attemptsCounter + ").");
 					debug("*** connected: " + connected());
 
 					synchronized (this)
@@ -371,7 +406,16 @@ public class NIOClient extends NIONetworking implements Runnable,
 	protected void handleDisconnectingMessages()
 	{
 		debug("************** sending disconnect request");
-		this.sendMessage(DisconnectRequest.RESUABLE_INSTANCE, 10000);
+		try
+		{
+			this.sendMessage(DisconnectRequest.RESUABLE_INSTANCE, 10000);
+		}
+		catch (MessageTooLargeException e)
+		{
+			// this shouldn't be able to happen, unless the maximum request size
+			// gets set below the size of a DisconnectRequest
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -476,7 +520,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * @return the UID of request.
 	 */
 	public PreppedRequest nonBlockingSendMessage(RequestMessage request)
-			throws IOException
+			throws IOException, MessageTooLargeException
 	{
 		if (connected())
 		{
@@ -502,9 +546,12 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * Blocking send. Sends the request and waits infinitely for the response,
 	 * which it returns.
 	 * 
+	 * @throws MessageTooLargeException
+	 * 
 	 * @see ecologylab.services.distributed.legacy.ServicesClientBase#sendMessage(ecologylab.services.messages.RequestMessage)
 	 */
 	public synchronized ResponseMessage sendMessage(RequestMessage request)
+			throws MessageTooLargeException
 	{
 		return this.sendMessage(request, -1);
 	}
@@ -518,9 +565,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * @param request
 	 * @param timeOutMillis
 	 * @return
+	 * @throws MessageTooLargeException
 	 */
 	public synchronized ResponseMessage sendMessage(RequestMessage request,
-			int timeOutMillis)
+			int timeOutMillis) throws MessageTooLargeException
 	{
 		MessageWithMetadata<ResponseMessage> responseMessage = null;
 
@@ -544,6 +592,12 @@ public class NIOClient extends NIONetworking implements Runnable,
 			e1.printStackTrace();
 
 			return null;
+		}
+		catch (MessageTooLargeException e)
+		{
+			blockingRequestPending = false;
+			error("message too large to send");
+			throw e;
 		}
 
 		// wait to be notified that the response has arrived
@@ -927,7 +981,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 
 		// clean up
 		this.invalidateKey((SocketChannel) key.channel());
-		
+
 		if (!permanent)
 		{
 			this.reconnect();
@@ -1027,7 +1081,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 						 */
 						break;
 					}
-					else if (contentLengthRemaining > MAX_PACKET_SIZE_CHARACTERS)
+					else if (contentLengthRemaining > this.maxMessageLengthChars)
 					{
 						throw new BadClientException(((SocketChannel) sk.channel())
 								.socket().getInetAddress().getHostAddress(),
@@ -1345,5 +1399,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 			boolean forcePermanent)
 	{
 		return true;
+	}
+
+	public int getMaxMessageLengthChars()
+	{
+		return this.maxMessageLengthChars;
 	}
 }

@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.client.NIOClient;
+import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.xml.xml_inherit;
@@ -48,7 +49,7 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	public static void main(String[] args) throws BindException,
-			UnknownHostException, IOException
+			UnknownHostException, IOException, MessageTooLargeException
 	{
 		DoubleThreadedNIOServer server = DoubleThreadedNIOServer.getInstance(
 				10000, InetAddress.getLocalHost(), DefaultServicesTranslations

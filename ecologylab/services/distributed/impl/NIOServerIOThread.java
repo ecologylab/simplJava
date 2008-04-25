@@ -43,10 +43,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	static NIOServerIOThread getInstance(int portNumber,
 			InetAddress[] hostAddresses, NIOServerProcessor sAP,
 			TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
-			int idleSocketTimeout) throws IOException, BindException
+			int idleSocketTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		return new NIOServerIOThread(portNumber, hostAddresses, sAP,
-				requestTranslationSpace, objectRegistry, idleSocketTimeout);
+				requestTranslationSpace, objectRegistry, idleSocketTimeout, maxMessageLength);
 	}
 
 	protected ServerSocket[]												incomingConnectionSockets;
@@ -69,10 +69,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses,
 			NIOServerProcessor sAP, TranslationScope requestTranslationSpace,
-			Scope<?> objectRegistry, int idleSocketTimeout) throws IOException,
+			Scope<?> objectRegistry, int idleSocketTimeout, int maxMessageLength) throws IOException,
 			BindException
 	{
-		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry);
+		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry, maxMessageLength);
 
 		this.construct(hostAddresses, sAP, idleSocketTimeout);
 	}
