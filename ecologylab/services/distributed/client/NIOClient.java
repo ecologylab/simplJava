@@ -306,7 +306,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 				&& waitForResponses && attemptsCounter++ < 10)
 		{
 			debug("******************* Request queue not empty, finishing "
-					+ requestsRemaining() + " messages before disconnecting...");
+					+ requestsRemaining() + " messages before disconnecting (attempt "+attemptsCounter+")...");
 			synchronized (this)
 			{
 				try
