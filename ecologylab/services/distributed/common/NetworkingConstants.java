@@ -37,7 +37,7 @@ public interface NetworkingConstants
 																							.length();
 
 	/** Character encoding for messages sent through the network. */
-	static final String				CHARACTER_ENCODING				= "US-ASCII";
+	static final String				CHARACTER_ENCODING				= "UTF-8";
 
 	/** Charset for CHARACTER_ENCODING; to avoid calling forName too much. */
 	static final Charset				CHARSET								= Charset

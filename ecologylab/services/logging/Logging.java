@@ -686,7 +686,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 		FileChannel					channel					= null;
 
-		private CharsetEncoder	encoder					= Charset.forName("ASCII")
+		private CharsetEncoder	encoder					= Charset.forName("UTF-8")
 																			.newEncoder();
 
 		private File				logFile;
