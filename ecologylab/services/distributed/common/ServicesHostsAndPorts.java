@@ -21,7 +21,7 @@ public interface ServicesHostsAndPorts
 	public static final String	CSDLL_HOST											= "128.194.147.58";		// CSDLL
 
 	/** Normal place to look for a logging server; currently localhost. */
-	public static final String	LOGGING_HOST										= NetTools.localHost();
+	public static final String	LOGGING_HOST										= "128.194.147.145";	// ecology0.cs.tamu.edu
 
 	/** Normal port for handling remote logging. */
 	public static final int		LOGGING_PORT										= 10201;
