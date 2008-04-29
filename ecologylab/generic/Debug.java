@@ -154,12 +154,21 @@ public class Debug
 		 println(message);
    }
 
+   /**
+    * Print the message to System.err.
+    * <p/>
+    * If we are logging to a file, also write to the file, but in this case, prepend the Date:<tab>
+    * 
+    * @param message
+    */
    public static void println(CharSequence message) 
    {   	
    	  if (logToFile)
    	  {
    		  try
    		  {
+   			  writer.append(new Date().toString());
+   			  writer.append(':').append('\t');
    			  writer.append(message);
    			  writer.append('\n');
    			  writer.flush();
