@@ -16,17 +16,36 @@ import ecologylab.xml.types.scalar.ScalarType;
  */
 public class FieldAccessor extends Debug
 {
-	final Field				field;
-	final ScalarType<?>		scalarType;
-	final String			tagName;
-	final int				type;
+	final 	Field			field;
+	final	String			tagName;
+
+	ScalarType<?>			scalarType;
+	final  int				type;
+	
+	/**
+	 * Field object for a Field within this, which is special, in that it should receive a scalar value.
+	 */
+	Field					xmlTextScalarField;
 	
 	public FieldAccessor(FieldToXMLOptimizations f2XO)
 	{
-		this.field		= f2XO.field();
 		this.scalarType	= f2XO.scalarType();
+		
+		this.field		= f2XO.field();
 		this.tagName	= f2XO.tagName();
 		this.type		= f2XO.type();
+
+		Optimizations parentOptimizations	= f2XO.getContextOptimizations();
+		if (parentOptimizations != null)
+		{
+			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
+			if (thisOptimizations != null)
+			{
+				xmlTextScalarField			= thisOptimizations.getScalarTextField();
+				FieldToXMLOptimizations xmlTextF2XO	= parentOptimizations.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
+				scalarType					= xmlTextF2XO.scalarType();
+			}
+		}
 	}
 	
 	/**
@@ -51,7 +70,24 @@ public class FieldAccessor extends Debug
 	{
 		if ((valueString != null) && (context != null))
 		{
-			if (isScalar())
+			if (xmlTextScalarField != null)
+			{
+				try
+				{
+					ElementState nestedES	= (ElementState) field.get(context);
+					scalarType.setField(nestedES, xmlTextScalarField, valueString);
+					
+				} catch (IllegalArgumentException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else if (isScalar())
 			{
 				scalarType.setField(context, field, valueString);
 			}
@@ -69,18 +105,23 @@ public class FieldAccessor extends Debug
 	{
 		if (!isScalar())
 		{
-			try
-			{
-				field.set(context, value);
-			} catch (IllegalArgumentException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			setField(context, value);
+		}
+	}
+
+	private void setField(ElementState context, Object value)
+	{
+		try
+		{
+			field.set(context, value);
+		} catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

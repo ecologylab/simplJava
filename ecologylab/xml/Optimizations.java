@@ -240,7 +240,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(thatClass);
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(field, thatClass);
+				    result = new FieldToXMLOptimizations(this, field, thatClass);
                     
                     fieldToXMLOptimizationsMap.put(thatClass, result);
 					//debug(tagName.toString());
@@ -268,7 +268,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(rootClass);
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(rootClass, this.nameSpaceID);
+				    result = new FieldToXMLOptimizations(this, rootClass, this.nameSpaceID);
                     
                     fieldToXMLOptimizationsMap.put(rootClass, result);
 				}
@@ -295,7 +295,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(collectionTagMapEntry, actualCollectionElementClass);
+				    result = new FieldToXMLOptimizations(this, collectionTagMapEntry, actualCollectionElementClass);
                     
                     fieldToXMLOptimizationsMap.put(actualCollectionElementClass, result);
 					//debug(tagName.toString());
@@ -321,7 +321,7 @@ implements OptimizationTypes
 				result		= fieldToXMLOptimizationsMap.get(field);
 				if (result == null)
 				{
-					result	= new FieldToXMLOptimizations(field, nameSpacePrefix);
+					result	= new FieldToXMLOptimizations(this, field, nameSpacePrefix);
 //					debug(tagName.toString());
 					fieldToXMLOptimizationsMap.put(field, result);
 				}
@@ -1141,6 +1141,11 @@ implements OptimizationTypes
 			return new Optimizations(key, parent);
 		}
 	}
+	
+	Optimizations lookupChildOptimizations(Class thatClass)
+	{
+		return childOptimizationsMap.get(thatClass.getName());
+	}
 
 	/**
 	 * @return the Class Object that this holds Optimizations for.
@@ -1153,5 +1158,10 @@ implements OptimizationTypes
 	NodeToJavaOptimizations scalarTextN2jo()
 	{
 		return scalarTextN2jo;
+	}
+
+	public Field getScalarTextField()
+	{
+		return scalarTextField;
 	}
 }

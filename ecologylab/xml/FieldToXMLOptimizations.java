@@ -63,6 +63,12 @@ implements OptimizationTypes
      */
     private		Class		childClass;
     
+    /**
+     * Optimizations object for the ElementState object that was the context when
+     * the field represented by this was processed.
+     */
+    private		Optimizations	contextOptimizations;
+    
     private int				type;
     
     private boolean			isCDATA;
@@ -81,19 +87,15 @@ implements OptimizationTypes
     
     private String[]		format;
 
-    FieldToXMLOptimizations(FieldToXMLOptimizations parentCollectionEntry)
-    {
-    	
-    }
-
     /**
      * Construct for a field where the actualClass can override the one in the declaration.
-     * 
+     * @param optimizations TODO
      * @param field
      * @param actualClass
      */
-    FieldToXMLOptimizations(Field field, Class<? extends ElementState> actualClass)
+    FieldToXMLOptimizations(Optimizations optimizations, Field field, Class<? extends ElementState> actualClass)
     {
+    	this.contextOptimizations	= optimizations;
         setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
                 ElementState.xml_tag.class).value() : XMLTools.getXmlTagName(actualClass, "State"));
         setType(field, actualClass);
@@ -104,12 +106,14 @@ implements OptimizationTypes
      * Build a FieldToXMLOptimizations for a root element.
      * There is no field!
      * Use its class name to form the tag name.
-     * 
+     * @param optimizations TODO
      * @param rootClass
      * @param nameSpaceID TODO
      */
-    FieldToXMLOptimizations(Class rootClass, String nameSpaceID)
+    FieldToXMLOptimizations(Optimizations optimizations, Class rootClass, String nameSpaceID)
     {
+    	this.contextOptimizations			= optimizations;
+    	
     	setTag(XMLTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
     	if (nameSpaceID != null)
@@ -217,12 +221,14 @@ implements OptimizationTypes
     }
     /**
      * Constructor for collection elements (no field).
-     * 
+     * @param optimizations TODO
      * @param collectionFieldToXMLOptimizations
      * @param actualCollectionElementClass
      */
-    FieldToXMLOptimizations(FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
+    FieldToXMLOptimizations(Optimizations optimizations, FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
     {
+    	this.contextOptimizations	=  optimizations;
+    	
     	//TODO -- is this inheritance good or bad?!
         String tagName	= collectionFieldToXMLOptimizations.childTagName;
         if (actualCollectionElementClass.isAnnotationPresent(ElementState.xml_tag.class))
@@ -242,8 +248,10 @@ implements OptimizationTypes
         //TODO -- do we need to handle scalars here as well?
         this.type		= REGULAR_NESTED_ELEMENT;
     }
-    FieldToXMLOptimizations(Field field, String nameSpacePrefix)
+    FieldToXMLOptimizations(Optimizations optimizations, Field field, String nameSpacePrefix)
     {
+    	this.contextOptimizations					= optimizations;
+    	
     	final ElementState.xml_collection collectionAnnotationObj	= field.getAnnotation(ElementState.xml_collection.class);
     	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
     	final ElementState.xml_map mapAnnotationObj	= field.getAnnotation(ElementState.xml_map.class);
@@ -765,5 +773,27 @@ implements OptimizationTypes
 			e.printStackTrace();
 		}
 
+	}
+	
+	/**
+	 * Get the class that this operates on.
+	 * It is either the class of the Field, or the class of the Collection element
+	 * represented by this.
+	 * 
+	 * @return
+	 */
+	public Class getOperativeClass()
+	{
+		return childClass != null ? childClass : field.getType();
+	}
+
+	/**
+	 * Get the optimizations object for the parent of this field.
+	 * 
+	 * @return
+	 */
+	public Optimizations getContextOptimizations()
+	{
+		return contextOptimizations;
 	}
 }
