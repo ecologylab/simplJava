@@ -224,6 +224,13 @@ implements OptimizationTypes
 	{
 		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
 	}
+	
+	Optimizations lookupChildOptimizations(Class<ElementState> thatClass)
+	{
+		return childOptimizationsMap.getOrCreateAndPutIfNew(thatClass);
+	}
+
+
 	/**
 	 * Get a tag translation object that corresponds to the fieldName,
 	 * with this class. If necessary, form that tag translation object,
@@ -1142,11 +1149,6 @@ implements OptimizationTypes
 		}
 	}
 	
-	Optimizations lookupChildOptimizations(Class thatClass)
-	{
-		return childOptimizationsMap.get(thatClass.getName());
-	}
-
 	/**
 	 * @return the Class Object that this holds Optimizations for.
 	 */
