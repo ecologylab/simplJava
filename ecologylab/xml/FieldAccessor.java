@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.types.scalar.ScalarType;
+import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * Used to provide convenient access for setting and getting values, using the ecologylab.xml type system.
@@ -38,12 +39,28 @@ public class FieldAccessor extends Debug
 		Optimizations parentOptimizations	= f2XO.getContextOptimizations();
 		if (parentOptimizations != null)
 		{
+			Class cl = f2XO.getOperativeClass();
 			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
 			if (thisOptimizations != null)
 			{
 				xmlTextScalarField			= thisOptimizations.getScalarTextField();
-				FieldToXMLOptimizations xmlTextF2XO	= parentOptimizations.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
-				scalarType					= xmlTextF2XO.scalarType();
+				/**
+				 * can be null for mixins.
+				 */
+				if(xmlTextScalarField != null)
+				{
+					//println("debug");
+					FieldToXMLOptimizations xmlTextF2XO	= parentOptimizations.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
+					/**
+					 * The xmlTextF2XO has scalarType as null.
+					 */
+					scalarType					= xmlTextF2XO.scalarType();
+					scalarType 					= TypeRegistry.getType(xmlTextScalarField);
+					/**
+					 * Not sure whether this is required.
+					 */
+				}
+				
 			}
 		}
 	}
@@ -136,7 +153,28 @@ public class FieldAccessor extends Debug
 		String	result	= null;
 		if (context != null)
 		{
-			if (isScalar())
+			if (xmlTextScalarField != null)
+			{
+				try
+				{
+					ElementState nestedES	= (ElementState) field.get(context);
+					if(nestedES == null)
+					{
+						println("debug");
+					}
+					result = scalarType.toString(xmlTextScalarField, nestedES);
+					
+				} catch (IllegalArgumentException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else if (isScalar())
 			{
 				result		= scalarType.toString(field, context);
 			}
