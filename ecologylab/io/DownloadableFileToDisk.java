@@ -22,6 +22,8 @@ implements Downloadable, DispatchTarget
 	
 	private InputStream inputStream 		= null;
 	
+	private OutputStream outputStream;
+	
 	private ParsedURL	target;
 	private File		destination;
 	
@@ -36,9 +38,20 @@ implements Downloadable, DispatchTarget
 		this.status			= status;
 	}
 	
+	public DownloadableFileToDisk(ParsedURL target, InputStream inputStream, File destination, StatusReporter status)
+	{
+		this(target, destination, status);
+		this.inputStream	= inputStream;
+	}
+	
 	public DownloadableFileToDisk(ParsedURL target, File destination)
 	{
 		this(target, destination, null);
+	}
+	
+	public DownloadableFileToDisk(ParsedURL target, InputStream inputStream, File destination)
+	{
+		this(target, inputStream, destination, null);
 	}
 	
 	public void downloadDone()
@@ -48,13 +61,12 @@ implements Downloadable, DispatchTarget
 
 	public void handleIoError()
 	{
-		// TODO Auto-generated method stub
-
+		closeStreams();
 	}
 
 	public boolean handleTimeout()
 	{
-		// TODO Auto-generated method stub
+		closeStreams();
 		return false;
 	}
 
@@ -73,7 +85,8 @@ implements Downloadable, DispatchTarget
 		
 		//this gets the stream and sets the member field 'fileSize'
 //		inputStream = getInputStream(zipSource);
-		inputStream = target.url().openStream();
+		if (inputStream == null)
+			inputStream = target.url().openStream();
 		
 		debug("performDownload() got InputStream");
 
@@ -111,13 +124,41 @@ implements Downloadable, DispatchTarget
         	  outputStream.write(fileBytes, 0, count);
           }
 		  
-          outputStream.close();
-          inputStream.close();
+          closeStreams();
           
           synchronized (this)
           {
         	  downloadDone	= true;
           }
+	}
+	
+	public void closeStreams()
+	{
+		try
+		{
+			if (outputStream != null)
+			{
+				OutputStream oStream		= this.outputStream;
+				this.outputStream			= null;
+				oStream.close();
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		try
+		{
+			if (inputStream != null)
+			{
+				InputStream iStream			= this.inputStream;
+				this.inputStream			= null;
+				iStream.close();
+			}
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public void delivery(Object o)
