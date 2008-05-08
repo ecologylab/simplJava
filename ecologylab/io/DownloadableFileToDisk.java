@@ -92,16 +92,17 @@ implements Downloadable, DispatchTarget
 
 		//actually read and write the file
 		// if the file already exists, delete it
+		//FIXME -- consider using the existing, instead of deleting it!!!
 		if (destination.exists())
 		{
 			boolean deleted = destination.delete();
 			debug("File exists, so deleting = " + deleted);
 		}
 		
-		  OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destination));
+		  outputStream 		= new BufferedOutputStream(new FileOutputStream(destination));
 		  debug("performDownload() got outputStream from " + destination);
 
-		  byte fileBytes[] = new byte[BUFFER_SIZE];
+		  byte fileBytes[] 	= new byte[BUFFER_SIZE];
 		  
 		  //Read data from the source url and write it out to the file
           int count 		= 0;
