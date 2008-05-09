@@ -686,7 +686,7 @@ public final class TranslationScope extends Debug
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationScope get(String defaultPackageName, Class[] translations)
+   public static TranslationScope get(String defaultPackageName, Class... translations)
    {
 	   TranslationScope result	= lookup(defaultPackageName);
 	   if (result == null)
