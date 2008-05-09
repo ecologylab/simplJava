@@ -4,8 +4,11 @@
 package ecologylab.xml;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -30,7 +33,8 @@ public class FieldAccessor extends Debug
 	
 	public FieldAccessor(FieldToXMLOptimizations f2XO)
 	{
-		this.scalarType	= f2XO.scalarType();
+		ScalarType scalarType = f2XO.scalarType();
+		this.scalarType	= scalarType;
 		
 		this.field		= f2XO.field();
 		this.tagName	= f2XO.tagName();
@@ -59,8 +63,7 @@ public class FieldAccessor extends Debug
 					/**
 					 * Not sure whether this is required.
 					 */
-				}
-				
+				}			
 			}
 		}
 	}
@@ -225,5 +228,19 @@ public class FieldAccessor extends Debug
 		return type;
 	}
 	
+	public ElementState getNested(ElementState context)
+	{
+		return (ElementState) ReflectionTools.getFieldValue(context, field);
+	}
+	
+	public Map getMap(ElementState context)
+	{
+		return (Map) ReflectionTools.getFieldValue(context, field);
+	}
+
+	public Collection getCollection(ElementState context)
+	{
+		return (Collection) ReflectionTools.getFieldValue(context, field);
+	}
 }
 
