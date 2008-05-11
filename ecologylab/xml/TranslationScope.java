@@ -765,28 +765,14 @@ public final class TranslationScope extends Debug
    {
 	   return get(name, translation, null);
    }
-
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Build on the previous TranslationScope, by including all mappings from there.
-    * 
-    * @param name
-    * @param translations
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations,
-		   							  TranslationScope inheritedTranslations)
-   {
-	   return get(name, translations, inheritedTranslations, name);
-   }
  
    /**
     * Find an existing TranslationScope by this name, or create a new one.
-    * Build on the previous TranslationScope, by including all mappings from there.
+    * Build on previous TranslationScopes, by including all mappings from there, and add the new translations.
     * 
-    * @param name
-    * @param translations
+    * @param name the name of the TranslationScope to acquire.
+    * @param translations an array of translations to add to the scope.
+    * @param inheritedTranslations a list of previous translation scopes to build upon.
     * @return
     */
    @SuppressWarnings("unchecked")
