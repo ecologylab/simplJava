@@ -681,21 +681,21 @@ public final class TranslationScope extends Debug
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * 
-    * @param defaultPackageName
-    * @param translations
+    * @param name the name of the TranslationScope
+    * @param translations a set of Classes to be used as a part of this TranslationScope
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationScope get(String defaultPackageName, Class... translations)
+   public static TranslationScope get(String name, Class... translations)
    {
-	   TranslationScope result	= lookup(defaultPackageName);
+	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
-		   synchronized (defaultPackageName)
+		   synchronized (name)
 		   {
-			   result	= lookup(defaultPackageName);
+			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(defaultPackageName, translations, defaultPackageName);
+				   result		= new TranslationScope(name, translations, name);
 		   }
 	   }
 	   return result;	   
