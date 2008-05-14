@@ -24,7 +24,7 @@ import java.util.ArrayList;
  */
 public abstract class ResourcePool<T> extends Debug
 {
-	protected static final int	DEFAULT_POOL_SIZE	= 64;
+	protected static final int	DEFAULT_POOL_SIZE	= 16;
 
 	ArrayList<T>					pool;
 

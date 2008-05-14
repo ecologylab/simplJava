@@ -68,7 +68,7 @@ import ecologylab.xml.xml_inherit;
 			{
 				final StringBuilder bufferToLog = bufferToLog();
 
-				debug(bufferToLog);
+			//	debug(bufferToLog);
 
 				outputStreamWriter.append(bufferToLog);
 				

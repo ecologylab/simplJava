@@ -9,11 +9,9 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
-import ecologylab.net.NetTools;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.HTTPGetClientSessionManager;
-import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationScope;
 
 /**

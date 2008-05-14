@@ -91,7 +91,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * CharBuffers for use with translating from bytes to chars; may need to
 	 * support having many messages come through at once.
 	 */
-	private final CharBufferPool												charBufferPool;
+	protected CharBufferPool													charBufferPool;
 
 	/**
 	 * 
@@ -106,6 +106,14 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 
 		this.maxMessageSize = maxMessageSize;
 
+		instantiateCharBufferPool(maxMessageSize);
+	}
+
+	/**
+	 * @param maxMessageSize
+	 */
+	protected void instantiateCharBufferPool(int maxMessageSize)
+	{
 		// make them a little bigger, in case more than one mega-huge message
 		// comes in completely unlikely, but just to be safe
 		this.charBufferPool = new CharBufferPool(maxMessageSize * 2);
@@ -135,15 +143,16 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * @param applicationObjectScope -
 	 *           the application object scope, containing application state
 	 *           objects that messages will access and manipulate.
-	 * @throws IOException 
-	 * @throws BindException 
+	 * @throws IOException
+	 * @throws BindException
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope) throws BindException, IOException
+			TranslationScope requestTranslationScope, Scope applicationObjectScope)
+			throws BindException, IOException
 	{
 		this(portNumber, NetTools.getAllInetAddressesForLocalhost(),
-				requestTranslationScope, applicationObjectScope, DEFAULT_IDLE_TIMEOUT,
-				DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
+				requestTranslationScope, applicationObjectScope,
+				DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
 	public void processRead(Object sessionToken, NIOServerIOThread base,

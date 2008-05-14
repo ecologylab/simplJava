@@ -18,7 +18,7 @@ public class CharBufferPool extends ResourcePoolWithSize<CharBuffer>
 	 */
 	public CharBufferPool(int builderSize)
 	{
-		this(DEFAULT_POOL_SIZE, 10, builderSize);
+		this(DEFAULT_POOL_SIZE, DEFAULT_POOL_SIZE/4, builderSize);
 	}
 
 	/**
