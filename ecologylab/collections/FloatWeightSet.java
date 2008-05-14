@@ -148,7 +148,7 @@ extends Debug implements BasicFloatSet<E>
       alloc(initialSize + PRUNE_LEVEL + extraAllocation, supportWeightedRandomSelect);
       SENTINEL.weight	= - Float.MAX_VALUE;
       basicInsert(SENTINEL);
-      debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
+      //debug("constructed w numSlots=" + numSlots + " maxSize=" + pruneSize + " extraAllocation="+extraAllocation);
    }
    private final void alloc(int allocSize, boolean supportWeightedRandomSelect)
    {
