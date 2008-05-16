@@ -60,8 +60,8 @@ public class FieldAccessor extends Debug
 					/**
 					 * The xmlTextF2XO has scalarType as null.
 					 */
-					scalarType					= xmlTextF2XO.scalarType();
-					scalarType 					= TypeRegistry.getType(xmlTextScalarField);
+					//this.scalarType					= xmlTextF2XO.scalarType();
+					this.scalarType 					= TypeRegistry.getType(xmlTextScalarField);
 					/**
 					 * Not sure whether this is required.
 					 */
