@@ -487,9 +487,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
-								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
-								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementEntry, buffy);
+								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
+								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
+								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementF2Xo, buffy);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -711,9 +711,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
-								final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementEntry		= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementEntry, appendable);
+								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
+								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementF2Xo, appendable);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -941,8 +941,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						{
 							ElementState collectionSubElementState = (ElementState) next;
 							//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
-							final Class<? extends ElementState> collectionElementClass = collectionSubElementState.getClass();
-							FieldToXMLOptimizations collectionElementF2XO		= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
+							final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
+							FieldToXMLOptimizations collectionElementF2XO				= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 							collectionSubElementState.translateToDOM(collectionElementClass, collectionElementF2XO, elementNode, dom);
 						}
 						else
