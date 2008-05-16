@@ -47,6 +47,7 @@ public class FieldAccessor extends Debug
 			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
 			if (thisOptimizations != null)
 			{
+				//FIXME -- use f2XO.xmlTextField instead!
 				xmlTextScalarField			= thisOptimizations.getScalarTextField();
 				/**
 				 * can be null for mixins.
@@ -54,6 +55,7 @@ public class FieldAccessor extends Debug
 				if(xmlTextScalarField != null)
 				{
 					//println("debug");
+					//FIXME -- use f2XO.xmlTextScalarType instead!
 					FieldToXMLOptimizations xmlTextF2XO	= parentOptimizations.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
 					/**
 					 * The xmlTextF2XO has scalarType as null.
