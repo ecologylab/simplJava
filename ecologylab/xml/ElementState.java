@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
@@ -2679,4 +2680,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
  	{
  		return optimizations.scalarTextN2jo();
  	}
+ 	
+	public HashMapArrayList<String, FieldAccessor> getFieldAccessors(Class<? extends FieldAccessor> thatClass)
+	{
+		return Optimizations.getFieldAccessors(getClass(), thatClass);
+	}
+
+
 }
