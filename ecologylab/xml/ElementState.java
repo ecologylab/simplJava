@@ -395,9 +395,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		int numElements						= elementF2XOs.size();
 
 		StringBuilder textNode				= this.textNodeBuffy;
-		//TODO or if there is a special @xml_text field!
 		
-		if ((numElements == 0) && ((textNode == null) || (textNode.length() == 0)))
+		boolean hasXmlText 		= fieldToXMLOptimizations.hasXmlText();
+		if ((numElements == 0) && ((textNode == null) || (textNode.length() == 0)) && !hasXmlText)
 		{
 			buffy.append('/').append('>');	// done! completely close element behind attributes				
 		}
@@ -412,7 +412,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				XMLTools.escapeXML(buffy, textNode);
 			}
 			
-			if (fieldToXMLOptimizations.hasXmlText())
+			if (hasXmlText)
 			{
 				try
 				{
@@ -626,9 +626,10 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
 		int numElements						= elementF2XOs.size();
 
-		StringBuilder textNode = this.textNodeBuffy;
-		//TODO -- fix textNode == null -- should be size() == 0 or some such
-		if ((numElements == 0) && (textNode == null))
+		//FIXME -- get rid of old textNode stuff. it doesnt even work
+		StringBuilder textNode 	= this.textNodeBuffy;
+		boolean hasXmlText 		= fieldToXMLOptimizations.hasXmlText();
+		if ((numElements == 0) && (textNode == null) && !hasXmlText)
 		{
 			appendable.append('/').append('>');	// done! completely close element behind attributes				
 		}
@@ -646,7 +647,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				XMLTools.escapeXML(appendable, textNode);
 			}
 			
-			if (fieldToXMLOptimizations.hasXmlText())
+			if (hasXmlText)
 			{
 				try
 				{
@@ -2679,6 +2680,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
  	NodeToJavaOptimizations scalarTextChildN2jo()
  	{
  		return optimizations.scalarTextN2jo();
+ 	}
+ 	
+ 	public boolean hasScalarTextField()
+ 	{
+ 		return optimizations.hasScalarTextField();
  	}
  	
 	public HashMapArrayList<String, FieldAccessor> getFieldAccessors(Class<? extends FieldAccessor> thatClass)

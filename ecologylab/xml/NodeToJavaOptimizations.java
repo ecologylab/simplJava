@@ -138,22 +138,24 @@ implements OptimizationTypes
 	
 	/**
 	 * Construct from a Field for @xml_tag. NB: MUST BE A SCALAR TYPED FIELD.
-	 * 
-	 * @param translationSpace
 	 * @param optimizations
 	 * @param field
 	 */
-	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field)
+	NodeToJavaOptimizations(Optimizations optimizations, Field field)
 	{
 		super();
 		Class<?> scalarTypeClass = field.getType();
 		this.tag				= XMLTools.getXmlTagName(scalarTypeClass, "");
-		this.translationSpace	= translationSpace;
 		this.optimizations		= optimizations;
 		
 		this.field				= field;
 		this.type				= TEXT_NODE_VALUE;
 		this.scalarType			= TypeRegistry.getType(scalarTypeClass);
+	}
+	
+	void setTranslationScope(TranslationScope translationSpace)
+	{
+		this.translationSpace	= translationSpace;
 	}
 
 	/**

@@ -339,10 +339,15 @@ implements ContentHandler, OptimizationTypes
 		}
 		else
 		{
-			activeN2JO	= (currentN2JO != null) && (currentN2JO.type() == IGNORED_ELEMENT) ?
+			final int curentN2JOType = currentN2JO.type();
+			ElementState currentES		= this.currentElementState;
+			// if there is a pending text node, assign it somehow!
+			processPendingTextScalar(curentN2JOType, currentES);
+				
+			activeN2JO	= (currentN2JO != null) && (curentN2JOType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
 				NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
-				currentOptimizations().nodeToJavaOptimizations(translationSpace, currentElementState, tagName, false);
+				currentOptimizations().nodeToJavaOptimizations(translationSpace, currentES, tagName, false);
 		}
 		this.currentN2JO						= activeN2JO;
 		registerXMLNS();
@@ -460,49 +465,13 @@ implements ContentHandler, OptimizationTypes
 			// if not, we will have to set curentN2JOType = NAMESPACE_IGNORED_ELEMENT
 		}
 		
-		final int length = currentLeafValue.length();
 		ElementState currentES		= this.currentElementState;
-		try
-		{
-			if (length > 0)
-			{
-				switch (curentN2JOType)
-				{
-				case NAME_SPACE_LEAF_NODE:
-				case LEAF_NODE_VALUE:
-					//TODO -- unmarshall to set field with scalar type
-					// copy from the StringBuilder
-					String value	= new String(currentLeafValue.substring(0, length));
-					currentN2JO.setFieldToScalar(currentES, value);
-					break;
-				case COLLECTION_SCALAR:
-					value			= new String(currentLeafValue.substring(0, length));
-					currentN2JO.addLeafNodeToCollection(currentES, value);
-					break;
-				case REGULAR_NESTED_ELEMENT:
-				case COLLECTION_ELEMENT:
-					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
-					// so we get the optimizations we need from the currentElementState
-					NodeToJavaOptimizations scalarTextChildN2jo = currentES.scalarTextChildN2jo();
-					if (scalarTextChildN2jo != null)
-					{
-						value		= new String(currentLeafValue.substring(0, length));
-						scalarTextChildN2jo.setFieldToScalar(currentES, value);
-					}
-					break;
-				default:
-					break;
-				}
-				currentLeafValue.setLength(0);
-			}
-		} catch (XMLTranslationException e)
-		{
-			this.xmlTranslationException	= e;
-		}
+		processPendingTextScalar(curentN2JOType, currentES);
+		
 		final ElementState parentES					= currentES.parent;
 		final NodeToJavaOptimizations currentN2JO	= this.currentN2JO;
-		final int currentN2JOtype = currentN2JO.type();
-		switch (currentN2JOtype)	// every good push deserves a pop :-) (and othertimes, not!)
+
+		switch (curentN2JOType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
 			final Object key 				= ((Mappable) currentES).key();
@@ -524,10 +493,61 @@ implements ContentHandler, OptimizationTypes
 			break;
 		}
 		// end of the Namespace object, so we gotta pop it off, too.
-		if (currentN2JOtype == NAME_SPACE_NESTED_ELEMENT)
+		if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
 			this.currentElementState		= this.currentElementState.parent;
 		popAndPeekN2JO();
 		//if (this.startElementPushed)	// every good push deserves a pop :-) (and othertimes, not!)
+	}
+	
+	/**
+	 * Assign pending value from an @xml_text or @xml_leaf declaration to the appropriate Field or Collection element.
+	 * 
+	 * @param curentN2JOType
+	 * @param currentES
+	 */
+	private void processPendingTextScalar(final int curentN2JOType,
+			ElementState currentES)
+	{
+		final int length 			= currentTextValue.length();
+		if (length > 0)
+		{
+			try
+			{
+				switch (curentN2JOType)
+				{
+				case NAME_SPACE_LEAF_NODE:
+				case LEAF_NODE_VALUE:
+					//TODO -- unmarshall to set field with scalar type
+					// copy from the StringBuilder
+					String value	= new String(currentTextValue.substring(0, length));
+					currentN2JO.setFieldToScalar(currentES, value);
+					break;
+				case COLLECTION_SCALAR:
+					value			= new String(currentTextValue.substring(0, length));
+					currentN2JO.addLeafNodeToCollection(currentES, value);
+					break;
+				case ROOT:
+				case REGULAR_NESTED_ELEMENT:
+				case COLLECTION_ELEMENT:
+					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
+					// so we get the optimizations we need from the currentElementState
+					NodeToJavaOptimizations scalarTextChildN2jo = currentES.scalarTextChildN2jo();
+					if (scalarTextChildN2jo != null)
+					{
+						value		= new String(currentTextValue.substring(0, length));
+						scalarTextChildN2jo.setFieldToScalar(currentES, value);
+					}
+					break;
+				default:
+					break;
+				}
+			} catch (XMLTranslationException e)
+			{
+				this.xmlTranslationException	= e;
+			}
+			
+			currentTextValue.setLength(0);
+		}
 	}
 	void printStack(String msg)
 	{
@@ -538,7 +558,7 @@ implements ContentHandler, OptimizationTypes
 		}
 		println("");
 	}
-	StringBuilder currentLeafValue	= new StringBuilder(1024);
+	StringBuilder currentTextValue	= new StringBuilder(1024);
 	/**
 	 *
 	 * ${tags}
@@ -553,20 +573,22 @@ implements ContentHandler, OptimizationTypes
 
 		if (currentN2JO != null)
 		{
-			switch (currentN2JO.type())
+			int n2joType = currentN2JO.type();
+			switch (n2joType)
 			{
 			case LEAF_NODE_VALUE:
 			case COLLECTION_SCALAR:
 			case NAME_SPACE_LEAF_NODE:
-				currentLeafValue.append(chars, startIndex, length);
+				currentTextValue.append(chars, startIndex, length);
 				//TODO -- unmarshall to set field with scalar type
 				break;
+			case ROOT:
 			case REGULAR_NESTED_ELEMENT:
 			case COLLECTION_ELEMENT:
 				// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 				// so we get the optimizations we need from the currentElementState
-				if (currentElementState.scalarTextChildN2jo() != null)
-					currentLeafValue.append(chars, startIndex, length);
+				if (currentElementState.hasScalarTextField())
+					currentTextValue.append(chars, startIndex, length);
 				break;
 			default:
 				//TODO ?! can we dump characters in this case, or should we append to textNode?!

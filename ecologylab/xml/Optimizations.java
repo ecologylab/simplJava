@@ -413,9 +413,9 @@ implements OptimizationTypes
 			indexSpecialMappingsForFields(this.attributeFields(), true, translationSpace, context);
 			indexSpecialMappingsForFields(this.elementFields(), false, translationSpace, context);
 			
-			if (this.scalarTextField != null)
+			if (this.scalarTextN2jo != null)
 			{
-				scalarTextN2jo 		= new NodeToJavaOptimizations(translationSpace, this, scalarTextField);
+				scalarTextN2jo.setTranslationScope(translationSpace);
 			}
 		}
 		return result;
@@ -747,6 +747,7 @@ implements OptimizationTypes
 			{
 				// Special field for a typed text node value
 				scalarTextField		= thatField;
+				scalarTextN2jo 		= new NodeToJavaOptimizations(this, thatField);
 				
 				thatField.setAccessible(true);
             
@@ -1165,5 +1166,10 @@ implements OptimizationTypes
 	public Field getScalarTextField()
 	{
 		return scalarTextField;
+	}
+	
+	public boolean hasScalarTextField()
+	{
+		return scalarTextField != null;
 	}
 }
