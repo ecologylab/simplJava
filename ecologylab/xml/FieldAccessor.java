@@ -131,7 +131,8 @@ public class FieldAccessor extends Debug
 		}
 	}
 
-	private void setField(ElementState context, Object value)
+	//IncontextMetadata Transition
+	public void setField(ElementState context, Object value)
 	{
 		try
 		{
@@ -155,7 +156,7 @@ public class FieldAccessor extends Debug
 	 */
 	public String getValueString(ElementState context)
 	{
-		String	result	= null;
+		String	result	= "null";
 		if (context != null)
 		{
 			if (xmlTextScalarField != null)
@@ -166,8 +167,14 @@ public class FieldAccessor extends Debug
 					if(nestedES == null)
 					{
 						println("debug");
+						
 					}
-					result = scalarType.toString(xmlTextScalarField, nestedES);
+					//If nestedES is null...then the field is not initialized.
+					if(nestedES != null)
+					{
+						result = scalarType.toString(xmlTextScalarField, nestedES);
+					}
+					
 					
 				} catch (IllegalArgumentException e)
 				{
@@ -228,6 +235,14 @@ public class FieldAccessor extends Debug
 	public int getType()
 	{
 		return type;
+	}
+
+	/**
+	 * @return the xmlTextScalarField
+	 */
+	public Field getXmlTextScalarField()
+	{
+		return xmlTextScalarField;
 	}
 	
 	public ElementState getNested(ElementState context)
