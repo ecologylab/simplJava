@@ -59,6 +59,13 @@ implements OptimizationTypes
     private		Field		field;
     
     /**
+     * For noting that the object of this root or @xml_nested field has, within it, a field declared with @xml_text.
+     */
+    private		Field		xmlTextField;
+    
+    private		ScalarType	xmlTextScalarType;
+    
+    /**
      * This field is used iff type is COLLECTION or MAP
      */
     private		Class		childClass;
@@ -100,6 +107,8 @@ implements OptimizationTypes
                 ElementState.xml_tag.class).value() : XMLTools.getXmlTagName(actualClass, "State"));
         setType(field, actualClass);
         this.field			= field;
+        
+    	setupXmlText(optimizations);
     }
 
     /**
@@ -112,8 +121,8 @@ implements OptimizationTypes
      */
     FieldToXMLOptimizations(Optimizations optimizations, Class rootClass, String nameSpaceID)
     {
-    	this.contextOptimizations			= optimizations;
-    	
+    	this.contextOptimizations	= optimizations;
+    	setupXmlText(optimizations);
     	setTag(XMLTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
     	if (nameSpaceID != null)
@@ -125,6 +134,22 @@ implements OptimizationTypes
     		this.closeTag			= "";
     	}
     }
+
+    /**
+     * If this is nested, and has a corresponding ScalarTyped field declared with @xml_text,
+     * set-up associated optimizations.
+     * 
+     * @param optimizations
+     */
+	private void setupXmlText(Optimizations optimizations)
+	{
+		Field optimizationsScalarTextField = optimizations.getScalarTextField();
+    	if (optimizationsScalarTextField != null)
+    	{
+    		this.xmlTextField			= optimizationsScalarTextField;
+			this.xmlTextScalarType		= TypeRegistry.getType(optimizationsScalarTextField);
+    	}
+	}
     
     /**
      * Build a FieldToXMLOptimizations pseudo-object for an XML Namespace scope declaration
@@ -248,6 +273,14 @@ implements OptimizationTypes
         //TODO -- do we need to handle scalars here as well?
         this.type		= REGULAR_NESTED_ELEMENT;
     }
+    
+    /**
+     * Usual constructor.
+     * 
+     * @param optimizations
+     * @param field
+     * @param nameSpacePrefix
+     */
     FieldToXMLOptimizations(Optimizations optimizations, Field field, String nameSpacePrefix)
     {
     	this.contextOptimizations					= optimizations;
@@ -281,6 +314,9 @@ implements OptimizationTypes
         	}
         	format			= XMLTools.getFormatAnnotation(field);
         }
+        
+        if (XMLTools.isNested(field))
+        	setupXmlText(optimizations.lookupChildOptimizations((Class<ElementState>) field.getType()));
     }
     
     /**
@@ -531,6 +567,7 @@ implements OptimizationTypes
      * 
      * @param element
      * @param instance
+     * @param isAtXMLText TODO
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
@@ -550,11 +587,33 @@ implements OptimizationTypes
         		String  fieldValueString= fieldInstance.toString();
 
         		Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
-
+        		
         		Element leafNode		= document.createElement(tagName);
         		leafNode.appendChild(textNode);
 
         		element.appendChild(leafNode);
+        	}
+         }
+    }
+    
+    public void appendXmlText(Element element, Object instance) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (instance != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	
+        	Document document 		= element.getOwnerDocument();
+        	
+        	Object fieldInstance 	= field.get(instance); 
+        	if (fieldInstance != null)
+        	{
+
+        		String  fieldValueString= fieldInstance.toString();
+
+        		Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
+        		
+        		element.appendChild(textNode);
         	}
          }
     }
@@ -642,8 +701,8 @@ implements OptimizationTypes
         		
         		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
         		// (which is an instance variable of this) !!!
-        		
         		buffy.append(openTag);
+        		
         		if (isCDATA)
         			buffy.append(START_CDATA);
         		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
@@ -651,6 +710,37 @@ implements OptimizationTypes
         			buffy.append(END_CDATA);
         		
         		buffy.append(this.closeTag);
+        	}
+        }
+    }
+
+    /**
+     * Use this and the context to append a text node  value to the StringBuilder passed in,
+     * unless it turns out that the value is the default.
+     * 
+     * @param buffy
+     * @param context
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    void appendText(StringBuilder buffy, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.scalarType;
+        	Field field				= this.field;
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+        		// for this field, generate <tag>value</tag>
+        		
+        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		if (isCDATA)
+        			buffy.append(START_CDATA);
+        		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+        		if (isCDATA)
+        			buffy.append(END_CDATA);
         	}
         }
     }
@@ -715,6 +805,7 @@ implements OptimizationTypes
      * 
      * @param buffy
      * @param context
+     * @param isAtXMLText 
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
@@ -745,6 +836,28 @@ implements OptimizationTypes
         }
     }
 
+    void appendXmlText(Appendable appendable, Object context) 
+    throws IllegalArgumentException, IllegalAccessException, IOException
+    {
+        if (context != null)
+        {
+        	ScalarType scalarType	= this.xmlTextScalarType;
+        	Field field				= this.xmlTextField;
+        	if (!scalarType.isDefaultValue(field, context))
+        	{
+        		// for this field, generate <tag>value</tag>
+        		
+        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+        		// (which is an instance variable of this) !!!
+        		
+        		if (isCDATA)
+        			appendable.append(START_CDATA);
+        		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
+        		if (isCDATA)
+        			appendable.append(END_CDATA);
+         	}
+        }
+    }
 	Field field()
 	{
 		return field;
@@ -773,6 +886,11 @@ implements OptimizationTypes
 			e.printStackTrace();
 		}
 
+	}
+	
+	public boolean hasXmlText()
+	{
+		return xmlTextField != null;
 	}
 	
 	/**
