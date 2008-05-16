@@ -304,20 +304,31 @@ public final class TranslationScope extends Debug
     * 
     * @param newMap
     * @param key
-    * @param translationEntry
+    * @param translationEntry		Must be non-null.
     * @param warn
     */
    private void updateMapWithEntry(Map<String, TranslationEntry> newMap, String key, TranslationEntry translationEntry, String warn)
    {
 	   TranslationEntry existingEntry	= newMap.get(key);
 
-	   final boolean entryExists		= existingEntry != null;
-	   final boolean newEntry			= existingEntry != translationEntry;
-	   if (entryExists && newEntry)	// look out for redundant entries
-		   warning("Overriding " + warn + " " + key + " with " + translationEntry);
+//	   final boolean entryExists		= existingEntry != null;
+//	   final boolean newEntry			= existingEntry != translationEntry;
 
-	   if (!entryExists || newEntry)
+	   final boolean entryExists		= existingEntry != null;
+	   final boolean newEntry			= !entryExists ? true : existingEntry.thisClass != translationEntry.thisClass;
+	   
+	   if (newEntry)
+	   {
+		   if (entryExists)	// look out for redundant entries
+			   warning("Overriding " + warn + " " + key + " with " + translationEntry);
+		   
 		   newMap.put(key, translationEntry);
+	   }
+//	   if (entryExists && newEntry)	// look out for redundant entries
+//		   warning("Overriding " + warn + " " + key + " with " + translationEntry);
+//
+//	   if (/** !entryExists || **/ newEntry)
+//		   newMap.put(key, translationEntry);
    }
    /**
 	* Add a translation table entry for an ElementState derived sub-class.
@@ -768,7 +779,7 @@ public final class TranslationScope extends Debug
  
    /**
     * Find an existing TranslationScope by this name, or create a new one.
-    * Build on previous TranslationScopes, by including all mappings from there, and add the new translations.
+    * Build on the previous TranslationScope, by including all mappings from there.
     * 
     * @param name the name of the TranslationScope to acquire.
     * @param translations an array of translations to add to the scope.
