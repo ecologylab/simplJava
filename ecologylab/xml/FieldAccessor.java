@@ -166,7 +166,7 @@ public class FieldAccessor extends Debug
 					ElementState nestedES	= (ElementState) field.get(context);
 					if(nestedES == null)
 					{
-						println("debug");
+//						println("debug");
 						
 					}
 					//If nestedES is null...then the field is not initialized.
