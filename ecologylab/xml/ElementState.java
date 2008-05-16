@@ -404,10 +404,25 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		{
 			if (startOpenTag.length() > 0)
 				buffy.append('>');	// close open tag behind attributes
+			
+			//FIXME -- drop old style text node processing
 			if (textNode != null) 
 			{	
 				XMLTools.escapeXML(buffy, textNode);
 			}
+			
+			if (fieldToXMLOptimizations.hasXmlText())
+			{
+				try
+				{
+					fieldToXMLOptimizations.appendXmlText(buffy, this);
+				} catch (Exception e)
+				{
+					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
+				}				
+			}
+			
+
 			for (int i=0; i<numElements; i++)
 			{
 				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
@@ -620,6 +635,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		{
 			if (startOpenTag.length() > 0)
 				appendable.append('>');	// close open tag behind attributes unless in a nested namespace root
+			
+			//FIXME get rid of this block, because this method of dealing with text nodes is obsolete
 			if (textNode != null) 
 			{	
 				//TODO -- might need to trim the buffy here!
@@ -627,11 +644,22 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				//if (textNode.length() > 0)
 				XMLTools.escapeXML(appendable, textNode);
 			}
+			
+			if (fieldToXMLOptimizations.hasXmlText())
+			{
+				try
+				{
+					fieldToXMLOptimizations.appendXmlText(appendable, this);
+				} catch (Exception e)
+				{
+					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
+				}				
+			}
+			
 			for (int i=0; i<numElements; i++)
 			{
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
 				FieldToXMLOptimizations childF2XO	= elementF2XOs.get(i);
-				//if (XmlTools.representAsLeafNode(thatField))
 				final int childOptimizationsType 	= childF2XO.type();
 				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
@@ -863,6 +891,17 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		}
 		
 		//TODO -- deal with text node child
+		
+		if (fieldToXMLOptimizations.hasXmlText())
+		{
+			try
+			{
+				fieldToXMLOptimizations.appendXmlText(elementNode, this);
+			} catch (Exception e)
+			{
+				throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
+			}				
+		}
 		
 		ArrayList<FieldToXMLOptimizations> elementF2XOs	= optimizations.elementFieldOptimizations();
 		int numElements						= elementF2XOs.size();
