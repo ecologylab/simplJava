@@ -601,8 +601,9 @@ implements OptimizationTypes
     {
         if (instance != null)
         {
-        	ScalarType scalarType	= this.scalarType;
-        	
+//        	ScalarType scalarType	= this.scalarType;
+        	ScalarType scalarType	= this.xmlTextScalarType;
+        	Field field 			= this.xmlTextField;
         	Document document 		= element.getOwnerDocument();
         	
         	Object fieldInstance 	= field.get(instance); 
