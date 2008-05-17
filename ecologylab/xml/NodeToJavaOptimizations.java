@@ -177,6 +177,10 @@ implements OptimizationTypes
 		Class<? extends ElementState> contextClass 		= context.getClass();
 		int colonIndex			= tag.indexOf(':');
 		
+		String fieldName	= XMLTools.fieldNameFromElementName(tag);
+		Field field			= optimizations.getField(fieldName);
+		this.field			= field;
+		
 		if (isAttribute)
 		{
 			if ("id".equals(tag))
@@ -199,7 +203,7 @@ implements OptimizationTypes
 				return;
 			}
 			
-			setupScalarValue(tag, optimizations, contextClass, true);
+			setupScalarValue(tag, field, contextClass, true);
 			return;
 		}
 		
@@ -215,50 +219,42 @@ implements OptimizationTypes
 		}
 		else
 		{	// no XML namespace; life is simpler.
-			
-			// try as leaf node
-			int diganosedType		= setupScalarValue(tag, optimizations, contextClass, false);
-			Field field				= this.field;
-			switch (diganosedType)
+
+			int diagnosedType	= ((field != null) && field.isAnnotationPresent(ElementState.xml_nested.class)) ? 
+					REGULAR_NESTED_ELEMENT : setupScalarValue(tag, field, contextClass, false);
+
+			switch (diagnosedType)
 			{
 			case LEAF_NODE_VALUE:
 				this.classOp		= contextClass;
 				setCDATA(field);
  				return;
-			case IGNORED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
-				if ((field != null) && field.isAnnotationPresent(ElementState.xml_nested.class))
+			case REGULAR_NESTED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
+				this.type	= REGULAR_NESTED_ELEMENT;
+				// changed 12/2/06 by andruid -- use the type in the TranslationSpace!
+				// ah, but that was wrong to do. you must get the class from the Field object,
+				// because the Field object, and not the class is supposed to be a source.
+				// but we need to support having 2 classes with the same simple name, in which one overrides the other,
+				// for internal vs external versions of APIs.
+				//
+				// thus, what we do is:
+				// 1) get the class name from the field
+				// 2) use it as a key into the TranslationSpace (seeking an override)
+				// 3) if that fails, then just use the Class from the field.
+				Class fieldClass			= field.getType();
+				Class<? extends ElementState> classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
+				if (classFromTS == null)
 				{
-					// this is actually a regular nested element
-					this.type	= REGULAR_NESTED_ELEMENT;
-//					this.classOp	= field.getType();
-					// changed 12/2/06 by andruid -- use the type in the TranslationSpace!
-					// ah, but that was wrong to do. you must get the class from the Field object,
-					// because the Field object, and not the class is supposed to be a source.
-					// but we need to support having 2 classes with the same simple name, in which one overrides the other,
-					// for internal vs external versions of APIs.
-					//
-					// thus, what we do is:
-					// 1) get the class name from the field
-					// 2) use it as a key into the TranslationSpace (seeking an override)
-					// 3) if that fails, then just use the Class from the field.
-					Class fieldClass			= field.getType();
-					Class<? extends ElementState> classFromTS			= translationSpace.getClassBySimpleNameOfClass(fieldClass);
-					if (classFromTS == null)
-					{
-						setClassOp(fieldClass);
-						//TODO - if warnings mode, warn user that class is not in the TranslationSpace
-					}
-					else if (ElementState.class.isAssignableFrom(classFromTS))// the way it should be :-)
-						setClassOp(classFromTS);
-					else
-						warning("Field for " + tag + " not a subclass of ElementState. Ignored.");
-					return;
+					setClassOp(fieldClass);
+					//TODO - if warnings mode, warn user that class is not in the TranslationSpace
 				}
-				// no field object, so we must continue to check stuff out!
-				break;
-			default:
-				error("Unknown case in element type assignment switch " + diganosedType + ".");
+				else if (ElementState.class.isAssignableFrom(classFromTS))// the way it should be :-)
+					setClassOp(classFromTS);
+				else
+					warning("Field for " + tag + " not a subclass of ElementState. Ignored.");
 				return;
+			default:
+				break;
 			}
 
 			// else there is no Field to resolve. but there may be a class!
@@ -435,16 +431,14 @@ implements OptimizationTypes
  * Else, we must ignore the field.
  * 
  * @param tag
- * @param optimizations TODO
+ * @param thatField TODO
  * @param contextClass
  * @param isAttribute		true for attribute; false for leaf node.
  */
-	private int setupScalarValue(String tag, Optimizations optimizations, Class contextClass, boolean isAttribute)
+	private int setupScalarValue(String tag, Field thatField, Class contextClass, boolean isAttribute)
 	{
 		int type			= UNSET_TYPE;
 		String methodName	= XMLTools.methodNameFromTagName(tag);
-		String fieldName	= XMLTools.fieldNameFromElementName(tag);
-		Field field			= optimizations.getField(fieldName);
         
 		Method setMethod	= 
 			ReflectionTools.getMethod(contextClass, methodName, ElementState.MARSHALLING_PARAMS);
@@ -480,20 +474,20 @@ implements OptimizationTypes
 			{
 				this.scalarType	= fieldType;
 				type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
-				this.field		= field;
+//				this.field		= field;
 			}
-			else if (!isAttribute)
-				this.field	= field; // for leaf node seekers that can be nested elements
+//			else if (!isAttribute)
+//				this.field	= field; // for leaf node seekers that can be nested elements
 		}
 
 		if (type == UNSET_TYPE)
 		{
 			type					= isAttribute ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 			if (isAttribute)
-				error(fieldName+": no set method or type to set value for this tag in " + 
+				error(XMLTools.fieldNameFromElementName(tag)+": no set method or type to set value for this tag in " + 
 						contextClass.getName() + ".");
 		}
-		this.type				= type;
+		this.type					= type;
 		return type;
 	}
 	
