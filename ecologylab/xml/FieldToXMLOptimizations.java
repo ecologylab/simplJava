@@ -724,13 +724,14 @@ implements OptimizationTypes
      * @throws IllegalArgumentException
      * @throws IllegalAccessException
      */
-    void appendText(StringBuilder buffy, Object context) 
+    void appendXmlText(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         if (context != null)
         {
-        	ScalarType scalarType	= this.scalarType;
-        	Field field				= this.field;
+        	ScalarType scalarType	= this.xmlTextScalarType;
+        	Field field 			= this.xmlTextField;
+
         	if (!scalarType.isDefaultValue(field, context))
         	{
         		// for this field, generate <tag>value</tag>
