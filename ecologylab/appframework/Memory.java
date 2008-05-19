@@ -13,12 +13,16 @@ import ecologylab.generic.StringTools;
  */
 public class Memory
 {
+//	private static final int KICK_GC_COUNT = 5;
+	private static final int KICK_GC_COUNT = 3;
+
 /**
  * Less than this many bytes of memory free means danger, baby.
  * Currently set at 32M.
  */
-   public static final int	DANGER_THRESHOLD= 32 * 1024 * 1024;
-   static Runtime		runtime		= Runtime.getRuntime();
+   public static final int	DANGER_THRESHOLD	= 32 * 1024 * 1024;
+   
+   static Runtime			runtime				= Runtime.getRuntime();
 /**
  * Number of times we've called gc().
  */
@@ -26,7 +30,7 @@ public class Memory
 
    public static boolean	isMicroshaftVM;
    
-   static StringBuffer buffy = new StringBuffer(256);
+   static StringBuffer 		buffy				= new StringBuffer(256);
 /**
  * Prod the garbage collector, and print a message about memory status.
  */
@@ -63,12 +67,13 @@ public class Memory
    }
 /**
  * Try to reclaim memory if it seems to be in low supply.
+ * 
  * @return	true if memory status is in danger and more agressive
  * measures are called for.
  */
    public static boolean reclaimIfLow()
    {
-      for (int i=0; i!=5; i++)
+      for (int i=0; i!=KICK_GC_COUNT; i++)
       {
 		 if (runtime.freeMemory() < DANGER_THRESHOLD)
 			reclaim();
