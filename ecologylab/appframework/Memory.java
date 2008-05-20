@@ -22,7 +22,9 @@ public class Memory
  */
    public static final int	DANGER_THRESHOLD	= 32 * 1024 * 1024;
    
-   static Runtime			runtime				= Runtime.getRuntime();
+   public static final int	RECLAIM_THRESHOLD	= 2 * DANGER_THRESHOLD;  
+   
+   static final Runtime		RUNTIME				= Runtime.getRuntime();
 /**
  * Number of times we've called gc().
  */
@@ -30,7 +32,11 @@ public class Memory
 
    public static boolean	isMicroshaftVM;
    
+   static long				gcTimeStamp;
+   
    static StringBuffer 		buffy				= new StringBuffer(256);
+   
+   static final int			GC_MAX_DELTA_T		= 30 * 1000;	// 30 seconds
 /**
  * Prod the garbage collector, and print a message about memory status.
  */
@@ -62,25 +68,39 @@ public class Memory
    }
    public static synchronized void reclaimQuiet()
    {
-      System.gc();
-      gcCount++;
+	   gcTimeStamp	= System.currentTimeMillis(); 
+	   System.gc();
+	   gcCount++;
    }
 /**
  * Try to reclaim memory if it seems to be in low supply.
+ * Kicks the garbage collector, perhaps repeatedly.
+ * Does this even though GC is supposed to be automatic.
+ * <p/>
+ * Also maintains the current time stamp to the one in which the garbage collector was last kicked.
+ * To avoid maxing out the CPU calling GC repeatedly, will not kick GC again if the last time was recent.
+ * (Currently, recent means within the last 30 seconds.)
  * 
- * @return	true if memory status is in danger and more agressive
- * measures are called for.
+ * @return	true 	if memory status is in danger and more agressive measures are called for.
+ * 			false 	if everything is fine, and the caller can proceed to perform operations that
+ * 					use lots of memory, as needed.
+ * 
  */
    public static boolean reclaimIfLow()
    {
-      for (int i=0; i!=KICK_GC_COUNT; i++)
-      {
-		 if (runtime.freeMemory() < DANGER_THRESHOLD)
-			reclaim();
-		 else
-			break;
-      }
-      return runtime.freeMemory() < DANGER_THRESHOLD;
+	   long now		= System.currentTimeMillis();
+	   long deltaT	= now - gcTimeStamp;
+	   if (deltaT >= GC_MAX_DELTA_T)
+	   {
+		   for (int i=0; i!=KICK_GC_COUNT; i++)
+		   {
+			   if (RUNTIME.freeMemory() < RECLAIM_THRESHOLD)
+				   reclaim();
+			   else
+				   break;
+		   }
+	   }
+      return RUNTIME.freeMemory() < DANGER_THRESHOLD;
    }
    
    public static void recover(Throwable throwable, String msg)
@@ -96,7 +116,7 @@ public class Memory
    }
    public static String usage()
    {
-      return getFreeMemoryInK() + " free of " + K(runtime.totalMemory());
+      return getFreeMemoryInK() + " free of " + K(RUNTIME.totalMemory());
    }
    public static String K(long numBytes)
    {
@@ -144,7 +164,7 @@ public class Memory
    
    public static long getFreeMemoryInBytes()
    {
-   		return runtime.freeMemory();
+   		return RUNTIME.freeMemory();
    }
    
    public static String getFreeMemoryInK()
