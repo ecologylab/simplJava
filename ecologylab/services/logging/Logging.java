@@ -582,20 +582,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			if (finished)
 				debug("run thread awakened for final run");
-
-			synchronized (threadSemaphore)
+			
+			if (!Memory.reclaimIfLow())
 			{
-				writeBufferedOps();
-			}
-
-			long now = System.currentTimeMillis();
-			long deltaT = now - lastGcTime;
-
-			if (deltaT >= KICK_GC_INTERVAL)
-			{
-				debug("kick GC");
-				lastGcTime = now;
-				Memory.reclaim();
+				synchronized (threadSemaphore)
+				{
+					writeBufferedOps();
+				}
 			}
 
 			if (finished)
