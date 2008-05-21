@@ -62,4 +62,14 @@ public @xml_inherit class Point2DDoubleState extends ElementState
 
         return point;
     }
+    
+    public double x()
+    {
+    	return x;
+    }
+    
+    public double y()
+    {
+    	return y;
+    }
 }
