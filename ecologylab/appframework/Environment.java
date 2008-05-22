@@ -153,7 +153,7 @@ public interface Environment
     	  float javaVersion	= javaVersion();
     	  //return (javaVersion >= 1.5004) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
     	  //  accomodate the retarded scc
-    	  return (javaVersion >= 1.5) || ((javaVersion < 1.5) && (javaVersion >= 1.4204));
+    	  return (javaVersion >= 1.5);
       }
       public boolean javaIsBeta()
       {
@@ -162,23 +162,30 @@ public interface Environment
       public boolean hasQuicktime()
       {
 		 if (!checkedForQuicktime)
-			hasQuicktime	= checkFor("quicktime.std.movies.Movie");
+		 {
+			 checkedForQuicktime	= true;
+			 hasQuicktime			= checkFor("quicktime.std.movies.Movie");
+		 }
 		 return hasQuicktime;
       }
       public boolean hasAgile2D()
       {
 		 if (!checkedForAgile2D)
-			hasAgile2D	= checkFor("agile2D.AgileJFrame");
+		 {
+			 checkedForAgile2D	= true;
+			 hasAgile2D			= checkFor("agile2D.AgileJFrame");
+		 }
 		 return hasAgile2D;
       }
       public boolean hasMultivalent()
       {
 		 if (!checkedForMultivalent)
 		 {
-			hasMultivalent	= checkFor("multivalent.std.adaptor.pdf.PDFReader");
-			debug("hasMultivalent() = "+hasMultivalent);
-			if (hasMultivalent)
-				ConsoleUtils.obtrusiveConsoleOutput("Multivalent Found");
+			 checkedForMultivalent	= true;
+			 hasMultivalent			= checkFor("multivalent.std.adaptor.pdf.PDFReader");
+			 debug("hasMultivalent() = "+hasMultivalent);
+			 if (hasMultivalent)
+				 ConsoleUtils.obtrusiveConsoleOutput("Multivalent Found");
 		 }
 		 return hasMultivalent;
       }
@@ -186,10 +193,11 @@ public interface Environment
       {
 		 if (!checkedForPDFBox)
 		 {
-			hasPDFBox	= checkFor("org.pdfbox.pdmodel.PDDocument");
-			debug("hasPDFBox() = "+hasPDFBox);
-			if (hasPDFBox)
-				ConsoleUtils.obtrusiveConsoleOutput("PDFBox Found");
+			 checkedForPDFBox	= true;
+			 hasPDFBox			= checkFor("org.pdfbox.pdmodel.PDDocument");
+			 debug("hasPDFBox() = "+hasPDFBox);
+			 if (hasPDFBox)
+				 ConsoleUtils.obtrusiveConsoleOutput("PDFBox Found");
 		 }
 		 return hasPDFBox;
       }
@@ -197,17 +205,21 @@ public interface Environment
       {
 		 if (!checkedForJTidy)
 		 {
-			 hasJTidy	= checkFor("org.w3c.tidy.TdNode");
-			debug("hasJTidy() = "+hasJTidy);
-			if (hasJTidy)
-				ConsoleUtils.obtrusiveConsoleOutput("JTidy Found");
+			 checkedForJTidy	= true;
+			 hasJTidy			= checkFor("org.w3c.tidy.TdNode");
+			 debug("hasJTidy() = "+hasJTidy);
+			 if (hasJTidy)
+				 ConsoleUtils.obtrusiveConsoleOutput("JTidy Found");
 		 }
 		 return hasJTidy;
       }
       public boolean hasGL()
       {
 		 if (!checkedForGL)
-			hasGL	= checkFor("gl4java.awt.GLCanvas");
+		 {
+			 checkedForGL	= true;
+			 hasGL	= checkFor("gl4java.awt.GLCanvas");
+		 }
 		 return hasGL;
       }
       public boolean hasXML()
@@ -217,7 +229,10 @@ public interface Environment
       public boolean hasServlet()
       {
 		 if (!checkedForServlet)
-			hasServlet	= checkFor("javax.servlet.http.HttpServlet");
+		 {
+			 checkedForServlet	= true;
+			 hasServlet	= checkFor("javax.servlet.http.HttpServlet");
+		 }
 		 return hasServlet;
       }
       public static boolean checkFor(String className)
