@@ -56,6 +56,10 @@ implements List
 	{
 	    synchronized(list) {return list.removeLast();}
 	}
+	public Object getLast() 
+	{
+	    synchronized(list) {return list.getLast();}
+	}
 	
 	public int indexOf(Object o) {
 	    synchronized(list) {return list.indexOf(o);}
