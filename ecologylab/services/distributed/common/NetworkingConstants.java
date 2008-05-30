@@ -19,7 +19,7 @@ public interface NetworkingConstants
 	static final int					DEFAULT_IDLE_TIMEOUT					= 10000;
 
 	/** The maximum size an http-like header on a message may be, in bytes. */
-	static final int					MAX_HTTP_HEADER_LENGTH				= 4096;											// 4KB
+	static final int					MAX_HTTP_HEADER_LENGTH				= 4 * 1024;											// 4KB
 
 	/** The content-length http-like header indicator. */
 	static final String				CONTENT_LENGTH_STRING				= "content-length";

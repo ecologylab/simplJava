@@ -78,7 +78,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	static final int									THREAD_PRIORITY							= 1;
 
 	/** Amount of time for writer thread to sleep; 15 seconds */
-	static final int									SLEEP_TIME									= 15000;
+	static final int									SLEEP_TIME									= 60000;
 
 	static final long									sessionStartTime							= System
 																													.currentTimeMillis();
@@ -339,7 +339,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 				try
 				{
 					loggingClient = new NIOClient(loggingHost, loggingPort,
-							DefaultServicesTranslations.get(), new Scope(), NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
+							DefaultServicesTranslations.get(), new Scope(),
+							NIOLoggingServer.MAX_MESSAGE_SIZE_CHARS_LOGGING);
 
 					// CONNECT TO SERVER
 					if (loggingClient.connect())
@@ -420,17 +421,17 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 					op.translateToXML(incomingOpsBuffer);
 				}
 
-				final int bufferLength = incomingOpsBuffer.length();
-				if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
-				{
-					synchronized (threadSemaphore)
-					{
-						debugA("interrupting thread to do i/o now: " + bufferLength
-								+ "/" + maxBufferSizeToWrite);
-						thread.interrupt();
-						// end sleep in that thread prematurely to do i/o
-					}
-				}
+//				final int bufferLength = incomingOpsBuffer.length();
+//				if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+//				{
+//					synchronized (threadSemaphore)
+//					{
+//						debugA("interrupting thread to do i/o now: " + bufferLength
+//								+ "/" + maxBufferSizeToWrite);
+//						thread.interrupt();
+//						// end sleep in that thread prematurely to do i/o
+//					}
+//				}
 
 				return true;
 			}
@@ -507,6 +508,12 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			this.thread = null;
 
+			synchronized (threadSemaphore)
+			{ // since we only write from run() if we're low on memory, we may
+				// have all the ops still unwritten.
+				writeBufferedOps();
+			}
+
 			if (logWriters != null)
 			{
 				final Epilogue epilogue = getEpilogue();
@@ -582,7 +589,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 
 			if (finished)
 				debug("run thread awakened for final run");
-			
+
 			if (!Memory.reclaimIfLow())
 			{
 				synchronized (threadSemaphore)
@@ -850,7 +857,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 							+ (endOfMappedBytes + LOG_FILE_INCREMENT));
 
 					byte[] temp = new byte[remaining];
-					incoming.get(temp, incoming.position(), remaining);
+					incoming.get(temp, 0, remaining);
 
 					buffy.put(temp);
 
