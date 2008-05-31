@@ -78,7 +78,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	static final int									THREAD_PRIORITY							= 1;
 
 	/** Amount of time for writer thread to sleep; 15 seconds */
-	static final int									SLEEP_TIME									= 60000;
+	static final int									SLEEP_TIME									= 15000;
 
 	static final long									sessionStartTime							= System
 																													.currentTimeMillis();
