@@ -42,7 +42,7 @@ public @xml_inherit class Ellipse2DDoubleState extends RectangularShape
     /**
      * Returns an Ellipse2D object represented by this.
      */
-    public Ellipse2D.Double shape()
+    @Override public Ellipse2D.Double shape()
     {
         if (shape == null)
         {

@@ -606,7 +606,7 @@ implements ContentHandler, OptimizationTypes
 	 */
 	public void endDocument() throws SAXException
 	{
-		if ((xmlTranslationException != null) && (root != null))
+		if ((xmlTranslationException == null) && (root != null))
 			root.postTranslationProcessingHook();
 	}
 
