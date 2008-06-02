@@ -22,7 +22,7 @@ abstract public @xml_inherit class MixedInitiativeOp extends ArrayListState
 	 */
 	@xml_attribute protected boolean	invert;
 	
-	@xml_attribute protected String		action = "";
+	@xml_attribute protected String		action = null;
 	@xml_attribute protected long		recordTime;
 	
 	static protected final short UNKNOWN_OP		= -1024;
