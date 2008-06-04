@@ -6,8 +6,9 @@ package ecologylab.services.distributed.common;
 import ecologylab.net.NetTools;
 
 /**
- * A place to gather host and port assignments in the Interface Ecology Lab. People using our software elsewhere may
- * wish to change these. People in our lab need to talk to each other about changes here.
+ * A place to gather host and port assignments in the Interface Ecology Lab.
+ * People using our software elsewhere may wish to change these. People in our
+ * lab need to talk to each other about changes here.
  * 
  * @author andruid
  */
@@ -18,10 +19,10 @@ public interface ServicesHostsAndPorts
 	// unix.cs.tamu.edu
 
 	/** The CSDLL host. */
-	public static final String	CSDLL_HOST											= "128.194.147.58";		// CSDLL
+	public static final String	CSDLL_HOST											= "128.194.147.58";	// CSDLL
 
 	/** Normal place to look for a logging server; currently localhost. */
-	public static final String	LOGGING_HOST										= "128.194.147.145";	// ecology0.cs.tamu.edu
+	public static final String	LOGGING_HOST										= "128.194.147.145"; // ecology0.cs.tamu.edu
 
 	/** Normal port for handling remote logging. */
 	public static final int		LOGGING_PORT										= 10201;
@@ -40,6 +41,9 @@ public interface ServicesHostsAndPorts
 
 	/** Normal port for Rogue Signals to communicate with sound patches. */
 	public static final int		ROGUE_OSC_SOUND_RECORDER_ACKNOWLEDGE_PORT	= 14450;
+
+	/** Normal port that TTeCLoG uses to listen for VAD signals from its audio patch. */
+	public static final int		ROGUE_OSC_VAD_PATCH								= 14451;
 
 	/** Normal port for Rogue Signals to communicate with physiological sensors. */
 	public static final int		PHYSI_ROGUE_UDP_PORT								= 14445;
