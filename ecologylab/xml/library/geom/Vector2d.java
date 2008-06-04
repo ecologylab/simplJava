@@ -13,231 +13,240 @@ import ecologylab.xml.xml_inherit;
  */
 public @xml_inherit class Vector2d extends ElementState implements Cloneable
 {
-    /**
-     * Adds two vectors together and returns a new Vector2d object representing
-     * the sum.
-     * 
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static Vector2d add(Vector2d v1, Vector2d v2)
-    {
-        return new Vector2d(v1.getX() + v2.getX(), v1.getY() + v2.getY());
-    }
+	/**
+	 * Adds two vectors together and returns a new Vector2d object representing
+	 * the sum.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static Vector2d add(Vector2d v1, Vector2d v2)
+	{
+		return new Vector2d(v1.getX() + v2.getX(), v1.getY() + v2.getY());
+	}
 
-    /**
-     * Multiplies a vector by a scalar value and returns a new Vector2d
-     * representing the result.
-     * 
-     * @param vector
-     * @param scalar
-     * @return
-     */
-    public static Vector2d scalarMultiply(Vector2d vector, double scalar)
-    {
-        return new Vector2d(vector.getX() * scalar, vector.getY() * scalar);
-    }
+	/**
+	 * Multiplies a vector by a scalar value and returns a new Vector2d
+	 * representing the result.
+	 * 
+	 * @param vector
+	 * @param scalar
+	 * @return
+	 */
+	public static Vector2d scalarMultiply(Vector2d vector, double scalar)
+	{
+		return new Vector2d(vector.getX() * scalar, vector.getY() * scalar);
+	}
 
-    /**
-     * Determines the dot product of two vector objects.
-     * 
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static double dot(Vector2d v1, Vector2d v2)
-    {
-        return (v1.getX() * v2.getX()) + (v1.getY() * v2.getY());
-    }
+	/**
+	 * Determines the dot product of two vector objects.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static double dot(Vector2d v1, Vector2d v2)
+	{
+		return (v1.getX() * v2.getX()) + (v1.getY() * v2.getY());
+	}
 
-    /**
-     * Subtracts v2 from v1 and returns a new Vector2d representing the result.
-     * 
-     * @param v1
-     * @param v2
-     * @return
-     */
-    public static Vector2d sub(Vector2d v1, Vector2d v2)
-    {
-        return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
-    }
-    
-    protected @xml_attribute double x;
+	/**
+	 * Subtracts v2 from v1 and returns a new Vector2d representing the result.
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @return
+	 */
+	public static Vector2d sub(Vector2d v1, Vector2d v2)
+	{
+		return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
+	}
 
-    protected @xml_attribute double y;
+	protected @xml_attribute double	x;
 
-    /**
-     * 
-     */
-    public Vector2d()
-    {
-        super();
-        
-        zero();
-    }
+	protected @xml_attribute double	y;
 
-    public Vector2d(double x, double y)
-    {
-        this.x = x;
-        this.y = y;
-    }
+	/**
+	 * 
+	 */
+	public Vector2d()
+	{
+		super();
 
-    public Vector2d(Vector2d otherVect)
-    {
-        x = otherVect.getX();
-        y = otherVect.getY();
-    }
+		zero();
+	}
 
-    public void add(Vector2d v)
-    {
-        this.x += v.getX();
-        this.y += v.getY();
-    }
+	public Vector2d(double x, double y)
+	{
+		this.x = x;
+		this.y = y;
+	}
 
-    public double norm()
-    {
-        return Math.sqrt(x * x + y * y);
-    }
+	public Vector2d(Vector2d otherVect)
+	{
+		x = otherVect.getX();
+		y = otherVect.getY();
+	}
 
-    public void mult(double scalar)
-    {
-        this.x *= scalar;
-        this.y *= scalar;
-    }
+	public void add(Vector2d v)
+	{
+		this.x += v.getX();
+		this.y += v.getY();
+	}
 
-    /**
-     * Rotates this vector around the origin by the specified angle in degrees.
-     * 
-     * @param angle -
-     *            in radians
-     */
-    public void rotate(double angle)
-    {
-        double cos = Math.cos(angle);
-        double sin = Math.sin(angle);
+	public double norm()
+	{
+		return Math.sqrt(x * x + y * y);
+	}
 
-        double x1 = this.x;
-        double y1 = this.y;
+	public void mult(double scalar)
+	{
+		this.x *= scalar;
+		this.y *= scalar;
+	}
 
-        this.x = (x1 * cos) - (y1 * sin);
-        this.y = (y1 * cos) + (x1 * sin);
-    }
+	/**
+	 * Rotates this vector around the origin by the specified angle in degrees.
+	 * 
+	 * @param angle -
+	 *           in radians
+	 */
+	public void rotate(double angle)
+	{
+		double cos = Math.cos(angle);
+		double sin = Math.sin(angle);
 
-    /**
-     * Rotates this vector so that it is aligned to the specified angle in
-     * degrees.
-     * 
-     * @param angle -
-     *            in radians
-     */
-    public void rotateTo(double angle)
-    {
-        // TODO gotta make this more efficient!
-        this.rotate(angle - this.toRadians());
-    }
+		double x1 = this.x;
+		double y1 = this.y;
 
-    public void sub(Vector2d v)
-    {
-        this.x -= v.getX();
-        this.y -= v.getY();
-    }
+		this.x = (x1 * cos) - (y1 * sin);
+		this.y = (y1 * cos) + (x1 * sin);
+	}
 
-    public double toRadians()
-    {
-        return Math.atan2(y, x);
-    }
+	/**
+	 * Rotates this vector so that it is aligned to the specified angle in
+	 * degrees.
+	 * 
+	 * @param angle -
+	 *           in radians
+	 */
+	public void rotateTo(double angle)
+	{
+		// TODO gotta make this more efficient!
+		this.rotate(angle - this.toRadians());
+	}
 
-    public Vector2d unitVector()
-    {
-        double mag = this.norm();
+	public void sub(Vector2d v)
+	{
+		this.x -= v.getX();
+		this.y -= v.getY();
+	}
 
-        return new Vector2d(this.x / mag, this.y / mag);
-    }
+	/**
+	 * Converts the vector into a radian angle. If the result would be NaN, returns 0.
+	 * @return
+	 */
+	public double toRadians()
+	{
+		double result = Math.atan2(y, x);
 
-    public void unitize()
-    {
-        double mag = this.norm();
+		if (Double.isNaN(result))
+			result = 0;
 
-        this.setX(this.x / mag);
-        this.setY(this.y / mag);
-    }
+		return result;
+	}
 
-    /**
-     * @see java.lang.Object#clone()
-     */
-    @Override public Vector2d clone()
-    {
-        return new Vector2d(this);
-    }
+	public Vector2d unitVector()
+	{
+		double mag = this.norm();
 
-    public void set(Vector2d pos)
-    {
-        this.setX(pos.getX());
-        this.setY(pos.getY());
-    }
+		return new Vector2d(this.x / mag, this.y / mag);
+	}
 
-    public Point2D toPoint()
-    {
-        return new Point2D.Double(x, y);
-    }
+	public void unitize()
+	{
+		double mag = this.norm();
 
-    /**
-     * @see ecologylab.generic.Debug#toString()
-     */
-    @Override public String toString()
-    {
-        return "(" + x + ", " + y + ")";
-    }
+		this.setX(this.x / mag);
+		this.setY(this.y / mag);
+	}
 
-    /**
-     * Adjusts the magnitude of this vector to match mag.
-     * 
-     * @param mag
-     */
-    public void setNorm(double mag)
-    {
-        this.unitize();
-        this.mult(mag);
-    }
+	/**
+	 * @see java.lang.Object#clone()
+	 */
+	@Override public Vector2d clone()
+	{
+		return new Vector2d(this);
+	}
 
-    public void zero()
-    {
-        x = 0;
-        y = 0;
-    }
-    
-    /**
-     * @param x
-     *            the x to set
-     */
-    public void setX(double x)
-    {
-        this.x = x;
-    }
+	public void set(Vector2d pos)
+	{
+		this.setX(pos.getX());
+		this.setY(pos.getY());
+	}
 
-    /**
-     * @param y
-     *            the y to set
-     */
-    public void setY(double y)
-    {
-        this.y = y;
-    }
-    
-    /**
-     * @return the x
-     */
-    public double getX()
-    {
-        return x;
-    }
+	public Point2D toPoint()
+	{
+		return new Point2D.Double(x, y);
+	}
 
-    /**
-     * @return the y
-     */
-    public double getY()
-    {
-        return y;
-    }
+	/**
+	 * @see ecologylab.generic.Debug#toString()
+	 */
+	@Override public String toString()
+	{
+		return "(" + x + ", " + y + ")";
+	}
+
+	/**
+	 * Adjusts the magnitude of this vector to match mag.
+	 * 
+	 * @param mag
+	 */
+	public void setNorm(double mag)
+	{
+		this.unitize();
+		this.mult(mag);
+	}
+
+	public void zero()
+	{
+		x = 0;
+		y = 0;
+	}
+
+	/**
+	 * @param x
+	 *           the x to set
+	 */
+	public void setX(double x)
+	{
+		this.x = x;
+	}
+
+	/**
+	 * @param y
+	 *           the y to set
+	 */
+	public void setY(double y)
+	{
+		this.y = y;
+	}
+
+	/**
+	 * @return the x
+	 */
+	public double getX()
+	{
+		return x;
+	}
+
+	/**
+	 * @return the y
+	 */
+	public double getY()
+	{
+		return y;
+	}
 }
