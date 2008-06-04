@@ -15,6 +15,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -43,23 +44,25 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	static NIOServerIOThread getInstance(int portNumber,
 			InetAddress[] hostAddresses, NIOServerProcessor sAP,
 			TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
-			int idleSocketTimeout, int maxMessageLength) throws IOException, BindException
+			int idleSocketTimeout, int maxMessageLength) throws IOException,
+			BindException
 	{
 		return new NIOServerIOThread(portNumber, hostAddresses, sAP,
-				requestTranslationSpace, objectRegistry, idleSocketTimeout, maxMessageLength);
+				requestTranslationSpace, objectRegistry, idleSocketTimeout,
+				maxMessageLength);
 	}
 
-	protected ServerSocket[]												incomingConnectionSockets;
+	private final ArrayList<ServerSocket>								incomingConnectionSockets	= new ArrayList<ServerSocket>();
 
 	private NIOServerProcessor												sAP;
 
 	private int																	idleSocketTimeout;
 
-	private Map<SelectionKey, Long>										keyActivityTimes	= new HashMap<SelectionKey, Long>();
+	private Map<SelectionKey, Long>										keyActivityTimes				= new HashMap<SelectionKey, Long>();
 
-	private Map<String, ObjectOrHashMap<String, SelectionKey>>	ipToKeyOrKeys		= new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
+	private Map<String, ObjectOrHashMap<String, SelectionKey>>	ipToKeyOrKeys					= new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
 
-	private boolean															acceptEnabled		= false;
+	private boolean															acceptEnabled					= false;
 
 	private MessageDigest													digester;
 
@@ -67,12 +70,15 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 	private InetAddress[]													hostAddresses;
 
+	private final ArrayList<InetAddress>								boundAddresses					= new ArrayList<InetAddress>();
+
 	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses,
 			NIOServerProcessor sAP, TranslationScope requestTranslationSpace,
-			Scope<?> objectRegistry, int idleSocketTimeout, int maxMessageLength) throws IOException,
-			BindException
+			Scope<?> objectRegistry, int idleSocketTimeout, int maxMessageLength)
+			throws IOException, BindException
 	{
-		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry, maxMessageLength);
+		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry,
+				maxMessageLength);
 
 		this.construct(hostAddresses, sAP, idleSocketTimeout);
 	}
@@ -84,8 +90,6 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		this.hostAddresses = newHostAddresses;
 
 		this.sAP = newFrontend;
-
-		incomingConnectionSockets = new ServerSocket[newHostAddresses.length];
 
 		this.registerAcceptWithSelector();
 
@@ -159,8 +163,10 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * Accept an incoming connection from a client to a server, if the server has connections available and the client is not bad. 
-	 * Generate a session identifier and attach it to the newly-connected client's SelectionKey, so that a client session manager can be associated with the connection.
+	 * Accept an incoming connection from a client to a server, if the server has
+	 * connections available and the client is not bad. Generate a session
+	 * identifier and attach it to the newly-connected client's SelectionKey, so
+	 * that a client session manager can be associated with the connection.
 	 */
 	@Override protected final void acceptKey(SelectionKey key)
 	{
@@ -356,9 +362,18 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 	}
 
+	/**
+	 * Attempts to bind all of the ports in the hostAddresses array. If a port
+	 * cannot be bound, it is removed from the hostAddresses array.
+	 * 
+	 * @throws IOException
+	 */
 	private void registerAcceptWithSelector() throws IOException
 	{
-		for (int i = 0; i < incomingConnectionSockets.length; i++)
+		boundAddresses.clear();
+		incomingConnectionSockets.clear();
+
+		for (int i = 0; i < hostAddresses.length; i++)
 		{
 			debug("setting up accept on " + hostAddresses[i]);
 
@@ -368,16 +383,28 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 			// disable blocking
 			channel.configureBlocking(false);
 
-			// get the socket associated with the channel
-			incomingConnectionSockets[i] = channel.socket();
+			try
+			{
+				ServerSocket newSocket = channel.socket();
+				// get the socket associated with the channel
 
-			// bind to the port for this server
-			incomingConnectionSockets[i].bind(new InetSocketAddress(
-					hostAddresses[i], portNumber));
-			incomingConnectionSockets[i].setReuseAddress(true);
+				// bind to the port for this server
+				newSocket.bind(new InetSocketAddress(hostAddresses[i], portNumber));
+				newSocket.setReuseAddress(true);
 
-			channel.register(this.selector, SelectionKey.OP_ACCEPT);
+				channel.register(this.selector, SelectionKey.OP_ACCEPT);
+
+				this.incomingConnectionSockets.add(newSocket);
+				this.boundAddresses.add(hostAddresses[i]);
+			}
+			catch (BindException e)
+			{
+				debug("Unable to bind " + hostAddresses[i]);
+				debug(e.getMessage());
+				e.printStackTrace();
+			}
 		}
+
 		// register the channel with the selector to look for incoming
 		// accept requests
 		acceptEnabled = true;
@@ -385,8 +412,8 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 	/**
 	 * Generates a unique identifier String for the given socket, based upon
-	 * actual ports used and ip addresses with a hash.
-	 * Called by the server at accept() time, and used to identify the connection thereafter.
+	 * actual ports used and ip addresses with a hash. Called by the server at
+	 * accept() time, and used to identify the connection thereafter.
 	 * 
 	 * @param incomingSocket
 	 * @return
@@ -397,12 +424,12 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		digester.reset();
 
 		// we make a string consisting of the following:
-		// time of initial connection (when this method is called), server ip,
+		// time of initial connection (when this method is called),
 		// client ip, client actual port
 		digester.update(String.valueOf(System.currentTimeMillis()).getBytes());
 		// digester.update(String.valueOf(System.nanoTime()).getBytes());
-		digester.update(this.incomingConnectionSockets[0].getInetAddress()
-				.toString().getBytes());
+		// digester.update(this.incomingConnectionSockets[0].getInetAddress()
+		// .toString().getBytes());
 		digester.update(incomingSocket.getInetAddress().toString().getBytes());
 		digester.update(String.valueOf(incomingSocket.getPort()).getBytes());
 
@@ -433,8 +460,9 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 	}
 
-	@Override protected void processReadData(Object sessionToken, SelectionKey sk,
-			ByteBuffer bytes, int bytesRead) throws BadClientException
+	@Override protected void processReadData(Object sessionToken,
+			SelectionKey sk, ByteBuffer bytes, int bytesRead)
+			throws BadClientException
 	{
 		this.sAP.processRead(sessionToken, this, sk, bytes, bytesRead);
 		this.keyActivityTimes.put(sk, System.currentTimeMillis());
@@ -478,8 +506,17 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	{
 	}
 
-	@Override protected boolean handleInvalidate(SelectionKey key, boolean forcePermanent)
+	@Override protected boolean handleInvalidate(SelectionKey key,
+			boolean forcePermanent)
 	{
 		return this.sAP.invalidate(key.attachment(), forcePermanent);
+	}
+
+	/**
+	 * @return the boundAddresses
+	 */
+	public ArrayList<InetAddress> getBoundAddresses()
+	{
+		return boundAddresses;
 	}
 }

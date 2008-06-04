@@ -202,7 +202,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 				+ this.getBackend().getPortNumber());
 		this.debug("using the following interfaces: ");
 
-		for (InetAddress i : this.getBackend().getHostAddresses())
+		for (InetAddress i : this.getBackend().getBoundAddresses())
 		{
 			this.debug("                                " + i.toString());
 		}
