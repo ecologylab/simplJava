@@ -295,25 +295,33 @@ public class NIOClient extends NIONetworking implements Runnable,
 	{
 		long uid = this.generateUid();
 
-		// fill requestBuffer
-		request.translateToXML(requestBuffer);
+		PreppedRequest pReq = null;
 
-		int reqLength;
-		if ((reqLength = requestBuffer.length()) > this.maxMessageLengthChars)
+		synchronized (requestBuffer)
 		{
+			// fill requestBuffer
+			request.translateToXML(requestBuffer);
+
+			int reqLength;
+			if ((reqLength = requestBuffer.length()) > this.maxMessageLengthChars)
+			{
+				requestBuffer.setLength(0);
+				throw new MessageTooLargeException(this.maxMessageLengthChars,
+						reqLength);
+			}
+
+			// drain requestBuffer and fill a prepped request
+			pReq = this.pRequestPool.acquire();
+			pReq.setRequest(requestBuffer);
+			pReq.setUid(uid);
+			pReq.setDisposable(request.isDisposable());
+
+			// clear requestBuffer
 			requestBuffer.setLength(0);
-			throw new MessageTooLargeException(this.maxMessageLengthChars,
-					reqLength);
 		}
 
-		PreppedRequest pReq = this.pRequestPool.acquire();
-		pReq.setRequest(requestBuffer);
-		pReq.setUid(uid);
-		pReq.setDisposable(request.isDisposable());
-
-		requestBuffer.setLength(0);
-
-		enqueueRequestForSending(pReq);
+		if (pReq != null)
+			enqueueRequestForSending(pReq);
 
 		return pReq;
 	}
