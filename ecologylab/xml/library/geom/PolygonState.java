@@ -19,10 +19,12 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * ***WARNING!!!***
  * 
- * Performing transformations (such as setFrame()) on the result of shape() will cause this object
- * to become out of synch with its underlying Rectangle2D. DO NOT DO THIS!
+ * Performing transformations (such as setFrame()) on the result of shape() will
+ * cause this object to become out of synch with its underlying Rectangle2D. DO
+ * NOT DO THIS!
  * 
- * If other transformation methods are required, either notify me, or implement them yourself. :D
+ * If other transformation methods are required, either notify me, or implement
+ * them yourself. :D
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
@@ -31,117 +33,114 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 public @xml_inherit class PolygonState extends ElementState implements Shape
 {
-    private Polygon shape = null;
-    
-    @xml_nested private ArrayListState<Point2DDoubleState>     polygonVerticies    = new ArrayListState<Point2DDoubleState>();
+	private Polygon														shape					= null;
 
-    public PolygonState()
-    {
-        super();
-    }
+	@xml_nested private ArrayListState<Point2DDoubleState>	polygonVerticies	= new ArrayListState<Point2DDoubleState>();
 
-    public PolygonState(ArrayListState<Point2DDoubleState> verticies)
-    {
-    	super(); 
-    	
-        definePolygon(verticies);
-    }
+	public PolygonState()
+	{
+		super();
+	}
 
-    public void definePolygon(ArrayListState<Point2DDoubleState> verticies)
-    {
-        polygonVerticies.clear();
-        polygonVerticies.addAll(verticies);
-        
-        shape = new Polygon();
-        for(Point2DDoubleState vertex : polygonVerticies)
-        {
-        	shape.addPoint((int)vertex.x, (int)vertex.y);
-        }
-    }
-    
-    /**
-     * Returns a Polygon object represented by this.
-     */
-    public Polygon shape()
-    {
-    	if(shape == null)
-    	{
-    		shape = new Polygon();
-   			for(Point2DDoubleState vert: polygonVerticies)
-   			{	
-   				shape.addPoint((int)vert.x, (int)vert.y);
-   			}
-    	}
-        return shape;
-    }
-    
-    public int numVerticies()
-    {
-    	return polygonVerticies.size();
-    }
+	public PolygonState(ArrayListState<Point2DDoubleState> verticies)
+	{
+		super();
 
-    public Point2DDoubleState getVertex(int index)
-    {
-    	return polygonVerticies.get(index);
-    }
-    
-    public boolean contains(Point2D p)
-    {
-        return shape().contains(p);
-    }
+		definePolygon(verticies);
+	}
 
-    public boolean contains(Rectangle2D r)
-    {
-        return shape().contains(r);
-    }
+	public void definePolygon(ArrayListState<Point2DDoubleState> verticies)
+	{
+		polygonVerticies.clear();
+		polygonVerticies.addAll(verticies);
 
-    public boolean contains(double x, double y)
-    {
-        return shape().contains(x, y);
-    }
+		shape = null;
+	}
 
-    public boolean contains(double x, double y, double w, double h)
-    {
-        return shape().contains(x, y, w, h);
-    }
+	/**
+	 * Returns a Polygon object represented by this.
+	 */
+	public Polygon shape()
+	{
+		if (shape == null)
+		{
+			shape = new Polygon();
+			for (Point2DDoubleState vert : polygonVerticies)
+			{
+				shape.addPoint((int) vert.x, (int) vert.y);
+			}
+		}
+		return shape;
+	}
 
-    public Rectangle getBounds()
-    {
-        return shape().getBounds();
-    }
+	public int numVerticies()
+	{
+		return polygonVerticies.size();
+	}
 
-    public Rectangle2D getBounds2D()
-    {
-        return shape().getBounds2D();
-    }
+	public Point2DDoubleState getVertex(int index)
+	{
+		return polygonVerticies.get(index);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at)
-    {
-        return shape().getPathIterator(at);
-    }
+	public boolean contains(Point2D p)
+	{
+		return shape().contains(p);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at, double flatness)
-    {
-        return shape().getPathIterator(at, flatness);
-    }
+	public boolean contains(Rectangle2D r)
+	{
+		return shape().contains(r);
+	}
 
-    public boolean intersects(Rectangle2D r)
-    {
-        return shape().intersects(r);
-    }
+	public boolean contains(double x, double y)
+	{
+		return shape().contains(x, y);
+	}
 
-    public boolean intersects(double x, double y, double w, double h)
-    {
-        return shape().intersects(x, y, w, h);
-    }
-    
-    /**
-     * Returns the list of polygon verticies. Modify it at your own risk.
-     * @return polygonVerticies
-     */
-    public ArrayListState<Point2DDoubleState>  getPolygonVerticies()
-    {
-    	return polygonVerticies;
-    }
-    
+	public boolean contains(double x, double y, double w, double h)
+	{
+		return shape().contains(x, y, w, h);
+	}
+
+	public Rectangle getBounds()
+	{
+		return shape().getBounds();
+	}
+
+	public Rectangle2D getBounds2D()
+	{
+		return shape().getBounds2D();
+	}
+
+	public PathIterator getPathIterator(AffineTransform at)
+	{
+		return shape().getPathIterator(at);
+	}
+
+	public PathIterator getPathIterator(AffineTransform at, double flatness)
+	{
+		return shape().getPathIterator(at, flatness);
+	}
+
+	public boolean intersects(Rectangle2D r)
+	{
+		return shape().intersects(r);
+	}
+
+	public boolean intersects(double x, double y, double w, double h)
+	{
+		return shape().intersects(x, y, w, h);
+	}
+
+	/**
+	 * Returns the list of polygon verticies. Modify it at your own risk.
+	 * 
+	 * @return polygonVerticies
+	 */
+	public ArrayListState<Point2DDoubleState> getPolygonVerticies()
+	{
+		return polygonVerticies;
+	}
+
 }

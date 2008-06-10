@@ -6,12 +6,11 @@ package ecologylab.xml.library.geom;
 import java.awt.geom.Point2D;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class Vector2d extends ElementState implements Cloneable
+public class Vector2d extends ElementState implements Cloneable
 {
 	/**
 	 * Adds two vectors together and returns a new Vector2d object representing
@@ -67,6 +66,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
 	protected @xml_attribute double	y;
 
+	protected Point2D.Double			point	= null;
+
 	/**
 	 * 
 	 */
@@ -74,7 +75,7 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	{
 		super();
 
-		zero();
+		// zero();
 	}
 
 	public Vector2d(double x, double y)
@@ -93,6 +94,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	{
 		this.x += v.getX();
 		this.y += v.getY();
+
+		updatePointIfNotNull();
 	}
 
 	public double norm()
@@ -104,6 +107,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	{
 		this.x *= scalar;
 		this.y *= scalar;
+
+		updatePointIfNotNull();
 	}
 
 	/**
@@ -122,11 +127,13 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
 		this.x = (x1 * cos) - (y1 * sin);
 		this.y = (y1 * cos) + (x1 * sin);
+
+		updatePointIfNotNull();
 	}
 
 	/**
 	 * Rotates this vector so that it is aligned to the specified angle in
-	 * degrees.
+	 * radians.
 	 * 
 	 * @param angle -
 	 *           in radians
@@ -141,10 +148,14 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	{
 		this.x -= v.getX();
 		this.y -= v.getY();
+
+		updatePointIfNotNull();
 	}
 
 	/**
-	 * Converts the vector into a radian angle. If the result would be NaN, returns 0.
+	 * Converts the vector into a radian angle. If the result would be NaN,
+	 * returns 0.
+	 * 
 	 * @return
 	 */
 	public double toRadians()
@@ -168,8 +179,7 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	{
 		double mag = this.norm();
 
-		this.setX(this.x / mag);
-		this.setY(this.y / mag);
+		this.set(this.x / mag, this.y / mag);
 	}
 
 	/**
@@ -182,13 +192,15 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 
 	public void set(Vector2d pos)
 	{
-		this.setX(pos.getX());
-		this.setY(pos.getY());
+		this.set(pos.getX(), pos.getY());
 	}
 
 	public Point2D toPoint()
 	{
-		return new Point2D.Double(x, y);
+		if (this.point == null)
+			point = new Point2D.Double(x, y);
+
+		return point;
 	}
 
 	/**
@@ -216,13 +228,26 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 		y = 0;
 	}
 
-	/**
-	 * @param x
-	 *           the x to set
-	 */
-	public void setX(double x)
+	public void set(double x, double y)
 	{
 		this.x = x;
+		this.y = y;
+
+		updatePointIfNotNull();
+	}
+
+	/**
+	 * @param x
+	 */
+	private void updatePointIfNotNull()
+	{
+		if (this.point != null)
+		{
+			synchronized (point)
+			{
+				point.setLocation(x, y);
+			}
+		}
 	}
 
 	/**
@@ -232,6 +257,8 @@ public @xml_inherit class Vector2d extends ElementState implements Cloneable
 	public void setY(double y)
 	{
 		this.y = y;
+
+		updatePointIfNotNull();
 	}
 
 	/**

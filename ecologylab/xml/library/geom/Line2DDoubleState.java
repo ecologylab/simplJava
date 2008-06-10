@@ -28,129 +28,129 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class Line2DDoubleState extends ElementState implements
-        Shape
+		Shape
 {
-    @xml_attribute protected double x1     = 0;
+	@xml_attribute protected double	x1					= 0;
 
-    @xml_attribute protected double x2     = 0;
+	@xml_attribute protected double	x2					= 0;
 
-    @xml_attribute protected double y1     = 0;
+	@xml_attribute protected double	y1					= 0;
 
-    @xml_attribute protected double y2     = 0;
+	@xml_attribute protected double	y2					= 0;
 
-    private Line2D.Double         line   = null;
+	private Line2D.Double				line				= null;
 
-    private Vector2d              normal = null;
+	private Vector2d						normal			= null;
 
-    public Line2DDoubleState()
-    {
-        super();
-    }
+	public Line2DDoubleState()
+	{
+		super();
+	}
 
-    public Line2DDoubleState(double x1, double y1, double x2, double y2)
-    {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
+	public Line2DDoubleState(double x1, double y1, double x2, double y2)
+	{
+		this.x1 = x1;
+		this.y1 = y1;
+		this.x2 = x2;
+		this.y2 = y2;
 
-        this.computeNormal();
-        
-        line = new Line2D.Double(x1, y1, x2, y2);
-    }
+		this.computeNormal();
 
-    public void setLine(double x1, double y1, double x2, double y2)
-    {
-        this.x1 = x1;
-        this.x2 = x2;
-        this.y1 = y1;
-        this.y2 = y2;
-        
-        this.computeNormal();
-        
-        line.setLine(x1, y1, x2, y2);
-    }
+		line = new Line2D.Double(x1, y1, x2, y2);
+	}
 
-    public boolean contains(Point2D p)
-    {
-        return line.contains(p);
-    }
+	public void setLine(double x1, double y1, double x2, double y2)
+	{
+		this.x1 = x1;
+		this.x2 = x2;
+		this.y1 = y1;
+		this.y2 = y2;
 
-    public boolean contains(Rectangle2D r)
-    {
-        return line.contains(r);
-    }
+		this.computeNormal();
 
-    public boolean contains(double x, double y)
-    {
-        return line.contains(x, y);
-    }
+		line.setLine(x1, y1, x2, y2);
+	}
 
-    public boolean contains(double x, double y, double w, double h)
-    {
-        return line.contains(x, y, w, h);
-    }
+	public boolean contains(Point2D p)
+	{
+		return line.contains(p);
+	}
 
-    public Rectangle getBounds()
-    {
-        return line.getBounds();
-    }
+	public boolean contains(Rectangle2D r)
+	{
+		return line.contains(r);
+	}
 
-    public Rectangle2D getBounds2D()
-    {
-        return line.getBounds2D();
-    }
+	public boolean contains(double x, double y)
+	{
+		return line.contains(x, y);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at)
-    {
-        return line.getPathIterator(at);
-    }
+	public boolean contains(double x, double y, double w, double h)
+	{
+		return line.contains(x, y, w, h);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at, double flatness)
-    {
-        return line.getPathIterator(at, flatness);
-    }
+	public Rectangle getBounds()
+	{
+		return line.getBounds();
+	}
 
-    public boolean intersects(Rectangle2D r)
-    {
-        return line.intersects(r);
-    }
+	public Rectangle2D getBounds2D()
+	{
+		return line.getBounds2D();
+	}
 
-    public boolean intersects(double x, double y, double w, double h)
-    {
-        return line.intersects(x, y, w, h);
-    }
+	public PathIterator getPathIterator(AffineTransform at)
+	{
+		return line.getPathIterator(at);
+	}
 
-    /**
-     * Returns the normal to the plane that runs parallel to the Z-axis and
-     * through this. Computed as if there is a second vector (0, 0, 1) to cross
-     * with this + 0 on the z axis.
-     * 
-     * @return the normal to this.
-     */
-    public Vector2d getNormal()
-    {
-        return normal;
-    }
-    
-    private void computeNormal()
-    {
-        double x = x2 - x1;
-        double y = y2 - y1;
-        double z = 0;
-        
-        double pX = 0;
-        double pY = 0;
-        double pZ = 1;
-        
-        this.normal = new Vector2d(y * pZ - z * pY, z * pX - x * pZ);
-    }
+	public PathIterator getPathIterator(AffineTransform at, double flatness)
+	{
+		return line.getPathIterator(at, flatness);
+	}
 
-    /**
-     * @return the line
-     */
-    public Line2D.Double line()
-    {
-        return line;
-    }
+	public boolean intersects(Rectangle2D r)
+	{
+		return line.intersects(r);
+	}
+
+	public boolean intersects(double x, double y, double w, double h)
+	{
+		return line.intersects(x, y, w, h);
+	}
+
+	/**
+	 * Returns the normal to the plane that runs parallel to the Z-axis and
+	 * through this. Computed as if there is a second vector (0, 0, 1) to cross
+	 * with this + 0 on the z axis.
+	 * 
+	 * @return the normal to this.
+	 */
+	public Vector2d getNormal()
+	{
+		return normal;
+	}
+
+	private void computeNormal()
+	{
+		double x = x2 - x1;
+		double y = y2 - y1;
+		double z = 0;
+
+		double pX = 0;
+		double pY = 0;
+		double pZ = 1;
+
+		this.normal = new Vector2d(y * pZ - z * pY, z * pX - x * pZ);
+	}
+
+	/**
+	 * @return the line
+	 */
+	public Line2D.Double line()
+	{
+		return line;
+	}
 }

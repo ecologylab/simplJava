@@ -43,7 +43,7 @@ public class DoubleType extends ScalarType<Double>
      * @param value
      *            String representation of the instance.
      */
-    public Double getInstance(String value, String[] formatStrings)
+    @Override public Double getInstance(String value, String[] formatStrings)
     {
         return new Double(value);
     }

@@ -42,7 +42,10 @@ public interface ServicesHostsAndPorts
 	/** Normal port for Rogue Signals to communicate with sound patches. */
 	public static final int		ROGUE_OSC_SOUND_RECORDER_ACKNOWLEDGE_PORT	= 14450;
 
-	/** Normal port that TTeCLoG uses to listen for VAD signals from its audio patch. */
+	/**
+	 * Normal port that TTeCLoG uses to listen for VAD signals from its audio
+	 * patch.
+	 */
 	public static final int		ROGUE_OSC_VAD_PATCH								= 14451;
 
 	/** Normal port for Rogue Signals to communicate with physiological sensors. */
