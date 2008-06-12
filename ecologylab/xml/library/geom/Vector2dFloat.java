@@ -5,12 +5,13 @@ package ecologylab.xml.library.geom;
 
 import java.awt.geom.Point2D;
 
-import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class Vector2d extends SpatialVector implements Cloneable
+public @xml_tag("vect2df") class Vector2dFloat extends SpatialVector implements
+		Cloneable
 {
 	/**
 	 * Adds two vectors together and returns a new Vector2d object representing
@@ -20,9 +21,9 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param v2
 	 * @return
 	 */
-	public static Vector2d add(Vector2d v1, Vector2d v2)
+	public static Vector2dFloat add(Vector2dFloat v1, Vector2dFloat v2)
 	{
-		return new Vector2d(v1.getX() + v2.getX(), v1.getY() + v2.getY());
+		return new Vector2dFloat(v1.x + v2.x, v1.y + v2.y);
 	}
 
 	/**
@@ -33,9 +34,9 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param scalar
 	 * @return
 	 */
-	public static Vector2d scalarMultiply(Vector2d vector, double scalar)
+	public static Vector2dFloat scalarMultiply(Vector2dFloat vector, float scalar)
 	{
-		return new Vector2d(vector.getX() * scalar, vector.getY() * scalar);
+		return new Vector2dFloat(vector.x * scalar, vector.y * scalar);
 	}
 
 	/**
@@ -45,9 +46,9 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param v2
 	 * @return
 	 */
-	public static double dot(Vector2d v1, Vector2d v2)
+	public static float dot(Vector2dFloat v1, Vector2dFloat v2)
 	{
-		return (v1.getX() * v2.getX()) + (v1.getY() * v2.getY());
+		return (v1.x * v2.x) + (v1.y * v2.y);
 	}
 
 	/**
@@ -57,40 +58,38 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param v2
 	 * @return
 	 */
-	public static Vector2d sub(SpatialVector v1, SpatialVector v2)
+	public static Vector2dFloat sub(Vector2dFloat v1, Vector2dFloat v2)
 	{
-		return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
+		return new Vector2dFloat(v1.x - v2.x, v1.y - v2.y);
 	}
 
-	protected @xml_attribute double	x;
+	protected @xml_attribute float	x;
 
-	protected @xml_attribute double	y;
+	protected @xml_attribute float	y;
 
-	protected Point2D.Double			point	= null;
+	protected Point2D.Float				point	= null;
 
 	/**
 	 * 
 	 */
-	public Vector2d()
+	public Vector2dFloat()
 	{
 		super();
-
-		// zero();
 	}
 
-	public Vector2d(double x, double y)
+	public Vector2dFloat(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
 	}
 
-	public Vector2d(Vector2d otherVect)
+	public Vector2dFloat(Vector2dFloat otherVect)
 	{
-		x = otherVect.getX();
-		y = otherVect.getY();
+		x = otherVect.x;
+		y = otherVect.y;
 	}
 
-	public void add(Vector2d v)
+	public void add(Vector2dFloat v)
 	{
 		this.x += v.getX();
 		this.y += v.getY();
@@ -103,7 +102,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 		return Math.sqrt(x * x + y * y);
 	}
 
-	public void mult(double scalar)
+	public void mult(float scalar)
 	{
 		this.x *= scalar;
 		this.y *= scalar;
@@ -122,11 +121,11 @@ public class Vector2d extends SpatialVector implements Cloneable
 		double cos = Math.cos(angle);
 		double sin = Math.sin(angle);
 
-		double x1 = this.x;
-		double y1 = this.y;
+		float x1 = this.x;
+		float y1 = this.y;
 
-		this.x = (x1 * cos) - (y1 * sin);
-		this.y = (y1 * cos) + (x1 * sin);
+		this.x = (float) ((x1 * cos) - (y1 * sin));
+		this.y = (float) ((y1 * cos) + (x1 * sin));
 
 		updatePointIfNotNull();
 	}
@@ -138,13 +137,13 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param angle -
 	 *           in radians
 	 */
-	public void rotateTo(double angle)
+	public void rotateTo(float angle)
 	{
 		// TODO gotta make this more efficient!
 		this.rotate(angle - this.toRadians());
 	}
 
-	public void sub(Vector2d v)
+	public void sub(Vector2dFloat v)
 	{
 		this.x -= v.getX();
 		this.y -= v.getY();
@@ -168,37 +167,37 @@ public class Vector2d extends SpatialVector implements Cloneable
 		return result;
 	}
 
-	public Vector2d unitVector()
+	public Vector2dFloat unitVector()
 	{
 		double mag = this.norm();
 
-		return new Vector2d(this.x / mag, this.y / mag);
+		return new Vector2dFloat((float) (this.x / mag), (float) (this.y / mag));
 	}
 
 	public void unitize()
 	{
 		double mag = this.norm();
 
-		this.set(this.x / mag, this.y / mag);
+		this.set((float) (this.x / mag), (float) (this.y / mag));
 	}
 
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	@Override public Vector2d clone()
+	@Override public Vector2dFloat clone()
 	{
-		return new Vector2d(this);
+		return new Vector2dFloat(this);
 	}
 
-	public void set(Vector2d pos)
+	public void set(Vector2dFloat pos)
 	{
-		this.set(pos.getX(), pos.getY());
+		this.set(pos.x, pos.y);
 	}
 
 	public Point2D toPoint()
 	{
 		if (this.point == null)
-			point = new Point2D.Double(x, y);
+			point = new Point2D.Float(x, y);
 
 		return point;
 	}
@@ -216,7 +215,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * 
 	 * @param mag
 	 */
-	public void setNorm(double mag)
+	public void setNorm(float mag)
 	{
 		this.unitize();
 		this.mult(mag);
@@ -228,7 +227,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 		y = 0;
 	}
 
-	public void set(double x, double y)
+	public void set(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
@@ -254,7 +253,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param y
 	 *           the y to set
 	 */
-	public void setY(double y)
+	public void setY(float y)
 	{
 		this.y = y;
 

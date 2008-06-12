@@ -5,6 +5,11 @@ package ecologylab.xml.types.scalar;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+
+import ecologylab.generic.text.EfficientDecimalFormat;
+import ecologylab.xml.FieldToXMLOptimizations;
 
 /**
  * Type system entry for double, a built-in primitive.
@@ -13,8 +18,12 @@ import java.lang.reflect.Field;
  */
 public class DoubleType extends ScalarType<Double>
 {
-	public static final double	DEFAULT_VALUE			= 0;
-	public static final String	DEFAULT_VALUE_STRING	= "0.0";
+	public static final double													DEFAULT_VALUE			= 0;
+
+	public static final String													DEFAULT_VALUE_STRING	= "0.0";
+
+	/** The map of format Strings to their associated decimal formats. */
+	private static final HashMap<String, EfficientDecimalFormat>	formatMap				= new HashMap<String, EfficientDecimalFormat>();
 
     /**
      * This constructor should only be called once per session, through a static initializer,
@@ -93,7 +102,7 @@ public class DoubleType extends ScalarType<Double>
      * 
      * @return "0"
      */
-    protected String defaultValueString()
+    @Override protected String defaultValueString()
     {
 	   return DEFAULT_VALUE_STRING;
     }
@@ -121,40 +130,87 @@ public class DoubleType extends ScalarType<Double>
     }
 
     /**
-     * Get the value from the Field, in the context.
-     * Append its value to the buffy.
-     * 
-     * @param buffy
-     * @param field
-     * @param context
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
-     */
-    @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
-    throws IllegalArgumentException, IllegalAccessException
-    {
-        double value = field.getDouble(context);
-           
-		buffy.append(value);
-    }
+		 * Get the value from the Field, in the context. Append its value to the
+		 * buffy.
+		 * 
+		 * @param buffy
+		 * @param field
+		 * @param context
+		 * @param formatStrings an array of 0 or 1 items containing a pattern String that specifies how the value will be emitted. Patterns are specified using {@link java.text.DecimalFormat}.
+		 * @throws IllegalAccessException
+		 * @throws IllegalArgumentException
+		 * @see java.text.DecimalFormat
+		 */
+	@Override public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context)
+			throws IllegalArgumentException, IllegalAccessException
+	{
+		double value = f2xo.getField().getDouble(context);
+		String[] formatStrings = f2xo.getFormat();
+		
+		if (formatStrings != null)
+		{
+			EfficientDecimalFormat decFormat = getFormat(formatStrings[0]);
+			
+			try
+			{
+				decFormat.format(value, buffy);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			buffy.append(value);
+		}
+	}
 
-    /**
-     * Get the value from the Field, in the context.
-     * Append its value to the buffy.
-     * 
-     * @param buffy
-     * @param field
-     * @param context
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
-     */
-    @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
-    throws IllegalArgumentException, IllegalAccessException, IOException
-    {
-        double value = field.getDouble(context);
-           
-		buffy.append(Double.toString(value));
-    }
+	/**
+	 * Get the value from the Field, in the context. Append its value to the buffy.
+	 * 
+	 * @param buffy
+	 * @param field
+	 * @param context
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
+	 */
+	@Override public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		double value = f2xo.getField().getDouble(context);
+		String[] formatStrings = f2xo.getFormat();
+		
+		if (formatStrings != null)
+		{
+			EfficientDecimalFormat decFormat = getFormat(formatStrings[0]);
+			
+			decFormat.format(value, buffy);
+		}
+		else
+		{
+			buffy.append(Double.toString(value));
+		}
+	}
+	
+	private static EfficientDecimalFormat getFormat(String formatString)
+	{
+		EfficientDecimalFormat decFormat = formatMap.get(formatString);
+		
+		if (decFormat == null)
+		{
+			synchronized(formatMap)
+			{
+				decFormat = formatMap.get(formatString);
+				
+				if (decFormat == null)
+				{
+					decFormat = new EfficientDecimalFormat(formatString);
+					formatMap.put(formatString, decFormat);
+				}
+			}
+		}
+		
+		return decFormat;
+	}
 }

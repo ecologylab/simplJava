@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for long, a built-in primitive.
  * 
@@ -108,10 +110,10 @@ public class LongType extends ScalarType<Long>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        long value = field.getLong(context);
+        long value = f2xo.getField().getLong(context);
            
 		buffy.append(value);
     }
@@ -127,10 +129,10 @@ public class LongType extends ScalarType<Long>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        long value = field.getLong(context);
+        long value = f2xo.getField().getLong(context);
            
 		buffy.append(Long.toString(value));
     }

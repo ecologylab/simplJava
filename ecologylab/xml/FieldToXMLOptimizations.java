@@ -4,7 +4,6 @@
 package ecologylab.xml;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
@@ -15,7 +14,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import ecologylab.generic.Debug;
@@ -81,11 +79,6 @@ implements OptimizationTypes
     private boolean			isCDATA;
     
     private boolean			needsEscaping;
-    
-    /**
-     * This slot makes sense only when scalarType != null && scalarType.isFloatingPoint()
-     */
-    private int				floatValuePrecision;
     
     /**
      * This slot makes sense only for attributes and leaf nodes
@@ -523,7 +516,7 @@ implements OptimizationTypes
 	        	buffy.append('=');
 	        	buffy.append('"');
 	        	
-	        	scalarType.appendValue(buffy, field, context, true);
+	        	scalarType.appendValue(buffy, this, context);
 	        	buffy.append('"');
         	}
         }
@@ -672,7 +665,7 @@ implements OptimizationTypes
 	        	appendable.append('=');
 	        	appendable.append('"');
 	        	
-	        	scalarType.appendValue(appendable, field, context, true);
+	        	scalarType.appendValue(appendable, this, context);
 	        	appendable.append('"');
         	}
         }
@@ -706,7 +699,7 @@ implements OptimizationTypes
         		
         		if (isCDATA)
         			buffy.append(START_CDATA);
-        		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+        		scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
         		if (isCDATA)
         			buffy.append(END_CDATA);
         		
@@ -736,11 +729,10 @@ implements OptimizationTypes
         	{
         		// for this field, generate <tag>value</tag>
         		
-        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-        		// (which is an instance variable of this) !!!
         		if (isCDATA)
         			buffy.append(START_CDATA);
-        		scalarType.appendValue(buffy, field, context, !isCDATA); // escape if not CDATA! :-)
+// TODO        			lkkljhkhj
+        		scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
         		if (isCDATA)
         			buffy.append(END_CDATA);
         	}
@@ -829,7 +821,7 @@ implements OptimizationTypes
         		
         		if (isCDATA)
         			appendable.append(START_CDATA);
-        		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
+        		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
         		if (isCDATA)
         			appendable.append(END_CDATA);
         		
@@ -849,12 +841,10 @@ implements OptimizationTypes
         	{
         		// for this field, generate <tag>value</tag>
         		
-        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-        		// (which is an instance variable of this) !!!
-        		
         		if (isCDATA)
         			appendable.append(START_CDATA);
-        		scalarType.appendValue(appendable, field, context, !isCDATA); // escape if not CDATA! :-)
+// TODO        			kljhlkjhkljh
+        		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
         		if (isCDATA)
         			appendable.append(END_CDATA);
          	}
@@ -915,5 +905,24 @@ implements OptimizationTypes
 	public Optimizations getContextOptimizations()
 	{
 		return contextOptimizations;
+	}
+
+	/**
+	 * @return the field
+	 */
+	public Field getField()
+	{
+		if (xmlTextField == null)
+			return field;
+		else
+			return xmlTextField;
+	}
+
+	/**
+	 * @return the format
+	 */
+	public String[] getFormat()
+	{
+		return format;
 	}
 }

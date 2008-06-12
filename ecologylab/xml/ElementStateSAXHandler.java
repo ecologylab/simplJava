@@ -262,10 +262,10 @@ implements ContentHandler, OptimizationTypes
 			parser.parse(inputSource);
 		} catch (IOException e)
 		{
-			xmlTranslationException	= new XMLTranslationException("IOException durng parsing", e);
+			xmlTranslationException	= new XMLTranslationException("IOException during parsing", e);
 		} catch (SAXException e)
 		{
-			xmlTranslationException	= new XMLTranslationException("SAXException durng parsing", e);
+			xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
 		}
 		finally
 		{

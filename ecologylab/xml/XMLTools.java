@@ -444,16 +444,17 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @throws IllegalArgumentException 
     
      */
-    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision) 
-    throws IllegalArgumentException, IllegalAccessException
-    {
-        ScalarType type        = TypeRegistry.getType(field);
-        if (type != null)
-        	generateNameVal(result, type, field, obj, floatingValuePrecision);
-        else
-        	println("WARNING: Can't generate attribute for field " + field.getName() + 
-        			" because there is no ScalarType for it.");
-    }
+// DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
+//    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision) 
+//    throws IllegalArgumentException, IllegalAccessException
+//    {
+//        ScalarType type        = TypeRegistry.getType(field);
+//        if (type != null)
+//        	generateNameVal(result, type, field, obj, floatingValuePrecision);
+//        else
+//        	println("WARNING: Can't generate attribute for field " + field.getName() + 
+//        			" because there is no ScalarType for it.");
+//    }
 	/**
      * This method generates a name value pair corresponding to the primitive Jave field. Returns
      * an empty string if the field contains a default value, which means that there is no need
@@ -470,31 +471,32 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @throws IllegalArgumentException 
     
      */
-    public static void generateNameVal(StringBuilder buffy, ScalarType type, Field field, Object context, int floatingValuePrecision) 
-    throws IllegalArgumentException, IllegalAccessException
-    {
-        if ((context != null) && !type.isDefaultValue(field, context))
-        {
-            //take the field, generate tags and attach name value pair
-        	
-        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-        	
-        	buffy.append(' ');
-        	String attributeName = attrNameFromField(field, false);
-			buffy.append(attributeName);
-        	buffy.append('=');
-        	buffy.append('"');
-        	
-        	type.appendValue(buffy, field, context, true);
-        	buffy.append('"');
-        }
-    }
-    
-	public void generateNameVal(StringBuilder result, Field field, Object obj) 
-	throws IllegalArgumentException, IllegalAccessException
-	{
-	    generateNameVal(result, field, obj, ElementState.FLOATING_PRECISION_OFF);
-    }
+// DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
+//    public static void generateNameVal(StringBuilder buffy, ScalarType type, Field field, Object context, int floatingValuePrecision) 
+//    throws IllegalArgumentException, IllegalAccessException
+//    {
+//        if ((context != null) && !type.isDefaultValue(field, context))
+//        {
+//            //take the field, generate tags and attach name value pair
+//        	
+//        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+//        	
+//        	buffy.append(' ');
+//        	String attributeName = attrNameFromField(field, false);
+//			buffy.append(attributeName);
+//        	buffy.append('=');
+//        	buffy.append('"');
+//        	
+//        	type.appendValue(buffy, field, context, true);
+//        	buffy.append('"');
+//        }
+//    }
+//    DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
+//	public void generateNameVal(StringBuilder result, Field field, Object obj) 
+//	throws IllegalArgumentException, IllegalAccessException
+//	{
+//	    generateNameVal(result, field, obj, ElementState.FLOATING_PRECISION_OFF);
+//    }
 	
 	static final HashMap		classAbbrevNames	= new HashMap();
 	static final HashMap		packageNames		= new HashMap();

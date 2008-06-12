@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for boolean, a built-in primitive.
  * 
@@ -14,7 +16,8 @@ import java.lang.reflect.Field;
 public class BooleanType extends ScalarType<Boolean>
 {
 	public static final boolean	DEFAULT_VALUE			= false;
-	public static final String	DEFAULT_VALUE_STRING	= "false";
+
+	public static final String		DEFAULT_VALUE_STRING	= "false";
 
 /**
  * This constructor should only be called once per session, through
@@ -46,7 +49,7 @@ public class BooleanType extends ScalarType<Boolean>
      * @param value
      *            String representation of the instance.
      */
-    public Boolean getInstance(String value, String[] formatStrings)
+    @Override public Boolean getInstance(String value, String[] formatStrings)
     {
         return new Boolean(getValue(value));
     }
@@ -56,7 +59,7 @@ public class BooleanType extends ScalarType<Boolean>
 	 * 
 	 * @see ecologylab.xml.types.scalar.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
 	 */
-	public boolean setField(Object object, Field field, String value) 
+	@Override public boolean setField(Object object, Field field, String value) 
 	{
 		boolean result	= false;
 		try
@@ -98,10 +101,10 @@ public class BooleanType extends ScalarType<Boolean>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        boolean value = field.getBoolean(context);
+        boolean value = f2xo.getField().getBoolean(context);
            
 		buffy.append(value);
     }
@@ -119,10 +122,10 @@ public class BooleanType extends ScalarType<Boolean>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        boolean value = field.getBoolean(context);
+        boolean value = f2xo.getField().getBoolean(context);
            
 		buffy.append(value ? TRUE : FALSE);
     }

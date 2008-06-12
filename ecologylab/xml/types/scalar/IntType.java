@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for int, a built-in primitive.
  * 
@@ -120,10 +122,10 @@ public class IntType extends ScalarType<Integer>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        int value = field.getInt(context);
+        int value = f2xo.getField().getInt(context);
            
 		buffy.append(value);
     }
@@ -139,10 +141,10 @@ public class IntType extends ScalarType<Integer>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        int value = field.getInt(context);
+        int value = f2xo.getField().getInt(context);
            
 		buffy.append(Integer.toString(value));
     }

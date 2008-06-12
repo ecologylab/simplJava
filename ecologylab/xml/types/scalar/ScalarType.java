@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.XMLTools;
+import ecologylab.xml.FieldToXMLOptimizations;
 
 /**
  * Basic unit of the scalar type system.
@@ -161,7 +161,7 @@ public abstract class ScalarType<T> extends Debug
     /**
      * @return Returns the simple className (unqualified) for this type.
      */
-    public String getClassName()
+    @Override public String getClassName()
     {
         return thatClass.getSimpleName();
     }
@@ -238,12 +238,12 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        Object instance = field.get(context);
+        Object instance = f2xo.getField().get(context);
            
-        appendValue((T) instance, buffy, needsEscaping);
+        appendValue((T) instance, buffy, !f2xo.isCDATA());
     }
     
 /**
@@ -270,12 +270,19 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        Object instance = field.get(context);
+       try
+       {
+        Object instance = f2xo.getField().get(context);
            
-        appendValue((T) instance, buffy, needsEscaping);
+        appendValue((T) instance, buffy,  !f2xo.isCDATA());
+        }
+        catch(IllegalArgumentException e)
+        {
+      	  throw e;
+        }
     }
     
     public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)

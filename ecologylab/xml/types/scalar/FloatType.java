@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for float, a built-in primitive.
  * 
@@ -131,10 +133,10 @@ public class FloatType extends ScalarType<Float>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        float value = field.getFloat(context);
+        float value = f2xo.getField().getFloat(context);
            
 		buffy.append(value);
     }
@@ -150,10 +152,10 @@ public class FloatType extends ScalarType<Float>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
    {
-        float value = field.getFloat(context);
+        float value = f2xo.getField().getFloat(context);
            
 		buffy.append(Float.toString(value));
     }

@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for byte, a built-in primitive.
  * 
@@ -118,10 +120,10 @@ public class ByteType extends ScalarType<Byte>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        byte value = field.getByte(context);
+        byte value = f2xo.getField().getByte(context);
            
 		buffy.append(value);
     }
@@ -137,10 +139,10 @@ public class ByteType extends ScalarType<Byte>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        byte value = field.getByte(context);
+        byte value = f2xo.getField().getByte(context);
            
 		buffy.append(Byte.toString(value));
     }

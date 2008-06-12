@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.FieldToXMLOptimizations;
+
 /**
  * Type system entry for char, a built-in primitive.
  * 
@@ -117,10 +119,10 @@ public class CharType extends ScalarType<Character>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        char value = field.getChar(context);
+        char value = f2xo.getField().getChar(context);
            
 		buffy.append(value);
     }
@@ -136,10 +138,10 @@ public class CharType extends ScalarType<Character>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, Field field, Object context, boolean needsEscaping) 
+    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        char value = field.getChar(context);
+        char value = f2xo.getField().getChar(context);
            
 		buffy.append(Character.toString(value))
 		;
