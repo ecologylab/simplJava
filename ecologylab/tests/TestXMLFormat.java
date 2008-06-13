@@ -13,13 +13,13 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class TestXMLFormat extends ElementState
 {
-	@xml_attribute @xml_format("#") double			decimal0	= 1.0;
+	@xml_attribute @xml_format("#") double			decimal0	= 1.654654654654645321321;
 
-	@xml_attribute @xml_format("#.#") double		decimal1	= -1.0;
+	@xml_attribute @xml_format("#.#") double		decimal1	= -1.654654654654645321321;
 
-	@xml_attribute @xml_format("#.0#") double		decimal2	= -11111.0;
+	@xml_attribute @xml_format("#.0#") double		decimal2	= -11111.654654654654645321321;
 
-	@xml_attribute @xml_format("#.###") double	decimal3	= 0.0;
+	@xml_attribute @xml_format("#.###") double	decimal3	= 0.654654654654645321321;
 
 	public TestXMLFormat()
 	{

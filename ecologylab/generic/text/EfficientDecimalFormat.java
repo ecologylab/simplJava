@@ -29,11 +29,6 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Currency;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import sun.text.resources.LocaleData;
 
 /**
  * <code>EfficientDecimalFormat</code> is like the
@@ -42,6 +37,11 @@ import sun.text.resources.LocaleData;
  * 1.) will format into an Appendable, to improve efficiency
  * 
  * 2.) emits NaN for not-a-number, rather than ? (as described below).
+ * 
+ * 3.) DOES NOT USE LOCALES. Due to an undocumented change between the 1.5 and
+ * 1.6 JREs there is currently no way to support them. Instead, this class (and
+ * ecologylab.generic.text.DecimalFormatSymbols) will simply use the standard
+ * characters for the US).
  * 
  * <code>DecimalFormat</code> is a concrete subclass of
  * <code>NumberFormat</code> that formats decimal numbers. It has a variety of
@@ -388,42 +388,6 @@ import sun.text.resources.LocaleData;
  */
 public class EfficientDecimalFormat extends DecimalFormat
 {
-
-	/**
-	 * Creates a DecimalFormat using the default pattern and symbols for the
-	 * default locale. This is a convenient way to obtain a DecimalFormat when
-	 * internationalization is not the main concern.
-	 * <p>
-	 * To obtain standard formats for a given locale, use the factory methods on
-	 * NumberFormat such as getNumberInstance. These factories will return the
-	 * most appropriate sub-class of NumberFormat for a given locale.
-	 * 
-	 * @see java.text.NumberFormat#getInstance
-	 * @see java.text.NumberFormat#getNumberInstance
-	 * @see java.text.NumberFormat#getCurrencyInstance
-	 * @see java.text.NumberFormat#getPercentInstance
-	 */
-	public EfficientDecimalFormat()
-	{
-		Locale def = Locale.getDefault();
-		// try to get the pattern from the cache
-		String pattern = (String) cachedLocaleData.get(def);
-		if (pattern == null)
-		{ /* cache miss */
-			// Get the pattern for the default locale.
-			ResourceBundle rb = LocaleData.getLocaleElements(def);
-			String[] all = rb.getStringArray("NumberPatterns");
-			pattern = all[0];
-			/* update cache */
-			cachedLocaleData.put(def, pattern);
-		}
-
-		// Always applyPattern after the symbols are set
-		this.symbols = new DecimalFormatSymbols(def);
-		this.symbols.setNaN("NaN");
-		applyPattern(pattern, false);
-	}
-
 	/**
 	 * Creates a DecimalFormat using the given pattern and the symbols for the
 	 * default locale. This is a convenient way to obtain a DecimalFormat when
@@ -447,10 +411,9 @@ public class EfficientDecimalFormat extends DecimalFormat
 	public EfficientDecimalFormat(String pattern)
 	{
 		// Always applyPattern after the symbols are set
-		this.symbols = new DecimalFormatSymbols(Locale.getDefault());
-		this.symbols.setNaN("NaN");
+		this.symbols = new DecimalFormatSymbols();
 
-		applyPattern(pattern, false);
+		applyPattern(pattern);
 	}
 
 	/**
@@ -483,7 +446,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 		this.symbols = (DecimalFormatSymbols) symbols.clone();
 		this.symbols.setNaN("NaN");
 
-		applyPattern(pattern, false);
+		applyPattern(pattern);
 	}
 
 	// Overrides
@@ -2195,37 +2158,6 @@ public class EfficientDecimalFormat extends DecimalFormat
 	}
 
 	/**
-	 * Apply the given pattern to this Format object. A pattern is a short-hand
-	 * specification for the various formatting properties. These properties can
-	 * also be changed individually through the various setter methods.
-	 * <p>
-	 * There is no limit to integer digits are set by this routine, since that is
-	 * the typical end-user desire; use setMaximumInteger if you want to set a
-	 * real value. For negative numbers, use a second pattern, separated by a
-	 * semicolon
-	 * <P>
-	 * Example <code>"#,#00.0#"</code> -> 1,234.56
-	 * <P>
-	 * This means a minimum of 2 integer digits, 1 fraction digit, and a maximum
-	 * of 2 fraction digits.
-	 * <p>
-	 * Example: <code>"#,#00.0#;(#,#00.0#)"</code> for negatives in
-	 * parentheses.
-	 * <p>
-	 * In negative patterns, the minimum and maximum counts are ignored; these
-	 * are presumed to be set in the positive pattern.
-	 * 
-	 * @exception NullPointerException
-	 *               if <code>pattern</code> is null
-	 * @exception IllegalArgumentException
-	 *               if the given pattern is invalid.
-	 */
-	@Override public void applyPattern(String pattern)
-	{
-		applyPattern(pattern, false);
-	}
-
-	/**
 	 * Apply the given pattern to this Format object. The pattern is assumed to
 	 * be in a localized notation. A pattern is a short-hand specification for
 	 * the various formatting properties. These properties can also be changed
@@ -2254,13 +2186,13 @@ public class EfficientDecimalFormat extends DecimalFormat
 	 */
 	@Override public void applyLocalizedPattern(String pattern)
 	{
-		applyPattern(pattern, true);
+		applyPattern(pattern);
 	}
 
 	/**
 	 * Does the real work of applying a pattern.
 	 */
-	private void applyPattern(String pattern, boolean localized)
+	@Override public void applyPattern(String pattern)
 	{
 		char zeroDigit = PATTERN_ZERO_DIGIT;
 		char groupingSeparator = PATTERN_GROUPING_SEPARATOR;
@@ -2271,8 +2203,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 		char separator = PATTERN_SEPARATOR;
 		char exponent = PATTERN_EXPONENT;
 		char minus = PATTERN_MINUS;
-		if (localized)
-		{
+
 			zeroDigit = symbols.getZeroDigit();
 			groupingSeparator = symbols.getGroupingSeparator();
 			decimalSeparator = symbols.getDecimalSeparator();
@@ -2282,7 +2213,7 @@ public class EfficientDecimalFormat extends DecimalFormat
 			separator = symbols.getPatternSeparator();
 			exponent = symbols.getExponentialSymbol();
 			minus = symbols.getMinusSign();
-		}
+
 		boolean gotNegative = false;
 		decimalSeparatorAlwaysShown = false;
 		isCurrencyFormat = false;
@@ -2823,31 +2754,6 @@ public class EfficientDecimalFormat extends DecimalFormat
 	}
 
 	/**
-	 * Sets the currency used by this number format when formatting currency
-	 * values. This does not update the minimum or maximum number of fraction
-	 * digits used by the number format. The currency is set by calling
-	 * {@link DecimalFormatSymbols#setCurrency DecimalFormatSymbols.setCurrency}
-	 * on this number format's symbols.
-	 * 
-	 * @param currency
-	 *           the new currency to be used by this decimal format
-	 * @exception NullPointerException
-	 *               if <code>currency</code> is null
-	 * @since 1.4
-	 */
-	@Override public void setCurrency(Currency currency)
-	{
-		if (currency != symbols.getCurrency())
-		{
-			symbols.setCurrency(currency);
-			if (isCurrencyFormat)
-			{
-				expandAffixes();
-			}
-		}
-	}
-
-	/**
 	 * Adjusts the minimum and maximum fraction digits to values that are
 	 * reasonable for the currency's default fraction digits.
 	 */
@@ -3287,10 +3193,4 @@ public class EfficientDecimalFormat extends DecimalFormat
 
 	// Proclaim JDK 1.1 serial compatibility.
 	static final long							serialVersionUID					= 864413376551465018L;
-
-	/**
-	 * Cache to hold the NumberPattern of a Locale.
-	 */
-	private static Hashtable				cachedLocaleData					= new Hashtable(
-																									3);
 }
