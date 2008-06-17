@@ -5,8 +5,6 @@ package ecologylab.xml.library.geom;
 
 import java.awt.geom.Point2D;
 
-import ecologylab.xml.ElementState;
-
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
@@ -195,7 +193,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 		this.set(pos.getX(), pos.getY());
 	}
 
-	public Point2D toPoint()
+	@Override public Point2D toPoint()
 	{
 		if (this.point == null)
 			point = new Point2D.Double(x, y);

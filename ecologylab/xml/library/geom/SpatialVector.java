@@ -1,5 +1,7 @@
 package ecologylab.xml.library.geom;
 
+import java.awt.geom.Point2D;
+
 import ecologylab.xml.ElementState;
 
 /**
@@ -19,5 +21,5 @@ public abstract class SpatialVector extends ElementState
 
 	public abstract double getX();
 	public abstract double getY();
-
+	public abstract Point2D toPoint();
 }

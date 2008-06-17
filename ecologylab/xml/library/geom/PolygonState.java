@@ -83,6 +83,11 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 		return polygonVerticies.get(index);
 	}
 
+	public boolean contains(SpatialVector v)
+	{
+		return shape().contains(v.getX(), v.getY());
+	}
+	
 	public boolean contains(Point2D p)
 	{
 		return shape().contains(p);

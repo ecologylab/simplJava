@@ -194,7 +194,7 @@ public @xml_tag("vect2df") class Vector2dFloat extends SpatialVector implements
 		this.set(pos.x, pos.y);
 	}
 
-	public Point2D toPoint()
+	@Override public Point2D toPoint()
 	{
 		if (this.point == null)
 			point = new Point2D.Float(x, y);
