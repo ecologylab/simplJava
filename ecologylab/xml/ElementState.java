@@ -79,7 +79,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	/**
 	 * Link for a DOM tree.
 	 */
-	ElementState				parent;
+	transient ElementState				parent;
 /**
  * Enables storage of a single text node child.
  * This facility is meager and rarely used, since
@@ -88,20 +88,24 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
  * We might want to implement the ability to store multiple text nodes
  * here some time in the future.
  */	
-	private StringBuilder		textNodeBuffy;
+	/**
+	 * The following 'transient' markers are necessary to keep terracotta from sharing these fields.
+	 * TODO Find a better way to do this!
+	 */
+	transient private StringBuilder		textNodeBuffy;
 	
 	/**
 	 * Just-in time look-up tables to make translation be efficient.
 	 * Allocated on a per class basis.
 	 */
-	Optimizations				optimizations;
+	transient Optimizations				optimizations;
 	
 	/**
 	 * Use for resolving getElementById()
 	 */
-	HashMap<String, ElementState>						elementByIdMap;
+	transient HashMap<String, ElementState>						elementByIdMap;
 	
-	HashMap<String, ElementState>						nestedNameSpaces;
+	transient HashMap<String, ElementState>						nestedNameSpaces;
 
 	
 	public static final int 	UTF16_LE	= 0;
@@ -143,7 +147,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
      * Indicates how many digits after the decimal will be emitted on all floating values (floats
      * and doubles). If set to FLOATING_PRECISION_OFF (the default value), nothing will be done.
      */
-    private short                         floatingPrecision = FLOATING_PRECISION_OFF;
+    transient private short                      floatingPrecision = FLOATING_PRECISION_OFF;
     
     private static boolean				useDOMForTranslateTo;
     
@@ -2058,7 +2062,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	static final int DONT_NEED_WARNING		= 1;
 	static final int NEED_WARNING			= -1;
 	
-	private int considerWarning				= HAVENT_TRIED_ADDING;
+	transient private int considerWarning	= HAVENT_TRIED_ADDING;
 	
 	/**
 	 * Old-school DOM approach.
