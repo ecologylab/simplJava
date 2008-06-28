@@ -25,4 +25,6 @@ public interface SessionObjects
     public static final String           LOGGING                       = "logging";
 
     public static final String           TOP_LEVEL                     = "top_level";
+
+    public static final String           NAMED_STYLES_MAP              = "named_styles_map";
 }
