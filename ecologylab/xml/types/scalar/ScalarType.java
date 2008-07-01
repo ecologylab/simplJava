@@ -413,4 +413,30 @@ public abstract class ScalarType<T> extends Debug
 	{
 		return true;
 	}
+	
+	String					fieldTypeName;
+	
+	public String fieldTypeName()
+	{
+		String result		= fieldTypeName;
+		if (result == null)
+		{
+			result			= this.getClassName();
+			int index		= result.indexOf("Type");
+			if (index != -1)
+			{
+				result		= result.substring(0, index);
+			}
+//			if (isPrimitive())
+//			{
+//				char first	= Character.toLowerCase(result.charAt(0));
+//				if (result.length() > 1)
+//					result	= first + result.substring(1);
+//				else
+//					result	= Character.toString(first);
+//			}
+			fieldTypeName	= result;
+		}
+		return result;
+	}
 }
