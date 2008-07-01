@@ -265,7 +265,7 @@ implements OptimizationTypes
 	 * @param rootClass
 	 * @return
 	 */
-	FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
+	public FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
 	{
 		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
 		if (result == null)
@@ -427,7 +427,7 @@ implements OptimizationTypes
 		return elementFields == null ? 0 : elementFields.size();
 	}
 	
-	ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations()
+	public ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations()
 	{
 		ArrayList<FieldToXMLOptimizations>	result	= attributeFieldOptimizations;
 		if (result == null)
@@ -458,7 +458,7 @@ implements OptimizationTypes
 	
 	final Object EFO_LOCK	= new Object();
 	
-	ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations()
+	public ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations()
 	{
 		ArrayList<FieldToXMLOptimizations>	result	= elementFieldOptimizations;
 		if (result == null)
@@ -1153,7 +1153,7 @@ implements OptimizationTypes
 	/**
 	 * @return the Class Object that this holds Optimizations for.
 	 */
-	Class thatClass()
+	public Class thatClass()
 	{
 		return thatClass;
 	}
