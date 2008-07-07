@@ -186,4 +186,11 @@ extends Debug
 
 	   return head.next();
    }
+/**
+ * @param object the object to set
+ */
+public void setObject(T object)
+{
+	this.object = object;
+}
 }
