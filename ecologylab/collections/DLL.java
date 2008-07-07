@@ -4,6 +4,7 @@
  */
 package ecologylab.collections;
 import java.awt.*;
+import java.util.Iterator;
 
 import ecologylab.generic.Debug;
 
@@ -12,6 +13,7 @@ import ecologylab.generic.Debug;
  */
 public class DLL<T>
 extends Debug
+implements Iterable<T>
 {
    private DLL<T>			prevSib;
    private DLL<T>			nextSib;
@@ -186,11 +188,52 @@ extends Debug
 
 	   return head.next();
    }
-/**
- * @param object the object to set
- */
-public void setObject(T object)
-{
-	this.object = object;
-}
+
+   /**
+   * @param object the object to set
+   */
+   public void setObject(T object)
+   {
+       this.object = object;
+   }
+   
+   /**
+    * Create an {@code Iterator} object for this {@code DLL}. 
+    * 
+    * @return an {@code Iterator} object for iterating over all elements in this {@code DLL}.
+    */
+   public Iterator<T> iterator()
+   {
+	   return new DLLIterator();
+   }
+   
+   /**
+    *  Iterator class for building an iterator object out of the DLL. Uses current 
+    *  DLL structure for iteration, starting at the DLL object that instantiates it.
+    * 
+    */
+   private class DLLIterator implements Iterator<T>
+   {
+	   
+	   DLL<T> currentNode = DLL.this;
+	   
+	   public boolean hasNext()
+	   {
+		   return currentNode != null;
+	   }
+	
+	   public T next()
+	   {
+		   T currentObject 	= currentNode.object;
+		   currentNode 		= currentNode.next();
+		   
+		   return currentObject;
+	   }
+		
+	   public void remove()
+	   {
+		   // optional method that is not needed in our case. 
+	   }
+	   
+   }
 }
