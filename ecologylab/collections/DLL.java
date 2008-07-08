@@ -14,7 +14,7 @@ import ecologylab.generic.Debug;
 public class DLL<T>
 extends Debug
 implements Iterable<T>
-{
+{	
    private DLL<T>			prevSib;
    private DLL<T>			nextSib;
 
@@ -214,12 +214,11 @@ implements Iterable<T>
     */
    private class DLLIterator implements Iterator<T>
    {
-	   
 	   DLL<T> currentNode = DLL.this;
-	   
+	 
 	   public boolean hasNext()
 	   {
-		   return currentNode != null;
+		   return (currentNode != null && currentNode.object != null);
 	   }
 	
 	   public T next()
