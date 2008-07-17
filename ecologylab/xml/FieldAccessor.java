@@ -97,6 +97,12 @@ public class FieldAccessor extends Debug
 				try
 				{
 					ElementState nestedES	= (ElementState) field.get(context);
+					if(nestedES == null)
+					{
+						//The field is not initialized...
+						this.setField(context,field.getType().newInstance());
+						nestedES	= (ElementState) field.get(context);
+					}
 					scalarType.setField(nestedES, xmlTextScalarField, valueString);
 					
 				} catch (IllegalArgumentException e)
@@ -104,6 +110,10 @@ public class FieldAccessor extends Debug
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}catch (InstantiationException e)
 				{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
