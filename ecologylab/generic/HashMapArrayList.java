@@ -15,7 +15,7 @@ import java.util.Map;
  * @author andruid
  *
  */
-public class HashMapArrayList<K, V> extends HashMap<K, V>
+public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 {
 	protected	final	ArrayList<V>	arrayList;
 	
