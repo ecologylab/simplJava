@@ -485,11 +485,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					if (thatCollection != null)
 					{
 						//if the object is a collection, 
-						//basically iterate thru the collection and emit XML from each element
-						final Iterator iterator			= thatCollection.iterator();
-						while (iterator.hasNext())
+						//iterate thru the collection and emit XML from each element
+						for (Object next: thatCollection)
 						{
-							Object next = iterator.next();
 							if (isScalar)	// leaf node!
 							{
 								try
@@ -508,7 +506,10 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
+								//TODO -- changed by andruid 7/21/08 -- not sure if this breaks anything else, but it seems correct,
+								// and it fixes @xml_text output
+//								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
+								FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
 								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementF2Xo, buffy);
 							}
 							else
@@ -746,7 +747,8 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
-								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+//								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+								FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementF2Xo, appendable);
 							}
 							else
