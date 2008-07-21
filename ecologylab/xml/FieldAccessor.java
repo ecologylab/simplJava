@@ -141,7 +141,6 @@ public class FieldAccessor extends Debug
 		}
 	}
 
-	//IncontextMetadata Transition
 	public void setField(ElementState context, Object value)
 	{
 		try
@@ -149,11 +148,9 @@ public class FieldAccessor extends Debug
 			field.set(context, value);
 		} catch (IllegalArgumentException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
