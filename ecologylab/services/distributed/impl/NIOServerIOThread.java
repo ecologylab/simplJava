@@ -404,6 +404,11 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 				e.printStackTrace();
 			}
 		}
+		
+		if (this.boundAddresses.size() == 0)
+		{
+			throw new BindException("Server was unable to bind to any addresses.");
+		}
 
 		// register the channel with the selector to look for incoming
 		// accept requests
