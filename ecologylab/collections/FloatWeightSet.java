@@ -406,8 +406,7 @@ extends Debug implements BasicFloatSet<E>
 	   
 	   //if there are more than one in our set, there is a tie, so choose which to get!
 	   if (numMax > 1)
-		   result			=
-			   (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
+		   result		= (FloatSetElement) maxArrayList.get(MathTools.random(numMax));
 	   //maxArrayListClear();
 	   
 	   return (E) result;
@@ -537,7 +536,7 @@ extends Debug implements BasicFloatSet<E>
     	  	int num = 0;
 			for (int i=1; i<size; i++)
 			{
-				float w = elements[i].getWeight();
+//				float w = elements[i].getWeight();
 //				System.out.println("----- FloatWeightSet e.weight:" + w );   //eunyee
 			    sum		+= elements[i].getWeight();
 			    num++;
@@ -565,9 +564,9 @@ extends Debug implements BasicFloatSet<E>
 		{
 //			if( !elements[i].filteredOut() )
 //			{
-			float w = elements[i].getWeight();
+//			float w = elements[i].getWeight();
 		//	System.out.println("----- FloatWeightSet e.weight:" + w );   //eunyee
-		    sum		+= w;
+		    sum		+= elements[i].getWeight();
 		    num++;
 //			}
 		}

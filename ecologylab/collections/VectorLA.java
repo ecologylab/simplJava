@@ -3,6 +3,12 @@ package ecologylab.collections;
 import java.util.Collection;
 import java.util.Vector;
 
+/**
+ * Linear Access Vector. Extends <code>Vector</code>
+ * 
+ *
+ * @param <E>
+ */
 public class VectorLA<E> extends Vector<E>
 implements LinearAccess<E>
 {
