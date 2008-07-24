@@ -189,6 +189,31 @@ implements MimeType
 	   return null;
     }
    
+   public static boolean isMalformedURL(String webAddr)
+   {
+	   if (webAddr == null)
+	   {
+		   return true;
+	   }
+	   else
+	   {
+		   URL url;
+		   try
+		   {
+			   url = new URL(webAddr);
+			   if (isUndetectedMalformedURL(url))
+				   return true;
+			   new ParsedURL(url);
+		   } catch (MalformedURLException e)
+		   {
+			   //Exception during "new URL" or "new ParsedURL".
+//			   e.printStackTrace();
+			   return true;
+		   }
+		   return false;
+	   }
+   }
+   
    /**
     * Determines a URL is malformed since Java fails to detect this. 
     * @param url
