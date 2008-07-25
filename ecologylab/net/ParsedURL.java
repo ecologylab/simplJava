@@ -259,6 +259,9 @@ implements MimeType
    }
 /**
  * Form a new ParsedURL, relative from a supplied base URL.
+ * Checks to see if the relativePath starts w a protocol spec.
+ * If so, calls getAbsolute().
+ * Otherwise, forms a relative URL using the URL base.
  * @param relativeURLPath
  * @param errorDescriptor
  * @return	New ParsedURL
@@ -283,7 +286,9 @@ implements MimeType
 			   Debug.error(relativeURLPath, NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS + "[" + base + "]." + errorDescriptor);
 		  }
        }      
-      
+       else
+    	   return getAbsolute(relativeURLPath, errorDescriptor);
+
       return result;
    }
    
@@ -1305,7 +1310,7 @@ implements MimeType
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
 // 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
- 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_1);
+ 		    connection.setRequestProperty("user-agent", FIREFOX_2_USER_AGENT);
  		    
  		    // Set the connection and read timeout.
  		    connection.setConnectTimeout(connectionTimeout);
