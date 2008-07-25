@@ -1275,15 +1275,12 @@ implements MimeType
      {
      	File file = file();
      	if (file.isDirectory())
-     		//result				= new FileDirectoryType(file, container, infoCollector);
      		connectionHelper.handleFileDirectory(file);
      	else
      	{
      		String suffix = suffix();
      		if (suffix != null)
      		{
- 				//result			= getInstanceBySuffix(suffix);
- 	    		//if (result != null)
  	    		if (connectionHelper.parseFilesWithSuffix(suffix))
  	    		{
  			      	try
@@ -1326,7 +1323,6 @@ implements MimeType
  		    
  		    String mimeType			= connection.getContentType();
  	
-		    //println("mimeType = '" + mimeType +"'");
 		    // no one uses the encoding header: connection.getContentEncoding();
 		    String unsupportedCharset = NetTools.isCharsetSupported(mimeType);
 			if (unsupportedCharset != null)
