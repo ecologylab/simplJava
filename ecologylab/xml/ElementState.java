@@ -2656,7 +2656,41 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     	}
     	return result;
     }
-    
+    public void propagateInheritedValues(ElementState that)
+    {
+   	 propagateInheritedValues(that, this.getClass());
+    }   
+    /**
+     * If this is annotated with @xml_inherit, then obtain values from an instance of the class
+     * we inherit from, and copy their values into this.
+     * 
+     * @param superInstance			Object to obtain inherited fields from.
+     * @param thisClass
+     */
+    protected void propagateInheritedValues(ElementState superInstance, Class<? extends ElementState> thisClass)
+    {
+   	 if (thisClass.isAnnotationPresent(xml_inherit.class))
+   	 {
+   		 Class<? extends ElementState> superClass		= (Class<? extends ElementState>) super.getClass();
+      	 Optimizations superOptimizations	= Optimizations.lookupRootOptimizations(superClass);
+      	 ArrayList<Field> superFields			= superOptimizations.annotatedFields();
+      	 for (Field thatField: superFields)
+      	 {
+      		 try
+      		 {
+      			 Object value	= thatField.get(superInstance);
+      			 thatField.set(this, value);
+      		 }
+      		 catch (IllegalArgumentException e)
+      		 {
+      		 }
+      		 catch (IllegalAccessException e)
+      		 {
+      		 }
+      	 }
+      	 propagateInheritedValues(superInstance, superClass);
+   	 }
+    }
     /**
      * Lookup an ElementState subclass representing the scope of the nested XML Namespace in this.
      * 

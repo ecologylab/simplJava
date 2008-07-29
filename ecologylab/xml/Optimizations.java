@@ -183,7 +183,7 @@ implements OptimizationTypes
 	 * @param thatClass
 	 * @return
 	 */
-	private static Optimizations lookupRootOptimizations(Class<? extends ElementState> thatClass)
+	static Optimizations lookupRootOptimizations(Class<? extends ElementState> thatClass)
 	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
@@ -692,6 +692,29 @@ implements OptimizationTypes
 			}
 		}
 	}
+	
+	ArrayList<Field>	annotatedFields;
+	
+	ArrayList<Field>	annotatedFields()
+	{
+		ArrayList<Field>	result	= annotatedFields;
+		if (result == null)
+		{
+			Field[] fields		= thatClass.getDeclaredFields();
+			
+			result						= new ArrayList<Field>(fields.length);
+			for (Field thatField : fields)
+			{
+				if (XMLTools.representAsLeafOrNested(thatField) || 
+					 XMLTools.representAsAttribute(thatField) ||
+					 thatField.isAnnotationPresent(ElementState.xml_text.class))
+				{
+					annotatedFields.add(thatField);
+				}
+			}
+		}
+		return result;
+	}
 	/**
 	 * Performs the lazy evaluation to get attribute and element field collections.
 	 * Uses the hip new annotation declaration stylee.
@@ -705,7 +728,7 @@ implements OptimizationTypes
 		
 		for (int i = 0; i < fields.length; i++)
 		{
-			Field thatField	= fields[i];
+			Field thatField			= fields[i];
 			int fieldModifiers		= thatField.getModifiers();
 			
 			// skip static fields, since we're saving instances,
