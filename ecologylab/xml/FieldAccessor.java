@@ -20,7 +20,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public class FieldAccessor extends Debug
 {
-	final 	Field			field;
+	protected final 	Field			field;
 	final	String			tagName;
 
 	ScalarType<?>			scalarType;
@@ -266,5 +266,17 @@ public class FieldAccessor extends Debug
 	{
 		return (Collection) ReflectionTools.getFieldValue(context, field);
 	}
+	
+	
+	public boolean isPseudoScalar() 
+	{
+		return false;
+	}
+
+	public boolean isMixin() 
+	{
+		return false;
+	}
+
 }
 
