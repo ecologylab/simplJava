@@ -5,8 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 
@@ -35,6 +38,7 @@ implements MimeType
 {
 	private static final String NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS = " is not in the format of a web address";
 
+	private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7";
 	/**
 	 * this is the no hash url, that is, the one with # and anything after it stripped out.
 	 */
@@ -1218,6 +1222,11 @@ implements MimeType
     {
     	return connect(connectionAdapter);
     }
+    
+    public PURLConnection connect(String userAgentName)
+    {
+    	return connect(connectionAdapter, userAgentName);
+    }
 
     /**
      * Create a connection, using the standard timeouts of 23 seconds.
@@ -1227,19 +1236,27 @@ implements MimeType
      */
     public PURLConnection connect(ConnectionHelper connectionHelper)
     {
-    	return connect(connectionHelper, CONNECT_TIMEOUT, READ_TIMEOUT);
+    	return connect(connectionHelper, DEFAULT_USER_AGENT, CONNECT_TIMEOUT, READ_TIMEOUT);
+    }
+    
+    public PURLConnection connect(ConnectionHelper connectionHelper, String userAgentString)
+    {
+    	
+    	return (userAgentString != null) ?
+    		connect(connectionHelper, userAgentString, CONNECT_TIMEOUT, READ_TIMEOUT) : connect(connectionHelper);
     }
  
     /**
      * Create a connection.
      * 
      * @param connectionHelper
+     * @param userAgent TODO
      * @param connectionTimeout
      * @param readTimeout
      * @return
      */
     public PURLConnection connect(ConnectionHelper connectionHelper, 
-    								int connectionTimeout, int readTimeout)
+    								String userAgent, int connectionTimeout, int readTimeout)
     {
     	URLConnection connection= null;
     	InputStream inStream	= null;
@@ -1282,8 +1299,8 @@ implements MimeType
  		    // hack so google thinks we're a normal browser
  		    // (otherwise, it wont serve us)
 // 		    connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
- 		    connection.setRequestProperty("user-agent", FIREFOX_2_USER_AGENT);
- 		    
+ 		    connection.setRequestProperty("user-agent", userAgent);
+			
  		    // Set the connection and read timeout.
  		    connection.setConnectTimeout(connectionTimeout);
  		    connection.setReadTimeout(readTimeout);
@@ -1363,19 +1380,6 @@ implements MimeType
      * If true, check for timeout during connect().
      */
     boolean timeout = false;
-    
-    final static String IE5_USER_AGENT	= 
-	      "Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 5.0";
-    
-    final static String FIREFOX_2_USER_AGENT	= 
-    	
-    	"Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7";
-    
-    final static String GOOGLE_BOT_USER_AGENT_0	= "Googlebot/2.1 (+http://www.google.com/bot.html)";
-    
-    final static String GOOGLE_BOT_USER_AGENT_1	= "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
-    
-    final static String GOOGLE_BOT_USER_AGENT_2	= "Googlebot/2.1 (+http://www.googlebot.com/bot.html)";
     
     public boolean getTimeout()
     {
