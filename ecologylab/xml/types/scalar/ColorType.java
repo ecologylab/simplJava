@@ -82,6 +82,6 @@ public class ColorType extends ScalarType<Color>
 			argb		= argb & 0xffffff;
 //		debugA("rgba="+Integer.toHexString(argb)+" alpha="+alpha);
 		result		= Integer.toHexString(argb);
-		return result;
+		return '#' + result;
 	}
 }
