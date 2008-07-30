@@ -20,6 +20,8 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public class FieldAccessor extends Debug
 {
+	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
+	
 	protected final 	Field			field;
 	final	String			tagName;
 
@@ -163,7 +165,7 @@ public class FieldAccessor extends Debug
 	 */
 	public String getValueString(ElementState context)
 	{
-		String	result	= "null";
+		String	result	= NULL;
 		if (context != null)
 		{
 			if (xmlTextScalarField != null)
@@ -278,5 +280,30 @@ public class FieldAccessor extends Debug
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param context	Object that the field is in.
+	 * 
+	 * @return	true if the field is not a scalar or a psuedo-scalar, and it has a non null value.
+	 */
+	public boolean isNonNullReference(ElementState context)
+	{
+		boolean result	= false;
+		try
+		{
+			result = (scalarType == null) && !isPseudoScalar() && (field.get(context) != null);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
 }
 
