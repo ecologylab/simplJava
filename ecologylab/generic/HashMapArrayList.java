@@ -24,7 +24,7 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 	 */
 	public HashMapArrayList()
 	{
-		arrayList	= new ArrayList();
+		arrayList	= new ArrayList<V>();
 	}
 
 	/**
@@ -33,7 +33,7 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 	public HashMapArrayList(int arg0)
 	{
 		super(arg0);
-		arrayList	= new ArrayList(arg0);
+		arrayList	= new ArrayList<V>(arg0);
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 	public HashMapArrayList(Map arg0)
 	{
 		super(arg0);
-		arrayList	= new ArrayList();
+		arrayList	= new ArrayList<V>();
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 	public HashMapArrayList(int arg0, float arg1)
 	{
 		super(arg0, arg1);
-		arrayList	= new ArrayList(arg0);
+		arrayList	= new ArrayList<V>(arg0);
 	}
 
 	@Override public V put(K key, V value)

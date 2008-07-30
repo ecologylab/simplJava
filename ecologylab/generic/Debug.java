@@ -39,9 +39,9 @@ public class Debug
 
     private static boolean                      logToFile        = false;
 
-    private static final HashMap<Class, String> classAbbrevNames = new HashMap<Class, String>();
+    private static final HashMap<Class<?>, String> classAbbrevNames = new HashMap<Class<?>, String>();
 
-    private static final HashMap<Class, String> packageNames     = new HashMap<Class, String>();
+    private static final HashMap<Class<?>, String> packageNames     = new HashMap<Class<?>, String>();
 
     static final int                            FLUSH_FREQUENCY  = 10;
 
@@ -222,7 +222,7 @@ public class Debug
 /**
  * Print a debug message, starting with the abbreviated class name.
  */
-   public static void printlnA(Class c, CharSequence message) 
+   public static void printlnA(Class<?> c, CharSequence message) 
    {
       println(classSimpleName(c)+SEPARATOR + message);
    }
@@ -235,7 +235,7 @@ public class Debug
  * 
  * @return   the abbreviated name of the class - without the package qualifier.
  */
-   public static String classSimpleName(Class thatClass)
+   public static String classSimpleName(Class<?> thatClass)
    {
       String abbrevName	= classAbbrevNames.get(thatClass); 
       if (abbrevName == null)
@@ -252,7 +252,7 @@ public class Debug
 /**
  * @return   the abbreviated name of the class - without the package qualifier.
  */
-   public static String getPackageName(Class thatClass)
+   public static String getPackageName(Class<?> thatClass)
    {
       //System.out.println("thatClass.toString() is " + thatClass.toString());
       String packageName = packageNames.get(thatClass);

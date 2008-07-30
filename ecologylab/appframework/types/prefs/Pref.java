@@ -21,7 +21,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ArrayListState implements Mappable<String>
+public abstract class Pref<T> extends ArrayListState<ElementState> implements Mappable<String>
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
     static final Scope<Pref<?>>   allPrefsMap = new Scope<Pref<?>>();

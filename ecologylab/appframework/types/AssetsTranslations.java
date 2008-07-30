@@ -16,7 +16,7 @@ public class AssetsTranslations extends Debug
 {
 	public static final String	PACKAGE_NAME	= "ecologylab.assets.types";
 	
-	public static final Class	TRANSLATIONS[]	= 
+	public static final Class<?>	TRANSLATIONS[]	= 
 	{
 		AssetsState.class,
 		AssetState.class,

@@ -135,7 +135,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
  * Used for argument marshalling with reflection to access 
  * a set method that takes a String as an argument.
  */
-	protected static Class[] 	MARSHALLING_PARAMS	= {String.class};
+	protected static Class<?>[] 	MARSHALLING_PARAMS	= {String.class};
 
     /**
      * Constant indicating that floating precision cutoff is disabled. If floatingPrecision is set
@@ -524,7 +524,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						Class thatNewClass			= thatElementState.getClass();
+						Class<? extends ElementState> thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedF2Xo = thatNewClass.equals(childField.getType()) ?
 								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);

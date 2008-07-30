@@ -260,16 +260,16 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
      * 
      * @return JComboBox with properties initialized to parameters.
      */
-    protected JComboBox createDropDown(JPanel panel, MetaPref mp)
+    protected<T> JComboBox createDropDown(JPanel panel, MetaPref<T> mp)
     {
-        ArrayListState<Choice<Object>> choices = mp.getChoices();
-        Object defValue = mp.getDefaultValue();
+        ArrayListState<Choice<T>> choices = mp.getChoices();
+        T defValue = mp.getDefaultValue();
         if (choices != null)
         {
             String[] choiceLabels = new String[choices.size()];
             int i = 0;
             int selected = 0;
-            for (Choice choice : choices)
+            for (Choice<T> choice : choices)
             {
                 choiceLabels[i] = choice.getLabel();
                 if (choice.getValue() == defValue)
@@ -607,7 +607,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
                 // this more efficiently.
                 // find the selected one and return it
                 ArrayListState<Choice<T>> choices = mp.getChoices();
-                for (Choice choice : choices)
+                for (Choice<T> choice : choices)
                 {
                     String regName = mp.getID() + choice.getName();
                     JRadioButton choiceButton = (JRadioButton) lookupComponent(

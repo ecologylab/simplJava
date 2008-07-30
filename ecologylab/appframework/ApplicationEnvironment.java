@@ -184,7 +184,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * 									1 - quarter; 2 - almost half; 3; near full; 4 full
 	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, String args[]) throws XMLTranslationException
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName, String args[]) throws XMLTranslationException
 	{
 	   this(baseClass, applicationName, null, args, 0);
 	}
@@ -232,7 +232,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param prefsAssetVersion TODO
 	 * @throws XMLTranslationException 
 	 */
-	public ApplicationEnvironment(Class baseClass, String applicationName, TranslationScope translationSpace,  String args[], float prefsAssetVersion) throws XMLTranslationException
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName, TranslationScope translationSpace,  String args[], float prefsAssetVersion) throws XMLTranslationException
 //			String preferencesFileRelativePath, String graphicsDev, String screenSize) 
 	{
 		this.translationSpace		= translationSpace;
@@ -351,7 +351,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * @param prefsAssetVersion TODO
 	 * @throws XMLTranslationException
 	 */
-	private void processPrefs(Class baseClass, TranslationScope translationSpace, Stack<String> argStack, float prefsAssetVersion) 
+	private void processPrefs(Class<?> baseClass, TranslationScope translationSpace, Stack<String> argStack, float prefsAssetVersion) 
 	throws XMLTranslationException
 	{
 		LaunchType launchType	= LaunchType.ECLIPSE;	// current default
@@ -619,7 +619,7 @@ implements Environment, XMLTranslationExceptionTypes
 	 * 
 	 * @return				File that corresponds to the path of the local codeBase.
 	 */
-	private File deriveLocalFileCodeBase(Class baseClass)
+	private File deriveLocalFileCodeBase(Class<?> baseClass)
 	{
 		// setup codeBase
 		if (baseClass == null)

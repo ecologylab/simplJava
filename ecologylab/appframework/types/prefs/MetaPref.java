@@ -172,7 +172,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      * @param value     Value to find
      * @return          Choice whose value equals the passed in value
      */
-    public Choice getChoiceByValue(String value)
+    public Choice<T> getChoiceByValue(String value)
     {
         if (choiceList == null)
             populateChoiceList();
@@ -208,7 +208,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      * @param index
      * @return Name of choice
      */
-    public Choice getChoiceByIndex(int index)
+    public Choice<T> getChoiceByIndex(int index)
     {
         return choices.get(index);
     }
@@ -219,7 +219,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      * @param choice    Given choice
      * @return          Index of Choice in choices
      */
-    public int getIndexByChoice(Choice choice)
+    public int getIndexByChoice(Choice<T> choice)
     {
         if (choiceList == null)
             populateChoiceList();
@@ -234,7 +234,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public int getIndexByValue(String value)
     {
-        Choice thisChoice = getChoiceByValue(value);
+        Choice<T> thisChoice = getChoiceByValue(value);
         return getIndexByChoice(thisChoice);
     }
     
@@ -244,7 +244,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
     private void populateChoiceList()
     {
         choiceList = new LinkedHashMap<String,Choice<T>>();
-        for (Choice choice : this.choices)
+        for (Choice<T> choice : this.choices)
         {
             choiceList.put(choice.getValue().toString(), choice);
         }
@@ -264,7 +264,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
         println("" + this.getDefaultValue());
         if (choices != null)
         {
-            for (Choice choice : choices)
+            for (Choice<T> choice : choices)
             {
                 println("Choice: " + choice.name + ", " + choice.label);
             }

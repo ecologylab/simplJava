@@ -1056,14 +1056,14 @@ implements WindowListener
      * @param metaPref
      * @param panel
      */
-    private void createChoicesBasedRadio(MetaPref metaPref, JPanel panel)
+    private<T> void createChoicesBasedRadio(MetaPref<T> metaPref, JPanel panel)
     {
-        ArrayListState<Choice<Object>> choices = metaPref.getChoices();
+        ArrayListState<Choice<T>> choices = metaPref.getChoices();
         if (choices != null)
         {
             ButtonGroup buttonGroup = new ButtonGroup();
             int rnum = 0;
-            for (Choice choice : choices)
+            for (Choice<T> choice : choices)
             {
                 final Object currentValue = metaPref.getDefaultValue();
 				boolean isSelected = currentValue.equals(choice.getValue());

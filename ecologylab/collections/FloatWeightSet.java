@@ -361,7 +361,7 @@ extends Debug implements BasicFloatSet<E>
 		   int arrayListSize	= size / 8;
 		   if (arrayListSize > 1024)
 			   arrayListSize	= 1024;
-		   maxArrayList		= new ArrayList(arrayListSize);
+		   maxArrayList		= new ArrayList<E>(arrayListSize);
 	   }
 	   else
 		   maxArrayList.clear();
