@@ -1419,4 +1419,9 @@ implements MimeType
     	url					= null;
     	file				= null;
     }
+    
+    public String host()
+    {
+   	 return (url == null) ? null : url.getHost();
+    }
 }
