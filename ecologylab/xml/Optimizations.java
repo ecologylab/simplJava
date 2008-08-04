@@ -709,6 +709,7 @@ implements OptimizationTypes
 					 XMLTools.representAsAttribute(thatField) ||
 					 thatField.isAnnotationPresent(ElementState.xml_text.class))
 				{
+					thatField.setAccessible(true);
 					annotatedFields.add(thatField);
 				}
 			}
