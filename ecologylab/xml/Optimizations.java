@@ -707,7 +707,9 @@ implements OptimizationTypes
 			{
 				if (XMLTools.representAsLeafOrNested(thatField) || 
 					 XMLTools.representAsAttribute(thatField) ||
-					 thatField.isAnnotationPresent(ElementState.xml_text.class))
+					 thatField.isAnnotationPresent(ElementState.xml_text.class) ||
+					 thatField.isAnnotationPresent(ElementState.xml_collection.class) ||
+					 thatField.isAnnotationPresent(ElementState.xml_map.class))
 				{
 					thatField.setAccessible(true);
 					annotatedFields.add(thatField);
@@ -725,16 +727,16 @@ implements OptimizationTypes
 			ArrayList<Field> attributeFields, ArrayList<Field> elementFields, 
 			boolean transientDeclarationStyle)
 	{
+		//TODO -- use annotated fields instead!
 		Field[] fields		= thatClass.getDeclaredFields();
 		
 		for (int i = 0; i < fields.length; i++)
 		{
 			Field thatField			= fields[i];
-			int fieldModifiers		= thatField.getModifiers();
 			
 			// skip static fields, since we're saving instances,
 			// and inclusion w each instance would be redundant.
-			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
+			if ((thatField.getModifiers() & Modifier.STATIC) == Modifier.STATIC)
 			{
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
