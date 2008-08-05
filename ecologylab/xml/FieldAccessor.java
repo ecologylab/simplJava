@@ -19,6 +19,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @author andruid
  */
 public class FieldAccessor extends Debug
+implements OptimizationTypes
 {
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 	
@@ -80,7 +81,23 @@ public class FieldAccessor extends Debug
 	{
 		return scalarType != null;
 	}
+	public boolean isCollection()
+	{
+		switch (type)
+		{
+		case MAP_ELEMENT:
+		case COLLECTION_ELEMENT:
+		case COLLECTION_SCALAR:
+			return true;
+		default:
+			return false;
+		}
+	}
 	
+	public boolean isNested()
+	{
+		return type == REGULAR_NESTED_ELEMENT;
+	}
 	/**
 	 * In the supplied context object, set the *typed* value of the field,
 	 * using the valueString passed in. 
