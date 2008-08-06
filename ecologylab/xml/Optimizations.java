@@ -712,9 +712,10 @@ implements OptimizationTypes
 					 thatField.isAnnotationPresent(ElementState.xml_map.class))
 				{
 					thatField.setAccessible(true);
-					annotatedFields.add(thatField);
+					result.add(thatField);
 				}
 			}
+			annotatedFields = result;
 		}
 		return result;
 	}
