@@ -1058,4 +1058,13 @@ extends Debug implements BasicFloatSet<E>
    }
    
    public void decrement(E el) {}
+   
+   /**
+    * Method Overriden by {@link cf.model.VisualPool VisualPool} to return true 
+    * @return
+    */
+   public boolean isRunnable()
+   {
+	   return false;
+   }
 }
