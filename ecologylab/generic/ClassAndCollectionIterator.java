@@ -22,13 +22,9 @@ public class ClassAndCollectionIterator<I extends FieldAccessor, O extends Itera
 implements Iterator<O>
 {
   private Iterator<I> iterator;
-
   private Iterator<O> collection;
-  
-  private O     root;
-  private O     currentObject;
-
-  private Iterator<I> currentIterator;
+  private O root;
+  private O currentObject;
 
   public ClassAndCollectionIterator(O firstObject)
   {
@@ -51,7 +47,8 @@ implements Iterator<O>
           collection = (Iterator<O>) firstNext.getField().get(root);
           return nextInCollection();
         }
-        currentObject = (O) firstNext.getField().get(root);
+        O next = (O) firstNext.getField().get(root);
+        currentObject = next;
         return currentObject;
       }
     } catch (IllegalArgumentException e) {
@@ -59,7 +56,7 @@ implements Iterator<O>
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
-      return null;
+    return null;
   }
 
   private O nextInCollection() 
@@ -69,6 +66,7 @@ implements Iterator<O>
       return next();
     } 
     O next = collection.next();
+    currentObject = next;
     return next;
   }
 
