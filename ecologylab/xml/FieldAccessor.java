@@ -322,5 +322,17 @@ implements OptimizationTypes
 		}
 		return result;
 	}
+	
+	public ElementState getAndPerhapsCreateNested(ElementState context)
+	{
+		ElementState result		= getNested(context);
+		
+		if (result == null)
+		{
+			result					= (ElementState) ReflectionTools.getInstance(field.getType());
+			ReflectionTools.setFieldValue(context, field, result);
+		}
+		return result;
+	}
 }
 
