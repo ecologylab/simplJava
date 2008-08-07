@@ -49,7 +49,7 @@ implements Iterator<O>
         }
         O next = (O) firstNext.getField().get(root);
         currentObject = next;
-        return currentObject;
+        return next;
       }
     } catch (IllegalArgumentException e) {
       e.printStackTrace();
