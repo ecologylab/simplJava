@@ -1,6 +1,5 @@
 package ecologylab.generic;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -11,7 +10,7 @@ import ecologylab.xml.FieldAccessor;
  * of such (nested) Collections of things.
  * Provides flat access to all members.
  * 
- * @author andruid
+ * @author jmole, damaraju
  *
  * @param <I>   Class that we iterate over.
  * @param <O>   Class of objects that are applied in the context of what we iterate over.
@@ -22,21 +21,29 @@ public class ClassAndCollectionIterator<I extends FieldAccessor, O extends Itera
 implements Iterator<O>
 {
   private Iterator<I> iterator;
-  private Iterator<O> collection;
+  private Iterator<O> collectionIterator;
   private O root;
   private O currentObject;
 
+  /**
+   * 
+   * @param firstObject - The object whose elements need to be iterated over.
+   */
   public ClassAndCollectionIterator(O firstObject)
   {
     root = firstObject;
     this.iterator  = firstObject.iterator();
   }
 
+  /**
+   * @return The next field in the Object.<br>
+   * If the next object is a non-null collection, it iterates through the objects of that collection 
+   */
   public O next() 
   {
     try
     {
-      if (collection != null)
+      if (collectionIterator != null)
         return nextInCollection();
       
       if (iterator.hasNext())
@@ -44,8 +51,19 @@ implements Iterator<O>
         I firstNext = iterator.next(); 
         if(firstNext.isCollection())
         {
-          collection = (Iterator<O>) firstNext.getField().get(root);
-          return nextInCollection();
+        	Iterable<O> collection = (Iterable<O>)firstNext.getField().get(root);
+        	if(collection != null)
+        	{
+        		collectionIterator = collection.iterator();
+            return nextInCollection();
+        	}
+        	else
+        	{
+        		//Collection is null ?
+        		//Debug.println("next(): Collection is null");
+        		return next();
+        	}
+        		
         }
         O next = (O) firstNext.getField().get(root);
         currentObject = next;
@@ -61,15 +79,19 @@ implements Iterator<O>
 
   private O nextInCollection() 
   {
-    if (!collection.hasNext()) {
-      collection = null;
+    if (!collectionIterator.hasNext()) {
+      collectionIterator = null;
       return next();
     } 
-    O next = collection.next();
+    O next = collectionIterator.next();
     currentObject = next;
     return next;
   }
 
+  /**
+   * 
+   * @return
+   */
   public O currentObject()
   {
     return currentObject;
@@ -82,6 +104,6 @@ implements Iterator<O>
 
   public boolean hasNext()
   {    
-    return iterator.hasNext() || (collection != null && collection.hasNext());
+    return iterator.hasNext() || (collectionIterator != null && collectionIterator.hasNext());
   }
 }
