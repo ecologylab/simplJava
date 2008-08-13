@@ -266,6 +266,11 @@ implements ContentHandler, OptimizationTypes
 		} catch (SAXException e)
 		{
 			xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
+			
+			//print xml
+			StringBuilder builder 	= root.translateToXML();
+			System.out.println("Failed XML:");
+			System.out.println(builder.toString());
 		}
 		finally
 		{
