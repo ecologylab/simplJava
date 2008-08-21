@@ -42,23 +42,6 @@ public class Content extends ElementState
 	}
 
 	/**
-	 * Add cateogry leaf nodes as attribute values into categoryStrings.
-	 * Otherwise, call super() to do regular field setting,
-	 * using reflection
-	 */
-	protected boolean setFieldUsingTypeRegistry(Field field, String fieldValue)
-	{
-		String fieldName	= field.getName();
-		if ("cateogry".equalsIgnoreCase(fieldName))
-		{
-			this.evalCategoryStrings().add(fieldValue);
-			return true;
-		}
-		else
-			return super.setFieldUsingTypeRegistry(field, fieldValue);
-	}
-
-	/**
 	 * Lazy evaluation avoids unnecessary allocations.
 	 * 
 	 * Note: a different accessor is needed for external calls --
