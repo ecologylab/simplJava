@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for char, a built-in primitive.
@@ -45,7 +46,7 @@ public class CharType extends ScalarType<Character>
      * @param value
      *            String representation of the instance.
      */
-    public Character getInstance(String value, String[] formatStrings)
+    public Character getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return getValue(value);
     }

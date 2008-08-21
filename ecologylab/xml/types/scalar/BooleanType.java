@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for boolean, a built-in primitive.
@@ -49,7 +50,7 @@ public class BooleanType extends ScalarType<Boolean>
      * @param value
      *            String representation of the instance.
      */
-    @Override public Boolean getInstance(String value, String[] formatStrings)
+    @Override public Boolean getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Boolean(getValue(value));
     }

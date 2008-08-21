@@ -5,6 +5,8 @@ package ecologylab.xml.types.scalar;
 
 import java.io.IOException;
 
+import ecologylab.xml.ScalarUnmarshallingContext;
+
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
  * 
@@ -28,9 +30,9 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	/**
 	 * Return the value wrapped inside a StringBuilder. A call to avoid!
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
-	@Override public StringBuilder getInstance(String value, String[] formatStrings)
+	@Override public StringBuilder getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		return new StringBuilder(value);
 	}

@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.awt.Color;
 import java.lang.reflect.Field;
 
+import ecologylab.xml.ScalarUnmarshallingContext;
+
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
  * 
@@ -33,9 +35,9 @@ public class ColorType extends ScalarType<Color>
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
-	public Color getInstance(String value, String[] formatStrings)
+	public Color getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 	   if (value.indexOf('#') == 0)
 		  value			= value.substring(1);

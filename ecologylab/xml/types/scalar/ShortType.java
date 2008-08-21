@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for short, a built-in primitive.
@@ -45,7 +46,7 @@ public class ShortType extends ScalarType<Short>
      * @param value
      *            String representation of the instance.
      */
-    public Short getInstance(String value, String[] formatStrings)
+    public Short getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Short(value);
     }

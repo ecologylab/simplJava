@@ -9,6 +9,7 @@ import java.net.URLDecoder;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.net.ParsedURL;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -36,9 +37,9 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	 * 
 	 * @param value 	String to marshall into a typed instance.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
-	public ParsedURL getInstance(String value, String[] formatStrings)
+	public ParsedURL getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 	   File file	= null;
 	   if (value.startsWith("file://"))
@@ -53,14 +54,22 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		   {
 			   e.printStackTrace();
 		   }
-		   file		= ecologylab.io.Files.newFile(value);
+		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
+		   file					= (fileContext == null) ? new File(value) : new File(fileContext, value);
 	   }
 	   else if (value.indexOf(':') == 1)
 	   {
 		   file		= ecologylab.io.Files.newFile(value);
 	   }
-	   return (file != null) ? new ParsedURL(file)
-		   : ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
+	   if (file != null)
+	   {
+	   	return new ParsedURL(file);
+	   }
+	   else
+	   {
+	   	ParsedURL purlContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.purlContext();
+	   	return (purlContext != null) ? purlContext.getRelative(value) : ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
+	   }
 	}
 	
 	public static final String URL_DELIMS = "/&?";

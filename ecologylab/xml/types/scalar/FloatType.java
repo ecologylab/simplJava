@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for float, a built-in primitive.
@@ -46,7 +47,7 @@ public class FloatType extends ScalarType<Float>
      * @param value
      *            String representation of the instance.
      */
-    public Float getInstance(String value, String[] formatStrings)
+    public Float getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Float(getValue(value));
     }

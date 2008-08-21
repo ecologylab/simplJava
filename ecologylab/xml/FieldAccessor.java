@@ -107,6 +107,7 @@ implements OptimizationTypes
 	 * 
 	 * @param valueString		The value to set, which this method will use with the ScalarType, to create the value that will be set.
 	 */
+	//FIXME -- pass in ScalarUnmarshallingContext, and use it!
 	public void set(ElementState context, String valueString)
 	{
 		if ((valueString != null) && (context != null))

@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Basic unit of the scalar type system.
@@ -56,9 +57,10 @@ public abstract class ScalarType<T> extends Debug
      * 
      * @param value
      *            String representation of the instance.
-     * @param formatStrings Array of formatting values.
+    * @param formatStrings Array of formatting values.
+    * @param scalarUnmarshallingContext TODO
      */
-    abstract public T getInstance(String value, String[] formatStrings);
+    abstract public T getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext);
     
     /**
      * Construct an instance, using the subclass of this for marshalling, with null for the format Strings.
@@ -68,7 +70,7 @@ public abstract class ScalarType<T> extends Debug
      */
     public T getInstance(String value)
     {
-    	return getInstance(value, null);
+    	return getInstance(value, null, null);
     }
 
     /**
@@ -82,18 +84,18 @@ public abstract class ScalarType<T> extends Debug
      * 
      * @param context
      *            The object whose field should be modified.
-     * @param field
+    * @param field
      *            The field to be set.
-     * @param valueString
+    * @param valueString
      *            String representation of the value to set the field to. This Type will convert the
      *            value to the appropriate type, using getInstance(String) for reference types, and
      *            type specific getValue(String) methods for primitive types.
-     * 
+    * @param scalarUnmarshallingContext TODO
      * @return true if the field is set properly, or if the parameter value that is passed in is
      *         null. false if the field cannot be accessed, or if value cannot be converted to the
      *         appropriate type.
      */
-    public boolean setField(Object context, Field field, String valueString, String[] format)
+    public boolean setField(Object context, Field field, String valueString, String[] format, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         if (valueString == null)
             return true;
@@ -103,7 +105,7 @@ public abstract class ScalarType<T> extends Debug
 
         try
         {
-            referenceObject = getInstance(valueString, format);
+            referenceObject = getInstance(valueString, format, scalarUnmarshallingContext);
             if (referenceObject != null)
             {
                 field.set(context, referenceObject);
@@ -143,7 +145,7 @@ public abstract class ScalarType<T> extends Debug
      */
     public boolean setField(Object object, Field field, String value)
     {
-    	return setField(object, field, value, null);
+    	return setField(object, field, value, null, null);
     }
     
 	/**

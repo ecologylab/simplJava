@@ -6,6 +6,8 @@ package ecologylab.xml.types.scalar;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ecologylab.xml.ScalarUnmarshallingContext;
+
 /**
  * Type system entry for {@link java.net.URL URL}.
  * This should almost never be used.
@@ -23,9 +25,9 @@ public class URLType extends ReferenceType<URL>
 	/**
 	 * @param value is interpreted as an absolute internet address.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
-	public URL getInstance(String value, String[] formatStrings)
+	public URL getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 	   URL result	= null;
 	   try

@@ -39,7 +39,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class ElementStateSAXHandler 
 extends Debug 
-implements ContentHandler, OptimizationTypes
+implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 {
 	final TranslationScope	translationSpace;
 	
@@ -62,6 +62,10 @@ implements ContentHandler, OptimizationTypes
 	ArrayList<NodeToJavaOptimizations>	n2joStack	= new ArrayList<NodeToJavaOptimizations>();
 	
 	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
+	
+	ParsedURL							purlContext;
+	
+	File									fileContext;
 	
 	/**
 	 * 
@@ -188,9 +192,12 @@ implements ContentHandler, OptimizationTypes
 		if (purl.isFile())
 			return parse(purl.file());
 		
+		this.purlContext						= purl;
+		
 		PURLConnection purlConnection		= purl.connect(connectionAdapter);
-		ElementState result = parse(purlConnection.inputStream());
+		ElementState result 					= parse(purlConnection.inputStream());
 		purlConnection.recycle();
+		this.purlContext						= null;
 		return result;
 	}	
 	/**
@@ -210,23 +217,20 @@ implements ContentHandler, OptimizationTypes
 	{
 		try
 		{
-//			FileReader fileReader			= new FileReader(file);
 			FileInputStream fileInputStream			= new FileInputStream(file);
-			BufferedInputStream bufferedStream	= new BufferedInputStream(fileInputStream);
-			ElementState elementState 		= parse(bufferedStream);
+			BufferedInputStream bufferedStream		= new BufferedInputStream(fileInputStream);
+			this.fileContext								= file;
+			ElementState elementState 					= parse(bufferedStream);
+			this.fileContext								= null;
 			bufferedStream.close();
 			return elementState;
-//			return parse(fileInputStream);
-//			BufferedReader bufferedReader	= new BufferedReader(fileReader);
-//			BufferedReader bufferedReader	= new BufferedReader(fileReader);
-//			return parse(bufferedReader);
-//			return parse(fileReader);
-			
 		} catch (FileNotFoundException e)
 		{
+			this.fileContext								= null;
 			throw new XMLTranslationException("Can't open file " + file.getAbsolutePath(), e);
 		} catch (IOException e)
 		{
+			this.fileContext								= null;
 			throw new XMLTranslationException("Can't close file " + file.getAbsolutePath(), e);
 		}		
 	}	
@@ -319,7 +323,7 @@ implements ContentHandler, OptimizationTypes
 					{
 						root.setupRoot();
 						setRoot(root);
-						root.translateAttributes(translationSpace, attributes);
+						root.translateAttributes(translationSpace, attributes, this);
 						activeN2JO				= NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS;
 					}
 					else
@@ -422,7 +426,7 @@ implements ContentHandler, OptimizationTypes
 			if (childES != null)
 			{
 				// fill in its attributes
-				childES.translateAttributes(translationSpace, attributes);
+				childES.translateAttributes(translationSpace, attributes, this);
 				this.currentElementState		= childES;	// childES.parent = old currentElementState
 				this.currentN2JO					= activeN2JO;
 			}
@@ -525,11 +529,11 @@ implements ContentHandler, OptimizationTypes
 					//TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
 					String value	= new String(currentTextValue.substring(0, length));
-					currentN2JO.setFieldToScalar(currentES, value);
+					currentN2JO.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
 					value			= new String(currentTextValue.substring(0, length));
-					currentN2JO.addLeafNodeToCollection(currentES, value);
+					currentN2JO.addLeafNodeToCollection(currentES, value, this);
 					break;
 				case ROOT:
 				case REGULAR_NESTED_ELEMENT:
@@ -540,7 +544,7 @@ implements ContentHandler, OptimizationTypes
 					if (scalarTextChildN2jo != null)
 					{
 						value		= new String(currentTextValue.substring(0, length));
-						scalarTextChildN2jo.setFieldToScalar(currentES, value);
+						scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
 					}
 					break;
 				default:
@@ -767,6 +771,14 @@ implements ContentHandler, OptimizationTypes
 	public ElementState root()
 	{
 		return root;
+	}
+	public File fileContext()
+	{
+		return (fileContext != null) ? fileContext : (purlContext != null) ? purlContext.file() : null;
+	}
+	public ParsedURL purlContext()
+	{
+		return purlContext;
 	}
 
 }

@@ -1519,27 +1519,29 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		elementByIdMap		= new HashMap<String, ElementState>();
 		optimizations		= Optimizations.lookupRootOptimizations(this);	
 	}
-/**
-     * A recursive method -- the core of the old DOM-Based translateFromXML(...).
-     * <p/>
-     * The method translates any tree of DOM into a tree of Java objects, each
-     * of which is an instance of a subclass of ElementState.
-     * The operation of the method is predicated on the existence of a tree of
-     * classes derived from ElementState, which corresponds to the structure 
+	/**
+	 * A recursive method -- the core of the old DOM-Based translateFromXML(...).
+	 * <p/>
+	 * The method translates any tree of DOM into a tree of Java objects, each
+	 * of which is an instance of a subclass of ElementState.
+	 * The operation of the method is predicated on the existence of a tree of
+	 * classes derived from ElementState, which corresponds to the structure 
 	 * of the XML DOM that needs to be parsed.
-     * 
-     * Before calling the version of this method with this signature, the
+	 * 
+	 * Before calling the version of this method with this signature, the
 	 *  programmer needs to create a DOM from the XML file, and access the root
-     * Node. S/he passes it to this method to create a Java hierarchy 
+	 * Node. S/he passes it to this method to create a Java hierarchy 
 	 * equivalent to the DOM.
-     * 
-     * Recursively parses the XML nodes in DFS order and translates them into
+	 * 
+	 * Recursively parses the XML nodes in DFS order and translates them into
 	 * a tree of state-objects.
-     * 
-     * @param xmlNode	Root node of the DOM tree that needs to be translated.
-     * @param translationSpace		NameSpace that provides basis for translation.
-     * @return 			Parent ElementState object of the corresponding Java tree.
-     */
+	 * 
+	 * Does not support ScalarUnmarshallingContext.
+	 * 
+	 * @param xmlNode	Root node of the DOM tree that needs to be translated.
+	 * @param translationSpace		NameSpace that provides basis for translation.
+	 * @return 			Parent ElementState object of the corresponding Java tree.
+	 */
 	void translateFromXMLNode(Node xmlNode, TranslationScope translationSpace)
 	throws XMLTranslationException
 	{
@@ -1562,7 +1564,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					switch (njo.type())
 					{
 					case REGULAR_ATTRIBUTE:
-						njo.setFieldToScalar(this, value);
+						njo.setFieldToScalar(this, value, null);
 						// the value can become a unique id for looking up this
 						if ("id".equals(njo.tag()))
 							this.elementByIdMap.put(value, this);
@@ -1724,8 +1726,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * 
 	 * @param translationSpace
 	 * @param attributes
+	 * @param scalarUnmarshallingContext TODO
 	 */
-	void translateAttributes(TranslationScope translationSpace, Attributes attributes)
+	void translateAttributes(TranslationScope translationSpace, Attributes attributes, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		int numAttributes	= attributes.getLength();
 		for (int i=0; i<numAttributes; i++)
@@ -1741,7 +1744,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				switch (njo.type())
 				{
 				case REGULAR_ATTRIBUTE:
-					njo.setFieldToScalar(this, value);
+					njo.setFieldToScalar(this, value, scalarUnmarshallingContext);
 					// the value can become a unique id for looking up this
 					//TODO -- could support the ID type for the node here!
 					if ("id".equals(njo.tag()))
@@ -2038,26 +2041,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	protected FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
 	{
 		return optimizations.fieldToXMLOptimizations(field, thatClass);
-	}
-
-	//////////////// helper methods used by translateFromXML() ////////////////
-	/**
-	 * Set a field that is an extended primitive -- a non ElementState --
-	 * using the type registry.
-	 * 
-	 * @param field
-	 * @param fieldValue
-	 * @return	true if the Field is set successfully.
-	 */
-	protected boolean setFieldUsingTypeRegistry(Field field, String fieldValue)
-	{
-		boolean result		= false;
-		ScalarType fieldType		= TypeRegistry.getType(field);
-		if (fieldType != null)
-			result			= fieldType.setField(this, field, fieldValue);
-		else
-			debug("Can't find type for " + field + " with value=" + fieldValue);
-		return result;
 	}
 
 	static final int HAVENT_TRIED_ADDING	= 0;

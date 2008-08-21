@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for int, a built-in primitive.
@@ -45,7 +46,7 @@ public class IntType extends ScalarType<Integer>
      * @param value
      *            String representation of the instance.
      */
-	@Override public Integer getInstance(String value, String[] formatStrings)
+	@Override public Integer getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Integer(getValue(value));
     }

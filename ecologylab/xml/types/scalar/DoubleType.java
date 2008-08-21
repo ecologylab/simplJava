@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import ecologylab.generic.text.EfficientDecimalFormat;
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for double, a built-in primitive.
@@ -52,7 +53,7 @@ public class DoubleType extends ScalarType<Double>
      * @param value
      *            String representation of the instance.
      */
-    @Override public Double getInstance(String value, String[] formatStrings)
+    @Override public Double getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Double(value);
     }

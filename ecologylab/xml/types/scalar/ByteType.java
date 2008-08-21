@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for byte, a built-in primitive.
@@ -45,7 +46,7 @@ public class ByteType extends ScalarType<Byte>
      * @param value
      *            String representation of the instance.
      */
-    public Byte getInstance(String value, String[] formatStrings)
+    public Byte getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Byte(value);
     }

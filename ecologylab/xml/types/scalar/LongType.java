@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
  * Type system entry for long, a built-in primitive.
@@ -37,7 +38,7 @@ public class LongType extends ScalarType<Long>
      * @param value
      *            String representation of the instance.
      */
-    public Long getInstance(String value, String[] formatStrings)
+    public Long getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
         return new Long(value);
     }

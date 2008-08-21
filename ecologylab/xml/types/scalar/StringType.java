@@ -5,6 +5,7 @@ package ecologylab.xml.types.scalar;
 
 import java.io.IOException;
 
+import ecologylab.xml.ScalarUnmarshallingContext;
 import ecologylab.xml.XMLTools;
 
 /**
@@ -30,9 +31,9 @@ public class StringType extends ReferenceType<String>
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[])
+	 * @see ecologylab.xml.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
-	@Override public String getInstance(String value, String[] formatStrings)
+	@Override public String getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		return value;
 	}

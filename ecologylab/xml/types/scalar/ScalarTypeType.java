@@ -3,6 +3,7 @@
  */
 package ecologylab.xml.types.scalar;
 
+import ecologylab.xml.ScalarUnmarshallingContext;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -27,7 +28,7 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 	 * Use this to call TypeRegistry.getType().
 	 */
 	@Override
-	public ScalarType getInstance(String value, String[] formatStrings)
+	public ScalarType getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		ScalarType result	= null;
 		int length			= value.length();

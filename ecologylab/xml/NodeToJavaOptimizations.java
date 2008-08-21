@@ -557,8 +557,9 @@ implements OptimizationTypes
 	 * 
 	 * @param context
 	 * @param value
+	 * @param scalarUnmarshallingContext TODO
 	 */
-	void setFieldToScalar(Object context, String value)
+	void setFieldToScalar(Object context, String value, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		if ((value == null) /*|| (value.length() == 0) removed by Alex to allow empty delims*/)
 		{
@@ -593,7 +594,7 @@ implements OptimizationTypes
 		}
 		else if (scalarType != null)
 		{
-			scalarType.setField(context, field, value, format);
+			scalarType.setField(context, field, value, format, null);
 		}
 	}
 		
@@ -614,7 +615,7 @@ implements OptimizationTypes
 	void setScalarFieldWithLeafNode(Object context, Node leafNode)
 	{
 		String textNodeValue	= getLeafNodeValue(leafNode);
-		setFieldToScalar(context, textNodeValue);
+		setFieldToScalar(context, textNodeValue, null);
 	}
 	/**
 	 * Assume the first child of the leaf node is a text node.
@@ -834,17 +835,17 @@ implements OptimizationTypes
 	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
 	throws XMLTranslationException
 	{
-		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode));
+		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode), null);
 	}
 	/**
 	 * Add element derived from the Node to a Collection.
 	 * 
 	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
+	 * @param scalarUnmarshallingContext TODO
 	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
-	 * 
 	 * @throws XMLTranslationException
 	 */
-	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue)
+	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	throws XMLTranslationException
 	{
 		if  (leafNodeValue != null)
@@ -855,7 +856,7 @@ implements OptimizationTypes
 		{
 			//TODO -- for performance reasons, should we call without format if format is null, and
 			// let the ScalarTypes that don't use format implement the 1 argument signature?!
-			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue, format);
+			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue, format, scalarUnmarshallingContext);
 			try
 			{
 				//TODO -- should we be doing this check for null here??
