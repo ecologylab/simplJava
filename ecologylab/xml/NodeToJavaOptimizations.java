@@ -593,10 +593,7 @@ implements OptimizationTypes
 		}
 		else if (scalarType != null)
 		{
-			if (format != null)
-				scalarType.setField(context, field, value, format);
-			else
-				scalarType.setField(context, field, value);
+			scalarType.setField(context, field, value, format);
 		}
 	}
 		
