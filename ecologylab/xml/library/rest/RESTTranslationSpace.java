@@ -3,7 +3,6 @@ package ecologylab.xml.library.rest;
 import ecologylab.generic.Debug;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.dc.Dc;
-import ecologylab.xml.library.rest.nsdl.NSDLTranslationSpace;
 
 public class RESTTranslationSpace extends Debug
 {
