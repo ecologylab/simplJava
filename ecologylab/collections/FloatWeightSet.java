@@ -33,13 +33,19 @@ extends Debug implements BasicFloatSet<E>
   public final class DefaultWeightStrategy implements GetWeightStrategy<E>
   {
     public float getWeight(E e) {
-      
       return e.getWeight();
     }
+    public void insert(E e) {}
+    public void remove(E e) {}
   };
   
   private GetWeightStrategy getWeightStrategy = new DefaultWeightStrategy();
   
+  public void setWeightingStrategy(GetWeightStrategy getWeightStrategy)
+  {
+    this.getWeightStrategy = getWeightStrategy;
+  }
+
   /**
    * An array representation of the members of the set.
    * Kind of like a java.util.ArrayList, but faster.
@@ -192,6 +198,7 @@ extends Debug implements BasicFloatSet<E>
   }
   public synchronized void insert(E el)
   {
+    getWeightStrategy.insert(el);
     if (el == null)
       return;
     if (el.set == this )//!= null)
@@ -281,6 +288,7 @@ extends Debug implements BasicFloatSet<E>
         syncRecompute(recomputeIndex);
       }
     }
+    getWeightStrategy.remove(el);
   }
   public boolean pruneIfNeeded()
   {
