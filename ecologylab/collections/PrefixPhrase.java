@@ -5,6 +5,7 @@ package ecologylab.collections;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import ecologylab.generic.Debug;
 
@@ -149,7 +150,9 @@ public class PrefixPhrase extends Debug
 	 */
 	private PrefixPhrase matchChild(String source, int start, int end)
 	{
-		for (String thatPhrase : childPhraseMap.keySet())
+		// FIXME concurrent modification exception :-(
+		Set<String> keySet = childPhraseMap.keySet();
+		for (String thatPhrase : keySet)
 		{
 			if (match(thatPhrase, source, start, end))
 				return childPhraseMap.get(thatPhrase);
