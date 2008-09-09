@@ -271,7 +271,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
 			if (!(currentN2JO == NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS) &&
-					(root != null))
+					(currentElementState != null))
 			{
 				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
 				
