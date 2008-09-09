@@ -728,6 +728,14 @@ implements OptimizationTypes
 			ArrayList<Field> attributeFields, ArrayList<Field> elementFields, 
 			boolean transientDeclarationStyle)
 	{
+		// recurse *first*, so that shadowing works the right way!
+		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
+		{	// recurse on super class
+			Class superClass	= thatClass.getSuperclass();
+			if (superClass != null)
+				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
+		}
+
 		//TODO -- use annotated fields instead!
 		Field[] fields		= thatClass.getDeclaredFields();
 		
@@ -782,12 +790,6 @@ implements OptimizationTypes
 				mapField(thatField);
 			}
 			// else -- ignore non-annotated fields
-		}
-		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
-		{	// recurse on super class
-			Class superClass	= thatClass.getSuperclass();
-			if (superClass != null)
-				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
 		}
 	}
 	
