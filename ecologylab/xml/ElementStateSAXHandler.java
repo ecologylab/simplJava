@@ -269,12 +269,17 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 			xmlTranslationException	= new XMLTranslationException("IOException during parsing", e);
 		} catch (SAXException e)
 		{
-			xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
-			
-			//print xml
-			StringBuilder builder 	= root.translateToXML();
-			System.out.println("Failed XML:");
-			System.out.println(builder.toString());
+			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
+			if (!(currentN2JO == NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS) &&
+					(root != null))
+			{
+				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
+				
+				//print xml
+				StringBuilder builder 	= root.translateToXML();
+				System.out.println("Failed XML:");
+				System.out.println(builder.toString());
+			}
 		}
 		finally
 		{
