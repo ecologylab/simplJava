@@ -585,7 +585,9 @@ implements OptimizationTypes
 			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
 					new FieldAccessor(attrF2XO) : createFieldAccessor(fieldAccessorClass, attrF2XO);
 					
-			result.put(attrF2XO.tagName(), fAccessor);
+			String tagName 				= attrF2XO.tagName();
+			if (!result.containsKey(tagName))
+				result.put(tagName, fAccessor);
 		}
 		
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
@@ -593,7 +595,9 @@ implements OptimizationTypes
 			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
 					new FieldAccessor(elementF2XO) : createFieldAccessor(fieldAccessorClass, elementF2XO);
 					
-			result.put(elementF2XO.tagName(), fAccessor);
+			String tagName 				= elementF2XO.tagName();
+			if (!result.containsKey(tagName))
+				result.put(tagName, fAccessor);
 			
 //			Class<?> thatFieldClass 	= thatField.getType();
 //			if (thatFieldClass.isAssignableFrom(ElementState.class))
