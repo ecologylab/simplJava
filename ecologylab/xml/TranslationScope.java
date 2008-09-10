@@ -462,6 +462,19 @@ public final class TranslationScope extends Debug
    {
 	   return getClassBySimpleName(classSimpleName(thatClass));
    }
+   
+   /**
+    * Lookup the tag for the class in question, using this.
+    * 
+    * @param thatClass
+    * @return
+    */
+   public String lookupTag(Class<? extends ElementState> thatClass)
+   {
+	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName(thatClass));
+	   
+	   return (entry == null) ? null : entry.tag;
+   }
 
    /**
     * Derive the XML tag from the Class object, using camel case conversion, or
