@@ -30,18 +30,19 @@ public class FloatWeightSet<E extends FloatSetElement>
 extends Debug implements BasicFloatSet<E>
 {
   
-  public final class DefaultWeightStrategy implements GetWeightStrategy<E>
+  public final class DefaultWeightStrategy extends WeightingStrategy<E>
   {
     public float getWeight(E e) {
       return e.getWeight();
     }
-    public void insert(E e) {}
-    public void remove(E e) {}
+    public boolean hasChanged() {
+      return true;
+    }
   };
   
-  private GetWeightStrategy getWeightStrategy = new DefaultWeightStrategy();
+  private WeightingStrategy getWeightStrategy = new DefaultWeightStrategy();
   
-  public void setWeightingStrategy(GetWeightStrategy getWeightStrategy)
+  public void setWeightingStrategy(WeightingStrategy getWeightStrategy)
   {
     this.getWeightStrategy = getWeightStrategy;
   }

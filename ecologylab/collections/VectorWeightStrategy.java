@@ -1,25 +1,25 @@
 package ecologylab.collections;
 
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Observable;
 import java.util.Observer;
 
 import ecologylab.generic.VectorType;
 
-public class VectorWeightStrategy<E extends FloatSetVectorElement> implements GetWeightStrategy<E>, Observer
-{
-  @SuppressWarnings("unchecked")
-  private Hashtable<VectorType, Double> cachedWeights = new Hashtable<VectorType, Double>();
-  @SuppressWarnings("unchecked")
-  VectorType referenceVector;
 
-  @SuppressWarnings("unchecked")
+@SuppressWarnings("unchecked")
+public class VectorWeightStrategy<E extends VectorSetElement> extends WeightingStrategy<E> implements Observer
+{
+  
+  private Hashtable<VectorType, Double> cachedWeights = new Hashtable<VectorType, Double>();
+  private VectorType referenceVector;
+
   public VectorWeightStrategy(VectorType v) {
     referenceVector = v;
     v.addObserver(this);
   }
 
-  @SuppressWarnings("unchecked")
   public float getWeight(E e) {
     VectorType termVector = e.vector();
     if (termVector == null)
@@ -38,14 +38,16 @@ public class VectorWeightStrategy<E extends FloatSetVectorElement> implements Ge
   public void insert(E e) {
     if (e.vector() != null)
       e.vector().addObserver(this);
+    super.insert(e);
   }
 
   public void remove(E e) {
     if (e.vector() != null)
       e.vector().deleteObserver(this);
+    super.remove(e);
   }
 
-  @SuppressWarnings("unchecked")
+  
   public void update(Observable o, Object arg) {
     Hashtable<VectorType, Double> cachedWeights = this.cachedWeights;
     synchronized(cachedWeights) {
@@ -54,6 +56,8 @@ public class VectorWeightStrategy<E extends FloatSetVectorElement> implements Ge
       else
         cachedWeights.remove(o);
     }
+    setChanged();
   }
 
+  
 }
