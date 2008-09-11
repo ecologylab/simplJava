@@ -20,19 +20,24 @@ public class VectorWeightStrategy<E extends VectorSetElement> extends WeightingS
     v.addObserver(this);
   }
 
-  public float getWeight(E e) {
+  public double getWeight(E e) {
     VectorType termVector = e.vector();
-    if (termVector == null)
-      return -1;
-    Hashtable<VectorType, Double> cachedWeights = this.cachedWeights;
-    synchronized(cachedWeights) {
-      if (cachedWeights.containsKey(termVector))
-        return cachedWeights.get(termVector).floatValue();
-      double weight = termVector.idfDot(referenceVector);
-      cachedWeights.put(termVector, weight);
-      termVector.setWeight(weight);
-      return (float)weight;
+    double weight = -1;
+    if (termVector != null) {
+      Hashtable<VectorType, Double> cachedWeights = this.cachedWeights;
+      synchronized(cachedWeights) {
+        if (cachedWeights.containsKey(termVector))
+          weight = cachedWeights.get(termVector).floatValue();
+        else {
+          weight = termVector.idfDot(referenceVector);
+          cachedWeights.put(termVector, weight);
+        }
+      }
     }
+    if (weight > 0)
+      termVector.setWeight(weight);
+    e.weight = weight;
+    return weight;
   }
 
   public void insert(E e) {

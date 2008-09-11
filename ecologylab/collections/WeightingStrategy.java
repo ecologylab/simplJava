@@ -6,7 +6,7 @@ public abstract class WeightingStrategy<E>
 {
   private boolean changed;
   
-  public abstract float getWeight(E e);
+  public abstract double getWeight(E e);
   
   public void insert(E e) {
     setChanged();

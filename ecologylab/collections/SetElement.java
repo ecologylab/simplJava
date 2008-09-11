@@ -23,20 +23,16 @@ extends Debug
    * Cached version of weight. Made accessible for efficiency's sake.
    * Use carefully, at your own risk, and only w inside, deep understanding.
    */
-  public float			weight;
+  public double			weight;
   private boolean recycled = false;
-  private ArrayList<WeightSet> sets = new ArrayList();
+  protected ArrayList<WeightSet> sets = new ArrayList();
   
   
 
   public SetElement()
   {
   }
-  public SetElement(float initial)
-  {
-    weight	= initial;
-  }
-  public float getWeight()
+  public double getWeight()
   {
     return weight;
   }
@@ -120,37 +116,6 @@ extends Debug
   {
 
   }
-
-  /**
-   * Only for use by FloatWeightSet.clear(), and delete.
-   * This is used to reset state of this, in cases when the state
-   * of the FloatWeightSet we were part of is being reset some other way,
-   * or if it is being discarded.
-   *
-   */
-  public void clear()
-  {
-    deleteHook();
-  }
-
-  /**
-   * A synchronized version of clear(), for use in FloatWeightSet.prune().
-   *
-   */
-  synchronized void clearSynch()
-  {
-    clear();
-  }
-  /**
-   * Change the weight of the element, without propogating the new
-   * weight into the data structure. The result of the change will be
-   * propogated later by some other operation (such as delete) which
-   * performs a recompute
-   */
-  public void delaySetWeight(float newWeight)
-  {
-    weight	= newWeight;
-  }
   /**
    * Set the weight slot.
    * 
@@ -177,6 +142,11 @@ extends Debug
   public boolean recycled() {
     return recycled;
   }
+  
+  public boolean isInSet() {
+    return sets.size() > 0;
+  }
+
   
   /**
    * The set object that this element is part of, or null if its not a member of any set.

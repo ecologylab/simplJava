@@ -32,7 +32,7 @@ extends Debug implements BasicFloatSet<E>
   
   public final class DefaultWeightStrategy extends WeightingStrategy<E>
   {
-    public float getWeight(E e) {
+    public double getWeight(E e) {
       return e.getWeight();
     }
     public boolean hasChanged() {
@@ -388,7 +388,7 @@ extends Debug implements BasicFloatSet<E>
 
     //set result in case there's only 1 element in the set.
     FloatSetElement result= SENTINEL;
-    float maxWeight		= getWeightStrategy.getWeight(result);
+    float maxWeight		= (float) getWeightStrategy.getWeight(result);
 
     setSum				= 0;
 
@@ -399,7 +399,7 @@ extends Debug implements BasicFloatSet<E>
 
       if (!thatElement.filteredOut())
       {
-        float thatWeight	= getWeightStrategy.getWeight(thatElement);   
+        float thatWeight	= (float) getWeightStrategy.getWeight(thatElement);   
 
         if (thatWeight > maxWeight)
         {
@@ -837,7 +837,7 @@ extends Debug implements BasicFloatSet<E>
         }
         else
         {
-          float weight		=  getWeightStrategy.getWeight(element);
+          float weight		=  (float)getWeightStrategy.getWeight(element);
           // ??? This kludge tries to avoid nasty errors.
           // Still it's kind of a bad idea, cause it hides dynamic
           // range problems that should be fixed elsewhere.

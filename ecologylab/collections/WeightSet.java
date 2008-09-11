@@ -34,7 +34,7 @@ extends Debug
   /////////////////////////////////////////////////////////
   public final class DefaultWeightStrategy extends WeightingStrategy<E>
   {
-    public float getWeight(E e) {
+    public double getWeight(E e) {
       return e.getWeight();
     }
     public boolean hasChanged() {
@@ -71,13 +71,13 @@ extends Debug
   public WeightSet(WeightingStrategy<E> getWeightStrategy) {
     setWeightingStrategy(getWeightStrategy);
   }
-  public WeightSet(ThreadMaster threadMaster) {
+  public WeightSet(int maxSize, ThreadMaster threadMaster) {
     this.threadMaster = threadMaster;
+    this.maxSize = maxSize;
   }
   public WeightSet(int maxSize, ThreadMaster threadMaster, WeightingStrategy<E> getWeightStrategy) {
-    this(threadMaster);
+    this(maxSize, threadMaster);
     setWeightingStrategy(getWeightStrategy);
-    this.maxSize = maxSize;
   }
 
   // SETS WEIGHTING TO NEW STRATEGY AND RECONSTRUCTS COMPARATOR
@@ -105,7 +105,7 @@ extends Debug
   }
 
   private void clearAndRecycle(E e) {
-    e.clearSynch();
+    e.deleteHook();
     e.recycle();
   }
 
@@ -127,6 +127,8 @@ extends Debug
 
   public synchronized void prune(int numToKeep)
   {
+	if (maxSize < 0)
+		return;
     LinkedList<E> list = this.list;
     int numToDelete = list.size() - numToKeep;
     if (numToDelete <= 0)
@@ -163,7 +165,7 @@ extends Debug
   public synchronized void clear(boolean doRecycleElements)
   {
     for (E e : list) {
-      e.clearSynch();
+      e.deleteHook();
       if (doRecycleElements)
         e.recycle();
     }
@@ -208,6 +210,4 @@ extends Debug
   {
     return false;
   }
-
-
 }
