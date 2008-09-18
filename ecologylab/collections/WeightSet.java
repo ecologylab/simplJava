@@ -50,7 +50,7 @@ extends Debug
       strat = getWeightStrategy;
     }
     public int compare(E o1, E o2) {
-      return Double.compare(strat.getWeight(o1), strat.getWeight(o2));
+      return -Double.compare(strat.getWeight(o1), strat.getWeight(o2));
     }
   };
 
@@ -114,7 +114,7 @@ extends Debug
     if (list.size() == 0)
       return null;
     sortIfWeShould();
-    return list.removeLast();
+    return list.removeFirst();
   }
   
   public synchronized E maxPeek() {
@@ -122,7 +122,7 @@ extends Debug
     if (list.size() == 0)
       return null;
     sortIfWeShould();
-    return list.getLast();
+    return list.getFirst();
   }
 
   public synchronized void prune(int numToKeep)
@@ -135,7 +135,7 @@ extends Debug
       return;
     sortIfWeShould();
     for (int i=0; i<numToDelete; i++)
-      clearAndRecycle(list.removeFirst());
+      clearAndRecycle(list.removeLast());
   }
 
   public synchronized void insert(E el)
@@ -187,7 +187,7 @@ extends Debug
 
   public int size()
   {
-    return list.size();		   // leave out the sentinel
+    return list.size();
   }
   public String toString()
   {
@@ -202,6 +202,32 @@ extends Debug
     return size() == 0;
   }
 
+  /**
+   * Fetches the i'th element in the sorted list.
+   * @param i index into the list
+   * @return the element at index i
+   */
+  public synchronized E at(int i) {
+	  LinkedList<E> list = this.list;
+	  if (list.size() == 0)
+		  return null;
+	  sortIfWeShould();
+	  return list.get(i);
+  }
+  
+  /**
+   * Fetches the weight of the i'th element in the sorted list.
+   * @param i index into the list
+   * @return the weight of the element at index i
+   */
+  public synchronized Double weightAt(int i) {
+	  LinkedList<E> list = this.list;
+	  if (list.size() == 0)
+		  return null;
+	  sortIfWeShould();
+	  return getWeightStrategy.getWeight(list.get(i));
+  }
+  
   /**
    * Method Overriden by {@link cf.model.VisualPool VisualPool} to return true 
    * @return
