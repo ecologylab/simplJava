@@ -43,6 +43,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeListener;
 
+import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Choice;
 import ecologylab.appframework.types.prefs.ChoiceBoolean;
 import ecologylab.appframework.types.prefs.MetaPref;
@@ -53,6 +54,8 @@ import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
+import ecologylab.generic.RestrictedFileSystemView;
 import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.element.ArrayListState;
@@ -138,7 +141,20 @@ implements WindowListener
     /**
      * File chooser; static so we only have one.
      */
-    static JFileChooser fileChooser = new JFileChooser();
+    static JFileChooser fileChooser;
+    
+	   static
+	   {
+	  	 try
+	  	 {
+	  		 fileChooser = new JFileChooser();
+	  	 }
+	  	 catch(Exception e)
+	  	 {
+	  		 Debug.println("Using RestrictedFileSystemView for PrefsEditor JFileChooser");
+	  		 fileChooser = new JFileChooser(new RestrictedFileSystemView());
+	  	 }
+	   }
     /**
      * File dialog; static so we only have one.
      */
