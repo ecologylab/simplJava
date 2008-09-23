@@ -17,6 +17,7 @@ import ecologylab.io.Files;
 public class PropertiesAndDirectories 
 extends Debug 
 {
+	protected static File		USER_DOCUMENT_DIR;
 	protected static File		USER_DIR;
 	protected static File		DESKTOP_DIR;
 	protected static File 		LOG_DIR;
@@ -28,10 +29,10 @@ extends Debug
     protected static File		TEMP_DIR;
     protected static File		_DIR;
    
-    public static final int UNKNOWN=0, WINDOWS=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5;
+    public static final int UNKNOWN=0, XP=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5, VISTA=6;
     public static final String OS_NAMES[] =
     {
-    	"Unknown", "Windows", "Linux", "Mac old", "Mac OSX", "Unix",
+    	"Unknown", "Windows XP", "Linux", "Mac old", "Mac OSX", "Unix", "Windows Vista"
     };
 	
 	protected static int os; //should be final
@@ -42,8 +43,10 @@ extends Debug
 		if (osName != null)
 		{
 			osName		= osName.toLowerCase();
-			if (StringTools.contains(osName, "windows"))
-				os		= WINDOWS;
+			if (StringTools.contains(osName, "xp"))
+				os		= XP;
+			else if (StringTools.contains(osName, "vista"))
+				os		= VISTA;
 			else if (StringTools.contains(osName, "mac os x"))
 				os		= MAC;
 			else if (StringTools.contains(osName, "mac os"))
@@ -71,8 +74,10 @@ extends Debug
 			if (osPreference != null)
 			{
 				osPreference	= osPreference.toLowerCase();
-				if (osPreference.indexOf("windows") != -1)
-					os			= WINDOWS;
+				if (osPreference.indexOf("xp") != -1)
+					os			= XP;
+				else if (osPreference.indexOf("vista") != -1)
+					os			= VISTA;
 				else if (osPreference.indexOf("mac") != -1)
 					os			= MAC;
 				else if (osPreference.indexOf("linux") != -1)
@@ -114,7 +119,8 @@ extends Debug
 			//	   +os());
 			switch (os)
 			{
-			case WINDOWS:
+			case XP:
+			case VISTA:
 			case MAC:
 			case MAC_OLD: 
 				result	= Files.newFile(apDataDir, applicationName);
@@ -144,7 +150,8 @@ extends Debug
 			
 			if (apDataDir != null)
 			{
-				if (os() == WINDOWS)
+				int thisOS = os();
+				if (thisOS == XP || thisOS == VISTA)
 					result			= Files.newFile(apDataDir, "log");
 				else
 					result			= Files.newFile(apDataDir, "." + "log");
@@ -184,7 +191,7 @@ extends Debug
 			 result		= createDirsAsNeeded(result);
 			 if (result == null)
 			 {
-			 	result	= Files.newFile(userDir(), "temp");
+			 	result	= Files.newFile(userDocumentDir(), "temp");
 			 	result	= createDirsAsNeeded(result);
 			 }
 		  }
@@ -210,7 +217,8 @@ extends Debug
 		{
 			switch (PropertiesAndDirectories.os())
 			{
-				case WINDOWS:
+				case XP:
+				case VISTA:
 					String s1		= "c:/temp/";
 					File f1			= new File(s1);
 					if (f1.exists() && f1.canRead() && f1.canWrite())
@@ -288,7 +296,9 @@ extends Debug
 		   File appDataDir;
 		   switch (os) 
 		   {
-		   case WINDOWS: 	appDataDir = new File(fileName, "Application Data");
+		   case VISTA:		appDataDir = new File(fileName, "AppData/Roaming");
+		   					break;
+		   case XP: 		appDataDir = new File(fileName, "Application Data");
 		   					break;
 		   case MAC:		appDataDir = new File(fileName, "Library/Application Support");
 		   					break;
@@ -317,32 +327,56 @@ extends Debug
  * 
  * In unix-based OSes, it is typically ~.
  */
-	public static File userDir()
+	public static File userDocumentDir()
 	{
-	   File result		= USER_DIR;
+	   File result		= USER_DOCUMENT_DIR;
 	   if (result == null)
 	   {
-		  switch (PropertiesAndDirectories.os())
+		  int thisOS = PropertiesAndDirectories.os();
+		  switch (thisOS)
 		  {
-		  case WINDOWS:
-			  File appDataDir	= applicationDataDir();
-			  File appDataParent= Files.newFile(appDataDir.getParent());
-			  result	= Files.newFile(appDataParent, "My Documents");
-			  if (!result.exists())
-				  result		= Files.newFile(appDataParent, "Personal");
+		  case XP:
+		  case VISTA:
+//			  File appDataDir	= applicationDataDir();
+//			  File appDataParent= Files.newFile(appDataDir.getParent());
+			  File userDir = userDir();
+			  if (thisOS == XP)
+			  {
+				  result	= Files.newFile(userDir, "My Documents");
+				  if (!result.exists())
+					  result		= Files.newFile(userDir, "Personal");
+			  }
+			  else
+			  {
+				  result	= Files.newFile(userDir, "Documents");
+			  }
 			  break;
 		  default:
-			  result = Files.newFile(sysProperty("user.home"));
+			  result = userDir();
 			  break;
 		  }
 
 		  if (result == null)
-			  result = Files.newFile(sysProperty("user.home"));
+			  result = userDir();
 
-		  USER_DIR		= result;
+		  USER_DOCUMENT_DIR		= result;
 	   }
 	   return result;
 	}
+	
+	public static File userDir()
+	{
+		File result		= USER_DIR;
+		if (result == null)
+		{
+			result = Files.newFile(sysProperty("user.home"));
+		}
+		
+		USER_DIR = result;
+		
+		return result;
+	}
+	
 /**
  * A default place for storing the user's files.
  * 
@@ -351,26 +385,30 @@ extends Debug
 	public static File desktopDir()
 	{
 	   File result		= DESKTOP_DIR;
+	   int thisOS 		= PropertiesAndDirectories.os();
 	   if (result == null)
 	   {
-		  //make sure that this works with the application version of cF too.
-		  if ((PropertiesAndDirectories.os() == WINDOWS) && 
-			  (System.getProperty("http.agent") == null || //since the app version has no agent  
-			  System.getProperty("http.agent").startsWith("Mozilla")))
+		  switch(thisOS)
 		  {
-			 File appDataDir	= applicationDataDir();
-			 System.out.println("appDataDir: " + appDataDir);
-			 if (appDataDir.toString().matches("Application Data"))
-				 result	= Files.newFile(appDataDir.getParentFile().getParent(), "Desktop");
-			 else
-				 result	= Files.newFile(appDataDir.getParent(), "Desktop");
+		  case XP:
+		  case VISTA: 
+		  case MAC: // && 
+//			old code for dealing with applet launched cF, commented out by andrew on 9/22/08
+//			  (System.getProperty("http.agent") == null || //since the app version has no agent  
+//			  System.getProperty("http.agent").startsWith("Mozilla")))
+
+//			 File appDataDir	= applicationDataDir();
+//			 System.out.println("appDataDir: " + appDataDir);
+//			 if (appDataDir.toString().matches("Application Data"))
+//				 result	= Files.newFile(appDataDir.getParentFile().getParent(), "Desktop");
+//			 else
+//				 result	= Files.newFile(appDataDir.getParent(), "Desktop");
+			 File userDir		= userDir();
+			 result = Files.newFile(userDir, "Desktop");
+			 break;
+		  default:
+			 result	= userDir();
 		  }
-		  else if (PropertiesAndDirectories.os() == MAC)
-		  {
-			  result = (Files.newFile(sysProperty("user.home") + "/Desktop"));
-		  }
-		  else
-			 result	= Files.newFile(sysProperty("user.dir"));
 
 		  DESKTOP_DIR		= result;
 		  println("DESKTOP_DIR = "+DESKTOP_DIR);
@@ -419,7 +457,8 @@ extends Debug
 		int os = os();
 		switch (os)
 		{
-		case WINDOWS: 	//tested with XP and 2000
+		case XP: 	//tested with XP and 2000
+		case VISTA:
 			deploymentFile = 
 				new File(applicationDataDir(), "Sun/Java/Deployment/deployment.properties");
 			break;

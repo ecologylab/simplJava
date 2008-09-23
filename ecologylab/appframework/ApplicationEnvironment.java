@@ -731,7 +731,8 @@ implements Environment, XMLTranslationExceptionTypes
 		{
 			switch (os)
 			{
-			case PropertiesAndDirectories.WINDOWS:
+			case PropertiesAndDirectories.XP:
+			case PropertiesAndDirectories.VISTA:
 				if (!Pref.lookupBoolean("navigate_with_ie"))
 					result		= FIREFOX_PATH_WINDOWS;
 				if (result != null)
@@ -778,7 +779,8 @@ implements Environment, XMLTranslationExceptionTypes
 		{
 			switch (os)
 			{
-			case PropertiesAndDirectories.WINDOWS:
+			case PropertiesAndDirectories.XP:
+			case PropertiesAndDirectories.VISTA:
 				String path		= null;
 				if (!Pref.lookupBoolean("navigate_with_ie"))
 					path		= FIREFOX_PATH_WINDOWS;
