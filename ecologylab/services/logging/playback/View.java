@@ -45,13 +45,13 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 			this.renderLoading(arg0);
 	}
 
-	protected void load(T firstOp, Prologue prologue)
+	protected void load(LogPlaybackControlModel log, Prologue prologue)
 	{
 		if (!loaded)
 		{
 			this.prologue = prologue;
 
-			this.currentOp = firstOp;
+			this.currentOp = (T) log.getCurrentOp();
 
 			this.loaded = true;
 		}

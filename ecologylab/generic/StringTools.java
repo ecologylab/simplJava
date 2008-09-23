@@ -328,6 +328,8 @@ extends Debug
    }
 /**
  * Remove all instances of @param c from @arg string
+ * 
+ * TODO this method seems horribly inefficient; possibly should replace w/ NIO regex
  */   
    public static String remove(String string, char c)
    {
@@ -345,6 +347,7 @@ extends Debug
 	   }
 	   return string;
    }
+   
    public static final String FIND_PUNCTUATION_REGEX = 
       "(:)|(\\d)|(\\.)|(/++)|(=)|(\\?)|(\\-)|(\\+)|(_)|(%)|(\\,)";        
 /**

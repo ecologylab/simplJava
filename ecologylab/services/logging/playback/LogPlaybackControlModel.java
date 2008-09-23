@@ -10,6 +10,7 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import ecologylab.generic.Debug;
 import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
 import ecologylab.services.logging.Prologue;
@@ -219,6 +220,7 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 		}
 		else
 		{
+			Debug.println("last op");
 			return this.getCurrentOp();
 		}
 	}

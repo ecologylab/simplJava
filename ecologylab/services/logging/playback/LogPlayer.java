@@ -284,7 +284,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	public void showLogPlaybackGUI()
 	{
-		logDisplay.load(log.getCurrentOp(), log.getLogPrologue());
+		logDisplay.load(log, log.getLogPrologue());
 
 		controlsDisplay = generateLogPlaybackControls();
 		controlsDisplay.setPreferredSize(new Dimension(800, 100));
