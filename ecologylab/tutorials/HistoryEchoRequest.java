@@ -39,16 +39,38 @@ public class HistoryEchoRequest extends RequestMessage
 		 * retrieve, from the session object registry,
 		 *	the last-sent string
 		 */
-		String prevEcho = (String) cSScope.get(ECHO_HISTORY);
+		StringBuffer prevEcho;
+		String prevEchoTmp;
+		
+		/*
+		 * Retrieve, from the object registry,
+		 *	the last-sent string. In the case that 
+		 * we are running a server in which echo_history
+		 * has already been instantiated in the application scope
+		 * then we will use and update a application history value.
+		 */
+		if(cSScope.get(ECHO_HISTORY) == null)
+		{
+			/*
+			 * In the case that the sever hasn't then we instantiate our own,
+			 * in the session scope.
+			 */
+			cSScope.put(ECHO_HISTORY, new StringBuffer());
+		}
+		
+		prevEcho = (StringBuffer) cSScope.get(ECHO_HISTORY);
+		
+		// Temporarily store the previous echo string
+		prevEchoTmp = new String(prevEcho);
 		
 		/*
 		 *  replace it with the new one
 		 */
-		cSScope.put(ECHO_HISTORY, newEcho);
+		prevEcho.replace(0,prevEcho.length(),newEcho);
 		
 		/*
-		 * use both to create a new response
+		 * use both messages to create a new response
 		 */
-		return new HistoryEchoResponse(prevEcho, newEcho);
+		return new HistoryEchoResponse(prevEchoTmp, newEcho);
 	}
 }
