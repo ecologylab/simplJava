@@ -28,7 +28,7 @@ public class HistoryEchoClient
 		 */
 		System.out.print("Please enter [server:port] : ");
 		serverAddress = scan.next();
-		scan.reset();		
+		//scan.reset();		
 		portNumber = Integer.parseInt(scan.next().substring(1));;
 		
 		System.out.println("Connecting to " + serverAddress + " on port# " + portNumber);
@@ -56,7 +56,7 @@ public class HistoryEchoClient
 												 histEchoTranslations,clientScope);
 		client.connect();
 		
-		scan.reset();
+		//scan.reset();
 		
 		System.out.println("Please enter some messages: ");
 		
