@@ -24,14 +24,14 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public abstract class AbstractNIOServer extends Manager implements
+public abstract class AbstractNIOServer<S extends Scope> extends Manager implements
 		NIOServerProcessor, Runnable, StartAndStoppable, SessionObjects
 {
 	private NIOServerIOThread		backend;
 
 	protected TranslationScope		translationSpace;
 
-	protected Scope					applicationObjectScope;
+	protected S					applicationObjectScope;
 
 	/**
 	 * Creates an instance of an NIOServer of some flavor. Creates the backend
@@ -47,7 +47,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationSpace, Scope objectRegistry,
+			TranslationScope requestTranslationSpace, S objectRegistry,
 			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		backend = this.generateBackend(portNumber, inetAddress,
@@ -60,7 +60,7 @@ public abstract class AbstractNIOServer extends Manager implements
 		// we get these from the backend, because it ensures that they are
 		// configured if they are passed in null
 		this.translationSpace = backend.translationSpace;
-		this.applicationObjectScope = backend.objectRegistry;
+		this.applicationObjectScope = (S) backend.objectRegistry;
 
 		this.applicationObjectScope.put(MAIN_START_AND_STOPPABLE, this);
 		this.applicationObjectScope.put(MAIN_SHUTDOWNABLE, this);
@@ -98,7 +98,7 @@ public abstract class AbstractNIOServer extends Manager implements
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace, Scope objectRegistry,
+			TranslationScope requestTranslationSpace, S objectRegistry,
 			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
@@ -107,7 +107,7 @@ public abstract class AbstractNIOServer extends Manager implements
 
 	protected NIOServerIOThread generateBackend(int portNumber,
 			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout, int maxMessageLength) throws BindException,
+			S objectRegistry, int idleConnectionTimeout, int maxMessageLength) throws BindException,
 			IOException
 	{
 		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this,

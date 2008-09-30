@@ -38,7 +38,7 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedNIOServer extends AbstractNIOServer implements
+public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer implements
 		ServerConstants
 {
 	protected static InetAddress[] addressToAddresses(InetAddress address)
@@ -98,7 +98,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
 			InetAddress[] inetAddresses, TranslationScope requestTranslationScope,
-			Scope applicationObjectScope, int idleConnectionTimeout,
+			S applicationObjectScope, int idleConnectionTimeout,
 			int maxMessageSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationScope,
@@ -124,7 +124,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
 			TranslationScope requestTranslationScope,
-			Scope applicationObjectScope, int idleConnectionTimeout,
+			S applicationObjectScope, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
@@ -147,7 +147,7 @@ public class DoubleThreadedNIOServer extends AbstractNIOServer implements
 	 * @throws BindException
 	 */
 	protected DoubleThreadedNIOServer(int portNumber,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope)
+			TranslationScope requestTranslationScope, S applicationObjectScope)
 			throws BindException, IOException
 	{
 		this(portNumber, NetTools.getAllInetAddressesForLocalhost(),
