@@ -12,16 +12,14 @@ import ecologylab.services.logging.MixedInitiativeOp;
 public class AuthenticationOp extends MixedInitiativeOp implements AuthMessages
 {
 	/** Login action. */
-	static final String				LOGIN		= "login";
+	public static final String		LOGIN		= "login";
 
 	/** Logout action. */
-	static final String				LOGOUT	= "logout";
+	public static final String		LOGOUT	= "logout";
 
 	@xml_attribute private String	username;
 
 	@xml_attribute private long	currentTimeMillis;
-
-	@xml_attribute private String	action;
 
 	@xml_attribute private String	response;
 
@@ -35,7 +33,8 @@ public class AuthenticationOp extends MixedInitiativeOp implements AuthMessages
 	}
 
 	/**
-	 * Creates a new AuthenticationOp to indicate that a user logged either in or out of the server.
+	 * Creates a new AuthenticationOp to indicate that a user logged either in or
+	 * out of the server.
 	 * 
 	 * @param username
 	 *           the username of the user.
@@ -44,11 +43,13 @@ public class AuthenticationOp extends MixedInitiativeOp implements AuthMessages
 	 * @param response
 	 *           the response the server gave to the attempt.
 	 * @param ipAddress
-	 *           the IP address from which the attempt to log in or out originated.
+	 *           the IP address from which the attempt to log in or out
+	 *           originated.
 	 * @param port
 	 *           the port on which the attempt to log in or out was made.
 	 */
-	public AuthenticationOp(String username, boolean loggingIn, String response, String ipAddress, int port)
+	public AuthenticationOp(String username, boolean loggingIn, String response,
+			String ipAddress, int port)
 	{
 		this.username = username;
 
@@ -76,14 +77,6 @@ public class AuthenticationOp extends MixedInitiativeOp implements AuthMessages
 	public String getUsername()
 	{
 		return username;
-	}
-
-	/**
-	 * @return the action
-	 */
-	public String getAction()
-	{
-		return action;
 	}
 
 	/**
