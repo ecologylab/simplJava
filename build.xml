@@ -6,13 +6,8 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="ecologylabFundamental">
     <property environment="env"/>
-    <property name="ClMS.location" value="../ClMS"/>
-    <property name="DLMS Layer 1.location" value="../DLMS"/>
-    <property name="DLMS Layer 2.location" value="../DLMS_Layer_2"/>
-    <property name="MiddlewareServices.location" value="../MiddlewareServices"/>
-    <property name="ecologylabInteractive.location" value="../ecologylabInteractive"/>
-    <property name="ecologylabInteractiveSemantics.location" value="../ecologylabInteractiveSemantics"/>
-    <property name="ecologylabSemantics.location" value="../ecologylabSemantics"/>
+    <property name="ecologylabFundamental.location" value="../ecologylabFundamental"/>
+    <property name="jtidy.location" value="../jtidy"/>
     <property name="ECLIPSE_HOME" value="../../../../../../../Applications/Programming/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.5"/>
@@ -55,6 +50,12 @@
         </ant>
         <ant antfile="${DLMS Layer 2.location}/build.xml" inheritAll="false" target="clean"/>
         <ant antfile="${DLMS Layer 2.location}/build.xml" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="${Debug_ecologylab_xml.location}/build.xml" inheritAll="false" target="clean"/>
+        <ant antfile="${Debug_ecologylab_xml.location}/build.xml" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
