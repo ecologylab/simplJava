@@ -26,7 +26,8 @@ import ecologylab.xml.TranslationScope;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public class NIOAuthClient extends NIOClient implements AuthClientRegistryObjects, AuthConstants, AuthMessages
+public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
+		AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
 	/** The username / password information supplied by the user. */
 	protected AuthenticationListEntry	entry			= null;
@@ -42,45 +43,21 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * 
 	 * @param server
 	 * @param port
-	 * @throws IOException 
-	 */
-	public NIOAuthClient(String server, int port) throws IOException
-	{
-		this(server, port, null, 0, null);
-	}
-
-	/**
-	 * Creates a new AuthClient object using the given parameters.
-	 * 
-	 * @param server
-	 * @param port
 	 * @param messageSpace
 	 * @param objectRegistry
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
-			int interval, RequestMessage messageToSend) throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
+			S objectRegistry, int interval, RequestMessage messageToSend)
+			throws IOException
 	{
-		this(server, port, messageSpace, objectRegistry, null, interval, messageToSend);
+		this(server, port, messageSpace, objectRegistry, null, interval,
+				messageToSend);
 	}
 
-	/**
-	 * Creates a new AuthClient object using the given parameters.
-	 * 
-	 * @param server
-	 * @param port
-	 * @param entry
-	 * @throws IOException 
-	 */
-	public NIOAuthClient(String server, int port, AuthenticationListEntry entry, int interval,
-			RequestMessage messageToSend) throws IOException
-	{
-		this(server, port, null,
-				new Scope(), entry, interval, messageToSend);
-	}
-
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
-			AuthenticationListEntry entry) throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
+			S objectRegistry, AuthenticationListEntry entry)
+			throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, entry, 0, null);
 	}
@@ -93,12 +70,14 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	 * @param messageSpace
 	 * @param objectRegistry
 	 * @param entry
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace, Scope objectRegistry,
-			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
+			S objectRegistry, AuthenticationListEntry entry, int interval,
+			RequestMessage messageToSend) throws IOException
 	{
-		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);
+		super(server, port, AuthenticationTranslations.get("AuthClient",
+				messageSpace), objectRegistry);
 
 		objectRegistry.put(LOGIN_STATUS, new BooleanSlot(false));
 		objectRegistry.put(LOGIN_STATUS_STRING, null);
@@ -116,11 +95,12 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	}
 
 	/**
-	 * Attempts to connect to the server using the AuthenticationListEntry that is associated with the client's side of
-	 * the connection. Does not block for connection.
+	 * Attempts to connect to the server using the AuthenticationListEntry that
+	 * is associated with the client's side of the connection. Does not block for
+	 * connection.
 	 * 
 	 * @throws IOException
-	 * @throws MessageTooLargeException 
+	 * @throws MessageTooLargeException
 	 */
 	public boolean login() throws IOException, MessageTooLargeException
 	{
@@ -148,15 +128,18 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	}
 
 	/**
-	 * Attempts to log out of the server using the AuthenticationListEntry that is associated with the client's side of
-	 * the connection. Blocks until a response is received or until LOGIN_WAIT_TIME passes, whichever comes first.
+	 * Attempts to log out of the server using the AuthenticationListEntry that
+	 * is associated with the client's side of the connection. Blocks until a
+	 * response is received or until LOGIN_WAIT_TIME passes, whichever comes
+	 * first.
 	 * 
 	 * @throws IOException
-	 * @throws MessageTooLargeException 
+	 * @throws MessageTooLargeException
 	 */
 	protected boolean logout() throws IOException, MessageTooLargeException
 	{
-		// if we have an entry (username + password), then we can try to logout of the server.
+		// if we have an entry (username + password), then we can try to logout of
+		// the server.
 		if (entry != null)
 		{
 			loggingIn = false;
@@ -175,23 +158,27 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	}
 
 	/**
-	 * Sends a Logout message to the server; may be overridden by subclasses that need to add addtional information to
-	 * the Logout message.
-	 * @throws MessageTooLargeException 
+	 * Sends a Logout message to the server; may be overridden by subclasses that
+	 * need to add addtional information to the Logout message.
+	 * 
+	 * @throws MessageTooLargeException
 	 * 
 	 */
-	protected ResponseMessage sendLogoutMessage() throws IOException, MessageTooLargeException
+	protected ResponseMessage sendLogoutMessage() throws IOException,
+			MessageTooLargeException
 	{
 		return this.sendMessage(new Logout(entry), 5000);
 	}
 
 	/**
-	 * Sends a Login message to the server; may be overridden by subclasses that need to add addtional information to the
-	 * Login message.
-	 * @throws MessageTooLargeException 
+	 * Sends a Login message to the server; may be overridden by subclasses that
+	 * need to add addtional information to the Login message.
+	 * 
+	 * @throws MessageTooLargeException
 	 * 
 	 */
-	protected ResponseMessage sendLoginMessage() throws IOException, MessageTooLargeException
+	protected ResponseMessage sendLoginMessage() throws IOException,
+			MessageTooLargeException
 	{
 		ResponseMessage temp = this.sendMessage(new Login(entry), 5000);
 
@@ -215,8 +202,8 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	}
 
 	/**
-	 * @return The response message from the server regarding the last attempt to log in; if login fails, will indicate
-	 *         why.
+	 * @return The response message from the server regarding the last attempt to
+	 *         log in; if login fails, will indicate why.
 	 */
 	public String getExplanation()
 	{
@@ -226,8 +213,8 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 		{
 			return "";
 		}
-		
-        return temp;
+
+		return temp;
 	}
 
 	/**
@@ -237,8 +224,8 @@ public class NIOAuthClient extends NIOClient implements AuthClientRegistryObject
 	{
 		if (this.connected())
 			return ((BooleanSlot) objectRegistry.get(LOGIN_STATUS)).value;
-		
-        return false;
+
+		return false;
 	}
 
 	/**

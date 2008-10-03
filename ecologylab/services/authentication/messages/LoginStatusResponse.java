@@ -12,11 +12,11 @@ import ecologylab.xml.xml_inherit;
 /**
  * Indicates the response from the server regarding an attempt to log in.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-@xml_inherit public class LoginStatusResponse extends ExplanationResponse implements AuthMessages,
-		AuthClientRegistryObjects
+@xml_inherit public class LoginStatusResponse<S extends Scope> extends
+		ExplanationResponse<S> implements AuthMessages, AuthClientRegistryObjects
 {
 	/**
 	 * Constructs a new LoginStatusResponse with the given responseMessage.
@@ -48,12 +48,12 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	/**
-	 * Sets the LOGIN_STATUS BooleanSlot in the ObjectRegistry for the client, indicating whether or not login was
-	 * successful.
+	 * Sets the LOGIN_STATUS BooleanSlot in the ObjectRegistry for the client,
+	 * indicating whether or not login was successful.
 	 * 
 	 * @see ecologylab.services.messages.ResponseMessage#processResponse(ecologylab.collections.Scope)
 	 */
-	@Override public void processResponse(Scope objectRegistry)
+	@Override public void processResponse(S objectRegistry)
 	{
 		System.out.println("response about login: " + isOK());
 

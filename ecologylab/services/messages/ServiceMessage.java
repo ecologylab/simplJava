@@ -2,6 +2,7 @@ package ecologylab.services.messages;
 
 import java.net.InetAddress;
 
+import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 
 /**
@@ -9,8 +10,13 @@ import ecologylab.xml.ElementState;
  * 
  * @author blake
  */
-public class ServiceMessage extends ElementState implements Comparable<ServiceMessage>
+public class ServiceMessage<S extends Scope> extends ElementState implements Comparable<ServiceMessage>
 {
+	public ServiceMessage()
+	{
+		super();
+	}
+	
     @xml_attribute protected long           timeStamp = 0;
 
     /** Used to carry uid for messages, now only used by legacy code. Retained temporarily for backwards compatability. */

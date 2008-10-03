@@ -10,8 +10,13 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit public abstract class RequestMessage extends ServiceMessage
+@xml_inherit public abstract class RequestMessage<S extends Scope> extends ServiceMessage<S>
 {
+	public RequestMessage()
+	{
+		super();
+	}
+	
 	/**
 	 * Perform the service associated with the request, using the supplied context as needed.
 	 * 
@@ -19,7 +24,7 @@ import ecologylab.xml.xml_inherit;
 	 *           Context to perform it in/with.
 	 * @return Response to pass back to the (remote) caller.
 	 */
-	public abstract ResponseMessage performService(Scope clientSessionScope);
+	public abstract ResponseMessage performService(S clientSessionScope);
 
 	/**
 	 * Indicates whether or not this type of message may be ignored by the server, if the server becomes backed-up. For
@@ -45,7 +50,7 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return		null in this the base class case.
 	 */
-	public ParsedURL okRedirectUrl(Scope clientSessionScope)
+	public ParsedURL okRedirectUrl(S clientSessionScope)
 	{
 		return null;
 	}
@@ -60,7 +65,7 @@ import ecologylab.xml.xml_inherit;
 	 * 
 	 * @return		null in this the base class case.
 	 */
-	public ParsedURL errorRedirectUrl(Scope clientSessionScope)
+	public ParsedURL errorRedirectUrl(S clientSessionScope)
 	{
 		return null;
 	}

@@ -1,17 +1,18 @@
 package ecologylab.services.messages;
 
+import ecologylab.collections.Scope;
 import ecologylab.xml.xml_inherit;
 
 /**
  * Base class for all ResponseMessages that indicate errors.
  * 
- * @author andruid, Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author andruid, Zachary O. Toups (zach@ecologylab.net)
  */
-@xml_inherit
-public class ExplanationResponse extends ResponseMessage
+@xml_inherit public class ExplanationResponse<S extends Scope> extends
+		ResponseMessage<S>
 {
-	@xml_attribute protected String explanation;
-	
+	@xml_attribute protected String	explanation;
+
 	public ExplanationResponse()
 	{
 		super();
@@ -20,7 +21,7 @@ public class ExplanationResponse extends ResponseMessage
 	public ExplanationResponse(String explanation)
 	{
 		this();
-		this.explanation	= explanation;
+		this.explanation = explanation;
 	}
 
 	@Override public boolean isOK()
@@ -28,16 +29,17 @@ public class ExplanationResponse extends ResponseMessage
 		return true;
 	}
 
-    /**
-     * @return Returns the explanation.
-     */
-    public String getExplanation()
-    {
-        return explanation;
-    }
+	/**
+	 * @return Returns the explanation.
+	 */
+	public String getExplanation()
+	{
+		return explanation;
+	}
 
 	/**
-	 * @param explanation the explanation to set
+	 * @param explanation
+	 *           the explanation to set
 	 */
 	public void setExplanation(String explanation)
 	{

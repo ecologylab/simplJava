@@ -60,8 +60,8 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class NIOClient extends NIONetworking implements Runnable,
-		ClientConstants
+public class NIOClient<S extends Scope> extends NIONetworking<S> implements
+		Runnable, ClientConstants
 {
 	protected String															serverAddress;
 
@@ -178,7 +178,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 	private int																	maxMessageLengthChars;
 
 	public NIOClient(String serverAddress, int portNumber,
-			TranslationScope messageSpace, Scope<?> objectRegistry,
+			TranslationScope messageSpace, S objectRegistry,
 			int maxMessageLengthChars) throws IOException
 	{
 		super("NIOClient", portNumber, messageSpace, objectRegistry,
@@ -201,8 +201,7 @@ public class NIOClient extends NIONetworking implements Runnable,
 	}
 
 	public NIOClient(String serverAddress, int portNumber,
-			TranslationScope messageSpace, Scope<?> objectRegistry)
-			throws IOException
+			TranslationScope messageSpace, S objectRegistry) throws IOException
 	{
 		this(serverAddress, portNumber, messageSpace, objectRegistry,
 				DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
@@ -509,10 +508,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * disconnect. This should be a rare occurance, but some sublcasses may need
 	 * to deal with this case specifically.
 	 * 
-	 * @param oldId -
-	 *           the previous session id.
-	 * @param newId -
-	 *           the new session id given by the server after reconnect.
+	 * @param oldId
+	 *           - the previous session id.
+	 * @param newId
+	 *           - the new session id given by the server after reconnect.
 	 */
 	protected void unableToRestorePreviousConnection(String oldId, String newId)
 	{
@@ -1287,10 +1286,10 @@ public class NIOClient extends NIONetworking implements Runnable,
 	 * 
 	 * If headerMap is null, this method will throw a null pointer exception.
 	 * 
-	 * @param allIncomingChars -
-	 *           the characters read from an incoming stream.
-	 * @param headerMap -
-	 *           the map into which all of the parsed headers will be placed.
+	 * @param allIncomingChars
+	 *           - the characters read from an incoming stream.
+	 * @param headerMap
+	 *           - the map into which all of the parsed headers will be placed.
 	 * @return the length of the parsed header, or -1 if it was not yet found.
 	 */
 	protected int parseHeader(int startChar, StringBuilder allIncomingChars)

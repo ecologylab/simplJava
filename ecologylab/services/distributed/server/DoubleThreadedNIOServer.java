@@ -38,7 +38,7 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer implements
+public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<S> implements
 		ServerConstants
 {
 	protected static InetAddress[] addressToAddresses(InetAddress address)

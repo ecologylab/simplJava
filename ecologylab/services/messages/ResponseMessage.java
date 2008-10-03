@@ -9,7 +9,7 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit abstract public class ResponseMessage extends ServiceMessage
+@xml_inherit abstract public class ResponseMessage<S extends Scope> extends ServiceMessage<S>
 {
     public ResponseMessage()
     {
@@ -30,7 +30,7 @@ import ecologylab.xml.xml_inherit;
      *            provide a context for response message processing.
      * 
      */
-    public void processResponse(Scope objectRegistry)
+    public void processResponse(S objectRegistry)
     {
 
     }

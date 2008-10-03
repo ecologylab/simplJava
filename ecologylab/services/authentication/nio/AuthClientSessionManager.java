@@ -10,7 +10,6 @@ import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
-import ecologylab.services.authentication.messages.LogoutStatusResponse;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.impl.NIOServerIOThread;

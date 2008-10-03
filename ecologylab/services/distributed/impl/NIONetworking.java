@@ -28,7 +28,7 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public abstract class NIONetworking extends NIOCore
+public abstract class NIONetworking<S extends Scope> extends NIOCore
 {
 	/**
 	 * ByteBuffer that holds all incoming communication temporarily, immediately
@@ -52,7 +52,7 @@ public abstract class NIONetworking extends NIOCore
 	protected TranslationScope							translationSpace;
 
 	/** Provides a context for request processing. */
-	protected Scope<?>									objectRegistry;
+	protected S												objectRegistry;
 
 	protected int											connectionCount	= 0;
 
@@ -75,7 +75,7 @@ public abstract class NIONetworking extends NIOCore
 	 *            system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber,
-			TranslationScope translationSpace, Scope<?> objectRegistry,
+			TranslationScope translationSpace, S objectRegistry,
 			int maxMessageSizeChars) throws IOException
 	{
 		super(networkIdentifier, portNumber);
@@ -84,9 +84,6 @@ public abstract class NIONetworking extends NIOCore
 			translationSpace = DefaultServicesTranslations.get();
 
 		this.translationSpace = translationSpace;
-
-		if (objectRegistry == null)
-			objectRegistry = new Scope<Object>();
 
 		this.objectRegistry = objectRegistry;
 
