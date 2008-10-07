@@ -25,7 +25,11 @@ public class Bounds
       xMax	= oldBounds.xMax;
       yMax	= oldBounds.yMax;
    }
-   public boolean equals(Object other)
+   public Bounds()
+	{
+		// TODO Auto-generated constructor stub
+	}
+	public boolean equals(Object other)
    {
       Bounds fb = (Bounds)other;
       
