@@ -38,8 +38,6 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.types.scalar.ScalarType;
-import ecologylab.xml.types.scalar.TypeRegistry;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code>
@@ -137,18 +135,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
  */
 	protected static Class<?>[] 	MARSHALLING_PARAMS	= {String.class};
 
-    /**
-     * Constant indicating that floating precision cutoff is disabled. If floatingPrecision is set
-     * to this value, then all available decimal places will be emitted.
-     */
-    public static final short             FLOATING_PRECISION_OFF   = -1;
-
-    /**
-     * Indicates how many digits after the decimal will be emitted on all floating values (floats
-     * and doubles). If set to FLOATING_PRECISION_OFF (the default value), nothing will be done.
-     */
-    transient private short                      floatingPrecision = FLOATING_PRECISION_OFF;
-    
     private static boolean				useDOMForTranslateTo;
     
     /**
@@ -1027,21 +1013,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 			}
 		}
 	}
-
-    /**
-     * Returns the precision of floating point numbers associated with this
-     * instance of ElementState.
-     * 
-     * Subclasses may override this method, which is particularly useful if a
-     * class should have a certain floating point precision associated with it.
-     * 
-     * @return the floating point precision to be used when translating this to
-     *         XML.
-     */
-    protected short floatingPrecision()
-    {
-        return this.floatingPrecision;
-    }
     
     /**
 	 * Translate our representation of a leaf node to XML.
@@ -2232,10 +2203,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
 		this.parent		= parent;
 	}
-    public void setFloatingPrecision(short floatingPrecision)
-    {
-        this.floatingPrecision = floatingPrecision;
-    }
     
     public static void setDeclarationStyle(DeclarationStyle ds)
     {
