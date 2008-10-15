@@ -141,18 +141,18 @@ implements WindowListener
     /**
      * File chooser; static so we only have one.
      */
-    static JFileChooser fileChooser = new JFileChooser(PropertiesAndDirectories.desktopDir());
+    static JFileChooser fileChooser;
     
 	   static
 	   {
 	  	 try
 	  	 {
-	  		 fileChooser = new JFileChooser();
+	  		 fileChooser = new JFileChooser(PropertiesAndDirectories.desktopDir());
 	  	 }
 	  	 catch(Exception e)
 	  	 {
 	  		 Debug.println("Using RestrictedFileSystemView for PrefsEditor JFileChooser");
-	  		 fileChooser = new JFileChooser(new RestrictedFileSystemView());
+	  		 fileChooser = new JFileChooser(PropertiesAndDirectories.desktopDir(), new RestrictedFileSystemView());
 	  	 }
 	   }
 
