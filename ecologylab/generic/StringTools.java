@@ -47,6 +47,26 @@ extends Debug
 		   }
 	   }
    }
+   
+   public static final void trim(StringBuilder buffy)
+   {
+   	for (int i=0; i< buffy.length(); i++)
+   	{
+   		char c	= buffy.charAt(0);
+   		if (Character.isWhitespace(c))
+   			buffy.deleteCharAt(i);
+   		else
+   			break;
+   	}
+   	for (int i=buffy.length() - 1; i>=0; i--)
+   	{
+   		char c	= buffy.charAt(0);
+   		if (Character.isWhitespace(c))
+   			buffy.deleteCharAt(i);
+   		else
+   			break;
+   	}
+   }
    /**
     * Changes the StringBuffer to lower case, in place, without any new storage
     * allocation.
@@ -527,6 +547,29 @@ extends Debug
     		if (!Character.isWhitespace(charSequence.charAt(i)))
     			return false;
     	}
+    	return true;
+    }
+    
+    /**
+     * 
+     * @param a
+     * @param b
+     * 
+     * @return true if the arguments represent the same string, and both are non-null.
+     */
+    public static boolean equals(CharSequence a, CharSequence b)
+    {
+    	if ((a == null) || (b == null))
+    		return false;
+    	
+    	int length	= a.length();
+    	if (length != b.length())
+    		return false;
+    	
+    	for (int i=0; i<length; i++)
+    		if (a.charAt(i) != b.charAt(i))
+    			return false;
+    	
     	return true;
     }
 }
