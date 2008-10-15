@@ -141,7 +141,7 @@ implements WindowListener
     /**
      * File chooser; static so we only have one.
      */
-    static JFileChooser fileChooser;
+    static JFileChooser fileChooser = new JFileChooser(PropertiesAndDirectories.desktopDir());
     
 	   static
 	   {
@@ -155,6 +155,7 @@ implements WindowListener
 	  		 fileChooser = new JFileChooser(new RestrictedFileSystemView());
 	  	 }
 	   }
+
     /**
      * File dialog; static so we only have one.
      */
