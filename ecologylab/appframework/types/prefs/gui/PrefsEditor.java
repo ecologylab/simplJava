@@ -140,6 +140,9 @@ implements WindowListener
     
     /**
      * File chooser; static so we only have one.
+     * Instantiation is performed within a static block for error handling.
+     * If the standard JFileChooser cannot open due to an exception, as described in the <a
+     * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6544857">Bug listing</a> 
      */
     static JFileChooser fileChooser;
     
