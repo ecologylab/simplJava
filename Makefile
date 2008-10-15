@@ -1,6 +1,6 @@
 # current working directory
 
-XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss  xml/library/icdl xml/library/opml 
+XML_DIR = xml xml/types/scalar xml/types/element xml/library/yahoo xml/library/dc xml/library/feedburner xml/library/media xml/library/itunes xml/library/rss  xml/library/icdl xml/library/opml xml/library/geom 
 
 SERVICES = services/authentication services/authentication/listener services/authentication/logging services/authentication/messages services/authentication/nio services/authentication/registryobjects services/distributed/client services/distributed/common services/distributed/impl services/distributed/legacy services/distributed/server services/distributed/server/clientsessionmanager services/distributed/server/varieties services/exceptions services/logging services/logging/playback services/messages services/messages/cf services/distributed/exception
 
