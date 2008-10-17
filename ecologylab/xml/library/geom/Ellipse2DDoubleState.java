@@ -6,6 +6,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D.Double;
 
 import ecologylab.xml.xml_inherit;
 
@@ -25,84 +26,105 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class Ellipse2DDoubleState extends RectangularShape
+public @xml_inherit
+class Ellipse2DDoubleState extends RectangularShape
 {
-    protected Ellipse2D.Double shape = null;
+	protected Ellipse2D.Double	shape	= null;
 
-    public Ellipse2DDoubleState()
-    {
-        super();
-    }
-    
-    public Ellipse2DDoubleState(double x, double y, double width, double height)
-    {
-        super(x, y, width, height);
-    }
+	private Double							centerPoint;
 
-    /**
-     * Returns an Ellipse2D object represented by this.
-     */
-    @Override public Ellipse2D.Double shape()
-    {
-        if (shape == null)
-        {
-            shape = new Ellipse2D.Double(x, y, w, h);
-        }
-        else if (shape.x != x || shape.y != y || shape.height != h || shape.width != w)
-        {
-            shape.setFrame(x, y, w, h);
-        }
+	public Ellipse2DDoubleState()
+	{
+		super();
+	}
 
-        return shape;
-    }
+	public Ellipse2DDoubleState(double x, double y, double width, double height)
+	{
+		super(x, y, width, height);
+	}
 
-    public boolean contains(Point2D p)
-    {
-        return shape().contains(p);
-    }
+	/**
+	 * Returns an Ellipse2D object represented by this.
+	 */
+	@Override
+	public Ellipse2D.Double shape()
+	{
+		if (shape == null)
+		{
+			shape = new Ellipse2D.Double(x, y, w, h);
+		}
+		else if (shape.x != x || shape.y != y || shape.height != h || shape.width != w)
+		{
+			shape.setFrame(x, y, w, h);
+		}
 
-    public boolean contains(Rectangle2D r)
-    {
-        return shape().contains(r);
-    }
+		return shape;
+	}
 
-    public boolean contains(double x, double y)
-    {
-        return shape().contains(x, y);
-    }
+	public boolean contains(Point2D p)
+	{
+		return shape().contains(p);
+	}
 
-    public boolean contains(double x, double y, double w, double h)
-    {
-        return shape().contains(x, y, w, h);
-    }
+	public boolean contains(Rectangle2D r)
+	{
+		return shape().contains(r);
+	}
 
-    public Rectangle getBounds()
-    {
-        return shape().getBounds();
-    }
+	public boolean contains(double x, double y)
+	{
+		return shape().contains(x, y);
+	}
 
-    public Rectangle2D getBounds2D()
-    {
-        return shape().getBounds2D();
-    }
+	public boolean contains(double x, double y, double w, double h)
+	{
+		return shape().contains(x, y, w, h);
+	}
 
-    public PathIterator getPathIterator(AffineTransform at)
-    {
-        return shape().getPathIterator(at);
-    }
+	public Rectangle getBounds()
+	{
+		return shape().getBounds();
+	}
 
-    public PathIterator getPathIterator(AffineTransform at, double flatness)
-    {
-        return shape().getPathIterator(at, flatness);
-    }
+	public Rectangle2D getBounds2D()
+	{
+		return shape().getBounds2D();
+	}
 
-    public boolean intersects(Rectangle2D r)
-    {
-        return shape().intersects(r);
-    }
+	public PathIterator getPathIterator(AffineTransform at)
+	{
+		return shape().getPathIterator(at);
+	}
 
-    public boolean intersects(double x, double y, double w, double h)
-    {
-        return shape().intersects(x, y, w, h);
-    }
+	public PathIterator getPathIterator(AffineTransform at, double flatness)
+	{
+		return shape().getPathIterator(at, flatness);
+	}
+
+	public boolean intersects(Rectangle2D r)
+	{
+		return shape().intersects(r);
+	}
+
+	public boolean intersects(double x, double y, double w, double h)
+	{
+		return shape().intersects(x, y, w, h);
+	}
+
+	public Point2D.Double centerPoint()
+	{
+		if (centerPoint == null)
+		{
+			synchronized (this)
+			{
+				if (centerPoint == null)
+				{
+					centerPoint = new Point2D.Double(this.getX() + (this.getWidth() / 2.0), this.getY()
+							+ (this.getHeight() / 2.0));
+				}
+			}
+		}
+
+		return centerPoint;
+	}
 }
