@@ -186,6 +186,15 @@ implements Iterable<T>
 		   n	       += n;
 	   } while (a != head.next());
 
+     DLL<T> something = head;
+     DLL<T> prev = something;
+     while (something != null) {
+    	 something = something.next();
+    	 if (something == prev)
+    		 prev.setNext(null);
+    	 prev = something;
+     }
+       
 	   return head.next();
    }
 
@@ -215,16 +224,20 @@ implements Iterable<T>
    private class DLLIterator implements Iterator<T>
    {
 	   DLL<T> currentNode = DLL.this;
+	   DLL<T> firstObject = DLL.this;
+	   boolean stop = false;
 	 
 	   public boolean hasNext()
 	   {
-		   return (currentNode != null && currentNode.object != null);
+		   return !stop && (currentNode != null && currentNode.object != null);
 	   }
 	
 	   public T next()
 	   {
 		   T currentObject 	= currentNode.object;
 		   currentNode 		= currentNode.next();
+		   if (currentNode == firstObject)
+		  	 stop = true;
 		   
 		   return currentObject;
 	   }
