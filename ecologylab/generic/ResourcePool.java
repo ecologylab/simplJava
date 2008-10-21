@@ -6,50 +6,51 @@ package ecologylab.generic;
 import java.util.ArrayList;
 
 /**
- * This class provides access to a pool of pre-allocated resources. The pool
- * grows and contracts throughout its lifetime to suit the number of resources
- * necessary and to attempt to minimize memory footprints; acquire() and
- * release() are amortized O(1) complexity (although expansion/contraction
- * triggers may take longer).
+ * This class provides access to a pool of pre-allocated resources. The pool grows and contracts
+ * throughout its lifetime to suit the number of resources necessary and to attempt to minimize
+ * memory footprints; acquire() and release() are amortized O(1) complexity (although
+ * expansion/contraction triggers may take longer).
  * 
- * The primary way of accessing resources that are controlled by a pool are
- * through the acquire and release methods. Every acquire should have a matching
- * release, to ensure that resources may be recycled by later calls to acquire.
+ * The primary way of accessing resources that are controlled by a pool are through the acquire and
+ * release methods. Every acquire should have a matching release, to ensure that resources may be
+ * recycled by later calls to acquire.
  * 
- * Subclasses of ResourcePool ensure that the resources obtained through the
- * acquire method are "clean", that is, they are immediately ready for use as if
- * they were just instantiated.
+ * Subclasses of ResourcePool ensure that the resources obtained through the acquire method are
+ * "clean", that is, they are immediately ready for use as if they were just instantiated.
  * 
- * @author Zach Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class ResourcePool<T> extends Debug
 {
 	protected static final int	DEFAULT_POOL_SIZE	= 16;
 
-	ArrayList<T>					pool;
+	public static final int			NEVER_CONTRACT		= -1;
 
-	int								capacity;
+	private final ArrayList<T>	pool;
+
+	private int									capacity;
 
 	/**
-	 * Specifies the minimum size for the backing store, to prevent thrashing
-	 * when small numbers of objects are needed.
+	 * Specifies the minimum size for the backing store, to prevent thrashing when small numbers of
+	 * objects are needed.
 	 */
-	int								minCapacity;
+	private final int						minCapacity;
 
-	float								loadFactor			= .75f;
+	private final float					loadFactor				= .75f;
 
 	/**
-	 * Special constructor that will only instantiate the backing pool resources
-	 * if the first argument is true. This method can be used by subclasses to
-	 * set up member variables before calling instantiateResourcesInPool(), so
-	 * that the instantiation will use the member variables.
+	 * Special constructor that will only instantiate the backing pool resources if the first argument
+	 * is true. This method can be used by subclasses to set up member variables before calling
+	 * instantiateResourcesInPool(), so that the instantiation will use the member variables.
 	 * 
 	 * @param instantiateResourcesInPool
 	 * @param initialPoolSize
 	 * @param minimumPoolSize
+	 *          the size of the pool will never contract below this value. If NEVER_CONTRACT is
+	 *          passed, the pool will never contract.
 	 */
-	protected ResourcePool(boolean instantiateResourcesInPool,
-			int initialPoolSize, int minimumPoolSize)
+	protected ResourcePool(boolean instantiateResourcesInPool, int initialPoolSize,
+			int minimumPoolSize)
 	{
 		this.capacity = Math.max(initialPoolSize, minimumPoolSize);
 
@@ -62,33 +63,30 @@ public abstract class ResourcePool<T> extends Debug
 	}
 
 	/**
-	 * Creates a new ResourcePool with the specified initialPoolSize (or
-	 * minimumPoolSize, minimumPoolSize > initialPoolSize) and minimum capacity.
+	 * Creates a new ResourcePool with the specified initialPoolSize (or minimumPoolSize,
+	 * minimumPoolSize > initialPoolSize) and minimum capacity.
 	 * 
-	 * Note that this constructor will call generateNewResource (capacity) times
-	 * to fill in the backing collection. If generateNewResource relies upon
-	 * setting fields, the subclass should *NOT* call this constructor and should
-	 * instead call ResourcePool(boolean, int, int).
+	 * Note that this constructor will call generateNewResource (capacity) times to fill in the
+	 * backing collection. If generateNewResource relies upon setting fields, the subclass should
+	 * *NOT* call this constructor and should instead call ResourcePool(boolean, int, int).
 	 * 
 	 * @param initialPoolSize
-	 *           the initial size of the backing pool of objects.
+	 *          the initial size of the backing pool of objects.
 	 * @param minimumPoolSize
-	 *           the minimum size for the backing pool of objects. This is
-	 *           important to specify, otherwise repeatedly aquire()'ing and
-	 *           release()'ing resources can have detrimental performance
-	 *           effects.
+	 *          the minimum size for the backing pool of objects. This is important to specify,
+	 *          otherwise repeatedly aquire()'ing and release()'ing resources can negatively affect
+	 *          performance.
 	 */
-	public ResourcePool(int initialPoolSize, int minimumPoolSize)
+	protected ResourcePool(int initialPoolSize, int minimumPoolSize)
 	{
 		this(true, initialPoolSize, minimumPoolSize);
 	}
 
 	/**
-	 * Take a resource from the pool, making it unavailable for other segments of
-	 * the program to use.
+	 * Take a resource from the pool, making it unavailable for other segments of the program to use.
 	 * 
-	 * Objects returned by calls to acquire() are "clean", that is, they are in
-	 * the same state they would be in as if they were just instantiated.
+	 * Objects returned by calls to acquire() are "clean", that is, they are in the same state they
+	 * would be in as if they were just instantiated.
 	 * 
 	 * @return
 	 */
@@ -118,15 +116,13 @@ public abstract class ResourcePool<T> extends Debug
 	}
 
 	/**
-	 * Return a resource for use by another part of the program. The resource
-	 * will be cleaned at some later time when it is acquire()'ed. Resources that
-	 * are released should NOT be used again.
+	 * Return a resource for use by another part of the program. The resource will be cleaned at some
+	 * later time when it is acquire()'ed. Resources that are released should NOT be used again.
 	 * 
 	 * @param resourceToRelease
-	 * @return null; this is meant as a convienence, so that the programmer can
-	 *         use the line: resource = recPool.release(resource);, automatically
-	 *         unlinking the released resource from the binding in the resource
-	 *         user's code.
+	 * @return null; this is meant as a convenience, so that the programmer can use the line: resource
+	 *         = recPool.release(resource);, automatically unlinking the released resource from the
+	 *         binding in the resource user's code.
 	 */
 	public final synchronized T release(T resourceToRelease)
 	{
@@ -138,7 +134,8 @@ public abstract class ResourcePool<T> extends Debug
 
 				int poolSize = pool.size();
 
-				if (capacity > minCapacity && poolSize > loadFactor * capacity)
+				if (minCapacity != NEVER_CONTRACT && capacity > minCapacity
+						&& poolSize > loadFactor * capacity)
 				{
 					this.contractPool();
 				}
@@ -160,24 +157,22 @@ public abstract class ResourcePool<T> extends Debug
 	protected abstract T generateNewResource();
 
 	/**
-	 * Ensure that the given Object is "clean", that is, in the state it would be
-	 * in if it were just instantiated. For example, if this class were handling
-	 * StringBuilders, it should ensure that the StringBuilder does not contain
-	 * any characters from a previous use.
+	 * Ensure that the given Object is "clean", that is, in the state it would be in if it were just
+	 * instantiated. For example, if this class were handling StringBuilders, it should ensure that
+	 * the StringBuilder does not contain any characters from a previous use.
 	 * 
-	 * clean(T) is automatically called immediately before an object is returned
-	 * from the acquire() method.
+	 * clean(T) is automatically called immediately before an object is returned from the acquire()
+	 * method.
 	 * 
 	 * @param objectToClean
 	 */
 	protected abstract void clean(T objectToClean);
 
 	/**
-	 * Increases the number of resources to make available. Doubles the backing
-	 * Collection size and instantiates objects to match.
+	 * Increases the number of resources to make available. Doubles the backing Collection size and
+	 * instantiates objects to match.
 	 * 
-	 * expandPool() is not thread-safe and should only be called within a
-	 * synchronized block.
+	 * expandPool() is not thread-safe and should only be called within a synchronized block.
 	 */
 	private void expandPool()
 	{
@@ -186,9 +181,8 @@ public abstract class ResourcePool<T> extends Debug
 		if (capacity > 0)
 		{
 			/*
-			 * double capacity by instantiating <capacity> new objects; this
-			 * doubles, b/c when this method is called, we are empty and have
-			 * already dealt-out <capacity> objects
+			 * double capacity by instantiating <capacity> new objects; this doubles, b/c when this method
+			 * is called, we are empty and have already dealt-out <capacity> objects
 			 */
 			instantiateResourcesInPool();
 
@@ -200,8 +194,7 @@ public abstract class ResourcePool<T> extends Debug
 			capacity = 1;
 		}
 
-		debug("expanding pool from " + oldCap + " elements to " + capacity
-				+ " elements");
+		debug("expanding pool from " + oldCap + " elements to " + capacity + " elements");
 
 		this.pool.ensureCapacity(capacity);
 	}
@@ -227,8 +220,7 @@ public abstract class ResourcePool<T> extends Debug
 		pool.trimToSize();
 		pool.ensureCapacity(capacity);
 
-		debug("contracting pool from " + oldCap + " elements to " + capacity
-				+ " elements");
+		debug("contracting pool from " + oldCap + " elements to " + capacity + " elements");
 	}
 
 	/**
@@ -241,5 +233,4 @@ public abstract class ResourcePool<T> extends Debug
 			pool.add(this.generateNewResource());
 		}
 	}
-
 }
