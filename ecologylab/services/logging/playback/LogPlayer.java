@@ -30,53 +30,56 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Logging<OP>> extends ApplicationEnvironment
-		implements ActionListener, WindowListener, PlaybackControlCommands, Runnable
+public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Logging<OP>> extends
+		ApplicationEnvironment implements ActionListener, WindowListener, PlaybackControlCommands,
+		Runnable
 {
-	private static final int							LOG_LOADED							= 2;
+	private static final int										LOG_LOADED									= 2;
 
-	private static final int							LOG_LOADING							= 1;
+	private static final int										LOG_LOADING									= 1;
 
-	private static final int							LOG_NOT_SELECTED					= 0;
+	private static final int										LOG_NOT_SELECTED						= 0;
 
-	private List<ActionListener>						actionListeners					= new LinkedList<ActionListener>();
+	private List<ActionListener>								actionListeners							= new LinkedList<ActionListener>();
 
-	protected LogPlaybackControls<OP, LOG>			controlsDisplay					= null;
+	protected LogPlaybackControls<OP, LOG>			controlsDisplay							= null;
 
-	protected View<OP>									logDisplay							= null;
+	protected View<OP>													logDisplay									= null;
 
 	protected LogPlaybackControlModel<OP, LOG>	log;
 
-	private File											logFile								= null;
+	private File																logFile											= null;
 
-	protected JFrame										mainFrame;
+	protected JFrame														mainFrame;
 
-	private boolean										playing								= false;
+	private boolean															playing											= false;
 
-	protected Timer										t;
-
-	/**
-	 * Modes: 0 = no file selected (need to get a file name). 1 = file selected and loading. 2 = file loaded, display
-	 * log.
-	 */
-	private int												mode									= LOG_NOT_SELECTED;
-
-	private boolean										guiShown								= false;
-
-	protected TranslationScope							translationSpace;
-
-	public final static int								DEFAULT_PLAYBACK_INTERVAL		= 100;
-
-	public final static int								TIMESTAMP_PLAYBACK_INTERVAL	= -1;
+	protected Timer															t;
 
 	/**
-	 * The number of milliseconds between ops when the log is playing. Setting to -1 will try to use op timestamps.
+	 * Modes: 0 = no file selected (need to get a file name). 1 = file selected and loading. 2 = file
+	 * loaded, display log.
 	 */
-	protected int											playbackInterval					= DEFAULT_PLAYBACK_INTERVAL;
+	private int																	mode												= LOG_NOT_SELECTED;
 
-	private boolean	logLoadComplete = false;
+	private boolean															guiShown										= false;
 
-	public LogPlayer(String appName, String[] args, TranslationScope translationSpace) throws XMLTranslationException
+	protected TranslationScope									translationSpace;
+
+	public final static int											DEFAULT_PLAYBACK_INTERVAL		= 100;
+
+	public final static int											TIMESTAMP_PLAYBACK_INTERVAL	= -1;
+
+	/**
+	 * The number of milliseconds between ops when the log is playing. Setting to -1 will try to use
+	 * op timestamps.
+	 */
+	protected int																playbackInterval						= DEFAULT_PLAYBACK_INTERVAL;
+
+	private boolean															logLoadComplete							= false;
+
+	public LogPlayer(String appName, String[] args, TranslationScope translationSpace)
+			throws XMLTranslationException
 	{
 		super(appName, translationSpace, args, 0);
 
@@ -89,7 +92,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		{ // a log was specified
 			logFile = new File(args[1]);
 			mode = LOG_LOADING;
-			
+
 			logLoadComplete = false;
 		}
 
@@ -134,7 +137,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 				// System.exit(0);
 
 				mode = LOG_NOT_SELECTED;
-				
+
 				logLoadComplete = false;
 			}
 
@@ -144,14 +147,16 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		}
 	}
 
-	protected abstract LogPlaybackControlModel<OP, LOG> generateLogPlaybackControlModel(LOG incomingLog);
+	protected abstract LogPlaybackControlModel<OP, LOG> generateLogPlaybackControlModel(
+			LOG incomingLog);
 
 	protected abstract View<OP> generateView();
 
 	protected abstract LogPlaybackControls<OP, LOG> generateLogPlaybackControls();
 
 	/**
-	 * Translates the given file to XML. Necessary because it is not possible to cast directly to generic types.
+	 * Translates the given file to XML. Necessary because it is not possible to cast directly to
+	 * generic types.
 	 * 
 	 * @param logToRead
 	 * @return
@@ -189,10 +194,11 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		fC.addChoosableFileFilter(fC.getAcceptAllFileFilter());
 		fC.addChoosableFileFilter(LogFileFilter.staticInstance);
-		
+
 		// find the most recent log file in the directory
-		File[] logDirContents = PropertiesAndDirectories.logDir().listFiles(LogFileFilter.staticInstance);
-		
+		File[] logDirContents = PropertiesAndDirectories.logDir().listFiles(
+				LogFileFilter.staticInstance);
+
 		if (logDirContents.length > 0)
 		{
 			File newestLog = logDirContents[0];
@@ -204,7 +210,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 					newestLog = logDirContents[i];
 				}
 			}
-			
+
 			fC.setSelectedFile(newestLog);
 		}
 
@@ -317,7 +323,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		mainFrame.invalidate();
 		mainFrame.pack();
 		mainFrame.setVisible(true);
-		
+
 		logLoadComplete = true;
 	}
 
@@ -370,7 +376,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		mainFrame.setFocusable(true);
 		mainFrame.requestFocus();
 
-		mainFrame.getContentPane().setLayout(new BoxLayout(mainFrame.getContentPane(), BoxLayout.PAGE_AXIS));
+		mainFrame.getContentPane().setLayout(
+				new BoxLayout(mainFrame.getContentPane(), BoxLayout.PAGE_AXIS));
 
 		logDisplay = this.generateView();
 		logDisplay.setPreferredSize(new Dimension(800, 600));
@@ -405,8 +412,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	}
 
 	/**
-	 * Used to be thread safe with Swing. Either sets up the UI, or switches it, depending on whether or not a file has
-	 * been selected.
+	 * Used to be thread safe with Swing. Either sets up the UI, or switches it, depending on whether
+	 * or not a file has been selected.
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
@@ -420,7 +427,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 			guiShown = true;
 		}
 
-		if (!logLoadComplete )
+		if (!logLoadComplete)
 		{
 			debug("mode is: " + mode);
 
