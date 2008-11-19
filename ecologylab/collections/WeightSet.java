@@ -46,8 +46,8 @@ extends Debug
   /////////////////////////////////////////////////////////
   public final class FloatWeightComparator implements Comparator<E> {
     private WeightingStrategy<E> strat;
-    public FloatWeightComparator(WeightingStrategy<E> getWeightStrategy) {
-      strat = getWeightStrategy;
+    public FloatWeightComparator(WeightingStrategy<SetElement> getWeightStrategy) {
+      strat = (WeightingStrategy<E>) getWeightStrategy;
     }
     public int compare(E o1, E o2) {
       return -Double.compare(strat.getWeight(o1), strat.getWeight(o2));
@@ -57,7 +57,7 @@ extends Debug
   
   private LinkedList<E>  list = new LinkedList<E>();
   private WeightingStrategy<E> getWeightStrategy = new DefaultWeightStrategy();
-  private Comparator<E> comparator = new FloatWeightComparator(getWeightStrategy);
+  private Comparator<E> comparator = new FloatWeightComparator((WeightingStrategy<SetElement>) getWeightStrategy);
   private int maxSize = -1;
   
   /**
@@ -68,23 +68,23 @@ extends Debug
 
   public WeightSet() {}
   
-  public WeightSet(WeightingStrategy<E> getWeightStrategy) {
+  public WeightSet(WeightingStrategy<SetElement> getWeightStrategy) {
     setWeightingStrategy(getWeightStrategy);
   }
   public WeightSet(int maxSize, ThreadMaster threadMaster) {
     this.threadMaster = threadMaster;
     this.maxSize = maxSize;
   }
-  public WeightSet(int maxSize, ThreadMaster threadMaster, WeightingStrategy<E> getWeightStrategy) {
+  public WeightSet(int maxSize, ThreadMaster threadMaster, WeightingStrategy<SetElement> getWeightStrategy) {
     this(maxSize, threadMaster);
     setWeightingStrategy(getWeightStrategy);
   }
 
   // SETS WEIGHTING TO NEW STRATEGY AND RECONSTRUCTS COMPARATOR
   // TODO: rework this as a constructor parameter instead.
-  public synchronized void setWeightingStrategy(WeightingStrategy<E> getWeightStrategy)
+  public synchronized void setWeightingStrategy(WeightingStrategy<SetElement> getWeightStrategy)
   {
-    this.getWeightStrategy = getWeightStrategy;
+    this.getWeightStrategy = (WeightingStrategy<E>) getWeightStrategy;
     this.comparator = new FloatWeightComparator(getWeightStrategy);
     for (E e : list)
       getWeightStrategy.insert(e);

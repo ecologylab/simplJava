@@ -1,5 +1,6 @@
 package ecologylab.generic;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Observable;
 import java.util.Observer;
@@ -23,7 +24,7 @@ public abstract class VectorType<T> extends Observable {
 
 	public abstract Set<Double> values();
 	
-	public abstract Hashtable<T,Double> map();
+	public abstract HashMap<T,Double> map();
 
 	@Deprecated
 	public double weight = -1;
