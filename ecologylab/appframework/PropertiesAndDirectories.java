@@ -494,4 +494,15 @@ extends Debug
 		
 	}
 	public static final boolean	isMac	= (os() == MAC);
+	
+	public static final boolean isWindows()
+	{
+		int os	= os();
+		return (os == XP) || (os == VISTA);
+	}
+	public static final boolean isUnix()
+	{
+		int os	= os();
+		return (os == MAC) || (os == LINUX) || (os == OTHER_UNIX);
+	}
 }
