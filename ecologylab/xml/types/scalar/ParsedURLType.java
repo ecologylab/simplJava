@@ -54,19 +54,26 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		   {
 			   e.printStackTrace();
 		   }
-		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
-		   file					= (fileContext == null) ? new File(value) : new File(fileContext, value);
+		   file					= new File(value);
 	   }
-	   else if (value.indexOf(':') == 1)
+	   else if (PropertiesAndDirectories.isWindows())
 	   {
-		   file		= ecologylab.io.Files.newFile(value);
+	  	 if (value.charAt(1) == ':') 
+	  		 file				= ecologylab.io.Files.newFile(value);
+	  	 else if (value.startsWith("\\\\"))
+	  		 file				= new File(value);
 	   }
 	   if (file != null)
 	   {
-	   	return new ParsedURL(file);
+	  	 return new ParsedURL(file);
 	   }
 	   else
 	   {
+	  	 //TODO -- do we need to check manually here to see if scalarUnmarshallingContext.fileContext() != null?
+	  	 // or will this resolve a relative file path properly, anyway.
+//		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
+//		   file					= (fileContext == null) ? new File(value) : new File(fileContext, value);
+
 	   	ParsedURL purlContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.purlContext();
 	   	return (purlContext != null) ? purlContext.getRelative(value) : ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
 	   }
