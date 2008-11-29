@@ -45,6 +45,8 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	   if (value.startsWith("file://"))
 	   {
 		   int startIndex	= value.startsWith("file:///") ? 8 : 7;
+		   if (PropertiesAndDirectories.isUnix())
+		  	 startIndex--; // for unix, begin with / for absolute paths!
 		   value	= value.substring(startIndex);
 //		   value	= URLDecoder.decode(value);
 		   try
