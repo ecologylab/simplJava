@@ -731,10 +731,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							else if (next instanceof ElementState)
 							{
 								ElementState collectionSubElementState = (ElementState) next;
-								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
+								//FIXME -- uses class instead of field to get F2XO
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
-//								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+//							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+//							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+								FieldToXMLOptimizations collectionElementF2Xo				= childF2XO.isAnnotatedCollectionOrMap() ?
+										childF2XO : 
+										collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementF2Xo, appendable);
 							}
 							else

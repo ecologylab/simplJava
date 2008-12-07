@@ -81,6 +81,11 @@ implements OptimizationTypes
     private boolean			needsEscaping;
     
     /**
+     * true if this is a collection or map field, and we are using it to get the name.
+     */
+    private	boolean			isAnnotatedCollectionOrMap;
+    
+    /**
      * This slot makes sense only for attributes and leaf nodes
      */
     private ScalarType		scalarType;
@@ -284,11 +289,24 @@ implements OptimizationTypes
     	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
     	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
     	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-    	String tagName	= 
-    		((collectionAnnotation != null) && (collectionAnnotation.length() > 0)) ? collectionAnnotation :
-    		((mapAnnotation != null) && (mapAnnotation.length() > 0)) ? mapAnnotation :
-    		((tagAnnotation != null) && (tagAnnotation.length() > 0)) ? tagAnnotation :
-    			XMLTools.getXmlTagName(field.getName(), null); // generate from class name
+    	String tagName;
+    	if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
+    	{
+    		tagName											= collectionAnnotation;
+    		isAnnotatedCollectionOrMap	= true;
+    	}
+    	else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
+    	{
+    		tagName											= mapAnnotation;
+    		isAnnotatedCollectionOrMap	= true;
+    	}
+    	else if ((tagAnnotation != null) && (tagAnnotation.length() > 0))
+    	{
+    		tagName											= tagAnnotation;
+    	}
+    	else
+    		tagName											= XMLTools.getXmlTagName(field.getName(), null); // generate from class name
+    			
     	if (nameSpacePrefix != null)
     	{
     		tagName				= nameSpacePrefix + tagName;
@@ -924,5 +942,10 @@ implements OptimizationTypes
 	public String[] getFormat()
 	{
 		return format;
+	}
+
+	public boolean isAnnotatedCollectionOrMap()
+	{
+		return isAnnotatedCollectionOrMap;
 	}
 }
