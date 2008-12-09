@@ -326,6 +326,38 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
     }
     
     /**
+	 * Look up a PrefLong by name in the map of all Prefs. Return defaultValue if PrefInt's value is
+	 * null.
+	 * 
+	 * @param name
+	 *          Name of PrefLong
+	 * @param defaultValue
+	 *          default value for PrefLong
+	 * 
+	 * @return PrefInt's value or default value if doesn't exist
+	 */
+	public static long lookupLong(String name, long defaultValue) throws ClassCastException
+	{
+		PrefLong prefLong = ((PrefLong) lookupPref(name));
+
+		return (prefLong == null) ? defaultValue : prefLong.value();
+	}
+
+	/**
+	 * Look up a PrefLong by name in the map of all Prefs.
+	 * 
+	 * @param name
+	 *          Name of PrefLong
+	 * 
+	 * @return PrefInt's value or 0
+	 */
+	public static long lookupLong(String name) throws ClassCastException
+	{
+		return lookupInt(name, 0);
+	}
+
+    
+    /**
      * Look up a PrefBoolean by name in the map of all Prefs.
      * Return defaultValue if PrefBoolean's value is null.
      * 

@@ -58,6 +58,7 @@ public class PrefInt extends Pref<Integer>
      * 
      * @param  The Integer value the Pref will be set to
      */
+	@Override
 	public void setValue(Integer newValue)
 	{
 		setValue(newValue.intValue());

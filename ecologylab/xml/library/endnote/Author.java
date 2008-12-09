@@ -6,10 +6,22 @@ package ecologylab.xml.library.endnote;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
-public @xml_inherit class Author extends ElementState
+public @xml_inherit
+class Author extends ElementState
 {
-    public Author()
-    {
-        
-    }
+	@xml_text
+	String	authorName;
+
+	public Author()
+	{
+
+	}
+
+	/**
+	 * @return the authorName
+	 */
+	public String getAuthorName()
+	{
+		return authorName;
+	}
 }

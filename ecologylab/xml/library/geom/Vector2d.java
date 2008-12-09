@@ -252,6 +252,18 @@ public class Vector2d extends SpatialVector implements Cloneable
 	 * @param y
 	 *           the y to set
 	 */
+	public void setX(double x)
+	{
+		this.x = x;
+
+		updatePointIfNotNull();
+	}
+
+	
+	/**
+	 * @param y
+	 *           the y to set
+	 */
 	public void setY(double y)
 	{
 		this.y = y;

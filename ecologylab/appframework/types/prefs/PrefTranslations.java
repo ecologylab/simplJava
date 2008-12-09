@@ -39,6 +39,7 @@ public class PrefTranslations extends Debug
         PrefBoolean.class,
         PrefFloat.class,
         PrefInt.class,
+        PrefLong.class,
         PrefString.class,
         PrefElementState.class,
         PrefColor.class,
