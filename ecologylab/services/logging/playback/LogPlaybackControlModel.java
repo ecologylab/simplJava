@@ -29,6 +29,8 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	private boolean					singleEventMode	= false;
 
 	private List<ChangeListener>	changeListeners	= new LinkedList<ChangeListener>();
+	
+	protected long						startTime 			= 0;
 
 	/**
 	 * 
@@ -229,4 +231,15 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 	{
 		return this.log.getPrologue();
 	}
+	
+	public void setStartPoint()
+	{
+		startTime = this.getCurrentOp().getSessionTime();
+	}
+	
+	public long getTimeOffset()
+	{
+		return this.getCurrentOp().getSessionTime() - startTime;
+	}
+	
 }

@@ -57,10 +57,16 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 																							"toolbarButtonGraphics/media/StepForward24.gif",
 																							"Step forward"));
 
-	public LogPlaybackControls(LogPlayer<E, T> player)
+	private boolean 									mousePressed 		= false;
+	
+	LogPlayer<E, T>									player;
+	
+	public LogPlaybackControls(LogPlayer<E, T> p)
 	{
 		super();
 
+		player = p;
+		
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		jogShuttle.setOrientation(JSlider.HORIZONTAL);
@@ -78,9 +84,11 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		stopButton.addActionListener(this);
 
 		stepBackButton.addActionListener(player);
+		stepBackButton.addActionListener(this);
 
 		stepForwardButton.addActionListener(player);
-
+		stepForwardButton.addActionListener(this);
+		
 		player.addActionListener(this);
 
 		this.add(stepBackButton);
@@ -105,6 +113,8 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 				jogShuttle
 						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me.getX() / (double) jogShuttle
 								.getWidth()))));
+				player.startAdjusting();
+				mousePressed = true;
 			}
 
 			public void mouseClicked(MouseEvent me)
@@ -119,6 +129,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 				jogShuttle
 						.setValue((int) (jogShuttle.getMinimum() + (jogShuttle.getExtent() * (double) ((double) me.getX() / (double) jogShuttle
 								.getWidth()))));
+				mousePressed = false;
 			}
 
 			public void mouseEntered(MouseEvent me)
@@ -148,6 +159,10 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		this.add(jogShuttle);
 	}
 
+	public boolean isMousePressed()
+	{
+		return mousePressed;
+	}
 	/**
 	 * @param loading
 	 *           The loading to set.
@@ -176,13 +191,10 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 			playPauseButton.setIcon(pauseIcon);
 		}
 
-		if (PAUSE.equals(arg0.getActionCommand()))
-		{
-			playPauseButton.setActionCommand(PLAY);
-			playPauseButton.setIcon(playIcon);
-		}
-
-		if (STOP.equals(arg0.getActionCommand()))
+		if (PAUSE.equals(arg0.getActionCommand()) ||
+			 STEP_BACK.equals(arg0.getActionCommand()) ||
+			 STEP_FORWARD.equals(arg0.getActionCommand()) ||
+			 STOP.equals(arg0.getActionCommand()))
 		{
 			playPauseButton.setActionCommand(PLAY);
 			playPauseButton.setIcon(playIcon);

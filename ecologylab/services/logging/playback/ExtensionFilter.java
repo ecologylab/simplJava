@@ -10,9 +10,14 @@ import java.io.File;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class LogFileFilter extends javax.swing.filechooser.FileFilter implements java.io.FileFilter
+public class ExtensionFilter extends javax.swing.filechooser.FileFilter implements java.io.FileFilter
 {
-	public static LogFileFilter staticInstance = new LogFileFilter();
+	private String extension;
+	
+	public ExtensionFilter(String extension)
+	{
+		this.extension = extension;
+	}
 	
 	/**
 	 * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
@@ -23,7 +28,7 @@ public class LogFileFilter extends javax.swing.filechooser.FileFilter implements
 			return true;
 
 		String fileName = arg0.toString();
-		return ("xml".equalsIgnoreCase(fileName.substring(fileName.lastIndexOf('.') + 1)));
+		return (extension.equalsIgnoreCase(fileName.substring(fileName.lastIndexOf('.') + 1)));
 	}
 
 	/**
