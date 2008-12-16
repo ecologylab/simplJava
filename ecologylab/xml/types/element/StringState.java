@@ -23,4 +23,13 @@ public class StringState extends ElementState
     {
         return string;
     }
+
+		/**
+		 * @see ecologylab.generic.Debug#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return string;
+		}
 }
