@@ -10,164 +10,180 @@ import java.util.Set;
 import ecologylab.xml.ElementState;
 
 /**
- * An ElementState XML tree node that supports a HashMap whose values are Mappable (capable of supplying their own key
- * into the map).
+ * An ElementState XML tree node that supports a HashMap whose values are Mappable (capable of
+ * supplying their own key into the map).
  * 
  * @author andruid
  */
-public class HashMapState<K, V extends ElementState & Mappable<K>> extends ElementState implements Cloneable, Map<K, V>
+public class HashMapState<K, V extends ElementState & Mappable<K>> extends ElementState implements
+		Cloneable, Map<K, V>
 {
-    /**
-     * Stores the actual mappings.
-     */
-    @xml_map protected HashMap<K, V> map = null;
+	/**
+	 * Stores the actual mappings.
+	 */
+	@xml_map
+	protected HashMap<K, V>	map	= null;
 
-    public HashMapState()
-    {
-        super();
-    }
+	public HashMapState()
+	{
+		super();
+	}
 
-    /**
-     * Use lazy evaluation for creating the map, in order to make it possible this class lightweight enough to use in
-     * subclass situations where they may be no elements added to the set, where the ElementState is only being used for
-     * direct fields.
-     * 
-     * @return
-     */
-    protected HashMap<K, V> map()
-    {
-        HashMap<K, V> result = map;
+	/**
+	 * Use lazy evaluation for creating the map, in order to make it possible this class lightweight
+	 * enough to use in subclass situations where they may be no elements added to the set, where the
+	 * ElementState is only being used for direct fields.
+	 * 
+	 * @return
+	 */
+	protected HashMap<K, V> map()
+	{
+		HashMap<K, V> result = map;
 
-        if (result == null)
-        {
-            result = new HashMap<K, V>();
-            map = result;
-        }
+		if (result == null)
+		{
+			result = new HashMap<K, V>();
+			map = result;
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    @Override protected Map getMap(
-            Class thatClass)
-    {
-        return map();
-    }
+	@Override
+	protected Map getMap(Class thatClass)
+	{
+		return map();
+	}
 
-    @Override protected Object clone() throws CloneNotSupportedException
-    {
-        return super.clone();
-    }
+	@Override
+	protected Object clone() throws CloneNotSupportedException
+	{
+		return super.clone();
+	}
 
-    /**
-     * Convienence method for adding Mappable elements. This method simply calls put(value.key(), value).
-     * 
-     * @param value
-     */
-    public V add(V value)
-    {
-        return this.put(value.key(), value);
-    }
+	/**
+	 * Convienence method for adding Mappable elements. This method simply calls put(value.key(),
+	 * value).
+	 * 
+	 * @param value
+	 */
+	public V add(V value)
+	{
+		return this.put(value.key(), value);
+	}
 
-    public void clear()
-    {
-        if (map != null)
-            map.clear();
-    }
+	public void clear()
+	{
+		if (map != null)
+			map.clear();
+	}
 
-    public boolean containsKey(Object key)
-    {
-        return (map == null ? false : map.containsKey(key));
-    }
+	public boolean containsKey(Object key)
+	{
+		return (map == null ? false : map.containsKey(key));
+	}
 
-    public boolean containsValue(Object value)
-    {
-        return (map == null ? false : map.containsValue(value));
-    }
+	public boolean containsValue(Object value)
+	{
+		return (map == null ? false : map.containsValue(value));
+	}
 
-    public Set<java.util.Map.Entry<K, V>> entrySet()
-    {
-        return map().entrySet();
-    }
+	public Set<java.util.Map.Entry<K, V>> entrySet()
+	{
+		return map().entrySet();
+	}
 
-    public V get(Object key)
-    {
-        return map().get(key);
-    }
+	public V get(Object key)
+	{
+		return map().get(key);
+	}
 
-    public boolean isEmpty()
-    {
-        return (map == null ? true : map.isEmpty());
-    }
+	public boolean isEmpty()
+	{
+		return (map == null ? true : map.isEmpty());
+	}
 
-    public Set<K> keySet()
-    {
-        return (map == null ? new HashSet<K>() : map.keySet());
-    }
+	public Set<K> keySet()
+	{
+		return (map == null ? new HashSet<K>() : map.keySet());
+	}
 
-    public V put(K key, V value)
-    {
-        return map().put(key, value);
-    }
+	public V put(K key, V value)
+	{
+		return map().put(key, value);
+	}
 
-    public void putAll(Map<? extends K, ? extends V> t)
-    {
-        map().putAll(t);
-    }
+	public void putAll(Map<? extends K, ? extends V> t)
+	{
+		map().putAll(t);
+	}
 
-    public V remove(Object key)
-    {
-        return (map == null ? null : map.remove(key));
-    }
+	public V remove(Object key)
+	{
+		return (map == null ? null : map.remove(key));
+	}
 
-    public int size()
-    {
-        return (map == null ? 0 : map.size());
-    }
+	public int size()
+	{
+		return (map == null ? 0 : map.size());
+	}
 
-    public Collection<V> values()
-    {
-        return (map == null ? new ArrayList<V>() : map.values());
-    }
+	public Collection<V> values()
+	{
+		return (map == null ? new ArrayList<V>() : map.values());
+	}
 
-    /**
-     * Clear data structures and references to enable garbage collecting of resources associated with this.
-     * 
-     * Calling recycle() on an HashMapState has the side effect of recycling every value contained in the HashMapState.
-     * If the values of the HashMapState should be retained, then call clear(), then recycle().
-     */
-    @Override public void recycle()
-    {
-        if (this.map != null)
-        {
-            for (K key : map.keySet())
-            {
-                V value = map.remove(key);
+	/**
+	 * Clear data structures and references to enable garbage collecting of resources associated with
+	 * this.
+	 * 
+	 * Calling recycle() on an HashMapState has the side effect of recycling every value contained in
+	 * the HashMapState. If the values of the HashMapState should be retained, then call clear(), then
+	 * recycle().
+	 */
+	@Override
+	public void recycle()
+	{
+		if (this.map != null)
+		{
+			for (K key : map.keySet())
+			{
+				V value = map.remove(key);
 
-                if (value != null)
-                {
-                    value.recycle();
-                }
-            }
+				if (value != null)
+				{
+					value.recycle();
+				}
+			}
 
-            this.clear();
-        }
+			this.clear();
+		}
 
-        super.recycle();
-    }
-    
-    /**
-     * Put all the key/value pairs from another (type compatible) Map into this.
-     * 
-     * @param otherMap
-     */
-    public void append(Map<K, V> otherMap)
-    {
-        for (K key : otherMap.keySet())
-        {
-            V value = otherMap.get(key);
+		super.recycle();
+	}
 
-            put(key, value);
-        }
-    	
-    }
+	/**
+	 * Put all the key/value pairs from another (type compatible) Map into this.
+	 * 
+	 * @param otherMap
+	 */
+	public void append(Map<K, V> otherMap)
+	{
+		for (K key : otherMap.keySet())
+		{
+			V value = otherMap.get(key);
+
+			put(key, value);
+		}
+
+	}
+
+	/**
+	 * @see ecologylab.generic.Debug#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return this.map().toString();
+	}
 }
