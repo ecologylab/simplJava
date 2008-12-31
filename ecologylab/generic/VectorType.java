@@ -6,6 +6,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
+
 public abstract class VectorType<T> extends Observable {
 
 	public abstract double get(T term);
@@ -25,6 +26,14 @@ public abstract class VectorType<T> extends Observable {
 	public abstract Set<Double> values();
 	
 	public abstract HashMap<T,Double> map();
+	
+	public abstract VectorType<T> unit();
+	
+	public abstract VectorType<T> simplex();
+	
+	public abstract double dotSimplex(VectorType<T> v);
+	
+	public abstract int commonDimensions(VectorType<T> v);
 
 	@Deprecated
 	public double weight = -1;

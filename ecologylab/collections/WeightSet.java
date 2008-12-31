@@ -9,6 +9,7 @@ import java.util.*;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
+import ecologylab.generic.ObservableDebug;
 import ecologylab.generic.ThreadMaster;
 
 /**
@@ -27,7 +28,7 @@ import ecologylab.generic.ThreadMaster;
  * There are a bunch of synchronized methods to affect this.
  **/
 public class WeightSet<E extends SetElement>
-extends Debug
+extends ObservableDebug
 {
   /////////////////////////////////////////////////////////
   //  DEFAULT WEIGHTING STRATEGY
@@ -93,6 +94,8 @@ extends Debug
   private void sortIfWeShould() {
     if (getWeightStrategy.hasChanged()) {
       Collections.sort(list,comparator);
+      setChanged();
+      notifyObservers();
       getWeightStrategy.clearChanged();
     }
   }
