@@ -416,13 +416,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 
 			for (int i=0; i<numElements; i++)
 			{
-				FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
-				final int childOptimizationsType 	= childF2Xo.type();
+				FieldToXMLOptimizations childF2XO	= elementF2XOs.get(i);
+				final int childOptimizationsType 	= childF2XO.type();
 				if (childOptimizationsType == LEAF_NODE_VALUE)
 				{
 					try
 					{
-						childF2Xo.appendLeaf(buffy, this);
+						childF2XO.appendLeaf(buffy, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -430,7 +430,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				else
 				{
 					Object thatReferenceObject	= null;
-					Field childField			= childF2Xo.field();
+					Field childField			= childF2XO.field();
 					try
 					{
 						thatReferenceObject		= childField.get(this);
@@ -478,7 +478,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2Xo.appendCollectionLeaf(buffy, next);
+									childF2XO.appendCollectionLeaf(buffy, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -490,13 +490,19 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							else if (next instanceof ElementState)
 							{
 								ElementState collectionSubElementState = (ElementState) next;
-								//collectionSubElementState.translateToXML(collectionSubElementState.getClass(), true, nodeNumber, buffy, REGULAR_NESTED_ELEMENT);
+
+								//FIXME -- uses class instead of field to get F2XO
+								//does this work correctly with @xml_classes ?
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 								//TODO -- changed by andruid 7/21/08 -- not sure if this breaks anything else, but it seems correct,
 								// and it fixes @xml_text output
-//								FieldToXMLOptimizations collectionElementF2Xo				= optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2Xo, collectionElementClass);
-								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementF2Xo, buffy);
+//							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+//							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+								FieldToXMLOptimizations collectionElementF2XO				= childF2XO.isAnnotatedCollectionOrMap() ?
+										childF2XO : 
+										collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+								
+								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementF2XO, buffy);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -513,7 +519,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						Class<? extends ElementState> thatNewClass			= thatElementState.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedF2Xo = thatNewClass.equals(childField.getType()) ?
-								childF2Xo : fieldToXMLOptimizations(childField, thatNewClass);
+								childF2XO : fieldToXMLOptimizations(childField, thatNewClass);
 
 						thatElementState.translateToXMLBuilder(thatNewClass, nestedF2Xo, buffy);
 						//buffy.append('\n');						
@@ -732,6 +738,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								//FIXME -- uses class instead of field to get F2XO
+								//does this work correctly with @xml_classes ?
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 //							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 //							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
