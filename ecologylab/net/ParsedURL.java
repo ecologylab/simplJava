@@ -809,18 +809,19 @@ implements MimeType
 		    argString	= addressString.substring(argPos);
 		    addressString		= addressString.substring(0, argPos);
 		 }
-		 else
-		 {
-		    // 3) if what's left is a directory (w/o a mime type),add slash
-		    int endingSlash	= addressString.lastIndexOf('/');
-		    int lastChar	= addressString.length() - 1;
-		    if (endingSlash == -1)
-		       endingSlash++;
-		    if ((lastChar > 0) &&
-			(lastChar != endingSlash) &&
-			(addressString.substring(endingSlash).indexOf('.') == -1))
-		       addressString	       += '/';
-		 }
+// This seems uneccessary, crawling any wikimedia based site will break by adding an extra slash. 
+//		 else
+//		 {
+//		    // 3) if what's left is a directory (w/o a mime type),add slash
+//		    int endingSlash	= addressString.lastIndexOf('/');
+//		    int lastChar	= addressString.length() - 1;
+//		    if (endingSlash == -1)
+//		       endingSlash++;
+//		    if ((lastChar > 0) &&
+//			(lastChar != endingSlash) &&
+//			(addressString.substring(endingSlash).indexOf('.') == -1))
+//		       addressString	       += '/';
+//		 }
 	    // 4) put back what we peeled off
 	    addressString	       += argString;
       	addressString	       += hashString;
