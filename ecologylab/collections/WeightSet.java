@@ -239,4 +239,9 @@ extends ObservableDebug
   {
     return false;
   }
+  
+  public WeightingStrategy getWeightStrategy()
+  {
+	  return getWeightStrategy;
+  }
 }
