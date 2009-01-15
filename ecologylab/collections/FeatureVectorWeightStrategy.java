@@ -9,19 +9,19 @@ import ecologylab.generic.VectorType;
 
 
 @SuppressWarnings("unchecked")
-public class VectorWeightStrategy<E extends VectorSetElement> extends WeightingStrategy<E> implements Observer
+public class FeatureVectorWeightStrategy<E extends FeatureVectorSetElement> extends WeightingStrategy<E> implements Observer
 {
   
   private Hashtable<VectorType, Double> cachedWeights = new Hashtable<VectorType, Double>();
   private VectorType referenceVector;
 
-  public VectorWeightStrategy(VectorType v) {
+  public FeatureVectorWeightStrategy(VectorType v) {
     referenceVector = v;
     v.addObserver(this);
   }
 
   public double getWeight(E e) {
-    VectorType termVector = e.vector();
+    VectorType termVector = e.featureVector();
     double weight = -1;
     if (termVector != null) {
       Hashtable<VectorType, Double> cachedWeights = this.cachedWeights;
@@ -41,14 +41,14 @@ public class VectorWeightStrategy<E extends VectorSetElement> extends WeightingS
   }
 
   public void insert(E e) {
-    if (e.vector() != null)
-      e.vector().addObserver(this);
+    if (e.featureVector() != null)
+      e.featureVector().addObserver(this);
     super.insert(e);
   }
 
   public void remove(E e) {
-    if (e.vector() != null)
-      e.vector().deleteObserver(this);
+    if (e.featureVector() != null)
+      e.featureVector().deleteObserver(this);
     super.remove(e);
   }
 
