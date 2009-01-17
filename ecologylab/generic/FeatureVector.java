@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
 
-
 public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 {
 
@@ -28,6 +27,12 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	{
 		values = new HashMap<T, Double>(copyMe.map());
 		norm = copyMe.norm();
+	}
+	
+	protected void reset() 
+	{
+		values = new HashMap<T, Double>();
+		resetNorm();
 	}
 
 	public FeatureVector<T> copy ( )
@@ -148,13 +153,12 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		add(1, v);
 	}
 
-	/**
-	 * Calculates the dot product of this Vector with another Vector
-	 * 
-	 * @param v
-	 *            Vector to dot this Vector with.
-	 */
 	public double dot ( IFeatureVector<T> v )
+	{
+		return dot(v, false);
+	}
+
+	public double dot ( IFeatureVector<T> v, boolean simplex )
 	{
 		HashMap<T, Double> other = v.map();
 		if (other == null || v.norm() == 0 || this.norm() == 0)
@@ -166,7 +170,10 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		{
 			for (T term : vector.keySet())
 				if (other.containsKey(term))
-					dot += other.get(term) * vector.get(term);
+					if (simplex)
+						dot += vector.get(term);
+					else
+						dot += vector.get(term) + other.get(term);
 		}
 		return dot;
 	}
@@ -228,6 +235,16 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 				max = d;
 	}
 
+	/**
+	 * Linearly scales the vector such that the max value in the vector is no more than the passed
+	 * in value.<br/>
+	 * <br/>
+	 * Pivots around zero so that negative values with a magnitude greater than the clamp will be
+	 * scaled appropriately.
+	 * 
+	 * @param clampTo
+	 *            The new max value of the vector.
+	 */
 	public void clamp ( double clampTo )
 	{
 		double max = 0;
@@ -270,27 +287,21 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 			}
 			if (!(max > clampTo))
 				return;
-			// double multiplier = clampTo/max;
-			// multiply(multiplier);
-			synchronized (values)
+			
+			ArrayList<T> terms_to_delete = new ArrayList<T>();
+			for (T term : this.values.keySet())
 			{
-				ArrayList<T> terms_to_delete = new ArrayList<T>();
-				for (T term : this.values.keySet())
-				{
-					double old_value = this.values.get(term);
-					double new_value = clampTo * old_value / max;
-					// double new_value = clampTo*Math.log10( ((Math.abs(old_value)/max)+1/10) * 9);
-					// new_value *= Math.signum(old_value);
-					if (Math.abs(new_value) < 0.001)
-						terms_to_delete.add(term);
-					else
-						this.values.put(term, new_value);
-				}
-				for (T t : terms_to_delete)
-					values.remove(t);
+				double old_value = this.values.get(term);
+				double new_value = clampTo * old_value / max;
+				if (Math.abs(new_value) < 0.001)
+					terms_to_delete.add(term);
+				else
+					this.values.put(term, new_value);
 			}
-			resetNorm();
+			for (T t : terms_to_delete)
+				values.remove(t);
 		}
+		resetNorm();
 	}
 
 	public IFeatureVector<T> unit ( )
@@ -302,8 +313,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public double dotSimplex ( IFeatureVector<T> v )
 	{
-		double dot = dot(v.simplex());
-		return dot / commonDimensions(v);
+		return dot(v, true);
 	}
 
 	public int commonDimensions ( IFeatureVector<T> v )
@@ -313,9 +323,10 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		return v_elements.size();
 	}
 
-	public IFeatureVector<T> simplex ( )
+	public FeatureVector<T> simplex ( )
 	{
 		FeatureVector<T> v = new FeatureVector<T>(this);
+		
 		for (T t : v.values.keySet())
 		{
 			v.values.put(t, 1.0);
