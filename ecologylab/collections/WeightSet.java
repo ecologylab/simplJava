@@ -114,7 +114,7 @@ extends ObservableDebug
 
   /**
    * Selects the top weighted element from the set.<br>
-   * This method does NOT remove any elements from the set.
+   * This method removes the selected from the set.
    * @return
    */
   public synchronized E maxSelect() {
@@ -122,7 +122,7 @@ extends ObservableDebug
     if (list.size() == 0)
       return null;
     sortIfWeShould();
-    return list.getFirst();
+    return list.removeFirst();
   }
   
   public synchronized E maxPeek() {
