@@ -112,12 +112,17 @@ extends ObservableDebug
     e.recycle();
   }
 
+  /**
+   * Selects the top weighted element from the set.<br>
+   * This method does NOT remove any elements from the set.
+   * @return
+   */
   public synchronized E maxSelect() {
     LinkedList<E> list = this.list;
     if (list.size() == 0)
       return null;
     sortIfWeShould();
-    return list.removeFirst();
+    return list.getFirst();
   }
   
   public synchronized E maxPeek() {
