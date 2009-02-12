@@ -82,12 +82,11 @@ public interface IFeatureVector<T>
 	public IFeatureVector<T> simplex ( );
 
 	/**
-	 * Returns the dot product of this vector and the simplex of the passed in vector, divided by
-	 * the number of common dimensions between the two.<br />
+	 * Returns the dot product of this vector and the simplex of the passed in vector.<br />
 	 * <br/>
 	 * 
-	 * Conceptually, it is the average value of all the elements in this vector which are common to
-	 * both this vector and the passed in vector.
+	 * You can the average value of all the elements in this vector which are common to
+	 * both by dividing this result by the commonDimensions.
 	 * 
 	 * @param v
 	 *            vector to simplex and dot with this vector

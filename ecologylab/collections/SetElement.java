@@ -19,11 +19,6 @@ extends Debug
 // implements SetElement
 {
 
-  /**
-   * Cached version of weight. Made accessible for efficiency's sake.
-   * Use carefully, at your own risk, and only w inside, deep understanding.
-   */
-  public double			weight;
   private boolean recycled = false;
   protected ArrayList<WeightSet> sets = new ArrayList();
   
@@ -32,10 +27,7 @@ extends Debug
   public SetElement()
   {
   }
-  public double getWeight()
-  {
-    return weight;
-  }
+
   /**
    * This can be overridden to exclude elements from selection while keeping them in the set.
    * 
@@ -116,18 +108,10 @@ extends Debug
   {
 
   }
-  /**
-   * Set the weight slot.
-   * 
-   * Doesn't effect the set if no longer a member.
-   */
-  public void setWeight(float newWeight)
-  {
-    weight	= newWeight;
-  }
+  
   public String toString()
   {
-    return super.toString() + ": " + weight;
+    return super.toString();
   }
   /**
    * Free resources associated w this element.
@@ -147,14 +131,4 @@ extends Debug
     return sets.size() > 0;
   }
 
-  
-  /**
-   * The set object that this element is part of, or null if its not a member of any set.
-   * 
-   * @return
-   */
-//  protected BasicFloatSet set()
-//  {
-//    return set;
-//  }
 }

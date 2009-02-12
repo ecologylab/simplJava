@@ -36,7 +36,7 @@ extends ObservableDebug
   public final class DefaultWeightStrategy extends WeightingStrategy<E>
   {
     public double getWeight(E e) {
-      return e.getWeight();
+      return 0;
     }
     public boolean hasChanged() {
       return true;
@@ -47,7 +47,7 @@ extends ObservableDebug
   /////////////////////////////////////////////////////////
   public final class FloatWeightComparator implements Comparator<E> {
     private WeightingStrategy<E> strat;
-    public FloatWeightComparator(WeightingStrategy<SetElement> getWeightStrategy) {
+    public FloatWeightComparator(WeightingStrategy<E> getWeightStrategy) {
       strat = (WeightingStrategy<E>) getWeightStrategy;
     }
     public int compare(E o1, E o2) {
@@ -58,7 +58,7 @@ extends ObservableDebug
   
   private LinkedList<E>  list = new LinkedList<E>();
   private WeightingStrategy<E> getWeightStrategy = new DefaultWeightStrategy();
-  private Comparator<E> comparator = new FloatWeightComparator((WeightingStrategy<SetElement>) getWeightStrategy);
+  private Comparator<E> comparator = new FloatWeightComparator(getWeightStrategy);
   private int maxSize = -1;
   
   /**
@@ -69,21 +69,21 @@ extends ObservableDebug
 
   public WeightSet() {}
   
-  public WeightSet(WeightingStrategy<SetElement> getWeightStrategy) {
+  public WeightSet(WeightingStrategy<E> getWeightStrategy) {
     setWeightingStrategy(getWeightStrategy);
   }
   public WeightSet(int maxSize, ThreadMaster threadMaster) {
     this.threadMaster = threadMaster;
     this.maxSize = maxSize;
   }
-  public WeightSet(int maxSize, ThreadMaster threadMaster, WeightingStrategy<SetElement> getWeightStrategy) {
+  public WeightSet(int maxSize, ThreadMaster threadMaster, WeightingStrategy<E> getWeightStrategy) {
     this(maxSize, threadMaster);
     setWeightingStrategy(getWeightStrategy);
   }
 
   // SETS WEIGHTING TO NEW STRATEGY AND RECONSTRUCTS COMPARATOR
   // TODO: rework this as a constructor parameter instead.
-  public synchronized void setWeightingStrategy(WeightingStrategy<SetElement> getWeightStrategy)
+  public synchronized void setWeightingStrategy(WeightingStrategy<E> getWeightStrategy)
   {
     this.getWeightStrategy = (WeightingStrategy<E>) getWeightStrategy;
     this.comparator = new FloatWeightComparator(getWeightStrategy);
