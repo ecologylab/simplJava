@@ -523,7 +523,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	}
 
 	/**
-	 * A signalling object for modifying interest ops and socket invalidation in a thread-safe way.
+	 * A signaling object for modifying interest ops and socket invalidation in a thread-safe way.
 	 * 
 	 * @author James Greenfield
 	 */

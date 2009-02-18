@@ -4,18 +4,18 @@
 package ecologylab.services.distributed.impl;
 
 /**
- * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML String, along with the
- * request's UID.
+ * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML
+ * String, along with the request's UID.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class PreppedRequest implements Comparable<PreppedRequest>
 {
-	private long				uid;
+	private long					uid	= -1;
 
 	private StringBuilder	request;
 
-	private boolean			disposable;
+	private boolean				disposable;
 
 	/**
 	 * 
@@ -23,14 +23,14 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 	public PreppedRequest(StringBuilder request, long uid, int requestSize, boolean disposable)
 	{
 		this(requestSize);
-		
+
 		this.uid = uid;
-		
+
 		this.setRequest(request);
-	
+
 		this.disposable = disposable;
 	}
-	
+
 	public PreppedRequest(int requestSize)
 	{
 		this.request = new StringBuilder(requestSize);
@@ -45,7 +45,7 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 		request.setLength(0);
 		this.disposable = false;
 	}
-	
+
 	/**
 	 * @return the request
 	 */
@@ -75,7 +75,7 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 
 	/**
 	 * @param uid
-	 *           the uid to set
+	 *          the uid to set
 	 */
 	public void setUid(long uid)
 	{
@@ -92,7 +92,7 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 
 	/**
 	 * @param disposable
-	 *           the disposable to set
+	 *          the disposable to set
 	 */
 	public void setDisposable(boolean disposable)
 	{

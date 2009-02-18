@@ -875,6 +875,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 * places the RequestMessage on the requestQueue using enqueueRequest().
 	 * 
 	 * @param incomingMessage
+	 * @param headerMap2 
 	 * @throws BadClientException
 	 */
 	private final void processString(CharSequence incomingMessage,
@@ -903,16 +904,29 @@ public abstract class AbstractClientSessionManager extends Debug implements
 			{
 				debug("ERROR; incoming message could not be translated: "
 						+ incomingMessage.toString());
+				
+				debug("HEADERS:");
+				debug(headerMap.toString());
+
 				if (failReason != null)
 				{
-					debug("exception: " + failReason.getMessage());
+					debug("EXCEPTION: " + failReason.getMessage());
 					failReason.printStackTrace();
 				}
 			}
 			else
 			{
 				debug("ERROR; incoming message could not be translated: "
-						+ incomingMessage);
+						+ incomingMessage.toString());
+				
+				debug("HEADERS:");
+				debug(headerMap.toString());
+
+				if (failReason != null)
+				{
+					debug("EXCEPTION: " + failReason.getMessage());
+					failReason.printStackTrace();
+				}
 			}
 			if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
 			{
