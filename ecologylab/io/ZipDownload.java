@@ -20,8 +20,6 @@ import java.util.zip.ZipFile;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.DownloadProcessor;
-import ecologylab.generic.Downloadable;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -413,6 +411,12 @@ implements Downloadable, DispatchTarget
    }
 
 public boolean isRecycled()
+{
+	// TODO Auto-generated method stub
+	return false;
+}
+
+public boolean cancel()
 {
 	// TODO Auto-generated method stub
 	return false;

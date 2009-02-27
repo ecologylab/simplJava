@@ -10,7 +10,6 @@ import java.io.OutputStream;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.Downloadable;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 
@@ -168,6 +167,12 @@ implements Downloadable, DispatchTarget
 	}
 
 	public boolean isRecycled()
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean cancel()
 	{
 		// TODO Auto-generated method stub
 		return false;
