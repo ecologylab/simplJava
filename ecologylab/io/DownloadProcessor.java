@@ -1,6 +1,8 @@
-package ecologylab.generic;
+package ecologylab.io;
 
 import java.io.IOException;
+
+import ecologylab.generic.DispatchTarget;
 
 
 /**
