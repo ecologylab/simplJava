@@ -7,8 +7,8 @@ import java.io.IOException;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
-import ecologylab.generic.DownloadProcessor;
-import ecologylab.generic.Downloadable;
+import ecologylab.io.DownloadProcessor;
+import ecologylab.io.Downloadable;
 
 /**
  * A simple download processor:
