@@ -101,6 +101,8 @@ extends ObservableDebug
   }
   
   public synchronized double mean() {
+	if (list.size() == 0)
+		return 0;
     double mean = 0;
     for (E e : list)
       mean += getWeightStrategy.getWeight(e);
