@@ -17,7 +17,7 @@ public class StringBuilderPool extends ResourcePoolWithSize<StringBuilder>
 	 */
 	public StringBuilderPool(int builderSize)
 	{
-		this(DEFAULT_POOL_SIZE, 10, builderSize);
+		this(DEFAULT_POOL_SIZE, NEVER_CONTRACT, builderSize);
 	}
 
 	/**
