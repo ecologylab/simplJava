@@ -27,7 +27,7 @@ import ecologylab.generic.ThreadMaster;
  * Seems no operations can safely occur concurrently.
  * There are a bunch of synchronized methods to affect this.
  **/
-public class WeightSet<E extends SetElement>
+public class WeightSet<E extends AbstractSetElement>
 extends ObservableDebug
 {
   /////////////////////////////////////////////////////////

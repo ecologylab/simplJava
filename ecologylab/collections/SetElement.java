@@ -15,8 +15,7 @@ import ecologylab.generic.Debug;
  * Basic implementation of SetElement for cases when you can inherit from here
  **/
 public class SetElement
-extends Debug
-// implements SetElement
+extends Debug implements AbstractSetElement
 {
 
   private boolean recycled = false;
@@ -55,13 +54,13 @@ extends Debug
     }
   }
   
-  protected void addSet(WeightSet s) {
+  public void addSet(WeightSet s) {
     synchronized(sets) {
       sets.add(s);
     }
   }
   
-  protected void removeSet(WeightSet s) {
+  public void removeSet(WeightSet s) {
     synchronized(sets) {
       sets.remove(s);
     }
