@@ -201,11 +201,14 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	private void recalculateNorm ( )
 	{
 		double norm = 0;
-		for (double d : this.values.values())
+		synchronized(values)
 		{
-			norm += Math.pow(d, 2);
+			for (double d : this.values.values())
+			{
+				norm += Math.pow(d, 2);
+			}
 		}
-		this.norm = Math.sqrt(norm);
+			this.norm = Math.sqrt(norm);
 	}
 
 	private void resetNorm ( )
@@ -230,9 +233,12 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	private void recalculateMax ( )
 	{
-		for (Double d : values.values())
-			if (Math.abs(d) > max)
-				max = d;
+		synchronized(values)
+		{
+			for (Double d : values.values())
+				if (Math.abs(d) > max)
+					max = d;
+		}
 	}
 
 	/**
@@ -326,10 +332,12 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public FeatureVector<T> simplex ( )
 	{
 		FeatureVector<T> v = new FeatureVector<T>(this);
-		
-		for (T t : v.values.keySet())
+		synchronized(values)
 		{
-			v.values.put(t, 1.0);
+			for (T t : v.values.keySet())
+			{
+				v.values.put(t, 1.0);
+			}
 		}
 		return v;
 	}
