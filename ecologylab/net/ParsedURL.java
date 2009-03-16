@@ -477,6 +477,14 @@ implements MimeType
       return result;
    }
 
+  public String filename()
+  {
+  	String lowerCase = noAnchorNoQueryPageString();
+		int lastDot 	= lowerCase.lastIndexOf('.');
+  	int lastSlash = lowerCase.lastIndexOf('/');
+  	String result = (lastDot == 0 || (lastDot < lastSlash )) ? "" : lowerCase.substring(lastSlash, lastDot);
+  	return result;
+  }
   /**
    * Uses lazy evaluation to minimize storage allocation.
    * 
