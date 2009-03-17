@@ -94,13 +94,13 @@ public class ImageTools extends Debug
 		writeJpegFile(rendImage, new File(outfileName), compressionQuality);
 	}
 
-	public static void writePngFile(RenderedImage rendImage, File outfile)
+	public static void writeFile(RenderedImage rendImage, File outfile, String formatName)
 	{
 		try
 		{
 			// Find a png writer
 			ImageWriter writer = null;
-			Iterator iter = ImageIO.getImageWritersByFormatName("png");
+			Iterator iter = ImageIO.getImageWritersByFormatName(formatName);
 			if (iter.hasNext())
 			{
 				writer = (ImageWriter) iter.next();
@@ -127,39 +127,15 @@ public class ImageTools extends Debug
 			e.printStackTrace();
 		}
 	}
+	
+	public static void writePngFile(RenderedImage rendImage, File outfile)
+	{
+		writeFile(rendImage, outfile, "png");
+	}
 
 	public static void writeTifFile(RenderedImage rendImage, File outfile)
 	{
-		try
-		{
-			// Find a png writer
-			ImageWriter writer = null;
-			Iterator iter = ImageIO.getImageWritersBySuffix("tif");
-			if (iter.hasNext())
-			{
-				writer = (ImageWriter) iter.next();
-			}
-
-			// Prepare output file
-			ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
-			writer.setOutput(ios);
-
-			ImageTools imageTools = new ImageTools();
-			// Set the compression quality
-			ImageWriteParam iwparam = imageTools.new MyImageWriteParam();
-
-			// Write the image
-			writer.write(null, new IIOImage(rendImage, null, null), iwparam);
-
-			// Cleanup
-			ios.flush();
-			writer.dispose();
-			ios.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		writeFile(rendImage, outfile, "tif");
 	}
 
 	/**
@@ -172,7 +148,6 @@ public class ImageTools extends Debug
 	{
 		try
 		{
-
 			// Find a jpeg writer
 			ImageWriter writer = null;
 			Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
@@ -180,11 +155,10 @@ public class ImageTools extends Debug
 			{
 				writer = (ImageWriter) iter.next();
 			}
-
 			// Prepare output file
 			ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);
 			writer.setOutput(ios);
-
+		
 			ImageTools imageTools = new ImageTools();
 			// Set the compression quality
 			ImageWriteParam iwparam = imageTools.new MyImageWriteParam();
