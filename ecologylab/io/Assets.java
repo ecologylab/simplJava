@@ -13,6 +13,7 @@ import ecologylab.appframework.types.AssetState;
 import ecologylab.appframework.types.AssetsState;
 import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
+import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
@@ -563,6 +564,65 @@ implements ApplicationProperties
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	private static final StringBuilderPool stringPool = new StringBuilderPool(2, 255);
+	
+	/**
+	 * Derive a non-duplicate cache filename given a ParsedURL location
+	 * @param location	The location of the file to be cached.
+	 * @param directory	The directory to cache the file
+	 * @param additional	An additional text to add to the end of the filename, but before the extension
+	 * @param separator	Separator used to divide sections of filename (e.g. "-", ".")
+	 * @param extension	Extension to add to file name if it doesn't already exist
+	 * 
+	 * @return A string containing the new filename
+	 */
+	public static String getCacheFilename(ParsedURL location, File directory, String additional, String separator, String extension)
+	{
+		StringBuilder filename 	= stringPool.nextBuffer();
+		filename.append(location.host());
+		filename.append(separator);
+		String locationString 	= location.url().getPath();
+		filename.append(locationString.substring(locationString.lastIndexOf('/')+1));
+		
+		if (additional != null)
+		{
+			filename.append(separator);
+			filename.append(additional);
+		}
+		
+		if (extension != null && !locationString.endsWith(extension))
+		{
+			filename.append(".");
+			filename.append(extension);
+		}
+		
+		String filenameString = filename.toString();
+		File localFile = new File(directory, filename.toString());
+		if (localFile.exists())
+		{
+			int extensionStart 		= filename.lastIndexOf(".");
+			int count 						= 1;
+			String pre						= filename.substring(0, extensionStart);
+			String end						= filename.substring(extensionStart);
+			
+			while(localFile.exists())
+			{
+				StringBuilder newFilename = stringPool.nextBuffer();
+				newFilename.append(pre);
+				newFilename.append(separator);
+				newFilename.append(count);
+				newFilename.append(end);
+				filenameString						= newFilename.toString();
+				localFile 								= new File(directory, filenameString);
+				count++;
+				stringPool.release(newFilename);
+			}
+			stringPool.release(filename);
+		}
+		
+		return filenameString;
 	}
 }
 
