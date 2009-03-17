@@ -219,7 +219,7 @@ extends ObservableDebug
    */
   public synchronized E at(int i) {
 	  LinkedList<E> list = this.list;
-	  if (list.size() == 0)
+	  if (list.size() == 0 || i >= list.size())
 		  return null;
 	  sortIfWeShould();
 	  return list.get(i);
