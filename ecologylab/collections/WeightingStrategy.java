@@ -1,7 +1,5 @@
 package ecologylab.collections;
 
-import java.util.Observable;
-
 public abstract class WeightingStrategy<E>
 {
   private boolean changed;
