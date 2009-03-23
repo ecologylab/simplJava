@@ -59,7 +59,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 
 	protected boolean 								mousePressed 		= false;
 	
-	LogPlayer<E, T>									player;
+	protected LogPlayer<E, T>									player;
 	
 	public LogPlaybackControls(LogPlayer<E, T> p)
 	{
