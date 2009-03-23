@@ -36,6 +36,6 @@ public class ExtensionFilter extends javax.swing.filechooser.FileFilter implemen
 	 */
 	@Override public String getDescription()
 	{
-		return "Log files (.xml)";
+		return extension;
 	}
 }
