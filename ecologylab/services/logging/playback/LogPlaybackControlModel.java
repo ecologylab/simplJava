@@ -40,6 +40,11 @@ public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logg
 		this.log = log;
 	}
 
+	public T getLog()
+	{
+		return log;
+	}
+	
 	/**
 	 * Returns the control to the first op.
 	 * 

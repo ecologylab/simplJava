@@ -57,7 +57,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 																							"toolbarButtonGraphics/media/StepForward24.gif",
 																							"Step forward"));
 
-	private boolean 									mousePressed 		= false;
+	protected boolean 								mousePressed 		= false;
 	
 	LogPlayer<E, T>									player;
 	

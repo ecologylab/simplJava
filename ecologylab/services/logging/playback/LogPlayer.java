@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -56,7 +57,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 
 	protected Timer															t;
-
+	
+	
 	/**
 	 * Modes: 0 = no file selected (need to get a file name). 1 = file selected and loading. 2 = file
 	 * loaded, display log.
@@ -64,7 +66,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	protected int											mode									= LOG_NOT_SELECTED;
 
-	private boolean															guiShown										= false;
+	private boolean															guiShown;
 
 	protected TranslationScope									translationSpace;
 
@@ -86,6 +88,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	{
 		super(appName, translationSpace, args, 0);
 
+		guiShown = false;
+		
 		this.translationSpace = translationSpace;
 
 		LOG incomingLog = null;
@@ -386,10 +390,11 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		mainFrame.getContentPane().setLayout(new BorderLayout());
 		
-
 		logDisplay = this.generateView();
 		
 		mainFrame.getContentPane().add(logDisplay);
+		
+		
 
 		mainFrame.validate();
 		mainFrame.pack();
@@ -438,6 +443,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	{
 		if (!guiShown)
 		{
+			
 			debug("Showing GUI.");
 			this.createGUI();
 
