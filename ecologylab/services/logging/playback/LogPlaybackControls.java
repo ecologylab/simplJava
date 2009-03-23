@@ -187,8 +187,7 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 	{
 		if (PLAY.equals(arg0.getActionCommand()))
 		{
-			playPauseButton.setActionCommand(PAUSE);
-			playPauseButton.setIcon(pauseIcon);
+			play();
 		}
 
 		if (PAUSE.equals(arg0.getActionCommand()) ||
@@ -196,10 +195,27 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 			 STEP_FORWARD.equals(arg0.getActionCommand()) ||
 			 STOP.equals(arg0.getActionCommand()))
 		{
-			playPauseButton.setActionCommand(PLAY);
-			playPauseButton.setIcon(playIcon);
+			pause();
 		}
 
+	}
+
+	/**
+	 * 
+	 */
+	protected void pause()
+	{
+		playPauseButton.setActionCommand(PLAY);
+		playPauseButton.setIcon(playIcon);
+	}
+
+	/**
+	 * 
+	 */
+	protected void play()
+	{
+		playPauseButton.setActionCommand(PAUSE);
+		playPauseButton.setIcon(pauseIcon);
 	}
 
 	public void stateChanged(ChangeEvent arg0)
