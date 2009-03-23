@@ -25,7 +25,7 @@ import ecologylab.generic.ThreadMaster;
  * Gotta be careful to be thread safe. Seems no operations can safely occur concurrently. There are
  * a bunch of synchronized methods to affect this.
  **/
-public class WeightSet<E extends AbstractSetElement> extends ObservableDebug
+public class WeightSet<E extends AbstractSetElement> extends ObservableDebug implements Iterable<E>
 {
 	// ///////////////////////////////////////////////////////
 	// DEFAULT WEIGHTING STRATEGY
@@ -300,5 +300,10 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug
 	public WeightingStrategy<E> getWeightStrategy ( )
 	{
 		return getWeightStrategy;
+	}
+
+	public Iterator<E> iterator ( )
+	{
+		return list.iterator();
 	}
 }
