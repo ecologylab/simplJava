@@ -172,7 +172,6 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug
 		sortIfWeShould();
 		List<E> deletionList = list.subList(0, numToDelete);
 		clearAndRecycle(deletionList);
-		deletionList.clear();
 	}
 
 	public synchronized void insert ( E el )
@@ -210,7 +209,6 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug
 			if (doRecycleElements)
 				e.recycle();
 		}
-		list.clear();
 	}
 
 	/**
