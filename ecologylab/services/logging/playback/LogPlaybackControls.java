@@ -1,18 +1,25 @@
 package ecologylab.services.logging.playback;
 
 import java.awt.Dimension;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.KeyEventDispatcher;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSlider;
+import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -79,7 +86,10 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 
 		playPauseButton.addActionListener(player);
 		playPauseButton.addActionListener(this);
-
+		
+		playPauseButton.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "PRESS");
+		playPauseButton.getActionMap().put("PRESS", new ButtonAction(playPauseButton));
+		
 		stopButton.addActionListener(player);
 		stopButton.addActionListener(this);
 
@@ -228,5 +238,18 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 	 */
 	public void setupImportantEvents()
 	{
+	}
+	
+	public class ButtonAction extends AbstractAction
+	{
+		JButton button;
+		public ButtonAction(JButton button)
+		{
+			this.button = button;
+		}
+		public void actionPerformed(ActionEvent arg0)
+		{
+			button.doClick();			
+		}
 	}
 }
