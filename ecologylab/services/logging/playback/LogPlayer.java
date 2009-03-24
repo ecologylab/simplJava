@@ -48,23 +48,20 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	protected LogPlaybackControlModel<OP, LOG>	log;
 
-	protected File											logFile								= null;
+	protected File															logFile											= null;
 
 	protected JFrame														mainFrame;
 
-
-	protected boolean										playing								= false;
-
+	protected boolean														playing											= false;
 
 	protected Timer															t;
-	
-	
+
 	/**
 	 * Modes: 0 = no file selected (need to get a file name). 1 = file selected and loading. 2 = file
 	 * loaded, display log.
 	 */
 
-	protected int											mode									= LOG_NOT_SELECTED;
+	protected int																mode												= LOG_NOT_SELECTED;
 
 	private boolean															guiShown;
 
@@ -82,14 +79,13 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean															logLoadComplete							= false;
 
-
-	public LogPlayer(String appName, String[] args,
-			  TranslationScope translationSpace) throws XMLTranslationException
+	public LogPlayer(String appName, String[] args, TranslationScope translationSpace)
+			throws XMLTranslationException
 	{
 		super(appName, translationSpace, args, 0);
 
 		guiShown = false;
-		
+
 		this.translationSpace = translationSpace;
 
 		LOG incomingLog = null;
@@ -121,7 +117,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 					e.printStackTrace();
 				}
 			}
-			
+
 			// by now, incomingLog must have something
 			debug("Reading log from file: " + logFile);
 
@@ -136,9 +132,9 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 				this.log = generateLogPlaybackControlModel(incomingLog);
 
 				t = new Timer(this.playbackInterval, this);
-				
+
 				mode = LOG_LOADED;
-				
+
 				secondaryLoad();
 			}
 			else
@@ -202,14 +198,14 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	{
 		JFileChooser fC = new JFileChooser(PropertiesAndDirectories.logDir());
 		ExtensionFilter fF = new ExtensionFilter("xml");
-		
+
 		fC.addChoosableFileFilter(fC.getAcceptAllFileFilter());
 		fC.addChoosableFileFilter(fF);
 
 		// find the most recent log file in the directory
 
 		File[] logDirContents = PropertiesAndDirectories.logDir().listFiles(fF);
-		
+
 		if (logDirContents.length > 0)
 		{
 			File newestLog = logDirContents[0];
@@ -313,15 +309,15 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		controlsDisplay.setupImportantEvents();
 
-		//logDisplay.setPreferredSize(new Dimension(800, 600));
-		//logDisplay.setMinimumSize(new Dimension(800, 600));
-		//logDisplay.setMaximumSize(new Dimension(800, 600));
+		// logDisplay.setPreferredSize(new Dimension(800, 600));
+		// logDisplay.setMinimumSize(new Dimension(800, 600));
+		// logDisplay.setMaximumSize(new Dimension(800, 600));
 		logDisplay.invalidate();
 
 		mainFrame.getContentPane().removeAll();
 		mainFrame.getContentPane().add(logDisplay, BorderLayout.CENTER);
 		mainFrame.getContentPane().add(controlsDisplay, BorderLayout.SOUTH);
-		
+
 		if (logDisplay.hasKeyListenerSubObject())
 		{
 			mainFrame.addKeyListener(logDisplay.getKeyListenerSubObject());
@@ -341,7 +337,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private void showLoadingGUI()
 	{
-		//logDisplay.setPreferredSize(new Dimension(800, 600));
+		// logDisplay.setPreferredSize(new Dimension(800, 600));
 
 		logDisplay.invalidate();
 	}
@@ -383,18 +379,16 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		//mainFrame.setBackground(Color.BLACK);
+		// mainFrame.setBackground(Color.BLACK);
 		mainFrame.setPreferredSize(new Dimension(825, 875));
 		mainFrame.setFocusable(true);
 		mainFrame.requestFocus();
 
 		mainFrame.getContentPane().setLayout(new BorderLayout());
-		
+
 		logDisplay = this.generateView();
-		
+
 		mainFrame.getContentPane().add(logDisplay);
-		
-		
 
 		mainFrame.validate();
 		mainFrame.pack();
@@ -404,12 +398,12 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	public void selectFile()
 	{
 		showFileSelectGUI();
-		
+
 		mode = LOG_LOADING;
 
 		javax.swing.SwingUtilities.invokeLater(this);
 	}
-	
+
 	public void showFileSelectGUI()
 	{
 		JFileChooser fC = this.createFileChooser();
@@ -428,11 +422,13 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	}
 
 	protected void secondaryLoad()
-	{}
-	
+	{
+	}
+
 	public void startAdjusting()
-	{}
-	
+	{
+	}
+
 	/**
 	 * Used to be thread safe with Swing. Either sets up the UI, or switches it, depending on whether
 	 * or not a file has been selected.
@@ -443,7 +439,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	{
 		if (!guiShown)
 		{
-			
+
 			debug("Showing GUI.");
 			this.createGUI();
 
@@ -469,7 +465,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 			}
 		}
 	}
-	
+
 	public void startProgram()
 	{
 		// Schedule a job for the event-dispatching thread:
@@ -512,5 +508,5 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	public void windowOpened(WindowEvent e)
 	{
 	}
-	
+
 }
