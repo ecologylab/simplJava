@@ -176,10 +176,13 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	public synchronized void insert ( E el )
 	{
-		getWeightStrategy.insert(el);
-		list.add(el);
-		el.addSet(this);
-		el.insertHook();
+		if (!list.contains(el))
+		{
+			getWeightStrategy.insert(el);
+			list.add(el);
+			el.addSet(this);
+			el.insertHook();
+		}
 	}
 
 	public synchronized void remove ( E el )
