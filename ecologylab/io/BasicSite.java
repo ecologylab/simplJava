@@ -38,10 +38,13 @@ public class BasicSite extends Debug
 		return numTimeouts >= MAX_TIMEOUTS;
 	}
 	
-	
+	/**
+	 *	
+	 * @return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
+	 */
 	public double timeoutsFactor()
 	{
-		return (numTimeouts == 0) ? 1 : 1 / (numTimeouts + 1);
+		return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
 	}
 	
 }
