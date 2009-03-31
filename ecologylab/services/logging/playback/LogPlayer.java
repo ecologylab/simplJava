@@ -295,7 +295,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		}
 	}
 
-	public void showLogPlaybackGUI()
+	protected void showLogPlaybackGUI()
 	{
 		logDisplay.load(this, log, log.getLogPrologue());
 
