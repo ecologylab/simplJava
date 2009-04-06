@@ -547,21 +547,28 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             {
                 Pref pref = mp.getAssociatedPref();
                 Object editedValue = getPrefValue(mp);
-                Object previousValue = pref.value();
-                pref.setValue(editedValue);
-
-                // TODO probably take this code out; now setValue will notify
-                // all PrefChangedListeners that are registered with it.
-                ValueChangedListener valueChangedListener = mp
-                        .getValueChangedListener();
-                if ((valueChangedListener != null) && (editedValue != null))
+                if (editedValue == null)
                 {
-                    if (!editedValue.equals(previousValue))
-                        valueChangedListener.valueChanged(pref);
+                	Debug.error(this, "edited value = null for: " + mp.getID());
                 }
-
-                if (!prefSet.containsKey(pref.key()))
-                    prefSet.add(pref);
+                else
+                {
+	                Object previousValue = pref.value();
+	                pref.setValue(editedValue);
+	
+	                // TODO probably take this code out; now setValue will notify
+	                // all PrefChangedListeners that are registered with it.
+	                ValueChangedListener valueChangedListener = mp
+	                        .getValueChangedListener();
+	                if ((valueChangedListener != null) && (editedValue != null))
+	                {
+	                    if (!editedValue.equals(previousValue))
+	                        valueChangedListener.valueChanged(pref);
+	                }
+	
+	                if (!prefSet.containsKey(pref.key()))
+	                    prefSet.add(pref);
+                }
             }
         }
     }
