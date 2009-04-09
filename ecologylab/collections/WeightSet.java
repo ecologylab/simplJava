@@ -97,12 +97,15 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	}
 
 	// SETS WEIGHTING TO NEW STRATEGY AND RECONSTRUCTS COMPARATOR
-	public synchronized void setWeightingStrategy ( WeightingStrategy<E> getWeightStrategy )
+	public void setWeightingStrategy ( WeightingStrategy<E> getWeightStrategy )
 	{
-		this.getWeightStrategy = (WeightingStrategy<E>) getWeightStrategy;
-		this.comparator = new FloatWeightComparator(getWeightStrategy);
-		for (E e : list)
-			getWeightStrategy.insert(e);
+		synchronized(this)
+		{
+			this.getWeightStrategy = (WeightingStrategy<E>) getWeightStrategy;
+			this.comparator = new FloatWeightComparator(getWeightStrategy);
+			for (E e : list)
+				getWeightStrategy.insert(e);
+		}
 	}
 
 	private void sortIfWeShould ( )
@@ -117,14 +120,17 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		}
 	}
 
-	public synchronized double mean ( )
+	public double mean ( )
 	{
-		if (list.size() == 0)
-			return 0;
-		double mean = 0;
-		for (E e : list)
-			mean += getWeightStrategy.getWeight(e);
-		return mean / list.size();
+		synchronized(this)
+		{
+			if (list.size() == 0)
+				return 0;
+			double mean = 0;
+			for (E e : list)
+				mean += getWeightStrategy.getWeight(e);
+			return mean / list.size();
+		}
 	}
 
 	private void clearAndRecycle ( List<E> deletionList )
@@ -141,60 +147,78 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 * 
 	 * @return
 	 */
-	public synchronized E maxSelect ( )
+	public E maxSelect ( )
 	{
-		ArrayList<E> list = this.list;
-		int size = list.size();
-		if (size == 0)
-			return null;
-		sortIfWeShould();
-		return list.remove(--size);
-	}
-
-	public synchronized E maxPeek ( )
-	{
-		ArrayList<E> list = this.list;
-		int size = list.size();
-		if (size == 0)
-			return null;
-		sortIfWeShould();
-		return list.get(--size);
-	}
-
-	public synchronized void prune ( int numToKeep )
-	{
-		if (maxSize < 0)
-			return;
-		ArrayList<E> list = this.list;
-		int numToDelete = list.size() - numToKeep;
-		if (numToDelete <= 0)
-			return;
-		sortIfWeShould();
-		List<E> deletionList = list.subList(0, numToDelete);
-		clearAndRecycle(deletionList);
-	}
-
-	public synchronized void insert ( E el )
-	{
-		if (!list.contains(el))
+		synchronized(this)
 		{
-			getWeightStrategy.insert(el);
-			list.add(el);
-			el.addSet(this);
-			el.insertHook();
+			ArrayList<E> list = this.list;
+			int size = list.size();
+			if (size == 0)
+				return null;
+			sortIfWeShould();
+			return list.remove(--size);
 		}
 	}
 
-	public synchronized void remove ( E el )
+	public E maxPeek ( )
 	{
-		removeFromSet(el);
-		el.removeSet(this);
+		synchronized(this)
+		{
+			ArrayList<E> list = this.list;
+			int size = list.size();
+			if (size == 0)
+				return null;
+			sortIfWeShould();
+			return list.get(--size);
+		}
 	}
 
-	protected synchronized void removeFromSet ( E e )
+	public void prune ( int numToKeep )
 	{
-		getWeightStrategy.remove(e);
-		list.remove(e);
+		synchronized(this)
+		{
+			if (maxSize < 0)
+				return;
+			ArrayList<E> list = this.list;
+			int numToDelete = list.size() - numToKeep;
+			if (numToDelete <= 0)
+				return;
+			sortIfWeShould();
+			List<E> deletionList = list.subList(0, numToDelete);
+			clearAndRecycle(deletionList);
+		}
+	}
+
+	public void insert ( E el )
+	{
+		synchronized(this)
+		{
+			if (!list.contains(el))
+			{
+				getWeightStrategy.insert(el);
+				list.add(el);
+				el.addSet(this);
+				el.insertHook();
+			}
+		}
+	}
+
+	public void remove ( E el )
+	{
+		synchronized(this)
+		{
+			removeFromSet(el);
+			el.removeSet(this);
+		}
+	}
+
+	protected void removeFromSet ( E e )
+	{
+		synchronized(this)
+		{
+			getWeightStrategy.remove(e);
+			list.remove(e);
+		}
 	}
 
 	/**
@@ -204,13 +228,16 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 *            TODO
 	 * 
 	 */
-	public synchronized void clear ( boolean doRecycleElements )
+	public void clear ( boolean doRecycleElements )
 	{
-		for (E e : list)
+		synchronized(this)
 		{
-			e.deleteHook();
-			if (doRecycleElements)
-				e.recycle();
+			for (E e : list)
+			{
+				e.deleteHook();
+				if (doRecycleElements)
+					e.recycle();
+			}
 		}
 	}
 
@@ -221,10 +248,13 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 * @return element in the set with the highest weight, or in case of a tie, a random pick of
 	 *         those.
 	 */
-	public synchronized E pruneAndMaxSelect ( )
+	public E pruneAndMaxSelect ( )
 	{
-		prune(maxSize);
-		return maxSelect();
+		synchronized(this)
+		{
+			prune(maxSize);
+			return maxSelect();
+		}
 	}
 
 	public int size ( )
@@ -254,13 +284,16 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 *            index into the list
 	 * @return the element at index i
 	 */
-	public synchronized E at ( int i )
+	public E at ( int i )
 	{
-		ArrayList<E> list = this.list;
-		if (list.size() == 0 || i >= list.size())
-			return null;
-		sortIfWeShould();
-		return list.get(i);
+		synchronized(this)
+		{
+			ArrayList<E> list = this.list;
+			if (list.size() == 0 || i >= list.size())
+				return null;
+			sortIfWeShould();
+			return list.get(i);
+		}
 	}
 
 	/**
@@ -270,13 +303,16 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 *            index into the list
 	 * @return the weight of the element at index i
 	 */
-	public synchronized Double weightAt ( int i )
+	public Double weightAt ( int i )
 	{
-		ArrayList<E> list = this.list;
-		if (list.size() == 0)
-			return null;
-		sortIfWeShould();
-		return getWeightStrategy.getWeight(list.get(i));
+		synchronized(this)
+		{
+			ArrayList<E> list = this.list;
+			if (list.size() == 0)
+				return null;
+			sortIfWeShould();
+			return getWeightStrategy.getWeight(list.get(i));
+		}
 	}
 	
 	/**
