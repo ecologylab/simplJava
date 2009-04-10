@@ -3,12 +3,10 @@ package ecologylab.tutorials;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
+import ecologylab.services.messages.cf.*;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.legacy.ServicesClient;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.messages.cf.CFMessagesTranslations;
-import ecologylab.services.messages.cf.SearchState;
-import ecologylab.services.messages.cf.SeedCf;
 import ecologylab.xml.TranslationScope;
 
 /**
