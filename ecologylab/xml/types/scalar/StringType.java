@@ -15,14 +15,14 @@ import ecologylab.xml.XMLTools;
  */
 public class StringType extends ReferenceType<String>
 {
-/**
- * This constructor should only be called once per session, through
- * a static initializer, typically in TypeRegistry.
- * <p>
- * To get the instance of this type object for use in translations, call
- * <code>TypeRegistry.get("java.lang.String")</code>.
- * 
- */
+	/**
+	 * This constructor should only be called once per session, through
+	 * a static initializer, typically in TypeRegistry.
+	 * <p>
+	 * To get the instance of this type object for use in translations, call
+	 * <code>TypeRegistry.get("java.lang.String")</code>.
+	 * 
+	 */
 	public StringType()
 	{
 		super(String.class);
@@ -44,11 +44,11 @@ public class StringType extends ReferenceType<String>
 	 * @param instance
 	 * @return
 	 */
-		@Override public String marshall(String instance)
-		{
-			return instance;
-		}
-	    
+	@Override public String marshall(String instance)
+	{
+		return instance;
+	}
+
 	/**
 	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
 	 * 
@@ -58,12 +58,12 @@ public class StringType extends ReferenceType<String>
 	 */
 	@Override
 	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping)
-    {
+	{
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instance);
 		else
 			buffy.append(instance);
-    }
+	}
 	/**
 	 * Append the String directly, unless it needs escaping, in which case, call escapeXML.
 	 * 
@@ -75,10 +75,10 @@ public class StringType extends ReferenceType<String>
 	@Override
 	public void appendValue(String instance, Appendable appendable, boolean needsEscaping) 
 	throws IOException
-    {
+	{
 		if (needsEscaping)
 			XMLTools.escapeXML(appendable, instance);
 		else
 			appendable.append(instance);
-    }
+	}
 }

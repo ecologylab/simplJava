@@ -6,6 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 
 import ecologylab.xml.ScalarUnmarshallingContext;
+import ecologylab.xml.XMLTools;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
@@ -14,14 +15,14 @@ import ecologylab.xml.ScalarUnmarshallingContext;
  */
 public class StringBuilderType extends ReferenceType<StringBuilder>
 {
-/**
- * This constructor should only be called once per session, through
- * a static initializer, typically in TypeRegistry.
- * <p>
- * To get the instance of this type object for use in translations, call
- * <code>TypeRegistry.get("java.lang.String")</code>.
- * 
- */
+	/**
+	 * This constructor should only be called once per session, through
+	 * a static initializer, typically in TypeRegistry.
+	 * <p>
+	 * To get the instance of this type object for use in translations, call
+	 * <code>TypeRegistry.get("java.lang.String")</code>.
+	 * 
+	 */
 	public StringBuilderType()
 	{
 		super(StringBuilder.class);
@@ -39,12 +40,19 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 
 	@Override
 	public void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping)
-    {
-    	buffy.append(instance);
-    }
-    public void appendValue(StringBuilder instance, Appendable buffy, boolean needsEscaping)
-    throws IOException
-    {
-    	buffy.append(instance);    	
-    }
+	{
+		if (needsEscaping)
+			XMLTools.escapeXML(buffy, instance);
+		else
+			buffy.append(instance);
+	}
+	public void appendValue(StringBuilder instance, Appendable appendable, boolean needsEscaping)
+	throws IOException
+	{
+		if (needsEscaping)
+			XMLTools.escapeXML(appendable, instance);
+		else
+			appendable.append(instance);
+
+	}
 }
