@@ -4,6 +4,8 @@
 package ecologylab.xml;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
@@ -29,6 +31,10 @@ implements OptimizationTypes
 	ScalarType<?>			scalarType;
 	final  int				type;
 	
+	Method						setValueMethod;
+	
+	public static final Class[]	SET_METHOD_ARG	= {String.class};
+	
 	/**
 	 * Field object for a Field within this, which is special, in that it should receive a scalar value.
 	 */
@@ -38,15 +44,16 @@ implements OptimizationTypes
 	{
 		ScalarType scalarType = f2XO.scalarType();
 		this.scalarType	= scalarType;
-		
+
 		this.field		= f2XO.field();
 		this.tagName	= f2XO.tagName();
 		this.type		= f2XO.type();
 
+		Class fieldClass = f2XO.getOperativeClass();
+
 		Optimizations parentOptimizations	= f2XO.getContextOptimizations();
 		if (parentOptimizations != null)
 		{
-			Class cl = f2XO.getOperativeClass();
 			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
 			if (thisOptimizations != null)
 			{
@@ -65,12 +72,12 @@ implements OptimizationTypes
 					 */
 					//this.scalarType					= xmlTextF2XO.scalarType();
 					this.scalarType 					= TypeRegistry.getType(xmlTextScalarField);
-					/**
-					 * Not sure whether this is required.
-					 */
+
+//					fieldClass								= xmlTextScalarField.getType();
 				}			
 			}
 		}
+		setValueMethod				= ReflectionTools.getMethod(fieldClass, "setValue", SET_METHOD_ARG);
 	}
 	
 	/**
@@ -102,17 +109,21 @@ implements OptimizationTypes
 	 * In the supplied context object, set the *typed* value of the field,
 	 * using the valueString passed in. 
 	 * Unmarshalling is performed automatically, by the ScalarType already stored in this.
+	 * <p/>
+	 * Use a set method, if one is defined.
 	 * 
 	 * @param context			ElementState object to set the Field in this.
 	 * 
 	 * @param valueString		The value to set, which this method will use with the ScalarType, to create the value that will be set.
 	 */
 	//FIXME -- pass in ScalarUnmarshallingContext, and use it!
-	public void set(ElementState context, String valueString)
+	public boolean set(ElementState context, String valueString)
 	{
-		if ((valueString != null) && (context != null))
+		boolean result	= false;
+//		if ((valueString != null) && (context != null)) andruid & andrew 4/14/09 -- why not allow set to null?!
+		if ((context != null))
 		{
-			if (xmlTextScalarField != null)
+			if (xmlTextScalarField != null)	// this is for MetadataScalars, to set the value in the nested object, instead of operating directly on the value
 			{
 				try
 				{
@@ -123,8 +134,15 @@ implements OptimizationTypes
 						this.setField(context,field.getType().newInstance());
 						nestedES	= (ElementState) field.get(context);
 					}
-					scalarType.setField(nestedES, xmlTextScalarField, valueString);
-					
+					if (setValueMethod != null)
+					{
+						ReflectionTools.invoke(setValueMethod, nestedES, valueString);
+						result			= true;
+					}
+					else 
+						scalarType.setField(nestedES, xmlTextScalarField, valueString);
+					result			= true;
+
 				} catch (IllegalArgumentException e)
 				{
 					// TODO Auto-generated catch block
@@ -142,8 +160,10 @@ implements OptimizationTypes
 			else if (isScalar())
 			{
 				scalarType.setField(context, field, valueString);
+				result				= true;
 			}
 		}
+		return result;
 	}
 	
 	/**
@@ -191,11 +211,7 @@ implements OptimizationTypes
 				try
 				{
 					ElementState nestedES	= (ElementState) field.get(context);
-					if(nestedES == null)
-					{
-//						println("debug");
-						
-					}
+
 					//If nestedES is null...then the field is not initialized.
 					if(nestedES != null)
 					{
