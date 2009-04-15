@@ -234,4 +234,33 @@ public class ReflectionTools extends Debug
 		}
 		return result;
 	}
+	/**
+	 * Invoke a method with return type void and a single argument.
+	 * 
+	 * @param method
+	 * @param arg
+	 */
+	public static void invoke(Method method, Object context, Object arg)
+	{
+		Object[]	args	= {arg};
+		try
+		{
+			method.invoke(context, args);
+		}
+		catch (IllegalArgumentException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (InvocationTargetException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
