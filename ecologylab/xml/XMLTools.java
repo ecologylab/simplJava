@@ -69,7 +69,9 @@ implements CharacterConstants, SpecialCharacterEntities
 	{
       // special spellings
       for (char i = 0; i < SPECIAL_SPELLINGS.length; i++)
-		 entityTable.put(SPECIAL_SPELLINGS[i], Character.toString((char) (i + 160)));
+      	entityTable.put(SPECIAL_SPELLINGS[i], Character.toString((char) (i + 160)));
+      
+      entityTable.put("#x00bb", Character.toString((char) 187));	// a hack for weird hex references to &raquo;	»	&#187;	»	right-pointing double angle quotation mark = right pointing guillemet
       
       // even though we fill the table from 0-255, actually
       // 0-8 are illegal. 9,10 (decimal) are legal. 11-31 are illegal. 31-127 are legal.
