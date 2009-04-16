@@ -1,6 +1,7 @@
 package ecologylab.generic;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public interface IFeatureVector<T>
@@ -60,11 +61,11 @@ public interface IFeatureVector<T>
 	public Set<Double> values ( );
 
 	/**
-	 * A reference to the underlying HashMap backing this vector
+	 * A reference to the underlying Map backing this vector
 	 * 
-	 * @return the HashMap representing a particular FeatureVector
+	 * @return the Map representing a particular FeatureVector
 	 */
-	public HashMap<T, Double> map ( );
+	public Map<T, Double> map ( );
 
 	/**
 	 * Creates a new vector equivalent to this.clamp(1).  Not a real unit vector in

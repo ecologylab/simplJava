@@ -3,35 +3,36 @@ package ecologylab.generic;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 
 public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 {
 
-	protected HashMap<T, Double>	values;
+	protected HashMap<T,Double>		values;
 
 	private double					norm, max;
 
 	public FeatureVector ()
 	{
-		values = new HashMap<T, Double>(20);
+		values = new HashMap<T,Double>(20);
 	}
 
 	public FeatureVector ( int size )
 	{
-		values = new HashMap<T, Double>(size);
+		values = new HashMap<T,Double>(size);
 	}
 
 	public FeatureVector ( IFeatureVector<T> copyMe )
 	{
-		values = new HashMap<T, Double>(copyMe.map());
+		values = new HashMap<T,Double>(copyMe.map());
 		norm = copyMe.norm();
 	}
 	
 	protected void reset() 
 	{
-		values = new HashMap<T, Double>();
+		values = new HashMap<T,Double>();
 		resetNorm();
 	}
 
@@ -76,7 +77,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	 */
 	public void multiply ( IFeatureVector<T> v )
 	{
-		HashMap<T, Double> other = v.map();
+		Map<T, Double> other = v.map();
 		if (other == null)
 			return;
 		synchronized (values)
@@ -125,7 +126,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	 */
 	public void add ( double c, IFeatureVector<T> v )
 	{
-		HashMap<T, Double> other = v.map();
+		Map<T, Double> other = v.map();
 		if (other == null)
 			return;
 		synchronized (other)
@@ -160,12 +161,12 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public double dot ( IFeatureVector<T> v, boolean simplex )
 	{
-		HashMap<T, Double> other = v.map();
+		Map<T, Double> other = v.map();
 		if (other == null || v.norm() == 0 || this.norm() == 0)
 			return 0;
 
 		double dot = 0;
-		HashMap<T, Double> vector = this.values;
+		Map<T, Double> vector = this.values;
 		synchronized (values)
 		{
 			for (T term : vector.keySet())
@@ -188,7 +189,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		return new HashSet<Double>(values.values());
 	}
 
-	public HashMap<T, Double> map ( )
+	public Map<T, Double> map ( )
 	{
 		return values;
 	}
@@ -341,4 +342,13 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		}
 		return v;
 	}
+	
+	public void clear()
+	{
+		synchronized(values)
+		{
+			values.clear();
+		}
+	}
+	
 }
