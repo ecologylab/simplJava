@@ -243,6 +243,8 @@ public class PrefixPhrase extends Debug
 	 */
 	void findTerminals(ArrayList<PrefixPhrase> phraseSet)
 	{
+		if (phrase == null)
+			return;
 		if (isTerminal())
 		{
 			phraseSet.add(this);
@@ -271,6 +273,9 @@ public class PrefixPhrase extends Debug
 	
 	public ArrayList<String> values(char separator)
 	{
+		if (phrase == null)
+			return new ArrayList<String>(0);
+		
 		ArrayList<PrefixPhrase>	terminalPrefixPhrases	= new ArrayList<PrefixPhrase>();
 		findTerminals(terminalPrefixPhrases);
 		
