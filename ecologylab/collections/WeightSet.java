@@ -127,7 +127,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return mean / list.size();
 	}
 
-	private void clearAndRecycle ( List<E> deletionList )
+	private synchronized void clearAndRecycle ( List<E> deletionList )
 	{
 		for (E e : deletionList) {
 			e.deleteHook();
@@ -206,11 +206,15 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public synchronized void clear ( boolean doRecycleElements )
 	{
-		for (E e : list)
+		synchronized (list)
 		{
-			e.deleteHook();
-			if (doRecycleElements)
-				e.recycle();
+			for (int i=0; i<size(); i++)
+			{
+				E e	= list.get(i);
+				e.deleteHook();
+				if (doRecycleElements)
+					e.recycle();
+			}
 		}
 	}
 
@@ -227,9 +231,12 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return maxSelect();
 	}
 
-	public int size ( )
+	public synchronized int size ( )
 	{
-		return list.size();
+		synchronized (list)
+		{
+			return list.size();
+		}
 	}
 
 	public String toString ( )
@@ -305,7 +312,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return getWeightStrategy;
 	}
 
-	public Iterator<E> iterator ( )
+	public synchronized Iterator<E> iterator ( )
 	{
 		return list.iterator();
 	}
