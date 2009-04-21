@@ -165,11 +165,11 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	{
 		if (maxSize < 0)
 			return;
-		debug("prune() -> "+numToKeep);
 		ArrayList<E> list = this.list;
 		int numToDelete = list.size() - numToKeep;
 		if (numToDelete <= 0)
 			return;
+		debug("prune() -> "+numToKeep);
 		sortIfWeShould();
 		List<E> deletionList = list.subList(0, numToDelete);
 		clearAndRecycle(deletionList);
