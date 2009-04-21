@@ -5,6 +5,7 @@ package ecologylab.xml.types.scalar;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.regex.Pattern;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.FieldToXMLOptimizations;
@@ -366,6 +367,7 @@ public abstract class ScalarType<T> extends Debug
     }
     
 	public static final String DEFAULT_DELIMS = " \n\t";
+	public static final Pattern DEFAULT_DELIMS_TOKENIZER = Pattern.compile("([" + DEFAULT_DELIMS + "]*)([^" + DEFAULT_DELIMS + "]+)");
 
 	/**
 	 * For editing: these are the valid delimiters for separating tokens that make up a field
@@ -373,6 +375,10 @@ public abstract class ScalarType<T> extends Debug
 	 * 
 	 * @return
 	 */
+	public Pattern delimitersTokenizer()
+	{
+		return DEFAULT_DELIMS_TOKENIZER;
+	}
 	public String delimeters()
 	{
 		return DEFAULT_DELIMS;

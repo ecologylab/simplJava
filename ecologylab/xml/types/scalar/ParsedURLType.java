@@ -6,6 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.regex.Pattern;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.net.ParsedURL;
@@ -81,13 +82,20 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	   }
 	}
 	
-	public static final String URL_DELIMS = "/&?";
+	public static final String 	URL_DELIMS 			= "/&?";
+	public static final Pattern URL_DELIMS_TOKENIZER 	= Pattern.compile("([" + URL_DELIMS + "]*)([^" + URL_DELIMS + "]+)");
 	/**
 	 * For editing: these are the valid delimiters for separating tokens that make up a field
 	 * of this type.
 	 * 
 	 * @return
 	 */
+	@Override
+	public Pattern delimitersTokenizer()
+	{
+		return URL_DELIMS_TOKENIZER;
+	}
+	@Override
 	public String delimeters()
 	{
 		return URL_DELIMS;

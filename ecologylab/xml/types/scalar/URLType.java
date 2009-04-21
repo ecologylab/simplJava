@@ -5,6 +5,7 @@ package ecologylab.xml.types.scalar;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 import ecologylab.xml.ScalarUnmarshallingContext;
 
@@ -46,6 +47,12 @@ public class URLType extends ReferenceType<URL>
 	 * 
 	 * @return
 	 */
+	@Override
+	public Pattern delimitersTokenizer()
+	{
+		return ParsedURLType.URL_DELIMS_TOKENIZER;
+	}
+	@Override
 	public String delimeters()
 	{
 		return ParsedURLType.URL_DELIMS;
