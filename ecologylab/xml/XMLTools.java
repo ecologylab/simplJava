@@ -837,7 +837,23 @@ implements CharacterConstants, SpecialCharacterEntities
 			}
 			else 
 			{
-				println("unescapeXML[" +encoded + "] FAILED");
+				if (buffy.charAt(entityPos) == '#')
+				{
+					int numPos	= entityPos++;
+					try
+					{
+						Integer newEntity	= Integer.decode(buffy.substring(numPos, semicolonPos));
+						println("unescapeXML[" +encoded + "] Create New Entity!");
+						char newChar = (char) newEntity.intValue();
+						putEntityInTable(encoded, newChar);
+						buffy = buffy.replace(ampPos, semicolonPos+1, Character.toString(newChar));
+						startPos = ampPos+1;
+					} catch (NumberFormatException e)
+					{
+						println("unescapeXML[" +encoded + "] FAILED");
+					}
+				}
+				
 				startPos	= semicolonPos+1;
 				if (startPos >= buffy.length())
 					return;
