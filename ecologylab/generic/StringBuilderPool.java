@@ -57,5 +57,13 @@ public class StringBuilderPool extends ResourcePoolWithSize<StringBuilder>
 	{
 		return new StringBuilder(this.resourceObjectCapacity);
 	}
+	
+	public String releaseAndGetString ( StringBuilder objectToRelease )
+	{
+		String s = StringTools.toString(objectToRelease);
+		this.release(objectToRelease);
+		return s;
+		
+	}
 
 }
