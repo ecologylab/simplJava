@@ -58,5 +58,14 @@ public class URLType extends ReferenceType<URL>
 		return ParsedURLType.URL_DELIMS;
 	}
 	
-	
+	/**
+	 * The most basic and fundamental delimiter to use between characters.
+	 * 
+	 * @return	The URL implementation, here, returns a slash.
+	 */
+	public String primaryDelimiter()
+	{
+		return ParsedURLType.PRIMARY_URL_DELIM;
+	}
+
 }

@@ -82,7 +82,9 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	   }
 	}
 	
-	public static final String 	URL_DELIMS 			= "/&?";
+	public static final String 	URL_DELIMS 			  = "/&?";
+	public static final String 	PRIMARY_URL_DELIM = "/";
+
 	public static final Pattern URL_DELIMS_TOKENIZER 	= Pattern.compile("([" + URL_DELIMS + "]*)([^" + URL_DELIMS + "]+)");
 	/**
 	 * For editing: these are the valid delimiters for separating tokens that make up a field
@@ -142,6 +144,16 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	public boolean affordsInterestExpression()
 	{
 		return false;
+	}
+
+	/**
+	 * The most basic and fundamental delimiter to use between characters.
+	 * 
+	 * @return	The URL implementation, here, returns a slash.
+	 */
+	public String primaryDelimiter()
+	{
+		return PRIMARY_URL_DELIM;
 	}
 
 }

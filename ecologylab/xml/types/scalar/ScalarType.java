@@ -368,7 +368,7 @@ public abstract class ScalarType<T> extends Debug
     
 	public static final String DEFAULT_DELIMS = " \n\t";
 	public static final Pattern DEFAULT_DELIMS_TOKENIZER = Pattern.compile("([" + DEFAULT_DELIMS + "]*)([^" + DEFAULT_DELIMS + "]+)");
-
+	public static final String MINIMAL_DELIM	= " ";
 	/**
 	 * For editing: these are the valid delimiters for separating tokens that make up a field
 	 * of this type.
@@ -382,6 +382,16 @@ public abstract class ScalarType<T> extends Debug
 	public String delimeters()
 	{
 		return DEFAULT_DELIMS;
+	}
+	
+	/**
+	 * The most basic and fundamental delimiter to use between characters.
+	 * 
+	 * @return	The base implementation, here, returns a space.
+	 */
+	public String primaryDelimiter()
+	{
+		return MINIMAL_DELIM;
 	}
 	
 	/**
