@@ -11,7 +11,5 @@ public interface ApplicationPropertyNames
 	public static final String	PREFERENCES_SET			= "preferences_set";
 	
 	public static final String	PREFERENCES_SET_ASSET	= "preferences_set_asset";
-	
-	public static final String  USERINTERFACE_PREF		= "userinterface";
 
 }
