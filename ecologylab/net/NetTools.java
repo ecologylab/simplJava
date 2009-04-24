@@ -2,8 +2,11 @@ package ecologylab.net;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -141,6 +144,25 @@ public class NetTools extends Debug
 	{
 		HashSet<InetAddress> addresses = new HashSet<InetAddress>();
 
+		try
+		{
+			Enumeration<NetworkInterface> byName = NetworkInterface.getNetworkInterfaces();
+			while(byName.hasMoreElements())
+			{
+				NetworkInterface nextElement = byName.nextElement();
+				System.out.println(nextElement.getDisplayName());
+				Enumeration<InetAddress> inetAddresses = nextElement.getInetAddresses();
+				while(inetAddresses.hasMoreElements())
+				{
+					addresses.add(inetAddresses.nextElement());
+				}
+			}
+		}
+		catch (SocketException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		try
 		{
 			for (InetAddress a : InetAddress.getAllByName("localhost"))
