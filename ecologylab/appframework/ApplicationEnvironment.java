@@ -835,7 +835,7 @@ implements Environment, XMLTranslationExceptionTypes
 	public void navigate(ParsedURL purl, String frame)
 	{
 		String[] navigateArgs	= getNavigateArgs();
-		if (navigateArgs != null)
+		if (navigateArgs != null && purl != null)
 		{
 			String purlString	= purl.toString();
 			int numArgs			= navigateArgs.length;
