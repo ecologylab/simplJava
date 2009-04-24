@@ -123,14 +123,16 @@ extends Debug
    }
    /**
     * Use this method to efficiently get a <code>String</code> from a
-    * <code>StringBuffer</code>, by copying, on those occassions when you plan to keep
-    * using the <code>StringBuffer</code>, and want an efficiently made copy.
-    * In those cases, <i>much</i> better than 
-    * <code>new String(StringBuffer)</code>
+    * <code>StringBuilder</code>, by copying, on those occasions when you plan to keep
+    * using the <code>StringBuilder</code>, and want an efficiently made copy.
+    * <p/>
+    * Resets the StringBuilder for re-use.
     */
    public static final String toString(StringBuilder buffer)
    {
-	   return buffer.substring(0);
+	   String result = buffer.substring(0);
+	   buffer.setLength(0);
+	   return result;
    }
    public static final boolean contains(String in, String toMatch)
    {
