@@ -131,7 +131,6 @@ extends Debug
    public static final String toString(StringBuilder buffer)
    {
 	   String result = buffer.substring(0);
-	   buffer.setLength(0);
 	   return result;
    }
    public static final boolean contains(String in, String toMatch)
