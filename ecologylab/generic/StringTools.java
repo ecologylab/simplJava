@@ -34,18 +34,19 @@ extends Debug
     */
    public static final void toLowerCase(StringBuilder buffer)
    {
-	   int length	= buffer.length();
-	   for (int i=0; i<length; i++)
-	   {
-		   char c		= buffer.charAt(i);
-//		   if (Character.isUpperCase(c))
-		   // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
-		   if ((c >='A') && (c <= 'Z'))
-		   {
-			   c	       += 0x20;
-			   buffer.setCharAt(i, c);
-		   }
-	   }
+  	 int length	= buffer.length();
+  	 for (int i=0; i<length; i++)
+  	 {
+  		 char c		= buffer.charAt(i);
+  		 if (Character.isUpperCase(c))
+  			 // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
+  			 //		   if ((c >='A') && (c <= 'Z'))
+  		 {
+  			 // c	       += 0x20;
+  			 c					= Character.toLowerCase(c);
+  			 buffer.setCharAt(i, c);
+  		 }
+  	 }
    }
    
    public static final void trim(StringBuilder buffy)
@@ -67,25 +68,7 @@ extends Debug
    			break;
    	}
    }
-   /**
-    * Changes the StringBuffer to lower case, in place, without any new storage
-    * allocation.
-    */
-   public static final void toLowerCase(StringBuffer buffer)
-   {
-	   int length	= buffer.length();
-	   for (int i=0; i<length; i++)
-	   {
-		   char c		= buffer.charAt(i);
-//		   if (Character.isUpperCase(c))
-		   // A = 0x41, Z = 0x5A; a = 0x61, z = 0x7A
-		   if ((c >='A') && (c <= 'Z'))
-		   {
-			   c	       += 0x20;
-			   buffer.setCharAt(i, c);
-		   }
-	   }
-   }
+
    public static final boolean sameDomain(URL url1, URL url2)
    {
       return domain(url1).equals(domain(url2));
