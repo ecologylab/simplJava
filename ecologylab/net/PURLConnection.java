@@ -93,4 +93,8 @@ public class PURLConnection extends Debug
 		return result;
 	}
 	
+	public String toString()
+	{
+		return urlConnection != null ? urlConnection.toString() : "PURLConnection";
+	}
 }
