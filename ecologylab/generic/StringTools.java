@@ -1,6 +1,11 @@
 package ecologylab.generic;
 
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -19,7 +24,7 @@ import ecologylab.net.ParsedURL;
 public class StringTools
 extends Debug
 {
-   static final String[]	oneDotDomainStrings = 
+	static final String[]	oneDotDomainStrings = 
    {
       "com", "edu", "gov", "org", "net", "tv", "info"
    };
@@ -134,6 +139,10 @@ extends Debug
 	   return result;
    }
    public static final boolean contains(String in, String toMatch)
+   {
+      return (in == null) ? false : in.indexOf(toMatch) != -1;
+   }
+   public static final boolean contains(StringBuilder in, String toMatch)
    {
       return (in == null) ? false : in.indexOf(toMatch) != -1;
    }
@@ -555,6 +564,62 @@ extends Debug
     			return false;
     	
     	return true;
+    }
+    /**
+     * The number of concurrent threads we expect will use the decodeUTF8() method.
+     */
+    private static final int	DECODER_POOL_SIZE			= 10;
+
+    public static final Charset	UTF8_CHARSET				= Charset.forName("UTF-8");
+    
+    static final CharsetDecoderPool utf8DecoderPool	= new CharsetDecoderPool(UTF8_CHARSET, DECODER_POOL_SIZE);
+    
+    /**
+     * Reusable char[] arrays for the decodeUTF8() method.
+     */
+    static final CharArrayPool			charArrayPool		= new CharArrayPool(512, DECODER_POOL_SIZE);
+    
+    public static CharsetDecoder acquireUTF8Encoder()
+    {
+    	//FIXME -- use a pool!
+//    	return UTF8_CHARSET.newDecoder();
+    	return utf8DecoderPool.acquire();
+    }
+ 
+   /**
+     * Take a subset of an array of bytes, assumed coded as UTF-8.
+     * Translate as efficiently as possible into a StringBuilder.
+     * 
+     * @param bytes
+     * @param offset
+     * @param length
+     * @return
+     */
+    public static StringBuilder decodeUTF8(StringBuilder result, byte[] bytes, int offset, int length)
+    {
+	    CharsetDecoder decoder	= acquireUTF8Encoder();
+	    
+	    int scaledLength				= (int) ((double) length * (double) decoder.maxCharsPerByte());
+	    char[] chars						= charArrayPool.acquire();
+	    
+	    if (chars.length < scaledLength)
+	    	chars									= new char[scaledLength];	// we'll swap buffers on the pool, let the smaller one get gc'ed
+	    CharBuffer cb 					= CharBuffer.wrap(chars);
+   	
+	    ByteBuffer bb 					= ByteBuffer.wrap(bytes, offset, length);
+			CoderResult cr = decoder.decode(bb, cb, true);
+			
+			// cb.rewind();	// reset for re-use
+			
+			int resultLength				= cb.position();
+
+			result.append(chars, 0, resultLength);
+			decoder.flush(cb);
+			
+			utf8DecoderPool.release(decoder);
+			charArrayPool.release(chars);
+			
+			return result;
     }
 }
 
