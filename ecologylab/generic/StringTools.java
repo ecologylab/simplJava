@@ -609,7 +609,7 @@ extends Debug
 	    ByteBuffer bb 					= ByteBuffer.wrap(bytes, offset, length);
 			CoderResult cr = decoder.decode(bb, cb, true);
 			
-			// cb.rewind();	// reset for re-use
+			// cb.rewind();	// reset for re-use -- 
 			
 			int resultLength				= cb.position();
 
