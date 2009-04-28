@@ -14,7 +14,7 @@ public class CharArrayPool extends ResourcePool<char[]>
 	
 	protected CharArrayPool(int initialPoolSize, int bufferSize)
 	{
-		super(false, initialPoolSize, NEVER_CONTRACT);
+		super(false, initialPoolSize, NEVER_CONTRACT, false);
 		this.bufferSize	= bufferSize;
 	}
 

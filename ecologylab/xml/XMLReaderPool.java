@@ -23,7 +23,7 @@ public class XMLReaderPool extends ResourcePool<XMLReader>
 	public XMLReaderPool(boolean instantiateResourcesInPool,
 			int initialPoolSize, int minimumPoolSize)
 	{
-		super(instantiateResourcesInPool, initialPoolSize, minimumPoolSize);
+		super(instantiateResourcesInPool, initialPoolSize, minimumPoolSize, false);
 	}
 
 	/**

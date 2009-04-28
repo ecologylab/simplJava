@@ -4,6 +4,7 @@
 package ecologylab.generic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This class provides access to a pool of pre-allocated resources. The pool grows and contracts
@@ -28,6 +29,10 @@ public abstract class ResourcePool<T> extends Debug
 
 	private final ArrayList<T>	pool;
 
+	/**
+	 * The number of resources this pool is currently in control of, including the number of resources
+	 * that are currently acquired by other processes.
+	 */
 	private int									capacity;
 
 	/**
@@ -37,6 +42,20 @@ public abstract class ResourcePool<T> extends Debug
 	private final int						minCapacity;
 
 	private final float					loadFactor				= .75f;
+
+	/**
+	 * If true, stores the hash of each resource that is released to this pool and accepts it only if
+	 * it is new. This allows the resource pool to safely accept the same instance multiple times, in
+	 * case releases of the same resource can happen through multiple channels.
+	 */
+	private boolean							checkMultiRelease;
+
+	/**
+	 * Stores a listing of the hashes of all of the resources currently held by the resource pool.
+	 * This field is only instantiated if checkMultiRelease is true, if it is false, this field will
+	 * be NULL.
+	 */
+	private final HashSet<T>		releasedResourceHashes;
 
 	/**
 	 * Special constructor that will only instantiate the backing pool resources if the first argument
@@ -50,16 +69,22 @@ public abstract class ResourcePool<T> extends Debug
 	 *          passed, the pool will never contract.
 	 */
 	protected ResourcePool(boolean instantiateResourcesInPool, int initialPoolSize,
-			int minimumPoolSize)
+			int minimumPoolSize, boolean checkMultiRelease)
 	{
 		this.capacity = Math.max(initialPoolSize, minimumPoolSize);
 
 		this.pool = new ArrayList<T>(capacity);
 
+		if (checkMultiRelease)
+			releasedResourceHashes = new HashSet<T>();
+		else
+			releasedResourceHashes = null;
+
 		if (instantiateResourcesInPool)
 			instantiateResourcesInPool();
 
 		this.minCapacity = minimumPoolSize;
+		this.checkMultiRelease = checkMultiRelease;
 	}
 
 	/**
@@ -79,7 +104,7 @@ public abstract class ResourcePool<T> extends Debug
 	 */
 	protected ResourcePool(int initialPoolSize, int minimumPoolSize)
 	{
-		this(true, initialPoolSize, minimumPoolSize);
+		this(true, initialPoolSize, minimumPoolSize, false);
 	}
 
 	/**
@@ -107,7 +132,7 @@ public abstract class ResourcePool<T> extends Debug
 				freeIndex = this.pool.size() - 1;
 			}
 
-			retVal = pool.remove(freeIndex);
+			retVal = this.remove(freeIndex);
 		}
 
 		this.clean(retVal);
@@ -130,8 +155,9 @@ public abstract class ResourcePool<T> extends Debug
 		{
 			synchronized (this)
 			{
-				pool.add(resourceToRelease);
-
+				if (!this.add(resourceToRelease))
+					return null;
+				
 				int poolSize = pool.size();
 
 				if (minCapacity != NEVER_CONTRACT && capacity > minCapacity
@@ -190,7 +216,7 @@ public abstract class ResourcePool<T> extends Debug
 		}
 		else
 		{ // capacity is 0, just put one in there
-			this.pool.add(this.generateNewResource());
+			this.add(this.generateNewResource());
 			capacity = 1;
 		}
 
@@ -206,7 +232,7 @@ public abstract class ResourcePool<T> extends Debug
 
 		for (int i = 0; (i < capacity && pool.size() > minCapacity); i++)
 		{
-			pool.remove(pool.size() - 1);
+			this.remove(pool.size() - 1);
 		}
 
 		if (capacity < minCapacity)
@@ -229,8 +255,51 @@ public abstract class ResourcePool<T> extends Debug
 	protected void instantiateResourcesInPool()
 	{
 		for (int i = 0; i < capacity; i++)
-		{
-			pool.add(this.generateNewResource());
-		}
+			this.add(this.generateNewResource());
+	}
+
+	/**
+	 * Removes a resource from the pool to be either returned or recycled. Handles housekeeping with
+	 * the hashes if necessary.
+	 * 
+	 * @param index
+	 * @return
+	 */
+	private T remove(int index)
+	{
+		T removedResource = pool.remove(index);
+
+		if (this.checkMultiRelease)
+			this.releasedResourceHashes.remove(removedResource);
+
+		return removedResource;
+	}
+
+	/**
+	 * Adds a resource to the pool. Handles housekeeping with hashes if necessary.
+	 * 
+	 * @param resource
+	 */
+	private boolean add(T resource)
+	{
+		if (this.checkMultiRelease && !this.releasedResourceHashes.add(resource))
+			return false;
+
+		pool.add(this.generateNewResource());
+
+		return true;
+	}
+
+	/**
+	 * @return the capacity
+	 */
+	public int getCapacity()
+	{
+		return capacity;
+	}
+	
+	public int getPoolSize()
+	{
+		return this.pool.size();
 	}
 }

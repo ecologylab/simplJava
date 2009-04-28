@@ -17,7 +17,7 @@ public class CharsetDecoderPool extends ResourcePool<CharsetDecoder>
 	
 	protected CharsetDecoderPool(Charset charset, int initialPoolSize)
 	{
-		super(false, initialPoolSize, NEVER_CONTRACT);
+		super(false, initialPoolSize, NEVER_CONTRACT, false);
 		this.charset			= charset;
 	}
 
