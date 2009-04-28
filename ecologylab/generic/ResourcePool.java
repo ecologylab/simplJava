@@ -44,9 +44,8 @@ public abstract class ResourcePool<T> extends Debug
 	private final float					loadFactor				= .75f;
 
 	/**
-	 * If true, stores the hash of each resource that is released to this pool and accepts it only if
-	 * it is new. This allows the resource pool to safely accept the same instance multiple times, in
-	 * case releases of the same resource can happen through multiple channels.
+	 * If true, stores the hash of each resource that is released to this pool and throws an exception
+	 * if a resource is released more than once.
 	 */
 	private boolean							checkMultiRelease;
 
@@ -157,7 +156,7 @@ public abstract class ResourcePool<T> extends Debug
 			{
 				if (!this.add(resourceToRelease))
 					return null;
-				
+
 				int poolSize = pool.size();
 
 				if (minCapacity != NEVER_CONTRACT && capacity > minCapacity
@@ -283,7 +282,7 @@ public abstract class ResourcePool<T> extends Debug
 	private boolean add(T resource)
 	{
 		if (this.checkMultiRelease && !this.releasedResourceHashes.add(resource))
-			return false;
+			throw new RuntimeException("Attempted to release the same resource more than once: "+resource.toString());
 
 		pool.add(this.generateNewResource());
 
@@ -297,7 +296,7 @@ public abstract class ResourcePool<T> extends Debug
 	{
 		return capacity;
 	}
-	
+
 	public int getPoolSize()
 	{
 		return this.pool.size();
