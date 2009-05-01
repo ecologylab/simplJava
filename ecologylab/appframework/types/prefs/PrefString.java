@@ -66,4 +66,12 @@ public class PrefString extends Pref<String>
         
         prefChanged();
 	}
+		/**
+		 * @see ecologylab.appframework.types.prefs.Pref#clone()
+		 */
+		@Override
+		public Pref<String> clone()
+		{
+			return new PrefString(this.name, this.value);
+		}
 }

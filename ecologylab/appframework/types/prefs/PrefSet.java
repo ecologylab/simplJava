@@ -23,7 +23,7 @@ import ecologylab.xml.types.element.HashMapState;
  */
 
 @xml_inherit
-public class PrefSet extends HashMapState<String, Pref<?>> implements ApplicationPropertyNames
+public class PrefSet extends HashMapState<String, Pref<?>> implements ApplicationPropertyNames, Cloneable
 {
     /** No-argument constructor for XML translation. */
     public PrefSet() 
@@ -119,5 +119,21 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
     	Pref.clearPref(key);
     	return super.remove(key);
     }
+
+		/**
+		 * @see ecologylab.xml.types.element.HashMapState#clone()
+		 */
+		@Override
+		public PrefSet clone()
+		{
+			PrefSet retVal = new PrefSet();
+			
+			for (Pref<?> p : this.values())
+			{
+				retVal.add(p.clone());
+			}
+			
+			return retVal;
+		}
 
 }

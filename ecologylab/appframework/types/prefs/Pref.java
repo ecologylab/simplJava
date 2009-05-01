@@ -21,7 +21,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ArrayListState<ElementState> implements Mappable<String>
+public abstract class Pref<T> extends ArrayListState<ElementState> implements Mappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
     static final Scope<Pref<?>>   allPrefsMap = new Scope<Pref<?>>();
@@ -556,4 +556,10 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
     {
         return name;
     }
+
+		/**
+		 * @see ecologylab.xml.types.element.ArrayListState#clone()
+		 */
+		@Override
+		public abstract Pref<T> clone();
 }

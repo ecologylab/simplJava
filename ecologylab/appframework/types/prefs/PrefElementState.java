@@ -18,10 +18,17 @@ public class PrefElementState extends Pref<ElementState>
 	public PrefElementState()
 	{
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	/* (non-Javadoc)
+	public PrefElementState(String name)
+	{
+		super();
+		this.name = name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
 	@Override
@@ -31,14 +38,36 @@ public class PrefElementState extends Pref<ElementState>
 		return get(0);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see ecologylab.appframework.types.prefs.Pref#setValue(T)
 	 */
 	@Override
 	public void setValue(ElementState newValue)
 	{
 		add(newValue);
-        
-        prefChanged();
+
+		prefChanged();
+	}
+
+	/**
+	 * XXX NOTE: THIS IS AN UNSAFE CLONE. IF THE VALUE OF THIS PREFERENCE IS TO BE MODIFIED, THIS
+	 * METHOD MUST BE RECONSIDERED. A very cool and proper way to do this would be to translate value
+	 * to and from XML, but this is impossible without the correct translation scope.
+	 * 
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public Pref<ElementState> clone()
+	{
+		Pref<ElementState> pES = new PrefElementState(this.name);
+
+		for (ElementState e : this)
+		{
+			pES.add(e);
+		}
+
+		return pES;
 	}
 }

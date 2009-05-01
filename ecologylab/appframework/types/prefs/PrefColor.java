@@ -25,6 +25,12 @@ public class PrefColor extends Pref<Color>
 		this.value = value;
 	}
 	
+	public PrefColor(String name, Color value)
+	{
+		this.name = name;
+		this.value = value;
+	}
+	
 	/**
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
@@ -43,5 +49,14 @@ public class PrefColor extends Pref<Color>
         this.value = newValue;
         
         prefChanged();
+	}
+
+	/**
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public Pref<Color> clone()
+	{
+		return new PrefColor(this.name, this.value);
 	}
 }

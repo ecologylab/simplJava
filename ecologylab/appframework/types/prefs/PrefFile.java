@@ -56,6 +56,13 @@ import ecologylab.xml.xml_inherit;
     {
         super();
     }
+    
+    public PrefFile(String name, String value, int pathContext)
+    {
+    	this.name = name;
+    	this.value = value;
+    	this.pathContext = pathContext;
+    }
 
     /**
      * Instantiate Pref to value
@@ -128,4 +135,13 @@ import ecologylab.xml.xml_inherit;
 
         return fileValue;
     }
+
+		/**
+		 * @see ecologylab.appframework.types.prefs.Pref#clone()
+		 */
+		@Override
+		public Pref<File> clone()
+		{
+			return new PrefFile(this.name, this.value, this.pathContext);
+		}
 }
