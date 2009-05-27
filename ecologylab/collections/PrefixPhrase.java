@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import ecologylab.generic.Debug;
+import ecologylab.net.ParsedURL;
 
 /**
  * Recursive unit (bucket) for prefix pattern matching.
@@ -290,5 +291,27 @@ public class PrefixPhrase extends Debug
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * This function returns the whole matching path which you have
+	 * followed to reach the PrefixPhrase.
+	 * @param purl
+	 * @param seperator
+	 * @return
+	 */
+	public String getMatchingPhrase(String purl,char seperator)
+	{
+		String returnValue="";
+		int seperatorIndex = purl.indexOf(seperator);
+		String key = purl.substring(0, seperatorIndex);
+		String phrase = purl.substring(seperatorIndex+1,purl.length());
+		PrefixPhrase childPrefixPhrase= childPhraseMap.get(key);
+		returnValue = returnValue+key;
+		if(childPrefixPhrase!=null &&!childPrefixPhrase.isTerminal())
+		{
+			returnValue= returnValue+seperator+childPrefixPhrase.getMatchingPhrase(phrase, seperator);
+		}
+		return returnValue;
 	}
 }
