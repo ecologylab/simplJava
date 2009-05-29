@@ -1006,12 +1006,27 @@ implements MimeType
 	{
 		if( mimeIndex == -1 )
 		{
-			IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix());
+			String suffix = suffix();
+			IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix);
 			mimeIndex = (mimeSlot != null) ? mimeSlot.value : UNKNOWN_MIME;
 			return mimeIndex;
 		}
 		else
 			return mimeIndex;
+	}
+	
+	public static int mimeIndex(String location)
+	{
+		int afterLastDot	= location.lastIndexOf('.') + 1;
+		int result	= UNKNOWN_MIME;
+		if ((afterLastDot > 0) && (location.length() > afterLastDot))
+		{
+			String suffix	= location.substring(afterLastDot);
+			IntSlot mimeSlot	= (IntSlot) suffixesToMap.get(suffix);
+			if (mimeSlot != null) 
+				result					= mimeSlot.value;
+		}
+		return result;
 	}
 	
 	/**  
