@@ -2,7 +2,7 @@
  * Created on Sep 28, 2005
  * 
  */
-package ecologylab.textformat;
+package ecologylab.generic;
 
 import java.util.Observer;
 
