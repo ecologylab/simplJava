@@ -534,4 +534,11 @@ implements DownloadProcessor
 	{
 		this.status = status;
 	}
+	/**
+	 * @return the paused
+	 */
+	public boolean isPaused()
+	{
+		return paused;
+	}
 }
