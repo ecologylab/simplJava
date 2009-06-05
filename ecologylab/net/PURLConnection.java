@@ -12,19 +12,22 @@ import ecologylab.generic.Debug;
  */
 public class PURLConnection extends Debug
 {
+	protected	ParsedURL				purl;
 	protected InputStream			inputStream;
-	protected URLConnection			urlConnection;
-	protected String				mimeType;
+	protected URLConnection		urlConnection;
+	protected String					mimeType;
 
 	/**
 	 * Fill out the instance of this resulting from a succcessful connect().
+	 * @param purl TODO
 	 * @param urlConnection
 	 * @param inputStream
 	 */
 	//TODO change to package level access when ParsedURL moves
-	public PURLConnection(URLConnection urlConnection, InputStream inputStream)
+	public PURLConnection(ParsedURL purl, URLConnection urlConnection, InputStream inputStream)
 	{
-		this.inputStream	= inputStream;
+		this.purl						= purl;
+		this.inputStream		= inputStream;
 		this.urlConnection	= urlConnection;
 	}
 
@@ -96,5 +99,10 @@ public class PURLConnection extends Debug
 	public String toString()
 	{
 		return urlConnection != null ? urlConnection.toString() : "PURLConnection";
+	}
+	
+	public ParsedURL getPurl()
+	{
+		return purl;
 	}
 }
