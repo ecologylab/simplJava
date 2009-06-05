@@ -1297,16 +1297,16 @@ implements MimeType
      		String suffix = suffix();
      		if (suffix != null)
      		{
- 	    		if (connectionHelper.parseFilesWithSuffix(suffix))
- 	    		{
- 			      	try
- 					{
- 						inStream	= new FileInputStream(file);
- 		 	    		result		= new PURLConnection(null, inStream);
- 					} catch (FileNotFoundException e)
- 					{
- 						connectionHelper.badResult();
- 			 			println("Can't open because FileNotFoundException: " + this);
+     			if (connectionHelper.parseFilesWithSuffix(suffix))
+     			{
+     				try
+     				{
+     					inStream	= new FileInputStream(file);
+     					result		= new PURLConnection(this, null, inStream);
+     				} catch (FileNotFoundException e)
+     				{
+     					connectionHelper.badResult();
+     					println("Can't open because FileNotFoundException: " + this);
  					}
  	    		}
      		}
@@ -1391,7 +1391,7 @@ implements MimeType
  	    	  bad				= true;
  	    	  error("connect() " + e);
  	      }
- 	      return ((inStream == null) || bad)? null : new PURLConnection(connection, inStream);
+ 	      return ((inStream == null) || bad)? null : new PURLConnection(this, connection, inStream);
      } // end else network based URL
 
        //TODO -- how are the headers (like ContentType) read?
