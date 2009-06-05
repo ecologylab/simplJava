@@ -45,11 +45,15 @@ extends Debug implements AbstractSetElement
    */
   public final void delete()
   {
-    synchronized(sets) {
+    synchronized(sets) 
+    {
       if (sets != null)
+      {
         for (WeightSet s : sets)
           if (s != null)
             s.removeFromSet(this);
+        sets.clear();
+      }
       deleteHook();
     }
   }

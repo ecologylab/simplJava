@@ -127,12 +127,17 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return mean / list.size();
 	}
 
-	private synchronized void clearAndRecycle ( List<E> deletionList )
+	private synchronized void clearAndRecycle (int start, int end)
 	{
-		for (E e : deletionList) {
-			e.deleteHook();
-			e.recycle();
+		for (int i=end - 1; i>=start; i--)
+		{
+			E element = list.remove(i);
+			element.deleteHook();
+			element.recycle();
 		}
+//		for (E e : deletionList) {
+//			e.deleteHook();
+//			e.recycle();
 	}
 
 	/**
@@ -171,8 +176,8 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 			return;
 		debug("prune() -> "+numToKeep);
 		sortIfWeShould();
-		List<E> deletionList = list.subList(0, numToDelete);
-		clearAndRecycle(deletionList);
+//		List<E> deletionList = list.subList(0, numToDelete);
+		clearAndRecycle(0, numToDelete);
 	}
 
 	public synchronized void insert ( E el )
