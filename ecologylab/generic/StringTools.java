@@ -133,9 +133,10 @@ extends Debug
     * <p/>
     * Resets the StringBuilder for re-use.
     */
-   public static final String toString(StringBuilder buffer)
+   public static final String toString(StringBuilder buffy)
    {
-	   String result = buffer.substring(0);
+//	   String result = buffy.substring(0);
+  	 String result		= buffy.toString();
 	   return result;
    }
    public static final boolean contains(String in, String toMatch)
