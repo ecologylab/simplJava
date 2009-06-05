@@ -541,4 +541,9 @@ implements DownloadProcessor
 	{
 		return paused;
 	}
+	
+	public int size()
+	{
+		return toDownloadSize();
+	}
 }
