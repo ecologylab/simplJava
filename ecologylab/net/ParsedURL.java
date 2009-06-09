@@ -313,7 +313,12 @@ implements MimeType
       String result	= string;
       if (result == null)
       {
-      	result		= StringTools.pageString(url);
+      	if (isFile())
+      		result	= file.toString();
+      	else if (url == null)
+      		result	= "weirdly null";
+      	else
+      		result		= StringTools.pageString(url);
       	string		= result;
       }
       return result;
