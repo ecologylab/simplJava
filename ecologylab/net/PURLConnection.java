@@ -1,5 +1,7 @@
 package ecologylab.net;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
@@ -32,6 +34,29 @@ public class PURLConnection extends Debug
 	}
 
 	public void recycle()
+	{
+		close();
+		purl.recycle();
+		purl							= null;
+	}
+	public void reconnect()
+	{
+		if (purl != null && purl.isFile() && inputStream ==null)
+		{
+			try
+			{
+				inputStream			= new FileInputStream(purl.file());
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	/**
+	 * Close the InputStream, and disconnect the URLConnection.
+	 */
+	public void close()
 	{
 		// parsing done. now free resources asap to avert leaking and memory fragmentation
 		// (this is a known problem w java.net.HttpURLConnection)
