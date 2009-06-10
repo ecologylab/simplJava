@@ -36,8 +36,8 @@ public class PURLConnection extends Debug
 	public void recycle()
 	{
 		close();
-		purl.recycle();
-		purl							= null;
+//		purl.recycle();
+//		purl							= null;
 	}
 	public void reconnect()
 	{
