@@ -1110,7 +1110,12 @@ implements MimeType
 	   if (other == null)
 		   return false;
 	   
-	  boolean otherIsPURL	= other instanceof ParsedURL;
+	   boolean otherIsPURL	= other instanceof ParsedURL;
+	   if (otherIsPURL)
+	   {
+		   if (file != null)
+		  	 return file.equals(((ParsedURL) other).file);
+	   }
 	  if (!(otherIsPURL || (other instanceof URL)))
 		  return false;
 	  
@@ -1147,7 +1152,9 @@ implements MimeType
     */
    public int hashCode()
    {
-      return /* (url == null) ? -1 : */ url.hashCode();
+  	 if (url == null && file == null)
+  		 debug("help!");
+      return (url != null) ? url.hashCode() : (file != null) ? file.hashCode() : -1;
    }
 
 /**
