@@ -351,4 +351,10 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		}
 	}
 	
+	public void recycle()
+	{
+		values.clear();
+		values	= null;
+	}
+	
 }
