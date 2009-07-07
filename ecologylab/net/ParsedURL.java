@@ -463,12 +463,17 @@ implements MimeType
    public String domain()
    {
       String result	= domain;
-      if (result == null)
+      if (result == null && (url != null))
       {
       	result		= StringTools.domain(url);
       	domain		= result;
       }
       return result;
+   }
+   
+   public boolean isNull()
+   {
+  	 return url == null && file == null;
    }
 /**
  * @return	The suffix of the filename, in whatever case is found in the input string.
@@ -1111,31 +1116,43 @@ implements MimeType
 		   return false;
 	   
 	   boolean otherIsPURL	= other instanceof ParsedURL;
-	   if (otherIsPURL)
+	   boolean otherIsFile	= other instanceof File;
+	   if (otherIsPURL || otherIsFile)
 	   {
+	  	 File otherFile = otherIsFile ? (File) other : ((ParsedURL) other).file;
 		   if (file != null)
-		  	 return file.equals(((ParsedURL) other).file);
+		   {
+		  	 return file.equals(otherFile);
+		   }
+		   if (otherFile != null)
+		  	 return false;	// other has file but this does not
 	   }
-	  if (!(otherIsPURL || (other instanceof URL)))
-		  return false;
+	   else if (!(other instanceof URL))
+	  	 return false;	// not a PURL or an URL
 	  
 	  URL url		= this.url;
 	  URL otherURL	= otherIsPURL ? ((ParsedURL) other).url : (URL) other;
+	  
+	  if (url == null && otherURL == null)
+	  	return true;
+	  
+	  if (url == null || otherURL == null)
+	  	return false;
 	  
 	  // compare port
 	  if (url.getPort() != otherURL.getPort())
 		  return false;
 
 	  // compare host
-	  if (!bothNullOrEqual(url.getHost(), otherURL.getHost()))
+	  if (!url.getHost().equals(otherURL.getHost()))
 		  return false;
 
 	  // compare file
-	  if (!bothNullOrEqual(url.getFile(), otherURL.getFile()))
+	  if (!url.getFile().equals(otherURL.getFile()))
 		  return false;
 
 	  // compare protocol
-	  if (!bothNullOrEqual(url.getProtocol(), otherURL.getProtocol()))
+	  if (!url.getProtocol().equals(otherURL.getProtocol()))
 		  return false;	  
 
 	  // compare arguments
