@@ -18,11 +18,9 @@ public class SetElement
 extends Debug implements AbstractSetElement
 {
 
-  private boolean recycled = false;
-  protected ArrayList<WeightSet> sets = new ArrayList();
+  private boolean recycled 						= false;
+  protected ArrayList<WeightSet> sets = new ArrayList<WeightSet>();
   
-  
-
   public SetElement()
   {
   }
@@ -45,17 +43,17 @@ extends Debug implements AbstractSetElement
    */
   public final void delete()
   {
-    synchronized(sets) 
+    if (sets != null)
     {
-      if (sets != null)
-      {
-        for (WeightSet s : sets)
-          if (s != null)
-            s.removeFromSet(this);
-        sets.clear();
-      }
-      deleteHook();
+    	synchronized (sets) 
+    	{
+    		for (WeightSet s : sets)
+    			if (s != null)
+    				s.removeFromSet(this);
+    		sets.clear();
+    	}
     }
+  	deleteHook();
   }
   
   public void addSet(WeightSet s) {

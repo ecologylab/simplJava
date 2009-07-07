@@ -27,21 +27,49 @@ import ecologylab.generic.ThreadMaster;
  **/
 public class WeightSet<E extends AbstractSetElement> extends ObservableDebug implements Iterable<E>
 {
-	// ///////////////////////////////////////////////////////
-	// DEFAULT WEIGHTING STRATEGY
-	// ///////////////////////////////////////////////////////
-	public final class DefaultWeightStrategy extends WeightingStrategy<E>
-	{
-		public double getWeight ( E e )
-		{
-			return 0;
-		}
+	private static final int						NO_MAX_SIZE	= -1;
 
-		public boolean hasChanged ( )
-		{
-			return true;
-		}
-	};
+	private final ArrayList<E>					arrayList;
+	
+	private final HashSet<E>						hashSet;
+
+	private final WeightingStrategy<E>	weightingStrategy;
+
+	private final Comparator<E>					comparator;
+
+	private int													maxSize					= NO_MAX_SIZE;
+	
+	private static final int						DEFAULT_SIZE			= 16;
+
+	/**
+	 * This might pause us before we do an expensive operation.
+	 */
+	ThreadMaster												threadMaster;
+
+	public WeightSet (int maxSize, int setSize, WeightingStrategy<E> weightingStrategy)
+	{
+		assert weightingStrategy != null;
+		
+		this.hashSet			= new HashSet<E>(setSize);
+		this.arrayList		= new ArrayList<E>(setSize);
+		this.maxSize			= maxSize;
+		
+		this.weightingStrategy	= weightingStrategy;
+		this.comparator 				= new FloatWeightComparator(weightingStrategy);
+//		for (E e : arrayList)
+//			weightingStrategy.insert(e);
+	}
+	
+	public WeightSet ( WeightingStrategy<E> getWeightStrategy )
+	{
+		this(NO_MAX_SIZE, DEFAULT_SIZE, getWeightStrategy);
+	}
+
+	public WeightSet (int maxSize, ThreadMaster threadMaster, WeightingStrategy<E> weightStrategy )
+	{
+		this(maxSize, maxSize, weightStrategy);
+		this.threadMaster	= threadMaster;
+	}
 
 	// ///////////////////////////////////////////////////////
 	// DEFAULT COMPARATOR
@@ -61,83 +89,36 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		}
 	};
 
-	private ArrayList<E>			list				= new ArrayList<E>();
-
-	private WeightingStrategy<E>	getWeightStrategy	= new DefaultWeightStrategy();
-
-	private Comparator<E>			comparator			= new FloatWeightComparator(getWeightStrategy);
-
-	private int						maxSize				= -1;
-
-	/**
-	 * This might pause us before we do an expensive operation.
-	 */
-	ThreadMaster					threadMaster;
-
-	public WeightSet ()
-	{
-	}
-
-	public WeightSet ( WeightingStrategy<E> getWeightStrategy )
-	{
-		setWeightingStrategy(getWeightStrategy);
-	}
-
-	public WeightSet ( int maxSize, ThreadMaster threadMaster )
-	{
-		this.threadMaster = threadMaster;
-		this.maxSize = maxSize;
-	}
-
-	public WeightSet ( int maxSize, ThreadMaster threadMaster,
-			WeightingStrategy<E> getWeightStrategy )
-	{
-		this(maxSize, threadMaster);
-		setWeightingStrategy(getWeightStrategy);
-	}
-
-	// SETS WEIGHTING TO NEW STRATEGY AND RECONSTRUCTS COMPARATOR
-	public synchronized void setWeightingStrategy ( WeightingStrategy<E> getWeightStrategy )
-	{
-		this.getWeightStrategy = (WeightingStrategy<E>) getWeightStrategy;
-		this.comparator = new FloatWeightComparator(getWeightStrategy);
-		for (E e : list)
-			getWeightStrategy.insert(e);
-	}
-
 	private void sortIfWeShould ( )
 	{
 		// TODO remove this check, make getWeightStrategy call sort?
-		if (getWeightStrategy.hasChanged())
+		if (weightingStrategy.hasChanged())
 		{
-			Collections.sort(list, comparator);
+			Collections.sort(arrayList, comparator);
 			setChanged();
 			notifyObservers();
-			getWeightStrategy.clearChanged();
+			weightingStrategy.clearChanged();
 		}
 	}
 
 	public synchronized double mean ( )
 	{
-		if (list.size() == 0)
+		if (arrayList.size() == 0)
 			return 0;
 		double mean = 0;
-		for (E e : list)
-			mean += getWeightStrategy.getWeight(e);
-		return mean / list.size();
+		for (E e : arrayList)
+			mean += weightingStrategy.getWeight(e);
+		return mean / arrayList.size();
 	}
 
 	private synchronized void clearAndRecycle (int start, int end)
 	{
 		for (int i=end - 1; i>=start; i--)
 		{
-			E element = list.remove(i);
+			E element = arrayList.remove(i);
 			element.deleteHook();
-			element.recycle();
+			element.recycle();	//FIXME will also call deleteHook?!
 		}
-//		for (E e : deletionList) {
-//			e.deleteHook();
-//			e.recycle();
 	}
 
 	/**
@@ -148,7 +129,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public synchronized E maxSelect ( )
 	{
-		ArrayList<E> list = this.list;
+		ArrayList<E> list = this.arrayList;
 		int size = list.size();
 		if (size == 0)
 			return null;
@@ -158,7 +139,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	public synchronized E maxPeek ( )
 	{
-		ArrayList<E> list = this.list;
+		ArrayList<E> list = this.arrayList;
 		int size = list.size();
 		if (size == 0)
 			return null;
@@ -170,7 +151,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	{
 		if (maxSize < 0)
 			return;
-		ArrayList<E> list = this.list;
+		ArrayList<E> list = this.arrayList;
 		int numToDelete = list.size() - numToKeep;
 		if (numToDelete <= 0)
 			return;
@@ -182,10 +163,11 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	public synchronized void insert ( E el )
 	{
-		if (!list.contains(el))
+		if (!hashSet.contains(el))
 		{
-			getWeightStrategy.insert(el);
-			list.add(el);
+			weightingStrategy.insert(el);
+			arrayList.add(el);
+			hashSet.add(el);
 			el.addSet(this);
 			el.insertHook();
 		}
@@ -199,8 +181,9 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	protected synchronized void removeFromSet ( E e )
 	{
-		getWeightStrategy.remove(e);
-		list.remove(e);
+		weightingStrategy.remove(e);
+		arrayList.remove(e);
+		hashSet.remove(e);
 	}
 
 	/**
@@ -212,16 +195,17 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public synchronized void clear ( boolean doRecycleElements )
 	{
-		synchronized (list)
+		synchronized (arrayList)
 		{
 			for (int i=0; i<size(); i++)
 			{
-				E e	= list.get(i);
+				E e	= arrayList.remove(i);
 				e.deleteHook();
 				if (doRecycleElements)
 					e.recycle();
 			}
 		}
+		hashSet.clear();
 	}
 
 	/**
@@ -239,9 +223,9 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	public synchronized int size ( )
 	{
-		synchronized (list)
+		synchronized (arrayList)
 		{
-			return list.size();
+			return arrayList.size();
 		}
 	}
 
@@ -269,7 +253,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public synchronized E at ( int i )
 	{
-		ArrayList<E> list = this.list;
+		ArrayList<E> list = this.arrayList;
 		if (list.size() == 0 || i >= list.size())
 			return null;
 		sortIfWeShould();
@@ -285,11 +269,11 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public synchronized Double weightAt ( int i )
 	{
-		ArrayList<E> list = this.list;
+		ArrayList<E> list = this.arrayList;
 		if (list.size() == 0)
 			return null;
 		sortIfWeShould();
-		return getWeightStrategy.getWeight(list.get(i));
+		return weightingStrategy.getWeight(list.get(i));
 	}
 	
 	/**
@@ -301,7 +285,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	public double getWeight ( E e )
 	{
-		return getWeightStrategy.getWeight(e);
+		return weightingStrategy.getWeight(e);
 	}
 	/**
 	 * Method Overriden by {@link cf.model.VisualPool VisualPool} to return true
@@ -315,11 +299,11 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	public WeightingStrategy<E> getWeightStrategy ( )
 	{
-		return getWeightStrategy;
+		return weightingStrategy;
 	}
 
 	public synchronized Iterator<E> iterator ( )
 	{
-		return list.iterator();
+		return arrayList.iterator();
 	}
 }
