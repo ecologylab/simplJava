@@ -221,12 +221,9 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return maxSelect();
 	}
 
-	public synchronized int size ( )
+	public int size ( )
 	{
-		synchronized (arrayList)
-		{
-			return arrayList.size();
-		}
+		return arrayList.size();
 	}
 
 	public String toString ( )
