@@ -220,6 +220,8 @@ implements CharacterConstants, SpecialCharacterEntities
 	{
 		entityTable.put(name, Character.toString(c));
 	}
+	
+	private static final String		BOGUS	= "BOGUS";
 
 	/**
 	 * This method generates a name for the xml tag given a reference type java object.
@@ -832,7 +834,10 @@ implements CharacterConstants, SpecialCharacterEntities
 			{
 				//			  if (!"nbsp".equals(encoded))
 				//				  println("unescapeXML[" +encoded + "] -> " + lookup );
-				buffy = buffy.replace(ampPos, semicolonPos+1, lookup);
+				if (!lookup.equals(BOGUS))
+				{
+					buffy = buffy.replace(ampPos, semicolonPos+1, lookup);
+				}				
 				startPos = ampPos+1;
 			}
 			else 
@@ -851,6 +856,7 @@ implements CharacterConstants, SpecialCharacterEntities
 					} catch (NumberFormatException e)
 					{
 						println("unescapeXML[" +encoded + "] FAILED");
+						entityTable.put(encoded, BOGUS);
 					}
 				}
 				
