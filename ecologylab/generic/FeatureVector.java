@@ -354,7 +354,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public void recycle()
 	{
 		values.clear();
-		values	= null;
+		values	= null;//TODO could drop this line to be more moderate
 	}
 	
 }
