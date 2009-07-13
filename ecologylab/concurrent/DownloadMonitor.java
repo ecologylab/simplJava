@@ -65,7 +65,7 @@ implements DownloadProcessor
 
 	//////////////////// queues for media that gets downloaded /////////////////
 
-	protected static boolean				finished;
+	protected boolean								finished;
 
 	private static 		ThreadGroup		THREAD_GROUP	= new ThreadGroup("DownloadMonitor");
 
