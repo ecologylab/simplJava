@@ -312,14 +312,23 @@ public class PrefixPhrase extends Debug
 	{
 		String returnValue="";
 		int seperatorIndex	= purl.indexOf(seperator);
-		String key 					= purl.substring(0, seperatorIndex);
-		String phrase 			= purl.substring(seperatorIndex+1,purl.length());
-		PrefixPhrase childPrefixPhrase= childPhraseMap.get(key);
-//		returnValue 				= returnValue+key;
-		if(childPrefixPhrase!=null &&!childPrefixPhrase.isTerminal())
+		if(seperatorIndex>0)
 		{
+			String key 					= purl.substring(0, seperatorIndex);
+			String phrase 			= purl.substring(seperatorIndex+1,purl.length());
+			PrefixPhrase childPrefixPhrase= childPhraseMap.get(key);
+			
+			if(childPrefixPhrase==null)
+			{
+				// try getting it using wildcard as key
+				childPrefixPhrase = childPhraseMap.get("*");
+				key="*";
+			}
 			buffy.append(returnValue).append(key).append(seperator);
-			buffy.append(childPrefixPhrase.getMatchingPhrase(phrase, seperator));
+			if(childPrefixPhrase!=null)
+			{
+				buffy.append(childPrefixPhrase.getMatchingPhrase(phrase, seperator));
+			}
 		}
 	}
 }
