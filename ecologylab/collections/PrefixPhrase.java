@@ -281,7 +281,7 @@ public class PrefixPhrase extends Debug
 		findTerminals(terminalPrefixPhrases);
 		
 		ArrayList<String>	result	= new ArrayList<String>(terminalPrefixPhrases.size());
-		StringBuilder 		buffy	= new StringBuilder();
+		StringBuilder 		buffy	= new StringBuilder();//TODO StringBuilderUtils.acquire(buffy)
 		
 		for (PrefixPhrase thatPhrase : terminalPrefixPhrases)
 		{
@@ -289,10 +289,18 @@ public class PrefixPhrase extends Debug
 			thatPhrase.toStringBuilder(buffy, separator);
 			result.add(buffy.substring(0, buffy.length()));
 		}
-		
+	//TODO StringBuilderUtils.release(buffy)
 		return result;
 	}
-	
+	public String getMatchingPhrase(String purl,char seperator)
+	{
+		StringBuilder 		buffy	= new StringBuilder();//TODO StringBuilderUtils.acquire(buffy)
+		getMatchingPhrase(buffy, purl, seperator);
+		String result						= buffy.toString();
+		buffy.setLength(0);
+		//TODO StringBuilderUtils.release(buffy)
+		return result;
+	}
 	/**
 	 * This function returns the whole matching path which you have
 	 * followed to reach the PrefixPhrase.
@@ -300,18 +308,18 @@ public class PrefixPhrase extends Debug
 	 * @param seperator
 	 * @return
 	 */
-	public String getMatchingPhrase(String purl,char seperator)
+	public void getMatchingPhrase(StringBuilder buffy, String purl,char seperator)
 	{
 		String returnValue="";
-		int seperatorIndex = purl.indexOf(seperator);
-		String key = purl.substring(0, seperatorIndex);
-		String phrase = purl.substring(seperatorIndex+1,purl.length());
+		int seperatorIndex	= purl.indexOf(seperator);
+		String key 					= purl.substring(0, seperatorIndex);
+		String phrase 			= purl.substring(seperatorIndex+1,purl.length());
 		PrefixPhrase childPrefixPhrase= childPhraseMap.get(key);
-		returnValue = returnValue+key;
+//		returnValue 				= returnValue+key;
 		if(childPrefixPhrase!=null &&!childPrefixPhrase.isTerminal())
 		{
-			returnValue= returnValue+seperator+childPrefixPhrase.getMatchingPhrase(phrase, seperator);
+			buffy.append(returnValue).append(key).append(seperator);
+			buffy.append(childPrefixPhrase.getMatchingPhrase(phrase, seperator));
 		}
-		return returnValue;
 	}
 }
