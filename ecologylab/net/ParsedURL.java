@@ -851,9 +851,7 @@ public class ParsedURL extends Debug implements MimeType
 			// addressString += '/';
 			// }
 			// 4) put back what we peeled off
-			addressString += argString;
-			addressString += hashString;
-
+			addressString = addressString + argString + hashString;
 		}
 		int protocolEnd = addressString.indexOf(":");
 		if (protocolEnd != -1)
