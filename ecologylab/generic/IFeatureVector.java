@@ -4,8 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import ecologylab.pools.HashMapPool;
+
 public interface IFeatureVector<T>
 {
+	public static final HashMapPool	HASH_MAP_POOL		= new HashMapPool(128, 20);
+
 	/**
 	 * 
 	 * @param term

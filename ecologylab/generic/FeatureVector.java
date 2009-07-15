@@ -7,21 +7,28 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 
+import ecologylab.pools.HashMapPool;
+
 public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 {
 
 	protected HashMap<T,Double>		values;
 
 	private double					norm, max;
-
+	
 	public FeatureVector ()
 	{
-		values = new HashMap<T,Double>(20);
+		values = (HashMap<T,Double>) HASH_MAP_POOL.acquire();
 	}
 
+	/**
+	 * 
+	 * @param size	This parameter is ignored because we use pools with standard sizes.
+	 */
 	public FeatureVector ( int size )
 	{
-		values = new HashMap<T,Double>(size);
+		this();
+//		values = (HashMap<T,Double>) new HashMap<T,Double>(size);
 	}
 
 	public FeatureVector ( IFeatureVector<T> copyMe )
@@ -32,7 +39,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	
 	protected void reset() 
 	{
-		values = new HashMap<T,Double>();
+		values.clear();
 		resetNorm();
 	}
 
@@ -55,7 +62,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		{
 			if (values.containsKey(term))
 				val += values.get(term);
-			values.put(term, val);
+			values.put(term, new Double(val));
 			resetNorm();
 		}
 	}
@@ -135,9 +142,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 			{
 				for (T term : other.keySet())
 					if (this.values.containsKey(term))
-						this.values.put(term, c * other.get(term) + this.values.get(term));
+						this.values.put(term, new Double(c * other.get(term) + this.values.get(term)));
 					else
-						this.values.put(term, c * other.get(term));
+						this.values.put(term, new Double(c * other.get(term)));
 			}
 		}
 		resetNorm();
@@ -254,30 +261,23 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	 */
 	public void clamp ( double clampTo )
 	{
-		double max = 0;
 		clampTo = Math.abs(clampTo);
+		double max = this.max();
+		if (!(max > clampTo))
+			return;
+
+		double clampRatio = clampTo / max;
 		synchronized (values)
 		{
-			for (Double d : values.values())
+			Set<T> keySet = this.values.keySet();
+			for (T term : keySet)
 			{
-				double d2 = Math.abs(d);
-				if (d2 > max)
-					max = d2;
+				double old_value = this.values.get(term);
+				double new_value = clampRatio * old_value;
+				this.values.put(term, new_value);
 			}
-			if (!(max > clampTo))
-				return;
-
-			synchronized (values)
-			{
-				for (T term : this.values.keySet())
-				{
-					double old_value = this.values.get(term);
-					double new_value = clampTo * old_value / max;
-					this.values.put(term, new_value);
-				}
-			}
-			resetNorm();
 		}
+		resetNorm();
 	}
 
 	public void clampExp ( double clampTo )
@@ -356,6 +356,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		if (values != null)
 		{
 			values.clear();
+			HASH_MAP_POOL.release(values);
 			values	= null;//TODO could drop this line to be more moderate
 		}
 	}
