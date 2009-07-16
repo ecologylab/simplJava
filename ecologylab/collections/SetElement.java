@@ -116,12 +116,13 @@ extends Debug implements AbstractSetElement
   }
   /**
    * Free resources associated w this element.
+   * Deletes from all constituent sets.
+   * Sets recycled to true.
    */   
-  public boolean recycle()
+  public void recycle()
   {
     delete();
     recycled  = true;
-    return true;
   }
   
   public boolean recycled() {
@@ -129,7 +130,7 @@ extends Debug implements AbstractSetElement
   }
   
   public boolean isInSet() {
-    return sets.size() > 0;
+    return (sets != null) && sets.size() > 0;
   }
 
 }

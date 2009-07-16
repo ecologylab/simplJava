@@ -6,6 +6,7 @@ package ecologylab.collections;
 
 import java.util.*;
 
+import ecologylab.appframework.Memory;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
@@ -117,7 +118,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		{
 			E element = arrayList.remove(i);
 			element.deleteHook();
-			element.recycle();	//FIXME will also call deleteHook?!
+			element.recycle();	// will also call deleteHook?!
 		}
 	}
 
@@ -133,7 +134,26 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		int size = list.size();
 		if (size == 0)
 			return null;
-		sortIfWeShould();
+		try
+		{
+			sortIfWeShould();
+		} catch (Throwable t)
+		{
+			t.printStackTrace();
+			boolean foundNulls	= false;
+			for (int i=list.size() - 1; i>=0; i--)
+			{
+				E entry	= list.get(i);
+				if (entry == null)
+				{
+					error("Oh my! Null Entry!!!!!");
+					list.remove(i);
+					foundNulls	= true;
+				}
+			}
+			if (foundNulls)
+				return maxSelect();
+		}
 		return list.remove(--size);
 	}
 
@@ -159,6 +179,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		sortIfWeShould();
 //		List<E> deletionList = list.subList(0, numToDelete);
 		clearAndRecycle(0, numToDelete);
+		Memory.reclaim();
 	}
 
 	public synchronized void insert ( E el )
@@ -186,6 +207,10 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		hashSet.remove(e);
 	}
 
+	public E get(int i)
+	{
+		return arrayList.get(i);
+	}
 	/**
 	 * Delete all the elements in the set, as fast as possible.
 	 * 

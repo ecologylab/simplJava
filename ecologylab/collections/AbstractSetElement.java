@@ -11,5 +11,5 @@ public interface AbstractSetElement
 	public void deleteHook();
 	public void insertHook();
 	
-	public boolean recycle();
+	public void recycle();
 }
