@@ -576,7 +576,7 @@ public class ParsedURL extends Debug implements MimeType
 			"psd", "svg", "tif", "vrml", "doc", "xls", "pps", "ppt", "adp", "rtf", "vbs", "vsd", "wht",
 			"aif", "aiff", "aifc", "au", "mp3", "wav", "ra", "ram", "wm", "wma", "wmf", "wmp", "wms",
 			"wmv", "wmx", "wmz", "avi", "mov", "mpa", "mpeg", "mpg", "ppj", "swf", "spl", "qdb", "cab",
-			"chm", "gzip", "hqx", "jar", "lzh", "tar", "zip", "xml", "xsl", };
+			"chm", "gzip", "hqx", "jar", "lzh", "tar", "zip", "wpd", "xsl", };
 
 	final static HashMap									unsupportedMimes						= CollectionTools
 																																				.buildHashMapFromStrings(unsupportedMimeStrings);
@@ -1484,5 +1484,14 @@ public class ParsedURL extends Debug implements MimeType
 	public String host()
 	{
 		return (url == null) ? null : url.getHost();
+	}
+	
+	/**
+	 * 
+	 * @return	A lightweight object corresponding to this, either a URL or a File
+	 */
+	public Object shadow()
+	{
+		return (url != null) ? url : file;
 	}
 }
