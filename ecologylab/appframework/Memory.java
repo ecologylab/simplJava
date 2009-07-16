@@ -56,7 +56,7 @@ public class Memory
 			StringTools.clear(buffy);
 			buffy.append("\nMemory.reclaim(")
 			.append(Thread.currentThread().getName())
-			.append(".gc(").append(s).append("): ").append(usage());
+			.append(".gc(").append(s).append("):\n\t").append(usage());
 			reclaimQuiet();
 			buffy.append(" -> ").append(usage()).append(" #").append(gcCount)
 			.append("\n");
