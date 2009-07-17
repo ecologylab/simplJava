@@ -12,9 +12,11 @@ import ecologylab.pools.HashMapPool;
 public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 {
 
+	private static final int	UNCALCULATED	= -1;
+
 	protected HashMap<T,Double>		values;
 
-	private double					norm, max;
+	private double					norm	= UNCALCULATED, max	= UNCALCULATED;
 	
 	public FeatureVector ()
 	{
@@ -221,20 +223,20 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	private void resetNorm ( )
 	{
-		norm = -1;
-		max = -1;
+		norm = UNCALCULATED;
+		max = UNCALCULATED;
 	}
 
 	public double norm ( )
 	{
-		if (norm == -1)
+		if (norm == UNCALCULATED)
 			recalculateNorm();
 		return norm;
 	}
 
 	public double max ( )
 	{
-		if (max == -1)
+		if (max == UNCALCULATED)
 			recalculateMax();
 		return max;
 	}
