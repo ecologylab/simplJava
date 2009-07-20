@@ -87,8 +87,14 @@ public class LogPlaybackControls<E extends MixedInitiativeOp, T extends Logging<
 		playPauseButton.addActionListener(player);
 		playPauseButton.addActionListener(this);
 		
-		playPauseButton.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "PRESS");
-		playPauseButton.getActionMap().put("PRESS", new ButtonAction(playPauseButton));
+		playPauseButton.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "UP");
+		playPauseButton.getActionMap().put("UP", new ButtonAction(playPauseButton));
+		
+		playPauseButton.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "LEFT");
+		playPauseButton.getActionMap().put("LEFT", new ButtonAction(stepBackButton));
+		
+		playPauseButton.getInputMap(WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "RIGHT");
+		playPauseButton.getActionMap().put("RIGHT", new ButtonAction(stepForwardButton));
 		
 		stopButton.addActionListener(player);
 		stopButton.addActionListener(this);
