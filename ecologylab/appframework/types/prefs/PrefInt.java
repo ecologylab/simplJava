@@ -74,4 +74,13 @@ public class PrefInt extends Pref<Integer>
         
         prefChanged();
 	}
+
+		/**
+		 * @see ecologylab.appframework.types.prefs.Pref#clone()
+		 */
+		@Override
+		public Pref<Integer> clone()
+		{
+			return new PrefInt(this.name, this.value);
+		}
 }

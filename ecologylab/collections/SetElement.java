@@ -18,11 +18,9 @@ public class SetElement
 extends Debug implements AbstractSetElement
 {
 
-  private boolean recycled = false;
-  protected ArrayList<WeightSet> sets = new ArrayList();
+  private boolean recycled 						= false;
+  protected ArrayList<WeightSet> sets = new ArrayList<WeightSet>();
   
-  
-
   public SetElement()
   {
   }
@@ -45,13 +43,17 @@ extends Debug implements AbstractSetElement
    */
   public final void delete()
   {
-    synchronized(sets) {
-      if (sets != null)
-        for (WeightSet s : sets)
-          if (s != null)
-            s.removeFromSet(this);
-      deleteHook();
+    if (sets != null)
+    {
+    	synchronized (sets) 
+    	{
+    		for (WeightSet s : sets)
+    			if (s != null)
+    				s.removeFromSet(this);
+    		sets.clear();
+    	}
     }
+  	deleteHook();
   }
   
   public void addSet(WeightSet s) {
@@ -114,12 +116,13 @@ extends Debug implements AbstractSetElement
   }
   /**
    * Free resources associated w this element.
+   * Deletes from all constituent sets.
+   * Sets recycled to true.
    */   
-  public boolean recycle()
+  public void recycle()
   {
     delete();
     recycled  = true;
-    return true;
   }
   
   public boolean recycled() {
@@ -127,7 +130,7 @@ extends Debug implements AbstractSetElement
   }
   
   public boolean isInSet() {
-    return sets.size() > 0;
+    return (sets != null) && sets.size() > 0;
   }
 
 }

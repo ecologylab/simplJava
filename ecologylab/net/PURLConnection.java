@@ -1,5 +1,7 @@
 package ecologylab.net;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLConnection;
 
@@ -12,23 +14,49 @@ import ecologylab.generic.Debug;
  */
 public class PURLConnection extends Debug
 {
+	protected	ParsedURL				purl;
 	protected InputStream			inputStream;
-	protected URLConnection			urlConnection;
-	protected String				mimeType;
+	protected URLConnection		urlConnection;
+	protected String					mimeType;
 
 	/**
 	 * Fill out the instance of this resulting from a succcessful connect().
+	 * @param purl TODO
 	 * @param urlConnection
 	 * @param inputStream
 	 */
 	//TODO change to package level access when ParsedURL moves
-	public PURLConnection(URLConnection urlConnection, InputStream inputStream)
+	public PURLConnection(ParsedURL purl, URLConnection urlConnection, InputStream inputStream)
 	{
-		this.inputStream	= inputStream;
+		this.purl						= purl;
+		this.inputStream		= inputStream;
 		this.urlConnection	= urlConnection;
 	}
 
 	public void recycle()
+	{
+		close();
+//		purl.recycle();
+//		purl							= null;
+	}
+	public void reconnect()
+	{
+		if (purl != null && purl.isFile() && inputStream ==null)
+		{
+			try
+			{
+				inputStream			= new FileInputStream(purl.file());
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+	/**
+	 * Close the InputStream, and disconnect the URLConnection.
+	 */
+	public void close()
 	{
 		// parsing done. now free resources asap to avert leaking and memory fragmentation
 		// (this is a known problem w java.net.HttpURLConnection)
@@ -96,5 +124,10 @@ public class PURLConnection extends Debug
 	public String toString()
 	{
 		return urlConnection != null ? urlConnection.toString() : "PURLConnection";
+	}
+	
+	public ParsedURL getPurl()
+	{
+		return purl;
 	}
 }

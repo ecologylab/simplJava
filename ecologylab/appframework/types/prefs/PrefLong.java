@@ -27,7 +27,7 @@ public class PrefLong extends Pref<Long>
 		super();
 	}
 
-	public PrefLong(String name, int value)
+	public PrefLong(String name, long value)
 	{
 		super(name);
 
@@ -39,7 +39,7 @@ public class PrefLong extends Pref<Long>
 	 * 
 	 * @param value
 	 */
-	public PrefLong(int value)
+	public PrefLong(long value)
 	{
 		this(null, value);
 	}
@@ -76,5 +76,14 @@ public class PrefLong extends Pref<Long>
 		this.value = value;
 
 		prefChanged();
+	}
+
+	/**
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public Pref<Long> clone()
+	{
+		return new PrefLong(this.name, this.value);
 	}
 }

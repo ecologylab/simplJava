@@ -111,6 +111,8 @@ public class BooleanType extends ScalarType<Boolean>
     }
     static final String TRUE	= "true";
     static final String FALSE	= "false";
+    static final String SHORT_TRUE = "t";
+    static final String SHORT_FALSE = "f";
     
     /**
      * Get the value from the Field, in the context.
@@ -127,8 +129,14 @@ public class BooleanType extends ScalarType<Boolean>
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
         boolean value = f2xo.getField().getBoolean(context);
-           
-		buffy.append(value ? TRUE : FALSE);
+        if(f2xo.getFormat() != null)
+        {
+      	  buffy.append(value ? SHORT_TRUE : SHORT_FALSE);
+        }
+        else
+        {
+      	  buffy.append(value ? TRUE : FALSE);
+        }
     }
     
 

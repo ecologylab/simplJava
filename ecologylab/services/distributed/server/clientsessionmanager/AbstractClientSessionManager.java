@@ -32,21 +32,23 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * The base class for all ContextManagers, objects which track the state and respond to clients on a
- * server. There is a one-to-one correspondence between connected clients and ContextManager
- * instances.
+ * The base class for all ContextManagers, objects which track the state and
+ * respond to clients on a server. There is a one-to-one correspondence between
+ * connected clients and ContextManager instances.
  * 
- * AbstractContextManager handles all encoding and decoding of messages, as well as translating
- * them. Hook methods provide places where subclasses may modify behavior for specific purposes.
+ * AbstractContextManager handles all encoding and decoding of messages, as well
+ * as translating them. Hook methods provide places where subclasses may modify
+ * behavior for specific purposes.
  * 
- * Typical usage is to have the context manager's request queue be filled by a network thread, while
- * it is emptied by a working thread.
+ * Typical usage is to have the context manager's request queue be filled by a
+ * network thread, while it is emptied by a working thread.
  * 
- * The normal cycle for filling the queue is to call acquireIncomingSequenceBuf() to clear and get
- * the incomingCharBuffer, then fill it externally (normally passing it as an argument to a
- * CharsetDecoder.decode call), then calling processIncomingSequenceBufToQueue() to release it and
- * let the ContextManager store the characters, converting messages into objects as they become
- * available.
+ * The normal cycle for filling the queue is to call
+ * acquireIncomingSequenceBuf() to clear and get the incomingCharBuffer, then
+ * fill it externally (normally passing it as an argument to a
+ * CharsetDecoder.decode call), then calling processIncomingSequenceBufToQueue()
+ * to release it and let the ContextManager store the characters, converting
+ * messages into objects as they become available.
  * 
  * For a complete, basic implementation (which is suitable for most uses), see
  * {@link ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager
@@ -55,142 +57,151 @@ import ecologylab.xml.XMLTranslationException;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public abstract class AbstractClientSessionManager extends Debug implements ServerConstants
+public abstract class AbstractClientSessionManager extends Debug implements
+		ServerConstants
 {
 	/**
-	 * Stores the key-value pairings from a parsed HTTP-like header on an incoming message.
+	 * Stores the key-value pairings from a parsed HTTP-like header on an
+	 * incoming message.
 	 */
-	protected final HashMap<String, String>											headerMap									= new HashMap<String, String>();
+	protected final HashMap<String, String>										headerMap						= new HashMap<String, String>();
 
-	protected int																								startReadIndex						= 0;
+	protected int																			startReadIndex					= 0;
 
 	/**
-	 * Stores incoming character data until it can be parsed into an XML message and turned into a
-	 * Java object.
+	 * Stores incoming character data until it can be parsed into an XML message
+	 * and turned into a Java object.
 	 */
-	protected final StringBuilder																msgBufIncoming;
+	protected final StringBuilder														msgBufIncoming;
 
 	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder																msgBufOutgoing;
+	protected final StringBuilder														msgBufOutgoing;
 
 	/** Stores outgoing header character data. */
-	protected final StringBuilder																headerBufOutgoing					= new StringBuilder(
-																																														MAX_HTTP_HEADER_LENGTH);
+	protected final StringBuilder														headerBufOutgoing				= new StringBuilder(
+																																			MAX_HTTP_HEADER_LENGTH);
 
-	protected final StringBuilder																startLine									= new StringBuilder(
-																																														MAX_HTTP_HEADER_LENGTH);
-
-	/**
-	 * Indicates whether or not one or more messages are queued for execution by this ContextManager.
-	 */
-	protected boolean																						messageWaiting						= false;
+	protected final StringBuilder														startLine						= new StringBuilder(
+																																			MAX_HTTP_HEADER_LENGTH);
 
 	/**
-	 * A queue of the requests to be performed by this ContextManager. Subclasses may override
-	 * functionality and not use requestQueue.
+	 * Indicates whether or not one or more messages are queued for execution by
+	 * this ContextManager.
 	 */
-	protected final Queue<MessageWithMetadata<RequestMessage>>	requestQueue							= new LinkedBlockingQueue<MessageWithMetadata<RequestMessage>>();
+	protected boolean																		messageWaiting					= false;
 
 	/**
-	 * The network communicator that will handle all the reading and writing for the socket associated
-	 * with this ContextManager
+	 * A queue of the requests to be performed by this ContextManager. Subclasses
+	 * may override functionality and not use requestQueue.
 	 */
-	protected NIOServerIOThread																	server;
+	protected final Queue<MessageWithMetadata<RequestMessage, Object>>	requestQueue					= new LinkedBlockingQueue<MessageWithMetadata<RequestMessage, Object>>();
 
 	/**
-	 * The frontend for the server that is running the ContextManager. This is needed in case the
-	 * client attempts to restore a session, in which case the frontend must be queried for the old
-	 * ContextManager.
+	 * The network communicator that will handle all the reading and writing for
+	 * the socket associated with this ContextManager
 	 */
-	protected NIOServerProcessor																frontend									= null;
+	protected NIOServerIOThread														server;
+
+	/**
+	 * The frontend for the server that is running the ContextManager. This is
+	 * needed in case the client attempts to restore a session, in which case the
+	 * frontend must be queried for the old ContextManager.
+	 */
+	protected NIOServerProcessor														frontend							= null;
 
 	/**
 	 * The selection key for this context manager.
 	 */
-	protected SelectionKey																			socketKey;
+	protected SelectionKey																socketKey;
 
 	/**
-	 * sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost
-	 * connection.
+	 * sessionId uniquely identifies this ContextManager. It is used to restore
+	 * the state of a lost connection.
 	 */
-	protected Object																						sessionId									= null;
+	protected Object																		sessionId						= null;
 
 	/**
-	 * The maximum message length allowed for clients that connect to this session manager. Note that
-	 * most of the buffers used by AbstractClientManager are mutable in size, and will dynamically
-	 * reallocate as necessary if they were initialized to be too small.
+	 * The maximum message length allowed for clients that connect to this
+	 * session manager. Note that most of the buffers used by
+	 * AbstractClientManager are mutable in size, and will dynamically reallocate
+	 * as necessary if they were initialized to be too small.
 	 */
-	protected int																								maxMessageSize;
+	protected int																			maxMessageSize;
 
 	/** Used to translate incoming message XML strings into RequestMessages. */
-	protected TranslationScope																	translationSpace;
+	protected TranslationScope															translationSpace;
 
 	/**
-	 * stores the sequence of characters read from the header of an incoming message, may need to
-	 * persist across read calls, as the entire header may not be sent at once.
+	 * stores the sequence of characters read from the header of an incoming
+	 * message, may need to persist across read calls, as the entire header may
+	 * not be sent at once.
 	 */
-	private final StringBuilder																	currentHeaderSequence			= new StringBuilder();
+	private final StringBuilder														currentHeaderSequence		= new StringBuilder();
 
 	/**
-	 * stores the sequence of characters read from the header of an incoming message and identified as
-	 * being a key for a header entry; may need to persist across read calls.
+	 * stores the sequence of characters read from the header of an incoming
+	 * message and identified as being a key for a header entry; may need to
+	 * persist across read calls.
 	 */
-	private final StringBuilder																	currentKeyHeaderSequence	= new StringBuilder();
+	private final StringBuilder														currentKeyHeaderSequence	= new StringBuilder();
 
 	/** A buffer for data that will be sent back to the client. */
-	private final CharBuffer																		outgoingChars;
+	private final CharBuffer															outgoingChars;
 
 	/**
-	 * Tracks the number of bad transmissions from the client; used for determining if a client is
-	 * bad.
+	 * Tracks the number of bad transmissions from the client; used for
+	 * determining if a client is bad.
 	 */
-	private int																									badTransmissionCount;
+	private int																				badTransmissionCount;
 
-	private int																									endOfFirstHeader					= -1;
+	private int																				endOfFirstHeader				= -1;
 
-	private long																								lastActivity							= System
-																																														.currentTimeMillis();
+	private long																			lastActivity					= System
+																																			.currentTimeMillis();
 
 	/**
-	 * Used for disconnecting. A disconnect message will call the setInvalidating method, which will
-	 * set this value to true. The processing method will set itself as pending invalidation after it
-	 * has produces the bytes for the response to the disconnect message.
+	 * Used for disconnecting. A disconnect message will call the setInvalidating
+	 * method, which will set this value to true. The processing method will set
+	 * itself as pending invalidation after it has produces the bytes for the
+	 * response to the disconnect message.
 	 */
-	private boolean																							invalidating							= false;
+	private boolean																		invalidating					= false;
 
 	/**
-	 * Counts how many characters still need to be extracted from the incomingMessageBuffer before
-	 * they can be turned into a message (based upon the HTTP header). A value of -1 means that there
-	 * is not yet a complete header, so no length has been determined (yet).
+	 * Counts how many characters still need to be extracted from the
+	 * incomingMessageBuffer before they can be turned into a message (based upon
+	 * the HTTP header). A value of -1 means that there is not yet a complete
+	 * header, so no length has been determined (yet).
 	 */
-	private int																									contentLengthRemaining		= -1;
+	private int																				contentLengthRemaining		= -1;
 
 	/**
-	 * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being
-	 * read over several invocations).
+	 * Stores the first XML message from the incomingMessageBuffer, or parts of
+	 * it (if it is being read over several invocations).
 	 */
-	private final StringBuilder																	firstMessageBuffer				= new StringBuilder();
+	private final StringBuilder														firstMessageBuffer			= new StringBuilder();
 
 	/**
-	 * Indicates whether the first request message has been received. The first request may be an
-	 * InitConnection, which has special properties.
+	 * Indicates whether the first request message has been received. The first
+	 * request may be an InitConnection, which has special properties.
 	 */
-	protected boolean																						initialized								= false;
+	protected boolean																		initialized						= false;
 
-	private final MessageWithMetadataPool<RequestMessage>				reqPool										= new MessageWithMetadataPool<RequestMessage>(
-																																														2, 4);
+	private final MessageWithMetadataPool<RequestMessage, Object>			reqPool							= new MessageWithMetadataPool<RequestMessage, Object>(
+																																			2,
+																																			4);
 
-	private long																								contentUid								= -1;
+	private long																			contentUid						= -1;
 
-	protected Scope																							localScope;
+	protected Scope																		localScope;
 
-	public static final String																	SESSION_ID								= "SESSION_ID";
+	public static final String															SESSION_ID						= "SESSION_ID";
 
-	public static final String																	CLIENT_MANAGER						= "CLIENT_MANAGER";
+	public static final String															CLIENT_MANAGER					= "CLIENT_MANAGER";
 
-	private static final String																	POST_PREFIX								= "POST ";
+	private static final String														POST_PREFIX						= "POST ";
 
-	private static final String																	GET_PREFIX								= "GET ";
+	private static final String														GET_PREFIX						= "GET ";
 
 	/**
 	 * Creates a new ContextManager.
@@ -204,8 +215,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * @param registry
 	 */
 	public AbstractClientSessionManager(Object sessionId, int maxMessageSizeIn,
-			NIOServerIOThread server, NIOServerProcessor frontend, SelectionKey socket,
-			TranslationScope translationSpace, Scope<?> registry)
+			NIOServerIOThread server, NIOServerProcessor frontend,
+			SelectionKey socket, TranslationScope translationSpace,
+			Scope<?> registry)
 	{
 		this.frontend = frontend;
 		this.socketKey = socket;
@@ -222,28 +234,35 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 		this.maxMessageSize = maxMessageSizeIn;
 
-		this.outgoingChars = CharBuffer.allocate(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
+		this.outgoingChars = CharBuffer.allocate(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
 
-		msgBufIncoming = new StringBuilder(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
+		msgBufIncoming = new StringBuilder(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
 
-		msgBufOutgoing = new StringBuilder(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
+		msgBufOutgoing = new StringBuilder(maxMessageSize
+				+ MAX_HTTP_HEADER_LENGTH);
 
 		this.prepareBuffers(msgBufIncoming, msgBufOutgoing, headerBufOutgoing);
 	}
 
 	/**
-	 * Extracts messages from the given CharBuffer, using HTTP-like headers, converting them into
-	 * RequestMessage instances, then enqueues those instances.
+	 * Extracts messages from the given CharBuffer, using HTTP-like headers,
+	 * converting them into RequestMessage instances, then enqueues those
+	 * instances.
 	 * 
-	 * enqueueStringMessage will normally be called repeatedly, as new data comes in from a client. It
-	 * will automatically parse messages that are split up over multiple reads, and will handle
-	 * multiple messages in one read, if necessary.
+	 * enqueueStringMessage will normally be called repeatedly, as new data comes
+	 * in from a client. It will automatically parse messages that are split up
+	 * over multiple reads, and will handle multiple messages in one read, if
+	 * necessary.
 	 * 
 	 * @param message
-	 *          the CharBuffer containing one or more messages, or pieces of messages.
+	 *           the CharBuffer containing one or more messages, or pieces of
+	 *           messages.
 	 */
-	public final void processIncomingSequenceBufToQueue(CharBuffer incomingSequenceBuf)
-			throws CharacterCodingException, BadClientException
+	public final void processIncomingSequenceBufToQueue(
+			CharBuffer incomingSequenceBuf) throws CharacterCodingException,
+			BadClientException
 	{
 		// debug("incoming: " + incomingSequenceBuf);
 
@@ -256,21 +275,25 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 			{
 				if (endOfFirstHeader == -1)
 				{
-					endOfFirstHeader = this.parseHeader(startReadIndex, msgBufIncoming);
+					endOfFirstHeader = this.parseHeader(startReadIndex,
+							msgBufIncoming);
 				}
 
 				if (endOfFirstHeader == -1)
 				{ /*
-					 * no header yet; if it's too large, bad client; if it's not too large yet, just exit,
-					 * it'll get checked again when more data comes down the pipe
+					 * no header yet; if it's too large, bad client; if it's not too
+					 * large yet, just exit, it'll get checked again when more data
+					 * comes down the pipe
 					 */
 					if (msgBufIncoming.length() > ServerConstants.MAX_HTTP_HEADER_LENGTH)
 					{
 						// clear the buffer
 						BadClientException e = new BadClientException(
-								((SocketChannel) this.socketKey.channel()).socket().getInetAddress()
-										.getHostAddress(), "Maximum HTTP header length exceeded. Read "
-										+ msgBufIncoming.length() + "/" + MAX_HTTP_HEADER_LENGTH);
+								((SocketChannel) this.socketKey.channel()).socket()
+										.getInetAddress().getHostAddress(),
+								"Maximum HTTP header length exceeded. Read "
+										+ msgBufIncoming.length() + "/"
+										+ MAX_HTTP_HEADER_LENGTH);
 
 						msgBufIncoming.setLength(0);
 
@@ -292,12 +315,16 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 						{
 							// handle all header information here; delete it when done
 							// here
-							String contentLengthString = this.headerMap.get(CONTENT_LENGTH_STRING);
+							String contentLengthString = this.headerMap
+									.get(CONTENT_LENGTH_STRING);
 							contentLengthRemaining = (contentLengthString != null) ? Integer
-									.parseInt(contentLengthString) : 0;
+									.parseInt(contentLengthString)
+									: 0;
 
-							String uidString = this.headerMap.get(UNIQUE_IDENTIFIER_STRING);
-							contentUid = (uidString != null) ? Long.parseLong(uidString) : 0;
+							String uidString = this.headerMap
+									.get(UNIQUE_IDENTIFIER_STRING);
+							contentUid = (uidString != null) ? Long
+									.parseLong(uidString) : 0;
 
 							// done with the header text; delete it; header values will
 							// be retained for later processing by subclasses
@@ -315,21 +342,24 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 				}
 
 				/*
-				 * we have the end of the header (otherwise we would have broken out earlier). If we don't
-				 * have the content length, something bad happened, because it should have been read.
+				 * we have the end of the header (otherwise we would have broken out
+				 * earlier). If we don't have the content length, something bad
+				 * happened, because it should have been read.
 				 */
 				if (contentLengthRemaining == -1)
 				{
 					/*
-					 * if we still don't have the remaining length, then there was a problem
+					 * if we still don't have the remaining length, then there was a
+					 * problem
 					 */
 					break;
 				}
 				else if (contentLengthRemaining > maxMessageSize)
 				{
-					throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
-							.getInetAddress().getHostAddress(), "Specified content length too large: "
-							+ contentLengthRemaining);
+					throw new BadClientException(((SocketChannel) this.socketKey
+							.channel()).socket().getInetAddress().getHostAddress(),
+							"Specified content length too large: "
+									+ contentLengthRemaining);
 				}
 
 				try
@@ -338,7 +368,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 					// include the specified content length
 					if (msgBufIncoming.length() >= contentLengthRemaining)
 					{
-						firstMessageBuffer.append(msgBufIncoming.substring(0, contentLengthRemaining));
+						firstMessageBuffer.append(msgBufIncoming.substring(0,
+								contentLengthRemaining));
 
 						msgBufIncoming.delete(0, contentLengthRemaining);
 
@@ -364,7 +395,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 				if ((contentLengthRemaining == -1))
 				{ /*
-					 * if we've read a complete message, then contentLengthRemaining will be reset to -1
+					 * if we've read a complete message, then contentLengthRemaining
+					 * will be reset to -1
 					 */
 					processString(firstMessageBuffer, contentUid);
 
@@ -378,9 +410,11 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Indicates the last System timestamp was when the ContextManager had any activity.
+	 * Indicates the last System timestamp was when the ContextManager had any
+	 * activity.
 	 * 
-	 * @return the last System timestamp indicating when the ContextManager had any activity.
+	 * @return the last System timestamp indicating when the ContextManager had
+	 *         any activity.
 	 */
 	public final long getLastActivity()
 	{
@@ -398,9 +432,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	/**
 	 * Indicates whether there are any messages queued up to be processed.
 	 * 
-	 * isMessageWaiting() should be overridden if getNextRequest() is overridden so that it properly
-	 * reflects the way that getNextRequest() works; it may also be important to override
-	 * enqueueRequest().
+	 * isMessageWaiting() should be overridden if getNextRequest() is overridden
+	 * so that it properly reflects the way that getNextRequest() works; it may
+	 * also be important to override enqueueRequest().
 	 * 
 	 * @return true if getNextRequest() can return a value, false if it cannot.
 	 */
@@ -410,15 +444,18 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Calls processRequest(RequestMessage) on each queued message as they are acquired through
-	 * getNextRequest() and finishing when isMessageWaiting() returns false.
+	 * Calls processRequest(RequestMessage) on each queued message as they are
+	 * acquired through getNextRequest() and finishing when isMessageWaiting()
+	 * returns false.
 	 * 
-	 * The functionality of processAllMessagesAndSendResponses() may be overridden by overridding the
-	 * following methods: isMessageWaiting(), processRequest(RequestMessage), getNextRequest().
+	 * The functionality of processAllMessagesAndSendResponses() may be
+	 * overridden by overridding the following methods: isMessageWaiting(),
+	 * processRequest(RequestMessage), getNextRequest().
 	 * 
 	 * @throws BadClientException
 	 */
-	public final void processAllMessagesAndSendResponses() throws BadClientException
+	public final void processAllMessagesAndSendResponses()
+			throws BadClientException
 	{
 		while (isMessageWaiting())
 		{
@@ -427,11 +464,11 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Sets the SelectionKey, and sets the new SelectionKey to have the same attachment (session id)
-	 * as the old one.
+	 * Sets the SelectionKey, and sets the new SelectionKey to have the same
+	 * attachment (session id) as the old one.
 	 * 
 	 * @param socket
-	 *          the socket to set
+	 *           the socket to set
 	 */
 	public void setSocket(SelectionKey socket)
 	{
@@ -445,33 +482,37 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	/**
 	 * Hook method for having shutdown behavior.
 	 * 
-	 * This method is called whenever the server is closing down the connection to this client.
+	 * This method is called whenever the server is closing down the connection
+	 * to this client.
 	 */
 	public void shutdown()
 	{
 
 	}
 
-	protected abstract void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf);
+	protected abstract void clearOutgoingMessageBuffer(
+			StringBuilder outgoingMessageBuf);
 
-	protected abstract void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf);
+	protected abstract void clearOutgoingMessageHeaderBuffer(
+			StringBuilder outgoingMessageHeaderBuf);
 
 	protected abstract void createHeader(StringBuilder outgoingMessageBuf,
-			StringBuilder outgoingMessageHeaderBuf, RequestMessage incomingRequest,
-			ResponseMessage outgoingResponse, long uid);
+			StringBuilder outgoingMessageHeaderBuf,
+			RequestMessage incomingRequest, ResponseMessage outgoingResponse,
+			long uid);
 
 	/**
 	 * Adds the given request to this's request queue.
 	 * 
-	 * enqueueRequest(RequestMessage) is a hook method for ContextManagers that need to implement
-	 * other functionality, such as prioritizing messages.
+	 * enqueueRequest(RequestMessage) is a hook method for ContextManagers that
+	 * need to implement other functionality, such as prioritizing messages.
 	 * 
-	 * If enqueueRequest(RequestMessage) is overridden, the following methods should also be
-	 * overridden: isMessageWaiting(), getNextRequest().
+	 * If enqueueRequest(RequestMessage) is overridden, the following methods
+	 * should also be overridden: isMessageWaiting(), getNextRequest().
 	 * 
 	 * @param request
 	 */
-	protected void enqueueRequest(MessageWithMetadata<RequestMessage> request)
+	protected void enqueueRequest(MessageWithMetadata<RequestMessage, Object> request)
 	{
 		messageWaiting = this.requestQueue.offer(request);
 	}
@@ -479,13 +520,13 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	/**
 	 * Returns the next message in the request queue.
 	 * 
-	 * getNextRequest() may be overridden to provide specific functionality, such as a priority queue.
-	 * In this case, it is important to override the following methods: isMessageWaiting(),
-	 * enqueueRequest().
+	 * getNextRequest() may be overridden to provide specific functionality, such
+	 * as a priority queue. In this case, it is important to override the
+	 * following methods: isMessageWaiting(), enqueueRequest().
 	 * 
 	 * @return the next message in the requestQueue.
 	 */
-	protected MessageWithMetadata<RequestMessage> getNextRequest()
+	protected MessageWithMetadata<RequestMessage, Object> getNextRequest()
 	{
 		synchronized (requestQueue)
 		{
@@ -502,15 +543,16 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Parses the header of an incoming set of characters (i.e. a message from a client to a server),
-	 * loading all of the HTTP-like headers into the given headerMap.
+	 * Parses the header of an incoming set of characters (i.e. a message from a
+	 * client to a server), loading all of the HTTP-like headers into the given
+	 * headerMap.
 	 * 
 	 * If headerMap is null, this method will throw a null pointer exception.
 	 * 
 	 * @param allIncomingChars
-	 *          - the characters read from an incoming stream.
+	 *           - the characters read from an incoming stream.
 	 * @param headerMap
-	 *          - the map into which all of the parsed headers will be placed.
+	 *           - the map into which all of the parsed headers will be placed.
 	 * @return the length of the parsed header, or -1 if it was not yet found.
 	 */
 	protected int parseHeader(int startChar, StringBuilder allIncomingChars)
@@ -539,8 +581,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 				{
 				case (':'):
 					/*
-					 * we have the end of a key; move the currentHeaderSequence into the
-					 * currentKeyHeaderSequence and clear it
+					 * we have the end of a key; move the currentHeaderSequence into
+					 * the currentKeyHeaderSequence and clear it
 					 */
 					currentKeyHeaderSequence.append(currentHeaderSequence);
 
@@ -551,8 +593,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 					break;
 				case ('\r'):
 					/*
-					 * we have the end of a line; if there's a CRLF, then we have the end of the value
-					 * sequence or the end of the header.
+					 * we have the end of a line; if there's a CRLF, then we have the
+					 * end of the value sequence or the end of the header.
 					 */
 					if (allIncomingChars.charAt(i + 1) == '\n')
 					{
@@ -560,8 +602,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 						{
 							if (noMoreStartLine)
 							{ // load the key/value pair
-								headerMap.put(currentKeyHeaderSequence.toString().toLowerCase(),
-										currentHeaderSequence.toString().trim());
+								headerMap.put(currentKeyHeaderSequence.toString()
+										.toLowerCase(), currentHeaderSequence.toString()
+										.trim());
 							}
 							else
 							{ // we potentially have data w/o a key-value pair; this
@@ -598,19 +641,21 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Appends the sender's IP address to the incoming message and calls performService on the given
-	 * RequestMessage using the local ObjectRegistry.
+	 * Appends the sender's IP address to the incoming message and calls
+	 * performService on the given RequestMessage using the local ObjectRegistry.
 	 * 
-	 * performService(RequestMessage) may be overridden by subclasses to provide more specialized
-	 * functionality. Generally, overrides should then call super.performService(RequestMessage) so
-	 * that the IP address is appended to the message.
+	 * performService(RequestMessage) may be overridden by subclasses to provide
+	 * more specialized functionality. Generally, overrides should then call
+	 * super.performService(RequestMessage) so that the IP address is appended to
+	 * the message.
 	 * 
 	 * @param requestMessage
 	 * @return
 	 */
 	protected ResponseMessage performService(RequestMessage requestMessage)
 	{
-		requestMessage.setSender(((SocketChannel) this.socketKey.channel()).socket().getInetAddress());
+		requestMessage.setSender(((SocketChannel) this.socketKey.channel())
+				.socket().getInetAddress());
 
 		try
 		{
@@ -620,40 +665,47 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 		{
 			e.printStackTrace();
 
-			return new BadSemanticContentResponse("The request, " + requestMessage.toString()
+			return new BadSemanticContentResponse("The request, "
+					+ requestMessage.toString()
 					+ " caused an exception on the server.");
 		}
 	}
 
 	protected abstract void prepareBuffers(StringBuilder incomingMessageBuf,
-			StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf);
+			StringBuilder outgoingMessageBuf,
+			StringBuilder outgoingMessageHeaderBuf);
 
 	protected abstract void translateResponseMessageToStringBufferContents(
-			RequestMessage requestMessage, ResponseMessage responseMessage, StringBuilder messageBuffer)
-			throws XMLTranslationException;
+			RequestMessage requestMessage, ResponseMessage responseMessage,
+			StringBuilder messageBuffer) throws XMLTranslationException;
 
 	/**
 	 * Translates the given XML String into a RequestMessage object.
 	 * 
-	 * translateStringToRequestMessage(String) may be overridden to provide specific functionality,
-	 * such as a ContextManager that does not use XML Strings.
+	 * translateStringToRequestMessage(String) may be overridden to provide
+	 * specific functionality, such as a ContextManager that does not use XML
+	 * Strings.
 	 * 
 	 * @param messageCharSequence
-	 *          - an XML String representing a RequestMessage object.
-	 * @return the RequestMessage created by translating messageString into an object.
+	 *           - an XML String representing a RequestMessage object.
+	 * @return the RequestMessage created by translating messageString into an
+	 *         object.
 	 * @throws XMLTranslationException
-	 *           if an error occurs when translating from XML into a RequestMessage.
+	 *            if an error occurs when translating from XML into a
+	 *            RequestMessage.
 	 * @throws UnsupportedEncodingException
-	 *           if the String is not encoded properly.
+	 *            if the String is not encoded properly.
 	 */
-	protected RequestMessage translateStringToRequestMessage(CharSequence messageCharSequence)
-			throws XMLTranslationException, UnsupportedEncodingException
+	protected RequestMessage translateStringToRequestMessage(
+			CharSequence messageCharSequence) throws XMLTranslationException,
+			UnsupportedEncodingException
 	{
 		String startLineString = null;
-		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
+		if (this.startLine == null
+				|| (startLineString = startLine.toString()).equals(""))
 		{ // normal case
-			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageCharSequence,
-					translationSpace);
+			return (RequestMessage) ElementState.translateFromXMLCharSequence(
+					messageCharSequence, translationSpace);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
 		{ // get case
@@ -669,10 +721,11 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 			String messageString = messageCharSequence.toString();
 
 			if (!messageString.startsWith("<"))
-				messageString = messageString.substring(messageString.indexOf('=') + 1);
+				messageString = messageString
+						.substring(messageString.indexOf('=') + 1);
 
-			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
-					translationSpace);
+			return (RequestMessage) ElementState.translateFromXMLCharSequence(
+					messageString, translationSpace);
 		}
 		else
 		{ // made of fail case
@@ -683,8 +736,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	/**
 	 * Calls processRequest(RequestMessage) on the result of getNextRequest().
 	 * 
-	 * In order to override functionality processRequest(RequestMessage) and/or getNextRequest()
-	 * should be overridden.
+	 * In order to override functionality processRequest(RequestMessage) and/or
+	 * getNextRequest() should be overridden.
 	 * 
 	 */
 	private final void processNextMessageAndSendResponse()
@@ -693,14 +746,15 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Calls performService(requestMessage), then converts the resulting ResponseMessage into a
-	 * String, adds the HTTP-like headers, and passes the completed String to the server backend for
-	 * sending to the client.
+	 * Calls performService(requestMessage), then converts the resulting
+	 * ResponseMessage into a String, adds the HTTP-like headers, and passes the
+	 * completed String to the server backend for sending to the client.
 	 * 
 	 * @param request
-	 *          - the request message to process.
+	 *           - the request message to process.
 	 */
-	private final void processRequest(MessageWithMetadata<RequestMessage> requestWithMetadata)
+	private final void processRequest(
+			MessageWithMetadata<RequestMessage, Object> requestWithMetadata)
 	{
 		this.lastActivity = System.currentTimeMillis();
 
@@ -726,7 +780,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 				// special processing for InitConnectionRequest
 				if (request instanceof InitConnectionRequest)
 				{
-					String incomingSessionId = ((InitConnectionRequest) request).getSessionId();
+					String incomingSessionId = ((InitConnectionRequest) request)
+							.getSessionId();
 
 					if (incomingSessionId == null)
 					{ // client is not expecting an old ContextManager
@@ -734,13 +789,15 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 					}
 					else
 					{ // client is expecting an old ContextManager
-						if (frontend.restoreContextManagerFromSessionId(incomingSessionId, this))
+						if (frontend.restoreContextManagerFromSessionId(
+								incomingSessionId, this))
 						{
 							response = new InitConnectionResponse(incomingSessionId);
 						}
 						else
 						{
-							response = new InitConnectionResponse((String) this.sessionId);
+							response = new InitConnectionResponse(
+									(String) this.sessionId);
 						}
 					}
 				}
@@ -759,30 +816,34 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 				try
 				{
 					// setup outgoingMessageBuffer
-					this.translateResponseMessageToStringBufferContents(request, response, msgBufOutgoing);
+					this.translateResponseMessageToStringBufferContents(request,
+							response, msgBufOutgoing);
 
 					// System.out.println("REQUEST / RESPONSE:
 					// "+request.translateToXML().toString() +" /
 					// "+response.translateToXML().toString());
 
 					// setup outgoingMessageHeaderBuffer
-					this.createHeader(msgBufOutgoing, headerBufOutgoing, request, response,
-							requestWithMetadata.getUid());
+					this.createHeader(msgBufOutgoing, headerBufOutgoing, request,
+							response, requestWithMetadata.getUid());
 
 					// move the characters from the outgoing buffers into
 					// outgoingChars using bulk get and put methods
 					outgoingChars.clear();
 
-					headerBufOutgoing.getChars(0, headerBufOutgoing.length(), outgoingChars.array(), 0);
-					msgBufOutgoing.getChars(0, msgBufOutgoing.length(), outgoingChars.array(),
-							headerBufOutgoing.length());
+					headerBufOutgoing.getChars(0, headerBufOutgoing.length(),
+							outgoingChars.array(), 0);
+					msgBufOutgoing.getChars(0, msgBufOutgoing.length(),
+							outgoingChars.array(), headerBufOutgoing.length());
 
-					outgoingChars.limit(headerBufOutgoing.length() + msgBufOutgoing.length());
+					outgoingChars.limit(headerBufOutgoing.length()
+							+ msgBufOutgoing.length());
 
 					this.clearOutgoingMessageBuffer(msgBufOutgoing);
 					this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
 
-					ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
+					ByteBuffer outgoingBuffer = this.server
+							.acquireByteBufferFromPool();
 
 					synchronized (ENCODER)
 					{
@@ -810,16 +871,16 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Takes an incoming message in the form of an XML String and converts it into a RequestMessage
-	 * using translateStringToRequestMessage(String). Then places the RequestMessage on the
-	 * requestQueue using enqueueRequest().
+	 * Takes an incoming message in the form of an XML String and converts it
+	 * into a RequestMessage using translateStringToRequestMessage(String). Then
+	 * places the RequestMessage on the requestQueue using enqueueRequest().
 	 * 
 	 * @param incomingMessage
 	 * @param headerMap2
 	 * @throws BadClientException
 	 */
-	private final void processString(CharSequence incomingMessage, long incomingUid)
-			throws BadClientException
+	private final void processString(CharSequence incomingMessage,
+			long incomingUid) throws BadClientException
 	{
 		Exception failReason = null;
 		RequestMessage request = null;
@@ -842,7 +903,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 		{
 			if (incomingMessage.length() > 100)
 			{
-				debug("ERROR; incoming message could not be translated: " + incomingMessage.toString());
+				debug("ERROR; incoming message could not be translated: "
+						+ incomingMessage.toString());
 
 				debug("HEADERS:");
 				debug(headerMap.toString());
@@ -855,7 +917,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 			}
 			else
 			{
-				debug("ERROR; incoming message could not be translated: " + incomingMessage.toString());
+				debug("ERROR; incoming message could not be translated: "
+						+ incomingMessage.toString());
 
 				debug("HEADERS:");
 				debug(headerMap.toString());
@@ -868,18 +931,19 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 			}
 			if (++badTransmissionCount >= MAXIMUM_TRANSMISSION_ERRORS)
 			{
-				throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
-						.getInetAddress().getHostAddress(), "Too many Bad Transmissions: "
-						+ badTransmissionCount);
+				throw new BadClientException(((SocketChannel) this.socketKey
+						.channel()).socket().getInetAddress().getHostAddress(),
+						"Too many Bad Transmissions: " + badTransmissionCount);
 			}
 			// else
-			error("translation failed: badTransmissionCount=" + badTransmissionCount);
+			error("translation failed: badTransmissionCount="
+					+ badTransmissionCount);
 		}
 		else
 		{
 			badTransmissionCount = 0;
 
-			MessageWithMetadata<RequestMessage> pReq = this.reqPool.acquire();
+			MessageWithMetadata<RequestMessage, Object> pReq = this.reqPool.acquire();
 
 			pReq.setMessage(request);
 			pReq.setUid(incomingUid);
@@ -892,8 +956,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Indicates whether or not this context manager has been initialized. Normally, this means that
-	 * it has shared a session id with the client.
+	 * Indicates whether or not this context manager has been initialized.
+	 * Normally, this means that it has shared a session id with the client.
 	 * 
 	 * @return
 	 */
@@ -904,7 +968,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	/**
 	 * @param invalidating
-	 *          the invalidating to set
+	 *           the invalidating to set
 	 */
 	public void setInvalidating(boolean invalidating)
 	{
@@ -912,11 +976,13 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
-	 * Indicates whether or not the client manager is expecting a disconnect. If this method returns
-	 * true, then this client manager should be disposed of when the client disconnects; otherwise, it
-	 * should be retained until the client comes back, or the client managers are cleaned up.
+	 * Indicates whether or not the client manager is expecting a disconnect. If
+	 * this method returns true, then this client manager should be disposed of
+	 * when the client disconnects; otherwise, it should be retained until the
+	 * client comes back, or the client managers are cleaned up.
 	 * 
-	 * @return true if the client manager is expecting the client to disconnect, false otherwise
+	 * @return true if the client manager is expecting the client to disconnect,
+	 *         false otherwise
 	 */
 	public boolean isInvalidating()
 	{

@@ -7,20 +7,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author robinson
+ * A HashMap that is synchronized for writes, but not for reads.
+ * 
+ * @param <K>			Key type of the HashMap.
+ * @param <V>			Value type of the HashMap.
  *
+ * @author andruid
  */
 public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 {
 
-	public HashMapWriteSynchBase(int arg0, float arg1)
+	public HashMapWriteSynchBase(int size, float load)
 	{
-		super(arg0, arg1);
+		super(size, load);
 	}
 
-	public HashMapWriteSynchBase(int arg0)
+	public HashMapWriteSynchBase(int size)
 	{
-		super(arg0);
+		super(size);
 	}
 
 	public HashMapWriteSynchBase()
@@ -71,4 +75,5 @@ public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
         super.putAll(m);
     }
 
+    
 }

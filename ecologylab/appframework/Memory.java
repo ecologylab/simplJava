@@ -56,9 +56,9 @@ public class Memory
 			StringTools.clear(buffy);
 			buffy.append("\nMemory.reclaim(")
 			.append(Thread.currentThread().getName())
-			.append(".gc(").append(s).append("): ").append(usage());
+			.append(s).append("):\n\t").append(getFreeMemoryInK());
 			reclaimQuiet();
-			buffy.append(" -> ").append(usage()).append(" #").append(gcCount)
+			buffy.append(" -> ").append(usage()).append("\t #").append(gcCount)
 			.append("\n");
 			Debug.println(buffy);
 		} catch (Exception e)
@@ -125,7 +125,7 @@ public class Memory
 	}
 	public static String usage()
 	{
-		return getFreeMemoryInK() + " free of " + K(RUNTIME.totalMemory());
+		return getFreeMemoryInK() + "  free of  " + K(RUNTIME.totalMemory());
 	}
 	public static String K(long numBytes)
 	{

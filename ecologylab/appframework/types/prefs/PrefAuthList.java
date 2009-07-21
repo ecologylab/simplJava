@@ -45,4 +45,15 @@ public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
 
 		prefChanged();
 	}
+
+	/**
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public Pref<AuthenticationList> clone()
+	{
+		return new PrefAuthList(this.name, this.value);
+	}
+	
+	
 }

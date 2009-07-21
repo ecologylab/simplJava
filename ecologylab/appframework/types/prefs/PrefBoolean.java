@@ -76,4 +76,12 @@ public class PrefBoolean extends Pref<Boolean>
         
         prefChanged();
 	}
+		/**
+		 * @see ecologylab.appframework.types.prefs.Pref#clone()
+		 */
+		@Override
+		public Pref<Boolean> clone()
+		{
+			return new PrefBoolean(this.name, this.value);
+		}
 }

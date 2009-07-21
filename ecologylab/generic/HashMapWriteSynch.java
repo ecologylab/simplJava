@@ -48,7 +48,9 @@ public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 		{
 			synchronized (this)
 			{
-				result		= put(key, value);
+				result		= get(key);
+				if (result == null)
+					result		= put(key, value);
 			}
 		}
 		return result;

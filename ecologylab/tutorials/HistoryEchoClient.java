@@ -21,15 +21,16 @@ public class HistoryEchoClient
 		int portNumber;
 		
 		Scanner scan = new Scanner(System.in);
-		scan.useDelimiter(":");
+		
 		
 		/*
 		 * Input server address and port number
 		 */
-		System.out.print("Please enter [server:port] : ");
+		System.out.print("Please enter server: ");
 		serverAddress = scan.next();
-		//scan.reset();		
-		portNumber = Integer.parseInt(scan.next().substring(1));;
+
+		System.out.println("Please enter port: ");
+		portNumber = Integer.parseInt(scan.next());
 		
 		System.out.println("Connecting to " + serverAddress + " on port# " + portNumber);
 		
@@ -60,9 +61,11 @@ public class HistoryEchoClient
 		
 		System.out.println("Please enter some messages: ");
 		
+		int x = 1;
+		
 		while(true)
 		{
-			String input = scan.nextLine();
+			String input = "ping!" + (x++);
 			
 			if(input.trim().toLowerCase().equals("exit"))
 				break;
@@ -75,6 +78,15 @@ public class HistoryEchoClient
 			catch (MessageTooLargeException e)
 			{
 				System.err.println("The message you sent was too large!");
+				e.printStackTrace();
+			}
+			try
+			{
+				Thread.sleep(500);
+			}
+			catch (InterruptedException e)
+			{
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

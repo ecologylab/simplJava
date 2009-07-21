@@ -23,7 +23,7 @@ import ecologylab.xml.xml_inherit;
  */
 @xml_inherit public class DisconnectRequest extends RequestMessage
 {
-	public static final DisconnectRequest	RESUABLE_INSTANCE	= new DisconnectRequest();
+	public static final DisconnectRequest	REUSABLE_INSTANCE	= new DisconnectRequest();
 
 	/**
 	 * 

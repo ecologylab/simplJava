@@ -10,7 +10,7 @@ import ecologylab.services.messages.ServiceMessage;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
-public class MessageWithMetadataPool<M extends ServiceMessage> extends ResourcePool<MessageWithMetadata<M>>
+public class MessageWithMetadataPool<M extends ServiceMessage, A> extends ResourcePool<MessageWithMetadata<M, A>>
 {
 
 	/**
@@ -26,7 +26,7 @@ public class MessageWithMetadataPool<M extends ServiceMessage> extends ResourceP
 	/**
 	 * @see ecologylab.generic.ResourcePool#clean(java.lang.Object)
 	 */
-	@Override protected void clean(MessageWithMetadata<M> objectToClean)
+	@Override protected void clean(MessageWithMetadata<M, A> objectToClean)
 	{
 		objectToClean.clear();
 	}
@@ -34,9 +34,9 @@ public class MessageWithMetadataPool<M extends ServiceMessage> extends ResourceP
 	/**
 	 * @see ecologylab.generic.ResourcePool#generateNewResource()
 	 */
-	@Override protected MessageWithMetadata<M> generateNewResource()
+	@Override protected MessageWithMetadata<M, A> generateNewResource()
 	{
-		return new MessageWithMetadata<M>();
+		return new MessageWithMetadata<M,A>();
 	}
 
 }

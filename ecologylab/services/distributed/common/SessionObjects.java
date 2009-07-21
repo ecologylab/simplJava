@@ -29,4 +29,6 @@ public interface SessionObjects
     public static final String           NAMED_STYLES_MAP              = "named_styles_map";
     
     public static final String			INTEREST_MODEL_SOURCE 			= "interest_model_source";
+    
+    public static final String					GRAPHICS_CONFIGURATION	= "graphics_configuration";
 }

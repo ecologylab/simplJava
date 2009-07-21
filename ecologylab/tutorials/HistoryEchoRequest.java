@@ -73,4 +73,9 @@ public class HistoryEchoRequest extends RequestMessage
 		 */
 		return new HistoryEchoResponse(prevEchoTmp, newEcho);
 	}
+	
+	public boolean isDisposable()
+	{
+		return true;
+	}
 }

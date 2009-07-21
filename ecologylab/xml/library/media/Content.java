@@ -27,7 +27,7 @@ public class Content extends ElementState
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)
 	//TODO confirm if this is correct.
-	@xml_nested		ArrayList		categoryStrings;
+	@xml_nested		ArrayList<String>		categoryStrings;
 	
 	@xml_nested		Credit			credit;
 	
@@ -49,12 +49,12 @@ public class Content extends ElementState
 	 * 
 	 * @return Returns the categoryStrings.
 	 */
-	protected ArrayList evalCategoryStrings()
+	protected ArrayList<String> evalCategoryStrings()
 	{
-		ArrayList result	= categoryStrings;
+		ArrayList<String> result	= categoryStrings;
 		if (categoryStrings == null)
 		{
-			result			= new ArrayList(5);
+			result			= new ArrayList<String>(5);
 			categoryStrings	= result;
 		}
 		return result;
