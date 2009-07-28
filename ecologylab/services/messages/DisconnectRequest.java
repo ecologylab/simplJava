@@ -43,7 +43,8 @@ import ecologylab.xml.xml_inherit;
 		AbstractClientSessionManager cm = (AbstractClientSessionManager) localScope
 				.get(AbstractClientSessionManager.CLIENT_MANAGER);
 
-		cm.setInvalidating(true);
+		if(cm != null)
+			cm.setInvalidating(true);
 
 		return OkResponse.reusableInstance;
 	}

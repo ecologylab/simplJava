@@ -2,6 +2,8 @@ package ecologylab.services.distributed.impl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.NoRouteToHostException;
+import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -134,7 +136,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		protected PacketHandler generateNewResource()
 		{
 			PacketHandler handler = new PacketHandler(this);
-			Thread newThread = new Thread(handler);
+			Thread newThread = new Thread(handler, "Packet Handler");
 			newThread.start();
 
 			return handler;
@@ -231,6 +233,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		{
 			if(!running)
 			{
+				running = true;
 				t = new Thread(this);
 				t.setName("Packet Sender Thread");
 				t.start();
@@ -273,7 +276,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 			if(buffer.hasArray())
 				debug("Buffer has array!");
 			
-			while (!running)
+			while (running)
 			{
 				MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = null;
 				try
@@ -316,7 +319,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 						{
 							throw new MessageTooLargeException(MAX_MESSAGE_SIZE, compressedSize);
 						}
-						debug("Input size: " + uncompressedSize + " and output size: " + compressedSize);
+						//debug("Input size: " + uncompressedSize + " and output size: " + compressedSize);
 					}
 					
 					DatagramChannel channel = (DatagramChannel) mdataMessage
@@ -332,7 +335,15 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 				catch (InterruptedException e)
 				{
-					e.printStackTrace();
+					debug("Stopping Packet Sender!");
+				}
+				catch (PortUnreachableException e)
+				{
+					debug("Failed to send datagram, port unreachable!");
+				}
+				catch (NoRouteToHostException e)
+				{
+					debug("Failed to send datagram, route unknown!");
 				}
 				catch (XMLTranslationException e)
 				{
@@ -354,7 +365,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 				catch (IOException e)
 				{
-					e.printStackTrace();
+					debug("Failed to send message: " + e.getMessage());
 				}
 				finally
 				{
@@ -379,6 +390,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		{
 			if(!running)
 			{
+				running = true;
 				t = new Thread(this);
 				t.setName("Packet Reciever Thread");
 				t.start();
@@ -418,7 +430,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
 			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
 			
-			while(!running)
+			while(running)
 			{
 				try
 				{
@@ -451,10 +463,22 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 										if(recieveBuffer.hasArray())
 										{
 											decompressedSize = inflater.inflate(recieveBuffer.array(), 0, recieveBuffer.capacity());
+											
+											if(decompressedSize == 0)
+											{
+												debug("Failed to decompress message!");
+												continue;
+											}
 											recieveBuffer.position(0);
 											recieveBuffer.limit(decompressedSize);
 										} else {
 											decompressedSize = inflater.inflate(outBuffer, 0, outBuffer.length);
+											
+											if(decompressedSize == 0)
+											{
+												debug("Failed to decompress message!");
+												continue;
+											}
 											recieveBuffer.clear();
 											recieveBuffer.put(outBuffer, 0, decompressedSize);
 											recieveBuffer.flip();
@@ -530,16 +554,16 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		return currentUIDIndex++;
 	}
 
-	protected void start()
+	public void start()
 	{
 		sender.start();
 		reciever.start();
 	}
 	
-	protected void stop()
+	public void stop()
 	{
-		sender.start();
-		reciever.start();
+		sender.stop();
+		reciever.stop();
 	}
 	
 	protected boolean isRunning()

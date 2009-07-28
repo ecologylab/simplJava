@@ -64,6 +64,7 @@ public interface Environment
 
       float			javaVersion	= 1.1f;	// minimum expected
       boolean		javaIsBeta;
+      boolean 		javaIsRC;
       
       boolean		hasXML;
       boolean		hasServlet;
@@ -99,11 +100,17 @@ public interface Environment
 			floatableJavaVersion= toFirstDot + afterFirstDot;
 		 }
 		 int dashBeta		= floatableJavaVersion.indexOf("-beta");
+		 int dashRC			= floatableJavaVersion.indexOf("-rc");
 		 
 		 if (dashBeta != -1)
 		 {
 			floatableJavaVersion= floatableJavaVersion.substring(0,dashBeta);
 			javaIsBeta		= true;
+		 }
+		 else if (dashRC != -1)
+		 {
+			 floatableJavaVersion = floatableJavaVersion.substring(0, dashRC);
+			 javaIsRC 		= true;
 		 }
 		 try
 		 {
@@ -158,6 +165,10 @@ public interface Environment
       public boolean javaIsBeta()
       {
 		 return javaIsBeta;
+      }
+      public boolean javaIsReleaseCandidate()
+      {
+		 return javaIsRC;
       }
       public boolean hasQuicktime()
       {

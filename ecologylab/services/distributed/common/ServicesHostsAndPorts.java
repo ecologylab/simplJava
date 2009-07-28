@@ -34,7 +34,7 @@ public interface ServicesHostsAndPorts
 	public static final int		CF_SERVICES_PORT									= 10010;
 
 	/** Normal port for Rogue Signals network communication. */
-	public static final int		ROGUE_PORT											= 14444;
+	public static final int		ROGUE_PORT											= 2107;
 
 	/** Normal port for Rogue Signals to communicate with sound patches. */
 	public static final int		ROGUE_OSC_SOUND_PATCH_LISTENER_PORT			= 14446;
