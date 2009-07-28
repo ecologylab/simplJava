@@ -112,6 +112,8 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		if(message instanceof ResponseMessage)
 		{
 			ResponseMessage<S> response = (ResponseMessage<S>)message;
+			response.processResponse(objectRegistry);
+			
 			if(t != null && message instanceof ResponseMessage)
 			{				
 				synchronized(t)
@@ -120,7 +122,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 					t.notify();
 				}
 			}
-			response.processResponse(objectRegistry);
+			
 		}
 	}
 
@@ -133,6 +135,54 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	public void sendMessageAsync(ServiceMessage message)
 	{
 		this.sendMessage(message, key, getNextUID(), null);
+	}
+	
+	public ResponseMessage<S> sendMessage(RequestMessage message, int transmissionCount)
+	{
+		long myUid = this.getNextUID();
+		Thread t = Thread.currentThread();
+		
+		pendingThreadsByUID.put(myUid, t);
+		
+		//don't need socket address since this should be connected
+		this.sendMessage(message, key, myUid , null);
+		transmissionCount--;
+		
+		synchronized(t)
+		{
+			while(!responsesByUID.containsKey(myUid))
+			{
+				try
+				{
+					t.wait(this.timeoutPeriod); 
+					if(responsesByUID.containsKey(myUid))
+					{
+						pendingThreadsByUID.remove(myUid);
+						return responsesByUID.remove(myUid);
+					} 
+					else
+					{
+						if(transmissionCount <= 0)
+						{
+							pendingThreadsByUID.remove(myUid);
+							return null;
+						}
+						else
+						{
+							//retransmitting
+							this.sendMessage(message, key, myUid, null);
+							transmissionCount--;
+						}
+					}
+				}
+				catch (InterruptedException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
 	}
 	
 	public ResponseMessage<S> sendMessage(RequestMessage message)
@@ -188,7 +238,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	
 	public boolean connected()
 	{
-		return key.channel().isOpen();
+		return key.channel().isOpen() && super.isRunning();
 	}
 	
 	public InetSocketAddress getServer()

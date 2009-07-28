@@ -259,4 +259,12 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 	{
 		return portNumber;
 	}
+	
+	/**
+	 * @return the global scope for this server
+	 */
+	public Scope getGlobalScope()
+	{
+		return applicationObjectScope;
+	}
 }

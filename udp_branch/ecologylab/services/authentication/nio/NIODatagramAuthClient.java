@@ -94,7 +94,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 			loggingIn = true;
 
 			// Login response will handle changing the LOGIN_STATUS
-			sendLoginMessage();
+			sendLoginMessage();				
 		}
 		else
 		{
@@ -113,7 +113,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 	 * @throws IOException
 	 * @throws MessageTooLargeException
 	 */
-	protected boolean logout() throws IOException, MessageTooLargeException
+	protected boolean logout()
 	{
 		// if we have an entry (username + password), then we can try to logout of
 		// the server.
@@ -136,8 +136,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 	 * @throws MessageTooLargeException
 	 * 
 	 */
-	protected ResponseMessage sendLogoutMessage() throws IOException,
-			MessageTooLargeException
+	protected ResponseMessage sendLogoutMessage() 
 	{
 		return this.sendMessage(new Logout(entry));
 	}

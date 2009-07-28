@@ -54,7 +54,7 @@ public class UDPHistoryEchoServer
 		 */
 		NIODatagramServer historyServer = new NIODatagramServer(2107,
 																				  histEchoTranslations,
-																				  applicationScope, true);
+																				  applicationScope, false);
 		
 	}
 	
