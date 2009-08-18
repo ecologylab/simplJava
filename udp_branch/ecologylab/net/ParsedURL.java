@@ -1320,11 +1320,11 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		URLConnection connection = null;
 		InputStream inStream = null;
-		PURLConnection result = null;
 
 		// get an InputStream, and set the mimeType, if not bad
 		if (isFile())
 		{
+			PURLConnection result = null;
 			File file = file();
 			if (file.isDirectory())
 				connectionHelper.handleFileDirectory(file);
@@ -1428,7 +1428,8 @@ public class ParsedURL extends Debug implements MimeType
 				bad = true;
 				error("connect() " + e);
 			}
-			return ((inStream == null) || bad) ? null : new PURLConnection(this, connection, inStream);
+			PURLConnection result = ((inStream == null) || bad) ? null : new PURLConnection(this, connection, inStream);
+			return result;
 		} // end else network based URL
 
 		// TODO -- how are the headers (like ContentType) read?
