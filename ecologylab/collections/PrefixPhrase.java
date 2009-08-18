@@ -75,8 +75,7 @@ public class PrefixPhrase extends Debug
 			{
 				// done!
 				PrefixPhrase newTerminal	= lookupChild(phraseString);
-				
-				newTerminal.clear();
+				//newTerminal.clear();
 				return newTerminal;
 //				synchronized (this)
 //				{
@@ -210,7 +209,7 @@ public class PrefixPhrase extends Debug
 				}
 			}
 		}
-		if (!createNew && domainPrefix.isTerminal())
+		if (!createNew && (domainPrefix.isTerminal()|| (phrase!=null && prefixPhrase.equals("*"))))
 			return null;
 		
 		return domainPrefix;
@@ -324,9 +323,9 @@ public class PrefixPhrase extends Debug
 				childPrefixPhrase = childPhraseMap.get("*");
 				key="*";
 			}
-			buffy.append(returnValue).append(key).append(seperator);
 			if(childPrefixPhrase!=null)
 			{
+				buffy.append(returnValue).append(key).append(seperator);
 				buffy.append(childPrefixPhrase.getMatchingPhrase(phrase, seperator));
 			}
 		}
