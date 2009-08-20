@@ -32,6 +32,18 @@ implements Iterable<T>
       sibs.setNext(nextSib);
       addToEnd(sibs);
    }
+   
+   /**
+    * Insert sibs before ourself.
+    */
+   public synchronized void insertBefore(DLL<T> sibs)
+   {	
+  	 sibs.setPrev(prevSib);
+  	 if (prevSib != null)
+  		 prevSib.setNext(sibs);
+  	 sibs.setNext(this);
+  	 prevSib = sibs;
+   }
 /**
  * Add sibs to the end of this.
  * 
