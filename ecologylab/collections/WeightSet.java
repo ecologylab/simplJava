@@ -30,7 +30,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 {
 	private static final int						NO_MAX_SIZE	= -1;
 
-	private final ArrayList<E>					arrayList;
+	private final ArrayListX<E>					arrayList;
 	
 	private final HashSet<E>						hashSet;
 
@@ -52,7 +52,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		assert weightingStrategy != null;
 		
 		this.hashSet			= new HashSet<E>(setSize);
-		this.arrayList		= new ArrayList<E>(setSize);
+		this.arrayList		= new ArrayListX<E>(setSize);
 		this.maxSize			= maxSize;
 		
 		this.weightingStrategy	= weightingStrategy;
@@ -116,10 +116,15 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	{
 		for (int i=end - 1; i>=start; i--)
 		{
-			E element = arrayList.remove(i);
+			E element = arrayList.get(i);	// was remove(i), but that's inefficent
 			element.deleteHook();
 			element.recycle();	// will also call deleteHook?!
 		}
+		// all of these elements are probably at the beginning of the list
+		// remove from there is worst case behavior of arrayList, because all of the higher elements
+		// must be moved.
+		// minimize this by doing it once.
+		arrayList.removeRange(start, end);
 	}
 
 	/**
