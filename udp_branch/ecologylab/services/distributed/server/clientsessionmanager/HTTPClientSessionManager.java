@@ -50,7 +50,7 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	 * @see ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager#createHeader(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, RequestMessage, ResponseMessage)
 	 */
-	@Override protected void createHeader(StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf,
+	@Override protected void createHeader(int messageSize, StringBuilder outgoingMessageHeaderBuf,
 			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
 		boolean isOK = outgoingResponse.isOK();
@@ -63,8 +63,10 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 			debugA("responseUrl: " + responseUrl);
 
 			if (responseUrl != null)
-				outgoingMessageHeaderBuf.append(HTTP_RESPONSE_HEADERS + HTTP_CONTENT_TYPE + "Location: " + responseUrl.toString() + "\r\n\r\n" + System.getProperty("line.separator"));
-
+			{
+				outgoingMessageHeaderBuf.append(HTTP_RESPONSE_HEADERS + HTTP_CONTENT_TYPE + "Location: " + responseUrl.toString());
+			}
+			
 			debugA("Server sending response!!!\n" + outgoingMessageHeaderBuf.toString());
 		}
 		else

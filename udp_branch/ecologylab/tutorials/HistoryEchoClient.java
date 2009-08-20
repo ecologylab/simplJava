@@ -55,6 +55,9 @@ public class HistoryEchoClient
 		
 		client = new NIOClient(serverAddress, portNumber,
 												 histEchoTranslations,clientScope);
+		
+		client.allowCompression(true);
+		client.useRequestCompression(true);
 		client.connect();
 		
 		//scan.reset();
@@ -63,9 +66,9 @@ public class HistoryEchoClient
 		
 		int x = 1;
 		
-		while(true)
+		while(scan.hasNextLine())
 		{
-			String input = "ping!" + (x++);
+			String input = scan.nextLine();
 			
 			if(input.trim().toLowerCase().equals("exit"))
 				break;
@@ -78,15 +81,6 @@ public class HistoryEchoClient
 			catch (MessageTooLargeException e)
 			{
 				System.err.println("The message you sent was too large!");
-				e.printStackTrace();
-			}
-			try
-			{
-				Thread.sleep(500);
-			}
-			catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

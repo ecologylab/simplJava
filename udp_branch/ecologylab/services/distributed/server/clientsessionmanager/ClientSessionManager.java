@@ -102,17 +102,16 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	 *          TODO
 	 */
 	@Override
-	protected void createHeader(StringBuilder outgoingMessageBuf,
+	protected void createHeader(int messageSize,
 			StringBuilder outgoingMessageHeaderBuf, RequestMessage incomingRequest,
 			ResponseMessage outgoingResponse, long uid)
 	{
-		outgoingMessageHeaderBuf.append(outgoingMessageBuf.length());
+		outgoingMessageHeaderBuf.append(messageSize);
 		outgoingMessageHeaderBuf.append(HTTP_HEADER_LINE_DELIMITER);
 
 		outgoingMessageHeaderBuf.append(UNIQUE_IDENTIFIER_STRING);
 		outgoingMessageHeaderBuf.append(':');
 		outgoingMessageHeaderBuf.append(uid);
-		outgoingMessageHeaderBuf.append(HTTP_HEADER_TERMINATOR);
 	}
 
 	/**

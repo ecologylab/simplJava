@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketException;
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -22,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Generic;
@@ -162,6 +166,16 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	private final StringBuilder													firstMessageBuffer				= new StringBuilder();
 
 	/**
+	 * Whether or not to allow server to reply using compression
+	 */
+	private boolean 																	allowCompression 					= false;
+	
+	/**
+	 * Whether or not to send compressed requests.
+	 */
+	private boolean																	sendCompressed						= false;
+	
+	/**
 	 * Stores the key-value pairings from a parsed HTTP-like header on an
 	 * incoming message.
 	 */
@@ -178,6 +192,20 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	private final StringBuilderPool												builderPool;
 
 	private int																			maxMessageLengthChars;
+
+	private CharBuffer																zippingChars;
+
+	private ByteBuffer																zippingInBytes;
+
+	private Deflater																	deflater = new Deflater();
+
+	private String	contentEncoding;
+
+	private Inflater																	inflater = new Inflater();
+
+	private ByteBuffer																zippingOutBytes;
+
+	private ByteBuffer																compressedMessageBuffer;
 
 	public NIOClient(String serverAddress, int portNumber,
 			TranslationScope messageSpace, S objectRegistry,
@@ -199,6 +227,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		builderPool = new StringBuilderPool(2, 4, maxMessageLengthChars);
 		pRequestPool = new PreppedRequestPool(2, 4, maxMessageLengthChars);
 
+		zippingChars = CharBuffer.allocate(maxMessageLengthChars);
+		zippingInBytes = ByteBuffer.allocate(maxMessageLengthChars);
+		zippingOutBytes = ByteBuffer.allocate(maxMessageLengthChars);
+		this.compressedMessageBuffer = ByteBuffer.allocate(maxMessageLengthChars);
+		
 		this.serverAddress = serverAddress;
 	}
 
@@ -812,17 +845,58 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		{
 			message = builderPool.acquire();
 
+			if(this.sendCompressed)
+			{			
+				this.compressedMessageBuffer.clear();
+				
+				try
+				{
+					this.compress(outgoingReq, compressedMessageBuffer);
+					compressedMessageBuffer.flip();
+				}
+				catch (DataFormatException e)
+				{
+					e.printStackTrace();
+					return;
+				}
+			}
+			
 			message.append(CONTENT_LENGTH_STRING);
 			message.append(':');
-			message.append(outgoingReq.length());
+			if(!this.sendCompressed)
+			{
+				message.append(outgoingReq.length());
+			}
+			else
+			{
+				message.append(compressedMessageBuffer.limit() - compressedMessageBuffer.position());
+			}
 			message.append(HTTP_HEADER_LINE_DELIMITER);
 
 			message.append(UNIQUE_IDENTIFIER_STRING);
 			message.append(':');
 			message.append(pReq.getUid());
+			
+			
+			if(allowCompression)
+			{
+				message.append(HTTP_HEADER_LINE_DELIMITER);
+				message.append(HTTP_ACCEPTED_ENCODINGS);
+			}
+			if(this.sendCompressed)
+			{
+				message.append(HTTP_HEADER_LINE_DELIMITER);
+				message.append(HTTP_CONTENT_CODING);
+				message.append(":");
+				message.append(HTTP_DEFLATE_ENCODING);
+			}
+			
 			message.append(HTTP_HEADER_TERMINATOR);
 
-			message.append(outgoingReq);
+			if(!this.sendCompressed)
+			{
+				message.append(outgoingReq);
+			} 
 
 			outgoingChars.clear();
 
@@ -846,10 +920,15 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 
 				outgoingChars.flip();
 
+				
 				synchronized (ENCODER)
 				{
 					thisSocket.write(ENCODER.encode(outgoingChars));
 				}
+			}
+			if(this.sendCompressed)
+			{
+				thisSocket.write(compressedMessageBuffer);
 			}
 		}
 		catch (ClosedChannelException e)
@@ -884,6 +963,37 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		}
 	}
 
+	private void compress(StringBuilder src, ByteBuffer dest) throws DataFormatException
+	{
+		synchronized(zippingChars)
+		{
+			zippingChars.clear();
+			
+			src.getChars(0, src.length(), this.zippingChars.array(), 0);
+			zippingChars.position(0);
+			zippingChars.limit(src.length());
+			
+			zippingInBytes.clear();
+			
+			ENCODER.reset();
+			ENCODER.encode(zippingChars,zippingInBytes, true);
+			ENCODER.flush(zippingInBytes);
+			
+			zippingInBytes.flip();
+			
+			deflater.reset();
+			deflater.setInput(zippingInBytes.array(), 
+									zippingInBytes.position(), 
+									zippingInBytes.limit());
+			deflater.finish();
+			
+			dest.position(dest.position() + 
+							  deflater.deflate(dest.array(),
+									  				 dest.position(), 
+									  				 dest.remaining()));
+		}		
+	}
+	
 	/**
 	 * Converts incomingMessage to a ResponseMessage, then processes the response
 	 * and removes its UID from the unfulfilledRequests map.
@@ -1065,6 +1175,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 								uidOfCurrentMessage = Integer.parseInt(this.headerMap
 										.get(UNIQUE_IDENTIFIER_STRING));
 
+								contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
+								
 								// done with the header; delete it
 								incomingMessageBuffer.delete(0, endOfFirstHeader);
 								this.headerMap.clear();
@@ -1139,6 +1251,21 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 						 * contentLengthRemaining will be reset to -1
 						 */
 						// we got a response
+						
+						
+						if(contentEncoding != null)
+						{
+							if(contentEncoding.equals(HTTP_DEFLATE_ENCODING))
+							{
+								unCompress(firstMessageBuffer);
+							}
+							else
+							{
+								throw new BadClientException(((SocketChannel) sk.channel())
+										.socket().getInetAddress().getHostAddress(),
+										"Specified content encoding: " + contentEncoding + "not supported!");
+							}
+						}
 						if (!this.blockingRequestPending)
 						{
 							// we process the read data into a response message, let it
@@ -1166,10 +1293,60 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 			{
 				e1.printStackTrace();
 			}
+			catch (DataFormatException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 	}
 
+	private CharSequence unCompress(StringBuilder firstMessageBuffer) throws CharacterCodingException, DataFormatException
+	{
+		synchronized(zippingChars)
+		{
+			zippingChars.clear();
+			
+			firstMessageBuffer.getChars(0, firstMessageBuffer.length(), this.zippingChars.array(), 0);
+			zippingChars.position(0);
+			zippingChars.limit(firstMessageBuffer.length());
+			
+			zippingInBytes.clear();
+			
+			ENCODER.reset();
+			ENCODER.encode(zippingChars,zippingInBytes, true);
+			ENCODER.flush(zippingInBytes);
+			
+			zippingInBytes.flip();
+			
+			inflater.reset();
+			inflater.setInput(zippingInBytes.array(), 
+									zippingInBytes.position(), 
+									zippingInBytes.limit());
+			
+			zippingOutBytes.clear();
+			inflater.inflate(zippingOutBytes.array(),
+								  zippingOutBytes.position(), 
+								  zippingOutBytes.limit());
+			
+			zippingOutBytes.position(0);
+			zippingOutBytes.limit(inflater.getTotalOut());
+			
+			zippingChars.clear();
+			
+			DECODER.reset();
+			DECODER.decode(zippingOutBytes, zippingChars, true);
+			DECODER.flush(zippingChars);
+			
+			zippingChars.flip();
+			
+			firstMessageBuffer.setLength(0);
+			
+			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
+		}
+	}
+	
 	/**
 	 * @see ecologylab.services.distributed.impl.NIONetworking#removeBadConnections(java.nio.channels.SelectionKey)
 	 */
@@ -1448,5 +1625,31 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 			debug("Reconnecting in reconnector thread!");
 			reconnect();
 		}
+	}
+	
+	public boolean allowsCompression()
+	{
+		return this.allowCompression;
+	}
+	
+	public void allowCompression(boolean useCompression)
+	{
+		this.allowCompression = useCompression;
+	}
+	
+	/**
+	 * Specifies whether or not to use request compression, most web servers don't
+	 * allow receiving compressed requests (i.e. Apache)
+	 * 
+	 * @param useRequestCompression whether or not to use compression when sending requests
+	 */
+	public void useRequestCompression(boolean useRequestCompression)
+	{
+		this.sendCompressed = useRequestCompression;
+	}
+	
+	public boolean usesRequestCompression()
+	{
+		return this.sendCompressed;
 	}
 }
