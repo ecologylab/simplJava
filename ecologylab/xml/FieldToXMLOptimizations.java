@@ -254,13 +254,7 @@ implements OptimizationTypes
     	
     	//TODO -- is this inheritance good or bad?!
         String tagName	= collectionFieldToXMLOptimizations.childTagName;
-        if (actualCollectionElementClass.isAnnotationPresent(ElementState.xml_tag.class))
-        {
-			ElementState.xml_tag tagAnnotation 	= actualCollectionElementClass.getAnnotation(ElementState.xml_tag.class);
-			String tagFromAnnotation			= tagAnnotation.value();
-			if (tagFromAnnotation != null && (tagFromAnnotation.length() > 0))
-				tagName							= tagFromAnnotation;
-        }
+        
         if (tagName == null)
         	// get the tag name from the class of the object in the Collection, if from nowhere else
         	tagName		= XMLTools.getXmlTagName(actualCollectionElementClass, "State");
