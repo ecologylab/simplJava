@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -485,8 +486,15 @@ public final class TranslationScope extends Debug
     */
    private static String determineXMLTag(Class<? extends ElementState>  thatClass)
    {
-       return thatClass.isAnnotationPresent(xml_tag.class) ? thatClass.getAnnotation(xml_tag.class).value() : 
-         XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
+   	Annotation[] annotations = thatClass.getDeclaredAnnotations();
+   	for(Annotation annotation: annotations)
+   	{
+   		if(annotation.annotationType().equals(xml_tag.class))
+   		{
+   			return xml_tag.class.cast(annotation).value();
+   		}
+   	}
+      return XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
    }
    
    public class TranslationEntry extends Debug
