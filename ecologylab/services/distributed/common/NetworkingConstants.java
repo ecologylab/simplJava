@@ -32,6 +32,17 @@ public interface NetworkingConstants
 	static final String					HTTP_HEADER_TERMINATOR						= HTTP_HEADER_LINE_DELIMITER
 																																		+ HTTP_HEADER_LINE_DELIMITER;
 
+	/** Content coding specifies whether or not to some type of comression is used in the message */
+	static final String					HTTP_CONTENT_CODING							= "content-encoding";
+	
+	/** Specifies what decoding schemes are acceptable to send back to the the client */
+	static final String					HTTP_ACCEPTED_ENCODINGS						= "accept-encoding:deflate";
+	
+	static final String					HTTP_ACCEPT_ENCODING						= "accept-encoding";
+	
+	/** String specifying deflate encoding */
+	static final String					HTTP_DEFLATE_ENCODING					= "deflate";
+	
 	/** The size of the content-length header indicator. */
 	static final int						CONTENT_LENGTH_STRING_LENGTH			= CONTENT_LENGTH_STRING.length();
 

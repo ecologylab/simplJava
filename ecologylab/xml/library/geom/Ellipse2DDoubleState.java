@@ -9,6 +9,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
 
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_other_tags;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * Encapsulates a Ellipse2D.Double for use in translating to/from XML.
@@ -26,6 +28,8 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
+@xml_tag("El2DD")
+@xml_other_tags("ellipse2_d_double")
 public @xml_inherit
 class Ellipse2DDoubleState extends RectangularShape
 {

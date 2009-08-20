@@ -23,7 +23,7 @@ import ecologylab.xml.xml_inherit;
  */
 @xml_inherit public class DisconnectRequest extends RequestMessage
 {
-	public static final DisconnectRequest	RESUABLE_INSTANCE	= new DisconnectRequest();
+	public static final DisconnectRequest	REUSABLE_INSTANCE	= new DisconnectRequest();
 
 	/**
 	 * 
@@ -43,7 +43,8 @@ import ecologylab.xml.xml_inherit;
 		AbstractClientSessionManager cm = (AbstractClientSessionManager) localScope
 				.get(AbstractClientSessionManager.CLIENT_MANAGER);
 
-		cm.setInvalidating(true);
+		if(cm != null)
+			cm.setInvalidating(true);
 
 		return OkResponse.reusableInstance;
 	}

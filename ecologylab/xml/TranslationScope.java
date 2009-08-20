@@ -543,7 +543,7 @@ public final class TranslationScope extends Debug
 	    */
 	   TranslationEntry(Class<? extends ElementState> thisClass, String tag)
 	   {
-		   this(thisClass.getPackage().getName(), 
+		   this((thisClass.getPackage() != null)?thisClass.getPackage().getName():"", 
 				   thisClass.getSimpleName(), 
 				   thisClass.getName(),
 				   tag, 

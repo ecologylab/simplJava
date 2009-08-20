@@ -231,7 +231,7 @@ public abstract class ResourcePool<T> extends Debug
 
 		for (int i = 0; (i < capacity && pool.size() > minCapacity); i++)
 		{
-			this.remove(pool.size() - 1);
+			onRemoval(this.remove(pool.size() - 1));
 		}
 
 		if (capacity < minCapacity)
@@ -246,6 +246,20 @@ public abstract class ResourcePool<T> extends Debug
 		pool.ensureCapacity(capacity);
 
 		debug("contracting pool from " + oldCap + " elements to " + capacity + " elements");
+	}
+
+	/**
+	 * Let's a subclass control what happens to the object when it is 
+	 * thrown away, letting the developer release any resources they
+	 * may have allocated.
+	 * 
+	 * onRemoval(T) is called when the object is about to removed during a contraction
+	 * 
+	 * @param remove
+	 */
+	protected void onRemoval(T remove)
+	{
+				
 	}
 
 	/**
@@ -284,7 +298,7 @@ public abstract class ResourcePool<T> extends Debug
 		if (this.checkMultiRelease && !this.releasedResourceHashes.add(resource))
 			throw new RuntimeException("Attempted to release the same resource more than once: "+resource.toString());
 
-		pool.add(this.generateNewResource());
+		pool.add(resource);
 
 		return true;
 	}

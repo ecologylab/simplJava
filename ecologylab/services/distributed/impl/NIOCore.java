@@ -382,12 +382,13 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		if (thread == null)
 		{
 			thread = new Thread(this, networkingIdentifier + " running on port " + portNumber);
+			synchronized (thread)
+			{
+				thread.start();
+			}
 		}
 
-		synchronized (thread)
-		{
-			thread.start();
-		}
+		
 	}
 
 	public synchronized void stop()

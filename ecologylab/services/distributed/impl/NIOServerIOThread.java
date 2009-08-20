@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -390,6 +391,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 				// bind to the port for this server
 				newSocket.bind(new InetSocketAddress(hostAddresses[i], portNumber));
+				
 				newSocket.setReuseAddress(true);
 
 				channel.register(this.selector, SelectionKey.OP_ACCEPT);
@@ -402,6 +404,9 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 				debug("Unable to bind " + hostAddresses[i]);
 				debug(e.getMessage());
 				e.printStackTrace();
+			}
+			catch (SocketException e) {
+				System.err.println(e.getMessage());
 			}
 		}
 		
