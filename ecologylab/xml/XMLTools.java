@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringBufferInputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -251,8 +252,17 @@ implements CharacterConstants, SpecialCharacterEntities
 	public static String getXmlTagName(Class<?> thatClass, 
 			String suffix)
 	{
-		ElementState.xml_tag tagAnnotation 	= thatClass.getAnnotation(ElementState.xml_tag.class);
-		String result						= null;
+		ElementState.xml_tag tagAnnotation 	= null;
+		Annotation[] annotations = thatClass.getDeclaredAnnotations();
+   	for(Annotation annotation: annotations)
+   	{
+   		if(annotation.annotationType().equals(xml_tag.class))
+   		{
+   			tagAnnotation = xml_tag.class.cast(annotation);
+   		}
+   	}
+		
+   	String result						= null;
 		if (tagAnnotation != null)
 		{
 			String thatTag		= tagAnnotation.value();
