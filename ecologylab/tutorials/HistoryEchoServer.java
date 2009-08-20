@@ -15,7 +15,7 @@ import ecologylab.xml.TranslationScope;
 public class HistoryEchoServer
 {
 	private static final int idleTimeout = -1;
-	private static final int MTU = 1200;
+	private static final int MTU = 40000;
 	
 	public static void main(String[] args) throws IOException
 	{
