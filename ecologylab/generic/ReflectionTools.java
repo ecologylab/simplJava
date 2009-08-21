@@ -163,7 +163,8 @@ public class ReflectionTools extends Debug
   				e1.printStackTrace();
   			} catch (NoSuchMethodException e1)
   			{
-  				e1.printStackTrace();
+//  				e1.printStackTrace();
+//  				println("ReflectionTools.getInstance() NoSuchMethodException: getDeclaredConstructor");
   			} catch (IllegalArgumentException e)
   			{
   				e.printStackTrace();
