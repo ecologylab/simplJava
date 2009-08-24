@@ -264,4 +264,33 @@ public class ReflectionTools extends Debug
 			e.printStackTrace();
 		}
 	}
+	
+	public static void copyObject(final Object source,Object destination) 
+		// get the metadata class
+	{		
+				Class cls = source.getClass();
+				
+				// get all the fields of that class
+				Field[] fields = cls.getDeclaredFields();
+				
+				// iterate over that field
+				for(int i=0;i<fields.length;i++)
+				{
+					Field field = fields[i];
+					String fieldName = field.getName();
+					field.setAccessible(true);
+					
+					// get the field value
+					Object value = ReflectionTools.getFieldValue(source, field);
+					
+					if(value!=null)
+					{
+						// set the field value
+					ReflectionTools.setFieldValue(destination, field, value);
+					}
+				}
+			
+	}
+		
+	
 }
