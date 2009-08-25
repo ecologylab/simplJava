@@ -105,6 +105,10 @@ implements OptimizationTypes
 	{
 		return type == REGULAR_NESTED_ELEMENT;
 	}
+	public boolean set(ElementState context, String valueString)
+	{
+		return set(context, valueString, null);
+	}
 	/**
 	 * In the supplied context object, set the *typed* value of the field,
 	 * using the valueString passed in. 
@@ -117,7 +121,7 @@ implements OptimizationTypes
 	 * @param valueString		The value to set, which this method will use with the ScalarType, to create the value that will be set.
 	 */
 	//FIXME -- pass in ScalarUnmarshallingContext, and use it!
-	public boolean set(ElementState context, String valueString)
+	public boolean set(ElementState context, String valueString, ScalarUnmarshallingContext scalarUnMarshallingContext)
 	{
 		boolean result	= false;
 //		if ((valueString != null) && (context != null)) andruid & andrew 4/14/09 -- why not allow set to null?!
@@ -140,7 +144,7 @@ implements OptimizationTypes
 						result			= true;
 					}
 					else 
-						scalarType.setField(nestedES, xmlTextScalarField, valueString);
+						scalarType.setField(nestedES, xmlTextScalarField, valueString, null, scalarUnMarshallingContext);
 					result			= true;
 
 				} catch (IllegalArgumentException e)
