@@ -732,7 +732,20 @@ public final class TranslationScope extends Debug
 	   }
 	   return result;	   
    }
-   
+   /**
+    * Find an existing TranslationScope by this name, or create a new one.
+    * Inherit from the previous TranslationScope, by including all mappings from there.
+    * 
+    * @param name
+    * @param inheritedTranslations
+    * @param translations
+    * @return
+    */
+   @SuppressWarnings("unchecked")
+   public static TranslationScope get(String name, TranslationScope inheritedTranslations, Class... translations)
+   {
+  	 return get(name, translations, inheritedTranslations, name);
+   }
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * Inherit from the previous TranslationScope, by including all mappings from there.
@@ -993,6 +1006,26 @@ public final class TranslationScope extends Debug
 	   return entriesByClassSimpleName;
    }
    
+   public String generateImports()
+   {
+  	 StringBuilder buffy	= new StringBuilder();
+  	 if (inheritedTranslationScopes != null)
+  	 {
+  		 for (TranslationScope inheritedTScope : inheritedTranslationScopes)
+  		 {
+  			 inheritedTScope.generateImports(buffy);
+  		 }
+  	 }
+  	 generateImports(buffy);
+  	 return buffy.toString();
+   }
+   protected void generateImports(StringBuilder buffy)
+   {
+  	 for (TranslationEntry tEntry : entriesByClassSimpleName.values())
+  	 {
+  		 buffy.append("import ").append(tEntry.packageName).append('.').append(tEntry.classSimpleName).append(";\n");
+  	 } 	 
+   }
 	/**
 	 * Get the Scalar Type corresponding to the Class.
 	 * 
