@@ -27,6 +27,8 @@ implements OptimizationTypes
 	
 	protected final 	Field			field;
 	final	String			tagName;
+	
+	protected final Optimizations	parentOptimizations;
 
 	ScalarType<?>			scalarType;
 	final  int				type;
@@ -47,11 +49,11 @@ implements OptimizationTypes
 
 		this.field		= f2XO.field();
 		this.tagName	= f2XO.tagName();
-		this.type		= f2XO.type();
+		this.type			= f2XO.type();
 
-		Class fieldClass = f2XO.getOperativeClass();
+		Class fieldClass 		= f2XO.getOperativeClass();
 
-		Optimizations parentOptimizations	= f2XO.getContextOptimizations();
+		parentOptimizations	= f2XO.getContextOptimizations();
 		if (parentOptimizations != null)
 		{
 			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());

@@ -2475,6 +2475,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	{
 		return optimizations;
 	}
+	public HashMapArrayList<String, FieldAccessor> getChildFieldAccessors(Class<ElementState> child, Class<? extends FieldAccessor> fieldAccessorClass)
+	{
+		Optimizations optimzations	= optimizations();
+		Optimizations childOptimizations	= optimzations.lookupChildOptimizations(child);
+		
+		return (childOptimizations != null) ? childOptimizations.getFieldAccessorsForThis(fieldAccessorClass) : null;
+	}
 
 	/**
 	 * Perform custom processing on the newly created child node,
