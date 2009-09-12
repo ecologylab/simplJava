@@ -83,7 +83,7 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
      */
     @Override public String toString()
     {
-        return "Pref: name: "+name+", value: "+this.getValue();
+        return "Pref: " + name + "(" + this.getValue() + ")";
     }
 	
 	/**
@@ -562,4 +562,13 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
 		 */
 		@Override
 		public abstract Pref<T> clone();
+		
+		/**
+		 * This method can be called after the pref has translated, with the current session scope.
+		 * @param scope
+		 */
+		public void postLoadHook(Scope scope)
+		{
+			
+		}
 }

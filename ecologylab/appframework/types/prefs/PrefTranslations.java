@@ -44,6 +44,8 @@ public class PrefTranslations extends Debug
         PrefElementState.class,
         PrefColor.class,
         PrefFile.class,
+        PrefOp.class,
+        PrefDelayedOp.class,
         
         PrefAuthList.class,
         AuthenticationList.class,
@@ -74,5 +76,4 @@ public class PrefTranslations extends Debug
 	{
 		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, ElementTypeTranslations.get());
 	}
-
 }

@@ -49,6 +49,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	private static final String		ECLIPSE_BASE_PREFERENCE_PATH	= ECLIPSE_PREFS_DIR
 																																	+ "preferences.xml";
 
+	Scope													sessionScope;
+	
 	TranslationScope							translationSpace;
 
 	/**
@@ -125,7 +127,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationSpace,
 			String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
-		this(null, applicationName, translationSpace, args, prefsAssetVersion);
+		this(null, applicationName, null, translationSpace, args, prefsAssetVersion);
 	}
 
 	/**
@@ -180,9 +182,21 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, String args[])
 			throws XMLTranslationException
 	{
-		this(baseClass, applicationName, null, args, 0);
+		this(baseClass, applicationName, null, null, args, 0);
 	}
 
+	/**
+	 * Additional constructor to hold the session scope for post processing loaded preferences.
+	 * @param applicationName
+	 * @param sessionScope
+	 */
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName, 
+					TranslationScope translationSpace, String args[], float prefsAssetVersion)
+	throws XMLTranslationException
+	{
+		this(baseClass, applicationName, null, translationSpace, args, prefsAssetVersion);
+	}
+	
 	/**
 	 * Create an ApplicationEnvironment.
 	 * <p/>
@@ -228,11 +242,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          TODO
 	 * @throws XMLTranslationException
 	 */
-	public ApplicationEnvironment(Class<?> baseClass, String applicationName,
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
 			TranslationScope translationSpace, String args[], float prefsAssetVersion)
 			throws XMLTranslationException
 	// String preferencesFileRelativePath, String graphicsDev, String screenSize)
 	{
+		this.sessionScope = sessionScope;
 		this.translationSpace = translationSpace;
 
 		// this is the one and only singleton Environment
@@ -549,7 +564,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 							println("\tContinuing.");
 						}
 						if (argPrefSet != null)
+						{
 							println("OK: Loaded Prefs from: " + argPrefsFile);
+							postProcessPrefs(argPrefSet);
+						}
 						else
 						{
 							println("");
@@ -582,6 +600,21 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				argStack.push(arg); // let the next code handle returning.
 			break;
 		}
+	}
+
+	/**
+	 * Look for pref Ops, if delayed: setup their timers, and also set scope for their ops.
+	 * @param prefSet
+	 */
+	@SuppressWarnings("unchecked")
+	private void postProcessPrefs(PrefSet prefSet)
+	{
+		if(sessionScope == null)
+			return;
+		
+		for(Pref pref : prefSet.values())
+			if(pref != null )
+				pref.postLoadHook(sessionScope);
 	}
 
 	private PrefSet loadPrefsFromJNLP(String prefSpec)
