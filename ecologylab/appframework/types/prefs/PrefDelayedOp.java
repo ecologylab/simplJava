@@ -7,7 +7,6 @@ import javax.swing.Timer;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.logging.MixedInitiativeOp;
-import ecologylab.services.logging.NewOp;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -58,16 +57,5 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 	public String toString()
 	{
 		return "PrefDelayedOp: " + name;
-	}
-	public static void main(String[] args) throws XMLTranslationException, InterruptedException
-	{
-		TranslationScope translationScope = PrefTranslations.get();
-		translationScope.addTranslation(NewOp.class);
-		PrefDelayedOp op = (PrefDelayedOp)ElementState.translateFromXML("config/preferences/timedOpTest.xml", translationScope);
-		op.postLoadHook(null);
-		
-		System.out.println("Sleeping");
-		Thread.sleep(10000);
-
 	}
 }
