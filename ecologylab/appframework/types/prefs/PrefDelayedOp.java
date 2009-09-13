@@ -43,7 +43,6 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 		timer.start();
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent arg0)
 	{
 		if(op == null)
