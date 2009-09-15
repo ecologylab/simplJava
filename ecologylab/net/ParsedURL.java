@@ -10,6 +10,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
 
@@ -1494,5 +1495,53 @@ public class ParsedURL extends Debug implements MimeType
 	public Object shadow()
 	{
 		return (url != null) ? url : file;
+	}
+	
+	public ParsedURL filterArgs(String...argsToKeep)
+	{
+		if (url != null)
+		{
+			String query	= url.getQuery();
+			StringTokenizer tokenizer	= new StringTokenizer(query, "&");
+			if (!tokenizer.hasMoreElements())
+				return this;
+			StringBuilder resultQuery	= new StringBuilder(noAnchorNoQueryPageString());	// initialize w base URL
+			boolean first							= true;
+			while (tokenizer.hasMoreElements())
+			{
+				String token	= tokenizer.nextToken();
+				for (String argToKeep: argsToKeep)
+				{
+					if (token.startsWith(argToKeep))
+					{
+						if (first)
+						{
+							first		= false;
+							resultQuery.append('?');
+						}
+						else
+							resultQuery.append('&');
+						resultQuery.append(token);
+					}
+				}
+			}
+			return getAbsolute(resultQuery.toString());
+		}
+		return this;
+	}
+	
+	static public void main(String[] args)
+	{
+		try
+		{
+			URL u	= new URL("http://acm.org/citation.cfm?id=33344");
+			System.out.println(u.getQuery());
+		}
+		catch (MalformedURLException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
