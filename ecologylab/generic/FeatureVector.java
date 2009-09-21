@@ -58,18 +58,18 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		return d;
 	}
 
-	public void add ( T term, double val )
+	public void add ( T term, Double val )
 	{
 		synchronized (values)
 		{
 			if (values.containsKey(term))
 				val += values.get(term);
-			values.put(term, new Double(val));
+			values.put(term, val);
 			resetNorm();
 		}
 	}
 
-	public void set ( T term, double val )
+	public void set ( T term, Double val )
 	{
 		synchronized (values)
 		{
