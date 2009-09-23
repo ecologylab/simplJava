@@ -20,7 +20,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	
 	public FeatureVector ()
 	{
-		values = (HashMap<T,Double>) HASH_MAP_POOL.acquire();
+		values = new HashMap<T,Double>();
 	}
 
 	/**
@@ -358,7 +358,6 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 		if (values != null)
 		{
 			values.clear();
-			HASH_MAP_POOL.release(values);
 			values	= null;//TODO could drop this line to be more moderate
 		}
 	}
