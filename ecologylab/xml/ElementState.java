@@ -276,8 +276,12 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 			throw new XMLTranslationException("Output path is already a directory, so it can't be a file: " + outputFile.getAbsolutePath());
 		
 		String outputDirName	= outputFile.getParent();
-		File outputDir			= new File(outputDirName);
-		outputDir.mkdirs();
+		if(outputDirName != null) //if no parent dir exist, don't make dirs.
+		{
+			File outputDir			= new File(outputDirName);
+			outputDir.mkdirs();
+		}
+		
 	}
 
 	/**
