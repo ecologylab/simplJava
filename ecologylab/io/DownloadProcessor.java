@@ -11,7 +11,7 @@ import ecologylab.generic.DispatchTarget;
  *
  * @author andruid
  */
-public interface DownloadProcessor
+public interface DownloadProcessor<T extends Downloadable>
 {
 	public void stop();
 	
@@ -23,6 +23,6 @@ public interface DownloadProcessor
  * @param dispatchTarget
  * @throws IOException 
  */
-	public void download(Downloadable thatDownloadable,
-			DispatchTarget dispatchTarget) throws IOException;
+	public void download(T thatDownloadable,
+			DispatchTarget<T> dispatchTarget) throws IOException;
 }

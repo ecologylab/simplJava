@@ -9,19 +9,19 @@ import ecologylab.io.Downloadable;
 /**
  * Closure that keeps state about a download, as it progresses.
  */
-public class DownloadClosure
+public class DownloadClosure<T extends Downloadable>
 extends Debug
 {
-	Downloadable													downloadable;
+	T													downloadable;
 	
-	private DispatchTarget<Downloadable>	dispatchTarget;
+	private DispatchTarget<T>	dispatchTarget;
 	private DownloadMonitor								downloadMonitor;
 	private Thread												downloadingThread;
 
 	private boolean												dispatched;
 
 
-	DownloadClosure(Downloadable downloadable, DispatchTarget<Downloadable> dispatchTarget,
+	DownloadClosure(T downloadable, DispatchTarget<T> dispatchTarget,
 			DownloadMonitor downloadMonitor)
 			{
 		this.downloadable		= downloadable;

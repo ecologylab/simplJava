@@ -25,9 +25,9 @@ import ecologylab.io.Downloadable;
  * Looks out for timeout conditions. In case they happen, records
  * state in the <code>bad</code> slot, and dispatches, as well.
  */
-public class DownloadMonitor
+public class DownloadMonitor<T extends Downloadable>
 extends Monitor
-implements DownloadProcessor
+implements DownloadProcessor<T>
 {
 	static final int					REGULAR_SLEEP			= 400;
 	static final int					SHORT_SLEEP				= 100;
@@ -117,13 +117,13 @@ implements DownloadProcessor
 	 * the DispatchTarget is called.
 	 * In the error case, handleIOError() or handleTimeout() is called.
 	 */
-	public void download(Downloadable thatDownloadable,
-			DispatchTarget dispatchTarget)
+	public void download(T thatDownloadable,
+			DispatchTarget<T> dispatchTarget)
 	{
 		synchronized (toDownload)
 		{
 			//	 debug("download("+thatDownloadable);
-			toDownload.addElement(new DownloadClosure(thatDownloadable,
+			toDownload.addElement(new DownloadClosure<T>(thatDownloadable,
 					dispatchTarget, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
