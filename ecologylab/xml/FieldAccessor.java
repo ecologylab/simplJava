@@ -48,6 +48,7 @@ implements OptimizationTypes
 		this.scalarType	= scalarType;
 
 		this.field		= f2XO.field();
+		field.setAccessible(true);
 		this.tagName	= f2XO.tagName();
 		this.type			= f2XO.type();
 
