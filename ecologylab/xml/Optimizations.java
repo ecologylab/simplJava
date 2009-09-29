@@ -831,8 +831,8 @@ implements OptimizationTypes
 						int length				= thoseClasses.length;
 						for (int i=0; i<length; i++)
 						{
-							Class<? extends ElementState> thatClass		= thoseClasses[i];
-							registerN2JOByClass(tspace, thatField, thatClass);
+							Class<? extends ElementState> thisClass		= thoseClasses[i];
+							registerN2JOByClass(tspace, thatField, thisClass);
 						}
 					}
 					else
@@ -853,10 +853,7 @@ implements OptimizationTypes
 									Collection<TranslationEntry> scopeEntries	= translationScope.getEntries();
 									for (TranslationEntry entry : scopeEntries)
 									{
-										NodeToJavaOptimizations n2jo1	= 
-											new NodeToJavaOptimizations(tspace, this, thatField, thatClass);
-										nodeToJavaOptimizationsMap.put(n2jo1.tag(), n2jo1);
-										
+										registerN2JOByClass(tspace, thatField, entry.thisClass);										
 									}
 								}
 							}
