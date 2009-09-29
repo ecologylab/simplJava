@@ -14,6 +14,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.ValueFactory;
+import ecologylab.xml.TranslationScope.TranslationEntry;
 import ecologylab.xml.types.scalar.ScalarType;
 
 /**
@@ -840,6 +841,25 @@ implements OptimizationTypes
 						if (classAnnotation != null)
 						{
 							n2jo				= registerN2JOByClass(tspace, thatField, classAnnotation.value());
+						}
+						else
+						{
+							ElementState.xml_scope scopeAnnotation 	= thatField.getAnnotation(ElementState.xml_scope.class);
+							if (scopeAnnotation != null)
+							{
+								TranslationScope translationScope				= TranslationScope.lookup(scopeAnnotation.value());
+								if (translationScope != null)
+								{
+									Collection<TranslationEntry> scopeEntries	= translationScope.getEntries();
+									for (TranslationEntry entry : scopeEntries)
+									{
+										NodeToJavaOptimizations n2jo1	= 
+											new NodeToJavaOptimizations(tspace, this, thatField, thatClass);
+										nodeToJavaOptimizationsMap.put(n2jo1.tag(), n2jo1);
+										
+									}
+								}
+							}
 						}
 					}
 				}

@@ -226,7 +226,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	        buffy = allocStringBuilder();
 		Class rootClass	= optimizations.thatClass;
 
-		translateToXMLBuilder(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
+		translateToXMLBuilder(optimizations.rootFieldToXMLOptimizations(rootClass), buffy);
 		
 		return buffy;
 	}
@@ -316,7 +316,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 		try
 		{
 			Class rootClass = optimizations.thatClass;
-			translateToXMLAppendable(rootClass, optimizations.rootFieldToXMLOptimizations(rootClass), appendable);
+			translateToXMLAppendable(optimizations.rootFieldToXMLOptimizations(rootClass), appendable);
 		} catch (IOException e)
 		{
 			throw new XMLTranslationException("IO", e);
@@ -347,7 +347,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 */
-	private void translateToXMLBuilder(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
+	private void translateToXMLBuilder(FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
 	throws XMLTranslationException
 	{
         this.preTranslationProcessingHook();
@@ -502,11 +502,11 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 								// and it fixes @xml_text output
 //							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 //							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2XO				= childF2XO.isAnnotatedCollectionOrMap() ?
+								FieldToXMLOptimizations collectionElementF2XO				= childF2XO.hasCollectionOrMapTag() ?
 										childF2XO : 
 										collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 								
-								collectionSubElementState.translateToXMLBuilder(collectionElementClass, collectionElementF2XO, buffy);
+								collectionSubElementState.translateToXMLBuilder(collectionElementF2XO, buffy);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -515,17 +515,17 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					}
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
-						ElementState thatElementState	= (ElementState) thatReferenceObject;
+						ElementState nestedES	= (ElementState) thatReferenceObject;
 						// if the field type is the same type of the instance (that is, if no subclassing),
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						Class<? extends ElementState> thatNewClass			= thatElementState.getClass();
+						Class<? extends ElementState> thatNewClass			= nestedES.getClass();
 						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
 						FieldToXMLOptimizations nestedF2Xo = thatNewClass.equals(childField.getType()) ?
 								childF2XO : fieldToXMLOptimizations(childField, thatNewClass);
 
-						thatElementState.translateToXMLBuilder(thatNewClass, nestedF2Xo, buffy);
+						nestedES.translateToXMLBuilder(nestedF2Xo, buffy);
 						//buffy.append('\n');						
 					}
 				}
@@ -539,7 +539,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					Class<? extends ElementState> nestedNSClass = nestedNSE.getClass();
 					FieldToXMLOptimizations nestedNsF2XO	=
 						nestedNSE.optimizations.rootFieldToXMLOptimizations(nestedNSClass);
-					nestedNSE.translateToXMLBuilder(nestedNSClass, nestedNsF2XO, buffy);
+					nestedNSE.translateToXMLBuilder(nestedNsF2XO, buffy);
 				}
 			}
 			// end the element
@@ -577,8 +577,6 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * value for each type.
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
-	 * 
-	 * @param thatClass
 	 * @param fieldToXMLOptimizations
 	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
@@ -586,7 +584,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException
 	 */
-	private void translateToXMLAppendable(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
+	private void translateToXMLAppendable(FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
 	throws XMLTranslationException, IOException
 	{
 		this.preTranslationProcessingHook();
@@ -677,10 +675,10 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 				else
 				{
 					Object thatReferenceObject	= null;
-					Field childField			= childF2XO.field();
+					Field childField						= childF2XO.field();
 					try
 					{
-						thatReferenceObject		= childField.get(this);
+						thatReferenceObject				= childField.get(this);
 					}
 					catch (IllegalAccessException e)
 					{
@@ -716,15 +714,9 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					}
 
 					if (thatCollection != null)
-					{
-						//if the object is a collection, 
-						//basically iterate thru the collection and emit XML from each element
-						final Iterator iterator			= thatCollection.iterator();
-//						Class childClass				= iterator.hasNext() ? iterator.
-
-						while (iterator.hasNext())
+					{	//if the object is a collection, iterate thru the collection and emit XML for each element
+						for (Object next : thatCollection)
 						{
-							Object next = iterator.next();
 							if (isScalar)	// leaf node!
 							{
 								try
@@ -741,15 +733,13 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 							else if (next instanceof ElementState)
 							{
 								ElementState collectionSubElementState = (ElementState) next;
-								//FIXME -- uses class instead of field to get F2XO
-								//does this work correctly with @xml_classes ?
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
-//							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-//							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2Xo				= childF2XO.isAnnotatedCollectionOrMap() ?
-										childF2XO : 
+
+								FieldToXMLOptimizations collectionElementF2Xo				= childF2XO.hasCollectionOrMapTag() ?
+										childF2XO : // tag by annotation
+										// tag by class
 										collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								collectionSubElementState.translateToXMLAppendable(collectionElementClass, collectionElementF2Xo, appendable);
+								collectionSubElementState.translateToXMLAppendable(collectionElementF2Xo, appendable);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -757,17 +747,17 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					}
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
-						ElementState thatElementState	= (ElementState) thatReferenceObject;
+						ElementState nestedES	= (ElementState) thatReferenceObject;
 						// if the field type is the same type of the instance (that is, if no subclassing),
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						Class thatNewClass			= thatElementState.getClass();
-						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						FieldToXMLOptimizations nestedF2XO = thatNewClass.equals(childField.getType()) ?
-								childF2XO : fieldToXMLOptimizations(childField, thatNewClass);
+						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
+								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
+//					FieldToXMLOptimizations nestedF2XO = thatNewClass.equals(childField.getType()) ?
+//							childF2XO : fieldToXMLOptimizations(childField, nestedES.getClass());
 
-						thatElementState.translateToXMLAppendable(thatNewClass, nestedF2XO, appendable);
+						nestedES.translateToXMLAppendable(nestedF2XO, appendable);
 					}
 				}
 			} //end of for each element child
@@ -780,7 +770,7 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 					// translate nested namespace root
 					FieldToXMLOptimizations nestedNsF2XO	=
 						nestedNSE.optimizations.rootFieldToXMLOptimizations(nestedNSClass);
-					nestedNSE.translateToXMLAppendable(nestedNSClass, nestedNsF2XO, appendable);
+					nestedNSE.translateToXMLAppendable(nestedNsF2XO, appendable);
 				}
 
 			}
@@ -2447,6 +2437,25 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     public @interface xml_class
     {
         Class value();
+    }
+    
+    /**
+     * Supplementary metalanguage declaration that can be applied only to a field.
+     * The argument is the name of a TranslationScope.
+     * <p/>
+     * Annotation uses the argument to lookup a TranslationScope.
+     * If there is none, a warning is provided.
+     * Otherwise, mappings are created for tag names associated with each class in the TranslationScope.
+     * It then creates a mapping from the tag and class names to the field it is applied to, 
+     * so that translateFromXML(...) will set a value based on an element with the tags, 
+     * if field is also declared with @xml_nested,
+     * or collect values when elements have the tags, if the field is declared with @xml_collection.
+     */
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_scope
+    {
+        String value();
     }
     
     /**

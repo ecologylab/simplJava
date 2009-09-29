@@ -83,7 +83,9 @@ implements OptimizationTypes
     /**
      * true if this is a collection or map field, and we are using it to get the name.
      */
-    private	boolean			isAnnotatedCollectionOrMap;
+    private	boolean			hasCollectionOrMapTag;
+    
+    private boolean			hasXMLClasses;
     
     /**
      * This slot makes sense only for attributes and leaf nodes
@@ -281,18 +283,18 @@ implements OptimizationTypes
     	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
     	final ElementState.xml_map mapAnnotationObj	= field.getAnnotation(ElementState.xml_map.class);
     	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-    	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
+     	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
     	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
     	String tagName;
     	if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
     	{
     		tagName											= collectionAnnotation;
-    		isAnnotatedCollectionOrMap	= true;
+    		hasCollectionOrMapTag	= true;
     	}
     	else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
     	{
     		tagName											= mapAnnotation;
-    		isAnnotatedCollectionOrMap	= true;
+    		hasCollectionOrMapTag	= true;
     	}
     	else if ((tagAnnotation != null) && (tagAnnotation.length() > 0))
     	{
@@ -301,6 +303,16 @@ implements OptimizationTypes
     	else
     		tagName											= XMLTools.getXmlTagName(field.getName(), null); // generate from class name
     			
+     	final ElementState.xml_class classAnnotationObj		= field.getAnnotation(ElementState.xml_class.class);
+     	final Class classAnnotation			= (classAnnotationObj == null) ? null : classAnnotationObj.value();
+     	final ElementState.xml_classes classesAnnotationObj		= field.getAnnotation(ElementState.xml_classes.class);
+     	final Class[] classesAnnotation			= (classesAnnotationObj == null) ? null : classesAnnotationObj.value();
+    	if ((classAnnotation != null) ||
+    			((classesAnnotation != null) && (classesAnnotation.length > 0)))
+    	{
+    		hasXMLClasses								= true;
+    	}
+    	
     	if (nameSpacePrefix != null)
     	{
     		tagName				= nameSpacePrefix + tagName;
@@ -336,7 +348,7 @@ implements OptimizationTypes
 
     @Override public String toString()
     {
-        return "FieldToXMLOptimizations" + closeTag;
+        return "FieldToXMLOptimizations" + openTag;
     }
     
     private void setTag(String tagName)
@@ -938,8 +950,23 @@ implements OptimizationTypes
 		return format;
 	}
 
-	public boolean isAnnotatedCollectionOrMap()
+	/**
+	 * For most fields in an ElementState, object, we generate XML with the tag name mapped to the
+	 * field name. However for some -- collections, maps, and those that use @xml_classes --
+	 * we must generate XML with tag name mapped to class name (w camel case conversion).
+	 * 
+	 * @return	true for collection & map fields, and those annotated with @xml_classes or @xml_scope.
+	 */
+	public boolean hasCollectionOrMapTag()
 	{
-		return isAnnotatedCollectionOrMap;
+		return hasCollectionOrMapTag;
+	}
+
+	/**
+	 * @return the hasXMLClasses
+	 */
+	public boolean hasXMLClasses()
+	{
+		return hasXMLClasses;
 	}
 }

@@ -3,6 +3,8 @@ package ecologylab.xml;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Map;
 
@@ -113,7 +115,7 @@ implements OptimizationTypes
 		if (isScalar)
 		{
 			this.scalarType		= TypeRegistry.getType(field);
-			format				= XMLTools.getFormatAnnotation(field);
+			format						= XMLTools.getFormatAnnotation(field);
 		}
 	}
 	/**
@@ -126,13 +128,17 @@ implements OptimizationTypes
 	 */
 	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, Class thatClass)
 	{
+		this(translationSpace, optimizations, field, thatClass, XMLTools.getXmlTagName(thatClass, "State"));
+	}
+	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, Class thatClass, String tag)
+	{
 		super();
-		this.tag				= XMLTools.getXmlTagName(thatClass, "State");
+		this.tag							= tag;
 		this.translationSpace	= translationSpace;
 		this.optimizations		= optimizations;
 		
-		this.field				= field;
-		this.type				= REGULAR_NESTED_ELEMENT;
+		this.field						= field;
+		this.type							= REGULAR_NESTED_ELEMENT;
 		setClassOp(thatClass);
 	}
 	
@@ -278,7 +284,14 @@ implements OptimizationTypes
 				java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(collectionFieldByTag);
 				if (typeArgs != null)
 				{
-					Class	collectionElementsType		= (Class) typeArgs[0];
+					Type typeArg0 								= typeArgs[0];
+					Class	collectionElementsType	= null;
+					if (typeArg0 instanceof Class)
+						collectionElementsType			= (Class) typeArg0;
+					else
+					{
+						collectionElementsType			= (Class) ((ParameterizedType) typeArg0).getRawType();
+					}
 //					debug("!!!collection elements are of type: " + collectionElementsType.getName());
 					setClassOp(collectionElementsType);
 					this.field				= collectionFieldByTag;

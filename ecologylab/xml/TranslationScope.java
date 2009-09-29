@@ -2,6 +2,7 @@ package ecologylab.xml;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1025,6 +1026,11 @@ public final class TranslationScope extends Debug
   	 {
   		 buffy.append("import ").append(tEntry.packageName).append('.').append(tEntry.classSimpleName).append(";\n");
   	 } 	 
+   }
+   
+   public Collection<TranslationEntry> getEntries()
+   {
+  	 	return entriesByClassSimpleName.values();
    }
 	/**
 	 * Get the Scalar Type corresponding to the Class.
