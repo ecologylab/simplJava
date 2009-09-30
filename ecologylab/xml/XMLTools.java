@@ -72,7 +72,7 @@ implements CharacterConstants, SpecialCharacterEntities
 		for (char i = 0; i < SPECIAL_SPELLINGS.length; i++)
 			entityTable.put(SPECIAL_SPELLINGS[i], Character.toString((char) (i + 160)));
 
-		entityTable.put("#x00bb", Character.toString((char) 187));	// a hack for weird hex references to &raquo;	»	&#187;	»	right-pointing double angle quotation mark = right pointing guillemet
+		entityTable.put("#x00bb", Character.toString((char) 187));	// a hack for weird hex references to &raquo;	ï¿½	&#187;	ï¿½	right-pointing double angle quotation mark = right pointing guillemet
 
 		// even though we fill the table from 0-255, actually
 		// 0-8 are illegal. 9,10 (decimal) are legal. 11-31 are illegal. 31-127 are legal.
@@ -90,18 +90,19 @@ implements CharacterConstants, SpecialCharacterEntities
 		putEntityInTable("#039", '\'');
 		putEntityInTable("#x0027", '\'');
 
-
+		putEntityInTable("#x22", '\"');
+		putEntityInTable("#x27", '\'');
 		// magic chars from the NY TIMES
 		// &#8217; is really ' (ascii 39)
 
 		putEntityInTable("#8217", '\'');
-		// &#8220; is really “ = &#147;
-		putEntityInTable("#8220", '“');
-		// &#8221; is really ” = &#148;
-		putEntityInTable("#8221", '”');
-		// &#8212; is really — = &#151; -- em dash
-		putEntityInTable("#8212", '—');
-		putEntityInTable("#151", '—');
+		// &#8220; is really ï¿½ = &#147;
+		putEntityInTable("#8220", 'ï¿½');
+		// &#8221; is really ï¿½ = &#148;
+		putEntityInTable("#8221", 'ï¿½');
+		// &#8212; is really ï¿½ = &#151; -- em dash
+		putEntityInTable("#8212", 'ï¿½');
+		putEntityInTable("#151", 'ï¿½');
 
 
 		// defined in the XML 1.0 spec: "predefined entities"
@@ -204,6 +205,9 @@ implements CharacterConstants, SpecialCharacterEntities
 		putEntityInTable("lsaquo", LSAQUO);
 		putEntityInTable("rsaquo", RSAQUO);
 		putEntityInTable("euro", EURO);
+		putEntityInTable("dblrarr", DBLRARR);
+		putEntityInTable("imdbDblQt", ANOTHER_DBL_QUOTE);
+		putEntityInTable("imdbQt", ANOTHER_QUOTE);
 	}
 
 	/**

@@ -115,6 +115,9 @@ public interface SpecialCharacterEntities
 	public static final char LSAQUO	= 8249;	// single left-pointing angle quotation mark
 	public static final char RSAQUO	= 8250;	// single right-pointing angle quotation mark
 	public static final char EURO	= 8364;	// euro sign
+	public static final char DBLRARR = 187; // double right arrow (ex: as found in imdb titles after More at IMDBPro)
+	public static final char ANOTHER_DBL_QUOTE = 34; //Double quotation mark 
+	public static final char ANOTHER_QUOTE = 39; //Single Quotation mark
 	
 	public static final char SPECIAL_CHARACTER_ENTITIES[]	=
 	{
@@ -127,7 +130,7 @@ public interface SpecialCharacterEntities
 		RFLOOR, LANG, RANG, LOZ, SPADES, CLUBS, HEARTS, DIAMS, OELIG, OELIG_S,
 		SCARON, SCARON_S, YUML, CIRC, TILDE, ENSP, EMSP, THINSP, ZWNJ, ZWJ,
 		LRM, RLM, NDASH, MDASH, LSQUO, RSQUO, SBQUO, LDQUO, RDQUO, BDQUO,
-		DAGGER, DAGGER_D, PERMIL, LSAQUO, RSAQUO, EURO,  
+		DAGGER, DAGGER_D, PERMIL, LSAQUO, RSAQUO, EURO,  DBLRARR, ANOTHER_DBL_QUOTE, ANOTHER_QUOTE
 		
 	};
 }
