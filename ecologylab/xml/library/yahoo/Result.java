@@ -69,7 +69,7 @@ class Result extends ElementState
 	/**
 	 * Cool! For image search, direct access to their thumbnail image.
 	 */
-	@xml_nested	@xml_tag("thumnail")	ThumbnailState	thumbnail;
+	@xml_nested	@xml_tag("Thumbnail")	ThumbnailState	thumbnail;
 	
 	   
 	public String getTitle()
