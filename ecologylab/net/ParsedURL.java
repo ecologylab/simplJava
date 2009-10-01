@@ -168,10 +168,10 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public static ParsedURL getAbsolute(String webAddr, String errorDescriptor)
 	{
-		if (webAddr == null)
+		if (webAddr == null || webAddr.length() <= 7)
 		{
-			println("ERROR: ParsedURL.getAbsoltute() webAddr = null!");
-			Thread.dumpStack();
+			println("ERROR: ParsedURL.getAbsolute() webAddr is null or too short: [" + webAddr + "]");
+			//Thread.dumpStack(); //We don't really need such a hostile message.
 		}
 		else
 		{
