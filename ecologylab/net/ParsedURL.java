@@ -1380,8 +1380,10 @@ public class ParsedURL extends Debug implements MimeType
 				String unsupportedCharset = NetTools.isCharsetSupported(mimeType);
 				if (unsupportedCharset != null)
 				{
-					connectionHelper.displayStatus("Cant process charset " + unsupportedCharset + " in "
-							+ this);
+					String message = "Cant process charset " + unsupportedCharset + " in "
+							+ this;
+					connectionHelper.displayStatus(message);
+					error(message);
 					return null;
 				}
 

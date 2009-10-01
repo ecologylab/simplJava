@@ -28,7 +28,7 @@ public class NetTools extends Debug
 		"us-ascii", "windows-1250", "windows-1251", "windows-1252", "windows-1253",
 		"windows-1254", "windows-1257", "iso-8859-1", "iso-8859-2", "iso-8859-4",
 		"iso-8859-5", "iso-8859-7", "iso-8859-9", "iso-8859-13", "iso-8859-15",
-		"ISO-8859-1", "ISO-8859-2", "ISO-8859-4",
+		"ISO-8859-1", "ISO_8859-1", "ISO-8859-2", "ISO-8859-4",
 		"ISO-8859-5", "ISO-8859-7", "ISO-8859-9", "ISO-8859-13", "ISO-8859-15",
 		"koi8-r", "utf-8", "utf-16", "utf-16be", "utf-16le",
 		"UTF-8", "UTF-16", "UTF-16be", "UTF-16le"
