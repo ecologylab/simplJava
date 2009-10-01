@@ -136,7 +136,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public void add ( double c, IFeatureVector<T> v )
 	{
 		Map<T, Double> other = v.map();
-		if (other == null)
+		if (other == null || other.size() == 0)
 			return;
 		synchronized (other)
 		{
