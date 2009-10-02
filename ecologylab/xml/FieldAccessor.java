@@ -277,6 +277,14 @@ implements OptimizationTypes
 	{
 		return field;
 	}
+	
+	/**
+     * @return the class of the field
+     */
+    public Class<?> getFieldType()
+    {
+        return field.getType();
+    }
 
 	/**
 	 * 
