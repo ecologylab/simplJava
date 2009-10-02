@@ -1,5 +1,6 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +17,10 @@ public class TranslationUtilities
       else if (float.class == type)
       {
          return TranslationConstants.OBJC_FLOAT;
+      }
+      else if (double.class == type)
+      {
+         return TranslationConstants.OBJC_DOUBLE;
       }
       else if (byte.class == type)
       {
@@ -40,6 +45,14 @@ public class TranslationUtilities
       else if (String.class == type)
       {
          return TranslationConstants.OBJC_STRING;
+      }
+      else if (StringBuilder.class == type)
+      {
+         return TranslationConstants.OBJC_STRING_BUILDER;
+      }
+      else if (URL.class == type)
+      {
+         return TranslationConstants.OBJC_URL;
       }
       else if (Date.class == type)
       {
