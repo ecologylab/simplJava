@@ -6,12 +6,24 @@ public class TranslationConstants
    /*
     * Syntactical constants
     */
-   public static final String HEADER_FILE_OPENING = "#import <objc/Object.h>";
-   public static final String LINE_BREAK = "\n";
+   public static final String HEADER_FILE_OPENING = "#import <objc/Object.h>";   
    public static final String INTERFACE = "@interface";
+   public static final String PROPERTY = "@property";
+   public static final String END = "@end";
+   
+   public static final String REFERENCE = "*";
+   public static final String TERMINATOR = ";";
+   public static final String INHERITENCE_OPERATOR = ":";
+   public static final String INHERITENCE_OBJECT = "NSObject";
+   
    public static final String OPENING_BRACE = "{";
    public static final String CLOSING_BRACE = "}";
    
+   public static final String SINGLE_LINE_BREAK = "\n";
+   public static final String DOUBLE_LINE_BREAK = "\n\n";
+   public static final String TAB = "\t";
+      
+   public static final String SPACE = " ";
    
    /*
     * Scalar types
@@ -24,7 +36,7 @@ public class TranslationConstants
    public static final String OBJC_BOOLEAN = "bool";
    public static final String OBJC_LONG = "long";
    public static final String OBJC_SHORT = "short";
-   public static final String OBJC_STRING = "NSString*";  
+   public static final String OBJC_STRING = "NSString";  
    
    /*
     * Reference types
@@ -37,8 +49,6 @@ public class TranslationConstants
    /*
     * Collection types
     */
-   public static final String OBJC_ARRAYLIST = "NSMutableArray*";
-   public static final String OBJC_HASHMAP = "NSDictionary*";
-   
-   
+   public static final String OBJC_ARRAYLIST = "NSMutableArray";
+   public static final String OBJC_HASHMAP = "NSDictionary";
 }
