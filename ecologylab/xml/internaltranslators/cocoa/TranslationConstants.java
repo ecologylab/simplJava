@@ -4,6 +4,16 @@ public class TranslationConstants
 {
    
    /*
+    * Syntactical constants
+    */
+   public static final String HEADER_FILE_OPENING = "#import <objc/Object.h>";
+   public static final String LINE_BREAK = "\n";
+   public static final String INTERFACE = "@interface";
+   public static final String OPENING_BRACE = "{";
+   public static final String CLOSING_BRACE = "}";
+   
+   
+   /*
     * Scalar types
     */   
    public static final String OBJC_INTEGER = "int";
@@ -27,6 +37,8 @@ public class TranslationConstants
    /*
     * Collection types
     */
-   public static final String OBJC_ARRAYLIST = "NSMutableArray";
-   public static final String OBJC_HASHMAP = "NSDictionary";
+   public static final String OBJC_ARRAYLIST = "NSMutableArray*";
+   public static final String OBJC_HASHMAP = "NSDictionary*";
+   
+   
 }

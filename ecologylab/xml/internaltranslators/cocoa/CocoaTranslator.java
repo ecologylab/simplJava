@@ -9,8 +9,6 @@ import ecologylab.xml.internaltranslators.cocoa.library.*;
 
 public class CocoaTranslator
 {
-   private final String headerFileOpeningSyntax = "#import <objc/Object.h> \n";
-
    public CocoaTranslator()
    {
 
@@ -51,8 +49,8 @@ public class CocoaTranslator
 
    private void openObjectiveHeaderFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
    {
-      appendable.append(headerFileOpeningSyntax);
-      appendable.append("\n");
+      appendable.append(TranslationConstants.HEADER_FILE_OPENING);
+      appendable.append(TranslationConstants.LINE_BREAK);
 
       String implementationDeclaration = "@interface " + XMLTools.getClassName(inputClass) + " :" + " Object" + "\n{\n";
       appendable.append(implementationDeclaration);
