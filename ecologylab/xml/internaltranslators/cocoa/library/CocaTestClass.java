@@ -14,46 +14,46 @@ public @xml_inherit
 class CocaTestClass extends ElementState
 {
    @xml_attribute
-   private int           intAttribute;
+   private int                     intAttribute;
 
    @xml_attribute
-   private float         floatAttribute;
+   private float                   floatAttribute;
 
    @xml_attribute
-   private double        doubleAttribute;
+   private double                  doubleAttribute;
 
    @xml_attribute
-   private byte          byteAttribute;
+   private byte                    byteAttribute;
 
    @xml_attribute
-   private char          charAttribute;
+   private char                    charAttribute;
 
    @xml_attribute
-   private boolean       booleanAttribute;
+   private boolean                 booleanAttribute;
 
    @xml_attribute
-   private long          longAttribute;
+   private long                    longAttribute;
 
    @xml_attribute
-   private short         shortAttribute;
+   private short                   shortAttribute;
 
    @xml_attribute
-   private String        stringAttribute;
+   private String                  stringAttribute;
 
    @xml_attribute
-   private Date          dateAttribute;
+   private Date                    dateAttribute;
 
    @xml_attribute
-   private StringBuilder stringBuilderAttribute;
+   private StringBuilder           stringBuilderAttribute;
 
    @xml_attribute
-   private URL           urlAttribute;
+   private URL                     urlAttribute;
 
    @xml_collection
-   private ArrayList<String>     arrayListAttribute;
+   private ArrayList<String>       arrayListAttribute;
 
    @xml_map
-   private HashMap<String, String>       hashMapAttribute;
+   private HashMap<String, String> hashMapAttribute;
 
    public CocaTestClass() throws MalformedURLException
    {
@@ -61,7 +61,7 @@ class CocaTestClass extends ElementState
       this.floatAttribute = 1.0f;
       this.doubleAttribute = 2.0;
       this.byteAttribute = 1;
-      this.charAttribute  = 'c';
+      this.charAttribute = 'c';
       this.booleanAttribute = false;
       this.longAttribute = 1;
       this.shortAttribute = 3;
@@ -69,9 +69,9 @@ class CocaTestClass extends ElementState
       this.dateAttribute = new Date();
       this.stringBuilderAttribute = new StringBuilder();
       this.urlAttribute = new URL("asdf");
-      this.arrayListAttribute = new ArrayList();
-      this.hashMapAttribute = new HashMap();
-      
+      this.arrayListAttribute = new ArrayList<String>();
+      this.hashMapAttribute = new HashMap<String, String>();
+
       this.arrayListAttribute.add("234");
       this.hashMapAttribute.put("1", "3");
    }
@@ -202,22 +202,22 @@ class CocaTestClass extends ElementState
       return urlAttribute;
    }
 
-   public void setArrayListAttribute(ArrayList arrayListAttribute)
+   public void setArrayListAttribute(ArrayList<String> arrayListAttribute)
    {
       this.arrayListAttribute = arrayListAttribute;
    }
 
-   public ArrayList getArrayListAttribute()
+   public ArrayList<String> getArrayListAttribute()
    {
       return arrayListAttribute;
    }
 
-   public void setHashMapAttribute(HashMap hashMapAttribute)
+   public void setHashMapAttribute(HashMap<String, String> hashMapAttribute)
    {
       this.hashMapAttribute = hashMapAttribute;
    }
 
-   public HashMap getHashMapAttribute()
+   public HashMap<String, String> getHashMapAttribute()
    {
       return hashMapAttribute;
    }

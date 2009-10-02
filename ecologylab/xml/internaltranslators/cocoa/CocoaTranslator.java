@@ -20,7 +20,7 @@ public class CocoaTranslator
    {
       HashMapArrayList<String, FieldAccessor> attributes = Optimizations.getFieldAccessors(inputClass);
 
-      openObjectiveHeaderFile(inputClass, appendable);
+      openHeaderFile(inputClass, appendable);
 
       if (attributes.size() > 0)
       {
@@ -39,10 +39,10 @@ public class CocoaTranslator
          }
       }
 
-      closeObjectiveHeaderFile(appendable);
+      closeHeaderFile(appendable);
    }
 
-   private void openObjectiveHeaderFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
+   private void openHeaderFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
    {
       appendable.append(TranslationConstants.HEADER_FILE_OPENING);
       appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
@@ -57,7 +57,7 @@ public class CocoaTranslator
 
    }
 
-   private void closeObjectiveHeaderFile(Appendable appendable) throws IOException
+   private void closeHeaderFile(Appendable appendable) throws IOException
    {
       appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
       appendable.append(TranslationConstants.END);
@@ -68,7 +68,6 @@ public class CocoaTranslator
    {
       appendable.append(TranslationConstants.OPENING_BRACE);
       appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
-
    }
 
    private void closeFieldDeclartion(Appendable appendable) throws IOException
