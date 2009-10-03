@@ -5,9 +5,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * TODO: add comments
+ * 
+ * @author Nabeel Shahzad
+ */
 public class TranslationUtilities
 {
    
+   /**
+    * TODO: add comments
+    * 
+    * @param type
+    * @return String
+    * @throws Exception
+    */
    public static String getObjectiveCType(Class<?> type) throws Exception
    {
       if (int.class == type)

@@ -8,10 +8,13 @@ import java.util.HashMap;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 
-import ecologylab.xml.xml_inherit;
 
-public @xml_inherit
-class CocaTestClass extends ElementState
+
+/**
+ * Test Class
+ * @author nskhan
+ */
+public class CocaTestClass extends ElementState
 {
    @xml_attribute
    private int                     intAttribute;
@@ -68,7 +71,7 @@ class CocaTestClass extends ElementState
       this.stringAttribute = "234";
       this.dateAttribute = new Date();
       this.stringBuilderAttribute = new StringBuilder();
-      this.urlAttribute = new URL("asdf");
+      // this.urlAttribute = new URL("c:\test");
       this.arrayListAttribute = new ArrayList<String>();
       this.hashMapAttribute = new HashMap<String, String>();
 

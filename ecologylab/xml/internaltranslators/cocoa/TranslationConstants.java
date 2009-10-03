@@ -1,11 +1,13 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+/**
+ * TODO: add comments
+ * 
+ * @author Nabeel Shahzad
+ */
 public class TranslationConstants
 {
    
-   /*
-    * Syntactical constants
-    */
    public static final String HEADER_FILE_OPENING = "#import <objc/Object.h>";   
    public static final String INTERFACE = "@interface";
    public static final String PROPERTY = "@property";
