@@ -58,7 +58,6 @@ public class CocoaTranslator
          this.inputClass = inputClass;
          this.appendable = appendable;
       }
-
       
       /**
        * The main hook method. It simple instantiates and object of the <code>CocoaTranslator</code>and calls
