@@ -66,13 +66,16 @@ public class CocoaTranslator
        *  
        * @throws Exception
        */
-      public void postGenerationOperation() throws Exception
+      public void execute() throws Exception
       {
          CocoaTranslator ct = new CocoaTranslator();
          ct.translateToObjC((Class<? extends ElementState>) inputClass, appendable);
       }
    }
 
+   /**
+    * TODO: add comments
+    */
    private ArrayList<NestedTranslationHook> nestedTranslationHooks;
 
    /**
@@ -117,9 +120,8 @@ public class CocoaTranslator
 
       for (NestedTranslationHook nestedTranslationHook : nestedTranslationHooks)
       {
-         nestedTranslationHook.postGenerationOperation();
+         nestedTranslationHook.execute();
       }
-
    }
 
    /**
@@ -322,6 +324,7 @@ public class CocoaTranslator
 
       propertyDeclaration.append(TranslationConstants.PROPERTY);
       propertyDeclaration.append(TranslationConstants.SPACE);
+      propertyDeclaration.append(TranslationConstants.REFERENCE);
       propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));
       propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(fieldAccessor.getFieldName());
