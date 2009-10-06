@@ -11,44 +11,52 @@ import ecologylab.xml.XMLTools;
 import ecologylab.xml.internaltranslators.cocoa.library.CocoaInheritTest;
 
 /**
- * This class is the main class which provides the functionality of translation of Java 
- * classes into the objective class header files.
+ * This class is the main class which provides the functionality of translation
+ * of Java classes into the objective class header files.
  * 
- * <p>It uses the same syntactical annotations used the by {@code ecologylab.xml} to translate
- * Java objects into xml files. Since it uses the same annotations the data types supported for translation
- * are also the same. The entry point functions into the class are.
+ * <p>
+ * It uses the same syntactical annotations used the by {@code ecologylab.xml}
+ * to translate Java objects into xml files. Since it uses the same annotations
+ * the data types supported for translation are also the same. The entry point
+ * functions into the class are.
  * <ul>
- *  <li>{@code translateToObjC(Class<? extends ElementState>, Appendable)}</li>
+ * <li>{@code translateToObjC(Class<? extends ElementState>, Appendable)}</li>
  * </ul>
  * </p>
- * @author Nabeel Shahzad  
+ * 
+ * @author Nabeel Shahzad
  * @version 1.0
  */
 public class CocoaTranslator
 {
    /**
-    * Using this internal class for the calling the hook method after translation of a Java class to C
-    * This basically used for <code>@xml_nested</code> attribute from the <code>ecologylab.xml</code>
-    * When ever we find an <code>@xml_nested</code> attribute we want to generate the Objective-C header 
-    * file for the nested class as well 
+    * Using this internal class for the calling the hook method after
+    * translation of a Java class to C This basically used for
+    * <code>@xml_nested</code> attribute from the <code>ecologylab.xml</code>
+    * When ever we find an <code>@xml_nested</code> attribute we want to
+    * generate the Objective-C header file for the nested class as well
     * 
-    * @author Nabeel Shahzad       
+    * @author Nabeel Shahzad
     */
    private class NestedTranslationHook
    {
       /**
-       * Class on which this class will fire a hook method to generate Objective-C class.        
+       * Class on which this class will fire a hook method to generate
+       * Objective-C class.
        */
       private Class<?>   inputClass;
 
       /**
-       * The appendable object on which the hook method will write the generated code.        
+       * The appendable object on which the hook method will write the generated
+       * code.
        */
       private Appendable appendable;
 
       /**
-       * Constructor method. Takes the <code>Class</code> for which it will generate the Objective-C header file
-       * and also the <code>Appendable</code> object on which it will append the generated code.
+       * Constructor method. Takes the <code>Class</code> for which it will
+       * generate the Objective-C header file and also the
+       * <code>Appendable</code> object on which it will append the generated
+       * code.
        * 
        * @param inputClass
        * @param appendable
@@ -58,12 +66,13 @@ public class CocoaTranslator
          this.inputClass = inputClass;
          this.appendable = appendable;
       }
-      
+
       /**
-       * The main hook method. It simple instantiates and object of the <code>CocoaTranslator</code>and calls
-       * the entry point method of {@code translateToObjC(Class<?extends ElementState>, Appendable)} on
-       * the already populated member fields.
-       *  
+       * The main hook method. It simple instantiates and object of the
+       * <code>CocoaTranslator</code>and calls the entry point method of {@code
+       * translateToObjC(Class<?extends ElementState>, Appendable)} on the
+       * already populated member fields.
+       * 
        * @throws Exception
        */
       public void execute() throws Exception
@@ -74,12 +83,18 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Member variable to hold the list of the hooks. For each {@code xml_nested}
+    * attribute encountered during the translation to Objective-C file a {@code
+    * NestedTranslationHook} is registered which takes care of translating the
+    * nested object.
     */
    private ArrayList<NestedTranslationHook> nestedTranslationHooks;
 
    /**
-    * Constructor method <p> Initializes the {@code nestedTranslationHooks} member of the class </p>
+    * Constructor method
+    * <p>
+    * Initializes the {@code nestedTranslationHooks} member of the class
+    * </p>
     */
    public CocoaTranslator()
    {
@@ -87,7 +102,20 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * The main entry function into the class. Goes through a sequence of steps
+    * to convert the Java class file into Objective-C header file. It mainly
+    * looks for {@code xml_attribute} , {@code xml_collection} and {@code
+    * xml_nested} attributes of the {@code ecologylab.xml}. From these
+    * <p>
+    * This function will also try to generate the header file for the Class
+    * whose objects are present in the current Java file and annotated by
+    * {@code ecologylab.xml} attributes.
+    * </p>
+    * <p>
+    * Currently this function is implemented in such a way as to maintain the
+    * directory structure of the Java classes mentioned by the package
+    * specifiers.
+    * </p>
     * 
     * @param inputClass
     * @param appendable
@@ -125,7 +153,9 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Simple private function implements the syntax for opening an Objective-C
+    * header file. Uses constants and appends them to the appendable object for
+    * output.
     * 
     * @param inputClass
     * @param appendable
@@ -147,7 +177,9 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Simple private function implements the syntax for closing an Objective-C
+    * header file. Uses constants and appends them to the appendable object for
+    * output.
     * 
     * @param appendable
     * @throws IOException
@@ -210,7 +242,7 @@ public class CocoaTranslator
       else if (fieldAccessor.isNested())
       {
          appendFieldAsNestedAttribute(fieldAccessor, appendable);
-
+         
          NestedTranslationHook nestedTranslationHook = new NestedTranslationHook(fieldAccessor.getFieldType(), appendable);
          nestedTranslationHooks.add(nestedTranslationHook);
       }
@@ -242,7 +274,8 @@ public class CocoaTranslator
       }
       else if (fieldAccessor.isNested())
       {
-         // nothing needs to be done here since hooks are already added.
+         // nothing needs to be done here since hooks are already added during
+         // the declaration of the field
       }
    }
 
@@ -356,6 +389,12 @@ public class CocoaTranslator
       appendable.append(propertyDeclaration);
    }
 
+   /**
+    * Main method to test the working of the library.
+    * 
+    * @param args
+    * @throws Exception
+    */
    public static void main(String args[]) throws Exception
    {
       CocoaTranslator c = new CocoaTranslator();
