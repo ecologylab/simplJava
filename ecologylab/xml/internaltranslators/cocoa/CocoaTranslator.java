@@ -192,7 +192,9 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Simple private function implements the syntax for opening the field declaration
+    * in Objective-C. Uses constants and appends them to the appendable object for
+    * output.
     * 
     * @param appendable
     * @throws IOException
@@ -204,7 +206,9 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Simple private function implements the syntax for closing the field declaration
+    * in Objective-C. Uses constants and appends them to the appendable object for
+    * output.
     * 
     * @param appendable
     * @throws IOException
@@ -216,7 +220,9 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends an attribute in the Objective-C header file for the corresponding attribute in 
+    * the Java class file. The attribute can be a primitive type or reference type. Reference type
+    * can be a single object, a collection or a nested class object.
     * 
     * @param fieldAccessor
     * @param appendable
@@ -249,7 +255,8 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends the property of each field using the Objective-C property directive. The object can be
+    * a primitive or reference type. Reference type can be a single object, a collection or a nested class object
     * 
     * @param fieldAccessor
     * @param appendable
@@ -280,7 +287,7 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends a reference type field in the output Objective-C header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -302,7 +309,7 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends a primitive type field in the output Objective-C header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -323,7 +330,7 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends a reference type nested field in the output Objective-C header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -345,7 +352,7 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends a reference type attributes property in the output Objective-C header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -368,7 +375,7 @@ public class CocoaTranslator
    }
 
    /**
-    * TODO: add comments
+    * Appends a primitive type attributes property in the output Objective-C header file
     * 
     * @param fieldAccessor
     * @param appendable
