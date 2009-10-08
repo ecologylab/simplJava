@@ -323,7 +323,7 @@ public class ParsedURL extends Debug implements MimeType
 		if (result == null)
 		{
 			if (isFile())
-				result = file.toString();
+				result = "file://" + file.toString();
 			else if (url == null)
 				result = "weirdly null";
 			else
