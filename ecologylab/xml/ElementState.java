@@ -520,12 +520,10 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						Class<? extends ElementState> thatNewClass			= nestedES.getClass();
-						// debug("checking: " + thatReferenceObject+" w " + thatNewClass+", " + thatField.getType());
-						FieldToXMLOptimizations nestedF2Xo = thatNewClass.equals(childField.getType()) ?
-								childF2XO : fieldToXMLOptimizations(childField, thatNewClass);
+						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
+								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
 
-						nestedES.translateToXMLBuilder(nestedF2Xo, buffy);
+						nestedES.translateToXMLBuilder(nestedF2XO, buffy);
 						//buffy.append('\n');						
 					}
 				}

@@ -307,12 +307,13 @@ implements OptimizationTypes
      	final Class classAnnotation			= (classAnnotationObj == null) ? null : classAnnotationObj.value();
      	final ElementState.xml_classes classesAnnotationObj		= field.getAnnotation(ElementState.xml_classes.class);
      	final Class[] classesAnnotation			= (classesAnnotationObj == null) ? null : classesAnnotationObj.value();
-    	if ((classAnnotation != null) ||
+     	final ElementState.xml_scope scopeAnnotationObj		= field.getAnnotation(ElementState.xml_scope.class);
+    	final String scopeAnnotation			= (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
+    	if ((classAnnotation != null) || (scopeAnnotation != null) ||
     			((classesAnnotation != null) && (classesAnnotation.length > 0)))
     	{
     		hasXMLClasses								= true;
     	}
-    	
     	if (nameSpacePrefix != null)
     	{
     		tagName				= nameSpacePrefix + tagName;
