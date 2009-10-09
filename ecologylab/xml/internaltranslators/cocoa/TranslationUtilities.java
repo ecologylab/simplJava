@@ -6,20 +6,21 @@ import java.util.Date;
 import java.util.HashMap;
 
 /**
- * TODO: add comments
+ * Utilities class to provide static helper methods and code logic used again
+ * and again by the system
  * 
  * @author Nabeel Shahzad
  */
 public class TranslationUtilities
 {
-   
+
    /**
-    * TODO: add comments
+    * Methods that does the job of mapping the Java datatypes to corresponding
+    * Objective-C datatypes.
     * 
     * @param type
     * @return String
-    * @throws CocoaTranslationException 
-    * @throws Exception
+    * @throws CocoaTranslationException
     */
    public static String getObjectiveCType(Class<?> type) throws CocoaTranslationException
    {

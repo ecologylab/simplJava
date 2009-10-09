@@ -1,7 +1,8 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
 /**
- * TODO: add comments
+ * General class file declares various constants used by the translators
+ * for generating the right output files.
  * 
  * @author Nabeel Shahzad
  */
