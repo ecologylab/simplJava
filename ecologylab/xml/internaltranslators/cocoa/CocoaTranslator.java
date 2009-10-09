@@ -1,8 +1,11 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
@@ -46,13 +49,13 @@ public class CocoaTranslator
        * Class on which this class will fire a hook method to generate
        * Objective-C class.
        */
-      private Class<? extends ElementState>   inputClass;
+      private Class<?> inputClass;
 
       /**
        * The appendable object on which the hook method will write the generated
        * code.
        */
-      private Appendable appendable;
+      private Appendable                    appendable;
 
       /**
        * Constructor method. Takes the <code>Class</code> for which it will
@@ -63,7 +66,7 @@ public class CocoaTranslator
        * @param inputClass
        * @param appendable
        */
-      public NestedTranslationHook(Class<? extends ElementState> inputClass, Appendable appendable)
+      public NestedTranslationHook(Class<?> inputClass, Appendable appendable)
       {
          this.inputClass = inputClass;
          this.appendable = appendable;
@@ -79,8 +82,13 @@ public class CocoaTranslator
        */
       public void execute() throws Exception
       {
-         CocoaTranslator ct = new CocoaTranslator();
-         ct.translateToObjC(inputClass, appendable);
+         CocoaTranslator ct = new CocoaTranslator();         
+        
+         ct.translateToObjC(inputClass.asSubclass(ElementState.class), appendable);
+         
+        if(appendable instanceof BufferedWriter){
+           ((BufferedWriter) appendable).close();
+        }
       }
    }
 
@@ -94,8 +102,6 @@ public class CocoaTranslator
 
    private boolean                          isRecursive;
 
-   private boolean                          createNewFiles;
-
    ParsedURL                                directoryLocation;
 
    /**
@@ -107,7 +113,6 @@ public class CocoaTranslator
    public CocoaTranslator()
    {
       nestedTranslationHooks = new ArrayList<NestedTranslationHook>();
-      createNewFiles = false;
       isRecursive = false;
       directoryLocation = null;
    }
@@ -201,8 +206,11 @@ public class CocoaTranslator
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws Exception
    {
-      Appendable appendable = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
-      translateToObjC(inputClass, appendable);
+      File outputFile = creatiFileWithDirectoryStructure(inputClass, directoryLocation);      
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+      
+      translateToObjC(inputClass, bufferedWriter);
+      bufferedWriter.close();
    }
 
    /**
@@ -214,9 +222,14 @@ public class CocoaTranslator
     */
    public void translateToObjCRecursive(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws Exception
    {
-      createNewFiles = true;
-      Appendable appendable = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
-      translateToObjC(inputClass, appendable);
+      isRecursive = true;
+      this.directoryLocation = directoryLocation;
+
+      File outputFile = creatiFileWithDirectoryStructure(inputClass, directoryLocation);      
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+      
+      translateToObjC(inputClass, bufferedWriter);
+      bufferedWriter.close();   
    }
 
    /**
@@ -316,22 +329,23 @@ public class CocoaTranslator
       else if (fieldAccessor.isNested())
       {
          appendFieldAsNestedAttribute(fieldAccessor, appendable);
-         
+
          if (isRecursive)
          {
             NestedTranslationHook nestedTranslationHook;
-            
+
             if (directoryLocation == null)
             {
-               nestedTranslationHook = new NestedTranslationHook((Class<? extends ElementState>) fieldAccessor.getFieldType(), appendable);
-               nestedTranslationHooks.add(nestedTranslationHook);           
+               nestedTranslationHook = new NestedTranslationHook(fieldAccessor.getFieldType(), appendable);
+               nestedTranslationHooks.add(nestedTranslationHook);
             }
             else
             {
-               Appendable newAppendable = creatiFileWithDirectoryStructure((Class<? extends ElementState>) fieldAccessor.getFieldType(), directoryLocation);
-               nestedTranslationHook = new NestedTranslationHook((Class<? extends ElementState>) fieldAccessor.getFieldType(), newAppendable);
-               nestedTranslationHooks.add(nestedTranslationHook);               
-            }            
+               File outputFile = creatiFileWithDirectoryStructure(fieldAccessor.getFieldType(), directoryLocation);
+               BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+               nestedTranslationHook = new NestedTranslationHook(fieldAccessor.getFieldType(), bufferedWriter);
+               nestedTranslationHooks.add(nestedTranslationHook);
+            }
          }
       }
    }
@@ -491,17 +505,39 @@ public class CocoaTranslator
    public static void main(String args[]) throws Exception
    {
       CocoaTranslator c = new CocoaTranslator();
-      c.translateToObjCRecursive(CocoaInheritTest.class, System.out);
+      c.translateToObjCRecursive(CocoaInheritTest.class, new ParsedURL(new File("C:\\code\\")));
    }
 
    /**
     * @param inputClass
     * @param directoryLocation
     * @return
+    * @throws Exception
     */
-   private Appendable creatiFileWithDirectoryStructure(Class<? extends ElementState> inputClass, ParsedURL directoryLocation)
+   private File creatiFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws Exception
    {
-      // TODO Auto-generated method stub
-      return null;
+      String packageName = XMLTools.getPackageName(inputClass);
+      String className = XMLTools.getClassName(inputClass);
+      String currentDirectory = directoryLocation.toString() + TranslationConstants.FILE_PATH_SEPARATOR;
+
+      String[] arrayPackageNames = packageName.split(TranslationConstants.PACKAGE_NAME_SEPARATOR);
+
+      for (String directoryName : arrayPackageNames)
+      {
+         currentDirectory += directoryName + TranslationConstants.FILE_PATH_SEPARATOR;
+      }
+
+      File directory = new File(currentDirectory);
+      directory.mkdirs();
+
+      File currentFile = new File(currentDirectory + className + TranslationConstants.HEADER_FILE_EXTENSION);
+
+      if (currentFile.exists()){
+         currentFile.delete();
+      }
+      
+      currentFile.createNewFile();
+      
+      return currentFile;
    }
 }

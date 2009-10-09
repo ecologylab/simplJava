@@ -28,6 +28,13 @@ public class TranslationConstants
    public static final String SPACE = " ";
    
    /*
+    * File constants 
+    */
+   public static final String PACKAGE_NAME_SEPARATOR = "\\.";
+   public static final String FILE_PATH_SEPARATOR = "\\";
+   public static final String HEADER_FILE_EXTENSION = ".h";
+   
+   /*
     * Scalar types
     */   
    public static final String OBJC_INTEGER = "int";
