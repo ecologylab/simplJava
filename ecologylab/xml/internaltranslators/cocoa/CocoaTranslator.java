@@ -1,9 +1,11 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldAccessor;
 import ecologylab.xml.Optimizations;
@@ -44,7 +46,7 @@ public class CocoaTranslator
        * Class on which this class will fire a hook method to generate
        * Objective-C class.
        */
-      private Class<?>   inputClass;
+      private Class<? extends ElementState>   inputClass;
 
       /**
        * The appendable object on which the hook method will write the generated
@@ -61,7 +63,7 @@ public class CocoaTranslator
        * @param inputClass
        * @param appendable
        */
-      public NestedTranslationHook(Class<?> inputClass, Appendable appendable)
+      public NestedTranslationHook(Class<? extends ElementState> inputClass, Appendable appendable)
       {
          this.inputClass = inputClass;
          this.appendable = appendable;
@@ -78,7 +80,7 @@ public class CocoaTranslator
       public void execute() throws Exception
       {
          CocoaTranslator ct = new CocoaTranslator();
-         ct.translateToObjC((Class<? extends ElementState>) inputClass, appendable);
+         ct.translateToObjC(inputClass, appendable);
       }
    }
 
@@ -90,6 +92,12 @@ public class CocoaTranslator
     */
    private ArrayList<NestedTranslationHook> nestedTranslationHooks;
 
+   private boolean                          isRecursive;
+
+   private boolean                          createNewFiles;
+
+   ParsedURL                                directoryLocation;
+
    /**
     * Constructor method
     * <p>
@@ -99,6 +107,9 @@ public class CocoaTranslator
    public CocoaTranslator()
    {
       nestedTranslationHooks = new ArrayList<NestedTranslationHook>();
+      createNewFiles = false;
+      isRecursive = false;
+      directoryLocation = null;
    }
 
    /**
@@ -107,14 +118,13 @@ public class CocoaTranslator
     * looks for {@code xml_attribute} , {@code xml_collection} and {@code
     * xml_nested} attributes of the {@code ecologylab.xml}. From these
     * <p>
-    * This function will also try to generate the header file for the Class
-    * whose objects are present in the current Java file and annotated by
+    * This function will <b>not</b> try to generate the header file for the
+    * Class whose objects are present in the current Java file and annotated by
     * {@code ecologylab.xml} attributes.
     * </p>
     * <p>
-    * Currently this function is implemented in such a way as to maintain the
-    * directory structure of the Java classes mentioned by the package
-    * specifiers.
+    * See {@code translateToObjCRecursive()} if you want to generate nested
+    * objects
     * </p>
     * 
     * @param inputClass
@@ -146,10 +156,67 @@ public class CocoaTranslator
 
       closeHeaderFile(appendable);
 
-      for (NestedTranslationHook nestedTranslationHook : nestedTranslationHooks)
+      if (isRecursive)
       {
-         nestedTranslationHook.execute();
+
+         for (NestedTranslationHook nestedTranslationHook : nestedTranslationHooks)
+         {
+            nestedTranslationHook.execute();
+         }
       }
+   }
+
+   /**
+    * The main entry function into the class. Goes through a sequence of steps
+    * to convert the Java class file into Objective-C header file. It mainly
+    * looks for {@code xml_attribute} , {@code xml_collection} and {@code
+    * xml_nested} attributes of the {@code ecologylab.xml}. From these
+    * <p>
+    * This function will also try to generate the header file for the Class
+    * whose objects are present in the current Java file and annotated by
+    * {@code ecologylab.xml} attributes.
+    * </p>
+    * <p>
+    * Currently this function is implemented in such a way as to maintain the
+    * directory structure of the Java classes mentioned by the package
+    * specifiers.
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws Exception
+    */
+   public void translateToObjCRecursive(Class<? extends ElementState> inputClass, Appendable appendable) throws Exception
+   {
+      isRecursive = true;
+      translateToObjC(inputClass, appendable);
+   }
+
+   /**
+    * 
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws Exception
+    */
+   public void translateToObjC(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws Exception
+   {
+      Appendable appendable = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
+      translateToObjC(inputClass, appendable);
+   }
+
+   /**
+    * 
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws Exception
+    */
+   public void translateToObjCRecursive(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws Exception
+   {
+      createNewFiles = true;
+      Appendable appendable = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
+      translateToObjC(inputClass, appendable);
    }
 
    /**
@@ -192,9 +259,9 @@ public class CocoaTranslator
    }
 
    /**
-    * Simple private function implements the syntax for opening the field declaration
-    * in Objective-C. Uses constants and appends them to the appendable object for
-    * output.
+    * Simple private function implements the syntax for opening the field
+    * declaration in Objective-C. Uses constants and appends them to the
+    * appendable object for output.
     * 
     * @param appendable
     * @throws IOException
@@ -206,9 +273,9 @@ public class CocoaTranslator
    }
 
    /**
-    * Simple private function implements the syntax for closing the field declaration
-    * in Objective-C. Uses constants and appends them to the appendable object for
-    * output.
+    * Simple private function implements the syntax for closing the field
+    * declaration in Objective-C. Uses constants and appends them to the
+    * appendable object for output.
     * 
     * @param appendable
     * @throws IOException
@@ -220,9 +287,10 @@ public class CocoaTranslator
    }
 
    /**
-    * Appends an attribute in the Objective-C header file for the corresponding attribute in 
-    * the Java class file. The attribute can be a primitive type or reference type. Reference type
-    * can be a single object, a collection or a nested class object.
+    * Appends an attribute in the Objective-C header file for the corresponding
+    * attribute in the Java class file. The attribute can be a primitive type or
+    * reference type. Reference type can be a single object, a collection or a
+    * nested class object.
     * 
     * @param fieldAccessor
     * @param appendable
@@ -249,14 +317,29 @@ public class CocoaTranslator
       {
          appendFieldAsNestedAttribute(fieldAccessor, appendable);
          
-         NestedTranslationHook nestedTranslationHook = new NestedTranslationHook(fieldAccessor.getFieldType(), appendable);
-         nestedTranslationHooks.add(nestedTranslationHook);
+         if (isRecursive)
+         {
+            NestedTranslationHook nestedTranslationHook;
+            
+            if (directoryLocation == null)
+            {
+               nestedTranslationHook = new NestedTranslationHook((Class<? extends ElementState>) fieldAccessor.getFieldType(), appendable);
+               nestedTranslationHooks.add(nestedTranslationHook);           
+            }
+            else
+            {
+               Appendable newAppendable = creatiFileWithDirectoryStructure((Class<? extends ElementState>) fieldAccessor.getFieldType(), directoryLocation);
+               nestedTranslationHook = new NestedTranslationHook((Class<? extends ElementState>) fieldAccessor.getFieldType(), newAppendable);
+               nestedTranslationHooks.add(nestedTranslationHook);               
+            }            
+         }
       }
    }
 
    /**
-    * Appends the property of each field using the Objective-C property directive. The object can be
-    * a primitive or reference type. Reference type can be a single object, a collection or a nested class object
+    * Appends the property of each field using the Objective-C property
+    * directive. The object can be a primitive or reference type. Reference type
+    * can be a single object, a collection or a nested class object
     * 
     * @param fieldAccessor
     * @param appendable
@@ -330,7 +413,8 @@ public class CocoaTranslator
    }
 
    /**
-    * Appends a reference type nested field in the output Objective-C header file
+    * Appends a reference type nested field in the output Objective-C header
+    * file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -352,7 +436,8 @@ public class CocoaTranslator
    }
 
    /**
-    * Appends a reference type attributes property in the output Objective-C header file
+    * Appends a reference type attributes property in the output Objective-C
+    * header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -375,7 +460,8 @@ public class CocoaTranslator
    }
 
    /**
-    * Appends a primitive type attributes property in the output Objective-C header file
+    * Appends a primitive type attributes property in the output Objective-C
+    * header file
     * 
     * @param fieldAccessor
     * @param appendable
@@ -405,6 +491,17 @@ public class CocoaTranslator
    public static void main(String args[]) throws Exception
    {
       CocoaTranslator c = new CocoaTranslator();
-      c.translateToObjC(CocoaInheritTest.class, System.out);
+      c.translateToObjCRecursive(CocoaInheritTest.class, System.out);
+   }
+
+   /**
+    * @param inputClass
+    * @param directoryLocation
+    * @return
+    */
+   private Appendable creatiFileWithDirectoryStructure(Class<? extends ElementState> inputClass, ParsedURL directoryLocation)
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 }
