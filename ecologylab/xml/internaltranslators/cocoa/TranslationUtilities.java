@@ -18,9 +18,10 @@ public class TranslationUtilities
     * 
     * @param type
     * @return String
+    * @throws CocoaTranslationException 
     * @throws Exception
     */
-   public static String getObjectiveCType(Class<?> type) throws Exception
+   public static String getObjectiveCType(Class<?> type) throws CocoaTranslationException
    {
       if (int.class == type)
       {
@@ -80,7 +81,7 @@ public class TranslationUtilities
       }
       else
       {
-         throw new Exception("Unsupported type");
+         throw new CocoaTranslationException(CocaTranslationExceptionTypes.UNSUPPORTED_DATATYPE);
       }
    }
 }
