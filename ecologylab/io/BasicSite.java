@@ -3,22 +3,26 @@
  */
 package ecologylab.io;
 
-import ecologylab.generic.Debug;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * 
  *
  * @author andruid 
  */
-public class BasicSite extends Debug
+
+@xml_tag("site")
+public 
+class BasicSite extends ElementState
 {
-  protected String				domain;
+	@xml_attribute protected String	domain;
 
-  int											numTimeouts;
+  int															numTimeouts;
 
-  static final int				MAX_TIMEOUTS	= 3;
+  static final int								MAX_TIMEOUTS	= 3;
 
-  int											minDownloadInterval;
+  @xml_attribute int							minDownloadInterval;
   
   /**
    * Timestamp of last download from this site;
