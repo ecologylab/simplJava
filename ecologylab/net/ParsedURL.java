@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
@@ -83,8 +84,15 @@ public class ParsedURL extends Debug implements MimeType
 
 	public ParsedURL(URL url)
 	{
+		String path = url.toString();		
 		String hash = url.getRef();
-		if (hash == null)
+		
+		if ("file://".equals(path.substring(0,7)))
+		{
+			this.file = new File(path.substring(7));
+			this.url = url;
+		}
+		else if (hash == null)
 		{
 			this.url = url;
 			this.hashUrl = url;
@@ -107,7 +115,7 @@ public class ParsedURL extends Debug implements MimeType
 
 	/**
 	 * 
-	 * @return true if this refers to a file, and that file exists.
+	 * @return true if this refers to a file, and that file exists.  Also true if this does not refer to a file.
 	 */
 	public boolean isNotFileOrExists()
 	{
@@ -124,6 +132,9 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		try
 		{
+			if ("\\\\".equals(file.toString().substring(0,4)))
+			{
+			}
 			String urlString = "file://" + file.getAbsolutePath();
 			urlString = urlString.replace('\\', '/');
 			if (file.isDirectory())
@@ -323,7 +334,7 @@ public class ParsedURL extends Debug implements MimeType
 		if (result == null)
 		{
 			if (isFile())
-				result = "file://" + file.toString();
+				result = "file://" + file.toString().replace('\\', '/');
 			else if (url == null)
 				result = "weirdly null";
 			else
@@ -1537,7 +1548,7 @@ public class ParsedURL extends Debug implements MimeType
 		try
 		{
 			URL u	= new URL("http://acm.org/citation.cfm?id=33344");
-			System.out.println(u.getQuery());
+			System.out.println("query: " + u.getQuery());
 		}
 		catch (MalformedURLException e)
 		{
