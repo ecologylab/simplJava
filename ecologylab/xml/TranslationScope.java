@@ -471,13 +471,17 @@ public final class TranslationScope extends Debug
     * @param thatClass
     * @return
     */
-   public String lookupTag(Class<? extends ElementState> thatClass)
+   public String getTag(Class<? extends ElementState> thatClass)
    {
-	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName(thatClass));
+  	 return getTagBySimpleName(classSimpleName(thatClass));
+   }
+
+   public String getTagBySimpleName(String simpleName)
+   {
+	   TranslationEntry entry		= entriesByClassSimpleName.get(simpleName);
 	   
 	   return (entry == null) ? null : entry.tag;
    }
-
    /**
     * Derive the XML tag from the Class object, using camel case conversion, or
     * the @xml_tag annotation that may be present in a class declaration.
