@@ -302,7 +302,6 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		Thread downloadThread = Thread.currentThread();
 		while (!finished) // major sleep at the bottom
 		{
-			long minTimeRemaining = Long.MAX_VALUE; // Minimum time required for a downloadable in toDownload to be ready.
 			DownloadClosure thatClosure = null;
 			synchronized (toDownload)
 			{
@@ -431,8 +430,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			int sleepTime = dontWait ? NO_SLEEP
 											: (lowMemory ? LOW_MEMORY_SLEEP 
 											: (hurry ? SHORT_SLEEP
-											: (minTimeRemaining < Long.MAX_VALUE && minTimeRemaining > 0 ? (int) minTimeRemaining
-											: (REGULAR_SLEEP + MathTools.random(100)))));
+											: (REGULAR_SLEEP + MathTools.random(100))));
 //			debug("\t\t-------\tSleeping for: " + sleepTime);
 			Generic.sleep(sleepTime);
 		} // while (!finished)
