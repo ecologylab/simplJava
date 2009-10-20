@@ -177,5 +177,11 @@ implements Downloadable, DispatchTarget
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public BasicSite getSite()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

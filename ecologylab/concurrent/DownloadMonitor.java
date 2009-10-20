@@ -1,6 +1,5 @@
 package ecologylab.concurrent;
 
-
 import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
 
@@ -13,118 +12,106 @@ import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
+import ecologylab.io.BasicSite;
 import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Downloadable;
 
-
 /**
- * Non-linear flow multiplexer.
- * Tracks downloads of <code>Downloadable</code> objects.
- * Dispatches downloaded media to the appropriate <code>DispatchTarget</code>.
+ * Non-linear flow multiplexer. Tracks downloads of <code>Downloadable</code> objects. Dispatches
+ * downloaded media to the appropriate <code>DispatchTarget</code>.
  * <p>
- * Looks out for timeout conditions. In case they happen, records
- * state in the <code>bad</code> slot, and dispatches, as well.
+ * Looks out for timeout conditions. In case they happen, records state in the <code>bad</code>
+ * slot, and dispatches, as well.
  */
-public class DownloadMonitor<T extends Downloadable>
-extends Monitor
-implements DownloadProcessor<T>
+public class DownloadMonitor<T extends Downloadable> extends Monitor implements
+		DownloadProcessor<T>
 {
-	static final int					REGULAR_SLEEP			= 400;
-	static final int					SHORT_SLEEP				= 100;
-	static final int					LOW_MEMORY_SLEEP		= 3000;
+	static HashMap<Thread, NewPorterStemmer>	stemmersHash					= new HashMap<Thread, NewPorterStemmer>();
 
-	static final int					LOW_MEMORY_THRESHOLD	= 2 * Memory.DANGER_THRESHOLD;
-
-	//////////////////// queues for media that gets downloaded /////////////////
+	// ////////////////// queues for media that gets downloaded /////////////////
 	/**
 	 * This is the queue of DownloadClosures waiting to be downloaded.
 	 */
-	private Vector<DownloadClosure>	toDownload		= new Vector<DownloadClosure>	(30);
+	private Vector<DownloadClosure>						toDownload						= new Vector<DownloadClosure>(30);
 
-	static HashMap<Thread, NewPorterStemmer>			stemmersHash	= new HashMap<Thread, NewPorterStemmer>();
+	static final int	NO_SLEEP							= 0;
+	static final int 	REGULAR_SLEEP					= 400;
+	static final int	SHORT_SLEEP						= 100;
+	static final int	LOW_MEMORY_SLEEP			= 3000;
+	static final int	LOW_MEMORY_THRESHOLD	= 2 * Memory.DANGER_THRESHOLD;
 
-	int															dispatched;
-	private int											pending;
-
-	private boolean									paused;
+	int									dispatched;
+	private int				pending;
+	private boolean		paused;
 
 	/**
 	 * Settable variable reduces sleep between downloads to speed up collecting (SHORT_SLEEP).
 	 * 
 	 */
-	private boolean 								hurry;
+	private boolean				hurry;
+	private boolean				dontWait;
+	private Thread[]				downloadThreads;
+	private int[]					priorities;
+	private int						numDownloadThreads;
+	private String					name;
+	private StatusReporter	status;
 
-	private Thread[]								downloadThreads;
-	private int[]										priorities;
+	// ////////////////// queues for media that gets downloaded /////////////////
 
-	private int											numDownloadThreads;
-	private String									name;
+	protected boolean							finished;
+	private static ThreadGroup		THREAD_GROUP	= new ThreadGroup("DownloadMonitor");
 
-	private StatusReporter					status;
+	private int									lowPriority;
+	private int									midPriority;
+	private int									highPriority;
+
+	private final int						highThreshold;
+	private final int						midThreshold;
+
+	public static final int		HIGHER_PRIORITY				= 4;
+	public static final int		HIGH_PRIORITY					= 3;
+	public static final int		MID_PRIORITY					= 2;
+	public static final int		LOW_PRIORITY					= 1;
+	public static final int		MAX_WAIT_TIME					= 1000;
+	private static final int		MAX_WAIT_WHEN_PAUSED	= 5000;
 
 
-	//////////////////// queues for media that gets downloaded /////////////////
-
-	protected boolean								finished;
-
-	private static 		ThreadGroup		THREAD_GROUP	= new ThreadGroup("DownloadMonitor");
-
-	private int											lowPriority;
-	private int											midPriority;
-	private int											highPriority;
-
-	private final int								highThreshold;
-	private final int								midThreshold;
-
-	public static final int 			HIGHER_PRIORITY	= 4;
-	public static final int 			HIGH_PRIORITY	= 3;
-	public static final int 			MID_PRIORITY	= 2;
-	public static final int 			LOW_PRIORITY	= 1;
-
-	public static final int				MAX_WAIT_TIME	= 1000;
-	private static final int			MAX_WAIT_WHEN_PAUSED	= 5000;
-
-	private final Object TOO_MANY_PENDING_LOCK		= new Object();
-
+	private final Object					TOO_MANY_PENDING_LOCK	= new Object();
 
 	public DownloadMonitor(String name, int numDownloadThreads)
 	{
 		this(name, numDownloadThreads, 0);
 	}
-	public DownloadMonitor(String name, int numDownloadThreads, 
-			int priorityBoost)
+
+	public DownloadMonitor(String name, int numDownloadThreads, int priorityBoost)
 	{
-		this.numDownloadThreads	= numDownloadThreads;
-		this.name			= name;
+		this.numDownloadThreads = numDownloadThreads;
+		this.name = name;
 
-		highThreshold		= numDownloadThreads * 2;
-		midThreshold		= numDownloadThreads + 1;
-		finished			= false;
+		highThreshold = numDownloadThreads * 2;
+		midThreshold = numDownloadThreads + 1;
+		finished = false;
 
-		lowPriority		= LOW_PRIORITY + priorityBoost;
-		midPriority		= MID_PRIORITY + priorityBoost;
-		highPriority		= HIGH_PRIORITY + priorityBoost;
+		lowPriority = LOW_PRIORITY + priorityBoost;
+		midPriority = MID_PRIORITY + priorityBoost;
+		highPriority = HIGH_PRIORITY + priorityBoost;
 	}
 
-
-	//----------------------- perform downloads ------------------------------//
+	// ----------------------- perform downloads ------------------------------//
 	/**
-	 * Entry point for <code>Downloadable</code>s that want to be downloaded
-	 * by 1 of our performDownload() threads.
-	 * Starts the performDownload() threads, if necessary.
+	 * Entry point for <code>Downloadable</code>s that want to be downloaded by 1 of our
+	 * performDownload() threads. Starts the performDownload() threads, if necessary.
 	 * <p/>
-	 * After performDownload() is called on the Downloadable, then in the normal case, downloadDone() is called, and then
-	 * the DispatchTarget is called.
-	 * In the error case, handleIOError() or handleTimeout() is called.
+	 * After performDownload() is called on the Downloadable, then in the normal case, downloadDone()
+	 * is called, and then the DispatchTarget is called. In the error case, handleIOError() or
+	 * handleTimeout() is called.
 	 */
-	public void download(T thatDownloadable,
-			DispatchTarget<T> dispatchTarget)
+	public void download(T thatDownloadable, DispatchTarget<T> dispatchTarget)
 	{
 		synchronized (toDownload)
 		{
-			//	 debug("download("+thatDownloadable);
-			toDownload.addElement(new DownloadClosure<T>(thatDownloadable,
-					dispatchTarget, this));
+			// debug("download("+thatDownloadable);
+			toDownload.addElement(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
 			else
@@ -151,9 +138,9 @@ implements DownloadProcessor<T>
 			}
 		}
 	}
+
 	/**
-	 * Set the priority of the download thread.
-	 * The more backed up we are, the higher the priority.
+	 * Set the priority of the download thread. The more backed up we are, the higher the priority.
 	 * 
 	 * @param t
 	 * @return
@@ -162,24 +149,24 @@ implements DownloadProcessor<T>
 	{
 		return setDownloadPriority(Thread.currentThread());
 	}
+
 	/**
-	 * Set the priority of the download thread.
-	 * The more backed up we are, the higher the priority.
+	 * Set the priority of the download thread. The more backed up we are, the higher the priority.
 	 * 
 	 * @param t
 	 * @return
 	 */
 	private int setDownloadPriority(Thread t)
 	{
-		int waiting	= toDownload.size();
+		int waiting = toDownload.size();
 		int priority;
 
 		if (waiting >= midThreshold)
-			priority	= midPriority;
+			priority = midPriority;
 		else if (waiting >= highThreshold)
-			priority	= midPriority;
+			priority = midPriority;
 		else
-			priority	= lowPriority;
+			priority = lowPriority;
 
 		Generic.setPriority(t, priority);
 
@@ -196,6 +183,7 @@ implements DownloadProcessor<T>
 	{
 		return newPerformDownloadsThread(i, "");
 	}
+
 	/**
 	 * Create a new Thread that runs performDownloads().
 	 * 
@@ -205,40 +193,43 @@ implements DownloadProcessor<T>
 	 */
 	protected Thread newPerformDownloadsThread(int i, String s)
 	{
-		return new Thread(THREAD_GROUP, toString()+"-download "+i+" "+s)
+		return new Thread(THREAD_GROUP, toString() + "-download " + i + " " + s)
 		{
 			public void run()
-			{			  	
+			{
 				performDownloads();
 			}
 		};
 	}
+
 	/**
 	 * Creates and starts up our performDownloads() Threads.
-	 *
+	 * 
 	 */
 	private void startPerformDownloadsThreads()
 	{
 		if (downloadThreads == null)
 		{
-			finished			= false;
-			downloadThreads	= new Thread[numDownloadThreads];
-			priorities			= new int[numDownloadThreads];
-			for (int i=0; i<numDownloadThreads; i++)
+			finished = false;
+			downloadThreads = new Thread[numDownloadThreads];
+			priorities = new int[numDownloadThreads];
+			for (int i = 0; i < numDownloadThreads; i++)
 			{
-				Thread thatThread	= newPerformDownloadsThread(i);
-				downloadThreads[i]	= thatThread;
+				Thread thatThread = newPerformDownloadsThread(i);
+				downloadThreads[i] = thatThread;
 				thatThread.setPriority(lowPriority);
-				priorities[i]		= lowPriority;
-				//ThreadDebugger.registerMyself(thatThread);
+				priorities[i] = lowPriority;
+				// ThreadDebugger.registerMyself(thatThread);
 				thatThread.start();
 			}
 		}
 	}
+
 	public void pause()
 	{
 		pause(true);
 	}
+
 	public void unpause()
 	{
 		if (paused)
@@ -247,25 +238,26 @@ implements DownloadProcessor<T>
 			notifyAll(toDownload);
 		}
 	}
+
 	public void pause(boolean paused)
 	{
 		synchronized (toDownload)
 		{
-			//debug("pause("+paused);
-			this.paused	= paused;
+			// debug("pause("+paused);
+			this.paused = paused;
 
-			int[] priorities		= this.priorities; // avoid race
+			int[] priorities = this.priorities; // avoid race
 			if (paused)
 			{
 				if (downloadThreads != null)
 				{
-					for (int i=0; i<numDownloadThreads; i++)
+					for (int i = 0; i < numDownloadThreads; i++)
 					{
-						Thread thatThread	= downloadThreads[i];
+						Thread thatThread = downloadThreads[i];
 						if (thatThread != null)
 						{
-							int thatPriority	= thatThread.getPriority();
-							priorities[i]		= thatPriority;
+							int thatPriority = thatThread.getPriority();
+							priorities[i] = thatPriority;
 							if (Thread.MIN_PRIORITY < thatPriority)
 								thatThread.setPriority(Thread.MIN_PRIORITY);
 						}
@@ -276,16 +268,16 @@ implements DownloadProcessor<T>
 			{
 				if (downloadThreads != null)
 				{
-					for (int i=0; i<numDownloadThreads; i++)
+					for (int i = 0; i < numDownloadThreads; i++)
 					{
 						// restore priorities
-						Thread t	= downloadThreads[i];
+						Thread t = downloadThreads[i];
 						if ((t != null) && (priorities != null) && t.isAlive())
 						{
-							//debug("restore priority to " + priorities[i]);
-							int thatPriority	= priorities[i];
+							// debug("restore priority to " + priorities[i]);
+							int thatPriority = priorities[i];
 							if (thatPriority <= 0)
-								thatPriority	= 1;
+								thatPriority = 1;
 							t.setPriority(thatPriority);
 						}
 					}
@@ -293,149 +285,218 @@ implements DownloadProcessor<T>
 			}
 		}
 	}
+
 	/**
-	 * The heart of the workhorse Threads.
-	 * It loops, pulling a DownloadClosure off the toDownload queue,
-	 * calling its performDownload() method, and then
-	 * calling dispatch() if there is a dispatchTarget.
+	 * Keep track of system millis that this site can be hit at.
+	 */
+	Hashtable<BasicSite, Long> siteTimeMap = new Hashtable<BasicSite, Long>();
+	/**
+	 * The heart of the workhorse Threads. It loops, pulling a DownloadClosure off the toDownload
+	 * queue, calling its performDownload() method, and then calling dispatch() if there is a
+	 * dispatchTarget.
 	 * 
-	 *
+	 * 
 	 */
 	void performDownloads()
 	{
 		Thread downloadThread = Thread.currentThread();
-
-		while (!finished)	// major sleep at the bottom
+		while (!finished) // major sleep at the bottom
 		{
-			DownloadClosure thatClosure	= null;
+			long minTimeRemaining = Long.MAX_VALUE; // Minimum time required for a downloadable in toDownload to be ready.
+			DownloadClosure thatClosure = null;
 			synchronized (toDownload)
-			{ 
-				//debug("-- got lock");
+			{
+				// debug("-- got lock");
 				if (paused)
-					wait(toDownload , MAX_WAIT_WHEN_PAUSED);
+					wait(toDownload, MAX_WAIT_WHEN_PAUSED);
 				if (toDownload.isEmpty())
 					wait(toDownload, MAX_WAIT_TIME);
 				if (finished)
 					break;
-				while (!toDownload.isEmpty())
+				int closureNum = 0;
+				// Let's assume that the change in time while iterating over toDownload doesn't matter.
+				// We don't want to hit this method for every item.
+				long currentTimeMillis = System.currentTimeMillis();
+
+				while (!toDownload.isEmpty() && closureNum < toDownloadSize())
 				{
-					thatClosure = toDownload.remove(0);
-					if (!thatClosure.cancel())
-						break;
-				}
-			}
-			if (thatClosure == null)
-				continue;
-			
-			synchronized (TOO_MANY_PENDING_LOCK)
-			{
-				if (!this.highNumberWaiting() )
-					TOO_MANY_PENDING_LOCK.notifyAll();
-			}
-
-			boolean lowMemory	= Memory.reclaimIfLow();
-			
-			if (lowMemory)
-			{
-				if (status != null)
-					status.display("Running out of memory, so not downloading new files.", 6);
-				toDownload.insertElementAt(thatClosure, 0);	// put it back into the queue
-			}
-			else
-			{
-				try
-				{
-					pending++;
-					//ThreadDebugger.waitIfPaused(downloadThread);
-					// NEW -- set the priority of the download, based on how backed up we are
-					setDownloadPriority();
-
-					thatClosure.performDownload();
-
-					// Just when the download is done, remove from the potentialTimeouts.
-					if( thatClosure.downloadable.isDownloadDone() )
+					thatClosure 		= toDownload.get(closureNum++);
+					BasicSite site 	= thatClosure.downloadable.getSite();
+					
+					if (site != null && site.constrainDownloadInterval())
 					{
-						thatClosure.dispatch();
+						Long nextDownloadableAt 		= siteTimeMap.get(site);
+						if(nextDownloadableAt != null)
+						{
+							long timeRemaining = nextDownloadableAt - currentTimeMillis;
+							if (timeRemaining < 0 && !thatClosure.cancel())
+							{
+								debug("\t\t--\tDownloading: " + thatClosure.downloadable);
+								setNextAvailableTimeForSite(site);
+								break;
+							}
+							else // Ignore downloadable
+							{
+//								debug("Ignoring downloadable: " + thatClosure.downloadable + ". need atleast another: "
+//										+ ((float) timeRemaining / 1000.0) + " seconds");
+								thatClosure = null;
+							}
+						}
+						else
+						{ // No nextDownloadableAt time found for this site, put in a new value, and accept this downloadClosure
+							setNextAvailableTimeForSite(site);
+							break;
+						}
 					}
-				} catch (ThreadDeath e)
-				{ 
-					debug("ThreadDeath in performDownloads() loop");
-					e.printStackTrace();
-					throw e;
-				} catch (ClosedByInterruptException e)
-				{ 
-					debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
-					e.printStackTrace();
-					thatClosure.ioError();
-
-				} catch (OutOfMemoryError e)
-				{ 
-					finished		= true;	// give up!
-					OutOfMemoryErrorHandler.handleException(e);
-
-				} catch (Throwable e)
-				{
-					boolean interrupted		= Thread.interrupted();
-					String interruptedStr	= interrupted ? " interrupted" : "";
-					//TODO -- i'm concerned that we might need different error handling for different kinds of errors.
-					debugA("performDownloads() -- recovering from "+interruptedStr+
-							" exception on " + thatClosure + ":");
-					e.printStackTrace();
-					thatClosure.ioError();
+					else
+					{
+						// Site-less downloadables -
+						if (!thatClosure.cancel())
+							break;
+					}
 				}
-				finally
-				{
-					pending--;
+				if (thatClosure != null)
+				{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
+					toDownload.remove(thatClosure);
 				}
 			}
-			int sleepTime	= lowMemory ? LOW_MEMORY_SLEEP :
-				(hurry ? SHORT_SLEEP : (REGULAR_SLEEP + MathTools.random(100)));
 
+			boolean lowMemory = Memory.reclaimIfLow();
+
+			if (thatClosure != null)
+			{
+				synchronized (TOO_MANY_PENDING_LOCK)
+				{
+					if (!this.highNumberWaiting())
+						TOO_MANY_PENDING_LOCK.notifyAll();
+				}
+				if (lowMemory)
+				{
+					if (status != null)
+						status.display("Running out of memory, so not downloading new files.", 6);
+					toDownload.insertElementAt(thatClosure, 0); // put it back into the queue
+				}
+				else
+				{
+					try
+					{
+						pending++;
+						// ThreadDebugger.waitIfPaused(downloadThread);
+						// NEW -- set the priority of the download, based on how backed up we are
+						setDownloadPriority();
+						thatClosure.performDownload();
+
+						// Just when the download is done, remove from the potentialTimeouts.
+						if (thatClosure.downloadable.isDownloadDone())
+						{
+							thatClosure.dispatch();
+						}
+					}
+					catch (ThreadDeath e)
+					{
+						debug("ThreadDeath in performDownloads() loop");
+						e.printStackTrace();
+						throw e;
+					}
+					catch (ClosedByInterruptException e)
+					{
+						debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
+						e.printStackTrace();
+						thatClosure.ioError();
+					}
+					catch (OutOfMemoryError e)
+					{
+						finished = true; // give up!
+						OutOfMemoryErrorHandler.handleException(e);
+
+					}
+					catch (Throwable e)
+					{
+						boolean interrupted = Thread.interrupted();
+						String interruptedStr = interrupted ? " interrupted" : "";
+						// TODO -- i'm concerned that we might need different error handling for different kinds
+						// of errors.
+						debugA("performDownloads() -- recovering from " + interruptedStr + " exception on "
+								+ thatClosure + ":");
+						e.printStackTrace();
+						thatClosure.ioError();
+					}
+					finally
+					{
+						pending--;
+					}
+				}
+			}
+
+			int sleepTime = dontWait ? NO_SLEEP
+											: (lowMemory ? LOW_MEMORY_SLEEP 
+											: (hurry ? SHORT_SLEEP
+											: (minTimeRemaining < Long.MAX_VALUE && minTimeRemaining > 0 ? (int) minTimeRemaining
+											: (REGULAR_SLEEP + MathTools.random(100)))));
+//			debug("\t\t-------\tSleeping for: " + sleepTime);
 			Generic.sleep(sleepTime);
-		}  // while (!finished)
-		debug("exiting -- "+Thread.currentThread());
+		} // while (!finished)
+		debug("exiting -- " + Thread.currentThread());
 	}
+
+	/**
+	 * 
+	 * @param site
+	 */
+	private void setNextAvailableTimeForSite(BasicSite site)
+	{
+		synchronized(siteTimeMap)
+		{
+			siteTimeMap.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); //The next time we encounter the site, get a different interval.
+		}
+	}
+
 	public String toString()
 	{
-		return super.toString() + "["+ name + "]";
+		return super.toString() + "[" + name + "]";
 	}
+
 	public void stop()
 	{
 		stop(false);
 	}
+
 	/**
 	 * Stop our threads.
 	 */
 	public void stop(boolean kill)
 	{
-		//      debug("stop()");
-		finished			= true;
+		// debug("stop()");
+		finished = true;
 
 		notifyAll(toDownload);
 
 		if (downloadThreads != null)
 		{
-			for (int i=0; i<downloadThreads.length; i++)
+			for (int i = 0; i < downloadThreads.length; i++)
 			{
-				Thread thatThread	= downloadThreads[i];
+				Thread thatThread = downloadThreads[i];
 				if (kill)
 					thatThread.stop();
-				downloadThreads[i]	= null;
+				downloadThreads[i] = null;
 			}
-			downloadThreads		= null;
+			downloadThreads = null;
 		}
 	}
+
 	public int waitingToDownload()
 	{
 		return toDownload.size();
 	}
+
 	/**
-	 * @return	true if we're backed up with unresloved downloads.
+	 * @return true if we're backed up with unresloved downloads.
 	 */
 	public boolean highNumberWaiting()
 	{
 		return toDownload.size() > highThreshold;
 	}
+
 	public boolean midNumberWaiting()
 	{
 		return toDownload.size() > midThreshold;
@@ -445,49 +506,61 @@ implements DownloadProcessor<T>
 	{
 		return lowPriority;
 	}
+
 	public int midPriority()
 	{
 		return midPriority;
 	}
+
 	public int highPriority()
 	{
 		return highPriority;
 	}
+
 	public int pending()
 	{
 		return pending;
 	}
 
+	/**
+	 * Set whether or not this download monitor needs to wait after each download attempt
+	 * @param noWait
+	 */
+	public void setNoWait(boolean noWait)
+	{
+		dontWait = noWait;
+	}
+	
 	public void setHurry(boolean hurry)
 	{
-		this.hurry	= hurry;
-		debug("setHurry("+hurry);
+		this.hurry = hurry;
+		debug("setHurry(" + hurry);
 	}
 
 	public static NewPorterStemmer getStemmer()
 	{
-		Thread currentThread		= Thread.currentThread();
-		NewPorterStemmer stemmer= stemmersHash.get(currentThread);
+		Thread currentThread = Thread.currentThread();
+		NewPorterStemmer stemmer = stemmersHash.get(currentThread);
 		if (stemmer == null)
 		{
-			stemmer			= new NewPorterStemmer();
+			stemmer = new NewPorterStemmer();
 			stemmersHash.put(currentThread, stemmer);
 		}
 		return stemmer;
 	}
 
-	/** 
+	/**
 	 * check the number of elements in the toDownload Queue
+	 * 
 	 * @return
 	 */
 	public int toDownloadSize()
 	{
 		return toDownload.size();
 	}
-	
+
 	/**
-	 * Stop performing downloads, and then
-	 * Get rid of queued DownloadClosures.
+	 * Stop performing downloads, and then Get rid of queued DownloadClosures.
 	 */
 	public void clear()
 	{
@@ -501,19 +574,21 @@ implements DownloadProcessor<T>
 			return;
 		synchronized (TOO_MANY_PENDING_LOCK)
 		{
-			try 
+			try
 			{
 				debug("wait() on TOO_MANY_PENDING_LOCK");
 				printQueue();
 				TOO_MANY_PENDING_LOCK.wait();
 				debug("finished wait() on TOO_MANY_PENDING_LOCK");
-			} catch (InterruptedException e) 
+			}
+			catch (InterruptedException e)
 			{
 				Debug.weird(this, "Interrupted while waiting for TOO_MANY_PENDING_LOCK");
 				e.printStackTrace();
 			}
 		}
 	}
+
 	public void printQueue()
 	{
 		synchronized (toDownload)
@@ -521,19 +596,22 @@ implements DownloadProcessor<T>
 			System.out.println(this.toString() + "QUEUE:");
 			for (DownloadClosure d : toDownload)
 			{
-				System.out.println("\t"+d.downloadable);
+				System.out.println("\t" + d.downloadable);
 			}
 		}
 		System.out.println("\n");
 	}
+
 	public StatusReporter getStatus()
 	{
 		return status;
 	}
+
 	public void setStatus(StatusReporter status)
 	{
 		this.status = status;
 	}
+
 	/**
 	 * @return the paused
 	 */
@@ -541,7 +619,7 @@ implements DownloadProcessor<T>
 	{
 		return paused;
 	}
-	
+
 	public int size()
 	{
 		return toDownloadSize();

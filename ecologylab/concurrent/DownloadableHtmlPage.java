@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import ecologylab.generic.Generic;
+import ecologylab.io.BasicSite;
 import ecologylab.io.Downloadable;
 import ecologylab.net.ParsedURL;
 
@@ -165,6 +166,11 @@ public class DownloadableHtmlPage implements Downloadable
 	{
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public BasicSite getSite()
+	{
+		return null;
 	}
 
 }

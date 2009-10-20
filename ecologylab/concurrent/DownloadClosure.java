@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
+import ecologylab.io.BasicSite;
 import ecologylab.io.Downloadable;
 
 /**
@@ -21,13 +22,12 @@ extends Debug
 	private boolean												dispatched;
 
 
-	DownloadClosure(T downloadable, DispatchTarget<T> dispatchTarget,
-			DownloadMonitor downloadMonitor)
-			{
+	DownloadClosure(T downloadable, DispatchTarget<T> dispatchTarget,DownloadMonitor downloadMonitor)
+	{
 		this.downloadable		= downloadable;
 		this.dispatchTarget	= dispatchTarget;
 		this.downloadMonitor	= downloadMonitor;
-			}
+	}
 
 	synchronized void ioError()
 	{
@@ -52,6 +52,10 @@ extends Debug
 		//TODO need a lock here to prevent recycle() while downloading!!!!!!
 		if (!downloadable.isRecycled())
 		{
+			//Update site statistics if available
+			BasicSite site = downloadable.getSite();
+			if(site != null)
+				site.setLastDownloadAt(System.currentTimeMillis());
 			downloadable.performDownload();
 			downloadable.downloadDone();
 		}

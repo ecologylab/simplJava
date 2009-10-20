@@ -52,4 +52,7 @@ public interface Downloadable
     * @return	true if this should no longer be downloaded, because conditions have changed since it was queued.
     */
    public boolean cancel();
+   
+   public BasicSite getSite();
+   
 }
