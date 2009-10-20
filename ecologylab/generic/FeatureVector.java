@@ -222,7 +222,13 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 			return new HashSet<Double>(0);
 		return new HashSet<Double>(values.values());
 	}
-
+	/**
+	 * Access to the inner-level HashMap backing this FeatureVector. 
+	 * Do NOT modify this collection outside of FeatureVector.java or TermVector.java, 
+	 * you will probably cause things to break.
+	 * 
+	 * @return HashMap backing this FeatureVector
+	 */
 	public Map<T, Double> map ( )
 	{
 		if (values == null)
