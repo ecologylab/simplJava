@@ -18,7 +18,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	private double					norm	= UNCALCULATED, max	= UNCALCULATED;
 
-	private Map<T, Double> ZERO_LENGTH_HASHMAP = new HashMap<T,Double>(0);
+	private static final Map ZERO_LENGTH_HASHMAP = new HashMap(0);
 	
 	public FeatureVector ()
 	{
@@ -36,7 +36,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public FeatureVector ( IFeatureVector<T> copyMe )
 	{
-		values = new HashMap<T,Double>(copyMe.map());
+		Map<T, Double> otherMap = copyMe.map();
+		if (otherMap.size() > 0)
+			values = new HashMap<T,Double>(otherMap);
 		norm = copyMe.norm();
 	}
 	
@@ -98,7 +100,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public void multiply ( IFeatureVector<T> v )
 	{
 		Map<T, Double> other = v.map();
-		if (other == null || values == null)
+		if (other == null || values == null || other.size() == 0)
 			return;
 		synchronized (values)
 		{
@@ -190,7 +192,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public double dot ( IFeatureVector<T> v, boolean simplex )
 	{
 		Map<T, Double> other = v.map();
-		if (other == null || values == null || v.norm() == 0 || this.norm() == 0)
+		if (other == null || other.size() == 0 || values == null || v.norm() == 0 || this.norm() == 0)
 			return 0;
 
 		double dot = 0;
