@@ -17,20 +17,21 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	protected HashMap<T,Double>		values;
 
 	private double					norm	= UNCALCULATED, max	= UNCALCULATED;
+
+	private Map<T, Double> ZERO_LENGTH_HASHMAP = new HashMap<T,Double>(0);
 	
 	public FeatureVector ()
+	{
+	}
+	
+	private void initValues()
 	{
 		values = new HashMap<T,Double>();
 	}
 
-	/**
-	 * 
-	 * @param size	This parameter is ignored because we use pools with standard sizes.
-	 */
 	public FeatureVector ( int size )
 	{
-		this();
-//		values = (HashMap<T,Double>) new HashMap<T,Double>(size);
+		values = (HashMap<T,Double>) new HashMap<T,Double>(size);
 	}
 
 	public FeatureVector ( IFeatureVector<T> copyMe )
@@ -41,7 +42,8 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	
 	protected void reset() 
 	{
-		values.clear();
+		if (values != null)
+			values.clear();
 		resetNorm();
 	}
 
@@ -52,6 +54,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public double get ( T term )
 	{
+		if (values == null)
+			return 0;
+		
 		Double d = values.get(term);
 		if (d == null)
 			return 0;
@@ -60,6 +65,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public void add ( T term, Double val )
 	{
+		if (values == null)
+			initValues();
+		
 		synchronized (values)
 		{
 			if (values.containsKey(term))
@@ -71,6 +79,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public void set ( T term, Double val )
 	{
+		if (values == null)
+			initValues();
+		
 		synchronized (values)
 		{
 			values.put(term, val);
@@ -87,7 +98,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public void multiply ( IFeatureVector<T> v )
 	{
 		Map<T, Double> other = v.map();
-		if (other == null)
+		if (other == null || values == null)
 			return;
 		synchronized (values)
 		{
@@ -106,6 +117,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	 */
 	public void multiply ( double c )
 	{
+		if (values == null)
+			return;
+		
 		synchronized (values)
 		{
 			ArrayList<T> terms_to_delete = new ArrayList<T>();
@@ -136,8 +150,13 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public void add ( double c, IFeatureVector<T> v )
 	{
 		Map<T, Double> other = v.map();
+		
 		if (other == null || other.size() == 0)
 			return;
+		
+		if (values == null)
+			initValues();
+		
 		synchronized (other)
 		{
 			synchronized (values)
@@ -171,7 +190,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public double dot ( IFeatureVector<T> v, boolean simplex )
 	{
 		Map<T, Double> other = v.map();
-		if (other == null || v.norm() == 0 || this.norm() == 0)
+		if (other == null || values == null || v.norm() == 0 || this.norm() == 0)
 			return 0;
 
 		double dot = 0;
@@ -190,26 +209,36 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public Set<T> elements ( )
 	{
+		if (values == null)
+			return new HashSet<T>(0);
 		return new HashSet<T>(values.keySet());
 	}
 
 	public Set<Double> values ( )
 	{
+		if (values == null)
+			return new HashSet<Double>(0);
 		return new HashSet<Double>(values.values());
 	}
 
 	public Map<T, Double> map ( )
 	{
+		if (values == null)
+			return ZERO_LENGTH_HASHMAP;
 		return values;
 	}
 
 	public int size ( )
 	{
+		if (values == null)
+			return 0;
 		return values.size();
 	}
 
 	private void recalculateNorm ( )
 	{
+		if (values == null)
+			return;
 		double norm = 0;
 		synchronized(values)
 		{
@@ -243,6 +272,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	private void recalculateMax ( )
 	{
+		if (values == null)
+			return;
+		
 		synchronized(values)
 		{
 			for (Double d : values.values())
@@ -263,6 +295,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	 */
 	public void clamp ( double clampTo )
 	{
+		if (values == null)
+			return;
+		
 		clampTo = Math.abs(clampTo);
 		double max = this.max();
 		if (!(max > clampTo))
@@ -284,6 +319,9 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 
 	public void clampExp ( double clampTo )
 	{
+		if (values == null)
+			return;
+		
 		clampTo = Math.abs(clampTo);
 		double max = 0;
 		synchronized (values)
@@ -335,18 +373,18 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public FeatureVector<T> simplex ( )
 	{
 		FeatureVector<T> v = new FeatureVector<T>(this);
-		synchronized(values)
+		for (T t : v.values.keySet())
 		{
-			for (T t : v.values.keySet())
-			{
-				v.values.put(t, 1.0);
-			}
+			v.values.put(t, 1.0);
 		}
 		return v;
 	}
 	
 	public void clear()
 	{
+		if (values == null)
+			return;
+		
 		synchronized(values)
 		{
 			values.clear();
