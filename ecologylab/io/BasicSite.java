@@ -120,6 +120,8 @@ class BasicSite extends ElementState implements Mappable<String>
 	}
 
 	/**
+	 * 
+	 * 
 	 * @return the isDownloading
 	 */
 	public boolean isDownloading()
