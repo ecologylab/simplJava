@@ -1279,7 +1279,7 @@ public class ParsedURL extends Debug implements MimeType
 	private static final ConnectionAdapter	connectionAdapter	= new ConnectionAdapter();
 
 	// Set the URLConnection timeout a little smaller than our DownloadMonitor timeout.
-	public static final int									CONNECT_TIMEOUT		= 6000;
+	public static final int									CONNECT_TIMEOUT		= 15000;
 
 	public static final int									READ_TIMEOUT			= 25000;
 
@@ -1385,7 +1385,7 @@ public class ParsedURL extends Debug implements MimeType
 				 * sun.misc.BASE64Encoder().encode("fred66:fred66".getBytes());
 				 * connection.setRequestProperty("Authorization", auth); }
 				 */
-
+				connection.getContentLength();
 				String mimeType = connection.getContentType();
 
 				// no one uses the encoding header: connection.getContentEncoding();
