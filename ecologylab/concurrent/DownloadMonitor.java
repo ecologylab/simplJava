@@ -111,7 +111,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		synchronized (toDownload)
 		{
 			// debug("download("+thatDownloadable);
-			toDownload.addElement(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
+			toDownload.add(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
 			else
@@ -302,7 +302,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		Thread downloadThread = Thread.currentThread();
 		while (!finished) // major sleep at the bottom
 		{
-			DownloadClosure thatClosure = null;
+			DownloadClosure thatClosure = null;	// define out here to use outside of synchronized
 			synchronized (toDownload)
 			{
 				// debug("-- got lock");
@@ -312,53 +312,62 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					wait(toDownload, MAX_WAIT_TIME);
 				if (finished)
 					break;
-				int closureNum = 0;
+
 				// Let's assume that the change in time while iterating over toDownload doesn't matter.
 				// We don't want to hit this method for every item.
-				long currentTimeMillis = System.currentTimeMillis();
-
-				while (!toDownload.isEmpty() && closureNum < toDownloadSize())
+				final long currentTimeMillis 	= System.currentTimeMillis();
+				int closureNum 								= 0;
+				final int toDownloadSize 			= toDownloadSize();
+				if (toDownloadSize > 0)
 				{
-					thatClosure 		= toDownload.get(closureNum++);
-					BasicSite site 	= thatClosure.downloadable.getSite();
-					
-					if (site != null && site.constrainDownloadInterval())
+					while (closureNum < toDownloadSize)
 					{
-						Long nextDownloadableAt 		= siteTimeMap.get(site);
-						if(nextDownloadableAt != null)
+						thatClosure 		= toDownload.get(closureNum);
+						BasicSite site 	= thatClosure.downloadable.getSite();
+						
+						if (site != null && site.constrainDownloadInterval())
 						{
-							long timeRemaining = nextDownloadableAt - currentTimeMillis;
-							if (timeRemaining < 0 && !thatClosure.cancel())
+							Long nextDownloadableAt 	= siteTimeMap.get(site);
+							if(nextDownloadableAt != null)
 							{
-								debug("\t\t--\tDownloading: " + thatClosure.downloadable);
+								long timeRemaining 			= nextDownloadableAt - currentTimeMillis;
+								if (timeRemaining < 0 && !thatClosure.cancel())
+								{
+									debug("\t\t-- Downloading: " + thatClosure.downloadable + " at\t" + new Date(currentTimeMillis) + " --");
+									setNextAvailableTimeForSite(site);
+									break;
+								}
+								else // Its not time yet, so skip this downloadable.
+								{
+	//								debug("Ignoring downloadable: " + thatClosure.downloadable + ". need atleast another: "
+	//										+ ((float) timeRemaining / 1000.0) + " seconds");
+									thatClosure = null;
+								}
+							}
+							else
+							{ // No nextDownloadableAt time found for this site, put in a new value, and accept this downloadClosure
 								setNextAvailableTimeForSite(site);
 								break;
 							}
-							else // Ignore downloadable
-							{
-//								debug("Ignoring downloadable: " + thatClosure.downloadable + ". need atleast another: "
-//										+ ((float) timeRemaining / 1000.0) + " seconds");
-								thatClosure = null;
-							}
 						}
-						else
-						{ // No nextDownloadableAt time found for this site, put in a new value, and accept this downloadClosure
-							setNextAvailableTimeForSite(site);
-							break;
+						else if (site != null && site.isDownloading())
+						{	// Another one from this site is already downloading, so skip this downloadable.
+							thatClosure = null;
 						}
-					}
-					else
-					{
-						// Site-less downloadables -
-						if (!thatClosure.cancel())
-							break;
+						else if (!thatClosure.cancel())
+						{
+							// Site-less downloadables						
+								break;
+						}
+						closureNum++;
+					}	// end while
+					if (thatClosure != null)
+					{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
+//						toDownload.remove(thatClosure);
+						toDownload.remove(closureNum);
 					}
 				}
-				if (thatClosure != null)
-				{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
-					toDownload.remove(thatClosure);
-				}
-			}
+			}	// end synchronized
 
 			boolean lowMemory = Memory.reclaimIfLow();
 
@@ -423,6 +432,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					finally
 					{
 						pending--;
+						BasicSite site	= thatClosure.downloadable.getSite();
+						if (site != null)
+							site.endDownloading();
 					}
 				}
 			}
@@ -445,7 +457,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		synchronized(siteTimeMap)
 		{
-			siteTimeMap.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); //The next time we encounter the site, get a different interval.
+		//The next time we encounter the site, get a different interval.
+			siteTimeMap.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); 
 		}
 	}
 
