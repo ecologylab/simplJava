@@ -85,13 +85,12 @@ public class ParsedURL extends Debug implements MimeType
 
 	public ParsedURL(URL url)
 	{
-		String path = url.toString();		
 		String hash = url.getRef();
 		
-		if ("file://".equals(path.substring(0,7)))
+		if ("file".equals(url.getProtocol()))
 		{
-			this.file = new File(path.substring(7));
-			this.url = url;
+			this.file = new File(url.getPath());
+			this.url 	= url;
 		}
 		else if (hash == null)
 		{
@@ -133,9 +132,6 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		try
 		{
-			if ("\\\\".equals(file.toString().substring(0,4)))
-			{
-			}
 			String urlString = "file://" + file.getAbsolutePath();
 			urlString = urlString.replace('\\', '/');
 			if (file.isDirectory())
