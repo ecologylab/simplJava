@@ -354,9 +354,9 @@ public class Debug
    static void emphasized(Object that, String header, CharSequence message)
    {
 	   print('\n');
-	   print(that.toString());
-	   print(SEPARATOR);
 	   print(header);
+	   print(SEPARATOR);
+	   print(that.toString());
 	   print(message);
 	   print('\n');
 	   print('\n');	   
