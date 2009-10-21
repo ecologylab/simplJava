@@ -39,6 +39,8 @@ class BasicSite extends ElementState implements Mappable<String>
    */
   long														lastDownloadAt;
   
+  boolean													isDownloading;
+  
 	/**
 	 * Use for XML Translation
 	 */
@@ -96,6 +98,7 @@ class BasicSite extends ElementState implements Mappable<String>
 	 */
 	public void setLastDownloadAt(long lastDownloadAt)
 	{
+		this.isDownloading	= true;
 		this.lastDownloadAt = lastDownloadAt;
 	}
 	
@@ -114,5 +117,26 @@ class BasicSite extends ElementState implements Mappable<String>
 	public String key()
 	{
 		return domain;
+	}
+
+	/**
+	 * @return the isDownloading
+	 */
+	public boolean isDownloading()
+	{
+		return isDownloading;
+	}
+	
+	public void endDownloading()
+	{
+		isDownloading	= false;
+	}
+	
+	/**
+	 * Call this when a download to a site was actually fulfilled by a local copy.
+	 */
+	public void resetLastDownloadAt()
+	{
+		this.lastDownloadAt	= 0;
 	}
 }
