@@ -609,28 +609,28 @@ implements ApplicationProperties
 		}
 		
 		String filenameString = filename.toString();
-		File localFile = new File(directory, filename.toString());
-		if (localFile.exists())
-		{
-			int extensionStart 		= filename.lastIndexOf(".");
-			int count 						= 1;
-			String pre						= filename.substring(0, extensionStart);
-			String end						= filename.substring(extensionStart);
-			
-			while(localFile.exists())
-			{
-				StringBuilder newFilename = stringPool.nextBuffer();
-				newFilename.append(pre);
-				newFilename.append(separator);
-				newFilename.append(count);
-				newFilename.append(end);
-				filenameString						= newFilename.toString();
-				localFile 								= new File(directory, filenameString);
-				count++;
-				stringPool.release(newFilename);
-			}
-			stringPool.release(filename);
-		}
+//		File localFile = new File(directory, filename.toString());
+//		if (localFile.exists())
+//		{
+//			int extensionStart 		= filename.lastIndexOf(".");
+//			int count 						= 1;
+//			String pre						= filename.substring(0, extensionStart);
+//			String end						= filename.substring(extensionStart);
+//			
+//			while(localFile.exists())
+//			{
+//				StringBuilder newFilename = stringPool.nextBuffer();
+//				newFilename.append(pre);
+//				newFilename.append(separator);
+//				newFilename.append(count);
+//				newFilename.append(end);
+//				filenameString						= newFilename.toString();
+//				localFile 								= new File(directory, filenameString);
+//				count++;
+//				stringPool.release(newFilename);
+//			}
+//			stringPool.release(filename);
+//		}
 		
 		return filenameString;
 	}
