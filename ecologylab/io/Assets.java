@@ -4,6 +4,9 @@
 package ecologylab.io;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 import ecologylab.appframework.ApplicationProperties;
 import ecologylab.appframework.EnvironmentGeneric;
@@ -578,13 +581,20 @@ implements ApplicationProperties
 	 * 
 	 * @return A string containing the new filename
 	 */
+	@SuppressWarnings("deprecation")
 	public static String getCacheFilename(ParsedURL location, File directory, String additional, String separator, String extension)
 	{
 		StringBuilder filename 	= stringPool.nextBuffer();
 		filename.append(location.host());
 		filename.append(separator);
 		String locationString 	= location.url().getPath();
+		String query						= location.url().getQuery();
 		filename.append(locationString.substring(locationString.lastIndexOf('/')+1));
+		if (query != null && query.length() > 0)
+		{
+			filename.append("%3F");
+			filename.append(URLEncoder.encode(query));
+		}
 		
 		if (additional != null)
 		{
@@ -624,5 +634,6 @@ implements ApplicationProperties
 		
 		return filenameString;
 	}
+	
 }
 
