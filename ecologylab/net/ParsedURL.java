@@ -10,6 +10,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -1542,13 +1543,47 @@ public class ParsedURL extends Debug implements MimeType
 		}
 		return this;
 	}
-	
+	public ParsedURL ignoreArgs(HashMap<String, String> argsToIgnore)
+	{
+		if (url != null)
+		{
+			String query	= url.getQuery();
+			StringTokenizer tokenizer	= new StringTokenizer(query, "&");
+			if (!tokenizer.hasMoreElements())
+				return this;
+			StringBuilder resultQuery	= new StringBuilder(noAnchorNoQueryPageString());	// initialize w base URL
+			boolean first							= true;
+			while (tokenizer.hasMoreElements())
+			{
+				String token	= tokenizer.nextToken();
+				int argEnd		= token.indexOf('=');
+				String arg		= argEnd == -1 ? token : token.substring(0, argEnd);
+				if (!argsToIgnore.containsKey(arg))
+				{
+					if (first)
+					{
+						first		= false;
+						resultQuery.append('?');
+					}
+					else
+						resultQuery.append('&');
+					resultQuery.append(token);
+				}
+			}
+			return getAbsolute(resultQuery.toString());
+		}
+		return this;
+	}
+	public String query()
+	{
+		return url.getQuery();
+	}
 	static public void main(String[] args)
 	{
 		try
 		{
 			URL u	= new URL("http://acm.org/citation.cfm?id=33344");
-			System.out.println("query: " + u.getQuery());
+			System.out.println("query: " + u.getQuery() + "\n" + URLEncoder.encode("?"));
 		}
 		catch (MalformedURLException e)
 		{
