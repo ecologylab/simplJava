@@ -90,7 +90,15 @@ public class ParsedURL extends Debug implements MimeType
 		
 		if ("file".equals(url.getProtocol()))
 		{
-			this.file = new File(url.getHost() + url.getPath());
+			String urlString = url.toString();
+			if (urlString.startsWith("file://")) // this should be the case...
+			{
+				this.file = new File(urlString.substring(7));
+			}
+			else // if not, try our hardest to make a good file
+			{
+				this.file = new File(url.getHost()+url.getPath());
+			}
 			this.url 	= url;
 		}
 		else if (hash == null)
