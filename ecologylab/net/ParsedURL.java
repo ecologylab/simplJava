@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -89,7 +90,7 @@ public class ParsedURL extends Debug implements MimeType
 		
 		if ("file".equals(url.getProtocol()))
 		{
-			this.file = new File(url.getPath());
+			this.file = new File(url.getHost() + url.getPath());
 			this.url 	= url;
 		}
 		else if (hash == null)
