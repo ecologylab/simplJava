@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.ElementState.xml_nowrap;
 
 /**
  *
@@ -15,6 +16,7 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class TestXml extends ElementState
 {
+	@xml_nowrap 
 	@xml_collection("vendor")	ArrayList<String> set	= new ArrayList<String>();
 	
 	@xml_collection("foo bar")	String fooBar;

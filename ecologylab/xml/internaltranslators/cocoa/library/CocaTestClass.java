@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.ElementState.xml_nowrap;
 
 
 
@@ -52,6 +53,7 @@ public class CocaTestClass extends ElementState
    @xml_attribute
    private URL                     urlAttribute;
 
+ 	@xml_nowrap 
    @xml_collection
    private ArrayList<String>       arrayListAttribute;
 

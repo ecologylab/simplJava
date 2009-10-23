@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
@@ -43,6 +44,7 @@ public class JnlpState extends ElementState implements Cloneable
 	/** This is a URL pointing to the location of the JNLP file itself. */
 	@xml_attribute String														href;
 
+	@xml_nowrap 
 	@xml_collection("information") ArrayList<InformationElement>	informations	= new ArrayList<InformationElement>();
 
 	// @xml_nested private InformationElement information;
@@ -53,6 +55,7 @@ public class JnlpState extends ElementState implements Cloneable
 
 	@xml_nested @xml_tag("application-desc") ApplicationDesc			applicationDesc;
 
+	@xml_nowrap 
 	@xml_collection("applet-desc") ArrayList<AppletDesc>				appletDesc		= new ArrayList<AppletDesc>();
 
 	/**

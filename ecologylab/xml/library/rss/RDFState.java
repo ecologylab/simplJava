@@ -8,6 +8,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.feedburner.Feedburner;
@@ -31,6 +32,7 @@ import ecologylab.xml.types.element.ArrayListState;
 @xml_tag("rdf:RDF")
 public class RDFState extends ElementState // ArrayListState<Item>
 {
+	@xml_nowrap 
 	@xml_collection("item") ArrayList<Item>		items;
 	
 	public RDFState()

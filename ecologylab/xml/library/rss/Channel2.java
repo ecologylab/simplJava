@@ -7,6 +7,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.types.element.ArrayListState;
 
 /**
@@ -24,6 +25,7 @@ public @xml_inherit class Channel2 extends ElementState //ArrayListState<Item>
     */
    @xml_leaf	ParsedURL		link;
    
+   @xml_nowrap 
    @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
    
    /**

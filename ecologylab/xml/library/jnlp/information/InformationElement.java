@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -48,6 +49,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * 
      * All descriptions contain plain text. No formatting, such as with HTML tags, is supported.
      */
+  	@xml_nowrap 
     @xml_collection("description") protected ArrayList<Description>               descriptions   = new ArrayList<Description>();
 
     /**
@@ -79,6 +81,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * file, the old splash image will still be displayed. The new splash image will appear on the second and subsequent
      * launches of the application.
      */
+  	@xml_nowrap 
     @xml_collection("icon") protected ArrayList<Icon>                             icons          = new ArrayList<Icon>();
 
     /**
@@ -102,6 +105,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * application will be launched instead. Given a reasonably fast server connection, the latest version of the
      * application will usually be run, but it is not guaranteed. The application, however, can be run offline.
      */
+  	@xml_nowrap 
     @xml_collection("offline-allowed") protected ArrayList<OfflineAllowedElement> offlineAllowed = new ArrayList<OfflineAllowedElement>();
 
     /**
