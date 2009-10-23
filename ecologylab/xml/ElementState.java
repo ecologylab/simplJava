@@ -2455,6 +2455,19 @@ implements OptimizationTypes, XMLTranslationExceptionTypes
     {
         String value();
     }
+ 
+    /**
+     * Used to specify that the elements of a collection or map should not be wrapped by an outer tag
+     * corresponding to their field name.
+     * 
+     * @author andruid
+     *
+     */
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_nowrap
+    {
+    }
     
     /**
      * Supplementary metalanguage declaration that can be applied only to a field.
