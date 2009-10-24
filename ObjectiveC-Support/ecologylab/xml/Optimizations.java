@@ -35,6 +35,8 @@ implements OptimizationTypes
 	 */
 	final Class<? extends ElementState>					thatClass;
 	
+	final String										tag;
+	
 	Optimizations										parent;
 	
 	private String										nameSpaceID;
@@ -142,7 +144,8 @@ implements OptimizationTypes
 	private Optimizations(Class<? extends ElementState> thatClass, Optimizations parent)
 	{
 		super();
-		this.thatClass		= thatClass;
+		this.thatClass		= thatClass; 
+		tag								= XMLTools.getXmlTagName(thatClass, "State");
 		setParent(parent);
 		
 		getAndOrganizeFields();
