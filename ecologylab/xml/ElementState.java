@@ -69,6 +69,7 @@ import ecologylab.net.ParsedURL;
  *  
  * @author      Andruid Kerne
  * @author      Madhur Khandelwal
+ * 
  * @version     2.9
  */
 public class ElementState extends Debug
