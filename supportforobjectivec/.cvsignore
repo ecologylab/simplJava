@@ -1,7 +1,0 @@
-*.esperf
-*.jar
-.project
-.classpath
-.cvsignore
-doc
-RESIN-CLASSES
