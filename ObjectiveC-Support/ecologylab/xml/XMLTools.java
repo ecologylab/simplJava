@@ -256,15 +256,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	public static String getXmlTagName(Class<?> thatClass, 
 			String suffix)
 	{
-		ElementState.xml_tag tagAnnotation 	= null;
-		Annotation[] annotations = thatClass.getDeclaredAnnotations();
-   	for(Annotation annotation: annotations)
-   	{
-   		if(annotation.annotationType().equals(xml_tag.class))
-   		{
-   			tagAnnotation = xml_tag.class.cast(annotation);
-   		}
-   	}
+		final ElementState.xml_tag tagAnnotation 	= thatClass.getAnnotation(xml_tag.class);
 		
    	String result						= null;
 		if (tagAnnotation != null)
@@ -451,78 +443,9 @@ implements CharacterConstants, SpecialCharacterEntities
 		}
 		return result.toString();
 	}
-	/**
-	 * This method generates a name value pair corresponding to the primitive Jave field. Returns
-	 * an empty string if the field contains a default value, which means that there is no need
-	 * to emit that field. Used while translation of Java to xml.  
-	 * <p/>
-	 * For efficiency, the result is passed back in the StringBuilder passed in.
-	 * 
-	 * @param result	StringBuilder to append result to. 
-	 * 					Result is name-value pair of the attribute, nothing if the field has a default value.
-	 * @param field     A ScalarValued <code>Field</code> object.
-	 * @param obj       The object which contains the field
-	 * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
 
-	 */
-	// DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
-	//    public static void generateNameVal(StringBuilder result, Field field, Object obj, int floatingValuePrecision) 
-	//    throws IllegalArgumentException, IllegalAccessException
-	//    {
-	//        ScalarType type        = TypeRegistry.getType(field);
-	//        if (type != null)
-	//        	generateNameVal(result, type, field, obj, floatingValuePrecision);
-	//        else
-	//        	println("WARNING: Can't generate attribute for field " + field.getName() + 
-	//        			" because there is no ScalarType for it.");
-	//    }
-	/**
-	 * This method generates a name value pair corresponding to the primitive Jave field. Returns
-	 * an empty string if the field contains a default value, which means that there is no need
-	 * to emit that field. Used while translation of Java to xml.  
-	 * <p/>
-	 * For efficiency, the result is passed back in the StringBuilder passed in.
-	 * 
-	 * @param buffy	StringBuilder to append result to. 
-	 * 					Result is name-value pair of the attribute, nothing if the field has a default value.
-	 * @param field     A ScalarValued <code>Field</code> object.
-	 * @param context       The object which contains the field
-	 * @param floatingValuePrecision	Allows truncation of floating point precision for shorter XML.
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
-
-	 */
-	// DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
-	//    public static void generateNameVal(StringBuilder buffy, ScalarType type, Field field, Object context, int floatingValuePrecision) 
-	//    throws IllegalArgumentException, IllegalAccessException
-	//    {
-	//        if ((context != null) && !type.isDefaultValue(field, context))
-	//        {
-	//            //take the field, generate tags and attach name value pair
-	//        	
-	//        	//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-	//        	
-	//        	buffy.append(' ');
-	//        	String attributeName = attrNameFromField(field, false);
-	//			buffy.append(attributeName);
-	//        	buffy.append('=');
-	//        	buffy.append('"');
-	//        	
-	//        	type.appendValue(buffy, field, context, true);
-	//        	buffy.append('"');
-	//        }
-	//    }
-	//    DOES NOT APPEAR TO BE IN USE ANYMORE -Zach
-	//	public void generateNameVal(StringBuilder result, Field field, Object obj) 
-	//	throws IllegalArgumentException, IllegalAccessException
-	//	{
-	//	    generateNameVal(result, field, obj, ElementState.FLOATING_PRECISION_OFF);
-	//    }
-
-	static final HashMap		classAbbrevNames	= new HashMap();
-	static final HashMap		packageNames		= new HashMap();
+	static final HashMap<String, String>		classAbbrevNames	= new HashMap<String, String>();
+	static final HashMap<String, String>		packageNames			= new HashMap<String, String>();
 
 	/**
 	 * This method returns the abbreviated name of the class, without the package qualifier.
@@ -534,11 +457,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	public static String getClassName(Class thatClass)
 	{
-		String fullName	= thatClass.getName();
-		String abbrevName	= (String) classAbbrevNames.get(fullName);
+		String fullName		= thatClass.getName();
+		String abbrevName	= classAbbrevNames.get(fullName);
 		if (abbrevName == null)
 		{
-			abbrevName	= fullName.substring(fullName.lastIndexOf(".") + 1);
+			abbrevName			= thatClass.getSimpleName();
 			synchronized (classAbbrevNames)
 			{
 				classAbbrevNames.put(fullName, abbrevName);
@@ -557,18 +480,18 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	public static String getPackageName(Class thatClass)
 	{
-		String className	= thatClass.getName();
-		String packageName = null;
-		if(packageNames.containsKey(className))
+		String className		= thatClass.getName();
+		String packageName	= null;
+		if (packageNames.containsKey(className))
 		{
-			packageName	= (String) packageNames.get(className);
+			packageName				= packageNames.get(className);
 		}
 		else
 		{
-			if(thatClass.getPackage() != null)
+			if (thatClass.getPackage() != null)
 			{	   	  
 				//			  packageName	= 	className.substring(6, className.lastIndexOf("."));
-				packageName	=	thatClass.getPackage().getName() + ".";
+				packageName			=	thatClass.getPackage().getName() + ".";
 				synchronized (packageNames)
 				{
 					packageNames.put(className, packageName);
