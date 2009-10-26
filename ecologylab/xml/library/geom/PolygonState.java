@@ -73,6 +73,11 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 		return shape;
 	}
 
+	public void invalidateShape()
+	{
+		shape = null;
+	}
+	
 	public int numVerticies()
 	{
 		return polygonVerticies.size();
@@ -148,4 +153,5 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 		return polygonVerticies;
 	}
 
+	
 }
