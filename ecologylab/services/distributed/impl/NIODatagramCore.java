@@ -20,6 +20,7 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.CappedResourcePool;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ResourcePool;
 import ecologylab.services.distributed.common.NetworkingConstants;
@@ -66,7 +67,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 	
 	protected boolean 																						doCompress = false;
 	
-	protected Deflater 																						deflater	= new Deflater();
+	protected Deflater 																						deflater	= new Deflater(Deflater.BEST_COMPRESSION);
 	
 	protected Inflater																						inflater = new Inflater();
 
@@ -121,11 +122,11 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 
 	}
 
-	protected class PacketHandlerPool extends ResourcePool<PacketHandler>
+	protected class PacketHandlerPool extends CappedResourcePool<PacketHandler>
 	{
 		public PacketHandlerPool()
 		{
-			super(true, 4, 4, true);
+			super(true, 4, 4, 32, true);
 		}
 
 		protected void clean(PacketHandler objectToClean)
@@ -268,10 +269,10 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		
 		public void run()
 		{
-			ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE*(doCompress?5:1));
-			CharBuffer builder = CharBuffer.allocate(MAX_MESSAGE_SIZE*(doCompress?5:1));
-			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
-			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
+			ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE*(doCompress?10:1));
+			CharBuffer builder = CharBuffer.allocate(MAX_MESSAGE_SIZE*(doCompress?10:1));
+			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?10:1)];
+			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?10:1)];
 
 			if(buffer.hasArray())
 				debug("Buffer has array!");
@@ -319,7 +320,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 						{
 							throw new MessageTooLargeException(MAX_MESSAGE_SIZE, compressedSize);
 						}
-						//debug("Input size: " + uncompressedSize + " and output size: " + compressedSize);
+						/*debug("Input size: " + uncompressedSize + " and output size: " + compressedSize);*/
 					}
 					
 					DatagramChannel channel = (DatagramChannel) mdataMessage
@@ -352,11 +353,11 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 				catch (BufferOverflowException e)
 				{
-					debug("Message was too large!");
+					debug("Message was too large: "  + e.getLocalizedMessage());
 				}
 				catch (MessageTooLargeException e)
 				{
-					debug("Message was too large!");
+					debug("Message was too large: " + e.getActualMessageSize());
 				}
 				catch (ClosedChannelException e)
 				{
