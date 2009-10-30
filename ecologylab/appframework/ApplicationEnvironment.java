@@ -772,7 +772,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			switch (os)
 			{
 			case PropertiesAndDirectories.XP:
-			case PropertiesAndDirectories.VISTA:
+			case PropertiesAndDirectories.VISTA_AND_7:
 				if (!Pref.lookupBoolean("navigate_with_ie"))
 					result = FIREFOX_PATH_WINDOWS;
 				if (result != null)
@@ -820,7 +820,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			switch (os)
 			{
 			case PropertiesAndDirectories.XP:
-			case PropertiesAndDirectories.VISTA:
+			case PropertiesAndDirectories.VISTA_AND_7:
 				String path = null;
 				if (!Pref.lookupBoolean("navigate_with_ie"))
 					path = FIREFOX_PATH_WINDOWS;

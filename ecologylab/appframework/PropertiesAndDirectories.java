@@ -28,11 +28,12 @@ extends Debug
 	protected static File		LAUNCH_DIR;
     protected static File		TEMP_DIR;
     protected static File		_DIR;
+    
    
-    public static final int UNKNOWN=0, XP=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5, VISTA=6;
+    public static final int UNKNOWN=0, XP=1, LINUX=2, MAC_OLD=3, MAC=4, OTHER_UNIX=5, VISTA_AND_7=6;
     public static final String OS_NAMES[] =
     {
-    	"Unknown", "Windows XP", "Linux", "Mac old", "Mac OSX", "Unix", "Windows Vista"
+    	"Unknown", "Windows XP", "Linux", "Mac old", "Mac OSX", "Unix", "Windows Vista / 7"
     };
 	
 	protected static int os; //should be final
@@ -45,8 +46,8 @@ extends Debug
 			osName		= osName.toLowerCase();
 			if (StringTools.contains(osName, "xp"))
 				os		= XP;
-			else if (StringTools.contains(osName, "vista"))
-				os		= VISTA;
+			else if (StringTools.contains(osName, "vista") || StringTools.contains(osName, "windows 7"))
+				os		= VISTA_AND_7;
 			else if (StringTools.contains(osName, "mac os x"))
 				os		= MAC;
 			else if (StringTools.contains(osName, "mac os"))
@@ -76,8 +77,8 @@ extends Debug
 				osPreference	= osPreference.toLowerCase();
 				if (osPreference.indexOf("xp") != -1)
 					os			= XP;
-				else if (osPreference.indexOf("vista") != -1)
-					os			= VISTA;
+				else if ((osPreference.indexOf("vista") != -1) || (osPreference.indexOf("windows 7") != -1))
+					os			= VISTA_AND_7;
 				else if (osPreference.indexOf("mac") != -1)
 					os			= MAC;
 				else if (osPreference.indexOf("linux") != -1)
@@ -120,7 +121,7 @@ extends Debug
 			switch (os)
 			{
 			case XP:
-			case VISTA:
+			case VISTA_AND_7:
 			case MAC:
 			case MAC_OLD: 
 				result	= Files.newFile(apDataDir, applicationName);
@@ -151,7 +152,7 @@ extends Debug
 			if (apDataDir != null)
 			{
 				int thisOS = os();
-				if (thisOS == XP || thisOS == VISTA)
+				if (thisOS == XP || thisOS == VISTA_AND_7)
 					result			= Files.newFile(apDataDir, "log");
 				else
 					result			= Files.newFile(apDataDir, "." + "log");
@@ -218,7 +219,7 @@ extends Debug
 			switch (PropertiesAndDirectories.os())
 			{
 				case XP:
-				case VISTA:
+				case VISTA_AND_7:
 					String s1		= "c:/temp/";
 					File f1			= new File(s1);
 					if (f1.exists() && f1.canRead() && f1.canWrite())
@@ -296,7 +297,7 @@ extends Debug
 		   File appDataDir;
 		   switch (os) 
 		   {
-		   case VISTA:		appDataDir = new File(fileName, "AppData/Roaming");
+		   case VISTA_AND_7:		appDataDir = new File(fileName, "AppData/Roaming");
 		   					break;
 		   case XP: 		appDataDir = new File(fileName, "Application Data");
 		   					break;
@@ -336,7 +337,7 @@ extends Debug
 		  switch (thisOS)
 		  {
 		  case XP:
-		  case VISTA:
+		  case VISTA_AND_7:
 //			  File appDataDir	= applicationDataDir();
 //			  File appDataParent= Files.newFile(appDataDir.getParent());
 			  File userDir = userDir();
@@ -391,7 +392,7 @@ extends Debug
 		  switch(thisOS)
 		  {
 		  case XP:
-		  case VISTA: 
+		  case VISTA_AND_7: 
 		  case MAC: // && 
 //			old code for dealing with applet launched cF, commented out by andrew on 9/22/08
 //			  (System.getProperty("http.agent") == null || //since the app version has no agent  
@@ -458,7 +459,7 @@ extends Debug
 		switch (os)
 		{
 		case XP: 	//tested with XP and 2000
-		case VISTA:
+		case VISTA_AND_7:
 			deploymentFile = 
 				new File(applicationDataDir(), "Sun/Java/Deployment/deployment.properties");
 			break;
@@ -498,7 +499,7 @@ extends Debug
 	public static final boolean isWindows()
 	{
 		int os	= os();
-		return (os == XP) || (os == VISTA);
+		return (os == XP) || (os == VISTA_AND_7);
 	}
 	public static final boolean isUnix()
 	{
