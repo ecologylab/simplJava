@@ -657,7 +657,7 @@ public final class TranslationScope extends Debug
 	   public String toString()
 	   {
 		   StringBuilder buffy = new StringBuilder(50);
-		   buffy.append("NameEntry[").append(classSimpleName).
+		   buffy.append("TranslationEntry[").append(classSimpleName).
 		   append(" <").append(tag).append('>');
 		   if (thisClass != null)
 			   buffy.append(' ').append(thisClass);

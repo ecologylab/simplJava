@@ -104,7 +104,7 @@ public class EnvironmentGeneric extends Generic
 		   case PropertiesAndDirectories.MAC:
 			   result	= EnvironmentGeneric.MAC_JAVA_PURL;
 		   case PropertiesAndDirectories.XP:
-		   case PropertiesAndDirectories.VISTA:
+		   case PropertiesAndDirectories.VISTA_AND_7:
 		   case PropertiesAndDirectories.LINUX:
 		   default:
 			   result	= EnvironmentGeneric.SUN_JAVA_PURL;

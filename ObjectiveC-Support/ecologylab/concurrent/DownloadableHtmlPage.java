@@ -173,4 +173,13 @@ public class DownloadableHtmlPage implements Downloadable
 		return null;
 	}
 
+  /**
+   * 
+   * @return	What to tell the user about what is being downloaded.
+   */
+  public String message()
+  {
+  	return purl.toString();
+  }
+
 }

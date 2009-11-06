@@ -15,7 +15,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author andruid
  */
 @xml_inherit
-public class SeedSet extends ArrayListState<Seed>
+public class SeedSet<S extends Seed> extends ArrayListState<S>
 {
 	@xml_attribute protected boolean		dontPlayOnStart;
 	
