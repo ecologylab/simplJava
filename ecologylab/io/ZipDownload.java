@@ -442,4 +442,13 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 		// TODO Auto-generated method stub
 		return null;
 	}
+  /**
+   * 
+   * @return	What to tell the user about what is being downloaded.
+   */
+  public String message()
+  {
+  	return "zip archive " + zipSource.toString();
+  }
+
 }
