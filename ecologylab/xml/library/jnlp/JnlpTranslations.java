@@ -33,8 +33,6 @@ public class JnlpTranslations
 {
 	private static final String				JNLP_TRANSLATIONS_NAME	= "JNLP Translations";
 
-	private static final String				JNLP_PACKAGE_NAME			= "ecologylab.xml.library.jnlp";
-
 	private static final Class[]				JNLP_TRANSLATIONS			=
 																						{
 			AppletDesc.class, Param.class,
@@ -63,7 +61,7 @@ public class JnlpTranslations
 	public static TranslationScope get()
 	{
 		TranslationScope result = TranslationScope.get(JNLP_TRANSLATIONS_NAME,
-				JNLP_TRANSLATIONS, inheritedTranslations);
+				inheritedTranslations, JNLP_TRANSLATIONS);
 
 		return result;
 	}
@@ -73,8 +71,7 @@ public class JnlpTranslations
 	 */
 	private static TranslationScope getStudyTranslationsOnly()
 	{
-		TranslationScope temp = TranslationScope.get(JNLP_TRANSLATIONS_NAME,
-				JNLP_TRANSLATIONS, JNLP_PACKAGE_NAME);
+		TranslationScope temp = TranslationScope.get(JNLP_TRANSLATIONS_NAME, JNLP_TRANSLATIONS);
 
 		return temp;
 	}

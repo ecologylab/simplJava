@@ -1,6 +1,6 @@
 package ecologylab.xml;
 
-public interface OptimizationTypes
+public interface ClassTypes
 {
 	public static final int	UNSET_TYPE				= -99;
 	/**

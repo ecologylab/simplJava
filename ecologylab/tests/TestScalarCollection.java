@@ -20,7 +20,7 @@ public class TestScalarCollection extends ElementState
 	
 	@xml_collection("link")		ArrayList<ParsedURL> purls;
 	
-	static final TranslationScope TS	= TranslationScope.get("test_scalar", TestScalarCollection.class, null);
+	static final TranslationScope TS	= TranslationScope.get("test_scalar", null, TestScalarCollection.class);
 	
 	static final String	xml	= "<test_scalar_collection><person>fred</person><person>wilma</person><link>http://www.google.com</link><link>http://ecologylab.cs.tamu.edu</link></test_scalar_collection>";
 	

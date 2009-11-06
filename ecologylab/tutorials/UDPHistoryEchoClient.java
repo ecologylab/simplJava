@@ -49,8 +49,8 @@ public class UDPHistoryEchoClient
 		 */
 		TranslationScope histEchoTranslations = 
 			TranslationScope.get("histEchoTrans",
-										historyEchoClasses,
-										baseServices);	
+										baseServices,
+										historyEchoClasses);	
 		
 		Scope clientScope = new Scope();
 		

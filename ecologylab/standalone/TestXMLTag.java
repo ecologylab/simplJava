@@ -50,11 +50,11 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         
         System.out.println(test.translateToXML());
         System.out.println(ElementState.translateFromXMLCharSequence(test.translateToXML(),
-                TranslationScope.get("test", classes, "test")).translateToXML());
+                TranslationScope.get("test", classes)).translateToXML());
         
         System.out.println(taggies.translateToXML());
         System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
-                TranslationScope.get("test", classes, "test")).translateToXML());
+                TranslationScope.get("test", classes)).translateToXML());
 
     }
 }

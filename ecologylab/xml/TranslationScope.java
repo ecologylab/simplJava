@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -18,11 +19,6 @@ import ecologylab.xml.types.scalar.TypeRegistry;
 public final class TranslationScope extends Debug
 {
    private final String			name;
-   /**
-	* The default package. If an entry for a class is not found in the hashtable,
-	* this package name is returned.
-	*/
-   private String				defaultPackageName;
    
    private TranslationScope[]	inheritedTranslationScopes;
    
@@ -36,10 +32,10 @@ public final class TranslationScope extends Debug
     * if there are multiple possibilities. This is the case when internal and external versions of
     * a message and its constituents are defined for a messaging API.
     */
-   private HashMap<String, TranslationEntry>	entriesByClassSimpleName	= new HashMap<String, TranslationEntry>();
-   private HashMap<String, TranslationEntry>	entriesByTag				= new HashMap<String, TranslationEntry>();
+   private Scope<TranslationEntry>	entriesByClassSimpleName	= new Scope<TranslationEntry>();
+   private Scope<TranslationEntry>	entriesByTag							= new Scope<TranslationEntry>();
    
-   private final HashMap<String, Class<? extends ElementState>>	nameSpaceClassesByURN = new HashMap<String, Class<? extends ElementState>>();
+   private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN = new Scope<Class<? extends ElementState>>();
    
    private static HashMap<String, TranslationScope>	allTranslationScopes	= new HashMap<String, TranslationScope>();
       
@@ -72,9 +68,9 @@ public final class TranslationScope extends Debug
 	   this.inheritedTranslationScopes					= inheritedTranslationScopes;
    }
 
-   private TranslationScope(String name, Class<? extends ElementState> translation, TranslationScope inheritedTranslationScopes)
+   private TranslationScope(String name, TranslationScope inheritedTranslationScope, Class<? extends ElementState> translation)
    {
-	   this(name, inheritedTranslationScopes);
+	   this(name, inheritedTranslationScope);
 	   addTranslation(translation);
    }
 
@@ -86,7 +82,7 @@ public final class TranslationScope extends Debug
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes)
+   private TranslationScope(String name, TranslationScope... inheritedTranslationScopes)
    {
 	   this(name);
 
@@ -107,28 +103,14 @@ public final class TranslationScope extends Debug
     * @param name
     * @param baseTranslationSet
     */
-   private TranslationScope(String name, ArrayList<TranslationScope> baseTranslationsSet)
+   private TranslationScope(String name, Collection<TranslationScope> baseTranslationsSet)
    {
 	  this(name);
 	  for (TranslationScope thatTranslationScope: baseTranslationsSet)
 		  addTranslations(thatTranslationScope);
 	  inheritedTranslationScopes		= (TranslationScope[]) baseTranslationsSet.toArray();
    }
-   
-   /**
-    * Create a new TranslationScope that defines how to translate xml tag names into
-    * class names of subclasses of ElementState.
-    * 
-    * Set a new default package.
-    * 
-    * @param name
-    * @param defaultPackgeName
-    */
-   private TranslationScope(String name, String defaultPackgeName)
-   {
-	   this(name);
-	   this.setDefaultPackageName(defaultPackgeName);
-   }
+
    
    /**
     * Create a new TranslationScope that defines how to translate xml tag names into
@@ -142,10 +124,9 @@ public final class TranslationScope extends Debug
     * @param translations		Set of initially defined translations for this.
     * @param defaultPackgeName
     */
-   private TranslationScope(String name, Class<? extends ElementState>[] translations, 
-		   String defaultPackgeName)
+   private TranslationScope(String name, Class<? extends ElementState>... translations)
    {
-	   this(name, translations, (TranslationScope[]) null, defaultPackgeName);
+	   this(name, (TranslationScope[]) null, translations);
    }
 
    /**
@@ -153,15 +134,13 @@ public final class TranslationScope extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
- * @param translations
- * @param inheritedTranslationScopes
- * @param defaultPackgeName
+   * @param inheritedTranslationScopes
+   * @param translations
+   * @param defaultPackgeName
     */
-   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope[] inheritedTranslationScopes,
-		   String defaultPackgeName)
+   private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes, Class<? extends ElementState>[] translations)
    {
 	   this(name, inheritedTranslationScopes);
-	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
    /**
@@ -169,15 +148,12 @@ public final class TranslationScope extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
- * @param translations
- * @param defaultPackgeName
- * @param baseTranslations
+   * @param translations
+   * @param baseTranslations
     */
-   private TranslationScope(String name, Class<? extends ElementState>[] translations, ArrayList<TranslationScope> inheritedTranslationsSet,
-		   String defaultPackgeName)
+   private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet, Class<? extends ElementState>[] translations)
    {
 	   this(name, inheritedTranslationsSet);
-	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
    
@@ -186,15 +162,12 @@ public final class TranslationScope extends Debug
     * Then, add the array of translations, then, make the defaultPackageName available.
     * 
     * @param name
-    * @param translations
-    * @param inheritedTranslationScope
-    * @param defaultPackgeName
+   * @param inheritedTranslationScope
+   * @param translations
     */
-   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope inheritedTranslationScope,
-		   String defaultPackgeName)
+   private TranslationScope(String name, TranslationScope inheritedTranslationScope, Class<? extends ElementState>[] translations)
    {
 	   this(name, inheritedTranslationScope);
-	   this.setDefaultPackageName(defaultPackgeName);
 	   addTranslations(translations);
    }
 
@@ -204,15 +177,14 @@ public final class TranslationScope extends Debug
     * Map XML Namespace declarations.
     *      
     * @param name
-    * @param translations
-    * @param inheritedTranslationScopes
-    * @param defaultPackgeName
-    * @param nameSpaceDecls
+   * @param nameSpaceDecls
+   * @param inheritedTranslationScopes
+   * @param translations
+   * @param defaultPackgeName
     */
-   private TranslationScope(String name, Class<? extends ElementState>[] translations, TranslationScope[] inheritedTranslationScopes,
-		   String defaultPackgeName, NameSpaceDecl[] nameSpaceDecls)
+   private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls, TranslationScope[] inheritedTranslationScopes, Class<? extends ElementState>[] translations)
    {
-	   this(name, translations, inheritedTranslationScopes, defaultPackgeName);
+	   this(name, inheritedTranslationScopes, translations);
 	   addNameSpaceDecls(nameSpaceDecls);
    }
    
@@ -359,15 +331,6 @@ public final class TranslationScope extends Debug
    }
    
    /**
-	* Set the default package name for XML tag to ElementState sub-class translations.
-	* 
-	* @param packageName	The new default package name.
-	*/
-   private void setDefaultPackageName(String packageName)
-   {
-	  defaultPackageName	= packageName;
-   }
-   /**
 	* Look-up a <code>Class</code> object for the xmlTag, using translations in this,
 	* and in inherited TranslationScopes.
 	* Will use defaultPackage name here and, recursivley, in inherited scopes, as necessary.
@@ -390,8 +353,9 @@ public final class TranslationScope extends Debug
     */
    private TranslationEntry xmlTagToTranslationEntry(String xmlTag)
    {
+	   return entriesByTag.get(xmlTag);
+/*
 	   TranslationEntry entry		= entriesByTag.get(xmlTag);
-
 	   if (entry == null)
 	   {
 		   String defaultPackageName	= this.defaultPackageName;
@@ -424,6 +388,7 @@ public final class TranslationScope extends Debug
 		   }
 	   }
 	   return entry;
+ */
    }
 
    /**
@@ -535,97 +500,34 @@ public final class TranslationScope extends Debug
 	   }
 
 	   /**
-	    * Create the entry, deriving all from its class object, perhaps including an @xml_tag declaration.
+	    * Create the entry, deriving all from its class object, 
+	    * perhaps including an @xml_tag declaration.
 	    */
 	   TranslationEntry(Class<? extends ElementState> thisClass)
 	   {
-		   this(thisClass, determineXMLTag(thisClass));
-	   }
+	  	 assert(thisClass != null);
 
-	   /**
-	    * Create the entry using Class object and a tag passed in.
-	    * This is used for alternative mappings.
-	    */
-	   TranslationEntry(Class<? extends ElementState> thisClass, String tag)
-	   {
-		   this((thisClass.getPackage() != null)?thisClass.getPackage().getName():"", 
-				   thisClass.getSimpleName(), 
-				   thisClass.getName(),
-				   tag, 
-				   thisClass);
-	   }
+	  	 this.thisClass			= thisClass;
+		   this.classSimpleName	= thisClass.getSimpleName();
 
+		   String tag						= determineXMLTag(thisClass); // (takes @xml_tag into account)
+		   this.tag							= tag;
+	  	 Package thisPackage	= thisClass.getPackage();
+	  	 this.packageName			= thisPackage != null ? thisPackage.getName() : "";
 
-	   /**
-	    * Form an entry, using packageName, classSimpleName, and tag.
-	    * It may turn out to be an empty one -- if class.forName() fails.
-	    * 
-	    * @param packageName
-	    * @param classSimpleName
-	    * @param tag
-	    */
-	   TranslationEntry(String packageName, String classSimpleName, String tag)
-	   {
-		   this(packageName, classSimpleName, (packageName == null) ? null : packageName + "." + classSimpleName, 
-				   tag, null);
-	   }
-
-	   @SuppressWarnings("unchecked")
-	   TranslationEntry(String packageName, String classSimpleName, String classWholeName,
-			   String tag, Class<? extends ElementState> thisClass)
-	   {
-		   this.packageName		= packageName;
-		   /*
-		    * changed by andruid 5/5/07 the thinking is that there is only one possible simple class name per tag per
-		    * TranslationScope, so we don't ever need the whole class name. and by ussing the short one, we will be
-		    * able to support fancy overriding properly, where you change (override!) the mapping of a simple name,
-		    * because the package and whole name are differrent.
-		    */
-		   this.classSimpleName	= classSimpleName;
-
-		   this.tag				= tag;
-
-		   // look for a class if we dont' have one already
-		   if ((thisClass == null) && (classWholeName != null))
-		   {
-			   try
-			   {  
-				   thisClass		= (Class<? extends ElementState>) Class.forName(classWholeName);
-			   } catch (ClassNotFoundException e)
-			   {
-				   // maybe we need to use State
-				   try
-				   {
-					   thisClass	= (Class<? extends ElementState>) Class.forName(classWholeName + "State");
-				   } catch (ClassNotFoundException e2)
-				   {
-				   }
-			   }
-		   }
-		   if (thisClass == null)
-		   {
-			   debug("WARNING: can't find class object, create empty entry.");
-
-			   this.empty		= true;
-		   }
-
-		   this.thisClass			= thisClass;
 		   registerTranslation(tag, classSimpleName);
 
-		   if (thisClass != null)
+		   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+		   if (otherTagsAnnotation != null)
 		   {
-			   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
-			   if (otherTagsAnnotation != null)
-			   {
-				   String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
-				   for (String otherTag : otherTags)
-				   {
-					   if ((otherTag != null) && (otherTag.length() > 0))
-					   {
-						   entriesByTag.put(otherTag, this);
-					   }
-				   }
-			   }
+		  	 String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
+		  	 for (String otherTag : otherTags)
+		  	 {
+		  		 if ((otherTag != null) && (otherTag.length() > 0))
+		  		 {
+		  			 entriesByTag.put(otherTag, this);
+		  		 }
+		  	 }
 		   }
 	   }
 
@@ -686,34 +588,6 @@ public final class TranslationScope extends Debug
    {
 	   return (TranslationScope) allTranslationScopes.get(name);
    }
-   
-   /**
-    * Find the TranslationScope called <code>name</code>, if there is one.
-    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no TranslationScope with this name, create a new one, and set its defaultPackageName.
-    * <p/>
-    * If the lookup fails initially, it is performed again, in a synchronized block, using the name String literal
-    * as the lock for mutual exclusion. Thus, make sure to use *the same string literal* across calls, to ensure
-    * proper concurrency support.
-    * 
-    * @param name	String literal for lookup of the TranslationScope. 
-    * 				Also used for locking construction of the initial instance.
-    * @return
-    */
-   public static TranslationScope get(String name, String defaultPackageName)
-   {
-	   TranslationScope result	= lookup(name);
-	   if (result == null)
-	   {
-		   synchronized (name)
-		   {
-			   result	= lookup(name);
-			   if (result == null)
-				   result	= new TranslationScope(name, defaultPackageName);
-		   }
-	   }
-	   return result;
-   }
 
    /**
     * Find an existing TranslationScope by this name, or create a new one.
@@ -732,11 +606,12 @@ public final class TranslationScope extends Debug
 		   {
 			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(name, translations, name);
+				   result		= new TranslationScope(name, translations);
 		   }
 	   }
 	   return result;	   
    }
+
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * Inherit from the previous TranslationScope, by including all mappings from there.
@@ -749,22 +624,6 @@ public final class TranslationScope extends Debug
    @SuppressWarnings("unchecked")
    public static TranslationScope get(String name, TranslationScope inheritedTranslations, Class... translations)
    {
-  	 return get(name, translations, inheritedTranslations, name);
-   }
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Inherit from the previous TranslationScope, by including all mappings from there.
-    * 
-    * @param name
-    * @param translations
-    * @param inheritedTranslations
-    * @param defaultPackageName
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations, TranslationScope inheritedTranslations,
-		   							  String defaultPackageName)
-   {
 	   TranslationScope result	= lookup(name);
 	   if (result == null)
 	   {
@@ -772,7 +631,7 @@ public final class TranslationScope extends Debug
 		   {
 			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(name, translations, inheritedTranslations, defaultPackageName);
+				   result		= new TranslationScope(name, inheritedTranslations, translations);
 		   }
 	   }
 	   return result;	   
@@ -784,11 +643,11 @@ public final class TranslationScope extends Debug
     * Add just a single new class.
     * 
     * @param name
-    * @param translation
-    * @param inheritedTranslations
+ * @param inheritedTranslations
+ * @param translation
     * @return
     */
-   public static TranslationScope get(String name, Class<? extends ElementState> translation, TranslationScope inheritedTranslations)
+   public static TranslationScope get(String name, TranslationScope inheritedTranslations, Class<? extends ElementState> translation)
    {
 	   TranslationScope result	= lookup(name);
 	   if (result == null)
@@ -797,7 +656,7 @@ public final class TranslationScope extends Debug
 		   {
 			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(name, translation, inheritedTranslations);
+				   result		= new TranslationScope(name, inheritedTranslations, translation);
 		   }
 	   }
 	   return result;	   
@@ -813,7 +672,7 @@ public final class TranslationScope extends Debug
     */
    public static TranslationScope get(String name, Class<? extends ElementState> translation)
    {
-	   return get(name, translation, null);
+	   return get(name, null, translation);
    }
  
    /**
@@ -821,30 +680,51 @@ public final class TranslationScope extends Debug
     * Build on the previous TranslationScope, by including all mappings from there.
     * 
     * @param name the name of the TranslationScope to acquire.
-    * @param translations an array of translations to add to the scope.
-    * @param inheritedTranslations a list of previous translation scopes to build upon.
+   * @param translations an array of translations to add to the scope.
+   * @param inheritedTranslations a list of previous translation scopes to build upon.
     * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations,
-			  TranslationScope... inheritedTranslations)
-   {
-	   return get(name, translations, inheritedTranslations, (String) null);
+   public static TranslationScope get(String name, TranslationScope[] inheritedTranslationsSet,
+			  Class... translations)
+    {
+	   TranslationScope result	= lookup(name);
+	   if (result == null)
+	   {
+		   synchronized (name)
+		   {
+			   result	= lookup(name);
+			   if (result == null)
+				   result		= new TranslationScope(name, inheritedTranslationsSet, translations);
+		   }
+	   }
+	   return result;	   
    }
-
+   public static TranslationScope get(String name, TranslationScope inheritedTranslations0,
+  		 TranslationScope inheritedTranslations1, Class... translations)
+   {
+  	 TranslationScope[] inheritedArray	= new TranslationScope[2];
+  	 inheritedArray[0]									= inheritedTranslations0;
+  	 inheritedArray[1]									= inheritedTranslations1;
+  	 return get(name, inheritedArray, translations);
+   }
+   public static TranslationScope get(String name, NameSpaceDecl[] nameSpaceDecls, Class... translations)
+   {
+	   return get(name, nameSpaceDecls, null, translations);
+   }
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
- * @param translations
- * @param inheritedTranslationsSet
- * @param defaultPackageName
-    * @return
+   * @param nameSpaceDecls				Array of ElementState class + URI key map entries for handling XML Namespaces.
+   * @param inheritedTranslationsSet
+   * @param translations
+   * @param defaultPackageName
+   * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
-		   							  String defaultPackageName)
+   public static TranslationScope get(String name, NameSpaceDecl[] nameSpaceDecls, TranslationScope[] inheritedTranslationsSet, Class... translations)
    {
 	   TranslationScope result	= lookup(name);
 	   if (result == null)
@@ -853,51 +733,10 @@ public final class TranslationScope extends Debug
 		   {
 			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+				   result		= new TranslationScope(name, nameSpaceDecls, inheritedTranslationsSet, translations);
 		   }
 	   }
 	   return result;	   
-   }
-
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Build on a set of inherited TranslationScopes, by including all mappings from them.
-    * 
-    * @param name
- * @param translations
- * @param inheritedTranslationsSet
- * @param defaultPackageName
- * @param nameSpaceDecls				Array of ElementState class + URI key map entries for handling XML Namespaces.
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations, TranslationScope[] inheritedTranslationsSet,
-		   String defaultPackageName, NameSpaceDecl[] nameSpaceDecls)
-   {
-	   TranslationScope result	= lookup(name);
-	   if (result == null)
-	   {
-		   synchronized (name)
-		   {
-			   result	= lookup(name);
-			   if (result == null)
-				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName, nameSpaceDecls);
-		   }
-	   }
-	   return result;	   
-   }
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Build on a set of inherited TranslationScopes, by including all mappings from them.
-    * 
-    * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslationsSet
-    * @return
-    */
-   public static TranslationScope get(String name, TranslationScope[] inheritedTranslations, String defaultPackageName)
-   {
-	   return get(name, null, inheritedTranslations, defaultPackageName);	   
    }
 
    /**
@@ -908,23 +747,9 @@ public final class TranslationScope extends Debug
     * @param inheritedTranslations
     * @return
     */
-   public static TranslationScope get(String name, TranslationScope[] inheritedTranslations)
+   public static TranslationScope get(String name, TranslationScope... inheritedTranslations)
    {
-	   return get(name, null, inheritedTranslations, null);	   
-   }
-
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Build on an inherited TranslationScopes, by including all mappings from them.
-    * 
-    * @param name
-    * @param inheritedTranslations
-    * @param defaultPackageName
-    * @return
-    */
-   public static TranslationScope get(String name, TranslationScope inheritedTranslations, String defaultPackageName)
-   {
-	   return get(name, null, inheritedTranslations, defaultPackageName);	   
+	   return get(name, inheritedTranslations, null);	   
    }
 
    /**
@@ -932,14 +757,13 @@ public final class TranslationScope extends Debug
     * Build on a set of inherited TranslationScopes, by including all mappings from them.
     * 
     * @param name
-    * @param defaultPackageName
-    * @param inheritedTranslationsSet
-    * @param translations
-    * @return
+   * @param inheritedTranslationsSet
+   * @param translations
+ * @return
     */
    @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, String defaultPackageName, ArrayList<TranslationScope> inheritedTranslationsSet,
-		   							  Class[] translations)
+   public static TranslationScope get(String name, Collection<TranslationScope> inheritedTranslationsSet,
+  		 Class... translations)
    {
 	   TranslationScope result	= lookup(name);
 	   if (result == null)
@@ -948,62 +772,10 @@ public final class TranslationScope extends Debug
 		   {
 			   result	= lookup(name);
 			   if (result == null)
-				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, defaultPackageName);
+				   result		= new TranslationScope(name, inheritedTranslationsSet, translations);
 		   }
 	   }
 	   return result;	   
-   }
-   /**
-    * Find an existing TranslationScope by this name, or create a new one.
-    * Build on a set of inherited TranslationScopes, by including all mappings from them.
-    * 
-    * @param name
- * @param translations
- * @param inheritedTranslationsSet
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations,
-		   							  ArrayList<TranslationScope> inheritedTranslationsSet)
-   {
-	   TranslationScope result	= lookup(name);
-	   if (result == null)
-	   {
-		   synchronized (name)
-		   {
-			   result	= lookup(name);
-			   if (result == null)
-				   result		= new TranslationScope(name, translations, inheritedTranslationsSet, name);
-		   }
-	   }
-	   return result;	   
-   }
-   /**
-    * Find the TranslationScope called <code>name</code>, if there is one.
-    * It must also have its defaultPackageName = to that passed in as the 2nd argument.
-    * If there is no TranslationScope with this name, create a new one, and set its defaultPackageName.
-    * If there is one, but it has the wrong defaultPackageName, then throw a RuntimeException.
-    * 
-    * Add the translations to the TranslationScope.
-    * 
-    * @param name
-    * @return Either an existing or new TranslationScope, with this defaultPackageName, and these translations.
-    * A RuntimeException will be thrown if there was already such a TranslationScope, but with different defaultPackageName.
-    */
-   @SuppressWarnings("unchecked")
-   public static TranslationScope get(String name, Class[] translations, String defaultPackageName)
-   {
-	  TranslationScope result	= lookup(name);
-	  if (result == null)
-	  {
-		   synchronized (name)
-		   {
-			   result	= lookup(name);
-			   if (result == null)
-				   result		= new TranslationScope(name, translations, defaultPackageName);
-		   }
-	  }
-	  return result;
    }
 
    protected HashMap<String, TranslationEntry> entriesByClassName()

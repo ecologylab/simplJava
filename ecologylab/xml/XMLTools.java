@@ -1154,7 +1154,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @return		true if the field's type is contained within the 
 	 * 				{@link cm.types.TypeRegistry TypeRegistry}
 	 */
-	static boolean emitFieldAsAttribute(Field field, Optimizations optimizations)
+	static boolean emitFieldAsAttribute(Field field, ClassDescriptor optimizations)
 	{
 		return isScalarValue(field) && 
 		!(representAsLeafNode(field));

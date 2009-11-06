@@ -21,6 +21,7 @@ import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
+//FIXME -- will be merged with and called FieldDescriptor in the Next Generation (TNG :-)
 /**
  * Small data structure used to optimize translation to XML.
  * 
@@ -30,7 +31,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public class FieldToXMLOptimizations
 extends Debug
-implements OptimizationTypes
+implements ClassTypes
 {
     public static final String XMLNS_URN = "http://www.w3.org/2000/xmlns/";
 
@@ -72,7 +73,7 @@ implements OptimizationTypes
      * Optimizations object for the ElementState object that was the context when
      * the field represented by this was processed.
      */
-    private		Optimizations	contextOptimizations;
+    private		ClassDescriptor	contextOptimizations;
     
     private int				type;
     
@@ -100,7 +101,7 @@ implements OptimizationTypes
      * @param field
      * @param actualClass
      */
-    FieldToXMLOptimizations(Optimizations optimizations, Field field, Class<? extends ElementState> actualClass)
+    FieldToXMLOptimizations(ClassDescriptor optimizations, Field field, Class<? extends ElementState> actualClass)
     {
     	this.contextOptimizations	= optimizations;
         setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
@@ -119,7 +120,7 @@ implements OptimizationTypes
      * @param rootClass
      * @param nameSpaceID TODO
      */
-    FieldToXMLOptimizations(Optimizations optimizations, Class rootClass, String nameSpaceID)
+    FieldToXMLOptimizations(ClassDescriptor optimizations, Class rootClass, String nameSpaceID)
     {
     	this.contextOptimizations	= optimizations;
     	setupXmlText(optimizations);
@@ -141,7 +142,7 @@ implements OptimizationTypes
      * 
      * @param optimizations
      */
-	private void setupXmlText(Optimizations optimizations)
+	private void setupXmlText(ClassDescriptor optimizations)
 	{
 		Field optimizationsScalarTextField = optimizations.getScalarTextField();
     	if (optimizationsScalarTextField != null)
@@ -250,7 +251,7 @@ implements OptimizationTypes
      * @param collectionFieldToXMLOptimizations
      * @param actualCollectionElementClass
      */
-    FieldToXMLOptimizations(Optimizations optimizations, FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
+    FieldToXMLOptimizations(ClassDescriptor optimizations, FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
     {
     	this.contextOptimizations	=  optimizations;
     	
@@ -275,7 +276,7 @@ implements OptimizationTypes
      * @param field
      * @param nameSpacePrefix
      */
-    FieldToXMLOptimizations(Optimizations optimizations, Field field, String nameSpacePrefix)
+    FieldToXMLOptimizations(ClassDescriptor optimizations, Field field, String nameSpacePrefix)
     {
     	this.contextOptimizations					= optimizations;
     	
@@ -927,7 +928,7 @@ implements OptimizationTypes
 	 * 
 	 * @return
 	 */
-	public Optimizations getContextOptimizations()
+	public ClassDescriptor getContextOptimizations()
 	{
 		return contextOptimizations;
 	}

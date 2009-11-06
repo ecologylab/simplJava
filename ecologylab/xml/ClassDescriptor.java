@@ -27,15 +27,15 @@ import ecologylab.xml.types.scalar.ScalarType;
  *
  * @author andruid
  */
-public class Optimizations extends Debug
-implements OptimizationTypes
+public class ClassDescriptor extends Debug
+implements ClassTypes
 {
 	/**
 	 * Class object that we are holding optimizations for.
 	 */
 	final Class<? extends ElementState>					thatClass;
 	
-	Optimizations										parent;
+	ClassDescriptor										parent;
 	
 	private String										nameSpaceID;
 	
@@ -44,7 +44,7 @@ implements OptimizationTypes
 	 * The keys are simple class names.
 	 */
 	//TODO -- replace with OptimizationsMap
-	private static final HashMap<String, Optimizations>	rootOptimizationsMap	= new HashMap<String, Optimizations>();
+	private static final HashMap<String, ClassDescriptor>	rootOptimizationsMap	= new HashMap<String, ClassDescriptor>();
 //	private static final OptimizationsMap	rootOptimizationsMap	= new OptimizationsMap();
 	
 	/**
@@ -71,7 +71,7 @@ implements OptimizationTypes
 	 * Map of NodeToJavaOptimizations. The keys are tag names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, NodeToJavaOptimizations>	nodeToJavaOptimizationsMap	= new HashMap<String, NodeToJavaOptimizations>();
+	private HashMap<String, ElementDescriptor>	nodeToJavaOptimizationsMap	= new HashMap<String, ElementDescriptor>();
 	
 	/**
 	 * The fields that are represented as attributes for the class we're optimizing.
@@ -99,7 +99,7 @@ implements OptimizationTypes
 	/**
 	 * Handles a text node.
 	 */
-	private NodeToJavaOptimizations				scalarTextN2jo;
+	private ElementDescriptor				scalarTextN2jo;
 	
 	/**
 	 * Map of Fields, with field names as keys.
@@ -127,7 +127,7 @@ implements OptimizationTypes
 	 * See also lookupRoot(), lookupChildOptimizations().
 	 * @param thatClass
 	 */
-	private Optimizations(Class<? extends ElementState> thatClass)
+	private ClassDescriptor(Class<? extends ElementState> thatClass)
 	{
 		this(thatClass, null);
 	}
@@ -139,7 +139,7 @@ implements OptimizationTypes
 	 * @param 	thatClass
 	 * @param	parent		Parent optimizations.
 	 */
-	private Optimizations(Class<? extends ElementState> thatClass, Optimizations parent)
+	private ClassDescriptor(Class<? extends ElementState> thatClass, ClassDescriptor parent)
 	{
 		super();
 		this.thatClass		= thatClass;
@@ -148,7 +148,7 @@ implements OptimizationTypes
 		getAndOrganizeFields();
 	}
 
-	void setParent(Optimizations parent)
+	void setParent(ClassDescriptor parent)
 	{
 		this.parent			= parent;
 		//FIXME -- instead of inheriting fully, implement static lexical scoping
@@ -166,7 +166,7 @@ implements OptimizationTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static Optimizations lookupRootOptimizations(ElementState elementState)
+	static ClassDescriptor lookupRootOptimizations(ElementState elementState)
 	{
 		Class<? extends ElementState> thatClass		= elementState.getClass();
 
@@ -184,11 +184,11 @@ implements OptimizationTypes
 	 * @param thatClass
 	 * @return
 	 */
-	static Optimizations lookupRootOptimizations(Class<? extends ElementState> thatClass)
+	static ClassDescriptor lookupRootOptimizations(Class<? extends ElementState> thatClass)
 	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
-		Optimizations result= rootOptimizationsMap.get(className);
+		ClassDescriptor result= rootOptimizationsMap.get(className);
 		if (result == null)
 		{
 			// but still be thread safe!
@@ -197,7 +197,7 @@ implements OptimizationTypes
 				result 		= rootOptimizationsMap.get(className);
 				if (result == null)
 				{
-					result				= new Optimizations(thatClass);
+					result				= new ClassDescriptor(thatClass);
 					rootOptimizationsMap.put(className, result);
 				}
 			}
@@ -221,12 +221,12 @@ implements OptimizationTypes
 	 * @return
 	 */
 	//TODO -- do we need to pass NamespaceID through here!?
-	Optimizations lookupChildOptimizations(ElementState elementState)
+	ClassDescriptor lookupChildOptimizations(ElementState elementState)
 	{
 		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
 	}
 	
-	Optimizations lookupChildOptimizations(Class<ElementState> thatClass)
+	ClassDescriptor lookupChildOptimizations(Class<ElementState> thatClass)
 	{
 		return childOptimizationsMap.getOrCreateAndPutIfNew(thatClass);
 	}
@@ -287,7 +287,7 @@ implements OptimizationTypes
 	}
 	
 	/**
-	 * Accessor for collection elements (no field).
+	 * Descriptor for collection elements (no field).
      * 
 	 * @param collectionTagMapEntry
 	 * @param actualCollectionElementClass
@@ -361,7 +361,7 @@ implements OptimizationTypes
 	 * @param context TODO
 	 * @param node TODO
 	 */
-	NodeToJavaOptimizations elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
+	ElementDescriptor elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
 		return nodeToJavaOptimizations(translationSpace, context, tag, false);
@@ -378,9 +378,9 @@ implements OptimizationTypes
 	 * @param node
 	 * @return
 	 */
-	NodeToJavaOptimizations nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
+	ElementDescriptor nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
 	{
-		NodeToJavaOptimizations result	= nodeToJavaOptimizationsMap.get(tag);
+		ElementDescriptor result	= nodeToJavaOptimizationsMap.get(tag);
 		
 		if (result == null)
 		{
@@ -393,7 +393,7 @@ implements OptimizationTypes
 					
 				if (result == null)
 				{
-					result	= new NodeToJavaOptimizations(translationSpace, this, context, tag, isAttribute);
+					result	= new ElementDescriptor(translationSpace, this, context, tag, isAttribute);
 					nodeToJavaOptimizationsMap.put(tag, result);
 				}
 			}
@@ -508,7 +508,7 @@ implements OptimizationTypes
 		return result;
 	}
 	
-	private HashMapArrayList<String, FieldAccessor>	fieldAccessors;
+	private HashMapArrayList<String, FieldDescriptor>	fieldDescriptors;
 	
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
@@ -517,105 +517,98 @@ implements OptimizationTypes
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	HashMapArrayList<String, FieldAccessor> getFieldAccessorsForThis(Class<? extends FieldAccessor> fieldAccessorClass)
+	HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsForThis(Class<? extends FieldDescriptor> fieldDescriptorClass)
 	{
-		HashMapArrayList<String, FieldAccessor> result	= fieldAccessors;
+		HashMapArrayList<String, FieldDescriptor> result	= fieldDescriptors;
 		if (result == null)
 		{
-			result				= createFieldAccessors(fieldAccessorClass);
-			this.fieldAccessors	= result;
+			result				= createFieldDescriptors(fieldDescriptorClass);
+			this.fieldDescriptors	= result;
 		}
 		return result;
 	}
 	
 	/**
-	 * Construct a set of FieldAccessor objects for the class.
+	 * Construct a set of FieldDescriptor objects for the class.
 	 * 
 	 * @param thatClass
 	 * @return
 	 */
-	public static HashMapArrayList<String, FieldAccessor> getFieldAccessors(Class<? extends ElementState> thatClass)
+	public static HashMapArrayList<String, FieldDescriptor> getFieldDescriptors(Class<? extends ElementState> thatClass)
 	{
-		return getFieldAccessors(thatClass, null);
+		return getFieldDescriptors(thatClass, null);
 	}
 
 	/**
-	 * Construct a set of FieldAccessor objects for the class.
+	 * Construct a set of FieldDescriptor objects for the class.
 	 * 
 	 * @param <T>
 	 * @param thatClass
-	 * @param fieldAccessorClass		Subclass of FieldAccessor to use to construct.
+	 * @param fieldDescriptorClass		Subclass of FieldDescriptor to use to construct.
 	 * @return
 	 */
-	public static<T extends FieldAccessor> HashMapArrayList<String, FieldAccessor> 
-	getFieldAccessors(Class<? extends ElementState> thatClass, Class<T> fieldAccessorClass)
+	public static<T extends FieldDescriptor> HashMapArrayList<String, FieldDescriptor> 
+	getFieldDescriptors(Class<? extends ElementState> thatClass, Class<T> fieldDescriptorClass)
 	{
-		Optimizations thatClassOptimizations	= lookupRootOptimizations(thatClass);
+		ClassDescriptor thatClassOptimizations	= lookupRootOptimizations(thatClass);
 		
-		HashMapArrayList<String, FieldAccessor> result	= null;
+		HashMapArrayList<String, FieldDescriptor> result	= null;
 		
 		if (thatClass != null)
 		{
-			result								= thatClassOptimizations.getFieldAccessorsForThis(fieldAccessorClass);
+			result								= thatClassOptimizations.getFieldDescriptorsForThis(fieldDescriptorClass);
 		}
 		return result;
 	}
 
-	static final Class[] NEW_FIELD_ACCESSOR_TYPES =
+	static final Class[] NEW_FIELD_DESCRIPTOR_TYPES =
 	{
 		FieldToXMLOptimizations.class,
 	};
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
 	 * 
-	 * @param fieldAccessorClass	The Class to use for instantiating each FieldAccessor.
-	 * 								The default is FieldAccessor, but class objects may be passed in that extend that class.
+	 * @param fieldDescriptorClass	The Class to use for instantiating each FieldDescriptor.
+	 * 								The default is FieldDescriptor, but class objects may be passed in that extend that class.
 	 * 
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	private HashMapArrayList<String, FieldAccessor> createFieldAccessors(Class<? extends FieldAccessor> fieldAccessorClass)
+	private HashMapArrayList<String, FieldDescriptor> createFieldDescriptors(Class<? extends FieldDescriptor> fieldDescriptorClass)
 	{
 		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= attributeFieldOptimizations();
 		ArrayList<FieldToXMLOptimizations> elementF2XOs		= elementFieldOptimizations();
 		
-		HashMapArrayList<String, FieldAccessor> result		= new HashMapArrayList<String, FieldAccessor>(attributeF2XOs.size() + elementF2XOs.size());
+		HashMapArrayList<String, FieldDescriptor> result		= new HashMapArrayList<String, FieldDescriptor>(attributeF2XOs.size() + elementF2XOs.size());
 
 		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
 		{
-			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
-					new FieldAccessor(attrF2XO) : createFieldAccessor(fieldAccessorClass, attrF2XO);
+			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
+					new FieldDescriptor(attrF2XO) : createFieldDescriptor(fieldDescriptorClass, attrF2XO);
 					
 			String tagName 				= attrF2XO.tagName();
 			if (!result.containsKey(tagName))
-				result.put(tagName, fAccessor);
+				result.put(tagName, fDescriptor);
 		}
 		
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
 		{
-			FieldAccessor	fAccessor	= (fieldAccessorClass == null) ? 
-					new FieldAccessor(elementF2XO) : createFieldAccessor(fieldAccessorClass, elementF2XO);
+			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
+					new FieldDescriptor(elementF2XO) : createFieldDescriptor(fieldDescriptorClass, elementF2XO);
 					
 			String tagName 				= elementF2XO.tagName();
 			if (!result.containsKey(tagName))
-				result.put(tagName, fAccessor);
-			
-//			Class<?> thatFieldClass 	= thatField.getType();
-//			if (thatFieldClass.isAssignableFrom(ElementState.class))
-//			{
-//				//Optimization thatOptimizations	= 
-//			}
-			//TODO if thatField.getType() get Optimizations for that 
+				result.put(tagName, fDescriptor);
 		}
 		return result;
 	}
 	
-	private FieldAccessor createFieldAccessor(Class<? extends FieldAccessor> fieldAccessorClass, FieldToXMLOptimizations attrF2XO)
+	private FieldDescriptor createFieldDescriptor(Class<? extends FieldDescriptor> fieldDescriptorClass, FieldToXMLOptimizations attrF2XO)
 	{
 		Object[] args	= new Object[1];
 		args[0]			= attrF2XO;
 		
-		return ReflectionTools.getInstance(fieldAccessorClass, NEW_FIELD_ACCESSOR_TYPES, args);
+		return ReflectionTools.getInstance(fieldDescriptorClass, NEW_FIELD_DESCRIPTOR_TYPES, args);
 	}
 	/**
 	 * Get the fields that are represented as attributes for the class we're optimizing.
@@ -779,7 +772,7 @@ implements OptimizationTypes
 			{
 				// Special field for a typed text node value
 				scalarTextField		= thatField;
-				scalarTextN2jo 		= new NodeToJavaOptimizations(this, thatField);
+				scalarTextN2jo 		= new ElementDescriptor(this, thatField);
 				
 				thatField.setAccessible(true);
             
@@ -813,7 +806,7 @@ implements OptimizationTypes
 	{
 		for (Field thatField : themFields)
 		{
-			NodeToJavaOptimizations n2jo		= null;
+			ElementDescriptor n2jo		= null;
 			ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(ElementState.xml_tag.class);
 			boolean isNested 					= thatField.isAnnotationPresent(ElementState.xml_nested.class);
 			if (tagAnnotation != null)
@@ -880,11 +873,11 @@ implements OptimizationTypes
 	 * @param thatField
 	 * @param thatClass
 	 */
-	private NodeToJavaOptimizations registerN2JOByClass(TranslationScope tspace, Field thatField,
+	private ElementDescriptor registerN2JOByClass(TranslationScope tspace, Field thatField,
 			Class thatClass)
 	{
-		NodeToJavaOptimizations n2jo	= 
-			new NodeToJavaOptimizations(tspace, this, thatField, thatClass);
+		ElementDescriptor n2jo	= 
+			new ElementDescriptor(tspace, this, thatField, thatClass);
 		nodeToJavaOptimizationsMap.put(n2jo.tag(), n2jo);
 		return n2jo;
 	}
@@ -900,23 +893,23 @@ implements OptimizationTypes
 	 * 
 	 * @return	NodeToJavaOptimizations that was registered, or null.
 	 */
-	private NodeToJavaOptimizations registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
+	private ElementDescriptor registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
 	{
 		String thatTag					= tagAnnotation.value();
-		NodeToJavaOptimizations	result	= null;
+		ElementDescriptor	result	= null;
 		if ((thatTag != null) && (thatTag.length() > 0))
 		{
 			result						= nodeToJavaOptimizationsMap.get(thatTag);
 			if (result == null)
 			{
-				result					= new NodeToJavaOptimizations(tspace, this, thatField, thatTag, isAttribute);
+				result					= new ElementDescriptor(tspace, this, thatField, thatTag, isAttribute);
 				nodeToJavaOptimizationsMap.put(thatTag, result);
 			}
 		}
 		return result;
 	}
 	
-	private boolean registerOtherTagsOptimizationsIfNeeded(NodeToJavaOptimizations fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
+	private boolean registerOtherTagsOptimizationsIfNeeded(ElementDescriptor fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
 	{
 		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
 		final boolean result	= (otherTags != null);
@@ -925,13 +918,13 @@ implements OptimizationTypes
 			for (String otherTag : otherTags)
 			{
 				
-				NodeToJavaOptimizations n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
+				ElementDescriptor n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
 				if (n2jo == null)
 				{
 					if (fieldN2jo != null)
 						n2jo					= fieldN2jo;
 					else
-						n2jo					= new NodeToJavaOptimizations(tspace, this, thatField, otherTag, isAttribute);
+						n2jo					= new ElementDescriptor(tspace, this, thatField, otherTag, isAttribute);
 					nodeToJavaOptimizationsMap.put(otherTag, n2jo);
 				}
 			}
@@ -1179,10 +1172,10 @@ implements OptimizationTypes
 		}
 		return result;
 	}
-	class OptimizationsMap extends HashMapWriteSynch3<String, Class, Optimizations>
-	implements ValueFactory<Class, Optimizations>
+	class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDescriptor>
+	implements ValueFactory<Class, ClassDescriptor>
 	{
-		public Optimizations getOrCreateAndPutIfNew(ElementState elementState)
+		public ClassDescriptor getOrCreateAndPutIfNew(ElementState elementState)
 		{
 			return super.getOrCreateAndPutIfNew(elementState.getClass());
 		}
@@ -1193,9 +1186,9 @@ implements OptimizationTypes
 			return intermediate.getName();
 		}
 		
-		public Optimizations createValue(Class key)
+		public ClassDescriptor createValue(Class key)
 		{
-			return new Optimizations(key, parent);
+			return new ClassDescriptor(key, parent);
 		}
 	}
 	
@@ -1207,7 +1200,7 @@ implements OptimizationTypes
 		return thatClass;
 	}
 
-	NodeToJavaOptimizations scalarTextN2jo()
+	ElementDescriptor scalarTextN2jo()
 	{
 		return scalarTextN2jo;
 	}

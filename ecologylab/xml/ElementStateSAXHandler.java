@@ -39,7 +39,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class ElementStateSAXHandler 
 extends Debug 
-implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
+implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 {
 	final TranslationScope	translationSpace;
 	
@@ -55,11 +55,11 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 	/**
 	 * Optimizations for current field.
 	 */
-	NodeToJavaOptimizations			currentN2JO;
+	ElementDescriptor			currentN2JO;
 	
 	XMLTranslationException			xmlTranslationException;
 	
-	ArrayList<NodeToJavaOptimizations>	n2joStack	= new ArrayList<NodeToJavaOptimizations>();
+	ArrayList<ElementDescriptor>	n2joStack	= new ArrayList<ElementDescriptor>();
 	
 	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
 	
@@ -270,7 +270,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		} catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if (!(currentN2JO == NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS) &&
+			if (!(currentN2JO == ElementDescriptor.ROOT_ELEMENT_OPTIMIZATIONS) &&
 					(currentElementState != null))
 			{
 				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
@@ -296,9 +296,9 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		this.currentElementState	= root;
 	}
 	
-	private Optimizations currentOptimizations()
+	private ClassDescriptor currentClassDescriptor()
 	{
-		return this.currentElementState.optimizations;
+		return this.currentElementState.classDescriptor;
 	}
 	
 	/**
@@ -313,7 +313,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 
-		NodeToJavaOptimizations activeN2JO		= null;
+		ElementDescriptor activeN2JO		= null;
 		final boolean isRoot 					= (root == null);
 		if (isRoot)
 		{	// form the root ElementState!
@@ -329,7 +329,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationSpace, attributes, this);
-						activeN2JO				= NodeToJavaOptimizations.ROOT_ELEMENT_OPTIMIZATIONS;
+						activeN2JO				= ElementDescriptor.ROOT_ELEMENT_OPTIMIZATIONS;
 					}
 					else
 					{
@@ -360,8 +360,8 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 				
 			activeN2JO	= (currentN2JO != null) && (curentN2JOType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
-				NodeToJavaOptimizations.IGNORED_ELEMENT_OPTIMIZATIONS :
-				currentOptimizations().nodeToJavaOptimizations(translationSpace, currentES, tagName, false);
+				ElementDescriptor.IGNORED_ELEMENT_OPTIMIZATIONS :
+				currentClassDescriptor().nodeToJavaOptimizations(translationSpace, currentES, tagName, false);
 		}
 		this.currentN2JO						= activeN2JO;
 		registerXMLNS();
@@ -441,17 +441,17 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		}
 	}
 
-	private void pushN2JO(NodeToJavaOptimizations n2jo)
+	private void pushN2JO(ElementDescriptor n2jo)
 	{
 		this.n2joStack.add(n2jo);
 	}
 	private void popAndPeekN2JO()
 	{
-		ArrayList<NodeToJavaOptimizations> stack = this.n2joStack;
+		ArrayList<ElementDescriptor> stack = this.n2joStack;
 		int last	= stack.size() - 1;
 		if (last >= 0)
 		{
-			NodeToJavaOptimizations result	= stack.remove(last--);
+			ElementDescriptor result	= stack.remove(last--);
 			if (last >= 0)
 				result	= stack.get(last);
 			this.currentN2JO	= result;
@@ -483,7 +483,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 		processPendingTextScalar(curentN2JOType, currentES);
 		
 		final ElementState parentES					= currentES.parent;
-		final NodeToJavaOptimizations currentN2JO	= this.currentN2JO;
+		final ElementDescriptor currentN2JO	= this.currentN2JO;
 
 		switch (curentN2JOType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
@@ -545,7 +545,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 				case COLLECTION_ELEMENT:
 					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 					// so we get the optimizations we need from the currentElementState
-					NodeToJavaOptimizations scalarTextChildN2jo = currentES.scalarTextChildN2jo();
+					ElementDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
 					if (scalarTextChildN2jo != null)
 					{
 						value		= new String(currentTextValue.substring(0, length));
@@ -566,7 +566,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 	void printStack(String msg)
 	{
 		currentElementState.debug("Stack -- " + msg + "\t[" + this.currentElementState + "]");
-		for (NodeToJavaOptimizations thatN2JO : n2joStack)
+		for (ElementDescriptor thatN2JO : n2joStack)
 		{
 			println(thatN2JO.tag() + " - 0x" + Integer.toHexString(thatN2JO.type()));
 		}
@@ -756,7 +756,7 @@ implements ContentHandler, OptimizationTypes, ScalarUnmarshallingContext
 	private void registerXMLNS(ElementState context, String prefix, String urn)
 	{
 		if (context != null)
-			context.optimizations.mapNamespaceIdToClass(translationSpace, prefix, urn);
+			context.classDescriptor.mapNamespaceIdToClass(translationSpace, prefix, urn);
 		else
 			println("ERROR: Null context. Can't register xmlns:" + prefix + "=" + urn);
 	}

@@ -37,7 +37,7 @@ public class UDPHistoryEchoServer
 		 * space inheriting the base translations
 		 */
 		TranslationScope histEchoTranslations = TranslationScope.get("histEchoTrans",
-				historyEchoClasses, baseServices);	
+				baseServices, historyEchoClasses);	
 		
 		/* 
 		 * Creates a scope for the server to use as an application scope

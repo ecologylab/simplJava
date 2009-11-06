@@ -43,6 +43,6 @@ public class CFMessagesTranslations extends Debug
 	 */
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, DefaultServicesTranslations.get());
+		return TranslationScope.get(PACKAGE_NAME, DefaultServicesTranslations.get(), TRANSLATIONS);
 	}
 }

@@ -147,11 +147,11 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 			Scope applicationObjectScope, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, TranslationScope.get(
-				"double_threaded_logging " + inetAddresses[0].toString() + ":"
-						+ portNumber, LOGGING_CLASSES, DefaultServicesTranslations
-						.get(), requestTranslationSpace), applicationObjectScope,
-				idleConnectionTimeout, maxPacketSize);
+		super(portNumber, inetAddresses, 
+				TranslationScope.get(connectionTscopeName(inetAddresses, portNumber), 
+														 DefaultServicesTranslations.get(), 
+														 requestTranslationSpace, LOGGING_CLASSES), 
+				applicationObjectScope,	idleConnectionTimeout, maxPacketSize);
 
 		// add the necessary scope object mappings for logging
 		// note this is probably null right now...

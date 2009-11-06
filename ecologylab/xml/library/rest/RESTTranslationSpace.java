@@ -20,6 +20,6 @@ public class RESTTranslationSpace extends Debug
 	
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS, INHERITED);
+		return TranslationScope.get(PACKAGE_NAME, INHERITED, TRANSLATIONS);
 	}
 }

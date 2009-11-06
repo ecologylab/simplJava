@@ -10,13 +10,14 @@ import ecologylab.xml.types.element.ElementTypeTranslations;
  */
 public class LoggingTranslations
 {
-	public static final String	PACKAGE_NAME	= "ecologylab.services.logging";
+	public static final String	LOGGING_TSCOPE_NAME	= "ecologylab.services.logging";
 
-	public static final Class	TRANSLATIONS[]	=
-															{ Logging.class, LogOps.class,
-			LogEvent.class, LogueMessage.class, Prologue.class,
-			SendEpilogue.class, SendPrologue.class, MixedInitiativeOp.class,
-			Epilogue.class							};
+	public static final Class		TRANSLATIONS[]			=
+	{ 
+		Logging.class, LogOps.class, LogEvent.class,
+		LogueMessage.class, Prologue.class, SendEpilogue.class, SendPrologue.class,
+		MixedInitiativeOp.class, Epilogue.class		
+	};
 
 	/**
 	 * This accessor will work from anywhere, in any order, and stay efficient.
@@ -25,7 +26,6 @@ public class LoggingTranslations
 	 */
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, TRANSLATIONS,
-				ElementTypeTranslations.get());
+		return TranslationScope.get(LOGGING_TSCOPE_NAME, ElementTypeTranslations.get(), TRANSLATIONS);
 	}
 }

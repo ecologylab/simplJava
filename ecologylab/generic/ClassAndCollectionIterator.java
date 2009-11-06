@@ -3,7 +3,7 @@ package ecologylab.generic;
 import java.util.Collection;
 import java.util.Iterator;
 
-import ecologylab.xml.FieldAccessor;
+import ecologylab.xml.FieldDescriptor;
 
 /**
  * Iterates through a Collection of things, and then through an Iterator
@@ -17,7 +17,7 @@ import ecologylab.xml.FieldAccessor;
  *          This typically starts as this, but shifts as we iterate through 
  *          the nested Collection of Iterators.
  */
-public class ClassAndCollectionIterator<I extends FieldAccessor, O extends Iterable<I>>
+public class ClassAndCollectionIterator<I extends FieldDescriptor, O extends Iterable<I>>
 implements Iterator<O>
 {
   private Iterator<I> iterator;

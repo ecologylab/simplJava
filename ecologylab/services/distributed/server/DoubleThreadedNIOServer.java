@@ -396,4 +396,18 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		// TODO Auto-generated method stub
 
 	}
+	/**
+	 * Utility method for dynamically name TranslationScopes.
+	 * 
+	 * @param inetAddresses
+	 * @param portNumber
+	 * @return
+	 */
+	protected static String connectionTscopeName(InetAddress[] inetAddresses, int portNumber)
+	{
+		return "double_threaded_logging " + inetAddresses[0].toString() + ":"
+				+ portNumber;
+	}
+
+
 }

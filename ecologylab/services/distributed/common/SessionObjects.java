@@ -1,5 +1,6 @@
 package ecologylab.services.distributed.common;
 
+import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationScope;
 
 /**
@@ -15,10 +16,11 @@ public interface SessionObjects
 
     public static final String           MAIN_SHUTDOWNABLE             = "main_shutdownable";
 
-    public static final TranslationScope BROWSER_SERVICES_TRANSLATIONS = TranslationScope
+    public static final TranslationScope BROWSER_SERVICES_TRANSLATIONS = DefaultServicesTranslations.get();
+    	/*TranslationScope
                                                                                .get(
                                                                                        "Browse",
-                                                                                       "ecologylab.services.messages");
+                                                                                       "ecologylab.services.messages"); */
 
     public static final String           BROWSER_SERVICES_CLIENT       = "browser_services_client";
 

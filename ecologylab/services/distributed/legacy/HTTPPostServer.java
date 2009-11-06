@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
+import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationScope;
 
 /**
@@ -24,8 +25,11 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
         System.out.println("localhost: " + InetAddress.getLocalHost());
         System.out.println(InetAddress.getByName("localhost"));
         HTTPPostServer validateionTestServer = get(postServerPort, InetAddress
-                .getByName("localhost"), TranslationScope.get(
-                "validateMessage", "ecologylab.services.messages"), new Scope());
+                .getByName("localhost"), //FIXME changed when default package names were eliminated. may not include all needed translations
+                
+                /* TranslationScope.get(
+                "validateMessage", "ecologylab.services.messages") */
+                DefaultServicesTranslations.get(), new Scope());
 
         if (validateionTestServer != null)
         {

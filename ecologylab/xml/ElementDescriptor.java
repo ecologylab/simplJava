@@ -22,8 +22,8 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  * @author andruid
  */
-class NodeToJavaOptimizations extends Debug
-implements OptimizationTypes
+class ElementDescriptor extends Debug
+implements ClassTypes
 {
 	private  String				tag;
 	
@@ -31,7 +31,7 @@ implements OptimizationTypes
 	
 	private int					type;
 	
-	private final Optimizations	optimizations;
+	private final ClassDescriptor	optimizations;
 	
 	private String				nameSpaceID;
 	
@@ -66,7 +66,7 @@ implements OptimizationTypes
 	
 	private TranslationScope				translationSpace;
 	
-	private NodeToJavaOptimizations			nestedPTE;
+	private ElementDescriptor			nestedPTE;
 	
 	/**
 	 * Construct from a Field object, for Fields declared with @xml_tag
@@ -76,7 +76,7 @@ implements OptimizationTypes
 	 * @param tag
 	 * @param isAttribute
 	 */
-	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, String tag, boolean isAttribute)
+	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -126,11 +126,11 @@ implements OptimizationTypes
 	 * @param field
 	 * @param thatClass
 	 */
-	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, Class thatClass)
+	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass)
 	{
 		this(translationSpace, optimizations, field, thatClass, XMLTools.getXmlTagName(thatClass, "State"));
 	}
-	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, Field field, Class thatClass, String tag)
+	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass, String tag)
 	{
 		super();
 		this.tag							= tag;
@@ -147,7 +147,7 @@ implements OptimizationTypes
 	 * @param optimizations
 	 * @param field
 	 */
-	NodeToJavaOptimizations(Optimizations optimizations, Field field)
+	ElementDescriptor(ClassDescriptor optimizations, Field field)
 	{
 		super();
 		Class<?> scalarTypeClass = field.getType();
@@ -173,7 +173,7 @@ implements OptimizationTypes
 	 * @param tag		Tag corresponding to the value in the XML that we're translating.
 	 * @param isAttribute TODO
 	 */
-	NodeToJavaOptimizations(TranslationScope translationSpace, Optimizations optimizations, ElementState context, String tag, boolean isAttribute)
+	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, ElementState context, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -393,9 +393,9 @@ implements OptimizationTypes
 //			this.type			= NAMESPACE_TRIAL_ELEMENT;
 			return false;
 		}
-		Optimizations nsOpti			= nsContext.optimizations;
+		ClassDescriptor nsOpti			= nsContext.classDescriptor;
 
-		NodeToJavaOptimizations nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
+		ElementDescriptor nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
 		final int nsN2joType 			= nsN2jo.type();
 		if (nsN2joType != IGNORED_ELEMENT)
 		{
@@ -926,7 +926,7 @@ implements OptimizationTypes
 		error("Can't set to " + textNodeValue + " because fieldType is unknown.");
 	}
 			
-	private void fillValues(NodeToJavaOptimizations other)
+	private void fillValues(ElementDescriptor other)
 	{
 		//this.classOp			= other.classOp;
 		this.type				= other.type;
@@ -962,7 +962,7 @@ implements OptimizationTypes
 	/**
 	 * @return the nestedNameSpaceParseTableEntry
 	 */
-	NodeToJavaOptimizations nestedPTE()
+	ElementDescriptor nestedPTE()
 	{
 		return nestedPTE;
 	}
@@ -1030,20 +1030,20 @@ implements OptimizationTypes
 		return scalarType;
 	}
 	
-	NodeToJavaOptimizations(String tag)
+	ElementDescriptor(String tag)
 	{
 		this.tag		= tag;
 		this.type		= IGNORED_ELEMENT;
 		optimizations	= null;
 	}
-	static final NodeToJavaOptimizations IGNORED_ELEMENT_OPTIMIZATIONS;
-	static final NodeToJavaOptimizations ROOT_ELEMENT_OPTIMIZATIONS;
+	static final ElementDescriptor IGNORED_ELEMENT_OPTIMIZATIONS;
+	static final ElementDescriptor ROOT_ELEMENT_OPTIMIZATIONS;
 	static
 	{
-		IGNORED_ELEMENT_OPTIMIZATIONS		= new NodeToJavaOptimizations("IGNORED");
+		IGNORED_ELEMENT_OPTIMIZATIONS		= new ElementDescriptor("IGNORED");
 		IGNORED_ELEMENT_OPTIMIZATIONS.type	= IGNORED_ELEMENT;
 		
-		ROOT_ELEMENT_OPTIMIZATIONS			= new NodeToJavaOptimizations("ROOT");
+		ROOT_ELEMENT_OPTIMIZATIONS			= new ElementDescriptor("ROOT");
 		ROOT_ELEMENT_OPTIMIZATIONS.type		= ROOT;
 	}
 	/**

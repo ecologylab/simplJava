@@ -20,15 +20,15 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * 
  * @author andruid
  */
-public class FieldAccessor extends Debug
-implements OptimizationTypes
+public class FieldDescriptor extends Debug
+implements ClassTypes
 {
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 	
 	protected final 	Field			field;
 	final	String			tagName;
 	
-	protected final Optimizations	parentOptimizations;
+	protected final ClassDescriptor	parentOptimizations;
 
 	ScalarType<?>			scalarType;
 	final  int				type;
@@ -42,7 +42,7 @@ implements OptimizationTypes
 	 */
 	Field					xmlTextScalarField;
 	
-	public FieldAccessor(FieldToXMLOptimizations f2XO)
+	public FieldDescriptor(FieldToXMLOptimizations f2XO)
 	{
 		ScalarType scalarType = f2XO.scalarType();
 		this.scalarType	= scalarType;
@@ -57,7 +57,7 @@ implements OptimizationTypes
 		parentOptimizations	= f2XO.getContextOptimizations();
 		if (parentOptimizations != null)
 		{
-			Optimizations thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
+			ClassDescriptor thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
 			if (thisOptimizations != null)
 			{
 				//FIXME -- use f2XO.xmlTextField instead!

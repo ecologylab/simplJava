@@ -10,8 +10,8 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldAccessor;
-import ecologylab.xml.Optimizations;
+import ecologylab.xml.FieldDescriptor;
+import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.internaltranslators.cocoa.library.CocoaInheritTest;
 
@@ -140,7 +140,7 @@ public class CocoaTranslator
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
    {
-      HashMapArrayList<String, FieldAccessor> attributes = Optimizations.getFieldAccessors(inputClass);
+      HashMapArrayList<String, FieldDescriptor> attributes = ClassDescriptor.getFieldDescriptors(inputClass);
 
       openHeaderFile(inputClass, appendable);
 
@@ -148,14 +148,14 @@ public class CocoaTranslator
       {
          openFieldDeclartion(appendable);
 
-         for (FieldAccessor fieldAccessor : attributes)
+         for (FieldDescriptor fieldAccessor : attributes)
          {
             appendFieldAsObjectiveCAttribute(fieldAccessor, appendable);
          }
 
          closeFieldDeclartion(appendable);
 
-         for (FieldAccessor fieldAccessor : attributes)
+         for (FieldDescriptor fieldAccessor : attributes)
          {
             appendPropertyOfField(fieldAccessor, appendable);
          }
@@ -336,7 +336,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendFieldAsObjectiveCAttribute(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendFieldAsObjectiveCAttribute(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       if (fieldAccessor.isCollection())
       {
@@ -387,7 +387,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendPropertyOfField(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendPropertyOfField(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       if (fieldAccessor.isCollection())
       {
@@ -419,7 +419,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendFieldAsReference(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendFieldAsReference(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       StringBuilder fieldDeclaration = new StringBuilder();
 
@@ -442,7 +442,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendFieldAsPrimitive(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendFieldAsPrimitive(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       StringBuilder fieldDeclaration = new StringBuilder();
 
@@ -464,7 +464,7 @@ public class CocoaTranslator
     * @param appendable
     * @throws IOException
     */
-   private void appendFieldAsNestedAttribute(FieldAccessor fieldAccessor, Appendable appendable) throws IOException
+   private void appendFieldAsNestedAttribute(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException
    {
       StringBuilder fieldDeclaration = new StringBuilder();
 
@@ -488,7 +488,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendPropertyAsReference(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendPropertyAsReference(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 
@@ -513,7 +513,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   private void appendPropoertyAsPrimitive(FieldAccessor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   private void appendPropoertyAsPrimitive(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 

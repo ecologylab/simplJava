@@ -31,6 +31,6 @@ public class ICDLTranslations extends Debug
 	   
 	   public static TranslationScope get()
 	   {
-		   return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, PACKAGE_NAME);
+		   return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS);
 	   }
 }

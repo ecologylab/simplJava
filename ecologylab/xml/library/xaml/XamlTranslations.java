@@ -33,7 +33,7 @@ public class XamlTranslations extends Debug
 
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(TRANSLATION_SPACE_NAME, TRANSLATIONS, null, null, NAME_SPACE_DECLS);
+		return TranslationScope.get(TRANSLATION_SPACE_NAME, NAME_SPACE_DECLS, TRANSLATIONS);
 	   }
 	
 }
