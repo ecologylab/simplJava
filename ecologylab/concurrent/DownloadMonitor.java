@@ -26,6 +26,8 @@ import ecologylab.io.Downloadable;
 public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		DownloadProcessor<T>
 {
+	private static final int	TWELVE_HOURS_IN_MILLIS	= 1000*60*60*12;
+
 	static HashMap<Thread, NewPorterStemmer>	stemmersHash					= new HashMap<Thread, NewPorterStemmer>();
 
 	// ////////////////// queues for media that gets downloaded /////////////////
@@ -289,7 +291,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	/**
 	 * Keep track of system millis that this site can be hit at.
 	 */
-	Hashtable<BasicSite, Long> siteTimeMap = new Hashtable<BasicSite, Long>();
+	Hashtable<BasicSite, Long> siteTimeTable = new Hashtable<BasicSite, Long>();
 	/**
 	 * The heart of the workhorse Threads. It loops, pulling a DownloadClosure off the toDownload
 	 * queue, calling its performDownload() method, and then calling dispatch() if there is a
@@ -327,7 +329,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						
 						if (site != null && site.constrainDownloadInterval())
 						{
-							Long nextDownloadableAt 	= siteTimeMap.get(site);
+							Long nextDownloadableAt 	= siteTimeTable.get(site);
 							if(nextDownloadableAt != null)
 							{
 								long timeRemaining 			= nextDownloadableAt - currentTimeMillis;
@@ -365,6 +367,10 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
 //						toDownload.remove(thatClosure);
 						toDownload.remove(closureNum);
+//						System.out.println("Download Queue after this download:");
+//						int tempClosureNum = 0;
+//						for(DownloadClosure closure : toDownload)
+//							System.out.println("\t\t"+ tempClosureNum+ ": " + closure);
 					}
 				}
 			}	// end synchronized
@@ -455,11 +461,16 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 */
 	private void setNextAvailableTimeForSite(BasicSite site)
 	{
-		synchronized(siteTimeMap)
+		synchronized(siteTimeTable)
 		{
 		//The next time we encounter the site, get a different interval.
-			siteTimeMap.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); 
+			siteTimeTable.put(site, System.currentTimeMillis() + site.getDecentDownloadInterval()); 
 		}
+	}
+	
+	public void setAbnormallyLongNextAvailableTimeForSite(BasicSite site)
+	{
+		siteTimeTable.put(site, System.currentTimeMillis() + TWELVE_HOURS_IN_MILLIS);
 	}
 
 	public String toString()
@@ -623,6 +634,26 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		this.status = status;
 	}
 
+	/**
+	 * Removes all downloadClosures that come from this site.
+	 * @param site
+	 */
+	public void removeAllDownloadClosuresFromSite(BasicSite site)
+	{
+		synchronized(toDownload)
+		{
+			ArrayList<Integer> indexesToRemove = new ArrayList<Integer>();
+			int index = 0;
+			for(DownloadClosure d : toDownload)
+				if(d.downloadable != null && d.downloadable.getSite() == site)
+					indexesToRemove.add(index++);
+			debug("Removing " + indexesToRemove.size() + " from the queue");
+			
+			for(int removeIndex : indexesToRemove)
+				toDownload.remove(removeIndex);
+		}
+	}
+	
 	/**
 	 * @return the paused
 	 */
