@@ -647,10 +647,14 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			for(DownloadClosure d : toDownload)
 				if(d.downloadable != null && d.downloadable.getSite() == site)
 					indexesToRemove.add(index++);
-			debug("Removing " + indexesToRemove.size() + " from the queue");
-			
-			for(int removeIndex : indexesToRemove)
-				toDownload.remove(removeIndex);
+			if(indexesToRemove.size() > 0)
+			{
+				debug("Removing " + indexesToRemove.size() + " from the queue");
+				for(int removeIndex : indexesToRemove)
+					toDownload.remove(removeIndex);
+			}
+			else
+				debug("Nothing to remove for site: " + site);
 		}
 	}
 	
