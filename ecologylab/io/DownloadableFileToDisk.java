@@ -53,7 +53,7 @@ implements Downloadable, DispatchTarget
 		this(target, inputStream, destination, null);
 	}
 	
-	public void downloadDone()
+	public void downloadAndParseDone()
 	{
 		downloadDone = true;
 	}

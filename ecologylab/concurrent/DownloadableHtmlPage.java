@@ -140,7 +140,7 @@ public class DownloadableHtmlPage implements Downloadable
     }
 
     
-    public void downloadDone() {}
+    public void downloadAndParseDone() {}
     
     /**
      * Get the final HTML content of the downloaded page.

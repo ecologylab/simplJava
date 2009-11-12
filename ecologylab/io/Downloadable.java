@@ -36,7 +36,7 @@ public interface Downloadable
     * Call to notify the object that its download is completed;
     *
     */
-   public void downloadDone();
+   public void downloadAndParseDone();
    
    /**
     * True if the Downloadable has been recycled, and thus should not be downloaded.

@@ -396,7 +396,7 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 	 * Call to notify the object that its download is completed;
 	 * 
 	 */
-	public synchronized void downloadDone()
+	public synchronized void downloadAndParseDone()
 	{
 		notifyAll();
 	}
