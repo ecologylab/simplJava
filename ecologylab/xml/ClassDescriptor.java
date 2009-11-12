@@ -35,31 +35,7 @@ implements ClassTypes
 	 */
 	final Class<? extends ElementState>					thatClass;
 	
-	ClassDescriptor										parent;
-	
-	private String										nameSpaceID;
-	
-	/**
-	 * A map of root level Optimizations objects.
-	 * The keys are simple class names.
-	 */
-	//TODO -- replace with OptimizationsMap
-	private static final HashMap<String, ClassDescriptor>	rootOptimizationsMap	= new HashMap<String, ClassDescriptor>();
-//	private static final OptimizationsMap	rootOptimizationsMap	= new OptimizationsMap();
-	
-	/**
-	 * Map of Optimizations objects for (the classes of) our children.
-	 * We need to collect these in this scope, because there could be different metalanguage declarations.
-	 * (IS THIS TRUE? EVEN I AM NOT SURE. -- ANDRUID 11/2/07)
-	 */
-	private final OptimizationsMap						childOptimizationsMap	= new OptimizationsMap();
-		
-	/**
-	 * Found before the colon while translating from;
-	 * emitted with a colon while translating to.
-	 */
-	private String										nameSpacePrefix;
-	
+	private static final OptimizationsMap	allClassDescriptorsMap	= new OptimizationsMap();
 	/**
 	 * Map of FieldToXMLOptimizations, with field names as keys.
 	 * 
@@ -129,32 +105,12 @@ implements ClassTypes
 	 */
 	private ClassDescriptor(Class<? extends ElementState> thatClass)
 	{
-		this(thatClass, null);
-	}
-
-	/**
-	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
-	 * See also lookupRoot(), lookupChildOptimizations().
-	 * 
-	 * @param 	thatClass
-	 * @param	parent		Parent optimizations.
-	 */
-	private ClassDescriptor(Class<? extends ElementState> thatClass, ClassDescriptor parent)
-	{
 		super();
 		this.thatClass		= thatClass;
-		setParent(parent);
 		
 		getAndOrganizeFields();
 	}
 
-	void setParent(ClassDescriptor parent)
-	{
-		this.parent			= parent;
-		//FIXME -- instead of inheriting fully, implement static lexical scoping
-		if (parent != null)
-			this.nameSpaceClassesById		= parent.nameSpaceClassesById;
-	}
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations.
 	 * Uses just-in-time / lazy evaluation.
@@ -188,48 +144,27 @@ implements ClassTypes
 	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
-		ClassDescriptor result= rootOptimizationsMap.get(className);
+		ClassDescriptor result= allClassDescriptorsMap.get(className);
 		if (result == null)
 		{
 			// but still be thread safe!
-			synchronized (rootOptimizationsMap)
+			synchronized (allClassDescriptorsMap)
 			{
-				result 		= rootOptimizationsMap.get(className);
+				result 		= allClassDescriptorsMap.get(className);
 				if (result == null)
 				{
 					result				= new ClassDescriptor(thatClass);
-					rootOptimizationsMap.put(className, result);
+					allClassDescriptorsMap.put(className, result);
 				}
 			}
 		}
 		return result;
 	}
 	
-	void setNameSpaceID(String nameSpaceID)
-	{
-		this.nameSpaceID	= nameSpaceID + ":";
-	}
-	/**
-	 * Obtain child Optimizations object in the local scope of this.
-	 * Uses just-in-time / lazy evaluation.
-	 * The first time this is called for a given ElementState class, it constructs a new Optimizations
-	 * saves it in our rootOptimizationsMap, and returns it.
-	 * <p/>
-	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
-	 * 
-	 * @param elementState		An ElementState object that we're looking up Optimizations for.
-	 * @return
-	 */
-	//TODO -- do we need to pass NamespaceID through here!?
-	ClassDescriptor lookupChildOptimizations(ElementState elementState)
-	{
-		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
-	}
-	
-	ClassDescriptor lookupChildOptimizations(Class<ElementState> thatClass)
-	{
-		return childOptimizationsMap.getOrCreateAndPutIfNew(thatClass);
-	}
+//	void setNameSpaceID(String nameSpaceID)
+//	{
+//		this.nameSpaceID	= nameSpaceID + ":";
+//	}
 
 
 	/**
@@ -276,7 +211,7 @@ implements ClassTypes
 				result		= fieldToXMLOptimizationsMap.get(rootClass);
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(this, rootClass, this.nameSpaceID);
+				    result = new FieldToXMLOptimizations(this, rootClass);
                     
                     fieldToXMLOptimizationsMap.put(rootClass, result);
 				}
@@ -337,20 +272,20 @@ implements ClassTypes
 		}
 		return result;
 	}
-	/**
-	 * @return Returns the nameSpacePrefix.
-	 */
-	String nameSpacePrefix()
-	{
-		return nameSpacePrefix;
-	}
-	/**
-	 * @param nameSpacePrefix The nameSpacePrefix to set.
-	 */
-	void setNameSpacePrefix(String nameSpacePrefix)
-	{
-		this.nameSpacePrefix = nameSpacePrefix;
-	}
+//	/**
+//	 * @return Returns the nameSpacePrefix.
+//	 */
+//	String nameSpacePrefix()
+//	{
+//		return nameSpacePrefix;
+//	}
+//	/**
+//	 * @param nameSpacePrefix The nameSpacePrefix to set.
+//	 */
+//	void setNameSpacePrefix(String nameSpacePrefix)
+//	{
+//		this.nameSpacePrefix = nameSpacePrefix;
+//	}
 
 	/**
 	 * Get an object that describes how the field gets translated from XML.
@@ -478,7 +413,7 @@ implements ClassTypes
 						result				= new ArrayList<FieldToXMLOptimizations>(numElements);
 						for (int i=0; i<numElements; i++)
 						{
-							result.add(this.fieldToXMLOptimizations(elementFields2.get(i), this.nameSpaceID));
+							result.add(this.fieldToXMLOptimizations(elementFields2.get(i), (String) null /* this.nameSpaceID */));
 						}
 					}
 				}
@@ -563,7 +498,7 @@ implements ClassTypes
 
 	static final Class[] NEW_FIELD_DESCRIPTOR_TYPES =
 	{
-		FieldToXMLOptimizations.class,
+		ClassDescriptor.class, FieldToXMLOptimizations.class,
 	};
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
@@ -584,7 +519,7 @@ implements ClassTypes
 		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
 		{
 			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
-					new FieldDescriptor(attrF2XO) : createFieldDescriptor(fieldDescriptorClass, attrF2XO);
+					new FieldDescriptor(this, attrF2XO) : createFieldDescriptor(fieldDescriptorClass, attrF2XO);
 					
 			String tagName 				= attrF2XO.tagName();
 			if (!result.containsKey(tagName))
@@ -594,7 +529,7 @@ implements ClassTypes
 		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
 		{
 			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
-					new FieldDescriptor(elementF2XO) : createFieldDescriptor(fieldDescriptorClass, elementF2XO);
+					new FieldDescriptor(this, elementF2XO) : createFieldDescriptor(fieldDescriptorClass, elementF2XO);
 					
 			String tagName 				= elementF2XO.tagName();
 			if (!result.containsKey(tagName))
@@ -605,8 +540,9 @@ implements ClassTypes
 	
 	private FieldDescriptor createFieldDescriptor(Class<? extends FieldDescriptor> fieldDescriptorClass, FieldToXMLOptimizations attrF2XO)
 	{
-		Object[] args	= new Object[1];
-		args[0]			= attrF2XO;
+		Object[] args	= new Object[2];
+		args[0]			= this;
+		args[1]			= attrF2XO;
 		
 		return ReflectionTools.getInstance(fieldDescriptorClass, NEW_FIELD_DESCRIPTOR_TYPES, args);
 	}
@@ -640,91 +576,16 @@ implements ClassTypes
 		attributeFields	= new ArrayList<Field>();
 		elementFields		= new ArrayList<Field>();
 		fieldsMap			= new HashMap<String, Field>();
-		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
-		switch (ds)
-		{
-		case PUBLIC:
-			getAndOrganizeFieldsPublic(thatClass, attributeFields, elementFields);
-			break;
-		case ANNOTATION:
-		case TRANSIENT:
-			getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields,
-										  (ds == ElementState.DeclarationStyle.TRANSIENT));
-			break;
-		default:
-			throw new RuntimeException("Unsupported declaration style: " + ds);
-		}
+		getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields);
 	}
-	/**
-	 * Performs the lazy evaluation to get attribute and element field collections.
-	 * Uses the hip new annotation stylee.
-	 * Uses the old PUBLIC declaration stylee.
-	 * <p/>
-	 * Must be called from getAndOrganizeFields() !
-	 */
-	private void getAndOrganizeFieldsPublic(Class thatClass,
-			ArrayList<Field> attributeFields, ArrayList<Field> elementFields)
-	{
-		Field[] fields		= thatClass.getFields();
-			
-		for (int i = 0; i < fields.length; i++)
-		{
-			Field thatField	= fields[i];
-			int fieldModifiers		= thatField.getModifiers();
 
-			// skip static fields, since we're saving instances,
-			// and inclusion w each instance would be redundant.
-			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
-			{
-//				debug("Skipping " + thatField + " because its static!");
-				continue;
-			}
-			mapField(thatField);
-			if (XMLTools.isScalarValue(thatField) && !XMLTools.representAsLeafNode(thatField))
-			{
-				attributeFields.add(thatField);
-			}
-			else
-			{
-				elementFields.add(thatField);
-			}
-		}
-	}
-	
-	ArrayList<Field>	annotatedFields;
-	
-	ArrayList<Field>	annotatedFields()
-	{
-		ArrayList<Field>	result	= annotatedFields;
-		if (result == null)
-		{
-			Field[] fields		= thatClass.getDeclaredFields();
-			
-			result						= new ArrayList<Field>(fields.length);
-			for (Field thatField : fields)
-			{
-				if (XMLTools.representAsLeafOrNested(thatField) || 
-					 XMLTools.representAsAttribute(thatField) ||
-					 thatField.isAnnotationPresent(ElementState.xml_text.class) ||
-					 thatField.isAnnotationPresent(ElementState.xml_collection.class) ||
-					 thatField.isAnnotationPresent(ElementState.xml_map.class))
-				{
-					thatField.setAccessible(true);
-					result.add(thatField);
-				}
-			}
-			annotatedFields = result;
-		}
-		return result;
-	}
 	/**
 	 * Performs the lazy evaluation to get attribute and element field collections.
 	 * Uses the hip new annotation declaration stylee.
 	 * Recurses up the chain of inherited Java classes, if @xml_inherit is specified.
 	 */
 	private void getAndOrganizeFieldsRecursive(Class thatClass,
-			ArrayList<Field> attributeFields, ArrayList<Field> elementFields, 
-			boolean transientDeclarationStyle)
+			ArrayList<Field> attributeFields, ArrayList<Field> elementFields)
 	{
 		//TODO -- use annotated fields instead!
 		Field[] fields		= thatClass.getDeclaredFields();
@@ -782,11 +643,11 @@ implements ClassTypes
 			// else -- ignore non-annotated fields
 		}
 		
-		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
+		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class
 			Class superClass	= thatClass.getSuperclass();
 			if (superClass != null)
-				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
+				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields);
 		}
 	}
 	
@@ -1062,19 +923,11 @@ implements ClassTypes
 	 */
 	private void mapField(Field thatField)
 	{
-		fieldsMap.put(thatField.getName(), thatField);
-	}
-/*
-	private void mapMap(Field thatField)
-	{
-		mapsMap.put(thatField.getName(), thatField);
+		//FIXME is tag determined by field by class?
+		fieldsMap.put(XMLTools.getXmlTagName(thatField), thatField);
 	}
 
-	private void mapCollection(Field thatField)
-	{
-		collectionsMap.put(thatField.getName(), thatField);
-	}
-*/
+
 	/**
 	 * Get the field asssociated with fieldName.
 	 * If necessary (that is, the first time), this routine may make calls to do all the work
@@ -1172,7 +1025,7 @@ implements ClassTypes
 		}
 		return result;
 	}
-	class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDescriptor>
+static class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDescriptor>
 	implements ValueFactory<Class, ClassDescriptor>
 	{
 		public ClassDescriptor getOrCreateAndPutIfNew(ElementState elementState)
@@ -1188,7 +1041,7 @@ implements ClassTypes
 		
 		public ClassDescriptor createValue(Class key)
 		{
-			return new ClassDescriptor(key, parent);
+			return new ClassDescriptor(key);
 		}
 	}
 	
@@ -1214,4 +1067,32 @@ implements ClassTypes
 	{
 		return scalarTextField != null;
 	}
+	
+	ArrayList<Field>	annotatedFields;
+	
+	ArrayList<Field>	annotatedFields()
+	{
+		ArrayList<Field>	result	= annotatedFields;
+		if (result == null)
+		{
+			Field[] fields		= thatClass.getDeclaredFields();
+			
+			result						= new ArrayList<Field>(fields.length);
+			for (Field thatField : fields)
+			{
+				if (XMLTools.representAsLeafOrNested(thatField) || 
+					 XMLTools.representAsAttribute(thatField) ||
+					 thatField.isAnnotationPresent(ElementState.xml_text.class) ||
+					 thatField.isAnnotationPresent(ElementState.xml_collection.class) ||
+					 thatField.isAnnotationPresent(ElementState.xml_map.class))
+				{
+					thatField.setAccessible(true);
+					result.add(thatField);
+				}
+			}
+			annotatedFields = result;
+		}
+		return result;
+	}
+
 }

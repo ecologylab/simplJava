@@ -143,10 +143,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
      */
 	public ElementState()
 	{
-		ClassDescriptor parentOptimizations	= (parent == null) ? null : parent.classDescriptor;
-		
 		classDescriptor						= ClassDescriptor.lookupRootOptimizations(this);
-		classDescriptor.setParent(parentOptimizations);	// andruid 2/8/08
 	}
 
 	/**
@@ -2503,7 +2500,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	public HashMapArrayList<String, FieldDescriptor> getChildFieldAccessors(Class<ElementState> child, Class<? extends FieldDescriptor> fieldAccessorClass)
 	{
 		ClassDescriptor classDescriptor	= classDescriptor();
-		ClassDescriptor childOptimizations	= classDescriptor.lookupChildOptimizations(child);
+		ClassDescriptor childOptimizations	= ClassDescriptor.lookupRootOptimizations(child);
 		
 		return (childOptimizations != null) ? childOptimizations.getFieldDescriptorsForThis(fieldAccessorClass) : null;
 	}
@@ -2608,9 +2605,9 @@ implements ClassTypes, XMLTranslationExceptionTypes
 		newChildES.elementByIdMap			= elementByIdMap;
 		newChildES.parent					= this;
 		ClassDescriptor parentOptimizations	= classDescriptor;
-		ClassDescriptor childOptimizations 	= parentOptimizations.lookupChildOptimizations(newChildES);
-		newChildES.classDescriptor			= childOptimizations;
-		childOptimizations.setParent(parentOptimizations);
+	//	ClassDescriptor childOptimizations 	= parentOptimizations.lookupChildOptimizations(newChildES);
+		newChildES.classDescriptor			= ClassDescriptor.lookupRootOptimizations(newChildES);
+//		childOptimizations.setParent(parentOptimizations);
 	}
 
     
@@ -2626,6 +2623,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
      */
     public ElementState getNestedNameSpace(String id)
     {
+/*
     	ElementState result	= (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
     	if (result == null)
     	{
@@ -2647,44 +2645,11 @@ implements ClassTypes, XMLTranslationExceptionTypes
     		}
     	}
     	return result;
+*/
+    	return null;
     }
-    public void propagateInheritedValues(ElementState that)
-    {
-   	 propagateInheritedValues(that, this.getClass());
-    }   
-    /**
-     * If this is annotated with @xml_inherit, then obtain values from an instance of the class
-     * we inherit from, and copy their values into this.
-     * 
-     * @param superInstance			Object to obtain inherited fields from.
-     * @param thisClass
-     */
-    protected void propagateInheritedValues(ElementState superInstance, Class<? extends ElementState> thisClass)
-    {
-   	 if (thisClass.isAnnotationPresent(xml_inherit.class))
-   	 {
-   		 Class<? extends ElementState> superClass		= (Class<? extends ElementState>) super.getClass();
-      	 ClassDescriptor superOptimizations	= ClassDescriptor.lookupRootOptimizations(superClass);
-      	 ArrayList<Field> superFields			= superOptimizations.annotatedFields();
-      	 for (Field thatField: superFields)
-      	 {
-      		 try
-      		 {
-      			 Object value	= thatField.get(superInstance);
-      			 thatField.set(this, value);
-      		 }
-      		 catch (IllegalArgumentException e)
-      		 {
-      			 e.printStackTrace();
-      		 }
-      		 catch (IllegalAccessException e)
-      		 {
-      			e.printStackTrace();
-      		 }
-      	 }
-      	 propagateInheritedValues(superInstance, superClass);
-   	 }
-    }
+
+
     /**
      * Lookup an ElementState subclass representing the scope of the nested XML Namespace in this.
      * 

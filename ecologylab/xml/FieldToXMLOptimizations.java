@@ -118,22 +118,21 @@ implements ClassTypes
      * Use its class name to form the tag name.
      * @param optimizations TODO
      * @param rootClass
-     * @param nameSpaceID TODO
      */
-    FieldToXMLOptimizations(ClassDescriptor optimizations, Class rootClass, String nameSpaceID)
+    FieldToXMLOptimizations(ClassDescriptor optimizations, Class rootClass)
     {
     	this.contextOptimizations	= optimizations;
     	setupXmlText(optimizations);
     	setTag(XMLTools.getXmlTagName(rootClass, "State"));
     	this.type	= ROOT;
-    	if (nameSpaceID != null)
-    	{
-    		this.nameSpacePrefix	= nameSpaceID + ":";	// set-up the prefix
-    		// with the prefix, we dont create an enclosing element!
-    		this.startOpenTag		= "";
-    		this.openTag			= "";
-    		this.closeTag			= "";
-    	}
+//    	if (nameSpaceID != null)
+//    	{
+//    		this.nameSpacePrefix	= nameSpaceID + ":";	// set-up the prefix
+//    		// with the prefix, we dont create an enclosing element!
+//    		this.startOpenTag		= "";
+//    		this.openTag			= "";
+//    		this.closeTag			= "";
+//    	}
     }
 
     /**
@@ -335,7 +334,7 @@ implements ClassTypes
         }
         
         if (XMLTools.isNested(field))
-        	setupXmlText(optimizations.lookupChildOptimizations((Class<ElementState>) field.getType()));
+        	setupXmlText(ClassDescriptor.lookupRootOptimizations((Class<ElementState>) field.getType()));
     }
     
     /**

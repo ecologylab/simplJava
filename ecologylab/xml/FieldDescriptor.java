@@ -26,9 +26,9 @@ implements ClassTypes
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 	
 	protected final 	Field			field;
-	final	String			tagName;
+	final	String			tag;
 	
-	protected final ClassDescriptor	parentOptimizations;
+	protected final ClassDescriptor	classDescriptor;
 
 	ScalarType<?>			scalarType;
 	final  int				type;
@@ -42,43 +42,37 @@ implements ClassTypes
 	 */
 	Field					xmlTextScalarField;
 	
-	public FieldDescriptor(FieldToXMLOptimizations f2XO)
+	public FieldDescriptor(ClassDescriptor classDescriptor, FieldToXMLOptimizations f2XO)
 	{
+		this.classDescriptor	= classDescriptor;
+		
 		ScalarType scalarType = f2XO.scalarType();
 		this.scalarType	= scalarType;
 
 		this.field		= f2XO.field();
 		field.setAccessible(true);
-		this.tagName	= f2XO.tagName();
+		this.tag	= f2XO.tagName();
 		this.type			= f2XO.type();
 
 		Class fieldClass 		= f2XO.getOperativeClass();
 
-		parentOptimizations	= f2XO.getContextOptimizations();
-		if (parentOptimizations != null)
+		//FIXME -- use f2XO.xmlTextField instead!
+		xmlTextScalarField			= classDescriptor.getScalarTextField();
+		/**
+		 * can be null for mixins.
+		 */
+		if(xmlTextScalarField != null)
 		{
-			ClassDescriptor thisOptimizations	= parentOptimizations.lookupChildOptimizations(f2XO.getOperativeClass());
-			if (thisOptimizations != null)
-			{
-				//FIXME -- use f2XO.xmlTextField instead!
-				xmlTextScalarField			= thisOptimizations.getScalarTextField();
-				/**
-				 * can be null for mixins.
-				 */
-				if(xmlTextScalarField != null)
-				{
-					//println("debug");
-					//FIXME -- use f2XO.xmlTextScalarType instead!
-					FieldToXMLOptimizations xmlTextF2XO	= parentOptimizations.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
-					/**
-					 * The xmlTextF2XO has scalarType as null.
-					 */
-					//this.scalarType					= xmlTextF2XO.scalarType();
-					this.scalarType 					= TypeRegistry.getType(xmlTextScalarField);
+			//println("debug");
+			//FIXME -- use f2XO.xmlTextScalarType instead!
+			FieldToXMLOptimizations xmlTextF2XO	= classDescriptor.fieldToXMLOptimizations(xmlTextScalarField, (String) null);
+			/**
+			 * The xmlTextF2XO has scalarType as null.
+			 */
+			//this.scalarType					= xmlTextF2XO.scalarType();
+			this.scalarType 					= TypeRegistry.getType(xmlTextScalarField);
 
-//					fieldClass								= xmlTextScalarField.getType();
-				}			
-			}
+			//					fieldClass								= xmlTextScalarField.getType();
 		}
 		setValueMethod				= ReflectionTools.getMethod(fieldClass, "setValue", SET_METHOD_ARG);
 	}
@@ -259,7 +253,7 @@ implements ClassTypes
 	 */
 	public String getTagName()
 	{
-		return tagName;
+		return tag;
 	}
 
 	/**

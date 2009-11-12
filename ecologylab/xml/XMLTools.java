@@ -279,6 +279,33 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * Part of this is to translate mixed case class name word separation into
 	 * "_" word separtion.
 	 * 
+	 * @param thatClass		Class object to translate.
+	 * @param suffix		string to remove from class name, null if nothing to be removed
+	 * @return				name of the xml tag (element)
+	 */	
+	public static String getXmlTagName(Field thatField)
+	{
+		final ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(xml_tag.class);
+		
+   	String result						= null;
+		if (tagAnnotation != null)
+		{
+			String thatTag		= tagAnnotation.value();
+			if ((thatTag != null) && (thatTag.length() > 0))
+				result			= thatTag;
+		}
+		if (result == null)
+		{
+			result				= getXmlTagName(thatField.getName(), null);
+		}
+		return result;
+	}
+	/**
+	 * This method generates a name for the xml tag given a reference type java object.
+	 * This is used during the translation of Java to xml. 
+	 * Part of this is to translate mixed case class name word separation into
+	 * "_" word separtion.
+	 * 
 	 * @param className		class name of a java reference type object 
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
@@ -312,28 +339,6 @@ implements CharacterConstants, SpecialCharacterEntities
 				result.append(c);
 		}
 		return result.toString();
-	}
-
-	/**
-	 * This method name for the attribute given a field name, which is a primitive java type. This is used during the
-	 * translation from Java to xml.
-	 * 
-	 * @param field
-	 *            the field(primitive type) in the state-class
-	 * @param compression
-	 *            if the name of the field should be abbreviated
-	 * @return name of the attribute for the xml
-	 */
-	public static String attrNameFromField(Field field, boolean compression)
-	{
-		if (field.isAnnotationPresent(xml_tag.class))
-		{
-			return field.getAnnotation(xml_tag.class).value();
-		}
-		else
-		{
-			return field.getName();
-		}
 	}
 
 	/**
