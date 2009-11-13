@@ -2487,6 +2487,41 @@ implements ClassTypes, XMLTranslationExceptionTypes
         Class<? extends ElementState>[] value();
     }
     
+    /**
+     * Source of bindings that will be mapped to an xml_bind_from declaration inside
+     * an inheriting object or one referenced through a field.
+     * 
+     * @author andruid
+     *
+     */
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_bind_to
+    {
+    	/**
+    	 * @return This is the name of this binding site. It must match the name of the bind_from site.
+    	 * Common static final constants can be used across @xml_bind_to and @xml_bind_from,
+    	 * ensuring robust consistency through re-factoring.
+    	 */
+    	String 													name();
+    	
+    	String 													scopeName();
+    	Class<? extends ElementState>[] classes();
+    }
+    
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface xml_bind_from
+    {
+    	/**
+    	 * @return This is the name of this binding site. It must match the name of the bind_to site.
+    	 * Common static final constants can be used across @xml_bind_to and @xml_bind_from,
+    	 * ensuring robust consistency through re-factoring.
+    	 */
+    	String 													value();
+    }
+    
+   
 	public void checkAnnotation() throws NoSuchFieldException
 	{
 		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(xml_inherit.class));
