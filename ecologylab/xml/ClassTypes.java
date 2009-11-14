@@ -34,11 +34,10 @@ public interface ClassTypes
 	
 	public static final int	MAP_SCALAR				= 7;
 	
-	public static final int	TEXT_NODE_VALUE			= 0x0c;	
-	
 	/**
-	 * Root node type: for FieldToXMLOptimizations translateTo only.
+	 * Root node type
 	 */
+	//TODO -- should this be merged with PSEUDO_FIELD_DESCRIPTOR
 	public static final int	ROOT					= 8;
 	
 	/**
@@ -52,6 +51,10 @@ public interface ClassTypes
 	
 	public static final int	XMLNS_IGNORED			= 0x0b;	
 	
+	
+	public static final int	TEXT_NODE_VALUE			= 0x0c;	
+
+	public static final int	PSEUDO_FIELD_DESCRIPTOR	= 0x0d;
 	
 	public static final int NAME_SPACE_MASK			= 0x10;
 	

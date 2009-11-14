@@ -39,16 +39,18 @@ public final class TranslationScope extends Debug
    
    private static HashMap<String, TranslationScope>	allTranslationScopes	= new HashMap<String, TranslationScope>();
       
+   public static final String STATE														= "State";
+   
    /**
-    * Create a new TranslationScope that defines how to translate xml tag names into
-    * class names of subclasses of ElementState.
+    * Building block called by other constructors for most basic
+    * name registration functionality.
     * 
     * @param name
     */
    private TranslationScope(String name)
    {
-	  this.name	= name;
-	  allTranslationScopes.put(name, this);
+  	 this.name	= name;
+  	 allTranslationScopes.put(name, this);
    }
 
    /**
@@ -588,7 +590,10 @@ public final class TranslationScope extends Debug
    {
 	   return (TranslationScope) allTranslationScopes.get(name);
    }
-
+   public static TranslationScope get(String name)
+   {
+  	 return lookup(name);
+   }
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * 
@@ -807,6 +812,12 @@ public final class TranslationScope extends Debug
    public Collection<TranslationEntry> getEntries()
    {
   	 	return entriesByClassSimpleName.values();
+   }
+   
+   //FIXME -- implement this!
+   public Collection<ClassDescriptor> getClassDescriptors()
+   {
+  	 return new ArrayList<ClassDescriptor>(0);
    }
 	/**
 	 * Get the Scalar Type corresponding to the Class.

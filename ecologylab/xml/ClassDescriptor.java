@@ -31,9 +31,12 @@ public class ClassDescriptor extends Debug
 implements ClassTypes
 {
 	/**
-	 * Class object that we are holding optimizations for.
+	 * Class object that we are describing.
 	 */
-	final Class<? extends ElementState>					thatClass;
+	final Class<? extends ElementState>					describedClass;
+	
+	final String																tagName;
+	
 	
 	private static final OptimizationsMap	allClassDescriptorsMap	= new OptimizationsMap();
 	/**
@@ -47,7 +50,7 @@ implements ClassTypes
 	 * Map of NodeToJavaOptimizations. The keys are tag names.
 	 * Used to optimize translateFromXML(...).
 	 */
-	private HashMap<String, ElementDescriptor>	nodeToJavaOptimizationsMap	= new HashMap<String, ElementDescriptor>();
+	private HashMap<String, TagDescriptor>	nodeToJavaOptimizationsMap	= new HashMap<String, TagDescriptor>();
 	
 	/**
 	 * The fields that are represented as attributes for the class we're optimizing.
@@ -75,7 +78,7 @@ implements ClassTypes
 	/**
 	 * Handles a text node.
 	 */
-	private ElementDescriptor				scalarTextN2jo;
+	private TagDescriptor				scalarTextN2jo;
 	
 	/**
 	 * Map of Fields, with field names as keys.
@@ -97,6 +100,11 @@ implements ClassTypes
 	
 	private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
 	
+	/**
+	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
+	 * the root element or a field is determined by class name, not by field name.
+	 */
+	private FieldToXMLOptimizations 			pseudoFieldDescriptor;
 	
 	/**
 	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
@@ -106,9 +114,15 @@ implements ClassTypes
 	private ClassDescriptor(Class<? extends ElementState> thatClass)
 	{
 		super();
-		this.thatClass		= thatClass;
+		this.describedClass		= thatClass;
+		this.tagName					= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 		
 		getAndOrganizeFields();
+	}
+
+	public String getTagName()
+	{
+		return tagName;
 	}
 
 	/**
@@ -122,11 +136,11 @@ implements ClassTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static ClassDescriptor lookupRootOptimizations(ElementState elementState)
+	static ClassDescriptor getClassDescriptor(ElementState elementState)
 	{
 		Class<? extends ElementState> thatClass		= elementState.getClass();
 
-		return lookupRootOptimizations(thatClass);
+		return getClassDescriptor(thatClass);
 	}
 
 	/**
@@ -140,7 +154,7 @@ implements ClassTypes
 	 * @param thatClass
 	 * @return
 	 */
-	static ClassDescriptor lookupRootOptimizations(Class<? extends ElementState> thatClass)
+	static ClassDescriptor getClassDescriptor(Class<? extends ElementState> thatClass)
 	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
@@ -194,31 +208,28 @@ implements ClassTypes
 	}
 	
 	/**
-	 * Form a pseudo-FieldToXMLOptimizations-object for a root element.
+	 * Form a pseudo-FieldDescriptor-object for a root element.
 	 * We say pseudo, because there is no Field corresponding to this element.
-	 * The pseudo-FieldToXMLOptimizations-object still guides the translation process.
+	 * The pseudo-FieldDescriptor-object still guides the translation process.
 	 * 
-	 * @param rootClass
 	 * @return
 	 */
-	public FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
+	public FieldToXMLOptimizations pseudoFieldDescriptor()
 	{
-		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
+		FieldToXMLOptimizations result			= pseudoFieldDescriptor;
 		if (result == null)
 		{
-			synchronized (fieldToXMLOptimizationsMap)
+			synchronized (this)
 			{
-				result		= fieldToXMLOptimizationsMap.get(rootClass);
+				result													= pseudoFieldDescriptor;
 				if (result == null)
 				{
-				    result = new FieldToXMLOptimizations(this, rootClass);
-                    
-                    fieldToXMLOptimizationsMap.put(rootClass, result);
+				    result 											= new FieldToXMLOptimizations(this);
+ 				    pseudoFieldDescriptor	= result;
 				}
 			}
 		}
 		return result;
-		
 	}
 	
 	/**
@@ -238,6 +249,8 @@ implements ClassTypes
 				result		= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
 				if (result == null)
 				{
+					// (TODO -- (1) get FieldDescriptor;
+					// (2) if (deriveTagFromClass) return actualCollectionElementClass.pseudoFieldDescriptor()
 				    result = new FieldToXMLOptimizations(this, collectionTagMapEntry, actualCollectionElementClass);
                     
                     fieldToXMLOptimizationsMap.put(actualCollectionElementClass, result);
@@ -296,7 +309,7 @@ implements ClassTypes
 	 * @param context TODO
 	 * @param node TODO
 	 */
-	ElementDescriptor elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
+	TagDescriptor elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
 	{
 		String tag				= node.getNodeName();
 		return nodeToJavaOptimizations(translationSpace, context, tag, false);
@@ -313,9 +326,9 @@ implements ClassTypes
 	 * @param node
 	 * @return
 	 */
-	ElementDescriptor nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
+	TagDescriptor nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
 	{
-		ElementDescriptor result	= nodeToJavaOptimizationsMap.get(tag);
+		TagDescriptor result	= nodeToJavaOptimizationsMap.get(tag);
 		
 		if (result == null)
 		{
@@ -328,7 +341,7 @@ implements ClassTypes
 					
 				if (result == null)
 				{
-					result	= new ElementDescriptor(translationSpace, this, context, tag, isAttribute);
+					result	= new TagDescriptor(translationSpace, this, context, tag, isAttribute);
 					nodeToJavaOptimizationsMap.put(tag, result);
 				}
 			}
@@ -422,27 +435,7 @@ implements ClassTypes
 		}
 		return result;
 	}
-	
-	/**
-	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
-	 * 
-	 * @return	ArrayList of Field objects. Could be empty. Never null.
-	 */
-	public ArrayList<Field> getFields()
-	{
-		ArrayList<Field> attributeFields	= attributeFields();
-		ArrayList<Field> elementFields		= elementFields();
-		ArrayList<Field> result				= new ArrayList<Field>(attributeFields.size() + elementFields.size());
-		
-		for (Field attrField : attributeFields)
-			result.add(attrField);
-		
-		for (Field elementField : elementFields)
-			result.add(elementField);
-		
-		return result;
-	}
-	
+
 	private HashMapArrayList<String, FieldDescriptor>	fieldDescriptors;
 	
 	/**
@@ -485,7 +478,7 @@ implements ClassTypes
 	public static<T extends FieldDescriptor> HashMapArrayList<String, FieldDescriptor> 
 	getFieldDescriptors(Class<? extends ElementState> thatClass, Class<T> fieldDescriptorClass)
 	{
-		ClassDescriptor thatClassOptimizations	= lookupRootOptimizations(thatClass);
+		ClassDescriptor thatClassOptimizations	= getClassDescriptor(thatClass);
 		
 		HashMapArrayList<String, FieldDescriptor> result	= null;
 		
@@ -521,7 +514,7 @@ implements ClassTypes
 			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
 					new FieldDescriptor(this, attrF2XO) : createFieldDescriptor(fieldDescriptorClass, attrF2XO);
 					
-			String tagName 				= attrF2XO.tagName();
+			String tagName 				= attrF2XO.tag();
 			if (!result.containsKey(tagName))
 				result.put(tagName, fDescriptor);
 		}
@@ -531,7 +524,7 @@ implements ClassTypes
 			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
 					new FieldDescriptor(this, elementF2XO) : createFieldDescriptor(fieldDescriptorClass, elementF2XO);
 					
-			String tagName 				= elementF2XO.tagName();
+			String tagName 				= elementF2XO.tag();
 			if (!result.containsKey(tagName))
 				result.put(tagName, fDescriptor);
 		}
@@ -576,7 +569,7 @@ implements ClassTypes
 		attributeFields	= new ArrayList<Field>();
 		elementFields		= new ArrayList<Field>();
 		fieldsMap			= new HashMap<String, Field>();
-		getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields);
+		getAndOrganizeFieldsRecursive(describedClass, attributeFields, elementFields);
 	}
 
 	/**
@@ -604,12 +597,12 @@ implements ClassTypes
 			//mapField(thatField);
 			if (XMLTools.representAsAttribute(thatField))
 			{
-				indexField(attributeFields, thatField);
+				mapFieldAndAddToArrayList(attributeFields, thatField);
 //				String tag	= 
 			}
 			else if (XMLTools.representAsLeafOrNested(thatField))
 			{
-				indexField(elementFields, thatField);
+				mapFieldAndAddToArrayList(elementFields, thatField);
 				
 				// look for declared tag for @xml_collection
 				ElementState.xml_collection collectionAnnotation		
@@ -633,15 +626,17 @@ implements ClassTypes
 			{
 				// Special field for a typed text node value
 				scalarTextField		= thatField;
-				scalarTextN2jo 		= new ElementDescriptor(this, thatField);
+				scalarTextN2jo 		= new TagDescriptor(this, thatField);
 				
-				thatField.setAccessible(true);
             
 				//TODO -- is this line necessary? desirable?
 				mapField(thatField);
 			}
-			// else -- ignore non-annotated fields
-		}
+			else
+				continue;
+
+			thatField.setAccessible(true);	// else -- ignore non-annotated fields
+		}	// end for all fields
 		
 		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class
@@ -667,7 +662,7 @@ implements ClassTypes
 	{
 		for (Field thatField : themFields)
 		{
-			ElementDescriptor n2jo		= null;
+			TagDescriptor n2jo		= null;
 			ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(ElementState.xml_tag.class);
 			boolean isNested 					= thatField.isAnnotationPresent(ElementState.xml_nested.class);
 			if (tagAnnotation != null)
@@ -734,11 +729,11 @@ implements ClassTypes
 	 * @param thatField
 	 * @param thatClass
 	 */
-	private ElementDescriptor registerN2JOByClass(TranslationScope tspace, Field thatField,
+	private TagDescriptor registerN2JOByClass(TranslationScope tspace, Field thatField,
 			Class thatClass)
 	{
-		ElementDescriptor n2jo	= 
-			new ElementDescriptor(tspace, this, thatField, thatClass);
+		TagDescriptor n2jo	= 
+			new TagDescriptor(tspace, this, thatField, thatClass);
 		nodeToJavaOptimizationsMap.put(n2jo.tag(), n2jo);
 		return n2jo;
 	}
@@ -754,23 +749,23 @@ implements ClassTypes
 	 * 
 	 * @return	NodeToJavaOptimizations that was registered, or null.
 	 */
-	private ElementDescriptor registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
+	private TagDescriptor registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
 	{
 		String thatTag					= tagAnnotation.value();
-		ElementDescriptor	result	= null;
+		TagDescriptor	result	= null;
 		if ((thatTag != null) && (thatTag.length() > 0))
 		{
 			result						= nodeToJavaOptimizationsMap.get(thatTag);
 			if (result == null)
 			{
-				result					= new ElementDescriptor(tspace, this, thatField, thatTag, isAttribute);
+				result					= new TagDescriptor(tspace, this, thatField, thatTag, isAttribute);
 				nodeToJavaOptimizationsMap.put(thatTag, result);
 			}
 		}
 		return result;
 	}
 	
-	private boolean registerOtherTagsOptimizationsIfNeeded(ElementDescriptor fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
+	private boolean registerOtherTagsOptimizationsIfNeeded(TagDescriptor fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
 	{
 		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
 		final boolean result	= (otherTags != null);
@@ -779,13 +774,13 @@ implements ClassTypes
 			for (String otherTag : otherTags)
 			{
 				
-				ElementDescriptor n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
+				TagDescriptor n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
 				if (n2jo == null)
 				{
 					if (fieldN2jo != null)
 						n2jo					= fieldN2jo;
 					else
-						n2jo					= new ElementDescriptor(tspace, this, thatField, otherTag, isAttribute);
+						n2jo					= new TagDescriptor(tspace, this, thatField, otherTag, isAttribute);
 					nodeToJavaOptimizationsMap.put(otherTag, n2jo);
 				}
 			}
@@ -800,11 +795,10 @@ implements ClassTypes
 	 * @param thatField
 	 */
 	//TODO -- get rid of either fieldsArrayList or isAttribute
-	private void indexField(ArrayList<Field> fieldsArrayList, Field thatField)
+	private void mapFieldAndAddToArrayList(ArrayList<Field> fieldsArrayList, Field thatField)
 	{
 		mapField(thatField);
 		fieldsArrayList.add(thatField);
-		thatField.setAccessible(true);
 	}
 
 	/**
@@ -963,7 +957,7 @@ implements ClassTypes
 
 	public String toString()
 	{
-		return "Optimizations[" + thatClass.getName() + "]"; 
+		return "Optimizations[" + describedClass.getName() + "]"; 
 	}
 	
 	/**
@@ -1046,14 +1040,14 @@ static class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDes
 	}
 	
 	/**
-	 * @return the Class Object that this holds Optimizations for.
+	 * @return the Class Object that this describes.
 	 */
-	public Class thatClass()
+	public Class describedClass()
 	{
-		return thatClass;
+		return describedClass;
 	}
 
-	ElementDescriptor scalarTextN2jo()
+	TagDescriptor scalarTextN2jo()
 	{
 		return scalarTextN2jo;
 	}
@@ -1075,7 +1069,7 @@ static class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDes
 		ArrayList<Field>	result	= annotatedFields;
 		if (result == null)
 		{
-			Field[] fields		= thatClass.getDeclaredFields();
+			Field[] fields		= describedClass.getDeclaredFields();
 			
 			result						= new ArrayList<Field>(fields.length);
 			for (Field thatField : fields)

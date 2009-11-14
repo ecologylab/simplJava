@@ -253,22 +253,14 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
 	 */	
-	public static String getXmlTagName(Class<?> thatClass, 
-			String suffix)
+	public static String getXmlTagName(Class<?> thatClass, String suffix)
 	{
 		final ElementState.xml_tag tagAnnotation 	= thatClass.getAnnotation(xml_tag.class);
 		
-   	String result						= null;
-		if (tagAnnotation != null)
-		{
-			String thatTag		= tagAnnotation.value();
-			if ((thatTag != null) && (thatTag.length() > 0))
-				result			= thatTag;
-		}
+   	String result 			= getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			String className		= getClassName(thatClass);
-			result				= getXmlTagName(className, suffix);
+			result						= getXmlTagName(getClassName(thatClass), suffix);
 		}
 		return result;
 	}
@@ -279,7 +271,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * Part of this is to translate mixed case class name word separation into
 	 * "_" word separtion.
 	 * 
-	 * @param thatClass		Class object to translate.
+	 * @param describedClass		Class object to translate.
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
 	 */	
@@ -287,16 +279,22 @@ implements CharacterConstants, SpecialCharacterEntities
 	{
 		final ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(xml_tag.class);
 		
-   	String result						= null;
-		if (tagAnnotation != null)
-		{
-			String thatTag		= tagAnnotation.value();
-			if ((thatTag != null) && (thatTag.length() > 0))
-				result			= thatTag;
-		}
+   	String result 	= getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
 			result				= getXmlTagName(thatField.getName(), null);
+		}
+		return result;
+	}
+
+	public static String getXmlTagAnnotationIfPresent(final ElementState.xml_tag tagAnnotation)
+	{
+		String result			= null;
+		if (tagAnnotation != null)
+		{
+			String thatTag	= tagAnnotation.value();
+			if ((thatTag != null) && (thatTag.length() > 0))
+				result			  = thatTag;
 		}
 		return result;
 	}
@@ -310,8 +308,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
 	 */	
-	public static String getXmlTagName(String className,
-			String suffix)
+	public static String getXmlTagName(String className, String suffix)
 	{
 		if ((suffix != null) && (className.endsWith(suffix)))
 		{

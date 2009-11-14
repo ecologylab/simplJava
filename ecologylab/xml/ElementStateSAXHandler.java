@@ -55,11 +55,11 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 	/**
 	 * Optimizations for current field.
 	 */
-	ElementDescriptor			currentN2JO;
+	TagDescriptor			currentN2JO;
 	
 	XMLTranslationException			xmlTranslationException;
 	
-	ArrayList<ElementDescriptor>	n2joStack	= new ArrayList<ElementDescriptor>();
+	ArrayList<TagDescriptor>	n2joStack	= new ArrayList<TagDescriptor>();
 	
 	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
 	
@@ -270,7 +270,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 		} catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if (!(currentN2JO == ElementDescriptor.ROOT_ELEMENT_OPTIMIZATIONS) &&
+			if (!(currentN2JO == TagDescriptor.ROOT_ELEMENT_OPTIMIZATIONS) &&
 					(currentElementState != null))
 			{
 				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
@@ -313,7 +313,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 
-		ElementDescriptor activeN2JO		= null;
+		TagDescriptor activeN2JO		= null;
 		final boolean isRoot 					= (root == null);
 		if (isRoot)
 		{	// form the root ElementState!
@@ -329,7 +329,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationSpace, attributes, this);
-						activeN2JO				= ElementDescriptor.ROOT_ELEMENT_OPTIMIZATIONS;
+						activeN2JO				= TagDescriptor.ROOT_ELEMENT_OPTIMIZATIONS;
 					}
 					else
 					{
@@ -360,7 +360,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 				
 			activeN2JO	= (currentN2JO != null) && (curentN2JOType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
-				ElementDescriptor.IGNORED_ELEMENT_OPTIMIZATIONS :
+				TagDescriptor.IGNORED_ELEMENT_OPTIMIZATIONS :
 				currentClassDescriptor().nodeToJavaOptimizations(translationSpace, currentES, tagName, false);
 		}
 		this.currentN2JO						= activeN2JO;
@@ -441,17 +441,17 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 		}
 	}
 
-	private void pushN2JO(ElementDescriptor n2jo)
+	private void pushN2JO(TagDescriptor n2jo)
 	{
 		this.n2joStack.add(n2jo);
 	}
 	private void popAndPeekN2JO()
 	{
-		ArrayList<ElementDescriptor> stack = this.n2joStack;
+		ArrayList<TagDescriptor> stack = this.n2joStack;
 		int last	= stack.size() - 1;
 		if (last >= 0)
 		{
-			ElementDescriptor result	= stack.remove(last--);
+			TagDescriptor result	= stack.remove(last--);
 			if (last >= 0)
 				result	= stack.get(last);
 			this.currentN2JO	= result;
@@ -483,7 +483,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 		processPendingTextScalar(curentN2JOType, currentES);
 		
 		final ElementState parentES					= currentES.parent;
-		final ElementDescriptor currentN2JO	= this.currentN2JO;
+		final TagDescriptor currentN2JO	= this.currentN2JO;
 
 		switch (curentN2JOType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
@@ -545,7 +545,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 				case COLLECTION_ELEMENT:
 					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 					// so we get the optimizations we need from the currentElementState
-					ElementDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
+					TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
 					if (scalarTextChildN2jo != null)
 					{
 						value		= new String(currentTextValue.substring(0, length));
@@ -566,7 +566,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 	void printStack(String msg)
 	{
 		currentElementState.debug("Stack -- " + msg + "\t[" + this.currentElementState + "]");
-		for (ElementDescriptor thatN2JO : n2joStack)
+		for (TagDescriptor thatN2JO : n2joStack)
 		{
 			println(thatN2JO.tag() + " - 0x" + Integer.toHexString(thatN2JO.type()));
 		}

@@ -35,16 +35,7 @@ implements ClassTypes
 {
     public static final String XMLNS_URN = "http://www.w3.org/2000/xmlns/";
 
-	private 	String 		startOpenTag;
-    
-    /**
-     * Used for leaf nodes.
-     */
-    private		String		openTag;
-
-    private		String 		closeTag;
-    
-    private		String		tagName;
+    private		String		tag;
     
     private		String		nameSpacePrefix;
     
@@ -73,7 +64,7 @@ implements ClassTypes
      * Optimizations object for the ElementState object that was the context when
      * the field represented by this was processed.
      */
-    private		ClassDescriptor	contextOptimizations;
+    private		ClassDescriptor	declaringClassDescriptor;
     
     private int				type;
     
@@ -82,11 +73,11 @@ implements ClassTypes
     private boolean			needsEscaping;
     
     /**
-     * true if this is a collection or map field, and we are using it to get the name.
+     * true if this is a collection or map field annotated with the name of child elements.
      */
     private	boolean			hasCollectionOrMapTag;
     
-    private boolean			hasXMLClasses;
+    private boolean			hasXmlClasses;
     
     /**
      * This slot makes sense only for attributes and leaf nodes
@@ -96,20 +87,26 @@ implements ClassTypes
     private String[]		format;
 
     /**
-     * Construct for a field where the actualClass can override the one in the declaration.
+     * Construct for a field where the actualClass can override the one in the declaration, 
+     * that is, for an @xml_nested child.
+     * 
      * @param optimizations TODO
      * @param field
      * @param actualClass
      */
-    FieldToXMLOptimizations(ClassDescriptor optimizations, Field field, Class<? extends ElementState> actualClass)
+    FieldToXMLOptimizations(ClassDescriptor declaringClassDescriptor, Field field, Class<? extends ElementState> actualClass)
     {
-    	this.contextOptimizations	= optimizations;
-        setTag(field.isAnnotationPresent(ElementState.xml_tag.class) ? field.getAnnotation(
-                ElementState.xml_tag.class).value() : XMLTools.getXmlTagName(actualClass, "State"));
-        setType(field, actualClass);
-        this.field			= field;
-        
-    	setupXmlText(optimizations);
+    	this.declaringClassDescriptor	= declaringClassDescriptor;
+    	// this looks wrong to me -- andruid 11/12/09
+    	// why use tag from the field, then the class name, not the field name????
+    	
+    	this.tag				= field.isAnnotationPresent(ElementState.xml_tag.class) ? 
+    			field.getAnnotation(ElementState.xml_tag.class).value() : XMLTools.getXmlTagName(actualClass, "State");
+    			
+    	setType(field, actualClass);
+    	this.field			= field;
+
+    	setupXmlText(declaringClassDescriptor);
     }
 
     /**
@@ -117,13 +114,12 @@ implements ClassTypes
      * There is no field!
      * Use its class name to form the tag name.
      * @param optimizations TODO
-     * @param rootClass
      */
-    FieldToXMLOptimizations(ClassDescriptor optimizations, Class rootClass)
+    FieldToXMLOptimizations(ClassDescriptor declaringClassDescriptor)
     {
-    	this.contextOptimizations	= optimizations;
-    	setupXmlText(optimizations);
-    	setTag(XMLTools.getXmlTagName(rootClass, "State"));
+    	this.declaringClassDescriptor	= declaringClassDescriptor;
+    	setupXmlText(declaringClassDescriptor);
+    	this.tag	= XMLTools.getXmlTagName(declaringClassDescriptor.describedClass(), "State");	// by class name, not by field name :-)
     	this.type	= ROOT;
 //    	if (nameSpaceID != null)
 //    	{
@@ -139,18 +135,26 @@ implements ClassTypes
      * If this is nested, and has a corresponding ScalarTyped field declared with @xml_text,
      * set-up associated optimizations.
      * 
-     * @param optimizations
+     * @param classDescriptor
      */
-	private void setupXmlText(ClassDescriptor optimizations)
+	private void setupXmlText(ClassDescriptor classDescriptor)
 	{
-		Field optimizationsScalarTextField = optimizations.getScalarTextField();
-    	if (optimizationsScalarTextField != null)
-    	{
-    		this.xmlTextField			= optimizationsScalarTextField;
+		Field optimizationsScalarTextField = classDescriptor.getScalarTextField();
+		if (optimizationsScalarTextField != null)
+		{
+			this.xmlTextField					= optimizationsScalarTextField;
 			this.xmlTextScalarType		= TypeRegistry.getType(optimizationsScalarTextField);
-    	}
+		}
 	}
     
+	boolean isXmlNsDecl()
+	{
+		return false;	// for some hacking reason, in ElementState, this test was startOpenTag().length() > 0
+	}
+	
+	String prefixedXmlNs;
+	String xmlNsDecl;
+	String urn;
     /**
      * Build a FieldToXMLOptimizations pseudo-object for an XML Namespace scope declaration
      * attribute.
@@ -160,12 +164,12 @@ implements ClassTypes
      */
     FieldToXMLOptimizations(String nameSpaceID, String urn, boolean ignored)
     {
-    	this.tagName				= nameSpaceID;
-    	String xmlnsPrefixed		= "xmlns:" + tagName;
-		this.startOpenTag			= xmlnsPrefixed;
-    	this.openTag				= " " + xmlnsPrefixed + "=\"" + urn + "\"";
-    	this.childTagName			= urn;
-    	this.type					= ignored ? XMLNS_IGNORED : XMLNS_ATTRIBUTE;
+    	this.tag				= nameSpaceID;
+    	String prefixedXMLNS		= "xmlns:" + tag;
+    	this.prefixedXmlNs			= prefixedXMLNS;
+    	this.xmlNsDecl					= " " + prefixedXMLNS + "=\"" + urn + "\"";
+    	this.urn								= urn;
+    	this.type								= ignored ? XMLNS_IGNORED : XMLNS_ATTRIBUTE;
     }
     
     /**
@@ -179,12 +183,8 @@ implements ClassTypes
     {
     	if (type == XMLNS_ATTRIBUTE)
     	{
-    		buffy.append(xmlnsDecl());
-//    		buffy.append(this.startOpenTag);
-//    		buffy.append('=');
-//    		buffy.append('"');
-//    		buffy.append(this.childTagName);
-//    		buffy.append('"');  
+    		buffy.append(xmlNsDecl()).append(prefixedXmlNs).append('=');
+    		buffy.append('"').append(urn).append('"');  
     	}
     }
     
@@ -193,14 +193,14 @@ implements ClassTypes
     	return childTagName;
     }
     
-    String prefixedXMLNS()
+    String prefixedXmlNs()
     {
-    	return this.startOpenTag;
+    	return prefixedXmlNs;
     }
     
-    String xmlnsDecl()
+    String xmlNsDecl()
     {
-    	return this.openTag;
+    	return xmlNsDecl;
     }
     /**
      * Append to the DOM a well-formed xmlns: attribute with namespace id and urn.
@@ -213,17 +213,17 @@ implements ClassTypes
     void xmlnsAttr(Element elementNode, Document dom) throws XMLTranslationException
     {
     	if (type == XMLNS_ATTRIBUTE)
-		{
-			String xmlnsURN				= xmlnsURN();
-    		String prefixedNSDecl 		= prefixedXMLNS();
+    	{
+    		String xmlnsURN				= xmlnsURN();
+    		String prefixedNSDecl = prefixedXmlNs();
 
-			Attr attr 					= dom.createAttribute(prefixedNSDecl);
-			attr.setValue(xmlnsURN);
-			elementNode.setAttributeNode(attr);
-		}
+    		Attr attr 						= dom.createAttribute(prefixedNSDecl);
+    		attr.setValue(xmlnsURN);
+    		elementNode.setAttributeNode(attr);
+    	}
     	else
     		throw new XMLTranslationException("Trying to output XMLNS_ATTRIBUTE, but FieldToXMLOptimizations.type = "+type);
-//    		element.setAttribute(this.tagName, this.childTagName);
+    	//    		element.setAttribute(this.tagName, this.childTagName);
     }
     /**
      * Return a well-formed xmlns: attribute with namespace id and urn.
@@ -236,7 +236,7 @@ implements ClassTypes
     {
     	if (type == XMLNS_ATTRIBUTE)
     	{
-    		appendable.append(xmlnsDecl());
+    		appendable.append(xmlNsDecl());
 //    		appendable.append(this.startOpenTag);
 //    		appendable.append('=');
 //    		appendable.append('"');
@@ -252,20 +252,20 @@ implements ClassTypes
      */
     FieldToXMLOptimizations(ClassDescriptor optimizations, FieldToXMLOptimizations collectionFieldToXMLOptimizations, Class<? extends ElementState> actualCollectionElementClass)
     {
-    	this.contextOptimizations	=  optimizations;
-    	
+    	this.declaringClassDescriptor	=  optimizations;
+
     	//TODO -- is this inheritance good or bad?!
-        String tagName	= collectionFieldToXMLOptimizations.childTagName;
-        
-        if (tagName == null)
-        	// get the tag name from the class of the object in the Collection, if from nowhere else
-        	tagName		= XMLTools.getXmlTagName(actualCollectionElementClass, "State");
+    	String tag	= collectionFieldToXMLOptimizations.childTagName;
 
-        setTag(tagName);
-        // no field here?!
+    	if (tag == null)
+    		// get the tag name from the class of the object in the Collection, if from nowhere else
+    		tag		= XMLTools.getXmlTagName(actualCollectionElementClass, "State");
 
-        //TODO -- do we need to handle scalars here as well?
-        this.type		= REGULAR_NESTED_ELEMENT;
+    	this.tag		= tag;
+    	// no field here?!
+
+    	//TODO -- do we need to handle scalars here as well?
+    	this.type		= REGULAR_NESTED_ELEMENT;
     }
     
     /**
@@ -277,65 +277,75 @@ implements ClassTypes
      */
     FieldToXMLOptimizations(ClassDescriptor optimizations, Field field, String nameSpacePrefix)
     {
-    	this.contextOptimizations					= optimizations;
-    	
-    	final ElementState.xml_collection collectionAnnotationObj	= field.getAnnotation(ElementState.xml_collection.class);
-    	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
-    	final ElementState.xml_map mapAnnotationObj	= field.getAnnotation(ElementState.xml_map.class);
-    	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-     	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
-    	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-    	String tagName;
-    	if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
+    	this.declaringClassDescriptor					= optimizations;
+
+    	String tag = deriveTag(field);
+
+    	setupXmlClasses(field);
+    	//TODO XmlNs
+//    	if (nameSpacePrefix != null)
+//    	{
+//    		tagName				= nameSpacePrefix + tagName;
+//    	}
+    	this.tag					= tag;
+    	this.field				= field;
+    	setType(field, field.getType());
+    	boolean isLeaf		= (type == LEAF_NODE_VALUE);
+    	if (isLeaf || (type == REGULAR_ATTRIBUTE))
     	{
-    		tagName											= collectionAnnotation;
-    		hasCollectionOrMapTag	= true;
+    		scalarType		= TypeRegistry.getType(field);
+    		if (isLeaf)
+    		{
+    			isCDATA			= XMLTools.leafIsCDATA(field);
+    			needsEscaping	= scalarType.needsEscaping();
+    		}
+    		format			= XMLTools.getFormatAnnotation(field);
     	}
-    	else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
-    	{
-    		tagName											= mapAnnotation;
-    		hasCollectionOrMapTag	= true;
-    	}
-    	else if ((tagAnnotation != null) && (tagAnnotation.length() > 0))
-    	{
-    		tagName											= tagAnnotation;
-    	}
-    	else
-    		tagName											= XMLTools.getXmlTagName(field.getName(), null); // generate from class name
-    			
-     	final ElementState.xml_class classAnnotationObj		= field.getAnnotation(ElementState.xml_class.class);
-     	final Class classAnnotation			= (classAnnotationObj == null) ? null : classAnnotationObj.value();
-     	final ElementState.xml_classes classesAnnotationObj		= field.getAnnotation(ElementState.xml_classes.class);
-     	final Class[] classesAnnotation			= (classesAnnotationObj == null) ? null : classesAnnotationObj.value();
-     	final ElementState.xml_scope scopeAnnotationObj		= field.getAnnotation(ElementState.xml_scope.class);
+
+    	if (XMLTools.isNested(field))
+    		setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
+    }
+
+		private void setupXmlClasses(Field field)
+		{
+			final ElementState.xml_class classAnnotationObj		= field.getAnnotation(ElementState.xml_class.class);
+    	final Class classAnnotation			= (classAnnotationObj == null) ? null : classAnnotationObj.value();
+    	final ElementState.xml_classes classesAnnotationObj		= field.getAnnotation(ElementState.xml_classes.class);
+    	final Class[] classesAnnotation			= (classesAnnotationObj == null) ? null : classesAnnotationObj.value();
+    	final ElementState.xml_scope scopeAnnotationObj		= field.getAnnotation(ElementState.xml_scope.class);
     	final String scopeAnnotation			= (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
     	if ((classAnnotation != null) || (scopeAnnotation != null) ||
     			((classesAnnotation != null) && (classesAnnotation.length > 0)))
     	{
-    		hasXMLClasses								= true;
+    		hasXmlClasses								= true;
     	}
-    	if (nameSpacePrefix != null)
+		}
+
+		private String deriveTag(Field field)
+		{
+			final ElementState.xml_collection collectionAnnotationObj	= field.getAnnotation(ElementState.xml_collection.class);
+    	final String collectionAnnotation	= (collectionAnnotationObj == null) ? null : collectionAnnotationObj.value();
+    	final ElementState.xml_map mapAnnotationObj	= field.getAnnotation(ElementState.xml_map.class);
+    	final String mapAnnotation	= (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
+    	final ElementState.xml_tag tagAnnotationObj					= field.getAnnotation(ElementState.xml_tag.class);
+    	final String tagAnnotation			= (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
+    	String tag;
+    	if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
     	{
-    		tagName				= nameSpacePrefix + tagName;
+    		tag											= collectionAnnotation;
+    		hasCollectionOrMapTag	= true;
     	}
-        setTag(tagName);
-        this.field				= field;
-        setType(field, field.getType());
-        boolean isLeaf		= (type == LEAF_NODE_VALUE);
-        if (isLeaf || (type == REGULAR_ATTRIBUTE))
-        {
-        	scalarType		= TypeRegistry.getType(field);
-        	if (isLeaf)
-        	{
-	        	isCDATA			= XMLTools.leafIsCDATA(field);
-	        	needsEscaping	= scalarType.needsEscaping();
-        	}
-        	format			= XMLTools.getFormatAnnotation(field);
-        }
-        
-        if (XMLTools.isNested(field))
-        	setupXmlText(ClassDescriptor.lookupRootOptimizations((Class<ElementState>) field.getType()));
-    }
+    	else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
+    	{
+    		tag											= mapAnnotation;
+    		hasCollectionOrMapTag	= true;
+    	}
+    	else
+    	{
+    		tag											= XMLTools.getXmlTagName(field);
+    	}
+			return tag;
+		}
     
     /**
      * If this Optimizations object represents a NameSpace, then return the prefix for it, in the current context.
@@ -347,17 +357,17 @@ implements ClassTypes
     	return this.nameSpacePrefix;
     }
 
+    String toString;
     @Override public String toString()
     {
-        return "FieldToXMLOptimizations" + openTag;
+    	if (toString == null)
+    		toString = "FieldToXMLOptimizations<" + tag + ">";
+    	return toString;
     }
     
     private void setTag(String tagName)
     {
-    	this.tagName		= tagName;
-        startOpenTag 		= '<' + tagName;
-        openTag				= startOpenTag + '>';
-        closeTag			= "</" + tagName + ">";
+    	this.tag		= tagName;
     }
 	
 	private void setType(Field field, Class thatClass)
@@ -485,21 +495,11 @@ implements ClassTypes
 		return needsEscaping;
 	}
 
-	public String closeTag()
+	public String tag()
 	{
-		return closeTag;
+		return tag;
 	}
-
-	public String tagName()
-	{
-		return tagName;
-	}
-	public String startOpenTag()
-	{
-		return startOpenTag;
-	}
-    
-    public ScalarType scalarType()
+	public ScalarType scalarType()
 	{
 		return scalarType;
 	}
@@ -537,7 +537,7 @@ implements ClassTypes
         		// (which is an instance variable of this) !!!
 	        	
 	        	buffy.append(' ');
-				buffy.append(this.tagName);
+				buffy.append(this.tag);
 	        	buffy.append('=');
 	        	buffy.append('"');
 	        	
@@ -575,7 +575,7 @@ implements ClassTypes
         		
         		String value		= scalarType.toString(field, context);
 	        	
-        		element.setAttribute(tagName, value);
+        		element.setAttribute(tag, value);
         	}
         }
     }
@@ -606,7 +606,7 @@ implements ClassTypes
 
         		Text textNode			= isCDATA ? document.createCDATASection(fieldValueString) : document.createTextNode(fieldValueString);
         		
-        		Element leafNode		= document.createElement(tagName);
+        		Element leafNode		= document.createElement(tag);
         		leafNode.appendChild(textNode);
 
         		element.appendChild(leafNode);
@@ -653,7 +653,7 @@ implements ClassTypes
 
         	Text textNode			= isCDATA ? document.createCDATASection(instanceString) : document.createTextNode(instanceString);
 
-        	Element leafNode		= document.createElement(tagName);
+        	Element leafNode		= document.createElement(tag);
         	leafNode.appendChild(textNode);
 
         	element.appendChild(leafNode);
@@ -686,7 +686,7 @@ implements ClassTypes
         		// (which is an instance variable of this) !!!
 	        	
 	        	appendable.append(' ');
-				appendable.append(this.tagName);
+				appendable.append(this.tag);
 	        	appendable.append('=');
 	        	appendable.append('"');
 	        	
@@ -710,27 +710,27 @@ implements ClassTypes
     void appendLeaf(StringBuilder buffy, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        if (context != null)
-        {
-        	ScalarType scalarType	= this.scalarType;
-        	Field field				= this.field;
-        	if (!scalarType.isDefaultValue(field, context))
-        	{
-        		// for this field, generate <tag>value</tag>
-        		
-        		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-        		// (which is an instance variable of this) !!!
-        		buffy.append(openTag);
-        		
-        		if (isCDATA)
-        			buffy.append(START_CDATA);
-        		scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
-        		if (isCDATA)
-        			buffy.append(END_CDATA);
-        		
-        		buffy.append(this.closeTag);
-        	}
-        }
+    	if (context != null)
+    	{
+    		ScalarType scalarType	= this.scalarType;
+    		Field field				= this.field;
+    		if (!scalarType.isDefaultValue(field, context))
+    		{
+    			// for this field, generate <tag>value</tag>
+
+    			//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+    			// (which is an instance variable of this) !!!
+    			appendOpenTag(buffy);
+
+    			if (isCDATA)
+    				buffy.append(START_CDATA);
+    			scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
+    			if (isCDATA)
+    				buffy.append(END_CDATA);
+
+    			appendCloseTag(buffy);
+    		}
+    	}
     }
 
     /**
@@ -764,6 +764,22 @@ implements ClassTypes
         }
     }
 
+    void appendOpenTag(StringBuilder buffy)
+    {
+    	buffy.append('<').append(tag).append('>');
+    }
+    void appendCloseTag(StringBuilder buffy)
+    {
+    	buffy.append('<').append('/').append(tag).append('>');
+    }
+    void appendOpenTag(Appendable buffy) throws IOException
+    {
+    	buffy.append('<').append(tag).append('>');
+    }
+    void appendCloseTag(Appendable buffy) throws IOException
+    {
+    	buffy.append('<').append('/').append(tag).append('>');
+    }
     /**
      * Use this and the context to append a leaf node with value to the StringBuilder passed in.
      * Consideration of default values is not evaluated.
@@ -776,19 +792,19 @@ implements ClassTypes
     void appendCollectionLeaf(StringBuilder buffy, Object instance) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        if (instance != null)
-        {
-        	ScalarType scalarType	= this.scalarType;
-        	
-        	buffy.append(openTag);
-        	if (isCDATA)
-        		buffy.append(START_CDATA);
-        	scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
-        	if (isCDATA)
-        		buffy.append(END_CDATA);
+    	if (instance != null)
+    	{
+    		ScalarType scalarType	= this.scalarType;
 
-        	buffy.append(this.closeTag);
-        }
+    		appendOpenTag(buffy);
+    		if (isCDATA)
+    			buffy.append(START_CDATA);
+    		scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
+    		if (isCDATA)
+    			buffy.append(END_CDATA);
+
+    		appendCloseTag(buffy);
+    	}
     }
 
     /**
@@ -804,19 +820,19 @@ implements ClassTypes
     void appendCollectionLeaf(Appendable appendable, Object instance) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        if (instance != null)
-        {
-        	ScalarType scalarType	= this.scalarType;
-        	
-        	appendable.append(openTag);
-        	if (isCDATA)
-        		appendable.append(START_CDATA);
-        	scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
-        	if (isCDATA)
-        		appendable.append(END_CDATA);
+    	if (instance != null)
+    	{
+    		ScalarType scalarType	= this.scalarType;
 
-        	appendable.append(this.closeTag);
-        }
+    		appendOpenTag(appendable);
+    		if (isCDATA)
+    			appendable.append(START_CDATA);
+    		scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
+    		if (isCDATA)
+    			appendable.append(END_CDATA);
+
+    		appendCloseTag(appendable);
+     	}
     }
    
     /**
@@ -842,7 +858,7 @@ implements ClassTypes
         		//TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
         		// (which is an instance variable of this) !!!
         		
-        		appendable.append(openTag);
+           	appendOpenTag(appendable);
         		
         		if (isCDATA)
         			appendable.append(START_CDATA);
@@ -850,7 +866,7 @@ implements ClassTypes
         		if (isCDATA)
         			appendable.append(END_CDATA);
         		
-        		appendable.append(this.closeTag);
+        		appendCloseTag(appendable);
         	}
         }
     }
@@ -858,22 +874,22 @@ implements ClassTypes
     void appendXmlText(Appendable appendable, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        if (context != null)
-        {
-        	ScalarType scalarType	= this.xmlTextScalarType;
-        	Field field				= this.xmlTextField;
-        	if (!scalarType.isDefaultValue(field, context))
-        	{
-        		// for this field, generate <tag>value</tag>
-        		
-        		if (isCDATA)
-        			appendable.append(START_CDATA);
-// TODO        			kljhlkjhkljh
-        		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
-        		if (isCDATA)
-        			appendable.append(END_CDATA);
-         	}
-        }
+    	if (context != null)
+    	{
+    		ScalarType scalarType	= this.xmlTextScalarType;
+    		Field field				= this.xmlTextField;
+    		if (!scalarType.isDefaultValue(field, context))
+    		{
+    			// for this field, generate <tag>value</tag>
+
+    			if (isCDATA)
+    				appendable.append(START_CDATA);
+
+    			scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
+    			if (isCDATA)
+    				appendable.append(END_CDATA);
+    		}
+    	}
     }
 	Field field()
 	{
@@ -929,7 +945,7 @@ implements ClassTypes
 	 */
 	public ClassDescriptor getContextOptimizations()
 	{
-		return contextOptimizations;
+		return declaringClassDescriptor;
 	}
 
 	/**
@@ -968,6 +984,6 @@ implements ClassTypes
 	 */
 	public boolean hasXMLClasses()
 	{
-		return hasXMLClasses;
+		return hasXmlClasses;
 	}
 }

@@ -22,7 +22,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  * @author andruid
  */
-class ElementDescriptor extends Debug
+class TagDescriptor extends Debug
 implements ClassTypes
 {
 	private  String				tag;
@@ -66,7 +66,7 @@ implements ClassTypes
 	
 	private TranslationScope				translationSpace;
 	
-	private ElementDescriptor			nestedPTE;
+	private TagDescriptor			nestedPTE;
 	
 	/**
 	 * Construct from a Field object, for Fields declared with @xml_tag
@@ -76,7 +76,7 @@ implements ClassTypes
 	 * @param tag
 	 * @param isAttribute
 	 */
-	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, String tag, boolean isAttribute)
+	TagDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -126,11 +126,11 @@ implements ClassTypes
 	 * @param field
 	 * @param thatClass
 	 */
-	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass)
+	TagDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass)
 	{
 		this(translationSpace, optimizations, field, thatClass, XMLTools.getXmlTagName(thatClass, "State"));
 	}
-	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass, String tag)
+	TagDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, Field field, Class thatClass, String tag)
 	{
 		super();
 		this.tag							= tag;
@@ -147,7 +147,7 @@ implements ClassTypes
 	 * @param optimizations
 	 * @param field
 	 */
-	ElementDescriptor(ClassDescriptor optimizations, Field field)
+	TagDescriptor(ClassDescriptor optimizations, Field field)
 	{
 		super();
 		Class<?> scalarTypeClass = field.getType();
@@ -173,7 +173,7 @@ implements ClassTypes
 	 * @param tag		Tag corresponding to the value in the XML that we're translating.
 	 * @param isAttribute TODO
 	 */
-	ElementDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, ElementState context, String tag, boolean isAttribute)
+	TagDescriptor(TranslationScope translationSpace, ClassDescriptor optimizations, ElementState context, String tag, boolean isAttribute)
 	{
 		super();
 		this.tag				= tag;
@@ -395,7 +395,7 @@ implements ClassTypes
 		}
 		ClassDescriptor nsOpti			= nsContext.classDescriptor;
 
-		ElementDescriptor nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
+		TagDescriptor nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
 		final int nsN2joType 			= nsN2jo.type();
 		if (nsN2joType != IGNORED_ELEMENT)
 		{
@@ -926,7 +926,7 @@ implements ClassTypes
 		error("Can't set to " + textNodeValue + " because fieldType is unknown.");
 	}
 			
-	private void fillValues(ElementDescriptor other)
+	private void fillValues(TagDescriptor other)
 	{
 		//this.classOp			= other.classOp;
 		this.type				= other.type;
@@ -962,7 +962,7 @@ implements ClassTypes
 	/**
 	 * @return the nestedNameSpaceParseTableEntry
 	 */
-	ElementDescriptor nestedPTE()
+	TagDescriptor nestedPTE()
 	{
 		return nestedPTE;
 	}
@@ -1030,20 +1030,20 @@ implements ClassTypes
 		return scalarType;
 	}
 	
-	ElementDescriptor(String tag)
+	TagDescriptor(String tag)
 	{
 		this.tag		= tag;
 		this.type		= IGNORED_ELEMENT;
 		optimizations	= null;
 	}
-	static final ElementDescriptor IGNORED_ELEMENT_OPTIMIZATIONS;
-	static final ElementDescriptor ROOT_ELEMENT_OPTIMIZATIONS;
+	static final TagDescriptor IGNORED_ELEMENT_OPTIMIZATIONS;
+	static final TagDescriptor ROOT_ELEMENT_OPTIMIZATIONS;
 	static
 	{
-		IGNORED_ELEMENT_OPTIMIZATIONS		= new ElementDescriptor("IGNORED");
+		IGNORED_ELEMENT_OPTIMIZATIONS		= new TagDescriptor("IGNORED");
 		IGNORED_ELEMENT_OPTIMIZATIONS.type	= IGNORED_ELEMENT;
 		
-		ROOT_ELEMENT_OPTIMIZATIONS			= new ElementDescriptor("ROOT");
+		ROOT_ELEMENT_OPTIMIZATIONS			= new TagDescriptor("ROOT");
 		ROOT_ELEMENT_OPTIMIZATIONS.type		= ROOT;
 	}
 	/**
