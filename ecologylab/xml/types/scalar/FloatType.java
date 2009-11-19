@@ -6,7 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -134,7 +134,7 @@ public class FloatType extends ScalarType<Float>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         float value = f2xo.getField().getFloat(context);
@@ -153,10 +153,10 @@ public class FloatType extends ScalarType<Float>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
    {
-        float value = f2xo.getField().getFloat(context);
+        float value = fieldDescriptor.getField().getFloat(context);
            
 		buffy.append(Float.toString(value));
     }

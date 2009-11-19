@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -241,12 +241,12 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        Object instance = f2xo.getField().get(context);
+        Object instance = fieldDescriptor.getField().get(context);
            
-        appendValue((T) instance, buffy, !f2xo.isCDATA());
+        appendValue((T) instance, buffy, !fieldDescriptor.isCDATA());
     }
     
 /**
@@ -273,14 +273,14 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(StringBuilder buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
        try
        {
-        Object instance = f2xo.getField().get(context);
+        Object instance = fieldDescriptor.getField().get(context);
            
-        appendValue((T) instance, buffy,  !f2xo.isCDATA());
+        appendValue((T) instance, buffy,  !fieldDescriptor.isCDATA());
         }
         catch(IllegalArgumentException e)
         {

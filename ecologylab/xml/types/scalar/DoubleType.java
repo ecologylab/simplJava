@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import ecologylab.generic.text.EfficientDecimalFormat;
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -142,7 +142,7 @@ public class DoubleType extends ScalarType<Double>
 		 * @throws IllegalArgumentException
 		 * @see java.text.DecimalFormat
 		 */
-	@Override public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context)
+	@Override public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context)
 			throws IllegalArgumentException, IllegalAccessException
 	{
 		double value = f2xo.getField().getDouble(context);
@@ -176,11 +176,11 @@ public class DoubleType extends ScalarType<Double>
 	 * @throws IllegalAccessException 
 	 * @throws IllegalArgumentException 
 	 */
-	@Override public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context)
+	@Override public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
-		double value = f2xo.getField().getDouble(context);
-		String[] formatStrings = f2xo.getFormat();
+		double value = fieldDescriptor.getField().getDouble(context);
+		String[] formatStrings = fieldDescriptor.getFormat();
 		
 		if (formatStrings != null)
 		{

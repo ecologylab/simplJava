@@ -83,7 +83,10 @@ implements ClassTypes
      * This slot makes sense only for attributes and leaf nodes
      */
     private ScalarType		scalarType;
-    
+  
+    /**
+     * An option for scalar formatting.
+     */
     private String[]		format;
 
     /**

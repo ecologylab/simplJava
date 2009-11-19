@@ -6,7 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -120,7 +120,7 @@ public class ShortType extends ScalarType<Short>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         short value = f2xo.getField().getShort(context);
@@ -138,10 +138,10 @@ public class ShortType extends ScalarType<Short>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        short value = f2xo.getField().getShort(context);
+        short value = fieldDescriptor.getField().getShort(context);
            
 		buffy.append(Short.toString(value));
     }

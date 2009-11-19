@@ -1169,7 +1169,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static boolean representAsLeafNode(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_leaf.class);
+		return representAsLeaf(field);
 	}
 	/**
 	 * Determine if the field is a scalar value that is represented in XML as a an leaf node.
@@ -1192,6 +1192,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	{
 		return field.isAnnotationPresent(ElementState.xml_attribute.class);
 	}
+	public static boolean representAsLeaf(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_leaf.class);
+	}
+
 	/**
 	 * 
 	 * @param field
@@ -1199,11 +1204,20 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static boolean representAsLeafOrNested(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_leaf.class) ||
-		field.isAnnotationPresent(ElementState.xml_nested.class) || 
-		field.isAnnotationPresent(ElementState.xml_collection.class) ||
+		return representAsLeaf(field) || representAsNested(field);
+	}
+
+	public static boolean representAsNested(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_nested.class);
+	}
+
+	public static boolean representAsCollectionOrMap(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_collection.class) ||
 		field.isAnnotationPresent(ElementState.xml_map.class);
 	}
+
 	/**
 	 * 
 	 * @param field
@@ -1211,11 +1225,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static boolean isNested(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_nested.class);
+		return representAsNested(field);
 	}
 	static boolean hasCollectionAnnotation(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_collection.class);
+		return representAsCollectionOrMap(field);
 	}
 	static boolean hasMapAnnotation(Field field)
 	{
