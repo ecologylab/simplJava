@@ -33,9 +33,9 @@ implements ClassTypes
 	/**
 	 * Class object that we are describing.
 	 */
-	final Class<? extends ElementState>					describedClass;
+	private Class<? extends ElementState>					describedClass;
 	
-	final String																tagName;
+	private String																tagName;
 	
 	/**
 	 * Map of FieldToXMLOptimizations, with field names as keys.
@@ -129,7 +129,7 @@ implements ClassTypes
 	private ClassDescriptor(Class<? extends ElementState> thatClass)
 	{
 		super();
-		this.describedClass		= thatClass;
+		this.setDescribedClass(thatClass);
 		this.tagName					= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 		
 		getAndOrganizeFieldsRecursive(thatClass);
@@ -923,7 +923,7 @@ implements ClassTypes
 	private void mapFieldDescriptor(FieldDescriptor fieldDescriptor)
 	{
 		//FIXME is tag determined by field by class?
-		String tagName	= fieldDescriptor.tagName;
+		String tagName	= fieldDescriptor.getTagName();
 		if (tagName != null)
 			allFieldDescriptorsByTags.put(tagName, fieldDescriptor);
 	}
@@ -964,7 +964,7 @@ implements ClassTypes
 
 	public String toString()
 	{
-		return "Optimizations[" + describedClass.getName() + "]"; 
+		return "Optimizations[" + getDescribedClass().getName() + "]"; 
 	}
 	
 	/**
@@ -1051,7 +1051,7 @@ static class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDes
 	 */
 	public Class describedClass()
 	{
-		return describedClass;
+		return getDescribedClass();
 	}
 
 	TagDescriptor scalarTextN2jo()
@@ -1067,6 +1067,14 @@ static class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDes
 	public boolean hasScalarTextField()
 	{
 		return scalarTextField != null;
+	}
+
+	public void setDescribedClass(Class<? extends ElementState> describedClass) {
+		this.describedClass = describedClass;
+	}
+
+	public Class<? extends ElementState> getDescribedClass() {
+		return describedClass;
 	}
 
 

@@ -33,7 +33,7 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 
 	protected final Field						field;
 
-	final String										tagName;
+	private String										tagName;
 	
 	/**
 	 * Used to specify old translations, for backwards compatability. Never written.
@@ -46,12 +46,12 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	 */
 	protected final ClassDescriptor	declaringClassDescriptor;
 
-	final int												type;
+	private int												type;
 
 	/**
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
-	final ScalarType<?>							scalarType;
+	private ScalarType<?>							scalarType;
 
 	/**
 	 * An option for scalar formatting.
@@ -298,7 +298,7 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 		{
 			if (Collection.class.isAssignableFrom(fieldClass))
 			{
-				warning("In " + declaringClassDescriptor.describedClass
+				warning("In " + declaringClassDescriptor.getDescribedClass()
 						+ "\n\tCan't translate  @xml_collection() " + field.getName()
 						+ " because the annotated field is not an instance of Collection.");
 				return IGNORED_ELEMENT;
@@ -309,14 +309,14 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 
 				if (collectionTag == null)
 				{
-					warning("In " + declaringClassDescriptor.describedClass
+					warning("In " + declaringClassDescriptor.getDescribedClass()
 							+ "\n\tCan't translate  @xml_collection() " + field.getName()
 							+ " because its tag argument is missing.");
 					return IGNORED_ELEMENT;
 				}
 				if (collectionElementClass == null)
 				{
-					warning("In " + declaringClassDescriptor.describedClass
+					warning("In " + declaringClassDescriptor.getDescribedClass()
 							+ "\n\tCan't translate  @xml_collection() " + field.getName()
 							+ " because the parameterized type argument for the Collection is missing.");
 					return IGNORED_ELEMENT;

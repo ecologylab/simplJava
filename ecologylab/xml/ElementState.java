@@ -799,7 +799,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			root.setAttributeNode(attr);
 			println("yo!");
 */
-			translateToDOM(classDescriptor.describedClass, classDescriptor.pseudoFieldDescriptor(), dom, dom);
+			translateToDOM(classDescriptor.getDescribedClass(), classDescriptor.pseudoFieldDescriptor(), dom, dom);
 		
 			return dom;
 		} catch (ParserConfigurationException e)
