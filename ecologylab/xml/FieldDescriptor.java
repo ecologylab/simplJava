@@ -352,21 +352,38 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 				}
 			}
 		}
-
-
-			return result;
-		}
-
-		ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
-		String mapAnnotation = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-		if (mapAnnotationObj != null)
-		{
-			Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
-
+		else{
+			ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
+			String mapTag = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
+			if (mapAnnotationObj != null)
+			{
+				Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
+				
+				if (mapTag == null)
+				{
+					warning("In " + declaringClassDescriptor.getDescribedClass()
+							+ "\n\tCan't translate  @xml_map() " + field.getName()
+							+ " because its tag argument is missing.");
+					return IGNORED_ELEMENT;
+				}
+				if (mapElementClass == null)
+				{
+					warning("In " + declaringClassDescriptor.getDescribedClass()
+							+ "\n\tCan't translate  @xml_collection() " + field.getName()
+							+ " because the parameterized type argument for the Collection is missing.");
+					return IGNORED_ELEMENT;
+				}
+				this.collectionOrMapElementClass = mapElementClass;
+				collectionOrMapTagName = mapTag;
+	
+				result = ElementState.class.isAssignableFrom(fieldClass) ? MAP_ELEMENT : MAP_SCALAR;
+			}
 		}
 
 		return result;
 	}
+
+		
 
 	/**
 	 * Get the value of the ith declared type argument from a field declaration. Only works when the
