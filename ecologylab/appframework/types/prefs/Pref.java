@@ -17,7 +17,8 @@ import ecologylab.xml.types.element.Mappable;
 /**
  * Generic base class for application Preference objects.
  * 
- * @author andruid
+ * @author Andruid Kerne (andruid@ecologylab.net)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 
 @xml_inherit
@@ -409,6 +410,36 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
         return lookupFloat(name, 1.0f);
     }
    
+  /**
+	 * Look up a PrefDouble by name in the map of all Prefs. Return defaultValue if PrefDouble's value
+	 * is null.
+	 * 
+	 * @param name
+	 *          Name of PrefDouble
+	 * @param defaultValue
+	 *          default value to set PrefDouble to
+	 * 
+	 * @return PrefDouble's value or default value if doesn't exist
+	 */
+	public static double lookupDouble(String name, double defaultValue) throws ClassCastException
+	{
+		PrefDouble prefDouble = ((PrefDouble) lookupPref(name));
+		return (prefDouble == null) ? defaultValue : prefDouble.value();
+	}
+
+	/**
+	 * Look up a PrefDouble by name in the map of all Prefs.
+	 * 
+	 * @param name
+	 *          Name of PrefDouble
+	 * 
+	 * @return PrefDouble's value (if exists) or 1.0
+	 */
+	public static double lookupDouble(String name) throws ClassCastException
+	{
+		return lookupDouble(name, 1.0);
+	}
+    
     /**
      * Look up a PrefString by name in the map of all Prefs.
      * Return defaultValue if PrefString's value is null.

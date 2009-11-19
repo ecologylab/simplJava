@@ -8,7 +8,6 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketException;
-import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -54,7 +53,7 @@ import ecologylab.xml.XMLTranslationException;
  * tracking. Since the sending methods do not wait for the server to return.
  * 
  * This object will listen for incoming messages from the server, and will send
- * any messages that it recieves on its end.
+ * any messages that it receives on its end.
  * 
  * Since the underlying implementation is TCP/IP, messages sent should be sent
  * in order, and the responses should match that order.
@@ -62,7 +61,7 @@ import ecologylab.xml.XMLTranslationException;
  * Another major difference between this and the non-NIO version of
  * ServicesClient is that it is StartAndStoppable.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		Runnable, ClientConstants
