@@ -335,6 +335,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			try
 			{
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationSpace);
+				System.out.println("Prefs loaded From Servlet:: ");
+				if(prfs != null)
+					prfs.translateToXML(System.out);
+				System.out.println(" --- End Prefs");
 			}
 			catch (XMLTranslationException e)
 			{
@@ -566,7 +570,6 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						if (argPrefSet != null)
 						{
 							println("OK: Loaded Prefs from: " + argPrefsFile);
-							postProcessPrefs(argPrefSet);
 						}
 						else
 						{
@@ -600,6 +603,9 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				argStack.push(arg); // let the next code handle returning.
 			break;
 		}
+		
+		if(prefSet != null)
+			postProcessPrefs(prefSet);
 	}
 
 	/**
