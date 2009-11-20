@@ -2,6 +2,8 @@ package ecologylab.io;
 
 import java.io.IOException;
 
+import ecologylab.net.ParsedURL;
+
 /**
  * Objects that implement this interface can be passed to a {@link DownloadProcessor DownloadProcessor}.
  *
@@ -54,6 +56,8 @@ public interface Downloadable
    public boolean cancel();
    
    public BasicSite getSite();
+   
+   public ParsedURL purl();
    
    /**
     * 

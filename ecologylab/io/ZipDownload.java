@@ -451,4 +451,9 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
   	return "zip archive " + zipSource.toString();
   }
 
+  public ParsedURL purl()
+  {
+	  return zipSource;
+  }
+  
 }

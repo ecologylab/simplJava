@@ -181,5 +181,10 @@ public class DownloadableHtmlPage implements Downloadable
   {
   	return purl.toString();
   }
+  
+  public ParsedURL purl()
+  {
+	  return purl;
+  }
 
 }

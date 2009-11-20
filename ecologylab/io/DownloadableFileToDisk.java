@@ -192,5 +192,10 @@ implements Downloadable, DispatchTarget
   {
   	return null;
   }
+  
+  public ParsedURL purl()
+  {
+	  return target;
+  }
 
 }
