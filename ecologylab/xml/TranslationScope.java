@@ -341,7 +341,7 @@ public final class TranslationScope extends Debug
    public Class<? extends ElementState>  xmlTagToClass(String xmlTag)
    {
 	  TranslationEntry entry = xmlTagToTranslationEntry(xmlTag);
-	  return entry.empty ? null : entry.thisClass;
+	  return (entry == null || entry.empty) ? null : entry.thisClass;
    }
 
    /**

@@ -570,6 +570,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						if (argPrefSet != null)
 						{
 							println("OK: Loaded Prefs from: " + argPrefsFile);
+							prefSet.addPrefSet(argPrefSet);
 						}
 						else
 						{
@@ -577,7 +578,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 							String doesntExist = argPrefsFile.exists() ? "" : "\n\tFile does not exist!!!\n\n";
 							println("ERROR: Loading Prefs from: " + argPrefsFile + doesntExist);
 						}
-
+						
 					}
 					catch (XMLTranslationException e)
 					{
@@ -603,7 +604,17 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				argStack.push(arg); // let the next code handle returning.
 			break;
 		}
-		
+		System.out.println("Printing Prefs:\n");
+		try
+		{
+			prefSet.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("\nPrefs Printed");
 		if(prefSet != null)
 			postProcessPrefs(prefSet);
 	}
@@ -617,7 +628,6 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	{
 		if(sessionScope == null)
 			return;
-		
 		for(Pref pref : prefSet.values())
 			if(pref != null )
 				pref.postLoadHook(sessionScope);

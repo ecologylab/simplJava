@@ -42,6 +42,15 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
     	return result;
     }
     
+    /**
+     * Add another prefSet to this one.
+     * @param prefSet
+     */
+		public void addPrefSet(PrefSet prefSet)
+		{
+			for(Pref<?> pref : prefSet.values())
+				add(pref);
+		}
 	/**
 	 * Perform custom processing on the newly created child node,
 	 * just before it is added to this.
@@ -135,5 +144,4 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
 			
 			return retVal;
 		}
-
 }
