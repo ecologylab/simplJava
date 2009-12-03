@@ -570,7 +570,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						if (argPrefSet != null)
 						{
 							println("OK: Loaded Prefs from: " + argPrefsFile);
-							prefSet.addPrefSet(argPrefSet);
+							if(prefSet != null)
+								prefSet.addPrefSet(argPrefSet);
+							else
+								prefSet = argPrefSet;
 						}
 						else
 						{
