@@ -861,7 +861,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * Table of replacement Strings for characters deemed nasty in XML.
 	 */
 	//   static final String[] ESCAPE_TABLE	= new String[ISO_LATIN1_START];
-	static final String[] ESCAPE_TABLE	= new String[Character.MAX_VALUE];
+	static final String[] ESCAPE_TABLE	= new String[Character.MAX_VALUE+1];
 
 	static
 	{
