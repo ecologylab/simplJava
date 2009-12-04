@@ -521,7 +521,7 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
     public static ElementState lookupElementState(String name) throws ClassCastException
     {
         PrefElementState prefElementState = ((PrefElementState)lookupPref(name));
-		return (prefElementState == null) ? null : prefElementState.value();
+		return (ElementState) ((prefElementState == null) ? null : prefElementState.value());
     }
     
     /**
@@ -590,6 +590,9 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
 
 		/**
 		 * @see ecologylab.xml.types.element.ArrayListState#clone()
+		 * This clone method is REQUIRED for preferences being maintained by a servlet.
+		 * The specific case that we have in place (dec '09) that uses this is the Studies framework.
+		 * The clone functionality enables maintaining a preference set for each user in a user study.
 		 */
 		@Override
 		public abstract Pref<T> clone();

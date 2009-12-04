@@ -10,7 +10,7 @@ import ecologylab.xml.ElementState;
  * 
  * @author andruid
  */
-public class PrefElementState extends Pref<ElementState>
+public class PrefElementState<E extends ElementState> extends Pref<E>
 {
 	/**
 	 * 
@@ -32,10 +32,10 @@ public class PrefElementState extends Pref<ElementState>
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
 	@Override
-	ElementState getValue()
+	E getValue()
 	{
 		// TODO Auto-generated method stub
-		return get(0);
+		return (E) get(0);
 	}
 
 	/*
@@ -56,16 +56,17 @@ public class PrefElementState extends Pref<ElementState>
 	 * METHOD MUST BE RECONSIDERED. A very cool and proper way to do this would be to translate value
 	 * to and from XML, but this is impossible without the correct translation scope.
 	 * 
+	 * See Pref.clone() for why this method is important.
 	 * @see ecologylab.appframework.types.prefs.Pref#clone()
 	 */
 	@Override
-	public Pref<ElementState> clone()
+	public Pref<E> clone()
 	{
-		Pref<ElementState> pES = new PrefElementState(this.name);
-
-		for (ElementState e : this)
+		Pref<E> pES = new PrefElementState(this.name);
+		//TODO
+		for (ElementState es : this)
 		{
-			pES.add(e);
+			pES.add(es);
 		}
 
 		return pES;
