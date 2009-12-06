@@ -610,7 +610,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		System.out.println("Printing Prefs:\n");
 		try
 		{
-			prefSet.translateToXML(System.out);
+			if(prefSet != null)
+				prefSet.translateToXML(System.out);
 		}
 		catch (XMLTranslationException e)
 		{
