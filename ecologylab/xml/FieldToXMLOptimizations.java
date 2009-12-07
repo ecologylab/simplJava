@@ -256,7 +256,7 @@ implements ClassTypes
     	this.contextOptimizations	=  optimizations;
     	
     	//TODO -- is this inheritance good or bad?!
-        String tagName	= collectionFieldToXMLOptimizations.childTagName;
+        String tagName	= optimizations.getTagName(); // collectionFieldToXMLOptimizations.childTagName;
         
         if (tagName == null)
         	// get the tag name from the class of the object in the Collection, if from nowhere else
