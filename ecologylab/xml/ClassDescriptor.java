@@ -35,6 +35,8 @@ implements ClassTypes
 	 */
 	final Class<? extends ElementState>					thatClass;
 	
+	final String																tagName;
+	
 	ClassDescriptor										parent;
 	
 	private String										nameSpaceID;
@@ -143,6 +145,7 @@ implements ClassTypes
 	{
 		super();
 		this.thatClass		= thatClass;
+		this.tagName			= XMLTools.getXmlTagName(thatClass, "State");
 		setParent(parent);
 		
 		getAndOrganizeFields();
@@ -1213,5 +1216,10 @@ implements ClassTypes
 	public boolean hasScalarTextField()
 	{
 		return scalarTextField != null;
+	}
+
+	public String getTagName()
+	{
+		return tagName;
 	}
 }
