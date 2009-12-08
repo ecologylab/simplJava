@@ -4,6 +4,7 @@
 package ecologylab.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -558,13 +559,19 @@ implements ApplicationProperties
 			if (needToWriteAssetsXml)
 			{
 				needToWriteAssetsXml	= false;
-				assetsState.writePrettyXML(assetsXmlFile);
+//				assetsState.writePrettyXML(assetsXmlFile);
+				assetsState.translateToXML(assetsXmlFile);
 				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}
 			else
 				println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
 		} catch (XMLTranslationException e)
 		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

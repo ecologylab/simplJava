@@ -473,6 +473,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 					break;
 					}
 
+					boolean hasXMLClasses = childF2XO.hasXMLClasses();
 					if (thatCollection != null)
 					{
 						//if the object is a collection, 
@@ -503,7 +504,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 								// and it fixes @xml_text output
 //							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 //							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2XO				= childF2XO.hasCollectionOrMapTag() ?
+								FieldToXMLOptimizations collectionElementF2XO				= hasXMLClasses ?
 										childF2XO : 
 										collectionSubElementState.classDescriptor.fieldToJavaOptimizations(childF2XO, collectionElementClass);
 								
@@ -521,7 +522,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
+						FieldToXMLOptimizations nestedF2XO = hasXMLClasses ?
 								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
 
 						nestedES.translateToXMLBuilder(nestedF2XO, buffy);
@@ -712,6 +713,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 					break;
 					}
 
+					boolean hasXMLClasses = childF2XO.hasXMLClasses();
 					if (thatCollection != null)
 					{	//if the object is a collection, iterate thru the collection and emit XML for each element
 						for (Object next : thatCollection)
@@ -734,7 +736,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 
-								FieldToXMLOptimizations collectionElementF2Xo				= childF2XO.hasCollectionOrMapTag() ?
+								FieldToXMLOptimizations collectionElementF2Xo				= hasXMLClasses ?
 										childF2XO : // tag by annotation
 										// tag by class
 										collectionSubElementState.classDescriptor.fieldToJavaOptimizations(childF2XO, collectionElementClass);
@@ -751,7 +753,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
+						FieldToXMLOptimizations nestedF2XO = hasXMLClasses ?
 								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
 //					FieldToXMLOptimizations nestedF2XO = thatNewClass.equals(childField.getType()) ?
 //							childF2XO : fieldToXMLOptimizations(childField, nestedES.getClass());

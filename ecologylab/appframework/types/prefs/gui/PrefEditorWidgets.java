@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -728,13 +729,18 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
         {
             try
             {
-                prefSet.writePrettyXML(savePrefsPURL.file());
+                prefSet.translateToXML(savePrefsPURL.file());
             }
             catch (XMLTranslationException e)
             {
                 // TODO auto-generated catch block
                 e.printStackTrace();
             }
+						catch (IOException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
         }
     }
 
