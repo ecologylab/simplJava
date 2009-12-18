@@ -38,6 +38,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	/**
 	 * Used to specify old translations, for backwards compatability. Never written.
 	 */
+	@xml_nowrap
 	@xml_collection("other_tag") private
 	ArrayList<String>								otherTags;
 
@@ -268,16 +269,25 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ATTRIBUTE;
+			else{
+				tagName = XMLTools.getXmlTagName(field);
+			}
 			break;
 		case LEAF:
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ELEMENT;
+			else{
+				tagName = XMLTools.getXmlTagName(field);
+			}
 			break;
 		case TEXT_ELEMENT:
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ELEMENT;
+			else{
+				tagName = XMLTools.getXmlTagName(field);
+			}
 			break;
 		case NESTED_ELEMENT:
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
@@ -285,6 +295,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			else if (!deriveTagFromClass())
 			{
 				elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+				tagName = XMLTools.getXmlTagName(field);
 			}
 			break;
 		case COLLECTION_ELEMENT:
@@ -316,6 +327,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 						result = COLLECTION_SCALAR;
 				}
 				collectionOrMapTagName = collectionTag;
+				tagName = collectionTag;
 				break;
 		case MAP_ELEMENT:
 			String mapTag = field.getAnnotation(ElementState.xml_map.class).value();
@@ -342,6 +354,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					}
 
 					collectionOrMapTagName = mapTag;
+					tagName = mapTag;
 
 					if (ElementState.class.isAssignableFrom(mapElementClass))
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
