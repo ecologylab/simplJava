@@ -269,7 +269,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ATTRIBUTE;
-			else{
+			else
+			{
 				tagName = XMLTools.getXmlTagName(field);
 			}
 			break;
@@ -277,7 +278,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ELEMENT;
-			else{
+			else
+			{
 				tagName = XMLTools.getXmlTagName(field);
 			}
 			break;
