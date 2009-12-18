@@ -146,41 +146,20 @@ public class RssState extends ElementState
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	public static void main(String[] args)
 	{
-		//doMain();
-		long	initialTime	= System.currentTimeMillis();
+		ClassDescriptor fdClassDescriptor = ClassDescriptor.getClassDescriptor(FieldDescriptor.class);
 		RssState rss	= new RssState();
-		Field field		= null;
+		Channel channel	= new Channel();
+		rss.channel		= channel;
+		
 		try
 		{
-			field 		= RssState.class.getField("channel");
-		} catch (SecurityException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e)
+			rss.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int i=0; i< 32000; i++)
-		{
-			try
-			{
-				Channel channel	= (Channel) field.get(rss);
-//				String[] format	= XMLTools.getFormatAnnotation(field);
-			} catch (IllegalArgumentException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		long deltaT			= System.currentTimeMillis() - initialTime;
-		
-		System.out.println(deltaT + " milliseconds");
 	}
 
 	private static void doMain()

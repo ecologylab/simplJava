@@ -23,7 +23,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @author andruid
  */
 class TagDescriptor extends Debug
-implements ClassTypes
+implements FieldTypes
 {
 	private  String				tag;
 	
@@ -90,17 +90,17 @@ implements ClassTypes
 		if (isAttribute)
 		{
 			isScalar			= true;
-			this.type			= REGULAR_ATTRIBUTE;
+			this.type			= ATTRIBUTE;
 		}
 		else if (XMLTools.representAsLeafNode(field))
 		{
 			isScalar			= true;
-			this.type			= LEAF_NODE_VALUE;
+			this.type			= LEAF;
 			setCDATA(field);
 		}
 		else
 		{
-			this.type			= REGULAR_NESTED_ELEMENT;
+			this.type			= NESTED_ELEMENT;
 			Class<?> fieldClass = field.getType();
 			if (!ElementState.class.isAssignableFrom(fieldClass))
 			{	//FIXME -- should throw XMLTranslationException!? (but its *so* messy!!!)
@@ -138,7 +138,7 @@ implements ClassTypes
 		this.optimizations		= optimizations;
 		
 		this.field						= field;
-		this.type							= REGULAR_NESTED_ELEMENT;
+		this.type							= NESTED_ELEMENT;
 		setClassOp(thatClass);
 	}
 	
@@ -227,16 +227,16 @@ implements ClassTypes
 		{	// no XML namespace; life is simpler.
 
 			int diagnosedType	= ((field != null) && field.isAnnotationPresent(ElementState.xml_nested.class)) ? 
-					REGULAR_NESTED_ELEMENT : setupScalarValue(tag, field, contextClass, false);
+					NESTED_ELEMENT : setupScalarValue(tag, field, contextClass, false);
 
 			switch (diagnosedType)
 			{
-			case LEAF_NODE_VALUE:
+			case LEAF:
 				this.classOp		= contextClass;
 				setCDATA(field);
  				return;
-			case REGULAR_NESTED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
-				this.type	= REGULAR_NESTED_ELEMENT;
+			case NESTED_ELEMENT:    // this may be a temporary label -- not a leaf node or an attribute
+				this.type	= NESTED_ELEMENT;
 				// changed 12/2/06 by andruid -- use the type in the TranslationSpace!
 				// ah, but that was wrong to do. you must get the class from the Field object,
 				// because the Field object, and not the class is supposed to be a source.
@@ -358,7 +358,7 @@ implements ClassTypes
 						{
 							Collection collection = context.getCollection(classOp);
 							this.type	= (collection != null) ?
-									COLLECTION_ELEMENT : OTHER_NESTED_ELEMENT;
+									COLLECTION_ELEMENT : AWFUL_OLD_NESTED_ELEMENT;
 						}
 						setClassOp(classOp);
 					}
@@ -458,7 +458,7 @@ implements ClassTypes
 		if (setMethod != null)
 		{
 			this.setMethod	= setMethod;
-			type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
+			type			= isAttribute ? ATTRIBUTE : LEAF;
 			// set method is custom code on a per field basis, and so doesnt need field object
 		}
 //		else
@@ -486,7 +486,7 @@ implements ClassTypes
 			if (fieldType != null)
 			{
 				this.scalarType	= fieldType;
-				type			= isAttribute ? REGULAR_ATTRIBUTE : LEAF_NODE_VALUE;
+				type			= isAttribute ? ATTRIBUTE : LEAF;
 //				this.field		= field;
 			}
 //			else if (!isAttribute)
@@ -1005,7 +1005,7 @@ implements ClassTypes
 	 */
 	boolean isLeafNode()
 	{
-		return this.type == LEAF_NODE_VALUE;
+		return this.type == LEAF;
 	}
 	/**
 	 * 

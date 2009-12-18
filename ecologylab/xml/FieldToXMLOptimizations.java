@@ -31,7 +31,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public class FieldToXMLOptimizations
 extends Debug
-implements ClassTypes
+implements FieldTypes
 {
     public static final String XMLNS_URN = "http://www.w3.org/2000/xmlns/";
 
@@ -268,7 +268,7 @@ implements ClassTypes
     	// no field here?!
 
     	//TODO -- do we need to handle scalars here as well?
-    	this.type		= REGULAR_NESTED_ELEMENT;
+    	this.type		= NESTED_ELEMENT;
     }
     
     /**
@@ -293,8 +293,8 @@ implements ClassTypes
     	this.tag					= tag;
     	this.field				= field;
     	setType(field, field.getType());
-    	boolean isLeaf		= (type == LEAF_NODE_VALUE);
-    	if (isLeaf || (type == REGULAR_ATTRIBUTE))
+    	boolean isLeaf		= (type == LEAF);
+    	if (isLeaf || (type == ATTRIBUTE))
     	{
     		scalarType		= TypeRegistry.getType(field);
     		if (isLeaf)
@@ -305,7 +305,7 @@ implements ClassTypes
     		format			= XMLTools.getFormatAnnotation(field);
     	}
 
-    	if (XMLTools.isNested(field))
+    	if (XMLTools.representAsNested(field))
     		setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
     }
 
@@ -381,19 +381,19 @@ implements ClassTypes
 		
 		// help people who confuse @xml_nested and @xml_collection for ArrayListState
 		if (isCollection && (thatClass != null) && ElementState.class.isAssignableFrom(thatClass))
-			result			= REGULAR_NESTED_ELEMENT;			
+			result			= NESTED_ELEMENT;			
 		else if (field.isAnnotationPresent(ElementState.xml_attribute.class))
 		{
-			result			= REGULAR_ATTRIBUTE;
+			result			= ATTRIBUTE;
 			isScalar		= true;
 		}
 		else if (field.isAnnotationPresent(ElementState.xml_leaf.class))
 		{
-			result			= LEAF_NODE_VALUE;
+			result			= LEAF;
 			isScalar		= true;
 		}
 		else if (field.isAnnotationPresent(ElementState.xml_nested.class))
-			result			= REGULAR_NESTED_ELEMENT;
+			result			= NESTED_ELEMENT;
 		else if (isCollection)
 		{
 			java.lang.reflect.Type[] typeArgs	= ReflectionTools.getParameterizedTypeTokens(field);
@@ -509,7 +509,7 @@ implements ClassTypes
     
     boolean couldNeedEscaping()
     {
-    	return (type == REGULAR_ATTRIBUTE) || ((type == LEAF_NODE_VALUE) && !isCDATA);
+    	return (type == ATTRIBUTE) || ((type == LEAF) && !isCDATA);
     }
     
     /**

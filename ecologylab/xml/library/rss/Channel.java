@@ -15,7 +15,7 @@ import ecologylab.xml.types.element.ArrayListState;
  *
  * @author andruid
  */
-public @xml_inherit class Channel extends ArrayListState<Item>
+public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
@@ -24,7 +24,7 @@ public @xml_inherit class Channel extends ArrayListState<Item>
     */
    @xml_leaf	ParsedURL		link;
    
-   //@xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
+   @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
    
    /**
     * @return Returns the description.
@@ -97,12 +97,13 @@ public @xml_inherit class Channel extends ArrayListState<Item>
 		i2.author = "andruid";
 		i2.title = "it is called cf!";
 		i2.description	= "its a creativity support tool";
-		/* c.items		= new ArrayList<Item>();
-		c.items. */ c.add(i1);
-		/* c.items. */ c.add(i2);
+		c.items		= new ArrayList<Item>();
+		c.items. add(i1);
+		c.items.add(i2);
 		try
 		{
-			println(c.translateToXML());
+			c.translateToXML(System.out);
+//			println(c.translateToXML());
 		} catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block

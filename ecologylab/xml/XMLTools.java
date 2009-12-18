@@ -1207,6 +1207,11 @@ implements CharacterConstants, SpecialCharacterEntities
 		return representAsLeaf(field) || representAsNested(field);
 	}
 
+	public static boolean representAsText(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_text.class);
+	}
+
 	public static boolean representAsNested(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_nested.class);
@@ -1214,27 +1219,19 @@ implements CharacterConstants, SpecialCharacterEntities
 
 	public static boolean representAsCollectionOrMap(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_collection.class) ||
-		field.isAnnotationPresent(ElementState.xml_map.class);
+		return representAsCollection(field) || representAsMap(field);
 	}
 
-	/**
-	 * 
-	 * @param field
-	 * @return  true if the field was declared with @xml_nested
-	 */
-	static boolean isNested(Field field)
-	{
-		return representAsNested(field);
-	}
-	static boolean hasCollectionAnnotation(Field field)
-	{
-		return representAsCollectionOrMap(field);
-	}
-	static boolean hasMapAnnotation(Field field)
+	public static boolean representAsMap(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_map.class);
 	}
+
+	public static boolean representAsCollection(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_collection.class);
+	}
+
 	/**
 	 * @param field
 	 * @return	true if the Field is one translated by the Type system.
@@ -1259,7 +1256,7 @@ implements CharacterConstants, SpecialCharacterEntities
 
 	static String[] otherTags(ElementState.xml_other_tags otherTagsAnnotation)
 	{
-		String[]	result	= otherTagsAnnotation.value();
+		String[]	result	= otherTagsAnnotation == null ? null : otherTagsAnnotation.value();
 		if ((result != null) && (result.length == 0))
 			result			= null;
 		return result;

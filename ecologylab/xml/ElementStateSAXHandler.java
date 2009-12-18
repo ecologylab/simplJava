@@ -39,7 +39,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class ElementStateSAXHandler 
 extends Debug 
-implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
+implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 {
 	final TranslationScope	translationSpace;
 	
@@ -379,7 +379,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 		{
 			switch (activeN2JO.type())
 			{
-			case REGULAR_NESTED_ELEMENT:
+			case NESTED_ELEMENT:
 				childES							= activeN2JO.constructChildElementState(currentElementState);
 				activeN2JO.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
 				break;
@@ -392,7 +392,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 				childES							= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
 				
 				break;
-			case LEAF_NODE_VALUE:
+			case LEAF:
 				// wait for characters to set scalar field
 				//activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
@@ -416,7 +416,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 					childES						= activeN2JO.constructChildElementState(currentElementState);
 				}
 				break;
-			case OTHER_NESTED_ELEMENT:
+			case AWFUL_OLD_NESTED_ELEMENT:
 				childES							= activeN2JO.constructChildElementState(currentElementState);
 				if (childES != null)
 					currentElementState.addNestedElement(childES);
@@ -491,7 +491,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 			final Object key 				= ((Mappable) currentES).key();
 			Map map							= currentN2JO.getMap(parentES);
 			map.put(key, currentES);
-		case REGULAR_NESTED_ELEMENT:
+		case NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case NAME_SPACE_NESTED_ELEMENT:
 			if (parentES != null)
@@ -500,7 +500,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
 		case NAME_SPACE_LEAF_NODE:
-		case OTHER_NESTED_ELEMENT:
+		case AWFUL_OLD_NESTED_ELEMENT:
 			this.currentElementState		= parentES;	// restore context!
 			break;
 		default:
@@ -530,7 +530,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 				switch (curentN2JOType)
 				{
 				case NAME_SPACE_LEAF_NODE:
-				case LEAF_NODE_VALUE:
+				case LEAF:
 					//TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
 					String value	= new String(currentTextValue.substring(0, length));
@@ -541,7 +541,7 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 					currentN2JO.addLeafNodeToCollection(currentES, value, this);
 					break;
 				case ROOT:
-				case REGULAR_NESTED_ELEMENT:
+				case NESTED_ELEMENT:
 				case COLLECTION_ELEMENT:
 					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 					// so we get the optimizations we need from the currentElementState
@@ -590,14 +590,14 @@ implements ContentHandler, ClassTypes, ScalarUnmarshallingContext
 			int n2joType = currentN2JO.type();
 			switch (n2joType)
 			{
-			case LEAF_NODE_VALUE:
+			case LEAF:
 			case COLLECTION_SCALAR:
 			case NAME_SPACE_LEAF_NODE:
 				currentTextValue.append(chars, startIndex, length);
 				//TODO -- unmarshall to set field with scalar type
 				break;
 			case ROOT:
-			case REGULAR_NESTED_ELEMENT:
+			case NESTED_ELEMENT:
 			case COLLECTION_ELEMENT:
 				// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 				// so we get the optimizations we need from the currentElementState

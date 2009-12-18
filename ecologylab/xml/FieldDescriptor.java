@@ -27,7 +27,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * 
  * @author andruid
  */
-public class FieldDescriptor extends ElementState implements ClassTypes
+public class FieldDescriptor extends ElementState implements FieldTypes
 {
 	public static final String			NULL						= ScalarType.DEFAULT_VALUE_STRING;
 
@@ -63,22 +63,6 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	private boolean									needsEscaping;
 
 	/**
-	 * For most fields, tag is derived from the field declaration (using field name or @xml_tag). For
-	 * these, this slot should be false.
-	 * <p/>
-	 * However, for some fields, such as those declared using @xml_class, @xml_classes, or @xml_scope,
-	 * the tag is derived from the class declaration (using class name or @xml_tag). This is, for
-	 * example, required for polymorphic nested and collection fields.
-	 */
-	boolean													deriveTagFromClass;																// TODO --
-																																											// probably
-																																											// get rid of
-																																											// this, and
-																																											// replace
-																																											// with a
-																																											// method
-
-	/**
 	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
 	 * derived from the field declaration (using field name or @xml_tag).
 	 * <p/>
@@ -88,14 +72,12 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	 * contains an array of the legal classes, which will be bound to this field during
 	 * translateFromXML().
 	 */
-	ArrayList<ClassDescriptor>			tagClassDescriptors;
+	private ArrayList<ClassDescriptor>			tagClassDescriptors;
 
-	String													collectionOrMapTagName;
-
-	/**
-	 * true if this is a collection or map field annotated with the name of child elements.
-	 */
-	private boolean									hasCollectionOrMapTag;
+/**
+ * 
+ */
+	private String													collectionOrMapTagName;
 
 	/**
 	 * Used for Collection and Map fields. Tells if the XML should be wrapped by an intermediate
@@ -104,21 +86,15 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	private boolean									wrapped;
 	
 
-	Method													setValueMethod;
+	private Method													setValueMethod;
 
-	public static final Class[]			SET_METHOD_ARG	=
-																									{ String.class };
-
-	/**
-	 * Field object for a Field within this, which is special, in that it should receive a scalar
-	 * value.
-	 */
-	Field														xmlTextScalarField;
+	public static final Class[]			SET_METHOD_ARG	= { String.class };
 
 	/**
-	 * This field is used iff type is COLLECTION or MAP
+	 * For nested elements, and collections or maps of nested elements.
+	 * The class descriptor 
 	 */
-	private Class										collectionOrMapElementClass;
+	private ClassDescriptor					elementClassDescriptor;
 
 	/**
 	 * Constructor for the pseudo-FieldDescriptor associated with each ClassDesctiptor, for
@@ -140,67 +116,69 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	 * 
 	 * @param declaringClassDescriptor
 	 * @param field
+	 * @param annotationType 		Coarse pre-evaluation of the field's annotation type.
+	 * 													Does not differentiate scalars from elements, or check for semantic consistency.
 	 */
-	public FieldDescriptor(ClassDescriptor declaringClassDescriptor, Field field) // String nameSpacePrefix
+	public FieldDescriptor(ClassDescriptor declaringClassDescriptor, Field field, int annotationType) // String nameSpacePrefix
 	{
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
 		field.setAccessible(true);
 
-		deriveTagFromClass = setupTagFromClasses(field);
-		this.tagName = deriveTagFromClass ? null : deriveTagFromFieldDeclaration(field);
+		deriveTagClassDescriptors(field);
+		
+		if (deriveTagFromClass())
+			deriveTagFromFieldDeclaration(field);
 
 		// TODO XmlNs
 		// if (nameSpacePrefix != null)
 		// {
 		// tagName = nameSpacePrefix + tagName;
 		// }
-
-		type = deriveTypeFromField(field);
-
-		xmlTextScalarField = declaringClassDescriptor.getScalarTextField();
-
-		if (xmlTextScalarField != null)
-			scalarType = TypeRegistry.getType(xmlTextScalarField);
-		else
-			scalarType = setupScalarIfNeeded(field);
-
-		// FIXME -- implement this next!
+		type	= UNSET_TYPE;	// for debugging!
+		type	= deriveTypeFromField(field, annotationType);
+		
+		switch (type)
+		{
+		case ATTRIBUTE:
+		case LEAF:
+		case TEXT_ELEMENT:
+			scalarType = deriveScalar(field);
+		}
+		// looks old: -- implement this next???
 		// if (XMLTools.isNested(field))
 		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
 
 		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
 	}
 
-	private String deriveTagFromFieldDeclaration(Field field)
+	private void deriveTagFromFieldDeclaration(Field field)
 	{
-		final ElementState.xml_collection collectionAnnotationObj = field
-				.getAnnotation(ElementState.xml_collection.class);
-		final String collectionAnnotation = (collectionAnnotationObj == null) ? null
-				: collectionAnnotationObj.value();
-		final ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
-		final String mapAnnotation = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-		final ElementState.xml_tag tagAnnotationObj = field.getAnnotation(ElementState.xml_tag.class);
-		final String tagAnnotation = (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-		String tag;
-		if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
+		this.tagName = XMLTools.getXmlTagName(field);
+
+		if (!deriveTagFromClass())
 		{
-			tag = collectionAnnotation;
-			hasCollectionOrMapTag = true;
+			final ElementState.xml_collection collectionAnnotationObj = field
+					.getAnnotation(ElementState.xml_collection.class);
+			final String collectionAnnotation = (collectionAnnotationObj == null) ? null
+					: collectionAnnotationObj.value();
+			final ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
+			final String mapAnnotation = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
+			final ElementState.xml_tag tagAnnotationObj = field.getAnnotation(ElementState.xml_tag.class);
+			final String tagAnnotation = (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
+	
+			if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
+			{
+				collectionOrMapTagName	= collectionAnnotation;
+			}
+			else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
+			{
+				collectionOrMapTagName = mapAnnotation;
+			}
 		}
-		else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
-		{
-			tag = mapAnnotation;
-			hasCollectionOrMapTag = true;
-		}
-		else
-		{
-			tag = XMLTools.getXmlTagName(field);
-		}
-		return tag;
 	}
 
-	private boolean setupTagFromClasses(Field field)
+	private boolean deriveTagClassDescriptors(Field field)
 	{
 		final ElementState.xml_class classAnnotationObj = field
 				.getAnnotation(ElementState.xml_class.class);
@@ -219,167 +197,210 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 			if (scope != null)
 			{
 				Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
-				setupTagClassDescriptors(scopeClassDescriptors.size());
+				initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
 				for (ClassDescriptor classDescriptor : scopeClassDescriptors)
 					tagClassDescriptors.add(classDescriptor);
 			}
 		}
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
 		{
-			setupTagClassDescriptors(classesAnnotation.length);
+			initTagClassDescriptorsArrayList(classesAnnotation.length);
 			for (Class thatClass : classesAnnotation)
 				if (ElementState.class.isAssignableFrom(thatClass))
 					tagClassDescriptors.add(ClassDescriptor.getClassDescriptor(thatClass));
 		}
 		if (classAnnotation != null)
 		{
-			setupTagClassDescriptors(1);
+			initTagClassDescriptorsArrayList(1);
 			tagClassDescriptors.add(ClassDescriptor.getClassDescriptor(classAnnotation));
 		}
 		return tagClassDescriptors != null;
 	}
 
-	private void assembleTagClassDescriptors(final Class[] classesAnnotation)
-	{
-		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
-		{
-			setupTagClassDescriptors(classesAnnotation.length);
-			for (Class thatClass : classesAnnotation)
-			{
-				tagClassDescriptors.add(ClassDescriptor.getClassDescriptor(thatClass));
-			}
-		}
-	}
 
-	private void setupTagClassDescriptors(int initialSize)
+	private void initTagClassDescriptorsArrayList(int initialSize)
 	{
 		if (tagClassDescriptors != null)
 			tagClassDescriptors = new ArrayList<ClassDescriptor>(initialSize);
 	}
 
-	private ScalarType setupScalarIfNeeded(Field field)
+	/**
+	 * Bind the ScalarType for a scalar typed field (attribute, leaf node, text).
+	 * As appropriate, derive other context for scalar fields (is leaf, format).
+	 * <p/>
+	 * This method should only be called when you already know the field has a scalar annotation.
+	 * 
+	 * @param field
+	 * @return			The ScalarType for the field, or null, if none can be found.
+	 */
+	private ScalarType deriveScalar(Field field)
 	{
-		ScalarType result = null;
-		switch (type)
+		ScalarType result = TypeRegistry.getType(field);
+		if (result != null)
 		{
-		case LEAF_NODE_VALUE:
-		case REGULAR_ATTRIBUTE:
-		case COLLECTION_SCALAR:
-		{
-			result = TypeRegistry.getType(field);
-			if (type == LEAF_NODE_VALUE)
-			{
-				isCDATA = XMLTools.leafIsCDATA(field);
-				needsEscaping = scalarType.needsEscaping();
-			}
-			format = XMLTools.getFormatAnnotation(field);
-		}
+				if (type == LEAF || type == TEXT_ELEMENT)
+				{
+					isCDATA = XMLTools.leafIsCDATA(field);
+					needsEscaping = scalarType.needsEscaping();
+				}
+				format = XMLTools.getFormatAnnotation(field);
 		}
 		return result;
 	}
 
 	/**
-	 * Figure out the type.
+	 * Figure out the type of field. Build associated data structures, such as
+	 * collection or element class & tag.
+	 * Process @xml_other_tags.
 	 * 
 	 * @param field
+	 * @param annotationType TODO
 	 */
 	//FIXME -- not complete!!!! return to finish other cases!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@SuppressWarnings("unchecked")
-	private int deriveTypeFromField(Field field)
+	private int deriveTypeFromField(Field field, int annotationType)
 	{
-		int result = UNSET_TYPE;
-		Class fieldClass = field.getType();
-
-		final ElementState.xml_collection collectionAnnotationObj = field
-				.getAnnotation(ElementState.xml_collection.class);
-		final String collectionTag = (collectionAnnotationObj == null) ? null : collectionAnnotationObj
-				.value();
-		if (collectionAnnotationObj != null)
+		int result 				= annotationType;
+		Class fieldClass	= field.getType();
+		switch (annotationType)
 		{
-			if (Collection.class.isAssignableFrom(fieldClass))
+		case ATTRIBUTE:
+			scalarType			= deriveScalar(field);
+			if (scalarType == null)
+				result				= IGNORED_ATTRIBUTE;
+			break;
+		case LEAF:
+			scalarType			= deriveScalar(field);
+			if (scalarType == null)
+				result				= IGNORED_ELEMENT;
+			break;
+		case TEXT_ELEMENT:
+			scalarType			= deriveScalar(field);
+			if (scalarType == null)
+				result				= IGNORED_ELEMENT;
+			break;
+		case NESTED_ELEMENT:
+			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
+				result				= IGNORED_ELEMENT;
+			else if (!deriveTagFromClass())
 			{
-				warning("In " + declaringClassDescriptor.getDescribedClass()
-						+ "\n\tCan't translate  @xml_collection() " + field.getName()
-						+ " because the annotated field is not an instance of Collection.");
-				return IGNORED_ELEMENT;
+				elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
 			}
-			if (!deriveTagFromClass)
-			{
-				Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for Collection<FooState>
+			break;
+		case COLLECTION_ELEMENT:
+				final String collectionTag = field.getAnnotation(ElementState.xml_collection.class).value();
+				if (!checkAssignableFrom(Collection.class, field, fieldClass, "@xml_collection"))
+					return IGNORED_ELEMENT;
 
-				if (collectionTag == null)
+				if (!deriveTagFromClass())
 				{
-					warning("In " + declaringClassDescriptor.getDescribedClass()
-							+ "\n\tCan't translate  @xml_collection() " + field.getName()
-							+ " because its tag argument is missing.");
-					return IGNORED_ELEMENT;
+					Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for Collection<FooState>
+
+					if (collectionTag == null)
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tCan't translate  @xml_collection() " + field.getName()
+								+ " because its tag argument is missing.");
+						return IGNORED_ELEMENT;
+					}
+					if (collectionElementClass == null)
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tCan't translate  @xml_collection() " + field.getName()
+								+ " because the parameterized type argument for the Collection is missing.");
+						return IGNORED_ELEMENT;
+					}
+					if (ElementState.class.isAssignableFrom(collectionElementClass))
+						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+					else
+						result = COLLECTION_SCALAR;
 				}
-				if (collectionElementClass == null)
-				{
-					warning("In " + declaringClassDescriptor.getDescribedClass()
-							+ "\n\tCan't translate  @xml_collection() " + field.getName()
-							+ " because the parameterized type argument for the Collection is missing.");
-					return IGNORED_ELEMENT;
-				}
-				this.collectionOrMapElementClass = collectionElementClass;
 				collectionOrMapTagName = collectionTag;
+				break;
+		case MAP_ELEMENT:
+			String mapTag = field.getAnnotation(ElementState.xml_map.class).value();
+			if (!checkAssignableFrom(Map.class, field, fieldClass, "@xml_map"))
+					return IGNORED_ELEMENT;
 
-				result = ElementState.class.isAssignableFrom(fieldClass) ? COLLECTION_ELEMENT : COLLECTION_SCALAR;
-				
-				// other tags???
-			}
+				if (!deriveTagFromClass())
+				{
+					Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
+					
+					if (mapTag == null)
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tCan't translate  @xml_map() " + field.getName()
+								+ " because its tag argument is missing.");
+						return IGNORED_ELEMENT;
+					}
+					if (mapElementClass == null)
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tCan't translate  @xml_map() " + field.getName()
+								+ " because the parameterized type argument for the Collection is missing.");
+						return IGNORED_ELEMENT;
+					}
+
+					collectionOrMapTagName = mapTag;
+
+					if (ElementState.class.isAssignableFrom(mapElementClass))
+						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+					else
+						result = MAP_SCALAR;		//TODO -- do we really support this case??
+				}
+			break;
+		default:
+			break;
+		}
+		if (annotationType == COLLECTION_ELEMENT || annotationType == MAP_ELEMENT)
+		{
+			if (!field.isAnnotationPresent(ElementState.xml_nowrap.class))
+				wrapped			= true;
+		}
+/*
 			else
 			{ // deriveTagFromClasses
 				// TODO Monday
 			}
-			// else
-			// is is element or scalar???
-			
-			ElementState.xml_other_tags otherTagsAnnotation 	= field.getAnnotation(ElementState.xml_other_tags.class);
-			if (otherTagsAnnotation != null)
+			*/
+		if (result == UNSET_TYPE)
+		{
+			warning("Programmer error -- can't derive type.");
+			result	= IGNORED_ELEMENT;
+		}
+		
+		return result;
+	}
+
+	private void extractOtherTags(Field field)
+	{
+		ElementState.xml_other_tags otherTagsAnnotation 	= field.getAnnotation(ElementState.xml_other_tags.class);
+		if (otherTagsAnnotation != null)
+		{
+			String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
+			if (otherTags.length > 0)
 			{
-				String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
-				if (otherTags.length > 0)
+				this.otherTags		= new ArrayList<String>(otherTags.length);
+				for (String otherTag : otherTags)
 				{
-					this.otherTags		= new ArrayList<String>(otherTags.length);
-					for (String otherTag : otherTags)
+					if ((otherTag != null) && (otherTag.length() > 0))
 					{
-						if ((otherTag != null) && (otherTag.length() > 0))
-						{
-							this.otherTags.add(otherTag);
-						}
+						this.otherTags.add(otherTag);
 					}
 				}
 			}
 		}
-		else{
-			ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
-			String mapTag = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-			if (mapAnnotationObj != null)
-			{
-				Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
-				
-				if (mapTag == null)
-				{
-					warning("In " + declaringClassDescriptor.getDescribedClass()
-							+ "\n\tCan't translate  @xml_map() " + field.getName()
-							+ " because its tag argument is missing.");
-					return IGNORED_ELEMENT;
-				}
-				if (mapElementClass == null)
-				{
-					warning("In " + declaringClassDescriptor.getDescribedClass()
-							+ "\n\tCan't translate  @xml_collection() " + field.getName()
-							+ " because the parameterized type argument for the Collection is missing.");
-					return IGNORED_ELEMENT;
-				}
-				this.collectionOrMapElementClass = mapElementClass;
-				collectionOrMapTagName = mapTag;
-	
-				result = ElementState.class.isAssignableFrom(fieldClass) ? MAP_ELEMENT : MAP_SCALAR;
-			}
-		}
+	}
 
+	private boolean checkAssignableFrom(Class targetClass, Field field, Class fieldClass, String annotationDescription)
+	{
+		boolean result = targetClass.isAssignableFrom(fieldClass);
+		if (!result)
+		{
+			warning("In " + declaringClassDescriptor.getDescribedClass()
+					+ "\n\tCan't translate  " + annotationDescription + "() " + field.getName()
+					+ " because the annotated field is not an instance of " + targetClass.getSimpleName() + ".");
+		}
 		return result;
 	}
 
@@ -430,6 +451,7 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 		switch (type)
 		{
 		case MAP_ELEMENT:
+		case MAP_SCALAR:
 		case COLLECTION_ELEMENT:
 		case COLLECTION_SCALAR:
 			return true;
@@ -440,13 +462,17 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 
 	public boolean isNested()
 	{
-		return type == REGULAR_NESTED_ELEMENT;
+		return type == NESTED_ELEMENT;
 	}
 
 	public boolean set(ElementState context, String valueString)
 	{
 		return set(context, valueString, null);
 	}
+  /**
+   * For noting that the object of this root or @xml_nested field has, within it, a field declared with @xml_text.
+   */
+  private		Field		xmlTextScalarField;
 
 	/**
 	 * In the supplied context object, set the *typed* value of the field, using the valueString
@@ -470,6 +496,7 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 		// to null?!
 		if ((context != null))
 		{
+			//FIXME -- clean up this mess!
 			if (xmlTextScalarField != null) // this is for MetadataScalars, to set the value in the nested
 																			// object, instead of operating directly on the value
 			{
@@ -726,7 +753,7 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 	 */
 	public boolean deriveTagFromClass()
 	{
-		return deriveTagFromClass;
+		return tagClassDescriptors != null;
 	}
 
 	public boolean isWrapped()
@@ -1135,5 +1162,40 @@ public class FieldDescriptor extends ElementState implements ClassTypes
 		return format;
 	}
 
+	public String toString()
+	{
+		return "FieldDescriptor[" + declaringClassDescriptor.getClassName() + "." + field.getName() + " type=" + type + "]";
+	}
 
+	public ArrayList<ClassDescriptor> getTagClassDescriptors()
+	{
+		return tagClassDescriptors;
+	}
+
+	/**
+	 * 
+	 * @return	true if the tag name name is derived from the class name (
+	 * not the usual case, but needed for polymorphism).
+	 * 
+	 * else if the tag name is derived from the class name for @xml_nested
+	 * or, for @xml_collection and @xml_map), the tag name is derived from the annotation's value
+	 */
+	public boolean isTagNameFromClassName()
+	{
+		return tagClassDescriptors != null;
+	}
+	public String getCollectionOrMapTagName()
+	{
+		return collectionOrMapTagName;
+	}
+	
+	//FIXME -- these are temporary bullshit declarations which need to be turned into something real
+	public boolean hasXmlText()
+	{
+		return false;
+	}
+	public boolean isXmlNsDecl()
+	{
+		return false;
+	}
 }

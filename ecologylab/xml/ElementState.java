@@ -73,7 +73,7 @@ import ecologylab.net.ParsedURL;
  * @version     2.9
  */
 public class ElementState extends Debug
-implements ClassTypes, XMLTranslationExceptionTypes
+implements FieldTypes, XMLTranslationExceptionTypes
 {
 	/**
 	 * Link for a DOM tree.
@@ -343,25 +343,27 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 */
-	private void translateToXMLBuilder(FieldToXMLOptimizations fieldToXMLOptimizations, StringBuilder buffy)
+	private void translateToXMLBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy)
 	throws XMLTranslationException
 	{
         this.preTranslationProcessingHook();
 		
-		buffy.append('<').append(fieldToXMLOptimizations.tag());
+		buffy.append('<').append(fieldDescriptor.getTagName());
 
-		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
-		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
-		if (numXmlnsAttributes > 0)
-		{
-			for (int i=0; i<numXmlnsAttributes; i++)
-			{
-				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
-				xmlnsF2Xo.xmlnsAttr(buffy);
-			}			
-		}
-        ArrayList<FieldToXMLOptimizations> attributeF2XOs	= classDescriptor.attributeFieldOptimizations();
-		int numAttributes 			= attributeF2XOs.size();
+		//TODO -- namespace support
+//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
+//		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
+//		if (numXmlnsAttributes > 0)
+//		{
+//			for (int i=0; i<numXmlnsAttributes; i++)
+//			{
+//				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
+//				xmlnsF2Xo.xmlnsAttr(buffy);
+//			}			
+//		}
+       
+		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor.attributeFieldDescriptors();
+		int numAttributes 			= attributeFieldDescriptors.size();
 		
 		if (numAttributes > 0)
 		{
@@ -370,8 +372,8 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				for (int i=0; i<numAttributes; i++)
 				{
 					// iterate through fields
-					FieldToXMLOptimizations childF2Xo	= attributeF2XOs.get(i);
-					childF2Xo.appendValueAsAttribute(buffy, this);
+					FieldDescriptor childFD	= attributeFieldDescriptors.get(i);
+					childFD.appendValueAsAttribute(buffy, this);
 				}
 			} catch (Exception e)
 			{
@@ -380,19 +382,19 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			}
 		}
 
-		ArrayList<FieldToXMLOptimizations> elementF2XOs	= classDescriptor.elementFieldOptimizations();
-		int numElements						= elementF2XOs.size();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor.elementFieldOptimizations();
+		int numElements						= elementFieldDescriptors.size();
 
 		StringBuilder textNode				= this.textNodeBuffy;
 		
-		boolean hasXmlText 		= fieldToXMLOptimizations.hasXmlText();
+		boolean hasXmlText 		= fieldDescriptor.hasXmlText();
 		if ((numElements == 0) && ((textNode == null) || (textNode.length() == 0)) && !hasXmlText)
 		{
 			buffy.append('/').append('>');	// done! completely close element behind attributes				
 		}
 		else
 		{
-			if (!fieldToXMLOptimizations.isXmlNsDecl())
+			if (!fieldDescriptor.isXmlNsDecl())
 				buffy.append('>');	// close open tag behind attributes
 			
 			//FIXME -- drop old style text node processing
@@ -405,7 +407,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			{
 				try
 				{
-					fieldToXMLOptimizations.appendXmlText(buffy, this);
+					fieldDescriptor.appendXmlText(buffy, this);
 				} catch (Exception e)
 				{
 					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
@@ -415,13 +417,13 @@ implements ClassTypes, XMLTranslationExceptionTypes
 
 			for (int i=0; i<numElements; i++)
 			{
-				FieldToXMLOptimizations childF2XO	= elementF2XOs.get(i);
-				final int childOptimizationsType 	= childF2XO.type();
-				if (childOptimizationsType == LEAF_NODE_VALUE)
+				FieldDescriptor childFD	= elementFieldDescriptors.get(i);
+				final int childOptimizationsType 	= childFD.getType();
+				if (childOptimizationsType == LEAF)
 				{
 					try
 					{
-						childF2XO.appendLeaf(buffy, this);
+						childFD.appendLeaf(buffy, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -429,7 +431,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				else
 				{
 					Object thatReferenceObject	= null;
-					Field childField			= childF2XO.field();
+					Field childField			= childFD.getField();
 					try
 					{
 						thatReferenceObject		= childField.get(this);
@@ -477,7 +479,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2XO.appendCollectionLeaf(buffy, next);
+									childFD.appendCollectionLeaf(buffy, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -495,11 +497,10 @@ implements ClassTypes, XMLTranslationExceptionTypes
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 								//TODO -- changed by andruid 7/21/08 -- not sure if this breaks anything else, but it seems correct,
 								// and it fixes @xml_text output
-//							FieldToXMLOptimizations collectionElementF2XoOld				= optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-//							FieldToXMLOptimizations collectionElementF2Xo				= collectionSubElementState.optimizations.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								FieldToXMLOptimizations collectionElementF2XO				= childF2XO.hasCollectionOrMapTag() ?
-										childF2XO : 
-										collectionSubElementState.classDescriptor.fieldToJavaOptimizations(childF2XO, collectionElementClass);
+
+								FieldDescriptor collectionElementF2XO				= childFD.isTagNameFromClassName() ?
+										collectionSubElementState.classDescriptor.pseudoFieldDescriptor() :
+										childFD;
 								
 								collectionSubElementState.translateToXMLBuilder(collectionElementF2XO, buffy);
 							}
@@ -515,27 +516,29 @@ implements ClassTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
-								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
+						FieldDescriptor nestedFD = childFD.isTagNameFromClassName() ?
+								 nestedES.classDescriptor.pseudoFieldDescriptor() : childFD;
 
-						nestedES.translateToXMLBuilder(nestedF2XO, buffy);
+						nestedES.translateToXMLBuilder(nestedFD, buffy);
 						//buffy.append('\n');						
 					}
 				}
 			} //end of for each element child
-			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
-			if (nestedNameSpaces != null)
-			{
-				for (ElementState nestedNSE : nestedNameSpaces.values())
-				{
-					//TODO -- where do we get optimizations for nested namespace elements?
-					FieldToXMLOptimizations nestedNsF2XO	=
-						nestedNSE.classDescriptor.pseudoFieldDescriptor();
-					nestedNSE.translateToXMLBuilder(nestedNsF2XO, buffy);
-				}
-			}
+			
+			//TODO -- namespace support!
+//			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
+//			if (nestedNameSpaces != null)
+//			{
+//				for (ElementState nestedNSE : nestedNameSpaces.values())
+//				{
+//					//TODO -- where do we get optimizations for nested namespace elements?
+//					FieldToXMLOptimizations nestedNsF2XO	=
+//						nestedNSE.classDescriptor.pseudoFieldDescriptor();
+//					nestedNSE.translateToXMLBuilder(nestedNsF2XO, buffy);
+//				}
+//			}
 			// end the element
-			fieldToXMLOptimizations.appendCloseTag(buffy);
+			fieldDescriptor.appendCloseTag(buffy);
 		} // end if no nested elements or text node
 	}
 	/**
@@ -568,32 +571,33 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	 * value for each type.
 	 * Attributes which are set to the default value (for that type), 
 	 * are not emitted.
-	 * @param fieldToXMLOptimizations
+	 * @param fieldDescriptor
 	 * @param appendable		Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
 	 * @throws XMLTranslationException if a problem arises during translation.
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException
 	 */
-	private void translateToXMLAppendable(FieldToXMLOptimizations fieldToXMLOptimizations, Appendable appendable)
+	private void translateToXMLAppendable(FieldDescriptor fieldDescriptor, Appendable appendable)
 	throws XMLTranslationException, IOException
 	{
 		this.preTranslationProcessingHook();
 
-		appendable.append('<').append(fieldToXMLOptimizations.tag());
+		appendable.append('<').append(fieldDescriptor.getTagName());
 
-		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
-		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
-		if (numXmlnsAttributes > 0)
-		{
-			for (int i=0; i<numXmlnsAttributes; i++)
-			{
-				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
-				xmlnsF2Xo.xmlnsAttr(appendable);
-			}			
-		}
-		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= classDescriptor.attributeFieldOptimizations();
-		int numAttributes 			= attributeF2XOs.size();
+		//TODO -- namespace support
+//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
+//		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
+//		if (numXmlnsAttributes > 0)
+//		{
+//			for (int i=0; i<numXmlnsAttributes; i++)
+//			{
+//				FieldToXMLOptimizations xmlnsF2Xo	= xmlnsF2XOs.get(i);
+//				xmlnsF2Xo.xmlnsAttr(appendable);
+//			}			
+//		}
+		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor.attributeFieldDescriptors();
+		int numAttributes 			= attributeFieldDescriptors.size();
 
 		if (numAttributes > 0)
 		{
@@ -602,8 +606,8 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				for (int i=0; i<numAttributes; i++)
 				{
 					// iterate through fields
-					FieldToXMLOptimizations childF2Xo	= attributeF2XOs.get(i);
-					childF2Xo.appendValueAsAttribute(appendable, this);
+					FieldDescriptor childFD	= attributeFieldDescriptors.get(i);
+					childFD.appendValueAsAttribute(appendable, this);
 				}
 			} catch (Exception e)
 			{
@@ -612,19 +616,19 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			}
 		}
 		//ArrayList<Field> elementFields		= optimizations.elementFields();
-		ArrayList<FieldToXMLOptimizations> elementF2XOs	= classDescriptor.elementFieldOptimizations();
-		int numElements						= elementF2XOs.size();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor.elementFieldOptimizations();
+		int numElements						= elementFieldDescriptors.size();
 
 		//FIXME -- get rid of old textNode stuff. it doesnt even work
 		StringBuilder textNode 	= this.textNodeBuffy;
-		boolean hasXmlText 		= fieldToXMLOptimizations.hasXmlText();
+		boolean hasXmlText 		= fieldDescriptor.hasXmlText();
 		if ((numElements == 0) && (textNode == null) && !hasXmlText)
 		{
 			appendable.append('/').append('>');	// done! completely close element behind attributes				
 		}
 		else
 		{
-			if (!fieldToXMLOptimizations.isXmlNsDecl())
+			if (!fieldDescriptor.isXmlNsDecl())
 				appendable.append('>');	// close open tag behind attributes unless in a nested namespace root
 			
 			//FIXME get rid of this block, because this method of dealing with text nodes is obsolete
@@ -640,7 +644,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			{
 				try
 				{
-					fieldToXMLOptimizations.appendXmlText(appendable, this);
+					fieldDescriptor.appendXmlText(appendable, this);
 				} catch (Exception e)
 				{
 					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
@@ -650,13 +654,13 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			for (int i=0; i<numElements; i++)
 			{
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
-				FieldToXMLOptimizations childF2XO	= elementF2XOs.get(i);
-				final int childOptimizationsType 	= childF2XO.type();
-				if (childOptimizationsType == LEAF_NODE_VALUE)
+				FieldDescriptor childFD	= elementFieldDescriptors.get(i);
+				final int childOptimizationsType 	= childFD.getType();
+				if (childOptimizationsType == LEAF)
 				{
 					try
 					{
-						childF2XO.appendLeaf(appendable, this);
+						childFD.appendLeaf(appendable, this);
 					} catch (Exception e)
 					{
 						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
@@ -665,7 +669,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				else
 				{
 					Object thatReferenceObject	= null;
-					Field childField						= childF2XO.field();
+					Field childField						= childFD.getField();
 					try
 					{
 						thatReferenceObject				= childField.get(this);
@@ -711,7 +715,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 							{
 								try
 								{
-									childF2XO.appendCollectionLeaf(appendable, next);
+									childFD.appendCollectionLeaf(appendable, next);
 								} catch (IllegalArgumentException e)
 								{
 									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
@@ -725,11 +729,12 @@ implements ClassTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 
-								FieldToXMLOptimizations collectionElementF2Xo				= childF2XO.hasCollectionOrMapTag() ?
-										childF2XO : // tag by annotation
+								FieldDescriptor collectionElementFD				= childFD.isTagNameFromClassName() ?
 										// tag by class
-										collectionSubElementState.classDescriptor.fieldToJavaOptimizations(childF2XO, collectionElementClass);
-								collectionSubElementState.translateToXMLAppendable(collectionElementF2Xo, appendable);
+										collectionSubElementState.classDescriptor.pseudoFieldDescriptor() :
+										childFD; // tag by annotation
+
+								collectionSubElementState.translateToXMLAppendable(collectionElementFD, appendable);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -742,31 +747,27 @@ implements ClassTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldToXMLOptimizations nestedF2XO = childF2XO.hasXMLClasses() ?
-								// childFieldDescriptor.deriveTagFromClasses() ?
-								// ClassDesctiptors.getClassDescriptor().pseudoFieldDescriptor()
-								 fieldToXMLOptimizations(childField, nestedES.getClass()) : childF2XO;
-//					FieldToXMLOptimizations nestedF2XO = thatNewClass.equals(childField.getType()) ?
-//							childF2XO : fieldToXMLOptimizations(childField, nestedES.getClass());
+						FieldDescriptor nestedF2XO = childFD.isTagNameFromClassName() ?
+								nestedES.classDescriptor.pseudoFieldDescriptor() : childFD;
 
 						nestedES.translateToXMLAppendable(nestedF2XO, appendable);
 					}
 				}
 			} //end of for each element child
-			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
-			if (nestedNameSpaces != null)
-			{
-				for (ElementState nestedNSE : nestedNameSpaces.values())
-				{
-					// translate nested namespace root
-					FieldToXMLOptimizations nestedNsF2XO	=
-						nestedNSE.classDescriptor.pseudoFieldDescriptor();
-					nestedNSE.translateToXMLAppendable(nestedNsF2XO, appendable);
-				}
-
-			}
+			//FIXME -- Add namespace support!
+//			HashMap<String, ElementState> nestedNameSpaces = this.nestedNameSpaces;
+//			if (nestedNameSpaces != null)
+//			{
+//				for (ElementState nestedNSE : nestedNameSpaces.values())
+//				{
+//					// translate nested namespace root
+//					FieldToXMLOptimizations nestedNsF2XO	=
+//						nestedNSE.classDescriptor.pseudoFieldDescriptor();
+//					nestedNSE.translateToXMLAppendable(nestedNsF2XO, appendable);
+//				}
+//			}
 			// end the element
-			fieldToXMLOptimizations.appendCloseTag(appendable);
+			fieldDescriptor.appendCloseTag(appendable);
 		} // end if no nested elements or text node
 	}
 	
@@ -832,9 +833,10 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	 * Problems with Field access are possible, but very unlikely.
 	 * @throws IOException
 	 */
-	private void translateToDOM(Class thatClass, FieldToXMLOptimizations fieldToXMLOptimizations, Node parentNode, Document dom)
+	private void translateToDOM(Class thatClass, FieldDescriptor fieldToXMLOptimizations, Node parentNode, Document dom)
 	throws XMLTranslationException
 	{
+		/*
 		this.preTranslationProcessingHook();
 		
 		Element elementNode;
@@ -897,7 +899,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 			FieldToXMLOptimizations childF2Xo	= elementF2XOs.get(i);
 
 			final int childOptimizationsType 	= childF2Xo.type();
-			if (childOptimizationsType == LEAF_NODE_VALUE)
+			if (childOptimizationsType == LEAF)
 			{
 				try
 				{
@@ -1004,6 +1006,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				nestedNSE.translateToDOM(nestedNSClass, nestedNsF2XO, elementNode, dom);
 			}
 		}
+		*/
 	}
     
     /**
@@ -1526,7 +1529,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 						classDescriptor.nodeToJavaOptimizations(translationSpace, this, tag, true);
 					switch (njo.type())
 					{
-					case REGULAR_ATTRIBUTE:
+					case ATTRIBUTE:
 						njo.setFieldToScalar(this, value, null);
 						// the value can become a unique id for looking up this
 						if ("id".equals(njo.tag()))
@@ -1579,10 +1582,10 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				}
 				switch (njo.type())
 				{
-				case REGULAR_NESTED_ELEMENT:
+				case NESTED_ELEMENT:
 					activeNJO.domFormNestedElementAndSetField(activeES, childNode);
 					break;
-				case LEAF_NODE_VALUE:
+				case LEAF:
 					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
 					break;
 				case COLLECTION_ELEMENT:
@@ -1602,7 +1605,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 				case MAP_ELEMENT:
 					activeNJO.domFormElementAndToMap(activeES, childNode);
 					break;
-				case OTHER_NESTED_ELEMENT:
+				case AWFUL_OLD_NESTED_ELEMENT:
 					activeES.addNestedElement(activeNJO, childNode);
 					break;
 				case IGNORED_ELEMENT:
@@ -1706,7 +1709,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 					classDescriptor.nodeToJavaOptimizations(translationSpace, this, tag, true);
 				switch (njo.type())
 				{
-				case REGULAR_ATTRIBUTE:
+				case ATTRIBUTE:
 					njo.setFieldToScalar(this, value, scalarUnmarshallingContext);
 					// the value can become a unique id for looking up this
 					//TODO -- could support the ID type for the node here!
@@ -1995,16 +1998,6 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	}
 		
 	//////////////// helper methods used by translateToXML() //////////////////
-
-/**
- * Get a tag translation object that corresponds to the fieldName,
- * with this class. If necessary, form that tag translation object,
- * and cache it.
- */
-	protected FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
-	{
-		return classDescriptor.fieldToXMLOptimizations(field, thatClass);
-	}
 
 	static final int HAVENT_TRIED_ADDING	= 0;
 	static final int DONT_NEED_WARNING		= 1;
@@ -2524,6 +2517,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
 	{
 		return classDescriptor;
 	}
+	//FIXME -- update mechanism to support MetaMetadata!!!
 	public HashMapArrayList<String, FieldDescriptor> getChildFieldAccessors(Class<ElementState> child, Class<? extends FieldDescriptor> fieldAccessorClass)
 	{
 		ClassDescriptor classDescriptor	= classDescriptor();
