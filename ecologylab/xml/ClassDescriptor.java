@@ -188,7 +188,7 @@ implements FieldTypes
 					allClassDescriptorsMap.put(className, result);
 					
 					// NB: this call was moved out of the constructor to avoid recursion problems
-					result.deriveAndOrganizeFieldsRecursive(thatClass);
+					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
 					result.isGetAndOrganizeComplete	= true;
 				}
 				// THIS SHOULD NEVER HAPPEN!!!
@@ -459,23 +459,20 @@ implements FieldTypes
 	 * <p/>
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 */
-	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass)//, Class<FieldDescriptor> fieldDecriptorClass)
+	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass, Class<FieldDescriptor> fieldDecriptorClass)
 	{
-		
-		//Commented out by nabeel to solve the earlier error. Commenting of code includes the second parameter in the function call
-		
-//		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
-//		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
-//			Class superClass	= thatClass.getSuperclass();
-//			
-//			if (fieldDecriptorClass == null)		
-//			{	// look for annotation in super class if subclass didn't have one
-//				fieldDecriptorClass	= fieldDescriptorAnnotationValue(thatClass);
-//			}
-//
-//			if (superClass != null)
-//				deriveAndOrganizeFieldsRecursive(superClass, fieldDecriptorClass);
-//		}
+		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
+		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
+			Class superClass	= thatClass.getSuperclass();
+			
+			if (fieldDecriptorClass == null)		
+			{	// look for annotation in super class if subclass didn't have one
+				fieldDecriptorClass	= fieldDescriptorAnnotationValue(thatClass);
+			}
+
+			if (superClass != null)
+				deriveAndOrganizeFieldsRecursive(superClass, fieldDecriptorClass);
+		}
 
 		
 		Field[] fields		= thatClass.getDeclaredFields();

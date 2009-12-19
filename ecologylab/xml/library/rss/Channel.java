@@ -24,6 +24,7 @@ public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
     */
    @xml_leaf	ParsedURL		link;
    
+   @xml_nowrap
    @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
    
    /**

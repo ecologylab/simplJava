@@ -146,6 +146,23 @@ public class RssState extends ElementState
 	public static final File 	outputFile			= new File("/temp/rss.xml");
 	public static void main(String[] args)
 	{
+		RssState rss;
+		try
+		{
+			rss = (RssState) translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
+			
+			rss.translateToXML(System.out);
+
+		}
+		catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private static void mostMinimalTranlateToTest()
+	{
 		ClassDescriptor fdClassDescriptor = ClassDescriptor.getClassDescriptor(FieldDescriptor.class);
 		RssState rss	= new RssState();
 		Channel channel	= new Channel();
@@ -173,7 +190,7 @@ public class RssState extends ElementState
 			RssState rssState	= (RssState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
 //			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
-			ArrayList<Item> items	= rssState.getChannel().set(); //rssState.getChannel().getItems();
+			ArrayList<Item> items	= rssState.getChannel().items; //rssState.getChannel().getItems();
 			println("items: " +  items.size());
 			for (Item item : items)
 			{

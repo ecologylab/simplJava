@@ -346,9 +346,9 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	private void translateToXMLBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy)
 	throws XMLTranslationException
 	{
-        this.preTranslationProcessingHook();
-		
-		buffy.append('<').append(fieldDescriptor.getTagName());
+		this.preTranslationProcessingHook();
+
+		fieldDescriptor.writeElementStart(buffy);
 
 		//TODO -- namespace support
 //		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
@@ -469,10 +469,12 @@ implements FieldTypes, XMLTranslationExceptionTypes
 					break;
 					}
 
-					if (thatCollection != null)
+					if (thatCollection != null && (thatCollection.size() > 0))
 					{
 						//if the object is a collection, 
 						//iterate thru the collection and emit XML from each element
+						if (childFD.isWrapped())
+							childFD.writeWrap(buffy, false);
 						for (Object next: thatCollection)
 						{
 							if (isScalar)	// leaf node!
@@ -506,8 +508,9 @@ implements FieldTypes, XMLTranslationExceptionTypes
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
-
 						}
+						if (childFD.isWrapped())
+							childFD.writeWrap(buffy, true);
 					}
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
@@ -538,7 +541,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				}
 //			}
 			// end the element
-			fieldDescriptor.appendCloseTag(buffy);
+			fieldDescriptor.writeCloseTag(buffy);
 		} // end if no nested elements or text node
 	}
 	/**
@@ -583,7 +586,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	{
 		this.preTranslationProcessingHook();
 
-		appendable.append('<').append(fieldDescriptor.getTagName());
+		fieldDescriptor.writeElementStart(appendable);
 
 		//TODO -- namespace support
 //		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
@@ -707,8 +710,10 @@ implements FieldTypes, XMLTranslationExceptionTypes
 					break;
 					}
 
-					if (thatCollection != null)
+					if (thatCollection != null && (thatCollection.size() > 0))
 					{	//if the object is a collection, iterate thru the collection and emit XML for each element
+						if (childFD.isWrapped())
+							childFD.writeWrap(appendable, false);
 						for (Object next : thatCollection)
 						{
 							if (isScalar)	// leaf node!
@@ -739,6 +744,8 @@ implements FieldTypes, XMLTranslationExceptionTypes
 							else
 								throw collectionElementTypeException(thatReferenceObject);
 						}
+						if (childFD.isWrapped())
+							childFD.writeWrap(appendable, true);
 					}
 					else if (thatReferenceObject instanceof ElementState)
 					{	// one of our nested elements, so recurse
@@ -767,7 +774,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				}
 //			}
 			// end the element
-			fieldDescriptor.appendCloseTag(appendable);
+			fieldDescriptor.writeCloseTag(appendable);
 		} // end if no nested elements or text node
 	}
 	

@@ -128,8 +128,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		deriveTagClassDescriptors(field);
 		
-		if (deriveTagFromClass())
-			deriveTagFromFieldDeclaration(field);
+		if (!deriveTagFromClass())
+			this.tagName = XMLTools.getXmlTagName(field);	// uses field name or @xml_tag declaration
 
 		// TODO XmlNs
 		// if (nameSpacePrefix != null)
@@ -151,32 +151,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
 
 		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
-	}
-
-	private void deriveTagFromFieldDeclaration(Field field)
-	{
-		this.tagName = XMLTools.getXmlTagName(field);
-
-		if (!deriveTagFromClass())
-		{
-			final ElementState.xml_collection collectionAnnotationObj = field
-					.getAnnotation(ElementState.xml_collection.class);
-			final String collectionAnnotation = (collectionAnnotationObj == null) ? null
-					: collectionAnnotationObj.value();
-			final ElementState.xml_map mapAnnotationObj = field.getAnnotation(ElementState.xml_map.class);
-			final String mapAnnotation = (mapAnnotationObj == null) ? null : mapAnnotationObj.value();
-			final ElementState.xml_tag tagAnnotationObj = field.getAnnotation(ElementState.xml_tag.class);
-			final String tagAnnotation = (tagAnnotationObj == null) ? null : tagAnnotationObj.value();
-	
-			if ((collectionAnnotation != null) && (collectionAnnotation.length() > 0))
-			{
-				collectionOrMapTagName	= collectionAnnotation;
-			}
-			else if ((mapAnnotation != null) && (mapAnnotation.length() > 0))
-			{
-				collectionOrMapTagName = mapAnnotation;
-			}
-		}
 	}
 
 	private boolean deriveTagClassDescriptors(Field field)
@@ -269,27 +243,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ATTRIBUTE;
-			else
-			{
-				tagName = XMLTools.getXmlTagName(field);
-			}
 			break;
 		case LEAF:
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ELEMENT;
-			else
-			{
-				tagName = XMLTools.getXmlTagName(field);
-			}
 			break;
 		case TEXT_ELEMENT:
 			scalarType			= deriveScalar(field);
 			if (scalarType == null)
 				result				= IGNORED_ELEMENT;
-			else{
-				tagName = XMLTools.getXmlTagName(field);
-			}
 			break;
 		case NESTED_ELEMENT:
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
@@ -329,7 +292,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 						result = COLLECTION_SCALAR;
 				}
 				collectionOrMapTagName = collectionTag;
-				tagName = collectionTag;
 				break;
 		case MAP_ELEMENT:
 			String mapTag = field.getAnnotation(ElementState.xml_map.class).value();
@@ -356,7 +318,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					}
 
 					collectionOrMapTagName = mapTag;
-					tagName = mapTag;
 
 					if (ElementState.class.isAssignableFrom(mapElementClass))
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
@@ -989,7 +950,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
 				// (which is an instance variable of this) !!!
-				appendOpenTag(buffy);
+				writeOpenTag(buffy);
 
 				if (isCDATA)
 					buffy.append(START_CDATA);
@@ -997,7 +958,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (isCDATA)
 					buffy.append(END_CDATA);
 
-				appendCloseTag(buffy);
+				writeCloseTag(buffy);
 			}
 		}
 	}
@@ -1031,26 +992,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
-	void appendOpenTag(StringBuilder buffy)
-	{
-		buffy.append('<').append(tagName).append('>');
-	}
-
-	void appendCloseTag(StringBuilder buffy)
-	{
-		buffy.append('<').append('/').append(tagName).append('>');
-	}
-
-	void appendOpenTag(Appendable buffy) throws IOException
-	{
-		buffy.append('<').append(tagName).append('>');
-	}
-
-	void appendCloseTag(Appendable buffy) throws IOException
-	{
-		buffy.append('<').append('/').append(tagName).append('>');
-	}
-
 	/**
 	 * Use this and the context to append a leaf node with value to the StringBuilder passed in.
 	 * Consideration of default values is not evaluated.
@@ -1067,14 +1008,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			ScalarType scalarType = this.scalarType;
 
-			appendOpenTag(buffy);
+			writeOpenTag(buffy);
 			if (isCDATA)
 				buffy.append(START_CDATA);
 			scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
 			if (isCDATA)
 				buffy.append(END_CDATA);
 
-			appendCloseTag(buffy);
+			writeCloseTag(buffy);
 		}
 	}
 
@@ -1095,14 +1036,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			ScalarType scalarType = this.scalarType;
 
-			appendOpenTag(appendable);
+			writeOpenTag(appendable);
 			if (isCDATA)
 				appendable.append(START_CDATA);
 			scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
 			if (isCDATA)
 				appendable.append(END_CDATA);
 
-			appendCloseTag(appendable);
+			writeCloseTag(appendable);
 		}
 	}
 
@@ -1129,7 +1070,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
 				// (which is an instance variable of this) !!!
 
-				appendOpenTag(appendable);
+				writeOpenTag(appendable);
 
 				if (isCDATA)
 					appendable.append(START_CDATA);
@@ -1137,7 +1078,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (isCDATA)
 					appendable.append(END_CDATA);
 
-				appendCloseTag(appendable);
+				writeCloseTag(appendable);
 			}
 		}
 	}
@@ -1187,6 +1128,71 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return tagClassDescriptors;
 	}
 
+	public void writeElementStart(StringBuilder buffy) 
+	{
+		buffy.append('<').append(elementStart());
+	}
+
+	public void writeElementStart(Appendable appendable) 
+	throws IOException
+	{
+		appendable.append('<').append(elementStart());
+	}
+
+	void writeOpenTag(StringBuilder buffy)
+	{
+		buffy.append('<').append(elementStart()).append('>');
+	}
+
+	void writeCloseTag(StringBuilder buffy)
+	{
+		buffy.append('<').append('/').append(elementStart()).append('>');
+	}
+
+	void writeOpenTag(Appendable buffy) throws IOException
+	{
+		buffy.append('<').append(elementStart()).append('>');
+	}
+
+	void writeCloseTag(Appendable buffy) throws IOException
+	{
+		buffy.append('<').append('/').append(elementStart()).append('>');
+	}
+
+	/**
+	 * Write the tags for opening and closing a wrapped collection.
+	 * 
+	 * @param buffy
+	 * @param close
+	 */
+	public void writeWrap(StringBuilder buffy, boolean close) 
+	{
+		buffy.append('<');
+		if (close)
+			buffy.append('/');
+		buffy.append(tagName).append('>');
+	}
+
+	/**
+	 * Write the tags for opening and closing a wrapped collection.
+	 * 
+	 * @param appendable
+	 * @param close
+	 * @throws IOException
+	 */
+	public void writeWrap(Appendable appendable, boolean close) 
+	throws IOException
+	{
+		appendable.append('<');
+		if (close)
+			appendable.append('/');
+		appendable.append(tagName).append('>');
+	}
+
+	public String elementStart()
+	{
+		return isCollection() ? collectionOrMapTagName : tagName;
+	}
 	/**
 	 * 
 	 * @return	true if the tag name name is derived from the class name (
