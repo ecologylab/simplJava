@@ -41,7 +41,7 @@ public class ElementStateSAXHandler
 extends Debug 
 implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 {
-	final TranslationScope	translationSpace;
+	final TranslationScope	translationScope;
 	
 	ElementState					root;
 	
@@ -55,11 +55,11 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	/**
 	 * Optimizations for current field.
 	 */
-	TagDescriptor			currentN2JO;
+	FieldDescriptor			currentFD;
 	
 	XMLTranslationException			xmlTranslationException;
 	
-	ArrayList<TagDescriptor>	n2joStack	= new ArrayList<TagDescriptor>();
+	ArrayList<FieldDescriptor>	fdStack	= new ArrayList<FieldDescriptor>();
 	
 	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
 	
@@ -72,7 +72,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	 */
 	public ElementStateSAXHandler(TranslationScope translationSpace)
 	{
-		this.translationSpace		= translationSpace;
+		this.translationScope		= translationSpace;
 
 //		try 
 //		{
@@ -164,7 +164,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
 	 * @param purl					XML source material.
-	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
@@ -181,7 +181,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
 	 * @param purl					XML source material.
-	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
@@ -206,7 +206,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
 	 * @param file					XML source material.
-	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return						Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
@@ -270,7 +270,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		} catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if (!(currentN2JO == TagDescriptor.ROOT_ELEMENT_OPTIMIZATIONS) &&
+			if (!(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) &&
 					(currentElementState != null))
 			{
 				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
@@ -313,27 +313,27 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 
-		TagDescriptor activeN2JO		= null;
+		FieldDescriptor activeFieldDescriptor		= null;
 		final boolean isRoot 					= (root == null);
 		if (isRoot)
 		{	// form the root ElementState!
-			Class<? extends ElementState> rootClass	= translationSpace.xmlTagToClass(tagName);
-			if (rootClass != null)
+			ClassDescriptor rootClassDescriptor	= translationScope.getClassDescriptorByTag(tagName);
+			if (rootClassDescriptor != null)
 			{
 				ElementState root;
 				try
 				{
-					root					= XMLTools.getInstance(rootClass);
+					root					= rootClassDescriptor.getInstance();
 					if (root != null)
 					{
 						root.setupRoot();
 						setRoot(root);
-						root.translateAttributes(translationSpace, attributes, this);
-						activeN2JO				= TagDescriptor.ROOT_ELEMENT_OPTIMIZATIONS;
+						root.translateAttributes(translationScope, attributes, this, root);
+						activeFieldDescriptor				= rootClassDescriptor.pseudoFieldDescriptor();
 					}
 					else
 					{
-						this.xmlTranslationException	= new RootElementException(tagName, translationSpace);
+						this.xmlTranslationException	= new RootElementException(tagName, translationScope);
 						return;
 					}
 				} catch (XMLTranslationException e)
@@ -353,20 +353,20 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		}
 		else
 		{
-			final int curentN2JOType = currentN2JO.type();
+			final int currentType = currentFD.getType();
 			ElementState currentES		= this.currentElementState;
 			// if there is a pending text node, assign it somehow!
-			processPendingTextScalar(curentN2JOType, currentES);
+			processPendingTextScalar(currentType, currentES);
 				
-			activeN2JO	= (currentN2JO != null) && (curentN2JOType == IGNORED_ELEMENT) ?
+			activeFieldDescriptor	= (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
-				TagDescriptor.IGNORED_ELEMENT_OPTIMIZATIONS :
-				currentClassDescriptor().nodeToJavaOptimizations(translationSpace, currentES, tagName, false);
+				FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR :
+				currentClassDescriptor().getFieldDescriptorByTag(tagName, translationScope, currentES);
 		}
-		this.currentN2JO						= activeN2JO;
+		this.currentFD						= activeFieldDescriptor;
 		registerXMLNS();
 		//TODO? -- do we need to avoid this if null from an exception in translating root?
-		pushN2JO(activeN2JO);
+		pushFD(activeFieldDescriptor);
 //		printStack("After push");
 		
 		if (isRoot)
@@ -377,19 +377,21 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		ElementState childES				= null;
 		try
 		{
-			switch (activeN2JO.type())
+			switch (activeFieldDescriptor.getType())
 			{
 			case NESTED_ELEMENT:
-				childES							= activeN2JO.constructChildElementState(currentElementState);
-				activeN2JO.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
+				childES							= activeFieldDescriptor.constructChildElementState(currentElementState);
+				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
 				break;
 			case NAME_SPACE_NESTED_ELEMENT:
-				ElementState nsContext			= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
-				childES							= activeN2JO.constructChildElementState(nsContext);
-				activeN2JO.setFieldToNestedObject(nsContext, childES);
+				//TODO Name Space support!
+//				ElementState nsContext			= currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
+//				childES							= activeFieldDescriptor.constructChildElementState(nsContext);
+//				activeFieldDescriptor.setFieldToNestedObject(nsContext, childES);
 				break;
 			case NAME_SPACE_LEAF_NODE:
-				childES							= currentElementState.getNestedNameSpace(activeN2JO.nameSpaceID());
+				//TODO Name Space support!
+//				childES							= currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
 				
 				break;
 			case LEAF:
@@ -397,10 +399,10 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				//activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
 			case COLLECTION_ELEMENT:
-				Collection collection			= activeN2JO.getCollection(currentElementState);
+				Collection collection			= (Collection) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					childES						= activeN2JO.constructChildElementState(currentElementState);
+					childES						= activeFieldDescriptor.constructChildElementState(currentElementState);
 					collection.add(childES);
 				}
 				//activeNJO.formElementAndAddToCollection(activeES, childNode);
@@ -410,14 +412,14 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				//activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
-				Map map							= activeN2JO.getMap(currentElementState);
+				Map map							= activeFieldDescriptor.getMap(currentElementState);
 				if (map != null)
 				{
-					childES						= activeN2JO.constructChildElementState(currentElementState);
+					childES						= activeFieldDescriptor.constructChildElementState(currentElementState);
 				}
 				break;
 			case AWFUL_OLD_NESTED_ELEMENT:
-				childES							= activeN2JO.constructChildElementState(currentElementState);
+				childES							= activeFieldDescriptor.constructChildElementState(currentElementState);
 				if (childES != null)
 					currentElementState.addNestedElement(childES);
 				break;
@@ -431,9 +433,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			if (childES != null)
 			{
 				// fill in its attributes
-				childES.translateAttributes(translationSpace, attributes, this);
+				childES.translateAttributes(translationScope, attributes, this, currentElementState);
 				this.currentElementState		= childES;	// childES.parent = old currentElementState
-				this.currentN2JO					= activeN2JO;
+				this.currentFD					= activeFieldDescriptor;
 			}
 		} catch (XMLTranslationException e)
 		{
@@ -441,20 +443,20 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		}
 	}
 
-	private void pushN2JO(TagDescriptor n2jo)
+	private void pushFD(FieldDescriptor fd)
 	{
-		this.n2joStack.add(n2jo);
+		this.fdStack.add(fd);
 	}
-	private void popAndPeekN2JO()
+	private void popAndPeekFD()
 	{
-		ArrayList<TagDescriptor> stack = this.n2joStack;
+		ArrayList<FieldDescriptor> stack = this.fdStack;
 		int last	= stack.size() - 1;
 		if (last >= 0)
 		{
-			TagDescriptor result	= stack.remove(last--);
+			FieldDescriptor result	= stack.remove(last--);
 			if (last >= 0)
 				result	= stack.get(last);
-			this.currentN2JO	= result;
+			this.currentFD	= result;
 //			printStack("After Pop");
 		}
 	}
@@ -470,7 +472,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 		
-		final int curentN2JOType = currentN2JO.type();
+		final int curentN2JOType = currentFD.getType();
 		
 		if (curentN2JOType == NAMESPACE_TRIAL_ELEMENT)
 		{
@@ -483,13 +485,13 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		processPendingTextScalar(curentN2JOType, currentES);
 		
 		final ElementState parentES					= currentES.parent;
-		final TagDescriptor currentN2JO	= this.currentN2JO;
+		final FieldDescriptor currentFD	= this.currentFD;
 
 		switch (curentN2JOType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
 			final Object key 				= ((Mappable) currentES).key();
-			Map map							= currentN2JO.getMap(parentES);
+			Map map							= currentFD.getMap(parentES);
 			map.put(key, currentES);
 		case NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
@@ -499,6 +501,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			else
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
+			this.currentElementState		= currentES.parent;
 		case NAME_SPACE_LEAF_NODE:
 		case AWFUL_OLD_NESTED_ELEMENT:
 			this.currentElementState		= parentES;	// restore context!
@@ -507,9 +510,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			break;
 		}
 		// end of the Namespace object, so we gotta pop it off, too.
-		if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
-			this.currentElementState		= this.currentElementState.parent;
-		popAndPeekN2JO();
+//		if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
+//			this.currentElementState		= this.currentElementState.parent;
+		popAndPeekFD();
 		//if (this.startElementPushed)	// every good push deserves a pop :-) (and othertimes, not!)
 	}
 	
@@ -534,23 +537,24 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 					//TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
 					String value	= new String(currentTextValue.substring(0, length));
-					currentN2JO.setFieldToScalar(currentES, value, this);
+					currentFD.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
 					value			= new String(currentTextValue.substring(0, length));
-					currentN2JO.addLeafNodeToCollection(currentES, value, this);
+					currentFD.addLeafNodeToCollection(currentES, value, this);
 					break;
 				case ROOT:
 				case NESTED_ELEMENT:
 				case COLLECTION_ELEMENT:
 					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
 					// so we get the optimizations we need from the currentElementState
-					TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
-					if (scalarTextChildN2jo != null)
-					{
-						value		= new String(currentTextValue.substring(0, length));
-						scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
-					}
+					//FIXME -- implement this!!!
+//					TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
+//					if (scalarTextChildN2jo != null)
+//					{
+//						value		= new String(currentTextValue.substring(0, length));
+//						scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
+//					}
 					break;
 				default:
 					break;
@@ -566,9 +570,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	void printStack(String msg)
 	{
 		currentElementState.debug("Stack -- " + msg + "\t[" + this.currentElementState + "]");
-		for (TagDescriptor thatN2JO : n2joStack)
+		for (FieldDescriptor thatFD : fdStack)
 		{
-			println(thatN2JO.tag() + " - 0x" + Integer.toHexString(thatN2JO.type()));
+			println(thatFD.getTagName() + " - 0x" + Integer.toHexString(thatFD.getType()));
 		}
 		println("");
 	}
@@ -585,9 +589,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 
-		if (currentN2JO != null)
+		if (currentFD != null)
 		{
-			int n2joType = currentN2JO.type();
+			int n2joType = currentFD.getType();
 			switch (n2joType)
 			{
 			case LEAF:
@@ -756,18 +760,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	private void registerXMLNS(ElementState context, String prefix, String urn)
 	{
 		if (context != null)
-			context.classDescriptor.mapNamespaceIdToClass(translationSpace, prefix, urn);
+			context.classDescriptor.mapNamespaceIdToClass(translationScope, prefix, urn);
 		else
 			println("ERROR: Null context. Can't register xmlns:" + prefix + "=" + urn);
-	}
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args)
-	{
-		println("YO!!!");
-		//new SAXHandler(null, null);
-
 	}
 
 	/**

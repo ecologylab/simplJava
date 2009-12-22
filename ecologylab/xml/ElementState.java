@@ -185,11 +185,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
  */
 	private StringBuilder allocStringBuilder()
 	{
-		ArrayList<Field> attributeFields	= classDescriptor.attributeFields();
-		int numAttributes 					= attributeFields.size();
-		int	numFields						= numAttributes + classDescriptor.quickNumElements();
-
-		return new StringBuilder(numFields * ESTIMATE_CHARS_PER_FIELD);
+		return new StringBuilder(classDescriptor.numFields() * ESTIMATE_CHARS_PER_FIELD);
 	}
 	/**
 	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
@@ -1259,7 +1255,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	 * Build a DOM first. Then, recursively parses the XML nodes in DFS order and translates them into a tree of state-objects.
 	 * 
 	 * @param xmlStream	An InputStream to the XML that needs to be translated.
-	 * @param translationSpace		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return 			the parent ElementState object of the corresponding Java tree.
 	 * @throws XMLTranslationException
@@ -1490,7 +1486,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	void setupRoot()
 	{
 		elementByIdMap		= new HashMap<String, ElementState>();
-		classDescriptor		= ClassDescriptor.getClassDescriptor(this);	
 	}
 	/**
 	 * A recursive method -- the core of the old DOM-Based translateFromXML(...).
@@ -1532,18 +1527,18 @@ implements FieldTypes, XMLTranslationExceptionTypes
                
 				if (value != null)
 				{
-					TagDescriptor njo	=
-						classDescriptor.nodeToJavaOptimizations(translationSpace, this, tag, true);
-					switch (njo.type())
+					FieldDescriptor njo	=	classDescriptor.getFieldDescriptorByTag(tag, translationSpace, this);
+					switch (njo.getType())
 					{
 					case ATTRIBUTE:
 						njo.setFieldToScalar(this, value, null);
 						// the value can become a unique id for looking up this
-						if ("id".equals(njo.tag()))
+						if ("id".equals(njo.getTagName()))
 							this.elementByIdMap.put(value, this);
 						break;
 					case XMLNS_ATTRIBUTE:
-						njo.registerXMLNS(this, value);
+						//TODO Name Space support!
+//						njo.registerXMLNS(this, value);
 						break;
 					default:
 						break;	
@@ -1567,7 +1562,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 			else
 			{
-				TagDescriptor njo		= classDescriptor.elementNodeToJavaOptimizations(translationSpace, this, childNode);
+				TagDescriptor njo		= null; //FIXME -- deal w this! classDescriptor.elementNodeToJavaOptimizations(translationSpace, this, childNode);
 				TagDescriptor nsNJO	= njo.nestedPTE();
 				TagDescriptor	activeNJO;
 				ElementState	activeES;
@@ -1701,7 +1696,8 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	 * @param attributes
 	 * @param scalarUnmarshallingContext TODO
 	 */
-	void translateAttributes(TranslationScope translationSpace, Attributes attributes, ScalarUnmarshallingContext scalarUnmarshallingContext)
+	void translateAttributes(TranslationScope translationSpace, Attributes attributes, 
+													 ScalarUnmarshallingContext scalarUnmarshallingContext, ElementState context)
 	{
 		int numAttributes	= attributes.getLength();
 		for (int i=0; i<numAttributes; i++)
@@ -1712,19 +1708,20 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			//TODO String attrType = getType()?!
 			if (value != null)
 			{
-				TagDescriptor njo	= 
-					classDescriptor.nodeToJavaOptimizations(translationSpace, this, tag, true);
-				switch (njo.type())
+				FieldDescriptor fd	= classDescriptor.getFieldDescriptorByTag(tag, translationSpace, context);
+
+				switch (fd.getType())
 				{
 				case ATTRIBUTE:
-					njo.setFieldToScalar(this, value, scalarUnmarshallingContext);
+					fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
 					// the value can become a unique id for looking up this
 					//TODO -- could support the ID type for the node here!
-					if ("id".equals(njo.tag()))
+					if ("id".equals(fd.getTagName()))
 						this.elementByIdMap.put(value, this);
 					break;
 				case XMLNS_ATTRIBUTE:
-					njo.registerXMLNS(this, value);
+					//TODO -- Name Space support!
+//					njo.registerXMLNS(this, value);
 					break;
 				default:
 					break;	
@@ -2704,9 +2701,9 @@ implements FieldTypes, XMLTranslationExceptionTypes
  	 * If the element associated with this is annotated with a field for @xml_text, make that available here.
  	 * @return
  	 */
- 	TagDescriptor scalarTextChildN2jo()
+ 	FieldDescriptor scalarTextChildFD()
  	{
- 		return classDescriptor.scalarTextN2jo();
+ 		return classDescriptor.scalarTextFD();
  	}
  	
  	public boolean hasScalarTextField()

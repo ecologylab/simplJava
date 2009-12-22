@@ -31,7 +31,7 @@ extends Debug
 	   
 	   RDFState.class,
    };
-	   
+	   /*
    public static final TranslationScope INHERITED_TRANSLATIONS[]	= 
    {
 	   Media.getTranslations(),
@@ -45,7 +45,7 @@ extends Debug
 	   new NameSpaceDecl("http://purl.org/dc/elements/1.1/", Dc.class, Dc.get()),
 	   
    };
-   
+   */
    /**
     * Just prevent anyone from new'ing this.
     */
@@ -55,7 +55,8 @@ extends Debug
    
    public static TranslationScope get()
    {
-	   return TranslationScope.get(TRANSLATION_SPACE_NAME, NAME_SPACE_DECLS, INHERITED_TRANSLATIONS, TRANSLATIONS);
+	   return TranslationScope.get(TRANSLATION_SPACE_NAME, /* NAME_SPACE_DECLS,INHERITED_TRANSLATIONS, */
+	  		 TRANSLATIONS);
    }
    
 	

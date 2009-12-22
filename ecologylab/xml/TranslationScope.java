@@ -32,8 +32,8 @@ public final class TranslationScope extends Debug
     * if there are multiple possibilities. This is the case when internal and external versions of
     * a message and its constituents are defined for a messaging API.
     */
-   private Scope<TranslationEntry>	entriesByClassSimpleName	= new Scope<TranslationEntry>();
-   private Scope<TranslationEntry>	entriesByTag							= new Scope<TranslationEntry>();
+   private Scope<ClassDescriptor>	entriesByClassSimpleName	= new Scope<ClassDescriptor>();
+   private Scope<ClassDescriptor>	entriesByTag							= new Scope<ClassDescriptor>();
    
    private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN = new Scope<Class<? extends ElementState>>();
    
@@ -265,12 +265,12 @@ public final class TranslationScope extends Debug
     * @param inheritedMap
  * @param warn
     */
-   private void updateMapWithValues(Map<String, TranslationEntry> inheritedMap, Map<String, TranslationEntry> newMap, String warn)
+   private void updateMapWithValues(Map<String, ClassDescriptor> inheritedMap, Map<String, ClassDescriptor> newMap, String warn)
    {
    	// XXX ANDRUID + ZACH -> concurrent modification exception can occur here (for loop) if inheritedMap is modified elsewhere
 	   for (String key : inheritedMap.keySet())
 	   {
-		   TranslationEntry translationEntry	= inheritedMap.get(key);
+	  	 ClassDescriptor translationEntry	= inheritedMap.get(key);
 		   updateMapWithEntry(newMap, key, translationEntry, warn);
 	   }
    }
@@ -283,15 +283,15 @@ public final class TranslationScope extends Debug
     * @param translationEntry		Must be non-null.
     * @param warn
     */
-   private void updateMapWithEntry(Map<String, TranslationEntry> newMap, String key, TranslationEntry translationEntry, String warn)
+   private void updateMapWithEntry(Map<String, ClassDescriptor> newMap, String key, ClassDescriptor translationEntry, String warn)
    {
-	   TranslationEntry existingEntry	= newMap.get(key);
+  	 ClassDescriptor existingEntry	= newMap.get(key);
 
 //	   final boolean entryExists		= existingEntry != null;
 //	   final boolean newEntry			= existingEntry != translationEntry;
 
 	   final boolean entryExists		= existingEntry != null;
-	   final boolean newEntry			= !entryExists ? true : existingEntry.thisClass != translationEntry.thisClass;
+	   final boolean newEntry			= !entryExists ? true : existingEntry.getDescribedClass() != translationEntry.getDescribedClass();
 	   
 	   if (newEntry)
 	   {
@@ -315,23 +315,22 @@ public final class TranslationScope extends Debug
 	*/
    public void addTranslation(Class<? extends ElementState> classObj)
    {
-	   new TranslationEntry(classObj);
+  	 ClassDescriptor entry	= ClassDescriptor.getClassDescriptor(classObj);
+  	 entriesByTag.put(entry.getTagName(), entry);
+  	 entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
+  	 
+  	 String[] otherTags	= XMLTools.otherTags(entry.getDescribedClass());
+  	 if (otherTags != null)
+	  	 for (String otherTag : otherTags)
+	  	 {
+	  		 if ((otherTag != null) && (otherTag.length() > 0))
+	  		 {
+	  			 entriesByTag.put(otherTag, entry);
+	  		 }
+	  	 }
    }
 
-   /**
-    * Find a prior TranslationEntry for thatClass.
-    * Add an alternative tag mapping for it.
-    * 
-    * @param thatClass
-    * @param alternativeXmlTag
-    */
-   public void addTranslation(Class<? extends ElementState> thatClass, String alternativeXmlTag)
-   {
-	   String classSimpleName		= thatClass.getSimpleName();
-	   TranslationEntry thatEntry	= entriesByClassSimpleName.get(classSimpleName);
-	   entriesByTag.put(alternativeXmlTag, thatEntry);
-   }
-   
+  
    /**
 	* Look-up a <code>Class</code> object for the xmlTag, using translations in this,
 	* and in inherited TranslationScopes.
@@ -342,8 +341,8 @@ public final class TranslationScope extends Debug
 	*/
    public Class<? extends ElementState>  xmlTagToClass(String xmlTag)
    {
-	  TranslationEntry entry = xmlTagToTranslationEntry(xmlTag);
-	  return entry.empty ? null : entry.thisClass;
+  	 ClassDescriptor entry = xmlTagToTranslationEntry(xmlTag);
+  	 return entry.isEmpty() ? null : entry.getDescribedClass();
    }
 
    /**
@@ -353,9 +352,9 @@ public final class TranslationScope extends Debug
     * @param xmlTag
     * @return
     */
-   private TranslationEntry xmlTagToTranslationEntry(String xmlTag)
+   private ClassDescriptor xmlTagToTranslationEntry(String xmlTag)
    {
-	   return entriesByTag.get(xmlTag);
+	   return getClassDescriptorByTag(xmlTag);
 /*
 	   TranslationEntry entry		= entriesByTag.get(xmlTag);
 	   if (entry == null)
@@ -401,10 +400,15 @@ public final class TranslationScope extends Debug
     */
    public Class<? extends ElementState> getClassByTag(String tag)
    {
-	   TranslationEntry entry		= entriesByTag.get(tag);
+  	 ClassDescriptor entry		= getClassDescriptorByTag(tag);
 	   
-	   return (entry == null) ? null : entry.thisClass;
+	   return (entry == null) ? null : entry.getDescribedClass();
    }
+
+	public ClassDescriptor getClassDescriptorByTag(String tag)
+	{
+		return entriesByTag.get(tag);
+	}
    /**
     * Get the Class object associated with the provided class name, if there is one.
     * Unlike xmlTagToClass, this call will not generate a new blank NameEntry.
@@ -414,9 +418,9 @@ public final class TranslationScope extends Debug
     */
    public Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
    {
-	   TranslationEntry entry		= entriesByClassSimpleName.get(classSimpleName);
+  	 ClassDescriptor entry		= entriesByClassSimpleName.get(classSimpleName);
 	   
-	   return (entry == null) ? null : entry.thisClass;
+	   return (entry == null) ? null : entry.getDescribedClass();
    }
    /**
     * Use this TranslationScope to lookup a class that has the same simple name
@@ -445,9 +449,9 @@ public final class TranslationScope extends Debug
 
    public String getTagBySimpleName(String simpleName)
    {
-	   TranslationEntry entry		= entriesByClassSimpleName.get(simpleName);
+  	 ClassDescriptor entry		= entriesByClassSimpleName.get(simpleName);
 	   
-	   return (entry == null) ? null : entry.tag;
+	   return (entry == null) ? null : entry.getTagName();
    }
    /**
     * Derive the XML tag from the Class object, using camel case conversion, or
@@ -467,107 +471,6 @@ public final class TranslationScope extends Debug
    		}
    	}
       return XMLTools.getXmlTagName(thatClass.getSimpleName(), "State");
-   }
-   
-   public class TranslationEntry extends Debug
-   {
-	   public final String		packageName;
-	   /**
-	    * Should this be whole class name, or simple/short class name?
-	    */
-	   public final String		classSimpleName;
-
-	   public final String		tag;
-
-	   public final Class<? extends ElementState>	thisClass;
-
-	   boolean					empty;
-
-	   /**
-	    * Construct an empty entry for tag.
-	    * This means that the TranslationScope will map tag to no class forever.
-	    * 
-	    * @param tag
-	    */
-	   public TranslationEntry(String tag)
-	   {
-		   this.tag				= tag;
-		   this.packageName		= null;
-		   this.classSimpleName	= null;
-		   this.thisClass		= null;
-
-		   this.empty			= true;
-
-		   entriesByTag.put(tag, this);
-	   }
-
-	   /**
-	    * Create the entry, deriving all from its class object, 
-	    * perhaps including an @xml_tag declaration.
-	    */
-	   TranslationEntry(Class<? extends ElementState> thisClass)
-	   {
-	  	 assert(thisClass != null);
-
-	  	 this.thisClass			= thisClass;
-		   this.classSimpleName	= thisClass.getSimpleName();
-
-		   String tag						= determineXMLTag(thisClass); // (takes @xml_tag into account)
-		   this.tag							= tag;
-	  	 Package thisPackage	= thisClass.getPackage();
-	  	 this.packageName			= thisPackage != null ? thisPackage.getName() : "";
-
-		   registerTranslation(tag, classSimpleName);
-
-		   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
-		   if (otherTagsAnnotation != null)
-		   {
-		  	 String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
-		  	 for (String otherTag : otherTags)
-		  	 {
-		  		 if ((otherTag != null) && (otherTag.length() > 0))
-		  		 {
-		  			 entriesByTag.put(otherTag, this);
-		  		 }
-		  	 }
-		   }
-	   }
-
-	   /**
-	    * @param tag
-	    * @param classSimpleName
-	    */
-	   private void registerTranslation(String tag, String classSimpleName)
-	   {
-		   entriesByTag.put(tag, this);
-		   entriesByClassSimpleName.put(classSimpleName, this);
-		   /*
-		    * i dont see why this is here. it looks wrong. -- andruid 5/6/07.
-		if (classSimpleName.endsWith("State"))
-		{
-			int beforeState		= classSimpleName.length() - 5;
-			String wholeClassNameNoState = 
-				classSimpleName.substring(0, beforeState);
-//			debug("create entry including " + wholeClassNameNoState);
-			entriesByClassSimpleName.put(wholeClassNameNoState, this);
-		}
-		    */
-	   }
-
-	   public String getTag()
-	   {
-		   return tag;
-	   }
-	   public String toString()
-	   {
-		   StringBuilder buffy = new StringBuilder(50);
-		   buffy.append("TranslationEntry[").append(classSimpleName).
-		   append(" <").append(tag).append('>');
-		   if (thisClass != null)
-			   buffy.append(' ').append(thisClass);
-		   buffy.append(']');
-		   return XMLTools.toString(buffy);
-	   }
    }
 
    private String toStringCache;
@@ -783,7 +686,7 @@ public final class TranslationScope extends Debug
 	   return result;	   
    }
 
-   protected HashMap<String, TranslationEntry> entriesByClassName()
+   protected HashMap<String, ClassDescriptor> entriesByClassName()
    {
 	   return entriesByClassSimpleName;
    }
@@ -803,21 +706,25 @@ public final class TranslationScope extends Debug
    }
    protected void generateImports(StringBuilder buffy)
    {
-  	 for (TranslationEntry tEntry : entriesByClassSimpleName.values())
+  	 for (ClassDescriptor tEntry : entriesByClassSimpleName.values())
   	 {
-  		 buffy.append("import ").append(tEntry.packageName).append('.').append(tEntry.classSimpleName).append(";\n");
+  		 buffy.append("import ").append(tEntry.getDescribedClassPackageName()).append('.')
+  		 			.append(tEntry.getDecribedClassSimpleName()).append(";\n");
   	 } 	 
    }
-   
-   public Collection<TranslationEntry> getEntries()
-   {
-  	 	return entriesByClassSimpleName.values();
-   }
+
+   private Collection<ClassDescriptor>	classDescriptors;
    
    //FIXME -- implement this!
    public Collection<ClassDescriptor> getClassDescriptors()
    {
-  	 return new ArrayList<ClassDescriptor>(0);
+  	 Collection<ClassDescriptor>	result	= classDescriptors;
+  	 if (result == null)
+  	 {
+  		 result															= entriesByClassSimpleName.values();
+  		 this.classDescriptors							= result;
+  	 }
+  	 return result;
    }
 	/**
 	 * Get the Scalar Type corresponding to the Class.

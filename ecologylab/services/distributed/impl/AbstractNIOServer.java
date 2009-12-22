@@ -41,7 +41,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * 
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException
@@ -92,7 +92,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * 
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException

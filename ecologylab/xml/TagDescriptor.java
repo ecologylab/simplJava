@@ -395,6 +395,7 @@ implements FieldTypes
 		}
 		ClassDescriptor nsOpti			= nsContext.classDescriptor;
 
+		/*
 		TagDescriptor nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);
 		final int nsN2joType 			= nsN2jo.type();
 		if (nsN2joType != IGNORED_ELEMENT)
@@ -409,7 +410,7 @@ implements FieldTypes
 		}
 		else
 			this.type			= NAMESPACE_IGNORED_ELEMENT;
-		
+		*/
 		return true;
 	}
 	private void setCDATA(Field field)

@@ -1254,6 +1254,12 @@ implements CharacterConstants, SpecialCharacterEntities
 		buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
 	}
 
+	static String[] otherTags(Class<ElementState> thisClass)
+	{
+	   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+	   return otherTagsAnnotation == null ? null : otherTags(otherTagsAnnotation);
+		
+	}
 	static String[] otherTags(ElementState.xml_other_tags otherTagsAnnotation)
 	{
 		String[]	result	= otherTagsAnnotation == null ? null : otherTagsAnnotation.value();

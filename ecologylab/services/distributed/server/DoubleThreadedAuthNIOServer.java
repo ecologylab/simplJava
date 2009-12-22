@@ -56,7 +56,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @param authListFilename -
 	 *           a file name indicating the location of the authentication list;
@@ -97,7 +97,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @param authList -
 	 *           the AuthorizationList object to be used to determine possible
@@ -131,7 +131,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	/**
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException

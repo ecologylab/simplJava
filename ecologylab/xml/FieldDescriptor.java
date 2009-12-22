@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import ecologylab.generic.Debug;
@@ -229,7 +230,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * Process @xml_other_tags.
 	 * 
 	 * @param field
-	 * @param annotationType TODO
+	 * @param annotationType Partial type information from the field declaration annotations, which are required.
 	 */
 	//FIXME -- not complete!!!! return to finish other cases!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@SuppressWarnings("unchecked")
@@ -287,7 +288,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 						return IGNORED_ELEMENT;
 					}
 					if (ElementState.class.isAssignableFrom(collectionElementClass))
-						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(collectionElementClass);
 					else
 						result = COLLECTION_SCALAR;
 				}
@@ -320,7 +321,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					collectionOrMapTagName = mapTag;
 
 					if (ElementState.class.isAssignableFrom(mapElementClass))
-						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(mapElementClass);
 					else
 						result = MAP_SCALAR;		//TODO -- do we really support this case??
 				}
@@ -1120,7 +1121,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public String toString()
 	{
-		return "FieldDescriptor[" + declaringClassDescriptor.getClassName() + "." + field.getName() + " type=" + type + "]";
+		return "FieldDescriptor[" + field.getName() + " < " + declaringClassDescriptor.getDescribedClass() + " type=" + type + "]";
 	}
 
 	public ArrayList<ClassDescriptor> getTagClassDescriptors()
@@ -1189,6 +1190,264 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName).append('>');
 	}
 
+	//----------------------------- methods from TagDescriptor ---------------------------------------//
+	/**
+	 * Use a set method or the type system to set our field in the context to the value.
+	 * 
+	 * @param context
+	 * @param value
+	 * @param scalarUnmarshallingContext TODO
+	 */
+	void setFieldToScalar(Object context, String value, ScalarUnmarshallingContext scalarUnmarshallingContext)
+	{
+		if ((value == null) /*|| (value.length() == 0) removed by Alex to allow empty delims*/)
+		{
+//			error("Can't set scalar field with empty String");
+			return;
+		}
+		if (setValueMethod != null)
+		{
+			// if the method is found, invoke the method
+			// fill the String value with the value of the attr node
+			// args is the array of objects containing arguments to the method to be invoked
+			// in our case, methods have only one arg: the value String
+			Object[] args = new Object[1];
+			args[0]		  = value;
+			try
+			{
+				setValueMethod.invoke(context, args); // run set method!
+			}
+			catch (InvocationTargetException e)
+			{
+				weird("couldnt run set method for " + tagName + " even though we found it");
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e)
+			{
+				weird("couldnt run set method for " + tagName + " even though we found it");
+				e.printStackTrace();
+			}	
+		}
+		else if (scalarType != null)
+		{
+			scalarType.setField(context, field, value, format, null);
+		}
+	}
+
+	/**
+	 * Assume the first child of the leaf node is a text node.
+	 * Pull the text of out that text node. Trim it, and if necessary, unescape it.
+	 * 
+	 * @param leafNode	The leaf node with the text element value.
+	 * @return			Null if there's not really any text, or the useful text from the Node, if there is some.
+	 */
+	String getLeafNodeValue(Node leafNode)
+	{
+		String result	= null;
+		Node textElementChild			= leafNode.getFirstChild();
+		if (textElementChild != null)
+		{
+			if (textElementChild != null)
+			{
+				String textNodeValue	= textElementChild.getNodeValue();
+				if (textNodeValue != null)
+				{
+					textNodeValue		= textNodeValue.trim();
+					if (!isCDATA && (scalarType != null) && scalarType.needsEscaping())
+						textNodeValue	= XMLTools.unescapeXML(textNodeValue);
+					//debug("setting special text node " +childFieldName +"="+textNodeValue);
+					if (textNodeValue.length() > 0)
+					{
+						result			= textNodeValue;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
+	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
+	 * 
+	 * @throws XMLTranslationException
+	 */
+	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
+	throws XMLTranslationException
+	{
+		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode), null);
+	}
+	/**
+	 * Add element derived from the Node to a Collection.
+	 * 
+	 * @param activeES		Contextualizing object that has the Collection slot we're adding to.
+	 * @param scalarUnmarshallingContext TODO
+	 * @param childLeafNode	XML leafNode that has the value we need to add, after type conversion.
+	 * @throws XMLTranslationException
+	 */
+	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue, ScalarUnmarshallingContext scalarUnmarshallingContext)
+	throws XMLTranslationException
+	{
+		if  (leafNodeValue != null)
+		{
+			// silently ignore null leaf node values
+		}
+		if (scalarType != null)
+		{
+			//TODO -- for performance reasons, should we call without format if format is null, and
+			// let the ScalarTypes that don't use format implement the 1 argument signature?!
+			Object typeConvertedValue		= scalarType.getInstance(leafNodeValue, format, scalarUnmarshallingContext);
+			try
+			{
+				//TODO -- should we be doing this check for null here??
+				if (typeConvertedValue != null)
+				{
+//					Collection collection	= (Collection) field.get(activeES);
+//					if (collection == null)
+//					{
+//						// well, why not create the collection object for them?!
+//						Collection thatCollection	= 
+//							ReflectionTools.getInstance((Class<Collection>) field.getType());
+//
+//					}
+					Collection<Object> collection	= (Collection<Object>) automaticLazyGetCollectionOrMap(activeES);
+					collection.add(typeConvertedValue);
+				}
+			} catch (Exception e)
+			{
+				throw fieldAccessException(typeConvertedValue, e);
+			}
+		}
+		else
+		{
+			reportFieldTypeError(leafNodeValue);
+		}
+	}
+	
+	private void reportFieldTypeError(String textNodeValue)
+	{
+		error("Can't set to " + textNodeValue + " because fieldType is unknown.");
+	}
+
+
+	/**
+	 * Generate an exception about problems accessing a field.
+	 * 
+	 * @param nestedElementState
+	 * @param e
+	 * @return
+	 */
+	private XMLTranslationException fieldAccessException(Object nestedElementState, Exception e)
+	{
+		return new XMLTranslationException(
+					"Unexpected Object / Field set problem. \n\t"+
+					"Field = " + field +"\n\ttrying to set to " + nestedElementState.getClass(), e);
+	}
+
+	/**
+	 * Use the Field of this to seek a Collection or Map object in the activeES.
+	 * If non-null, great -- return it.
+	 * <p/>
+	 * Otherwise, lazy evaluation.
+	 * Since the value of the field is null, use the Type of the Field to instantiate a newInstance.
+	 * Set the instance of the Field in activeES to this newInstance, and return it.
+	 * 
+	 * @param activeES
+	 * @return
+	 */
+	Object automaticLazyGetCollectionOrMap(ElementState activeES)
+	{
+		Object collection	= null;
+		try
+		{
+			collection		= field.get(activeES);
+			if (collection == null)
+			{
+				// initialize the collection for the caller! automatic lazy evaluation :-)
+				Class collectionType	= field.getType();
+				try
+				{
+					collection	= collectionType.newInstance();
+					// set the field to the new collection
+					field.set(activeES, collection);
+				} catch (InstantiationException e)
+				{
+					warning("Can't instantiate collection of type" + collectionType + " for field " + field.getName() + " in " + activeES);
+					e.printStackTrace();
+					// return
+				}
+			}
+		} catch (IllegalArgumentException e)
+		{
+			weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
+			e.printStackTrace();
+			//return;
+		} catch (IllegalAccessException e)
+		{
+			weird("Trying to addElementToCollection(). Can't access collection field " + field.getType() + " in " + activeES);
+			e.printStackTrace();
+			//return;
+		}
+		return collection;
+	}
+		
+	/**
+	 * Based on the classOp in this, form a child element.
+	 * Set it's parent field and elementByIdMap.
+	 * Look-up Optimizations for it, using the parent's Optimizations as the scope.
+	 *
+	 * @param parent
+	 * @return
+	 * @throws XMLTranslationException
+	 */
+		ElementState constructChildElementState(ElementState parent)
+		throws XMLTranslationException
+		{
+			Class<ElementState> describedClass	= elementClassDescriptor.describedClass();
+			ElementState childElementState			= XMLTools.getInstance(describedClass);
+			parent.setupChildElementState(childElementState);
+			
+			return childElementState;
+		}
+		
+		void setFieldToNestedObject(ElementState context, Object nestedObject) 
+		throws XMLTranslationException
+		{
+			try
+			{
+				field.set(context, nestedObject);
+			}
+			catch (Exception e)
+			{
+				throw fieldAccessException(nestedObject, e);
+			}
+		}
+
+
+	
+	//----------------------------- constant instances ---------------------------------------//
+	FieldDescriptor(String tag)
+	{
+		this.tagName									= tag;
+		this.type											= IGNORED_ELEMENT;
+		this.field										= null;
+		this.declaringClassDescriptor	= null;
+	}
+	static final FieldDescriptor IGNORED_ELEMENT_FIELD_DESCRIPTOR;
+	static final FieldDescriptor ROOT_ELEMENT_FIELD_DESCRIPTOR;
+	static
+	{
+		IGNORED_ELEMENT_FIELD_DESCRIPTOR		= new FieldDescriptor("IGNORED");
+		
+		ROOT_ELEMENT_FIELD_DESCRIPTOR			= new FieldDescriptor("ROOT");
+		ROOT_ELEMENT_FIELD_DESCRIPTOR.type		= ROOT;
+	}
+
+	
+	//----------------------------- convenience methods ---------------------------------------//
+	
 	public String elementStart()
 	{
 		return isCollection() ? collectionOrMapTagName : tagName;
@@ -1219,4 +1478,5 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		return false;
 	}
+	
 }
