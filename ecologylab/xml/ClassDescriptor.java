@@ -448,13 +448,11 @@ implements FieldTypes
 	
 	/**
 	 * Add an entry to our map of Field objects, using the field's name as the key.
-	 * Can only be called by routines that guaranty that the fieldsMap has already been
-	 * created and populated with entries.
+	 * Used, for example, for ignored fields.
 	 * 
-	 * @param fieldsMap
 	 * @param fieldDescriptor
 	 */
-	private void mapFieldDescriptor(FieldDescriptor fieldDescriptor)
+	void addFieldDescriptorMapping(FieldDescriptor fieldDescriptor)
 	{
 		//FIXME is tag determined by field by class?
 		String tagName	= fieldDescriptor.getTagName();

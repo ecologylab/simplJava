@@ -135,6 +135,7 @@ public class RssState extends ElementState
 		"		<title>Photos from everyone tagged water</title>\r\n" + 
 		"		<link>http://www.flickr.com/photos/tags/water/</link>\r\n" + 
 		"		<item>\r\n" + 
+		"			<media:title>Fire-Worksing</media:title>\r\n" + 
 		"			<title>Fire-Works</title>\r\n" + 
 		"			<link>http://www.flickr.com/photos/meemz/2161548299/</link>\r\n" + 
 		"			<media:title>Fire-Works</media:title>\r\n" + 
@@ -145,6 +146,7 @@ public class RssState extends ElementState
 	
 	public static final String ITEM_EXAMPLE = 
 		"	<channel>\r\n" + 
+		"			<foo>Fire-Works</foo>\r\n" + 
 		"		<item>\r\n" + 
 		"			<title>Fire-Works</title>\r\n" + 
 		"			<link>http://www.flickr.com/photos/meemz/2161548299/</link>\r\n" + 
@@ -161,8 +163,8 @@ public class RssState extends ElementState
 		ElementState rss;
 		try
 		{
-		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
-		//	rss = translateFromXML(NYT_TECH_FEED, RssTranslations.get());
+//		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
+			rss = translateFromXML(NYT_TECH_FEED, RssTranslations.get());
 			
 			System.out.println("");
 			rss.translateToXML(System.out);

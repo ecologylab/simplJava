@@ -351,17 +351,24 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				return;
 			}
 		}
-		else
+		else	// not root
 		{
 			final int currentType = currentFD.getType();
 			ElementState currentES		= this.currentElementState;
 			// if there is a pending text node, assign it somehow!
 			processPendingTextScalar(currentType, currentES);
 				
+			ClassDescriptor currentClassDescriptor = currentClassDescriptor();
 			activeFieldDescriptor	= (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
 				FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR :
-				currentClassDescriptor().getFieldDescriptorByTag(tagName, translationScope, currentES);
+				currentClassDescriptor.getFieldDescriptorByTag(tagName, translationScope, currentES);
+			if (activeFieldDescriptor == null)
+			{
+				currentClassDescriptor.warning(" Ignoring tag <" + tagName + ">");
+				activeFieldDescriptor	= new FieldDescriptor(tagName); //TODO -- should we record declaringClass in here??!
+				currentClassDescriptor.addFieldDescriptorMapping(activeFieldDescriptor);
+			}
 		}
 		this.currentFD						= activeFieldDescriptor;
 		registerXMLNS();
