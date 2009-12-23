@@ -34,6 +34,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	protected final Field						field;
 
+	@xml_attribute
 	private String										tagName;
 	
 	/**
@@ -48,11 +49,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	protected final ClassDescriptor	declaringClassDescriptor;
 
+	@xml_attribute
 	private int												type;
 
 	/**
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
+	@xml_attribute
 	private ScalarType<?>							scalarType;
 
 	/**
@@ -60,8 +63,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private String[]								format;
 
+	@xml_attribute
 	private boolean									isCDATA;
 
+	@xml_attribute
 	private boolean									needsEscaping;
 
 	/**
@@ -216,14 +221,23 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 				if (type == LEAF || type == TEXT_ELEMENT)
 				{
-					isCDATA = XMLTools.leafIsCDATA(field);
-					needsEscaping = scalarType.needsEscaping();
+					isCDATA 			= XMLTools.leafIsCDATA(field);
+					needsEscaping = result.needsEscaping();
 				}
 				format = XMLTools.getFormatAnnotation(field);
 		}
 		return result;
 	}
-
+	private ScalarType deriveCollectionScalar(Class collectionScalarClass, Field field)
+	{
+		ScalarType result = TypeRegistry.getType(collectionScalarClass);
+		if (result != null)
+		{
+			needsEscaping 	= result.needsEscaping();
+			format = XMLTools.getFormatAnnotation(field);
+		}
+		return result;
+	}
 	/**
 	 * Figure out the type of field. Build associated data structures, such as
 	 * collection or element class & tag.
@@ -290,7 +304,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					if (ElementState.class.isAssignableFrom(collectionElementClass))
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(collectionElementClass);
 					else
+					{
 						result = COLLECTION_SCALAR;
+						scalarType	= deriveCollectionScalar(collectionElementClass, field);
+					}
 				}
 				collectionOrMapTagName = collectionTag;
 				break;
@@ -323,7 +340,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					if (ElementState.class.isAssignableFrom(mapElementClass))
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(mapElementClass);
 					else
+					{
 						result = MAP_SCALAR;		//TODO -- do we really support this case??
+						scalarType	= deriveCollectionScalar(mapElementClass, field);
+					}
 				}
 			break;
 		default:
@@ -405,6 +425,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		java.lang.reflect.Type[] typeArgs = ReflectionTools.getParameterizedTypeTokens(field);
 		if (typeArgs != null)
 		{
+			final int max	= typeArgs.length - 1;
+			if (i > max)
+				i						= max;
 			final Type typeArg0 = typeArgs[i];
 			if (typeArg0 instanceof Class)
 			{

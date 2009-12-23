@@ -393,7 +393,7 @@ implements FieldTypes
 //			this.type			= NAMESPACE_TRIAL_ELEMENT;
 			return false;
 		}
-		ClassDescriptor nsOpti			= nsContext.classDescriptor;
+		ClassDescriptor nsOpti			= nsContext.classDescriptor();
 
 		/*
 		TagDescriptor nsN2jo	= nsOpti.nodeToJavaOptimizations(translationSpace, nsContext, subTag, false);

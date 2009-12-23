@@ -15,6 +15,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.ValueFactory;
+import ecologylab.xml.types.element.Mappable;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -26,19 +27,23 @@ import ecologylab.generic.ValueFactory;
  *
  * @author andruid
  */
-public class ClassDescriptor<ES extends ElementState> extends Debug
-implements FieldTypes
+public class ClassDescriptor<ES extends ElementState> extends ElementState
+implements FieldTypes, Mappable<String>
 {
 	/**
 	 * Class object that we are describing.
 	 */
 	private Class<ES>															describedClass;
 	
+	@xml_attribute
 	private String																tagName;
 	
 	private String																decribedClassSimpleName;
 	
 	private String																describedClassPackageName;
+	
+	@xml_attribute
+	private String																describedClassName;
 	
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
@@ -60,6 +65,8 @@ implements FieldTypes
 	 * Also handy for providing functionality like associative arrays in Perl, JavaScript, PHP, ..., but with less overhead,
 	 * because the hashtable is only maintained per class, not per instance.
 	 */
+	@xml_nowrap
+	@xml_map("field_descriptor")
 	private HashMapArrayList<String, FieldDescriptor>	
 																							fieldDescriptorsByFieldName	= new HashMapArrayList<String, FieldDescriptor>();
 	
@@ -86,6 +93,7 @@ implements FieldTypes
 		this.describedClass						= thatClass;
 		this.decribedClassSimpleName	= thatClass.getSimpleName();
 		this.describedClassPackageName= thatClass.getPackage().getName(); 
+		this.describedClassName				= thatClass.getName(); 
 		this.tagName									= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 	}
 	ClassDescriptor(String tag)
@@ -241,7 +249,7 @@ implements FieldTypes
 	 * @param thatClass
 	 * @return
 	 */
-	public static HashMapArrayList<String, FieldDescriptor> getFieldDescriptors(Class<? extends ElementState> thatClass)
+	public static HashMapArrayList<String, FieldDescriptor> getTheFieldDescriptors(Class<? extends ElementState> thatClass)
 	{
 		return getFieldDescriptors(thatClass, null);
 	}
@@ -559,5 +567,27 @@ implements FieldTypes
 	public int numFields()
 	{
 		return allFieldDescriptorsByTagNames.size();
+	}
+	/**
+	 * The tagName.
+	 */
+	public String key()
+	{
+		return tagName;
+	}
+	
+	public static void main(String[] s)
+	{
+		TranslationScope mostBasicTranslations	= TranslationScope.get("most_basic", ClassDescriptor.class, FieldDescriptor.class, TranslationScope.class);
+		
+		try
+		{
+			mostBasicTranslations.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

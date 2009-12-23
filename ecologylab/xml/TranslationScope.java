@@ -16,8 +16,9 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * A set of bindings between XML element names (tags) and associated simple (without package) class names,
  * and associated Java ElementState classes. Inheritance is supported.
  */
-public final class TranslationScope extends Debug
+public final class TranslationScope extends ElementState
 {
+	@xml_attribute
    private final String			name;
    
    private TranslationScope[]	inheritedTranslationScopes;
@@ -33,6 +34,8 @@ public final class TranslationScope extends Debug
     * a message and its constituents are defined for a messaging API.
     */
    private Scope<ClassDescriptor>	entriesByClassSimpleName	= new Scope<ClassDescriptor>();
+   @xml_nowrap
+   @xml_map("class_descriptor")
    private Scope<ClassDescriptor>	entriesByTag							= new Scope<ClassDescriptor>();
    
    private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN = new Scope<Class<? extends ElementState>>();
@@ -755,6 +758,11 @@ public final class TranslationScope extends Debug
    public String getName()
    {
 	   return name;
+   }
+   
+   public static void main(String[] s)
+   {
+  	 
    }
 
 }

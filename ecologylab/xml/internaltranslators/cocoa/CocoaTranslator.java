@@ -140,7 +140,7 @@ public class CocoaTranslator
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
    {
-      HashMapArrayList<String, FieldDescriptor> attributes = ClassDescriptor.getFieldDescriptors(inputClass);
+      HashMapArrayList<String, FieldDescriptor> attributes = ClassDescriptor.getTheFieldDescriptors(inputClass);
 
       openHeaderFile(inputClass, appendable);
 

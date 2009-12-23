@@ -2,7 +2,9 @@ package ecologylab.xml.library.rss;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.NameSpaceDecl;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -26,10 +28,10 @@ extends Debug
 	   Channel.class,
 	   Item.class,
 	   
-	   Dc.class,
-
-	   
-	   RDFState.class,
+//	   Dc.class,
+//
+//	   
+//	   RDFState.class,
    };
 	   /*
    public static final TranslationScope INHERITED_TRANSLATIONS[]	= 
@@ -64,15 +66,18 @@ extends Debug
 
 	public static void main(String[] args)
 	{
+		TranslationScope tScope	= get();
+		
 		try
 		{
-			RssState rssState	= (RssState) ElementState.translateFromXML(FLICKR_PURL, get());
-			
-			rssState.translateToXML(System.out);
-		} catch (XMLTranslationException e)
+			tScope.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
 		{
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("\n");
 	}
   
 }

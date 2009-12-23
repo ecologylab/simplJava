@@ -97,7 +97,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	 * Just-in time look-up tables to make translation be efficient.
 	 * Allocated on a per class basis.
 	 */
-	transient ClassDescriptor				classDescriptor;
+	transient private ClassDescriptor				classDescriptor;
 	
 	/**
 	 * Use for resolving getElementById()
@@ -143,7 +143,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
      */
 	public ElementState()
 	{
-		classDescriptor						= ClassDescriptor.getClassDescriptor(this);
 	}
 
 	/**
@@ -185,7 +184,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
  */
 	private StringBuilder allocStringBuilder()
 	{
-		return new StringBuilder(classDescriptor.numFields() * ESTIMATE_CHARS_PER_FIELD);
+		return new StringBuilder(classDescriptor().numFields() * ESTIMATE_CHARS_PER_FIELD);
 	}
 	/**
 	 * Translates a tree of ElementState objects into equivalent XML in a StringBuilder.
@@ -219,7 +218,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		if (buffy == null)
 	        buffy = allocStringBuilder();
 
-		translateToXMLBuilder(classDescriptor.pseudoFieldDescriptor(), buffy);
+		translateToXMLBuilder(classDescriptor().pseudoFieldDescriptor(), buffy);
 		
 		return buffy;
 	}
@@ -308,7 +307,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	
 		try
 		{
-			translateToXMLAppendable(classDescriptor.pseudoFieldDescriptor(), appendable);
+			translateToXMLAppendable(classDescriptor().pseudoFieldDescriptor(), appendable);
 		} catch (IOException e)
 		{
 			throw new XMLTranslationException("IO", e);
@@ -347,7 +346,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		fieldDescriptor.writeElementStart(buffy);
 
 		//TODO -- namespace support
-//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
+//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor().xmlnsAttributeOptimizations();
 //		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
 //		if (numXmlnsAttributes > 0)
 //		{
@@ -358,7 +357,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //			}			
 //		}
        
-		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor.attributeFieldDescriptors();
+		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor().attributeFieldDescriptors();
 		int numAttributes 			= attributeFieldDescriptors.size();
 		
 		if (numAttributes > 0)
@@ -378,7 +377,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 		}
 
-		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor.elementFieldOptimizations();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldOptimizations();
 		int numElements						= elementFieldDescriptors.size();
 
 		StringBuilder textNode				= this.textNodeBuffy;
@@ -497,7 +496,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 								// and it fixes @xml_text output
 
 								FieldDescriptor collectionElementF2XO				= childFD.isTagNameFromClassName() ?
-										collectionSubElementState.classDescriptor.pseudoFieldDescriptor() :
+										collectionSubElementState.classDescriptor().pseudoFieldDescriptor() :
 										childFD;
 								
 								collectionSubElementState.translateToXMLBuilder(collectionElementF2XO, buffy);
@@ -516,7 +515,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
 						FieldDescriptor nestedFD = childFD.isTagNameFromClassName() ?
-								 nestedES.classDescriptor.pseudoFieldDescriptor() : childFD;
+								 nestedES.classDescriptor().pseudoFieldDescriptor() : childFD;
 
 						nestedES.translateToXMLBuilder(nestedFD, buffy);
 						//buffy.append('\n');						
@@ -532,7 +531,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				{
 //					//TODO -- where do we get optimizations for nested namespace elements?
 //					FieldToXMLOptimizations nestedNsF2XO	=
-//						nestedNSE.classDescriptor.pseudoFieldDescriptor();
+//						nestedNSE.classDescriptor().pseudoFieldDescriptor();
 //					nestedNSE.translateToXMLBuilder(nestedNsF2XO, buffy);
 //				}
 //			}
@@ -585,7 +584,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		fieldDescriptor.writeElementStart(appendable);
 
 		//TODO -- namespace support
-//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
+//		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor().xmlnsAttributeOptimizations();
 //		int numXmlnsAttributes 			= (xmlnsF2XOs == null) ? 0 : xmlnsF2XOs.size();
 //		if (numXmlnsAttributes > 0)
 //		{
@@ -595,7 +594,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				xmlnsF2Xo.xmlnsAttr(appendable);
 //			}			
 //		}
-		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor.attributeFieldDescriptors();
+		ArrayList<FieldDescriptor> attributeFieldDescriptors	= classDescriptor().attributeFieldDescriptors();
 		int numAttributes 			= attributeFieldDescriptors.size();
 
 		if (numAttributes > 0)
@@ -615,7 +614,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 		}
 		//ArrayList<Field> elementFields		= optimizations.elementFields();
-		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor.elementFieldOptimizations();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldOptimizations();
 		int numElements						= elementFieldDescriptors.size();
 
 		//FIXME -- get rid of old textNode stuff. it doesnt even work
@@ -732,7 +731,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 
 								FieldDescriptor collectionElementFD				= childFD.isTagNameFromClassName() ?
 										// tag by class
-										collectionSubElementState.classDescriptor.pseudoFieldDescriptor() :
+										collectionSubElementState.classDescriptor().pseudoFieldDescriptor() :
 										childFD; // tag by annotation
 
 								collectionSubElementState.translateToXMLAppendable(collectionElementFD, appendable);
@@ -751,7 +750,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
 						FieldDescriptor nestedF2XO = childFD.isTagNameFromClassName() ?
-								nestedES.classDescriptor.pseudoFieldDescriptor() : childFD;
+								nestedES.classDescriptor().pseudoFieldDescriptor() : childFD;
 
 						nestedES.translateToXMLAppendable(nestedF2XO, appendable);
 					}
@@ -765,7 +764,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				{
 //					// translate nested namespace root
 //					FieldToXMLOptimizations nestedNsF2XO	=
-//						nestedNSE.classDescriptor.pseudoFieldDescriptor();
+//						nestedNSE.classDescriptor().pseudoFieldDescriptor();
 //					nestedNSE.translateToXMLAppendable(nestedNsF2XO, appendable);
 //				}
 //			}
@@ -803,7 +802,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			root.setAttributeNode(attr);
 			println("yo!");
 */
-			translateToDOM(classDescriptor.getDescribedClass(), classDescriptor.pseudoFieldDescriptor(), dom, dom);
+			translateToDOM(classDescriptor().getDescribedClass(), classDescriptor.pseudoFieldDescriptor(), dom, dom);
 		
 			return dom;
 		} catch (ParserConfigurationException e)
@@ -843,7 +842,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		this.preTranslationProcessingHook();
 		
 		Element elementNode;
-		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor.xmlnsAttributeOptimizations();
+		ArrayList<FieldToXMLOptimizations> xmlnsF2XOs	= classDescriptor().xmlnsAttributeOptimizations();
 		if (!fieldToXMLOptimizations.isXmlNsDecl())
 		{
 			String tagName 							= fieldToXMLOptimizations.tag();
@@ -894,7 +893,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}				
 		}
 		
-		ArrayList<FieldToXMLOptimizations> elementF2XOs	= classDescriptor.elementFieldOptimizations();
+		ArrayList<FieldToXMLOptimizations> elementF2XOs	= classDescriptor().elementFieldOptimizations();
 		int numElements						= elementF2XOs.size();
 
 		for (int i=0; i<numElements; i++)
@@ -1527,7 +1526,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
                
 				if (value != null)
 				{
-					FieldDescriptor njo	=	classDescriptor.getFieldDescriptorByTag(tag, translationSpace, this);
+					FieldDescriptor njo	=	classDescriptor().getFieldDescriptorByTag(tag, translationSpace, this);
 					switch (njo.getType())
 					{
 					case ATTRIBUTE:
@@ -1562,7 +1561,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 			else
 			{
-				TagDescriptor njo		= null; //FIXME -- deal w this! classDescriptor.elementNodeToJavaOptimizations(translationSpace, this, childNode);
+				TagDescriptor njo		= null; //FIXME -- deal w this! classDescriptor().elementNodeToJavaOptimizations(translationSpace, this, childNode);
 				TagDescriptor nsNJO	= njo.nestedPTE();
 				TagDescriptor	activeNJO;
 				ElementState	activeES;
@@ -1708,7 +1707,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			//TODO String attrType = getType()?!
 			if (value != null)
 			{
-				FieldDescriptor fd	= classDescriptor.getFieldDescriptorByTag(tag, translationSpace, context);
+				FieldDescriptor fd	= classDescriptor().getFieldDescriptorByTag(tag, translationSpace, context);
 
 				switch (fd.getType())
 				{
@@ -2517,9 +2516,16 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	/**
 	 * @return Returns the optimizations.
 	 */
-	protected ClassDescriptor classDescriptor()
+
+	public ClassDescriptor classDescriptor()
 	{
-		return classDescriptor;
+		ClassDescriptor result	= classDescriptor;
+		if (result == null)
+		{
+			result								= ClassDescriptor.getClassDescriptor(this);
+			this.classDescriptor	= result;
+		}
+		return result;
 	}
 	//FIXME -- update mechanism to support MetaMetadata!!!
 	public HashMapArrayList<String, FieldDescriptor> getChildFieldAccessors(Class<ElementState> child, Class<? extends FieldDescriptor> fieldAccessorClass)
@@ -2629,7 +2635,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	{
 		newChildES.elementByIdMap			= elementByIdMap;
 		newChildES.parent					= this;
-		ClassDescriptor parentOptimizations	= classDescriptor;
+		ClassDescriptor parentOptimizations	= classDescriptor();
 	//	ClassDescriptor childOptimizations 	= parentOptimizations.lookupChildOptimizations(newChildES);
 		newChildES.classDescriptor			= ClassDescriptor.getClassDescriptor(newChildES);
 //		childOptimizations.setParent(parentOptimizations);
@@ -2703,12 +2709,12 @@ implements FieldTypes, XMLTranslationExceptionTypes
  	 */
  	FieldDescriptor scalarTextChildFD()
  	{
- 		return classDescriptor.scalarTextFD();
+ 		return classDescriptor().scalarTextFD();
  	}
  	
  	public boolean hasScalarTextField()
  	{
- 		return classDescriptor.hasScalarTextField();
+ 		return classDescriptor().hasScalarTextField();
  	}
  	
 	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptors(Class<? extends FieldDescriptor> thatClass)

@@ -298,7 +298,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	
 	private ClassDescriptor currentClassDescriptor()
 	{
-		return this.currentElementState.classDescriptor;
+		return this.currentElementState.classDescriptor();
 	}
 	
 	/**
@@ -767,7 +767,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	private void registerXMLNS(ElementState context, String prefix, String urn)
 	{
 		if (context != null)
-			context.classDescriptor.mapNamespaceIdToClass(translationScope, prefix, urn);
+			context.classDescriptor().mapNamespaceIdToClass(translationScope, prefix, urn);
 		else
 			println("ERROR: Null context. Can't register xmlns:" + prefix + "=" + urn);
 	}

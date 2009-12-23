@@ -168,6 +168,7 @@ public class RssState extends ElementState
 			
 			System.out.println("");
 			rss.translateToXML(System.out);
+			System.out.println("");
 
 		}
 		catch (XMLTranslationException e)
@@ -229,11 +230,10 @@ public class RssState extends ElementState
 				}
 			}
 
-			println("\n");
-			
 			rssState.translateToXML(System.err);
 			println("\n");
 			rssState.writePrettyXML(System.err);
+			println("\n");
 			
 //			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
 //			rssState2.translateToXML(System.out);
