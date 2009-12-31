@@ -3,7 +3,7 @@ package ecologylab.services.authentication;
 /**
  * Constants for administrator levels. May be extended to include other levels.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public interface AuthLevels

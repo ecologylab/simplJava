@@ -509,8 +509,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		}
 		catch (BindException e)
 		{
-			debug("Couldnt create socket connection to server '" + serverAddress
-					+ "': " + e);
+			debug("Couldnt create socket connection to server - " + serverAddress+":"+portNumber
+					+ " - " + e);
 
 			nullOut();
 		}
@@ -677,13 +677,22 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 
 				if (responseMessage.getUid() == currentMessageUid)
 				{
-					debug("got the right response");
+					debug("got the right response: "+currentMessageUid);
 
 					blockingRequestPending = false;
 
 					blockingResponsesQueue.clear();
 
 					ResponseMessage respMsg = responseMessage.getMessage();
+					
+					try
+					{
+						debug("response: "+respMsg.translateToXML().toString());
+					}
+					catch (XMLTranslationException e)
+					{
+						e.printStackTrace();
+					}
 
 					responseMessage = responsePool.release(responseMessage);
 

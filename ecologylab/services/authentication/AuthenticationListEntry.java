@@ -13,30 +13,35 @@ import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.Mappable;
 
 /**
- * An entry for an AuthenticationList. Contains a username matched with a password (which is stored and checked as a
- * SHA-256 hash).
+ * An entry for an AuthenticationList. Contains a username matched with a password (which is stored
+ * and checked as a SHA-256 hash).
  * 
- * This class can be extended to include other pieces of information, such as real names and email addresses; if
- * desired.
+ * This class can be extended to include other pieces of information, such as real names and email
+ * addresses; if desired.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit class AuthenticationListEntry extends ElementState implements AuthLevels, Mappable<String>
+public @xml_inherit
+class AuthenticationListEntry extends ElementState implements AuthLevels, Mappable<String>
 {
-	private @xml_attribute String	username	= "";
+	private @xml_attribute
+	String	username	= "";
 
 	/**
-	 * Represents the password for this username. It is automatically converted to a hash when added via methods so it
-	 * should never be modified through any other way!
+	 * Represents the password for this username. It is automatically converted to a hash when added
+	 * via methods so it should never be modified through any other way!
 	 */
-	private @xml_attribute String	password	= "";
+	private @xml_attribute
+	String	password	= "";
 
 	/**
 	 * Represents the administrator level of the user.
 	 * 
-	 * 0 = normal user (NORMAL_USER) (Others can be added here as necessary.) 10 = administrator (ADMINISTRATOR)
+	 * 0 = normal user (NORMAL_USER) (Others can be added here as necessary.) 10 = administrator
+	 * (ADMINISTRATOR)
 	 */
-	private @xml_attribute int		level		= 0;
+	private @xml_attribute
+	int			level			= NORMAL_USER;
 
 	/**
 	 * No-argument constructor for serialization.
@@ -49,10 +54,10 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * Creates a new AuthenticationListEntry with the given username and password.
 	 * 
-	 * @param username -
-	 *           the name of the user.
-	 * @param plaintextPassword -
-	 *           the password; will be hashed before it is stored.
+	 * @param username
+	 *          - the name of the user.
+	 * @param plaintextPassword
+	 *          - the password; will be hashed before it is stored.
 	 */
 	public AuthenticationListEntry(String username, String plaintextPassword)
 	{
@@ -65,8 +70,8 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * Sets the username of the AuthenticationListEntry.
 	 * 
-	 * @param username -
-	 *           the username to set.
+	 * @param username
+	 *          - the username to set.
 	 */
 	public void setUsername(String username)
 	{
@@ -76,8 +81,8 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * Uses SHA-256 encryption to store the password passed to it.
 	 * 
-	 * @param plaintextPassword -
-	 *           the password to hash and store.
+	 * @param plaintextPassword
+	 *          - the password to hash and store.
 	 */
 	public void setAndHashPassword(String plaintextPassword)
 	{
@@ -85,11 +90,11 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	}
 
 	/**
-	 * Compares the given hashed password (such as the kind from the getPassword() method) to the one contained in this
-	 * object.
+	 * Compares the given hashed password (such as the kind from the getPassword() method) to the one
+	 * contained in this object.
 	 * 
-	 * @param hashedPassword -
-	 *           the password to check.
+	 * @param hashedPassword
+	 *          - the password to check.
 	 * @return true if the passwords are identical, false otherwise.
 	 */
 	public boolean compareHashedPassword(String hashedPassword)
@@ -98,10 +103,11 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	}
 
 	/**
-	 * Compares the given unhashed password against the one stored here by hashing it, then comparing it.
+	 * Compares the given unhashed password against the one stored here by hashing it, then comparing
+	 * it.
 	 * 
-	 * @param plaintextPassword -
-	 *           the unhashed password to check.
+	 * @param plaintextPassword
+	 *          - the unhashed password to check.
 	 * @return true if the passwords are identical, false otherwise.
 	 */
 	public boolean comparePassword(String plaintextPassword)
@@ -112,8 +118,8 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * Hashes the given password using SHA-256 and returns it as a String.
 	 * 
-	 * @param plaintextPassword -
-	 *           the password to hash.
+	 * @param plaintextPassword
+	 *          - the password to hash.
 	 * @return a password hashed using SHA-256.
 	 */
 	private static String hashPassword(String plaintextPassword)
@@ -157,7 +163,8 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * Returns hashCode() called on username.
 	 */
-	@Override public int hashCode()
+	@Override
+	public int hashCode()
 	{
 		return username.hashCode();
 	}
@@ -172,7 +179,7 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 
 	/**
 	 * @param level
-	 *           the level to set
+	 *          the level to set
 	 */
 	public void setLevel(int level)
 	{
@@ -182,7 +189,8 @@ public @xml_inherit class AuthenticationListEntry extends ElementState implement
 	/**
 	 * @see ecologylab.generic.Debug#toString()
 	 */
-	@Override public String toString()
+	@Override
+	public String toString()
 	{
 		return "AuthenticationListEntry: " + username;
 	}

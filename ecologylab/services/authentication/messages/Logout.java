@@ -47,7 +47,7 @@ import ecologylab.xml.xml_inherit;
 	 * Attempts to log the user specified by entry from the system; if they are
 	 * already logged in; if not, sends a failure response.
 	 */
-	@Override public ResponseMessage performService(Scope localScope)
+	@Override public LogoutStatusResponse performService(Scope localScope)
 	{
 		debug("*************************** LOGOUT " + this.entry.getUsername());
 		Authenticatable server = (Authenticatable) localScope

@@ -23,20 +23,19 @@ import ecologylab.xml.TranslationScope;
 /**
  * A client application that uses authentication and communicates using NIO.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
- * 
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 		AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
 	/** The username / password information supplied by the user. */
-	protected AuthenticationListEntry	entry			= null;
+	protected AuthenticationListEntry	entry				= null;
 
 	/** Indicates that this is logging in. */
-	private boolean							loggingIn	= false;
+	private boolean										loggingIn		= false;
 
 	/** Indicates that this is logging out. */
-	private boolean							loggingOut	= false;
+	private boolean										loggingOut	= false;
 
 	/**
 	 * Creates a new AuthClient object using the given parameters.
@@ -47,17 +46,14 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	 * @param objectRegistry
 	 * @throws IOException
 	 */
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
-			S objectRegistry, int interval, RequestMessage messageToSend)
-			throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, S objectRegistry,
+			int interval, RequestMessage messageToSend) throws IOException
 	{
-		this(server, port, messageSpace, objectRegistry, null, interval,
-				messageToSend);
+		this(server, port, messageSpace, objectRegistry, null, interval, messageToSend);
 	}
 
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
-			S objectRegistry, AuthenticationListEntry entry)
-			throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, S objectRegistry,
+			AuthenticationListEntry entry) throws IOException
 	{
 		this(server, port, messageSpace, objectRegistry, entry, 0, null);
 	}
@@ -72,12 +68,10 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	 * @param entry
 	 * @throws IOException
 	 */
-	public NIOAuthClient(String server, int port, TranslationScope messageSpace,
-			S objectRegistry, AuthenticationListEntry entry, int interval,
-			RequestMessage messageToSend) throws IOException
+	public NIOAuthClient(String server, int port, TranslationScope messageSpace, S objectRegistry,
+			AuthenticationListEntry entry, int interval, RequestMessage messageToSend) throws IOException
 	{
-		super(server, port, AuthenticationTranslations.get("AuthClient",
-				messageSpace), objectRegistry);
+		super(server, port, AuthenticationTranslations.get("AuthClient", messageSpace), objectRegistry);
 
 		objectRegistry.put(LOGIN_STATUS, new BooleanSlot(false));
 		objectRegistry.put(LOGIN_STATUS_STRING, null);
@@ -87,7 +81,7 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 
 	/**
 	 * @param entry
-	 *           The entry to set.
+	 *          The entry to set.
 	 */
 	public void setEntry(AuthenticationListEntry entry)
 	{
@@ -95,9 +89,8 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	}
 
 	/**
-	 * Attempts to connect to the server using the AuthenticationListEntry that
-	 * is associated with the client's side of the connection. Does not block for
-	 * connection.
+	 * Attempts to connect to the server using the AuthenticationListEntry that is associated with the
+	 * client's side of the connection. Does not block for connection.
 	 * 
 	 * @throws IOException
 	 * @throws MessageTooLargeException
@@ -111,6 +104,8 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 			loggingOut = false;
 			loggingIn = true;
 
+			debug("sending login message.");
+			
 			// Login response will handle changing the LOGIN_STATUS
 			sendLoginMessage();
 		}
@@ -128,10 +123,9 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	}
 
 	/**
-	 * Attempts to log out of the server using the AuthenticationListEntry that
-	 * is associated with the client's side of the connection. Blocks until a
-	 * response is received or until LOGIN_WAIT_TIME passes, whichever comes
-	 * first.
+	 * Attempts to log out of the server using the AuthenticationListEntry that is associated with the
+	 * client's side of the connection. Blocks until a response is received or until LOGIN_WAIT_TIME
+	 * passes, whichever comes first.
 	 * 
 	 * @throws IOException
 	 * @throws MessageTooLargeException
@@ -158,27 +152,25 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	}
 
 	/**
-	 * Sends a Logout message to the server; may be overridden by subclasses that
-	 * need to add addtional information to the Logout message.
+	 * Sends a Logout message to the server; may be overridden by subclasses that need to add
+	 * additional information to the Logout message.
 	 * 
 	 * @throws MessageTooLargeException
 	 * 
 	 */
-	protected ResponseMessage sendLogoutMessage() throws IOException,
-			MessageTooLargeException
+	protected ResponseMessage sendLogoutMessage() throws IOException, MessageTooLargeException
 	{
 		return this.sendMessage(new Logout(entry), 5000);
 	}
 
 	/**
-	 * Sends a Login message to the server; may be overridden by subclasses that
-	 * need to add addtional information to the Login message.
+	 * Sends a Login message to the server; may be overridden by subclasses that need to add
+	 * additional information to the Login message.
 	 * 
 	 * @throws MessageTooLargeException
 	 * 
 	 */
-	protected ResponseMessage sendLoginMessage() throws IOException,
-			MessageTooLargeException
+	protected ResponseMessage sendLoginMessage() throws IOException, MessageTooLargeException
 	{
 		ResponseMessage temp = this.sendMessage(new Login(entry), 5000);
 
@@ -202,8 +194,8 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	}
 
 	/**
-	 * @return The response message from the server regarding the last attempt to
-	 *         log in; if login fails, will indicate why.
+	 * @return The response message from the server regarding the last attempt to log in; if login
+	 *         fails, will indicate why.
 	 */
 	public String getExplanation()
 	{
@@ -231,7 +223,8 @@ public class NIOAuthClient<S extends Scope> extends NIOClient<S> implements
 	/**
 	 * @see ecologylab.services.distributed.client.NIOClient#handleDisconnectingMessages()
 	 */
-	@Override protected void handleDisconnectingMessages()
+	@Override
+	protected void handleDisconnectingMessages()
 	{
 		try
 		{

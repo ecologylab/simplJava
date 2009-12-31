@@ -12,11 +12,11 @@ import ecologylab.generic.Debug;
  * Encapsulates all authentication actions, so that Servers don't need to.
  * Requires a backend database of users with passwords (an AuthenticationList).
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class Authenticator<A extends AuthenticationListEntry> extends Debug
 {
-	protected AuthenticationList<A>	authList						= new AuthenticationList<A>();
+	protected AuthenticationList<A>	authList;
 
 	private HashMap<String, Object>	authedNameToSessionId	= new HashMap<String, Object>();
 
@@ -56,7 +56,8 @@ public class Authenticator<A extends AuthenticationListEntry> extends Debug
 		boolean loggedInSuccessfully = false;
 
 		// first see if the username exists
-		if (entry != null && authList.contains(entry.getUsername()))
+		// TODO removed the check if the username exists; isValid checks already
+		if (entry != null)
 		{
 			// check password
 			if (authList.isValid(entry))

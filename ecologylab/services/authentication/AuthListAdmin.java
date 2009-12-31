@@ -8,15 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import javax.xml.transform.stream.StreamResult;
-
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * This program allows users to create and modify AuthenticationList files so that they do not have to be stored as
- * plaintext.
+ * This program allows users to create and modify AuthenticationList files so that they do not have
+ * to be stored as plaintext.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
@@ -28,7 +26,8 @@ public class AuthListAdmin
 	 * @throws IOException
 	 * @throws XMLTranslationException
 	 */
-	public static void main(String[] args) throws IOException, SecurityException, XMLTranslationException
+	public static void main(String[] args) throws IOException, SecurityException,
+			XMLTranslationException
 	{
 		if (args.length < 1)
 		{
@@ -46,7 +45,7 @@ public class AuthListAdmin
 		boolean loggedIn = false;
 
 		// first we need to open up the authentcation list
-		AuthenticationList authList = null;
+		XMLAuthenticationList<AuthenticationListEntry> authList = null;
 
 		File xmlFile = new File(filename);
 
@@ -54,7 +53,8 @@ public class AuthListAdmin
 		{
 			try
 			{
-				authList = (AuthenticationList) ElementState.translateFromXML(xmlFile, AuthenticationTranslations.get());
+				authList = (XMLAuthenticationList<AuthenticationListEntry>) ElementState.translateFromXML(
+						xmlFile, AuthenticationTranslations.get());
 			}
 			catch (XMLTranslationException e)
 			{
@@ -104,7 +104,7 @@ public class AuthListAdmin
 
 			// now the file exists, because we'd have exited by now. We also
 			// don't yet have an authlist object
-			authList = new AuthenticationList();
+			authList = new XMLAuthenticationList<AuthenticationListEntry>();
 		}
 
 		if (authList != null)
@@ -128,7 +128,8 @@ public class AuthListAdmin
 				}
 				else if (username == null)
 				{
-					System.out.println("Please supply a username that will be an administrator user for this file:");
+					System.out
+							.println("Please supply a username that will be an administrator user for this file:");
 					username = br.readLine();
 				}
 

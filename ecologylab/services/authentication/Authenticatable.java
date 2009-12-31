@@ -3,7 +3,6 @@
  */
 package ecologylab.services.authentication;
 
-import java.net.InetAddress;
 
 /**
  * Indicates that the implementer can be logged-into and out-of.

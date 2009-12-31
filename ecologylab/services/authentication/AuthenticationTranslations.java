@@ -20,7 +20,8 @@ public class AuthenticationTranslations
 			ecologylab.services.authentication.messages.LoginStatusResponse.class,
 			ecologylab.services.authentication.messages.LogoutStatusResponse.class,
 			ecologylab.services.authentication.AuthenticationListEntry.class,
-			ecologylab.services.authentication.AuthenticationList.class };
+			ecologylab.services.authentication.EmailAuthenticationListEntry.class,
+			ecologylab.services.authentication.XMLAuthenticationList.class };
 
 	public static TranslationScope get()
 	{

@@ -8,6 +8,7 @@ import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
 import ecologylab.services.authentication.messages.AuthMessages;
+import ecologylab.services.authentication.messages.AuthenticationRequest;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
@@ -82,7 +83,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 		// if not logged in yet, make sure they log in first
 		if (!loggedIn || !this.authenticator.sessionValid(this.sessionId))
 		{
-			if (requestMessage instanceof Login)
+			if (requestMessage instanceof AuthenticationRequest)
 			{
 				// since this is a Login message, perform it.
 				response = super.performService(requestMessage);
@@ -97,7 +98,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 
 				// tell the server to log it
 				servicesServer.fireLoggingEvent(new AuthenticationOp(
-						((Login) requestMessage).getEntry().getUsername(), true,
+						((AuthenticationRequest) requestMessage).getEntry().getUsername(), true,
 						((ExplanationResponse) response).getExplanation(),
 						((SocketChannel) socketKey.channel()).socket()
 								.getInetAddress().toString(),
