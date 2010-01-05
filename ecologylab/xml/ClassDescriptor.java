@@ -587,7 +587,8 @@ implements FieldTypes, Mappable<String>
 		return tagName;
 	}
 	
-	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsByFieldName() {
+	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsByFieldName()
+	{
 		return fieldDescriptorsByFieldName;
 	}
 
