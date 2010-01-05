@@ -39,8 +39,10 @@ implements FieldTypes, Mappable<String>
 	@xml_attribute
 	private String																tagName;
 	
+	@xml_attribute
 	private String																decribedClassSimpleName;
 	
+	@xml_attribute
 	private String																describedClassPackageName;
 	
 //	@xml_attribute
@@ -71,6 +73,7 @@ implements FieldTypes, Mappable<String>
 	private HashMapArrayList<String, FieldDescriptor>	
 																							fieldDescriptorsByFieldName	= new HashMapArrayList<String, FieldDescriptor>();
 	
+
 	/**
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this map) for a single FieldDescriptor
 	 * if @xml_other_tags is used.
@@ -583,6 +586,11 @@ implements FieldTypes, Mappable<String>
 	{
 		return tagName;
 	}
+	
+	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsByFieldName() {
+		return fieldDescriptorsByFieldName;
+	}
+
 	
 	public static void main(String[] s)
 	{
