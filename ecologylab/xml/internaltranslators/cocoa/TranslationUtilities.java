@@ -1,9 +1,13 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
+import ecologylab.generic.HashMapArrayList;
+import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Utilities class to provide static helper methods and code logic used again
@@ -68,6 +72,10 @@ public class TranslationUtilities
       {
          return TranslationConstants.OBJC_URL;
       }
+      else if (ScalarType.class == type)
+      {
+         return TranslationConstants.OBJC_SCALAR_TYPE;
+      }
       else if (Date.class == type)
       {
          return TranslationConstants.OBJC_DATE;
@@ -79,6 +87,18 @@ public class TranslationUtilities
       else if (HashMap.class == type)
       {
          return TranslationConstants.OBJC_HASHMAP;
+      }
+      else if (HashMapArrayList.class == type)
+      {
+         return TranslationConstants.OBJC_HASHMAPARRAYLIST;
+      }
+      else if (Class.class == type)
+      {
+         return TranslationConstants.OBJC_CLASS;
+      }
+      else if (Field.class == type)
+      {
+         return TranslationConstants.OBJC_FIELD;
       }
       else
       {

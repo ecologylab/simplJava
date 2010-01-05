@@ -140,7 +140,10 @@ public class CocoaTranslator
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
    {
-      HashMapArrayList<String, FieldDescriptor> attributes = ClassDescriptor.getTheFieldDescriptors(inputClass);
+	  
+	  ClassDescriptor<?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
+	   
+      HashMapArrayList<String, FieldDescriptor> attributes = classDescriptor.getFieldDescriptorsByFieldName();
 
       openHeaderFile(inputClass, appendable);
 
@@ -537,7 +540,8 @@ public class CocoaTranslator
    public static void main(String args[]) throws Exception
    {
       CocoaTranslator c = new CocoaTranslator();
-      c.translateToObjCRecursive(CocoaInheritTest.class, new ParsedURL(new File("C:\\code\\")));
+      //c.translateToObjCRecursive(CocoaInheritTest.class, new ParsedURL(new File("C:\\code\\")));
+      c.translateToObjCRecursive(FieldDescriptor.class, System.out);
    }
 
    /**

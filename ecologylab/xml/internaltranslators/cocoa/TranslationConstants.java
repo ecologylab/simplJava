@@ -55,10 +55,15 @@ public class TranslationConstants
    public static final String OBJC_STRING_BUILDER = "NSMutableString";
    public static final String OBJC_URL = "NSURL";
    public static final String OBJC_PARSED_URL = "NSURL";
+   public static final String OBJC_SCALAR_TYPE = "NSScalarType";
+   public static final String OBJC_CLASS = "Class";
+   public static final String OBJC_FIELD = "Field";
    
    /*
     * Collection types
     */
    public static final String OBJC_ARRAYLIST = "NSMutableArray";
    public static final String OBJC_HASHMAP = "NSDictionary";
+   public static final String OBJC_HASHMAPARRAYLIST = "NSDictionaryList";
+   
 }
