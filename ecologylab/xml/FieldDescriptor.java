@@ -32,6 +32,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 {
 	public static final String			NULL						= ScalarType.DEFAULT_VALUE_STRING;
 
+	@xml_attribute
 	protected final Field						field;
 
 	@xml_attribute
@@ -1251,7 +1252,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				e.printStackTrace();
 			}	
 		}
-		else if (scalarType != null)
+		else if (scalarType != null && !scalarType.isMarshallOnly())
 		{
 			scalarType.setField(context, field, value, format, null);
 		}
@@ -1500,6 +1501,18 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public boolean isXmlNsDecl()
 	{
 		return false;
+	}
+	
+	/**
+	 * Used to describe scalar types used for serializing the type system, itself.
+	 * They cannot be unmarshalled in Java, only marshalled.
+	 * Code may be written to access their String representations in other languages.
+	 * 
+	 * @return	false for almost all ScalarTypes and for all element fields
+	 */
+	public boolean isMarshallOnly()
+	{
+		return scalarType != null && scalarType.isMarshallOnly();
 	}
 	
 }
