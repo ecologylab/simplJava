@@ -1526,13 +1526,13 @@ implements FieldTypes, XMLTranslationExceptionTypes
                
 				if (value != null)
 				{
-					FieldDescriptor njo	=	classDescriptor().getFieldDescriptorByTag(tag, translationSpace, this);
-					switch (njo.getType())
+					FieldDescriptor attrFD	=	classDescriptor().getFieldDescriptorByTag(tag, translationSpace, this);
+					switch (attrFD.getType())
 					{
 					case ATTRIBUTE:
-						njo.setFieldToScalar(this, value, null);
+						attrFD.setFieldToScalar(this, value, null);
 						// the value can become a unique id for looking up this
-						if ("id".equals(njo.getTagName()))
+						if ("id".equals(attrFD.getTagName()))
 							this.elementByIdMap.put(value, this);
 						break;
 					case XMLNS_ATTRIBUTE:
