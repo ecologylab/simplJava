@@ -34,6 +34,9 @@ public final class TranslationScope extends ElementState
     * a message and its constituents are defined for a messaging API.
     */
    private Scope<ClassDescriptor>	entriesByClassSimpleName	= new Scope<ClassDescriptor>();
+   
+   private Scope<ClassDescriptor>	entriesByClassName				= new Scope<ClassDescriptor>();
+   
    @xml_nowrap
    @xml_map("class_descriptor")
    private Scope<ClassDescriptor>	entriesByTag							= new Scope<ClassDescriptor>();
@@ -249,6 +252,7 @@ public final class TranslationScope extends ElementState
 	   {
 		   // copy map entries from inherited maps into new maps
 		   updateMapWithValues(inheritedTranslationScope.entriesByClassSimpleName, entriesByClassSimpleName, "classSimpleName");
+		   updateMapWithValues(inheritedTranslationScope.entriesByClassName, entriesByClassName, "className");
 		   updateMapWithValues(inheritedTranslationScope.entriesByTag, entriesByTag, "tagName");
 		   
 		   HashMap<String, Class<? extends ElementState>> inheritedNameSpaceClassesByURN = inheritedTranslationScope.nameSpaceClassesByURN;
@@ -321,6 +325,7 @@ public final class TranslationScope extends ElementState
   	 ClassDescriptor entry	= ClassDescriptor.getClassDescriptor(classObj);
   	 entriesByTag.put(entry.getTagName(), entry);
   	 entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
+  	 entriesByClassName.put(classObj.getName(), entry);
   	 
   	 String[] otherTags	= XMLTools.otherTags(entry.getDescribedClass());
   	 if (otherTags != null)
@@ -422,6 +427,13 @@ public final class TranslationScope extends ElementState
    public Class<? extends ElementState>  getClassBySimpleName(String classSimpleName)
    {
   	 ClassDescriptor entry		= entriesByClassSimpleName.get(classSimpleName);
+	   
+	   return (entry == null) ? null : entry.getDescribedClass();
+   }
+   
+   public Class<? extends ElementState>  getClassByName(String className)
+   {
+  	 ClassDescriptor entry		= entriesByClassName.get(className);
 	   
 	   return (entry == null) ? null : entry.getDescribedClass();
    }
@@ -689,7 +701,7 @@ public final class TranslationScope extends ElementState
 	   return result;	   
    }
 
-   protected HashMap<String, ClassDescriptor> entriesByClassName()
+   protected HashMap<String, ClassDescriptor> entriesByClassSimpleName()
    {
 	   return entriesByClassSimpleName;
    }
@@ -709,11 +721,15 @@ public final class TranslationScope extends ElementState
    }
    protected void generateImports(StringBuilder buffy)
    {
-  	 for (ClassDescriptor tEntry : entriesByClassSimpleName.values())
+//  	 for (ClassDescriptor tEntry : entriesByClassSimpleName.values())
+//  	 {
+//  		 buffy.append("import ").append(tEntry.getDescribedClassPackageName()).append('.')
+//  		 			.append(tEntry.getDecribedClassSimpleName()).append(";\n");
+//  	 } 	 
+  	 for (String className : entriesByClassName.keySet())
   	 {
-  		 buffy.append("import ").append(tEntry.getDescribedClassPackageName()).append('.')
-  		 			.append(tEntry.getDecribedClassSimpleName()).append(";\n");
-  	 } 	 
+  		 buffy.append("import ").append(className).append(";\n");
+  	 }
    }
 
    private Collection<ClassDescriptor>	classDescriptors;
@@ -765,4 +781,10 @@ public final class TranslationScope extends ElementState
   	 
    }
 
+   public static final String	BASIC_TRANSLATIONS	= "basic_translations";
+   
+   public TranslationScope getBasicTranslations()
+   {
+  	 return get(BASIC_TRANSLATIONS, TranslationScope.class, FieldDescriptor.class, ClassDescriptor.class);
+   }
 }
