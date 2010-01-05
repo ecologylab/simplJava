@@ -205,21 +205,22 @@ public abstract class ScalarType<T> extends Debug
     }
 
     /**
-     * The string representation for a Field of this type
-     * 
-     * Default implementation uses the Object's toString() method. This is usually going to be
-     * wrong.
+     * The string representation for a Field of this type.
+     * Reference scalar types should NOT override this.
+     * They should simply override marshall(instance), which this method calls.
+     * <p/>
+     * Primitive types cannot create such an instance, from the value of a field, and so must override.
      */
     public String toString(Field field, Object context)
     {
         String result = "COULDNT CONVERT!";
         try
         {
-            Object fieldObj = field.get(context);
-            if (fieldObj == null)
+            T instance = (T) field.get(context);
+            if (instance == null)
                 result = DEFAULT_VALUE_STRING;
             else
-                result = fieldObj.toString();
+                result = marshall(instance);
         }
         catch (Exception e)
         {
@@ -456,5 +457,17 @@ public abstract class ScalarType<T> extends Debug
 			fieldTypeName	= result;
 		}
 		return result;
+	}
+	
+	/**
+	 * Used to describe scalar types used for serializing the type system, itself.
+	 * They cannot be unmarshalled in Java, only marshalled.
+	 * Code may be written to access their String representations in other languages.
+	 * 
+	 * @return	false for almost all ScalarTypes
+	 */
+	public boolean isMarshallOnly()
+	{
+		return false;
 	}
 }
