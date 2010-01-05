@@ -33,6 +33,7 @@ implements FieldTypes, Mappable<String>
 	/**
 	 * Class object that we are describing.
 	 */
+	@xml_attribute
 	private Class<ES>															describedClass;
 	
 	@xml_attribute
@@ -42,8 +43,8 @@ implements FieldTypes, Mappable<String>
 	
 	private String																describedClassPackageName;
 	
-	@xml_attribute
-	private String																describedClassName;
+//	@xml_attribute
+//	private String																describedClassName;
 	
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
@@ -93,7 +94,7 @@ implements FieldTypes, Mappable<String>
 		this.describedClass						= thatClass;
 		this.decribedClassSimpleName	= thatClass.getSimpleName();
 		this.describedClassPackageName= thatClass.getPackage().getName(); 
-		this.describedClassName				= thatClass.getName(); 
+//		this.describedClassName				= thatClass.getName(); 
 		this.tagName									= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 	}
 	ClassDescriptor(String tag)
@@ -334,19 +335,19 @@ implements FieldTypes, Mappable<String>
 	 * <p/>
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 */
-	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass, Class<FieldDescriptor> fieldDecriptorClass)
+	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass, Class<FieldDescriptor> fieldDescriptorClass)
 	{
 		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
 			Class superClass	= thatClass.getSuperclass();
 			
-			if (fieldDecriptorClass == null)		
+			if (fieldDescriptorClass == null)		
 			{	// look for annotation in super class if subclass didn't have one
-				fieldDecriptorClass	= fieldDescriptorAnnotationValue(thatClass);
+				fieldDescriptorClass	= fieldDescriptorAnnotationValue(thatClass);
 			}
 
 			if (superClass != null)
-				deriveAndOrganizeFieldsRecursive(superClass, fieldDecriptorClass);
+				deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
 		}
 
 		
@@ -394,14 +395,21 @@ implements FieldTypes, Mappable<String>
 			else	// not an ecologylab.xml annotated field
 				continue;
 			
+			// create indexes for translateToXML
 			if (isElement)
 				elementFieldDescriptors.add(fieldDescriptor);
 			else
 				attributeFieldDescriptors.add(fieldDescriptor);
 			
+			
 			//TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
 			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
+			
+			if (fieldDescriptor.isMarshallOnly())
+				continue;	// not translated from XML, so don't add those mappings
+			
+			// create mappings for translateFromXML() --> allFieldDescriptorsByTagNames
 			if (!fieldDescriptor.isTagNameFromClassName())	// tag(s) from field, not from class :-)
 			{
 				String fieldTagName	= fieldDescriptor.getTagName();
