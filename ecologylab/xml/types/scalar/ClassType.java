@@ -9,12 +9,12 @@ import ecologylab.xml.ScalarUnmarshallingContext;
 import ecologylab.xml.TranslationScope;
 
 /**
+ * For marshalling Class objects themselves. Particularly useful in ports.
+ * 
  * @author andruid
- *
  */
 public class ClassType extends ReferenceType<Class>
 {
-
 	public ClassType()
 	{
 		super(Class.class);

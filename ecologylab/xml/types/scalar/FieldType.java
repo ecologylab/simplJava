@@ -9,8 +9,9 @@ import java.lang.reflect.Field;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
+ * For marshalling the name of a field, for transmission to other platforms.
+ * 
  * @author andruid
- *
  */
 public class FieldType extends ReferenceType<Field>
 {
