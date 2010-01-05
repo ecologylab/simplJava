@@ -13,7 +13,6 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.internaltranslators.cocoa.library.CocoaInheritTest;
 
 /**
  * This class is the main class which provides the functionality of translation
