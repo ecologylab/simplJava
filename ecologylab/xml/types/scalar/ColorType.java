@@ -49,24 +49,6 @@ public class ColorType extends ScalarType<Color>
 	   boolean hasAlpha = (argb >= 0x01000000);
 	   return new Color((int) argb, hasAlpha);
 	}
-/**
- * The string representation for a Field of this type
- */
-	@Override
-	public String toString(Field field, Object context)
-	{
-	   String result	= "COULDN'T CONVERT!";
-	   try
-	   {
-		  Color color	= (Color) field.get(context);
-		  // the api says "getRGB()", but they return getARGB()!
-		  result = marshall(color);
-	   } catch (Exception e)
-	   {
-		  e.printStackTrace();
-	   }
-	   return result;
-	}
 	
 	/**
 	 * Get a String representation of the instance, using this.
