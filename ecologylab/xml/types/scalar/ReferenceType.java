@@ -41,7 +41,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
     public void appendValue(T instance, Appendable buffy, boolean needsEscaping)
     throws IOException
     {
-		String instanceString	= instance.toString();
+		String instanceString	= marshall(instance); // andruid 1/4/10 instance.toString();
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instanceString);
 		else
