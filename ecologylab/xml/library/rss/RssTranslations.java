@@ -61,6 +61,7 @@ extends Debug
 	  		 TRANSLATIONS);
    }
    
+   public static final String OUT	= "<translation_scope name=\"rss\"><entries_by_tag><class_descriptor described_class=\"ecologylab.xml.library.rss.Item\" tag_name=\"item\" decribed_class_simple_name=\"Item\" described_class_package_name=\"ecologylab.xml.library.rss\"><field_descriptor field=\"title\" tag_name=\"title\" type=\"2\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"description\" tag_name=\"description\" type=\"2\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"link\" tag_name=\"link\" type=\"2\" scalar_type=\"ParsedURLType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"guid\" tag_name=\"guid\" type=\"2\" scalar_type=\"ParsedURLType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"author\" tag_name=\"author\" type=\"2\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"categorySet\" tag_name=\"category_set\" type=\"5\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor></class_descriptor><class_descriptor described_class=\"ecologylab.xml.library.rss.RssState\" tag_name=\"rss\" decribed_class_simple_name=\"RssState\" described_class_package_name=\"ecologylab.xml.library.rss\"><field_descriptor field=\"version\" tag_name=\"version\" type=\"1\" scalar_type=\"FloatType\"></field_descriptor><field_descriptor field=\"channel\" tag_name=\"channel\" type=\"3\"></field_descriptor></class_descriptor><class_descriptor described_class=\"ecologylab.xml.library.rss.Channel\" tag_name=\"channel\" decribed_class_simple_name=\"Channel\" described_class_package_name=\"ecologylab.xml.library.rss\"><field_descriptor field=\"title\" tag_name=\"title\" type=\"2\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"description\" tag_name=\"description\" type=\"2\" scalar_type=\"StringType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"link\" tag_name=\"link\" type=\"2\" scalar_type=\"ParsedURLType\" needs_escaping=\"true\"></field_descriptor><field_descriptor field=\"items\" tag_name=\"items\" type=\"4\"></field_descriptor></class_descriptor></entries_by_tag></translation_scope>";
 	
 	static final ParsedURL FLICKR_PURL	= ParsedURL.getAbsolute("http://www.flickr.com/services/feeds/photos_public.gne?format=rss_200&tags=freedom", "");
 
@@ -70,7 +71,15 @@ extends Debug
 		
 		try
 		{
-			tScope.translateToXML(System.out);
+			StringBuilder buffy	= new StringBuilder();
+			tScope.translateToXML(buffy);
+			System.out.println('\n');
+			
+			ElementState translated	= ElementState.translateFromXMLCharSequence(buffy, TranslationScope.getBasicTranslations());
+				//ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
+			
+			translated.translateToXML(System.out);
+			System.out.println('\n');
 		}
 		catch (XMLTranslationException e)
 		{
