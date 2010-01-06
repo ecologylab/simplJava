@@ -9,9 +9,11 @@ package ecologylab.xml.internaltranslators.cocoa;
 public class TranslationConstants
 {
    
-   public static final String HEADER_FILE_OPENING = "#import <objc/Object.h>";   
+   public static final String FOUNDATION_HEADER = "#import <Foundation/Foundation.h>";   
+   public static final String ECOLOGYLAB_HEADER = "#import \"ecologylabxml.h\"";
    public static final String INTERFACE = "@interface";
-   public static final String PROPERTY = "@property";
+   public static final String PROPERTY_PRIMITIVE = "@property (nonatomic,readwrite)";
+   public static final String PROPERTY_REFERENCE = "@property (nonatomic,readwrite, retain)";
    public static final String END = "@end";
    
    public static final String REFERENCE = "*";
@@ -57,7 +59,7 @@ public class TranslationConstants
    public static final String OBJC_PARSED_URL = "NSURL";
    public static final String OBJC_SCALAR_TYPE = "NSScalarType";
    public static final String OBJC_CLASS = "Class";
-   public static final String OBJC_FIELD = "Field";
+   public static final String OBJC_FIELD = "Ivar";
    
    /*
     * Collection types
@@ -65,5 +67,7 @@ public class TranslationConstants
    public static final String OBJC_ARRAYLIST = "NSMutableArray";
    public static final String OBJC_HASHMAP = "NSDictionary";
    public static final String OBJC_HASHMAPARRAYLIST = "NSDictionaryList";
+   public static final String OBJC_SCOPE = "NSScope";
+   
    
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.xml.types.scalar.ScalarType;
 
@@ -91,6 +92,10 @@ public class TranslationUtilities
       else if (HashMapArrayList.class == type)
       {
          return TranslationConstants.OBJC_HASHMAPARRAYLIST;
+      }
+      else if (Scope.class == type)
+      {
+         return TranslationConstants.OBJC_SCOPE;
       }
       else if (Class.class == type)
       {

@@ -12,6 +12,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ClassDescriptor;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
 
 /**
@@ -271,7 +272,9 @@ public class CocoaTranslator
     */
    private void openHeaderFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.HEADER_FILE_OPENING);
+      appendable.append(TranslationConstants.FOUNDATION_HEADER);
+      appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+      appendable.append(TranslationConstants.ECOLOGYLAB_HEADER);
       appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
       appendable.append(TranslationConstants.INTERFACE);
       appendable.append(TranslationConstants.SPACE);
@@ -494,11 +497,11 @@ public class CocoaTranslator
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 
-      propertyDeclaration.append(TranslationConstants.PROPERTY);
+      propertyDeclaration.append(TranslationConstants.PROPERTY_REFERENCE);
+      propertyDeclaration.append(TranslationConstants.SPACE);      
+      propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));      
       propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(TranslationConstants.REFERENCE);
-      propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));
-      propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(fieldAccessor.getFieldName());
       propertyDeclaration.append(TranslationConstants.TERMINATOR);
       propertyDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
@@ -519,7 +522,7 @@ public class CocoaTranslator
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 
-      propertyDeclaration.append(TranslationConstants.PROPERTY);
+      propertyDeclaration.append(TranslationConstants.PROPERTY_PRIMITIVE);
       propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));
       propertyDeclaration.append(TranslationConstants.SPACE);
