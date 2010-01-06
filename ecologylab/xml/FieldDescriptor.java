@@ -33,7 +33,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public static final String			NULL						= ScalarType.DEFAULT_VALUE_STRING;
 
 	@xml_attribute
-	protected final Field						field;
+	protected Field						field;
 
 	@xml_attribute
 	private String										tagName;
@@ -48,7 +48,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
-	protected final ClassDescriptor	declaringClassDescriptor;
+	protected ClassDescriptor	declaringClassDescriptor;
 
 	@xml_attribute
 	private int												type;
@@ -104,6 +104,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private ClassDescriptor					elementClassDescriptor;
 
+	
+	/**
+	 * Default constructor only for use by translateFromXML().
+	 */
+	public FieldDescriptor()
+	{
+		super();
+	}
+	
 	/**
 	 * Constructor for the pseudo-FieldDescriptor associated with each ClassDesctiptor, for
 	 * translateToXML of fields that deriveTagFromClass.

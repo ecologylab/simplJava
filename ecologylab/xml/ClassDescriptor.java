@@ -90,7 +90,12 @@ implements FieldTypes, Mappable<String>
 	
 //private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
 
-	
+	/**
+	 * Default constructor only for use by translateFromXML().
+	 */	public ClassDescriptor()
+	{
+		super();
+	}
 	private ClassDescriptor(Class<ES> thatClass)
 	{
 		super();

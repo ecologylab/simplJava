@@ -19,7 +19,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
 public final class TranslationScope extends ElementState
 {
 	@xml_attribute
-   private final String			name;
+   private /* final */ String			name;
    
    private TranslationScope[]	inheritedTranslationScopes;
    
@@ -37,7 +37,7 @@ public final class TranslationScope extends ElementState
    
    private Scope<ClassDescriptor>	entriesByClassName				= new Scope<ClassDescriptor>();
    
-   //@xml_nowrap
+   @xml_nowrap
    @xml_map("class_descriptor")
    private Scope<ClassDescriptor>	entriesByTag							= new Scope<ClassDescriptor>();
    
@@ -47,6 +47,13 @@ public final class TranslationScope extends ElementState
       
    public static final String STATE														= "State";
    
+   /**
+    * Default constructor only for use by translateFromXML().
+    */
+   public TranslationScope()
+   {
+	   
+   }
    /**
     * Building block called by other constructors for most basic
     * name registration functionality.
