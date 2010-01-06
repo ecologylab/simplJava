@@ -46,9 +46,9 @@ public class ClassType extends ReferenceType<Class>
 			{
 				result				= Class.forName(value);
 			}
-			catch (ClassNotFoundException e)
+			catch (Throwable e)
 			{
-				e.printStackTrace();
+				warning(": Can't find class " + value + " so not translated");
 			}
 		return result;
 	}
