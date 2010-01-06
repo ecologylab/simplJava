@@ -37,7 +37,7 @@ public final class TranslationScope extends ElementState
    
    private Scope<ClassDescriptor>	entriesByClassName				= new Scope<ClassDescriptor>();
    
-   @xml_nowrap
+   //@xml_nowrap
    @xml_map("class_descriptor")
    private Scope<ClassDescriptor>	entriesByTag							= new Scope<ClassDescriptor>();
    
@@ -783,7 +783,7 @@ public final class TranslationScope extends ElementState
 
    public static final String	BASIC_TRANSLATIONS	= "basic_translations";
    
-   public TranslationScope getBasicTranslations()
+   public static TranslationScope getBasicTranslations()
    {
   	 return get(BASIC_TRANSLATIONS, TranslationScope.class, FieldDescriptor.class, ClassDescriptor.class);
    }
