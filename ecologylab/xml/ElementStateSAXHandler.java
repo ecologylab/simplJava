@@ -480,7 +480,8 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		if (xmlTranslationException != null)
 			return;
 		
-		final int curentFdType = currentFD.getType();
+		final FieldDescriptor currentFD	= this.currentFD;
+		final int curentFdType 					= currentFD.getType();
 		
 		if (curentFdType == NAMESPACE_TRIAL_ELEMENT)
 		{
@@ -489,17 +490,16 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			// if not, we will have to set currentFdType = NAMESPACE_IGNORED_ELEMENT
 		}
 		
-		ElementState currentES		= this.currentElementState;
+		ElementState currentES					= this.currentElementState;
 		processPendingTextScalar(curentFdType, currentES);
 		
-		final ElementState parentES					= currentES.parent;
-		final FieldDescriptor currentFD	= this.currentFD;
+		final ElementState parentES			= currentES.parent;
 
 		switch (curentFdType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			final Object key 				= ((Mappable) currentES).key();
-			Map map							= currentFD.getMap(parentES);
+			final Object key 							= ((Mappable) currentES).key();
+			Map map												= currentFD.getMap(parentES);
 			map.put(key, currentES);
 		case NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
@@ -509,11 +509,11 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			else
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
-			this.currentElementState		= currentES.parent;
+			this.currentElementState			= currentES.parent;
 		case NAME_SPACE_LEAF_NODE:
 		case AWFUL_OLD_NESTED_ELEMENT:
 //		case WRAPPER:
-			this.currentElementState		= parentES;	// restore context!
+			this.currentElementState			= parentES;	// restore context!
 			break;
 		default:
 			break;
