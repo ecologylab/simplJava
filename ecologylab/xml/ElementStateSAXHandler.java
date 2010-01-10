@@ -362,6 +362,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			activeFieldDescriptor	= (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
 				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
 				FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR :
+				(currentType == WRAPPER) ? currentFD.getWrappedFD() :
 				currentClassDescriptor.getFieldDescriptorByTag(tagName, translationScope, currentES);
 			if (activeFieldDescriptor == null)
 			{
@@ -399,7 +400,6 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			case NAME_SPACE_LEAF_NODE:
 				//TODO Name Space support!
 //				childES							= currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
-				
 				break;
 			case LEAF:
 				// wait for characters to set scalar field
@@ -433,6 +433,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			case IGNORED_ELEMENT:
 				// should get a set of Optimizations for this, to represent its subfields
 			case BAD_FIELD:
+			case WRAPPER:
 			default:
 				break;
 
@@ -473,28 +474,28 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	 *
 	 * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void endElement(String arg0, String arg1, String arg2)
+	public void endElement(String namespaceURI, String localTagName, String prefixedTagName)
 			throws SAXException
 	{
 		if (xmlTranslationException != null)
 			return;
 		
-		final int curentN2JOType = currentFD.getType();
+		final int curentFdType = currentFD.getType();
 		
-		if (curentN2JOType == NAMESPACE_TRIAL_ELEMENT)
+		if (curentFdType == NAMESPACE_TRIAL_ELEMENT)
 		{
 			// re-attempt lookup in case we figured out how
 			
-			// if not, we will have to set curentN2JOType = NAMESPACE_IGNORED_ELEMENT
+			// if not, we will have to set currentFdType = NAMESPACE_IGNORED_ELEMENT
 		}
 		
 		ElementState currentES		= this.currentElementState;
-		processPendingTextScalar(curentN2JOType, currentES);
+		processPendingTextScalar(curentFdType, currentES);
 		
 		final ElementState parentES					= currentES.parent;
 		final FieldDescriptor currentFD	= this.currentFD;
 
-		switch (curentN2JOType)	// every good push deserves a pop :-) (and othertimes, not!)
+		switch (curentFdType)	// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
 			final Object key 				= ((Mappable) currentES).key();
@@ -511,6 +512,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			this.currentElementState		= currentES.parent;
 		case NAME_SPACE_LEAF_NODE:
 		case AWFUL_OLD_NESTED_ELEMENT:
+//		case WRAPPER:
 			this.currentElementState		= parentES;	// restore context!
 			break;
 		default:
