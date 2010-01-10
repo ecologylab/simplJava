@@ -426,7 +426,8 @@ implements FieldTypes, Mappable<String>
 				{
 					if (fieldDescriptor.isWrapped())
 					{
-						allFieldDescriptorsByTagNames.put(fieldTagName, fieldDescriptor);
+						FieldDescriptor wrapper	= new FieldDescriptor(this, fieldDescriptor, fieldTagName);
+						allFieldDescriptorsByTagNames.put(fieldTagName, wrapper);
 						//TODO -- how do we keep state inside here to translateFromXML() the collection elements?
 					}
 					else
@@ -439,12 +440,14 @@ implements FieldTypes, Mappable<String>
 				String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
 				if (otherTags != null)
 				{
+					//TODO -- @xml_other_tags for collection/map how should it work?!
 					for (String otherTag : otherTags)
 						allFieldDescriptorsByTagNames.put(otherTag, fieldDescriptor);
 				}
 			}
 			else
-			{	// add mappings by class tagNames
+			{	// add mappings by class tagNames for polymorphic elements & collections
+				//TODO add support for wrapped polymorphic collections!
 				for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
 				{
 					FieldDescriptor pseudoFieldDescriptor	= classDescriptor.pseudoFieldDescriptor();
