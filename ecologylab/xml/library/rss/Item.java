@@ -33,6 +33,15 @@ public class Item extends ElementState
    @xml_nowrap
    @xml_collection("category") ArrayList<String>	categorySet;
    
+   public Item()
+   {
+  	 super();
+   }
+   public Item(String title)
+   {
+  	 super();
+  	 this.title	= title;
+   }
    /**
     * @return Returns the author.
     */

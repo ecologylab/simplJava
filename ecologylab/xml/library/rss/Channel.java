@@ -15,7 +15,7 @@ import ecologylab.xml.types.element.ArrayListState;
  *
  * @author andruid
  */
-public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
+public @xml_inherit class Channel extends ElementState
 {
    @xml_leaf	String			title;
    @xml_leaf	String			description;
@@ -25,7 +25,7 @@ public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
    @xml_leaf	ParsedURL		link;
    
    @xml_nowrap
-   @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
+   @xml_collection("item") ArrayList<Item> items;
    
    /**
     * @return Returns the description.
@@ -70,23 +70,24 @@ public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
 	{
 		this.link = link;
 	}
-	/*
+
 	public ArrayList<Item> getItems()
 	{
 		return items;
 	}
-	public void setItems(ArrayList<Item> items)
+
+	public void add(Item item)
 	{
-		this.items = items;
+		if (items == null)
+			items	= new ArrayList<Item>();
+		items.add(item);
 	}
-	*/
-//	@Override
-//	protected Collection<? extends ElementState> getCollection(Class thatClass)
-//	{
-//		return items;
-//	}
 
 	public static void main(String[] s)
+	{
+		testTranslateTo();
+	}
+	private static void testTranslateTo() 
 	{
 		Channel c	= new Channel();
 		Item i1		= new Item();
@@ -104,6 +105,7 @@ public @xml_inherit class Channel extends ElementState // ArrayListState<Item>
 		try
 		{
 			c.translateToXML(System.out);
+			System.out.println('\n');
 //			println(c.translateToXML());
 		} catch (XMLTranslationException e)
 		{
