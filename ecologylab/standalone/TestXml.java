@@ -19,14 +19,9 @@ public class TestXml extends ElementState
 	@xml_nowrap 
 	@xml_collection("vendor")	ArrayList<String> set	= new ArrayList<String>();
 	
-	@xml_collection("foo bar")	String fooBar;
+	@xml_attribute				String fooBar;
 	
-	static final Class[] TRANSLATIONS	=
-	{
-		TestXml.class, 
-	};
-	
-	static final TranslationScope TS	= TranslationScope.get("testing123", TRANSLATIONS);
+	static final TranslationScope TS	= TranslationScope.get("testing123", TestXml.class);
 	/**
 	 * 
 	 */
@@ -36,7 +31,7 @@ public class TestXml extends ElementState
 
 	}
 
-    static final String STUFF = "<test_xml><vendor>Garmin</vendor><vendor>Amazon</vendor></test_xml>";
+    static final String STUFF = "<test_xml foo_bar=\"baz\"><vendor>Garmin</vendor><vendor>Amazon</vendor></test_xml>";
     public static void main(String[] a)
     {
     	try
