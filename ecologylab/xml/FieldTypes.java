@@ -50,14 +50,16 @@ public interface FieldTypes
 	 */
 	public static final int	AWFUL_OLD_NESTED_ELEMENT	= 99;
 	
-	public static final int	XMLNS_ATTRIBUTE			= 0x0a;	
 	
-	public static final int	XMLNS_IGNORED			= 0x0b;	
-	
-	
+	public static final int	WRAPPER					= 0x0a;	
+
 	public static final int	TEXT_NODE_VALUE			= 0x0c;	
 
 	public static final int	PSEUDO_FIELD_DESCRIPTOR	= 0x0d;
+	
+	public static final int	XMLNS_ATTRIBUTE			= 0x0e;	
+	
+	public static final int	XMLNS_IGNORED			= 0x0f;	
 	
 	public static final int NAME_SPACE_MASK			= 0x10;
 	
