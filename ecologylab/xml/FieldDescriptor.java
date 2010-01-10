@@ -69,6 +69,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	@xml_attribute
 	private boolean									needsEscaping;
+	
+	/**
+	 * The FieldDescriptor for the field in a wrap.
+	 */
+	private FieldDescriptor									wrappedFD;
 
 	/**
 	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
@@ -128,6 +133,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		this.scalarType = null;
 	}
 
+	public FieldDescriptor(ClassDescriptor baseClassDescriptor, FieldDescriptor wrappedFD, String wrapperTag)
+	{
+		this.declaringClassDescriptor = baseClassDescriptor;
+		this.wrappedFD	= wrappedFD;
+		this.type		= WRAPPER;
+		this.tagName	= wrapperTag;
+	}
 	/**
 	 * This is the normal constructor.
 	 * 
@@ -211,7 +223,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private void initTagClassDescriptorsArrayList(int initialSize)
 	{
-		if (tagClassDescriptors != null)
+		if (tagClassDescriptors == null)
 			tagClassDescriptors = new ArrayList<ClassDescriptor>(initialSize);
 	}
 
@@ -1154,7 +1166,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public String toString()
 	{
-		return "FieldDescriptor[" + field.getName() + " < " + declaringClassDescriptor.getDescribedClass() + " type=" + type + "]";
+		String name = (field != null) ? field.getName() : "NO_FIELD";
+		return "FieldDescriptor[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=" + type + "]";
 	}
 
 	public ArrayList<ClassDescriptor> getTagClassDescriptors()
@@ -1524,4 +1537,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return scalarType != null && scalarType.isMarshallOnly();
 	}
 	
+
+	public FieldDescriptor getWrappedFD() 
+	{
+		return wrappedFD;
+	}
 }
