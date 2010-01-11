@@ -104,8 +104,12 @@ public @xml_inherit class Channel extends ElementState
 		c.items.add(i2);
 		try
 		{
-			c.translateToXML(System.out);
+			StringBuilder buffy	= new StringBuilder();
+			c.translateToXML(buffy);
+			System.out.println(buffy);
 			System.out.println('\n');
+			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslations.get());
+			c2.translateToXML(System.out);
 //			println(c.translateToXML());
 		} catch (XMLTranslationException e)
 		{
