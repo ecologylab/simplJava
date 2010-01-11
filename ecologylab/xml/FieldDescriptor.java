@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Document;
@@ -18,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -35,6 +37,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@xml_attribute
 	protected Field						field;
 
+	/**
+	 * The tag name that this field is translated to XML with.
+	 * For polymorphic fields, the value of this field is meaningless, except for wrapped collections and maps.
+	 */
 	@xml_attribute
 	private String										tagName;
 	
@@ -85,7 +91,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * contains an array of the legal classes, which will be bound to this field during
 	 * translateFromXML().
 	 */
-	private ArrayList<ClassDescriptor>			tagClassDescriptors;
+	private HashMapArrayList<String, ClassDescriptor>			tagClassDescriptors;
 
 /**
  * 
@@ -156,7 +162,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		deriveTagClassDescriptors(field);
 		
-		if (!deriveTagFromClass())
+//		if (!isPolymorphic())
 			this.tagName = XMLTools.getXmlTagName(field);	// uses field name or @xml_tag declaration
 
 		// TODO XmlNs
@@ -202,7 +208,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
 				initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
 				for (ClassDescriptor classDescriptor : scopeClassDescriptors)
-					tagClassDescriptors.add(classDescriptor);
+					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
 			}
 		}
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
@@ -210,12 +216,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			initTagClassDescriptorsArrayList(classesAnnotation.length);
 			for (Class thatClass : classesAnnotation)
 				if (ElementState.class.isAssignableFrom(thatClass))
-					tagClassDescriptors.add(ClassDescriptor.getClassDescriptor(thatClass));
+				{
+					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+				}
 		}
 		if (classAnnotation != null)
 		{
 			initTagClassDescriptorsArrayList(1);
-			tagClassDescriptors.add(ClassDescriptor.getClassDescriptor(classAnnotation));
+			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(classAnnotation);
+			tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
 		}
 		return tagClassDescriptors != null;
 	}
@@ -224,7 +234,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	private void initTagClassDescriptorsArrayList(int initialSize)
 	{
 		if (tagClassDescriptors == null)
-			tagClassDescriptors = new ArrayList<ClassDescriptor>(initialSize);
+			tagClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
 	}
 
 	/**
@@ -294,7 +304,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		case NESTED_ELEMENT:
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
 				result				= IGNORED_ELEMENT;
-			else if (!deriveTagFromClass())
+			else if (!isPolymorphic())
 			{
 				elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
 				tagName = XMLTools.getXmlTagName(field);
@@ -305,11 +315,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (!checkAssignableFrom(Collection.class, field, fieldClass, "@xml_collection"))
 					return IGNORED_ELEMENT;
 
-				if (!deriveTagFromClass())
+				if (!isPolymorphic())
 				{
 					Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for Collection<FooState>
 
-					if (collectionTag == null)
+					if (collectionTag == null || collectionTag.isEmpty())
 					{
 						warning("In " + declaringClassDescriptor.getDescribedClass()
 								+ "\n\tCan't translate  @xml_collection() " + field.getName()
@@ -331,6 +341,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 						scalarType	= deriveCollectionScalar(collectionElementClass, field);
 					}
 				}
+				else
+				{
+					if (collectionTag != null && !collectionTag.isEmpty())
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tIgnoring argument to  @xml_collection() " + field.getName()
+								+ " because it is declared polymorphic with @xml_classes.");
+					}
+				}
 				collectionOrMapTagName = collectionTag;
 				break;
 		case MAP_ELEMENT:
@@ -338,11 +357,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			if (!checkAssignableFrom(Map.class, field, fieldClass, "@xml_map"))
 					return IGNORED_ELEMENT;
 
-				if (!deriveTagFromClass())
+				if (!isPolymorphic())
 				{
 					Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
 					
-					if (mapTag == null)
+					if (mapTag == null || mapTag.isEmpty())
 					{
 						warning("In " + declaringClassDescriptor.getDescribedClass()
 								+ "\n\tCan't translate  @xml_map() " + field.getName()
@@ -365,6 +384,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					{
 						result = MAP_SCALAR;		//TODO -- do we really support this case??
 						scalarType	= deriveCollectionScalar(mapElementClass, field);
+					}
+				}
+				else
+				{
+					if (mapTag != null && !mapTag.isEmpty())
+					{
+						warning("In " + declaringClassDescriptor.getDescribedClass()
+								+ "\n\tIgnoring argument to  @xml_map() " + field.getName()
+								+ " because it is declared polymorphic with @xml_classes.");
 					}
 				}
 			break;
@@ -653,8 +681,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	/**
-	 * 
-	 * @return The XML tag name of the field.
+	 * NB: For polymorphic fields, the value of this field is meaningless, 
+	 * except for wrapped collections and maps.
+	 *
+	 * @return 	 The tag name that this field is translated to XML with.
 	 */
 	public String getTagName()
 	{
@@ -764,18 +794,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			ReflectionTools.setFieldValue(context, field, result);
 		}
 		return result;
-	}
-
-	/**
-	 * Most fields derive their tag from Field name for marshaling. However, some, such as those
-	 * annotated with @xml_class, @xml_classes, @xml_scope, derive their tag from the class of an
-	 * instance. This includes all polymorphic fields.
-	 * 
-	 * @return true if tag is not derived from field name, but from the class of an instance.
-	 */
-	public boolean deriveTagFromClass()
-	{
-		return tagClassDescriptors != null;
 	}
 
 	public boolean isWrapped()
@@ -1167,12 +1185,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
-		return "FieldDescriptor[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=" + type + "]";
+		return "FieldDescriptor[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type) + "]";
 	}
 
-	public ArrayList<ClassDescriptor> getTagClassDescriptors()
+	public Collection<ClassDescriptor> getTagClassDescriptors()
 	{
-		return tagClassDescriptors;
+		return tagClassDescriptors.values();
 	}
 
 	public void writeElementStart(StringBuilder buffy) 
@@ -1445,17 +1463,23 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * Look-up Optimizations for it, using the parent's Optimizations as the scope.
 	 *
 	 * @param parent
+	 * @param tagName TODO
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-		ElementState constructChildElementState(ElementState parent)
+		ElementState constructChildElementState(ElementState parent, String tagName)
 		throws XMLTranslationException
 		{
-			Class<ElementState> describedClass	= elementClassDescriptor.describedClass();
-			ElementState childElementState			= XMLTools.getInstance(describedClass);
-			parent.setupChildElementState(childElementState);
-			
-			return childElementState;
+			ClassDescriptor childClassDescriptor= !isPolymorphic() ?
+				elementClassDescriptor : tagClassDescriptors.get(tagName);
+			ElementState result			= null;
+			if (childClassDescriptor != null)
+			{
+				result								= childClassDescriptor.getInstance();
+				if (result != null)
+					parent.setupChildElementState(result);
+			}
+			return result;
 		}
 		
 		void setFieldToNestedObject(ElementState context, Object nestedObject) 
@@ -1499,6 +1523,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return isCollection() ? collectionOrMapTagName : tagName;
 	}
 	/**
+	 * Most fields derive their tag from Field name for marshaling. However, some, such as those
+	 * annotated with @xml_class, @xml_classes, @xml_scope, derive their tag from the class of an
+	 * instance. This includes all polymorphic fields.
 	 * 
 	 * @return	true if the tag name name is derived from the class name (
 	 * not the usual case, but needed for polymorphism).
@@ -1506,7 +1533,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * else if the tag name is derived from the class name for @xml_nested
 	 * or, for @xml_collection and @xml_map), the tag name is derived from the annotation's value
 	 */
-	public boolean isTagNameFromClassName()
+	public boolean isPolymorphic()
 	{
 		return tagClassDescriptors != null;
 	}
