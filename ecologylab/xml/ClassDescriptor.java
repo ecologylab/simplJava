@@ -418,23 +418,17 @@ implements FieldTypes, Mappable<String>
 				continue;	// not translated from XML, so don't add those mappings
 			
 			// create mappings for translateFromXML() --> allFieldDescriptorsByTagNames
-			if (!fieldDescriptor.isTagNameFromClassName())	// tag(s) from field, not from class :-)
+			final String fieldTagName	= fieldDescriptor.getTagName();
+			if (fieldDescriptor.isWrapped())
 			{
-				String fieldTagName	= fieldDescriptor.getTagName();
-				//TODO -- handle @xml_wrapped collections & maps
-				if (fieldDescriptor.isCollection())
-				{
-					if (fieldDescriptor.isWrapped())
-					{
-						FieldDescriptor wrapper	= new FieldDescriptor(this, fieldDescriptor, fieldTagName);
-						allFieldDescriptorsByTagNames.put(fieldTagName, wrapper);
-						//TODO -- how do we keep state inside here to translateFromXML() the collection elements?
-					}
-					else
-						allFieldDescriptorsByTagNames.put(fieldDescriptor.getCollectionOrMapTagName(), fieldDescriptor);
-				}
-				else // not collection
-					allFieldDescriptorsByTagNames.put(fieldTagName, fieldDescriptor);
+				FieldDescriptor wrapper	= new FieldDescriptor(this, fieldDescriptor, fieldTagName);
+				mapTagToFdForTranslateFrom(fieldTagName, wrapper);
+			}
+			else if (!fieldDescriptor.isPolymorphic())	// tag(s) from field, not from class :-)
+			{
+				String tag	= fieldDescriptor.isCollection() ? fieldDescriptor.getCollectionOrMapTagName() : fieldTagName;
+				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
+
 				// also add mappings for @xml_other_tags
 				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
 				String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
@@ -442,7 +436,7 @@ implements FieldTypes, Mappable<String>
 				{
 					//TODO -- @xml_other_tags for collection/map how should it work?!
 					for (String otherTag : otherTags)
-						allFieldDescriptorsByTagNames.put(otherTag, fieldDescriptor);
+						mapTagToFdForTranslateFrom(otherTag, fieldDescriptor);
 				}
 			}
 			else
@@ -450,12 +444,23 @@ implements FieldTypes, Mappable<String>
 				//TODO add support for wrapped polymorphic collections!
 				for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
 				{
-					FieldDescriptor pseudoFieldDescriptor	= classDescriptor.pseudoFieldDescriptor();
-					fieldDescriptorsByFieldName.put(classDescriptor.tagName, pseudoFieldDescriptor);
+						mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
 				}
 			}
 			thatField.setAccessible(true);	// else -- ignore non-annotated fields
 		}	// end for all fields
+	}
+	/**
+	 * Map the tag to the FieldDescriptor for use in translateFromXML() for elements of this class type.
+	 * 
+	 * @param tagName
+	 * @param fdToMap
+	 */
+	private void mapTagToFdForTranslateFrom(String tagName, FieldDescriptor fdToMap)
+	{
+		FieldDescriptor previousMapping	= allFieldDescriptorsByTagNames.put(tagName, fdToMap);
+		if (previousMapping != null)
+			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field[" + previousMapping.getFieldName() + "]");
 	}
 
 	/**
@@ -484,7 +489,7 @@ implements FieldTypes, Mappable<String>
 		//FIXME is tag determined by field by class?
 		String tagName	= fieldDescriptor.getTagName();
 		if (tagName != null)
-			allFieldDescriptorsByTagNames.put(tagName, fieldDescriptor);
+			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
 	}
 
 
@@ -557,9 +562,11 @@ implements FieldTypes, Mappable<String>
 		return scalarTextFD != null;
 	}
 
-	public Class<? extends ElementState> getDescribedClass() {
+	public Class<ES> getDescribedClass()
+	{
 		return describedClass;
 	}
+
 /**
  * 
  * @return	true if this is an empty entry, for a tag that we do not parse. No class is associated with such an entry.
