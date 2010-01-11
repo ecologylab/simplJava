@@ -495,11 +495,11 @@ implements FieldTypes, XMLTranslationExceptionTypes
 								//TODO -- changed by andruid 7/21/08 -- not sure if this breaks anything else, but it seems correct,
 								// and it fixes @xml_text output
 
-								FieldDescriptor collectionElementF2XO				= childFD.isTagNameFromClassName() ?
+								FieldDescriptor collectionElementFD				= childFD.isPolymorphic() ?
 										collectionSubElementState.classDescriptor().pseudoFieldDescriptor() :
 										childFD;
 								
-								collectionSubElementState.translateToXMLBuilder(collectionElementF2XO, buffy);
+								collectionSubElementState.translateToXMLBuilder(collectionElementFD, buffy);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -514,7 +514,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldDescriptor nestedFD = childFD.isTagNameFromClassName() ?
+						FieldDescriptor nestedFD = childFD.isPolymorphic() ?
 								 nestedES.classDescriptor().pseudoFieldDescriptor() : childFD;
 
 						nestedES.translateToXMLBuilder(nestedFD, buffy);
@@ -729,7 +729,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 								ElementState collectionSubElementState = (ElementState) next;
 								final Class<? extends ElementState> collectionElementClass 	= collectionSubElementState.getClass();
 
-								FieldDescriptor collectionElementFD				= childFD.isTagNameFromClassName() ?
+								FieldDescriptor collectionElementFD				= childFD.isPolymorphic() ?
 										// tag by class
 										collectionSubElementState.classDescriptor().pseudoFieldDescriptor() :
 										childFD; // tag by annotation
@@ -749,7 +749,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 						// then use the field name to determine the XML tag name.
 						// if the field object is an instance of a subclass that extends the declared type of the
 						// field, use the instance's type to determine the XML tag name.
-						FieldDescriptor nestedF2XO = childFD.isTagNameFromClassName() ?
+						FieldDescriptor nestedF2XO = childFD.isPolymorphic() ?
 								nestedES.classDescriptor().pseudoFieldDescriptor() : childFD;
 
 						nestedES.translateToXMLAppendable(nestedF2XO, appendable);
