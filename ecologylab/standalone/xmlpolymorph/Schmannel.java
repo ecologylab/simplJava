@@ -17,15 +17,15 @@ import ecologylab.xml.library.rss.RssTranslations;
  * @author andruid
  *
  */
-public class Schmannel extends Channel
+public class Schmannel extends ElementState
 {
   private static final TranslationScope	
-  TRANSLATION_SPACE	= TranslationScope.get("schm_rss",RssTranslations.get(), Schmannel.class, SchmItem.class);
+  TRANSLATION_SPACE	= TranslationScope.get("schm_rss", RssTranslations.get(), Schmannel.class, SchmItem.class);
 
   @xml_classes({Item.class, SchmItem.class})
-  @xml_collection("item") ArrayList<Item> schmItems;
+  @xml_collection ArrayList<Item> schmItems;
 
-  @xml_classes({Item.class, SchmItem.class})
+  @xml_classes({BItem.class})
   @xml_nested 							Item 						polyItem;
   
 	/**
@@ -48,16 +48,23 @@ public class Schmannel extends Channel
 	{
 		Item item	= new Item("t2ec");
 		Item schmItem	= new SchmItem("cf");
+		Item nested	= new BItem("nested");
 		
 		Schmannel schmannel	= new Schmannel();
-		schmannel.polyItem	= schmItem;
+		
+		schmannel.polyItem	= nested;
 		
 		schmannel.polyAdd(item);
 		schmannel.polyAdd(schmItem);
 		
 		try
 		{
-			schmannel.translateToXML(System.out);
+			StringBuilder buffy	= new StringBuilder();
+			schmannel.translateToXML(buffy);
+			System.out.println(buffy);
+			System.out.println('\n');
+			ElementState s2	= ElementState.translateFromXMLCharSequence(buffy, TRANSLATION_SPACE);
+			s2.translateToXML(System.out);
 		}
 		catch (XMLTranslationException e)
 		{
