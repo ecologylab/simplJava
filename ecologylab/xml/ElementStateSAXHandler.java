@@ -388,7 +388,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			switch (activeFieldDescriptor.getType())
 			{
 			case NESTED_ELEMENT:
-				childES							= activeFieldDescriptor.constructChildElementState(currentElementState);
+				childES							= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
 				break;
 			case NAME_SPACE_NESTED_ELEMENT:
@@ -409,7 +409,7 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				Collection collection			= (Collection) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					childES						= activeFieldDescriptor.constructChildElementState(currentElementState);
+					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 					collection.add(childES);
 				}
 				//activeNJO.formElementAndAddToCollection(activeES, childNode);
@@ -422,11 +422,11 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				Map map							= activeFieldDescriptor.getMap(currentElementState);
 				if (map != null)
 				{
-					childES						= activeFieldDescriptor.constructChildElementState(currentElementState);
+					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				}
 				break;
 			case AWFUL_OLD_NESTED_ELEMENT:
-				childES							= activeFieldDescriptor.constructChildElementState(currentElementState);
+				childES							= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				if (childES != null)
 					currentElementState.addNestedElement(childES);
 				break;
