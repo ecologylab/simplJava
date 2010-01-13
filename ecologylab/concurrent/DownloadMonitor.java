@@ -304,6 +304,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		Thread downloadThread = Thread.currentThread();
 		while (!finished) // major sleep at the bottom
 		{
+			// keep track if local file to avoid wait
+			boolean isLocalFile						= false;
+			
 			DownloadClosure thatClosure = null;	// define out here to use outside of synchronized
 			synchronized (toDownload)
 			{
@@ -358,8 +361,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						}
 						else if (!thatClosure.cancel())
 						{
-							// Site-less downloadables						
-								break;
+							// Site-less downloadables	
+							isLocalFile = thatClosure.downloadable.purl().isFile();
+							break;
 						}
 						closureNum++;
 					}	// end while
@@ -445,7 +449,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				}
 			}
 
-			int sleepTime = dontWait ? NO_SLEEP
+			int sleepTime = dontWait || isLocalFile ? NO_SLEEP
 											: (lowMemory ? LOW_MEMORY_SLEEP 
 											: (hurry ? SHORT_SLEEP
 											: (REGULAR_SLEEP + MathTools.random(100))));
