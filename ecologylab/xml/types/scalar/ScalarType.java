@@ -158,7 +158,7 @@ public abstract class ScalarType<T> extends Debug
      */
 	protected void setFieldError(Field field, String value, Exception e)
 	{
-		error("Got " + e + " while trying to set field " + field + " to " + value);
+		error(" Got " + e + " while trying to set field " + field + " to " + value);
 	}
 
     /**

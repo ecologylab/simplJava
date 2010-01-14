@@ -24,7 +24,7 @@ public @xml_inherit class HttpRequest extends RequestMessage
 	protected @xml_attribute ParsedURL errorResponseUrl;
 
 	@Override
-	public ResponseMessage performService(Scope objectRegistry) 
+	public ResponseMessage performService(Scope scope) 
 	{
 		return OkResponse.get();
 	}
