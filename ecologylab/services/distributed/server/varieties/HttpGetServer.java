@@ -15,7 +15,7 @@ import ecologylab.services.distributed.server.clientsessionmanager.HTTPGetClient
 import ecologylab.xml.TranslationScope;
 
 /**
- * @author toupsz
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class HttpGetServer extends DoubleThreadedNIOServer
@@ -31,8 +31,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
+			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
 		super(portNumber, inetAddresses, requestTranslationSpace, objectRegistry,
@@ -50,19 +49,18 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	 * @throws BindException
 	 */
 	public HttpGetServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace,
-			Scope objectRegistry, int idleConnectionTimeout,
+			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
 			int maxPacketSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry,
-				idleConnectionTimeout, maxPacketSize);
+		super(portNumber, inetAddress, requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+				maxPacketSize);
 	}
 
-	@Override protected AbstractClientSessionManager generateContextManager(
-			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
-			Scope registryIn)
+	@Override
+	protected AbstractClientSessionManager generateContextManager(String token, SelectionKey sk,
+			TranslationScope translationSpaceIn, Scope registryIn)
 	{
-		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(),
-				this, sk, translationSpaceIn, registryIn);
+		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,
+				translationSpaceIn, registryIn);
 	}
 }

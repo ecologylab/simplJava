@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.authentication.db.AuthenticationDBStrings;
 
 /**
  * Abstracts access to a database as a list of AuthenticationEntry's. Raw passwords are never
@@ -34,26 +35,14 @@ import ecologylab.generic.Debug;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class DBAuthenticationList extends Debug implements
-		AuthenticationList<EmailAuthenticationListEntry>
+public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> extends Debug implements
+		AuthenticationList<E>, AuthenticationDBStrings
 {
 	/** Database connection. */
-	Connection										dBC							= null;
+	private Connection						dBC																= null;
 
 	/** Database connection string; combines URL, username, and password. */
-	String												dBConnectString	= null;
-
-	protected static final String	TABLE_USER			= "user";
-
-	protected static final String	COL_UID					= "uid";
-
-	protected static final String	COL_EMAIL				= "email";
-
-	protected static final String	COL_PASSWORD		= "password";
-
-	protected static final String	COL_NAME				= "name";
-
-	protected static final String	COL_LEVEL				= "level";
+	private String								dBConnectString										= null;
 
 	/**
 	 * Creates a new AuthenticationList based on a connection to a MySQL database. Lazily instantiates
@@ -66,7 +55,7 @@ public class DBAuthenticationList extends Debug implements
 	 * @param password
 	 *          password for database.
 	 */
-	public DBAuthenticationList(String dbLocation, String username, String password, String db)
+	public AuthenticationListDBImpl(String dbLocation, String username, String password, String db)
 	{
 		super();
 
@@ -80,7 +69,7 @@ public class DBAuthenticationList extends Debug implements
 				+ password;
 	}
 
-	private Connection connection() throws SQLException
+	protected Connection connection() throws SQLException
 	{
 		if (dBC == null)
 		{
@@ -108,7 +97,7 @@ public class DBAuthenticationList extends Debug implements
 	/**
 	 * Adds the given entry to this.
 	 */
-	public synchronized boolean add(EmailAuthenticationListEntry entry)
+	public synchronized boolean addEntry(E entry)
 	{
 		if (!this.contains(entry.getEmail()))
 		{
@@ -131,28 +120,20 @@ public class DBAuthenticationList extends Debug implements
 	 */
 	protected synchronized void addUser(String email, String password, String name)
 	{
-		String selectUser = "INSERT INTO "
-				+ TABLE_USER
-				+ " ("
-				+ COL_EMAIL
-				+ ", "
-				+ COL_PASSWORD
-				+ ", "
-				+ COL_NAME
-				+ ") VALUES ('"
+		String insertUser = INSERT_USER_PREFIX
 				+ email
-				+ "', '"
+				+ LIST_SEPARATOR_STRING_TYPE
 				+ password
-				+ "', '"
+				+ LIST_SEPARATOR_STRING_TYPE
 				+ name
-				+ "');";
+				+ STATEMENT_END_STRING_PAREN;
 
 		Statement stmt = null;
 
 		try
 		{
 			stmt = connection().createStatement();
-			stmt.execute(selectUser);
+			stmt.execute(insertUser);
 		}
 		catch (SQLException e)
 		{
@@ -184,26 +165,20 @@ public class DBAuthenticationList extends Debug implements
 	 */
 	public synchronized boolean contains(String email)
 	{
-		String selectUser = "SELECT COUNT(*) FROM "
-				+ TABLE_USER
-				+ " WHERE "
-				+ COL_EMAIL
-				+ " = '"
-				+ email
-				+ "';";
+		String selectUser = SELECT_USER_COUNT_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
 
 		Statement stmt = null;
 		ResultSet rs = null;
 		boolean userExists = false;
 
 		debug(selectUser);
-		
+
 		try
 		{
 			stmt = connection().createStatement();
 			rs = stmt.executeQuery(selectUser);
 			rs.next();
-			
+
 			userExists = rs.getInt(1) > 0;
 		}
 		catch (SQLException e)
@@ -241,8 +216,8 @@ public class DBAuthenticationList extends Debug implements
 			}
 		}
 
-		debug("user exists? "+userExists);
-		
+		debug("user exists? " + userExists);
+
 		return userExists;
 	}
 
@@ -264,7 +239,7 @@ public class DBAuthenticationList extends Debug implements
 	 * @param entry
 	 * @return
 	 */
-	public synchronized boolean contains(EmailAuthenticationListEntry entry)
+	public synchronized boolean contains(E entry)
 	{
 		return this.contains(entry.getEmail());
 	}
@@ -275,21 +250,13 @@ public class DBAuthenticationList extends Debug implements
 	 * @param entry
 	 * @return
 	 */
-	public synchronized int getAccessLevel(EmailAuthenticationListEntry entry)
+	public synchronized int getAccessLevel(E entry)
 	{
 		String email = entry.getEmail();
 
 		if (this.contains(email))
 		{
-			String selectUser = "SELECT "
-					+ COL_LEVEL
-					+ " FROM "
-					+ TABLE_USER
-					+ " WHERE "
-					+ COL_EMAIL
-					+ " = '"
-					+ email
-					+ "';";
+			String selectUser = SELECT_USER_LEVEL_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
 
 			Statement stmt = null;
 			ResultSet rs = null;
@@ -300,7 +267,7 @@ public class DBAuthenticationList extends Debug implements
 				stmt = connection().createStatement();
 				rs = stmt.executeQuery(selectUser);
 				rs.next();
-				
+
 				level = rs.getInt(COL_LEVEL);
 			}
 			catch (SQLException e)
@@ -351,7 +318,7 @@ public class DBAuthenticationList extends Debug implements
 	 * @param entry
 	 * @return
 	 */
-	public synchronized boolean isValid(EmailAuthenticationListEntry entry)
+	public synchronized boolean isValid(E entry)
 	{
 		return (this.contains(entry.getEmail()) && entry.getPassword() != null && entry
 				.compareHashedPassword(this.retrievePassword(entry.getEmail())));
@@ -365,15 +332,9 @@ public class DBAuthenticationList extends Debug implements
 	 */
 	private String retrievePassword(String email)
 	{
-		String selectUser = "SELECT "
-				+ COL_PASSWORD
-				+ " FROM "
-				+ TABLE_USER
-				+ " WHERE "
-				+ COL_EMAIL
-				+ " = '"
-				+ email
-				+ "';";
+		String selectUser = SELECT_USER_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
+
+		// debug("MySQL statement: "+selectUser);
 
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -384,7 +345,7 @@ public class DBAuthenticationList extends Debug implements
 			stmt = connection().createStatement();
 			rs = stmt.executeQuery(selectUser);
 			rs.next();
-			
+
 			password = rs.getString(COL_PASSWORD);
 		}
 		catch (SQLException e)
@@ -435,17 +396,13 @@ public class DBAuthenticationList extends Debug implements
 	 * @param entry
 	 *          the AuthenticationListEntry (username / password) to attempt to remove.
 	 */
-	public synchronized boolean remove(EmailAuthenticationListEntry entry)
+	public synchronized boolean remove(E entry)
 	{
 		if (this.isValid(entry))
 		{
-			String deleteUser = "DELETE FROM "
-					+ TABLE_USER
-					+ " WHERE "
-					+ COL_EMAIL
-					+ " = '"
+			String deleteUser = DELETE_USER_BY_EMAIL_PREFIX
 					+ entry.getEmail()
-					+ "');";
+					+ STATEMENT_END_STRING_PAREN;
 
 			Statement stmt = null;
 

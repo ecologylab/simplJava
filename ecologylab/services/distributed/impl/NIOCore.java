@@ -26,7 +26,7 @@ import ecologylab.services.exceptions.ClientOfflineException;
  * 
  * Subclasses are required to configure their own selector.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public abstract class NIOCore extends Debug implements StartAndStoppable, NetworkingConstants
@@ -388,7 +388,6 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 			}
 		}
 
-		
 	}
 
 	public synchronized void stop()

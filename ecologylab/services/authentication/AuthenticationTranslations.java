@@ -21,7 +21,7 @@ public class AuthenticationTranslations
 			ecologylab.services.authentication.messages.LogoutStatusResponse.class,
 			ecologylab.services.authentication.AuthenticationListEntry.class,
 			ecologylab.services.authentication.EmailAuthenticationListEntry.class,
-			ecologylab.services.authentication.XMLAuthenticationList.class };
+			ecologylab.services.authentication.AuthenticationListXMLImpl.class };
 
 	public static TranslationScope get()
 	{

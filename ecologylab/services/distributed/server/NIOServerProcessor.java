@@ -57,6 +57,6 @@ public interface NIOServerProcessor extends StartAndStoppable
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
-	public boolean restoreContextManagerFromSessionId(Object oldId,
+	public boolean restoreContextManagerFromSessionId(String oldId,
 			AbstractClientSessionManager newContextManager);
 }

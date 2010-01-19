@@ -22,7 +22,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * On a server, there will be one ContextManager for each client connection.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class ClientSessionManager extends AbstractClientSessionManager implements ServerConstants
 {
@@ -37,7 +37,7 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public ClientSessionManager(Object sessionId, int maxPacketSize, NIOServerIOThread server,
+	public ClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
 			Scope<?> registry)
 	{
@@ -102,9 +102,8 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	 *          TODO
 	 */
 	@Override
-	protected void createHeader(int messageSize,
-			StringBuilder outgoingMessageHeaderBuf, RequestMessage incomingRequest,
-			ResponseMessage outgoingResponse, long uid)
+	protected void createHeader(int messageSize, StringBuilder outgoingMessageHeaderBuf,
+			RequestMessage incomingRequest, ResponseMessage outgoingResponse, long uid)
 	{
 		outgoingMessageHeaderBuf.append(messageSize);
 		outgoingMessageHeaderBuf.append(HTTP_HEADER_LINE_DELIMITER);

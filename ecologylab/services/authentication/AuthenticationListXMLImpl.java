@@ -21,13 +21,13 @@ import ecologylab.xml.types.element.HashMapState;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class XMLAuthenticationList<E extends AuthenticationListEntry> extends
+public class AuthenticationListXMLImpl<E extends AuthenticationListEntry> extends
 		ElementState implements AuthenticationList<E>
 {
 	@xml_nested private HashMapState<String, E>	authList	= new HashMapState<String, E>();
 
 	/** No-argument constructor for XML translation. */
-	public XMLAuthenticationList()
+	public AuthenticationListXMLImpl()
 	{
 		super();
 	}
@@ -35,7 +35,7 @@ public class XMLAuthenticationList<E extends AuthenticationListEntry> extends
 	/**
 	 * Adds the given entry to this.
 	 */
-	public synchronized boolean add(E entry)
+	public synchronized boolean addEntry(E entry)
 	{
 		if (!this.authList.containsKey(entry.getUsername()))
 		{

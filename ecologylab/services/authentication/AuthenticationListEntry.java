@@ -6,8 +6,7 @@ package ecologylab.services.authentication;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import sun.misc.BASE64Encoder;
-
+import lib.Base64Coder;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.types.element.Mappable;
@@ -131,7 +130,7 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 			encrypter.update(plaintextPassword.getBytes());
 
 			// convert to normal characters and return as a String
-			return new String((new BASE64Encoder()).encode(encrypter.digest()));
+			return new String(Base64Coder.encode(encrypter.digest()));
 
 		}
 		catch (NoSuchAlgorithmException e)

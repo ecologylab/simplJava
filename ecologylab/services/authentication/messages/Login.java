@@ -90,7 +90,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 			{
 				loginConfirm.setExplanation(LOGIN_FAILED_NO_IP_SUPPLIED);
 			}
-			else if (authenticatable.isLoggedIn(entry.getUsername()))
+			else if (authenticatable.isLoggedIn(entry))
 			{
 				loginConfirm.setExplanation(LOGIN_FAILED_LOGGEDIN);
 			}

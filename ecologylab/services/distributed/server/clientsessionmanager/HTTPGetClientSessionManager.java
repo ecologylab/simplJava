@@ -17,15 +17,14 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * A ContextManager for handling HTTP Get requests. Can be used to respond to
- * browser requests.
+ * A ContextManager for handling HTTP Get requests. Can be used to respond to browser requests.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class HTTPGetClientSessionManager extends HTTPClientSessionManager
 {
-	static final String	HTTP_PREPEND			= "GET /";
+	static final String	HTTP_PREPEND				= "GET /";
 
 	static final int		HTTP_PREPEND_LENGTH	= HTTP_PREPEND.length();
 
@@ -36,29 +35,27 @@ public class HTTPGetClientSessionManager extends HTTPClientSessionManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public HTTPGetClientSessionManager(Object token, int maxPacketSize,
-			NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socketKey, TranslationScope translationSpace,
+	public HTTPGetClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
+			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
 			Scope<?> registry)
 	{
-		super(token, maxPacketSize, server, frontend, socketKey,
-				translationSpace, registry);
-		
+		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
+
 		this.initialized = true;
 	}
 
 	/**
-	 * This method only handles HttpGetRequest messages; it will report an error
-	 * for any non-HttpGetRequest. Otherwise, it will not add anything to the
-	 * msgBufOutgoing, as HttpGetRequests should only have a header and no
-	 * contnents
+	 * This method only handles HttpGetRequest messages; it will report an error for any
+	 * non-HttpGetRequest. Otherwise, it will not add anything to the msgBufOutgoing, as
+	 * HttpGetRequests should only have a header and no contnents
 	 * 
 	 * @see ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager#translateResponseMessageToString(ecologylab.services.messages.RequestMessage,
 	 *      ecologylab.services.messages.ResponseMessage)
 	 */
-	@Override protected void translateResponseMessageToStringBufferContents(
-			RequestMessage requestMessage, ResponseMessage responseMessage,
-			StringBuilder outgoingMessageBuf) throws XMLTranslationException
+	@Override
+	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
+			ResponseMessage responseMessage, StringBuilder outgoingMessageBuf)
+			throws XMLTranslationException
 	{
 		if (!(requestMessage instanceof HttpGetRequest))
 		{
@@ -67,18 +64,18 @@ public class HTTPGetClientSessionManager extends HTTPClientSessionManager
 	}
 
 	/**
-	 * This client manager operates primarily on HTTP header data, as it is
-	 * unlikely that a GET request will contain an actual RequestMessage.
+	 * This client manager operates primarily on HTTP header data, as it is unlikely that a GET
+	 * request will contain an actual RequestMessage.
 	 * 
 	 * @throws UnsupportedEncodingException
 	 * @see ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager#translateStringToRequestMessage(java.lang.String)
 	 */
-	@Override protected RequestMessage translateStringToRequestMessage(
-			CharSequence messageSequence) throws XMLTranslationException,
-			UnsupportedEncodingException
+	@Override
+	protected RequestMessage translateStringToRequestMessage(CharSequence messageSequence)
+			throws XMLTranslationException, UnsupportedEncodingException
 	{
 		String messageString = messageSequence.toString();
-		
+
 		if (messageString.startsWith(HTTP_PREPEND))
 		{
 			int endIndex = messageString.lastIndexOf(HTTP_APPEND);

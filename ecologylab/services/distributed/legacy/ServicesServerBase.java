@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 
-import sun.misc.BASE64Encoder;
+import lib.Base64Coder;
 import ecologylab.collections.Scope;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.Manager;
@@ -118,7 +118,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
         dispensedTokens++;
 
         // convert to normal characters and return as a String
-        return new String((new BASE64Encoder()).encode(digester.digest()));
+        return new String(Base64Coder.encode(digester.digest()));
     }
 
     /**

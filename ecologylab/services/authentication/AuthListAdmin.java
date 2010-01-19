@@ -45,7 +45,7 @@ public class AuthListAdmin
 		boolean loggedIn = false;
 
 		// first we need to open up the authentcation list
-		XMLAuthenticationList<AuthenticationListEntry> authList = null;
+		AuthenticationListXMLImpl<AuthenticationListEntry> authList = null;
 
 		File xmlFile = new File(filename);
 
@@ -53,7 +53,7 @@ public class AuthListAdmin
 		{
 			try
 			{
-				authList = (XMLAuthenticationList<AuthenticationListEntry>) ElementState.translateFromXML(
+				authList = (AuthenticationListXMLImpl<AuthenticationListEntry>) ElementState.translateFromXML(
 						xmlFile, AuthenticationTranslations.get());
 			}
 			catch (XMLTranslationException e)
@@ -104,7 +104,7 @@ public class AuthListAdmin
 
 			// now the file exists, because we'd have exited by now. We also
 			// don't yet have an authlist object
-			authList = new XMLAuthenticationList<AuthenticationListEntry>();
+			authList = new AuthenticationListXMLImpl<AuthenticationListEntry>();
 		}
 
 		if (authList != null)
@@ -171,7 +171,7 @@ public class AuthListAdmin
 
 					userEntry.setLevel(AuthLevels.ADMINISTRATOR);
 
-					authList.add(userEntry);
+					authList.addEntry(userEntry);
 				}
 			}
 
@@ -221,7 +221,7 @@ public class AuthListAdmin
 					{
 						System.out.println("adding user: " + newUser);
 
-						authList.add(new AuthenticationListEntry(newUser, password));
+						authList.addEntry(new AuthenticationListEntry(newUser, password));
 					}
 				}
 				else

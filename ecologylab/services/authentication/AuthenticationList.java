@@ -3,31 +3,33 @@
  */
 package ecologylab.services.authentication;
 
-
 /**
- * Represents a list of usernames and passwords used to authenticate with a service.
+ * Represents a list of usernames and passwords used to authenticate with a service. Subclasses may
+ * use another key than "username", but the effect is still a String to hashed String matching for
+ * authentication.
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public interface AuthenticationList<E extends AuthenticationListEntry>
+public interface AuthenticationList<A extends AuthenticationListEntry>
 {
 	/**
-	 * Adds the given entry to this.
+	 * Adds a new entry to the AuthenticationList, if the entry's key does not otherwise exist.
+	 * Multiple users with the same username are not allowed.
+	 * 
+	 * @return true if the user was successfully added; false otherwise.
 	 */
-	public boolean add(E entry);
+	public boolean addEntry(A entry);
 
 	/**
-	 * Checks to see if this contains the username given in entry; returns true
-	 * if it does.
+	 * Checks to see if this contains the username given in entry; returns true if it does.
 	 * 
 	 * @param entry
 	 * @return
 	 */
-	public boolean contains(E entry);
+	public boolean contains(A entry);
 
 	/**
-	 * Checks to see if this contains the given username; returns true if it
-	 * does.
+	 * Checks to see if this contains the given username; returns true if it does.
 	 * 
 	 * @param username
 	 * @return
@@ -40,34 +42,29 @@ public interface AuthenticationList<E extends AuthenticationListEntry>
 	 * @param entry
 	 * @return
 	 */
-	public int getAccessLevel(E entry);
+	public int getAccessLevel(A entry);
 
 	/**
-	 * Checks entry against the entries contained in this. Verifies that the
-	 * username exists, and the password matches; returns true if both are true.
+	 * Checks entry against the entries contained in this. Verifies that the username exists, and the
+	 * password matches; returns true if both are true.
 	 * 
 	 * @param entry
-	 * @return
+	 * @return true if the entry is valid (username and password match those on file).
 	 */
-	public boolean isValid(E entry);
+	public boolean isValid(A entry);
 
 	/**
-	 * Attempts to remove the given object; this will succeed if and only if the
-	 * following are true:
-	 * 
-	 * 1.) the Object is of type AuthenticationListEntry 2.) this list contains
-	 * the AuthenticationListEntry 3.) the AuthenticationListEntry's username and
-	 * password both match the one in this list
+	 * Attempts to remove the given object; this will succeed if and only if the entry's username and
+	 * password match those on file.
 	 * 
 	 * @param entry
-	 *           the AuthenticationListEntry (username / password) to attempt to
-	 *           remove.
+	 *          the AuthenticationListEntry (username / password) to attempt to remove.
+	 * @return true if the entry was removed from the AuthenticationList.
 	 */
-	public boolean remove(E entry);
+	public boolean remove(A entry);
 
 	/**
-	 * Returns a String indicating the number of entries in the
-	 * AuthenticationList.
+	 * Returns a String indicating the number of entries in the AuthenticationList.
 	 */
 	public String toString();
 }

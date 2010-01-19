@@ -44,6 +44,7 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.SendableRequest;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -323,7 +324,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @throws XMLTranslationException
 	 */
 	protected PreppedRequest prepareAndEnqueueRequestForSending(
-			RequestMessage request) throws XMLTranslationException,
+			SendableRequest request) throws XMLTranslationException,
 			MessageTooLargeException
 	{
 		long uid = this.generateUid();
@@ -608,7 +609,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @return
 	 * @throws MessageTooLargeException
 	 */
-	public synchronized ResponseMessage sendMessage(RequestMessage request,
+	public synchronized ResponseMessage sendMessage(SendableRequest request,
 			int timeOutMillis) throws MessageTooLargeException
 	{
 		MessageWithMetadata<ResponseMessage, Object> responseMessage = null;

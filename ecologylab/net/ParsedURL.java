@@ -1384,12 +1384,6 @@ public class ParsedURL extends Debug implements MimeType
 				connection.setConnectTimeout(connectionTimeout);
 				connection.setReadTimeout(readTimeout);
 
-				/*
-				 * //TODO include more structure instead of this total hack! if
-				 * ("nytimes.com".equals(this.domain())) { String auth = new
-				 * sun.misc.BASE64Encoder().encode("fred66:fred66".getBytes());
-				 * connection.setRequestProperty("Authorization", auth); }
-				 */
 				connection.getContentLength();
 				String mimeType = connection.getContentType();
 
