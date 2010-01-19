@@ -156,19 +156,51 @@ public class RssState extends ElementState
 		"		<title>Photos from everyone tagged water</title>\r\n" + 
 		"		<link>http://www.flickr.com/photos/tags/water/</link>\r\n" + 
 		"</channel>\r\n";
+	
+	public static final String NABEEL_TEST = 
+	"<rss version=\"1\">"+
+	"<channel>"+
+	"	<title>title.Nabeel</title>"+
+	"	<description>description.Student</description>"+
+	"	<link>http://www.google.com/ig</link>"+
+	"	<items>"+
+	"		<item>"+
+	"			<title>Item.title.Nabeel</title>"+
+	"			<description>Item.description.Nabeel</description>"+
+	"			<link>http://www.google.com/ig</link>"+
+	"			<guid>http://www.google.com/ig</guid>"+
+	"			<author>Item.author.Nabeel</author>"+
+	"			<category>newCat 0</category>"+
+	"			<category>newCat 1</category>"+
+	"		</item>"+
+	"		<item>"+
+	"			<title>Item.title.Nabeel</title>"+
+	"			<description>Item.description.Nabeel</description>"+
+	"			<link>http://www.google.com/ig</link>"+
+	"			<guid>http://www.google.com/ig</guid>"+
+	"			<author>Item.author.Nabeel</author>"+
+	"			<category>newCat 0</category>"+
+	"			<category>newCat 1</category>"+
+	"		</item>"+
+	"	</items>"+
+	"</channel>"+
+	"</rss>";
 
 	public static final File 	outputFile			= new File("/temp/rss.xml");
+	
 	public static void main(String[] args)
 	{
 		ElementState rss;
 		try
 		{
 //		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
-			rss = translateFromXML(NYT_TECH_FEED, RssTranslations.get());
+			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
 			
 			System.out.println("");
 			rss.translateToXML(System.out);
 			System.out.println("");
+			
+			RssTranslations.get().translateToXML(System.out);
 
 		}
 		catch (XMLTranslationException e)

@@ -39,10 +39,8 @@ implements FieldTypes, Mappable<String>
 	@xml_attribute
 	private String																tagName;
 	
-	@xml_attribute
 	private String																decribedClassSimpleName;
 	
-	@xml_attribute
 	private String																describedClassPackageName;
 	
 //	@xml_attribute

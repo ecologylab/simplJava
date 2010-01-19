@@ -1,0 +1,27 @@
+<rss version="1">
+	<channel>
+		<title>title.Nabeel</title>
+		<description>description.Student</description>
+		<link>http://www.google.com/ig</link>
+		<items>
+			<item>
+				<title>Item.title.Nabeel</title>
+				<description>Item.description.Nabeel</description>
+				<link>http://www.google.com/ig</link>
+				<guid>http://www.google.com/ig</guid>
+				<author>Item.author.Nabeel</author>
+				<category>newCat 0</category>
+				<category>newCat 1</category>
+			</item>
+			<item>
+				<title>Item.title.Nabeel</title>
+				<description>Item.description.Nabeel</description>
+				<link>http://www.google.com/ig</link>
+				<guid>http://www.google.com/ig</guid>
+				<author>Item.author.Nabeel</author>
+				<category>newCat 0</category>
+				<category>newCat 1</category>
+			</item>
+		</items>
+	</channel>
+</rss>

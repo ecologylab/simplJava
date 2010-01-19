@@ -14,6 +14,7 @@ import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
+import ecologylab.xml.library.rss.*;
 
 /**
  * This class is the main class which provides the functionality of translation
@@ -543,7 +544,7 @@ public class CocoaTranslator
    {
       CocoaTranslator c = new CocoaTranslator();
       //c.translateToObjCRecursive(CocoaInheritTest.class, new ParsedURL(new File("C:\\code\\")));
-      c.translateToObjCRecursive(FieldDescriptor.class, System.out);
+      c.translateToObjCRecursive(RssState.class, System.out);
    }
 
    /**

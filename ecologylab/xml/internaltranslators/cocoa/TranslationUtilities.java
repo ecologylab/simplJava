@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.types.scalar.ScalarType;
 
 /**
@@ -72,6 +73,10 @@ public class TranslationUtilities
       else if (URL.class == type)
       {
          return TranslationConstants.OBJC_URL;
+      }
+      else if (ParsedURL.class == type)
+      {
+         return TranslationConstants.OBJC_PARSED_URL;
       }
       else if (ScalarType.class == type)
       {

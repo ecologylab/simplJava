@@ -95,13 +95,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 /**
  * 
- */
+ */ @xml_attribute
 	private String													collectionOrMapTagName;
 
 	/**
 	 * Used for Collection and Map fields. Tells if the XML should be wrapped by an intermediate
 	 * element.
 	 */
+ 	@xml_attribute
 	private boolean									wrapped;
 	
 
@@ -113,7 +114,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * For nested elements, and collections or maps of nested elements.
 	 * The class descriptor 
 	 */
+	
 	private ClassDescriptor					elementClassDescriptor;
+	
+	@xml_attribute 
+	private Class 							elementClass;
 
 	
 	/**
@@ -122,6 +127,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public FieldDescriptor()
 	{
 		super();
+		
 	}
 	
 	/**
@@ -307,6 +313,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			else if (!isPolymorphic())
 			{
 				elementClassDescriptor	= ClassDescriptor.getClassDescriptor(fieldClass);
+				elementClass = elementClassDescriptor.describedClass();
 				tagName = XMLTools.getXmlTagName(field);
 			}
 			break;
@@ -334,7 +341,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 						return IGNORED_ELEMENT;
 					}
 					if (ElementState.class.isAssignableFrom(collectionElementClass))
+					{
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(collectionElementClass);
+						elementClass = elementClassDescriptor.describedClass();
+					}
 					else
 					{
 						result = COLLECTION_SCALAR;
@@ -379,7 +389,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					collectionOrMapTagName = mapTag;
 
 					if (ElementState.class.isAssignableFrom(mapElementClass))
+					{
 						elementClassDescriptor	= ClassDescriptor.getClassDescriptor(mapElementClass);
+						elementClass = elementClassDescriptor.describedClass();
+					}
 					else
 					{
 						result = MAP_SCALAR;		//TODO -- do we really support this case??
