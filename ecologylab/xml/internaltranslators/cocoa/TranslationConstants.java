@@ -10,8 +10,12 @@ public class TranslationConstants
 {
    
    public static final String FOUNDATION_HEADER = "#import <Foundation/Foundation.h>";   
-   public static final String ECOLOGYLAB_HEADER = "#import \"ecologylabxml.h\"";
+   public static final String INCLUDE_OBJECT = "#import \"@.h\"";
    public static final String INTERFACE = "@interface";
+   public static final String IMPLEMENTATION = "@implementation";
+   public static final String SYNTHESIZE = "@synthesize";
+   
+   
    public static final String PROPERTY_PRIMITIVE = "@property (nonatomic,readwrite)";
    public static final String PROPERTY_REFERENCE = "@property (nonatomic,readwrite, retain)";
    public static final String END = "@end";
@@ -19,7 +23,8 @@ public class TranslationConstants
    public static final String REFERENCE = "*";
    public static final String TERMINATOR = ";";
    public static final String INHERITENCE_OPERATOR = ":";
-   public static final String INHERITENCE_OBJECT = "NSObject";
+   
+   public static String INHERITENCE_OBJECT = "NSObject";
    
    public static final String OPENING_BRACE = "{";
    public static final String CLOSING_BRACE = "}";
@@ -29,13 +34,15 @@ public class TranslationConstants
    public static final String TAB = "\t";
       
    public static final String SPACE = " ";
+   public static final String DOT = ".";
    
    /*
     * File constants 
     */
    public static final String PACKAGE_NAME_SEPARATOR = "\\.";
-   public static final String FILE_PATH_SEPARATOR = "\\";
+   public static final String FILE_PATH_SEPARATOR = "/";
    public static final String HEADER_FILE_EXTENSION = ".h";
+   public static final String IMPLEMENTATION_FILE_EXTENSION = ".m";
    
    /*
     * Scalar types

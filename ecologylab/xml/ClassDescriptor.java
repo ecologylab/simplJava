@@ -604,6 +604,11 @@ implements FieldTypes, Mappable<String>
 	{
 		return fieldDescriptorsByFieldName;
 	}
+	
+	public String getSuperClassName()
+	{
+		return XMLTools.getClassName(describedClass.getSuperclass());
+	}
 
 	
 	public static void main(String[] s)

@@ -115,4 +115,9 @@ public class TranslationUtilities
          throw new CocoaTranslationException(CocaTranslationExceptionTypes.UNSUPPORTED_DATATYPE);
       }
    }
+   
+   public static String classSimpleName(Class<?> thatClass)
+   { 
+	 return thatClass.toString().substring(thatClass.toString().lastIndexOf(TranslationConstants.DOT) + 1);
+   }
 }

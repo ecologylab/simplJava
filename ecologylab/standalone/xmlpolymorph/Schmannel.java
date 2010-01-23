@@ -61,7 +61,10 @@ public class Schmannel extends ElementState
 		{
 			StringBuilder buffy	= new StringBuilder();
 			schmannel.translateToXML(buffy);
+			
 			System.out.println(buffy);
+			System.out.println('\n');
+			TRANSLATION_SPACE.translateToXML(System.out);
 			System.out.println('\n');
 			ElementState s2	= ElementState.translateFromXMLCharSequence(buffy, TRANSLATION_SPACE);
 			s2.translateToXML(System.out);

@@ -92,6 +92,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * translateFromXML().
 	 */
 	private HashMapArrayList<String, ClassDescriptor>			tagClassDescriptors;
+	
+	@xml_map("tagClasses")
+	private HashMap<String, Class>						tagClasses;
 
 /**
  * 
@@ -213,8 +216,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
 				initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
-				for (ClassDescriptor classDescriptor : scopeClassDescriptors)
+				for (ClassDescriptor classDescriptor : scopeClassDescriptors){
 					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
+				}
+					
 			}
 		}
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
@@ -225,6 +231,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
 					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 				}
 		}
 		if (classAnnotation != null)
@@ -232,6 +239,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			initTagClassDescriptorsArrayList(1);
 			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(classAnnotation);
 			tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+			tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 		}
 		return tagClassDescriptors != null;
 	}
@@ -241,6 +249,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		if (tagClassDescriptors == null)
 			tagClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
+		if( tagClasses == null)
+			tagClasses = new HashMap<String, Class>(initialSize);
 	}
 
 	/**
@@ -1582,4 +1592,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		return wrappedFD;
 	}
+	
+	public boolean belongsTo(ClassDescriptor c)
+	{
+		return this.field.getDeclaringClass() == c.getDescribedClass();
+	}
+	
 }
