@@ -27,11 +27,16 @@ public class PrefDelayedOp extends PrefOp<MixedInitiativeOp> implements ActionLi
 		super();
 	}
 	
+	public PrefDelayedOp(String name, int delay)
+	{
+		this();
+		this.name 		= name;
+		this.delay 		= delay;
+	}
+	
 	public PrefDelayedOp(String name, int delay, boolean repeat, int initialDelay, ArrayList<ElementState> set)
 	{
-		super();
-		this.name = name;
-		this.delay = delay;
+		this(name, delay);
 		this.repeat = repeat;
 		this.initialDelay = initialDelay;
 		this.set = set;
