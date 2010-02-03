@@ -50,6 +50,22 @@
 			type="4" collection_or_map_tag_name="item" wrapped="true"
 			element_class="ecologylab.xml.library.rss.Item"></field_descriptor>
 	</class_descriptor>
+	<class_descriptor described_class="ecologylab.standalone.xmlpolymorph.BItem"
+		tag_name="b_item">
+		<field_descriptor field="title" tag_name="title"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="description" tag_name="description"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="link" tag_name="link" type="2"
+			scalar_type="ParsedURLType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="guid" tag_name="guid" type="2"
+			scalar_type="ParsedURLType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="author" tag_name="author"
+			type="2" scalar_type="StringType" needs_escaping="true"></field_descriptor>
+		<field_descriptor field="categorySet" tag_name="category_set"
+			type="5" scalar_type="StringType" needs_escaping="true"
+			collection_or_map_tag_name="category"></field_descriptor>
+	</class_descriptor>
 	<class_descriptor described_class="ecologylab.standalone.xmlpolymorph.SchmItem"
 		tag_name="schm_item">
 		<field_descriptor field="title" tag_name="title"

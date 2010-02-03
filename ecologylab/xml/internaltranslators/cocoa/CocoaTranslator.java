@@ -306,6 +306,8 @@ public class CocoaTranslator
          }
       }
       
+      generateInitializationFunction(inputClass, appendable);
+      
       for (FieldDescriptor fieldAccessor : attributes)
       {
     	 if(fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar())     	
@@ -315,7 +317,9 @@ public class CocoaTranslator
       closeImplementationFile(appendable);
    }
 
-   /**
+   
+
+/**
     * Recursive version of the main function. Will also be generating
     * Objective-C header outputs for {@code @xml_nested} objects
     * <p>
@@ -517,7 +521,7 @@ public class CocoaTranslator
     */
    private void openFieldDeclartion(Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.OPENING_BRACE);
+      appendable.append(TranslationConstants.OPENING_CURLY_BRACE);
       appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
    }
 
@@ -531,7 +535,7 @@ public class CocoaTranslator
     */
    private void closeFieldDeclartion(Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.CLOSING_BRACE);
+      appendable.append(TranslationConstants.CLOSING_CURLY_BRACE);
       appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
    }
    
@@ -868,6 +872,36 @@ public class CocoaTranslator
       propertyDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
 
       appendable.append(propertyDeclaration);
+   }
+   
+   private void generateInitializationFunction(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException {
+	   
+	   StringBuilder initializationFunction = new StringBuilder();
+	   
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.PLUS);
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.OPENING_BRACE);
+	   initializationFunction.append(TranslationConstants.VOID);
+	   initializationFunction.append(TranslationConstants.CLOSING_BRACE);
+	   initializationFunction.append(TranslationConstants.SPACE);	   
+	   initializationFunction.append(TranslationConstants.INITIALIZE);
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.OPENING_CURLY_BRACE);
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.TAB);
+	   initializationFunction.append(TranslationConstants.OPENING_SQUARE_BRACE);
+	   initializationFunction.append(inputClass.getSimpleName());	   
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.CLASS);
+	   initializationFunction.append(TranslationConstants.CLOSING_SQUARE_BRACE);
+	   initializationFunction.append(TranslationConstants.TERMINATOR);
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.CLOSING_CURLY_BRACE);	   
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   appendable.append(initializationFunction);
+	   
    }
 
    /**

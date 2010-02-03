@@ -26,8 +26,12 @@ public class TranslationConstants
    
    public static String INHERITENCE_OBJECT = "NSObject";
    
-   public static final String OPENING_BRACE = "{";
-   public static final String CLOSING_BRACE = "}";
+   public static final String OPENING_CURLY_BRACE = "{";
+   public static final String CLOSING_CURLY_BRACE = "}";
+   public static final String OPENING_SQUARE_BRACE = "[";
+   public static final String CLOSING_SQUARE_BRACE = "]";
+   public static final String OPENING_BRACE = "(";
+   public static final String CLOSING_BRACE = ")";
    
    public static final String SINGLE_LINE_BREAK = "\n";
    public static final String DOUBLE_LINE_BREAK = "\n\n";
@@ -75,6 +79,13 @@ public class TranslationConstants
    public static final String OBJC_HASHMAP = "NSDictionary";
    public static final String OBJC_HASHMAPARRAYLIST = "NSDictionaryList";
    public static final String OBJC_SCOPE = "NSScope";
+   
+   
+   public static final String PLUS = "+";
+   public static final String MINUS = "-";
+   public static final String CLASS = "class";
+   public static final String INITIALIZE = "initialize";
+   public static final String VOID = "void";
    
    
 }

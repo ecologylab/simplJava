@@ -20,7 +20,7 @@ import ecologylab.xml.library.rss.RssTranslations;
 public class Schmannel extends ElementState
 {
   private static final TranslationScope	
-  TRANSLATION_SPACE	= TranslationScope.get("schm_rss", RssTranslations.get(), Schmannel.class, SchmItem.class);
+  TRANSLATION_SPACE	= TranslationScope.get("schm_rss", RssTranslations.get(), Schmannel.class, SchmItem.class, BItem.class);
 
   @xml_classes({Item.class, SchmItem.class})
   @xml_collection ArrayList<Item> schmItems;
