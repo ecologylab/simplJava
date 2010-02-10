@@ -419,11 +419,16 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				//activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
-				Map map							= activeFieldDescriptor.getMap(currentElementState);
+				Map map			= (Map) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
 				if (map != null)
 				{
 					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				}
+//				Map map							= activeFieldDescriptor.getMap(currentElementState);
+//				if (map != null)
+//				{
+//					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+//				}
 				break;
 			case AWFUL_OLD_NESTED_ELEMENT:
 				childES							= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
@@ -499,7 +504,8 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		{
 		case MAP_ELEMENT:
 			final Object key 							= ((Mappable) currentES).key();
-			Map map												= currentFD.getMap(parentES);
+			Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
+			//Map map												= currentFD.getMap(parentES);
 			map.put(key, currentES);
 		case NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
