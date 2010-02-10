@@ -28,7 +28,7 @@ import ecologylab.xml.XMLTranslationException;
 /**
  * The main application for playing back log files.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Logging<OP>> extends
 		ApplicationEnvironment implements ActionListener, WindowListener, PlaybackControlCommands,

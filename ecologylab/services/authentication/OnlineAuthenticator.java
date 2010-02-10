@@ -13,23 +13,24 @@ import java.util.Set;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
- * @param <A>
+ * @param <U>
  */
-public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
-		AuthenticationList<A>
+public interface OnlineAuthenticator<U extends User> extends
+		AuthenticationList<U>
 {
 
 	/**
-	 * Attempts to log-in the given AuthenticationListEntry object.
+	 * Attempts to log-in the given AuthenticationListEntry object. If the AuthenticationListEntry
+	 * object does not have it's uid field set, this method sets it from the backing store.
 	 * 
 	 * @param entry
 	 *          the AuthenticationListEntry containing a username and password that is attempting to
 	 *          authenticate.
 	 * @param sessionId
-	 *          the session identifier for the connection, provided by OODSS.
+	 *          the session identifier for the connection, provided by OODSS, or a servlet.
 	 * @return true if the login was successful; false if it was not.
 	 */
-	public boolean login(A entry, String sessionId);
+	public boolean login(U entry, String sessionId);
 
 	/**
 	 * Looks up the authentication level, if any, of entry. Returns -1 if entry is not Authenticatable
@@ -39,7 +40,7 @@ public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
 	 *          - an instance of a subclass of AuthenticationListEntry with a username and password.
 	 * @return
 	 */
-	public int lookupUserLevel(A entry);
+	public int lookupUserLevel(U entry);
 
 	/**
 	 * Looks up a list of logged-in users for an administrator.
@@ -49,9 +50,16 @@ public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
 	 * @return if administrator is valid, a Set<String> of usernames for users that are logged-in;
 	 *         else null.
 	 */
-	public Set<String> usersLoggedIn(A administrator);
+	public Set<String> usersLoggedIn(U administrator);
 
-	public boolean isLoggedIn(A entry);
+	/**
+	 * Looks up a list of logged-in users; to be used by the backend system only.
+	 * 
+	 * @return
+	 */
+	public Set<String> usersLoggedIn();
+
+	public boolean isLoggedIn(U entry);
 
 	/**
 	 * Removes the given username from all authenticated client lists if the sessionId matches the one
@@ -62,7 +70,7 @@ public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
 	 * @param sessionId
 	 *          the session identifier for the connection.
 	 */
-	public boolean logout(A entry, String sessionId);
+	public boolean logout(U entry, String sessionId);
 
 	/**
 	 * Retrieves the session identifier for a given entry. Generally, it is a security violation to
@@ -71,7 +79,7 @@ public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
 	 * @param entry
 	 * @return
 	 */
-	public String getSessionId(A entry);
+	public String getSessionId(U entry);
 
 	/**
 	 * Logs a session out of the system without requiring administrator clearance.
@@ -81,7 +89,7 @@ public interface OnlineAuthenticator<A extends AuthenticationListEntry> extends
 	public void logoutBySessionId(String sessionId);
 
 	/**
-	 * Looks up whether or not the session is logged-in. 
+	 * Looks up whether or not the session is logged-in.
 	 * 
 	 * @param sessionId
 	 * @return

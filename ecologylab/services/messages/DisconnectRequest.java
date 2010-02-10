@@ -19,7 +19,7 @@ import ecologylab.xml.xml_inherit;
  * A request that indicates that the client wishes to be permanently
  * disconnected from the server.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 @xml_inherit public class DisconnectRequest extends RequestMessage
 {

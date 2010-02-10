@@ -7,7 +7,7 @@ package ecologylab.services.distributed.impl;
  * A listener that reacts to server events, such as when a client connects. Mostly useful for logging events on a
  * server.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public interface ServerListener

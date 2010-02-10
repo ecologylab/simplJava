@@ -53,7 +53,7 @@ import ecologylab.xml.types.element.ArrayListState;
 /**
  * Contains methods for creating widgets associated with Prefs.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class PrefEditorWidgets extends Debug implements ChangeListener
 {

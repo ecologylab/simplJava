@@ -9,7 +9,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public @xml_inherit class TestFloats extends ElementState implements Cloneable
 {

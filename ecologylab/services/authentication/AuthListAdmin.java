@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import ecologylab.services.exceptions.SaveFailedException;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
@@ -16,7 +17,7 @@ import ecologylab.xml.XMLTranslationException;
  * This program allows users to create and modify AuthenticationList files so that they do not have
  * to be stored as plaintext.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class AuthListAdmin
@@ -41,11 +42,11 @@ public class AuthListAdmin
 		String resp = "";
 		String filename = args[0];
 		boolean newFile = false;
-		AuthenticationListEntry userEntry;
+		User userEntry;
 		boolean loggedIn = false;
 
 		// first we need to open up the authentcation list
-		AuthenticationListXMLImpl<AuthenticationListEntry> authList = null;
+		AuthenticationListXMLImpl authList = null;
 
 		File xmlFile = new File(filename);
 
@@ -53,7 +54,7 @@ public class AuthListAdmin
 		{
 			try
 			{
-				authList = (AuthenticationListXMLImpl<AuthenticationListEntry>) ElementState.translateFromXML(
+				authList = (AuthenticationListXMLImpl) ElementState.translateFromXML(
 						xmlFile, AuthenticationTranslations.get());
 			}
 			catch (XMLTranslationException e)
@@ -104,7 +105,7 @@ public class AuthListAdmin
 
 			// now the file exists, because we'd have exited by now. We also
 			// don't yet have an authlist object
-			authList = new AuthenticationListXMLImpl<AuthenticationListEntry>();
+			authList = new AuthenticationListXMLImpl();
 		}
 
 		if (authList != null)
@@ -155,7 +156,7 @@ public class AuthListAdmin
 					}
 				}
 
-				userEntry = new AuthenticationListEntry(username, password);
+				userEntry = new User(username, password);
 
 				// have password and username!
 				if (!newFile && authList.isValid(userEntry)
@@ -171,7 +172,14 @@ public class AuthListAdmin
 
 					userEntry.setLevel(AuthLevels.ADMINISTRATOR);
 
-					authList.addEntry(userEntry);
+					try
+					{
+						authList.addUser(userEntry);
+					}
+					catch (SaveFailedException e)
+					{
+						e.printStackTrace();
+					}
 				}
 			}
 
@@ -221,7 +229,14 @@ public class AuthListAdmin
 					{
 						System.out.println("adding user: " + newUser);
 
-						authList.addEntry(new AuthenticationListEntry(newUser, password));
+						try
+						{
+							authList.addUser(new User(newUser, password));
+						}
+						catch (SaveFailedException e)
+						{
+							e.printStackTrace();
+						}
 					}
 				}
 				else

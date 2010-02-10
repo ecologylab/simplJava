@@ -27,7 +27,7 @@ import ecologylab.xml.XMLTranslationException;
  * A base set of fields and methods that are necessary for any server
  * implementation.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class ServicesServerBase extends Manager implements Runnable,
         StartAndStoppable

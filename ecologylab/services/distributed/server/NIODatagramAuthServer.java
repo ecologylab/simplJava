@@ -6,7 +6,7 @@ import java.util.List;
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
-import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.User;
 import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.OnlineAuthenticatorHashMapImpl;
 import ecologylab.services.authentication.listener.AuthenticationListener;
@@ -19,7 +19,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
-public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends Scope> extends
+public class NIODatagramAuthServer<A extends User, S extends Scope> extends
 		NIODatagramServer<S> implements AuthServerRegistryObjects, AuthMessages, AuthLogging,
 		Authenticatable<A>
 {
@@ -140,8 +140,8 @@ public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends 
 
 		if (logoutSuccess)
 		{
-			debug(entry.getUsername() + " has been logged out.");
-			fireLogoutEvent(entry.getUsername(), sessionId);
+			debug(entry.getUserKey() + " has been logged out.");
+			fireLogoutEvent(entry.getUserKey(), sessionId);
 		}
 
 		return logoutSuccess;
@@ -158,7 +158,7 @@ public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends 
 
 		if (loginSuccess)
 		{
-			fireLoginEvent(entry.getUsername(), sessionId);
+			fireLoginEvent(entry.getUserKey(), sessionId);
 		}
 
 		return loginSuccess;
@@ -167,7 +167,7 @@ public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends 
 	/**
 	 * XXX unimplemented
 	 * 
-	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean addNewUser(A entry)
@@ -179,7 +179,7 @@ public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends 
 	/**
 	 * XXX unimplemented
 	 * 
-	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean removeExistingUser(A entry)

@@ -25,7 +25,7 @@ import ecologylab.xml.xml_inherit;
  * resource to be specified as lazy. This means the resource does not have to be downloaded onto the client system
  * before the application is launched.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public @xml_inherit class Nativelib extends Jar

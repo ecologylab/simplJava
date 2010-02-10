@@ -8,7 +8,7 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class TestXMLFormat extends ElementState

@@ -12,7 +12,7 @@ import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.messages.DefaultServicesTranslations;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  *
  */
 public class TestServer

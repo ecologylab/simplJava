@@ -24,7 +24,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author eunyee
  * @author andruid
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 @xml_inherit abstract public class LogEvent extends RequestMessage

@@ -4,15 +4,15 @@ import ecologylab.xml.ElementState;
 
 
 /**
- * Reference version of an int type. Re-writable, unlike java.lang.Integer. <p/>
- * Object wrapper for int primitive values. Useful for storing in HashMaps, and
+ * Reference version of an long type. Re-writable, unlike java.lang.longeger. <p/>
+ * Object wrapper for long primitive values. Useful for storing in HashMaps, and
  * anywhere else that a reference type is needed.
  */
-public class IntState extends ElementState implements Comparable<IntState>
+public class LongState extends ElementState implements Comparable<LongState>
 {
-    private @xml_attribute int value;
+    private @xml_attribute long value;
 
-    public IntState(int b)
+    public LongState(long b)
     {
         super();
         value = b;
@@ -21,24 +21,24 @@ public class IntState extends ElementState implements Comparable<IntState>
     /**
      * 
      */
-    public IntState()
+    public LongState()
     {
     }
 
     /**
-     * Returns a hashcode for this Integer.
+     * Returns a hashcode for this Long.
      * 
      * @return a hash code value for this object.
      * @since JDK1.0
      */
     @Override public int hashCode()
     {
-        return value;
+        return (int) value;
     }
 
     @Override public String toString()
     {
-        return "IntState[" + value + "]";
+        return "longState[" + value + "]";
     }
 
     /**
@@ -47,10 +47,10 @@ public class IntState extends ElementState implements Comparable<IntState>
     @Override public boolean equals(Object arg0)
     {
         return (arg0 != null) 
-            && (((arg0 instanceof IntState) && (((IntState)arg0).value == value)));
+            && (((arg0 instanceof LongState) && (((LongState)arg0).value == value)));
     }
     
-    public int compareTo(IntState arg0)
+    public int compareTo(LongState arg0)
     {
         if (arg0 == null)
             throw new NullPointerException();
@@ -66,7 +66,7 @@ public class IntState extends ElementState implements Comparable<IntState>
     /**
      * @return the value
      */
-    public int getValue()
+    public long getValue()
     {
         return value;
     }
@@ -74,7 +74,7 @@ public class IntState extends ElementState implements Comparable<IntState>
     /**
      * @param value the value to set
      */
-    public void setValue(int value)
+    public void setValue(long value)
     {
         this.value = value;
     }

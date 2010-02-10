@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * Log files should be XML files; this file filter only displays files whose filetype is XML.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class ExtensionFilter extends javax.swing.filechooser.FileFilter implements java.io.FileFilter
 {

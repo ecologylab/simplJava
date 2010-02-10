@@ -662,7 +662,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * to the LoggingServer.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected abstract class LogWriter extends Debug
 	{
@@ -702,7 +702,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a memory-mapped local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class MemoryMappedFileLogWriter extends LogWriter
 	{
@@ -894,7 +894,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class FileLogWriter extends LogWriter
 	{
@@ -943,7 +943,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that connects to the ServicesServer over the network for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class NetworkLogWriter extends LogWriter
 	{

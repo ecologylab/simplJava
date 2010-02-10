@@ -2400,7 +2400,7 @@ implements ClassTypes, XMLTranslationExceptionTypes
      * When using @xml_tag, you MUST create your corresponding TranslationSpace entry using a Class object,
      * instead of using a default package name.
      * 
-     * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+     * @author Zachary O. Toups (zach@ecologylab.net)
      */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 

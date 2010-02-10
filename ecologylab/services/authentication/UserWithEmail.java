@@ -6,24 +6,23 @@ package ecologylab.services.authentication;
 import ecologylab.xml.xml_inherit;
 
 /**
- * An entry for an AuthenticationList. Contains a username matched with a password (which is stored
- * and checked as a SHA-256 hash).
- * 
- * This class can be extended to include other pieces of information, such as real names and email
- * addresses; if desired.
+ * Subclass of User that provides an email address as auxiliary information. Email address may be
+ * stored in the database, but is not used as a key.
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
 @xml_inherit
-public class EmailAuthenticationListEntry extends AuthenticationListEntry
+public class UserWithEmail extends User
 {
+	/**
+	 * The email address for the user. Not used as a key, only provided as additional information.
+	 * Always stored in lowercase.
+	 */
 	@xml_attribute
 	private String	email	= "";
 
-	/**
-	 * No-argument constructor for serialization.
-	 */
-	public EmailAuthenticationListEntry()
+	/** No-argument constructor for serialization. */
+	public UserWithEmail()
 	{
 		super();
 	}
@@ -36,11 +35,11 @@ public class EmailAuthenticationListEntry extends AuthenticationListEntry
 	 * @param plaintextPassword
 	 *          - the password; will be hashed before it is stored.
 	 */
-	public EmailAuthenticationListEntry(String email, String username, String plaintextPassword)
+	public UserWithEmail(String userKey, String plaintextPassword, String email)
 	{
-		super(username, plaintextPassword);
-
-		this.email = email.toLowerCase();
+		super(userKey, plaintextPassword);
+		
+		this.setEmail(email);
 	}
 
 	/**
@@ -51,6 +50,7 @@ public class EmailAuthenticationListEntry extends AuthenticationListEntry
 	 */
 	public void setEmail(String email)
 	{
+		if (email != null)
 		this.email = email.toLowerCase();
 	}
 
@@ -60,7 +60,7 @@ public class EmailAuthenticationListEntry extends AuthenticationListEntry
 	@Override
 	public String toString()
 	{
-		return super.toString()+" ("+email+")";
+		return super.toString() + " (" + email + ")";
 	}
 
 	/**

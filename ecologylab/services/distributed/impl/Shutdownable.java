@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 /**
  * Interface for objects that should have a shutdown sequence.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public interface Shutdownable

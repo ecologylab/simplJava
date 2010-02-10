@@ -5,7 +5,7 @@ package ecologylab.services.authentication.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.User;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.DisconnectRequest;
@@ -16,12 +16,12 @@ import ecologylab.xml.xml_inherit;
  * A Logout message indicates that the connnected client no longer wants to be
  * connected.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 @xml_inherit public class Logout extends DisconnectRequest implements
 		AuthMessages, AuthServerRegistryObjects
 {
-	@xml_nested protected AuthenticationListEntry	entry	= new AuthenticationListEntry(
+	@xml_nested protected User	entry	= new User(
 																					"", "");
 
 	/** Should not normally be used; only for XML translations. */
@@ -37,7 +37,7 @@ import ecologylab.xml.xml_inherit;
 	 * @param entry -
 	 *           the entry to use for this Logout object.
 	 */
-	public Logout(AuthenticationListEntry entry)
+	public Logout(User entry)
 	{
 		super();
 		this.entry = entry;
@@ -49,7 +49,7 @@ import ecologylab.xml.xml_inherit;
 	 */
 	@Override public LogoutStatusResponse performService(Scope localScope)
 	{
-		debug("*************************** LOGOUT " + this.entry.getUsername());
+		debug("*************************** LOGOUT " + this.entry.getUserKey());
 		Authenticatable server = (Authenticatable) localScope
 				.get(MAIN_AUTHENTICATABLE);
 		String sessionId = (String) localScope
@@ -70,7 +70,7 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * @return Returns the entry.
 	 */
-	public AuthenticationListEntry getEntry()
+	public User getEntry()
 	{
 		return entry;
 	}

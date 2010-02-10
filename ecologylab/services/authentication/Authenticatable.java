@@ -9,7 +9,7 @@ package ecologylab.services.authentication;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public interface Authenticatable<E extends AuthenticationListEntry>
+public interface Authenticatable<E extends User>
 {
 	/**
 	 * Determines whether a user can log in (based on the content of entry and its originating IP

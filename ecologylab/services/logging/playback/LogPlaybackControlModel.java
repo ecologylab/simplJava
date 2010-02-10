@@ -18,7 +18,7 @@ import ecologylab.services.logging.Prologue;
 /**
  * Model of playback for logged operations. Controls advancement through a log during playback, as well as rewind, etc.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class LogPlaybackControlModel<E extends MixedInitiativeOp, T extends Logging<E>> implements BoundedRangeModel
 {

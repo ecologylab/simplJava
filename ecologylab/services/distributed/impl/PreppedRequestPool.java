@@ -6,7 +6,7 @@ package ecologylab.services.distributed.impl;
 import ecologylab.generic.ResourcePoolWithSize;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  *
  */
 public class PreppedRequestPool extends ResourcePoolWithSize<PreppedRequest>

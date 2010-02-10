@@ -6,7 +6,7 @@ package ecologylab.services.messages;
 import ecologylab.collections.Scope;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class InitConnectionRequest extends RequestMessage
 {

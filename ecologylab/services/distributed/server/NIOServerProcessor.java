@@ -15,7 +15,7 @@ import ecologylab.services.exceptions.BadClientException;
  * An interface indicating necessary functionality for a server so that it can
  * properly service ContextManagers.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public interface NIOServerProcessor extends StartAndStoppable

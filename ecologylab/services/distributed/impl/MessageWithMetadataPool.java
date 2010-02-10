@@ -7,7 +7,7 @@ import ecologylab.generic.ResourcePool;
 import ecologylab.services.messages.ServiceMessage;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  *
  */
 public class MessageWithMetadataPool<M extends ServiceMessage, A> extends ResourcePool<MessageWithMetadata<M, A>>

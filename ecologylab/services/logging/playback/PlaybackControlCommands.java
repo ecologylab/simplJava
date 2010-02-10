@@ -3,7 +3,7 @@ package ecologylab.services.logging.playback;
 /**
  * Status indicators for log playback application.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public interface PlaybackControlCommands

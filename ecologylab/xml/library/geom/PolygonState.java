@@ -28,7 +28,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * @author Alan Blevins (alan.blevins@gmail.com)
  */
 public @xml_inherit class PolygonState extends ElementState implements Shape

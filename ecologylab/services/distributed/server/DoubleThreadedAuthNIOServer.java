@@ -12,7 +12,7 @@ import java.util.List;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.User;
 import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.OnlineAuthenticator;
 import ecologylab.services.authentication.listener.AuthenticationListener;
@@ -22,6 +22,7 @@ import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.nio.AuthClientSessionManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.exceptions.SaveFailedException;
 import ecologylab.services.logging.Logging;
 import ecologylab.xml.TranslationScope;
 
@@ -35,7 +36,7 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> extends
+public class DoubleThreadedAuthNIOServer<A extends User> extends
 		DoubleThreadedNIOServer implements AuthServerRegistryObjects, AuthMessages, AuthLogging,
 		Authenticatable<A>
 {
@@ -153,8 +154,8 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 		if (logoutSuccess)
 		{
-			debug(entry.getUsername() + " has been logged out.");
-			fireLogoutEvent(entry.getUsername(), sessionId);
+			debug(entry.getUserKey() + " has been logged out.");
+			fireLogoutEvent(entry.getUserKey(), sessionId);
 		}
 
 		return logoutSuccess;
@@ -171,7 +172,7 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 
 		if (loginSuccess)
 		{
-			fireLoginEvent(entry.getUsername(), sessionId);
+			fireLoginEvent(entry.getUserKey(), sessionId);
 		}
 
 		return loginSuccess;
@@ -203,20 +204,37 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry> exte
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean addNewUser(A entry)
 	{
-		return this.authenticator.addEntry(entry);
+		try
+		{
+			return this.authenticator.addUser(entry);
+		}
+		catch (SaveFailedException e)
+		{
+			e.printStackTrace();
+		}
+		return running;
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean removeExistingUser(A entry)
 	{
-		return this.authenticator.remove(entry);
+		try
+		{
+			return this.authenticator.removeUser(entry);
+		}
+		catch (SaveFailedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return running;
 	}
 }

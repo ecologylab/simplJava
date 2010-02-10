@@ -752,6 +752,22 @@ public final class TranslationScope extends Debug
 	   return get(name, inheritedTranslations, null);	   
    }
 
+	/**
+	 * Find an existing TranslationScope by this name, or create a new one. Build on a set of
+	 * inherited TranslationScopes, by including all mappings from them.
+	 * 
+	 * This method exists because a call to get(String, TranslationScope, TranslationScope) is
+	 * ambiguous with the (String, TranslationScope, TranslationScope, Class...) method.
+	 * 
+	 * @param name
+	 * @param inheritedTranslations
+	 * @return
+	 */
+   public static TranslationScope getWithTwoScopes(String name, TranslationScope... inheritedTranslations)
+   {
+	   return get(name, inheritedTranslations);	   
+   }
+
    /**
     * Find an existing TranslationScope by this name, or create a new one.
     * Build on a set of inherited TranslationScopes, by including all mappings from them.

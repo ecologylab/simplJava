@@ -9,7 +9,7 @@ import ecologylab.services.messages.ServiceMessage;
  * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML String, along with the
  * request's UID, SID, and a user specified Attachment;
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * @author Bill Hamilton (bill@ecologylab.net)
  */
 // FIXME -- Can we use StringBuilders in here directly to utilize memory better

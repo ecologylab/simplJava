@@ -11,11 +11,12 @@ import java.sql.Statement;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.authentication.db.AuthenticationDBStrings;
+import ecologylab.services.exceptions.SaveFailedException;
 
 /**
  * Abstracts access to a database as a list of AuthenticationEntry's. Raw passwords are never
  * serialized using this object, only one-way hashes of them (see
- * {@link ecologylab.services.authentication.AuthenticationListEntry AuthenticationListEntry}).
+ * {@link ecologylab.services.authentication.User AuthenticationListEntry}).
  * 
  * Instances of this should be used by a server to determine valid usernames and passwords.
  * 
@@ -35,14 +36,11 @@ import ecologylab.services.authentication.db.AuthenticationDBStrings;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> extends Debug implements
+public class AuthenticationListDBImpl<E extends UserWithEmail> extends Debug implements
 		AuthenticationList<E>, AuthenticationDBStrings
 {
-	/** Database connection. */
-	private Connection						dBC																= null;
-
 	/** Database connection string; combines URL, username, and password. */
-	private String								dBConnectString										= null;
+	private String	dBConnectString	= null;
 
 	/**
 	 * Creates a new AuthenticationList based on a connection to a MySQL database. Lazily instantiates
@@ -69,39 +67,36 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 				+ password;
 	}
 
+	public AuthenticationListDBImpl()
+	{
+		super();
+	}
+
 	protected Connection connection() throws SQLException
 	{
-		if (dBC == null)
+		try
 		{
-			synchronized (this)
-			{
-				if (dBC == null)
-				{
-					try
-					{
-						Class.forName("com.mysql.jdbc.Driver").newInstance();
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-
-					dBC = DriverManager.getConnection(dBConnectString);
-				}
-			}
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 
-		return dBC;
+		return DriverManager.getConnection(dBConnectString);
 	}
 
 	/**
 	 * Adds the given entry to this.
+	 * 
+	 * @throws SaveFailedException
 	 */
-	public synchronized boolean addEntry(E entry)
+	public synchronized boolean addUser(E entry) throws SaveFailedException
 	{
-		if (!this.contains(entry.getEmail()))
+		if (!this.contains(entry))
 		{
-			this.addUser(entry.getEmail(), entry.getPassword(), entry.getUsername());
+			entry.setUid(this
+					.performInsertUser(entry.getEmail(), entry.getPassword(), entry.getUserKey()));
 
 			return true;
 		}
@@ -113,31 +108,57 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 * Inserts the information for a new user into the database. Does not check to see if the user
 	 * exists; this should be done prior to calling this method.
 	 * 
+	 * Returns the auto-increment UID for the user; this should be attached to the
+	 * AuthenticationListEntry that triggered the call to addUser.
+	 * 
 	 * @param email
 	 * @param password
 	 * @param name
-	 * @return
+	 * @return the auto-increment UID for the user. -1 if there was an error.
+	 * @throws SaveFailedException
 	 */
-	protected synchronized void addUser(String email, String password, String name)
+	protected synchronized long performInsertUser(String email, String password, String userKey)
+			throws SaveFailedException
 	{
 		String insertUser = INSERT_USER_PREFIX
-				+ email
+				+ userKey
 				+ LIST_SEPARATOR_STRING_TYPE
 				+ password
 				+ LIST_SEPARATOR_STRING_TYPE
-				+ name
+				+ email
 				+ STATEMENT_END_STRING_PAREN;
 
 		Statement stmt = null;
 
+		long uid = -1;
+
+		Connection connection = null;
+
 		try
 		{
-			stmt = connection().createStatement();
-			stmt.execute(insertUser);
+			connection = connection();
+		}
+		catch (SQLException e1)
+		{
+			e1.printStackTrace();
+
+			throw new SaveFailedException(e1);
+		}
+
+		try
+		{
+			stmt = connection.createStatement();
+			stmt.execute(insertUser, Statement.RETURN_GENERATED_KEYS);
+
+			ResultSet autoGenKeys = stmt.getGeneratedKeys();
+
+			if (autoGenKeys.next())
+				uid = autoGenKeys.getLong(1);
 		}
 		catch (SQLException e)
 		{
 			e.printStackTrace();
+			throw new SaveFailedException("SQLException occurred when attempting to add user.", e);
 		}
 		finally
 		{
@@ -154,32 +175,61 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 
 				stmt = null;
 			}
+
+			try
+			{
+				connection.close();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
 		}
+
+		return uid;
 	}
 
 	/**
-	 * Checks to see if this contains the given username; returns true if it does.
+	 * Looks up the given user in the database and constructs a UserWithEmail object from the data.
+	 * Does not populate the password field of the UserWithEmail object.
 	 * 
-	 * @param username
+	 * @param userKey
 	 * @return
 	 */
-	public synchronized boolean contains(String email)
+	protected synchronized UserWithEmail retrieveUserFromDB(String userKey)
 	{
-		String selectUser = SELECT_USER_COUNT_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
+		String selectUser = SELECT_USER_BY_USER_KEY_PREFIX + userKey + STATEMENT_END_STRING;
+		debug(selectUser);
 
 		Statement stmt = null;
 		ResultSet rs = null;
-		boolean userExists = false;
 
-		debug(selectUser);
+		UserWithEmail foundUser = null;
+
+		Connection connection = null;
 
 		try
 		{
-			stmt = connection().createStatement();
-			rs = stmt.executeQuery(selectUser);
-			rs.next();
+			connection = connection();
+		}
+		catch (SQLException e1)
+		{
+			e1.printStackTrace();
 
-			userExists = rs.getInt(1) > 0;
+			return null;
+		}
+
+		try
+		{
+			stmt = connection.createStatement();
+			rs = stmt.executeQuery(selectUser);
+
+			if (rs.next())
+			{
+				foundUser = new UserWithEmail(rs.getString(COL_USER_KEY), null, rs.getString(COL_EMAIL));
+				foundUser.setLevel(rs.getInt(COL_LEVEL));
+				foundUser.setUid(rs.getLong(COL_UID));
+			}
 		}
 		catch (SQLException e)
 		{
@@ -187,20 +237,6 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 		}
 		finally
 		{
-			if (rs != null)
-			{
-				try
-				{
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-
-				}
-
-				rs = null;
-			}
-
 			if (stmt != null)
 			{
 				try
@@ -214,11 +250,18 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 
 				stmt = null;
 			}
+
+			try
+			{
+				connection.close();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
-		debug("user exists? " + userExists);
-
-		return userExists;
+		return foundUser;
 	}
 
 	/**
@@ -241,7 +284,7 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 */
 	public synchronized boolean contains(E entry)
 	{
-		return this.contains(entry.getEmail());
+		return this.retrieveUserFromDB(entry.getUserKey()) != null;
 	}
 
 	/**
@@ -252,61 +295,10 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 */
 	public synchronized int getAccessLevel(E entry)
 	{
-		String email = entry.getEmail();
+		UserWithEmail foundUser = this.retrieveUserFromDB(entry.getUserKey());
 
-		if (this.contains(email))
-		{
-			String selectUser = SELECT_USER_LEVEL_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
-
-			Statement stmt = null;
-			ResultSet rs = null;
-			int level = -1;
-
-			try
-			{
-				stmt = connection().createStatement();
-				rs = stmt.executeQuery(selectUser);
-				rs.next();
-
-				level = rs.getInt(COL_LEVEL);
-			}
-			catch (SQLException e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				if (rs != null)
-				{
-					try
-					{
-						rs.close();
-					}
-					catch (SQLException e)
-					{
-
-					}
-
-					rs = null;
-				}
-
-				if (stmt != null)
-				{
-					try
-					{
-						stmt.close();
-					}
-					catch (SQLException e)
-					{
-
-					}
-
-					stmt = null;
-				}
-			}
-
-			return level;
-		}
+		if (foundUser != null)
+			return foundUser.getLevel();
 
 		return -1;
 	}
@@ -320,8 +312,10 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 */
 	public synchronized boolean isValid(E entry)
 	{
-		return (this.contains(entry.getEmail()) && entry.getPassword() != null && entry
-				.compareHashedPassword(this.retrievePassword(entry.getEmail())));
+		UserWithEmail foundUser = this.retrieveUserFromDB(entry.getUserKey());
+
+		return ((foundUser != null) && (entry.getPassword() != null) && entry
+				.compareHashedPassword(this.retrievePassword(entry.getUserKey())));
 	}
 
 	/**
@@ -330,19 +324,30 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 * @param email
 	 * @return
 	 */
-	private String retrievePassword(String email)
+	private String retrievePassword(String userKey)
 	{
-		String selectUser = SELECT_USER_BY_EMAIL_PREFIX + email + STATEMENT_END_STRING;
-
-		// debug("MySQL statement: "+selectUser);
+		String selectUser = SELECT_USER_BY_USER_KEY_PREFIX + userKey + STATEMENT_END_STRING;
 
 		Statement stmt = null;
 		ResultSet rs = null;
 		String password = null;
 
+		Connection connection = null;
+
 		try
 		{
-			stmt = connection().createStatement();
+			connection = connection();
+		}
+		catch (SQLException e1)
+		{
+			e1.printStackTrace();
+
+			return null;
+		}
+
+		try
+		{
+			stmt = connection.createStatement();
 			rs = stmt.executeQuery(selectUser);
 			rs.next();
 
@@ -354,20 +359,6 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 		}
 		finally
 		{
-			if (rs != null)
-			{
-				try
-				{
-					rs.close();
-				}
-				catch (SQLException e)
-				{
-
-				}
-
-				rs = null;
-			}
-
 			if (stmt != null)
 			{
 				try
@@ -380,6 +371,15 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 				}
 
 				stmt = null;
+			}
+
+			try
+			{
+				connection.close();
+			}
+			catch (SQLException e)
+			{
+				e.printStackTrace();
 			}
 		}
 
@@ -395,25 +395,40 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 	 * 
 	 * @param entry
 	 *          the AuthenticationListEntry (username / password) to attempt to remove.
+	 * @throws SaveFailedException
 	 */
-	public synchronized boolean remove(E entry)
+	public synchronized boolean removeUser(E entry) throws SaveFailedException
 	{
 		if (this.isValid(entry))
 		{
-			String deleteUser = DELETE_USER_BY_EMAIL_PREFIX
-					+ entry.getEmail()
+			String deleteUser = DELETE_USER_BY_USER_KEY_PREFIX
+					+ entry.getUserKey()
 					+ STATEMENT_END_STRING_PAREN;
 
 			Statement stmt = null;
 
+			Connection connection = null;
+
 			try
 			{
-				stmt = connection().createStatement();
+				connection = connection();
+			}
+			catch (SQLException e1)
+			{
+				e1.printStackTrace();
+
+				throw new SaveFailedException(e1);
+			}
+
+			try
+			{
+				stmt = connection.createStatement();
 				stmt.execute(deleteUser);
 			}
 			catch (SQLException e)
 			{
 				e.printStackTrace();
+				throw new SaveFailedException("SQLException occurred when attempting to remove user.", e);
 			}
 			finally
 			{
@@ -429,6 +444,15 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 					}
 
 					stmt = null;
+				}
+
+				try
+				{
+					connection.close();
+				}
+				catch (SQLException e)
+				{
+					e.printStackTrace();
 				}
 			}
 
@@ -457,5 +481,24 @@ public class AuthenticationListDBImpl<E extends EmailAuthenticationListEntry> ex
 
 			return "DBAuthenticationList unable to connect.";
 		}
+	}
+
+	/**
+	 * @see ecologylab.services.authentication.AuthenticationList#setUID(ecologylab.services.authentication.User)
+	 */
+	@Override
+	public void setUID(E entry)
+	{
+		UserWithEmail foundUser = this.retrieveUserFromDB(entry.getUserKey());
+		entry.setUid(foundUser.getUid());
+	}
+
+	/**
+	 * This method does nothing, as all of the add / remove methods are automatically written to the
+	 * backing store (database) when they are called.
+	 */
+	@Override
+	public void save() throws SaveFailedException
+	{
 	}
 }

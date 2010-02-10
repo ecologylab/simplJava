@@ -21,7 +21,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class JnlpState extends ElementState implements Cloneable

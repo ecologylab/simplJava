@@ -5,7 +5,7 @@ package ecologylab.services.authentication.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.User;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.RequestMessage;
@@ -21,7 +21,7 @@ import ecologylab.xml.xml_inherit;
 public class Login extends RequestMessage implements AuthMessages, AuthServerRegistryObjects, AuthenticationRequest
 {
 	@xml_nested
-	protected AuthenticationListEntry	entry;
+	protected User	entry;
 
 	/**
 	 * Should not normally be used; only for XML translations.
@@ -37,7 +37,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	 * @param entry
 	 *          - the entry to use for the Login object.
 	 */
-	public Login(AuthenticationListEntry entry)
+	public Login(User entry)
 	{
 		super();
 		this.entry = entry;
@@ -54,7 +54,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	 */
 	public Login(String username, String password)
 	{
-		this(new AuthenticationListEntry(username, password));
+		this(new User(username, password));
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	/**
 	 * @return Returns the entry.
 	 */
-	public AuthenticationListEntry getEntry()
+	public User getEntry()
 	{
 		return entry;
 	}
@@ -111,7 +111,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	 * @param entry
 	 *          The entry to set.
 	 */
-	public void setEntry(AuthenticationListEntry entry)
+	public void setEntry(User entry)
 	{
 		this.entry = entry;
 	}

@@ -26,7 +26,7 @@ import ecologylab.xml.TranslationScope;
  * Handles backend, low-level communication between distributed programs, using NIO. This is the
  * basis for servers for handling network communication.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class NIONetworking<S extends Scope> extends NIOCore
 {

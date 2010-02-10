@@ -94,7 +94,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements Se
 
 				// tell the server to log it
 				servicesServer.fireLoggingEvent(new AuthenticationOp(
-						((AuthenticationRequest) requestMessage).getEntry().getUsername(), true,
+						((AuthenticationRequest) requestMessage).getEntry().getUserKey(), true,
 						((ExplanationResponse) response).getExplanation(),
 						((SocketChannel) socketKey.channel()).socket().getInetAddress().toString(),
 						((SocketChannel) socketKey.channel()).socket().getPort()));
@@ -113,7 +113,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements Se
 			{
 				// tell the server to log it
 				servicesServer.fireLoggingEvent(new AuthenticationOp(((Logout) requestMessage).getEntry()
-						.getUsername(), false, ((ExplanationResponse) response).getExplanation(),
+						.getUserKey(), false, ((ExplanationResponse) response).getExplanation(),
 						((SocketChannel) socketKey.channel()).socket().getInetAddress().toString(),
 						((SocketChannel) socketKey.channel()).socket().getPort()));
 			}

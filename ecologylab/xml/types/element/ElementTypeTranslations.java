@@ -35,9 +35,9 @@ public class ElementTypeTranslations extends Debug
 		HashMapState.class,
 		HashSetState.class,
 		IntState.class,
+		LongState.class,
 		StringState.class,
 		VectorState.class,
-		
 	};
 
 

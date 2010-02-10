@@ -546,7 +546,7 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	/**
 	 * A resource pool that handles socket mode change requests to prevent unnecessary instantiations.
 	 * 
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	class SocketModeChangeRequestPool extends ResourcePool<SocketModeChangeRequest>
 	{

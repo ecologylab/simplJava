@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import ecologylab.generic.Debug;
+import ecologylab.services.exceptions.SaveFailedException;
 
 /**
  * Encapsulates all authentication actions (tracking who is online, etc.), so that Servers don't
@@ -14,14 +15,29 @@ import ecologylab.generic.Debug;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> extends Debug
-		implements OnlineAuthenticator<A>
+public class OnlineAuthenticatorHashMapImpl<A extends User> extends Debug implements
+		OnlineAuthenticator<A>
 {
-	protected AuthenticationList<A>	authList;
+	protected AuthenticationList<A>		authList;
 
-	private HashMap<String, String>	authedNameToSessionId	= new HashMap<String, String>();
+	/**
+	 * Map of authenticated keys to session ids. Authenticated keys are typically either usernames or
+	 * email addresses, depending on implementation. Subclasses may use another key, if desired.
+	 * 
+	 * In the base implementation (OnlineAuthenticatorHashMapImpl), the authentication key is
+	 * username.
+	 */
+	protected HashMap<String, String>	authKeyToSessionId	= new HashMap<String, String>();
 
-	private HashMap<String, String>	authedSessionIdToName	= new HashMap<String, String>();
+	/**
+	 * Map of session ids to authenticated keys. As with authKeyToSessionId, authenticated key may be
+	 * an email address or username, depending on implementation. This reverse lookup is provided when
+	 * there is a need to logout a session without knowing the key.
+	 * 
+	 * In the base implementation (OnlineAuthenticatorHashMapImpl), the authentication key is
+	 * username.
+	 */
+	protected HashMap<String, String>	sessionIdToAuthKey	= new HashMap<String, String>();
 
 	/**
 	 * Creates a new Authenticator using the given AuthenticationList as a backend database of
@@ -53,13 +69,16 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 			if (authList.isValid(entry))
 			{
 				// now make sure that the user isn't already logged-in
-				if (!authedSessionIdToName.containsKey(entry.getUsername()))
+				if (!sessionIdToAuthKey.containsKey(entry.getUserKey()))
 				{
 					// mark login successful
 					loggedInSuccessfully = true;
 
 					// and add to collections
-					addAuthenticatedSession(entry.getUsername(), sessionId);
+					addAuthenticatedSession(entry.getUserKey(), sessionId);
+
+					authList.setUID(entry);
+					entry.setSessionId(sessionId);
 				}
 				else
 				{
@@ -78,7 +97,7 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 		}
 		else
 		{
-			debug("username: " + entry.getUsername() + " does not exist in authentication list.");
+			debug("username: " + entry.getUserKey() + " does not exist in authentication list.");
 		}
 
 		return loggedInSuccessfully;
@@ -106,12 +125,20 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	{
 		if (this.lookupUserLevel(administrator) >= AuthLevels.ADMINISTRATOR)
 		{
-			return this.authedNameToSessionId.keySet();
+			return this.usersLoggedIn();
 		}
 		else
 		{
 			return null;
 		}
+	}
+
+	/**
+	 * @see ecologylab.services.authentication.OnlineAuthenticator#usersLoggedIn(A)
+	 */
+	public Set<String> usersLoggedIn()
+	{
+		return this.authKeyToSessionId.keySet();
 	}
 
 	/**
@@ -121,9 +148,10 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	{
 		try
 		{
-			if (entry.getUsername().equals(this.authedSessionIdToName.get(sessionId)))
+			if (entry.getUserKey().equals(this.sessionIdToAuthKey.get(sessionId)))
 			{
-				removeSessionByUsername(entry.getUsername());
+				removeSessionByUsername(entry.getUserKey());
+				entry.setSessionId(null);
 				return true;
 			}
 			else
@@ -140,7 +168,7 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 
 	public String getSessionId(A entry)
 	{
-		return this.authedNameToSessionId.get(entry.getUsername());
+		return this.authKeyToSessionId.get(entry.getUserKey());
 	}
 
 	/**
@@ -148,26 +176,26 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	 */
 	public boolean isLoggedIn(A entry)
 	{
-		return (authedNameToSessionId.containsKey(entry.getUsername()));
+		return (authKeyToSessionId.containsKey(entry.getUserKey()));
 	}
 
 	protected void removeSessionByUsername(String username)
 	{
-		Object key = authedNameToSessionId.remove(username);
+		Object key = authKeyToSessionId.remove(username);
 
 		if (key != null)
 		{
-			this.authedSessionIdToName.remove(key);
+			this.sessionIdToAuthKey.remove(key);
 		}
 	}
 
 	public void logoutBySessionId(String sessionId)
 	{
-		String key = authedSessionIdToName.remove(sessionId);
+		String key = sessionIdToAuthKey.remove(sessionId);
 
 		if (key != null)
 		{
-			this.authedNameToSessionId.remove(key);
+			this.authKeyToSessionId.remove(key);
 		}
 	}
 
@@ -180,27 +208,28 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	 */
 	protected void addAuthenticatedSession(String username, String sessionId)
 	{
-		this.authedSessionIdToName.put(sessionId, username);
-		this.authedNameToSessionId.put(username, sessionId);
+		this.sessionIdToAuthKey.put(sessionId, username);
+		this.authKeyToSessionId.put(username, sessionId);
 	}
 
 	@Override
 	public boolean sessionValid(String sessionId)
 	{
-		return this.authedSessionIdToName.containsKey(sessionId);
+		return this.sessionIdToAuthKey.containsKey(sessionId);
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#addEntry(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @throws SaveFailedException
+	 * @see ecologylab.services.authentication.AuthenticationList#addUser(ecologylab.services.authentication.User)
 	 */
 	@Override
-	public boolean addEntry(A entry)
+	public boolean addUser(A entry) throws SaveFailedException
 	{
-		return this.authList.addEntry(entry);
+		return this.authList.addUser(entry);
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#contains(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.AuthenticationList#contains(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean contains(A entry)
@@ -209,16 +238,7 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#contains(java.lang.String)
-	 */
-	@Override
-	public boolean contains(String username)
-	{
-		return this.authList.contains(username);
-	}
-
-	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#getAccessLevel(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.AuthenticationList#getAccessLevel(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public int getAccessLevel(A entry)
@@ -227,7 +247,7 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#isValid(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @see ecologylab.services.authentication.AuthenticationList#isValid(ecologylab.services.authentication.User)
 	 */
 	@Override
 	public boolean isValid(A entry)
@@ -236,11 +256,30 @@ public class OnlineAuthenticatorHashMapImpl<A extends AuthenticationListEntry> e
 	}
 
 	/**
-	 * @see ecologylab.services.authentication.AuthenticationList#remove(ecologylab.services.authentication.AuthenticationListEntry)
+	 * @throws SaveFailedException
+	 * @see ecologylab.services.authentication.AuthenticationList#removeUser(ecologylab.services.authentication.User)
 	 */
 	@Override
-	public boolean remove(A entry)
+	public boolean removeUser(A entry) throws SaveFailedException
 	{
-		return this.authList.remove(entry);
+		return this.authList.removeUser(entry);
+	}
+
+	/**
+	 * @see ecologylab.services.authentication.AuthenticationList#setUID(ecologylab.services.authentication.User)
+	 */
+	@Override
+	public void setUID(A entry)
+	{
+		this.authList.setUID(entry);
+	}
+
+	/**
+	 * @see ecologylab.services.authentication.AuthenticationList#save()
+	 */
+	@Override
+	public void save() throws SaveFailedException
+	{
+		this.authList.save();
 	}
 }

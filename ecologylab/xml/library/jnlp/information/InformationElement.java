@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public @xml_inherit @xml_tag("information") class InformationElement extends ElementState

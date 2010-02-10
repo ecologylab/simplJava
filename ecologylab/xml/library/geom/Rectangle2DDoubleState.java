@@ -20,7 +20,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public @xml_inherit class Rectangle2DDoubleState extends RectangularShape
 {

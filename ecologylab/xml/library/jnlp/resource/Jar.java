@@ -14,7 +14,7 @@ import ecologylab.xml.xml_inherit;
  * that contain the code for the particular application, but can also contain other resources, such as icons and
  * configuration files, that are available through the getResource mechanism.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public @xml_inherit class Jar extends HrefBasedResource

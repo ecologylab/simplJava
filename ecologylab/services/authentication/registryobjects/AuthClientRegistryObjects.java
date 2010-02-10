@@ -7,7 +7,7 @@ package ecologylab.services.authentication.registryobjects;
  * Interface of constants used for the object registry in an authenticating client. This file describes the Strings
  * used, and what they should indicate.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public interface AuthClientRegistryObjects
 {

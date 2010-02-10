@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public @xml_tag("vect2df") class Vector2dFloat extends SpatialVector implements
 		Cloneable

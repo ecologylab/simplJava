@@ -6,7 +6,7 @@ import ecologylab.services.logging.MixedInitiativeOp;
 /**
  * Logging operation that indicates when a user logs in or out of the server.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class AuthenticationOp extends MixedInitiativeOp implements AuthMessages

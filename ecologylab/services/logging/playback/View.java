@@ -17,7 +17,7 @@ import ecologylab.services.logging.Prologue;
 /**
  * Abstract class for displaying logged operations. Subclasses provide specific visualization of log ops.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  * @param <T>
  */

@@ -8,7 +8,7 @@ import java.io.IOException;
 import ecologylab.collections.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.AuthConstants;
-import ecologylab.services.authentication.AuthenticationListEntry;
+import ecologylab.services.authentication.User;
 import ecologylab.services.authentication.AuthenticationTranslations;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.AuthenticationRequest;
@@ -28,7 +28,7 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class NIOAuthClient<S extends Scope, A extends AuthenticationListEntry> extends NIOClient<S>
+public class NIOAuthClient<S extends Scope, A extends User> extends NIOClient<S>
 		implements AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
 	/** The username / password information supplied by the user. */

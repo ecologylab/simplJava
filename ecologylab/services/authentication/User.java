@@ -9,10 +9,11 @@ import java.security.NoSuchAlgorithmException;
 import lib.Base64Coder;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.types.element.Mappable;
 
 /**
- * An entry for an AuthenticationList. Contains a username matched with a password (which is stored
+ * An entry for an AuthenticationList. Contains a user key matched with a password (which is stored
  * and checked as a SHA-256 hash).
  * 
  * This class can be extended to include other pieces of information, such as real names and email
@@ -21,17 +22,29 @@ import ecologylab.xml.types.element.Mappable;
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public @xml_inherit
-class AuthenticationListEntry extends ElementState implements AuthLevels, Mappable<String>
+@xml_other_tags("authentication_list_entry")
+class User extends ElementState implements AuthLevels, Mappable<String>
 {
-	private @xml_attribute
-	String	username	= "";
+	/**
+	 * The user's key in the backing store. This key must be provided, along with the password, to
+	 * gain access to the system.
+	 * 
+	 * This field is *always* lowercase, but supports any character and any length. Calling classes
+	 * must ensure that other conditions are met.
+	 * 
+	 * Backwards compatibility for XML translate from is provided for "username", as this was the
+	 * historical name for this field.
+	 */
+	@xml_attribute
+	@xml_other_tags("username")
+	private String	userKey		= "";
 
 	/**
-	 * Represents the password for this username. It is automatically converted to a hash when added
+	 * Represents the password for this user key. It is automatically converted to a hash when added
 	 * via methods so it should never be modified through any other way!
 	 */
-	private @xml_attribute
-	String	password	= "";
+	@xml_attribute
+	private String	password	= "";
 
 	/**
 	 * Represents the administrator level of the user.
@@ -39,13 +52,26 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	 * 0 = normal user (NORMAL_USER) (Others can be added here as necessary.) 10 = administrator
 	 * (ADMINISTRATOR)
 	 */
-	private @xml_attribute
-	int			level			= NORMAL_USER;
+	@xml_attribute
+	private int			level			= NORMAL_USER;
+
+	/**
+	 * Unique identifier for the user. Created by the AuthenticationList when added. This attribute
+	 * should not be manually assigned.
+	 */
+	@xml_attribute
+	private long		uid;
+
+	/**
+	 * The current session associated with this object. If the User is logged-in, then this will have
+	 * a value; otherwise, it will be null.
+	 */
+	private String	sessionId	= null;
 
 	/**
 	 * No-argument constructor for serialization.
 	 */
-	public AuthenticationListEntry()
+	public User()
 	{
 		super();
 	}
@@ -58,11 +84,11 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	 * @param plaintextPassword
 	 *          - the password; will be hashed before it is stored.
 	 */
-	public AuthenticationListEntry(String username, String plaintextPassword)
+	public User(String username, String plaintextPassword)
 	{
 		this();
 
-		this.username = username.toLowerCase();
+		this.userKey = username.toLowerCase();
 		this.password = hashPassword(plaintextPassword);
 	}
 
@@ -72,9 +98,9 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	 * @param username
 	 *          - the username to set.
 	 */
-	public void setUsername(String username)
+	public void setUserKey(String username)
 	{
-		this.username = username.toLowerCase();
+		this.userKey = username.toLowerCase();
 	}
 
 	/**
@@ -123,24 +149,29 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	 */
 	private static String hashPassword(String plaintextPassword)
 	{
-		try
+		if (plaintextPassword != null)
 		{
-			MessageDigest encrypter = MessageDigest.getInstance("SHA-256");
+			try
+			{
+				MessageDigest encrypter = MessageDigest.getInstance("SHA-256");
 
-			encrypter.update(plaintextPassword.getBytes());
+				encrypter.update(plaintextPassword.getBytes());
 
-			// convert to normal characters and return as a String
-			return new String(Base64Coder.encode(encrypter.digest()));
+				// convert to normal characters and return as a String
+				return new String(Base64Coder.encode(encrypter.digest()));
 
+			}
+			catch (NoSuchAlgorithmException e)
+			{
+				// this won't happen in practice, once we have the right one! :D
+				e.printStackTrace();
+			}
+
+			// this should never occur
+			return plaintextPassword;
 		}
-		catch (NoSuchAlgorithmException e)
-		{
-			// this won't happen in practice, once we have the right one! :D
-			e.printStackTrace();
-		}
-
-		// this should never occur
-		return plaintextPassword;
+		
+		return null;
 	}
 
 	/**
@@ -154,9 +185,9 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	/**
 	 * @return Returns the username.
 	 */
-	public String getUsername()
+	public String getUserKey()
 	{
-		return username.toLowerCase();
+		return userKey.toLowerCase();
 	}
 
 	/**
@@ -165,7 +196,7 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	@Override
 	public int hashCode()
 	{
-		return username.hashCode();
+		return userKey.hashCode();
 	}
 
 	/**
@@ -191,11 +222,45 @@ class AuthenticationListEntry extends ElementState implements AuthLevels, Mappab
 	@Override
 	public String toString()
 	{
-		return "AuthenticationListEntry: " + username;
+		return "AuthenticationListEntry: " + userKey;
 	}
 
 	public String key()
 	{
-		return username;
+		return userKey;
+	}
+
+	/**
+	 * @return the uid
+	 */
+	public long getUid()
+	{
+		return uid;
+	}
+
+	/**
+	 * @param uid
+	 *          the uid to set
+	 */
+	void setUid(long uid)
+	{
+		this.uid = uid;
+	}
+
+	/**
+	 * @return the sessionId
+	 */
+	public String getSessionId()
+	{
+		return sessionId;
+	}
+
+	/**
+	 * @param sessionId
+	 *          the sessionId to set
+	 */
+	public void setSessionId(String sessionId)
+	{
+		this.sessionId = sessionId;
 	}
 }

@@ -17,7 +17,7 @@ import ecologylab.xml.ElementState;
  * The underlying map object is synchronized.
  * 
  * @author andruid
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class SynchronizedHashMapState<K, V extends ElementState & Mappable<K>> extends
         ElementState implements Cloneable, Map<K, V>
