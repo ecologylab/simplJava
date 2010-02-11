@@ -7,6 +7,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.Polygon;
+import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
@@ -35,7 +36,8 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 {
 	private Polygon														shape					= null;
 
-	@xml_nested private ArrayListState<Point2DDoubleState>	polygonVerticies	= new ArrayListState<Point2DDoubleState>();
+	@xml_collection("point2_d_double")
+	private ArrayList<Point2DDoubleState>	polygonVerticies	= new ArrayList<Point2DDoubleState>();
 
 	public PolygonState()
 	{
@@ -148,7 +150,7 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 	 * 
 	 * @return polygonVerticies
 	 */
-	public ArrayListState<Point2DDoubleState> getPolygonVerticies()
+	public ArrayList<Point2DDoubleState> getPolygonVerticies()
 	{
 		return polygonVerticies;
 	}
