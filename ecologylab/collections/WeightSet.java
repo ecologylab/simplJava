@@ -129,7 +129,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		//
 		// in case of CfContainers, recycle removes them from a set; however a weird case results in
 		// some of them not being removed, so this makes sure that all recycled elements are removed.
-		int expectedSize 	= size - (end - start + 1);
+		int expectedSize 	= size - (end - start);
 		int newSize 			= arrayList.size();
 		if (expectedSize < newSize)
 		{

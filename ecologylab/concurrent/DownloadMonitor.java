@@ -366,6 +366,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							break;
 						}
 						closureNum++;
+						thatClosure = null;
 					}	// end while
 					if (thatClosure != null)
 					{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
