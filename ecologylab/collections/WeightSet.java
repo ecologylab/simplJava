@@ -114,17 +114,28 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 
 	private synchronized void clearAndRecycle (int start, int end)
 	{
+		int size = arrayList.size();
+		debug("^^^size before = " + size);
 		for (int i=end - 1; i>=start; i--)
 		{
 			E element = arrayList.get(i);	// was remove(i), but that's inefficent
 			element.deleteHook();
-			element.recycle();	// will also call deleteHook?!
+			element.recycle(true);// will also call deleteHook?!
 		}
 		// all of these elements are probably at the beginning of the list
 		// remove from there is worst case behavior of arrayList, because all of the higher elements
 		// must be moved.
 		// minimize this by doing it once.
-		arrayList.removeRange(start, end);
+		//
+		// in case of CfContainers, recycle removes them from a set; however a weird case results in
+		// some of them not being removed, so this makes sure that all recycled elements are removed.
+		int expectedSize 	= size - (end - start + 1);
+		int newSize 			= arrayList.size();
+		if (expectedSize < newSize)
+		{
+			int sizeDiff = newSize - expectedSize;
+			arrayList.removeRange(start, sizeDiff);
+		}
 	}
 
 	/**
@@ -184,6 +195,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		sortIfWeShould();
 //		List<E> deletionList = list.subList(0, numToDelete);
 		clearAndRecycle(0, numToDelete);
+		
 		Memory.reclaim();
 	}
 
@@ -232,7 +244,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 				E e	= arrayList.remove(i);
 				e.deleteHook();
 				if (doRecycleElements)
-					e.recycle();
+					e.recycle(false);
 			}
 		}
 		hashSet.clear();

@@ -41,6 +41,7 @@ extends Debug implements AbstractSetElement
    * This is final because you should override deleteHook() to provide
    * custom behavior.
    */
+  @Override
   public final void delete()
   {
     if (sets != null)
@@ -56,12 +57,14 @@ extends Debug implements AbstractSetElement
   	deleteHook();
   }
   
+  @Override
   public void addSet(WeightSet s) {
     synchronized(sets) {
       sets.add(s);
     }
   }
   
+  @Override
   public void removeSet(WeightSet s) {
     synchronized(sets) {
       sets.remove(s);
@@ -95,6 +98,7 @@ extends Debug implements AbstractSetElement
    * Callback that happens at the end of a delete, and when an element gets pruned.
    * This implementation is empty. Override to provide custom behaviors.
    */
+  @Override
   public void deleteHook()
   {
 
@@ -105,6 +109,7 @@ extends Debug implements AbstractSetElement
    * 
    * This implementation is empty. Override to provide custom behaviors.
    */
+  @Override
   public void insertHook()
   {
 
@@ -119,7 +124,8 @@ extends Debug implements AbstractSetElement
    * Deletes from all constituent sets.
    * Sets recycled to true.
    */   
-  public void recycle()
+  @Override
+  public void recycle(boolean unconditional)
   {
     delete();
     recycled  = true;
