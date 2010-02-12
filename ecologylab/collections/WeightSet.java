@@ -183,6 +183,14 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		return list.get(--size);
 	}
 
+	/**
+	 * Default implementation of the prune to keep only maxSize elements
+	 */
+	public synchronized void prune()
+	{
+		prune(maxSize);
+	}
+	
 	public synchronized void prune ( int numToKeep )
 	{
 		if (maxSize < 0)
