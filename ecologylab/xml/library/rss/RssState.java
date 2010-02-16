@@ -19,9 +19,19 @@ import ecologylab.xml.library.media.Thumbnail;
  */
 public class RssState extends ElementState
 {
-	@xml_attribute	float		version;
+	/*
+	 * @xml_attribute specifies that version will be associated with
+	 * an attribute of the rss element
+	 */
+	@xml_attribute	
+	float version;
    
-	public @xml_nested		Channel		channel;
+	/*
+	 * @xml_nested specifies that channel should be associated with a
+	 * xml sub-element of the rss element
+	 */
+	@xml_nested
+	public Channel	channel;
 
 	/**
 	 * @return Returns the channel.
