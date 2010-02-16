@@ -8,6 +8,7 @@ import java.util.Map;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
+import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -516,8 +517,20 @@ public final class TranslationScope extends Debug
 	  	 this.packageName			= thisPackage != null ? thisPackage.getName() : "";
 
 		   registerTranslation(tag, classSimpleName);
-
-		   ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+		   
+		   //Using this code to get only the declared annotations from the class file
+		   ElementState.xml_other_tags otherTagsAnnotation = null;
+		   Annotation[] annotations = thisClass.getDeclaredAnnotations();
+		   for(Annotation annotation : annotations )
+		   {
+			   if(annotation.annotationType() == ElementState.xml_other_tags.class){
+				   otherTagsAnnotation = (xml_other_tags) annotation;
+				   break;
+			   }
+		   }
+		   
+		   //commented out since getAnnotation also includes inherited annotations 
+		   //ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
 		   if (otherTagsAnnotation != null)
 		   {
 		  	 String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
