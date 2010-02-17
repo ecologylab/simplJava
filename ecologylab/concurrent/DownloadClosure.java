@@ -57,7 +57,7 @@ extends Debug
 			if(site != null)
 				site.setLastDownloadAt(System.currentTimeMillis());
 			downloadable.performDownload();
-			downloadable.downloadAndParseDone();
+			downloadable.downloadDone();
 		}
 	}
 	public synchronized void dispatch()

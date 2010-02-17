@@ -5,7 +5,7 @@ package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
 import ecologylab.services.authentication.AuthenticationList;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.types.element.ElementTypeTranslations;
 /**
@@ -37,7 +37,6 @@ public class PrefTranslations extends Debug
 		Pref.class,
         PrefSet.class,
         PrefBoolean.class,
-        PrefDouble.class,
         PrefFloat.class,
         PrefInt.class,
         PrefLong.class,
@@ -50,7 +49,7 @@ public class PrefTranslations extends Debug
         
         PrefAuthList.class,
         AuthenticationList.class,
-        User.class,
+        AuthenticationListEntry.class,
         
         RangeState.class,
         RangeIntState.class,

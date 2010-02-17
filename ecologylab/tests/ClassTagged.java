@@ -7,7 +7,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public @xml_tag("CLASS_NAME_TAG") class ClassTagged extends ElementState

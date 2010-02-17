@@ -396,7 +396,7 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 	 * Call to notify the object that its download is completed;
 	 * 
 	 */
-	public synchronized void downloadAndParseDone()
+	public synchronized void downloadDone()
 	{
 		notifyAll();
 	}
@@ -451,9 +451,4 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
   	return "zip archive " + zipSource.toString();
   }
 
-  public ParsedURL purl()
-  {
-	  return zipSource;
-  }
-  
 }

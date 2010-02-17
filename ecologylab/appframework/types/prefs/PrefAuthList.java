@@ -11,7 +11,7 @@ import ecologylab.xml.xml_inherit;
 /**
  * A preference that is an AuthenticationList.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
 {

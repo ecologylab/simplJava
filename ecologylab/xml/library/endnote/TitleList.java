@@ -7,7 +7,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.types.element.StringState;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class TitleList extends ElementState
 {

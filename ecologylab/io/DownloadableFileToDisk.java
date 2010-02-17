@@ -53,7 +53,7 @@ implements Downloadable, DispatchTarget
 		this(target, inputStream, destination, null);
 	}
 	
-	public void downloadAndParseDone()
+	public void downloadDone()
 	{
 		downloadDone = true;
 	}
@@ -191,11 +191,6 @@ implements Downloadable, DispatchTarget
   public String message()
   {
   	return null;
-  }
-  
-  public ParsedURL purl()
-  {
-	  return target;
   }
 
 }

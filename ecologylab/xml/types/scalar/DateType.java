@@ -13,7 +13,7 @@ import ecologylab.xml.ScalarUnmarshallingContext;
 /**
  * Type system entry for {@link java.util.Date Date}.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class DateType extends ScalarType<Date>
 {

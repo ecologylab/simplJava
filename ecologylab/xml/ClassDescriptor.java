@@ -1,5 +1,6 @@
 package ecologylab.xml;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -14,8 +15,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.ValueFactory;
-import ecologylab.xml.TranslationScope.TranslationEntry;
-import ecologylab.xml.types.scalar.ScalarType;
+import ecologylab.xml.types.element.Mappable;
 
 /**
  * Cached object that holds all of the structures needed to optimize
@@ -27,137 +27,92 @@ import ecologylab.xml.types.scalar.ScalarType;
  *
  * @author andruid
  */
-public class ClassDescriptor extends Debug
-implements ClassTypes
+public class ClassDescriptor<ES extends ElementState> extends ElementState
+implements FieldTypes, Mappable<String>
 {
 	/**
-	 * Class object that we are holding optimizations for.
+	 * Class object that we are describing.
 	 */
-	final Class<? extends ElementState>					thatClass;
+	@xml_attribute
+	private Class<ES>															describedClass;
 	
-	final String																tagName;
+	@xml_attribute
+	private String																tagName;
 	
-	ClassDescriptor										parent;
+	private String																decribedClassSimpleName;
 	
-	private String										nameSpaceID;
+	private String																describedClassPackageName;
+	
+//	@xml_attribute
+//	private String																describedClassName;
 	
 	/**
-	 * A map of root level Optimizations objects.
-	 * The keys are simple class names.
+	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
+	 * the root element or a field is determined by class name, not by field name.
 	 */
-	//TODO -- replace with OptimizationsMap
-	private static final HashMap<String, ClassDescriptor>	rootOptimizationsMap	= new HashMap<String, ClassDescriptor>();
-//	private static final OptimizationsMap	rootOptimizationsMap	= new OptimizationsMap();
-	
-	/**
-	 * Map of Optimizations objects for (the classes of) our children.
-	 * We need to collect these in this scope, because there could be different metalanguage declarations.
-	 * (IS THIS TRUE? EVEN I AM NOT SURE. -- ANDRUID 11/2/07)
-	 */
-	private final OptimizationsMap						childOptimizationsMap	= new OptimizationsMap();
-		
-	/**
-	 * Found before the colon while translating from;
-	 * emitted with a colon while translating to.
-	 */
-	private String										nameSpacePrefix;
-	
-	/**
-	 * Map of FieldToXMLOptimizations, with field names as keys.
-	 * 
-	 * Used to optimize translateToXML().
-	 */
-	private HashMap<Object, FieldToXMLOptimizations>	fieldToXMLOptimizationsMap	= new HashMap<Object, FieldToXMLOptimizations>();
-	
-	/**
-	 * Map of NodeToJavaOptimizations. The keys are tag names.
-	 * Used to optimize translateFromXML(...).
-	 */
-	private HashMap<String, ElementDescriptor>	nodeToJavaOptimizationsMap	= new HashMap<String, ElementDescriptor>();
-	
-	/**
-	 * The fields that are represented as attributes for the class we're optimizing.
-	 */
-	private ArrayList<Field>					attributeFields;
-	
-	private ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations;
-	
-	/**
-	 * These are pseudo-FieldOptimizations, used to generate xmnls: 
-	 * "attributes".
-	 */
-	private ArrayList<FieldToXMLOptimizations>	xmlnsAttributeOptimizations;
-	
-	/**
-	 * The fields that are represented as nested elements (including leaf nodes)
-	 * for the class we're optimizing.
-	 */
-	private ArrayList<Field>					elementFields;
-	
-	private ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations;
-	
-	private Field								scalarTextField;
-	
+	private FieldDescriptor 											pseudoFieldDescriptor;
+
 	/**
 	 * Handles a text node.
 	 */
-	private ElementDescriptor				scalarTextN2jo;
-	
-	/**
-	 * Map of Fields, with field names as keys.
-	 */
-	//TODO -- couldn't we just use the fieldToXMLOptimizationsMap to do these lookups, and thus drop this!?
-	private HashMap<String, Field>				fieldsMap;
-	
-	/**
-	 * Used to see if there are any Map type objects, during the formation of NodeToJavaOptimizations,
-	 * in order to match with declarations of @xml_map.
-	 */
-	private HashMap<String, Field>				mapFieldsByTag;
-	
-	/**
-	 * Used to see if there are any Collection type objects, during the formation of NodeToJavaOptimizations,
-	 * in order to match with declarations of @xml_collection.
-	 */
-	private HashMap<String, Field>				collectionFieldsByTag;
-	
-	private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
-	
-	
-	/**
-	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
-	 * See also lookupRoot(), lookupChildOptimizations().
-	 * @param thatClass
-	 */
-	private ClassDescriptor(Class<? extends ElementState> thatClass)
-	{
-		this(thatClass, null);
-	}
+	private FieldDescriptor												scalarTextFD;
+
+	private boolean																isGetAndOrganizeComplete;
 
 	/**
-	 * Constructor is private, because values of this type are accessed through lazy evaluation, and cached.
-	 * See also lookupRoot(), lookupChildOptimizations().
+	 * Map of FieldToXMLOptimizations, with field names as keys.
 	 * 
-	 * @param 	thatClass
-	 * @param	parent		Parent optimizations.
+	 * Used to optimize translateToXML(). 
+	 * Also handy for providing functionality like associative arrays in Perl, JavaScript, PHP, ..., but with less overhead,
+	 * because the hashtable is only maintained per class, not per instance.
 	 */
-	private ClassDescriptor(Class<? extends ElementState> thatClass, ClassDescriptor parent)
+	@xml_nowrap
+	@xml_map("field_descriptor")
+	private HashMapArrayList<String, FieldDescriptor>	
+																							fieldDescriptorsByFieldName	= new HashMapArrayList<String, FieldDescriptor>();
+	
+
+	/**
+	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this map) for a single FieldDescriptor
+	 * if @xml_other_tags is used.
+	 */
+	private HashMap<String, FieldDescriptor>		allFieldDescriptorsByTagNames		= new HashMap<String, FieldDescriptor>();
+	
+	private ArrayList<FieldDescriptor>					attributeFieldDescriptors		= new ArrayList<FieldDescriptor>();
+	
+	private ArrayList<FieldDescriptor>					elementFieldDescriptors			= new ArrayList<FieldDescriptor>();;
+
+	
+	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap	= new HashMap<String, ClassDescriptor>();
+
+	
+//private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
+
+	/**
+	 * Default constructor only for use by translateFromXML().
+	 */	public ClassDescriptor()
 	{
 		super();
-		this.thatClass		= thatClass;
-		this.tagName			= XMLTools.getXmlTagName(thatClass, "State");
-		setParent(parent);
-		
-		getAndOrganizeFields();
+	}
+	private ClassDescriptor(Class<ES> thatClass)
+	{
+		super();
+		this.describedClass						= thatClass;
+		this.decribedClassSimpleName	= thatClass.getSimpleName();
+		this.describedClassPackageName= thatClass.getPackage().getName(); 
+//		this.describedClassName				= thatClass.getName(); 
+		this.tagName									= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
+	}
+	ClassDescriptor(String tag)
+	{
+		super();
+		this.tagName					= tag;
+	}
+	public String getTagName()
+	{
+		return tagName;
 	}
 
-	void setParent(ClassDescriptor parent)
-	{
-		this.parent			= parent;
-		//FIXME -- instead of inheriting fully, implement static lexical scoping
-		if (parent != null)
-			this.nameSpaceClassesById		= parent.nameSpaceClassesById;
-	}
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations.
 	 * Uses just-in-time / lazy evaluation.
@@ -169,11 +124,11 @@ implements ClassTypes
 	 * @param elementState		An ElementState object that we're looking up Optimizations for.
 	 * @return
 	 */
-	static ClassDescriptor lookupRootOptimizations(ElementState elementState)
+	public static ClassDescriptor getClassDescriptor(ElementState elementState)
 	{
 		Class<? extends ElementState> thatClass		= elementState.getClass();
 
-		return lookupRootOptimizations(thatClass);
+		return getClassDescriptor(thatClass);
 	}
 
 	/**
@@ -187,332 +142,96 @@ implements ClassTypes
 	 * @param thatClass
 	 * @return
 	 */
-	static ClassDescriptor lookupRootOptimizations(Class<? extends ElementState> thatClass)
+	public static ClassDescriptor getClassDescriptor(Class<? extends ElementState> thatClass)
 	{
 		String className	= thatClass.getName();
 		// stay out of the synchronized block most of the time
-		ClassDescriptor result= rootOptimizationsMap.get(className);
-		if (result == null)
+		ClassDescriptor result= globalClassDescriptorsMap.get(className);
+		if (result == null || !result.isGetAndOrganizeComplete)
 		{
 			// but still be thread safe!
-			synchronized (rootOptimizationsMap)
+			synchronized (globalClassDescriptorsMap)
 			{
-				result 		= rootOptimizationsMap.get(className);
-				if (result == null)
+				result 		= globalClassDescriptorsMap.get(className);
+				if (result == null )
 				{
 					result				= new ClassDescriptor(thatClass);
-					rootOptimizationsMap.put(className, result);
-				}
-			}
-		}
-		return result;
-	}
-	
-	void setNameSpaceID(String nameSpaceID)
-	{
-		this.nameSpaceID	= nameSpaceID + ":";
-	}
-	/**
-	 * Obtain child Optimizations object in the local scope of this.
-	 * Uses just-in-time / lazy evaluation.
-	 * The first time this is called for a given ElementState class, it constructs a new Optimizations
-	 * saves it in our rootOptimizationsMap, and returns it.
-	 * <p/>
-	 * Subsequent calls merely pass back the already created object from the rootOptimizationsMap.
-	 * 
-	 * @param elementState		An ElementState object that we're looking up Optimizations for.
-	 * @return
-	 */
-	//TODO -- do we need to pass NamespaceID through here!?
-	ClassDescriptor lookupChildOptimizations(ElementState elementState)
-	{
-		return childOptimizationsMap.getOrCreateAndPutIfNew(elementState);
-	}
-	
-	ClassDescriptor lookupChildOptimizations(Class<ElementState> thatClass)
-	{
-		return childOptimizationsMap.getOrCreateAndPutIfNew(thatClass);
-	}
-
-
-	/**
-	 * Get a tag translation object that corresponds to the fieldName,
-	 * with this class. If necessary, form that tag translation object,
-	 * and cache it.
-	 * @param type TODO
-	 */
-	FieldToXMLOptimizations fieldToXMLOptimizations(Field field, Class<? extends ElementState> thatClass)
-	{
-		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(thatClass);
-		if (result == null)
-		{
-			synchronized (fieldToXMLOptimizationsMap)
-			{
-				result		= fieldToXMLOptimizationsMap.get(thatClass);
-				if (result == null)
-				{
-				    result = new FieldToXMLOptimizations(this, field, thatClass);
-                    
-                    fieldToXMLOptimizationsMap.put(thatClass, result);
-					//debug(tagName.toString());
-				}
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Form a pseudo-FieldToXMLOptimizations-object for a root element.
-	 * We say pseudo, because there is no Field corresponding to this element.
-	 * The pseudo-FieldToXMLOptimizations-object still guides the translation process.
-	 * 
-	 * @param rootClass
-	 * @return
-	 */
-	public FieldToXMLOptimizations rootFieldToXMLOptimizations(Class rootClass)
-	{
-		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(rootClass);
-		if (result == null)
-		{
-			synchronized (fieldToXMLOptimizationsMap)
-			{
-				result		= fieldToXMLOptimizationsMap.get(rootClass);
-				if (result == null)
-				{
-				    result = new FieldToXMLOptimizations(this, rootClass, this.nameSpaceID);
-                    
-                    fieldToXMLOptimizationsMap.put(rootClass, result);
-				}
-			}
-		}
-		return result;
-		
-	}
-	
-	/**
-	 * Descriptor for collection elements (no field).
-     * 
-	 * @param collectionTagMapEntry
-	 * @param actualCollectionElementClass
-	 * @return
-	 */
-	FieldToXMLOptimizations fieldToJavaOptimizations(FieldToXMLOptimizations collectionTagMapEntry, Class<? extends ElementState> actualCollectionElementClass)
-	{
-		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
-		if (result == null)
-		{
-			synchronized (fieldToXMLOptimizationsMap)
-			{
-				result		= fieldToXMLOptimizationsMap.get(actualCollectionElementClass);
-				if (result == null)
-				{
-				    result = new FieldToXMLOptimizations(this, collectionTagMapEntry, actualCollectionElementClass);
-                    
-                    fieldToXMLOptimizationsMap.put(actualCollectionElementClass, result);
-					//debug(tagName.toString());
-				}
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Get a tag translation object that corresponds to the fieldName,
-	 * with this class. If necessary, form that tag translation object,
-	 * and cache it.
-	 * @param nameSpacePrefix TODO
-	 */
-	FieldToXMLOptimizations fieldToXMLOptimizations(Field field, String nameSpacePrefix)
-	{
-		FieldToXMLOptimizations result= fieldToXMLOptimizationsMap.get(field);
-		if (result == null)
-		{
-			synchronized (fieldToXMLOptimizationsMap)
-			{
-				result		= fieldToXMLOptimizationsMap.get(field);
-				if (result == null)
-				{
-					result	= new FieldToXMLOptimizations(this, field, nameSpacePrefix);
-//					debug(tagName.toString());
-					fieldToXMLOptimizationsMap.put(field, result);
-				}
-			}
-		}
-		return result;
-	}
-	/**
-	 * @return Returns the nameSpacePrefix.
-	 */
-	String nameSpacePrefix()
-	{
-		return nameSpacePrefix;
-	}
-	/**
-	 * @param nameSpacePrefix The nameSpacePrefix to set.
-	 */
-	void setNameSpacePrefix(String nameSpacePrefix)
-	{
-		this.nameSpacePrefix = nameSpacePrefix;
-	}
-
-	/**
-	 * Get an object that describes how the field gets translated from XML.
-	 * We cache these in the parseTable for each class, to optimize speed.
-	 * <p/>
-	 * These entries are created as needed, just-in-time, by lazy evaluation.
-	 * @param translationSpace TODO
-	 * @param context TODO
-	 * @param node TODO
-	 */
-	ElementDescriptor elementNodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, Node node)
-	{
-		String tag				= node.getNodeName();
-		return nodeToJavaOptimizations(translationSpace, context, tag, false);
-	}
-	
-	final Object N2JO_TAG_FIELDS_LOCK		= new Object();
-	
-	/**
-	 * Lookup, and create if necessary, the NodeToJavaOptimizations for an attribute.
-	 * 
-	 * @param translationSpace
-	 * @param context
-	 * @param isAttribute 	true for attributes, false for elements
-	 * @param node
-	 * @return
-	 */
-	ElementDescriptor nodeToJavaOptimizations(TranslationScope translationSpace, ElementState context, String tag, boolean isAttribute)
-	{
-		ElementDescriptor result	= nodeToJavaOptimizationsMap.get(tag);
-		
-		if (result == null)
-		{
-			synchronized (N2JO_TAG_FIELDS_LOCK)
-			{
-				result	= nodeToJavaOptimizationsMap.get(tag);
-				
-				if (setupTranslateFromXML(translationSpace, context))
-					result	= nodeToJavaOptimizationsMap.get(tag);	// try again after setup
+					globalClassDescriptorsMap.put(className, result);
 					
+					// NB: this call was moved out of the constructor to avoid recursion problems
+					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
+					result.isGetAndOrganizeComplete	= true;
+				}
+				// THIS SHOULD NEVER HAPPEN!!!
+				else if (!result.isGetAndOrganizeComplete)
+				{
+					if (!thatClass.equals(FieldDescriptor.class) && !thatClass.equals(ClassDescriptor.class))
+						result.error("Horrible race condition that should never happen! See Andruid or Nabeel.");
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Form a pseudo-FieldDescriptor-object for a root element.
+	 * We say pseudo, because there is no Field corresponding to this element.
+	 * The pseudo-FieldDescriptor-object still guides the translation process.
+	 * 
+	 * @return
+	 */
+	public FieldDescriptor pseudoFieldDescriptor()
+	{
+		FieldDescriptor result			= pseudoFieldDescriptor;
+		if (result == null)
+		{
+			synchronized (this)
+			{
+				result													= pseudoFieldDescriptor;
 				if (result == null)
 				{
-					result	= new ElementDescriptor(translationSpace, this, context, tag, isAttribute);
-					nodeToJavaOptimizationsMap.put(tag, result);
+				    result 											= new FieldDescriptor(this);
+ 				    pseudoFieldDescriptor	= result;
 				}
 			}
 		}
 		return result;
 	}
 
-	/**
-	 * 
-	 * @return		true if setup was performed. false if it was performed previously.
-	 */
-	boolean setupTranslateFromXML(TranslationScope translationSpace, ElementState context)
-	{
-		boolean result		= !xmlTagFieldsAreIndexed;
-		if (result)
-		{
-			xmlTagFieldsAreIndexed	= true;
-			indexSpecialMappingsForFields(this.attributeFields(), true, translationSpace, context);
-			indexSpecialMappingsForFields(this.elementFields(), false, translationSpace, context);
-			
-			if (this.scalarTextN2jo != null)
-			{
-				scalarTextN2jo.setTranslationScope(translationSpace);
-			}
-		}
-		return result;
-	}
-	final Object AFO_LOCK	= new Object();
+
+//	/**
+//	 * @return Returns the nameSpacePrefix.
+//	 */
+//	String nameSpacePrefix()
+//	{
+//		return nameSpacePrefix;
+//	}
+//	/**
+//	 * @param nameSpacePrefix The nameSpacePrefix to set.
+//	 */
+//	void setNameSpacePrefix(String nameSpacePrefix)
+//	{
+//		this.nameSpacePrefix = nameSpacePrefix;
+//	}
 	
-	int quickNumElements()
+	public ArrayList<FieldDescriptor>	attributeFieldDescriptors()
 	{
-		return elementFields == null ? 0 : elementFields.size();
+		return attributeFieldDescriptors;
 	}
 	
-	public ArrayList<FieldToXMLOptimizations>	attributeFieldOptimizations()
+	public ArrayList<FieldDescriptor>	elementFieldOptimizations()
 	{
-		ArrayList<FieldToXMLOptimizations>	result	= attributeFieldOptimizations;
-		if (result == null)
-		{
-			synchronized (AFO_LOCK)
-			{
-				result	= attributeFieldOptimizations;
-				if (result == null)
-				{
-					ArrayList<Field> attributeFields2	= attributeFields();
-					int numAttributes					= attributeFields2.size();
-					if (numAttributes == 0)
-						result				= new ArrayList<FieldToXMLOptimizations>(1);
-					else
-					{
-						result				= new ArrayList<FieldToXMLOptimizations>(numAttributes);
-						for (int i=0; i<numAttributes; i++)
-						{
-							result.add(this.fieldToXMLOptimizations(attributeFields2.get(i), (String) null));
-						}
-					}
-				}
-				this.attributeFieldOptimizations		= result;
-			}
-		}
-		return result;
+		return elementFieldDescriptors;
 	}
-	
-	final Object EFO_LOCK	= new Object();
-	
-	public ArrayList<FieldToXMLOptimizations>	elementFieldOptimizations()
-	{
-		ArrayList<FieldToXMLOptimizations>	result	= elementFieldOptimizations;
-		if (result == null)
-		{
-			synchronized (EFO_LOCK)
-			{
-				result	= elementFieldOptimizations;
-				if (result == null)
-				{
-					ArrayList<Field> elementFields2	= elementFields();
-					int numElements					= elementFields2.size();
-					if (numElements == 0)
-						result				= new ArrayList<FieldToXMLOptimizations>(1);
-					else
-					{
-						result				= new ArrayList<FieldToXMLOptimizations>(numElements);
-						for (int i=0; i<numElements; i++)
-						{
-							result.add(this.fieldToXMLOptimizations(elementFields2.get(i), this.nameSpaceID));
-						}
-					}
-				}
-				this.elementFieldOptimizations		= result;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
-	 * 
-	 * @return	ArrayList of Field objects. Could be empty. Never null.
-	 */
-	public ArrayList<Field> getFields()
-	{
-		ArrayList<Field> attributeFields	= attributeFields();
-		ArrayList<Field> elementFields		= elementFields();
-		ArrayList<Field> result				= new ArrayList<Field>(attributeFields.size() + elementFields.size());
-		
-		for (Field attrField : attributeFields)
-			result.add(attrField);
-		
-		for (Field elementField : elementFields)
-			result.add(elementField);
-		
-		return result;
-	}
-	
+
 	private HashMapArrayList<String, FieldDescriptor>	fieldDescriptors;
 	
+	public FieldDescriptor getFieldDescriptorByTag(String tag, TranslationScope tScope, ElementState context)
+	{
+		//TODO -- add support for name space lookup in context here
+		
+		return allFieldDescriptorsByTagNames.get(tag);
+	}
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
 	 * Use lazy evaluation to cache this value.
@@ -537,7 +256,7 @@ implements ClassTypes
 	 * @param thatClass
 	 * @return
 	 */
-	public static HashMapArrayList<String, FieldDescriptor> getFieldDescriptors(Class<? extends ElementState> thatClass)
+	public static HashMapArrayList<String, FieldDescriptor> getTheFieldDescriptors(Class<? extends ElementState> thatClass)
 	{
 		return getFieldDescriptors(thatClass, null);
 	}
@@ -553,7 +272,7 @@ implements ClassTypes
 	public static<T extends FieldDescriptor> HashMapArrayList<String, FieldDescriptor> 
 	getFieldDescriptors(Class<? extends ElementState> thatClass, Class<T> fieldDescriptorClass)
 	{
-		ClassDescriptor thatClassOptimizations	= lookupRootOptimizations(thatClass);
+		ClassDescriptor thatClassOptimizations	= getClassDescriptor(thatClass);
 		
 		HashMapArrayList<String, FieldDescriptor> result	= null;
 		
@@ -564,10 +283,8 @@ implements ClassTypes
 		return result;
 	}
 
-	static final Class[] NEW_FIELD_DESCRIPTOR_TYPES =
-	{
-		FieldToXMLOptimizations.class,
-	};
+	
+	private HashMapArrayList<String, FieldDescriptor> fieldDescriptorsByTagName;
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
 	 * 
@@ -577,159 +294,57 @@ implements ClassTypes
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
+	//FIXME -- MetaMetadata support!!! how do we pass in MetaMetadataFieldDescriptor class to instantiate during deriveAndOrganizeFieldsRecursive() ??????
 	private HashMapArrayList<String, FieldDescriptor> createFieldDescriptors(Class<? extends FieldDescriptor> fieldDescriptorClass)
 	{
-		ArrayList<FieldToXMLOptimizations> attributeF2XOs	= attributeFieldOptimizations();
-		ArrayList<FieldToXMLOptimizations> elementF2XOs		= elementFieldOptimizations();
-		
-		HashMapArrayList<String, FieldDescriptor> result		= new HashMapArrayList<String, FieldDescriptor>(attributeF2XOs.size() + elementF2XOs.size());
-
-		for (FieldToXMLOptimizations attrF2XO		: attributeF2XOs)
+		HashMapArrayList<String, FieldDescriptor> result		= fieldDescriptorsByTagName;
+		if (result != null)
 		{
-			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
-					new FieldDescriptor(attrF2XO) : createFieldDescriptor(fieldDescriptorClass, attrF2XO);
-					
-			String tagName 				= attrF2XO.tagName();
-			if (!result.containsKey(tagName))
-				result.put(tagName, fDescriptor);
-		}
-		
-		for (FieldToXMLOptimizations elementF2XO	: elementF2XOs)
-		{
-			FieldDescriptor	fDescriptor	= (fieldDescriptorClass == null) ? 
-					new FieldDescriptor(elementF2XO) : createFieldDescriptor(fieldDescriptorClass, elementF2XO);
-					
-			String tagName 				= elementF2XO.tagName();
-			if (!result.containsKey(tagName))
-				result.put(tagName, fDescriptor);
+				result	= new HashMapArrayList<String, FieldDescriptor>(fieldDescriptorsByFieldName.size());
+				for (FieldDescriptor fieldDescriptor : fieldDescriptorsByFieldName)
+					result.put(fieldDescriptor.getTagName(), fieldDescriptor);
+				fieldDescriptorsByTagName	= result;
 		}
 		return result;
 	}
 	
-	private FieldDescriptor createFieldDescriptor(Class<? extends FieldDescriptor> fieldDescriptorClass, FieldToXMLOptimizations attrF2XO)
+
+	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class thatClass)
 	{
-		Object[] args	= new Object[1];
-		args[0]			= attrF2XO;
-		
-		return ReflectionTools.getInstance(fieldDescriptorClass, NEW_FIELD_DESCRIPTOR_TYPES, args);
-	}
-	/**
-	 * Get the fields that are represented as attributes for the class we're optimizing.
-	 * 
-	 * @return	ArrayList of Field objects.
-	 */
-	ArrayList<Field> attributeFields()
-	{
-		return attributeFields;
-	}
-	/**
-	 * Get the fields that are represented as nested elements (including leaf nodes)
-	 * for the class we're optimizing.
-	 * 
-	 * @return	ArrayList of Field objects.
-	 */
-	public ArrayList<Field> elementFields()
-	{
-		return elementFields;
-	}
-	
-	/**
-	 * Performs the lazy evaluation to get attribute and element field collections.
-	 * Dispatches to the correct routine for this, based on ElementState.declarationStyle().
-	 *
-	 */
-	private synchronized void getAndOrganizeFields()
-	{
-		attributeFields	= new ArrayList<Field>();
-		elementFields		= new ArrayList<Field>();
-		fieldsMap			= new HashMap<String, Field>();
-		ElementState.DeclarationStyle ds = ElementState.declarationStyle();
-		switch (ds)
+		Annotation classDescriptorAnnotation	= thatClass.getAnnotation(xml_class_descriptor.class);
+		xml_class_descriptor xmlClassDescriptor	= xml_class_descriptor.class.cast(classDescriptorAnnotation);
+		Class<FieldDescriptor> result	= null;
+		if (xmlClassDescriptor != null)
 		{
-		case PUBLIC:
-			getAndOrganizeFieldsPublic(thatClass, attributeFields, elementFields);
-			break;
-		case ANNOTATION:
-		case TRANSIENT:
-			getAndOrganizeFieldsRecursive(thatClass, attributeFields, elementFields,
-										  (ds == ElementState.DeclarationStyle.TRANSIENT));
-			break;
-		default:
-			throw new RuntimeException("Unsupported declaration style: " + ds);
+			Class annotatedFieldDescriptorClass	= xmlClassDescriptor.value();
+			if (annotatedFieldDescriptorClass != null && FieldDescriptor.class.isAssignableFrom(annotatedFieldDescriptorClass))
+				result	= (Class<FieldDescriptor>) annotatedFieldDescriptorClass;
 		}
+		return result;
 	}
 	/**
-	 * Performs the lazy evaluation to get attribute and element field collections.
-	 * Uses the hip new annotation stylee.
-	 * Uses the old PUBLIC declaration stylee.
+	 * Recursive method to create optimized data structures needed for
+	 * translation to and from XML, and also for efficient reflection-based access
+	 * to field (descriptors) at run-time, with field name as a variable.
 	 * <p/>
-	 * Must be called from getAndOrganizeFields() !
+	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 */
-	private void getAndOrganizeFieldsPublic(Class thatClass,
-			ArrayList<Field> attributeFields, ArrayList<Field> elementFields)
+	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass, Class<FieldDescriptor> fieldDescriptorClass)
 	{
-		Field[] fields		= thatClass.getFields();
+		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
+		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
+			Class superClass	= thatClass.getSuperclass();
 			
-		for (int i = 0; i < fields.length; i++)
-		{
-			Field thatField	= fields[i];
-			int fieldModifiers		= thatField.getModifiers();
+			if (fieldDescriptorClass == null)		
+			{	// look for annotation in super class if subclass didn't have one
+				fieldDescriptorClass	= fieldDescriptorAnnotationValue(thatClass);
+			}
 
-			// skip static fields, since we're saving instances,
-			// and inclusion w each instance would be redundant.
-			if ((fieldModifiers & Modifier.STATIC) == Modifier.STATIC)
-			{
-//				debug("Skipping " + thatField + " because its static!");
-				continue;
-			}
-			mapField(thatField);
-			if (XMLTools.isScalarValue(thatField) && !XMLTools.representAsLeafNode(thatField))
-			{
-				attributeFields.add(thatField);
-			}
-			else
-			{
-				elementFields.add(thatField);
-			}
+			if (superClass != null)
+				deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
 		}
-	}
-	
-	ArrayList<Field>	annotatedFields;
-	
-	ArrayList<Field>	annotatedFields()
-	{
-		ArrayList<Field>	result	= annotatedFields;
-		if (result == null)
-		{
-			Field[] fields		= thatClass.getDeclaredFields();
-			
-			result						= new ArrayList<Field>(fields.length);
-			for (Field thatField : fields)
-			{
-				if (XMLTools.representAsLeafOrNested(thatField) || 
-					 XMLTools.representAsAttribute(thatField) ||
-					 thatField.isAnnotationPresent(ElementState.xml_text.class) ||
-					 thatField.isAnnotationPresent(ElementState.xml_collection.class) ||
-					 thatField.isAnnotationPresent(ElementState.xml_map.class))
-				{
-					thatField.setAccessible(true);
-					result.add(thatField);
-				}
-			}
-			annotatedFields = result;
-		}
-		return result;
-	}
-	/**
-	 * Performs the lazy evaluation to get attribute and element field collections.
-	 * Uses the hip new annotation declaration stylee.
-	 * Recurses up the chain of inherited Java classes, if @xml_inherit is specified.
-	 */
-	private void getAndOrganizeFieldsRecursive(Class thatClass,
-			ArrayList<Field> attributeFields, ArrayList<Field> elementFields, 
-			boolean transientDeclarationStyle)
-	{
-		//TODO -- use annotated fields instead!
+
+		
 		Field[] fields		= thatClass.getDeclaredFields();
 		
 		for (int i = 0; i < fields.length; i++)
@@ -743,303 +358,97 @@ implements ClassTypes
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			//mapField(thatField);
+			FieldDescriptor fieldDescriptor	= null;
+			boolean					isElement				= true;
+			//TODO -- if fieldDescriptorClass is already defined, then use it w reflection, instead of FieldDescriptor, itself
 			if (XMLTools.representAsAttribute(thatField))
 			{
-				indexField(attributeFields, thatField);
-//				String tag	= 
+				isElement					= false;
+				fieldDescriptor		= new FieldDescriptor(this, thatField, ATTRIBUTE);
 			}
-			else if (XMLTools.representAsLeafOrNested(thatField))
+			else if (XMLTools.representAsLeaf(thatField))
 			{
-				indexField(elementFields, thatField);
-				
-				// look for declared tag for @xml_collection
-				ElementState.xml_collection collectionAnnotation		
-					= thatField.getAnnotation(ElementState.xml_collection.class);
-				if (collectionAnnotation != null)
-				{
-					processCollectionDeclaredWithTag(thatField, collectionAnnotation);
-				}
-				else
-				{
-					// look for declared tag for @xml_map
-					ElementState.xml_map mapAnnotation
-						= thatField.getAnnotation(ElementState.xml_map.class);
-					if (mapAnnotation != null)
-					{
-						processMapDeclaredWithTag(thatField, mapAnnotation);
-					}				
-				}
+				fieldDescriptor		= new FieldDescriptor(this, thatField, LEAF);
 			}
-			else if (thatField.isAnnotationPresent(ElementState.xml_text.class))
+			else if (XMLTools.representAsText(thatField))
 			{
-				// Special field for a typed text node value
-				scalarTextField		= thatField;
-				scalarTextN2jo 		= new ElementDescriptor(this, thatField);
-				
-				thatField.setAccessible(true);
-            
-				//TODO -- is this line necessary? desirable?
-				mapField(thatField);
+				fieldDescriptor		= new FieldDescriptor(this, thatField, TEXT_ELEMENT);
 			}
-			// else -- ignore non-annotated fields
-		}
-		
-		if (thatClass.isAnnotationPresent(xml_inherit.class) || transientDeclarationStyle) 
-		{	// recurse on super class
-			Class superClass	= thatClass.getSuperclass();
-			if (superClass != null)
-				getAndOrganizeFieldsRecursive(superClass, attributeFields, elementFields, transientDeclarationStyle);
-		}
-	}
-	
-	boolean xmlTagFieldsAreIndexed;
-	
-	/**
-	 * For a set of fields, establish special tag-object mappings for use in translating from XML.
-	 * <p/>
-	 * Effects fields declared with <code>@xml_tag</code>, <code>@xml_class</code>, or <code>@xml_classes</code>.
-	 * 
-	 * @param themFields
-	 * @param isAttribute
-	 * @param tspace
-	 * @param context
-	 */
-	private void indexSpecialMappingsForFields(ArrayList<Field> themFields, boolean isAttribute, TranslationScope tspace, ElementState context)
-	{
-		for (Field thatField : themFields)
-		{
-			ElementDescriptor n2jo		= null;
-			ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(ElementState.xml_tag.class);
-			boolean isNested 					= thatField.isAnnotationPresent(ElementState.xml_nested.class);
-			if (tagAnnotation != null)
+			else if (XMLTools.representAsNested(thatField))
 			{
-				n2jo	= registerTagOptimizationsIfNeeded(isAttribute, tspace, thatField, tagAnnotation);
+				fieldDescriptor		= new FieldDescriptor(this, thatField, NESTED_ELEMENT);
 			}
+			else if (XMLTools.representAsCollection(thatField))
+			{
+				fieldDescriptor		= new FieldDescriptor(this, thatField, COLLECTION_ELEMENT);
+			}
+			else if (XMLTools.representAsMap(thatField))
+			{
+				fieldDescriptor		= new FieldDescriptor(this, thatField, MAP_ELEMENT);
+			}
+			else	// not an ecologylab.xml annotated field
+				continue;
+			
+			// create indexes for translateToXML
+			if (isElement)
+				elementFieldDescriptors.add(fieldDescriptor);
 			else
+				attributeFieldDescriptors.add(fieldDescriptor);
+			
+			
+			//TODO -- throughout this block -- instead of just put, do contains() before put,
+			// and generate a warning message if a mapping is being overridden
+			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
+			
+			if (fieldDescriptor.isMarshallOnly())
+				continue;	// not translated from XML, so don't add those mappings
+			
+			// create mappings for translateFromXML() --> allFieldDescriptorsByTagNames
+			final String fieldTagName	= fieldDescriptor.getTagName();
+			if (fieldDescriptor.isWrapped())
 			{
-				if (isNested)
-				{
-					ElementState.xml_classes classesAnnotation 	= thatField.getAnnotation(ElementState.xml_classes.class);
-					if (classesAnnotation != null)
-					{
-						Class<? extends ElementState> thoseClasses[]	= classesAnnotation.value();
-						int length				= thoseClasses.length;
-						for (int i=0; i<length; i++)
-						{
-							Class<? extends ElementState> thisClass		= thoseClasses[i];
-							registerN2JOByClass(tspace, thatField, thisClass);
-						}
-					}
-					else
-					{
-						ElementState.xml_class classAnnotation 	= thatField.getAnnotation(ElementState.xml_class.class);
-						if (classAnnotation != null)
-						{
-							n2jo				= registerN2JOByClass(tspace, thatField, classAnnotation.value());
-						}
-						else
-						{
-							ElementState.xml_scope scopeAnnotation 	= thatField.getAnnotation(ElementState.xml_scope.class);
-							if (scopeAnnotation != null)
-							{
-								TranslationScope translationScope				= TranslationScope.lookup(scopeAnnotation.value());
-								if (translationScope != null)
-								{
-									Collection<TranslationEntry> scopeEntries	= translationScope.getEntries();
-									for (TranslationEntry entry : scopeEntries)
-									{
-										registerN2JOByClass(tspace, thatField, entry.thisClass);										
-									}
-								}
-							}
-						}
-					}
-				}
+				FieldDescriptor wrapper	= new FieldDescriptor(this, fieldDescriptor, fieldTagName);
+				mapTagToFdForTranslateFrom(fieldTagName, wrapper);
 			}
-			if (isNested || (n2jo != null))
+			else if (!fieldDescriptor.isPolymorphic())	// tag(s) from field, not from class :-)
 			{
+				String tag	= fieldDescriptor.isCollection() ? fieldDescriptor.getCollectionOrMapTagName() : fieldTagName;
+				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
+
+				// also add mappings for @xml_other_tags
 				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
-				if (otherTagsAnnotation != null)
+				String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
+				if (otherTags != null)
 				{
-					registerOtherTagsOptimizationsIfNeeded(n2jo, isAttribute, tspace, thatField, otherTagsAnnotation);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Identify or create a NodeToJavaOptimizations object.
-	 * Create a mapping between that and a tag derived from its class name.
-	 * 
-	 * @param tspace
-	 * @param thatField
-	 * @param thatClass
-	 */
-	private ElementDescriptor registerN2JOByClass(TranslationScope tspace, Field thatField,
-			Class thatClass)
-	{
-		ElementDescriptor n2jo	= 
-			new ElementDescriptor(tspace, this, thatField, thatClass);
-		nodeToJavaOptimizationsMap.put(n2jo.tag(), n2jo);
-		return n2jo;
-	}
-
-	/**
-	 * Identify or create a NodeToJavaOptimizations object.
-	 * Create a mapping between that and the value of a tag annotation.
-	 * 
-	 * @param isAttribute
-	 * @param tspace
-	 * @param thatField
-	 * @param tagAnnotation
-	 * 
-	 * @return	NodeToJavaOptimizations that was registered, or null.
-	 */
-	private ElementDescriptor registerTagOptimizationsIfNeeded(boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_tag tagAnnotation)
-	{
-		String thatTag					= tagAnnotation.value();
-		ElementDescriptor	result	= null;
-		if ((thatTag != null) && (thatTag.length() > 0))
-		{
-			result						= nodeToJavaOptimizationsMap.get(thatTag);
-			if (result == null)
-			{
-				result					= new ElementDescriptor(tspace, this, thatField, thatTag, isAttribute);
-				nodeToJavaOptimizationsMap.put(thatTag, result);
-			}
-		}
-		return result;
-	}
-	
-	private boolean registerOtherTagsOptimizationsIfNeeded(ElementDescriptor fieldN2jo, boolean isAttribute, TranslationScope tspace, Field thatField, ElementState.xml_other_tags otherTagsAnnotation)
-	{
-		String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
-		final boolean result	= (otherTags != null);
-		if (result)
-		{
-			for (String otherTag : otherTags)
-			{
-				
-				ElementDescriptor n2jo	= nodeToJavaOptimizationsMap.get(otherTag);
-				if (n2jo == null)
-				{
-					if (fieldN2jo != null)
-						n2jo					= fieldN2jo;
-					else
-						n2jo					= new ElementDescriptor(tspace, this, thatField, otherTag, isAttribute);
-					nodeToJavaOptimizationsMap.put(otherTag, n2jo);
-				}
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Add this Field to various data structures, and make it accessible for reflection.
-	 * 
-	 * @param fieldsArrayList
-	 * @param thatField
-	 */
-	//TODO -- get rid of either fieldsArrayList or isAttribute
-	private void indexField(ArrayList<Field> fieldsArrayList, Field thatField)
-	{
-		mapField(thatField);
-		fieldsArrayList.add(thatField);
-		thatField.setAccessible(true);
-	}
-
-	/**
-	 * @param thatField
-	 * @param tagFromAnnotation
-	 */
-	private void processCollectionDeclaredWithTag(Field thatField, ElementState.xml_collection collectionAnnotation)
-	{
-		String tagFromAnnotation	= collectionAnnotation.value();
-		Class fieldClass			= thatField.getType();
-		if (Collection.class.isAssignableFrom(fieldClass))
-		{
-			HashMap<String, Field> collectionFieldsByTag = collectionFieldsByTag();
-			if ((tagFromAnnotation != null) && !"".equals(tagFromAnnotation))
-			{ 
-				//note! we *really* want to wait until here before we allocate storage for this HashMap!
-				collectionFieldsByTag.put(tagFromAnnotation, thatField);
-				
-				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
-				if (otherTagsAnnotation != null)
-				{
-					String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
+					//TODO -- @xml_other_tags for collection/map how should it work?!
 					for (String otherTag : otherTags)
-					{
-						if ((otherTag != null) && (otherTag.length() > 0))
-						{
-							collectionFieldsByTag.put(otherTag, thatField);
-						}
-					}
+						mapTagToFdForTranslateFrom(otherTag, fieldDescriptor);
 				}
 			}
 			else
-			{
-				// no direct annotation of tag for children. how about classes?
-				ElementState.xml_classes classesAnnotation	= thatField.getAnnotation(ElementState.xml_classes.class);
-				if (classesAnnotation != null)
+			{	// add mappings by class tagNames for polymorphic elements & collections
+				//TODO add support for wrapped polymorphic collections!
+				for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
 				{
-					Class[]	classes	= classesAnnotation.value();
-					if (classes != null)
-					{
-						for (int i=0; i<classes.length; i++)
-						{
-							String	tagFromClass	= XMLTools.getXmlTagName(classes[i], "State");
-							collectionFieldsByTag.put(tagFromClass, thatField);
-						}
-					}
+						mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
 				}
 			}
-		} 
-		else
-			annotatedFieldError(thatField, tagFromAnnotation, "collection");
+			thatField.setAccessible(true);	// else -- ignore non-annotated fields
+		}	// end for all fields
 	}
-
 	/**
-	 * @param thatField
-	 * @param mapAnnotation
+	 * Map the tag to the FieldDescriptor for use in translateFromXML() for elements of this class type.
+	 * 
+	 * @param tagName
+	 * @param fdToMap
 	 */
-	private void processMapDeclaredWithTag(Field thatField, ElementState.xml_map mapAnnotation)
+	private void mapTagToFdForTranslateFrom(String tagName, FieldDescriptor fdToMap)
 	{
-		String tagFromAnnotation	= mapAnnotation.value();
-		Class fieldClass			= thatField.getType();
-		if (Map.class.isAssignableFrom(fieldClass))
-		{
-			if ((tagFromAnnotation != null) && !"".equals(tagFromAnnotation))
-			{ 
-				//note! we *really* want to wait until here before we allocate storage for this HashMap!
-				mapFieldsByTag().put(tagFromAnnotation, thatField);
-			}
-		} 
-		else
-			annotatedFieldError(thatField, tagFromAnnotation, "map");
+		FieldDescriptor previousMapping	= allFieldDescriptorsByTagNames.put(tagName, fdToMap);
+		if (previousMapping != null)
+			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field[" + previousMapping.getFieldName() + "]");
 	}
 
-	HashMap<String, Field> collectionFieldsByTag()
-	{
-		HashMap<String, Field> result	= this.collectionFieldsByTag;
-		if (result == null)
-		{
-			result	= new HashMap<String, Field>();
-			this.collectionFieldsByTag	= result;
-		}
-		return result;
-	}
-	HashMap<String, Field> mapFieldsByTag()
-	{
-		HashMap<String, Field> result	= this.mapFieldsByTag;
-		if (result == null)
-		{
-			result	= new HashMap<String, Field>();
-			this.mapFieldsByTag			= result;
-		}
-		return result;
-	}
 	/**
 	 * @param thatField
 	 * @param tagFromAnnotation
@@ -1057,63 +466,22 @@ implements ClassTypes
 	
 	/**
 	 * Add an entry to our map of Field objects, using the field's name as the key.
-	 * Can only be called by routines that guaranty that the fieldsMap has already been
-	 * created and populated with entries.
+	 * Used, for example, for ignored fields.
 	 * 
-	 * @param fieldsMap
-	 * @param thatField
+	 * @param fieldDescriptor
 	 */
-	private void mapField(Field thatField)
+	void addFieldDescriptorMapping(FieldDescriptor fieldDescriptor)
 	{
-		fieldsMap.put(thatField.getName(), thatField);
-	}
-/*
-	private void mapMap(Field thatField)
-	{
-		mapsMap.put(thatField.getName(), thatField);
+		//FIXME is tag determined by field by class?
+		String tagName	= fieldDescriptor.getTagName();
+		if (tagName != null)
+			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
 	}
 
-	private void mapCollection(Field thatField)
-	{
-		collectionsMap.put(thatField.getName(), thatField);
-	}
-*/
-	/**
-	 * Get the field asssociated with fieldName.
-	 * If necessary (that is, the first time), this routine may make calls to do all the work
-	 * for creating the fieldsMap and fields ArrayLists.
-	 */
-	Field getField(String fieldName)
-	{
-		return fieldsMap.get(fieldName);
-	}
-	
-	/**
-	 * Lookup a collection object by its tag name.
-	 * This seeks a field declared with @xml_collection(tag).
-	 * 
-	 * @param tag
-	 * @return	The Field object for the correctly parameterized Collection.
-	 */
-	Field getCollectionFieldByTag(String tag)
-	{
-		return (collectionFieldsByTag == null) ? null : collectionFieldsByTag.get(tag);
-	}
-	/**
-	 * Lookup a collection object by its tag name.
-	 * This seeks a field declared with @xml_collection(tag).
-	 * 
-	 * @param tag
-	 * @return	The Field object for the correctly parameterized Collection.
-	 */
-	Field getMapFieldByTag(String tag)
-	{
-		return (mapFieldsByTag == null) ? null : mapFieldsByTag.get(tag);
-	}
 
 	public String toString()
 	{
-		return "Optimizations[" + thatClass.getName() + "]"; 
+		return "ClassDescriptor[" + describedClass.getName() + "]"; 
 	}
 	
 	/**
@@ -1125,101 +493,124 @@ implements ClassTypes
 	 */
 	void mapNamespaceIdToClass(TranslationScope translationSpace, String nsID, String urn)
 	{
-		if (!nameSpaceClassesById.containsKey(nsID))
-		{
-			Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
-			final boolean nsUnsupported				= (nsClass == null);
-			nameSpaceClassesById().put(nsID, nsClass);
-			FieldToXMLOptimizations xmlnsF2XO = new FieldToXMLOptimizations(nsID, urn, nsUnsupported);
-			if (nsUnsupported)
-				warning("No Namespace found in " + translationSpace + " for\t\txmlns:" + nsID +"=" + urn);
-			else
-			{
-				debug("COOL! " + translationSpace + " \t" + nsClass.getName() + " ->\t\txmlns:" + nsID +"=" + urn);
-				xmlnsAttributeOptimizations().add(xmlnsF2XO);
-			}
-		}
-	}
-	/**
-	 * Lazy evaluation creation of Collection of pseudo-FieldOptimizations for generating
-	 * xmlns: "attributes".
-	 * 
-	 * @return
-	 */
-	ArrayList<FieldToXMLOptimizations> xmlnsAttributeOptimizations()
-	{
-		ArrayList<FieldToXMLOptimizations>	result	= this.xmlnsAttributeOptimizations;
-		if (result == null)
-		{
-			result		= new ArrayList<FieldToXMLOptimizations>(2);
-			this.xmlnsAttributeOptimizations		= result;
-		}
-		return result;
-	}
-	boolean containsNameSpaceClass(String nsID)
-	{
-		return nameSpaceClassesById().containsKey(nsID);
-	}
-	Class<? extends ElementState> lookupNameSpaceClassById(String nsID)
-	{
-		return nameSpaceClassesById().get(nsID);
+		//TODO -- Name Space support!
+//		if (!nameSpaceClassesById.containsKey(nsID))
+//		{
+//			Class<? extends ElementState> nsClass	= translationSpace.lookupNameSpaceByURN(urn);
+//			final boolean nsUnsupported				= (nsClass == null);
+//			nameSpaceClassesById().put(nsID, nsClass);
+////			FieldToXMLOptimizations xmlnsF2XO = new FieldToXMLOptimizations(nsID, urn, nsUnsupported);
+//			if (nsUnsupported)
+//				warning("No Namespace found in " + translationSpace + " for\t\txmlns:" + nsID +"=" + urn);
+//			else
+//			{
+//				debug("FIXME -- COOL! " + translationSpace + " \t" + nsClass.getName() + " ->\t\txmlns:" + nsID +"=" + urn);
+////				xmlnsAttributeOptimizations().add(xmlnsF2XO);
+//			}
+//		}
 	}
 
-	HashMap<String, Class<? extends ElementState>> nameSpaceClassesById()
-	{
-		HashMap<String, Class<? extends ElementState>> result = nameSpaceClassesById;
-		if (result == null)
-		{
-			result					= new HashMap<String, Class<? extends ElementState>>(2);
-			nameSpaceClassesById	= result;
-		}
-		return result;
-	}
-	class OptimizationsMap extends HashMapWriteSynch3<String, Class, ClassDescriptor>
-	implements ValueFactory<Class, ClassDescriptor>
-	{
-		public ClassDescriptor getOrCreateAndPutIfNew(ElementState elementState)
-		{
-			return super.getOrCreateAndPutIfNew(elementState.getClass());
-		}
-		
-		@Override
-		protected String createKey(Class intermediate)
-		{
-			return intermediate.getName();
-		}
-		
-		public ClassDescriptor createValue(Class key)
-		{
-			return new ClassDescriptor(key, parent);
-		}
-	}
+//	boolean containsNameSpaceClass(String nsID)
+//	{
+//		return nameSpaceClassesById().containsKey(nsID);
+//	}
+//	Class<? extends ElementState> lookupNameSpaceClassById(String nsID)
+//	{
+//		return nameSpaceClassesById().get(nsID);
+//	}
+//
+//	HashMap<String, Class<? extends ElementState>> nameSpaceClassesById()
+//	{
+//		HashMap<String, Class<? extends ElementState>> result = nameSpaceClassesById;
+//		if (result == null)
+//		{
+//			result					= new HashMap<String, Class<? extends ElementState>>(2);
+//			nameSpaceClassesById	= result;
+//		}
+//		return result;
+//	}
 	
 	/**
-	 * @return the Class Object that this holds Optimizations for.
+	 * @return the Class Object that this describes.
 	 */
-	public Class thatClass()
+	public Class<ES> describedClass()
 	{
-		return thatClass;
+		return describedClass;
 	}
 
-	ElementDescriptor scalarTextN2jo()
+	FieldDescriptor scalarTextFD()
 	{
-		return scalarTextN2jo;
+		return scalarTextFD;
 	}
 
-	public Field getScalarTextField()
-	{
-		return scalarTextField;
-	}
-	
 	public boolean hasScalarTextField()
 	{
-		return scalarTextField != null;
+		return scalarTextFD != null;
 	}
 
-	public String getTagName()
+	public Class<ES> getDescribedClass()
+	{
+		return describedClass;
+	}
+
+/**
+ * 
+ * @return	true if this is an empty entry, for a tag that we do not parse. No class is associated with such an entry.
+ */
+	public boolean isEmpty()
+	{
+		return describedClass == null;
+	}
+	public String getDecribedClassSimpleName()
+	{
+		return decribedClassSimpleName;
+	}
+	public String getDescribedClassPackageName()
+	{
+		return describedClassPackageName;
+	}
+	
+	public ES getInstance() 
+	throws XMLTranslationException
+	{
+		return XMLTools.getInstance(describedClass);
+	}
+	
+	public int numFields()
+	{
+		return allFieldDescriptorsByTagNames.size();
+	}
+	/**
+	 * The tagName.
+	 */
+	public String key()
 	{
 		return tagName;
+	}
+	
+	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsByFieldName()
+	{
+		return fieldDescriptorsByFieldName;
+	}
+	
+	public String getSuperClassName()
+	{
+		return XMLTools.getClassName(describedClass.getSuperclass());
+	}
+
+	
+	public static void main(String[] s)
+	{
+		TranslationScope mostBasicTranslations	= TranslationScope.get("most_basic", ClassDescriptor.class, FieldDescriptor.class, TranslationScope.class);
+		
+		try
+		{
+			mostBasicTranslations.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

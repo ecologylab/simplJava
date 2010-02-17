@@ -4,11 +4,11 @@
 package ecologylab.xml.library.xaml;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_tag;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * ecologylab.xml representation of the Microsoft WPF FrameworkElement object. FrameworkElement
@@ -19,7 +19,7 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 @xml_inherit
 @xml_tag("FrameworkElement")
-public class FrameworkElementState extends ArrayListState<ElementState>
+public class FrameworkElementState extends ElementState
 {
 	@xml_attribute @xml_tag("Name") String name;
 	@xml_attribute @xml_tag("Background") Color background;
@@ -37,6 +37,9 @@ public class FrameworkElementState extends ArrayListState<ElementState>
 	@xml_attribute @xml_tag("Mouse.MouseWheel") String mouseWheelEventHandler;	
 	
 	@xml_attribute @xml_tag("x:Class") 			String wpfClass;
+	
+	@xml_collection("Element") 
+	ArrayList<ElementState>   frameWorkElements;
 
 	public String getName()
 	{

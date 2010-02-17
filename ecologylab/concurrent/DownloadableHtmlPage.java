@@ -140,7 +140,7 @@ public class DownloadableHtmlPage implements Downloadable
     }
 
     
-    public void downloadAndParseDone() {}
+    public void downloadDone() {}
     
     /**
      * Get the final HTML content of the downloaded page.
@@ -180,11 +180,6 @@ public class DownloadableHtmlPage implements Downloadable
   public String message()
   {
   	return purl.toString();
-  }
-  
-  public ParsedURL purl()
-  {
-	  return purl;
   }
 
 }

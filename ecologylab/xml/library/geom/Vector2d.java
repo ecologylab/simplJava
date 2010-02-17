@@ -6,7 +6,7 @@ package ecologylab.xml.library.geom;
 import java.awt.geom.Point2D;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Vector2d extends SpatialVector implements Cloneable
 {

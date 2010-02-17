@@ -15,7 +15,7 @@ import ecologylab.xml.xml_inherit;
  * application using the Pref.
  * 
  * @author ross
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 @xml_inherit public class PrefFile extends Pref<File>

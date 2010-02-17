@@ -12,7 +12,7 @@ import ecologylab.xml.xml_inherit;
 /**
  * Indicates the response from the server regarding an attempt to log out.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 @xml_inherit public class LogoutStatusResponse extends ExplanationResponse implements AuthMessages,

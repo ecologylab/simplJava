@@ -4,7 +4,7 @@
 package ecologylab.xml.library.jnlp.resource;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public class HrefBasedResource extends ResourceElement

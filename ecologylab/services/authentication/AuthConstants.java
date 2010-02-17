@@ -6,7 +6,7 @@ package ecologylab.services.authentication;
 /**
  * Constants for authenticating clients.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface AuthConstants

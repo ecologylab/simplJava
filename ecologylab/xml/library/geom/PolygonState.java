@@ -7,13 +7,12 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.Polygon;
+import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
 import ecologylab.xml.ElementState.xml_nested;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
  * Encapsulates a Polygon for use in translating to/from XML.
  * 
@@ -28,28 +27,29 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * @author Alan Blevins (alan.blevins@gmail.com)
  */
 public @xml_inherit class PolygonState extends ElementState implements Shape
 {
 	private Polygon														shape					= null;
 
-	@xml_nested private ArrayListState<Point2DDoubleState>	polygonVerticies	= new ArrayListState<Point2DDoubleState>();
+	@xml_collection("point2_d_double")
+	private ArrayList<Point2DDoubleState>	polygonVerticies	= new ArrayList<Point2DDoubleState>();
 
 	public PolygonState()
 	{
 		super();
 	}
 
-	public PolygonState(ArrayListState<Point2DDoubleState> verticies)
+	public PolygonState(ArrayList<Point2DDoubleState> verticies)
 	{
 		super();
 
 		definePolygon(verticies);
 	}
 
-	public void definePolygon(ArrayListState<Point2DDoubleState> verticies)
+	public void definePolygon(ArrayList<Point2DDoubleState> verticies)
 	{
 		polygonVerticies.clear();
 		polygonVerticies.addAll(verticies);
@@ -148,7 +148,7 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 	 * 
 	 * @return polygonVerticies
 	 */
-	public ArrayListState<Point2DDoubleState> getPolygonVerticies()
+	public ArrayList<Point2DDoubleState> getPolygonVerticies()
 	{
 		return polygonVerticies;
 	}

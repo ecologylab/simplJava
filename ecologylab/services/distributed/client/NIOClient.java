@@ -8,6 +8,7 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
 import java.net.SocketException;
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -44,7 +45,6 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.messages.SendableRequest;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -54,7 +54,7 @@ import ecologylab.xml.XMLTranslationException;
  * tracking. Since the sending methods do not wait for the server to return.
  * 
  * This object will listen for incoming messages from the server, and will send
- * any messages that it receives on its end.
+ * any messages that it recieves on its end.
  * 
  * Since the underlying implementation is TCP/IP, messages sent should be sent
  * in order, and the responses should match that order.
@@ -62,7 +62,7 @@ import ecologylab.xml.XMLTranslationException;
  * Another major difference between this and the non-NIO version of
  * ServicesClient is that it is StartAndStoppable.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		Runnable, ClientConstants
@@ -324,7 +324,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @throws XMLTranslationException
 	 */
 	protected PreppedRequest prepareAndEnqueueRequestForSending(
-			SendableRequest request) throws XMLTranslationException,
+			RequestMessage request) throws XMLTranslationException,
 			MessageTooLargeException
 	{
 		long uid = this.generateUid();
@@ -510,8 +510,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		}
 		catch (BindException e)
 		{
-			debug("Couldnt create socket connection to server - " + serverAddress+":"+portNumber
-					+ " - " + e);
+			debug("Couldnt create socket connection to server '" + serverAddress
+					+ "': " + e);
 
 			nullOut();
 		}
@@ -609,7 +609,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @return
 	 * @throws MessageTooLargeException
 	 */
-	public synchronized ResponseMessage sendMessage(SendableRequest request,
+	public synchronized ResponseMessage sendMessage(RequestMessage request,
 			int timeOutMillis) throws MessageTooLargeException
 	{
 		MessageWithMetadata<ResponseMessage, Object> responseMessage = null;
@@ -678,22 +678,13 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 
 				if (responseMessage.getUid() == currentMessageUid)
 				{
-					debug("got the right response: "+currentMessageUid);
+					debug("got the right response");
 
 					blockingRequestPending = false;
 
 					blockingResponsesQueue.clear();
 
 					ResponseMessage respMsg = responseMessage.getMessage();
-					
-					try
-					{
-						debug("response: "+respMsg.translateToXML().toString());
-					}
-					catch (XMLTranslationException e)
-					{
-						e.printStackTrace();
-					}
 
 					responseMessage = responsePool.release(responseMessage);
 

@@ -9,7 +9,7 @@ import ecologylab.xml.ElementState;
  * extend each other, they do extend a common class (thus, they can be used with
  * generics interchangably).
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public abstract class SpatialVector extends ElementState

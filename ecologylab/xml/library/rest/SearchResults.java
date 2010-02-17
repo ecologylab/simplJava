@@ -1,7 +1,8 @@
 package ecologylab.xml.library.rest;
 
+import java.util.ArrayList;
+
 import ecologylab.xml.ElementState;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Represents REST search results
@@ -11,11 +12,14 @@ import ecologylab.xml.types.element.ArrayListState;
 public class SearchResults extends ElementState
 {
 	@xml_nested protected ResultsInfo 				resultsInfo;
-	@xml_nested protected ArrayListState<Record>	results = new ArrayListState<Record>();
+	
+	@xml_nowrap
+	@xml_collection("Record")
+	protected ArrayList<Record>	results = new ArrayList<Record>();
 	
 	public SearchResults() {}
 	
-	public SearchResults(ResultsInfo resultsInfo, ArrayListState<Record> results)
+	public SearchResults(ResultsInfo resultsInfo, ArrayList<Record> results)
 	{
 		this.resultsInfo 	= resultsInfo;
 		this.results		= results;
@@ -24,7 +28,7 @@ public class SearchResults extends ElementState
 	/**
 	 * @param results the results to set
 	 */
-	public void setResults(ArrayListState<Record> results)
+	public void setResults(ArrayList<Record> results)
 	{
 		this.results = results;
 	}
@@ -32,7 +36,7 @@ public class SearchResults extends ElementState
 	/**
 	 * @return the results
 	 */
-	public ArrayListState<Record> getResults()
+	public ArrayList<Record> getResults()
 	{
 		return results;
 	}

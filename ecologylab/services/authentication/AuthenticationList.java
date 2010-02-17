@@ -3,34 +3,86 @@
  */
 package ecologylab.services.authentication;
 
-import ecologylab.services.exceptions.SaveFailedException;
-
+import java.util.HashMap;
+import ecologylab.xml.ElementState;
 /**
- * Represents a list of user keys and passwords used to authenticate with a service. A user key is
- * typically an email address or username, depending on system design.
+ * Contains a HashMap of AuthenticationListEntry's that are hashed on their
+ * username values. Raw passwords are never serialized using this object, only
+ * one-way hashes of them (see
+ * {@link ecologylab.services.authentication.AuthenticationListEntry AuthenticationListEntry}).
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * Instances of this should be used by a server to determine valid usernames and
+ * passwords; generally, a serialized instance of this is used as a backing
+ * store for such servers.
+ * 
+ * Most methods in this class are synchronized, so that they cannot be
+ * interleaved on multiple threads. This should prevent consistency errors.
+ * 
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public interface AuthenticationList<U extends User>
+public class AuthenticationList<E extends AuthenticationListEntry> extends
+		ElementState
 {
-	/**
-	 * Adds a new entry to the AuthenticationList, if the entry's user key does not otherwise exist.
-	 * Multiple users with the same key are not allowed.
-	 * 
-	 * @return true if the user was successfully added; false otherwise.
-	 * @throws SaveFailedException
-	 *           if the method call was unable to save() the AuthenticationList. In this case, the
-	 *           in-memory copy will be correct, but the backing store will not reflect the changes.
-	 */
-	public boolean addUser(U user) throws SaveFailedException;
+	@xml_map("auth_list")
+	@xml_nowrap
+	private HashMap<String, E>	authList	= new HashMap<String, E>();
+
+	/** No-argument constructor for XML translation. */
+	public AuthenticationList()
+	{
+		super();
+	}
 
 	/**
-	 * Checks to see if this contains the user key given in entry; returns true if it does.
+	 * Adds the given entry to this.
+	 */
+	public synchronized boolean add(E entry)
+	{
+		if (!this.authList.containsKey(entry.getUsername()))
+		{
+			authList.put(entry.getUsername(), entry);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Cloning AuthenticationLists is not allowed, because it is a security
+	 * violation.
+	 * 
+	 * This method just throws an UnsupportedOperationException.
+	 */
+	@Override public final Object clone() throws UnsupportedOperationException
+	{
+		throw new UnsupportedOperationException(
+				"Cannot clone an AuthenticationList, for security reasons.");
+	}
+
+	/**
+	 * Checks to see if this contains the username given in entry; returns true
+	 * if it does.
 	 * 
 	 * @param entry
 	 * @return
 	 */
-	public boolean contains(U user);
+	public synchronized boolean contains(AuthenticationListEntry entry)
+	{
+		return this.contains(entry.getUsername());
+	}
+
+	/**
+	 * Checks to see if this contains the given username; returns true if it
+	 * does.
+	 * 
+	 * @param username
+	 * @return
+	 */
+	public synchronized boolean contains(String username)
+	{
+		return authList.containsKey(username);
+	}
 
 	/**
 	 * Retrieves the access level for the given entry.
@@ -38,53 +90,52 @@ public interface AuthenticationList<U extends User>
 	 * @param entry
 	 * @return
 	 */
-	public int getAccessLevel(U user);
+	public synchronized int getAccessLevel(AuthenticationListEntry entry)
+	{
+		return authList.get(entry.getUsername()).getLevel();
+	}
 
 	/**
-	 * Checks entry against the entries contained in this. Verifies that the username exists, and the
-	 * password matches; returns true if both are true.
+	 * Checks entry against the entries contained in this. Verifies that the
+	 * username exists, and the password matches; returns true if both are true.
 	 * 
 	 * @param entry
-	 * @return true if the entry is valid (username and password match those on file).
+	 * @return
 	 */
-	public boolean isValid(U entry);
+	public synchronized boolean isValid(AuthenticationListEntry entry)
+	{
+		return (authList.containsKey(entry.getUsername()) && authList.get(
+				entry.getUsername()).compareHashedPassword(entry.getPassword()));
+	}
 
 	/**
-	 * Attempts to remove the given entry; this will succeed if and only if the entry's user key and
-	 * password match those on file.
+	 * Attempts to remove the given object; this will succeed if and only if the
+	 * following are true:
+	 * 
+	 * 1.) the Object is of type AuthenticationListEntry 2.) this list contains
+	 * the AuthenticationListEntry 3.) the AuthenticationListEntry's username and
+	 * password both match the one in this list
 	 * 
 	 * @param entry
-	 *          the AuthenticationListEntry (user key / password) to attempt to remove.
-	 * @return true if the entry was removed from the AuthenticationList.
-	 * @throws SaveFailedException
-	 *           if the method call was unable to save() the AuthenticationList. In this case, the
-	 *           in-memory copy will be correct, but the backing store will not reflect the changes.
+	 *           the AuthenticationListEntry (username / password) to attempt to
+	 *           remove.
 	 */
-	public boolean removeUser(U user) throws SaveFailedException;
+	public synchronized boolean remove(AuthenticationListEntry entry)
+	{
+		if (this.isValid(entry))
+		{
+			return entry.equals(authList.remove(entry.getUsername()));
+		}
+
+		return false;
+	}
 
 	/**
-	 * Returns a String indicating the number of entries in the AuthenticationList.
+	 * Returns a String indicating the number of entries in the
+	 * AuthenticationList.
 	 */
-	public String toString();
-
-	/**
-	 * Uses the backing store to set the UID for the given entry. This is used after logging-in a
-	 * user; the user will have a UID in the backing store, but the current entry will not have it.
-	 * 
-	 * @param entry
-	 */
-	void setUID(U user);
-
-	/**
-	 * Indicates to the AuthenticationList that it should save itself to the backing store. In the
-	 * case of a database implementation, this will do nothing. In the case of an XML implementation,
-	 * this will cause the AuthenticationList to write itself to the filesystem using the file
-	 * specified in the class.
-	 * 
-	 * This method is automatically called by the addUser and removeUser methods.
-	 * 
-	 * @throws SaveFailedException
-	 *           if there was an error when trying to write.
-	 */
-	public void save() throws SaveFailedException;
+	@Override public String toString()
+	{
+		return "AuthenticationList containing " + authList.size() + " entries.";
+	}
 }

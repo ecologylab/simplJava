@@ -12,9 +12,10 @@ import java.util.List;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.AuthenticationTranslations;
-import ecologylab.services.authentication.OnlineAuthenticator;
+import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.listener.AuthenticationListener;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
@@ -22,55 +23,133 @@ import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.nio.AuthClientSessionManager;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
-import ecologylab.services.exceptions.SaveFailedException;
 import ecologylab.services.logging.Logging;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
+import ecologylab.xml.XMLTranslationException;
 
 /**
- * An authenticating server that uses NIO and two threads (one for handling IO, the other for
- * handling interfacing with messages).
+ * An authenticating server that uses NIO and two threads (one for handling IO,
+ * the other for handling interfacing with messages).
  * 
- * Any clients attempting to communicate with this server must either first provide a Login request,
- * or otherwise have previously been logged in; otherwise, no requests are processed from the
- * client.
+ * Any clients attempting to communicate with this server must either first
+ * provide a Login request, or otherwise have previously been logged in;
+ * otherwise, no requests are processed from the client.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DoubleThreadedAuthNIOServer<A extends User> extends
-		DoubleThreadedNIOServer implements AuthServerRegistryObjects, AuthMessages, AuthLogging,
-		Authenticatable<A>
+public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
+		extends DoubleThreadedNIOServer implements AuthServerRegistryObjects,
+		AuthMessages, AuthLogging, Authenticatable<A>
 {
 	/**
-	 * Optional Logging listeners may record authentication events, such as users logging-in.
+	 * Optional Logging listeners may record authentication events, such as users
+	 * logging-in.
 	 */
-	private List<Logging>									logListeners	= new LinkedList<Logging>();
+	private List<Logging>						logListeners	= new LinkedList<Logging>();
 
 	private List<AuthenticationListener>	authListeners	= new LinkedList<AuthenticationListener>();
 
-	protected OnlineAuthenticator<A>			authenticator	= null;
+	protected Authenticator<A>					authenticator	= null;
+
+	/**
+	 * This is the actual way to create an instance of this.
+	 * 
+	 * @param portNumber
+	 * @param translationScope
+	 * @param objectRegistry
+	 * @param authListFilename -
+	 *           a file name indicating the location of the authentication list;
+	 *           this should be an XML file of an AuthenticationList object.
+	 * @return A server instance, or null if it was not possible to open a
+	 *         ServerSocket on the port on this machine.
+	 */
+	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			String authListFilename)
+	{
+		DoubleThreadedAuthNIOServer newServer = null;
+
+		try
+		{
+			newServer = new DoubleThreadedAuthNIOServer(portNumber, inetAddress,
+					requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+					maxPacketSize, (AuthenticationList) ElementState
+							.translateFromXML(authListFilename,
+									AuthenticationTranslations.get()));
+		}
+		catch (IOException e)
+		{
+			println("ServicesServer ERROR: can't open ServerSocket on port "
+					+ portNumber);
+			e.printStackTrace();
+		}
+		catch (XMLTranslationException e)
+		{
+			e.printStackTrace();
+		}
+
+		return newServer;
+	}
+
+	/**
+	 * This is the actual way to create an instance of this.
+	 * 
+	 * @param portNumber
+	 * @param translationScope
+	 * @param objectRegistry
+	 * @param authList -
+	 *           the AuthorizationList object to be used to determine possible
+	 *           users.
+	 * @return A server instance, or null if it was not possible to open a
+	 *         ServerSocket on the port on this machine.
+	 */
+	public static DoubleThreadedAuthNIOServer getInstance(int portNumber,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			AuthenticationList authList)
+	{
+		DoubleThreadedAuthNIOServer newServer = null;
+
+		try
+		{
+			newServer = new DoubleThreadedAuthNIOServer(portNumber, inetAddress,
+					requestTranslationSpace, objectRegistry, idleConnectionTimeout,
+					maxPacketSize, authList);
+		}
+		catch (IOException e)
+		{
+			println("ServicesServer ERROR: can't open ServerSocket on port "
+					+ portNumber);
+			e.printStackTrace();
+		}
+
+		return newServer;
+	}
 
 	/**
 	 * @param portNumber
 	 * @param inetAddress
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @throws IOException
 	 * @throws BindException
 	 */
-	public DoubleThreadedAuthNIOServer(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationSpace, Scope objectRegistry, int idleConnectionTimeout,
-			int maxPacketSize, OnlineAuthenticator<A> authenticator) throws IOException, BindException
+	protected DoubleThreadedAuthNIOServer(int portNumber,
+			InetAddress[] inetAddress, TranslationScope requestTranslationSpace,
+			Scope objectRegistry, int idleConnectionTimeout, int maxPacketSize,
+			AuthenticationList authList) throws IOException, BindException
 	{
 		// MODEL for translation space
-		super(portNumber, inetAddress, AuthenticationTranslations.get("double_threaded_auth "
-				+ inetAddress[0].toString()
-				+ ":"
-				+ portNumber, requestTranslationSpace), objectRegistry, idleConnectionTimeout,
-				maxPacketSize);
+		super(portNumber, inetAddress, AuthenticationTranslations.get(
+				"double_threaded_auth " + inetAddress[0].toString() + ":"
+						+ portNumber, requestTranslationSpace), objectRegistry,
+				idleConnectionTimeout, maxPacketSize);
 
 		this.applicationObjectScope.put(MAIN_AUTHENTICATABLE, this);
 
-		this.authenticator = authenticator;
+		authenticator = new Authenticator(authList);
 	}
 
 	/**
@@ -80,14 +159,14 @@ public class DoubleThreadedAuthNIOServer<A extends User> extends
 	 * @param registry
 	 * @return
 	 */
-	@Override
-	protected AbstractClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationSpace, Scope registry)
+	@Override protected AbstractClientSessionManager generateContextManager(
+			Object sessionId, SelectionKey sk, TranslationScope translationSpace,
+			Scope registry)
 	{
 		try
 		{
-			return new AuthClientSessionManager(sessionId, maxMessageSize, getBackend(), this, sk,
-					translationSpace, registry, this, authenticator);
+			return new AuthClientSessionManager(sessionId, maxMessageSize, getBackend(),
+					this, sk, translationSpace, registry, this, authenticator);
 		}
 		catch (ClassCastException e)
 		{
@@ -137,33 +216,32 @@ public class DoubleThreadedAuthNIOServer<A extends User> extends
 
 	/**
 	 * Force logout of an entry; do not require the session id.
-	 * 
 	 * @param entry
 	 * @return
 	 */
 	protected boolean logout(A entry)
 	{
-		String sessionId = authenticator.getSessionId(entry);
-
-		return this.logout(entry, sessionId);
+		Object sessionId = authenticator.getSessionId(entry);
+		
+		return this.logout(entry, (String) sessionId);
 	}
-
+	
 	public boolean logout(A entry, String sessionId)
 	{
 		boolean logoutSuccess = authenticator.logout(entry, sessionId);
 
 		if (logoutSuccess)
 		{
-			debug(entry.getUserKey() + " has been logged out.");
-			fireLogoutEvent(entry.getUserKey(), sessionId);
+			debug(entry.getUsername() + " has been logged out.");
+			fireLogoutEvent(entry.getUsername(), sessionId);
 		}
 
 		return logoutSuccess;
 	}
 
-	public boolean isLoggedIn(A entry)
+	public boolean isLoggedIn(String username)
 	{
-		return authenticator.isLoggedIn(entry);
+		return authenticator.isLoggedIn(username);
 	}
 
 	public boolean login(A entry, String sessionId)
@@ -172,7 +250,7 @@ public class DoubleThreadedAuthNIOServer<A extends User> extends
 
 		if (loginSuccess)
 		{
-			fireLoginEvent(entry.getUserKey(), sessionId);
+			fireLoginEvent(entry.getUsername(), sessionId);
 		}
 
 		return loginSuccess;
@@ -180,18 +258,18 @@ public class DoubleThreadedAuthNIOServer<A extends User> extends
 
 	private void remove(String sessionId)
 	{
-		authenticator.logoutBySessionId(sessionId);
+		authenticator.removeBySessionId(sessionId);
 	}
 
 	/**
-	 * Ensure that the user associated with sc has been logged out of the authenticator, then call
-	 * super.invalidate().
+	 * Ensure that the user associated with sc has been logged out of the
+	 * authenticator, then call super.invalidate().
 	 * 
 	 * @see ecologylab.services.distributed.server.DoubleThreadedNIOServer#invalidate(java.lang.Object,
-	 *      ecologylab.services.distributed.impl.NIOServerIOThread, java.nio.channels.SocketChannel)
+	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
+	 *      java.nio.channels.SocketChannel)
 	 */
-	@Override
-	public boolean invalidate(Object sessionId, boolean forcePermanent)
+	@Override public boolean invalidate(Object sessionId, boolean forcePermanent)
 	{
 		boolean retVal = super.invalidate(sessionId, forcePermanent);
 
@@ -201,40 +279,5 @@ public class DoubleThreadedAuthNIOServer<A extends User> extends
 		}
 
 		return retVal;
-	}
-
-	/**
-	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.User)
-	 */
-	@Override
-	public boolean addNewUser(A entry)
-	{
-		try
-		{
-			return this.authenticator.addUser(entry);
-		}
-		catch (SaveFailedException e)
-		{
-			e.printStackTrace();
-		}
-		return running;
-	}
-
-	/**
-	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.User)
-	 */
-	@Override
-	public boolean removeExistingUser(A entry)
-	{
-		try
-		{
-			return this.authenticator.removeUser(entry);
-		}
-		catch (SaveFailedException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return running;
 	}
 }

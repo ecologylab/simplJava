@@ -19,7 +19,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * Accessor methods (such as contains()) on the result of getPoint() are fine.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Point2DDoubleState extends ElementState
 {

@@ -6,7 +6,7 @@ package ecologylab.xml.types.scalar;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -102,7 +102,7 @@ public class BooleanType extends ScalarType<Boolean>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
         boolean value = f2xo.getField().getBoolean(context);
@@ -125,11 +125,11 @@ public class BooleanType extends ScalarType<Boolean>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        boolean value = f2xo.getField().getBoolean(context);
-        if(f2xo.getFormat() != null)
+        boolean value = fieldDescriptor.getField().getBoolean(context);
+        if(fieldDescriptor.getFormat() != null)
         {
       	  buffy.append(value ? SHORT_TRUE : SHORT_FALSE);
         }

@@ -24,7 +24,7 @@ import java.util.Set;
  * generally be used in another Collection and when it is removed from that
  * Collection, it will be destroyed.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class ObjectOrHashMap<K, V> implements Map<K, V>

@@ -6,7 +6,7 @@ package ecologylab.generic;
 /**
  * ResourcePool for StringBuilders.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class StringBuilderPool extends ResourcePoolWithSize<StringBuilder>

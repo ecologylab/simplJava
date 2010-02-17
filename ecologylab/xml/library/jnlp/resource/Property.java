@@ -20,7 +20,7 @@ package ecologylab.xml.library.jnlp.resource;
  * For an untrusted application, system properties set in the JNLP file will only be set by Java Web Start if they are
  * considered secure, or if the property name begins with "jnlp." or "javaws.".
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class Property extends ResourceElement

@@ -27,15 +27,16 @@ import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationScope;
 
 /**
- * A server that uses NIO and two threads (one for handling IO, the other for handling interfacing
- * with messages).
+ * A server that uses NIO and two threads (one for handling IO, the other for
+ * handling interfacing with messages).
  * 
  * Automatically processes and responds to any client RequestMessages.
  * 
- * Subclasses should generally override the generateContextManager hook method, so that they can use
- * their own, specific ContextManager in place of the default.
+ * Subclasses should generally override the generateContextManager hook method,
+ * so that they can use their own, specific ContextManager in place of the
+ * default.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<S> implements
 		ServerConstants
@@ -47,56 +48,61 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		return addresses;
 	}
 
-	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope,
-			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
+	public static DoubleThreadedNIOServer getInstance(int portNumber,
+			InetAddress[] inetAddress, TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
-		return new DoubleThreadedNIOServer(portNumber, inetAddress, requestTranslationScope,
-				applicationObjectScope, idleConnectionTimeout, maxPacketSize);
-	}
-
-	public static DoubleThreadedNIOServer getInstance(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationScope, Scope applicationObjectScope,
-			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
-	{
-		InetAddress[] address =
-		{ inetAddress };
-		return getInstance(portNumber, address, requestTranslationScope, applicationObjectScope,
+		return new DoubleThreadedNIOServer(portNumber, inetAddress,
+				requestTranslationScope, applicationObjectScope,
 				idleConnectionTimeout, maxPacketSize);
 	}
 
-	Thread																													t												= null;
+	public static DoubleThreadedNIOServer getInstance(int portNumber,
+			InetAddress inetAddress, TranslationScope requestTranslationScope,
+			Scope applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
+	{
+		InetAddress[] address =
+		{ inetAddress };
+		return getInstance(portNumber, address, requestTranslationScope,
+				applicationObjectScope, idleConnectionTimeout, maxPacketSize);
+	}
 
-	boolean																													running									= false;
+	Thread																			t								= null;
+
+	boolean																			running						= false;
 
 	/**
-	 * Map in which keys are sessionTokens, and values are associated ClientSessionManagers.
+	 * Map in which keys are sessionTokens, and values are associated
+	 * ClientSessionManagers.
 	 */
 	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap	= new HashMapArrayList<Object, AbstractClientSessionManager>();
 
-	private static final Charset																		ENCODED_CHARSET					= Charset
-																																															.forName(CHARACTER_ENCODING);
+	private static final Charset												ENCODED_CHARSET			= Charset
+																																.forName(CHARACTER_ENCODING);
 
-	private static CharsetDecoder																		DECODER									= ENCODED_CHARSET
-																																															.newDecoder();
+	private static CharsetDecoder												DECODER						= ENCODED_CHARSET
+																																.newDecoder();
 
-	protected int																										maxMessageSize;
+	protected int																	maxMessageSize;
 
 	/**
-	 * CharBuffers for use with translating from bytes to chars; may need to support having many
-	 * messages come through at once.
+	 * CharBuffers for use with translating from bytes to chars; may need to
+	 * support having many messages come through at once.
 	 */
-	protected CharBufferPool																				charBufferPool;
+	protected CharBufferPool													charBufferPool;
 
 	/**
 	 * 
 	 */
-	protected DoubleThreadedNIOServer(int portNumber, InetAddress[] inetAddresses,
-			TranslationScope requestTranslationScope, S applicationObjectScope,
-			int idleConnectionTimeout, int maxMessageSize) throws IOException, BindException
+	protected DoubleThreadedNIOServer(int portNumber,
+			InetAddress[] inetAddresses, TranslationScope requestTranslationScope,
+			S applicationObjectScope, int idleConnectionTimeout,
+			int maxMessageSize) throws IOException, BindException
 	{
-		super(portNumber, inetAddresses, requestTranslationScope, applicationObjectScope,
-				idleConnectionTimeout, maxMessageSize);
+		super(portNumber, inetAddresses, requestTranslationScope,
+				applicationObjectScope, idleConnectionTimeout, maxMessageSize);
 
 		this.maxMessageSize = maxMessageSize;
 
@@ -117,48 +123,55 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * 
 	 */
 	protected DoubleThreadedNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationScope, S applicationObjectScope,
-			int idleConnectionTimeout, int maxPacketSize) throws IOException, BindException
+			TranslationScope requestTranslationScope,
+			S applicationObjectScope, int idleConnectionTimeout,
+			int maxPacketSize) throws IOException, BindException
 	{
-		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationScope,
-				applicationObjectScope, idleConnectionTimeout, maxPacketSize);
+		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
+				requestTranslationScope, applicationObjectScope,
+				idleConnectionTimeout, maxPacketSize);
 	}
 
 	/**
-	 * Assumes that the server should be running on the local host (including external interfaces)
-	 * with default sizes for everything.
+	 * Assumes that the server should be running on the local host (including
+	 * external interfaces) with default sizes for everything.
 	 * 
-	 * @param portNumber
-	 *          - the port number the server will run on.
-	 * @param requestTranslationScope
-	 *          - the scope of translation for incoming requests.
-	 * @param applicationObjectScope
-	 *          - the application object scope, containing application state objects that messages
-	 *          will access and manipulate.
+	 * @param portNumber -
+	 *           the port number the server will run on.
+	 * @param requestTranslationScope -
+	 *           the scope of translation for incoming requests.
+	 * @param applicationObjectScope -
+	 *           the application object scope, containing application state
+	 *           objects that messages will access and manipulate.
 	 * @throws IOException
 	 * @throws BindException
 	 */
-	protected DoubleThreadedNIOServer(int portNumber, TranslationScope requestTranslationScope,
-			S applicationObjectScope) throws BindException, IOException
+	protected DoubleThreadedNIOServer(int portNumber,
+			TranslationScope requestTranslationScope, S applicationObjectScope)
+			throws BindException, IOException
 	{
-		this(portNumber, NetTools.getAllInetAddressesForLocalhost(), requestTranslationScope,
-				applicationObjectScope, DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
+		this(portNumber, NetTools.getAllInetAddressesForLocalhost(),
+				requestTranslationScope, applicationObjectScope,
+				DEFAULT_IDLE_TIMEOUT, DEFAULT_MAX_MESSAGE_LENGTH_CHARS);
 	}
 
-	public void processRead(Object sessionToken, NIOServerIOThread base, SelectionKey sk,
-			ByteBuffer bs, int bytesRead) throws BadClientException
+	public void processRead(Object sessionToken, NIOServerIOThread base,
+			SelectionKey sk, ByteBuffer bs, int bytesRead)
+			throws BadClientException
 	{
 		if (bytesRead > 0)
 		{
 			synchronized (clientSessionManagerMap)
 			{
-				AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionToken);
+				AbstractClientSessionManager cm = clientSessionManagerMap
+						.get(sessionToken);
 
 				if (cm == null)
 				{
 					debug("server creating context manager for " + sessionToken);
 
-					cm = generateContextManager((String) sessionToken, sk, translationSpace, applicationObjectScope);
+					cm = generateContextManager(sessionToken, sk, translationSpace,
+							applicationObjectScope);
 					clientSessionManagerMap.put(sessionToken, cm);
 				}
 
@@ -186,7 +199,8 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	}
 
 	/**
-	 * Hook method to allow changing the ContextManager to enable specific extra functionality.
+	 * Hook method to allow changing the ContextManager to enable specific extra
+	 * functionality.
 	 * 
 	 * @param token
 	 * @param sc
@@ -194,12 +208,12 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @param registryIn
 	 * @return
 	 */
-	@Override
-	protected AbstractClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationSpaceIn, Scope registryIn)
+	@Override protected AbstractClientSessionManager generateContextManager(
+			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
+			Scope registryIn)
 	{
-		return new ClientSessionManager(sessionId, maxMessageSize, this.getBackend(), this, sk,
-				translationSpaceIn, registryIn);
+		return new ClientSessionManager(token, maxMessageSize, this.getBackend(),
+				this, sk, translationSpaceIn, registryIn);
 	}
 
 	public void run()
@@ -227,7 +241,8 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 						error(e.getMessage());
 
 						// invalidate the manager's key
-						this.getBackend().setPendingInvalidate(cm.getSocketKey(), true);
+						this.getBackend().setPendingInvalidate(cm.getSocketKey(),
+								true);
 
 						// remove the manager from the collection
 						contextIter.remove();
@@ -254,8 +269,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()
 	 */
-	@Override
-	public void start()
+	@Override public void start()
 	{
 		running = true;
 
@@ -272,8 +286,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#stop()
 	 */
-	@Override
-	public void stop()
+	@Override public void stop()
 	{
 		debug("Server stopping.");
 		running = false;
@@ -292,7 +305,8 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 
 	/**
 	 * @see ecologylab.services.distributed.server.NIOServerProcessor#invalidate(java.lang.Object,
-	 *      ecologylab.services.distributed.impl.NIOServerIOThread, java.nio.channels.SocketChannel)
+	 *      ecologylab.services.distributed.impl.NIOServerIOThread,
+	 *      java.nio.channels.SocketChannel)
 	 */
 	public boolean invalidate(Object sessionId, boolean forcePermanent)
 	{
@@ -302,7 +316,8 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		// (usually bad client), if there is no context manager (client never sent
 		// data), or if the client manager says it is invalidating (client
 		// disconnected properly)
-		boolean permanent = (forcePermanent ? true : (cm == null ? true : cm.isInvalidating()));
+		boolean permanent = (forcePermanent ? true : (cm == null ? true : cm
+				.isInvalidating()));
 
 		// get the context manager...
 		if (permanent)
@@ -317,10 +332,11 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		if (cm != null)
 		{
 			/*
-			 * if we've gotten here, then the client has disconnected already, no reason to deal w/ the
-			 * remaining messages // finish what the context manager was working on while
-			 * (cm.isMessageWaiting()) { try { cm.processAllMessagesAndSendResponses(); } catch
-			 * (BadClientException e) { e.printStackTrace(); } }
+			 * if we've gotten here, then the client has disconnected already, no
+			 * reason to deal w/ the remaining messages // finish what the context
+			 * manager was working on while (cm.isMessageWaiting()) { try {
+			 * cm.processAllMessagesAndSendResponses(); } catch (BadClientException
+			 * e) { e.printStackTrace(); } }
 			 */
 			cm.shutdown();
 		}
@@ -329,16 +345,17 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	}
 
 	/**
-	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates the session id that
-	 * was used for the connection previously (in order to find the correct ContextManager) and
-	 * newContextManager is the recently-created (and now, no longer necessary) ContextManager for the
+	 * Attempts to switch the ContextManager for a SocketChannel. oldId indicates
+	 * the session id that was used for the connection previously (in order to
+	 * find the correct ContextManager) and newContextManager is the
+	 * recently-created (and now, no longer necessary) ContextManager for the
 	 * connection.
 	 * 
 	 * @param oldId
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
-	public boolean restoreContextManagerFromSessionId(String oldSessionId,
+	public boolean restoreContextManagerFromSessionId(Object oldSessionId,
 			AbstractClientSessionManager newContextManager)
 	{
 		debug("attempting to restore old session...");
@@ -374,13 +391,11 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		return running;
 	}
 
-	@Override
-	protected void shutdownImpl()
+	@Override protected void shutdownImpl()
 	{
 		// TODO Auto-generated method stub
 
 	}
-
 	/**
 	 * Utility method for dynamically name TranslationScopes.
 	 * 
@@ -390,7 +405,9 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 */
 	protected static String connectionTscopeName(InetAddress[] inetAddresses, int portNumber)
 	{
-		return "double_threaded_logging " + inetAddresses[0].toString() + ":" + portNumber;
+		return "double_threaded_logging " + inetAddresses[0].toString() + ":"
+				+ portNumber;
 	}
+
 
 }

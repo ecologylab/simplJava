@@ -27,6 +27,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 
 import ecologylab.xml.ElementState.xml_format;
+import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
@@ -253,22 +254,14 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
 	 */	
-	public static String getXmlTagName(Class<?> thatClass, 
-			String suffix)
+	public static String getXmlTagName(Class<?> thatClass, String suffix)
 	{
 		final ElementState.xml_tag tagAnnotation 	= thatClass.getAnnotation(xml_tag.class);
 		
-   	String result						= null;
-		if (tagAnnotation != null)
-		{
-			String thatTag		= tagAnnotation.value();
-			if ((thatTag != null) && (thatTag.length() > 0))
-				result			= thatTag;
-		}
+   	String result 			= getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			String className		= getClassName(thatClass);
-			result				= getXmlTagName(className, suffix);
+			result						= getXmlTagName(getClassName(thatClass), suffix);
 		}
 		return result;
 	}
@@ -279,12 +272,44 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * Part of this is to translate mixed case class name word separation into
 	 * "_" word separtion.
 	 * 
+	 * @param describedClass		Class object to translate.
+	 * @param suffix		string to remove from class name, null if nothing to be removed
+	 * @return				name of the xml tag (element)
+	 */	
+	public static String getXmlTagName(Field thatField)
+	{
+		final ElementState.xml_tag tagAnnotation 	= thatField.getAnnotation(xml_tag.class);
+		
+   	String result 	= getXmlTagAnnotationIfPresent(tagAnnotation);
+		if (result == null)
+		{
+			result				= getXmlTagName(thatField.getName(), null);
+		}
+		return result;
+	}
+
+	public static String getXmlTagAnnotationIfPresent(final ElementState.xml_tag tagAnnotation)
+	{
+		String result			= null;
+		if (tagAnnotation != null)
+		{
+			String thatTag	= tagAnnotation.value();
+			if ((thatTag != null) && (thatTag.length() > 0))
+				result			  = thatTag;
+		}
+		return result;
+	}
+	/**
+	 * This method generates a name for the xml tag given a reference type java object.
+	 * This is used during the translation of Java to xml. 
+	 * Part of this is to translate mixed case class name word separation into
+	 * "_" word separtion.
+	 * 
 	 * @param className		class name of a java reference type object 
 	 * @param suffix		string to remove from class name, null if nothing to be removed
 	 * @return				name of the xml tag (element)
 	 */	
-	public static String getXmlTagName(String className,
-			String suffix)
+	public static String getXmlTagName(String className, String suffix)
 	{
 		if ((suffix != null) && (className.endsWith(suffix)))
 		{
@@ -312,28 +337,6 @@ implements CharacterConstants, SpecialCharacterEntities
 				result.append(c);
 		}
 		return result.toString();
-	}
-
-	/**
-	 * This method name for the attribute given a field name, which is a primitive java type. This is used during the
-	 * translation from Java to xml.
-	 * 
-	 * @param field
-	 *            the field(primitive type) in the state-class
-	 * @param compression
-	 *            if the name of the field should be abbreviated
-	 * @return name of the attribute for the xml
-	 */
-	public static String attrNameFromField(Field field, boolean compression)
-	{
-		if (field.isAnnotationPresent(xml_tag.class))
-		{
-			return field.getAnnotation(xml_tag.class).value();
-		}
-		else
-		{
-			return field.getName();
-		}
 	}
 
 	/**
@@ -861,7 +864,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * Table of replacement Strings for characters deemed nasty in XML.
 	 */
 	//   static final String[] ESCAPE_TABLE	= new String[ISO_LATIN1_START];
-	static final String[] ESCAPE_TABLE	= new String[Character.MAX_VALUE+1];
+	static final String[] ESCAPE_TABLE	= new String[Character.MAX_VALUE];
 
 	static
 	{
@@ -1167,7 +1170,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static boolean representAsLeafNode(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_leaf.class);
+		return representAsLeaf(field);
 	}
 	/**
 	 * Determine if the field is a scalar value that is represented in XML as a an leaf node.
@@ -1190,6 +1193,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	{
 		return field.isAnnotationPresent(ElementState.xml_attribute.class);
 	}
+	public static boolean representAsLeaf(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_leaf.class);
+	}
+
 	/**
 	 * 
 	 * @param field
@@ -1197,28 +1205,34 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static boolean representAsLeafOrNested(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_leaf.class) ||
-		field.isAnnotationPresent(ElementState.xml_nested.class) || 
-		field.isAnnotationPresent(ElementState.xml_collection.class) ||
-		field.isAnnotationPresent(ElementState.xml_map.class);
+		return representAsLeaf(field) || representAsNested(field);
 	}
-	/**
-	 * 
-	 * @param field
-	 * @return  true if the field was declared with @xml_nested
-	 */
-	static boolean isNested(Field field)
+
+	public static boolean representAsText(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_text.class);
+	}
+
+	public static boolean representAsNested(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_nested.class);
 	}
-	static boolean hasCollectionAnnotation(Field field)
+
+	public static boolean representAsCollectionOrMap(Field field)
 	{
-		return field.isAnnotationPresent(ElementState.xml_collection.class);
+		return representAsCollection(field) || representAsMap(field);
 	}
-	static boolean hasMapAnnotation(Field field)
+
+	public static boolean representAsMap(Field field)
 	{
 		return field.isAnnotationPresent(ElementState.xml_map.class);
 	}
+
+	public static boolean representAsCollection(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.xml_collection.class);
+	}
+
 	/**
 	 * @param field
 	 * @return	true if the Field is one translated by the Type system.
@@ -1241,9 +1255,28 @@ implements CharacterConstants, SpecialCharacterEntities
 		buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
 	}
 
+	static String[] otherTags(Class<ElementState> thisClass)
+	{
+	   //Using this code to get only the declared annotations from the class file
+	   ElementState.xml_other_tags otherTagsAnnotation = null;
+	   Annotation[] annotations = thisClass.getDeclaredAnnotations();
+       for(Annotation annotation : annotations )
+       	{
+		   if(annotation.annotationType() == ElementState.xml_other_tags.class)
+		   {
+			   otherTagsAnnotation = (xml_other_tags) annotation;
+			   break;
+		   }
+       	}
+		   
+	   //commented out since getAnnotation also includes inherited annotations 
+	   //ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+	   return otherTagsAnnotation == null ? null : otherTags(otherTagsAnnotation);
+		
+	}
 	static String[] otherTags(ElementState.xml_other_tags otherTagsAnnotation)
 	{
-		String[]	result	= otherTagsAnnotation.value();
+		String[]	result	= otherTagsAnnotation == null ? null : otherTagsAnnotation.value();
 		if ((result != null) && (result.length == 0))
 			result			= null;
 		return result;

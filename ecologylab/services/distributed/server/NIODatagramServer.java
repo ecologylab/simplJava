@@ -2,6 +2,7 @@ package ecologylab.services.distributed.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
@@ -12,7 +13,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
-import lib.Base64Coder;
+import sun.misc.BASE64Encoder;
+
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.impl.NIODatagramCore;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
@@ -245,7 +247,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 		dispensedTokens++;
 
 		// convert to normal characters and return as a String
-		return new String(Base64Coder.encode(digester.digest()));
+		return new String((new BASE64Encoder()).encode(digester.digest()));
 	}
 	
 	protected void onSessionCreation(String sid, Scope objectRegisry)

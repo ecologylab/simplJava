@@ -31,118 +31,121 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
- * Provides a framework for interaction logging. Uses ecologylab.xml to serialize user and agent
- * actions, and write them either to a file on the user's local machine, or, across the network, to
- * the LoggingServer.
+ * Provides a framework for interaction logging. Uses ecologylab.xml to
+ * serialize user and agent actions, and write them either to a file on the
+ * user's local machine, or, across the network, to the LoggingServer.
  * 
- * @author Andruid Kerne (andruid@ecologylab.net)
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author andruid
+ * @author Zachary O. Toups (toupsz@ecologylab.net)
  */
-public class Logging<T extends MixedInitiativeOp> extends ElementState implements
-		StartAndStoppable, ServicesHostsAndPorts
+public class Logging<T extends MixedInitiativeOp> extends ElementState
+		implements StartAndStoppable, ServicesHostsAndPorts
 {
 	/**
-	 * This field is used for reading a log in from a file, but not for writing one, because we dont
-	 * the write the log file all at once, and so can't automatically translate the start tag and end
-	 * tag for this element.
+	 * This field is used for reading a log in from a file, but not for writing
+	 * one, because we dont the write the log file all at once, and so can't
+	 * automatically translate the start tag and end tag for this element.
 	 */
-	@xml_nested
-	protected ArrayListState<T>	opSequence;
+	@xml_collection("op_sequence") protected ArrayList<T>	opSequence;
 
-	Thread											thread;
-
-	/**
-	 * Does all the work of logging, if there is any work to be done. If this is null, then there is
-	 * no logging; conversely, if there is no logging, this is null.
-	 */
-	ArrayList<LogWriter>				logWriters													= null;
+	Thread												thread;
 
 	/**
-	 * This is the Vector for the operations that are being queued up before they can go to
-	 * outgoingOps.
+	 * Does all the work of logging, if there is any work to be done. If this is
+	 * null, then there is no logging; conversely, if there is no logging, this
+	 * is null.
 	 */
-	private StringBuilder				incomingOpsBuffer;
+	ArrayList<LogWriter>								logWriters									= null;
 
 	/**
-	 * This is the Vector for the operations that are in the process of being written out.
+	 * This is the Vector for the operations that are being queued up before they
+	 * can go to outgoingOps.
 	 */
-	private StringBuilder				outgoingOpsBuffer;
+	private StringBuilder							incomingOpsBuffer;
+
+	/**
+	 * This is the Vector for the operations that are in the process of being
+	 * written out.
+	 */
+	private StringBuilder							outgoingOpsBuffer;
 
 	/** Stores the pointer to outgoingOpsBuffer for swapQueues. */
-	private StringBuilder				tempOpsBuffer;
+	private StringBuilder							tempOpsBuffer;
 
-	static final int						THREAD_PRIORITY											= 1;
+	static final int									THREAD_PRIORITY							= 1;
 
 	/** Amount of time for writer thread to sleep; 15 seconds */
-	static final int						SLEEP_TIME													= 15000;
+	static final int									SLEEP_TIME									= 15000;
 
-	static final long						sessionStartTime										= System.currentTimeMillis();
+	static final long									sessionStartTime							= System
+																													.currentTimeMillis();
 
-	long												lastGcTime;
+	long													lastGcTime;
 
 	/** Amount of time to wait before booting the garbage collector; 5 minutes */
-	static final long						KICK_GC_INTERVAL										= 300000;
+	static final long									KICK_GC_INTERVAL							= 300000;
 
-	private static final String	SESSION_LOG_START										= "\n<session_log>\n ";
+	private static final String					SESSION_LOG_START							= "\n<session_log>\n ";
 
-	static final String					OP_SEQUENCE_START										= "\n\n<op_sequence>\n\n";
+	static final String								OP_SEQUENCE_START							= "\n\n<op_sequence>\n\n";
 
-	static final String					OP_SEQUENCE_END											= "\n</op_sequence>\n";
+	static final String								OP_SEQUENCE_END							= "\n</op_sequence>\n";
 
 	/** Logging closing message string written to the logging file at the end */
-	public static final String	LOG_CLOSING													= "\n</op_sequence></session_log>\n\n";
+	public static final String						LOG_CLOSING									= "\n</op_sequence></session_log>\n\n";
 
 	/** Logging Header message string written to the logging file in the begining */
-	static final String					BEGIN_EMIT													= XMLTools.xmlHeader()
-																																			+ SESSION_LOG_START;
+	static final String								BEGIN_EMIT									= XMLTools
+																													.xmlHeader()
+																													+ SESSION_LOG_START;
 
 	/** Preference setting for no logging. */
-	public static final int			NO_LOGGING													= 0;
+	public static final int							NO_LOGGING									= 0;
 
 	/** Preference setting for logging to a file using normal IO. */
-	public static final int			LOG_TO_FILE													= 1;
+	public static final int							LOG_TO_FILE									= 1;
 
 	/** Preference setting for logging to a remote server. */
-	public static final int			LOG_TO_SERVICES_SERVER							= 2;
+	public static final int							LOG_TO_SERVICES_SERVER					= 2;
 
 	/** Preference setting for logging to a file using memory-mapped IO. */
-	public static final int			LOG_TO_MEMORY_MAPPED_FILE						= 4;
+	public static final int							LOG_TO_MEMORY_MAPPED_FILE				= 4;
 
 	/** Preference setting for logging both to a memory-mapped file and a server. */
-	public static final int			LOG_TO_MM_FILE_AND_SERVER_REDUNDANT	= LOG_TO_MEMORY_MAPPED_FILE
-																																			& LOG_TO_SERVICES_SERVER;
+	public static final int							LOG_TO_MM_FILE_AND_SERVER_REDUNDANT	= LOG_TO_MEMORY_MAPPED_FILE
+																													& LOG_TO_SERVICES_SERVER;
 
 	/** Preference setting for logging both to a normal IO file and a server. */
-	public static final int			LOG_TO_FILE_AND_SERVER_REDUNDANT		= LOG_TO_FILE
-																																			& LOG_TO_SERVICES_SERVER;
+	public static final int							LOG_TO_FILE_AND_SERVER_REDUNDANT		= LOG_TO_FILE
+																													& LOG_TO_SERVICES_SERVER;
 
-	static final int						MAX_OPS_BEFORE_WRITE								= 10;
+	static final int									MAX_OPS_BEFORE_WRITE						= 10;
 
-	public static final String	LOGGING_HOST_PARAM									= "logging_host";
+	public static final String						LOGGING_HOST_PARAM						= "logging_host";
 
-	public static final String	LOGGING_PORT_PARAM									= "logging_port";
+	public static final String						LOGGING_PORT_PARAM						= "logging_port";
 
-	public static final String	LOGGING_MODE_PARAM									= "log_mode";
+	public static final String						LOGGING_MODE_PARAM						= "log_mode";
 
-	final int										maxOpsBeforeWrite;
+	final int											maxOpsBeforeWrite;
 
-	final int										maxBufferSizeToWrite;
+	final int											maxBufferSizeToWrite;
 
 	/** used to prevent writes from getting interrupt()'ed */
-	private Object							threadSemaphore											= new Object();
+	private Object										threadSemaphore							= new Object();
 
-	private volatile boolean		runMethodDone												= false;
+	private volatile boolean						runMethodDone								= false;
 
-	volatile boolean						finished;
+	volatile boolean									finished;
 
 	/**
-	 * Instantiates a Logging object based on the given log file name. This constructor assumes that a
-	 * set of loaded {@link ecologylab.appframework.types.prefs.Pref Pref}s will handle other
-	 * settings, indicating how logging will be performed, and the server setup (if logging over a
-	 * network).
+	 * Instantiates a Logging object based on the given log file name. This
+	 * constructor assumes that a set of loaded
+	 * {@link ecologylab.appframework.types.prefs.Pref Pref}s will handle other
+	 * settings, indicating how logging will be performed, and the server setup
+	 * (if logging over a network).
 	 */
 	public Logging(String logFileName)
 	{
@@ -150,39 +153,44 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Instantiates a Logging object based on the given log file name and the maximum operations
-	 * before write. This constructor assumes that a set of loaded
-	 * {@link ecologylab.appframework.types.prefs.Pref Pref}s will handle other settings, indicating
-	 * how logging will be performed, and the server setup (if logging over a network).
+	 * Instantiates a Logging object based on the given log file name and the
+	 * maximum operations before write. This constructor assumes that a set of
+	 * loaded {@link ecologylab.appframework.types.prefs.Pref Pref}s will handle
+	 * other settings, indicating how logging will be performed, and the server
+	 * setup (if logging over a network).
 	 */
 	public Logging(String logFileName, int maxOpsBeforeWrite)
 	{
-		this(logFileName, false, maxOpsBeforeWrite, Pref.lookupInt(LOGGING_MODE_PARAM, NO_LOGGING),
-				Pref.lookupString(LOGGING_HOST_PARAM, "localhost"), Pref.lookupInt(LOGGING_PORT_PARAM,
-						ServicesHostsAndPorts.LOGGING_PORT));
+		this(logFileName, false, maxOpsBeforeWrite, Pref.lookupInt(
+				LOGGING_MODE_PARAM, NO_LOGGING), Pref.lookupString(
+				LOGGING_HOST_PARAM, "localhost"), Pref.lookupInt(
+				LOGGING_PORT_PARAM, ServicesHostsAndPorts.LOGGING_PORT));
 	}
 
 	/**
-	 * Instantiates a Logging object based on the supplied parameters. This constructor does not rely
-	 * on {@link ecologylab.appframework.types.prefs.Pref Pref}s.
+	 * Instantiates a Logging object based on the supplied parameters. This
+	 * constructor does not rely on
+	 * {@link ecologylab.appframework.types.prefs.Pref Pref}s.
 	 * 
 	 * @param logFileName
-	 *          the name of the file to which the log will be written.
+	 *           the name of the file to which the log will be written.
 	 * @param logFileNameAbsolute
-	 *          TODO
+	 *           TODO
 	 * @param maxOpsBeforeWrite
-	 *          the maximum number of ops to record in memory before writing them to the set media.
+	 *           the maximum number of ops to record in memory before writing
+	 *           them to the set media.
 	 * @param logMode
-	 *          the media to which the logger will write, such as a memory-mapped file or a server.
+	 *           the media to which the logger will write, such as a
+	 *           memory-mapped file or a server.
 	 * @param loggingHost
-	 *          the host to which to log if using networked logging (may be null if local logging is
-	 *          desired).
+	 *           the host to which to log if using networked logging (may be null
+	 *           if local logging is desired).
 	 * @param loggingPort
-	 *          the port of the host to which to log if using networked logging (may be 0 if local
-	 *          logging is desired).
+	 *           the port of the host to which to log if using networked logging
+	 *           (may be 0 if local logging is desired).
 	 */
-	public Logging(String logFileName, boolean logFileNameAbsolute, int maxOpsBeforeWrite,
-			int logMode, String loggingHost, int loggingPort)
+	public Logging(String logFileName, boolean logFileNameAbsolute,
+			int maxOpsBeforeWrite, int logMode, String loggingHost, int loggingPort)
 	{
 		this(maxOpsBeforeWrite);
 
@@ -245,7 +253,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 						{
 							try
 							{
-								logWriters.add(new FileLogWriter(logFile, bufferedWriter));
+								logWriters.add(new FileLogWriter(logFile,
+										bufferedWriter));
 							}
 							catch (IOException e)
 							{
@@ -319,7 +328,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			if ((logMode & LOG_TO_SERVICES_SERVER) == LOG_TO_SERVICES_SERVER)
 			{
 				/**
-				 * Create the logging client which communicates with the logging server
+				 * Create the logging client which communicates with the logging
+				 * server
 				 */
 				if (loggingHost == null)
 					loggingHost = LOGGING_HOST;
@@ -390,13 +400,14 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Translates op to XML then logs it, if this Logging object is running. Returns true if the
-	 * operation was placed in the buffer to be written, false if it failed (either because this
-	 * Logging object is not configured, because it is not running, or because the op could not be
-	 * translated to XML).
+	 * Translates op to XML then logs it, if this Logging object is running.
+	 * Returns true if the operation was placed in the buffer to be written,
+	 * false if it failed (either because this Logging object is not configured,
+	 * because it is not running, or because the op could not be translated to
+	 * XML).
 	 * 
-	 * @param op
-	 *          - the operation to be logged.
+	 * @param op -
+	 *           the operation to be logged.
 	 */
 	public boolean logAction(MixedInitiativeOp op)
 	{
@@ -409,17 +420,17 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					op.translateToXML(incomingOpsBuffer);
 				}
 
-				// final int bufferLength = incomingOpsBuffer.length();
-				// if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
-				// {
-				// synchronized (threadSemaphore)
-				// {
-				// debugA("interrupting thread to do i/o now: " + bufferLength
-				// + "/" + maxBufferSizeToWrite);
-				// thread.interrupt();
-				// // end sleep in that thread prematurely to do i/o
-				// }
-				// }
+//				final int bufferLength = incomingOpsBuffer.length();
+//				if ((thread != null) && (bufferLength > maxBufferSizeToWrite))
+//				{
+//					synchronized (threadSemaphore)
+//					{
+//						debugA("interrupting thread to do i/o now: " + bufferLength
+//								+ "/" + maxBufferSizeToWrite);
+//						thread.interrupt();
+//						// end sleep in that thread prematurely to do i/o
+//					}
+//				}
 
 				return true;
 			}
@@ -433,8 +444,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Returns the size of the list of log ops. May not be the correct value if called during logging.
-	 * This method should only be used for playback purposes.
+	 * Returns the size of the list of log ops. May not be the correct value if
+	 * called during logging. This method should only be used for playback
+	 * purposes.
 	 * 
 	 * @return the size of opSequence.
 	 */
@@ -444,10 +456,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Write the start of the log header out to the log file OR, send the begining logging file
-	 * message so that logging server write the start of the log header.
-	 * <p/>
-	 * Then start the looping thread that periodically wakes up and performs log i/o.
+	 * Write the start of the log header out to the log file OR, send the
+	 * begining logging file message so that logging server write the start of
+	 * the log header. <p/> Then start the looping thread that periodically wakes
+	 * up and performs log i/o.
 	 */
 	public void start()
 	{
@@ -460,7 +472,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Finishes writing any queued actions, then sends the epilogue; then shuts down.
+	 * Finishes writing any queued actions, then sends the epilogue; then shuts
+	 * down.
 	 * 
 	 */
 	public synchronized void stop()
@@ -477,8 +490,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 			while (!this.runMethodDone && timesToWait-- > 0)
 			{
-				debug("waiting on run method to finish log writing (attempts remaining " + timesToWait
-						+ ")...");
+				debug("waiting on run method to finish log writing (attempts remaining "
+						+ timesToWait + ")...");
 				thread.interrupt();
 				Generic.sleep(500);
 			}
@@ -543,10 +556,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Logging to a file is delayed to the actions of this thread, because otherwise, it can mess up
-	 * priorities in the system, because events get logged in the highest priority thread.
-	 * <p/>
-	 * This MUST be the only thread that ever calls writeQueuedActions().
+	 * Logging to a file is delayed to the actions of this thread, because
+	 * otherwise, it can mess up priorities in the system, because events get
+	 * logged in the highest priority thread. <p/> This MUST be the only thread
+	 * that ever calls writeQueuedActions().
 	 */
 	public void run()
 	{
@@ -595,9 +608,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 	/**
 	 * Use the LogWriter, if there is one, to output queued actions to the log.
-	 * <p/>
-	 * NB: This method is SINGLE Threaded! It is not thread safe. It must only be called from the
-	 * run() method.
+	 * <p/> NB: This method is SINGLE Threaded! It is not thread safe. It must
+	 * only be called from the run() method.
 	 */
 	protected void writeBufferedOps()
 	{
@@ -623,9 +635,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * A message at the beginnging of the log. This method may be overridden to return a subclass of
-	 * Prologue, by subclasses of this, that wish to emit application specific information at the
-	 * start of a log.
+	 * A message at the beginnging of the log. This method may be overridden to
+	 * return a subclass of Prologue, by subclasses of this, that wish to emit
+	 * application specific information at the start of a log.
 	 * 
 	 * @return
 	 */
@@ -635,9 +647,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * A message at the end of the log. This method may be overridden to return a subclass of
-	 * Epilogue, by subclasses of this, that wish to emit application specific information at the end
-	 * of a log.
+	 * A message at the end of the log. This method may be overridden to return a
+	 * subclass of Epilogue, by subclasses of this, that wish to emit application
+	 * specific information at the end of a log.
 	 * 
 	 * @return
 	 */
@@ -658,11 +670,11 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * Objects that process queuedActions for writing, either to a local file, or, using the network,
-	 * to the LoggingServer.
+	 * Objects that process queuedActions for writing, either to a local file,
+	 * or, using the network, to the LoggingServer.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (zach@ecologylab.net)
+	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
 	protected abstract class LogWriter extends Debug
 	{
@@ -702,28 +714,29 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a memory-mapped local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (zach@ecologylab.net)
+	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
 	protected class MemoryMappedFileLogWriter extends LogWriter
 	{
 		// BufferedWriter bufferedWriter;
-		MappedByteBuffer				buffy								= null;
+		MappedByteBuffer			buffy						= null;
 
-		FileChannel							channel							= null;
+		FileChannel					channel					= null;
 
-		private CharsetEncoder	encoder							= Charset.forName(
-																										NetworkingConstants.CHARACTER_ENCODING)
-																										.newEncoder();
+		private CharsetEncoder	encoder					= Charset
+																			.forName(
+																					NetworkingConstants.CHARACTER_ENCODING)
+																			.newEncoder();
 
-		private File						logFile;
+		private File				logFile;
 
 		/**
-		 * The base size for the log file, and the amount it will be incremented whenever its buffer
-		 * overflows.
+		 * The base size for the log file, and the amount it will be incremented
+		 * whenever its buffer overflows.
 		 */
-		static final int				LOG_FILE_INCREMENT	= 1024 * 512;
+		static final int			LOG_FILE_INCREMENT	= 1024 * 512;
 
-		private int							endOfMappedBytes		= LOG_FILE_INCREMENT;
+		private int					endOfMappedBytes		= LOG_FILE_INCREMENT;
 
 		MemoryMappedFileLogWriter(File logFile) throws IOException
 		{
@@ -747,8 +760,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 		 * 
 		 * @param buffer
 		 */
-		@Override
-		void writeLogMessage(StringBuilder buffer)
+		@Override void writeLogMessage(StringBuilder buffer)
 		{
 			try
 			{
@@ -761,8 +773,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 		}
 
-		@Override
-		public void close()
+		@Override public void close()
 		{
 			try
 			{
@@ -795,7 +806,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				{
 					try
 					{
-						new RandomAccessFile(logFile, "rw").getChannel().truncate(fileSize);
+						new RandomAccessFile(logFile, "rw").getChannel().truncate(
+								fileSize);
 
 						truncated = true;
 					}
@@ -835,9 +847,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				if (remaining < incoming.remaining())
 				{ // we want to write more than will fit; so we just write
 					// what we can first...
-					debug("not enough space in the buffer: " + remaining + " remaining, "
-							+ incoming.remaining() + " needed.");
-					debug("last range file range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
+					debug("not enough space in the buffer: " + remaining
+							+ " remaining, " + incoming.remaining() + " needed.");
+					debug("last range file range: "
+							+ (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
 							+ endOfMappedBytes);
 					debug("new range will be: " + (endOfMappedBytes) + "-"
 							+ (endOfMappedBytes + LOG_FILE_INCREMENT));
@@ -851,7 +864,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					buffy.force();
 
 					// then shift buffy to map to the next segment of the file
-					buffy = channel.map(MapMode.READ_WRITE, endOfMappedBytes, LOG_FILE_INCREMENT);
+					buffy = channel.map(MapMode.READ_WRITE, endOfMappedBytes,
+							LOG_FILE_INCREMENT);
 					endOfMappedBytes += LOG_FILE_INCREMENT;
 
 					// recursively call on the remainder of incoming
@@ -860,7 +874,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				else
 				{
 					if (show(5))
-						debug("writing to buffer: " + remaining + "bytes remaining before resize");
+						debug("writing to buffer: " + remaining
+								+ "bytes remaining before resize");
 
 					buffy.put(incoming);
 				}
@@ -870,7 +885,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				debug("null pointer; data to be written:");
 				try
 				{
-					debug(Charset.forName("ASCII").newDecoder().decode(incoming).toString());
+					debug(Charset.forName("ASCII").newDecoder().decode(incoming)
+							.toString());
 				}
 				catch (CharacterCodingException e1)
 				{
@@ -894,16 +910,18 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (zach@ecologylab.net)
+	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
 	protected class FileLogWriter extends LogWriter
 	{
 		BufferedWriter	bufferedWriter;
 
-		FileLogWriter(File logFile, BufferedWriter bufferedWriter) throws IOException
+		FileLogWriter(File logFile, BufferedWriter bufferedWriter)
+				throws IOException
 		{
 			if (bufferedWriter == null)
-				throw new IOException("Can't log to File with null buffereredWriter.");
+				throw new IOException(
+						"Can't log to File with null buffereredWriter.");
 			this.bufferedWriter = bufferedWriter;
 			Logging.this.debugA("Logging to " + logFile + " " + bufferedWriter);
 		}
@@ -911,8 +929,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 		/**
 		 * Write the opsBuffer to a file.
 		 */
-		@Override
-		void writeLogMessage(StringBuilder buffy)
+		@Override void writeLogMessage(StringBuilder buffy)
 		{
 			try
 			{
@@ -924,8 +941,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			}
 		}
 
-		@Override
-		void close()
+		@Override void close()
 		{
 			try
 			{
@@ -940,32 +956,37 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	}
 
 	/**
-	 * LogWriter that connects to the ServicesServer over the network for logging.
+	 * LogWriter that connects to the ServicesServer over the network for
+	 * logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (zach@ecologylab.net)
+	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
 	 */
 	protected class NetworkLogWriter extends LogWriter
 	{
-		NIOClient			loggingClient;
+		NIOClient		loggingClient;
 
-		final int			maxMessageLengthChars;
+		final int		maxMessageLengthChars;
 
 		/** Object for sending a batch of ops to the LoggingServer. */
 		final LogOps	logOps;
 
 		/**
-		 * The owner of this Logging object, used to ensure that, during shutdown, this object blocks
-		 * until it is finished sending; needed to determine the current status.
+		 * The owner of this Logging object, used to ensure that, during shutdown,
+		 * this object blocks until it is finished sending; needed to determine
+		 * the current status.
 		 */
 		final Logging	loggingParent;
 
-		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent) throws IOException
+		NetworkLogWriter(NIOClient loggingClient, Logging loggingParent)
+				throws IOException
 		{
 			if (loggingClient == null)
-				throw new IOException("Can't log to Network with null loggingClient.");
+				throw new IOException(
+						"Can't log to Network with null loggingClient.");
 			this.loggingClient = loggingClient;
-			Logging.this.debug("Logging to service via connection: " + loggingClient);
+			Logging.this.debug("Logging to service via connection: "
+					+ loggingClient);
 
 			// logOps = new LogOps(maxBufferSizeToWrite);
 			logOps = new LogOps();
@@ -974,16 +995,14 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			this.loggingParent = loggingParent;
 		}
 
-		@Override
-		public void setPriority(int priority)
+		@Override public void setPriority(int priority)
 		{
 			NIOClient loggingClient = this.loggingClient;
 			if (loggingClient != null)
 				loggingClient.setPriority(priority);
 		}
 
-		@Override
-		void writeLogMessage(LogEvent message)
+		@Override void writeLogMessage(LogEvent message)
 		{
 			try
 			{
@@ -1019,29 +1038,31 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 				if (message instanceof SendPrologue)
 				{ // if this is a send prologue, send prologue has to happen first
-					message.setBuffer(new StringBuilder(bufferToLog.subSequence(0, half)));
+					message.setBuffer(new StringBuilder(bufferToLog.subSequence(0,
+							half)));
 					this.writeLogMessage(message);
 				}
 				else
 				{
-					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(0, half)));
+					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(
+							0, half)));
 				}
 
 				if (message instanceof SendEpilogue)
 				{ // if this is a send epilogue, send epilogue has to happen last
-					message.setBuffer(new StringBuilder(bufferToLog.subSequence(half, bufferToLog.length())));
+					message.setBuffer(new StringBuilder(bufferToLog.subSequence(
+							half, bufferToLog.length())));
 					this.writeLogMessage(message);
 				}
 				else
 				{
-					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(half, bufferToLog
-							.length())));
+					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(
+							half, bufferToLog.length())));
 				}
 			}
 		}
 
-		@Override
-		void writeBufferedOps(StringBuilder buffy)
+		@Override void writeBufferedOps(StringBuilder buffy)
 		{
 			logOps.setBuffer(buffy);
 
@@ -1054,8 +1075,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 		/**
 		 * Close the connection to the loggingServer.
 		 */
-		@Override
-		void close()
+		@Override void close()
 		{
 			debug("close.");
 
@@ -1063,8 +1083,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			loggingClient = null;
 		}
 
-		@Override
-		void writeLogMessage(StringBuilder xmlBuffy)
+		@Override void writeLogMessage(StringBuilder xmlBuffy)
 		{
 			throw new UnsupportedOperationException();
 		}
@@ -1073,7 +1092,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	/**
 	 * @return the opSequence
 	 */
-	public ArrayListState<T> getOpSequence()
+	public ArrayList<T> getOpSequence()
 	{
 		return opSequence;
 	}

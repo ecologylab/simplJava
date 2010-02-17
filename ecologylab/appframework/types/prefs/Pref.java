@@ -5,24 +5,23 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.element.Mappable;
 
 /**
  * Generic base class for application Preference objects.
  * 
- * @author Andruid Kerne (andruid@ecologylab.net)
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author andruid
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ArrayListState<ElementState> implements Mappable<String>, Cloneable
+public abstract class Pref<T> extends ElementState implements Mappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
     static final Scope<Pref<?>>   allPrefsMap = new Scope<Pref<?>>();
@@ -32,6 +31,10 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
 
     /** Name of a Pref; provides index into the preferences map. */
     @xml_attribute String               name;
+    
+    @xml_collection("Pref") 
+    @xml_nowrap
+    ArrayList<ElementState> preferences;
 
     /** Cached value */
     T                                   valueCached;
@@ -410,36 +413,6 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
         return lookupFloat(name, 1.0f);
     }
    
-  /**
-	 * Look up a PrefDouble by name in the map of all Prefs. Return defaultValue if PrefDouble's value
-	 * is null.
-	 * 
-	 * @param name
-	 *          Name of PrefDouble
-	 * @param defaultValue
-	 *          default value to set PrefDouble to
-	 * 
-	 * @return PrefDouble's value or default value if doesn't exist
-	 */
-	public static double lookupDouble(String name, double defaultValue) throws ClassCastException
-	{
-		PrefDouble prefDouble = ((PrefDouble) lookupPref(name));
-		return (prefDouble == null) ? defaultValue : prefDouble.value();
-	}
-
-	/**
-	 * Look up a PrefDouble by name in the map of all Prefs.
-	 * 
-	 * @param name
-	 *          Name of PrefDouble
-	 * 
-	 * @return PrefDouble's value (if exists) or 1.0
-	 */
-	public static double lookupDouble(String name) throws ClassCastException
-	{
-		return lookupDouble(name, 1.0);
-	}
-    
     /**
      * Look up a PrefString by name in the map of all Prefs.
      * Return defaultValue if PrefString's value is null.
@@ -521,7 +494,7 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
     public static ElementState lookupElementState(String name) throws ClassCastException
     {
         PrefElementState prefElementState = ((PrefElementState)lookupPref(name));
-		return (ElementState) ((prefElementState == null) ? null : prefElementState.value());
+		return (prefElementState == null) ? null : prefElementState.value();
     }
     
     /**
@@ -590,9 +563,6 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
 
 		/**
 		 * @see ecologylab.xml.types.element.ArrayListState#clone()
-		 * This clone method is REQUIRED for preferences being maintained by a servlet.
-		 * The specific case that we have in place (dec '09) that uses this is the Studies framework.
-		 * The clone functionality enables maintaining a preference set for each user in a user study.
 		 */
 		@Override
 		public abstract Pref<T> clone();

@@ -13,6 +13,7 @@ import ecologylab.xml.xml_inherit;
  * Indicates the response from the server regarding an attempt to log in.
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
+ * 
  */
 @xml_inherit public class LoginStatusResponse<S extends Scope> extends
 		ExplanationResponse<S> implements AuthMessages, AuthClientRegistryObjects

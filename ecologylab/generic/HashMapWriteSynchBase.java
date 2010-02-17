@@ -46,12 +46,12 @@ public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 	 */
 	public V getOrPutIfNew(K key, V value)
 	{
-		V result = get(key);
+		V result	= get(key);
 		if (result == null)
 		{
 			synchronized (this)
 			{
-				result = put(key, value);
+				result		= put(key, value);
 			}
 		}
 		return result;
@@ -60,28 +60,20 @@ public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 	/**
 	 * Sycnhronizes remove.
 	 */
-	@Override
+	@Override 
 	public synchronized V remove(Object key)
 	{
 		return super.remove(key);
 	}
 
 	/**
-	 * Sycnhronizes if you add another map to this one.
-	 */
-	@Override
-	public synchronized void putAll(Map<? extends K, ? extends V> m)
-	{
-		super.putAll(m);
-	}
+     * Sycnhronizes if you add another map to this one.
+     */
+    @Override
+    public synchronized void putAll(Map<? extends K, ? extends V> m)
+    {
+        super.putAll(m);
+    }
 
-	@Override
-	public V put(K key, V value)
-	{
-		synchronized (this)
-		{
-			return super.put(key, value);
-		}
-	}
-
+    
 }

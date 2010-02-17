@@ -19,7 +19,7 @@ import ecologylab.xml.XMLTranslationException;
 /**
  * Abstract base class for building ecologylab.services clients.
  *
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public abstract class ServicesClientBase extends Debug implements
         ClientConstants

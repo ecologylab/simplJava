@@ -3,21 +3,21 @@
  */
 package ecologylab.standalone;
 
+import java.util.ArrayList;
+
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.jnlp.information.AssociationElement;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState
 {
     @xml_attribute @xml_tag("as-df") String asdf;
-    @xml_nested @xml_tag("nested-tag") ArrayListState<AssociationElement> list = new ArrayListState<AssociationElement>();
+    @xml_collection("nested-tag") ArrayList<AssociationElement> list = new ArrayList<AssociationElement>();
 
     public TestXMLTag()
     {
@@ -39,9 +39,9 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         TestXMLTag test = new TestXMLTag("asdfasdfasdfasdfasdfasdf");
 
         Class[] classes =
-        { TestXMLTag.class, ArrayListState.class, AssociationElement.class };
+        { TestXMLTag.class, ArrayList.class, AssociationElement.class };
         
-        ArrayListState<TestXMLTag> taggies = new ArrayListState<TestXMLTag>();
+        ArrayList<TestXMLTag> taggies = new ArrayList<TestXMLTag>();
 
         for (int i = 0; i < 4; i++)
         {
@@ -52,9 +52,9 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         System.out.println(ElementState.translateFromXMLCharSequence(test.translateToXML(),
                 TranslationScope.get("test", classes)).translateToXML());
         
-        System.out.println(taggies.translateToXML());
-        System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
-                TranslationScope.get("test", classes)).translateToXML());
+//        System.out.println(taggies.translateToXML());
+//        System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),
+//                TranslationScope.get("test", classes)).translateToXML());
 
     }
 }

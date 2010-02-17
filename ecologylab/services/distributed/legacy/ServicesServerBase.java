@@ -11,7 +11,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 
-import lib.Base64Coder;
+import sun.misc.BASE64Encoder;
 import ecologylab.collections.Scope;
 import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.impl.Manager;
@@ -27,7 +27,7 @@ import ecologylab.xml.XMLTranslationException;
  * A base set of fields and methods that are necessary for any server
  * implementation.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public abstract class ServicesServerBase extends Manager implements Runnable,
         StartAndStoppable
@@ -118,7 +118,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
         dispensedTokens++;
 
         // convert to normal characters and return as a String
-        return new String(Base64Coder.encode(digester.digest()));
+        return new String((new BASE64Encoder()).encode(digester.digest()));
     }
 
     /**

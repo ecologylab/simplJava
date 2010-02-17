@@ -5,7 +5,7 @@ package ecologylab.services.authentication.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.DisconnectRequest;
@@ -16,12 +16,12 @@ import ecologylab.xml.xml_inherit;
  * A Logout message indicates that the connnected client no longer wants to be
  * connected.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @xml_inherit public class Logout extends DisconnectRequest implements
 		AuthMessages, AuthServerRegistryObjects
 {
-	@xml_nested protected User	entry	= new User(
+	@xml_nested protected AuthenticationListEntry	entry	= new AuthenticationListEntry(
 																					"", "");
 
 	/** Should not normally be used; only for XML translations. */
@@ -37,7 +37,7 @@ import ecologylab.xml.xml_inherit;
 	 * @param entry -
 	 *           the entry to use for this Logout object.
 	 */
-	public Logout(User entry)
+	public Logout(AuthenticationListEntry entry)
 	{
 		super();
 		this.entry = entry;
@@ -47,9 +47,9 @@ import ecologylab.xml.xml_inherit;
 	 * Attempts to log the user specified by entry from the system; if they are
 	 * already logged in; if not, sends a failure response.
 	 */
-	@Override public LogoutStatusResponse performService(Scope localScope)
+	@Override public ResponseMessage performService(Scope localScope)
 	{
-		debug("*************************** LOGOUT " + this.entry.getUserKey());
+		debug("*************************** LOGOUT " + this.entry.getUsername());
 		Authenticatable server = (Authenticatable) localScope
 				.get(MAIN_AUTHENTICATABLE);
 		String sessionId = (String) localScope
@@ -70,7 +70,7 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * @return Returns the entry.
 	 */
-	public User getEntry()
+	public AuthenticationListEntry getEntry()
 	{
 		return entry;
 	}

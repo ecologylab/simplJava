@@ -1,9 +1,15 @@
 package ecologylab.xml.internaltranslators.cocoa;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+
+import ecologylab.collections.Scope;
+import ecologylab.generic.HashMapArrayList;
+import ecologylab.net.ParsedURL;
+import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Utilities class to provide static helper methods and code logic used again
@@ -68,6 +74,14 @@ public class TranslationUtilities
       {
          return TranslationConstants.OBJC_URL;
       }
+      else if (ParsedURL.class == type)
+      {
+         return TranslationConstants.OBJC_PARSED_URL;
+      }
+      else if (ScalarType.class == type)
+      {
+         return TranslationConstants.OBJC_SCALAR_TYPE;
+      }
       else if (Date.class == type)
       {
          return TranslationConstants.OBJC_DATE;
@@ -80,9 +94,30 @@ public class TranslationUtilities
       {
          return TranslationConstants.OBJC_HASHMAP;
       }
+      else if (HashMapArrayList.class == type)
+      {
+         return TranslationConstants.OBJC_HASHMAPARRAYLIST;
+      }
+      else if (Scope.class == type)
+      {
+         return TranslationConstants.OBJC_SCOPE;
+      }
+      else if (Class.class == type)
+      {
+         return TranslationConstants.OBJC_CLASS;
+      }
+      else if (Field.class == type)
+      {
+         return TranslationConstants.OBJC_FIELD;
+      }
       else
       {
          throw new CocoaTranslationException(CocaTranslationExceptionTypes.UNSUPPORTED_DATATYPE);
       }
+   }
+   
+   public static String classSimpleName(Class<?> thatClass)
+   { 
+	 return thatClass.toString().substring(thatClass.toString().lastIndexOf(TranslationConstants.DOT) + 1);
    }
 }

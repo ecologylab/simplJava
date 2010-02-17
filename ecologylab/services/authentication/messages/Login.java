@@ -5,23 +5,23 @@ package ecologylab.services.authentication.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.registryobjects.AuthServerRegistryObjects;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.messages.RequestMessage;
+import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Used to log into a server that requires authentication; carries username and password information
- * in strings, and checks them against "authenticationList" in the objectRegistry.
+ * Used to log into a server that requires authentication; carries username and password information in strings, and
+ * checks them against "authenticationList" in the objectRegistry.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit
-public class Login extends RequestMessage implements AuthMessages, AuthServerRegistryObjects, AuthenticationRequest
+@xml_inherit public class Login extends RequestMessage implements AuthMessages, AuthServerRegistryObjects
 {
-	@xml_nested
-	protected User	entry;
+
+	@xml_nested protected AuthenticationListEntry	entry	= new AuthenticationListEntry("", "");
 
 	/**
 	 * Should not normally be used; only for XML translations.
@@ -34,10 +34,10 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	/**
 	 * Creates a new Login object using the given AuthenticationListEntry.
 	 * 
-	 * @param entry
-	 *          - the entry to use for the Login object.
+	 * @param entry -
+	 *           the entry to use for the Login object.
 	 */
-	public Login(User entry)
+	public Login(AuthenticationListEntry entry)
 	{
 		super();
 		this.entry = entry;
@@ -47,26 +47,25 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	 * Creates a new Login object using the given username and password; the password is hashed, per
 	 * AuthenticationListEntry, before it is stored.
 	 * 
-	 * @param username
-	 *          - the username to use for the Login object.
-	 * @param password
-	 *          - the password to hash, and then use for the Login object.
+	 * @param username -
+	 *           the username to use for the Login object.
+	 * @param password -
+	 *           the password to hash, and then use for the Login object.
 	 */
 	public Login(String username, String password)
 	{
-		this(new User(username, password));
+		this(new AuthenticationListEntry(username, password));
 	}
 
 	/**
-	 * Determines if the supplied username and password are contained in the list of usernames and
-	 * passwords in the object registry.
+	 * Determines if the supplied username and password are contained in the list of usernames and passwords in the
+	 * object registry.
 	 * 
 	 * @return A ResponseMessage indicating whether or not the username/password were accepted.
 	 */
-	@Override
-	public LoginStatusResponse performService(Scope localScope)
+	@Override public ResponseMessage performService(Scope localScope)
 	{
-		Authenticatable authenticatable = (Authenticatable) localScope.get(MAIN_AUTHENTICATABLE);
+		Authenticatable server = (Authenticatable) localScope.get(MAIN_AUTHENTICATABLE);
 
 		// set to the default failure message
 		LoginStatusResponse loginConfirm = new LoginStatusResponse(LOGIN_FAILED_PASSWORD);
@@ -76,7 +75,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 		if (this.getSender() != null)
 		{
 			String sessionId = (String) localScope.get(AbstractClientSessionManager.SESSION_ID);
-			loginSuccess = authenticatable.login(this.entry, sessionId);
+			loginSuccess = server.login(this.entry, sessionId);
 		}
 
 		if (loginSuccess)
@@ -90,7 +89,7 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 			{
 				loginConfirm.setExplanation(LOGIN_FAILED_NO_IP_SUPPLIED);
 			}
-			else if (authenticatable.isLoggedIn(entry))
+			else if (server.isLoggedIn(entry.getUsername()))
 			{
 				loginConfirm.setExplanation(LOGIN_FAILED_LOGGEDIN);
 			}
@@ -102,16 +101,16 @@ public class Login extends RequestMessage implements AuthMessages, AuthServerReg
 	/**
 	 * @return Returns the entry.
 	 */
-	public User getEntry()
+	public AuthenticationListEntry getEntry()
 	{
 		return entry;
 	}
 
 	/**
 	 * @param entry
-	 *          The entry to set.
+	 *           The entry to set.
 	 */
-	public void setEntry(User entry)
+	public void setEntry(AuthenticationListEntry entry)
 	{
 		this.entry = entry;
 	}

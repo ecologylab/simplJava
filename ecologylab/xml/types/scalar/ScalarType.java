@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.FieldToXMLOptimizations;
+import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
@@ -158,7 +158,7 @@ public abstract class ScalarType<T> extends Debug
      */
 	protected void setFieldError(Field field, String value, Exception e)
 	{
-		error(" Got " + e + " while trying to set field " + field + " to " + value);
+		error("Got " + e + " while trying to set field " + field + " to " + value);
 	}
 
     /**
@@ -205,21 +205,22 @@ public abstract class ScalarType<T> extends Debug
     }
 
     /**
-     * The string representation for a Field of this type
-     * 
-     * Default implementation uses the Object's toString() method. This is usually going to be
-     * wrong.
+     * The string representation for a Field of this type.
+     * Reference scalar types should NOT override this.
+     * They should simply override marshall(instance), which this method calls.
+     * <p/>
+     * Primitive types cannot create such an instance, from the value of a field, and so must override.
      */
     public String toString(Field field, Object context)
     {
         String result = "COULDNT CONVERT!";
         try
         {
-            Object fieldObj = field.get(context);
-            if (fieldObj == null)
+            T instance = (T) field.get(context);
+            if (instance == null)
                 result = DEFAULT_VALUE_STRING;
             else
-                result = fieldObj.toString();
+                result = marshall(instance);
         }
         catch (Exception e)
         {
@@ -241,12 +242,12 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(Appendable buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        Object instance = f2xo.getField().get(context);
+        Object instance = fieldDescriptor.getField().get(context);
            
-        appendValue((T) instance, buffy, !f2xo.isCDATA());
+        appendValue((T) instance, buffy, !fieldDescriptor.isCDATA());
     }
     
 /**
@@ -273,14 +274,14 @@ public abstract class ScalarType<T> extends Debug
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
-    public void appendValue(StringBuilder buffy, FieldToXMLOptimizations f2xo, Object context) 
+    public void appendValue(StringBuilder buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
        try
        {
-        Object instance = f2xo.getField().get(context);
+        Object instance = fieldDescriptor.getField().get(context);
            
-        appendValue((T) instance, buffy,  !f2xo.isCDATA());
+        appendValue((T) instance, buffy,  !fieldDescriptor.isCDATA());
         }
         catch(IllegalArgumentException e)
         {
@@ -456,5 +457,17 @@ public abstract class ScalarType<T> extends Debug
 			fieldTypeName	= result;
 		}
 		return result;
+	}
+	
+	/**
+	 * Used to describe scalar types used for serializing the type system, itself.
+	 * They cannot be unmarshalled in Java, only marshalled.
+	 * Code may be written to access their String representations in other languages.
+	 * 
+	 * @return	false for almost all ScalarTypes
+	 */
+	public boolean isMarshallOnly()
+	{
+		return false;
 	}
 }

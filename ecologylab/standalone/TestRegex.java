@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  */
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 public class TestRegex

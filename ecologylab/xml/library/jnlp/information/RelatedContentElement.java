@@ -15,7 +15,7 @@ import ecologylab.xml.ElementState;
  * Client to identify the related content to the user.
  * 
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class RelatedContentElement extends ElementState

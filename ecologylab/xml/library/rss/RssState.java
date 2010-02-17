@@ -19,19 +19,9 @@ import ecologylab.xml.library.media.Thumbnail;
  */
 public class RssState extends ElementState
 {
-	/*
-	 * @xml_attribute specifies that version will be associated with
-	 * an attribute of the rss element
-	 */
-	@xml_attribute	
-	float version;
+	@xml_attribute	float		version;
    
-	/*
-	 * @xml_nested specifies that channel should be associated with a
-	 * xml sub-element of the rss element
-	 */
-	@xml_nested
-	public Channel	channel;
+	public @xml_nested		Channel		channel;
 
 	/**
 	 * @return Returns the channel.
@@ -145,6 +135,7 @@ public class RssState extends ElementState
 		"		<title>Photos from everyone tagged water</title>\r\n" + 
 		"		<link>http://www.flickr.com/photos/tags/water/</link>\r\n" + 
 		"		<item>\r\n" + 
+		"			<media:title>Fire-Worksing</media:title>\r\n" + 
 		"			<title>Fire-Works</title>\r\n" + 
 		"			<link>http://www.flickr.com/photos/meemz/2161548299/</link>\r\n" + 
 		"			<media:title>Fire-Works</media:title>\r\n" + 
@@ -153,44 +144,88 @@ public class RssState extends ElementState
 		"</channel>\r\n" + 
 		"</rss>\r\n";
 	
+	public static final String ITEM_EXAMPLE = 
+		"	<channel>\r\n" + 
+		"			<foo>Fire-Works</foo>\r\n" + 
+		"		<item>\r\n" + 
+		"			<title>Fire-Works</title>\r\n" + 
+		"			<link>http://www.flickr.com/photos/meemz/2161548299/</link>\r\n" + 
+//		"			<media:title>Fire-Works</media:title>\r\n" + 
+		"\r\n" + 
+		"		</item>\r\n" + 
+		"		<title>Photos from everyone tagged water</title>\r\n" + 
+		"		<link>http://www.flickr.com/photos/tags/water/</link>\r\n" + 
+		"</channel>\r\n";
+	
+	public static final String NABEEL_TEST = 
+	"<rss version=\"1\">"+
+	"<channel>"+
+	"	<title>title.Nabeel</title>"+
+	"	<description>description.Student</description>"+
+	"	<link>http://www.google.com/ig</link>"+
+	"	<items>"+
+	"		<item>"+
+	"			<title>Item.title.Nabeel</title>"+
+	"			<description>Item.description.Nabeel</description>"+
+	"			<link>http://www.google.com/ig</link>"+
+	"			<guid>http://www.google.com/ig</guid>"+
+	"			<author>Item.author.Nabeel</author>"+
+	"			<category>newCat 0</category>"+
+	"			<category>newCat 1</category>"+
+	"		</item>"+
+	"		<item>"+
+	"			<title>Item.title.Nabeel</title>"+
+	"			<description>Item.description.Nabeel</description>"+
+	"			<link>http://www.google.com/ig</link>"+
+	"			<guid>http://www.google.com/ig</guid>"+
+	"			<author>Item.author.Nabeel</author>"+
+	"			<category>newCat 0</category>"+
+	"			<category>newCat 1</category>"+
+	"		</item>"+
+	"	</items>"+
+	"</channel>"+
+	"</rss>";
+
 	public static final File 	outputFile			= new File("/temp/rss.xml");
+	
 	public static void main(String[] args)
 	{
-		//doMain();
-		long	initialTime	= System.currentTimeMillis();
-		RssState rss	= new RssState();
-		Field field		= null;
+		ElementState rss;
 		try
 		{
-			field 		= RssState.class.getField("channel");
-		} catch (SecurityException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e)
+//		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
+			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
+			
+			System.out.println("");
+			rss.translateToXML(System.out);
+			System.out.println("");
+			
+			RssTranslations.get().translateToXML(System.out);
+
+		}
+		catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (int i=0; i< 32000; i++)
-		{
-			try
-			{
-				Channel channel	= (Channel) field.get(rss);
-//				String[] format	= XMLTools.getFormatAnnotation(field);
-			} catch (IllegalArgumentException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		long deltaT			= System.currentTimeMillis() - initialTime;
+	}
+
+	private static void mostMinimalTranlateToTest()
+	{
+		ClassDescriptor fdClassDescriptor = ClassDescriptor.getClassDescriptor(FieldDescriptor.class);
+		RssState rss	= new RssState();
+		Channel channel	= new Channel();
+		rss.channel		= channel;
 		
-		System.out.println(deltaT + " milliseconds");
+		try
+		{
+			rss.translateToXML(System.out);
+		}
+		catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void doMain()
@@ -204,7 +239,7 @@ public class RssState extends ElementState
 			RssState rssState	= (RssState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
 //			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
-			ArrayList<Item> items	= rssState.getChannel().set(); //rssState.getChannel().getItems();
+			ArrayList<Item> items	= rssState.getChannel().items; //rssState.getChannel().getItems();
 			println("items: " +  items.size());
 			for (Item item : items)
 			{
@@ -227,11 +262,10 @@ public class RssState extends ElementState
 				}
 			}
 
-			println("\n");
-			
 			rssState.translateToXML(System.err);
 			println("\n");
 			rssState.writePrettyXML(System.err);
+			println("\n");
 			
 //			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
 //			rssState2.translateToXML(System.out);

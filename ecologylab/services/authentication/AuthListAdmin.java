@@ -8,16 +8,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import ecologylab.services.exceptions.SaveFailedException;
+import javax.xml.transform.stream.StreamResult;
+
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * This program allows users to create and modify AuthenticationList files so that they do not have
- * to be stored as plaintext.
+ * This program allows users to create and modify AuthenticationList files so that they do not have to be stored as
+ * plaintext.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class AuthListAdmin
@@ -27,8 +28,7 @@ public class AuthListAdmin
 	 * @throws IOException
 	 * @throws XMLTranslationException
 	 */
-	public static void main(String[] args) throws IOException, SecurityException,
-			XMLTranslationException
+	public static void main(String[] args) throws IOException, SecurityException, XMLTranslationException
 	{
 		if (args.length < 1)
 		{
@@ -42,11 +42,11 @@ public class AuthListAdmin
 		String resp = "";
 		String filename = args[0];
 		boolean newFile = false;
-		User userEntry;
+		AuthenticationListEntry userEntry;
 		boolean loggedIn = false;
 
 		// first we need to open up the authentcation list
-		AuthenticationListXMLImpl authList = null;
+		AuthenticationList authList = null;
 
 		File xmlFile = new File(filename);
 
@@ -54,8 +54,7 @@ public class AuthListAdmin
 		{
 			try
 			{
-				authList = (AuthenticationListXMLImpl) ElementState.translateFromXML(
-						xmlFile, AuthenticationTranslations.get());
+				authList = (AuthenticationList) ElementState.translateFromXML(xmlFile, AuthenticationTranslations.get());
 			}
 			catch (XMLTranslationException e)
 			{
@@ -105,7 +104,7 @@ public class AuthListAdmin
 
 			// now the file exists, because we'd have exited by now. We also
 			// don't yet have an authlist object
-			authList = new AuthenticationListXMLImpl();
+			authList = new AuthenticationList();
 		}
 
 		if (authList != null)
@@ -129,8 +128,7 @@ public class AuthListAdmin
 				}
 				else if (username == null)
 				{
-					System.out
-							.println("Please supply a username that will be an administrator user for this file:");
+					System.out.println("Please supply a username that will be an administrator user for this file:");
 					username = br.readLine();
 				}
 
@@ -156,7 +154,7 @@ public class AuthListAdmin
 					}
 				}
 
-				userEntry = new User(username, password);
+				userEntry = new AuthenticationListEntry(username, password);
 
 				// have password and username!
 				if (!newFile && authList.isValid(userEntry)
@@ -172,14 +170,7 @@ public class AuthListAdmin
 
 					userEntry.setLevel(AuthLevels.ADMINISTRATOR);
 
-					try
-					{
-						authList.addUser(userEntry);
-					}
-					catch (SaveFailedException e)
-					{
-						e.printStackTrace();
-					}
+					authList.add(userEntry);
 				}
 			}
 
@@ -229,14 +220,7 @@ public class AuthListAdmin
 					{
 						System.out.println("adding user: " + newUser);
 
-						try
-						{
-							authList.addUser(new User(newUser, password));
-						}
-						catch (SaveFailedException e)
-						{
-							e.printStackTrace();
-						}
+						authList.add(new AuthenticationListEntry(newUser, password));
 					}
 				}
 				else

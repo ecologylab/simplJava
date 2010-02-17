@@ -10,7 +10,7 @@ import ecologylab.xml.ElementState;
  * integration. The shortcut element and it's sub-elements provide hints that the JNLP Client may or may not use. The
  * shortcut element can contain the optional online attribute, and the two optional sub-elements, desktop and menu.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class ShortcutElement extends ElementState

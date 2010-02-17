@@ -6,7 +6,7 @@ package ecologylab.services.distributed.common;
 /**
  * Constant settings for client functionality.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface ClientConstants extends NetworkingConstants

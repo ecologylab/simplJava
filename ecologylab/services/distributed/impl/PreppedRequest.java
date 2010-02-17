@@ -7,7 +7,7 @@ package ecologylab.services.distributed.impl;
  * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML
  * String, along with the request's UID.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class PreppedRequest implements Comparable<PreppedRequest>
 {

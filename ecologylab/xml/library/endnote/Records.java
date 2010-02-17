@@ -3,11 +3,16 @@
  */
 package ecologylab.xml.library.endnote;
 
+import java.util.ArrayList;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
-public @xml_inherit class Records extends ArrayListState<Record>
+public @xml_inherit class Records extends ElementState
 {
+	
+	@xml_collection("Record")
+	@xml_nowrap
+	ArrayList<Record> records;
  
     public Records()
     {

@@ -16,6 +16,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import javax.swing.ButtonGroup;
@@ -58,7 +59,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.RestrictedFileSystemView;
 import ecologylab.io.Assets;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Create the GUI for preference editing; also responsible for all
@@ -1078,7 +1078,7 @@ implements WindowListener
      */
     private<T> void createChoicesBasedRadio(MetaPref<T> metaPref, JPanel panel)
     {
-        ArrayListState<Choice<T>> choices = metaPref.getChoices();
+        ArrayList<Choice<T>> choices = metaPref.getChoices();
         if (choices != null)
         {
             ButtonGroup buttonGroup = new ButtonGroup();
@@ -1104,7 +1104,7 @@ implements WindowListener
     {
        // Boolean currentValue 		= (Boolean) metaPref.getDefaultValue(); -- changed by andruid 
         Boolean currentValue 		= metaPref.usePrefBoolean().value();
-        ArrayListState<Choice<Boolean>> choices = metaPref.getChoices();
+        ArrayList<Choice<Boolean>> choices = metaPref.getChoices();
         ButtonGroup radioPair = new ButtonGroup();
         
         if (choices != null)

@@ -4,7 +4,6 @@
 package ecologylab.io;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -52,8 +51,7 @@ implements ApplicationProperties
 	 */
 	public static final String INTERFACE		= "interface/";
 	public static final String SEMANTICS		= "semantics/";
-	public static final String PREFERENCES	= "preferences/";
-	public static final String STUDY				= "study/";
+	public static final String PREFERENCES		= "preferences/";
 	
 	/**
 	 * Source URL root of the tree of assets for this application.
@@ -99,14 +97,6 @@ implements ApplicationProperties
 	 */
 	static ParsedURL	preferencesAssetsRoot;
 	
-	/**
-	 * Source URL root of the tree of study assets for this application.
-	 * This should always be set to the STUDY subdir of the assetsRoot.
-	 * 
-	 * The source location of any study asset is specified relative to here.
-	 */
-	static ParsedURL	studyAssetsRoot;
-	
 /**
  * The root directory on the local machine where assets will be stored (cached).
  * 
@@ -133,8 +123,6 @@ implements ApplicationProperties
 	static File			semanticsCacheRoot;
 	
 	static File			preferencesCacheRoot;
-	
-	static File			studyCacheRoot;
 
 	/*
 	 * Set-up assets and cache roots.
@@ -306,21 +294,6 @@ implements ApplicationProperties
 		return Files.newFile(preferencesCacheRoot, assetRelativePath);
 	}
 	
-	public static File getStudyFile(String assetRelativePath)
-	{
-		return getCachedStudyFile(assetRelativePath);
-	}
-	/**
-	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	protected static File getCachedStudyFile(String assetRelativePath)
-	{
-		return Files.newFile(studyCacheRoot, assetRelativePath);
-	}
-	
 	/**
 	 * Download an interface assets zip file from the interfaceAssetsRoot.
 	 * Unzip it into the cacheRoot.
@@ -376,18 +349,6 @@ implements ApplicationProperties
 	{
 		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
 					preferencesCacheRoot, status, forceDownload, version);
-	}
-	
-	public static void downloadStudyZip(String assetRelativePath, StatusReporter status,
-			  boolean forceDownload)
-	{
-		downloadStudyZip(assetRelativePath,  status, forceDownload, IGNORE_VERSION);
-	}
-	public static void downloadStudyZip(String assetRelativePath, StatusReporter status,
-											  boolean forceDownload, float version)
-	{
-		downloadZip(studyAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
-					studyCacheRoot, status, forceDownload, version);
 	}
 	/**
 	 * Download the assets zip file from the assetsRoot.
@@ -465,7 +426,6 @@ implements ApplicationProperties
 		interfaceAssetsRoot		= assetsRoot.getRelative(INTERFACE, "forming interface assets root");
 		semanticsAssetsRoot		= assetsRoot.getRelative(SEMANTICS, "forming semantics assets root");
 		preferencesAssetsRoot	= assetsRoot.getRelative(PREFERENCES, "forming preferences assets root");
-		studyAssetsRoot				= assetsRoot.getRelative(STUDY, "forming study assets root");
 	}
 
 	/**
@@ -478,7 +438,6 @@ implements ApplicationProperties
 		interfaceCacheRoot		= Files.newFile(cacheRoot, INTERFACE);
 		semanticsCacheRoot		= Files.newFile(cacheRoot, SEMANTICS);
 		preferencesCacheRoot	= Files.newFile(cacheRoot, PREFERENCES);
-		studyCacheRoot				= Files.newFile(cacheRoot, STUDY);
 	}
 
 	/**
@@ -599,19 +558,13 @@ implements ApplicationProperties
 			if (needToWriteAssetsXml)
 			{
 				needToWriteAssetsXml	= false;
-//				assetsState.writePrettyXML(assetsXmlFile);
-				assetsState.translateToXML(assetsXmlFile);
+				assetsState.writePrettyXML(assetsXmlFile);
 				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}
 			else
 				println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
 		} catch (XMLTranslationException e)
 		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

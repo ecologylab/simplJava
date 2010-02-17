@@ -15,7 +15,7 @@ import ecologylab.services.exceptions.BadClientException;
  * An interface indicating necessary functionality for a server so that it can
  * properly service ContextManagers.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface NIOServerProcessor extends StartAndStoppable
@@ -57,6 +57,6 @@ public interface NIOServerProcessor extends StartAndStoppable
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
-	public boolean restoreContextManagerFromSessionId(String oldId,
+	public boolean restoreContextManagerFromSessionId(Object oldId,
 			AbstractClientSessionManager newContextManager);
 }

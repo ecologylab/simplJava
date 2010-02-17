@@ -20,7 +20,7 @@ import ecologylab.xml.xml_inherit;
  * Subclasses could have the server return certain data before shutting down,
  * such as a log file.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @xml_inherit public class ShutdownRequest extends RequestMessage implements
 		SessionObjects

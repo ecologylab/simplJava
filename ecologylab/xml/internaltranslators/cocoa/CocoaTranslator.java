@@ -6,14 +6,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import com.sun.org.apache.bcel.internal.classfile.Field;
+
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
+import ecologylab.standalone.xmlpolymorph.BItem;
+import ecologylab.standalone.xmlpolymorph.SchmItem;
+import ecologylab.standalone.xmlpolymorph.Schmannel;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.ClassDescriptor;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.internaltranslators.cocoa.library.CocoaInheritTest;
+import ecologylab.xml.library.rss.*;
+import ecologylab.services.messages.*;
+import ecologylab.tutorials.HistoryEchoRequest;
+import ecologylab.tutorials.HistoryEchoResponse;
 
 /**
  * This class is the main class which provides the functionality of translation
@@ -118,7 +127,7 @@ public class CocoaTranslator
       directoryLocation = null;
    }
 
-/**
+   /**
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into Objective-C header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
@@ -136,12 +145,16 @@ public class CocoaTranslator
     * @param inputClass
     * @param appendable
     * @throws IOException
- * @throws CocoaTranslationException 
+    * @throws CocoaTranslationException 
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
    {
-      HashMapArrayList<String, FieldDescriptor> attributes = ClassDescriptor.getFieldDescriptors(inputClass);
-
+	  
+	  ClassDescriptor<?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
+	  TranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();	  
+	   
+      HashMapArrayList<String, FieldDescriptor> attributes = classDescriptor.getFieldDescriptorsByFieldName();
+ 
       openHeaderFile(inputClass, appendable);
 
       if (attributes.size() > 0)
@@ -150,18 +163,33 @@ public class CocoaTranslator
 
          for (FieldDescriptor fieldAccessor : attributes)
          {
-            appendFieldAsObjectiveCAttribute(fieldAccessor, appendable);
+        	if(fieldAccessor.belongsTo(classDescriptor))        	
+        		appendFieldAsObjectiveCAttribute(fieldAccessor, appendable);
          }
 
          closeFieldDeclartion(appendable);
 
          for (FieldDescriptor fieldAccessor : attributes)
          {
-            appendPropertyOfField(fieldAccessor, appendable);
+        	if(fieldAccessor.belongsTo(classDescriptor))
+        		 appendPropertyOfField(fieldAccessor, appendable);
          }
       }
 
       closeHeaderFile(appendable);
+      
+      openImplementationFile(inputClass, appendable);
+      
+      if (attributes.size() > 0)
+      {    
+         for (FieldDescriptor fieldAccessor : attributes)
+         {
+        	if(fieldAccessor.belongsTo(classDescriptor))        	
+        		appendSynthesizedField(fieldAccessor, appendable);
+         }
+      }
+      
+      closeImplementationFile(appendable);
 
       if (isRecursive)
       {
@@ -172,8 +200,126 @@ public class CocoaTranslator
          }
       }
    }
-
+   
    /**
+    * The main entry function into the class. Goes through a sequence of steps
+    * to convert the Java class file into Objective-C header file. It mainly
+    * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
+    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * <p>
+    * This function will <b>not</b> try to generate the header file only for the
+    * Class whose objects are present in the current Java file and annotated by
+    * {@code ecologylab.xml} attributes.
+    * </p>
+    * <p>
+    * See {@code translateToObjCRecursive()} if you want to generate nested
+    * objects
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjCHeader(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
+   {	   
+	  ClassDescriptor<?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
+	  TranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();	  
+	   
+      HashMapArrayList<String, FieldDescriptor> attributes = classDescriptor.getFieldDescriptorsByFieldName();
+ 
+      openHeaderFile(inputClass, appendable);      
+
+      if (attributes.size() > 0)
+      {
+         openFieldDeclartion(appendable);
+
+         for (FieldDescriptor fieldAccessor : attributes)
+         {
+        	if(fieldAccessor.belongsTo(classDescriptor))        	
+        		appendFieldAsObjectiveCAttribute(fieldAccessor, appendable);
+         }
+
+         closeFieldDeclartion(appendable);
+
+         for (FieldDescriptor fieldAccessor : attributes)
+         {
+        	if(fieldAccessor.belongsTo(classDescriptor))
+        		 appendPropertyOfField(fieldAccessor, appendable);
+         }
+      }
+      
+      for (FieldDescriptor fieldAccessor : attributes)
+      {
+    	 if(fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar())     	
+    		appendFieldSetterFunctionDefinition(appendable, fieldAccessor);
+      }
+
+      closeHeaderFile(appendable);
+      
+      if (isRecursive)
+      {
+
+         for (NestedTranslationHook nestedTranslationHook : nestedTranslationHooks)
+         {
+            nestedTranslationHook.execute();
+         }
+      }
+   }   
+   
+   /**
+    * The main entry function into the class. Goes through a sequence of steps
+    * to convert the Java class file into Objective-C header file. It mainly
+    * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
+    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * <p>
+    * This function will <b>not</b> try to generate the implementation file only for the
+    * Class whose objects are present in the current Java file and annotated by
+    * {@code ecologylab.xml} attributes.
+    * </p>
+    * <p>
+    * See {@code translateToObjCRecursive()} if you want to generate nested
+    * objects
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjCImplementation(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException, CocoaTranslationException
+   {
+	  
+	  ClassDescriptor<?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
+	  TranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();	  
+	   
+      HashMapArrayList<String, FieldDescriptor> attributes = classDescriptor.getFieldDescriptorsByFieldName();
+ 
+      openImplementationFile(inputClass, appendable);
+      
+      if (attributes.size() > 0)
+      {    
+         for (FieldDescriptor fieldAccessor : attributes)
+         {
+        	if(fieldAccessor.belongsTo(classDescriptor))        	
+        		appendSynthesizedField(fieldAccessor, appendable);
+         }
+      }
+      
+      generateInitializationFunction(inputClass, appendable);
+      
+      for (FieldDescriptor fieldAccessor : attributes)
+      {
+    	 if(fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar())     	
+    		appendFieldSetterFunctionImplementation(appendable, fieldAccessor);
+      }
+      
+      closeImplementationFile(appendable);
+   }
+
+   
+
+/**
     * Recursive version of the main function. Will also be generating
     * Objective-C header outputs for {@code @xml_nested} objects
     * <p>
@@ -220,12 +366,79 @@ public class CocoaTranslator
     */
    public void translateToObjC(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
    {
-      File outputFile = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
+	   translateToObjCHeader(inputClass, directoryLocation);
+	   translateToObjCImplementation(inputClass, directoryLocation);
+   }
+   
+   /**
+    * Takes an input class to generate an Objective-C version of the file. Takes
+    * the {@code directoryLocation} of the files where the file needs to be
+    * generated.
+    * <p>
+    * This function internally calls the {@code translateToObjC} main entry
+    * function to generate the required files
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjC(ParsedURL directoryLocation, Class<? extends ElementState>... classes) throws IOException, CocoaTranslationException
+   {
+	   int length = classes.length;
+	   for(int i = 0; i < length; i++){
+		   translateToObjCHeader(classes[i], directoryLocation);
+		   translateToObjCImplementation(classes[i], directoryLocation);
+	   }	   
+   }
+   
+   /**
+    * Takes an input class to generate an Objective-C version of the file. Takes
+    * the {@code directoryLocation} of the files where the file needs to be
+    * generated.
+    * <p>
+    * This function internally calls the {@code translateToObjC} main entry
+    * function to generate the required files
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjCHeader(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   {
+      File outputFile = createHeaderFileWithDirectoryStructure(inputClass, directoryLocation);
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
 
-      translateToObjC(inputClass, bufferedWriter);
+      translateToObjCHeader(inputClass, bufferedWriter);
       bufferedWriter.close();
    }
+   
+   /**
+    * Takes an input class to generate an Objective-C version of the file. Takes
+    * the {@code directoryLocation} of the files where the file needs to be
+    * generated.
+    * <p>
+    * This function internally calls the {@code translateToObjC} main entry
+    * function to generate the required files
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjCImplementation(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   {
+      File outputFile = createImplementationFileWithDirectoryStructure(inputClass, directoryLocation);
+      BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
+
+      translateToObjCImplementation(inputClass, bufferedWriter);
+      bufferedWriter.close();
+   } 
+   
 
    /**
     * Recursive function to generate output files of the {@code @xml_nested}
@@ -251,7 +464,7 @@ public class CocoaTranslator
       isRecursive = true;
       this.directoryLocation = directoryLocation;
 
-      File outputFile = creatiFileWithDirectoryStructure(inputClass, directoryLocation);
+      File outputFile = createHeaderFileWithDirectoryStructure(inputClass, directoryLocation);
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
 
       translateToObjC(inputClass, bufferedWriter);
@@ -269,7 +482,9 @@ public class CocoaTranslator
     */
    private void openHeaderFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.HEADER_FILE_OPENING);
+      appendable.append(TranslationConstants.FOUNDATION_HEADER);
+      appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+      appendable.append(TranslationConstants.INCLUDE_OBJECT.replace("@", TranslationConstants.INHERITENCE_OBJECT));
       appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
       appendable.append(TranslationConstants.INTERFACE);
       appendable.append(TranslationConstants.SPACE);
@@ -279,7 +494,6 @@ public class CocoaTranslator
       appendable.append(TranslationConstants.SPACE);
       appendable.append(TranslationConstants.INHERITENCE_OBJECT);
       appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
-
    }
 
    /**
@@ -307,7 +521,7 @@ public class CocoaTranslator
     */
    private void openFieldDeclartion(Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.OPENING_BRACE);
+      appendable.append(TranslationConstants.OPENING_CURLY_BRACE);
       appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
    }
 
@@ -321,7 +535,89 @@ public class CocoaTranslator
     */
    private void closeFieldDeclartion(Appendable appendable) throws IOException
    {
-      appendable.append(TranslationConstants.CLOSING_BRACE);
+      appendable.append(TranslationConstants.CLOSING_CURLY_BRACE);
+      appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
+   }
+   
+   /**
+    * Simple private function implements the syntax for opening an Objective-C
+    * implementation file. Uses constants and appends them to the appendable object for
+    * output.
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    */
+   private void openImplementationFile(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException
+   {
+      appendable.append(TranslationConstants.INCLUDE_OBJECT.replace("@", XMLTools.getClassName(inputClass)));
+      appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
+      appendable.append(TranslationConstants.IMPLEMENTATION);
+      appendable.append(TranslationConstants.SPACE);
+      appendable.append(XMLTools.getClassName(inputClass));
+      appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
+   }
+   
+   /**
+    * Simple private function implements the syntax for opening an Objective-C
+    * implementation file. Uses constants and appends them to the appendable object for
+    * output.
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    */
+   private void appendFieldSetterFunctionDefinition(Appendable appendable, FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException {
+	   
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   appendable.append("- (void) ");
+	   appendable.append("set" + fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
+	   appendable.append(fieldAccessor.getFieldName().substring(1, fieldAccessor.getFieldName().length()));
+	   appendable.append("WithReference: ");
+	   appendable.append("(" + TranslationUtilities.getObjectiveCType(fieldAccessor.getFieldType()) + " *)");
+	   appendable.append(" p_" + fieldAccessor.getFieldName());
+	   appendable.append(";");
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	}
+   
+   /**
+    * Simple private function implements the syntax for opening an Objective-C
+    * implementation file. Uses constants and appends them to the appendable object for
+    * output.
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    */
+   private void appendFieldSetterFunctionImplementation(Appendable appendable, FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException {
+	   
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   appendable.append("- (void) ");
+	   appendable.append("set" + fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
+	   appendable.append(fieldAccessor.getFieldName().substring(1, fieldAccessor.getFieldName().length()));
+	   appendable.append("WithReference: ");
+	   appendable.append("(" + TranslationUtilities.getObjectiveCType(fieldAccessor.getFieldType()) + " *)");
+	   appendable.append(" p_" + fieldAccessor.getFieldName());
+	   appendable.append(" {");
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   appendable.append("\t" + fieldAccessor.getFieldName() + " = " + "*p_" + fieldAccessor.getFieldName());
+	   appendable.append(";");
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   appendable.append("}");
+	}
+   
+   /**
+    * Simple private function implements the syntax for closing an Objective-C
+    * implemenatation file. Uses constants and appends them to the appendable object for
+    * output.
+    * 
+    * @param appendable
+    * @throws IOException
+    */
+   private void closeImplementationFile(Appendable appendable) throws IOException
+   {
+      appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
+      appendable.append(TranslationConstants.END);
       appendable.append(TranslationConstants.DOUBLE_LINE_BREAK);
    }
 
@@ -368,7 +664,7 @@ public class CocoaTranslator
             }
             else
             {
-               File outputFile = creatiFileWithDirectoryStructure(fieldAccessor.getFieldType(), directoryLocation);
+               File outputFile = createHeaderFileWithDirectoryStructure(fieldAccessor.getFieldType(), directoryLocation);
                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
                nestedTranslationHook = new NestedTranslationHook(fieldAccessor.getFieldType(), bufferedWriter);
                nestedTranslationHooks.add(nestedTranslationHook);
@@ -406,10 +702,35 @@ public class CocoaTranslator
       }
       else if (fieldAccessor.isNested())
       {
-         // nothing needs to be done here since hooks are already added during
-         // the declaration of the field
+    	  appendPropertyAsNestedAttribute(fieldAccessor, appendable);
       }
    }
+   
+   /**
+    * Appends an attribute in the Objective-C header file for the corresponding
+    * attribute in the Java class file. The attribute can be a primitive type or
+    * reference type. Reference type can be a single object, a collection or a
+    * nested class object.
+    * 
+    * @param fieldAccessor
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   private void appendSynthesizedField(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   {
+	   StringBuilder synthesizeDeclaration = new StringBuilder();
+	   
+	   synthesizeDeclaration.append(TranslationConstants.SYNTHESIZE);
+	   synthesizeDeclaration.append(TranslationConstants.SPACE);
+	   synthesizeDeclaration.append(fieldAccessor.getFieldName());
+	   synthesizeDeclaration.append(TranslationConstants.TERMINATOR);
+	   synthesizeDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   appendable.append(synthesizeDeclaration);
+	   
+   }
+
 
    /**
     * Appends a reference type field in the output Objective-C header file
@@ -469,7 +790,7 @@ public class CocoaTranslator
       StringBuilder fieldDeclaration = new StringBuilder();
 
       fieldDeclaration.append(TranslationConstants.TAB);
-      fieldDeclaration.append(Debug.classSimpleName(fieldAccessor.getFieldType()));
+      fieldDeclaration.append(TranslationUtilities.classSimpleName(fieldAccessor.getFieldType()));
       fieldDeclaration.append(TranslationConstants.SPACE);
       fieldDeclaration.append(TranslationConstants.REFERENCE);
       fieldDeclaration.append(fieldAccessor.getFieldName());
@@ -492,11 +813,36 @@ public class CocoaTranslator
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 
-      propertyDeclaration.append(TranslationConstants.PROPERTY);
+      propertyDeclaration.append(TranslationConstants.PROPERTY_REFERENCE);
+      propertyDeclaration.append(TranslationConstants.SPACE);      
+      propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));      
       propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(TranslationConstants.REFERENCE);
-      propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));
+      propertyDeclaration.append(fieldAccessor.getFieldName());
+      propertyDeclaration.append(TranslationConstants.TERMINATOR);
+      propertyDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
+
+      appendable.append(propertyDeclaration);
+   }
+   
+   /**
+    * Appends a reference type attributes property in the output Objective-C
+    * header file
+    * 
+    * @param fieldAccessor
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   private void appendPropertyAsNestedAttribute(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
+   {
+      StringBuilder propertyDeclaration = new StringBuilder();
+
+      propertyDeclaration.append(TranslationConstants.PROPERTY_REFERENCE);
+      propertyDeclaration.append(TranslationConstants.SPACE);      
+      propertyDeclaration.append(TranslationUtilities.classSimpleName(fieldAccessor.getFieldType()));      
       propertyDeclaration.append(TranslationConstants.SPACE);
+      propertyDeclaration.append(TranslationConstants.REFERENCE);
       propertyDeclaration.append(fieldAccessor.getFieldName());
       propertyDeclaration.append(TranslationConstants.TERMINATOR);
       propertyDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
@@ -517,7 +863,7 @@ public class CocoaTranslator
    {
       StringBuilder propertyDeclaration = new StringBuilder();
 
-      propertyDeclaration.append(TranslationConstants.PROPERTY);
+      propertyDeclaration.append(TranslationConstants.PROPERTY_PRIMITIVE);
       propertyDeclaration.append(TranslationConstants.SPACE);
       propertyDeclaration.append(TranslationUtilities.getObjectiveCType(fieldAccessor.getField().getType()));
       propertyDeclaration.append(TranslationConstants.SPACE);
@@ -527,17 +873,35 @@ public class CocoaTranslator
 
       appendable.append(propertyDeclaration);
    }
-
-   /**
-    * Main method to test the working of the library.
-    * 
-    * @param args
-    * @throws Exception
-    */
-   public static void main(String args[]) throws Exception
-   {
-      CocoaTranslator c = new CocoaTranslator();
-      c.translateToObjCRecursive(CocoaInheritTest.class, new ParsedURL(new File("C:\\code\\")));
+   
+   private void generateInitializationFunction(Class<? extends ElementState> inputClass, Appendable appendable) throws IOException {
+	   
+	   StringBuilder initializationFunction = new StringBuilder();
+	   
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.PLUS);
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.OPENING_BRACE);
+	   initializationFunction.append(TranslationConstants.VOID);
+	   initializationFunction.append(TranslationConstants.CLOSING_BRACE);
+	   initializationFunction.append(TranslationConstants.SPACE);	   
+	   initializationFunction.append(TranslationConstants.INITIALIZE);
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.OPENING_CURLY_BRACE);
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.TAB);
+	   initializationFunction.append(TranslationConstants.OPENING_SQUARE_BRACE);
+	   initializationFunction.append(inputClass.getSimpleName());	   
+	   initializationFunction.append(TranslationConstants.SPACE);
+	   initializationFunction.append(TranslationConstants.CLASS);
+	   initializationFunction.append(TranslationConstants.CLOSING_SQUARE_BRACE);
+	   initializationFunction.append(TranslationConstants.TERMINATOR);
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   initializationFunction.append(TranslationConstants.CLOSING_CURLY_BRACE);	   
+	   initializationFunction.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   appendable.append(initializationFunction);
+	   
    }
 
    /**
@@ -554,7 +918,7 @@ public class CocoaTranslator
     * @return
     * @throws IOException
     */
-   private File creatiFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws IOException
+   private File createHeaderFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws IOException
    {
       String packageName = XMLTools.getPackageName(inputClass);
       String className = XMLTools.getClassName(inputClass);
@@ -581,4 +945,62 @@ public class CocoaTranslator
 
       return currentFile;
    }
+   
+   /**
+    * Creates a directory structure from the path of the given by the {@code
+    * directoryLocation} parameter Uses the class and package names from the
+    * parameter {@code inputClass}
+    * <p>
+    * This function deletes the files if the files with same class existed
+    * inside the directory structure and creates a new file for that class
+    * </p>
+    * 
+    * @param inputClass
+    * @param directoryLocation
+    * @return
+    * @throws IOException
+    */
+   private File createImplementationFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws IOException
+   {
+      String packageName = XMLTools.getPackageName(inputClass);
+      String className = XMLTools.getClassName(inputClass);
+      String currentDirectory = directoryLocation.toString() + TranslationConstants.FILE_PATH_SEPARATOR;
+
+      String[] arrayPackageNames = packageName.split(TranslationConstants.PACKAGE_NAME_SEPARATOR);
+
+      for (String directoryName : arrayPackageNames)
+      {
+         currentDirectory += directoryName + TranslationConstants.FILE_PATH_SEPARATOR;
+      }
+
+      File directory = new File(currentDirectory);
+      directory.mkdirs();
+
+      File currentFile = new File(currentDirectory + className + TranslationConstants.IMPLEMENTATION_FILE_EXTENSION);
+
+      if (currentFile.exists())
+      {
+         currentFile.delete();
+      }
+
+      currentFile.createNewFile();
+
+      return currentFile;
+   }
+   
+
+   /**
+    * Main method to test the working of the library.
+    * 
+    * @param args
+    * @throws Exception
+    */
+   public static void main(String args[]) throws Exception
+   {
+      CocoaTranslator c = new CocoaTranslator();
+//      c.translateToObjC(Item.class, new ParsedURL(new File("/")));
+      //c.translateToObjC(new ParsedURL(new File("/")), Schmannel.class, BItem.class, SchmItem.class, RssState.class, Item.class, Channel.class);
+      c.translateToObjCImplementation(RssState.class, System.out);
+   }
+
 }

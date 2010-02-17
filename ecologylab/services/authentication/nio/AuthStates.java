@@ -11,7 +11,7 @@ import ecologylab.services.distributed.common.BaseStates;
  * 
  * @see ecologylab.services.distributed.common.BaseStates
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface AuthStates extends BaseStates, AuthMessages

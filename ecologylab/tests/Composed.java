@@ -3,20 +3,20 @@
  */
 package ecologylab.tests;
 
+import java.util.ArrayList;
+
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
 @xml_tag("fred:flintstone") 
 public class Composed extends ElementState
 {
-    @xml_nested ArrayListState<ClassTagged> tagged = new ArrayListState<ClassTagged>();
+    @xml_collection("ClassTagged") ArrayList<ClassTagged> tagged = new ArrayList<ClassTagged>();
     
 	@xml_attribute int	x = 22;
     /**

@@ -6,7 +6,7 @@ package ecologylab.services.distributed.common;
 /**
  * States for clients in a networked application.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public interface BaseStates

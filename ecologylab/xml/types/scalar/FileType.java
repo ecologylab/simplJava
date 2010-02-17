@@ -8,7 +8,7 @@ import java.io.File;
 import ecologylab.xml.ScalarUnmarshallingContext;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class FileType extends ScalarType<File>
 {

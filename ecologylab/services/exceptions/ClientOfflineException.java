@@ -6,7 +6,7 @@ package ecologylab.services.exceptions;
 /**
  * Exception indicating that an operation failed because the client is no longer connected.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class ClientOfflineException extends Exception

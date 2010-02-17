@@ -1,5 +1,7 @@
 package ecologylab.xml.library.rss;
 
+import java.util.ArrayList;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.library.dc.Dc;
@@ -28,6 +30,18 @@ public class Item extends ElementState
    @xml_leaf	ParsedURL		guid;
    @xml_leaf	String			author;
 
+   @xml_nowrap
+   @xml_collection("category") ArrayList<String>	categorySet;
+   
+   public Item()
+   {
+  	 super();
+   }
+   public Item(String title)
+   {
+  	 super();
+  	 this.title	= title;
+   }
    /**
     * @return Returns the author.
     */

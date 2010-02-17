@@ -1,7 +1,6 @@
 package ecologylab.generic;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -9,9 +8,10 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
+import java.util.*;
 
-import lib.Base64Coder;
+import sun.misc.BASE64Encoder;
+
 import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
 
@@ -28,7 +28,7 @@ extends Debug
    {
       "com", "edu", "gov", "org", "net", "tv", "info"
    };
-   static final Map<String, String>	oneDotDomains	= 
+   static final HashMap	oneDotDomains	= 
       CollectionTools.buildHashMapFromStrings(oneDotDomainStrings);
 
    public static final String	EMPTY_STRING	= "";
@@ -514,7 +514,7 @@ extends Debug
             encrypter.update(message.toLowerCase().getBytes());
     
             // convert to normal characters and return as a String
-            return new String(Base64Coder.encode(encrypter.digest()));
+            return new String((new BASE64Encoder()).encode(encrypter.digest()));
     
         }
         catch (NoSuchAlgorithmException e)

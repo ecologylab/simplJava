@@ -3,9 +3,11 @@
  */
 package ecologylab.xml.library.opml;
 
+import java.util.ArrayList;
+
 import ecologylab.net.ParsedURL;
+import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Nestable Outline Processor Markup Language construct.
@@ -13,12 +15,13 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author andruid
  */
 @xml_inherit
-public class Outline extends ArrayListState<Outline>
+public class Outline extends ElementState
 {
-	@xml_attribute	String		title;
-	@xml_attribute	ParsedURL	xmlUrl;
-	@xml_attribute	ParsedURL	htmlUrl;
+	@xml_attribute	String				title;
+	@xml_attribute	ParsedURL			xmlUrl;
+	@xml_attribute	ParsedURL			htmlUrl;
 	
+	@xml_collection ArrayList<Outline>	outline; 
 	
 	/**
 	 * 

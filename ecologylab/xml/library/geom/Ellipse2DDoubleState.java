@@ -26,7 +26,7 @@ import ecologylab.xml.ElementState.xml_tag;
  * 
  * Accessor methods (such as contains()) on the result of getEllipse() are fine.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 @xml_tag("El2DD")
 @xml_other_tags("ellipse2_d_double")

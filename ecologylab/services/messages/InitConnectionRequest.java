@@ -4,9 +4,11 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
+import ecologylab.xml.TranslationScope;
+import ecologylab.xml.XMLTranslationException;
 
 /**
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class InitConnectionRequest extends RequestMessage
 {
@@ -40,5 +42,13 @@ public class InitConnectionRequest extends RequestMessage
     {
         return sessionId;
     }
-
+    
+    public static void main(String[] args){
+    	try {
+			TranslationScope.get("init_connection_request", InitConnectionRequest.class, RequestMessage.class).translateToXML(System.out);
+		} catch (XMLTranslationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 }

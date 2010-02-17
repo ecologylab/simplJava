@@ -48,6 +48,9 @@ public class TypeRegistry extends Debug
 		ScalarTypeType.class,
 		
 		PatternType.class,
+		
+		ClassType.class,
+		FieldType.class,
 	};
 	
 	static

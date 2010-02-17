@@ -27,7 +27,7 @@ public class Content extends ElementState
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)
 	//TODO confirm if this is correct.
-	@xml_nested		ArrayList<String>		categoryStrings;
+	@xml_collection	ArrayList<String>		categoryStrings;
 	
 	@xml_nested		Credit			credit;
 	

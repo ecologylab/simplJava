@@ -60,12 +60,6 @@ implements Mappable<String>
 		this.faceIndex = faceIndex;
 		this.fontStyle = fontStyle;
 	}
-	
-	public NamedStyle(String name, boolean underline, int fontSize, int alignment, int faceIndex, int fontStyle, int strokeStyle)
-	{
-		this(name, underline, fontSize, alignment, faceIndex, fontStyle);
-		this.setStrokeStyle(strokeStyle);
-	}
 
 	public String name()
 	{

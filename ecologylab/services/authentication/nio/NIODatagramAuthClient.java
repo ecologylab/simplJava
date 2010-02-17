@@ -6,7 +6,7 @@ import java.net.InetSocketAddress;
 import ecologylab.collections.Scope;
 import ecologylab.generic.BooleanSlot;
 import ecologylab.services.authentication.AuthConstants;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.messages.AuthMessages;
 import ecologylab.services.authentication.messages.Login;
 import ecologylab.services.authentication.messages.Logout;
@@ -21,7 +21,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 {
 
 	/** The username / password information supplied by the user. */
-	protected User	entry			= null;
+	protected AuthenticationListEntry	entry			= null;
 
 	/** Indicates that this is logging in. */
 	private boolean							loggingIn	= false;
@@ -32,7 +32,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 	
 	public NIODatagramAuthClient(InetSocketAddress serverAddress,
 			InetSocketAddress localAddress, TranslationScope translationScope,
-			S objectRegistry, User entry, boolean useCompression, int timeout)
+			S objectRegistry, AuthenticationListEntry entry, boolean useCompression, int timeout)
 	{
 		super(serverAddress, localAddress, translationScope, objectRegistry, useCompression, timeout);
 		
@@ -44,7 +44,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 
 	public NIODatagramAuthClient(InetSocketAddress serverAddress,
 										  TranslationScope translationScope, S objectRegistry,
-										  User entry, boolean useCompression, int timeout)
+										  AuthenticationListEntry entry, boolean useCompression, int timeout)
 	{
 		super(serverAddress, translationScope, objectRegistry, useCompression, timeout);
 		
@@ -71,7 +71,7 @@ AuthClientRegistryObjects, AuthConstants, AuthMessages
 	 * @param entry
 	 *           The entry to set.
 	 */
-	public void setEntry(User entry)
+	public void setEntry(AuthenticationListEntry entry)
 	{
 		this.entry = entry;
 	}

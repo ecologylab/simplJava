@@ -80,4 +80,14 @@ public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 		}
 		return result;
 	}
+	
+	@Override
+	public V put(K key, V value)
+	{
+		synchronized(this)
+		{
+			return super.put(key, value);
+		}
+	}
+	
 }

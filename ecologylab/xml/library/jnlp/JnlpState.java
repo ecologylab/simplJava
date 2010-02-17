@@ -7,12 +7,11 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
 import ecologylab.xml.library.jnlp.resource.ResourceElementArray;
-import ecologylab.xml.types.element.ArrayListState;
+
 
 /**
  * Parses JNLP files for Java web launch.
@@ -21,7 +20,7 @@ import ecologylab.xml.types.element.ArrayListState;
  * 
  * http://java.sun.com/j2se/1.5.0/docs/guide/javaws/developersguide/syntax.html
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
 public class JnlpState extends ElementState implements Cloneable
@@ -49,7 +48,9 @@ public class JnlpState extends ElementState implements Cloneable
 
 	// @xml_nested private InformationElement information;
 
-	@xml_nested ArrayListState<AllPermissionsElement>					security;
+	@xml_collection("AllPermissionElement")
+	@xml_nowrap
+	ArrayList<AllPermissionsElement>					security;
 
 	@xml_nested ResourceElementArray											resources;
 

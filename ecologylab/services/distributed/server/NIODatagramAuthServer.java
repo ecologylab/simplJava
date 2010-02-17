@@ -6,9 +6,9 @@ import java.util.List;
 import ecologylab.collections.Scope;
 import ecologylab.services.authentication.Authenticatable;
 import ecologylab.services.authentication.AuthenticationList;
-import ecologylab.services.authentication.User;
+import ecologylab.services.authentication.AuthenticationListEntry;
 import ecologylab.services.authentication.AuthenticationTranslations;
-import ecologylab.services.authentication.OnlineAuthenticatorHashMapImpl;
+import ecologylab.services.authentication.Authenticator;
 import ecologylab.services.authentication.listener.AuthenticationListener;
 import ecologylab.services.authentication.logging.AuthLogging;
 import ecologylab.services.authentication.logging.AuthenticationOp;
@@ -19,69 +19,68 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
-public class NIODatagramAuthServer<A extends User, S extends Scope> extends
-		NIODatagramServer<S> implements AuthServerRegistryObjects, AuthMessages, AuthLogging,
-		Authenticatable<A>
+public class NIODatagramAuthServer<A extends AuthenticationListEntry, S extends Scope> extends NIODatagramServer<S>
+implements AuthServerRegistryObjects, AuthMessages, AuthLogging, Authenticatable<A>
 {
 
 	/**
-	 * Optional Logging listeners may record authentication events, such as users logging-in.
+	 * Optional Logging listeners may record authentication events, such as users
+	 * logging-in.
 	 */
-	private List<Logging>												logListeners	= new LinkedList<Logging>();
+	private List<Logging>						logListeners	= new LinkedList<Logging>();
 
-	private List<AuthenticationListener>				authListeners	= new LinkedList<AuthenticationListener>();
+	private List<AuthenticationListener>	authListeners	= new LinkedList<AuthenticationListener>();
 
-	protected OnlineAuthenticatorHashMapImpl<A>	authenticator	= null;
-
-	public static NIODatagramAuthServer getInstance(int portNumber,
-			TranslationScope translationScope, Scope objectRegistry, String authListFileName,
-			boolean useCompression)
+	protected Authenticator<A>					authenticator	= null; 										
+	
+	public static NIODatagramAuthServer getInstance(int portNumber, TranslationScope translationScope, 
+																	Scope objectRegistry, String authListFileName, boolean useCompression)
 	{
 		NIODatagramAuthServer server = null;
-
+		
 		try
 		{
-			server = new NIODatagramAuthServer(portNumber, translationScope, objectRegistry,
-					(AuthenticationList) ElementState.translateFromXML(authListFileName,
-							AuthenticationTranslations.get()), useCompression);
+			server = new NIODatagramAuthServer(portNumber, translationScope,
+														  objectRegistry, (AuthenticationList) ElementState
+														  .translateFromXML(authListFileName, AuthenticationTranslations.get()),
+														  useCompression);	
 		}
-		catch (XMLTranslationException e)
+		catch(XMLTranslationException e)
 		{
 			e.printStackTrace();
 		}
-
+		
 		return server;
 	}
-
-	public static NIODatagramAuthServer getInstance(int portNumber,
-			TranslationScope translationScope, Scope objectRegistry, String authListFileName)
+	
+	public static NIODatagramAuthServer getInstance(int portNumber, TranslationScope translationScope, 
+			Scope objectRegistry, String authListFileName)
 	{
 		return getInstance(portNumber, translationScope, objectRegistry, authListFileName, false);
 	}
-
-	public static NIODatagramAuthServer getInstance(int portNumber,
-			TranslationScope translationScope, Scope objectRegistry, AuthenticationList authList,
-			boolean useCompression)
+	
+	public static NIODatagramAuthServer getInstance(int portNumber, TranslationScope translationScope, 
+																	Scope objectRegistry, AuthenticationList authList, boolean useCompression)
 	{
 		NIODatagramAuthServer server = null;
-
-		server = new NIODatagramAuthServer(portNumber, translationScope, objectRegistry, authList,
-				useCompression);
+	
+		server = new NIODatagramAuthServer(portNumber, translationScope,
+													  objectRegistry, authList, useCompression);
 		return server;
 	}
-
-	public static NIODatagramAuthServer getInstance(int portNumber,
-			TranslationScope translationScope, Scope objectRegistry, AuthenticationList authList)
+	
+	public static NIODatagramAuthServer getInstance(int portNumber, TranslationScope translationScope, 
+			Scope objectRegistry, AuthenticationList authList)
 	{
 		return getInstance(portNumber, translationScope, objectRegistry, authList, false);
 	}
-
 	protected NIODatagramAuthServer(int portNumber, TranslationScope translationScope,
-			S objectRegistry, AuthenticationList<A> authList, boolean useCompression)
+											  S objectRegistry, AuthenticationList<A> authList, boolean useCompression)
 	{
 		super(portNumber, translationScope, objectRegistry, useCompression);
-
-		authenticator = new OnlineAuthenticatorHashMapImpl<A>(authList);
+		// TODO Auto-generated constructor stub
+		
+		authenticator = new Authenticator<A>(authList);
 	}
 
 	/**
@@ -123,33 +122,32 @@ public class NIODatagramAuthServer<A extends User, S extends Scope> extends
 
 	/**
 	 * Force logout of an entry; do not require the session id.
-	 * 
 	 * @param entry
 	 * @return
 	 */
 	protected boolean logout(A entry)
 	{
 		Object sessionId = authenticator.getSessionId(entry);
-
+		
 		return this.logout(entry, (String) sessionId);
 	}
-
+	
 	public boolean logout(A entry, String sessionId)
 	{
 		boolean logoutSuccess = authenticator.logout(entry, sessionId);
 
 		if (logoutSuccess)
 		{
-			debug(entry.getUserKey() + " has been logged out.");
-			fireLogoutEvent(entry.getUserKey(), sessionId);
+			debug(entry.getUsername() + " has been logged out.");
+			fireLogoutEvent(entry.getUsername(), sessionId);
 		}
 
 		return logoutSuccess;
 	}
 
-	public boolean isLoggedIn(A entry)
+	public boolean isLoggedIn(String username)
 	{
-		return authenticator.isLoggedIn(entry);
+		return authenticator.isLoggedIn(username);
 	}
 
 	public boolean login(A entry, String sessionId)
@@ -158,33 +156,9 @@ public class NIODatagramAuthServer<A extends User, S extends Scope> extends
 
 		if (loginSuccess)
 		{
-			fireLoginEvent(entry.getUserKey(), sessionId);
+			fireLoginEvent(entry.getUsername(), sessionId);
 		}
 
 		return loginSuccess;
-	}
-
-	/**
-	 * XXX unimplemented
-	 * 
-	 * @see ecologylab.services.authentication.Authenticatable#addNewUser(ecologylab.services.authentication.User)
-	 */
-	@Override
-	public boolean addNewUser(A entry)
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	/**
-	 * XXX unimplemented
-	 * 
-	 * @see ecologylab.services.authentication.Authenticatable#removeExistingUser(ecologylab.services.authentication.User)
-	 */
-	@Override
-	public boolean removeExistingUser(A entry)
-	{
-		// TODO Auto-generated method stub
-		return false;
 	}
 }
