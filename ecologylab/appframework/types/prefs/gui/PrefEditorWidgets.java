@@ -47,7 +47,6 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Contains methods for creating widgets associated with Prefs.
@@ -262,7 +261,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
      */
     protected<T> JComboBox createDropDown(JPanel panel, MetaPref<T> mp)
     {
-        ArrayListState<Choice<T>> choices = mp.getChoices();
+        ArrayList<Choice<T>> choices = mp.getChoices();
         T defValue = mp.getDefaultValue();
         if (choices != null)
         {
@@ -613,7 +612,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
                 // TODO: if we could fetch the ButtonGroup, we could do
                 // this more efficiently.
                 // find the selected one and return it
-                ArrayListState<Choice<T>> choices = mp.getChoices();
+                ArrayList<Choice<T>> choices = mp.getChoices();
                 for (Choice<T> choice : choices)
                 {
                     String regName = mp.getID() + choice.getName();
@@ -638,7 +637,7 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
             if (mp instanceof MetaPrefFloat)
             {
                 MetaPrefFloat mpf = (MetaPrefFloat) mp;
-                ArrayListState<Choice<Float>> choices = mpf.getChoices();
+                ArrayList<Choice<Float>> choices = mpf.getChoices();
                 JComboBox comboBox = (JComboBox) lookupComponent(mp, mp.getID()
                         + IDENTIFIER_DROPDOWN);
                 int selectedIndex = comboBox.getSelectedIndex();

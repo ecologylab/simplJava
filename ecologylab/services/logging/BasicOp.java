@@ -25,7 +25,7 @@ abstract public @xml_inherit class BasicOp extends ElementState
 	 * @see ecologylab.xml.ElementState#preTranslationProcessingHook()
 	 */
 	@Override protected void preTranslationProcessingHook(){
-		this.sessionTime = System.currentTimeMillis() - Logging.sessionStartTime();
+		//this.sessionTime = System.currentTimeMillis() - Logging.sessionStartTime();
 	}
 
 	/** @return the sessionTime */

@@ -30,13 +30,9 @@ public class ElementTypeTranslations extends Debug
      * What we should be translating to/from xml
      */
 	private static final Class TRANSLATIONS[]	= 
-	{
-		ArrayListState.class,
-		HashMapState.class,
-		HashSetState.class,
+	{	
 		IntState.class,
 		StringState.class,
-		VectorState.class,
 		
 	};
 

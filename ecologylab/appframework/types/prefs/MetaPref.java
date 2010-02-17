@@ -3,12 +3,12 @@
  */
 package ecologylab.appframework.types.prefs;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.scalar.ScalarType;
 
 /**
@@ -62,7 +62,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
     /**
      * optional; for preferences with three or more choices
      */
-    @xml_nested ArrayListState<Choice<T>> choices = null;
+    @xml_collection("choices") ArrayList<Choice<T>> choices = null;
     
     ScalarType<T>                  scalarType;
     
@@ -151,7 +151,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      * 
      * @return ID (unique) of MetaPref.
      */
-    public ArrayListState<Choice<T>> getChoices()
+    public ArrayList<Choice<T>> getChoices()
     {
         return choices;
     }

@@ -13,8 +13,6 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
  * Groupings of MetaPrefs, by category. Categories
  * are also ordered in a separate ArrayList.
@@ -26,11 +24,15 @@ import ecologylab.xml.types.element.ArrayListState;
  */
 
 @xml_inherit
-public class MetaPrefSet extends ArrayListState<MetaPref>
+public class MetaPrefSet extends ElementState
 {
 	@xml_attribute	String	title;
 	@xml_attribute	int		width;
 	@xml_attribute	int		height;
+	
+	@xml_collection("MetaPref")
+	@xml_nowrap
+	ArrayList<MetaPref> metaPreferences;
 	
     /**
      * HashMap of category Strings to ArrayList of MetaPrefs.
@@ -136,7 +138,7 @@ public class MetaPrefSet extends ArrayListState<MetaPref>
      */
     public boolean add(MetaPref metaPref)
     {
-        boolean result  = super.add(metaPref);
+        boolean result  = metaPreferences.add(metaPref);
         metaPref.register();
         return result;
     }

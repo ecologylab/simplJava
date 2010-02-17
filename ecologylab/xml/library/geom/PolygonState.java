@@ -13,8 +13,6 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
 import ecologylab.xml.ElementState.xml_nested;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
  * Encapsulates a Polygon for use in translating to/from XML.
  * 
@@ -44,14 +42,14 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 		super();
 	}
 
-	public PolygonState(ArrayListState<Point2DDoubleState> verticies)
+	public PolygonState(ArrayList<Point2DDoubleState> verticies)
 	{
 		super();
 
 		definePolygon(verticies);
 	}
 
-	public void definePolygon(ArrayListState<Point2DDoubleState> verticies)
+	public void definePolygon(ArrayList<Point2DDoubleState> verticies)
 	{
 		polygonVerticies.clear();
 		polygonVerticies.addAll(verticies);

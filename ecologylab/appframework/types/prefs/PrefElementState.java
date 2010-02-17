@@ -35,8 +35,10 @@ public class PrefElementState extends Pref<ElementState>
 	ElementState getValue()
 	{
 		// TODO Auto-generated method stub
-		return get(0);
+		return preferences.get(0);
 	}
+
+	
 
 	/*
 	 * (non-Javadoc)
@@ -46,7 +48,7 @@ public class PrefElementState extends Pref<ElementState>
 	@Override
 	public void setValue(ElementState newValue)
 	{
-		add(newValue);
+		preferences.add(newValue);
 
 		prefChanged();
 	}
@@ -63,9 +65,9 @@ public class PrefElementState extends Pref<ElementState>
 	{
 		Pref<ElementState> pES = new PrefElementState(this.name);
 
-		for (ElementState e : this)
+		for (ElementState e : preferences)
 		{
-			pES.add(e);
+			pES.preferences.add(e);
 		}
 
 		return pES;

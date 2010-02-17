@@ -4,6 +4,9 @@
 package ecologylab.appframework.types.prefs;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
 
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
@@ -11,7 +14,6 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.HashMapState;
 
 /**
  * A serial set of Pref objects.
@@ -23,8 +25,12 @@ import ecologylab.xml.types.element.HashMapState;
  */
 
 @xml_inherit
-public class PrefSet extends HashMapState<String, Pref<?>> implements ApplicationPropertyNames, Cloneable
+public class PrefSet extends ElementState implements ApplicationPropertyNames, Cloneable
 {
+	@xml_map("Pref")
+	@xml_nowrap
+	HashMap<String, Pref<?>> preferences;
+	
     /** No-argument constructor for XML translation. */
     public PrefSet() 
     {
@@ -35,9 +41,9 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
      * @param pref
      * @return
      */
-    @Override public Pref<?> add(Pref<?> pref)
+    public Pref<?> add(Pref<?> pref)
     {
-    	Pref<?> result	= super.add(pref);
+    	Pref<?> result	= preferences.put(pref.key(), pref);
     	pref.register();
     	return result;
     }
@@ -54,7 +60,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
 	 */
     //TODO -- get rid of this when we make ArrayListState implement Collection!!!
     // (cause then this.add() will get called!)
-	@Override protected void createChildHook(ElementState child)
+    protected void createChildHook(Object child)
 	{
 		Pref<?> pref	= (Pref<?>) child;
 		pref.register();
@@ -117,7 +123,7 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
     public Pref<?> clearPref(String key)
     {
     	Pref.clearPref(key);
-    	return super.remove(key);
+    	return preferences.remove(key);
     }
 
 		/**
@@ -128,12 +134,45 @@ public class PrefSet extends HashMapState<String, Pref<?>> implements Applicatio
 		{
 			PrefSet retVal = new PrefSet();
 			
-			for (Pref<?> p : this.values())
+			for (Pref<?> p : preferences.values())
 			{
 				retVal.add(p.clone());
 			}
 			
 			return retVal;
+		}
+
+		public Collection<Pref<?>> values() 
+		{
+			return preferences.values();
+		}
+
+		public void append(PrefSet jNLPPrefSet) 
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		public Set<String> keySet() 
+		{
+			return preferences.keySet();
+		}
+
+		public Pref<?> get(String k) 
+		{
+			return preferences.get(k);
+		}
+
+		public void put(String k, Pref<?> object) 
+		{
+			preferences.put(k, object);
+			
+		}
+
+		public boolean containsKey(String key) 
+		{
+			return preferences.containsKey(key);
+			
 		}
 
 }

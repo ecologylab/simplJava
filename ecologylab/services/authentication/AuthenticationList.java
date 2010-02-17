@@ -3,9 +3,8 @@
  */
 package ecologylab.services.authentication;
 
+import java.util.HashMap;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.types.element.HashMapState;
-
 /**
  * Contains a HashMap of AuthenticationListEntry's that are hashed on their
  * username values. Raw passwords are never serialized using this object, only
@@ -24,7 +23,9 @@ import ecologylab.xml.types.element.HashMapState;
 public class AuthenticationList<E extends AuthenticationListEntry> extends
 		ElementState
 {
-	@xml_nested private HashMapState<String, E>	authList	= new HashMapState<String, E>();
+	@xml_map("auth_list")
+	@xml_nowrap
+	private HashMap<String, E>	authList	= new HashMap<String, E>();
 
 	/** No-argument constructor for XML translation. */
 	public AuthenticationList()

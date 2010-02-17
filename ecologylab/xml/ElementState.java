@@ -1011,19 +1011,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		*/
 	}
     
-    /**
-	 * Translate our representation of a leaf node to XML.
-	 * 
-	 * @param buffy
-	 * @param leafElementName
-	 * @param leafValue
-	 * @param type
-	 * @param isCDATA
-	 */
-	void appendLeafXML(StringBuilder buffy, FieldToXMLOptimizations fieldToXMLOptimizations, String leafValue)
-	{
-		appendLeafXML(buffy, fieldToXMLOptimizations.tag(), leafValue, fieldToXMLOptimizations.isNeedsEscaping(), fieldToXMLOptimizations.isCDATA());
-	}
 	/**
 	 * Translate our representation of a leaf node to XML.
 	 * 
@@ -1513,109 +1500,109 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	throws XMLTranslationException
 	{
 		// translate attribtues
-		if (xmlNode.hasAttributes())
-		{
-			NamedNodeMap xmlNodeAttributes = xmlNode.getAttributes();
-			
-			int numAttributes = xmlNodeAttributes.getLength();
-			for (int i = 0; i < numAttributes; i++) 
-			{
-				final Node attrNode 	= xmlNodeAttributes.item(i);
-				final String tag		= attrNode.getNodeName();
-				final String value		= attrNode.getNodeValue();
-               
-				if (value != null)
-				{
-					FieldDescriptor attrFD	=	classDescriptor().getFieldDescriptorByTag(tag, translationSpace, this);
-					switch (attrFD.getType())
-					{
-					case ATTRIBUTE:
-						attrFD.setFieldToScalar(this, value, null);
-						// the value can become a unique id for looking up this
-						if ("id".equals(attrFD.getTagName()))
-							this.elementByIdMap.put(value, this);
-						break;
-					case XMLNS_ATTRIBUTE:
-						//TODO Name Space support!
-//						njo.registerXMLNS(this, value);
-						break;
-					default:
-						break;	
-					}
-				}
-			}
-		}
-		
-		// translate nested elements (aka children):
-		// loop through them, recursively build them, and add them to ourself
-		NodeList childNodes	= xmlNode.getChildNodes();
-		int numChilds		= childNodes.getLength();
-	
-		for (int i = 0; i < numChilds; i++)
-		{
-			Node childNode		= childNodes.item(i);
-			short childNodeType	= childNode.getNodeType();
-			if ((childNodeType == Node.TEXT_NODE) || (childNodeType == Node.CDATA_SECTION_NODE))
-			{
-				appendTextNodeString(childNode.getNodeValue());
-			}
-			else
-			{
-				TagDescriptor njo		= null; //FIXME -- deal w this! classDescriptor().elementNodeToJavaOptimizations(translationSpace, this, childNode);
-				TagDescriptor nsNJO	= njo.nestedPTE();
-				TagDescriptor	activeNJO;
-				ElementState	activeES;
-				if (nsNJO != null)
-				{
-					activeNJO				= nsNJO;
-					// get (create if necessary) the ElementState object corresponding to the XML Namespace
-					activeES				= (ElementState) ReflectionTools.getFieldValue(this, njo.field());
-					if (activeES == null)
-					{	// first time using the Namespace element, so we gotta create it
-						activeES			= (ElementState) njo.domFormChildElement(this, null, false);
-						ReflectionTools.setFieldValue(this, njo.field(), activeES);
-					}
-				}
-				else
-				{
-					activeNJO				= njo;
-					activeES				= this;
-				}
-				switch (njo.type())
-				{
-				case NESTED_ELEMENT:
-					activeNJO.domFormNestedElementAndSetField(activeES, childNode);
-					break;
-				case LEAF:
-					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
-					break;
-				case COLLECTION_ELEMENT:
-					activeNJO.domFormElementAndAddToCollection(activeES, childNode);
-					break;
-				case NAME_SPACE_NESTED_ELEMENT:
-//					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
-					ElementState nsContext			= getNestedNameSpace(activeNJO.nameSpaceID());
-					activeNJO.domFormNestedElementAndSetField(nsContext, childNode);
-					break;
-				case COLLECTION_SCALAR:
-					activeNJO.addLeafNodeToCollection(activeES, childNode);
-					break;
-//				case MAP_SCALAR:
-//					activeNJO.addLeafNodeToMap(activeES, childNode);
+//		if (xmlNode.hasAttributes())
+//		{
+//			NamedNodeMap xmlNodeAttributes = xmlNode.getAttributes();
+//			
+//			int numAttributes = xmlNodeAttributes.getLength();
+//			for (int i = 0; i < numAttributes; i++) 
+//			{
+//				final Node attrNode 	= xmlNodeAttributes.item(i);
+//				final String tag		= attrNode.getNodeName();
+//				final String value		= attrNode.getNodeValue();
+//               
+//				if (value != null)
+//				{
+//					FieldDescriptor attrFD	=	classDescriptor().getFieldDescriptorByTag(tag, translationSpace, this);
+//					switch (attrFD.getType())
+//					{
+//					case ATTRIBUTE:
+//						attrFD.setFieldToScalar(this, value, null);
+//						// the value can become a unique id for looking up this
+//						if ("id".equals(attrFD.getTagName()))
+//							this.elementByIdMap.put(value, this);
+//						break;
+//					case XMLNS_ATTRIBUTE:
+//						//TODO Name Space support!
+////						njo.registerXMLNS(this, value);
+//						break;
+//					default:
+//						break;	
+//					}
+//				}
+//			}
+//		}
+//		
+//		// translate nested elements (aka children):
+//		// loop through them, recursively build them, and add them to ourself
+//		NodeList childNodes	= xmlNode.getChildNodes();
+//		int numChilds		= childNodes.getLength();
+//	
+//		for (int i = 0; i < numChilds; i++)
+//		{
+//			Node childNode		= childNodes.item(i);
+//			short childNodeType	= childNode.getNodeType();
+//			if ((childNodeType == Node.TEXT_NODE) || (childNodeType == Node.CDATA_SECTION_NODE))
+//			{
+//				appendTextNodeString(childNode.getNodeValue());
+//			}
+//			else
+//			{
+//				TagDescriptor njo		= null; //FIXME -- deal w this! classDescriptor().elementNodeToJavaOptimizations(translationSpace, this, childNode);
+//				TagDescriptor nsNJO	= njo.nestedPTE();
+//				TagDescriptor	activeNJO;
+//				ElementState	activeES;
+//				if (nsNJO != null)
+//				{
+//					activeNJO				= nsNJO;
+//					// get (create if necessary) the ElementState object corresponding to the XML Namespace
+//					activeES				= (ElementState) ReflectionTools.getFieldValue(this, njo.field());
+//					if (activeES == null)
+//					{	// first time using the Namespace element, so we gotta create it
+//						activeES			= (ElementState) njo.domFormChildElement(this, null, false);
+//						ReflectionTools.setFieldValue(this, njo.field(), activeES);
+//					}
+//				}
+//				else
+//				{
+//					activeNJO				= njo;
+//					activeES				= this;
+//				}
+//				switch (njo.type())
+//				{
+//				case NESTED_ELEMENT:
+//					activeNJO.domFormNestedElementAndSetField(activeES, childNode);
 //					break;
-				case MAP_ELEMENT:
-					activeNJO.domFormElementAndToMap(activeES, childNode);
-					break;
-				case AWFUL_OLD_NESTED_ELEMENT:
-					activeES.addNestedElement(activeNJO, childNode);
-					break;
-				case IGNORED_ELEMENT:
-				case BAD_FIELD:
-				default:
-					break;
-				}
-			}
-		}
+//				case LEAF:
+//					activeNJO.setScalarFieldWithLeafNode(activeES, childNode);
+//					break;
+//				case COLLECTION_ELEMENT:
+//					activeNJO.domFormElementAndAddToCollection(activeES, childNode);
+//					break;
+//				case NAME_SPACE_NESTED_ELEMENT:
+////					debug("WOW!!! got NAME_SPACE_NESTED_ELEMENT: " + childNode.getNodeName());
+//					ElementState nsContext			= getNestedNameSpace(activeNJO.nameSpaceID());
+//					activeNJO.domFormNestedElementAndSetField(nsContext, childNode);
+//					break;
+//				case COLLECTION_SCALAR:
+//					activeNJO.addLeafNodeToCollection(activeES, childNode);
+//					break;
+////				case MAP_SCALAR:
+////					activeNJO.addLeafNodeToMap(activeES, childNode);
+////					break;
+//				case MAP_ELEMENT:
+//					activeNJO.domFormElementAndToMap(activeES, childNode);
+//					break;
+//				case AWFUL_OLD_NESTED_ELEMENT:
+//					activeES.addNestedElement(activeNJO, childNode);
+//					break;
+//				case IGNORED_ELEMENT:
+//				case BAD_FIELD:
+//				default:
+//					break;
+//				}
+//			}
+//		}
 	}
 	
 	/**
@@ -1708,22 +1695,29 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			if (value != null)
 			{
 				FieldDescriptor fd	= classDescriptor().getFieldDescriptorByTag(tag, translationSpace, context);
-
-				switch (fd.getType())
+				
+				try
 				{
-				case ATTRIBUTE:
-					fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
-					// the value can become a unique id for looking up this
-					//TODO -- could support the ID type for the node here!
-					if ("id".equals(fd.getTagName()))
-						this.elementByIdMap.put(value, this);
-					break;
-				case XMLNS_ATTRIBUTE:
-					//TODO -- Name Space support!
-//					njo.registerXMLNS(this, value);
-					break;
-				default:
-					break;	
+					switch (fd.getType())
+					{
+					case ATTRIBUTE:
+						fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
+						// the value can become a unique id for looking up this
+						//TODO -- could support the ID type for the node here!
+						if ("id".equals(fd.getTagName()))
+							this.elementByIdMap.put(value, this);
+						break;
+					case XMLNS_ATTRIBUTE:
+						//TODO -- Name Space support!
+	//					njo.registerXMLNS(this, value);
+						break;
+					default:
+						break;	
+					}
+				}
+				catch(Exception ex)
+				{
+					warning(" FieldDescriptor not found for tag <" + tag +">");
 				}
 			}
 		}
@@ -2008,24 +2002,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	
 	transient private int considerWarning	= HAVENT_TRIED_ADDING;
 	
-	/**
-	 * Old-school DOM approach.
-	 * 
-	 * This base implementation provides a warning.
-	 * @param pte
-	 * @param childNode
-	 * @throws XMLTranslationException
-	 */
-	protected void addNestedElement(TagDescriptor pte, Node childNode)
-	throws XMLTranslationException
-	{
-		addNestedElement((ElementState) pte.domFormChildElement(this, childNode, false));
-		if (considerWarning == NEED_WARNING)
-		{
-			warning("Ignoring nested elements with tag <" + pte.tag() + ">");
-			considerWarning					= DONT_NEED_WARNING;
-		}
-	}
 	/**
 	 * This is the hook that enables programmers to do something special
 	 * when handling a nested XML element and its associate ElementState (subclass),

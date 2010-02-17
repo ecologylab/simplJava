@@ -3,15 +3,18 @@
  */
 package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.types.element.ArrayListState;
+import java.util.ArrayList;
 
+import ecologylab.xml.ElementState;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class ContributorList extends ElementState
 {
-    private @xml_nested ArrayListState<Author> authors = new ArrayListState<Author>();
+	@xml_collection("Author")
+	@xml_nowrap 
+    ArrayList<Author> authors = new ArrayList<Author>();
+    
 //    private @xml_nested ArrayListState<Author> secondary-authors = new ArrayListState<Author>();
   //  private @xml_nested ArrayListState<Author> tertiary-authors = new ArrayListState<Author>();
 
@@ -26,7 +29,7 @@ public class ContributorList extends ElementState
     /**
      * @return the authors
      */
-    public ArrayListState<Author> getAuthors()
+    public ArrayList<Author> getAuthors()
     {
         return authors;
     }

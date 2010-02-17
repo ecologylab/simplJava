@@ -3,11 +3,11 @@
  */
 package ecologylab.tests;
 
+import java.util.ArrayList;
+
 import ecologylab.generic.Debug;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.xaml.TextBlockState;
-import ecologylab.xml.types.element.ArrayListState;
-
 /**
  * @author awebb
  *
@@ -22,18 +22,18 @@ public class XmlTextInCollection
 	{
 		TextBlockState textBlock = new TextBlockState("If you can read me, things are working. :)");
 		
-		ArrayListState<TextBlockState> textBlockCollection = new ArrayListState<TextBlockState>();
+		ArrayList<TextBlockState> textBlockCollection = new ArrayList<TextBlockState>();
 		
 		textBlockCollection.add(textBlock);
 		
-		try
-		{
-			System.out.println(textBlockCollection.translateToXML());
-		} catch (XMLTranslationException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try
+//		{
+//			//System.out.println(textBlockCollection.translateToXML());
+//		} catch (XMLTranslationException e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 	}
 

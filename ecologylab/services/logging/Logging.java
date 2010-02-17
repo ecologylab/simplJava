@@ -31,7 +31,6 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Provides a framework for interaction logging. Uses ecologylab.xml to
@@ -49,7 +48,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	 * one, because we dont the write the log file all at once, and so can't
 	 * automatically translate the start tag and end tag for this element.
 	 */
-	@xml_nested protected ArrayListState<T>	opSequence;
+	@xml_collection("op_sequence") protected ArrayList<T>	opSequence;
 
 	Thread												thread;
 
@@ -1093,7 +1092,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState
 	/**
 	 * @return the opSequence
 	 */
-	public ArrayListState<T> getOpSequence()
+	public ArrayList<T> getOpSequence()
 	{
 		return opSequence;
 	}

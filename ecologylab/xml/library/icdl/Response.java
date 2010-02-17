@@ -3,9 +3,10 @@
  */
 package ecologylab.xml.library.icdl;
 
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
+import java.util.ArrayList;
 
+import ecologylab.xml.ElementState;
+import ecologylab.xml.xml_inherit;
 /**
  * The root element in a reply to ICDL BookXMLResults.
  * 
@@ -15,10 +16,14 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author andruid
  */
 @xml_inherit
-public class Response extends ArrayListState<Book>
+public class Response extends ElementState
 {
 	@xml_leaf	int		pnum;
 	@xml_leaf	int		total;
+	
+	@xml_collection("Book")
+	@xml_nowrap
+	ArrayList<Book> books;
 	
 	/**
 	 * 

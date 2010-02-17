@@ -1,10 +1,10 @@
 package ecologylab.appframework.types;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Handles the loading and parsing of the asset version XML file
@@ -12,9 +12,13 @@ import ecologylab.xml.types.element.ArrayListState;
  * @author robinson
  * @author andruid
  */
-@xml_inherit public class AssetsState extends ArrayListState<AssetState>
+@xml_inherit public class AssetsState extends ElementState
 {
 	HashMap<String, AssetState>	assetsMap	= new HashMap<String, AssetState>();
+	
+	@xml_collection("asset_state")
+	@xml_nowrap
+	ArrayList<AssetState> assetStates;
 	
 	/**
 	 * Perform custom processing on the newly created child node,
@@ -61,7 +65,7 @@ import ecologylab.xml.types.element.ArrayListState;
 	public AssetState update(String id)
 	{
 		AssetState asset	= new AssetState(id);
-		add(asset);
+		assetStates.add(asset);
 		register(asset);
 		return asset;
 	}

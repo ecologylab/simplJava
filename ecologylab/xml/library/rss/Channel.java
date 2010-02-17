@@ -7,7 +7,6 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.

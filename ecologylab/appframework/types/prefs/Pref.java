@@ -5,13 +5,13 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -21,7 +21,7 @@ import ecologylab.xml.types.element.Mappable;
  */
 
 @xml_inherit
-public abstract class Pref<T> extends ArrayListState<ElementState> implements Mappable<String>, Cloneable
+public abstract class Pref<T> extends ElementState implements Mappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
     static final Scope<Pref<?>>   allPrefsMap = new Scope<Pref<?>>();
@@ -31,6 +31,10 @@ public abstract class Pref<T> extends ArrayListState<ElementState> implements Ma
 
     /** Name of a Pref; provides index into the preferences map. */
     @xml_attribute String               name;
+    
+    @xml_collection("Pref") 
+    @xml_nowrap
+    ArrayList<ElementState> preferences;
 
     /** Cached value */
     T                                   valueCached;

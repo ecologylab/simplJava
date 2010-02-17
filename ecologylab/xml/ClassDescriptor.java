@@ -283,10 +283,6 @@ implements FieldTypes, Mappable<String>
 		return result;
 	}
 
-	static final Class[] NEW_FIELD_DESCRIPTOR_TYPES =
-	{
-		ClassDescriptor.class, FieldToXMLOptimizations.class,
-	};
 	
 	private HashMapArrayList<String, FieldDescriptor> fieldDescriptorsByTagName;
 	/**
@@ -312,14 +308,6 @@ implements FieldTypes, Mappable<String>
 		return result;
 	}
 	
-	private FieldDescriptor createFieldDescriptor(Class<? extends FieldDescriptor> fieldDescriptorClass, FieldToXMLOptimizations attrF2XO)
-	{
-		Object[] args	= new Object[2];
-		args[0]			= this;
-		args[1]			= attrF2XO;
-		
-		return ReflectionTools.getInstance(fieldDescriptorClass, NEW_FIELD_DESCRIPTOR_TYPES, args);
-	}
 
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class thatClass)
 	{

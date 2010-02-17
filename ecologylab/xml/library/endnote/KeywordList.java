@@ -3,16 +3,19 @@
  */
 package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.XMLTranslationException;
+import java.util.ArrayList;
+
+import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class KeywordList extends ArrayListState<Keyword>
+public @xml_inherit class KeywordList extends ElementState
 {
-    
+    @xml_collection("Keyword")
+    @xml_nowrap
+    ArrayList<Keyword> keywords;
     
     /**
      * 
@@ -24,7 +27,7 @@ public @xml_inherit class KeywordList extends ArrayListState<Keyword>
 
     public boolean containsString(String value)
     {
-        for (Keyword k : this)
+        for (Keyword k : keywords)
         {
             if (k.getTextNodeString() != null && k.getTextNodeString().toLowerCase().contains(value))
             {
@@ -42,9 +45,9 @@ public @xml_inherit class KeywordList extends ArrayListState<Keyword>
     {
         StringBuilder string = new StringBuilder();
         
-        int i = this.size();
+        int i = keywords.size();
         
-        for (Keyword a : this)
+        for (Keyword a : keywords)
         {
             i--;
             string.append(a.getTextNodeString());

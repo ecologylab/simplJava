@@ -21,8 +21,6 @@ public class EndnoteNameSpace
                                                  {
 
             ecologylab.xml.types.element.StringState.class, ecologylab.xml.types.element.IntState.class,
-            ecologylab.xml.types.element.ArrayListState.class,
-
             ecologylab.xml.library.endnote.Author.class,
             ecologylab.xml.library.endnote.ContributorList.class,
             ecologylab.xml.library.endnote.DateList.class,

@@ -13,7 +13,6 @@ import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
-import ecologylab.xml.types.element.ArrayListState;
 
 /**
  * Alternative root element
