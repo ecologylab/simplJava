@@ -19,4 +19,26 @@ public class Item extends ElementState
    ArrayList<String>		categorySet;
    
    public Item() {}
+
+   public void setTitle(String string) 
+   {
+	   title = string;
+   }
+	
+   public void setDescription(String string)
+   {
+	   description = string;
+	   
+   }
+	
+   public void setAuthor(String string) 
+   {
+	   author = string;
+		
+   }
+	
+   public void setLink(ParsedURL parsedURL) 
+   {
+	  link = parsedURL;	
+   }
 }

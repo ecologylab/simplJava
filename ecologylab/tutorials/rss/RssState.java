@@ -10,4 +10,9 @@ public class RssState extends ElementState
 	@xml_nested		Channel		channel;
 
 	public RssState() {}
+
+	public Channel getChannel() 
+	{
+		return channel;
+	}
 }

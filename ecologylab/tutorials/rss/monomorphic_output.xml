@@ -1,0 +1,55 @@
+<rss version="2.0">
+	<channel>
+		<title>xkcd.com</title>
+		<description>xkcd.com: A webcomic of romance and math humor.</description>
+		<link>http://xkcd.com/</link>
+		<item>
+			<title>The Interface Ecology Lab</title>
+			<description>Highlights the cool research going on at the lab.</description>
+			<link>http://www.ecologylab.net</link>
+			<author>Dr. Andruid Kerne</author>
+		</item>
+		<item>
+			<title>Honor Societies</title>
+			<description>&lt;img
+				src=&#34;http://imgs.xkcd.com/comics/honor_societies.png&#34;
+				title=&#34;Hey, why do YOU get to be the president of Tautology
+				Clu-- wait, I can guess.&#34; alt=&#34;Hey, why do YOU get to be the
+				president of Tautology Clu-- wait, I can guess.&#34; /&gt;</description>
+			<link>http://xkcd.com/703/</link>
+			<guid>http://xkcd.com/703/</guid>
+		</item>
+		<item>
+			<title>Snow Tracking</title>
+			<description>&lt;img
+				src=&#34;http://imgs.xkcd.com/comics/snow_tracking.png&#34;
+				title=&#34;I suppose that&#39;s more accurately a hare dryer.&#34;
+				alt=&#34;I suppose that&#39;s more accurately a hare dryer.&#34;
+				/&gt;</description>
+			<link>http://xkcd.com/702/</link>
+			<guid>http://xkcd.com/702/</guid>
+		</item>
+		<item>
+			<title>Science Valentine</title>
+			<description>&lt;img
+				src=&#34;http://imgs.xkcd.com/comics/science_valentine.png&#34;
+				title=&#34;You don&#39;t use science to show that you&#39;re right,
+				you use science to become right.&#34; alt=&#34;You don&#39;t use
+				science to show that you&#39;re right, you use science to become
+				right.&#34; /&gt;</description>
+			<link>http://xkcd.com/701/</link>
+			<guid>http://xkcd.com/701/</guid>
+		</item>
+		<item>
+			<title>Complexion</title>
+			<description>&lt;img
+				src=&#34;http://imgs.xkcd.com/comics/complexion.png&#34;
+				title=&#34;Why do all my attempts at science end with me being
+				punched by Batman? (P.S. benzoyl peroxide soap works great.)&#34;
+				alt=&#34;Why do all my attempts at science end with me being punched
+				by Batman? (P.S. benzoyl peroxide soap works great.)&#34; /&gt;</description>
+			<link>http://xkcd.com/700/</link>
+			<guid>http://xkcd.com/700/</guid>
+		</item>
+	</channel>
+</rss>

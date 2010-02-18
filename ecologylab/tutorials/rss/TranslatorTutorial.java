@@ -18,7 +18,7 @@ public class TranslatorTutorial {
 		TranslationScope tScope	= RssTranslations.get();
 		try 
 		{
-			c.translateToObjC(new ParsedURL(new File ("/output")), RssState.class, Channel.class, Item.class);
+			//c.translateToObjC(new ParsedURL(new File ("/output")), RssState.class, Channel.class, Item.class);
 			tScope.translateToXML(System.out);
 		} 
 		catch (Exception e)

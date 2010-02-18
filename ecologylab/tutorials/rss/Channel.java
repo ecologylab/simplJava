@@ -13,8 +13,13 @@ public class Channel extends ElementState
    @xml_leaf ParsedURL	link;
    
    @xml_collection("item") 
+   @xml_nowrap
    ArrayList<Item> 		items;
    
    public Channel() { }
-   
+
+   public ArrayList<Item> getItems() 
+   {
+	   return items;
+   }
 }
