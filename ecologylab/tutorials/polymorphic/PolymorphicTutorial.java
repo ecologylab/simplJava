@@ -39,11 +39,13 @@ public class PolymorphicTutorial
 			GameData gd = (GameData) ElementState.translateFromXML(new File("ecologylab/tutorials/polymorphic/GameData.xml"), tScope);
 			
 			
-			
 			/*
 			 * Translating the game data back to XML 
 			 */
 			gd.translateToXML(new File("ecologylab/tutorials/polymorphic/output.xml"));
+			
+			//Again to console
+			gd.translateToXML(System.out);
 			
 		}
 		catch (Exception e) 

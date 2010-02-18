@@ -1,5 +1,5 @@
 <game_data timestamp="1234399958508" cyc_rem="8078" loaded="true"
-	running="true" score="-28.066665835678577" session_time="254872">
+	running="true" score="-28.066665835678577">
 	<threats>
 		<nt t_val="-1.0" id="_t0">
 			<dir x="-1" y="-0.09" />
