@@ -10,7 +10,7 @@ import ecologylab.tutorials.rss.*;
 import ecologylab.net.ParsedURL;
 
 
-public class Translator {
+public class TranslatorTutorial {
 
 	public static void main(String[] args) {
 
