@@ -34,6 +34,11 @@ public class PolymorphicTutorial
 	
 	public static void main(String[] args) 
 	{
-		//System.out.println(getGameDataFromXMLFile(case2).translateToXML().toString());
+		try {
+			System.out.println(getGameDataFromXMLFile(new File("ecologylab/tutorials/polymorphic/GameData.xml")).translateToXML().toString());
+		} catch (XMLTranslationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
