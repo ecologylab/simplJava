@@ -12,8 +12,8 @@ public class Channel extends ElementState
    @xml_leaf String		description;
    @xml_leaf ParsedURL	link;
    
-   @xml_collection("item") 
    @xml_nowrap
+   @xml_collection("item") 
    ArrayList<Item> 		items;
    
    public Channel() { }

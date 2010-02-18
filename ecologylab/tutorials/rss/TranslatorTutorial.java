@@ -38,7 +38,7 @@ public class TranslatorTutorial
 			 * Call translateToXML will serialize the internal data structures of 
 			 * ecologylab.xml which should be used by objective-c version ecologylab.xml
 			 */
-			tScope.translateToXML(System.out);
+			tScope.translateToXML(new File("/output/rss_translationScope.xml"));
 		} 
 		catch (Exception e)
 		{
