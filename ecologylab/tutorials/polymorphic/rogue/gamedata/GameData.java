@@ -5,7 +5,6 @@ package ecologylab.tutorials.polymorphic.rogue.gamedata;
 
 import java.util.ArrayList;
 
-import ecologylab.tutorials.polymorphic.rogue.entity.SeekerAvatar;
 import ecologylab.tutorials.polymorphic.rogue.entity.goal.Goal;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.OrbitingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.PatrollingThreat;
@@ -13,7 +12,6 @@ import ecologylab.tutorials.polymorphic.rogue.entity.threat.RepellableThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.SingleSeekerThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.Threat;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
 
 /**
  * GameData encapsulates all of the logical information about the game and is shared between the
@@ -26,26 +24,29 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@xml_inherit
-public class GameData<S extends SeekerAvatar, G extends Goal, T extends Threat> extends
+
+
+//GameData.java
+
+public class GameData<G extends Goal, T extends Threat> extends
 		ElementState
 {
 	@xml_attribute
-	protected long																	timestamp;
+	protected long																timestamp;
 
 	/** Number of game cycles remaining. */
 	@xml_attribute
-	protected int																	cycRem;
+	protected int																cycRem;
 
 	/**
 	 * Indicates that, if the game is running, it should be paused; by default, the game starts this
 	 * way and a user needs to activate it.
 	 */
 	@xml_attribute
-	protected boolean															paused									= false;
+	protected boolean															paused	= false;
 
 	@xml_attribute
-	protected boolean															loaded									= false;
+	protected boolean															loaded	= false;
 
 	/** Game state flag indicating that the game has ended (favorably or unfavorably). */
 	@xml_attribute
