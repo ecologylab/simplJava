@@ -1,12 +1,13 @@
 package ecologylab.xml.library.rss;
 
+import java.io.File;
 import java.util.ArrayList;
 
-import java.io.File;
-import java.lang.reflect.Field;
-
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.*;
+import ecologylab.xml.ClassDescriptor;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.FieldDescriptor;
+import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
 import ecologylab.xml.library.media.Thumbnail;
@@ -21,7 +22,7 @@ public class RssState extends ElementState
 {
 	@xml_attribute	float		version;
    
-	public @xml_nested		Channel		channel;
+	@xml_nested		Channel		channel;
 
 	/**
 	 * @return Returns the channel.

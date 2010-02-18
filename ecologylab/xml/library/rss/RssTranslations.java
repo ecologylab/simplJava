@@ -2,15 +2,9 @@ package ecologylab.xml.library.rss;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.NameSpaceDecl;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.library.dc.Dc;
-import ecologylab.xml.library.feedburner.Feedburner;
-import ecologylab.xml.library.media.Media;
 
 /**
  * Translations for all RSS parsing.

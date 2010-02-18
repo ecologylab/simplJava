@@ -1,8 +1,6 @@
 package ecologylab.xml.library.rss;
 
 import java.util.ArrayList;
-import java.util.Collection;
-
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;

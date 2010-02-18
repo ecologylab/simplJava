@@ -2,17 +2,12 @@ package ecologylab.xml.library.rss;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_nowrap;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.dc.Dc;
-import ecologylab.xml.library.feedburner.Feedburner;
-import ecologylab.xml.library.media.Media;
 
 /**
  * Alternative root element

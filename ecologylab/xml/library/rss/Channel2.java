@@ -1,13 +1,10 @@
 package ecologylab.xml.library.rss;
 
 import java.util.ArrayList;
-import java.util.Collection;
-
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_nowrap;
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
  * Used with most RSS versions.
