@@ -11,9 +11,10 @@ import ecologylab.xml.ElementState.xml_tag;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit
+
+@xml_inherit
 @xml_tag("ot")
-class OrbitingThreat extends Threat
+public class OrbitingThreat extends Threat
 {
 	/** Constructor stub for XML translation. */
 	public OrbitingThreat()

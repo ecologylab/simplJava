@@ -10,15 +10,16 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author Zachary O. Toups (toupsz@ecologylab.net)
  * 
  */
-public @xml_inherit
+
+@xml_inherit
 @xml_tag("sst")
-class SingleSeekerThreat extends Threat
+public class SingleSeekerThreat extends Threat
 {
 	@xml_attribute
 	int	targetOrd;
 
 	/**
-	 * 
+	 * Default Constructor
 	 */
 	public SingleSeekerThreat()
 	{

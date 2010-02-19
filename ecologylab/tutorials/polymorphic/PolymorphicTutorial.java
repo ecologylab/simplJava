@@ -20,23 +20,20 @@ import ecologylab.xml.TranslationScope;
 public class PolymorphicTutorial 
 {
 	
-
 	public static void main(String[] args) 
 	{
 		try 
 		{
 			/*
-			 * Creating Translation Scope of all the classes used by game data object
+			 * Get translation scope
 			 */
-			TranslationScope tScope = TranslationScope.get("gamedata", GameData.class,
-					Threat.class, SingleSeekerThreat.class, OrbitingThreat.class, RepellableThreat.class,
-					PatrollingThreat.class, SeekerAvatar.class, LocationAwareSeekerAvatar.class,
-					Targetter.class, Mover.class, Entity.class, ColState.class);
+			TranslationScope tScope = get();
+			File inputGameData = new File("ecologylab/tutorials/polymorphic/GameData.xml");
 			
 			/*
 			 * Translating back from sample gameData file
 			 */
-			GameData gd = (GameData) ElementState.translateFromXML(new File("ecologylab/tutorials/polymorphic/GameData.xml"), tScope);
+			GameData gd = (GameData) ElementState.translateFromXML(inputGameData, tScope);
 			
 			
 			/*
@@ -50,8 +47,22 @@ public class PolymorphicTutorial
 		}
 		catch (Exception e) 
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/*
+	 * Creating Translation Scope of all the classes used by game data object
+	 */
+	private static TranslationScope get()
+	{
+
+		
+		TranslationScope tScope = TranslationScope.get("gamedata", GameData.class,
+				Threat.class, SingleSeekerThreat.class, OrbitingThreat.class, RepellableThreat.class,
+				PatrollingThreat.class, SeekerAvatar.class, LocationAwareSeekerAvatar.class,
+				Targetter.class, Mover.class, Entity.class, ColState.class);
+		
+		return tScope;
 	}
 }
