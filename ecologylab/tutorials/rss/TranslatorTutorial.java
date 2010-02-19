@@ -6,7 +6,6 @@ import java.io.*;
 
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.internaltranslators.cocoa.*;
-import ecologylab.net.ParsedURL;
 
 
 public class TranslatorTutorial 
@@ -32,7 +31,7 @@ public class TranslatorTutorial
 			 * Call translateToObjC supplied with the path where we want our header files 
 			 * to be generated
 			 */
-			c.translateToObjC(new ParsedURL(new File ("/output")), RssState.class, Channel.class, Item.class);
+			c.translateToObjC(new File ("/output"), tScope);
 			
 			/*
 			 * Call translateToXML will serialize the internal data structures of 

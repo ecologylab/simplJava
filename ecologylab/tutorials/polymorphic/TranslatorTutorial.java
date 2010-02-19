@@ -36,7 +36,7 @@ public class TranslatorTutorial
 			 * Call translateToObjC supplied with the path where we want our header files 
 			 * to be generated
 			 */
-			c.translateToObjC(new ParsedURL(new File ("/output")), tScope);
+			c.translateToObjC(new File ("/output"), tScope);
 			
 			/*
 			 * Call translateToXML will serialize the internal data structures of 

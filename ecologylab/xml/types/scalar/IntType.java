@@ -30,6 +30,11 @@ public class IntType extends ScalarType<Integer>
 	{
 		super(int.class);
 	}
+	
+	public IntType(Class<Integer> thatClass)
+	{
+		super(thatClass);
+	}
 
 	/**
 	 * Convert the parameter to int.

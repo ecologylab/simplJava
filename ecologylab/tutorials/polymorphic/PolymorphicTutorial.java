@@ -1,6 +1,7 @@
 package ecologylab.tutorials.polymorphic;
 
 import java.io.File;
+
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.OrbitingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.PatrollingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.RepellableThreat;
@@ -28,16 +29,22 @@ public class PolymorphicTutorial
 			/*
 			 * Translating back from sample gameData file
 			 */
-			GameData gd = (GameData) ElementState.translateFromXML(inputGameData, tScope);
+			Object gd = ElementState.translateFromXML(inputGameData, tScope);
+			GameData<?> gameData = null;
 			
+			if(gd instanceof GameData<?>)
+				gameData = (GameData<?>) ElementState.translateFromXML(inputGameData, tScope);
+			else
+				System.out.println("Invalid object returned by translateFromXML");
 			
 			/*
 			 * Translating the game data back to XML 
 			 */
-			gd.translateToXML(new File("ecologylab/tutorials/polymorphic/output.xml"));
+			gameData.translateToXML(new File("ecologylab/tutorials/polymorphic/output.xml"));
 			
 			//Again to console
-			gd.translateToXML(System.out);
+			gameData.translateToXML(System.out);
+			
 			
 		}
 		catch (Exception e) 

@@ -32,7 +32,11 @@ public class FloatType extends ScalarType<Float>
         super(float.class);
     }
 
-    /**
+    public FloatType(Class<Float> thatClass) {
+		super(thatClass);
+	}
+
+	/**
      * Convert the parameter to float.
      */
     public float getValue(String valueString)
