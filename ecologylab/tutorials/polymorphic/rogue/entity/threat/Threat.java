@@ -5,7 +5,8 @@
 package ecologylab.tutorials.polymorphic.rogue.entity.threat;
 
 
-import ecologylab.tutorials.polymorphic.rogue.game2d.entity.Targetter;
+
+import ecologylab.tutorials.polymorphic.rogue.game2d.entity.Entity;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
@@ -19,7 +20,7 @@ import ecologylab.xml.ElementState.xml_tag;
  */
 @xml_inherit
 @xml_tag("t")
-public class Threat extends Targetter
+public class Threat extends Entity
 {
 	/**
 	 * No-argument constructor, required for ElementState.

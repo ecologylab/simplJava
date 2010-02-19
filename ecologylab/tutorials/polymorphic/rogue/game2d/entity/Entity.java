@@ -5,9 +5,7 @@
 package ecologylab.tutorials.polymorphic.rogue.game2d.entity;
 
 
-import ecologylab.tutorials.polymorphic.rogue.game2d.common.CompressedVector;
-import ecologylab.tutorials.polymorphic.rogue.game2d.common.EntityStates;
-import ecologylab.tutorials.polymorphic.rogue.game2d.common.EntityType;
+
 import ecologylab.xml.ElementState;
 
 /**
@@ -21,15 +19,12 @@ import ecologylab.xml.ElementState;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class Entity extends ElementState implements EntityType, EntityStates
+public class Entity extends ElementState
 {
 	/**
 	 * In case the Entity needs to be animated for some reason; this can be modified.
 	 */
 	protected int								animState	= 0;
-
-	@xml_nested
-	protected CompressedVector	pos				= null;
 
 	@xml_attribute
 	protected String						id;
@@ -56,43 +51,5 @@ public class Entity extends ElementState implements EntityType, EntityStates
 	public Entity()
 	{
 		super();
-	}
-
-	/**
-	 * Constructs a new Entity centered at the specified points with the given unique identifier.
-	 * 
-	 * @param x
-	 *          - the center x-coordinate of the Entity
-	 * @param y
-	 *          - the center y-coordinate of the Entity
-	 * @param id
-	 *          - the unique identifier String for the Entity
-	 */
-	public Entity(double x, double y, String id, int inGameOrder)
-	{
-		this();
-
-		this.pos = new CompressedVector(x, y);
-
-		this.id = id;
-
-		this.ord = inGameOrder;
-	}
-
-	/**
-	 * Returns hashCode() called on id.
-	 */
-	@Override
-	public int hashCode()
-	{
-		return id.hashCode();
-	}
-
-	/**
-	 * @return Returns the inGameOrder.
-	 */
-	public int getOrd()
-	{
-		return ord;
 	}
 }

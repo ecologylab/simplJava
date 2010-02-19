@@ -1,6 +1,8 @@
 package ecologylab.tutorials.polymorphic;
 
 import java.io.File;
+
+import ecologylab.net.ParsedURL;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.OrbitingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.PatrollingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.RepellableThreat;
@@ -8,39 +10,41 @@ import ecologylab.tutorials.polymorphic.rogue.entity.threat.SingleSeekerThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.Threat;
 import ecologylab.tutorials.polymorphic.rogue.game2d.entity.Entity;
 import ecologylab.tutorials.polymorphic.rogue.gamedata.GameData;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
+import ecologylab.xml.internaltranslators.cocoa.CocoaTranslator;
 
-
-public class PolymorphicTutorial 
+public class TranslatorTutorial
 {
-	
 	public static void main(String[] args) 
 	{
+
+		/*
+		 * We create an instance of CocaTranslator which will translate
+		 * our annotated java source code to Objective-C header file.
+		 */
+		CocoaTranslator c = new CocoaTranslator();
+		
+		/*
+		 * We create an object of Translation scope of all the java files for which,
+		 * We need to create the Translation Scope XML file.
+		 */
+		TranslationScope tScope	= get();
 		try 
 		{
-			/*
-			 * Get translation scope
-			 */
-			TranslationScope tScope = get();
-			File inputGameData = new File("ecologylab/tutorials/polymorphic/GameData.xml");
 			
 			/*
-			 * Translating back from sample gameData file
+			 * Call translateToObjC supplied with the path where we want our header files 
+			 * to be generated
 			 */
-			GameData gd = (GameData) ElementState.translateFromXML(inputGameData, tScope);
-			
+			c.translateToObjC(new ParsedURL(new File ("/output")), tScope);
 			
 			/*
-			 * Translating the game data back to XML 
+			 * Call translateToXML will serialize the internal data structures of 
+			 * ecologylab.xml which should be used by objective-c version ecologylab.xml
 			 */
-			gd.translateToXML(new File("ecologylab/tutorials/polymorphic/output.xml"));
-			
-			//Again to console
-			gd.translateToXML(System.out);
-			
-		}
-		catch (Exception e) 
+			tScope.translateToXML(new File("/output/gamedata_translationScope.xml"));
+		} 
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

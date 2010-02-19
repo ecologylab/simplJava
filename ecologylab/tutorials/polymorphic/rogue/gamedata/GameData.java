@@ -5,7 +5,7 @@ package ecologylab.tutorials.polymorphic.rogue.gamedata;
 
 import java.util.ArrayList;
 
-import ecologylab.tutorials.polymorphic.rogue.entity.goal.Goal;
+
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.OrbitingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.PatrollingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.RepellableThreat;
@@ -28,7 +28,7 @@ import ecologylab.xml.ElementState;
 
 //GameData.java
 
-public class GameData<G extends Goal, T extends Threat> extends
+public class GameData<T extends Threat> extends
 		ElementState
 {
 	@xml_attribute
