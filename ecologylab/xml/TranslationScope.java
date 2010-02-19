@@ -444,6 +444,19 @@ public final class TranslationScope extends ElementState
 	   
 	   return (entry == null) ? null : entry.getDescribedClass();
    }
+   
+   public ArrayList<Class<? extends ElementState>> getAllClasses()
+   {
+	   ArrayList<Class<? extends ElementState>> classes = new ArrayList<Class<? extends ElementState>>();
+	   Collection<ClassDescriptor> classDescriptors = this.getClassDescriptors();
+	   
+	   for(ClassDescriptor classDescriptor : classDescriptors)
+	   {
+		   classes.add(classDescriptor.getDescribedClass());
+	   }
+	   return classes;
+   }
+   
    /**
     * Use this TranslationScope to lookup a class that has the same simple name
     * as the argument passed in here. It may have a different full name, that is,

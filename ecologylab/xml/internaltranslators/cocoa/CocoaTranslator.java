@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import com.sun.org.apache.bcel.internal.classfile.Field;
 
@@ -112,7 +113,7 @@ public class CocoaTranslator
 
    private boolean                          isRecursive;
 
-   ParsedURL                                directoryLocation;
+   File                                directoryLocation;
 
    /**
     * Constructor method
@@ -364,7 +365,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   public void translateToObjC(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   public void translateToObjC(Class<? extends ElementState> inputClass, File directoryLocation) throws IOException, CocoaTranslationException
    {
 	   translateToObjCHeader(inputClass, directoryLocation);
 	   translateToObjCImplementation(inputClass, directoryLocation);
@@ -384,7 +385,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   public void translateToObjC(ParsedURL directoryLocation, Class<? extends ElementState>... classes) throws IOException, CocoaTranslationException
+   public void translateToObjC(File directoryLocation, Class<? extends ElementState>... classes) throws IOException, CocoaTranslationException
    {
 	   int length = classes.length;
 	   for(int i = 0; i < length; i++){
@@ -407,7 +408,32 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   public void translateToObjCHeader(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   public void translateToObjC(File directoryLocation, TranslationScope tScope) throws IOException, CocoaTranslationException
+   {
+	   ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
+	   int length = classes.size();
+	   for(int i = 0; i < length; i++){
+		   translateToObjCHeader(classes.get(i), directoryLocation);
+		   translateToObjCImplementation(classes.get(i), directoryLocation);
+	   }	   
+   }
+   
+   
+   /**
+    * Takes an input class to generate an Objective-C version of the file. Takes
+    * the {@code directoryLocation} of the files where the file needs to be
+    * generated.
+    * <p>
+    * This function internally calls the {@code translateToObjC} main entry
+    * function to generate the required files
+    * </p>
+    * 
+    * @param inputClass
+    * @param appendable
+    * @throws IOException
+    * @throws CocoaTranslationException 
+    */
+   public void translateToObjCHeader(Class<? extends ElementState> inputClass, File directoryLocation) throws IOException, CocoaTranslationException
    {
       File outputFile = createHeaderFileWithDirectoryStructure(inputClass, directoryLocation);
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
@@ -430,7 +456,7 @@ public class CocoaTranslator
     * @throws IOException
     * @throws CocoaTranslationException 
     */
-   public void translateToObjCImplementation(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   public void translateToObjCImplementation(Class<? extends ElementState> inputClass, File directoryLocation) throws IOException, CocoaTranslationException
    {
       File outputFile = createImplementationFileWithDirectoryStructure(inputClass, directoryLocation);
       BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
@@ -459,7 +485,7 @@ public class CocoaTranslator
     * @throws CocoaTranslationException 
     * @throws Exception
     */
-   public void translateToObjCRecursive(Class<? extends ElementState> inputClass, ParsedURL directoryLocation) throws IOException, CocoaTranslationException
+   public void translateToObjCRecursive(Class<? extends ElementState> inputClass, File directoryLocation) throws IOException, CocoaTranslationException
    {
       isRecursive = true;
       this.directoryLocation = directoryLocation;
@@ -918,7 +944,7 @@ public class CocoaTranslator
     * @return
     * @throws IOException
     */
-   private File createHeaderFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws IOException
+   private File createHeaderFileWithDirectoryStructure(Class<?> inputClass, File directoryLocation) throws IOException
    {
       String packageName = XMLTools.getPackageName(inputClass);
       String className = XMLTools.getClassName(inputClass);
@@ -960,7 +986,7 @@ public class CocoaTranslator
     * @return
     * @throws IOException
     */
-   private File createImplementationFileWithDirectoryStructure(Class<?> inputClass, ParsedURL directoryLocation) throws IOException
+   private File createImplementationFileWithDirectoryStructure(Class<?> inputClass, File directoryLocation) throws IOException
    {
       String packageName = XMLTools.getPackageName(inputClass);
       String className = XMLTools.getClassName(inputClass);
