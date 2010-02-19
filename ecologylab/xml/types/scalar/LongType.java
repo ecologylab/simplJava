@@ -24,6 +24,10 @@ public class LongType extends ScalarType<Long>
 		super(long.class);
 	}
 
+	public LongType(Class<Long> thatClass) {
+		super(thatClass);
+	}
+
 	/**
 	 * Convert the parameter to long.
 	 */

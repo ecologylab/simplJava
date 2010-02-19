@@ -37,6 +37,7 @@ public class TypeRegistry extends Debug
 		ReferenceFloatType.class,
 		DoubleType.class,
 		LongType.class,
+		ReferenceLongType.class,
 		ShortType.class,
 		ByteType.class,
 		CharType.class,
