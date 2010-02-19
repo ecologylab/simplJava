@@ -67,7 +67,7 @@ public class TranslationConstants
    public static final String OBJC_DATE = "NSDate";
    public static final String OBJC_STRING_BUILDER = "NSMutableString";
    public static final String OBJC_URL = "NSURL";
-   public static final String OBJC_PARSED_URL = "NSParsedURL";
+   public static final String OBJC_PARSED_URL = "ParsedURL";
    public static final String OBJC_SCALAR_TYPE = "NSScalarType";
    public static final String OBJC_CLASS = "Class";
    public static final String OBJC_FIELD = "Ivar";

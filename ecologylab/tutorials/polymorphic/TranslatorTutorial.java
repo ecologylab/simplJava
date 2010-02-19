@@ -2,7 +2,6 @@ package ecologylab.tutorials.polymorphic;
 
 import java.io.File;
 
-import ecologylab.net.ParsedURL;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.OrbitingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.PatrollingThreat;
 import ecologylab.tutorials.polymorphic.rogue.entity.threat.RepellableThreat;

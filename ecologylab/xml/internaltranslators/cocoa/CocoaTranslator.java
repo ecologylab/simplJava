@@ -252,7 +252,8 @@ public class CocoaTranslator
       
       for (FieldDescriptor fieldAccessor : attributes)
       {
-    	 if(fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar())     	
+    	  if(fieldAccessor.belongsTo(classDescriptor) &&  fieldAccessor.isScalar() && fieldAccessor.getScalarType().isPrimitive()
+    	    		&& fieldAccessor.getField().getType() != String.class)   	
     		appendFieldSetterFunctionDefinition(appendable, fieldAccessor);
       }
 
@@ -311,7 +312,8 @@ public class CocoaTranslator
       
       for (FieldDescriptor fieldAccessor : attributes)
       {
-    	 if(fieldAccessor.belongsTo(classDescriptor) && fieldAccessor.isScalar())     	
+    	  if(fieldAccessor.belongsTo(classDescriptor) &&  fieldAccessor.isScalar() && fieldAccessor.getScalarType().isPrimitive()
+  	    		&& fieldAccessor.getField().getType() != String.class)  
     		appendFieldSetterFunctionImplementation(appendable, fieldAccessor);
       }
       
