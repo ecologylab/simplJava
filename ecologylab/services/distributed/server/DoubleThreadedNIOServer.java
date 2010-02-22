@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -19,10 +20,12 @@ import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
+import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.AbstractNIOServer;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationScope;
 
@@ -78,7 +81,13 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * ClientSessionManagers.
 	 */
 	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap	= new HashMapArrayList<Object, AbstractClientSessionManager>();
-
+	
+	/**
+	 * Map in which keys are sessionTokens, and values are associated
+	 * SessionHandles
+	 */
+	private HashMapArrayList<Object, SessionHandle>	clientSessionHandleMap	= new HashMapArrayList<Object, SessionHandle>();
+	
 	private static final Charset												ENCODED_CHARSET			= Charset
 																																.forName(CHARACTER_ENCODING);
 
@@ -106,6 +115,8 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 
 		this.maxMessageSize = maxMessageSize;
 
+		applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap); 
+		
 		instantiateCharBufferPool(maxMessageSize);
 	}
 
@@ -172,7 +183,9 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 
 					cm = generateContextManager(sessionToken, sk, translationSpace,
 							applicationObjectScope);
+
 					clientSessionManagerMap.put(sessionToken, cm);
+					clientSessionHandleMap.put(sessionToken, cm.getHandle());
 				}
 
 				try
@@ -326,6 +339,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 			{ // ...if this session will not be restored, remove the context
 				// manager
 				clientSessionManagerMap.remove(sessionId);
+				clientSessionHandleMap.remove(sessionId);
 			}
 		}
 
@@ -375,9 +389,14 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		{
 			oldContextManager.setSocket(newContextManager.getSocketKey());
 
-			this.getBackend().
-
-			debug("old session restored!");
+			synchronized (clientSessionManagerMap)
+			{
+				/*remove pointers to new session manager since we're using the old one*/
+				this.clientSessionManagerMap.remove(newContextManager.getSessionId());
+				this.clientSessionHandleMap.remove(newContextManager.getSessionId());
+			}
+			
+			this.getBackend().debug("old session restored!");
 			return true;
 		}
 	}
