@@ -11,6 +11,7 @@ import ecologylab.services.messages.BadSemanticContentResponse;
 import ecologylab.services.messages.HttpRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.TranslationScope;
 
 public abstract class HTTPClientSessionManager extends AbstractClientSessionManager
@@ -71,6 +72,12 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 		}
 		else
 			warning("isOK="+isOK + " but responseUrl=null. Can't send redirect response.");
+	}
+	
+	protected void makeUpdateHeader(int messageSize,
+			StringBuilder headerBufOutgoing, UpdateMessage<?> update)
+	{
+		
 	}
 	
 	/**

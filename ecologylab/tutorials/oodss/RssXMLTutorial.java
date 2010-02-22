@@ -1,4 +1,4 @@
-package ecologylab.tutorials;
+package ecologylab.tutorials.oodss;
 
 import java.io.BufferedReader;
 import java.io.IOException;

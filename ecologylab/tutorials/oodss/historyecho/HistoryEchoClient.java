@@ -1,6 +1,5 @@
-package ecologylab.tutorials;
+package ecologylab.tutorials.oodss.historyecho;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 import ecologylab.xml.TranslationScope;
@@ -13,11 +12,11 @@ import ecologylab.services.messages.DefaultServicesTranslations;
  * HistoryEchoServer: A sample server implemented via OODSS.
  * Intended to be used as a tutorial application.
  */
-public class UDPHistoryEchoClient
+public class HistoryEchoClient
 {
 	public static void main(String[] args) throws IOException
 	{
-		NIODatagramClient client;
+		NIOClient client;
 		String serverAddress;
 		int portNumber;
 		
@@ -54,33 +53,38 @@ public class UDPHistoryEchoClient
 		
 		Scope clientScope = new Scope();
 		
-		InetSocketAddress addr = new InetSocketAddress(serverAddress, portNumber);
+		client = new NIOClient(serverAddress, portNumber,
+												 histEchoTranslations,clientScope);
 		
-		client = new NIODatagramClient<Scope>(addr, new InetSocketAddress(58010), histEchoTranslations,clientScope, true, 500);
-				
+		client.allowCompression(true);
+		client.useRequestCompression(true);
+		client.connect();
+		
+		//scan.reset();
+		
+		System.out.println("Please enter some messages: ");
+		
 		int x = 1;
 		
-		while(true)
+		while(scan.hasNextLine())
 		{
-			String input = "ping!" + scan.nextLine();
+			String input = scan.nextLine();
 			
 			if(input.trim().toLowerCase().equals("exit"))
 				break;
 			
 			HistoryEchoRequest echoRequest = new HistoryEchoRequest(input);
-			
-			client.sendMessage(echoRequest);
-			
 			try
 			{
-				Thread.sleep(100);
+				client.sendMessage(echoRequest);
 			}
-			catch (InterruptedException e)
+			catch (MessageTooLargeException e)
 			{
-				// TODO Auto-generated catch block
+				System.err.println("The message you sent was too large!");
 				e.printStackTrace();
 			}
 		}
-	
+		
+		client.disconnect();
 	}
 }

@@ -22,6 +22,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ServerConstants;
+import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.MessageWithMetadata;
 import ecologylab.services.distributed.impl.MessageWithMetadataPool;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
@@ -32,6 +33,7 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -118,12 +120,18 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 * The selection key for this context manager.
 	 */
 	protected SelectionKey																socketKey;
+	
+	/**
+	 * Session handle available to use by clients
+	 */
 
+	protected SessionHandle handle;
+	
 	/**
 	 * sessionId uniquely identifies this ContextManager. It is used to restore
 	 * the state of a lost connection.
 	 */
-	protected Object																		sessionId						= null;
+	private Object																		sessionId						= null;
 
 	/**
 	 * The maximum message length allowed for clients that connect to this
@@ -183,13 +191,13 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	/**
 	 * Specifies whether or not the current message uses compression.
 	 */
-	private String 																		contentEncoding 				= "identity";
-	
+	private String																			contentEncoding				= "identity";
+
 	/**
 	 * Set of encoding schemes that the client supports
 	 */
-	private Set<String> 																	availableEncodings			= new HashSet<String>();
-	
+	private Set<String>																	availableEncodings			= new HashSet<String>();
+
 	/**
 	 * Stores the first XML message from the incomingMessageBuffer, or parts of
 	 * it (if it is being read over several invocations).
@@ -213,18 +221,16 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	private CharBuffer																	zippingChars;
 
 	private ByteBuffer																	zippingInBytes;
-	
-	private Inflater																		inflater = new Inflater();
 
-	private Deflater																		deflater = new Deflater();
-	
+	private Inflater																		inflater							= new Inflater();
+
+	private Deflater																		deflater							= new Deflater();
+
 	private ByteBuffer																	zippingOutBytes;
 
-	private ByteBuffer	compressedMessageBuffer;
+	private ByteBuffer																	compressedMessageBuffer;
 
 	public static final String															SESSION_ID						= "SESSION_ID";
-
-	public static final String															CLIENT_MANAGER					= "CLIENT_MANAGER";
 
 	private static final String														POST_PREFIX						= "POST ";
 
@@ -253,8 +259,11 @@ public abstract class AbstractClientSessionManager extends Debug implements
 
 		this.localScope = new Scope(registry);
 
+		this.handle = new SessionHandle(this);
+		
 		this.localScope.put(SESSION_ID, sessionId);
-		this.localScope.put(CLIENT_MANAGER, this);
+		this.localScope.put(SessionObjects.SESSION_HANDLE, this.handle);
+		
 
 		// set up session id
 		this.sessionId = sessionId;
@@ -263,12 +272,12 @@ public abstract class AbstractClientSessionManager extends Debug implements
 
 		this.outgoingChars = CharBuffer.allocate(maxMessageSize
 				+ MAX_HTTP_HEADER_LENGTH);
-		
+
 		this.zippingChars = CharBuffer.allocate(maxMessageSize);
 		this.zippingInBytes = ByteBuffer.allocate(maxMessageSize);
 		this.zippingOutBytes = ByteBuffer.allocate(maxMessageSize);
 		this.compressedMessageBuffer = ByteBuffer.allocate(maxMessageSize);
-		
+
 		msgBufIncoming = new StringBuilder(maxMessageSize
 				+ MAX_HTTP_HEADER_LENGTH);
 
@@ -358,19 +367,21 @@ public abstract class AbstractClientSessionManager extends Debug implements
 							contentUid = (uidString != null) ? Long
 									.parseLong(uidString) : 0;
 
-							this.contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
-							
-							String encodings = this.headerMap.get(HTTP_ACCEPT_ENCODING);
-							if(encodings != null)
+							this.contentEncoding = this.headerMap
+									.get(HTTP_CONTENT_CODING);
+
+							String encodings = this.headerMap
+									.get(HTTP_ACCEPT_ENCODING);
+							if (encodings != null)
 							{
 								String[] encodingList = encodings.split(",");
-													
-								for(String encoding:encodingList)
+
+								for (String encoding : encodingList)
 								{
 									this.availableEncodings.add(encoding);
 								}
 							}
-							
+
 							// done with the header text; delete it; header values will
 							// be retained for later processing by subclasses
 							msgBufIncoming.delete(0, endOfFirstHeader);
@@ -443,7 +454,8 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					 * if we've read a complete message, then contentLengthRemaining
 					 * will be reset to -1
 					 */
-					if(this.contentEncoding == null || this.contentEncoding.equals("identity"))
+					if (this.contentEncoding == null
+							|| this.contentEncoding.equals("identity"))
 					{
 						processString(firstMessageBuffer, contentUid);
 					}
@@ -451,22 +463,26 @@ public abstract class AbstractClientSessionManager extends Debug implements
 					{
 						try
 						{
-							processString(this.unCompress(firstMessageBuffer), contentUid);
+							processString(this.unCompress(firstMessageBuffer),
+									contentUid);
 						}
 						catch (DataFormatException e)
 						{
-							throw new BadClientException(((SocketChannel) this.socketKey
-									.channel()).socket().getInetAddress().getHostAddress(),
-									"Content was not encoded properly: " + e.getMessage());
+							throw new BadClientException(
+									((SocketChannel) this.socketKey.channel()).socket()
+											.getInetAddress().getHostAddress(),
+									"Content was not encoded properly: "
+											+ e.getMessage());
 						}
 					}
 					else
 					{
 						throw new BadClientException(((SocketChannel) this.socketKey
 								.channel()).socket().getInetAddress().getHostAddress(),
-								"Content encoding: " + contentEncoding + " not supported!");
+								"Content encoding: " + contentEncoding
+										+ " not supported!");
 					}
-					
+
 					// clean up: clear the message buffer and the header values
 					firstMessageBuffer.setLength(0);
 					this.headerMap.clear();
@@ -476,48 +492,49 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		}
 	}
 
-	private CharSequence unCompress(StringBuilder firstMessageBuffer) throws CharacterCodingException, DataFormatException
+	private CharSequence unCompress(StringBuilder firstMessageBuffer)
+			throws CharacterCodingException, DataFormatException
 	{
-		synchronized(zippingChars)
+		synchronized (zippingChars)
 		{
 			zippingChars.clear();
-			
-			firstMessageBuffer.getChars(0, firstMessageBuffer.length(), this.zippingChars.array(), 0);
+
+			firstMessageBuffer.getChars(0, firstMessageBuffer.length(),
+					this.zippingChars.array(), 0);
 			zippingChars.position(0);
 			zippingChars.limit(firstMessageBuffer.length());
-			
+
 			zippingInBytes.clear();
-			
+
 			ENCODER.reset();
-			ENCODER.encode(zippingChars,zippingInBytes, true);
+			ENCODER.encode(zippingChars, zippingInBytes, true);
 			ENCODER.flush(zippingInBytes);
-			
+
 			zippingInBytes.flip();
-			
+
 			inflater.reset();
-			inflater.setInput(zippingInBytes.array(), 
-									zippingInBytes.position(), 
-									zippingInBytes.limit());
-			
+			inflater.setInput(zippingInBytes.array(), zippingInBytes.position(),
+					zippingInBytes.limit());
+
 			zippingOutBytes.clear();
-			inflater.inflate(zippingOutBytes.array(),
-								  zippingOutBytes.position(), 
-								  zippingOutBytes.limit());
-			
+			inflater.inflate(zippingOutBytes.array(), zippingOutBytes.position(),
+					zippingOutBytes.limit());
+
 			zippingOutBytes.position(0);
 			zippingOutBytes.limit(inflater.getTotalOut());
-			
+
 			zippingChars.clear();
-			
+
 			DECODER.reset();
 			DECODER.decode(zippingOutBytes, zippingChars, true);
 			DECODER.flush(zippingChars);
-			
+
 			zippingChars.flip();
-			
+
 			firstMessageBuffer.setLength(0);
-			
-			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
+
+			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars
+					.limit());
 		}
 	}
 
@@ -613,6 +630,9 @@ public abstract class AbstractClientSessionManager extends Debug implements
 			RequestMessage incomingRequest, ResponseMessage outgoingResponse,
 			long uid);
 
+	protected abstract void makeUpdateHeader(int messageSize,
+			StringBuilder headerBufOutgoing, UpdateMessage<?> update);
+
 	/**
 	 * Adds the given request to this's request queue.
 	 * 
@@ -624,7 +644,8 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	 * 
 	 * @param request
 	 */
-	protected void enqueueRequest(MessageWithMetadata<RequestMessage, Object> request)
+	protected void enqueueRequest(
+			MessageWithMetadata<RequestMessage, Object> request)
 	{
 		messageWaiting = this.requestQueue.offer(request);
 	}
@@ -897,7 +918,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 
 					if (incomingSessionId == null)
 					{ // client is not expecting an old ContextManager
-						response = new InitConnectionResponse((String) this.sessionId);
+						response = new InitConnectionResponse((String) sessionId);
 					}
 					else
 					{ // client is expecting an old ContextManager
@@ -908,8 +929,7 @@ public abstract class AbstractClientSessionManager extends Debug implements
 						}
 						else
 						{
-							response = new InitConnectionResponse(
-									(String) this.sessionId);
+							response = new InitConnectionResponse((String)sessionId);
 						}
 					}
 				}
@@ -925,95 +945,8 @@ public abstract class AbstractClientSessionManager extends Debug implements
 			if (response != null)
 			{ // if the response is null, then we do
 				// nothing else
-				try
-				{
-					boolean usingCompression = this.availableEncodings.contains(HTTP_DEFLATE_ENCODING);
-					
-					// setup outgoingMessageBuffer
-					this.translateResponseMessageToStringBufferContents(request,
-							response, msgBufOutgoing);
 
-					// System.out.println("REQUEST / RESPONSE:
-					// "+request.translateToXML().toString() +" /
-					// "+response.translateToXML().toString());
-					
-					/* If Compressing must know the length of the data being sent so must compress here */
-					if(usingCompression)
-					{
-						this.compressedMessageBuffer.clear();
-						this.compress(msgBufOutgoing, this.compressedMessageBuffer);
-						this.compressedMessageBuffer.flip();
-						this.clearOutgoingMessageBuffer(msgBufOutgoing);
-					}
-					
-					this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
-					
-					// setup outgoingMessageHeaderBuffer
-					this.createHeader((usingCompression)?this.compressedMessageBuffer.limit():msgBufOutgoing.length(),
-										   headerBufOutgoing, request, response, requestWithMetadata.getUid());
-
-					if(usingCompression)
-					{
-						headerBufOutgoing.append(HTTP_HEADER_LINE_DELIMITER);
-						headerBufOutgoing.append(HTTP_CONTENT_CODING);
-						headerBufOutgoing.append(":");
-						headerBufOutgoing.append(HTTP_DEFLATE_ENCODING);
-					}
-					
-					headerBufOutgoing.append(HTTP_HEADER_TERMINATOR);
-					
-					// move the characters from the outgoing buffers into
-					// outgoingChars using bulk get and put methods
-					outgoingChars.clear();
-
-					headerBufOutgoing.getChars(0, headerBufOutgoing.length(),
-							outgoingChars.array(), 0);
-					
-					if(!usingCompression)
-					{
-						msgBufOutgoing.getChars(0, msgBufOutgoing.length(),
-								outgoingChars.array(), headerBufOutgoing.length());
-	
-						outgoingChars.limit(headerBufOutgoing.length()
-								+ msgBufOutgoing.length());
-	
-						this.clearOutgoingMessageBuffer(msgBufOutgoing);
-					}
-					else
-					{
-						outgoingChars.limit(headerBufOutgoing.length());
-					}
-					
-					outgoingChars.position(0);
-										
-					ByteBuffer outgoingBuffer = this.server
-							.acquireByteBufferFromPool();
-
-					synchronized (ENCODER)
-					{
-						ENCODER.reset();
-
-						ENCODER.encode(outgoingChars, outgoingBuffer, true);
-
-						ENCODER.flush(outgoingBuffer);
-					}
-
-					if(usingCompression)
-					{
-						outgoingBuffer.put(this.compressedMessageBuffer);
-					}
-					
-					server.enqueueBytesForWriting(this.socketKey, outgoingBuffer);
-				}
-				catch (XMLTranslationException e)
-				{
-					e.printStackTrace();
-				}
-				catch (DataFormatException e)
-				{
-					debug("Failed to compress response!");
-					e.printStackTrace();
-				}
+				sendResponseToClient(requestWithMetadata, response, request);
 			}
 			else
 			{
@@ -1024,35 +957,228 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		requestWithMetadata = reqPool.release(requestWithMetadata);
 	}
 
-	private void compress(StringBuilder src, ByteBuffer dest) throws DataFormatException
+	private synchronized void sendResponseToClient(
+			MessageWithMetadata<RequestMessage, Object> requestWithMetadata,
+			ResponseMessage response, RequestMessage request)
 	{
-		synchronized(zippingChars)
+		try
+		{
+			// setup outgoingMessageBuffer
+			this.translateResponseMessageToStringBufferContents(request, response,
+					msgBufOutgoing);
+		}
+		catch (XMLTranslationException e1)
+		{
+			e1.printStackTrace();
+		}
+
+		try
+		{
+			boolean usingCompression = this.availableEncodings
+					.contains(HTTP_DEFLATE_ENCODING);
+			/*
+			 * If Compressing must know the length of the data being sent so must
+			 * compress here
+			 */
+			if (usingCompression)
+			{
+				this.compressedMessageBuffer.clear();
+				this.compress(msgBufOutgoing, this.compressedMessageBuffer);
+				this.compressedMessageBuffer.flip();
+				this.clearOutgoingMessageBuffer(msgBufOutgoing);
+			}
+
+			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
+
+			// setup outgoingMessageHeaderBuffer
+			this.createHeader((usingCompression) ? this.compressedMessageBuffer
+					.limit() : msgBufOutgoing.length(), headerBufOutgoing, request,
+					response, requestWithMetadata.getUid());
+
+			if (usingCompression)
+			{
+				headerBufOutgoing.append(HTTP_HEADER_LINE_DELIMITER);
+				headerBufOutgoing.append(HTTP_CONTENT_CODING);
+				headerBufOutgoing.append(":");
+				headerBufOutgoing.append(HTTP_DEFLATE_ENCODING);
+			}
+
+			headerBufOutgoing.append(HTTP_HEADER_TERMINATOR);
+
+			// move the characters from the outgoing buffers into
+			// outgoingChars using bulk get and put methods
+			outgoingChars.clear();
+
+			headerBufOutgoing.getChars(0, headerBufOutgoing.length(),
+					outgoingChars.array(), 0);
+
+			if (!usingCompression)
+			{
+				msgBufOutgoing.getChars(0, msgBufOutgoing.length(), outgoingChars
+						.array(), headerBufOutgoing.length());
+
+				outgoingChars.limit(headerBufOutgoing.length()
+						+ msgBufOutgoing.length());
+
+				this.clearOutgoingMessageBuffer(msgBufOutgoing);
+			}
+			else
+			{
+				outgoingChars.limit(headerBufOutgoing.length());
+			}
+
+			outgoingChars.position(0);
+
+			ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
+
+			synchronized (ENCODER)
+			{
+				ENCODER.reset();
+
+				ENCODER.encode(outgoingChars, outgoingBuffer, true);
+
+				ENCODER.flush(outgoingBuffer);
+			}
+
+			if (usingCompression)
+			{
+				outgoingBuffer.put(this.compressedMessageBuffer);
+			}
+
+			server.enqueueBytesForWriting(this.socketKey, outgoingBuffer);
+		}
+		catch (DataFormatException e)
+		{
+			debug("Failed to compress response!");
+			e.printStackTrace();
+		}
+	}
+
+	public synchronized void sendUpdateToClient(UpdateMessage<?> update)
+	{
+		if(this.isInvalidating())
+		{
+			return;
+		}
+		try
+		{
+			// setup outgoingMessageBuffer
+			update.translateToXML(msgBufOutgoing);
+		}
+		catch (XMLTranslationException e1)
+		{
+			e1.printStackTrace();
+		}
+
+		try
+		{
+			boolean usingCompression = this.availableEncodings
+					.contains(HTTP_DEFLATE_ENCODING);
+			/*
+			 * If Compressing must know the length of the data being sent so must
+			 * compress here
+			 */
+			if (usingCompression)
+			{
+				this.compressedMessageBuffer.clear();
+				this.compress(msgBufOutgoing, this.compressedMessageBuffer);
+				this.compressedMessageBuffer.flip();
+				this.clearOutgoingMessageBuffer(msgBufOutgoing);
+			}
+
+			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
+
+			// setup outgoingMessageHeaderBuffer
+			this.makeUpdateHeader((usingCompression)?this.compressedMessageBuffer.limit()
+							: msgBufOutgoing.length(), headerBufOutgoing, update);
+
+			if (usingCompression)
+			{
+				headerBufOutgoing.append(HTTP_HEADER_LINE_DELIMITER);
+				headerBufOutgoing.append(HTTP_CONTENT_CODING);
+				headerBufOutgoing.append(":");
+				headerBufOutgoing.append(HTTP_DEFLATE_ENCODING);
+			}
+
+			headerBufOutgoing.append(HTTP_HEADER_TERMINATOR);
+
+			// move the characters from the outgoing buffers into
+			// outgoingChars using bulk get and put methods
+			outgoingChars.clear();
+
+			headerBufOutgoing.getChars(0, headerBufOutgoing.length(),
+					outgoingChars.array(), 0);
+
+			if (!usingCompression)
+			{
+				msgBufOutgoing.getChars(0, msgBufOutgoing.length(), outgoingChars
+						.array(), headerBufOutgoing.length());
+
+				outgoingChars.limit(headerBufOutgoing.length()
+						+ msgBufOutgoing.length());
+
+				this.clearOutgoingMessageBuffer(msgBufOutgoing);
+			}
+			else
+			{
+				outgoingChars.limit(headerBufOutgoing.length());
+			}
+
+			outgoingChars.position(0);
+
+			ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
+
+			synchronized (ENCODER)
+			{
+				ENCODER.reset();
+
+				ENCODER.encode(outgoingChars, outgoingBuffer, true);
+
+				ENCODER.flush(outgoingBuffer);
+			}
+
+			if (usingCompression)
+			{
+				outgoingBuffer.put(this.compressedMessageBuffer);
+			}
+
+			server.enqueueBytesForWriting(this.socketKey, outgoingBuffer);
+		}
+		catch (DataFormatException e)
+		{
+			debug("Failed to compress update!");
+			e.printStackTrace();
+		}
+	}
+
+	private void compress(StringBuilder src, ByteBuffer dest)
+			throws DataFormatException
+	{
+		synchronized (zippingChars)
 		{
 			zippingChars.clear();
-			
+
 			src.getChars(0, src.length(), this.zippingChars.array(), 0);
 			zippingChars.position(0);
 			zippingChars.limit(src.length());
-			
+
 			zippingInBytes.clear();
-			
+
 			ENCODER.reset();
-			ENCODER.encode(zippingChars,zippingInBytes, true);
+			ENCODER.encode(zippingChars, zippingInBytes, true);
 			ENCODER.flush(zippingInBytes);
-			
+
 			zippingInBytes.flip();
-			
+
 			deflater.reset();
-			deflater.setInput(zippingInBytes.array(), 
-									zippingInBytes.position(), 
-									zippingInBytes.limit());
+			deflater.setInput(zippingInBytes.array(), zippingInBytes.position(),
+					zippingInBytes.limit());
 			deflater.finish();
-			
-			dest.position(dest.position() + 
-							  deflater.deflate(dest.array(),
-									  				 dest.position(), 
-									  				 dest.remaining()));
-		}		
+
+			dest.position(dest.position()
+					+ deflater.deflate(dest.array(), dest.position(), dest
+							.remaining()));
+		}
 	}
 
 	/**
@@ -1128,7 +1254,8 @@ public abstract class AbstractClientSessionManager extends Debug implements
 		{
 			badTransmissionCount = 0;
 
-			MessageWithMetadata<RequestMessage, Object> pReq = this.reqPool.acquire();
+			MessageWithMetadata<RequestMessage, Object> pReq = this.reqPool
+					.acquire();
 
 			pReq.setMessage(request);
 			pReq.setUid(incomingUid);
@@ -1172,5 +1299,20 @@ public abstract class AbstractClientSessionManager extends Debug implements
 	public boolean isInvalidating()
 	{
 		return invalidating;
+	}
+
+	public Object getSessionId()
+	{
+		return this.sessionId;
+	}
+
+	public SessionHandle getHandle()
+	{
+		return handle;
+	}
+	
+	public Scope getScope()
+	{
+		return this.localScope;
 	}
 }

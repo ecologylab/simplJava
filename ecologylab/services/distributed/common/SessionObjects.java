@@ -33,4 +33,8 @@ public interface SessionObjects
     public static final String			INTEREST_MODEL_SOURCE 			= "interest_model_source";
     
     public static final String					GRAPHICS_CONFIGURATION	= "graphics_configuration";
+    
+    public static final String				SESSIONS_MAP					= "sessions_map";
+
+	public static final String															SESSION_HANDLE					= "SESSION_HANLDE";
 }

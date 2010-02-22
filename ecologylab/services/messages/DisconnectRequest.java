@@ -10,9 +10,10 @@ import java.net.UnknownHostException;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.client.NIOClient;
+import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -40,11 +41,11 @@ import ecologylab.xml.xml_inherit;
 	{
 		debug("**** running disconnect request ****");
 		
-		AbstractClientSessionManager cm = (AbstractClientSessionManager) localScope
-				.get(AbstractClientSessionManager.CLIENT_MANAGER);
+		SessionHandle handle = (SessionHandle) localScope
+				.get(SessionObjects.SESSION_HANDLE);
 
-		if(cm != null)
-			cm.setInvalidating(true);
+		if(handle != null)
+			handle.invalidate();
 
 		return OkResponse.reusableInstance;
 	}

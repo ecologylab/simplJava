@@ -1,4 +1,4 @@
-package ecologylab.tutorials;
+package ecologylab.tutorials.oodss.historyecho;
 import ecologylab.collections.Scope;
 import ecologylab.services.messages.RequestMessage;
 

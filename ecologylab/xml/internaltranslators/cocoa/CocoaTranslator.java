@@ -22,8 +22,8 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.library.rss.*;
 import ecologylab.services.messages.*;
-import ecologylab.tutorials.HistoryEchoRequest;
-import ecologylab.tutorials.HistoryEchoResponse;
+import ecologylab.tutorials.oodss.historyecho.HistoryEchoRequest;
+import ecologylab.tutorials.oodss.historyecho.HistoryEchoResponse;
 
 /**
  * This class is the main class which provides the functionality of translation

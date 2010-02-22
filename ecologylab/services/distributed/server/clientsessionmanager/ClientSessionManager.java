@@ -8,6 +8,7 @@ import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
+import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
@@ -115,6 +116,27 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	}
 
 	/**
+	 * Generates the outgoing message header (for updates). This implementation
+	 * assumes that the outgoingMessageHeaderBuf contains "content-length: " and
+	 * will add the content length, based on the contents of msgBufOutgoing,
+	 * however, custom implementations for more specific purposes may be
+	 * constructed.
+	 * 
+	 * @param messageSize
+	 *           size of outgoing buffer
+	 * @param outgoingMessageHeaderBuf
+	 *           buffer to put header parts in
+	 * @param update
+	 *           update message going out
+	 */
+	@Override
+	protected void makeUpdateHeader(int messageSize,
+			StringBuilder outgoingMessageHeaderBuf, UpdateMessage<?> update)
+	{
+		outgoingMessageHeaderBuf.append(messageSize);
+	}
+	
+	/**
 	 * Translates response into an XML string and adds an HTTP-like header, then returns the result.
 	 * 
 	 * translateResponseMessageToString(RequestMessage, ResponseMessage) may be overridden to provide
@@ -136,4 +158,5 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	{
 		responseMessage.translateToXML(messageBuffer);
 	}
+
 }

@@ -1,4 +1,4 @@
-package ecologylab.tutorials;
+package ecologylab.tutorials.oodss.historyecho;
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -12,10 +12,10 @@ import ecologylab.xml.TranslationScope;
  * HistoryEchoServer: A sample server implemented via OODSS.
  * Intended to be used as a tutorial application.
  */
-public class GlobalHistoryEchoServer 
+public class HistoryEchoServer
 {
 	private static final int idleTimeout = -1;
-	private static final int MTU = 1200;
+	private static final int MTU = 40000;
 	
 	public static void main(String[] args) throws IOException
 	{
@@ -44,14 +44,6 @@ public class GlobalHistoryEchoServer
 		 */
 		Scope applicationScope = new Scope();
 		
-		/* 
-		 * Initialize the ECHO_HISTORY registry in the application scope
-		 * so that the performService(...) of HistoryEchoRequest modifies
-		 * the history in the application scope.
-		 */
-		applicationScope.put(HistoryEchoRequest.ECHO_HISTORY,
-									new StringBuffer());
-		
 		/* Acquire an array of all local ip-addresses */
 		InetAddress[] locals = NetTools.getAllInetAddressesForLocalhost();
 		
@@ -60,7 +52,7 @@ public class GlobalHistoryEchoServer
 		 * accept incoming connections.
 		 */
 		DoubleThreadedNIOServer historyServer =
-			DoubleThreadedNIOServer.getInstance(2107,
+			DoubleThreadedNIOServer.getInstance(2108,
 															locals,
 															histEchoTranslations,
 															applicationScope,

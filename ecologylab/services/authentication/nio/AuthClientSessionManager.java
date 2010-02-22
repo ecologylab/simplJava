@@ -80,7 +80,7 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 		ResponseMessage response;
 
 		// if not logged in yet, make sure they log in first
-		if (!loggedIn || !this.authenticator.sessionValid(this.sessionId))
+		if (!loggedIn || !this.authenticator.sessionValid(this.getSessionId()))
 		{
 			if (requestMessage instanceof Login)
 			{
