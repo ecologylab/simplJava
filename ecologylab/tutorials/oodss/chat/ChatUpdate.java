@@ -58,7 +58,15 @@ public class ChatUpdate extends UpdateMessage
 				.get(ChatUpdateListener.CHAT_UPDATE_LISTENER);
 
 		/* report incoming update */
-		listener.recievedUpdate(this);
+		if (listener != null)
+		{
+			listener.recievedUpdate(this);
+		}
+		else
+		{
+			warning("Listener not set in application scope. Can't display message from\n"
+					+ host + ":" + port + ": " + message);
+		}
 	}
 
 	public String getMessage()
