@@ -1,25 +1,26 @@
 <game_data timestamp="1234399958508" cyc_rem="8078" loaded="true"
 	running="true" score="-28.066665835678577">
 	<threats>
-		<nt id="_t0" />
-		<nt id="_t1" ord="1" />
-		<nt id="_t2" ord="2" />
-		<nt id="_t3" ord="3" />
-		<nt id="_t4" ord="4" />
-		<nt id="_t5" ord="5" />
-		<nt id="_t6" ord="6" />
-		<nt id="_t7" ord="7" />
-		<nt id="_t8" ord="8" />
-		<nt id="_t9" ord="9" />
-		<nt id="_t10" ord="10" />
-		<nt id="_t11" ord="11" />
-		<nt id="_t12" ord="12" />
-		<ot id="_t13" ord="13" />
-		<ot id="_t14" ord="14" />
-		<ot id="_t15" ord="15" />
-		<pt id="_t16" ord="16" />
-		<pt id="_t17" ord="17" />
-		<pt id="_t18" ord="18" />
-		<pt id="_t19" ord="19" />
+		<nt m_id="_t0" />
+		<nt m_id="_t1" ord="1" />
+		<nt m_id="_t2" ord="2" />
+		<nt m_id="_t3" ord="3" />
+		<nt m_id="_t4" ord="4" />
+		<nt m_id="_t5" ord="5" />
+		<nt m_id="_t6" ord="6" />
+		<nt m_id="_t7" ord="7" />
+		<nt m_id="_t8" ord="8" />
+		<nt m_id="_t9" ord="9" />
+		<nt m_id="_t10" ord="10" />
+		<nt m_id="_t11" ord="11" />
+		<nt m_id="_t12" ord="12" />
+		<ot m_id="_t13" ord="13" />
+		<ot m_id="_t14" ord="14" />
+		<ot m_id="_t15" ord="15" />
+		<pt m_id="_t16" ord="16" />
+		<pt m_id="_t17" ord="17" />
+		<pt m_id="_t18" ord="18" />
+		<pt m_id="_t19" ord="19" />
 	</threats>
 </game_data>
+

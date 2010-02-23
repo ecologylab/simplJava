@@ -5,25 +5,21 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-
-import com.sun.org.apache.bcel.internal.classfile.Field;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.net.ParsedURL;
-import ecologylab.standalone.xmlpolymorph.BItem;
-import ecologylab.standalone.xmlpolymorph.SchmItem;
-import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.tutorials.polymorphic.rogue.game2d.entity.Entity;
+import ecologylab.tutorials.polymorphic.rogue.gamedata.GameData;
+import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
+import ecologylab.xml.library.rss.RssState;
 import ecologylab.xml.library.rss.*;
 import ecologylab.services.messages.*;
 import ecologylab.tutorials.oodss.historyecho.HistoryEchoRequest;
-import ecologylab.tutorials.oodss.historyecho.HistoryEchoResponse;
+
 
 /**
  * This class is the main class which provides the functionality of translation
@@ -303,8 +299,10 @@ public class CocoaTranslator
       {    
          for (FieldDescriptor fieldAccessor : attributes)
          {
-        	if(fieldAccessor.belongsTo(classDescriptor))        	
+        	if(fieldAccessor.belongsTo(classDescriptor))
+        	{
         		appendSynthesizedField(fieldAccessor, appendable);
+        	}
          }
       }
       
@@ -597,7 +595,10 @@ public class CocoaTranslator
     */
    private void appendFieldSetterFunctionDefinition(Appendable appendable, FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException {
 	   
+
 	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   checkForKeywords(fieldAccessor, appendable);
 	   appendable.append("- (void) ");
 	   appendable.append("set" + fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
 	   appendable.append(fieldAccessor.getFieldName().substring(1, fieldAccessor.getFieldName().length()));
@@ -619,7 +620,15 @@ public class CocoaTranslator
     */
    private void appendFieldSetterFunctionImplementation(Appendable appendable, FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException {
 	   
-	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   boolean isKeywordField = false;
+	   if(TranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+	   {
+		   isKeywordField = true;   
+	   }
+	   
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK); 
+	   if(isKeywordField) appendable.append("//");
+	   
 	   appendable.append("- (void) ");
 	   appendable.append("set" + fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
 	   appendable.append(fieldAccessor.getFieldName().substring(1, fieldAccessor.getFieldName().length()));
@@ -628,10 +637,16 @@ public class CocoaTranslator
 	   appendable.append(" p_" + fieldAccessor.getFieldName());
 	   appendable.append(" {");
 	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   if(isKeywordField) appendable.append("//");
 	   appendable.append("\t" + fieldAccessor.getFieldName() + " = " + "*p_" + fieldAccessor.getFieldName());
 	   appendable.append(";");
 	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+	   
+	   if(isKeywordField) appendable.append("//");
 	   appendable.append("}");
+	   
+	   appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
 	}
    
    /**
@@ -662,6 +677,8 @@ public class CocoaTranslator
     */
    private void appendFieldAsObjectiveCAttribute(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
+	  checkForKeywords(fieldAccessor, appendable);
+
       if (fieldAccessor.isCollection())
       {
          appendFieldAsReference(fieldAccessor, appendable);
@@ -701,6 +718,20 @@ public class CocoaTranslator
       }
    }
 
+	private void checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException {
+		if(TranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		  {
+			  Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getFieldName() + "]. This is a keyword in objective-c. Cannot translate");
+			  appendComments(appendable);  
+		  }
+	}
+
+   private void appendComments(Appendable appendable) throws IOException 
+   {
+	   appendable.append("//");
+	
+   }
+
    /**
     * Appends the property of each field using the Objective-C property
     * directive. The object can be a primitive or reference type. Reference type
@@ -713,6 +744,8 @@ public class CocoaTranslator
     */
    private void appendPropertyOfField(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
+	  checkForKeywords(fieldAccessor, appendable);
+	  
       if (fieldAccessor.isCollection())
       {
          appendPropertyAsReference(fieldAccessor, appendable);
@@ -747,6 +780,8 @@ public class CocoaTranslator
     */
    private void appendSynthesizedField(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException, CocoaTranslationException
    {
+	   checkForKeywords(fieldAccessor, appendable);
+	   
 	   StringBuilder synthesizeDeclaration = new StringBuilder();
 	   
 	   synthesizeDeclaration.append(TranslationConstants.SYNTHESIZE);
@@ -1028,7 +1063,7 @@ public class CocoaTranslator
       CocoaTranslator c = new CocoaTranslator();
 //      c.translateToObjC(Item.class, new ParsedURL(new File("/")));
       //c.translateToObjC(new ParsedURL(new File("/")), Schmannel.class, BItem.class, SchmItem.class, RssState.class, Item.class, Channel.class);
-      c.translateToObjCImplementation(RssState.class, System.out);
+      c.translateToObjCRecursive(Entity.class, System.out);
    }
 
 }

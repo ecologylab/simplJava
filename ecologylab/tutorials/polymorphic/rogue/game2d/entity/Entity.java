@@ -27,7 +27,7 @@ public class Entity extends ElementState
 	protected int								animState	= 0;
 
 	@xml_attribute
-	protected String						id;
+	protected String						m_id;
 
 	@xml_attribute
 	protected boolean						online		= false;
@@ -36,7 +36,7 @@ public class Entity extends ElementState
 	 * The Entity can interact with and be acted upon by the game and other entities.
 	 */
 	@xml_attribute
-	protected boolean						in				= false;
+	protected boolean						m_in				= false;
 
 	@xml_attribute
 	protected boolean						safe			= false;

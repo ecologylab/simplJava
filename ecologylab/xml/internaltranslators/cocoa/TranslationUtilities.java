@@ -19,6 +19,32 @@ import ecologylab.xml.types.scalar.ScalarType;
  */
 public class TranslationUtilities
 {
+	
+	private static HashMap<String, String> keywords = new HashMap<String, String>();
+	
+	static
+	{
+		keywords.put("super", "super");
+		keywords.put("void", "void");
+		keywords.put("char", "char");
+		keywords.put("short", "short");
+		keywords.put("int", "int");
+		keywords.put("long", "long");
+		keywords.put("float", "float");
+		keywords.put("double", "double");
+		keywords.put("signed", "signed");
+		keywords.put("unsigned", "unsigned");
+		keywords.put("id", "id");
+		keywords.put("const", "const");
+		keywords.put("volatile", "volatile");
+		keywords.put("in", "in");
+		keywords.put("out", "out");
+		keywords.put("inout", "inout");
+		keywords.put("bycopy", "bycopy");
+		keywords.put("byref", "byref");
+		keywords.put("oneway", "oneway");
+		keywords.put("self", "self");	
+	}
 
    /**
     * Methods that does the job of mapping the Java datatypes to corresponding
@@ -120,4 +146,10 @@ public class TranslationUtilities
    { 
 	 return thatClass.toString().substring(thatClass.toString().lastIndexOf(TranslationConstants.DOT) + 1);
    }
+
+	public static boolean isKeyword(String fieldName) 
+	{
+		return keywords.containsKey(fieldName);
+	
+	}
 }
