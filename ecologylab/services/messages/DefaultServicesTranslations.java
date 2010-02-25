@@ -32,7 +32,7 @@ public class DefaultServicesTranslations
 			InitConnectionRequest.class, InitConnectionResponse.class, DisconnectRequest.class,			
 			
 			ServiceMessage.class, StopMessage.class,
-			UrlMessage.class							};
+			UrlMessage.class, UpdateMessage.class};
 
 	/**
 	 * This accessor will work from anywhere, in any order, and stay efficient.
