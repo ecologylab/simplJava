@@ -32,7 +32,8 @@ public class FloatType extends ScalarType<Float>
         super(float.class);
     }
 
-    public FloatType(Class<Float> thatClass) {
+    public FloatType(Class<Float> thatClass) 
+    {
 		super(thatClass);
 	}
 
@@ -124,7 +125,7 @@ public class FloatType extends ScalarType<Float>
     @Override public boolean isDefaultValue(Field field, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-    	return field.getFloat(context) == DEFAULT_VALUE;
+    	return (Float) field.get(context) == DEFAULT_VALUE;
     }
 
     /**
@@ -141,7 +142,7 @@ public class FloatType extends ScalarType<Float>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        float value = f2xo.getField().getFloat(context);
+        float value = (Float) f2xo.getField().get(context);
            
 		buffy.append(value);
     }
@@ -160,7 +161,7 @@ public class FloatType extends ScalarType<Float>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
    {
-        float value = fieldDescriptor.getField().getFloat(context);
+        float value = (Float) fieldDescriptor.getField().get(context);
            
 		buffy.append(Float.toString(value));
     }

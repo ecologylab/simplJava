@@ -32,6 +32,11 @@ public class BooleanType extends ScalarType<Boolean>
 	{
 		super(boolean.class);
 	}
+	
+	public BooleanType(Class<Boolean> thatClass) 
+    {
+		super(thatClass);
+	}
 
 	/**
 	 * Convert the parameter to boolean.
@@ -105,7 +110,7 @@ public class BooleanType extends ScalarType<Boolean>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        boolean value = f2xo.getField().getBoolean(context);
+        boolean value = (Boolean) f2xo.getField().get(context);
            
 		buffy.append(value);
     }
@@ -128,7 +133,8 @@ public class BooleanType extends ScalarType<Boolean>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        boolean value = fieldDescriptor.getField().getBoolean(context);
+        boolean value = (Boolean) fieldDescriptor.getField().get(context);
+        
         if(fieldDescriptor.getFormat() != null)
         {
       	  buffy.append(value ? SHORT_TRUE : SHORT_FALSE);
@@ -161,7 +167,7 @@ public class BooleanType extends ScalarType<Boolean>
 	public boolean isDefaultValue(Field field, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-    	return field.getBoolean(context) == DEFAULT_VALUE;
+    	return (Boolean) field.get(context) == DEFAULT_VALUE;
     }
 
 }

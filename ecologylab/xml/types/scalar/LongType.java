@@ -24,7 +24,8 @@ public class LongType extends ScalarType<Long>
 		super(long.class);
 	}
 
-	public LongType(Class<Long> thatClass) {
+	public LongType(Class<Long> thatClass) 
+	{
 		super(thatClass);
 	}
 
@@ -101,7 +102,7 @@ public class LongType extends ScalarType<Long>
     @Override public boolean isDefaultValue(Field field, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-    	return field.getLong(context) == DEFAULT_VALUE;
+    	return (Long) field.get(context) == DEFAULT_VALUE;
     }
 
     /**
@@ -118,7 +119,7 @@ public class LongType extends ScalarType<Long>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        long value = f2xo.getField().getLong(context);
+        long value = (Long) f2xo.getField().get(context);
            
 		buffy.append(value);
     }
@@ -137,7 +138,7 @@ public class LongType extends ScalarType<Long>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        long value = fieldDescriptor.getField().getLong(context);
+        long value = (Long) fieldDescriptor.getField().get(context);
            
 		buffy.append(Long.toString(value));
     }

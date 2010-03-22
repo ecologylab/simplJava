@@ -38,6 +38,11 @@ public class DoubleType extends ScalarType<Double>
     {
         super(double.class);
     }
+	
+	public DoubleType(Class<Double> thatClass) 
+    {
+		super(thatClass);
+	}
 
     /**
      * Convert the parameter to double.
@@ -88,7 +93,7 @@ public class DoubleType extends ScalarType<Double>
         String result = "COULDN'T CONVERT!";
         try
         {
-            result = Double.toString(field.getDouble(context));
+            result = Double.toString((Double) field.get(context));
         }
         catch (Exception e)
         {
@@ -127,7 +132,7 @@ public class DoubleType extends ScalarType<Double>
     @Override public boolean isDefaultValue(Field field, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-    	return field.getDouble(context) == DEFAULT_VALUE;
+    	return (Double) field.get(context) == DEFAULT_VALUE;
     }
 
     /**
@@ -145,7 +150,7 @@ public class DoubleType extends ScalarType<Double>
 	@Override public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context)
 			throws IllegalArgumentException, IllegalAccessException
 	{
-		double value = f2xo.getField().getDouble(context);
+		double value = (Double) f2xo.getField().get(context);
 		String[] formatStrings = f2xo.getFormat();
 		
 		if (formatStrings != null)
@@ -179,7 +184,7 @@ public class DoubleType extends ScalarType<Double>
 	@Override public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
-		double value = fieldDescriptor.getField().getDouble(context);
+		double value = (Double) fieldDescriptor.getField().get(context);
 		String[] formatStrings = fieldDescriptor.getFormat();
 		
 		if (formatStrings != null)
