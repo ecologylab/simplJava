@@ -25,10 +25,11 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public HTTPPostClientSessionManager(Object token, int maxPacketSize, NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socketKey, TranslationScope translationSpace, Scope<?> registry)
+	public HTTPPostClientSessionManager(Object sessionId, Scope clientSessionScope,
+			int maxMessageSizeIn, NIOServerIOThread server, NIOServerProcessor frontend,
+			SelectionKey socket, TranslationScope translationSpace)
 	{	
-		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
+		super(sessionId, clientSessionScope, maxMessageSizeIn, server, frontend, socket, translationSpace);
 		this.initialized = true;
 	}
 

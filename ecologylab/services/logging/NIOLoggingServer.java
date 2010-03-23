@@ -180,10 +180,13 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements
 
 	@Override protected LoggingClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
-			Scope registryIn)
+			Scope applicationObjectScope)
 	{
-		return new LoggingClientSessionManager(token, maxMessageSize, this, this
-				.getBackend(), sk, translationSpaceIn, registryIn);
+		Scope clientSessionScope = this.generateClientSessionScope();
+		clientSessionScope.setParent(applicationObjectScope);
+
+		return new LoggingClientSessionManager(token, clientSessionScope, maxMessageSize, this, this
+				.getBackend(), sk, translationSpaceIn);
 	}
 
 	/**

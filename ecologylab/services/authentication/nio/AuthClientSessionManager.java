@@ -52,14 +52,13 @@ public class AuthClientSessionManager extends ClientSessionManager implements
 	 * @param registry
 	 * @param servicesServer
 	 */
-	@SuppressWarnings("unchecked") public AuthClientSessionManager(Object token,
+	@SuppressWarnings("unchecked") public AuthClientSessionManager(Object token, Scope clientSessionScope,
 			int maxPacketSize, NIOServerIOThread server,
 			NIOServerProcessor frontend, SelectionKey sk,
-			TranslationScope translationSpace, Scope registry,
+			TranslationScope translationSpace,
 			AuthLogging servicesServer, Authenticator authenticator)
 	{
-		super(token, maxPacketSize, server, frontend, sk, translationSpace,
-				registry);
+		super(token, clientSessionScope, maxPacketSize, server, frontend, sk, translationSpace);
 
 		this.servicesServer = servicesServer;
 		this.authenticator = authenticator;

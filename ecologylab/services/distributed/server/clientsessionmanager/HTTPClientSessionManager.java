@@ -30,13 +30,12 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	
 	protected boolean					ALLOW_HTTP_STYLE_REQUESTS	= true;
 	
-	public HTTPClientSessionManager(Object sessionId, int maxPacketSize,
-			NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socket, TranslationScope translationSpace,
-			Scope<?> registry) {
-		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace,
-				registry);
-		// TODO Auto-generated constructor stub
+	public HTTPClientSessionManager(Object sessionId, Scope clientSessionScope,
+			int maxMessageSizeIn, NIOServerIOThread server, NIOServerProcessor frontend,
+			SelectionKey socket, TranslationScope translationSpace) 
+	{
+		super(sessionId, clientSessionScope, maxMessageSizeIn, server, frontend, socket,
+				translationSpace);
 	}
 	
 	/**
@@ -56,8 +55,8 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	{
 		boolean isOK = outgoingResponse.isOK();
 		ParsedURL responseUrl = isOK ?
-				incomingRequest.okRedirectUrl(localScope) :
-				incomingRequest.errorRedirectUrl(localScope);
+				incomingRequest.okRedirectUrl(clientSessionScope) :
+				incomingRequest.errorRedirectUrl(clientSessionScope);
 
 		if (responseUrl != null)
 		{
@@ -102,7 +101,7 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 
 		try
 		{
-			return requestMessage.performService(localScope);
+			return requestMessage.performService(clientSessionScope);
 		}
 		catch (Exception e)
 		{

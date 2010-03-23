@@ -116,7 +116,9 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 
 	protected abstract AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpace,
-			Scope globalScope);
+			Scope applicationObjectScope);
+	
+	protected abstract Scope generateClientSessionScope();
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()

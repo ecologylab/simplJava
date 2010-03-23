@@ -63,9 +63,12 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements
 
 	@Override protected AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
-			Scope registryIn)
+			Scope applicationObjectScope)
 	{
-		return new HTTPPostClientSessionManager(token, maxMessageSize, this.getBackend(),
-				this, sk, translationSpaceIn, registryIn);
+		Scope clientSessionScope = this.generateClientSessionScope();
+		clientSessionScope.setParent(applicationObjectScope);
+
+		return new HTTPPostClientSessionManager(token, clientSessionScope, maxMessageSize, this.getBackend(),
+				this, sk, translationSpaceIn);
 	}
 }

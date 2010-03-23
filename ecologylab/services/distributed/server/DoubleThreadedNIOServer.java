@@ -223,10 +223,21 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 */
 	@Override protected AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
-			Scope registryIn)
+			Scope applicationObjectScope)
 	{
-		return new ClientSessionManager(token, maxMessageSize, this.getBackend(),
-				this, sk, translationSpaceIn, registryIn);
+		Scope clientSessionScope = this.generateClientSessionScope();
+		clientSessionScope.setParent(applicationObjectScope);
+		
+		return new ClientSessionManager(token, clientSessionScope, maxMessageSize, this.getBackend(),
+				this, sk, translationSpaceIn);
+	}
+	
+	/**
+	 * Provides a default, empty client session scope.
+	 */
+	@Override protected Scope generateClientSessionScope()
+	{
+		return new Scope();
 	}
 
 	public void run()

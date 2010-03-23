@@ -32,12 +32,11 @@ public class LoggingClientSessionManager extends ClientSessionManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public LoggingClientSessionManager(Object token, int maxPacketSize,
+	public LoggingClientSessionManager(Object token, Scope clientSessionScope, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server,
-			SelectionKey sk, TranslationScope translationSpace, Scope registry)
+			SelectionKey sk, TranslationScope translationSpace)
 	{
-		super(token, maxPacketSize, server, loggingServer, sk, translationSpace,
-				registry);
+		super(token, clientSessionScope, maxPacketSize, server, loggingServer, sk, translationSpace);
 	}
 
 	@Override public void shutdown()
@@ -54,11 +53,11 @@ public class LoggingClientSessionManager extends ClientSessionManager
 			}
 		}
 		
-		if (this.localScope.containsKey(LogEvent.OUTPUT_STREAM))
+		if (this.clientSessionScope.containsKey(LogEvent.OUTPUT_STREAM))
 		{ // if the local scope still contains the output stream, then shutdown isn't complete!
 			// this will make the log readable, but it will not have its real epilogue
 			SendEpilogue sE = new SendEpilogue();
-			sE.performService(localScope);
+			sE.performService(clientSessionScope);
 		}
 
 		super.shutdown();

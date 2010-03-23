@@ -161,12 +161,15 @@ public class DoubleThreadedAuthNIOServer<A extends AuthenticationListEntry>
 	 */
 	@Override protected AbstractClientSessionManager generateContextManager(
 			Object sessionId, SelectionKey sk, TranslationScope translationSpace,
-			Scope registry)
+			Scope applicationObjectScope)
 	{
 		try
 		{
-			return new AuthClientSessionManager(sessionId, maxMessageSize, getBackend(),
-					this, sk, translationSpace, registry, this, authenticator);
+			Scope clientSessionScope = this.generateClientSessionScope();
+			clientSessionScope.setParent(applicationObjectScope);
+			
+			return new AuthClientSessionManager(sessionId, clientSessionScope, maxMessageSize, getBackend(),
+					this, sk, translationSpace, this, authenticator);
 		}
 		catch (ClassCastException e)
 		{

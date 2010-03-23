@@ -60,9 +60,12 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 
 	@Override protected AbstractClientSessionManager generateContextManager(
 			Object token, SelectionKey sk, TranslationScope translationSpaceIn,
-			Scope registryIn)
+			Scope applicationObjectScope)
 	{
-		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(),
-				this, sk, translationSpaceIn, registryIn);
+		Scope clientSessionScope = this.generateClientSessionScope();
+		clientSessionScope.setParent(applicationObjectScope);
+		
+		return new HTTPGetClientSessionManager(token, clientSessionScope, maxMessageSize, this.getBackend(),
+				this, sk, translationSpaceIn);
 	}
 }

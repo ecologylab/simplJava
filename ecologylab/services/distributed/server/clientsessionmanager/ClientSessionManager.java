@@ -38,11 +38,10 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public ClientSessionManager(Object sessionId, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
-			Scope<?> registry)
+	public ClientSessionManager(Object sessionId, Scope clientSessionScope, int maxPacketSize, NIOServerIOThread server,
+			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace)
 	{
-		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
+		super(sessionId, clientSessionScope, maxPacketSize, server, frontend, socketKey, translationSpace);
 	}
 
 	/**
