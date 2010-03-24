@@ -3,6 +3,8 @@
  */
 package ecologylab.xml.library.endnote;
 
+import java.util.ArrayList;
+
 import ecologylab.xml.ElementState;
 
 /**
@@ -10,8 +12,9 @@ import ecologylab.xml.ElementState;
  */
 public class XmlState extends ElementState
 {
-    private @xml_nested Records records = new Records();
-    
+//    private @xml_nested Records records = new Records();
+    private @xml_collection("Record")
+    ArrayList<Record> records;
     /**
      * 
      */
@@ -22,7 +25,7 @@ public class XmlState extends ElementState
     /**
      * @return the records
      */
-    public Records getRecords()
+    public ArrayList<Record> getRecords()
     {
         return records;
     }
@@ -30,7 +33,7 @@ public class XmlState extends ElementState
     /**
      * @param records the records to set
      */
-    public void setRecords(Records records)
+    public void setRecords(ArrayList<Record> records)
     {
         this.records = records;
     }
