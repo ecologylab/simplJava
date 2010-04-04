@@ -205,6 +205,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				.getAnnotation(ElementState.xml_classes.class);
 		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj
 				.value();
+	
 		final ElementState.xml_scope scopeAnnotationObj = field
 				.getAnnotation(ElementState.xml_scope.class);
 		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();

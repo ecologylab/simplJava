@@ -32,7 +32,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	@Override 
 	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
     {
-		String instanceString	= instance.toString();
+		String instanceString	= marshall(instance);//instance.toString();
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instanceString);
 		else
