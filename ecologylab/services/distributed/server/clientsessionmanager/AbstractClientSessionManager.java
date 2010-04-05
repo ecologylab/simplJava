@@ -253,9 +253,10 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 			this.clientSessionScope = clientSessionScope;
 
 		this.clientSessionScope.put(SESSION_ID, sessionId);
-		this.clientSessionScope.put(SessionObjects.SESSION_HANDLE, this.handle);
-
+		
 		this.handle = new SessionHandle(this);
+		
+		this.clientSessionScope.put(SessionObjects.SESSION_HANDLE, this.handle);
 
 		// set up session id
 		this.sessionId = sessionId;
