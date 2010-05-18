@@ -86,7 +86,7 @@ import ecologylab.xml.xml_inherit;
 
 	public static String constructFileName()
 	{
-		return getFileName(new Date(), Pref.lookupString("study_name"));
+		return getFileName(new Date(), Pref.lookupString(Prologue.STUDY_NAME));
 	}
 	
 	public static String getFileName(Date date, String studyName)
@@ -135,32 +135,40 @@ import ecologylab.xml.xml_inherit;
 			String dirPath = file.getParent();
 			if (dirPath != null)
 			{
+				debug("dirPath = " + dirPath);
+				
 				File dir = new File(dirPath);
 				if (!dir.exists())
+				{
+					debug("dirPath did not exist. create with mkdirs()");
 					dir.mkdirs();
+				}
 			}
 
+			debug("attempting to use filename: " + fileName);
 			// rename file until we are not overwriting an existing file
 			if (file.exists())
 			{ // a little weird to do it this way, but the if is cheaper than
 				// potentially reallocating the String over and over
 				String filename = file.getName();
-				int dotIndex = filename.lastIndexOf('.');
+				int dotIndex 		= filename.lastIndexOf('.');
+				int i 					= 1;
 
-				int i = 1;
-
-				while (file.exists())
+				do
 				{
+					debug(filename + " already exists.");
+					
 					String newFilename = (dotIndex > -1 ? filename.substring(0,
 							dotIndex)
 							+ i + filename.substring(dotIndex) : filename + i);
-					
+					debug("trying new filename = " + newFilename);
 					i++;
 					
 					// we already took care of the parent directories
 					// just need to make a new file w/ a new name
 					file = new File(newFilename);
 				}
+				while (file.exists());
 			}
 			
 			if (!file.createNewFile())
@@ -195,6 +203,8 @@ import ecologylab.xml.xml_inherit;
 		}
 		catch (IOException e)
 		{
+			e.printStackTrace();
+			
 			return new ErrorResponse(e.getMessage());
 		}
 	}

@@ -2,6 +2,7 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.Timer;
 
@@ -15,7 +16,7 @@ import ecologylab.xml.xml_inherit;
 @xml_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener
 {
-
+	ArrayList<ElementState> nestedOps;
 	/**
 	 * delay in seconds
 	 */
@@ -28,14 +29,26 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 		super();
 	}
 	
+	public PrefDelayedOp(String name, int delay)
+	{
+		this();
+		this.name 		= name;
+		this.delay 		= delay;
+	}
+	
+	public PrefDelayedOp(String name, int delay, boolean repeat, int initialDelay, ArrayList<ElementState> set)
+	{
+		this(name, delay);
+		this.repeat = repeat;
+		this.initialDelay = initialDelay;
+		this.nestedOps = set;
+	}
 	@Override
 	public void postLoadHook(Scope scope)
 	{
-		if(op == null)
-			op = getOp(); 
 		
-		PreferenceOp prefOp = (PreferenceOp) op;
-		prefOp.setScope(scope);
+		for (int i=0; i < nestedOps.size(); i++)
+			((PreferenceOp) nestedOps.get(i)).setScope(scope);
 		
 		debug("delayed op: " + op.action() + " initialized with delay: " + delay + " seconds");
 		timer = new Timer(delay * 1000, this);
@@ -45,10 +58,15 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 
 	public void actionPerformed(ActionEvent arg0)
 	{
-		if(op == null)
-			return;
-		debug("Performing delayed op: " + op.action());
-		op.performAction(false);
+		
+		for (int i=0; i < nestedOps.size(); i++)
+		{
+			PreferenceOp op = (PreferenceOp) nestedOps.get(i);
+			if(op == null)
+				continue;
+			debug("Performing delayed op: " + op.action());
+			op.performAction(false);		
+		}
 		if(!repeat)
 			timer.stop();
 	}
@@ -56,5 +74,16 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 	public String toString()
 	{
 		return "PrefDelayedOp: " + name;
+	}
+	
+	/**
+	 * See Pref.clone for why this is important.
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public PrefDelayedOp<O> clone()
+	{
+		PrefDelayedOp<O> prefDelayedOp = new PrefDelayedOp(name, delay, repeat, initialDelay, nestedOps);
+		return prefDelayedOp;
 	}
 }

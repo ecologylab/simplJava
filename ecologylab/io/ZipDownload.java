@@ -451,4 +451,18 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
   	return "zip archive " + zipSource.toString();
   }
 
+	@Override
+	public void downloadAndParseDone()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public ParsedURL purl()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

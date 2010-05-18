@@ -314,7 +314,14 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	{
 		debug("Server stopping.");
 		running = false;
-
+		synchronized (this)
+		{
+			this.notify();
+			synchronized (t)
+			{
+				t = null;
+			}
+		}
 		super.stop();
 	}
 

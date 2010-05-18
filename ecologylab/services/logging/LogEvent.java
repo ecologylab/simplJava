@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.StringTools;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
@@ -24,7 +25,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author eunyee
  * @author andruid
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 @xml_inherit abstract public class LogEvent extends RequestMessage
@@ -71,6 +72,7 @@ import ecologylab.xml.xml_inherit;
 			//	debug(bufferToLog);
 
 				outputStreamWriter.append(bufferToLog);
+				clear();
 				
 				return OkResponse.get();
 			}
@@ -90,19 +92,9 @@ import ecologylab.xml.xml_inherit;
 		}
 	}
 
-	/**
-	 * Loads pre-translated XML fragments into this object's buffer for later
-	 * sending over the network.
-	 * 
-	 * @param opsBuffer
-	 */
-	public void appendToBuffer(StringBuilder opsBuffer)
-	{
-		bufferToLog.append(opsBuffer);
-	}
-
 	public void setBuffer(StringBuilder bufferToLog)
 	{
+		clear();
 		this.bufferToLog = bufferToLog;
 	}
 
@@ -121,6 +113,10 @@ import ecologylab.xml.xml_inherit;
 	 */
 	public void clear()
 	{
-		bufferToLog = null;
+		if (bufferToLog != null)
+		{
+			StringTools.clear(bufferToLog);
+			bufferToLog = null;
+		}
 	}
 }

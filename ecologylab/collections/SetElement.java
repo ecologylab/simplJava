@@ -119,7 +119,7 @@ extends Debug implements AbstractSetElement
    * Deletes from all constituent sets.
    * Sets recycled to true.
    */   
-  public void recycle()
+  public void recycle(boolean unconditional)
   {
     delete();
     recycled  = true;

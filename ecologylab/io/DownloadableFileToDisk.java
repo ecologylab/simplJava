@@ -53,7 +53,7 @@ implements Downloadable, DispatchTarget
 		this(target, inputStream, destination, null);
 	}
 	
-	public void downloadDone()
+	public void downloadAndParseDone()
 	{
 		downloadDone = true;
 	}
@@ -184,6 +184,10 @@ implements Downloadable, DispatchTarget
 		return null;
 	}
 	
+	public ParsedURL purl()
+	{
+		return target;
+	}
   /**
    * 
    * @return	What to tell the user about what is being downloaded.

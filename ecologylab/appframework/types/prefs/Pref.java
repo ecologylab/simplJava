@@ -31,10 +31,6 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 
     /** Name of a Pref; provides index into the preferences map. */
     @xml_attribute String               name;
-    
-    @xml_collection("Pref") 
-    @xml_nowrap
-    ArrayList<ElementState> preferences;
 
     /** Cached value */
     T                                   valueCached;
@@ -413,6 +409,36 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
         return lookupFloat(name, 1.0f);
     }
    
+  /**
+	 * Look up a PrefDouble by name in the map of all Prefs. Return defaultValue if PrefDouble's value
+	 * is null.
+	 * 
+	 * @param name
+	 *          Name of PrefDouble
+	 * @param defaultValue
+	 *          default value to set PrefDouble to
+	 * 
+	 * @return PrefDouble's value or default value if doesn't exist
+	 */
+	public static double lookupDouble(String name, double defaultValue) throws ClassCastException
+	{
+		PrefDouble prefDouble = ((PrefDouble) lookupPref(name));
+		return (prefDouble == null) ? defaultValue : prefDouble.value();
+	}
+
+	/**
+	 * Look up a PrefDouble by name in the map of all Prefs.
+	 * 
+	 * @param name
+	 *          Name of PrefDouble
+	 * 
+	 * @return PrefDouble's value (if exists) or 1.0
+	 */
+	public static double lookupDouble(String name) throws ClassCastException
+	{
+		return lookupDouble(name, 1.0);
+	}
+    
     /**
      * Look up a PrefString by name in the map of all Prefs.
      * Return defaultValue if PrefString's value is null.
@@ -494,7 +520,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
     public static ElementState lookupElementState(String name) throws ClassCastException
     {
         PrefElementState prefElementState = ((PrefElementState)lookupPref(name));
-		return (prefElementState == null) ? null : prefElementState.value();
+		return (ElementState) ((prefElementState == null) ? null : prefElementState.value());
     }
     
     /**
@@ -563,6 +589,9 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 
 		/**
 		 * @see ecologylab.xml.types.element.ArrayListState#clone()
+		 * This clone method is REQUIRED for preferences being maintained by a servlet.
+		 * The specific case that we have in place (dec '09) that uses this is the Studies framework.
+		 * The clone functionality enables maintaining a preference set for each user in a user study.
 		 */
 		@Override
 		public abstract Pref<T> clone();

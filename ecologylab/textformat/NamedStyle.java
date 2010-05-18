@@ -47,6 +47,18 @@ implements Mappable<String>
 	 */
 	public NamedStyle(){}
 
+	
+	public NamedStyle(int fontSize)
+	{
+		this.fontSize			= fontSize;
+	}
+	
+	public NamedStyle(int fontSize, int strokeStyle)
+	{
+		this.fontSize			= fontSize;
+		this.strokeStyle	= strokeStyle;
+	}
+
 	/**
 	 * Set of variables that control the font style. May contain a name.
 	 * A Map State of named stles is stored in AWTBridge.

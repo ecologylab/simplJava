@@ -425,14 +425,15 @@ extends Debug
 //      Env.println("really writing a line");
       return writeLine(fileWriter, toWrite);
    }
-   public static boolean writeLine(BufferedWriter writer, String toWrite)
+   public static boolean writeLine(BufferedWriter writer, String... toWrite)
    {
       if (toWrite == null)
 	 return true;
       boolean	ok		= true;
       try
       {  
-	 writer.write(toWrite);
+      	for (String sToWrite : toWrite)
+      		writer.write(sToWrite);
 	 writer.newLine();
       }
       catch(IOException e) 
@@ -829,6 +830,8 @@ public static boolean insertFile(BufferedWriter writer,
 	   		e.printStackTrace();
 	   }
 	}
+   
+   
    /**
     * Get the XML files in the directory.
     * 
@@ -841,6 +844,11 @@ public static boolean insertFile(BufferedWriter writer,
    {
 	  return getXMLFiles(new File(directoryPath));
    }
+   
+   public static File[] getXMLFilesNonRecursive(String directoryPath)
+   {
+  	 return getXMLFilesNonRecursive(new File(directoryPath));
+   }
    /**
     * Get the XML files in the directory.
     * 
@@ -852,8 +860,18 @@ public static boolean insertFile(BufferedWriter writer,
    public static File[] getXMLFiles(File directory)
    {
 	  java.io.FileFilter XMLfilter = XMLFileFilter.get();
-	  
 	  return directory.isDirectory() ? directory.listFiles(XMLfilter) : null;
+   }
+   
+   /**
+    * Get XML files only in this directory
+    * @param directory
+    * @return
+    */
+   public static File[] getXMLFilesNonRecursive(File directory)
+   {
+  	 java.io.FileFilter XMLfilter = XMLFileNonRecursiveFilter.get();
+  	 return directory.isDirectory() ? directory.listFiles(XMLfilter) : null;
    }
    
    /**
@@ -893,7 +911,7 @@ public static boolean insertFile(BufferedWriter writer,
 class XMLFileFilter implements java.io.FileFilter 
 {
 	static XMLFileFilter singleton;
-	
+
 	static XMLFileFilter get()
 	{
 		XMLFileFilter result = singleton;
@@ -904,15 +922,40 @@ class XMLFileFilter implements java.io.FileFilter
 		}
 		return result;
 	}
-   	public XMLFileFilter()
-   	{
-   	
-   	}
-   	public boolean accept(File file) 
-   	{
-        if (file.isDirectory()) return true;
-        String name = file.getName().toLowerCase();
-        return name.endsWith("xml");
-    }
-   }//end class HTMLFileFilter
-   
+	public XMLFileFilter()
+	{
+
+	}
+	public boolean accept(File file) 
+	{
+		if (file.isDirectory()) return true;
+		String name = file.getName().toLowerCase();
+		return name.endsWith(".xml");
+	}
+}//end class HTMLFileFilter
+
+class XMLFileNonRecursiveFilter implements java.io.FileFilter 
+{
+	static XMLFileNonRecursiveFilter singleton;
+
+	static XMLFileNonRecursiveFilter get()
+	{
+		XMLFileNonRecursiveFilter result = singleton;
+		if (result == null)
+		{
+			result	= new XMLFileNonRecursiveFilter();
+			singleton	= result;
+		}
+		return result;
+	}
+	public XMLFileNonRecursiveFilter()
+	{
+
+	}
+	public boolean accept(File file) 
+	{
+		String name = file.getName().toLowerCase();
+		return name.endsWith(".xml");
+	}
+}//end class HTMLFileFilter
+

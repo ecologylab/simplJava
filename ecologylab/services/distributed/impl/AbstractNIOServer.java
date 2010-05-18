@@ -125,7 +125,16 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 */
 	public void start()
 	{
-		backend.start();
+		try
+		{
+			backend.openSelector();
+			backend.registerAcceptWithSelector();
+			backend.start();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**

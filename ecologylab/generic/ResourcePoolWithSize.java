@@ -4,7 +4,7 @@
 package ecologylab.generic;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public abstract class ResourcePoolWithSize<T> extends ResourcePool<T>

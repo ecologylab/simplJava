@@ -150,7 +150,7 @@ public class NetTools extends Debug
 			while(byName.hasMoreElements())
 			{
 				NetworkInterface nextElement = byName.nextElement();
-				System.out.println(nextElement.getDisplayName());
+				//System.out.println(nextElement.getDisplayName());
 				Enumeration<InetAddress> inetAddresses = nextElement.getInetAddresses();
 				while(inetAddresses.hasMoreElements())
 				{

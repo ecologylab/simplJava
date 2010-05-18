@@ -60,7 +60,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 */
     //TODO -- get rid of this when we make ArrayListState implement Collection!!!
     // (cause then this.add() will get called!)
-    protected void createChildHook(Object child)
+    protected void createChildHook(ElementState child)
 	{
 		Pref<?> pref	= (Pref<?>) child;
 		pref.register();
@@ -149,7 +149,8 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 		public void append(PrefSet jNLPPrefSet) 
 		{
-			// TODO Auto-generated method stub
+			//FIXME: iterate through set and add each to map
+			
 			
 		}
 
@@ -173,6 +174,16 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		{
 			return preferences.containsKey(key);
 			
+		}
+    
+		/**
+     * Add another prefSet to this one.
+     * @param prefSet
+     */
+		public void addPrefSet(PrefSet prefSet)
+		{
+			for(Pref<?> pref : prefSet.values())
+				add(pref);
 		}
 
 }

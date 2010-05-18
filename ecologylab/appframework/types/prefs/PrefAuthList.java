@@ -3,26 +3,24 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.awt.Color;
-
-import ecologylab.services.authentication.AuthenticationList;
+import ecologylab.services.authentication.AuthenticationListXMLImpl;
 import ecologylab.xml.xml_inherit;
 
 /**
  * A preference that is an AuthenticationList.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
+public @xml_inherit class PrefAuthList extends Pref<AuthenticationListXMLImpl>
 {
-	@xml_nested AuthenticationList	value;
+	@xml_nested AuthenticationListXMLImpl	value;
 
 	public PrefAuthList()
 	{
 		super();
 	}
 
-	public PrefAuthList(String name, AuthenticationList authList)
+	public PrefAuthList(String name, AuthenticationListXMLImpl authList)
 	{
 		super(name);
 		this.value = authList;
@@ -31,7 +29,7 @@ public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
 	/**
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
-	@Override AuthenticationList getValue()
+	@Override AuthenticationListXMLImpl getValue()
 	{
 		return value;
 	}
@@ -39,7 +37,7 @@ public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
 	/**
 	 * @see ecologylab.appframework.types.prefs.Pref#setValue(T)
 	 */
-	@Override public void setValue(AuthenticationList newValue)
+	@Override public void setValue(AuthenticationListXMLImpl newValue)
 	{
 		this.value = newValue;
 
@@ -50,7 +48,7 @@ public @xml_inherit class PrefAuthList extends Pref<AuthenticationList>
 	 * @see ecologylab.appframework.types.prefs.Pref#clone()
 	 */
 	@Override
-	public Pref<AuthenticationList> clone()
+	public Pref<AuthenticationListXMLImpl> clone()
 	{
 		return new PrefAuthList(this.name, this.value);
 	}

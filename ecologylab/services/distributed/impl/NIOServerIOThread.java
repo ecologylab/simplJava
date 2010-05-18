@@ -369,7 +369,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	 * 
 	 * @throws IOException
 	 */
-	private void registerAcceptWithSelector() throws IOException
+	void registerAcceptWithSelector() throws IOException
 	{
 		boundAddresses.clear();
 		incomingConnectionSockets.clear();

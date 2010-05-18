@@ -13,6 +13,8 @@ import ecologylab.xml.ElementState;
  */
 public class Prologue extends ElementState
 {
+	public static final String	STUDY_NAME	= "study_name";
+	
 	@xml_attribute protected String	date		= new Date(System.currentTimeMillis()).toString();
 
 	@xml_attribute protected String	ip			= NetTools.localHost();
@@ -30,7 +32,7 @@ public class Prologue extends ElementState
 		super();
 		this.userID = Pref.lookupString("uid", "0");
 		this.questionId = Pref.lookupString("questionId");
-		this.studyName = Pref.lookupString("study_name");
+		this.studyName = Pref.lookupString(STUDY_NAME);
 	}
 
 	public void setUserID(String id)

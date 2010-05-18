@@ -58,8 +58,6 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 	 */
 	protected NIOCore(String networkingIdentifier, int portNumber) throws IOException
 	{
-		this.selector = Selector.open();
-
 		this.networkingIdentifier = networkingIdentifier;
 		this.portNumber = portNumber;
 	}
@@ -389,6 +387,11 @@ public abstract class NIOCore extends Debug implements StartAndStoppable, Networ
 		}
 
 		
+	}
+
+	protected void openSelector() throws IOException
+	{
+		selector = Selector.open();
 	}
 
 	public synchronized void stop()

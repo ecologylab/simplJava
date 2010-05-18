@@ -1,6 +1,8 @@
 package ecologylab.collections;
 
-public abstract class WeightingStrategy<E>
+import ecologylab.generic.Debug;
+
+public abstract class WeightingStrategy<E> extends Debug
 {
   private boolean changed;
   

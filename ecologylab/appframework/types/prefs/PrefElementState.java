@@ -10,8 +10,10 @@ import ecologylab.xml.ElementState;
  * 
  * @author andruid
  */
-public class PrefElementState extends Pref<ElementState>
+public class PrefElementState<T extends ElementState> extends Pref<T>
 {
+	
+	T elementStatePref;
 	/**
 	 * 
 	 */
@@ -32,10 +34,10 @@ public class PrefElementState extends Pref<ElementState>
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
 	@Override
-	ElementState getValue()
+	T getValue()
 	{
 		// TODO Auto-generated method stub
-		return preferences.get(0);
+		return elementStatePref;
 	}
 
 	
@@ -46,10 +48,9 @@ public class PrefElementState extends Pref<ElementState>
 	 * @see ecologylab.appframework.types.prefs.Pref#setValue(T)
 	 */
 	@Override
-	public void setValue(ElementState newValue)
+	public void setValue(T newValue)
 	{
-		preferences.add(newValue);
-
+		elementStatePref = newValue;
 		prefChanged();
 	}
 
@@ -61,14 +62,9 @@ public class PrefElementState extends Pref<ElementState>
 	 * @see ecologylab.appframework.types.prefs.Pref#clone()
 	 */
 	@Override
-	public Pref<ElementState> clone()
+	public PrefElementState<T> clone()
 	{
-		Pref<ElementState> pES = new PrefElementState(this.name);
-
-		for (ElementState e : preferences)
-		{
-			pES.preferences.add(e);
-		}
+		PrefElementState<T> pES = new PrefElementState(this.name);
 
 		return pES;
 	}

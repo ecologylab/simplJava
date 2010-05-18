@@ -2,6 +2,8 @@ package ecologylab.io;
 
 import java.io.IOException;
 
+import ecologylab.net.ParsedURL;
+
 /**
  * Objects that implement this interface can be passed to a {@link DownloadProcessor DownloadProcessor}.
  *
@@ -36,7 +38,7 @@ public interface Downloadable
     * Call to notify the object that its download is completed;
     *
     */
-   public void downloadDone();
+   public void downloadAndParseDone();
    
    /**
     * True if the Downloadable has been recycled, and thus should not be downloaded.
@@ -54,7 +56,7 @@ public interface Downloadable
    public boolean cancel();
    
    public BasicSite getSite();
-   
+   public ParsedURL purl();
    /**
     * 
     * @return	What to tell the user about what is being downloaded.

@@ -45,8 +45,6 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.services.messages.ServiceMessage;
-import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -101,11 +99,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 */
 	private final StringBuilder													currentKeyHeaderSequence		= new StringBuilder();
 
-	private MessageWithMetadata<ServiceMessage, Object>					response								= null;
+	private MessageWithMetadata<ResponseMessage, Object>					response								= null;
 
 	private volatile boolean														blockingRequestPending			= false;
 
-	private final Queue<MessageWithMetadata<ServiceMessage, Object>>	blockingResponsesQueue			= new LinkedBlockingQueue<MessageWithMetadata<ServiceMessage, Object>>();
+	private final Queue<MessageWithMetadata<ResponseMessage, Object>>	blockingResponsesQueue			= new LinkedBlockingQueue<MessageWithMetadata<ResponseMessage, Object>>();
 
 	protected final Queue<PreppedRequest>										requestsQueue						= new LinkedBlockingQueue<PreppedRequest>();
 
@@ -187,7 +185,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 
 	protected final PreppedRequestPool											pRequestPool;
 
-	protected final MessageWithMetadataPool<ServiceMessage,Object>		responsePool						= new MessageWithMetadataPool<ServiceMessage, Object>(
+	protected final MessageWithMetadataPool<ResponseMessage,Object>				responsePool						= new MessageWithMetadataPool<ResponseMessage, Object>(
 																																			2,
 																																			4);
 
@@ -506,14 +504,15 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 			if (connected())
 			{
 				// register the channel for read operations, now that it is
-				// connected
+				// connected				
+				super.openSelector();
 				thisSocket.register(selector, SelectionKey.OP_READ);
 			}
 		}
 		catch (BindException e)
 		{
-			debug("Couldnt create socket connection to server '" + serverAddress
-					+ "': " + e);
+			debug("Couldnt create socket connection to server - " + serverAddress+":"+portNumber
+					+ " - " + e);
 
 			nullOut();
 		}
@@ -614,7 +613,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	public synchronized ResponseMessage sendMessage(RequestMessage request,
 			int timeOutMillis) throws MessageTooLargeException
 	{
-		MessageWithMetadata<ServiceMessage, Object> responseMessage = null;
+		MessageWithMetadata<ResponseMessage, Object> responseMessage = null;
 
 		// notify the connection thread that we are waiting on a response
 		blockingRequestPending = true;
@@ -649,7 +648,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		{
 			if (timeOutMillis <= -1)
 			{
-				//debug("waiting on blocking request");
+				debug("waiting on blocking request");
 			}
 
 			try
@@ -678,17 +677,24 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 			{
 				responseMessage = blockingResponsesQueue.poll();
 
-				if (responseMessage.getMessage() instanceof ResponseMessage &&
-					 responseMessage.getUid() == currentMessageUid)
+				if (responseMessage.getUid() == currentMessageUid)
 				{
-					//debug("got the right response");
+					debug("got the right response: "+currentMessageUid);
 
 					blockingRequestPending = false;
 
 					blockingResponsesQueue.clear();
 
-					ResponseMessage respMsg = (ResponseMessage) responseMessage.getMessage();
-
+					ResponseMessage respMsg = responseMessage.getMessage();
+							
+					try
+					{
+						debug("response: "+respMsg.translateToXML().toString());
+					}
+					catch (XMLTranslationException e)
+					{
+						e.printStackTrace();
+					}
 					responseMessage = responsePool.release(responseMessage);
 
 					return respMsg;
@@ -1004,7 +1010,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @param incomingMessage
 	 * @return
 	 */
-	private MessageWithMetadata<ServiceMessage, Object> processString(
+	private MessageWithMetadata<ResponseMessage, Object> processString(
 			String incomingMessage, int incomingUid)
 	{
 
@@ -1013,7 +1019,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 
 		try
 		{
-			response = translateXMLStringToServiceMessage(incomingMessage, incomingUid);
+			response = translateXMLStringToResponse(incomingMessage, incomingUid);
 		}
 		catch (XMLTranslationException e)
 		{
@@ -1026,36 +1032,24 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 		}
 		else
 		{
-			if(response.getMessage() instanceof ResponseMessage)
+			// perform the service being requested
+			processResponse(response.getMessage());
+
+			synchronized (unfulfilledRequests)
 			{
-				// perform the service being requested
-				processResponse((ResponseMessage) response.getMessage());
-	
-				synchronized (unfulfilledRequests)
-				{
-					PreppedRequest finishedReq = unfulfilledRequests.remove(response
-							.getUid());
-	
-					if (finishedReq != null)
-					{ // subclasses might choose not to use unfulfilledRequests; this
-						// avoids problems with releasing resources;
-						// NOTE -- it may be necessary to release elsewhere in this case.
-						finishedReq = this.pRequestPool.release(finishedReq);
-					}
+				PreppedRequest finishedReq = unfulfilledRequests.remove(response
+						.getUid());
+
+				if (finishedReq != null)
+				{ // subclasses might choose not to use unfulfilledRequests; this
+					// avoids problems with releasing resources;
+					// NOTE -- it may be necessary to release elsewhere in this case.
+					finishedReq = this.pRequestPool.release(finishedReq);
 				}
-			}
-			else if(response.getMessage() instanceof UpdateMessage)
-			{
-				processUpdate((UpdateMessage) response.getMessage());
 			}
 		}
 
 		return response;
-	}
-
-	private void processUpdate(UpdateMessage message)
-	{
-		message.processUpdate(objectRegistry);
 	}
 
 	public void disconnect()
@@ -1187,14 +1181,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 								contentLengthRemaining = Integer
 										.parseInt(this.headerMap
 												.get(CONTENT_LENGTH_STRING));
-								
-								String uidString = this.headerMap.get(UNIQUE_IDENTIFIER_STRING);
-								uidOfCurrentMessage = -1;
-								
-								if(uidString != null)
-								{
-									uidOfCurrentMessage = Integer.parseInt(uidString);
-								}
+								uidOfCurrentMessage = Integer.parseInt(this.headerMap
+										.get(UNIQUE_IDENTIFIER_STRING));
 
 								contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
 								
@@ -1398,10 +1386,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 	 * @return
 	 * @throws XMLTranslationException
 	 */
-	protected MessageWithMetadata<ServiceMessage, Object> translateXMLStringToServiceMessage(
+	protected MessageWithMetadata<ResponseMessage, Object> translateXMLStringToResponse(
 			String messageString, int incomingUid) throws XMLTranslationException
 	{
-		ServiceMessage resp = (ServiceMessage) ElementState
+		ResponseMessage resp = (ResponseMessage) ElementState
 				.translateFromXMLCharSequence(messageString, translationSpace);
 
 		if (resp == null)
@@ -1409,7 +1397,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements
 			return null;
 		}
 
-		MessageWithMetadata<ServiceMessage, Object> retVal = this.responsePool.acquire();
+		MessageWithMetadata<ResponseMessage, Object> retVal = this.responsePool.acquire();
 
 		retVal.setMessage(resp);
 		retVal.setUid(incomingUid);

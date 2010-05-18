@@ -152,4 +152,9 @@ public abstract class RaiseMonitor extends Thread {
 	{
 		return waitingLock;
 	}
+	
+	public boolean isRunning()
+	{
+		return running;
+	}
 }
