@@ -2503,14 +2503,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
 		}
 		return result;
 	}
-	//FIXME -- update mechanism to support MetaMetadata!!!
-	public HashMapArrayList<String, FieldDescriptor> getChildFieldAccessors(Class<ElementState> child, Class<? extends FieldDescriptor> fieldAccessorClass)
-	{
-		ClassDescriptor classDescriptor	= classDescriptor();
-		ClassDescriptor childOptimizations	= ClassDescriptor.getClassDescriptor(child);
-		
-		return (childOptimizations != null) ? childOptimizations.getFieldDescriptorsForThis(fieldAccessorClass) : null;
-	}
 
 	/**
 	 * Perform custom processing on the newly created child node,
@@ -2692,11 +2684,5 @@ implements FieldTypes, XMLTranslationExceptionTypes
  	{
  		return classDescriptor().hasScalarTextField();
  	}
- 	
-	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptors(Class<? extends FieldDescriptor> thatClass)
-	{
-		return ClassDescriptor.getFieldDescriptors(getClass(), thatClass);
-	}
-
 
 }
