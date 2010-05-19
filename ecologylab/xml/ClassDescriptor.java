@@ -6,6 +6,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.w3c.dom.Node;
@@ -28,7 +29,7 @@ import ecologylab.xml.types.element.Mappable;
  * @author andruid
  */
 public class ClassDescriptor<ES extends ElementState> extends ElementState
-implements FieldTypes, Mappable<String>
+implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 {
 	/**
 	 * Class object that we are describing.
@@ -159,7 +160,7 @@ implements FieldTypes, Mappable<String>
 					globalClassDescriptorsMap.put(className, result);
 					
 					// NB: this call was moved out of the constructor to avoid recursion problems
-					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
+					result.deriveAndOrganizeFieldsRecursive(thatClass);
 					result.isGetAndOrganizeComplete	= true;
 				}
 				// THIS SHOULD NEVER HAPPEN!!!
@@ -232,57 +233,15 @@ implements FieldTypes, Mappable<String>
 		
 		return allFieldDescriptorsByTagNames.get(tag);
 	}
-	/**
-	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
-	 * Use lazy evaluation to cache this value.
-	 * 
-	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
-	 * (not its Java field name!) as the keys. Could be empty. Never null.
-	 */
-	HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsForThis(Class<? extends FieldDescriptor> fieldDescriptorClass)
+	public FieldDescriptor getFieldDescriptorByFieldName(String fieldName)
 	{
-		HashMapArrayList<String, FieldDescriptor> result	= fieldDescriptors;
-		if (result == null)
-		{
-			result				= createFieldDescriptors(fieldDescriptorClass);
-			this.fieldDescriptors	= result;
-		}
-		return result;
-	}
-	
-	/**
-	 * Construct a set of FieldDescriptor objects for the class.
-	 * 
-	 * @param thatClass
-	 * @return
-	 */
-	public static HashMapArrayList<String, FieldDescriptor> getTheFieldDescriptors(Class<? extends ElementState> thatClass)
-	{
-		return getFieldDescriptors(thatClass, null);
+		return fieldDescriptorsByFieldName.get(fieldName);
 	}
 
-	/**
-	 * Construct a set of FieldDescriptor objects for the class.
-	 * 
-	 * @param <T>
-	 * @param thatClass
-	 * @param fieldDescriptorClass		Subclass of FieldDescriptor to use to construct.
-	 * @return
-	 */
-	public static<T extends FieldDescriptor> HashMapArrayList<String, FieldDescriptor> 
-	getFieldDescriptors(Class<? extends ElementState> thatClass, Class<T> fieldDescriptorClass)
+	public Iterator<FieldDescriptor> iterator()
 	{
-		ClassDescriptor thatClassOptimizations	= getClassDescriptor(thatClass);
-		
-		HashMapArrayList<String, FieldDescriptor> result	= null;
-		
-		if (thatClass != null)
-		{
-			result								= thatClassOptimizations.getFieldDescriptorsForThis(fieldDescriptorClass);
-		}
-		return result;
+		return fieldDescriptorsByFieldName.iterator();
 	}
-
 	
 	private HashMapArrayList<String, FieldDescriptor> fieldDescriptorsByTagName;
 	/**
@@ -294,25 +253,12 @@ implements FieldTypes, Mappable<String>
 	 * @return	HashMapArrayList of Field objects, using the XML tag name for each field
 	 * (not its Java field name!) as the keys. Could be empty. Never null.
 	 */
-	//FIXME -- MetaMetadata support!!! how do we pass in MetaMetadataFieldDescriptor class to instantiate during deriveAndOrganizeFieldsRecursive() ??????
-	private HashMapArrayList<String, FieldDescriptor> createFieldDescriptors(Class<? extends FieldDescriptor> fieldDescriptorClass)
-	{
-		HashMapArrayList<String, FieldDescriptor> result		= fieldDescriptorsByTagName;
-		if (result != null)
-		{
-				result	= new HashMapArrayList<String, FieldDescriptor>(fieldDescriptorsByFieldName.size());
-				for (FieldDescriptor fieldDescriptor : fieldDescriptorsByFieldName)
-					result.put(fieldDescriptor.getTagName(), fieldDescriptor);
-				fieldDescriptorsByTagName	= result;
-		}
-		return result;
-	}
 	
 
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class thatClass)
 	{
-		Annotation classDescriptorAnnotation	= thatClass.getAnnotation(xml_class_descriptor.class);
-		xml_class_descriptor xmlClassDescriptor	= xml_class_descriptor.class.cast(classDescriptorAnnotation);
+		Annotation classDescriptorAnnotation	= thatClass.getAnnotation(serial_field_descriptors.class);
+		serial_field_descriptors xmlClassDescriptor	= serial_field_descriptors.class.cast(classDescriptorAnnotation);
 		Class<FieldDescriptor> result	= null;
 		if (xmlClassDescriptor != null)
 		{
@@ -329,8 +275,9 @@ implements FieldTypes, Mappable<String>
 	 * <p/>
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 */
-	private synchronized void deriveAndOrganizeFieldsRecursive(Class thatClass, Class<FieldDescriptor> fieldDescriptorClass)
+	private synchronized Class<FieldDescriptor> deriveAndOrganizeFieldsRecursive(Class thatClass)
 	{
+		Class<FieldDescriptor> fieldDescriptorClass	= null;
 		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
 			Class superClass	= thatClass.getSuperclass();
@@ -341,7 +288,7 @@ implements FieldTypes, Mappable<String>
 			}
 
 			if (superClass != null)
-				deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
+				fieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass);
 		}
 
 		
@@ -364,27 +311,27 @@ implements FieldTypes, Mappable<String>
 			if (XMLTools.representAsAttribute(thatField))
 			{
 				isElement					= false;
-				fieldDescriptor		= new FieldDescriptor(this, thatField, ATTRIBUTE);
+				fieldDescriptor		= newFieldDescriptor(thatField, ATTRIBUTE, fieldDescriptorClass);
 			}
 			else if (XMLTools.representAsLeaf(thatField))
 			{
-				fieldDescriptor		= new FieldDescriptor(this, thatField, LEAF);
+				fieldDescriptor		= newFieldDescriptor(thatField, LEAF, fieldDescriptorClass);
 			}
 			else if (XMLTools.representAsText(thatField))
 			{
-				fieldDescriptor		= new FieldDescriptor(this, thatField, TEXT_ELEMENT);
+				fieldDescriptor		= newFieldDescriptor(thatField, TEXT_ELEMENT, fieldDescriptorClass);
 			}
 			else if (XMLTools.representAsNested(thatField))
 			{
-				fieldDescriptor		= new FieldDescriptor(this, thatField, NESTED_ELEMENT);
+				fieldDescriptor		= newFieldDescriptor(thatField, NESTED_ELEMENT, fieldDescriptorClass);
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldDescriptor		= new FieldDescriptor(this, thatField, COLLECTION_ELEMENT);
+				fieldDescriptor		= newFieldDescriptor(thatField, COLLECTION_ELEMENT, fieldDescriptorClass);
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
-				fieldDescriptor		= new FieldDescriptor(this, thatField, MAP_ELEMENT);
+				fieldDescriptor		= newFieldDescriptor(thatField, MAP_ELEMENT, fieldDescriptorClass);
 			}
 			else	// not an ecologylab.xml annotated field
 				continue;
@@ -435,6 +382,30 @@ implements FieldTypes, Mappable<String>
 			}
 			thatField.setAccessible(true);	// else -- ignore non-annotated fields
 		}	// end for all fields
+		return fieldDescriptorClass;
+	}
+	static final Class[] FIELD_DESCRIPTOR_ARGS =
+	{
+		ClassDescriptor.class,
+		Field.class,
+		int.class
+	};
+	/**
+	 * @param thatField
+	 * @param fieldDescriptorClass TODO
+	 * @return
+	 */
+	private FieldDescriptor newFieldDescriptor(Field thatField, int annotationType, Class<FieldDescriptor> fieldDescriptorClass)
+	{
+		if (fieldDescriptorClass == null)
+			return new FieldDescriptor(this, thatField, annotationType);
+		
+		Object args[]	= new Object[3];
+		args[0]			= this;
+		args[1]			= thatField;
+		args[2]			= annotationType;
+		
+		return ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
 	}
 	/**
 	 * Map the tag to the FieldDescriptor for use in translateFromXML() for elements of this class type.
