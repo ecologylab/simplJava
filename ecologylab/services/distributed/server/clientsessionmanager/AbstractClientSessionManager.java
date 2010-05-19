@@ -126,7 +126,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost
 	 * connection.
 	 */
-	private Object																											sessionId									= null;
+	protected String																										sessionId									= null;
 
 	/**
 	 * The maximum message length allowed for clients that connect to this session manager. Note that
@@ -206,7 +206,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	private long																												contentUid								= -1;
 
-	protected Scope																											clientSessionScope;
+	protected Scope																											localScope;
 
 	private CharBuffer																									zippingChars;
 
@@ -221,6 +221,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	private ByteBuffer																									compressedMessageBuffer;
 
 	public static final String																					SESSION_ID								= "SESSION_ID";
+
+	public static final String																					CLIENT_MANAGER						= "CLIENT_MANAGER";
 
 	private static final String																					POST_PREFIX								= "POST ";
 
@@ -238,25 +240,19 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public AbstractClientSessionManager(Object sessionId, Scope clientSessionScope,
-			int maxMessageSizeIn, NIOServerIOThread server, NIOServerProcessor frontend,
-			SelectionKey socket, TranslationScope translationSpace)
+	public AbstractClientSessionManager(String sessionId, int maxMessageSizeIn,
+			NIOServerIOThread server, NIOServerProcessor frontend, SelectionKey socket,
+			TranslationScope translationSpace, Scope<?> registry)
 	{
 		this.frontend = frontend;
 		this.socketKey = socket;
 		this.server = server;
 		this.translationSpace = translationSpace;
 
-		if (clientSessionScope == null)
-			this.clientSessionScope = new Scope();
-		else
-			this.clientSessionScope = clientSessionScope;
+		this.localScope = new Scope(registry);
 
-		this.clientSessionScope.put(SESSION_ID, sessionId);
-		
-		this.handle = new SessionHandle(this);
-		
-		this.clientSessionScope.put(SessionObjects.SESSION_HANDLE, this.handle);
+		this.localScope.put(SESSION_ID, sessionId);
+		this.localScope.put(CLIENT_MANAGER, this);
 
 		// set up session id
 		this.sessionId = sessionId;
@@ -316,7 +312,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 						BadClientException e = new BadClientException(
 								((SocketChannel) this.socketKey.channel()).socket().getInetAddress()
 										.getHostAddress(), "Maximum HTTP header length exceeded. Read "
-										+ msgBufIncoming.length() + "/" + MAX_HTTP_HEADER_LENGTH);
+										+ msgBufIncoming.length()
+										+ "/"
+										+ MAX_HTTP_HEADER_LENGTH);
 
 						msgBufIncoming.setLength(0);
 
@@ -445,7 +443,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 					else
 					{
 						throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
-								.getInetAddress().getHostAddress(), "Content encoding: " + contentEncoding
+								.getInetAddress().getHostAddress(), "Content encoding: "
+								+ contentEncoding
 								+ " not supported!");
 					}
 
@@ -740,13 +739,14 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 		try
 		{
-			return requestMessage.performService(clientSessionScope);
+			return requestMessage.performService(localScope);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 
-			return new BadSemanticContentResponse("The request, " + requestMessage.toString()
+			return new BadSemanticContentResponse("The request, "
+					+ requestMessage.toString()
 					+ " caused an exception on the server.");
 		}
 	}
@@ -856,7 +856,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 					if (incomingSessionId == null)
 					{ // client is not expecting an old ContextManager
-						response = new InitConnectionResponse((String) sessionId);
+						response = new InitConnectionResponse(this.sessionId);
 					}
 					else
 					{ // client is expecting an old ContextManager
@@ -866,7 +866,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 						}
 						else
 						{
-							response = new InitConnectionResponse((String) sessionId);
+							response = new InitConnectionResponse(this.sessionId);
 						}
 					}
 				}
@@ -1218,7 +1218,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	{
 		return invalidating;
 	}
-
+	
 	public Object getSessionId()
 	{
 		return this.sessionId;
@@ -1231,6 +1231,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	public Scope getScope()
 	{
-		return this.clientSessionScope;
+		return this.localScope;
 	}
 }

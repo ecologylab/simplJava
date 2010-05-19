@@ -7,18 +7,20 @@ import ecologylab.xml.xml_inherit;
 
 /**
  * Pref for a Boolean
+ * 
  * @author andruid
- *
+ * 
  */
 
 @xml_inherit
 public class PrefBoolean extends Pref<Boolean>
 {
-    /**
-     * Value of Pref
-     */
-    @xml_attribute boolean			value;
-	
+	/**
+	 * Value of Pref
+	 */
+	@xml_attribute
+	boolean	value;
+
 	/**
 	 * 
 	 */
@@ -26,62 +28,66 @@ public class PrefBoolean extends Pref<Boolean>
 	{
 		super();
 	}
-    /**
-     * Instantiate Pref to value
-     * 
-     * @param value
-     */
+
+	/**
+	 * Instantiate Pref to value
+	 * 
+	 * @param value
+	 */
 	public PrefBoolean(boolean value)
 	{
 		super();
-		this.value	= value;
+		this.value = value;
 	}
 
 	public PrefBoolean(String name, boolean value)
 	{
-	    super(name);
-	    this.value = value;
+		super(name);
+		this.value = value;
 	}
-	
-    /**
-     * Get the value of the Pref
-     * 
-     * @return  The value of the Pref
-     */
+
+	/**
+	 * Get the value of the Pref
+	 * 
+	 * @return The value of the Pref
+	 */
 	@Override
-	Boolean getValue()
+	protected Boolean getValue()
 	{
 		return value;
 	}
-	
-    /**
-     * Set the value of the Pref given a Boolean
-     * (big B)
-     * 
-     * @param  The Boolean value the Pref will be set to
-     */
-	@Override public void setValue(Boolean newValue)
+
+	/**
+	 * Set the value of the Pref given a Boolean (big B)
+	 * 
+	 * @param The
+	 *          Boolean value the Pref will be set to
+	 */
+	@Override
+	public void setValue(Boolean newValue)
 	{
 		setValue(newValue.booleanValue());
 	}
-    /**
-     * Set the value of the Pref given a boolean
-     * (small b)
-     * 
-     * @param  The boolean value the Pref will be set to
-     */
+
+	/**
+	 * Set the value of the Pref given a boolean (small b)
+	 * 
+	 * @param The
+	 *          boolean value the Pref will be set to
+	 */
 	public void setValue(boolean value)
 	{
-		this.value	= value;
-        
-        prefChanged();
+		this.value = value;
+
+		prefChanged();
 	}
-		/**
-		 * @see ecologylab.appframework.types.prefs.Pref#clone()
-		 */
-		@Override
-		public Pref<Boolean> clone()
-		{
-			return new PrefBoolean(this.name, this.value);
-		}
+
+	/**
+	 * @see ecologylab.appframework.types.prefs.Pref#clone()
+	 */
+	@Override
+	public Pref<Boolean> clone()
+	{
+		return new PrefBoolean(this.name, this.value);
+	}
 }

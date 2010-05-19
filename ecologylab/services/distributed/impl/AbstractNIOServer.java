@@ -18,24 +18,23 @@ import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.xml.TranslationScope;
 
 /**
- * Provides access to an NIOServerIOThread, which handles the details of network
- * connections. Subclasses extend and provide functionality for actually
- * processing messages.
+ * Provides access to an NIOServerIOThread, which handles the details of network connections.
+ * Subclasses extend and provide functionality for actually processing messages.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class AbstractNIOServer<S extends Scope> extends Manager implements
 		NIOServerProcessor, Runnable, StartAndStoppable, SessionObjects
 {
 	private NIOServerIOThread		backend;
 
-	protected TranslationScope		translationSpace;
+	protected TranslationScope	translationSpace;
 
-	protected S					applicationObjectScope;
+	protected S									applicationObjectScope;
 
 	/**
-	 * Creates an instance of an NIOServer of some flavor. Creates the backend
-	 * using the information in the arguments.
+	 * Creates an instance of an NIOServer of some flavor. Creates the backend using the information
+	 * in the arguments.
 	 * 
 	 * Registers itself as the MAIN_START_AND_STOPPABLE in the object registry.
 	 * 
@@ -47,13 +46,12 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress[] inetAddress,
-			TranslationScope requestTranslationSpace, S objectRegistry,
-			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
+			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			int maxMessageLength) throws IOException, BindException
 	{
-		backend = this.generateBackend(portNumber, inetAddress,
-				composeTranslations(portNumber, inetAddress[0],
-						requestTranslationSpace), objectRegistry,
-				idleConnectionTimeout, maxMessageLength);
+		backend = this.generateBackend(portNumber, inetAddress, composeTranslations(portNumber,
+				inetAddress[0], requestTranslationSpace), objectRegistry, idleConnectionTimeout,
+				maxMessageLength);
 
 		debug("setting up NIO Server...");
 
@@ -67,26 +65,25 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	}
 
 	static final Class[]	OUR_TRANSLATIONS	=
-														{ InitConnectionRequest.class, };
+																					{ InitConnectionRequest.class, };
 
-	public static TranslationScope composeTranslations(int portNumber,
-			InetAddress inetAddress, TranslationScope requestTranslationSpace)
-	{
-		return composeTranslations(OUR_TRANSLATIONS, "nio_server_base: ",
-				portNumber, inetAddress.toString(), requestTranslationSpace);
-	}
-
-	public static TranslationScope composeTranslations(Class[] newTranslations,
-			String prefix, int portNumber, String inetAddress,
+	public static TranslationScope composeTranslations(int portNumber, InetAddress inetAddress,
 			TranslationScope requestTranslationSpace)
 	{
-		return TranslationScope.get(prefix + inetAddress.toString() + ":"
-				+ portNumber, requestTranslationSpace, newTranslations);
+		return composeTranslations(OUR_TRANSLATIONS, "nio_server_base: ", portNumber, inetAddress
+				.toString(), requestTranslationSpace);
+	}
+
+	public static TranslationScope composeTranslations(Class[] newTranslations, String prefix,
+			int portNumber, String inetAddress, TranslationScope requestTranslationSpace)
+	{
+		return TranslationScope.get(prefix + inetAddress.toString() + ":" + portNumber,
+				requestTranslationSpace, newTranslations);
 	}
 
 	/**
-	 * Creates an instance of an NIOServer of some flavor. Creates the backend
-	 * using the information in the arguments.
+	 * Creates an instance of an NIOServer of some flavor. Creates the backend using the information
+	 * in the arguments.
 	 * 
 	 * Registers itself as the MAIN_START_AND_STOPPABLE in the object registry.
 	 * 
@@ -98,27 +95,23 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	 * @throws BindException
 	 */
 	protected AbstractNIOServer(int portNumber, InetAddress inetAddress,
-			TranslationScope requestTranslationSpace, S objectRegistry,
-			int idleConnectionTimeout, int maxMessageLength) throws IOException, BindException
+			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			int maxMessageLength) throws IOException, BindException
 	{
-		this(portNumber, NetTools.wrapSingleAddress(inetAddress),
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxMessageLength);
+		this(portNumber, NetTools.wrapSingleAddress(inetAddress), requestTranslationSpace,
+				objectRegistry, idleConnectionTimeout, maxMessageLength);
 	}
 
-	protected NIOServerIOThread generateBackend(int portNumber,
-			InetAddress[] inetAddresses, TranslationScope requestTranslationSpace,
-			S objectRegistry, int idleConnectionTimeout, int maxMessageLength) throws BindException,
-			IOException
+	protected NIOServerIOThread generateBackend(int portNumber, InetAddress[] inetAddresses,
+			TranslationScope requestTranslationSpace, S objectRegistry, int idleConnectionTimeout,
+			int maxMessageLength) throws BindException, IOException
 	{
-		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this,
-				requestTranslationSpace, objectRegistry, idleConnectionTimeout, maxMessageLength);
+		return NIOServerIOThread.getInstance(portNumber, inetAddresses, this, requestTranslationSpace,
+				objectRegistry, idleConnectionTimeout, maxMessageLength);
 	}
 
-	protected abstract AbstractClientSessionManager generateContextManager(
-			Object token, SelectionKey sk, TranslationScope translationSpace,
-			Scope applicationObjectScope);
-	
-	protected abstract Scope generateClientSessionScope();
+	protected abstract AbstractClientSessionManager generateContextManager(String sessionId,
+			SelectionKey sk, TranslationScope translationSpace, Scope globalScope);
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()
@@ -144,7 +137,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	{
 		backend.stop();
 	}
-	
+
 	/**
 	 * @return the backend
 	 */

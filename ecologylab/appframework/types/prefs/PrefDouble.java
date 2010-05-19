@@ -51,7 +51,7 @@ public class PrefDouble extends Pref<Double>
 	 * @return The value of the Pref
 	 */
 	@Override
-	Double getValue()
+	protected Double getValue()
 	{
 		return value;
 	}

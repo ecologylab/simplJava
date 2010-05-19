@@ -53,7 +53,7 @@ public class PrefFloat extends Pref<Float>
 	 * @return The value of the Pref
 	 */
 	@Override
-	Float getValue()
+	protected Float getValue()
 	{
 		return value;
 	}

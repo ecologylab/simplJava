@@ -48,7 +48,7 @@ public class PrefLong extends Pref<Long>
 	 * @return The
 	 */
 	@Override
-	Long getValue()
+	protected Long getValue()
 	{
 		return value;
 	}

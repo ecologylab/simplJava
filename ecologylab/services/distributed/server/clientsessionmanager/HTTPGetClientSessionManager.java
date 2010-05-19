@@ -19,7 +19,7 @@ import ecologylab.xml.XMLTranslationException;
 /**
  * A ContextManager for handling HTTP Get requests. Can be used to respond to browser requests.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class HTTPGetClientSessionManager extends HTTPClientSessionManager
@@ -35,11 +35,11 @@ public class HTTPGetClientSessionManager extends HTTPClientSessionManager
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public HTTPGetClientSessionManager(Object token, Scope clientSessionScope, int maxPacketSize,
-			NIOServerIOThread server, NIOServerProcessor frontend, SelectionKey socketKey,
-			TranslationScope translationSpace)
+	public HTTPGetClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
+			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
+			Scope<?> registry)
 	{
-		super(token, clientSessionScope, maxPacketSize, server, frontend, socketKey, translationSpace);
+		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
 
 		this.initialized = true;
 	}

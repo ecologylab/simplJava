@@ -11,10 +11,10 @@ import java.util.List;
 import ecologylab.generic.Debug;
 
 /**
- * Captures the semantics of the Shutdownable interface, but requires that
- * subclasses implement the shutdown method.
+ * Captures the semantics of the Shutdownable interface, but requires that subclasses implement the
+ * shutdown method.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class Manager extends Debug implements Shutdownable
 {
@@ -22,7 +22,7 @@ public abstract class Manager extends Debug implements Shutdownable
 
 	private List<ActionListener>	shutdownListeners		= new LinkedList<ActionListener>();
 
-	private boolean					shutdownCalled			= false;
+	private boolean								shutdownCalled			= false;
 
 	/**
 	 * 
@@ -60,8 +60,8 @@ public abstract class Manager extends Debug implements Shutdownable
 			// notify listeners of shutdown
 			if (this.shutdownListeners.size() > 0)
 			{
-				ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
-						SHUTTING_DOWN, System.currentTimeMillis(), -1);
+				ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, SHUTTING_DOWN, System
+						.currentTimeMillis(), -1);
 
 				for (ActionListener a : this.shutdownListeners)
 				{
@@ -76,7 +76,7 @@ public abstract class Manager extends Debug implements Shutdownable
 					s.shutdown();
 				}
 			}
-			
+
 			this.shutdownImpl();
 		}
 	}

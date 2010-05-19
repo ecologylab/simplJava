@@ -12,8 +12,9 @@ import ecologylab.xml.ElementState;
  */
 public class PrefElementState<T extends ElementState> extends Pref<T>
 {
-	
-	T elementStatePref;
+
+	T	elementStatePref;
+
 	/**
 	 * 
 	 */
@@ -28,19 +29,14 @@ public class PrefElementState<T extends ElementState> extends Pref<T>
 		this.name = name;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/** 
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
 	@Override
-	T getValue()
+	protected T getValue()
 	{
-		// TODO Auto-generated method stub
 		return elementStatePref;
 	}
-
-	
 
 	/*
 	 * (non-Javadoc)

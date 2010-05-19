@@ -7,35 +7,37 @@ import java.awt.Color;
 
 /**
  * A preference that is a Color.
+ * 
  * @author awebb
- *
+ * 
  */
-public class PrefColor extends Pref<Color> 
+public class PrefColor extends Pref<Color>
 {
-	@xml_attribute Color			value;
-	
+	@xml_attribute
+	Color	value;
+
 	public PrefColor()
 	{
 		super();
 	}
-	
+
 	public PrefColor(Color value)
 	{
 		super();
 		this.value = value;
 	}
-	
+
 	public PrefColor(String name, Color value)
 	{
 		this.name = name;
 		this.value = value;
 	}
-	
+
 	/**
 	 * @see ecologylab.appframework.types.prefs.Pref#getValue()
 	 */
 	@Override
-	Color getValue() 
+	protected Color getValue()
 	{
 		return value;
 	}
@@ -44,11 +46,11 @@ public class PrefColor extends Pref<Color>
 	 * @see ecologylab.appframework.types.prefs.Pref#setValue(T)
 	 */
 	@Override
-	public void setValue(Color newValue) 
+	public void setValue(Color newValue)
 	{
-        this.value = newValue;
-        
-        prefChanged();
+		this.value = newValue;
+
+		prefChanged();
 	}
 
 	/**
