@@ -1,5 +1,6 @@
 package ecologylab.appframework.types;
 
+import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.services.messages.DefaultServicesTranslations;
@@ -36,6 +37,11 @@ public class AppFrameworkTranslations extends Debug
 	public static TranslationScope get()
 	{
 		TranslationScope translationSpace = TranslationScope.get(PACKAGE_NAME, inheritedTranslations);
+		
+		// add the prefs translations to the scopes map
+		TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, inheritedTranslations);
+		
+		Debug.println("added "+PrefSet.PREFS_TRANSLATION_SCOPE+" to the scopes map");
 
 		return translationSpace;
 	}

@@ -13,26 +13,26 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_attribute;
 import ecologylab.xml.ElementState.xml_nested;
+
 /**
  * Encapsulates a Polygon for use in translating to/from XML.
  * 
  * ***WARNING!!!***
  * 
- * Performing transformations (such as setFrame()) on the result of shape() will
- * cause this object to become out of synch with its underlying Rectangle2D. DO
- * NOT DO THIS!
+ * Performing transformations (such as setFrame()) on the result of shape() will cause this object
+ * to become out of synch with its underlying Rectangle2D. DO NOT DO THIS!
  * 
- * If other transformation methods are required, either notify me, or implement
- * them yourself. :D
+ * If other transformation methods are required, either notify me, or implement them yourself. :D
  * 
  * Accessor methods (such as contains()) on the result of getRect() are fine.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * @author Alan Blevins (alan.blevins@gmail.com)
  */
-public @xml_inherit class PolygonState extends ElementState implements Shape
+public @xml_inherit
+class PolygonState extends ElementState implements Shape
 {
-	private Polygon														shape					= null;
+	private Polygon												shape							= null;
 
 	@xml_collection("point2_d_double")
 	private ArrayList<Point2DDoubleState>	polygonVerticies	= new ArrayList<Point2DDoubleState>();
@@ -77,7 +77,7 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 	{
 		shape = null;
 	}
-	
+
 	public int numVerticies()
 	{
 		return polygonVerticies.size();
@@ -92,7 +92,7 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 	{
 		return shape().contains(v.getX(), v.getY());
 	}
-	
+
 	public boolean contains(Point2D p)
 	{
 		return shape().contains(p);
@@ -153,5 +153,4 @@ public @xml_inherit class PolygonState extends ElementState implements Shape
 		return polygonVerticies;
 	}
 
-	
 }
