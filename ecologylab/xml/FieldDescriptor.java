@@ -92,6 +92,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * translateFromXML().
 	 */
 	private HashMapArrayList<String, ClassDescriptor>			tagClassDescriptors;
+	private String	unresolvedScopeAnnotation = null;
 	
 	@xml_map("tagClasses")
 	private HashMap<String, Class>						tagClasses;
@@ -195,7 +196,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
 	}
-	String	unresolvedScopeAnnotation = null;
+	
 	
 /**
  * Process annotations that use meta-language to map tags for translate from based on classes (instead of field names).
@@ -1258,6 +1259,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public Collection<ClassDescriptor> getTagClassDescriptors()
 	{
+		if(tagClassDescriptors == null) 
+			return null;
+		else
 		return tagClassDescriptors.values();
 	}
 
@@ -1603,9 +1607,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	public boolean isPolymorphic()
 	{	
-		if(tagClassDescriptors == null && unresolvedScopeAnnotation == null) return false;
-		else return true;
-		//return tagClassDescriptors != null && unresolvedScopeAnnotation == null;
+//		if((tagClassDescriptors == null) && (unresolvedScopeAnnotation == null)) return false;
+//		else return true;
+		return tagClassDescriptors != null;
 	}
 	public String getCollectionOrMapTagName()
 	{
