@@ -1,6 +1,7 @@
 package ecologylab.services.messages.cf;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.xml_inherit;
@@ -17,6 +18,7 @@ import ecologylab.xml.xml_inherit;
  */
 @xml_inherit
 public class SeedSet<S extends Seed> extends ElementState
+implements Iterable<S>
 {
 	@xml_attribute protected boolean		dontPlayOnStart;
 	
@@ -27,21 +29,39 @@ public class SeedSet<S extends Seed> extends ElementState
 	@xml_attribute protected String			description;
 	
 	@xml_collection("SeedSet")
-	@xml_nowrap
-	ArrayList<S> seeds; 
+	@xml_nowrap protected ArrayList<S> 	seeds; 
 
 	public SeedSet()
 	{
 		super();
 	}
 
-	public void add(S seed) {
+	public void add(S seed) 
+	{
+		if (seed != null)
+			if (seeds == null)
+				seeds	= new ArrayList<S>();
 		seeds.add(seed);
-		
 	}
 
-	public void clear() {
-		seeds.clear();
+	public void clear() 
+	{
+		if (seeds != null)
+			seeds.clear();
 	}
 
+	public int size()
+	{
+		return (seeds != null) ? seeds.size() : 0;
+	}
+	
+	public Iterator<S> iterator()
+	{
+		return seeds.iterator();
+	}
+	
+	public S get(int i)
+	{
+		return seeds != null ? seeds.get(i) : null;
+	}
 }

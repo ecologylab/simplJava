@@ -2167,6 +2167,11 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	{
 		this.parent		= parent;
 	}
+	
+	public ElementState getRoot()
+	{
+		return parent == null ? this : parent.getRoot();
+	}
     
     public static void setDeclarationStyle(DeclarationStyle ds)
     {
