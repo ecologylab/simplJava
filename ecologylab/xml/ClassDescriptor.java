@@ -389,10 +389,12 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 */
 	void mapTagClassDescriptors(FieldDescriptor fieldDescriptor) 
 	{
-		for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
-		{
-				mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
-		}
+		Collection<ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
+		if (tagClassDescriptors != null)
+			for (ClassDescriptor classDescriptor: tagClassDescriptors)
+			{
+					mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
+			}
 	}
 	static final Class[] FIELD_DESCRIPTOR_ARGS =
 	{

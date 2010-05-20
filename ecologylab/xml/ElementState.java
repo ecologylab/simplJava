@@ -1694,30 +1694,36 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			//TODO String attrType = getType()?!
 			if (value != null)
 			{
-				FieldDescriptor fd	= classDescriptor().getFieldDescriptorByTag(tag, translationSpace, context);
-				
-				try
+				ClassDescriptor classDescriptor = classDescriptor();
+				FieldDescriptor fd	= classDescriptor.getFieldDescriptorByTag(tag, translationSpace, context);
+				if (fd == null)
+					classDescriptor.warning(" FieldDescriptor not found for tag " + tag);
+				else
 				{
-					switch (fd.getType())
+					try
 					{
-					case ATTRIBUTE:
-						fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
-						// the value can become a unique id for looking up this
-						//TODO -- could support the ID type for the node here!
-						if ("id".equals(fd.getTagName()))
-							this.elementByIdMap.put(value, this);
-						break;
-					case XMLNS_ATTRIBUTE:
-						//TODO -- Name Space support!
-	//					njo.registerXMLNS(this, value);
-						break;
-					default:
-						break;	
+						switch (fd.getType())
+						{
+						case ATTRIBUTE:
+							fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
+							// the value can become a unique id for looking up this
+							//TODO -- could support the ID type for the node here!
+							if ("id".equals(fd.getTagName()))
+								this.elementByIdMap.put(value, this);
+							break;
+						case XMLNS_ATTRIBUTE:
+							//TODO -- Name Space support!
+		//					njo.registerXMLNS(this, value);
+							break;
+						default:
+							break;	
+						}
 					}
-				}
-				catch(Exception ex)
-				{
-					warning(" FieldDescriptor not found for tag <" + tag +">");
+					catch(Exception ex)
+					{
+						classDescriptor.error(" processing FieldDescriptor for tag " + tag);
+						ex.printStackTrace();
+					}
 				}
 			}
 		}

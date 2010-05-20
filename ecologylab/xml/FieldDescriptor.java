@@ -264,8 +264,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
 			for (ClassDescriptor classDescriptor : scopeClassDescriptors)
 			{
-				tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
-				tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
+				String tagName = classDescriptor.getTagName();
+				tagClassDescriptors.put(tagName, classDescriptor);
+				tagClasses.put(tagName, classDescriptor.describedClass());
 			}
 		}
 		return scope != null;
@@ -379,11 +380,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					return IGNORED_ELEMENT;
 
 				if (!isPolymorphic())
-				{
+				{					
 					Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for Collection<FooState>
 
 					if (collectionTag == null || collectionTag.isEmpty())
-					{
+					{	
 						warning("In " + declaringClassDescriptor.getDescribedClass()
 								+ "\n\tCan't translate  @xml_collection() " + field.getName()
 								+ " because its tag argument is missing.");
@@ -424,7 +425,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					return IGNORED_ELEMENT;
 
 				if (!isPolymorphic())
-				{
+				{					
 					Class mapElementClass = getTypeArgClass(field, 1); // "1st" type arg for Map<FooState>
 					
 					if (mapTag == null || mapTag.isEmpty())
@@ -1607,9 +1608,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	public boolean isPolymorphic()
 	{	
-//		if((tagClassDescriptors == null) && (unresolvedScopeAnnotation == null)) return false;
+		return (tagClassDescriptors != null) || (unresolvedScopeAnnotation != null);
 //		else return true;
-		return tagClassDescriptors != null;
+		//return tagClassDescriptors != null;
 	}
 	public String getCollectionOrMapTagName()
 	{
