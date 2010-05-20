@@ -5,6 +5,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
+import ecologylab.xml.library.yahoo.Result;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
@@ -78,7 +79,16 @@ public @xml_inherit class Channel extends ElementState
 			items	= new ArrayList<Item>();
 		items.add(item);
 	}
-
+	
+	public Item get(int i)
+	{
+		return items == null ? null : items.get(i);
+	}
+	public int size()
+	{
+		return items == null ? 0 : items.size();
+	}
+	
 	public static void main(String[] s)
 	{
 		testTranslateTo();

@@ -61,6 +61,14 @@ public class ResultSet extends ElementState
 		{
 			e.printStackTrace();
 		}
-
+	}
+	
+	public Result get(int i)
+	{
+		return results == null ? null : results.get(i);
+	}
+	public int size()
+	{
+		return results == null ? 0 : results.size();
 	}
 }
