@@ -195,7 +195,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
 	}
-	String	unresolvedScopeAnnotation;
+	String	unresolvedScopeAnnotation = null;
 	
 /**
  * Process annotations that use meta-language to map tags for translate from based on classes (instead of field names).
@@ -1602,8 +1602,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * or, for @xml_collection and @xml_map), the tag name is derived from the annotation's value
 	 */
 	public boolean isPolymorphic()
-	{
-		return tagClassDescriptors != null;
+	{	
+		if(tagClassDescriptors == null && unresolvedScopeAnnotation == null) return false;
+		else return true;
+		//return tagClassDescriptors != null && unresolvedScopeAnnotation == null;
 	}
 	public String getCollectionOrMapTagName()
 	{
