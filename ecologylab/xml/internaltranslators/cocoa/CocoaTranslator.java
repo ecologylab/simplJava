@@ -223,34 +223,36 @@ public class CocoaTranslator
 	  ClassDescriptor<?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
 	  TranslationConstants.INHERITENCE_OBJECT = classDescriptor.getSuperClassName();	  
 	   
-      HashMapArrayList<String, FieldDescriptor> attributes = classDescriptor.getFieldDescriptorsByFieldName();
+      HashMapArrayList<String, FieldDescriptor> fieldDescriptors = classDescriptor.getFieldDescriptorsByFieldName();
  
       openHeaderFile(inputClass, appendable);      
 
-      if (attributes.size() > 0)
+      if (fieldDescriptors.size() > 0)
       {
+    	 classDescriptor.resolveUnresolvedScopeAnnotationFDs();
+    	 
          openFieldDeclartion(appendable);
 
-         for (FieldDescriptor fieldAccessor : attributes)
+         for (FieldDescriptor fieldDescriptor : fieldDescriptors)
          {
-        	if(fieldAccessor.belongsTo(classDescriptor))        	
-        		appendFieldAsObjectiveCAttribute(fieldAccessor, appendable);
+        	if(fieldDescriptor.belongsTo(classDescriptor))        	
+        		appendFieldAsObjectiveCAttribute(fieldDescriptor, appendable);
          }
 
          closeFieldDeclartion(appendable);
 
-         for (FieldDescriptor fieldAccessor : attributes)
+         for (FieldDescriptor fieldAccessor : fieldDescriptors)
          {
         	if(fieldAccessor.belongsTo(classDescriptor))
         		 appendPropertyOfField(fieldAccessor, appendable);
          }
-      }
-      
-      for (FieldDescriptor fieldAccessor : attributes)
-      {
-    	  if(fieldAccessor.belongsTo(classDescriptor) &&  fieldAccessor.isScalar() && fieldAccessor.getScalarType().isPrimitive()
-    	    		&& fieldAccessor.getField().getType() != String.class)   	
-    		appendFieldSetterFunctionDefinition(appendable, fieldAccessor);
+         
+         for (FieldDescriptor fieldAccessor : fieldDescriptors)
+         {
+       	  if (fieldAccessor.belongsTo(classDescriptor) &&  fieldAccessor.isScalar() && fieldAccessor.getScalarType().isPrimitive()
+       	    		&& fieldAccessor.getField().getType() != String.class)   	
+       		appendFieldSetterFunctionDefinition(appendable, fieldAccessor);
+         }
       }
 
       closeHeaderFile(appendable);

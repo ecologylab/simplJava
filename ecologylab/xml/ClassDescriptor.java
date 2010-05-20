@@ -86,6 +86,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	
 	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap	= new HashMap<String, ClassDescriptor>();
 
+	private ArrayList<FieldDescriptor>					unresolvedScopeAnnotationFDs;
 	
 //private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
 
@@ -230,6 +231,8 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	public FieldDescriptor getFieldDescriptorByTag(String tag, TranslationScope tScope, ElementState context)
 	{
 		//TODO -- add support for name space lookup in context here
+		if (unresolvedScopeAnnotationFDs != null)
+			resolveUnresolvedScopeAnnotationFDs();
 		
 		return allFieldDescriptorsByTagNames.get(tag);
 	}
@@ -375,14 +378,21 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 			else
 			{	// add mappings by class tagNames for polymorphic elements & collections
 				//TODO add support for wrapped polymorphic collections!
-				for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
-				{
-						mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
-				}
+				mapTagClassDescriptors(fieldDescriptor);
 			}
 			thatField.setAccessible(true);	// else -- ignore non-annotated fields
 		}	// end for all fields
 		return fieldDescriptorClass;
+	}
+	/**
+	 * @param fieldDescriptor
+	 */
+	void mapTagClassDescriptors(FieldDescriptor fieldDescriptor) 
+	{
+		for (ClassDescriptor classDescriptor: fieldDescriptor.getTagClassDescriptors())
+		{
+				mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
+		}
 	}
 	static final Class[] FIELD_DESCRIPTOR_ARGS =
 	{
@@ -583,5 +593,39 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	/**
+	 * Keep track of any FieldDescriptors with unresolved @serial_scope declarations so we can try to resolve them later
+	 * when there is use.
+	 * 
+	 * @param fd
+	 */
+	void registerUnresolvedScopeAnnotationFD(FieldDescriptor fd)
+	{
+		if (unresolvedScopeAnnotationFDs == null)
+		{
+			synchronized (this)
+			{
+				if (unresolvedScopeAnnotationFDs == null)
+					unresolvedScopeAnnotationFDs	= new ArrayList<FieldDescriptor>();
+			}
+		}
+		unresolvedScopeAnnotationFDs.add(fd);
+	}
+	/**
+	 * Late evaluation of @serial_scope, if it failed the first time around.
+	 */
+	public void resolveUnresolvedScopeAnnotationFDs()
+	{
+		if (unresolvedScopeAnnotationFDs != null)
+		{
+			for (int i = unresolvedScopeAnnotationFDs.size() - 1; i >= 0; i--)
+			{
+				//TODO -- do we want to enable retrying multiple times in case it gets fixed even later
+				FieldDescriptor fd	= unresolvedScopeAnnotationFDs.remove(i);
+				fd.resolveUnresolvedScopeAnnotation();
+			}
+		}
+		unresolvedScopeAnnotationFDs	= null;
 	}
 }

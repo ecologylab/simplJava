@@ -195,35 +195,33 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
 	}
-
+	String	unresolvedScopeAnnotation;
+	
+/**
+ * Process annotations that use meta-language to map tags for translate from based on classes (instead of field names).
+ * 
+ * @param field
+ * @return
+ */
 	private boolean deriveTagClassDescriptors(Field field)
 	{
-		final ElementState.xml_class classAnnotationObj = field
-				.getAnnotation(ElementState.xml_class.class);
-		final Class classAnnotation = (classAnnotationObj == null) ? null : classAnnotationObj.value();
-		final ElementState.xml_classes classesAnnotationObj = field
-				.getAnnotation(ElementState.xml_classes.class);
-		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj
-				.value();
-	
+		// @xml_scope
 		final ElementState.xml_scope scopeAnnotationObj = field
 				.getAnnotation(ElementState.xml_scope.class);
 		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
 
 		if (scopeAnnotation != null && scopeAnnotation.length() > 0)
 		{
-			TranslationScope scope = TranslationScope.get(scopeAnnotation);
-			if (scope != null)
+			if (!resolveScopeAnnotation(scopeAnnotation))
 			{
-				Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
-				initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
-				for (ClassDescriptor classDescriptor : scopeClassDescriptors){
-					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
-					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
-				}
-					
+				unresolvedScopeAnnotation	= scopeAnnotation;
+				declaringClassDescriptor.registerUnresolvedScopeAnnotationFD(this);
 			}
 		}
+		// @xml_classes
+		final ElementState.xml_classes classesAnnotationObj = field
+		.getAnnotation(ElementState.xml_classes.class);
+		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj.value();
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
 		{
 			initTagClassDescriptorsArrayList(classesAnnotation.length);
@@ -235,6 +233,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 				}
 		}
+		// @xml_class
+		final ElementState.xml_class classAnnotationObj = field
+		.getAnnotation(ElementState.xml_class.class);
+		final Class classAnnotation = (classAnnotationObj == null) ? null : classAnnotationObj.value();
 		if (classAnnotation != null)
 		{
 			initTagClassDescriptorsArrayList(1);
@@ -244,7 +246,49 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 		return tagClassDescriptors != null;
 	}
+	
+	/**
+	 * Generate tag -> class mappings for a @serial_scope declaration.
+	 * 
+	 * @param scopeAnnotation	Name of the scope to lookup in the global space. Must be non-null.
+	 * 
+	 * @return	true if the scope annotation is successfully resolved to a TranslationScope.
+	 */
+	private boolean resolveScopeAnnotation(final String scopeAnnotation) 
+	{
+		TranslationScope scope = TranslationScope.get(scopeAnnotation);
+		if (scope != null)
+		{
+			Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
+			initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
+			for (ClassDescriptor classDescriptor : scopeClassDescriptors)
+			{
+				tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+				tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
+			}
+		}
+		return scope != null;
+	}
 
+	/**
+	 * If there is an unresolvedScopeAnnotation, because a scope had not yet been declared when a ClassDescriptor
+	 * that uses it was constructed, try again.
+	 * 
+	 * @return
+	 */
+	boolean resolveUnresolvedScopeAnnotation()
+	{
+		if (unresolvedScopeAnnotation == null)
+			return true;
+		
+		boolean result	= resolveScopeAnnotation(unresolvedScopeAnnotation);
+		if (result)
+		{
+			unresolvedScopeAnnotation	= null;
+			declaringClassDescriptor.mapTagClassDescriptors(this);
+		}
+		return result;
+	}
 
 	private void initTagClassDescriptorsArrayList(int initialSize)
 	{
