@@ -3,7 +3,6 @@ package ecologylab.xml.library.geom;
 import java.awt.geom.Point2D;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
 
 /**
  * Encapsulates a Point2D.Double for use in translating to/from XML.
@@ -19,7 +18,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * Accessor methods (such as contains()) on the result of getPoint() are fine.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public class Point2DDoubleState extends ElementState
 {

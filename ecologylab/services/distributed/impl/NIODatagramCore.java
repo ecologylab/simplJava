@@ -30,53 +30,53 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
-public abstract class NIODatagramCore<S extends Scope> extends Debug implements
-		NetworkingConstants
+public abstract class NIODatagramCore<S extends Scope> extends Debug implements NetworkingConstants
 {
-	protected long																								currentUIDIndex		= 1;
+	protected long																																		currentUIDIndex				= 1;
 
-	private MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>						messagePool				= new MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>(
-																																						4,
-																																						4);
+	private MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>								messagePool						= new MessageWithMetadataPool<ServiceMessage<S>, MessageMetaData>(
+																																																							4,
+																																																							4);
 
-	private MessageMetaDataPool																			metaDataPool			= new MessageMetaDataPool();
+	private MessageMetaDataPool																												metaDataPool					= new MessageMetaDataPool();
 
-	protected static final int																				MAX_DATAGRAM_SIZE		= 1500;
+	protected static final int																												MAX_DATAGRAM_SIZE			= 6000;
 
-	protected static final int																				HEADER_SIZE				= Long.SIZE / 8;
-	
-	protected static final int																				UDP_HEADER_SIZE 		= 8;
+	protected static final int																												HEADER_SIZE						= Long.SIZE / 8;
 
-	protected static final int																				MAX_MESSAGE_SIZE		= MAX_DATAGRAM_SIZE
-																																						- HEADER_SIZE
-																																						- UDP_HEADER_SIZE;
+	protected static final int																												UDP_HEADER_SIZE				= 8;
+
+	protected static final int																												MAX_MESSAGE_SIZE			= MAX_DATAGRAM_SIZE
+																																																							- HEADER_SIZE
+																																																							- UDP_HEADER_SIZE;
 
 	private SynchronousQueue<MessageWithMetadata<ServiceMessage<S>, MessageMetaData>>	outgoingMessageQueue	= new SynchronousQueue<MessageWithMetadata<ServiceMessage<S>, MessageMetaData>>();
 
-	protected Selector																						selector;
+	protected Selector																																selector;
 
-	protected TranslationScope	translationScope;
-	
-	protected S objectRegistry;
-	
-	private PacketHandlerPool																				handlerPool = new PacketHandlerPool();
-	
-	protected PacketSender																					sender = new PacketSender();
-	
-	protected PacketReciever																				reciever = new PacketReciever();
-	
-	protected boolean 																						doCompress = false;
-	
-	protected Deflater 																						deflater	= new Deflater(Deflater.BEST_COMPRESSION);
-	
-	protected Inflater																						inflater = new Inflater();
+	protected TranslationScope																												translationScope;
+
+	protected S																																				objectRegistry;
+
+	private PacketHandlerPool																													handlerPool						= new PacketHandlerPool();
+
+	protected PacketSender																														sender								= new PacketSender();
+
+	protected PacketReciever																													reciever							= new PacketReciever();
+
+	protected boolean																																	doCompress						= false;
+
+	protected Deflater																																deflater							= new Deflater(
+																																																							Deflater.BEST_COMPRESSION);
+
+	protected Inflater																																inflater							= new Inflater();
 
 	public NIODatagramCore(TranslationScope translationScope, S objectRegistry, boolean useCompression)
 	{
 		this.translationScope = translationScope;
 		this.objectRegistry = objectRegistry;
 		this.doCompress = useCompression;
-		
+
 		try
 		{
 			selector = Selector.open();
@@ -87,7 +87,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 			e.printStackTrace();
 		}
 	}
-	
+
 	public NIODatagramCore(TranslationScope translationScope, S objectRegistry)
 	{
 		this(translationScope, objectRegistry, false);
@@ -116,7 +116,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 
 	protected class MessageMetaData
 	{
-		public SelectionKey	key;
+		public SelectionKey		key;
 
 		public SocketAddress	addr;
 
@@ -153,17 +153,17 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 	{
 		private PacketHandlerPool	pool;
 
-		private long					uid;
+		private long							uid;
 
-		private ServiceMessage<S>	message				= null;
+		private ServiceMessage<S>	message						= null;
 
 		private SelectionKey			recievedOnSocket	= null;
 
-		private SocketAddress		recievedFrom		= null;
+		private SocketAddress			recievedFrom			= null;
 
-		private boolean				done					= false;
-		
-		private Thread 				t 						= null;
+		private boolean						done							= false;
+
+		private Thread						t									= null;
 
 		public PacketHandler(PacketHandlerPool pool)
 		{
@@ -181,10 +181,10 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		synchronized public void stop()
 		{
 			done = true;
-			if(t != null)
+			if (t != null)
 				t.interrupt();
 		}
-		
+
 		synchronized public void run()
 		{
 			t = Thread.currentThread();
@@ -200,14 +200,19 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 					{
 					}
 				}
-				if(message != null)
+				if (message != null)
 				{
-					try{
+					try
+					{
 						handleMessage(uid, message, recievedOnSocket, recievedFrom);
-					} catch(Exception e) {
+					}
+					catch (Exception e)
+					{
 						debug("Failed in message handler: " + e.getMessage());
 						e.printStackTrace();
-					} finally {
+					}
+					finally
+					{
 						message = null;
 						pool.release(this);
 					}
@@ -215,7 +220,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 			}
 		}
 
-		synchronized public void processMessage(long uid, ServiceMessage<S> message, SelectionKey key, SocketAddress address)
+		synchronized public void processMessage(long uid, ServiceMessage<S> message, SelectionKey key,
+				SocketAddress address)
 		{
 			this.uid = uid;
 			this.message = message;
@@ -227,12 +233,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 
 	protected class PacketSender implements Runnable
 	{
-		private boolean running	= false;
-		private Thread t;
-		
+		private boolean	running	= false;
+
+		private Thread	t;
+
 		synchronized public void start()
 		{
-			if(!running)
+			if (!running)
 			{
 				running = true;
 				t = new Thread(this);
@@ -240,13 +247,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				t.start();
 			}
 		}
-		
+
 		synchronized public void stop()
 		{
-			if(running)
+			if (running)
 			{
 				running = false;
-				while(t.isAlive())
+				while (t.isAlive())
 				{
 					t.interrupt();
 					try
@@ -261,22 +268,22 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 			}
 		}
-		
+
 		public boolean isAlive()
 		{
 			return t != null && t.isAlive();
 		}
-		
+
 		public void run()
 		{
-			ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE*(doCompress?10:1));
-			CharBuffer builder = CharBuffer.allocate(MAX_MESSAGE_SIZE*(doCompress?10:1));
-			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?10:1)];
-			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?10:1)];
+			ByteBuffer buffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE * (doCompress ? 10 : 1));
+			CharBuffer builder = CharBuffer.allocate(MAX_MESSAGE_SIZE * (doCompress ? 10 : 1));
+			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE * (doCompress ? 10 : 1)];
+			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE * (doCompress ? 10 : 1)];
 
-			if(buffer.hasArray())
+			if (buffer.hasArray())
 				debug("Buffer has array!");
-			
+
 			while (running)
 			{
 				MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = null;
@@ -285,46 +292,47 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 					mdataMessage = outgoingMessageQueue.take();
 
 					buffer.putLong(mdataMessage.getUid());
-					
-					mdataMessage.getMessage().translateToXML(builder);					
-					
+
+					mdataMessage.getMessage().translateToXML(builder);
+
 					builder.flip();
 
 					ENCODER.encode(builder, buffer, true);
 					buffer.flip();
 
-					if(doCompress)
+					if (doCompress)
 					{
-						byte[] array = inBuffer; 
+						byte[] array = inBuffer;
 						buffer.get(inBuffer, 0, buffer.limit());
-												
+
 						deflater.reset();
-						
+
 						int uncompressedSize = buffer.limit();
 						deflater.setInput(array, 0, uncompressedSize);
-						deflater.finish();					
-						
+						deflater.finish();
+
 						int compressedSize;
-						if(buffer.hasArray())
+						if (buffer.hasArray())
 						{
 							compressedSize = deflater.deflate(buffer.array(), 0, buffer.capacity());
 							buffer.position(0);
 							buffer.limit(compressedSize);
-						} else {
+						}
+						else
+						{
 							compressedSize = deflater.deflate(outBuffer, 0, outBuffer.length);
 							buffer.clear();
 							buffer.put(outBuffer, 0, compressedSize);
 							buffer.flip();
 						}
-						if(compressedSize > MAX_MESSAGE_SIZE)
+						if (compressedSize > MAX_MESSAGE_SIZE)
 						{
 							throw new MessageTooLargeException(MAX_MESSAGE_SIZE, compressedSize);
 						}
-						/*debug("Input size: " + uncompressedSize + " and output size: " + compressedSize);*/
+						/* debug("Input size: " + uncompressedSize + " and output size: " + compressedSize); */
 					}
-					
-					DatagramChannel channel = (DatagramChannel) mdataMessage
-							.getAttachment().key.channel();
+
+					DatagramChannel channel = (DatagramChannel) mdataMessage.getAttachment().key.channel();
 					if (channel.isConnected())
 					{
 						channel.write(buffer);
@@ -353,7 +361,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 				catch (BufferOverflowException e)
 				{
-					debug("Message was too large: "  + e.getLocalizedMessage());
+					debug("Message was too large: " + e.getLocalizedMessage());
 				}
 				catch (MessageTooLargeException e)
 				{
@@ -372,7 +380,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				{
 					buffer.clear();
 					builder.clear();
-					if(mdataMessage != null)
+					if (mdataMessage != null)
 					{
 						metaDataPool.release(mdataMessage.getAttachment());
 						messagePool.release(mdataMessage);
@@ -384,12 +392,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 
 	protected class PacketReciever implements Runnable
 	{
-		private boolean running = false;
-		Thread t;
-		
+		private boolean	running	= false;
+
+		Thread					t;
+
 		synchronized public void start()
 		{
-			if(!running)
+			if (!running)
 			{
 				running = true;
 				t = new Thread(this);
@@ -397,13 +406,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				t.start();
 			}
 		}
-		
+
 		synchronized public void stop()
 		{
-			if(running)
+			if (running)
 			{
 				running = false;
-				while(t.isAlive())
+				while (t.isAlive())
 				{
 					selector.wakeup();
 					try
@@ -418,64 +427,67 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 				}
 			}
 		}
-		
+
 		public boolean isAlive()
 		{
 			return t != null && t.isAlive();
 		}
-		
+
 		public void run()
 		{
-			ByteBuffer recieveBuffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE*(doCompress?5:1));
-			CharBuffer messageBuffer = CharBuffer.allocate(MAX_MESSAGE_SIZE*(doCompress?5:1));
-			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
-			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE*(doCompress?5:1)];
-			
-			while(running)
+			ByteBuffer recieveBuffer = ByteBuffer.allocateDirect(MAX_MESSAGE_SIZE * (doCompress ? 5 : 1));
+			CharBuffer messageBuffer = CharBuffer.allocate(MAX_MESSAGE_SIZE * (doCompress ? 5 : 1));
+			byte[] inBuffer = new byte[MAX_MESSAGE_SIZE * (doCompress ? 5 : 1)];
+			byte[] outBuffer = new byte[MAX_MESSAGE_SIZE * (doCompress ? 5 : 1)];
+
+			while (running)
 			{
 				try
 				{
 					selector.select();
-					
+
 					Set<SelectionKey> keys = selector.selectedKeys();
-					for(SelectionKey key: keys)
+					for (SelectionKey key : keys)
 					{
-						if(key.isReadable())
+						if (key.isReadable())
 						{
 							DatagramChannel channel = (DatagramChannel) key.channel();
-							if(channel.isOpen())
+							if (channel.isOpen())
 							{
-								try {
+								try
+								{
 									SocketAddress address = channel.receive(recieveBuffer);
 									recieveBuffer.flip();
-									
-									if(doCompress)
+
+									if (doCompress)
 									{
-										byte[] array = inBuffer; 
+										byte[] array = inBuffer;
 										recieveBuffer.get(inBuffer, 0, recieveBuffer.limit());
-																										
+
 										inflater.reset();
-										
+
 										int compressedSize = recieveBuffer.limit();
 										inflater.setInput(array, 0, compressedSize);
-										
-										
+
 										int decompressedSize;
-										if(recieveBuffer.hasArray())
+										if (recieveBuffer.hasArray())
 										{
-											decompressedSize = inflater.inflate(recieveBuffer.array(), 0, recieveBuffer.capacity());
-											
-											if(decompressedSize == 0)
+											decompressedSize = inflater.inflate(recieveBuffer.array(), 0, recieveBuffer
+													.capacity());
+
+											if (decompressedSize == 0)
 											{
 												debug("Failed to decompress message!");
 												continue;
 											}
 											recieveBuffer.position(0);
 											recieveBuffer.limit(decompressedSize);
-										} else {
+										}
+										else
+										{
 											decompressedSize = inflater.inflate(outBuffer, 0, outBuffer.length);
-											
-											if(decompressedSize == 0)
+
+											if (decompressedSize == 0)
 											{
 												debug("Failed to decompress message!");
 												continue;
@@ -485,39 +497,48 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 											recieveBuffer.flip();
 										}
 									}
-									
+
 									long uid = recieveBuffer.getLong();
-																		
+
 									DECODER.decode(recieveBuffer, messageBuffer, true);
-									
+
 									messageBuffer.flip();
-									
-									ServiceMessage<S> message = (ServiceMessage<S>)ElementState.translateFromXMLCharSequence(messageBuffer,
-																																						  translationScope);
-									message.setSender(((InetSocketAddress)address).getAddress());
-									
+
+									ServiceMessage<S> message = (ServiceMessage<S>) ElementState
+											.translateFromXMLCharSequence(messageBuffer, translationScope);
+									message.setSender(((InetSocketAddress) address).getAddress());
+
 									PacketHandler handler = handlerPool.acquire();
 									handler.processMessage(uid, message, key, address);
-								} catch (ClosedChannelException e)
+								}
+								catch (ClosedChannelException e)
 								{
 									debug("Channel closed!");
 									waitForReconnect();
-								} catch (IOException e) {
+								}
+								catch (IOException e)
+								{
 									e.printStackTrace(System.err);
-								} catch (XMLTranslationException e)	{
+								}
+								catch (XMLTranslationException e)
+								{
 									debug("Failed to translate message!");
 									e.printStackTrace();
-								} catch (DataFormatException e) {
+								}
+								catch (DataFormatException e)
+								{
 									debug("Failed to unzip datagram!");
 									e.printStackTrace();
-								} finally {
+								}
+								finally
+								{
 									recieveBuffer.clear();
 									messageBuffer.clear();
 								}
 							}
 						}
 					}
-					
+
 				}
 				catch (IOException e)
 				{
@@ -527,11 +548,9 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		}
 	}
 
-	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid,
-			 						SocketAddress addr)
+	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid, SocketAddress addr)
 	{
-		MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = messagePool
-				.acquire();
+		MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = messagePool.acquire();
 		MessageMetaData metaData = metaDataPool.acquire();
 		mdataMessage.setMessage(m);
 		mdataMessage.setUid(uid);
@@ -560,20 +579,20 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements
 		sender.start();
 		reciever.start();
 	}
-	
+
 	public void stop()
 	{
 		sender.stop();
 		reciever.stop();
 	}
-	
+
 	protected boolean isRunning()
 	{
 		return sender.isAlive() || reciever.isAlive();
 	}
-		
+
 	abstract protected void waitForReconnect();
 
 	abstract protected void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
-										 			  SocketAddress address);
+			SocketAddress address);
 }
