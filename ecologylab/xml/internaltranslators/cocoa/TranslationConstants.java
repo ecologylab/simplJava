@@ -16,9 +16,17 @@ public class TranslationConstants
    public static final String SYNTHESIZE = "@synthesize";
    
    
-   public static final String PROPERTY_PRIMITIVE = "@property (nonatomic,readwrite)";
-   public static final String PROPERTY_REFERENCE = "@property (nonatomic,readwrite, retain)";
+   public static final String PROPERTY_PRIMITIVE = "@property (nonatomic, readwrite)";
+   public static final String PROPERTY_REFERENCE = "@property (nonatomic, readwrite, retain)";
    public static final String END = "@end";
+   
+   public static final String PARAMETER = "p_";
+   public static final String WITH_REFERENCE = "WithReference: ";
+   public static final String SET = "set";
+   public static final String RETURN_VOID = "- (void) ";
+   public static final String EQUALTO = " = ";
+   public static final String AT = "@";
+   public static final String SINGLE_LINE_COMMENT = "//";
    
    public static final String REFERENCE = "*";
    public static final String TERMINATOR = ";";
@@ -39,6 +47,7 @@ public class TranslationConstants
       
    public static final String SPACE = " ";
    public static final String DOT = ".";
+   public static final String END_LINE = ";";
    
    /*
     * File constants 
@@ -80,12 +89,18 @@ public class TranslationConstants
    public static final String OBJC_HASHMAPARRAYLIST = "NSDictionaryList";
    public static final String OBJC_SCOPE = "NSScope";
    
-   
+   /*
+    * More keywords and symbols
+    */
    public static final String PLUS = "+";
    public static final String MINUS = "-";
    public static final String CLASS = "class";
    public static final String INITIALIZE = "initialize";
    public static final String VOID = "void";
+   public static final String RELEASE = "release";
+   public static final String DEALLOC = "dealloc";
+   public static final String HEADER_COMMENTS = "";
+   public static final String IMPLEMENTAITON_COMMENTS = null;
    
    
 }

@@ -20,6 +20,9 @@ import ecologylab.xml.types.scalar.ScalarType;
 public class TranslationUtilities
 {
 	
+	/*
+	 * Static hashmap of keywords which cannot be translated from java to objective-c
+	 */
 	private static HashMap<String, String> keywords = new HashMap<String, String>();
 	
 	static
@@ -142,11 +145,21 @@ public class TranslationUtilities
       }
    }
    
+   /**
+    * Utility methods get the class simple from the class type object
+    * 
+    * @param Class<?> thatClass     
+    */
    public static String classSimpleName(Class<?> thatClass)
    { 
 	 return thatClass.toString().substring(thatClass.toString().lastIndexOf(TranslationConstants.DOT) + 1);
    }
 
+   /**
+    * Utility mehthods to check if the given field name is a keyword in objective-c
+    * 
+    * @param fieldName     
+    */
 	public static boolean isKeyword(String fieldName) 
 	{
 		return keywords.containsKey(fieldName);

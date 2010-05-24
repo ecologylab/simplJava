@@ -3,6 +3,11 @@ package ecologylab.xml.internaltranslators.cocoa;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 
+/**
+ * Exception handling class for translation.
+ * 
+ * @author Nabeel Shahzad
+ */
 public class CocoaTranslationException extends Exception implements CocaTranslationExceptionTypes
 {
    private static final long serialVersionUID = -8326348358064487418L;
