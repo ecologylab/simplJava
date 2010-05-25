@@ -34,249 +34,257 @@ import ecologylab.xml.types.element.Mappable;
 
 /**
  * Use SAX to translate XML into a typed tree of ElementState objects.
- *
+ * 
  * @author andruid
  */
-public class ElementStateSAXHandler 
-extends Debug 
-implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
+public class ElementStateSAXHandler extends Debug implements ContentHandler, FieldTypes,
+		ScalarUnmarshallingContext
 {
-	final TranslationScope	translationScope;
-	
-	ElementState					root;
-	
-//	private XMLReader 				parser;
-	
+	final TranslationScope			translationScope;
+
+	ElementState								root;
+
+	// private XMLReader parser;
+
 	/**
 	 * Current "DOM" frame state.
 	 */
-	ElementState					currentElementState;
-	
+	ElementState								currentElementState;
+
 	/**
 	 * Optimizations for current field.
 	 */
-	FieldDescriptor			currentFD;
-	
+	FieldDescriptor							currentFD;
+
 	XMLTranslationException			xmlTranslationException;
-	
-	ArrayList<FieldDescriptor>	fdStack	= new ArrayList<FieldDescriptor>();
-	
-	static XMLReaderPool						xmlReaderPool	= new XMLReaderPool(1, 1);
-	
-	ParsedURL							purlContext;
-	
-	File									fileContext;
-	
+
+	ArrayList<FieldDescriptor>	fdStack				= new ArrayList<FieldDescriptor>();
+
+	static XMLReaderPool				xmlReaderPool	= new XMLReaderPool(1, 1);
+
+	ParsedURL										purlContext;
+
+	File												fileContext;
+
 	/**
 	 * 
 	 */
 	public ElementStateSAXHandler(TranslationScope translationSpace)
 	{
-		this.translationScope		= translationSpace;
+		this.translationScope = translationSpace;
 
-//		try 
-//		{
-//			parser 					= createXMLReader();
-//			parser.setContentHandler(this);
-//		} catch (Exception e)
-//		{
-//			parser					= null;
-//		}
+		// try
+		// {
+		// parser = createXMLReader();
+		// parser.setContentHandler(this);
+		// } catch (Exception e)
+		// {
+		// parser = null;
+		// }
 	}
-	
-	static final String SUN_XERCES_PARSER_NAME		= "com.sun.org.apache.xerces.internal.parsers.SAXParser";
-	
-	static Class<? extends XMLReader> 		parserClass;
-	
-	static boolean		triedToFindParserClass;
-	
-	public static XMLReader createXMLReader() 
-	throws SAXException
+
+	static final String								SUN_XERCES_PARSER_NAME	= "com.sun.org.apache.xerces.internal.parsers.SAXParser";
+
+	static Class<? extends XMLReader>	parserClass;
+
+	static boolean										triedToFindParserClass;
+
+	public static XMLReader createXMLReader() throws SAXException
 	{
 		if (parserClass != null)
 			return ReflectionTools.getInstance(parserClass);
 		// else
-	
+
 		if (!triedToFindParserClass)
 		{
-			triedToFindParserClass	= true;
+			triedToFindParserClass = true;
 			try
 			{
-				parserClass				= (Class<? extends XMLReader>) Class.forName(SUN_XERCES_PARSER_NAME);
+				parserClass = (Class<? extends XMLReader>) Class.forName(SUN_XERCES_PARSER_NAME);
 				return createXMLReader();
-			} catch (Exception e)
+			}
+			catch (Exception e)
 			{
-				
+
 			}
 		}
 		// stuck doin it the slow way :-(
 		return XMLReaderFactory.createXMLReader();
 	}
-/**
- * Parse the CharSequence of XML, using UTF-8 encoding.
- * 
- * @param charSequence
- * @return
- * @throws XMLTranslationException
- */
-	public ElementState parse(CharSequence charSequence)
-	throws XMLTranslationException
+
+	/**
+	 * Parse the CharSequence of XML, using UTF-8 encoding.
+	 * 
+	 * @param charSequence
+	 * @return
+	 * @throws XMLTranslationException
+	 */
+	public ElementState parse(CharSequence charSequence) throws XMLTranslationException
 	{
 		return parse(charSequence, StringInputStream.UTF8);
 	}
+
 	/**
 	 * Parse the CharSequence of XML, given the charsetType encoding info.
+	 * 
 	 * @param charSequence
 	 * @param charsetType
 	 * @return
 	 * @throws XMLTranslationException
 	 */
 	public ElementState parse(CharSequence charSequence, int charsetType)
-	throws XMLTranslationException
+			throws XMLTranslationException
 	{
-		InputStream xmlStream		= new StringInputStream(charSequence, charsetType);
-		ElementState result 		= parse(xmlStream);
+		InputStream xmlStream = new StringInputStream(charSequence, charsetType);
+		ElementState result = parse(xmlStream);
 		try
 		{
 			xmlStream.close();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
 		return result;
 	}
-	
-	public ElementState parseString(String xmlString)
-	throws XMLTranslationException
+
+	public ElementState parseString(String xmlString) throws XMLTranslationException
 	{
-		StringReader reader	= new StringReader(xmlString);
+		StringReader reader = new StringReader(xmlString);
 		ElementState result = parse(reader);
 		reader.close();
 
 		return result;
 	}
-	static final ConnectionAdapter connectionAdapter = new ConnectionAdapter();
-	
+
+	static final ConnectionAdapter	connectionAdapter	= new ConnectionAdapter();
 
 	/**
 	 * Translate an XML document read from a URL to a strongly typed tree of XML objects.
 	 * 
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
-	 * @param purl					XML source material.
-	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param purl
+	 *          XML source material.
+	 * @param translationScope
+	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
-	 * @return						Strongly typed tree of ElementState objects.
+	 * @return Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
 	 */
-	public ElementState parse(URL url)
-	throws XMLTranslationException
+	public ElementState parse(URL url) throws XMLTranslationException
 	{
 		return parse(new ParsedURL(url));
-	}	
+	}
 
 	/**
 	 * Translate an XML document read from a ParsedURL to a strongly typed tree of XML objects.
 	 * 
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
-	 * @param purl					XML source material.
-	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param purl
+	 *          XML source material.
+	 * @param translationScope
+	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
-	 * @return						Strongly typed tree of ElementState objects.
+	 * @return Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
 	 */
-	public ElementState parse(ParsedURL purl)
-	throws XMLTranslationException
+	public ElementState parse(ParsedURL purl) throws XMLTranslationException
 	{
 		if (purl.isFile())
 			return parse(purl.file());
-		
-		this.purlContext						= purl;
-		
-		PURLConnection purlConnection		= purl.connect(connectionAdapter);
-		ElementState result 					= parse(purlConnection.inputStream());
+
+		this.purlContext = purl;
+
+		PURLConnection purlConnection = purl.connect(connectionAdapter);
+		ElementState result = parse(purlConnection.inputStream());
 		purlConnection.recycle();
-		this.purlContext						= null;
+		this.purlContext = null;
 		return result;
-	}	
+	}
+
 	/**
 	 * Translate a file from XML to a strongly typed tree of XML objects.
 	 * 
 	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
 	 * 
-	 * @param file					XML source material.
-	 * @param translationScope		Specifies mapping from XML nodes (elements and attributes) to Java types.
+	 * @param file
+	 *          XML source material.
+	 * @param translationScope
+	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
-	 * @return						Strongly typed tree of ElementState objects.
+	 * @return Strongly typed tree of ElementState objects.
 	 * @throws XMLTranslationException
 	 */
-	
-	public ElementState parse(File file)
-	throws XMLTranslationException
+
+	public ElementState parse(File file) throws XMLTranslationException
 	{
 		try
 		{
-			FileInputStream fileInputStream			= new FileInputStream(file);
-			BufferedInputStream bufferedStream		= new BufferedInputStream(fileInputStream);
-			this.fileContext								= file;
-			ElementState elementState 					= parse(bufferedStream);
-			this.fileContext								= null;
+			FileInputStream fileInputStream = new FileInputStream(file);
+			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
+			this.fileContext = file;
+			ElementState elementState = parse(bufferedStream);
+			this.fileContext = null;
 			bufferedStream.close();
 			return elementState;
-		} catch (FileNotFoundException e)
+		}
+		catch (FileNotFoundException e)
 		{
-			this.fileContext								= null;
+			this.fileContext = null;
 			throw new XMLTranslationException("Can't open file " + file.getAbsolutePath(), e);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
-			this.fileContext								= null;
+			this.fileContext = null;
 			throw new XMLTranslationException("Can't close file " + file.getAbsolutePath(), e);
-		}		
-	}	
+		}
+	}
 
-	public ElementState parse(Reader reader)
-	throws XMLTranslationException
+	public ElementState parse(Reader reader) throws XMLTranslationException
 	{
 		InputSource inputSource = new InputSource(reader);
-		ElementState result		= parse(inputSource);
-		//TODO -- put this into a finally from the parse
+		ElementState result = parse(inputSource);
+		// TODO -- put this into a finally from the parse
 		try
 		{
 			reader.close();
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new XMLTranslationException("Can't close reader: " + reader, e);
 		}
 		return result;
 	}
-	public ElementState parse(InputStream inputStream)
-	throws XMLTranslationException
+
+	public ElementState parse(InputStream inputStream) throws XMLTranslationException
 	{
 		return parse(new InputSource(inputStream));
 	}
-	public ElementState parse(InputSource inputSource)
-	throws XMLTranslationException
+
+	public ElementState parse(InputSource inputSource) throws XMLTranslationException
 	{
-		XMLReader parser		= null;
+		XMLReader parser = null;
 		try
 		{
-			parser				= xmlReaderPool.acquire();
+			parser = xmlReaderPool.acquire();
 			parser.setContentHandler(this);
 			parser.parse(inputSource);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
-			xmlTranslationException	= new XMLTranslationException("IOException during parsing", e);
-		} catch (SAXException e)
+			xmlTranslationException = new XMLTranslationException("IOException during parsing", e);
+		}
+		catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if (!(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) &&
-					(currentElementState != null))
+			if (!(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) && (currentElementState != null))
 			{
-				xmlTranslationException	= new XMLTranslationException("SAXException during parsing", e);
-				
-				//print xml
-				StringBuilder builder 	= root.translateToXML();
+				xmlTranslationException = new XMLTranslationException("SAXException during parsing", e);
+
+				// print xml
+				StringBuilder builder = root.translateToXML();
 				System.out.println("Failed XML:");
 				System.out.println(builder.toString());
 			}
@@ -290,148 +298,158 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			throw xmlTranslationException;
 		return root;
 	}
+
 	private void setRoot(ElementState root)
 	{
-		this.root					= root;
-		this.currentElementState	= root;
+		this.root = root;
+		this.currentElementState = root;
 	}
-	
+
 	private ClassDescriptor currentClassDescriptor()
 	{
 		return this.currentElementState.classDescriptor();
 	}
-	
+
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
-	 * @see org.xml.sax.ContentHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
+	 * 
+	 * @see org.xml.sax.ContentHandler#startElement(java.lang.String, java.lang.String,
+	 *      java.lang.String, org.xml.sax.Attributes)
 	 */
-	public void startElement(String uri, String localName, String tagName, Attributes attributes) 
-	throws SAXException
+	public void startElement(String uri, String localName, String tagName, Attributes attributes)
+			throws SAXException
 	{
 		if (xmlTranslationException != null)
 			return;
 
-		FieldDescriptor activeFieldDescriptor		= null;
-		final boolean isRoot 					= (root == null);
+		FieldDescriptor activeFieldDescriptor = null;
+		final boolean isRoot = (root == null);
 		if (isRoot)
-		{	// form the root ElementState!
-			ClassDescriptor rootClassDescriptor	= translationScope.getClassDescriptorByTag(tagName);
+		{ // form the root ElementState!
+			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(tagName);
 			if (rootClassDescriptor != null)
 			{
 				ElementState root;
 				try
 				{
-					root					= rootClassDescriptor.getInstance();
+					root = rootClassDescriptor.getInstance();
 					if (root != null)
 					{
 						root.setupRoot();
 						setRoot(root);
 						root.translateAttributes(translationScope, attributes, this, root);
-						activeFieldDescriptor				= rootClassDescriptor.pseudoFieldDescriptor();
+						activeFieldDescriptor = rootClassDescriptor.pseudoFieldDescriptor();
 					}
 					else
 					{
-						this.xmlTranslationException	= new RootElementException(tagName, translationScope);
+						this.xmlTranslationException = new RootElementException(tagName, translationScope);
 						return;
 					}
-				} catch (XMLTranslationException e)
+				}
+				catch (XMLTranslationException e)
 				{
-					xmlTranslationException	= e;
+					xmlTranslationException = e;
 				}
 			}
 			else
 			{
 				// else, we dont translate this element; we ignore it.
 				String message = "XML Translation WARNING: Cant find class object for Root XML element <"
-						+ tagName + ">: Ignored. ";
+						+ tagName
+						+ ">: Ignored. ";
 				println(message);
-				xmlTranslationException		= new XMLTranslationException(message);
+				xmlTranslationException = new XMLTranslationException(message);
 				return;
 			}
 		}
-		else	// not root
+		else
+		// not root
 		{
 			final int currentType = currentFD.getType();
-			ElementState currentES		= this.currentElementState;
+			ElementState currentES = this.currentElementState;
 			// if there is a pending text node, assign it somehow!
 			processPendingTextScalar(currentType, currentES);
-				
+
 			ClassDescriptor currentClassDescriptor = currentClassDescriptor();
-			activeFieldDescriptor	= (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
-				// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
-				FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR :
-				(currentType == WRAPPER) ? currentFD.getWrappedFD() :
-				currentClassDescriptor.getFieldDescriptorByTag(tagName, translationScope, currentES);
+			activeFieldDescriptor = (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
+			// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
+			FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
+					: (currentType == WRAPPER) ? currentFD.getWrappedFD() : currentClassDescriptor
+							.getFieldDescriptorByTag(tagName, translationScope, currentES);
 			if (activeFieldDescriptor == null)
 			{
 				currentClassDescriptor.warning(" Ignoring tag <" + tagName + ">");
-				activeFieldDescriptor	= new FieldDescriptor(tagName); //TODO -- should we record declaringClass in here??!
+				activeFieldDescriptor = new FieldDescriptor(tagName); // TODO -- should we record
+																															// declaringClass in here??!
 				currentClassDescriptor.addFieldDescriptorMapping(activeFieldDescriptor);
 			}
 		}
-		this.currentFD						= activeFieldDescriptor;
+		this.currentFD = activeFieldDescriptor;
 		registerXMLNS();
-		//TODO? -- do we need to avoid this if null from an exception in translating root?
+		// TODO? -- do we need to avoid this if null from an exception in translating root?
 		pushFD(activeFieldDescriptor);
-//		printStack("After push");
-		
+		// printStack("After push");
+
 		if (isRoot)
 			return;
-		
-		
-		ElementState currentElementState	= this.currentElementState;
-		ElementState childES				= null;
+
+		ElementState currentElementState = this.currentElementState;
+		ElementState childES = null;
 		try
 		{
 			switch (activeFieldDescriptor.getType())
 			{
 			case NESTED_ELEMENT:
-				childES							= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
-				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we should do this on close element
+				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
+																																										// should do
+																																										// this on close
+																																										// element
 				break;
 			case NAME_SPACE_NESTED_ELEMENT:
-				//TODO Name Space support!
-//				ElementState nsContext			= currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
-//				childES							= activeFieldDescriptor.constructChildElementState(nsContext);
-//				activeFieldDescriptor.setFieldToNestedObject(nsContext, childES);
+				// TODO Name Space support!
+				// ElementState nsContext =
+				// currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
+				// childES = activeFieldDescriptor.constructChildElementState(nsContext);
+				// activeFieldDescriptor.setFieldToNestedObject(nsContext, childES);
 				break;
 			case NAME_SPACE_LEAF_NODE:
-				//TODO Name Space support!
-//				childES							= currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
+				// TODO Name Space support!
+				// childES = currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
 				break;
 			case LEAF:
 				// wait for characters to set scalar field
-				//activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
+				// activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
 			case COLLECTION_ELEMENT:
-				Collection collection			= (Collection) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
+				Collection collection = (Collection) activeFieldDescriptor
+						.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+					childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 					collection.add(childES);
 				}
-				//activeNJO.formElementAndAddToCollection(activeES, childNode);
+				// activeNJO.formElementAndAddToCollection(activeES, childNode);
 				break;
 			case COLLECTION_SCALAR:
 				// wait for characters to create scalar reference type and add to collection
-				//activeN2JO.addLeafNodeToCollection(activeES, childNode);
+				// activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
-				Map map			= (Map) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
+				Map map = (Map) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
 				if (map != null)
 				{
-					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+					childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				}
-//				Map map							= activeFieldDescriptor.getMap(currentElementState);
-//				if (map != null)
-//				{
-//					childES						= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
-//				}
+				// Map map = activeFieldDescriptor.getMap(currentElementState);
+				// if (map != null)
+				// {
+				// childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+				// }
 				break;
 			case AWFUL_OLD_NESTED_ELEMENT:
-				childES							= activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				if (childES != null)
 					currentElementState.addNestedElement(childES);
 				break;
@@ -447,12 +465,13 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			{
 				// fill in its attributes
 				childES.translateAttributes(translationScope, attributes, this, currentElementState);
-				this.currentElementState		= childES;	// childES.parent = old currentElementState
-				this.currentFD					= activeFieldDescriptor;
+				this.currentElementState = childES; // childES.parent = old currentElementState
+				this.currentFD = activeFieldDescriptor;
 			}
-		} catch (XMLTranslationException e)
+		}
+		catch (XMLTranslationException e)
 		{
-			this.xmlTranslationException		= e;
+			this.xmlTranslationException = e;
 		}
 	}
 
@@ -460,52 +479,56 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	{
 		this.fdStack.add(fd);
 	}
+
 	private void popAndPeekFD()
 	{
 		ArrayList<FieldDescriptor> stack = this.fdStack;
-		int last	= stack.size() - 1;
+		int last = stack.size() - 1;
 		if (last >= 0)
 		{
-			FieldDescriptor result	= stack.remove(last--);
+			FieldDescriptor result = stack.remove(last--);
 			if (last >= 0)
-				result	= stack.get(last);
-			this.currentFD	= result;
-//			printStack("After Pop");
+				result = stack.get(last);
+			this.currentFD = result;
+			// printStack("After Pop");
 		}
 	}
+
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
-	 * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String, java.lang.String)
+	 * 
+	 * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String,
+	 *      java.lang.String)
 	 */
 	public void endElement(String namespaceURI, String localTagName, String prefixedTagName)
 			throws SAXException
 	{
 		if (xmlTranslationException != null)
 			return;
-		
-		final FieldDescriptor currentFD	= this.currentFD;
-		final int curentFdType 					= currentFD.getType();
-		
+
+		final FieldDescriptor currentFD = this.currentFD;
+		final int curentFdType = currentFD.getType();
+
 		if (curentFdType == NAMESPACE_TRIAL_ELEMENT)
 		{
 			// re-attempt lookup in case we figured out how
-			
+
 			// if not, we will have to set currentFdType = NAMESPACE_IGNORED_ELEMENT
 		}
-		
-		ElementState currentES					= this.currentElementState;
-		processPendingTextScalar(curentFdType, currentES);
-		
-		final ElementState parentES			= currentES.parent;
 
-		switch (curentFdType)	// every good push deserves a pop :-) (and othertimes, not!)
+		ElementState currentES = this.currentElementState;
+		processPendingTextScalar(curentFdType, currentES);
+
+		final ElementState parentES = currentES.parent;
+
+		switch (curentFdType)
+		// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			final Object key 							= ((Mappable) currentES).key();
+			final Object key = ((Mappable) currentES).key();
 			Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
-			//Map map												= currentFD.getMap(parentES);
+			// Map map = currentFD.getMap(parentES);
 			map.put(key, currentES);
 		case NESTED_ELEMENT:
 		case COLLECTION_ELEMENT:
@@ -515,32 +538,32 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			else
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
-			this.currentElementState			= currentES.parent;
+			this.currentElementState = currentES.parent;
 		case NAME_SPACE_LEAF_NODE:
 		case AWFUL_OLD_NESTED_ELEMENT:
-//		case WRAPPER:
-			this.currentElementState			= parentES;	// restore context!
+			// case WRAPPER:
+			this.currentElementState = parentES; // restore context!
 			break;
 		default:
 			break;
 		}
 		// end of the Namespace object, so we gotta pop it off, too.
-//		if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
-//			this.currentElementState		= this.currentElementState.parent;
+		// if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
+		// this.currentElementState = this.currentElementState.parent;
 		popAndPeekFD();
-		//if (this.startElementPushed)	// every good push deserves a pop :-) (and othertimes, not!)
+		// if (this.startElementPushed) // every good push deserves a pop :-) (and othertimes, not!)
 	}
-	
+
 	/**
-	 * Assign pending value from an @xml_text or @xml_leaf declaration to the appropriate Field or Collection element.
+	 * Assign pending value from an @xml_text or @xml_leaf declaration to the appropriate Field or
+	 * Collection element.
 	 * 
 	 * @param curentN2JOType
 	 * @param currentES
 	 */
-	private void processPendingTextScalar(final int curentN2JOType,
-			ElementState currentES)
+	private void processPendingTextScalar(final int curentN2JOType, ElementState currentES)
 	{
-		final int length 			= currentTextValue.length();
+		final int length = currentTextValue.length();
 		if (length > 0)
 		{
 			try
@@ -549,39 +572,42 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 				{
 				case NAME_SPACE_LEAF_NODE:
 				case LEAF:
-					//TODO -- unmarshall to set field with scalar type
+					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
-					String value	= new String(currentTextValue.substring(0, length));
+					String value = new String(currentTextValue.substring(0, length));
 					currentFD.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
-					value			= new String(currentTextValue.substring(0, length));
+					value = new String(currentTextValue.substring(0, length));
 					currentFD.addLeafNodeToCollection(currentES, value, this);
 					break;
 				case ROOT:
 				case NESTED_ELEMENT:
 				case COLLECTION_ELEMENT:
-					// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
+					// optimizations in currentN2JO are for its parent (they were in scope when it was
+					// constructed)
 					// so we get the optimizations we need from the currentElementState
-					//FIXME -- implement this!!!
-//					TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
-//					if (scalarTextChildN2jo != null)
-//					{
-//						value		= new String(currentTextValue.substring(0, length));
-//						scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
-//					}
+					// FIXME -- implement this!!!
+					// TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
+					// if (scalarTextChildN2jo != null)
+					// {
+					// value = new String(currentTextValue.substring(0, length));
+					// scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
+					// }
 					break;
 				default:
 					break;
 				}
-			} catch (XMLTranslationException e)
-			{
-				this.xmlTranslationException	= e;
 			}
-			
+			catch (XMLTranslationException e)
+			{
+				this.xmlTranslationException = e;
+			}
+
 			currentTextValue.setLength(0);
 		}
 	}
+
 	void printStack(String msg)
 	{
 		currentElementState.debug("Stack -- " + msg + "\t[" + this.currentElementState + "]");
@@ -591,15 +617,16 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 		}
 		println("");
 	}
-	StringBuilder currentTextValue	= new StringBuilder(1024);
+
+	StringBuilder	currentTextValue	= new StringBuilder(1024);
+
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#characters(char[], int, int)
 	 */
-	public void characters(char[] chars, int startIndex, int length) 
-	throws SAXException
+	public void characters(char[] chars, int startIndex, int length) throws SAXException
 	{
 		if (xmlTranslationException != null)
 			return;
@@ -613,28 +640,30 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			case COLLECTION_SCALAR:
 			case NAME_SPACE_LEAF_NODE:
 				currentTextValue.append(chars, startIndex, length);
-				//TODO -- unmarshall to set field with scalar type
+				// TODO -- unmarshall to set field with scalar type
 				break;
 			case ROOT:
 			case NESTED_ELEMENT:
 			case COLLECTION_ELEMENT:
-				// optimizations in currentN2JO are for its parent (they were in scope when it was constructed)
+				// optimizations in currentN2JO are for its parent (they were in scope when it was
+				// constructed)
 				// so we get the optimizations we need from the currentElementState
 				if (currentElementState.hasScalarTextField())
 					currentTextValue.append(chars, startIndex, length);
 				break;
 			default:
-				//TODO ?! can we dump characters in this case, or should we append to textNode?!
-				//currentElementState.appendLeafXML(buffy, leafElementName, leafValue, needsEscaping, isCDATA)
+				// TODO ?! can we dump characters in this case, or should we append to textNode?!
+				// currentElementState.appendLeafXML(buffy, leafElementName, leafValue, needsEscaping,
+				// isCDATA)
 				break;
 			}
 		}
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#endDocument()
 	 */
 	public void endDocument() throws SAXException
@@ -644,9 +673,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
 	 */
 	public void endPrefixMapping(String prefix) throws SAXException
@@ -656,35 +685,33 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
 	 */
-	public void ignorableWhitespace(char[] ch, int start, int length)
-			throws SAXException
+	public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String, java.lang.String)
 	 */
-	public void processingInstruction(String target, String data)
-			throws SAXException
+	public void processingInstruction(String target, String data) throws SAXException
 	{
 		// TODO Auto-generated method stub
 
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
 	 */
 	public void setDocumentLocator(Locator locator)
@@ -694,9 +721,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
 	 */
 	public void skippedEntity(String name) throws SAXException
@@ -706,9 +733,9 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#startDocument()
 	 */
 	public void startDocument() throws SAXException
@@ -718,18 +745,17 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	}
 
 	/**
-	 *
+	 * 
 	 * ${tags}
-	 *
+	 * 
 	 * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
 	 */
-	public void startPrefixMapping(String nsID, String urn)
-			throws SAXException
+	public void startPrefixMapping(String nsID, String urn) throws SAXException
 	{
-//		debug("Hi: startPrefixMapping(" + nsID +" := " + urn);
-//		this.nameSpacePrefix	= prefix;
-//		this.nameSpaceURN		= urn;
-		if (nsID.length() > 0)	// these days, ignore ns decls without an id (default ones)
+		// debug("Hi: startPrefixMapping(" + nsID +" := " + urn);
+		// this.nameSpacePrefix = prefix;
+		// this.nameSpaceURN = urn;
+		if (nsID.length() > 0) // these days, ignore ns decls without an id (default ones)
 		{
 			// push the urn in first; pop it off 2nd
 			xmlnsStack.add(urn);
@@ -737,40 +763,40 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 			xmlnsStack.add(nsID);
 		}
 	}
-	
-//	String	nameSpacePrefix;
-//	
-//	String	nameSpaceURN; //FIXME -- this should be a stack!
-	
+
+	// String nameSpacePrefix;
+	//	
+	// String nameSpaceURN; //FIXME -- this should be a stack!
+
 	ArrayList<String>	xmlnsStack	= new ArrayList<String>(2);
-	
+
 	void registerXMLNS()
 	{
-		int size	= xmlnsStack.size();
+		int size = xmlnsStack.size();
 		while (size >= 2)
 		{
-			String nameSpaceID	= xmlnsStack.remove(--size);
-			String urn			= xmlnsStack.remove(--size);
+			String nameSpaceID = xmlnsStack.remove(--size);
+			String urn = xmlnsStack.remove(--size);
 			if ((nameSpaceID != null) && (urn != null))
 			{
 				registerXMLNS(this.currentElementState, nameSpaceID, urn);
 			}
 		}
-//		String urn = nameSpaceURN;
-//		if (urn != null)
-//		{
-//			registerXMLNS(this.currentElementState, nameSpacePrefix, urn);
-//			nameSpaceURN	= null;
-//			nameSpacePrefix	= null;
-//		}
+		// String urn = nameSpaceURN;
+		// if (urn != null)
+		// {
+		// registerXMLNS(this.currentElementState, nameSpacePrefix, urn);
+		// nameSpaceURN = null;
+		// nameSpacePrefix = null;
+		// }
 	}
 
-	
 	/**
 	 * Create a name space object, nested in the context, using info saved in this.
 	 * 
 	 * @param context
-	 * @param urn		The value of the xmlns:id attribute is the URL that is mapped to the class.
+	 * @param urn
+	 *          The value of the xmlns:id attribute is the URL that is mapped to the class.
 	 */
 	private void registerXMLNS(ElementState context, String prefix, String urn)
 	{
@@ -787,10 +813,12 @@ implements ContentHandler, FieldTypes, ScalarUnmarshallingContext
 	{
 		return root;
 	}
+
 	public File fileContext()
 	{
 		return (fileContext != null) ? fileContext : (purlContext != null) ? purlContext.file() : null;
 	}
+
 	public ParsedURL purlContext()
 	{
 		return purlContext;

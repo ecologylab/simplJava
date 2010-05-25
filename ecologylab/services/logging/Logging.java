@@ -26,7 +26,6 @@ import ecologylab.services.distributed.client.NIOClient;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.exception.MessageTooLargeException;
-import ecologylab.services.logging.translationScope.LoggingTranslations;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
@@ -44,13 +43,15 @@ import ecologylab.xml.XMLTranslationException;
 public class Logging<T extends MixedInitiativeOp> extends ElementState implements
 		StartAndStoppable, ServicesHostsAndPorts
 {
+	public static final String	MIXED_INITIATIVE_OP_TRANSLATION_SCOPE	= "MIXED_INITIATIVE_OP_TRANSLATION_SCOPE";
+
 	/**
 	 * This field is used for reading a log in from a file, but not for writing one, because we dont
 	 * the write the log file all at once, and so can't automatically translate the start tag and end
 	 * tag for this element.
 	 */
 	@xml_collection
-	@xml_scope(LoggingTranslations.LOGGING_TRANSLATION_SCOPE)
+	@xml_scope(MIXED_INITIATIVE_OP_TRANSLATION_SCOPE)
 	protected ArrayList<T>			opSequence;
 
 	Thread											thread;
@@ -59,7 +60,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * Does all the work of logging, if there is any work to be done. If this is null, then there is
 	 * no logging; conversely, if there is no logging, this is null.
 	 */
-	ArrayList<LogWriter>				logWriters													= null;
+	ArrayList<LogWriter>				logWriters														= null;
 
 	/**
 	 * This is the Vector for the operations that are being queued up before they can go to
@@ -75,67 +76,67 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	/** Stores the pointer to outgoingOpsBuffer for swapQueues. */
 	private StringBuilder				tempOpsBuffer;
 
-	static final int						THREAD_PRIORITY											= 1;
+	static final int						THREAD_PRIORITY												= 1;
 
 	/** Amount of time for writer thread to sleep; 15 seconds */
-	static final int						SLEEP_TIME													= 15000;
+	static final int						SLEEP_TIME														= 15000;
 
-	static final long						sessionStartTime										= System.currentTimeMillis();
+	static final long						sessionStartTime											= System.currentTimeMillis();
 
 	long												lastGcTime;
 
 	/** Amount of time to wait before booting the garbage collector; 5 minutes */
-	static final long						KICK_GC_INTERVAL										= 300000;
+	static final long						KICK_GC_INTERVAL											= 300000;
 
-	private static final String	SESSION_LOG_START										= "\n<session_log>\n ";
+	private static final String	SESSION_LOG_START											= "\n<session_log>\n ";
 
-	static final String					OP_SEQUENCE_START										= "\n\n<op_sequence>\n\n";
+	static final String					OP_SEQUENCE_START											= "\n\n<op_sequence>\n\n";
 
-	static final String					OP_SEQUENCE_END											= "\n</op_sequence>\n";
+	static final String					OP_SEQUENCE_END												= "\n</op_sequence>\n";
 
 	/** Logging closing message string written to the logging file at the end */
-	public static final String	LOG_CLOSING													= "\n</op_sequence></session_log>\n\n";
+	public static final String	LOG_CLOSING														= "\n</op_sequence></session_log>\n\n";
 
 	/** Logging Header message string written to the logging file in the begining */
-	static final String					BEGIN_EMIT													= XMLTools.xmlHeader()
-																																			+ SESSION_LOG_START;
+	static final String					BEGIN_EMIT														= XMLTools.xmlHeader()
+																																				+ SESSION_LOG_START;
 
 	/** Preference setting for no logging. */
-	public static final int			NO_LOGGING													= 0;
+	public static final int			NO_LOGGING														= 0;
 
 	/** Preference setting for logging to a file using normal IO. */
-	public static final int			LOG_TO_FILE													= 1;
+	public static final int			LOG_TO_FILE														= 1;
 
 	/** Preference setting for logging to a remote server. */
-	public static final int			LOG_TO_SERVICES_SERVER							= 2;
+	public static final int			LOG_TO_SERVICES_SERVER								= 2;
 
 	/** Preference setting for logging to a file using memory-mapped IO. */
-	public static final int			LOG_TO_MEMORY_MAPPED_FILE						= 4;
+	public static final int			LOG_TO_MEMORY_MAPPED_FILE							= 4;
 
 	/** Preference setting for logging both to a memory-mapped file and a server. */
-	public static final int			LOG_TO_MM_FILE_AND_SERVER_REDUNDANT	= LOG_TO_MEMORY_MAPPED_FILE
-																																			& LOG_TO_SERVICES_SERVER;
+	public static final int			LOG_TO_MM_FILE_AND_SERVER_REDUNDANT		= LOG_TO_MEMORY_MAPPED_FILE
+																																				& LOG_TO_SERVICES_SERVER;
 
 	/** Preference setting for logging both to a normal IO file and a server. */
-	public static final int			LOG_TO_FILE_AND_SERVER_REDUNDANT		= LOG_TO_FILE
-																																			& LOG_TO_SERVICES_SERVER;
+	public static final int			LOG_TO_FILE_AND_SERVER_REDUNDANT			= LOG_TO_FILE
+																																				& LOG_TO_SERVICES_SERVER;
 
-	static final int						MAX_OPS_BEFORE_WRITE								= 10;
+	static final int						MAX_OPS_BEFORE_WRITE									= 10;
 
-	public static final String	LOGGING_HOST_PARAM									= "logging_host";
+	public static final String	LOGGING_HOST_PARAM										= "logging_host";
 
-	public static final String	LOGGING_PORT_PARAM									= "logging_port";
+	public static final String	LOGGING_PORT_PARAM										= "logging_port";
 
-	public static final String	LOGGING_MODE_PARAM									= "log_mode";
+	public static final String	LOGGING_MODE_PARAM										= "log_mode";
 
 	final int										maxOpsBeforeWrite;
 
 	final int										maxBufferSizeToWrite;
 
 	/** used to prevent writes from getting interrupt()'ed */
-	private Object							threadSemaphore											= new Object();
+	private Object							threadSemaphore												= new Object();
 
-	private volatile boolean		runMethodDone												= false;
+	private volatile boolean		runMethodDone													= false;
 
 	volatile boolean						finished;
 

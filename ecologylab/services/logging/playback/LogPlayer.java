@@ -7,13 +7,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -22,13 +20,14 @@ import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
+import ecologylab.services.logging.translationScope.MixedInitiativeOpClassesProvider;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
  * The main application for playing back log files.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Logging<OP>> extends
 		ApplicationEnvironment implements ActionListener, WindowListener, PlaybackControlCommands,
@@ -79,11 +78,27 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean															logLoadComplete							= false;
 
-	public LogPlayer(String appName, String[] args, TranslationScope translationSpace)
-			throws XMLTranslationException
+	/**
+	 * 
+	 * @param appName
+	 * @param args
+	 * @param translationSpace
+	 * @param opSubclasses
+	 *          An array of subclasses of MixedInitiativeOp that will be used to translate the
+	 *          operations read in by the player.
+	 * @throws XMLTranslationException
+	 */
+	public LogPlayer(String appName, String[] args, TranslationScope translationSpace,
+			Class[] opSubclasses) throws XMLTranslationException
 	{
 		super(appName, translationSpace, null, args, 0);
 
+		// create a translation scope for the opSubclasses
+		if (opSubclasses == null)
+			opSubclasses = MixedInitiativeOpClassesProvider.STATIC_INSTANCE.provideClasses();
+		
+		TranslationScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE, opSubclasses);
+		
 		guiShown = false;
 
 		this.translationSpace = translationSpace;

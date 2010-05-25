@@ -12,17 +12,17 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.types.element.ElementTypeTranslationsProvider;
 
 /**
- * Provide XML translation mappings for use with sensors.
+ * Provide XML translation for logging basics.
  * 
- * @author Zachary O. Toups (toupsz@gmail.com)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class LoggingTranslations
+public class LoggingTranslationsProvider
 {
 	public static final String							LOGGING_TRANSLATION_SCOPE	= "LOGGING_TRANSLATION_SCOPE";
 
 	private static final TranslationScope[]	OTHER_TRANSLATION_SCOPES	=
-																																		{
-			MixedInitiativeOpTranslationScope.get(), ElementTypeTranslationsProvider.get() };
+																																		{ ElementTypeTranslationsProvider
+																																				.get() };
 
 	public static final Class								TRANSLATIONS[]						=
 																																		{ Logging.class, LogOps.class,
@@ -36,6 +36,7 @@ public class LoggingTranslations
 	 */
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(LOGGING_TRANSLATION_SCOPE, OTHER_TRANSLATION_SCOPES, TRANSLATIONS);
+		return TranslationScope.get(LOGGING_TRANSLATION_SCOPE, OTHER_TRANSLATION_SCOPES, TRANSLATIONS,
+				MixedInitiativeOpClassesProvider.STATIC_INSTANCE.provideClasses());
 	}
 }
