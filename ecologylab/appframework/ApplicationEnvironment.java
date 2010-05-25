@@ -13,6 +13,7 @@ import java.util.Stack;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
+import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
 import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.collections.Scope;
@@ -50,7 +51,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 																																	+ "preferences.xml";
 
 	Scope													sessionScope;
-	
+
 	TranslationScope							translationSpace;
 
 	/**
@@ -127,7 +128,33 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationSpace,
 			String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
-		this(null, applicationName, null, translationSpace, args, prefsAssetVersion);
+		this(applicationName, translationSpace, null, args, prefsAssetVersion);
+	}
+
+	/**
+	 * Create an ApplicationEnvironment. Load preferences from XML file founds in the
+	 * config/preferences directory. Default preferences will be loaded from preferences.xml. If there
+	 * is a 0th command line argument, that is the name of an additional preferences file.
+	 * 
+	 * @param applicationName
+	 * @param translationScope
+	 *          TranslationSpace used for translating preferences XML. If this is null,
+	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
+	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * @param customPrefs TODO
+	 * @param args
+	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
+	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
+	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
+	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion
+	 *          TODO
+	 * @throws XMLTranslationException
+	 */
+	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
+			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
+	{
+		this(null, applicationName, null, translationScope, customPrefs, args, prefsAssetVersion);
 	}
 
 	/**
@@ -152,7 +179,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, String args[])
 			throws XMLTranslationException
 	{
-		this(applicationName, (TranslationScope) null, args, 0);
+		this(applicationName, (TranslationScope) null, null, args, 0);
 	}
 
 	/**
@@ -182,21 +209,22 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, String args[])
 			throws XMLTranslationException
 	{
-		this(baseClass, applicationName, null, null, args, 0);
+		this(baseClass, applicationName, null, null, null, args, 0);
 	}
 
 	/**
 	 * Additional constructor to hold the session scope for post processing loaded preferences.
+	 * 
 	 * @param applicationName
 	 * @param sessionScope
 	 */
-	public ApplicationEnvironment(Class<?> baseClass, String applicationName, 
-					TranslationScope translationSpace, String args[], float prefsAssetVersion)
-	throws XMLTranslationException
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName,
+			TranslationScope translationSpace, String args[], float prefsAssetVersion)
+			throws XMLTranslationException
 	{
-		this(baseClass, applicationName, null, translationSpace, args, prefsAssetVersion);
+		this(baseClass, applicationName, null, translationSpace, null, args, prefsAssetVersion);
 	}
-	
+
 	/**
 	 * Create an ApplicationEnvironment.
 	 * <p/>
@@ -247,6 +275,69 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			throws XMLTranslationException
 	// String preferencesFileRelativePath, String graphicsDev, String screenSize)
 	{
+		this(baseClass, applicationName, sessionScope, translationSpace, null, args, prefsAssetVersion);
+	}
+
+	/**
+	 * Create an ApplicationEnvironment.
+	 * <p/>
+	 * Treats the args array like a stack. If any args are missing (based on their format), they are
+	 * skipped.
+	 * <p/>
+	 * The first arg we seek is codeBase. This is a path that ends in slash. It may be a local
+	 * relative path, or a URL-based absolute path.
+	 * <p/>
+	 * The next possible arg is a preferences file. This ends with .xml.
+	 * <p/>
+	 * The next 2 possible args are integers, for graphicsDev and screenSize. graphics_device (screen
+	 * number) to display window. count from 0. screenSize used in TopLevel -- 1 - quarter; 2 - almost
+	 * half; 3; near full; 4 full
+	 * <p/>
+	 * Get the base for finding the path to the "codeBase" by using the package path of the baseClass
+	 * passed in.
+	 * <p/>
+	 * Load preferences from XML file founds in the codeBase/config/preferences directory. Default
+	 * preferences will be loaded from preferences.xml. If there is a 0th command line argument, that
+	 * is the name of an additional preferences file.
+	 * <p/>
+	 * Also, sets the Assets cacheRoot to the applicationDir().
+	 * <p/>
+	 * The default TranslationSpace, from
+	 * {@link ecologylab.services.messages.DefaultServicesTranslations
+	 * ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * 
+	 * @param baseClass
+	 *          Used for computing codeBase property.
+	 * @param applicationName
+	 *          Name of the application.
+	 * @param translationSpace
+	 *          TranslationSpace used for translating preferences XML. If this is null,
+	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
+	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * @param customPrefs
+	 *          An array of Pref subclasses that are used for this specific application. These classes
+	 *          will be automatically composed into a special translation scope used for translating
+	 *          prefs for the application. Note that translationSpace is NOT used for translating the
+	 *          application prefs, but is still required for other translations in the application.
+	 * @param args
+	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
+	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
+	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
+	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion
+	 *          TODO
+	 * @throws XMLTranslationException
+	 */
+	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
+			TranslationScope translationSpace, Class<? extends Pref<?>>[] customPrefs, String args[],
+			float prefsAssetVersion) throws XMLTranslationException
+	{
+		// configure the PrefSet translation scope, incorporating custom translations, if any
+		if (customPrefs == null)
+			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
+		
+		TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+
 		this.sessionScope = sessionScope;
 		this.translationSpace = translationSpace;
 
@@ -336,7 +427,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			{
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationSpace);
 				System.out.println("Prefs loaded From Servlet:: ");
-				if(prfs != null)
+				if (prfs != null)
 					prfs.translateToXML(System.out);
 				System.out.println(" --- End Prefs");
 			}
@@ -570,7 +661,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						if (argPrefSet != null)
 						{
 							println("OK: Loaded Prefs from: " + argPrefsFile);
-							if(prefSet != null)
+							if (prefSet != null)
 								prefSet.addPrefSet(argPrefSet);
 							else
 								prefSet = argPrefSet;
@@ -581,7 +672,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 							String doesntExist = argPrefsFile.exists() ? "" : "\n\tFile does not exist!!!\n\n";
 							println("ERROR: Loading Prefs from: " + argPrefsFile + doesntExist);
 						}
-						
+
 					}
 					catch (XMLTranslationException e)
 					{
@@ -610,7 +701,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		System.out.println("Printing Prefs:\n");
 		try
 		{
-			if(prefSet != null)
+			if (prefSet != null)
 				prefSet.translateToXML(System.out);
 		}
 		catch (XMLTranslationException e)
@@ -619,21 +710,22 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			e.printStackTrace();
 		}
 		System.out.println("\nPrefs Printed");
-		if(prefSet != null)
+		if (prefSet != null)
 			postProcessPrefs(prefSet);
 	}
 
 	/**
 	 * Look for pref Ops, if delayed: setup their timers, and also set scope for their ops.
+	 * 
 	 * @param prefSet
 	 */
 	@SuppressWarnings("unchecked")
 	private void postProcessPrefs(PrefSet prefSet)
 	{
-		if(sessionScope == null)
+		if (sessionScope == null)
 			return;
-		for(Pref pref : prefSet.values())
-			if(pref != null )
+		for (Pref pref : prefSet.values())
+			if (pref != null)
 				pref.postLoadHook(sessionScope);
 	}
 

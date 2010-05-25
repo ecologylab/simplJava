@@ -9,7 +9,7 @@ import ecologylab.services.logging.Prologue;
 import ecologylab.services.logging.SendEpilogue;
 import ecologylab.services.logging.SendPrologue;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.types.element.ElementTypeTranslations;
+import ecologylab.xml.types.element.ElementTypeTranslationsProvider;
 
 /**
  * Provide XML translation mappings for use with sensors.
@@ -22,7 +22,7 @@ public class LoggingTranslations
 
 	private static final TranslationScope[]	OTHER_TRANSLATION_SCOPES	=
 																																		{
-			MixedInitiativeOpTranslationScope.get(), ElementTypeTranslations.get() };
+			MixedInitiativeOpTranslationScope.get(), ElementTypeTranslationsProvider.get() };
 
 	public static final Class								TRANSLATIONS[]						=
 																																		{ Logging.class, LogOps.class,

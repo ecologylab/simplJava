@@ -82,7 +82,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	public LogPlayer(String appName, String[] args, TranslationScope translationSpace)
 			throws XMLTranslationException
 	{
-		super(appName, translationSpace, args, 0);
+		super(appName, translationSpace, null, args, 0);
 
 		guiShown = false;
 

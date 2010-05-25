@@ -6,7 +6,7 @@ import ecologylab.services.logging.Prologue;
 import ecologylab.services.logging.SendEpilogue;
 import ecologylab.services.logging.SendPrologue;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.types.element.ElementTypeTranslations;
+import ecologylab.xml.types.element.ElementTypeTranslationsProvider;
 
 /**
  * Provide XML translation mappings for use in processing CF services requests.
@@ -41,6 +41,6 @@ public class DefaultServicesTranslations
 	 */
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, ElementTypeTranslations.get(), TRANSLATIONS);
+		return TranslationScope.get(PACKAGE_NAME, ElementTypeTranslationsProvider.get(), TRANSLATIONS);
 	}
 }

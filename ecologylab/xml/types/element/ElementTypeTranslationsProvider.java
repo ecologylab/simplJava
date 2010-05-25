@@ -11,13 +11,13 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author andruid
  */
-public class ElementTypeTranslations extends Debug 
+public class ElementTypeTranslationsProvider extends Debug 
 {
 
 	/**
 	 * Prevent external calls. Use get().
 	 */
-	private ElementTypeTranslations() 
+	private ElementTypeTranslationsProvider() 
 	{
 	}
 
