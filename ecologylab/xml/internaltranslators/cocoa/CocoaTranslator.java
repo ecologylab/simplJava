@@ -146,8 +146,7 @@ public class CocoaTranslator
    {
 	   int length = classes.length;
 	   for(int i = 0; i < length; i++){
-		   translateToObjCHeader(classes[i], appendable);
-		   translateToObjCImplementation(classes[i], appendable);
+		   translateToObjC(classes[i], appendable);
 	   }
    
    }
