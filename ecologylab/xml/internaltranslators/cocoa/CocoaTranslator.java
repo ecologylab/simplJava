@@ -145,7 +145,7 @@ public class CocoaTranslator
    public void translateToObjC(Appendable appendable, Class<? extends ElementState>... classes) throws IOException, CocoaTranslationException
    {
 	   int length = classes.length;
-	   for(int i = 0; i < length; i++){
+	   for(int i = 0; i < length; i++){ 
 		   translateToObjC(classes[i], appendable);
 	   }
    
@@ -184,7 +184,7 @@ public class CocoaTranslator
 	   
       HashMapArrayList<String, FieldDescriptor> fieldDescriptors = classDescriptor.getFieldDescriptorsByFieldName();
       
-      appendHeaderComments(inputClass, appendable);
+      appendHeaderComments(inputClass, appendable);      
       
       openHeaderFile(inputClass, appendable);      
 
@@ -1100,10 +1100,9 @@ public class CocoaTranslator
    public static void main(String args[]) throws Exception
    {
       CocoaTranslator c = new CocoaTranslator();
-//      c.translateToObjC(Item.class, new ParsedURL(new File("/")));
+      //c.translateToObjC(Item.class, new ParsedURL(new File("/")));
       //c.translateToObjC(new ParsedURL(new File("/")), Schmannel.class, BItem.class, SchmItem.class, RssState.class, Item.class, Channel.class);
       c.translateToObjCRecursive(Entity.class, System.out);
    }
 
 }
-
