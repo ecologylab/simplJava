@@ -2372,8 +2372,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
      * 
      * @author Zachary O. Toups (toupsz@cs.tamu.edu)
      */
-    @Retention(RetentionPolicy.RUNTIME) 
-    @Inherited 
+    @Retention(RetentionPolicy.RUNTIME)      
     public @interface xml_tag
     {
         String value();
