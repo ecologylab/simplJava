@@ -2385,8 +2385,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
      * 
      * @author andruid
      */
-    @Retention(RetentionPolicy.RUNTIME) 
-    @Inherited 
+    @Retention(RetentionPolicy.RUNTIME)      
     public @interface xml_other_tags
     {
         String[] value();
