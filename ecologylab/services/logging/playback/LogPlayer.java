@@ -91,7 +91,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	public LogPlayer(String appName, String[] args, TranslationScope translationSpace,
 			Class[] opSubclasses) throws XMLTranslationException
 	{
-		super(appName, translationSpace, null, args, 0);
+		super(appName, translationSpace, (TranslationScope) null, args, 0);
 
 		// create a translation scope for the opSubclasses
 		if (opSubclasses == null)

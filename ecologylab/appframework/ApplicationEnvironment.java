@@ -128,7 +128,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationSpace,
 			String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
-		this(applicationName, translationSpace, null, args, prefsAssetVersion);
+		this(applicationName, translationSpace, (TranslationScope)null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -154,7 +154,49 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
 			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
-		this(null, applicationName, null, translationScope, customPrefs, args, prefsAssetVersion);
+		this(null, applicationName, null, translationScope, prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
+	}
+	
+	/**
+	 * Create an ApplicationEnvironment. Load preferences from XML file founds in the
+	 * config/preferences directory. Default preferences will be loaded from preferences.xml. If there
+	 * is a 0th command line argument, that is the name of an additional preferences file.
+	 * 
+	 * @param applicationName
+	 * @param translationScope
+	 *          TranslationSpace used for translating preferences XML. If this is null,
+	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
+	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * @param customPrefsTranslationScope TODO
+	 * @param args
+	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
+	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
+	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
+	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion
+	 *          TODO
+	 * @throws XMLTranslationException
+	 */
+	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
+			TranslationScope customPrefsTranslationScope, String args[], float prefsAssetVersion) throws XMLTranslationException
+	{
+		this(null, applicationName, null, translationScope, customPrefsTranslationScope, args, prefsAssetVersion);
+	}
+	
+	
+	/**
+	 * Configures a TranslationScope for the PREFS_TRANSLATION_SCOPE using the given customPrefs and returns it.
+	 * 
+	 * @param customPrefs
+	 * @return
+	 */
+	private static final TranslationScope prefsClassArrayToTranslationScope(Class<? extends Pref<?>>[] customPrefs)
+	{
+		// configure the PrefSet translation scope, incorporating custom translations, if any
+		if (customPrefs == null)
+			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
+		
+		return TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
 	}
 
 	/**
@@ -179,7 +221,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, String args[])
 			throws XMLTranslationException
 	{
-		this(applicationName, (TranslationScope) null, null, args, 0);
+		this(applicationName, (TranslationScope) null, (TranslationScope) null, args, 0);
 	}
 
 	/**
@@ -329,15 +371,21 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws XMLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
-			TranslationScope translationSpace, Class<? extends Pref<?>>[] customPrefs, String args[],
+			TranslationScope translationSpace, TranslationScope customPrefsTranslationScope, String args[],
 			float prefsAssetVersion) throws XMLTranslationException
 	{
-		// configure the PrefSet translation scope, incorporating custom translations, if any
-		if (customPrefs == null)
-			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
+		if (customPrefsTranslationScope != null)
+		{
+			TranslationScope[] arrayToMakeJavaShutUp = {customPrefsTranslationScope};
+			TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp);
+		}
+		else
+		{
+			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
+			
+			TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+		}
 		
-		TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
-
 		this.sessionScope = sessionScope;
 		this.translationSpace = translationSpace;
 
