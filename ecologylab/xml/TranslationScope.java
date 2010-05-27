@@ -352,7 +352,7 @@ public final class TranslationScope extends ElementState
 		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
 
-		String[] otherTags = XMLTools.otherTags(entry.getDescribedClass());
+		String[] otherTags = entry.otherTags();
 		if (otherTags != null)
 			for (String otherTag : otherTags)
 			{

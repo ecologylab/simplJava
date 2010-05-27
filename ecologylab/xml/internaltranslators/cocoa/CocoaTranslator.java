@@ -4,10 +4,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import com.sun.javadoc.RootDoc;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -145,7 +148,8 @@ public class CocoaTranslator
    public void translateToObjC(Appendable appendable, Class<? extends ElementState>... classes) throws IOException, CocoaTranslationException
    {
 	   int length = classes.length;
-	   for(int i = 0; i < length; i++){ 
+	   for(int i = 0; i < length; i++)
+	   { 
 		   translateToObjC(classes[i], appendable);
 	   }
    
@@ -376,7 +380,8 @@ public class CocoaTranslator
    {
 	   ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
 	   int length = classes.size();
-	   for(int i = 0; i < length; i++){
+	   for(int i = 0; i < length; i++)
+	   {
 		   translateToObjCHeader(classes.get(i), directoryLocation);
 		   translateToObjCImplementation(classes.get(i), directoryLocation);
 	   }	   
@@ -662,8 +667,10 @@ public class CocoaTranslator
    {
 	  checkForKeywords(fieldAccessor, appendable);
 
+	  writeHeaderDocComment(fieldAccessor, appendable);
+	  
       if (fieldAccessor.isCollection())
-      {
+      {    	 
          appendFieldAsReference(fieldAccessor, appendable);
       }
       else if (fieldAccessor.isScalar())
@@ -700,6 +707,45 @@ public class CocoaTranslator
          }
       }
    }
+
+	private void writeHeaderDocComment(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException 
+	{
+		appendable.append(TranslationConstants.TAB);
+		appendable.append("/*!");
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(TranslationConstants.DOUBLE_TAB);
+		appendable.append("@var");
+		
+		appendable.append(TranslationConstants.DOUBLE_TAB);
+		appendable.append(fieldAccessor.getFieldName());
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(TranslationConstants.DOUBLE_TAB);
+		appendable.append("@abstract");
+		appendable.append(TranslationConstants.TAB);
+		
+		appendable.append("generated field annotated as ");		
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+		
+		Annotation[] annotations = fieldAccessor.getField().getAnnotations();
+		for(Annotation annotation : annotations)
+		{
+			appendable.append(TranslationConstants.DOUBLE_TAB);
+			appendable.append(TranslationConstants.DOUBLE_TAB);
+			appendable.append(annotation.toString());
+		}
+		
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);
+		
+		appendable.append(TranslationConstants.DOUBLE_TAB);
+		appendable.append("@discussion");
+		appendable.append(TranslationConstants.TAB);
+		appendable.append("java docs goes here");
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);	
+		
+		appendable.append(TranslationConstants.TAB);
+		appendable.append("*/");
+		appendable.append(TranslationConstants.SINGLE_LINE_BREAK);	
+	}
 
 	private void checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable) throws IOException 
 	{
@@ -797,7 +843,7 @@ public class CocoaTranslator
       fieldDeclaration.append(TranslationConstants.REFERENCE);
       fieldDeclaration.append(fieldAccessor.getFieldName());
       fieldDeclaration.append(TranslationConstants.TERMINATOR);
-      fieldDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
+      fieldDeclaration.append(TranslationConstants.DOUBLE_LINE_BREAK);
 
       appendable.append(fieldDeclaration);
    }
@@ -819,7 +865,7 @@ public class CocoaTranslator
       fieldDeclaration.append(TranslationConstants.SPACE);
       fieldDeclaration.append(fieldAccessor.getFieldName());
       fieldDeclaration.append(TranslationConstants.TERMINATOR);
-      fieldDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
+      fieldDeclaration.append(TranslationConstants.DOUBLE_LINE_BREAK);
 
       appendable.append(fieldDeclaration);
    }
@@ -842,7 +888,7 @@ public class CocoaTranslator
       fieldDeclaration.append(TranslationConstants.REFERENCE);
       fieldDeclaration.append(fieldAccessor.getFieldName());
       fieldDeclaration.append(TranslationConstants.TERMINATOR);
-      fieldDeclaration.append(TranslationConstants.SINGLE_LINE_BREAK);
+      fieldDeclaration.append(TranslationConstants.DOUBLE_LINE_BREAK);
 
       appendable.append(fieldDeclaration);
    }
@@ -965,7 +1011,7 @@ public class CocoaTranslator
 	      {    
 	         for (FieldDescriptor fieldDescriptor : attributes)
 	         {
-	        	if(fieldDescriptor.belongsTo(classDescriptor))
+	        	if(fieldDescriptor.belongsTo(classDescriptor) && fieldDescriptor.getScalarType().isReference())
 	        	{
 	        		appendDeallocStatement(fieldDescriptor, appendable);
 	        	}
@@ -1102,7 +1148,7 @@ public class CocoaTranslator
       CocoaTranslator c = new CocoaTranslator();
       //c.translateToObjC(Item.class, new ParsedURL(new File("/")));
       //c.translateToObjC(new ParsedURL(new File("/")), Schmannel.class, BItem.class, SchmItem.class, RssState.class, Item.class, Channel.class);
-      c.translateToObjCRecursive(Entity.class, System.out);
+      c.translateToObjC(Entity.class, System.out);
    }
 
 }

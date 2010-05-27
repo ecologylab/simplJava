@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Node;
 
@@ -16,6 +17,8 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.ValueFactory;
+import ecologylab.xml.ElementState.xml_other_tags;
+import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -366,8 +369,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
 
 				// also add mappings for @xml_other_tags
-				ElementState.xml_other_tags otherTagsAnnotation 	= thatField.getAnnotation(ElementState.xml_other_tags.class);
-				String[] otherTags		= XMLTools.otherTags(otherTagsAnnotation);
+				String[] otherTags		= this.otherTags();
 				if (otherTags != null)
 				{
 					//TODO -- @xml_other_tags for collection/map how should it work?!
@@ -389,12 +391,21 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 */
 	void mapTagClassDescriptors(FieldDescriptor fieldDescriptor) 
 	{
-		Collection<ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
-		if (tagClassDescriptors != null)
-			for (ClassDescriptor classDescriptor: tagClassDescriptors)
-			{
-					mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
-			}
+		HashMapArrayList<String, ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
+		
+		for(String tagName : tagClassDescriptors.keySet())
+		{
+			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
+		}
+
+//		Collection<ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
+//		if (tagClassDescriptors != null)
+//		{
+//			for (ClassDescriptor classDescriptor: tagClassDescriptors)
+//			{
+//					mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
+//			}			
+//		}
 	}
 	static final Class[] FIELD_DESCRIPTOR_ARGS =
 	{
@@ -629,5 +640,22 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 			}
 		}
 		unresolvedScopeAnnotationFDs	= null;
+	}
+	/**
+	 * Use the @xml_other_tags annotation to obtain an array of alternative (old) tags for this class.
+	 * 
+	 * @return	The array of old tags, or null, if there is no @xml_other_tags annotation.
+	 */
+	String[] otherTags()
+	{
+		Class<ES> thisClass	= describedClass();
+		final ElementState.xml_other_tags otherTagsAnnotation = thisClass.getAnnotation(xml_other_tags.class);
+
+		//commented out since getAnnotation also includes inherited annotations 
+		//ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+		if (otherTagsAnnotation == null)
+			return null;
+		String[] result	= otherTagsAnnotation.value();
+		return  result == null ? null : result.length == 0 ? null : result;
 	}
 }

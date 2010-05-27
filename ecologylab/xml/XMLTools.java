@@ -1255,32 +1255,6 @@ implements CharacterConstants, SpecialCharacterEntities
 		buffy.append("<html>").append(htmlFragmentString).append("</html>").toString();
 	}
 
-	static String[] otherTags(Class<ElementState> thisClass)
-	{
-	   //Using this code to get only the declared annotations from the class file
-	   ElementState.xml_other_tags otherTagsAnnotation = null;
-	   Annotation[] annotations = thisClass.getDeclaredAnnotations();
-       for(Annotation annotation : annotations )
-       	{
-		   if(annotation.annotationType() == ElementState.xml_other_tags.class)
-		   {
-			   otherTagsAnnotation = (xml_other_tags) annotation;
-			   break;
-		   }
-       	}
-		   
-	   //commented out since getAnnotation also includes inherited annotations 
-	   //ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
-	   return otherTagsAnnotation == null ? null : otherTags(otherTagsAnnotation);
-		
-	}
-	static String[] otherTags(ElementState.xml_other_tags otherTagsAnnotation)
-	{
-		String[]	result	= otherTagsAnnotation == null ? null : otherTagsAnnotation.value();
-		if ((result != null) && (result.length == 0))
-			result			= null;
-		return result;
-	}
 
 	public static void main(String[] a)
 	{

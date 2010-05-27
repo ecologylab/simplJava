@@ -44,6 +44,7 @@ public class TranslationConstants
    public static final String SINGLE_LINE_BREAK = "\n";
    public static final String DOUBLE_LINE_BREAK = "\n\n";
    public static final String TAB = "\t";
+   public static final String DOUBLE_TAB = "\t\t";
       
    public static final String SPACE = " ";
    public static final String DOT = ".";

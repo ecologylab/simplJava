@@ -2451,7 +2451,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
      * or collect values when elements have the tags, if the field is declared with @xml_collection.
      */
     @Retention(RetentionPolicy.RUNTIME) 
-    @Inherited 
     public @interface xml_classes
     {
         Class<? extends ElementState>[] value();

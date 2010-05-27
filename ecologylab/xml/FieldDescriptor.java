@@ -230,7 +230,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (ElementState.class.isAssignableFrom(thatClass))
 				{
 					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
-					tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+					putTagClassDescriptor(classDescriptor);
 					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 				}
 		}
@@ -242,10 +242,25 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			initTagClassDescriptorsArrayList(1);
 			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(classAnnotation);
-			tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+			putTagClassDescriptor(classDescriptor);
 			tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 		}
 		return tagClassDescriptors != null;
+	}
+
+	private void putTagClassDescriptor(ClassDescriptor classDescriptor) 
+	{
+		tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+		String[] otherTags = classDescriptor.otherTags();
+		if (otherTags != null)
+			for (String otherTag : otherTags)
+			{
+				if ((otherTag != null) && (otherTag.length() > 0))
+				{
+					tagClassDescriptors.put(otherTag, classDescriptor);
+				}
+			}
+
 	}
 	
 	/**
@@ -487,26 +502,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 		
 		return result;
-	}
-
-	private void extractOtherTags(Field field)
-	{
-		ElementState.xml_other_tags otherTagsAnnotation 	= field.getAnnotation(ElementState.xml_other_tags.class);
-		if (otherTagsAnnotation != null)
-		{
-			String[] otherTags	= XMLTools.otherTags(otherTagsAnnotation);
-			if (otherTags.length > 0)
-			{
-				this.otherTags		= new ArrayList<String>(otherTags.length);
-				for (String otherTag : otherTags)
-				{
-					if ((otherTag != null) && (otherTag.length() > 0))
-					{
-						this.otherTags.add(otherTag);
-					}
-				}
-			}
-		}
 	}
 
 	private boolean checkAssignableFrom(Class targetClass, Field field, Class fieldClass, String annotationDescription)
@@ -1258,12 +1253,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return "FieldDescriptor[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type) + "]";
 	}
 
-	public Collection<ClassDescriptor> getTagClassDescriptors()
+	public HashMapArrayList<String, ClassDescriptor> getTagClassDescriptors()
 	{
 		if(tagClassDescriptors == null) 
 			return null;
 		else
-		return tagClassDescriptors.values();
+		return tagClassDescriptors;
 	}
 
 	public void writeElementStart(StringBuilder buffy) 
