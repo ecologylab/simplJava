@@ -369,7 +369,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
 
 				// also add mappings for @xml_other_tags
-				String[] otherTags		= this.otherTags();
+				String[] otherTags		= fieldDescriptor.otherTags();
 				if (otherTags != null)
 				{
 					//TODO -- @xml_other_tags for collection/map how should it work?!

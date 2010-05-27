@@ -21,6 +21,7 @@ import org.w3c.dom.Text;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -1642,6 +1643,18 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public boolean belongsTo(ClassDescriptor c)
 	{
 		return this.field.getDeclaringClass() == c.getDescribedClass();
+	}
+	
+	String[] otherTags()
+	{
+		final ElementState.xml_other_tags otherTagsAnnotation = this.getField().getAnnotation(xml_other_tags.class);
+
+		//commented out since getAnnotation also includes inherited annotations 
+		//ElementState.xml_other_tags otherTagsAnnotation 	= thisClass.getAnnotation(ElementState.xml_other_tags.class);
+		if (otherTagsAnnotation == null)
+			return null;
+		String[] result	= otherTagsAnnotation.value();
+		return  result == null ? null : result.length == 0 ? null : result;
 	}
 	
 }
