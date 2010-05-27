@@ -393,10 +393,11 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	{
 		HashMapArrayList<String, ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
 		
-		for(String tagName : tagClassDescriptors.keySet())
-		{
-			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
-		}
+		if(tagClassDescriptors != null)
+			for(String tagName : tagClassDescriptors.keySet())
+			{
+				mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
+			}
 
 //		Collection<ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
 //		if (tagClassDescriptors != null)
