@@ -251,16 +251,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	private void putTagClassDescriptor(ClassDescriptor classDescriptor) 
 	{
 		tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
-//		String[] otherTags = classDescriptor.otherTags();
-//		if (otherTags != null)
-//			for (String otherTag : otherTags)
-//			{
-//				if ((otherTag != null) && (otherTag.length() > 0))
-//				{
-//					tagClassDescriptors.put(otherTag, classDescriptor);
-//				}
-//			}
-
+		String[] otherTags = classDescriptor.otherTags();
+		if (otherTags != null)
+			for (String otherTag : otherTags)
+			{
+				if ((otherTag != null) && (otherTag.length() > 0))
+				{
+					tagClassDescriptors.put(otherTag, classDescriptor);
+				}
+			}
 	}
 	
 	/**
