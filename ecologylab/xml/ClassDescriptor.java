@@ -80,6 +80,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this map) for a single FieldDescriptor
 	 * if @xml_other_tags is used.
 	 */
+	//TODO -- consider changing this to Scope<FieldDescriptor>, then nesting scopes when @xml_scope is encountered, to support dynamic binding of @xml_scope.
 	private HashMap<String, FieldDescriptor>		allFieldDescriptorsByTagNames		= new HashMap<String, FieldDescriptor>();
 	
 	private ArrayList<FieldDescriptor>					attributeFieldDescriptors		= new ArrayList<FieldDescriptor>();
