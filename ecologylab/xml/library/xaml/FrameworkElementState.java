@@ -171,5 +171,9 @@ public class FrameworkElementState extends ElementState
 		this.wpfClass = wpfClass;
 	}
 	
+	public void add(FrameworkElementState element)
+	{
+		frameWorkElements.add(element);
+	}
 	
 }
