@@ -61,8 +61,7 @@ public final class TranslationScope extends ElementState
 	private TranslationScope(String name)
 	{
 		this.name = name;
-		allTranslationScopes.put(name, this);
-	}
+	}	
 
 	/**
 	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
@@ -86,6 +85,7 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationScope);
 		addTranslation(translation);
+		addTranslationScope(name);
 	}
 
 	/**
@@ -140,6 +140,7 @@ public final class TranslationScope extends ElementState
 	private TranslationScope(String name, Class<? extends ElementState>... translations)
 	{
 		this(name, (TranslationScope[]) null, translations);
+		addTranslationScope(name);
 	}
 
 	/**
@@ -170,6 +171,8 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
+		
+		addTranslationScope(name);
 	}
 
 	/**
@@ -185,6 +188,8 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationScope);
 		addTranslations(translations);
+		
+		addTranslationScope(name);
 	}
 
 	/**
@@ -203,6 +208,8 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
+		
+		addTranslationScope(name);
 	}
 
 	/**
@@ -252,6 +259,8 @@ public final class TranslationScope extends ElementState
 				}
 			}
 		}
+		
+		allTranslationScopes.put(name, this);
 	}
 
 	/**
@@ -881,6 +890,11 @@ public final class TranslationScope extends ElementState
 	}
 
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
+	
+	private void addTranslationScope(String name) 
+	{
+		allTranslationScopes.put(name, this);
+	}
 
 	public static TranslationScope getBasicTranslations()
 	{
