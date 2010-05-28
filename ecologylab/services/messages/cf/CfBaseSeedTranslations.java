@@ -12,9 +12,9 @@ import ecologylab.xml.TranslationScope;
  * 
  * @author andruid
  */
-public class CFMessagesTranslations extends Debug
+public class CfBaseSeedTranslations extends Debug
 {
-	public static final String	PACKAGE_NAME	= "ecologylab.services.messages.cf";
+	public static final String	TSCOPE_NAME	= "cf_base_seed_translations";
 	
 	public static final Class	TRANSLATIONS[]	= 
 	{ 
@@ -31,7 +31,7 @@ public class CFMessagesTranslations extends Debug
 	/**
 	 * 
 	 */
-	public CFMessagesTranslations()
+	public CfBaseSeedTranslations()
 	{
 		super();
 
@@ -43,6 +43,6 @@ public class CFMessagesTranslations extends Debug
 	 */
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(PACKAGE_NAME, DefaultServicesTranslations.get(), TRANSLATIONS);
+		return TranslationScope.get(TSCOPE_NAME, DefaultServicesTranslations.get(), TRANSLATIONS);
 	}
 }

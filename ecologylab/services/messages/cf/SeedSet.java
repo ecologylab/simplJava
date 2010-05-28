@@ -64,4 +64,9 @@ implements Iterable<S>
 	{
 		return seeds != null ? seeds.get(i) : null;
 	}
+	
+	public int indexOf(S that)
+	{
+		return seeds.indexOf(that);
+	}
 }
