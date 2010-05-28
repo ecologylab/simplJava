@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
@@ -547,6 +549,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			if (typeArg0 instanceof Class)
 			{
 				result = (Class) typeArg0;
+			}
+			else if (typeArg0 instanceof ParameterizedTypeImpl)
+			{	// nested parameterized type
+				ParameterizedTypeImpl pti	= (ParameterizedTypeImpl) typeArg0;
+				result	= pti.getRawType();
+			}
+			else
+			{
+				error("getTypeArgClass(" + field + ", " + i + " yucky! Consult s.im.mp serialization developers.");
 			}
 		}
 		return result;
