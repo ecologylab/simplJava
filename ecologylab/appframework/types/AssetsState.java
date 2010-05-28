@@ -20,6 +20,12 @@ import ecologylab.xml.xml_inherit;
 	@xml_nowrap
 	ArrayList<AssetState> assetStates;
 	
+	public ArrayList<AssetState> getAssetStates() {
+		if (assetStates != null)
+			return assetStates;
+		return assetStates = new ArrayList<AssetState>();
+	}
+
 	/**
 	 * Perform custom processing on the newly created child node,
 	 * just before it is added to this.
@@ -65,7 +71,7 @@ import ecologylab.xml.xml_inherit;
 	public AssetState update(String id)
 	{
 		AssetState asset	= new AssetState(id);
-		assetStates.add(asset);
+		getAssetStates().add(asset);
 		register(asset);
 		return asset;
 	}
