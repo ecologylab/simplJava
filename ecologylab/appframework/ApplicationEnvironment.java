@@ -40,6 +40,8 @@ import ecologylab.xml.XMLTranslationExceptionTypes;
 public class ApplicationEnvironment extends Debug implements Environment,
 		XMLTranslationExceptionTypes
 {
+	public static final String 		CUSTOM_PREF_TRANSLATIONS			= "custom_pref_translations";
+	
 	private static final String		METAPREFS_XML									= "metaprefs.xml";
 	
 	// must initialize this before subsequent lookup by scope name.
@@ -223,7 +225,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 		
-		return TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+		return TranslationScope.get(CUSTOM_PREF_TRANSLATIONS, customPrefs);
 	}
 
 	/**
@@ -401,11 +403,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			TranslationScope translationScope, TranslationScope customPrefsTranslationScope, String args[],
 			float prefsAssetVersion) throws XMLTranslationException
 	{
+		// setup the translations used for prefs
 		TranslationScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
 			TranslationScope[] arrayToMakeJavaShutUp = {customPrefsTranslationScope};
-			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp);
+			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
 		}
 		else
 		{

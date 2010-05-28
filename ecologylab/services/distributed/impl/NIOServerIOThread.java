@@ -92,8 +92,6 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 		this.sAP = newFrontend;
 
-		this.registerAcceptWithSelector();
-
 		this.idleSocketTimeout = newIdleSocketTimeout;
 
 		try
