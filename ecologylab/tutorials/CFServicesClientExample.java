@@ -17,7 +17,7 @@ import ecologylab.xml.TranslationScope;
  */
 public class CFServicesClientExample extends Debug
 {
-	static final TranslationScope	CF_TRANSLATIONS		= CFMessagesTranslations.get();
+	static final TranslationScope	CF_TRANSLATIONS		= CfBaseSeedTranslations.get();
 	 
 	/**
 	 * 
