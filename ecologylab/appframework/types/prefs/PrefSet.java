@@ -28,7 +28,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 {
 	public static final String	PREFS_TRANSLATION_SCOPE	= "PREFS_TRANSLATION_SCOPE";
 
-	@xml_map("pref_set")
+	@xml_map
 	@xml_nowrap
 //	@xml_classes({PrefInt.class})
 	@xml_scope(PREFS_TRANSLATION_SCOPE)

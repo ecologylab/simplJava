@@ -62,7 +62,9 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
     /**
      * optional; for preferences with three or more choices
      */
-    @xml_collection("choices") ArrayList<Choice<T>> choices = null;
+    @xml_collection 
+    @xml_classes({ChoiceBoolean.class, ChoiceFloat.class, ChoiceInt.class})
+    ArrayList<Choice<T>> choices;
     
     ScalarType<T>                  scalarType;
     
