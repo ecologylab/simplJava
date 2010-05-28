@@ -11,6 +11,7 @@ import java.net.URLDecoder;
 import java.util.Stack;
 
 import ecologylab.appframework.types.prefs.MetaPrefSet;
+import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
@@ -40,6 +41,9 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		XMLTranslationExceptionTypes
 {
 	private static final String		METAPREFS_XML									= "metaprefs.xml";
+	
+	// must initialize this before subsequent lookup by scope name.
+	static final TranslationScope	META_PREFS_TRANSLATION_SCOPE	= MetaPrefsTranslationScope.get();
 
 	/**
 	 * Subdirectory for eclipse launches.
@@ -52,7 +56,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 	Scope													sessionScope;
 
-	TranslationScope							translationSpace;
+	TranslationScope							translationScope;
 
 	/**
 	 * Used for forming codeBase relative ParsedURLs. A simulation of the property available in
@@ -375,7 +379,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          Used for computing codeBase property.
 	 * @param applicationName
 	 *          Name of the application.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
 	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
 	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
@@ -394,23 +398,24 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws XMLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
-			TranslationScope translationSpace, TranslationScope customPrefsTranslationScope, String args[],
+			TranslationScope translationScope, TranslationScope customPrefsTranslationScope, String args[],
 			float prefsAssetVersion) throws XMLTranslationException
 	{
+		TranslationScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
 			TranslationScope[] arrayToMakeJavaShutUp = {customPrefsTranslationScope};
-			TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp);
+			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp);
 		}
 		else
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
 			
-			TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
 		}
 		
 		this.sessionScope = sessionScope;
-		this.translationSpace = translationSpace;
+		this.translationScope = translationScope;
 
 		// this is the one and only singleton Environment
 		Environment.the.set(this);
@@ -422,8 +427,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 		ZipDownload.setDownloadProcessor(assetsDownloadProcessor());
 
-		if (translationSpace == null)
-			translationSpace = DefaultServicesTranslations.get();
+		if (translationScope == null)
+			// default translation scope changed by andruid 5/27/10
+			translationScope = prefTranslations;
+//		translationScope = DefaultServicesTranslations.get();
 
 		Stack<String> argStack = new Stack<String>();
 
@@ -434,7 +441,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		}
 
 		String arg;
-		processPrefs(baseClass, translationSpace, argStack, prefsAssetVersion);
+		processPrefs(baseClass, translationScope, argStack, prefsAssetVersion);
 
 		Debug.initialize();
 
@@ -811,7 +818,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			{
 				String decodedPrefsXML = URLDecoder.decode(prefSpec, "UTF-8");
 				debugA("Loading prefs from JNLP: " + decodedPrefsXML);
-				prefSet = PrefSet.loadFromCharSequence(decodedPrefsXML, translationSpace);
+				prefSet = PrefSet.loadFromCharSequence(decodedPrefsXML, translationScope);
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -1161,7 +1168,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 */
 	public TranslationScope translationSpace()
 	{
-		return translationSpace;
+		return translationScope;
 	}
 
 	public DownloadProcessor assetsDownloadProcessor()
