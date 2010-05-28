@@ -69,4 +69,9 @@ implements Iterable<S>
 	{
 		return seeds.indexOf(that);
 	}
+	
+	public boolean isEmpty()
+	{
+		return seeds.isEmpty();
+	}
 }
