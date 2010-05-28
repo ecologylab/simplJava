@@ -16,7 +16,7 @@ import ecologylab.xml.xml_inherit;
 {
 	HashMap<String, AssetState>	assetsMap	= new HashMap<String, AssetState>();
 	
-	@xml_collection("asset_state")
+	@xml_collection("asset")
 	@xml_nowrap
 	ArrayList<AssetState> assetStates;
 	
