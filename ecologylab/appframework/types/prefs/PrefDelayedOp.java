@@ -9,14 +9,21 @@ import javax.swing.Timer;
 import ecologylab.collections.Scope;
 import ecologylab.services.logging.MixedInitiativeOp;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 @xml_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener
 {
 	ArrayList<ElementState> nestedOps;
+	
+	
+	
+	public ArrayList<ElementState> getNestedOps() {
+		if (nestedOps != null)
+			return nestedOps;
+		return nestedOps = new ArrayList<ElementState>();
+	}
+
 	/**
 	 * delay in seconds
 	 */
@@ -46,7 +53,7 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 	@Override
 	public void postLoadHook(Scope scope)
 	{
-		
+		ArrayList<ElementState> nestedOps = getNestedOps();
 		for (int i=0; i < nestedOps.size(); i++)
 			((PreferenceOp) nestedOps.get(i)).setScope(scope);
 		
@@ -58,7 +65,7 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 
 	public void actionPerformed(ActionEvent arg0)
 	{
-		
+		ArrayList<ElementState> nestedOps = getNestedOps();
 		for (int i=0; i < nestedOps.size(); i++)
 		{
 			PreferenceOp op = (PreferenceOp) nestedOps.get(i);
@@ -86,9 +93,9 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 		PrefDelayedOp<O> prefDelayedOp = new PrefDelayedOp(name, delay, repeat, initialDelay, nestedOps);
 		return prefDelayedOp;
 	}
-	
-	public void add(MixedInitiativeOp op)
-	{
-		nestedOps.add(op);
+
+	public void add(MixedInitiativeOp op) {
+		getNestedOps().add(op);
+		
 	}
 }
