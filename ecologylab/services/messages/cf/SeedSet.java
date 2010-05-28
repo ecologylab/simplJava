@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.xml_inherit;
 
 /**
@@ -20,6 +21,9 @@ import ecologylab.xml.xml_inherit;
 public class SeedSet<S extends Seed> extends ElementState
 implements Iterable<S>
 {
+	
+	static TranslationScope ts = CfBaseSeedTranslations.get();
+	
 	@xml_attribute protected boolean		dontPlayOnStart;
 	
 	@xml_attribute protected String			id;
@@ -28,8 +32,11 @@ implements Iterable<S>
 	
 	@xml_attribute protected String			description;
 	
-	@xml_collection("SeedSet")
+	@xml_collection
+	@xml_scope(CfBaseSeedTranslations.TSCOPE_NAME)
 	@xml_nowrap protected ArrayList<S> 	seeds; 
+	
+	
 
 	public SeedSet()
 	{
