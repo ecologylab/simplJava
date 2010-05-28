@@ -17,9 +17,8 @@ public class MetaPrefsTranslationScope extends Debug
 
 	public static TranslationScope get()
 	{
-		return TranslationScope.get(NAME, MetaPref.class, MetaPrefBoolean.class, MetaPrefFloat.class,
-				MetaPrefInt.class, MetaPrefString.class, MetaPrefColor.class, 
-				/* this must be last or not here at all!!! */ MetaPrefSet.class);
+		return TranslationScope.get(NAME, MetaPref.class, MetaPrefSet.class,  MetaPrefBoolean.class, MetaPrefFloat.class,
+				MetaPrefInt.class, MetaPrefString.class, MetaPrefColor.class);
 	}
 
 }
