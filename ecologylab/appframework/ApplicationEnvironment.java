@@ -154,9 +154,32 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
 			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
 	{
-		this(null, applicationName, null, translationScope, prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
+		this(applicationName, null, translationScope, customPrefs, args, prefsAssetVersion);
 	}
 	
+	/**
+	 * 
+	 * @param applicationName
+	 * @param translationScope
+	 *          TranslationSpace used for translating preferences XML. If this is null,
+	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
+	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * @param sessionScope
+	 * @param customPrefs
+	 * @param args
+	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
+	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
+	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
+	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
+	 * @param prefsAssetVersion
+	 * @throws XMLTranslationException
+	 */
+	public ApplicationEnvironment(String applicationName, Scope sessionScope,
+			TranslationScope translationScope,
+			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
+	{
+		this(null, applicationName, sessionScope, translationScope, prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
+	}
 	/**
 	 * Create an ApplicationEnvironment. Load preferences from XML file founds in the
 	 * config/preferences directory. Default preferences will be loaded from preferences.xml. If there

@@ -32,6 +32,7 @@ public class MetaPrefSet extends ElementState
 	
 	@xml_collection("MetaPref")
 	@xml_nowrap
+	@xml_scope(MetaPrefsTranslationScope.NAME)
 	ArrayList<MetaPref> metaPreferences;
 	
     /**
