@@ -72,6 +72,17 @@ implements Mappable<String>
 		this.faceIndex = faceIndex;
 		this.fontStyle = fontStyle;
 	}
+	
+	/**
+	 * Set of variables that control the font style. May contain a name.
+	 * A Map State of named stles is stored in AWTBridge.
+	 */
+	public NamedStyle(String name, boolean underline, int fontSize, int alignment, int faceIndex, int fontStyle, int strokeStyle)
+	{
+		this( name, underline, fontSize, alignment, faceIndex, fontStyle);
+		this.strokeStyle = strokeStyle;
+	}
+
 
 	public String name()
 	{

@@ -33,5 +33,12 @@ public class Response extends ElementState
 		super();
 
 	}
+	
+	public ArrayList<Book> getBooks()
+	{
+		if (books != null)
+			return books;
+		return books = new ArrayList<Book>();
+	}
 
 }

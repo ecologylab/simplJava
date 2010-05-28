@@ -84,5 +84,11 @@ public class Outline extends ElementState
 	{
 		this.xmlUrl = xmlUrl;
 	}
+	
+	public ArrayList<Outline> getOutline() {
+		if (outline != null)
+			return outline;
+		return outline = new ArrayList<Outline>();
+	}
 
 }
