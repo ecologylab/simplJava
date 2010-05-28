@@ -86,4 +86,9 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 		PrefDelayedOp<O> prefDelayedOp = new PrefDelayedOp(name, delay, repeat, initialDelay, nestedOps);
 		return prefDelayedOp;
 	}
+	
+	public void add(MixedInitiativeOp op)
+	{
+		nestedOps.add(op);
+	}
 }
