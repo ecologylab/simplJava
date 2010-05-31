@@ -7,13 +7,13 @@ package ecologylab.xml.internaltranslators.cocoa;
  */
 public interface CocaTranslationExceptionTypes
 {
-   static final int UNKNOWN              = 0;
+	static final int	UNKNOWN								= 0;
 
-   static final int IO_EXCEPTION         = 1;
+	static final int	IO_EXCEPTION					= 1;
 
-   static final int FILE_NOT_FOUND       = 2;
+	static final int	FILE_NOT_FOUND				= 2;
 
-   static final int NULL_PURL            = 3;
+	static final int	NULL_PURL							= 3;
 
-   static final int UNSUPPORTED_DATATYPE = 4;
+	static final int	UNSUPPORTED_DATATYPE	= 4;
 }
