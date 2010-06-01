@@ -165,7 +165,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 					globalClassDescriptorsMap.put(className, result);
 					
 					// NB: this call was moved out of the constructor to avoid recursion problems
-					result.deriveAndOrganizeFieldsRecursive(thatClass);
+					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
 					result.isGetAndOrganizeComplete	= true;
 				}
 				// THIS SHOULD NEVER HAPPEN!!!
@@ -262,14 +262,13 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 */
 	
 
-	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class thatClass)
+	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class<? extends ElementState> thatClass)
 	{
-		Annotation classDescriptorAnnotation	= thatClass.getAnnotation(serial_field_descriptors.class);
-		serial_field_descriptors xmlClassDescriptor	= serial_field_descriptors.class.cast(classDescriptorAnnotation);
+		final serial_field_descriptors_class fieldDescriptorsClassAnnotation 	= thatClass.getAnnotation(serial_field_descriptors_class.class);
 		Class<FieldDescriptor> result	= null;
-		if (xmlClassDescriptor != null)
+		if (fieldDescriptorsClassAnnotation != null)
 		{
-			Class annotatedFieldDescriptorClass	= xmlClassDescriptor.value();
+			Class annotatedFieldDescriptorClass	= fieldDescriptorsClassAnnotation.value();
 			if (annotatedFieldDescriptorClass != null && FieldDescriptor.class.isAssignableFrom(annotatedFieldDescriptorClass))
 				result	= (Class<FieldDescriptor>) annotatedFieldDescriptorClass;
 		}
@@ -281,25 +280,29 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * to field (descriptors) at run-time, with field name as a variable.
 	 * <p/>
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
+	 * @param fdc TODO
 	 */
-	private synchronized Class<FieldDescriptor> deriveAndOrganizeFieldsRecursive(Class thatClass)
+	private synchronized Class<FieldDescriptor> deriveAndOrganizeFieldsRecursive(Class<? extends ElementState> classWithFields, Class<FieldDescriptor> fieldDescriptorClass)
 	{
-		Class<FieldDescriptor> fieldDescriptorClass	= null;
-		if (thatClass.isAnnotationPresent(xml_inherit.class)) 
+		if (classWithFields.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
-			Class superClass	= thatClass.getSuperclass();
+			Class superClass	= classWithFields.getSuperclass();
 			
 			if (fieldDescriptorClass == null)		
 			{	// look for annotation in super class if subclass didn't have one
-				fieldDescriptorClass	= fieldDescriptorAnnotationValue(thatClass);
+				fieldDescriptorClass	= fieldDescriptorAnnotationValue(classWithFields);
 			}
 
 			if (superClass != null)
-				fieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass);
+			{
+				Class<FieldDescriptor> superFieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
+				// only assign (override) from super if we haven't found one here.
+				if (fieldDescriptorClass == null)
+					fieldDescriptorClass	= superFieldDescriptorClass;
+			}
 		}
-
 		
-		Field[] fields		= thatClass.getDeclaredFields();
+		Field[] fields		= classWithFields.getDeclaredFields();
 		
 		for (int i = 0; i < fields.length; i++)
 		{
