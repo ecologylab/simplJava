@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-public @interface serial_field_descriptors
+public @interface serial_field_descriptors_class
 {
   Class value();
 }
