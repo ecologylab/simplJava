@@ -19,17 +19,24 @@ implements Iterator<I>
 {
 	private Iterator<I> firstIterator;
 	
-	private Iterator<O> collection;
+	private Iterator<? extends O> collection;
 	
 	private O			currentObject;
 	
 	private Iterator<I>	currentIterator;
 	
-	public OneLevelNestingIterator(O firstObject, Iterator<O> iterableCollection)
+	public OneLevelNestingIterator(O firstObject, Iterator<? extends O> iterableCollection)
 	{
 		this.firstIterator	= firstObject.iterator();
 		this.currentObject	= firstObject;
 		this.collection	= iterableCollection;
+	}
+	
+	public OneLevelNestingIterator(O firstObject, Iterable<? extends O> iterableCollection)
+	{
+		this.firstIterator	= firstObject.iterator();
+		this.currentObject	= firstObject;
+		this.collection	= iterableCollection.iterator();
 	}
 	
 	private boolean collectionHasNext()

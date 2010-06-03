@@ -355,8 +355,9 @@ public class Debug
    {
 	   print('\n');
 	   print(header);
-	   print(SEPARATOR);
 	   print(that.toString());
+	   print(SEPARATOR);
+	   print(' ');
 	   print(message);
 	   print('\n');
 	   print('\n');	   
