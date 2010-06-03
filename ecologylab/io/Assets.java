@@ -681,6 +681,22 @@ implements ApplicationProperties
 		
 		return filenameString;
 	}
+
+	/**
+	 * @return the assetsRoot
+	 */
+	public static ParsedURL getAssetsRoot()
+	{
+		return assetsRoot;
+	}
+
+	/**
+	 * @return the cacheRoot
+	 */
+	public static File getCacheRoot()
+	{
+		return cacheRoot;
+	}
 	
 }
 
