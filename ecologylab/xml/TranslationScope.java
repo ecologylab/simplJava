@@ -4,10 +4,10 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import ecologylab.collections.Scope;
-import ecologylab.generic.Debug;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -17,6 +17,8 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public final class TranslationScope extends ElementState
 {
+	private static final int	GUESS_CLASSES_PER_TSCOPE	= 5;
+
 	@xml_attribute
 	private/* final */String														name;
 
@@ -812,30 +814,24 @@ public final class TranslationScope extends ElementState
 		return entriesByClassSimpleName;
 	}
 
-	public String generateImports()
+	public HashSet<String> addClassNamesToHashSet(HashSet<String> hashSet)
 	{
-		StringBuilder buffy = new StringBuilder();
 		if (inheritedTranslationScopes != null)
 		{
 			for (TranslationScope inheritedTScope : inheritedTranslationScopes)
 			{
-				inheritedTScope.generateImports(buffy);
+				inheritedTScope.generateImports(hashSet);
 			}
 		}
-		generateImports(buffy);
-		return buffy.toString();
+		this.generateImports(hashSet);
+		return hashSet;
 	}
 
-	protected void generateImports(StringBuilder buffy)
+	protected void generateImports(HashSet<String> hashSet)
 	{
-		// for (ClassDescriptor tEntry : entriesByClassSimpleName.values())
-		// {
-		// buffy.append("import ").append(tEntry.getDescribedClassPackageName()).append('.')
-		// .append(tEntry.getDecribedClassSimpleName()).append(";\n");
-		// }
 		for (String className : entriesByClassName.keySet())
 		{
-			buffy.append("import ").append(className).append(";\n");
+			hashSet.add(className);
 		}
 	}
 

@@ -377,7 +377,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 		}
 
-		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldOptimizations();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldDescriptors();
 		int numElements						= elementFieldDescriptors.size();
 
 		StringBuilder textNode				= this.textNodeBuffy;
@@ -614,7 +614,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			}
 		}
 		//ArrayList<Field> elementFields		= optimizations.elementFields();
-		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldOptimizations();
+		ArrayList<FieldDescriptor> elementFieldDescriptors	= classDescriptor().elementFieldDescriptors();
 		int numElements						= elementFieldDescriptors.size();
 
 		//FIXME -- get rid of old textNode stuff. it doesnt even work

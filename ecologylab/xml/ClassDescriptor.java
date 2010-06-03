@@ -1,24 +1,13 @@
 package ecologylab.xml;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
-import org.w3c.dom.Node;
-
-import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.generic.HashMapWriteSynch3;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.generic.ValueFactory;
-import ecologylab.xml.ElementState.xml_other_tags;
-import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -31,8 +20,8 @@ import ecologylab.xml.types.element.Mappable;
  *
  * @author andruid
  */
-public class ClassDescriptor<ES extends ElementState> extends ElementState
-implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
+public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends ElementState
+implements FieldTypes, Mappable<String>, Iterable<FD>
 {
 	/**
 	 * Class object that we are describing.
@@ -72,8 +61,8 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 */
 	@xml_nowrap
 	@xml_map("field_descriptor")
-	private HashMapArrayList<String, FieldDescriptor>	
-																							fieldDescriptorsByFieldName	= new HashMapArrayList<String, FieldDescriptor>();
+	private HashMapArrayList<String, FD>	
+																							fieldDescriptorsByFieldName	= new HashMapArrayList<String, FD>();
 	
 
 	/**
@@ -81,26 +70,27 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * if @xml_other_tags is used.
 	 */
 	//TODO -- consider changing this to Scope<FieldDescriptor>, then nesting scopes when @xml_scope is encountered, to support dynamic binding of @xml_scope.
-	private HashMap<String, FieldDescriptor>		allFieldDescriptorsByTagNames		= new HashMap<String, FieldDescriptor>();
+	private HashMap<String, FD>		allFieldDescriptorsByTagNames		= new HashMap<String, FD>();
 	
-	private ArrayList<FieldDescriptor>					attributeFieldDescriptors		= new ArrayList<FieldDescriptor>();
+	private ArrayList<FD>					attributeFieldDescriptors		= new ArrayList<FD>();
 	
-	private ArrayList<FieldDescriptor>					elementFieldDescriptors			= new ArrayList<FieldDescriptor>();;
+	private ArrayList<FD>					elementFieldDescriptors			= new ArrayList<FD>();;
 
 	
 	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap	= new HashMap<String, ClassDescriptor>();
 
-	private ArrayList<FieldDescriptor>					unresolvedScopeAnnotationFDs;
+	private ArrayList<FD>					unresolvedScopeAnnotationFDs;
 	
 //private HashMap<String, Class<? extends ElementState>>	nameSpaceClassesById	= new HashMap<String, Class<? extends ElementState>>();
 
 	/**
 	 * Default constructor only for use by translateFromXML().
-	 */	public ClassDescriptor()
+	 */	
+	public ClassDescriptor()
 	{
 		super();
 	}
-	private ClassDescriptor(Class<ES> thatClass)
+	protected ClassDescriptor(Class<ES> thatClass)
 	{
 		super();
 		this.describedClass						= thatClass;
@@ -109,11 +99,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 //		this.describedClassName				= thatClass.getName(); 
 		this.tagName									= XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 	}
-	ClassDescriptor(String tag)
-	{
-		super();
-		this.tagName					= tag;
-	}
+
 	public String getTagName()
 	{
 		return tagName;
@@ -137,6 +123,8 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 		return getClassDescriptor(thatClass);
 	}
 
+	static final Class[] CONSTRUCTOR_ARGS				= {Class.class};
+	
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations.
 	 * Uses just-in-time / lazy evaluation.
@@ -161,18 +149,28 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 				result 		= globalClassDescriptorsMap.get(className);
 				if (result == null )
 				{
-					result				= new ClassDescriptor(thatClass);
+					final serial_descriptors_classes descriptorsClassesAnnotation 	= thatClass.getAnnotation(serial_descriptors_classes.class);
+					if (descriptorsClassesAnnotation == null)
+						result				= new ClassDescriptor(thatClass);
+					else
+					{
+						Class aClass	= descriptorsClassesAnnotation.value()[0];
+						Object[] args	= new Object[1];
+						args[0]				= thatClass;
+						result				= (ClassDescriptor) ReflectionTools.getInstance(aClass, CONSTRUCTOR_ARGS, args);
+					}
 					globalClassDescriptorsMap.put(className, result);
 					
 					// NB: this call was moved out of the constructor to avoid recursion problems
 					result.deriveAndOrganizeFieldsRecursive(thatClass, null);
 					result.isGetAndOrganizeComplete	= true;
 				}
-				// THIS SHOULD NEVER HAPPEN!!!
+				// THIS SHOULD NEVER HAPPEN!!! 
+				// but it does in classes like linked list, that is, one with a field that refers to an instance of itself
 				else if (!result.isGetAndOrganizeComplete)
 				{
 					if (!thatClass.equals(FieldDescriptor.class) && !thatClass.equals(ClassDescriptor.class))
-						result.error("Horrible race condition that should never happen! See Andruid or Nabeel.");
+						result.warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
 				}
 			}
 		}
@@ -220,32 +218,36 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 //		this.nameSpacePrefix = nameSpacePrefix;
 //	}
 	
-	public ArrayList<FieldDescriptor>	attributeFieldDescriptors()
+	public ArrayList<FD>	attributeFieldDescriptors()
 	{
 		return attributeFieldDescriptors;
 	}
 	
-	public ArrayList<FieldDescriptor>	elementFieldOptimizations()
+	public ArrayList<FD>	elementFieldDescriptors()
 	{
 		return elementFieldDescriptors;
 	}
 
-	private HashMapArrayList<String, FieldDescriptor>	fieldDescriptors;
+	private HashMapArrayList<String, FD>	fieldDescriptors;
 	
-	public FieldDescriptor getFieldDescriptorByTag(String tag, TranslationScope tScope, ElementState context)
+	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope, ElementState context)
 	{
 		//TODO -- add support for name space lookup in context here
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
 		
 		return allFieldDescriptorsByTagNames.get(tag);
+	}	
+	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope)
+	{
+		return getFieldDescriptorByTag(tag, tScope, null);
 	}
 	public FieldDescriptor getFieldDescriptorByFieldName(String fieldName)
 	{
 		return fieldDescriptorsByFieldName.get(fieldName);
 	}
 
-	public Iterator<FieldDescriptor> iterator()
+	public Iterator<FD> iterator()
 	{
 		return fieldDescriptorsByFieldName.iterator();
 	}
@@ -264,11 +266,11 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(Class<? extends ElementState> thatClass)
 	{
-		final serial_field_descriptors_class fieldDescriptorsClassAnnotation 	= thatClass.getAnnotation(serial_field_descriptors_class.class);
+		final serial_descriptors_classes fieldDescriptorsClassAnnotation 	= thatClass.getAnnotation(serial_descriptors_classes.class);
 		Class<FieldDescriptor> result	= null;
 		if (fieldDescriptorsClassAnnotation != null)
 		{
-			Class annotatedFieldDescriptorClass	= fieldDescriptorsClassAnnotation.value();
+			Class annotatedFieldDescriptorClass	= fieldDescriptorsClassAnnotation.value()[1];
 			if (annotatedFieldDescriptorClass != null && FieldDescriptor.class.isAssignableFrom(annotatedFieldDescriptorClass))
 				result	= (Class<FieldDescriptor>) annotatedFieldDescriptorClass;
 		}
@@ -282,7 +284,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * Recurses up the chain of inherited Java classes, when @xml_inherit is specified.
 	 * @param fdc TODO
 	 */
-	private synchronized Class<FieldDescriptor> deriveAndOrganizeFieldsRecursive(Class<? extends ElementState> classWithFields, Class<FieldDescriptor> fieldDescriptorClass)
+	private synchronized Class<FD> deriveAndOrganizeFieldsRecursive(Class<? extends ElementState> classWithFields, Class<FD> fieldDescriptorClass)
 	{
 		if (classWithFields.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
@@ -290,12 +292,12 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 			
 			if (fieldDescriptorClass == null)		
 			{	// look for annotation in super class if subclass didn't have one
-				fieldDescriptorClass	= fieldDescriptorAnnotationValue(classWithFields);
+				fieldDescriptorClass	= (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
 			}
 
 			if (superClass != null)
 			{
-				Class<FieldDescriptor> superFieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
+				Class<FD> superFieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
 				// only assign (override) from super if we haven't found one here.
 				if (fieldDescriptorClass == null)
 					fieldDescriptorClass	= superFieldDescriptorClass;
@@ -315,7 +317,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 //				debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			FieldDescriptor fieldDescriptor	= null;
+			FD fieldDescriptor	= null;
 			boolean					isElement				= true;
 			//TODO -- if fieldDescriptorClass is already defined, then use it w reflection, instead of FieldDescriptor, itself
 			if (XMLTools.representAsAttribute(thatField))
@@ -364,7 +366,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 			final String fieldTagName	= fieldDescriptor.getTagName();
 			if (fieldDescriptor.isWrapped())
 			{
-				FieldDescriptor wrapper	= new FieldDescriptor(this, fieldDescriptor, fieldTagName);
+				FD wrapper	= newFieldDescriptor(fieldDescriptor, fieldTagName, fieldDescriptorClass);
 				mapTagToFdForTranslateFrom(fieldTagName, wrapper);
 			}
 			else if (!fieldDescriptor.isPolymorphic())	// tag(s) from field, not from class :-)
@@ -393,7 +395,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	/**
 	 * @param fieldDescriptor
 	 */
-	void mapTagClassDescriptors(FieldDescriptor fieldDescriptor) 
+	void mapTagClassDescriptors(FD fieldDescriptor) 
 	{
 		HashMapArrayList<String, ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
 		
@@ -423,27 +425,47 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * @param fieldDescriptorClass TODO
 	 * @return
 	 */
-	private FieldDescriptor newFieldDescriptor(Field thatField, int annotationType, Class<FieldDescriptor> fieldDescriptorClass)
+	private FD newFieldDescriptor(Field thatField, int annotationType, Class<FD> fieldDescriptorClass)
 	{
 		if (fieldDescriptorClass == null)
-			return new FieldDescriptor(this, thatField, annotationType);
+			return (FD) new FieldDescriptor(this, thatField, annotationType);
 		
 		Object args[]	= new Object[3];
 		args[0]			= this;
 		args[1]			= thatField;
 		args[2]			= annotationType;
 		
-		return ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
+		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, FIELD_DESCRIPTOR_ARGS, args);
 	}
+
+	static final Class[] WRAPPER_FIELD_DESCRIPTOR_ARGS =
+	{
+		ClassDescriptor.class,
+		FieldDescriptor.class,
+		String.class
+	};
+	private FD newFieldDescriptor(FD wrappedFD, String wrapperTag, Class<FD> fieldDescriptorClass)
+	{
+		if (fieldDescriptorClass == null)
+			return (FD) new FieldDescriptor(this, wrappedFD, wrapperTag);
+		
+		Object args[]	= new Object[3];
+		args[0]			= this;
+		args[1]			= wrappedFD;
+		args[2]			= wrapperTag;
+		
+		return (FD) ReflectionTools.getInstance(fieldDescriptorClass, WRAPPER_FIELD_DESCRIPTOR_ARGS, args);
+	}
+
 	/**
 	 * Map the tag to the FieldDescriptor for use in translateFromXML() for elements of this class type.
 	 * 
 	 * @param tagName
 	 * @param fdToMap
 	 */
-	private void mapTagToFdForTranslateFrom(String tagName, FieldDescriptor fdToMap)
+	private void mapTagToFdForTranslateFrom(String tagName, FD fdToMap)
 	{
-		FieldDescriptor previousMapping	= allFieldDescriptorsByTagNames.put(tagName, fdToMap);
+		FD previousMapping	= allFieldDescriptorsByTagNames.put(tagName, fdToMap);
 		if (previousMapping != null)
 			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field[" + previousMapping.getFieldName() + "]");
 	}
@@ -469,7 +491,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * 
 	 * @param fieldDescriptor
 	 */
-	void addFieldDescriptorMapping(FieldDescriptor fieldDescriptor)
+	void addFieldDescriptorMapping(FD fieldDescriptor)
 	{
 		//FIXME is tag determined by field by class?
 		String tagName	= fieldDescriptor.getTagName();
@@ -480,7 +502,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 
 	public String toString()
 	{
-		return "ClassDescriptor[" + describedClass.getName() + "]"; 
+		return getClassName() + "[" + describedClass.getName() + "]"; 
 	}
 	
 	/**
@@ -587,7 +609,7 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 		return tagName;
 	}
 	
-	public HashMapArrayList<String, FieldDescriptor> getFieldDescriptorsByFieldName()
+	public HashMapArrayList<String, FD> getFieldDescriptorsByFieldName()
 	{
 		return fieldDescriptorsByFieldName;
 	}
@@ -618,14 +640,14 @@ implements FieldTypes, Mappable<String>, Iterable<FieldDescriptor>
 	 * 
 	 * @param fd
 	 */
-	void registerUnresolvedScopeAnnotationFD(FieldDescriptor fd)
+	void registerUnresolvedScopeAnnotationFD(FD fd)
 	{
 		if (unresolvedScopeAnnotationFDs == null)
 		{
 			synchronized (this)
 			{
 				if (unresolvedScopeAnnotationFDs == null)
-					unresolvedScopeAnnotationFDs	= new ArrayList<FieldDescriptor>();
+					unresolvedScopeAnnotationFDs	= new ArrayList<FD>();
 			}
 		}
 		unresolvedScopeAnnotationFDs.add(fd);

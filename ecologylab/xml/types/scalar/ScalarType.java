@@ -470,4 +470,33 @@ public abstract class ScalarType<T> extends Debug
 	{
 		return false;
 	}
+	
+	public ScalarType operativeScalarType()
+	{
+		return this;
+	}
+	
+	/**
+	 * Used to fill seams between direct scalar types, and those with a nested field that actually stores the value.
+	 * 
+	 * @param externalField
+	 * @return	Depending on the type, either the external field, or one within the type.
+	 */
+	public Field operativeField(Field externalField)
+	{
+		return externalField;
+	}
+	
+	/**
+	 * Used to fill seams between direct scalar types, and those with a nested field that actually stores the value.
+	 * 
+	 * @param largerContext
+	 * @param field
+	 * 
+	 * @return	Depending on the type, the larger context passed in, or the object value of the field within the context.
+	 */
+	public T unpackContext(Object largerContext, Field field)
+	{
+		return (T) largerContext;
+	}
 }

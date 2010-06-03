@@ -19,11 +19,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-
-import ecologylab.generic.Debug;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -555,6 +553,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				ParameterizedTypeImpl pti	= (ParameterizedTypeImpl) typeArg0;
 				result	= pti.getRawType();
 			}
+			else if (typeArg0 instanceof TypeVariableImpl)
+			{
+				TypeVariableImpl tvi	= (TypeVariableImpl) typeArg0;
+				Type[] tviBounds			= tvi.getBounds();
+				result								= (Class) tviBounds[0];
+				debug("yo! " + result);
+			}
+
 			else
 			{
 				error("getTypeArgClass(" + field + ", " + i + " yucky! Consult s.im.mp serialization developers.");
@@ -710,12 +716,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param context
 	 * @return
 	 */
-	public String getValueString(ElementState context)
+	public String getValueString(Object context)
 	{
 		String result = NULL;
 		if (context != null)
 		{
-			if (xmlTextScalarField != null)
+			Field operativeField = xmlTextScalarField;
+			if (operativeField != null)
 			{
 				try
 				{
@@ -724,7 +731,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					// If nestedES is null...then the field is not initialized.
 					if (nestedES != null)
 					{
-						result = scalarType.toString(xmlTextScalarField, nestedES);
+						result = scalarType.toString(operativeField, nestedES);
 					}
 
 				}
@@ -832,7 +839,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		return false;
 	}
-
+	
 	/**
 	 * 
 	 * @param context
@@ -1261,7 +1268,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
-		return "FieldDescriptor[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type) + "]";
+		return this.getClassName() + "[" + name + " < " + declaringClassDescriptor.getDescribedClass() + " type=0x" + Integer.toHexString(type) + "]";
 	}
 
 	public HashMapArrayList<String, ClassDescriptor> getTagClassDescriptors()

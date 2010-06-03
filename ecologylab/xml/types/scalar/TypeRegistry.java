@@ -112,7 +112,7 @@ public class TypeRegistry extends Debug
 	 * 
 	 * @param thoseTypeClasses
 	 */
-	static void register(Class<? extends ScalarType> thoseTypeClasses[])
+	public static void register(Class<? extends ScalarType> thoseTypeClasses[])
 	{
 		int size	= thoseTypeClasses.length;
 		for (int i=0; i<size; i++)
