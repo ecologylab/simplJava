@@ -26,6 +26,13 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.ServiceMessage;
 import ecologylab.xml.TranslationScope;
 
+/**
+ * OODSS Datagram server.
+ * 
+ * @author bilhamil
+ *
+ * @param <S> Application scope type parameter.
+ */
 public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 {
 	private SelectionKey key;
@@ -48,6 +55,14 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 	
 	private int portNumber;
 	
+	/**
+	 * Initializes and starts the datagram Server. Open's up the server on all 
+	 * interfaces.
+	 * @param portNumber service's port number
+	 * @param translationScope
+	 * @param objectRegistry application scope
+	 * @param useCompression whether or not to use compression
+	 */
 	public NIODatagramServer(int portNumber, TranslationScope translationScope, S objectRegistry, boolean useCompression)
 	{
 		super(translationScope, objectRegistry, useCompression);
@@ -93,6 +108,13 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 		this.start();
 	}
 	
+	/**
+	 * Initializes and starts the datagram server. Open's up the server on all 
+	 * interfaces. Doesn't use compression by default.
+	 * @param portNumber service's port number
+	 * @param translationScope
+	 * @param objectRegistry application scope
+	 */
 	public NIODatagramServer(int portNumber, TranslationScope translationScope, S objectRegistry)
 	{
 		this(portNumber, translationScope, objectRegistry, false);
@@ -122,6 +144,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 					} 
 					else
 					{
+						/* new session */
 						sid = this.generateSessionToken((InetSocketAddress) address);
 						
 						debug("New session: " + sid + " at: " + address);
@@ -140,6 +163,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 				} 
 				else
 				{
+					/* Session already exists and we're moving it to another address */
 					if(sidsToObjectRegistry.containsKey((initReq.getSessionId())))
 					{
 						sid = initReq.getSessionId();
@@ -153,6 +177,10 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 					} 
 					else
 					{
+						/* 
+						 * Someone coming with a preexisting session id
+						 * we override it.
+						 */
 						if((sid = reassignedSessions.get(initReq.getSessionId())) == null)
 						{
 							sid = this.generateSessionToken((InetSocketAddress) address);
@@ -177,6 +205,10 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 		else {
 			synchronized(socketAddressesToSids)
 			{
+				/* 
+				 * If the session isn't known ask for the client to initialize 
+				 * a session.
+				 */
 				if((sid = socketAddressesToSids.get(address)) != null)
 				{
 					clientRegistry = sidsToObjectRegistry.get(sid);
@@ -187,6 +219,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 							
 			if(clientRegistry != null)
 			{
+				/* Process message and make response if necessary */
 				handleAssociatedMessage(message, clientRegistry, key, uid, address);
 			}
 			
@@ -194,6 +227,15 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 		
 	}
 	
+	/**
+	 * Handles a message after it's been associated with a session.
+	 * 
+	 * @param message
+	 * @param clientRegistry
+	 * @param key
+	 * @param uid
+	 * @param address
+	 */
 	protected void handleAssociatedMessage(ServiceMessage<S> message, Scope clientRegistry, 
 														SelectionKey key, Long uid, SocketAddress address)
 	{
@@ -201,14 +243,6 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S>
 		{
 			ResponseMessage<S> response = ((RequestMessage)message).performService(clientRegistry);
 			if(response != null)
-			{
-				this.sendMessage(response, key, uid, address);
-			}
-		}
-		if(message instanceof MultiRequestMessage)
-		{
-			Collection<ResponseMessage> responses = ((MultiRequestMessage)message).performService(clientRegistry);
-			for(ResponseMessage response : responses)
 			{
 				this.sendMessage(response, key, uid, address);
 			}

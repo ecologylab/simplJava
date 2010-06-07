@@ -30,6 +30,16 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
+/**
+ * 
+ * @author bilhamil
+ *
+ * Core class for datagram functionality. Handles sending and receiving messages. 
+ * Is based on several threads: sending and receiving threads that handle the socket and
+ * a pool of threads that process requests in a parallel fashion.
+ *
+ * @param <S> Scope parameterization
+ */
 public abstract class NIODatagramCore<S extends Scope> extends Debug implements NetworkingConstants
 {
 	protected long																																		currentUIDIndex				= 1;
@@ -71,6 +81,12 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	protected Inflater																																inflater							= new Inflater();
 
+	/**
+	 * Base constructor. Opens the socket and sets up the state objects.
+	 * @param translationScope
+	 * @param objectRegistry
+	 * @param useCompression
+	 */
 	public NIODatagramCore(TranslationScope translationScope, S objectRegistry, boolean useCompression)
 	{
 		this.translationScope = translationScope;
@@ -93,6 +109,11 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		this(translationScope, objectRegistry, false);
 	}
 
+	/**
+	 * Resource pool of MessageMetaData objects for messages in queue.
+	 * @author bilhamil
+	 *
+	 */
 	protected class MessageMetaDataPool extends ResourcePool<MessageMetaData>
 	{
 		public MessageMetaDataPool()
@@ -122,6 +143,14 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	}
 
+	/**
+	 * Pool of threads for handling the call backs of request messages.
+	 * Benefit of being able to have more computationally intensive callbacks
+	 * without holding up the system.
+	 * 
+	 * @author bilhamil
+	 *
+	 */
 	protected class PacketHandlerPool extends CappedResourcePool<PacketHandler>
 	{
 		public PacketHandlerPool()
@@ -149,6 +178,12 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 	}
 
+	/**
+	 * Packet handling class. Is basically a handle for a thread
+	 * that processes message handling.
+	 * @author bilhamil
+	 *
+	 */
 	protected class PacketHandler implements Runnable
 	{
 		private PacketHandlerPool	pool;
@@ -178,6 +213,9 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			recievedFrom = null;
 		}
 
+		/**
+		 * Asynchronously stop the PacketHandler.
+		 */
 		synchronized public void stop()
 		{
 			done = true;
@@ -231,6 +269,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 	}
 
+	/**
+	 * Packet Sending Class. Pulls messages that are queued to be sent out,
+	 * serializes them, and puts them on the socket.
+	 * 
+	 * @author bilhamil
+	 *
+	 */
 	protected class PacketSender implements Runnable
 	{
 		private boolean	running	= false;
@@ -302,6 +347,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					if (doCompress)
 					{
+						/* Compress message */
 						byte[] array = inBuffer;
 						buffer.get(inBuffer, 0, buffer.limit());
 
@@ -390,6 +436,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 	}
 
+	/**
+	 * Packet recieving thread. Deserializes incoming messages and passes them
+	 * onto the packet handler threads.
+	 * 
+	 * @author bilhamil
+	 *
+	 */
 	protected class PacketReciever implements Runnable
 	{
 		private boolean	running	= false;
@@ -407,6 +460,9 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			}
 		}
 
+		/**
+		 * Asynchronously stop the receiver thread.
+		 */
 		synchronized public void stop()
 		{
 			if (running)
@@ -461,6 +517,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									if (doCompress)
 									{
+										/* Decompress */
 										byte[] array = inBuffer;
 										recieveBuffer.get(inBuffer, 0, recieveBuffer.limit());
 
@@ -548,6 +605,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 	}
 
+	/**
+	 * Queue up out going message
+	 * @param m message being sent
+	 * @param key
+	 * @param uid message uid
+	 * @param addr socket address to send the message to.
+	 */
 	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid, SocketAddress addr)
 	{
 		MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = messagePool.acquire();
@@ -593,6 +657,15 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	abstract protected void waitForReconnect();
 
+	/**
+	 * Abstract message to be overriden to specify how to handle incomeing messages.
+	 * Gets called from with a Packet Handler.
+	 * 
+	 * @param uid
+	 * @param message
+	 * @param key
+	 * @param address
+	 */
 	abstract protected void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
 			SocketAddress address);
 }

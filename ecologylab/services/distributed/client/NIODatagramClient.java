@@ -18,6 +18,13 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.ServiceMessage;
 import ecologylab.xml.TranslationScope;
 
+/**
+ * Client subclass of NIOCore. Connects with server address and only
+ * communicates with that host.
+ * @author bilhamil
+ *
+ * @param <S> application scope type parameter
+ */
 public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 {
 	protected String sid = null;
@@ -32,6 +39,17 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	
 	protected ConcurrentHashMap<Long, ResponseMessage<S>> responsesByUID = new ConcurrentHashMap<Long, ResponseMessage<S>>();
 
+	/**
+	 * Base client constructor. Initializes new datagram client and 
+	 * starts the connection process.
+	 * 
+	 * @param serverAddress
+	 * @param localAddress local address of the interface that you want to establish the client on
+	 * @param translationScope
+	 * @param objectRegistry application scope
+	 * @param useCompression whether or not to use compression
+	 * @param timeout timeout of messages that are not responded to
+	 */
 	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress, TranslationScope translationScope, S objectRegistry, boolean useCompression, int timeout)
 	{
 		super(translationScope, objectRegistry, useCompression);
@@ -88,6 +106,9 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		this(serverAddress, translationScope, objectRegistry, false, timeout);
 	}
 	
+	/**
+	 * Implements message handling. And specifies how to handle 
+	 */
 	@Override
 	protected void handleMessage(long uid, ServiceMessage<S> message,
 			SelectionKey key, SocketAddress address)
@@ -105,6 +126,9 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			return;
 		}
 		
+		/*
+		 * Process message and wake up blocked thread based on uid.
+		 */
 		synchronized(pendingThreadsByUID)
 		{
 			t = pendingThreadsByUID.remove(uid);
@@ -132,11 +156,23 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	
 	}
 
+	/**
+	 * Send message without waiting for any kind or response.
+	 * @param message
+	 */
 	public void sendMessageAsync(ServiceMessage message)
 	{
 		this.sendMessage(message, key, getNextUID(), null);
 	}
 	
+	/**
+	 * Send message and block for response. Will retransmit
+	 * transmissionCount times after which it gives up and return null.
+	 * 
+	 * @param message
+	 * @param transmissionCount
+	 * @return
+	 */
 	public ResponseMessage<S> sendMessage(RequestMessage message, int transmissionCount)
 	{
 		long myUid = this.getNextUID();
@@ -185,6 +221,13 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		return null;
 	}
 	
+	/**
+	 * Send message and block for response. Will retransmit
+	 * infinite times.
+	 * 
+	 * @param message
+	 * @return
+	 */
 	public ResponseMessage<S> sendMessage(RequestMessage message)
 	{
 		long myUid = this.getNextUID();
@@ -246,6 +289,11 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		return serverAddress;
 	}
 	
+	/**
+	 * Reset's the server the client is connected to.
+	 * 
+	 * @param server
+	 */
 	public void setServer(String server)
 	{
 		InetSocketAddress addr = new InetSocketAddress(server, serverAddress.getPort());
