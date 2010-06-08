@@ -169,7 +169,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
-		field.setAccessible(true);
+		this.field.setAccessible(true);
 
 		deriveTagClassDescriptors(field);
 		
@@ -670,7 +670,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 			else if (isScalar())
 			{
-				scalarType.setField(context, field, valueString);
+				scalarType.setField(context, field, valueString, null,
+						scalarUnMarshallingContext);
 				result = true;
 			}
 		}
@@ -1348,14 +1349,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param value
 	 * @param scalarUnmarshallingContext TODO
 	 */
-	void setFieldToScalar(Object context, String value, ScalarUnmarshallingContext scalarUnmarshallingContext)
+	protected void setFieldToScalar(Object context, String value, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
 		if ((value == null) /*|| (value.length() == 0) removed by Alex to allow empty delims*/)
 		{
 //			error("Can't set scalar field with empty String");
 			return;
 		}
-		if (setValueMethod != null)
+		if (setValueMethod != null && !isPseudoScalar())
 		{
 			// if the method is found, invoke the method
 			// fill the String value with the value of the attr node
@@ -1377,6 +1378,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				weird("couldnt run set method for " + tagName + " even though we found it");
 				e.printStackTrace();
 			}	
+			catch (IllegalArgumentException e)
+			{
+				e.printStackTrace();
+			}
 		}
 		else if (scalarType != null && !scalarType.isMarshallOnly())
 		{
