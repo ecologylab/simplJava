@@ -1986,7 +1986,17 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	public void writePrettyXML(File xmlFile)
 		throws XMLTranslationException
 	{
-	 	XMLTools.writePrettyXML(translateToDOM(), xmlFile);
+		try
+		{
+			translateToXML(xmlFile);
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			error("Can't write " + xmlFile);
+			e.printStackTrace();
+		}
+//	 	XMLTools.writePrettyXML(translateToDOM(), xmlFile);
 	}
 	
 	/**

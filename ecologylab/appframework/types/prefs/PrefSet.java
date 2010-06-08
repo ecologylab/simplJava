@@ -4,6 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
@@ -47,9 +48,20 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 */
 	public Pref<?> add(Pref<?> pref)
 	{
+		constructPreferencesIfNeeded();
+		
 		Pref<?> result = preferences.put(pref.key(), pref);
 		pref.register();
 		return result;
+	}
+
+	/**
+	 * 
+	 */
+	private void constructPreferencesIfNeeded()
+	{
+		if (preferences == null)
+			preferences	= new HashMap<String, Pref<?>>();
 	}
 
 	/**
@@ -132,7 +144,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public Pref<?> clearPref(String key)
 	{
 		Pref.clearPref(key);
-		return preferences.remove(key);
+		return preferences == null ? null : preferences.remove(key);
 	}
 
 	/**
@@ -143,17 +155,21 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	{
 		PrefSet retVal = new PrefSet();
 
-		for (Pref<?> p : preferences.values())
+		if (preferences == null)
 		{
-			retVal.add(p.clone());
+			for (Pref<?> p : preferences.values())
+			{
+				retVal.add(p.clone());
+			}
 		}
-
 		return retVal;
 	}
 
+	public static final Collection<Pref<?>> EMPTY_ARRAY_LIST	= new ArrayList<Pref<?>>(0);
+	
 	public Collection<Pref<?>> values()
 	{
-		return preferences.values();
+		return preferences == null ? EMPTY_ARRAY_LIST : preferences.values();
 	}
 
 	public void append(PrefSet jNLPPrefSet)
@@ -169,18 +185,19 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 	public Pref<?> get(String k)
 	{
-		return preferences.get(k);
+		return (preferences == null) ? null : preferences.get(k);
 	}
 
 	public void put(String k, Pref<?> object)
 	{
+		constructPreferencesIfNeeded();
+		
 		preferences.put(k, object);
-
 	}
 
 	public boolean containsKey(String key)
 	{
-		return preferences.containsKey(key);
+		return (preferences == null) ? false : preferences.containsKey(key);
 
 	}
 
@@ -191,6 +208,8 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 */
 	public void addPrefSet(PrefSet prefSet)
 	{
+		constructPreferencesIfNeeded();
+		
 		for (Pref<?> pref : prefSet.values())
 			add(pref);
 	}
