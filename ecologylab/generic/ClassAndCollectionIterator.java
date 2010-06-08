@@ -1,5 +1,6 @@
 package ecologylab.generic;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -49,9 +50,10 @@ implements Iterator<O>
       if (iterator.hasNext())
       {
         I firstNext = iterator.next(); 
-        if(firstNext.isCollection())
+        Field field = firstNext.getField();
+				if(firstNext.isCollection())
         {
-        	Iterable<O> collection = (Iterable<O>)firstNext.getField().get(root);
+        	Iterable<O> collection = (Iterable<O>)field.get(root);
         	if(collection != null)
         	{
         		collectionIterator = collection.iterator();
@@ -65,7 +67,7 @@ implements Iterator<O>
         	}
         		
         }
-        O next = (O) firstNext.getField().get(root);
+        O next = (O) field.get(root);
         currentObject = next;
         return next;
       }

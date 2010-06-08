@@ -29,14 +29,14 @@ implements Iterator<I>
 	{
 		this.firstIterator	= firstObject.iterator();
 		this.currentObject	= firstObject;
-		this.collection	= iterableCollection;
+		this.collection			= iterableCollection;
 	}
 	
 	public OneLevelNestingIterator(O firstObject, Iterable<? extends O> iterableCollection)
 	{
 		this.firstIterator	= firstObject.iterator();
 		this.currentObject	= firstObject;
-		this.collection	= iterableCollection.iterator();
+		this.collection			= (iterableCollection != null) ? iterableCollection.iterator() : null;
 	}
 	
 	private boolean collectionHasNext()
