@@ -252,7 +252,7 @@ implements FieldTypes, Mappable<String>, Iterable<FD>
 		return fieldDescriptorsByFieldName.iterator();
 	}
 	
-	private HashMapArrayList<String, FieldDescriptor> fieldDescriptorsByTagName;
+
 	/**
 	 * Build and return an ArrayList with Field objects for all the annotated fields in this class.
 	 * 
