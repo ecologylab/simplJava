@@ -29,7 +29,8 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 	 * Unique identifier for Preference name with convenient lookup in 
      * automatically generated HashMap.
 	 */
-	@xml_attribute 	String		id;
+  @xml_tag("id")  
+	@xml_attribute 	String		m_id;
 	
 	/**
 	 * This is the short text that appears in the Swing panel for editing the value.
@@ -145,7 +146,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public String getID()
     {
-        return id;
+        return m_id;
     }
     
     /**
@@ -258,7 +259,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public void print()
     {
-        println(this.id + '\n' +
+        println(this.m_id + '\n' +
                 this.description + '\n' +
                 this.category + '\n' +
                 this.helpText + '\n' +
@@ -402,7 +403,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
     public Pref<T> getDefaultPrefInstance()
     {
     	Pref<T> result	= getPrefInstance();
-    	result.name		= id;
+    	result.name		= m_id;
     	
     	result.setValue(this.getDefaultValue());
     	return result;
@@ -419,7 +420,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     public Pref<T> getAssociatedPref()
     {
-    	Pref result	= Pref.lookupPref(id);
+    	Pref result	= Pref.lookupPref(m_id);
     	if (result == null)
     	{
     		result	= getDefaultPrefInstance();
@@ -457,7 +458,7 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      */
     void register()
     {
-        allMetaPrefsMap.put(this.id, this);
+        allMetaPrefsMap.put(this.m_id, this);
     }
     /**
      * Look up a MetaPref by name in the map of all MetaPrefs
