@@ -460,9 +460,12 @@ public final class TranslationScope extends ElementState
 		ArrayList<Class<? extends ElementState>> classes = new ArrayList<Class<? extends ElementState>>();
 		Collection<ClassDescriptor> classDescriptors = this.getClassDescriptors();
 
-		for (ClassDescriptor classDescriptor : classDescriptors)
+		for(TranslationScope translationScope : allTranslationScopes.values())
 		{
-			classes.add(classDescriptor.getDescribedClass());
+			for(ClassDescriptor<?,?> classDescriptor : translationScope.entriesByClassSimpleName.values())
+			{
+				classes.add(classDescriptor.getDescribedClass());
+			}
 		}
 		return classes;
 	}
