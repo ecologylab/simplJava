@@ -186,6 +186,9 @@ extends Debug
    
    public static final String noAnchorPageString(URL u)
    {
+  	 if (u == null)
+  		 return "";
+  	 
       String protocol	= u.getProtocol();
       String authority	= u.getAuthority(); // authority is host:port
       String path	= u.getPath();	    // doesn't include query

@@ -577,7 +577,7 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public String noAnchorPageString()
 	{
-		return StringTools.noAnchorPageString(url);
+		return isFile() ? file.getAbsolutePath() : StringTools.noAnchorPageString(url);
 	}
 
 	/**
