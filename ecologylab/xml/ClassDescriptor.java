@@ -286,15 +286,15 @@ implements FieldTypes, Mappable<String>, Iterable<FD>
 	 */
 	private synchronized Class<FD> deriveAndOrganizeFieldsRecursive(Class<? extends ElementState> classWithFields, Class<FD> fieldDescriptorClass)
 	{
+		if (fieldDescriptorClass == null)		
+		{	// look for annotation in super class if subclass didn't have one
+			fieldDescriptorClass	= (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
+		}
+
 		if (classWithFields.isAnnotationPresent(xml_inherit.class)) 
 		{	// recurse on super class first, so subclass declarations shadow those in superclasses, where there are field name conflicts
 			Class superClass	= classWithFields.getSuperclass();
 			
-			if (fieldDescriptorClass == null)		
-			{	// look for annotation in super class if subclass didn't have one
-				fieldDescriptorClass	= (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
-			}
-
 			if (superClass != null)
 			{
 				Class<FD> superFieldDescriptorClass	= deriveAndOrganizeFieldsRecursive(superClass, fieldDescriptorClass);
