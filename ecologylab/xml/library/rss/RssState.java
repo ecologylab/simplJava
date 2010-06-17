@@ -195,13 +195,14 @@ public class RssState extends ElementState
 		try
 		{
 //		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
-			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
+//			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
+			rss = translateFromXML(CNN_TOP_FEED, RssTranslations.get());
 			
 			System.out.println("");
 			rss.translateToXML(System.out);
 			System.out.println("");
 			
-			RssTranslations.get().translateToXML(System.out);
+			// RssTranslations.get().translateToXML(System.out);
 
 		}
 		catch (XMLTranslationException e)

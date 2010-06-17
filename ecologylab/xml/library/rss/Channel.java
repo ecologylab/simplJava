@@ -22,7 +22,7 @@ public @xml_inherit class Channel extends ElementState
     */
    @xml_leaf	ParsedURL		link;
    
-   @xml_collection("item") ArrayList<Item> items;
+   @xml_nowrap @xml_collection("item") ArrayList<Item> items;
    
    /**
     * @return Returns the description.
