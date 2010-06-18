@@ -456,9 +456,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 								+ "\n\tCan't translate  @xml_map() " + field.getName()
 								+ " because the parameterized type argument for the Collection is missing.");
 						return IGNORED_ELEMENT;
-					}
-
-					collectionOrMapTagName = mapTag;
+					}					
 
 					if (ElementState.class.isAssignableFrom(mapElementClass))
 					{
@@ -480,6 +478,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 								+ " because it is declared polymorphic with @xml_classes.");
 					}
 				}
+				collectionOrMapTagName = mapTag;
 			break;
 		default:
 			break;
@@ -1278,6 +1277,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			return null;
 		else
 		return tagClassDescriptors;
+	}
+	
+	public HashMap<String, Class> getTagClasses()
+	{
+		if(tagClasses == null) 
+			return null;
+		else
+		return tagClasses;
 	}
 
 	public void writeElementStart(StringBuilder buffy) 
