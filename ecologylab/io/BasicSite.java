@@ -32,7 +32,7 @@ class BasicSite extends ElementState implements Mappable<String>
    * Minimum time to wait between downloads for this domain
    * Specified in seconds
    */
-  @xml_attribute int							minDownloadInterval;
+  @xml_attribute protected int							minDownloadInterval;
   
   /**
    * Timestamp of last download from this site;
@@ -140,5 +140,10 @@ class BasicSite extends ElementState implements Mappable<String>
 	public void resetLastDownloadAt()
 	{
 		this.lastDownloadAt	= 0;
+	}
+
+	public String domain()
+	{
+		return domain;
 	}
 }
