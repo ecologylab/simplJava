@@ -17,13 +17,13 @@ import java.util.Iterator;
 public class OneLevelNestingIterator<I, O extends Iterable<I>>
 implements Iterator<I>
 {
-	private Iterator<I> firstIterator;
+	protected Iterator<I> firstIterator;
 	
-	private Iterator<? extends O> collection;
+	protected Iterator<? extends O> collection;
 	
-	private O			currentObject;
+	protected O			currentObject;
 	
-	private Iterator<I>	currentIterator;
+	protected Iterator<I>	currentIterator;
 	
 	public OneLevelNestingIterator(O firstObject, Iterator<? extends O> iterableCollection)
 	{
