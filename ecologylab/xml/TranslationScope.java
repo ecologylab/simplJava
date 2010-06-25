@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
 import ecologylab.collections.Scope;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -17,7 +17,7 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  */
 public final class TranslationScope extends ElementState
 {
-	private static final int	GUESS_CLASSES_PER_TSCOPE	= 5;
+	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
 
 	@xml_attribute
 	private/* final */String														name;
@@ -63,7 +63,7 @@ public final class TranslationScope extends ElementState
 	private TranslationScope(String name)
 	{
 		this.name = name;
-	}	
+	}
 
 	/**
 	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
@@ -173,7 +173,7 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
-		
+
 		addTranslationScope(name);
 	}
 
@@ -190,7 +190,7 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationScope);
 		addTranslations(translations);
-		
+
 		addTranslationScope(name);
 	}
 
@@ -210,7 +210,7 @@ public final class TranslationScope extends ElementState
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
-		
+
 		addTranslationScope(name);
 	}
 
@@ -261,7 +261,7 @@ public final class TranslationScope extends ElementState
 				}
 			}
 		}
-		
+
 		allTranslationScopes.put(name, this);
 	}
 
@@ -460,9 +460,10 @@ public final class TranslationScope extends ElementState
 		ArrayList<Class<? extends ElementState>> classes = new ArrayList<Class<? extends ElementState>>();
 		Collection<ClassDescriptor> classDescriptors = this.getClassDescriptors();
 
-		for(TranslationScope translationScope : allTranslationScopes.values())
+		for (TranslationScope translationScope : allTranslationScopes.values())
 		{
-			for(ClassDescriptor<?,?> classDescriptor : translationScope.entriesByClassSimpleName.values())
+			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByClassSimpleName
+					.values())
 			{
 				classes.add(classDescriptor.getDescribedClass());
 			}
@@ -889,8 +890,8 @@ public final class TranslationScope extends ElementState
 	}
 
 	public static final String	BASIC_TRANSLATIONS	= "basic_translations";
-	
-	private void addTranslationScope(String name) 
+
+	private void addTranslationScope(String name)
 	{
 		allTranslationScopes.put(name, this);
 	}
@@ -899,5 +900,76 @@ public final class TranslationScope extends ElementState
 	{
 		return get(BASIC_TRANSLATIONS, TranslationScope.class, FieldDescriptor.class,
 				ClassDescriptor.class);
+	}
+
+	public static TranslationScope augmentTranslationScope(TranslationScope translationScope)
+	{
+		ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
+		Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
+				.values();
+
+		Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
+				.toArray(new Class<?>[augmentedClasses.size()]);
+
+		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
+	}
+
+	private static HashMap<String, Class<? extends ElementState>> augmentTranslationScope(
+			ArrayList<Class<? extends ElementState>> allClasses)
+	{
+		HashMap<String, Class<? extends ElementState>> augmentedClasses = new HashMap<String, Class<? extends ElementState>>();
+		for (Class<? extends ElementState> thatClass : allClasses)
+		{
+			augmentTranslationScope(thatClass, augmentedClasses);
+		}
+		return augmentedClasses;
+	}
+
+	private static void augmentTranslationScope(Class<? extends ElementState> thatClass,
+			HashMap<String, Class<? extends ElementState>> augmentedClasses)
+	{
+		augmentedClasses.put(thatClass.getSimpleName(), thatClass);
+
+		if (thatClass.getSuperclass() != ElementState.class)
+		{
+			augmentTranslationScope(thatClass.getSuperclass().asSubclass(ElementState.class),
+					augmentedClasses);
+		}
+
+		ClassDescriptor<?, ?> thatClassDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
+
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClassDescriptor
+				.getFieldDescriptorsByFieldName();
+
+		if (fieldDescriptors.size() > 0)
+		{
+			thatClassDescriptor.resolveUnresolvedScopeAnnotationFDs();
+
+			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
+			{
+				if (fieldDescriptor.isNested())
+				{
+					augmentTranslationScope(fieldDescriptor.getFieldType().asSubclass(ElementState.class),
+							augmentedClasses);
+				}
+				else
+				{
+					if (fieldDescriptor.isPolymorphic())
+					{
+						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
+								.getTagClassDescriptors();
+
+						if (tagClassDescriptors != null)
+						{
+							for (ClassDescriptor<?, ?> classDescriptor : tagClassDescriptors)
+							{
+								augmentTranslationScope(classDescriptor.getDescribedClass(), augmentedClasses);
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 }
