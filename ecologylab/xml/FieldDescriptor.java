@@ -762,7 +762,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	public String getFieldName()
 	{
-		return field.getName();
+		return (field != null) ? field.getName() : "NULL";
 	}
 
 	/**
