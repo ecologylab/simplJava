@@ -189,6 +189,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		case ATTRIBUTE:
 		case LEAF:
 		case TEXT_ELEMENT:
+		case ENUMERATED_ATTRIBUTE:
+		case ENUMERATED_LEAF:
 			scalarType = deriveScalar(field);
 		}
 		// looks old: -- implement this next???

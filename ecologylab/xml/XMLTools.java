@@ -1262,4 +1262,27 @@ implements CharacterConstants, SpecialCharacterEntities
 
 		System.err.println(unescapeXML(s));
 	}
+
+	public static boolean isEnum(Field thatField)
+	{		
+		return Enum.class.isAssignableFrom(thatField.getType());
+	}
+
+	public static Enum<?> createEnumeratedType(Field field, String valueString)
+	{
+		if(field.getType().isEnum())
+		{
+			Object[] enumArray = field.getType().getEnumConstants();
+			for(Object enumObj : enumArray)
+			{
+				if(enumObj instanceof Enum<?>)
+				{
+					Enum<?> enumeratedType = ((Enum<?>) enumObj);
+					if(enumeratedType.toString() == valueString)
+						return enumeratedType;
+				}
+			}
+		}
+		return null;
+	}
 }

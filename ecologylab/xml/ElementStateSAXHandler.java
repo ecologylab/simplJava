@@ -572,6 +572,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				{
 				case NAME_SPACE_LEAF_NODE:
 				case LEAF:
+				case ENUMERATED_LEAF:
 					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
 					String value = new String(currentTextValue.substring(0, length));

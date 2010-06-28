@@ -414,7 +414,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 			{
 				FieldDescriptor childFD	= elementFieldDescriptors.get(i);
 				final int childOptimizationsType 	= childFD.getType();
-				if (childOptimizationsType == LEAF)
+				if (childOptimizationsType == LEAF  || childOptimizationsType == ENUMERATED_LEAF)
 				{
 					try
 					{
@@ -654,7 +654,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 //				NodeToJavaOptimizations pte		= optimizations.getPTEByFieldName(thatFieldName);
 				FieldDescriptor childFD	= elementFieldDescriptors.get(i);
 				final int childOptimizationsType 	= childFD.getType();
-				if (childOptimizationsType == LEAF)
+				if (childOptimizationsType == LEAF || childOptimizationsType == ENUMERATED_LEAF)
 				{
 					try
 					{
@@ -1705,6 +1705,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 						switch (fd.getType())
 						{
 						case ATTRIBUTE:
+						case ENUMERATED_ATTRIBUTE:
 							fd.setFieldToScalar(this, value, scalarUnmarshallingContext);
 							// the value can become a unique id for looking up this
 							//TODO -- could support the ID type for the node here!
@@ -2299,6 +2300,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
     {
 
     }
+    
     static final String NULL_TAG	= "";
     
     static final Class[] NO_CLASSES	= 
