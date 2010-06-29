@@ -1278,7 +1278,7 @@ implements CharacterConstants, SpecialCharacterEntities
 				if(enumObj instanceof Enum<?>)
 				{
 					Enum<?> enumeratedType = ((Enum<?>) enumObj);
-					if(enumeratedType.toString() == valueString)
+					if(enumeratedType.toString().equals(valueString))
 						return enumeratedType;
 				}
 			}

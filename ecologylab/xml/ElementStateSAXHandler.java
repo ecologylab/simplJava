@@ -640,6 +640,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			case LEAF:
 			case COLLECTION_SCALAR:
 			case NAME_SPACE_LEAF_NODE:
+			case ENUMERATED_LEAF:
 				currentTextValue.append(chars, startIndex, length);
 				// TODO -- unmarshall to set field with scalar type
 				break;
