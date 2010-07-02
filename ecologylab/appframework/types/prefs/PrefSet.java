@@ -31,7 +31,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 	@xml_map
 	@xml_nowrap
-//	@xml_classes({PrefInt.class})
+	// @xml_classes({PrefInt.class})
 	@xml_scope(PREFS_TRANSLATION_SCOPE)
 	HashMap<String, Pref<?>>		preferences;
 
@@ -49,7 +49,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public Pref<?> add(Pref<?> pref)
 	{
 		constructPreferencesIfNeeded();
-		
+
 		Pref<?> result = preferences.put(pref.key(), pref);
 		pref.register();
 		return result;
@@ -61,7 +61,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	private void constructPreferencesIfNeeded()
 	{
 		if (preferences == null)
-			preferences	= new HashMap<String, Pref<?>>();
+			preferences = new HashMap<String, Pref<?>>();
 	}
 
 	/**
@@ -165,8 +165,8 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		return retVal;
 	}
 
-	public static final Collection<Pref<?>> EMPTY_ARRAY_LIST	= new ArrayList<Pref<?>>(0);
-	
+	public static final Collection<Pref<?>>	EMPTY_ARRAY_LIST	= new ArrayList<Pref<?>>(0);
+
 	public Collection<Pref<?>> values()
 	{
 		return preferences == null ? EMPTY_ARRAY_LIST : preferences.values();
@@ -191,7 +191,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public void put(String k, Pref<?> object)
 	{
 		constructPreferencesIfNeeded();
-		
+
 		preferences.put(k, object);
 	}
 
@@ -209,9 +209,13 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public void addPrefSet(PrefSet prefSet)
 	{
 		constructPreferencesIfNeeded();
-		
+
 		for (Pref<?> pref : prefSet.values())
 			add(pref);
 	}
 
+	public int size()
+	{
+		return this.preferences.size();
+	}
 }
