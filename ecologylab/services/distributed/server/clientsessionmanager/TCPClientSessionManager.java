@@ -9,6 +9,8 @@ import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Queue;
@@ -19,18 +21,13 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 import ecologylab.collections.Scope;
-import ecologylab.generic.Debug;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.MessageWithMetadata;
 import ecologylab.services.distributed.impl.MessageWithMetadataPool;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
 import ecologylab.services.distributed.server.NIOServerProcessor;
 import ecologylab.services.exceptions.BadClientException;
-import ecologylab.services.messages.BadSemanticContentResponse;
-import ecologylab.services.messages.InitConnectionRequest;
-import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
@@ -39,7 +36,7 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 /**
- * The base class for all ContextManagers, objects which track the state and respond to clients on a
+ * The base class for all ContextManagers, objects that track the state and respond to clients on a
  * server. There is a one-to-one correspondence between connected clients and ContextManager
  * instances.
  * 
@@ -62,7 +59,7 @@ import ecologylab.xml.XMLTranslationException;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public abstract class AbstractClientSessionManager extends Debug implements ServerConstants
+public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessionManager<S> implements ServerConstants
 {
 	/**
 	 * Stores the key-value pairings from a parsed HTTP-like header on an incoming message.
@@ -88,45 +85,10 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 																																																		MAX_HTTP_HEADER_LENGTH);
 
 	/**
-	 * Indicates whether or not one or more messages are queued for execution by this ContextManager.
-	 */
-	protected boolean																										messageWaiting						= false;
-
-	/**
-	 * A queue of the requests to be performed by this ContextManager. Subclasses may override
-	 * functionality and not use requestQueue.
-	 */
-	protected final Queue<MessageWithMetadata<RequestMessage, Object>>	requestQueue							= new LinkedBlockingQueue<MessageWithMetadata<RequestMessage, Object>>();
-
-	/**
 	 * The network communicator that will handle all the reading and writing for the socket associated
 	 * with this ContextManager
 	 */
 	protected NIOServerIOThread																					server;
-
-	/**
-	 * The frontend for the server that is running the ContextManager. This is needed in case the
-	 * client attempts to restore a session, in which case the frontend must be queried for the old
-	 * ContextManager.
-	 */
-	protected NIOServerProcessor																				frontend									= null;
-
-	/**
-	 * The selection key for this context manager.
-	 */
-	protected SelectionKey																							socketKey;
-
-	/**
-	 * Session handle available to use by clients
-	 */
-
-	protected SessionHandle																							handle;
-
-	/**
-	 * sessionId uniquely identifies this ContextManager. It is used to restore the state of a lost
-	 * connection.
-	 */
-	protected String																										sessionId									= null;
 
 	/**
 	 * The maximum message length allowed for clients that connect to this session manager. Note that
@@ -161,16 +123,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	private int																													endOfFirstHeader					= -1;
 
-	private long																												lastActivity							= System
-																																																		.currentTimeMillis();
-
-	/**
-	 * Used for disconnecting. A disconnect message will call the setInvalidating method, which will
-	 * set this value to true. The processing method will set itself as pending invalidation after it
-	 * has produces the bytes for the response to the disconnect message.
-	 */
-	private boolean																											invalidating							= false;
-
 	/**
 	 * Counts how many characters still need to be extracted from the incomingMessageBuffer before
 	 * they can be turned into a message (based upon the HTTP header). A value of -1 means that there
@@ -194,19 +146,7 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 */
 	private final StringBuilder																					firstMessageBuffer				= new StringBuilder();
 
-	/**
-	 * Indicates whether the first request message has been received. The first request may be an
-	 * InitConnection, which has special properties.
-	 */
-	protected boolean																										initialized								= false;
-
-	private final MessageWithMetadataPool<RequestMessage, Object>				reqPool										= new MessageWithMetadataPool<RequestMessage, Object>(
-																																																		2,
-																																																		4);
-
 	private long																												contentUid								= -1;
-
-	protected Scope																											localScope;
 
 	private CharBuffer																									zippingChars;
 
@@ -220,9 +160,21 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	private ByteBuffer																									compressedMessageBuffer;
 
-	public static final String																					SESSION_ID								= "SESSION_ID";
+	/**
+	 * A queue of the requests to be performed by this ContextManager. Subclasses may override
+	 * functionality and not use requestQueue.
+	 */
+	protected final Queue<MessageWithMetadata<RequestMessage, Object>>	requestQueue							= new LinkedBlockingQueue<MessageWithMetadata<RequestMessage, Object>>();
 
-	public static final String																					CLIENT_MANAGER						= "CLIENT_MANAGER";
+	protected final MessageWithMetadataPool<RequestMessage, Object>			reqPool										= new MessageWithMetadataPool<RequestMessage, Object>(
+																																																		2,
+																																																		4);
+
+	protected CharsetDecoder																						decoder										= CHARSET
+																																																		.newDecoder();
+
+	protected CharsetEncoder																						encoder										= CHARSET
+																																																		.newEncoder();
 
 	private static final String																					POST_PREFIX								= "POST ";
 
@@ -232,7 +184,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * Creates a new ContextManager.
 	 * 
 	 * @param sessionId
-	 * @param clientSessionScope TODO
+	 * @param clientSessionScope
+	 *          TODO
 	 * @param maxMessageSizeIn
 	 * @param server
 	 * @param frontend
@@ -240,19 +193,14 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * @param translationSpace
 	 * @param registry
 	 */
-	public AbstractClientSessionManager(String sessionId, int maxMessageSizeIn,
-			NIOServerIOThread server, NIOServerProcessor frontend, SelectionKey socket,
-			TranslationScope translationSpace, Scope<?> registry)
+	public TCPClientSessionManager(String sessionId, int maxMessageSizeIn, NIOServerIOThread server,
+			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationSpace,
+			Scope<?> baseScope)
 	{
-		this.frontend = frontend;
-		this.socketKey = socket;
+		super(sessionId, frontend, socket, baseScope);
+
 		this.server = server;
 		this.translationSpace = translationSpace;
-
-		this.localScope = new Scope(registry);
-
-		this.localScope.put(SESSION_ID, sessionId);
-		this.localScope.put(CLIENT_MANAGER, this);
 
 		// set up session id
 		this.sessionId = sessionId;
@@ -470,9 +418,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			zippingInBytes.clear();
 
-			ENCODER.reset();
-			ENCODER.encode(zippingChars, zippingInBytes, true);
-			ENCODER.flush(zippingInBytes);
+			encoder.reset();
+			encoder.encode(zippingChars, zippingInBytes, true);
+			encoder.flush(zippingInBytes);
 
 			zippingInBytes.flip();
 
@@ -488,9 +436,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			zippingChars.clear();
 
-			DECODER.reset();
-			DECODER.decode(zippingOutBytes, zippingChars, true);
-			DECODER.flush(zippingChars);
+			decoder.reset();
+			decoder.decode(zippingOutBytes, zippingChars, true);
+			decoder.flush(zippingChars);
 
 			zippingChars.flip();
 
@@ -498,38 +446,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
 		}
-	}
-
-	/**
-	 * Indicates the last System timestamp was when the ContextManager had any activity.
-	 * 
-	 * @return the last System timestamp indicating when the ContextManager had any activity.
-	 */
-	public final long getLastActivity()
-	{
-		return lastActivity;
-	}
-
-	/**
-	 * @return the socket
-	 */
-	public SelectionKey getSocketKey()
-	{
-		return socketKey;
-	}
-
-	/**
-	 * Indicates whether there are any messages queued up to be processed.
-	 * 
-	 * isMessageWaiting() should be overridden if getNextRequest() is overridden so that it properly
-	 * reflects the way that getNextRequest() works; it may also be important to override
-	 * enqueueRequest().
-	 * 
-	 * @return true if getNextRequest() can return a value, false if it cannot.
-	 */
-	public boolean isMessageWaiting()
-	{
-		return messageWaiting;
 	}
 
 	/**
@@ -565,16 +481,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 		this.socketKey.attach(sessionId);
 	}
 
-	/**
-	 * Hook method for having shutdown behavior.
-	 * 
-	 * This method is called whenever the server is closing down the connection to this client.
-	 */
-	public void shutdown()
-	{
-
-	}
-
 	protected abstract void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf);
 
 	protected abstract void clearOutgoingMessageHeaderBuffer(StringBuilder outgoingMessageHeaderBuf);
@@ -584,47 +490,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 	protected abstract void makeUpdateHeader(int messageSize, StringBuilder headerBufOutgoing,
 			UpdateMessage<?> update);
-
-	/**
-	 * Adds the given request to this's request queue.
-	 * 
-	 * enqueueRequest(RequestMessage) is a hook method for ContextManagers that need to implement
-	 * other functionality, such as prioritizing messages.
-	 * 
-	 * If enqueueRequest(RequestMessage) is overridden, the following methods should also be
-	 * overridden: isMessageWaiting(), getNextRequest().
-	 * 
-	 * @param request
-	 */
-	protected void enqueueRequest(MessageWithMetadata<RequestMessage, Object> request)
-	{
-		messageWaiting = this.requestQueue.offer(request);
-	}
-
-	/**
-	 * Returns the next message in the request queue.
-	 * 
-	 * getNextRequest() may be overridden to provide specific functionality, such as a priority queue.
-	 * In this case, it is important to override the following methods: isMessageWaiting(),
-	 * enqueueRequest().
-	 * 
-	 * @return the next message in the requestQueue.
-	 */
-	protected MessageWithMetadata<RequestMessage, Object> getNextRequest()
-	{
-		synchronized (requestQueue)
-		{
-			int queueSize = requestQueue.size();
-
-			if (queueSize == 1)
-			{
-				messageWaiting = false;
-			}
-
-			// return null if none left, or the next Request otherwise
-			return requestQueue.poll();
-		}
-	}
 
 	/**
 	 * Parses the header of an incoming set of characters (i.e. a message from a client to a server),
@@ -722,35 +587,6 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 		}
 	}
 
-	/**
-	 * Appends the sender's IP address to the incoming message and calls performService on the given
-	 * RequestMessage using the local ObjectRegistry.
-	 * 
-	 * performService(RequestMessage) may be overridden by subclasses to provide more specialized
-	 * functionality. Generally, overrides should then call super.performService(RequestMessage) so
-	 * that the IP address is appended to the message.
-	 * 
-	 * @param requestMessage
-	 * @return
-	 */
-	protected ResponseMessage performService(RequestMessage requestMessage)
-	{
-		requestMessage.setSender(((SocketChannel) this.socketKey.channel()).socket().getInetAddress());
-
-		try
-		{
-			return requestMessage.performService(localScope);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-
-			return new BadSemanticContentResponse("The request, "
-					+ requestMessage.toString()
-					+ " caused an exception on the server.");
-		}
-	}
-
 	protected abstract void prepareBuffers(StringBuilder incomingMessageBuf,
 			StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf);
 
@@ -807,6 +643,47 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	}
 
 	/**
+	 * Adds the given request to this's request queue.
+	 * 
+	 * enqueueRequest(RequestMessage) is a hook method for ContextManagers that need to implement
+	 * other functionality, such as prioritizing messages.
+	 * 
+	 * If enqueueRequest(RequestMessage) is overridden, the following methods should also be
+	 * overridden: isMessageWaiting(), getNextRequest().
+	 * 
+	 * @param request
+	 */
+	protected void enqueueRequest(MessageWithMetadata<RequestMessage, Object> request)
+	{
+		messageWaiting = this.requestQueue.offer(request);
+	}
+
+	/**
+	 * Returns the next message in the request queue.
+	 * 
+	 * getNextRequest() may be overridden to provide specific functionality, such as a priority queue.
+	 * In this case, it is important to override the following methods: isMessageWaiting(),
+	 * enqueueRequest().
+	 * 
+	 * @return the next message in the requestQueue.
+	 */
+	protected MessageWithMetadata<RequestMessage, Object> getNextRequest()
+	{
+		synchronized (requestQueue)
+		{
+			int queueSize = requestQueue.size();
+
+			if (queueSize == 1)
+			{
+				messageWaiting = false;
+			}
+
+			// return null if none left, or the next Request otherwise
+			return requestQueue.poll();
+		}
+	}
+
+	/**
 	 * Calls processRequest(RequestMessage) on the result of getNextRequest().
 	 * 
 	 * In order to override functionality processRequest(RequestMessage) and/or getNextRequest()
@@ -826,72 +703,27 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 	 * @param request
 	 *          - the request message to process.
 	 */
-	private final void processRequest(MessageWithMetadata<RequestMessage, Object> requestWithMetadata)
+	protected final ResponseMessage processRequest(
+			MessageWithMetadata<RequestMessage, Object> requestWithMetadata)
 	{
-		this.lastActivity = System.currentTimeMillis();
-
-		ResponseMessage response = null;
 		RequestMessage request = requestWithMetadata.getMessage();
 
-		if (request == null)
-		{
-			debug("No request.");
+		ResponseMessage response = super.processRequest(request, ((SocketChannel) this.socketKey
+				.channel()).socket().getInetAddress());
+
+		if (response != null)
+		{ // if the response is null, then we do
+			// nothing else
+			sendResponseToClient(requestWithMetadata, response, request);
 		}
 		else
 		{
-			// TODO apologize to zach for this (-- andruid)
-			// try to make http post work seamlessly cause it seems like it doesnt
-			// yet :-(
-			if (!isInitialized() && !(request instanceof InitConnectionRequest))
-			{
-				debug("Andruid hack.");
-				initialized = true;
-			}
-			if (!isInitialized())
-			{
-				// special processing for InitConnectionRequest
-				if (request instanceof InitConnectionRequest)
-				{
-					String incomingSessionId = ((InitConnectionRequest) request).getSessionId();
-
-					if (incomingSessionId == null)
-					{ // client is not expecting an old ContextManager
-						response = new InitConnectionResponse(this.sessionId);
-					}
-					else
-					{ // client is expecting an old ContextManager
-						if (frontend.restoreContextManagerFromSessionId(incomingSessionId, this))
-						{
-							response = new InitConnectionResponse(incomingSessionId);
-						}
-						else
-						{
-							response = new InitConnectionResponse(this.sessionId);
-						}
-					}
-				}
-
-				initialized = true;
-			}
-			else
-			{
-				// perform the service being requested
-				response = performService(request);
-			}
-
-			if (response != null)
-			{ // if the response is null, then we do
-				// nothing else
-
-				sendResponseToClient(requestWithMetadata, response, request);
-			}
-			else
-			{
-				debug("context manager did not produce a response message.");
-			}
+			debug("context manager did not produce a response message.");
 		}
 
 		requestWithMetadata = reqPool.release(requestWithMetadata);
+
+		return response;
 	}
 
 	private synchronized void sendResponseToClient(
@@ -962,13 +794,13 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
 
-			synchronized (ENCODER)
+			synchronized (encoder)
 			{
-				ENCODER.reset();
+				encoder.reset();
 
-				ENCODER.encode(outgoingChars, outgoingBuffer, true);
+				encoder.encode(outgoingChars, outgoingBuffer, true);
 
-				ENCODER.flush(outgoingBuffer);
+				encoder.flush(outgoingBuffer);
 			}
 
 			if (usingCompression)
@@ -1055,13 +887,13 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			ByteBuffer outgoingBuffer = this.server.acquireByteBufferFromPool();
 
-			synchronized (ENCODER)
+			synchronized (encoder)
 			{
-				ENCODER.reset();
+				encoder.reset();
 
-				ENCODER.encode(outgoingChars, outgoingBuffer, true);
+				encoder.encode(outgoingChars, outgoingBuffer, true);
 
-				ENCODER.flush(outgoingBuffer);
+				encoder.flush(outgoingBuffer);
 			}
 
 			if (usingCompression)
@@ -1090,9 +922,9 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 
 			zippingInBytes.clear();
 
-			ENCODER.reset();
-			ENCODER.encode(zippingChars, zippingInBytes, true);
-			ENCODER.flush(zippingInBytes);
+			encoder.reset();
+			encoder.encode(zippingChars, zippingInBytes, true);
+			encoder.flush(zippingInBytes);
 
 			zippingInBytes.flip();
 
@@ -1187,50 +1019,8 @@ public abstract class AbstractClientSessionManager extends Debug implements Serv
 		}
 	}
 
-	/**
-	 * Indicates whether or not this context manager has been initialized. Normally, this means that
-	 * it has shared a session id with the client.
-	 * 
-	 * @return
-	 */
-	public boolean isInitialized()
-	{
-		return initialized;
-	}
-
-	/**
-	 * @param invalidating
-	 *          the invalidating to set
-	 */
-	public void setInvalidating(boolean invalidating)
-	{
-		this.invalidating = invalidating;
-	}
-
-	/**
-	 * Indicates whether or not the client manager is expecting a disconnect. If this method returns
-	 * true, then this client manager should be disposed of when the client disconnects; otherwise, it
-	 * should be retained until the client comes back, or the client managers are cleaned up.
-	 * 
-	 * @return true if the client manager is expecting the client to disconnect, false otherwise
-	 */
-	public boolean isInvalidating()
-	{
-		return invalidating;
-	}
-	
-	public Object getSessionId()
-	{
-		return this.sessionId;
-	}
-
 	public SessionHandle getHandle()
 	{
 		return handle;
-	}
-
-	public Scope getScope()
-	{
-		return this.localScope;
 	}
 }

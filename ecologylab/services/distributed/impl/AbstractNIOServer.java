@@ -9,11 +9,10 @@ import java.net.InetAddress;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
-import ecologylab.generic.StartAndStoppable;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.SessionObjects;
-import ecologylab.services.distributed.server.NIOServerProcessor;
-import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.NIOServerDataReader;
+import ecologylab.services.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.services.messages.InitConnectionRequest;
 import ecologylab.xml.TranslationScope;
 
@@ -24,7 +23,7 @@ import ecologylab.xml.TranslationScope;
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
 public abstract class AbstractNIOServer<S extends Scope> extends Manager implements
-		NIOServerProcessor, Runnable, StartAndStoppable, SessionObjects
+		NIOServerDataReader, Runnable, SessionObjects
 {
 	private NIOServerIOThread		backend;
 
@@ -110,8 +109,8 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 				objectRegistry, idleConnectionTimeout, maxMessageLength);
 	}
 
-	protected abstract AbstractClientSessionManager generateContextManager(String sessionId,
-			SelectionKey sk, TranslationScope translationSpace, Scope globalScope);
+	protected abstract BaseSessionManager generateContextManager(String sessionId, SelectionKey sk,
+			TranslationScope translationSpace, Scope globalScope);
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()

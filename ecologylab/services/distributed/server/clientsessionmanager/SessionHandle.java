@@ -7,19 +7,24 @@ import java.nio.channels.SocketChannel;
 import ecologylab.collections.Scope;
 import ecologylab.services.messages.UpdateMessage;
 
+/**
+ * 
+ * @author William A. Hamilton (bill@ecologylab.net)
+ */
 public class SessionHandle
 {
-	private AbstractClientSessionManager sessionManager;
-	public SessionHandle(AbstractClientSessionManager cm)
+	private TCPClientSessionManager	sessionManager;
+
+	public SessionHandle(TCPClientSessionManager cm)
 	{
 		sessionManager = cm;
 	}
-	
+
 	private Socket getSocket()
 	{
 		return ((SocketChannel) sessionManager.getSocketKey().channel()).socket();
 	}
-	
+
 	public InetAddress getInetAddress()
 	{
 		return getSocket().getInetAddress();
@@ -29,7 +34,7 @@ public class SessionHandle
 	{
 		return getSocket().getPort();
 	}
-	
+
 	public void sendUpdate(UpdateMessage update)
 	{
 		sessionManager.sendUpdateToClient(update);
@@ -39,29 +44,23 @@ public class SessionHandle
 	{
 		return sessionManager.getScope();
 	}
-	
+
 	public void invalidate()
 	{
-		sessionManager.setInvalidating(true);		
+		sessionManager.setInvalidating(true);
 	}
-	
+
 	public Object getSessionId()
 	{
 		return sessionManager.getSessionId();
 	}
-	
-	/* use at your own risk */
-	public AbstractClientSessionManager getSessionManager()
-	{
-		return sessionManager;
-	}
-	
+
 	@Override
 	public boolean equals(Object other)
 	{
-		if(other instanceof SessionHandle)
+		if (other instanceof SessionHandle)
 		{
-			return this.getSessionId().equals(((SessionHandle)other).getSessionId());
+			return this.getSessionId().equals(((SessionHandle) other).getSessionId());
 		}
 		else
 		{

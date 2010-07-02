@@ -403,7 +403,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		logDisplay = this.generateView();
 
-		mainFrame.getContentPane().add(logDisplay);
+//		mainFrame.getContentPane().add(logDisplay);
 
 		mainFrame.validate();
 		mainFrame.pack();

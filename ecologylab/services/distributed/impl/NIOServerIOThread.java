@@ -26,67 +26,60 @@ import sun.misc.BASE64Encoder;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ObjectOrHashMap;
 import ecologylab.services.distributed.common.ServerConstants;
-import ecologylab.services.distributed.server.NIOServerProcessor;
+import ecologylab.services.distributed.server.NIOServerDataReader;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationScope;
 
 /**
- * The backend portion of the NIO Server, which handles low-level communication
- * with clients.
+ * The backend portion of the NIO Server, which handles low-level communication with clients.
  * 
  * Re-written based on the Rox Java NIO Tutorial
  * (http://rox-xmlrpc.sourceforge.net/niotut/index.html).
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public class NIOServerIOThread extends NIONetworking implements ServerConstants
 {
-	static NIOServerIOThread getInstance(int portNumber,
-			InetAddress[] hostAddresses, NIOServerProcessor sAP,
-			TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
-			int idleSocketTimeout, int maxMessageLength) throws IOException,
-			BindException
+	static NIOServerIOThread getInstance(int portNumber, InetAddress[] hostAddresses,
+			NIOServerDataReader sAP, TranslationScope requestTranslationSpace, Scope<?> objectRegistry,
+			int idleSocketTimeout, int maxMessageLength) throws IOException, BindException
 	{
-		return new NIOServerIOThread(portNumber, hostAddresses, sAP,
-				requestTranslationSpace, objectRegistry, idleSocketTimeout,
-				maxMessageLength);
+		return new NIOServerIOThread(portNumber, hostAddresses, sAP, requestTranslationSpace,
+				objectRegistry, idleSocketTimeout, maxMessageLength);
 	}
 
-	private final ArrayList<ServerSocket>								incomingConnectionSockets	= new ArrayList<ServerSocket>();
+	private final ArrayList<ServerSocket>												incomingConnectionSockets	= new ArrayList<ServerSocket>();
 
-	private NIOServerProcessor												sAP;
+	private NIOServerDataReader																	sAP;
 
-	private int																	idleSocketTimeout;
+	private int																									idleSocketTimeout;
 
-	private Map<SelectionKey, Long>										keyActivityTimes				= new HashMap<SelectionKey, Long>();
+	private Map<SelectionKey, Long>															keyActivityTimes					= new HashMap<SelectionKey, Long>();
 
-	private Map<String, ObjectOrHashMap<String, SelectionKey>>	ipToKeyOrKeys					= new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
+	private Map<String, ObjectOrHashMap<String, SelectionKey>>	ipToKeyOrKeys							= new HashMap<String, ObjectOrHashMap<String, SelectionKey>>();
 
-	private boolean															acceptEnabled					= false;
+	private boolean																							acceptEnabled							= false;
 
-	private MessageDigest													digester;
+	private MessageDigest																				digester;
 
-	private long																dispensedTokens;
+	private long																								dispensedTokens;
 
-	private InetAddress[]													hostAddresses;
+	private InetAddress[]																				hostAddresses;
 
-	private final ArrayList<InetAddress>								boundAddresses					= new ArrayList<InetAddress>();
+	private final ArrayList<InetAddress>												boundAddresses						= new ArrayList<InetAddress>();
 
-	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses,
-			NIOServerProcessor sAP, TranslationScope requestTranslationSpace,
-			Scope<?> objectRegistry, int idleSocketTimeout, int maxMessageLength)
-			throws IOException, BindException
+	protected NIOServerIOThread(int portNumber, InetAddress[] hostAddresses, NIOServerDataReader sAP,
+			TranslationScope requestTranslationSpace, Scope<?> objectRegistry, int idleSocketTimeout,
+			int maxMessageLength) throws IOException, BindException
 	{
-		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry,
-				maxMessageLength);
+		super("NIOServer", portNumber, requestTranslationSpace, objectRegistry, maxMessageLength);
 
 		this.construct(hostAddresses, sAP, idleSocketTimeout);
 	}
 
-	private void construct(InetAddress[] newHostAddresses,
-			NIOServerProcessor newFrontend, int newIdleSocketTimeout)
-			throws IOException
+	private void construct(InetAddress[] newHostAddresses, NIOServerDataReader newFrontend,
+			int newIdleSocketTimeout) throws IOException
 	{
 		this.hostAddresses = newHostAddresses;
 
@@ -116,11 +109,12 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * Checks all of the current keys to see if they have been idle for too long
-	 * and drops them if they have.
+	 * Checks all of the current keys to see if they have been idle for too long and drops them if
+	 * they have.
 	 * 
 	 */
-	@Override protected void checkAndDropIdleKeys()
+	@Override
+	protected void checkAndDropIdleKeys()
 	{
 		LinkedList<SelectionKey> keysToInvalidate = new LinkedList<SelectionKey>();
 		long timeStamp = System.currentTimeMillis();
@@ -139,8 +133,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 		else
 		{ /*
-			 * We have to clean up the key set at some point; use
-			 * GARBAGE_CONNECTION_CLEANUP_TIMEOUT
+			 * We have to clean up the key set at some point; use GARBAGE_CONNECTION_CLEANUP_TIMEOUT
 			 */
 			for (SelectionKey sKey : keyActivityTimes.keySet())
 			{
@@ -154,20 +147,20 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		// remove all the invalid keys
 		for (SelectionKey keyToInvalidate : keysToInvalidate)
 		{
-			debug(keyToInvalidate.attachment()
-					+ " took too long to request; disconnecting.");
+			debug(keyToInvalidate.attachment() + " took too long to request; disconnecting.");
 			keyActivityTimes.remove(keyToInvalidate);
 			this.setPendingInvalidate(keyToInvalidate, true);
 		}
 	}
 
 	/**
-	 * Accept an incoming connection from a client to a server, if the server has
-	 * connections available and the client is not bad. Generate a session
-	 * identifier and attach it to the newly-connected client's SelectionKey, so
-	 * that a client session manager can be associated with the connection.
+	 * Accept an incoming connection from a client to a server, if the server has connections
+	 * available and the client is not bad. Generate a session identifier and attach it to the
+	 * newly-connected client's SelectionKey, so that a client session manager can be associated with
+	 * the connection.
 	 */
-	@Override protected final void acceptKey(SelectionKey key)
+	@Override
+	protected final void acceptKey(SelectionKey key)
 	{
 		try
 		{
@@ -183,8 +176,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 					for (ServerSocket s : this.incomingConnectionSockets)
 					{
-						SelectionKey closingKey = s.getChannel()
-								.keyFor(this.selector);
+						SelectionKey closingKey = s.getChannel().keyFor(this.selector);
 						closingKey.cancel();
 						s.close();
 						closingKey.channel().close();
@@ -193,27 +185,23 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 					acceptEnabled = false;
 				}
 
-				SocketChannel newlyAcceptedChannel = ((ServerSocketChannel) key
-						.channel()).accept();
+				SocketChannel newlyAcceptedChannel = ((ServerSocketChannel) key.channel()).accept();
 
-				InetAddress address = newlyAcceptedChannel.socket()
-						.getInetAddress();
+				InetAddress address = newlyAcceptedChannel.socket().getInetAddress();
 
 				debug("new address: " + address.getHostAddress());
 
-				if (!BadClientException
-						.isEvilHostByNumber(address.getHostAddress()))
+				if (!BadClientException.isEvilHostByNumber(address.getHostAddress()))
 				{
 					newlyAcceptedChannel.configureBlocking(false);
 
 					// when we register, we want to attach the proper
 					// session token to all of the keys associated with
 					// this connection, so we can sort them out later.
-					String keyAttachment = this
-							.generateSessionToken(newlyAcceptedChannel.socket());
+					String keyAttachment = this.generateSessionToken(newlyAcceptedChannel.socket());
 
-					SelectionKey newKey = newlyAcceptedChannel.register(selector,
-							SelectionKey.OP_READ, keyAttachment);
+					SelectionKey newKey = newlyAcceptedChannel.register(selector, SelectionKey.OP_READ,
+							keyAttachment);
 
 					this.keyActivityTimes.put(newKey, System.currentTimeMillis());
 
@@ -221,25 +209,22 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 					{
 						debug(address + " not in our list, adding it.");
 
-						ipToKeyOrKeys.put(address.getHostAddress(),
-								new ObjectOrHashMap<String, SelectionKey>(
-										keyAttachment, newKey));
+						ipToKeyOrKeys.put(address.getHostAddress(), new ObjectOrHashMap<String, SelectionKey>(
+								keyAttachment, newKey));
 					}
 					else
 					{
 						debug(address + " is in our list, adding another key.");
 						synchronized (ipToKeyOrKeys)
 						{
-							ipToKeyOrKeys.get(address.getHostAddress()).put(
-									keyAttachment, newKey);
-							System.out
-									.println("new size: "
-											+ ipToKeyOrKeys.get(address.getHostAddress())
-													.size());
+							ipToKeyOrKeys.get(address.getHostAddress()).put(keyAttachment, newKey);
+							System.out.println("new size: " + ipToKeyOrKeys.get(address.getHostAddress()).size());
 						}
 					}
 
-					debug("Now connected to " + newlyAcceptedChannel + ", "
+					debug("Now connected to "
+							+ newlyAcceptedChannel
+							+ ", "
 							+ (MAX_CONNECTIONS - numConn - 1)
 							+ " connections remaining.");
 
@@ -249,8 +234,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 			// we will prematurely exit before now if it's a good connection
 			// so now it's a bad one; disconnect it and return null
-			SocketChannel tempChannel = ((ServerSocketChannel) key.channel())
-					.accept();
+			SocketChannel tempChannel = ((ServerSocketChannel) key.channel()).accept();
 
 			InetAddress address = null;
 
@@ -284,26 +268,23 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	/**
 	 * @see ecologylab.services.distributed.impl.NIONetworking#removeBadConnections()
 	 */
-	@Override protected void removeBadConnections(SelectionKey key)
+	@Override
+	protected void removeBadConnections(SelectionKey key)
 	{
 		// shut them ALL down!
-		InetAddress address = ((SocketChannel) key.channel()).socket()
-				.getInetAddress();
+		InetAddress address = ((SocketChannel) key.channel()).socket().getInetAddress();
 
-		ObjectOrHashMap<String, SelectionKey> keyOrKeys = ipToKeyOrKeys
-				.get(address.getHostAddress());
+		ObjectOrHashMap<String, SelectionKey> keyOrKeys = ipToKeyOrKeys.get(address.getHostAddress());
 
 		Iterator<SelectionKey> allKeysForIp = keyOrKeys.values().iterator();
 
-		debug("***********Shutting down all clients from "
-				+ address.getHostAddress());
+		debug("***********Shutting down all clients from " + address.getHostAddress());
 
 		while (allKeysForIp.hasNext())
 		{
 			SelectionKey keyForIp = allKeysForIp.next();
 
-			debug("shutting down "
-					+ ((SocketChannel) keyForIp.channel()).socket().getInetAddress());
+			debug("shutting down " + ((SocketChannel) keyForIp.channel()).socket().getInetAddress());
 
 			this.setPendingInvalidate(keyForIp, true);
 		}
@@ -313,23 +294,24 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * Handles the client manager for the socket (remove if permanent) and shuts
-	 * down communication on the socket.
+	 * Handles the client manager for the socket (remove if permanent) and shuts down communication on
+	 * the socket.
 	 * 
 	 * @see ecologylab.services.distributed.impl.NIONetworking#invalidateKey(java.nio.channels.SocketChannel,
 	 *      boolean)
 	 */
-	@Override protected void invalidateKey(SelectionKey key, boolean permanent)
+	@Override
+	protected void invalidateKey(SelectionKey key, boolean permanent)
 	{
 		SocketChannel chan = (SocketChannel) key.channel();
 		InetAddress address = chan.socket().getInetAddress();
 
-		sAP.invalidate(key.attachment(), permanent);
+		sAP.invalidate((String) key.attachment(), permanent);
 
 		super.invalidateKey(chan);
 
-		ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys
-				.get(address.getHostAddress());
+		ObjectOrHashMap<String, SelectionKey> keyOrKeys = this.ipToKeyOrKeys.get(address
+				.getHostAddress());
 
 		if (keyOrKeys != null)
 		{
@@ -337,15 +319,14 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 			if (keyOrKeys.isEmpty())
 			{
-				this.ipToKeyOrKeys.remove(chan.socket().getInetAddress()
-						.getHostAddress());
+				this.ipToKeyOrKeys.remove(chan.socket().getInetAddress().getHostAddress());
 			}
 		}
 		this.keyActivityTimes.remove(key);
 
 		/*
-		 * decrement numConnections & if the server disabled new connections due
-		 * to hitting max_connections, re-enable
+		 * decrement numConnections & if the server disabled new connections due to hitting
+		 * max_connections, re-enable
 		 */
 		if (selector.keys().size() < MAX_CONNECTIONS && !acceptEnabled)
 		{
@@ -362,8 +343,8 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * Attempts to bind all of the ports in the hostAddresses array. If a port
-	 * cannot be bound, it is removed from the hostAddresses array.
+	 * Attempts to bind all of the ports in the hostAddresses array. If a port cannot be bound, it is
+	 * removed from the hostAddresses array.
 	 * 
 	 * @throws IOException
 	 */
@@ -389,7 +370,7 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 
 				// bind to the port for this server
 				newSocket.bind(new InetSocketAddress(hostAddresses[i], portNumber));
-				
+
 				newSocket.setReuseAddress(true);
 
 				channel.register(this.selector, SelectionKey.OP_ACCEPT);
@@ -403,11 +384,12 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 				debug(e.getMessage());
 				e.printStackTrace();
 			}
-			catch (SocketException e) {
+			catch (SocketException e)
+			{
 				System.err.println(e.getMessage());
 			}
 		}
-		
+
 		if (this.boundAddresses.size() == 0)
 		{
 			throw new BindException("Server was unable to bind to any addresses.");
@@ -419,9 +401,9 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	}
 
 	/**
-	 * Generates a unique identifier String for the given socket, based upon
-	 * actual ports used and ip addresses with a hash. Called by the server at
-	 * accept() time, and used to identify the connection thereafter.
+	 * Generates a unique identifier String for the given socket, based upon actual ports used and ip
+	 * addresses with a hash. Called by the server at accept() time, and used to identify the
+	 * connection thereafter.
 	 * 
 	 * @param incomingSocket
 	 * @return
@@ -449,7 +431,8 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		return new String((new BASE64Encoder()).encode(digester.digest()));
 	}
 
-	@Override protected void close()
+	@Override
+	protected void close()
 	{
 		try
 		{
@@ -468,9 +451,9 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 		}
 	}
 
-	@Override protected void processReadData(Object sessionToken,
-			SelectionKey sk, ByteBuffer bytes, int bytesRead)
-			throws BadClientException
+	@Override
+	protected void processReadData(Object sessionToken, SelectionKey sk, ByteBuffer bytes,
+			int bytesRead) throws BadClientException
 	{
 		this.sAP.processRead(sessionToken, this, sk, bytes, bytesRead);
 		this.keyActivityTimes.put(sk, System.currentTimeMillis());
@@ -479,7 +462,8 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#acceptReady(java.nio.channels.SelectionKey)
 	 */
-	@Override protected void acceptReady(SelectionKey key)
+	@Override
+	protected void acceptReady(SelectionKey key)
 	{
 		this.acceptKey(key);
 	}
@@ -487,14 +471,16 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#connectReady(java.nio.channels.SelectionKey)
 	 */
-	@Override protected void connectReady(SelectionKey key)
+	@Override
+	protected void connectReady(SelectionKey key)
 	{
 	}
 
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#readFinished(java.nio.channels.SelectionKey)
 	 */
-	@Override protected void readFinished(SelectionKey key)
+	@Override
+	protected void readFinished(SelectionKey key)
 	{
 	}
 
@@ -510,14 +496,15 @@ public class NIOServerIOThread extends NIONetworking implements ServerConstants
 	/**
 	 * @see ecologylab.services.distributed.impl.NIOCore#acceptFinished(java.nio.channels.SelectionKey)
 	 */
-	@Override public void acceptFinished(SelectionKey key)
+	@Override
+	public void acceptFinished(SelectionKey key)
 	{
 	}
 
-	@Override protected boolean handleInvalidate(SelectionKey key,
-			boolean forcePermanent)
+	@Override
+	protected boolean handleInvalidate(SelectionKey key, boolean forcePermanent)
 	{
-		return this.sAP.invalidate(key.attachment(), forcePermanent);
+		return this.sAP.invalidate((String) key.attachment(), forcePermanent);
 	}
 
 	/**

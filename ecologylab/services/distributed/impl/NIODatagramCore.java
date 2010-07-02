@@ -10,9 +10,10 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
-import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 import java.util.zip.DataFormatException;
@@ -23,6 +24,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.CappedResourcePool;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ResourcePool;
+import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.messages.ServiceMessage;
@@ -33,12 +35,13 @@ import ecologylab.xml.XMLTranslationException;
 /**
  * 
  * @author bilhamil
- *
- * Core class for datagram functionality. Handles sending and receiving messages. 
- * Is based on several threads: sending and receiving threads that handle the socket and
- * a pool of threads that process requests in a parallel fashion.
- *
- * @param <S> Scope parameterization
+ * 
+ *         Core class for datagram functionality. Handles sending and receiving messages. Is based
+ *         on several threads: sending and receiving threads that handle the socket and a pool of
+ *         threads that process requests in a parallel fashion.
+ * 
+ * @param <S>
+ *          Scope parameterization
  */
 public abstract class NIODatagramCore<S extends Scope> extends Debug implements NetworkingConstants
 {
@@ -81,8 +84,15 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	protected Inflater																																inflater							= new Inflater();
 
+	private CharsetDecoder																														decoder								= CHARSET
+																																																							.newDecoder();
+
+	private CharsetEncoder																														encoder								= CHARSET
+																																																							.newEncoder();
+
 	/**
 	 * Base constructor. Opens the socket and sets up the state objects.
+	 * 
 	 * @param translationScope
 	 * @param objectRegistry
 	 * @param useCompression
@@ -158,11 +168,13 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			super(true, 4, 4, 32, true);
 		}
 
+		@Override
 		protected void clean(PacketHandler objectToClean)
 		{
 			objectToClean.reset();
 		}
 
+		@Override
 		protected PacketHandler generateNewResource()
 		{
 			PacketHandler handler = new PacketHandler(this);
@@ -172,6 +184,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 			return handler;
 		}
 
+		@Override
 		protected void onRemoval(PacketHandler handler)
 		{
 			handler.stop();
@@ -342,7 +355,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					builder.flip();
 
-					ENCODER.encode(builder, buffer, true);
+					encoder.encode(builder, buffer, true);
 					buffer.flip();
 
 					if (doCompress)
@@ -477,7 +490,6 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -557,7 +569,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									long uid = recieveBuffer.getLong();
 
-									DECODER.decode(recieveBuffer, messageBuffer, true);
+									decoder.decode(recieveBuffer, messageBuffer, true);
 
 									messageBuffer.flip();
 

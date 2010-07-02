@@ -3,13 +3,15 @@
  */
 package ecologylab.services.distributed.impl;
 
+import ecologylab.generic.Debug;
+
 /**
  * Represents a RequestMessage that has been translated to XML. This object encapsulates the XML
  * String, along with the request's UID.
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class PreppedRequest implements Comparable<PreppedRequest>
+public class PreppedRequest extends Debug implements Comparable<PreppedRequest>
 {
 	private long					uid	= -1;
 
@@ -58,6 +60,8 @@ public class PreppedRequest implements Comparable<PreppedRequest>
 	{
 		this.request.setLength(0);
 		this.request.append(request);
+
+//		debug(request.toString());
 	}
 
 	/**

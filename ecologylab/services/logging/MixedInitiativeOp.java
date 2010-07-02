@@ -1,7 +1,6 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history, and so on.

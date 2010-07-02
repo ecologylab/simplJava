@@ -27,19 +27,23 @@ import ecologylab.xml.TranslationScope;
  */
 public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 {
-	protected String sid = null;
-	
-	protected SelectionKey key;
-	
-	protected int timeoutPeriod;
-	
-	protected InetSocketAddress serverAddress;
-	
-	protected ConcurrentHashMap<Long, Thread> pendingThreadsByUID = new ConcurrentHashMap<Long, Thread>();
-	
-	protected ConcurrentHashMap<Long, ResponseMessage<S>> responsesByUID = new ConcurrentHashMap<Long, ResponseMessage<S>>();
+	protected String																			sid									= null;
 
-	/**
+	protected SelectionKey																key;
+
+	protected int																					timeoutPeriod;
+
+	protected InetSocketAddress														serverAddress;
+
+	protected ConcurrentHashMap<Long, Thread>							pendingThreadsByUID	= new ConcurrentHashMap<Long, Thread>();
+
+	protected ConcurrentHashMap<Long, ResponseMessage<S>>	responsesByUID			= new ConcurrentHashMap<Long, ResponseMessage<S>>();
+
+	private InetSocketAddress															localAddress;
+
+	private int																						timeout;
+
+		/**
 	 * Base client constructor. Initializes new datagram client and 
 	 * starts the connection process.
 	 * 
@@ -50,12 +54,23 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	 * @param useCompression whether or not to use compression
 	 * @param timeout timeout of messages that are not responded to
 	 */
-	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress, TranslationScope translationScope, S objectRegistry, boolean useCompression, int timeout)
+	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress,
+			TranslationScope translationScope, S objectRegistry, boolean useCompression, int timeout)
 	{
 		super(translationScope, objectRegistry, useCompression);
-		
+
 		this.serverAddress = serverAddress;
-		
+		this.localAddress = localAddress;
+		this.timeoutPeriod = timeout;
+	}
+
+	/**
+	 * @param serverAddress
+	 * @param localAddress
+	 * @param timeout
+	 */
+	public boolean connect()
+	{
 		DatagramChannel chan;
 		try
 		{
@@ -63,7 +78,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			chan.socket().bind(localAddress);
 			chan.connect(serverAddress);
 			chan.configureBlocking(false);
-			
+
 			key = chan.register(selector, SelectionKey.OP_READ);
 		}
 		catch (ClosedChannelException e)
@@ -81,40 +96,53 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			debug("Failed to open socket!: " + e.getMessage());
 			e.printStackTrace();
 		}
-		
-		this.timeoutPeriod = timeout;
-		
+
 		this.start();
-		
-		InitConnectionResponse initResponse = (InitConnectionResponse) this.sendMessage(new InitConnectionRequest());
-		
+
+		InitConnectionResponse initResponse = (InitConnectionResponse) this
+				.sendMessage(new InitConnectionRequest());
+
 		this.sid = initResponse.getSessionId();
+
+		if (!initResponse.isOK())
+		{
+			this.stop();
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
-	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress, TranslationScope translationScope, S objectRegistry, int timeout)
+	public NIODatagramClient(InetSocketAddress serverAddress, InetSocketAddress localAddress,
+			TranslationScope translationScope, S objectRegistry, int timeout)
 	{
 		this(serverAddress, localAddress, translationScope, objectRegistry, false, timeout);
 	}
-	
-	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope, S objectRegistry, boolean useCompression, int timeout)
+
+	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope,
+			S objectRegistry, boolean useCompression, int timeout)
 	{
 		this(serverAddress, null, translationScope, objectRegistry, useCompression, timeout);
 	}
-	
-	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope, S objectRegistry, int timeout)
+
+	public NIODatagramClient(InetSocketAddress serverAddress, TranslationScope translationScope,
+			S objectRegistry, int timeout)
 	{
 		this(serverAddress, translationScope, objectRegistry, false, timeout);
 	}
+
 	
 	/**
 	 * Implements message handling. And specifies how to handle 
 	 */
 	@Override
-	protected void handleMessage(long uid, ServiceMessage<S> message,
-			SelectionKey key, SocketAddress address)
+	protected void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
+			SocketAddress address)
 	{
 		Thread t;
-		if(message instanceof InitConnectionRequest)
+		if (message instanceof InitConnectionRequest)
 		{
 			InitConnectionRequest connInit = new InitConnectionRequest(sid);
 			InitConnectionResponse initResp = (InitConnectionResponse) this.sendMessage(connInit);
@@ -125,7 +153,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			}
 			return;
 		}
-		
+
 		/*
 		 * Process message and wake up blocked thread based on uid.
 		 */
@@ -133,27 +161,27 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		{
 			t = pendingThreadsByUID.remove(uid);
 		}
-		if(message instanceof ResponseMessage)
+		if (message instanceof ResponseMessage)
 		{
-			ResponseMessage<S> response = (ResponseMessage<S>)message;
+			ResponseMessage<S> response = (ResponseMessage<S>) message;
 			response.processResponse(objectRegistry);
-			
-			if(t != null && message instanceof ResponseMessage)
-			{				
-				synchronized(t)
+
+			if (t != null && message instanceof ResponseMessage)
+			{
+				synchronized (t)
 				{
 					responsesByUID.put(uid, response);
 					t.notify();
 				}
 			}
-			
+
 		}
 	}
 
 	@Override
 	protected void waitForReconnect()
 	{
-	
+
 	}
 
 	/**
@@ -164,6 +192,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	{
 		this.sendMessage(message, key, getNextUID(), null);
 	}
+
 	
 	/**
 	 * Send message and block for response. Will retransmit
@@ -177,35 +206,35 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	{
 		long myUid = this.getNextUID();
 		Thread t = Thread.currentThread();
-		
+
 		pendingThreadsByUID.put(myUid, t);
-		
-		//don't need socket address since this should be connected
-		this.sendMessage(message, key, myUid , null);
+
+		// don't need socket address since this should be connected
+		this.sendMessage(message, key, myUid, null);
 		transmissionCount--;
-		
-		synchronized(t)
+
+		synchronized (t)
 		{
-			while(!responsesByUID.containsKey(myUid))
+			while (!responsesByUID.containsKey(myUid))
 			{
 				try
 				{
-					t.wait(this.timeoutPeriod); 
-					if(responsesByUID.containsKey(myUid))
+					t.wait(this.timeoutPeriod);
+					if (responsesByUID.containsKey(myUid))
 					{
 						pendingThreadsByUID.remove(myUid);
 						return responsesByUID.remove(myUid);
-					} 
+					}
 					else
 					{
-						if(transmissionCount <= 0)
+						if (transmissionCount <= 0)
 						{
 							pendingThreadsByUID.remove(myUid);
 							return null;
 						}
 						else
 						{
-							//retransmitting
+							// retransmitting
 							this.sendMessage(message, key, myUid, null);
 							transmissionCount--;
 						}
@@ -220,6 +249,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		}
 		return null;
 	}
+
 	
 	/**
 	 * Send message and block for response. Will retransmit
@@ -232,34 +262,34 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	{
 		long myUid = this.getNextUID();
 		Thread t = Thread.currentThread();
-		
+
 		pendingThreadsByUID.put(myUid, t);
-		
-		//don't need socket address since this should be connected
-		this.sendMessage(message, key, myUid , null);
-		
-		synchronized(t)
+
+		// don't need socket address since this should be connected
+		this.sendMessage(message, key, myUid, null);
+
+		synchronized (t)
 		{
-			while(!responsesByUID.containsKey(myUid))
+			while (!responsesByUID.containsKey(myUid))
 			{
 				try
 				{
-					t.wait(this.timeoutPeriod); 
-					if(responsesByUID.containsKey(myUid))
+					t.wait(this.timeoutPeriod);
+					if (responsesByUID.containsKey(myUid))
 					{
 						pendingThreadsByUID.remove(myUid);
 						return responsesByUID.remove(myUid);
-					} 
+					}
 					else
 					{
-						if(message.isDisposable())
+						if (message.isDisposable())
 						{
 							pendingThreadsByUID.remove(myUid);
 							return null;
 						}
 						else
 						{
-							//retransmitting
+							// retransmitting
 							this.sendMessage(message, key, myUid, null);
 						}
 					}
@@ -273,21 +303,22 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		}
 		return null;
 	}
-	
+
 	protected void clearSessionId()
 	{
 		this.sid = null;
 	}
-	
+
 	public boolean connected()
 	{
 		return key.channel().isOpen() && super.isRunning();
 	}
-	
+
 	public InetSocketAddress getServer()
 	{
 		return serverAddress;
 	}
+
 	
 	/**
 	 * Reset's the server the client is connected to.
@@ -297,9 +328,9 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	public void setServer(String server)
 	{
 		InetSocketAddress addr = new InetSocketAddress(server, serverAddress.getPort());
-		
+
 		DatagramChannel chan = (DatagramChannel) key.channel();
-		
+
 		try
 		{
 			chan.disconnect();
@@ -309,7 +340,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		try
 		{
 			chan.connect(addr);
@@ -319,8 +350,8 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		this.serverAddress = addr;
-		
+
 	}
 }

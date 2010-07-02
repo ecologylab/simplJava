@@ -47,18 +47,17 @@ import ecologylab.xml.xml_inherit;
 		return "</" + logName() + ">";
 	}
 
-	@Override public ResponseMessage performService(Scope clientSessionScope)
+	@Override public ResponseMessage performService(LoggingContextScope contextScope)
 	{
 		debug("received epiliogue");
 
 		// let the superclass handle writing any epilogue data
-		ResponseMessage msg = super.performService(clientSessionScope);
+		ResponseMessage msg = super.performService(contextScope);
 
 		// get the stream to shut it down
 		if (msg.isOK())
 		{
-			Writer outputStreamWriter = (Writer) clientSessionScope
-					.get(OUTPUT_STREAM);
+			Writer outputStreamWriter = contextScope.getOutputStreamWriter();
 
 			if (outputStreamWriter != null)
 			{
@@ -78,7 +77,7 @@ import ecologylab.xml.xml_inherit;
 				finally
 				{
 					// remove the output stream from the scope
-					clientSessionScope.remove(OUTPUT_STREAM);
+					contextScope.shutdown();
 				}
 			}
 			else

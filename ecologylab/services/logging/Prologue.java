@@ -14,18 +14,24 @@ import ecologylab.xml.ElementState;
 public class Prologue extends ElementState
 {
 	public static final String	STUDY_NAME	= "study_name";
-	
-	@xml_attribute protected String	date		= new Date(System.currentTimeMillis()).toString();
 
-	@xml_attribute protected String	ip			= NetTools.localHost();
+	@xml_attribute
+	protected String						date				= new Date(System.currentTimeMillis()).toString();
 
-	@xml_attribute protected String	userID	= "0";
+	@xml_attribute
+	protected String						ip					= NetTools.localHost();
 
-	@xml_attribute protected String	questionId;
+	@xml_attribute
+	protected String						userID			= "0";
 
-	@xml_attribute protected String	studyName;
+	@xml_attribute
+	protected String						questionId;
 
-	@xml_attribute protected String	questionPath;
+	@xml_attribute
+	protected String						studyName;
+
+	@xml_attribute
+	protected String						questionPath;
 
 	public Prologue()
 	{

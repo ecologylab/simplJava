@@ -8,6 +8,8 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -56,6 +58,10 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 
 	protected ByteBufferPool											byteBufferPool;
 
+	protected CharsetDecoder											decoder					= CHARSET.newDecoder();
+
+	protected CharsetEncoder											encoder					= CHARSET.newEncoder();
+
 	/**
 	 * Creates a Services Server Base. Sets internal variables, but does not bind the port. Port
 	 * binding is to be handled by sublcasses.
@@ -85,9 +91,9 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 		this.objectRegistry = objectRegistry;
 
 		readBuffer = ByteBuffer.allocateDirect((int) Math.ceil(maxMessageSizeChars
-				* ENCODER.maxBytesPerChar()));
+				* encoder.maxBytesPerChar()));
 		this.byteBufferPool = new ByteBufferPool(10, 10, (int) Math.ceil(maxMessageSizeChars
-				* ENCODER.maxBytesPerChar()));
+				* encoder.maxBytesPerChar()));
 	}
 
 	/**

@@ -22,7 +22,7 @@ import ecologylab.xml.XMLTranslationException;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public class HTTPGetClientSessionManager extends HTTPClientSessionManager
+public class HTTPGetClientSessionManager<S extends Scope> extends HTTPClientSessionManager<S>
 {
 	static final String	HTTP_PREPEND				= "GET /";
 

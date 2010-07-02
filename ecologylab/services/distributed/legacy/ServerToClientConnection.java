@@ -339,4 +339,12 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
 
         this.shuttingDown = true;
     }
+
+		/**
+		 * @see ecologylab.services.distributed.common.ServerConstants#getLastActivity()
+		 */
+		public final long getLastActivity()
+		{
+			return 0;
+		}
 }

@@ -27,13 +27,13 @@ public abstract class ResourcePool<T> extends Debug
 
 	public static final int			NEVER_CONTRACT		= -1;
 
-	private final ArrayList<T>    	pool;
+	private final ArrayList<T>	pool;
 
 	/**
 	 * The number of resources this pool is currently in control of, including the number of resources
 	 * that are currently acquired by other processes.
 	 */
-	private int							   capacity;
+	private int									capacity;
 
 	/**
 	 * Specifies the minimum size for the backing store, to prevent thrashing when small numbers of
@@ -108,9 +108,9 @@ public abstract class ResourcePool<T> extends Debug
 
 	protected void onAcquire()
 	{
-		
+
 	}
-	
+
 	/**
 	 * Take a resource from the pool, making it unavailable for other segments of the program to use.
 	 * 
@@ -125,13 +125,11 @@ public abstract class ResourcePool<T> extends Debug
 
 		int freeIndex;
 
-		
-		
 		synchronized (this)
 		{ // when acquire()'ing it might be necessary to expand the size of the
 			// backing store
 			onAcquire();
-			
+
 			freeIndex = this.pool.size() - 1;
 
 			if (freeIndex == -1)
@@ -150,9 +148,9 @@ public abstract class ResourcePool<T> extends Debug
 
 	protected void onRelease(T resourceToRelease)
 	{
-		
+
 	}
-	
+
 	/**
 	 * Return a resource for use by another part of the program. The resource will be cleaned at some
 	 * later time when it is acquire()'ed. Resources that are released should NOT be used again.
@@ -173,14 +171,15 @@ public abstract class ResourcePool<T> extends Debug
 
 				int poolSize = pool.size();
 
-				if (minCapacity != NEVER_CONTRACT && capacity > minCapacity
+				if (minCapacity != NEVER_CONTRACT
+						&& capacity > minCapacity
 						&& poolSize > loadFactor * capacity)
 				{
 					this.contractPool();
-				}	
+				}
 				onRelease(resourceToRelease);
 			}
-			
+
 		}
 		else
 		{
@@ -265,9 +264,8 @@ public abstract class ResourcePool<T> extends Debug
 	}
 
 	/**
-	 * Let's a subclass control what happens to the object when it is 
-	 * thrown away, letting the developer release any resources they
-	 * may have allocated.
+	 * Let's a subclass control what happens to the object when it is thrown away, letting the
+	 * developer release any resources they may have allocated.
 	 * 
 	 * onRemoval(T) is called when the object is about to removed during a contraction
 	 * 
@@ -275,7 +273,7 @@ public abstract class ResourcePool<T> extends Debug
 	 */
 	protected void onRemoval(T remove)
 	{
-				
+
 	}
 
 	/**
@@ -312,7 +310,8 @@ public abstract class ResourcePool<T> extends Debug
 	private boolean add(T resource)
 	{
 		if (this.checkMultiRelease && !this.releasedResourceHashes.add(resource))
-			throw new RuntimeException("Attempted to release the same resource more than once: "+resource.toString());
+			throw new RuntimeException("Attempted to release the same resource more than once: "
+					+ resource.toString());
 
 		pool.add(resource);
 

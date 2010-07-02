@@ -12,32 +12,26 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Transport for getting log data to the server, without need for any additional
- * translation.
+ * Transport for getting log data to the server, without need for any additional translation.
  * 
- * Pre-translated XML fragments are loaded into the internal buffer, and then
- * serialized to a server with this class.
+ * Pre-translated XML fragments are loaded into the internal buffer, and then serialized to a server
+ * with this class.
  * 
- * To facilitate logging, this object writes its contents to a Writer (generally
- * a file) during its performService method. The Writer must be configured prior
- * to invoking this method by calling the setWriter method. This sequence is
- * automatically handled by a Logging server in its LoggingContextManager.
+ * To facilitate logging, this object writes its contents to a Writer (generally a file) during its
+ * performService method. The Writer must be configured prior to invoking this method by calling the
+ * setWriter method. This sequence is automatically handled by a Logging server in its
+ * LoggingContextManager.
  * 
  * @author eunyee
  * @author andruid
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-@xml_inherit abstract public class LogEvent extends RequestMessage
+@xml_inherit
+abstract public class LogEvent extends RequestMessage<LoggingContextScope>
 {
-	/**
-	 * A mapping on the server in the client session scope for a Writer object.
-	 * This is the object to which this message will write its contents on the
-	 * server. It should be set up by a SendPrologue message.
-	 */
-	public static final String						OUTPUT_STREAM	= "OUTPUT_STREAM";
-
-	@xml_leaf(CDATA) protected StringBuilder	bufferToLog;
+	@xml_leaf(CDATA)
+	protected StringBuilder			bufferToLog;
 
 	/** No argument constructor for serialization. */
 	public LogEvent()
@@ -46,8 +40,8 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	/**
-	 * Construct a new LogRequestMessage with a specific buffer size, to prevent
-	 * unnecessary allocation later.
+	 * Construct a new LogRequestMessage with a specific buffer size, to prevent unnecessary
+	 * allocation later.
 	 */
 	public LogEvent(int bufferSize)
 	{
@@ -57,29 +51,30 @@ import ecologylab.xml.xml_inherit;
 	/**
 	 * Save the logging messages to the pre-set writer.
 	 */
-	@Override public ResponseMessage performService(Scope clientSessionScope)
+	@Override
+	public ResponseMessage performService(LoggingContextScope contextScope)
 	{
 		debug("received logging event");
 
-		Writer outputStreamWriter = (Writer) clientSessionScope.get(OUTPUT_STREAM);
-		
+		Writer outputStreamWriter = contextScope.getOutputStreamWriter();
+
 		if (outputStreamWriter != null)
 		{
 			try
 			{
 				final StringBuilder bufferToLog = bufferToLog();
 
-			//	debug(bufferToLog);
+				debug(bufferToLog);
 
 				outputStreamWriter.append(bufferToLog);
 				clear();
-				
+
 				return OkResponse.get();
 			}
 			catch (IOException e)
 			{
 				e.printStackTrace();
-				
+
 				return new ErrorResponse(e.getMessage());
 			}
 		}

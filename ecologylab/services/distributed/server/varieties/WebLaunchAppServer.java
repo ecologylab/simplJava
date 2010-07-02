@@ -12,7 +12,6 @@ import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServicesHostsAndPorts;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.HTTPPostClientSessionManager;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.TranslationScope;
@@ -56,7 +55,7 @@ public class WebLaunchAppServer extends DoubleThreadedNIOServer implements Servi
 	}
 
 	@Override
-	protected AbstractClientSessionManager generateContextManager(String token, SelectionKey sk,
+	protected HTTPPostClientSessionManager generateContextManager(String token, SelectionKey sk,
 			TranslationScope translationSpaceIn, Scope registryIn)
 	{
 		return new HTTPPostClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,

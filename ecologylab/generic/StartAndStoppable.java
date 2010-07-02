@@ -5,10 +5,9 @@ package ecologylab.generic;
  * 
  * @author andruid
  */
-public interface StartAndStoppable
-extends Runnable
+public interface StartAndStoppable extends Runnable
 {
 	void start();
-	
+
 	void stop();
 }

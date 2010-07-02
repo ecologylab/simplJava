@@ -22,9 +22,10 @@ import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.AbstractNIOServer;
 import ecologylab.services.distributed.impl.NIOServerIOThread;
-import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.ClientSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.SessionHandle;
+import ecologylab.services.distributed.server.clientsessionmanager.TCPClientSessionManager;
 import ecologylab.services.exceptions.BadClientException;
 import ecologylab.xml.TranslationScope;
 
@@ -74,7 +75,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	/**
 	 * Map in which keys are sessionTokens, and values are associated ClientSessionManagers.
 	 */
-	private HashMapArrayList<Object, AbstractClientSessionManager>	clientSessionManagerMap	= new HashMapArrayList<Object, AbstractClientSessionManager>();
+	private HashMapArrayList<Object, TCPClientSessionManager>	clientSessionManagerMap	= new HashMapArrayList<Object, TCPClientSessionManager>();
 
 	/**
 	 * Map in which keys are sessionTokens, and values are associated SessionHandles
@@ -161,7 +162,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		{
 			synchronized (clientSessionManagerMap)
 			{
-				AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionToken);
+				TCPClientSessionManager cm = clientSessionManagerMap.get(sessionToken);
 
 				if (cm == null)
 				{
@@ -206,7 +207,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @return
 	 */
 	@Override
-	protected AbstractClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
+	protected TCPClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
 			TranslationScope translationSpaceIn, Scope registryIn)
 	{
 		return new ClientSessionManager(sessionId, maxMessageSize, this.getBackend(), this, sk,
@@ -215,7 +216,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 
 	public void run()
 	{
-		Iterator<AbstractClientSessionManager> contextIter;
+		Iterator<TCPClientSessionManager> contextIter;
 
 		while (running)
 		{
@@ -226,7 +227,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 				// process all of the messages in the queues
 				while (contextIter.hasNext())
 				{
-					AbstractClientSessionManager cm = contextIter.next();
+					TCPClientSessionManager cm = contextIter.next();
 
 					try
 					{
@@ -312,9 +313,9 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @see ecologylab.services.distributed.server.NIOServerProcessor#invalidate(java.lang.Object,
 	 *      ecologylab.services.distributed.impl.NIOServerIOThread, java.nio.channels.SocketChannel)
 	 */
-	public boolean invalidate(Object sessionId, boolean forcePermanent)
+	public boolean invalidate(String sessionId, boolean forcePermanent)
 	{
-		AbstractClientSessionManager cm = clientSessionManagerMap.get(sessionId);
+		BaseSessionManager cm = clientSessionManagerMap.get(sessionId);
 
 		// figure out if the disconnect is permanent; will be permanent if forcing
 		// (usually bad client), if there is no context manager (client never sent
@@ -357,12 +358,13 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * @param newContextManager
 	 * @return true if the restore was successful, false if it was not.
 	 */
+	@Override
 	public boolean restoreContextManagerFromSessionId(String oldSessionId,
-			AbstractClientSessionManager newContextManager)
+			BaseSessionManager newContextManager)
 	{
 		debug("attempting to restore old session...");
 
-		AbstractClientSessionManager oldContextManager;
+		TCPClientSessionManager oldContextManager;
 
 		synchronized (clientSessionManagerMap)
 		{
@@ -416,5 +418,4 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	{
 		return "double_threaded_logging " + inetAddresses[0].toString() + ":" + portNumber;
 	}
-
 }

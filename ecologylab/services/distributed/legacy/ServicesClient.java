@@ -277,4 +277,12 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
 
         return responseMessage;
     }
+
+		/**
+		 * @see ecologylab.services.distributed.common.ServerConstants#getLastActivity()
+		 */
+		public final long getLastActivity()
+		{
+			return 0;
+		}
 }

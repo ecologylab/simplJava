@@ -140,6 +140,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 	volatile boolean						finished;
 
+	private boolean							running																= false;
+
 	/**
 	 * Instantiates a Logging object based on the given log file name. This constructor assumes that a
 	 * set of loaded {@link ecologylab.appframework.types.prefs.Pref Pref}s will handle other
@@ -393,9 +395,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 	/**
 	 * Translates op to XML then logs it, if this Logging object is running. Returns true if the
-	 * operation was placed in the buffer to be written, false if it failed (either because this
-	 * Logging object is not configured, because it is not running, or because the op could not be
-	 * translated to XML).
+	 * operation was placed in the buffer to be written, false if it failed (because the op could not
+	 * be translated to XML).
 	 * 
 	 * @param op
 	 *          - the operation to be logged.
@@ -458,6 +459,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			thread = new Thread(this);
 			thread.setPriority(THREAD_PRIORITY);
 			thread.start();
+
+			this.running = true;
 		}
 	}
 
@@ -543,6 +546,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			}
 		}
 		debug("...shutdown complete.");
+
+		this.running = false;
 	}
 
 	/**
@@ -665,7 +670,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * to the LoggingServer.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected abstract class LogWriter extends Debug
 	{
@@ -705,7 +710,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a memory-mapped local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class MemoryMappedFileLogWriter extends LogWriter
 	{
@@ -904,7 +909,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that uses a local file for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class FileLogWriter extends LogWriter
 	{
@@ -953,7 +958,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * LogWriter that connects to the ServicesServer over the network for logging.
 	 * 
 	 * @author andruid
-	 * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+	 * @author Zachary O. Toups (zach@ecologylab.net)
 	 */
 	protected class NetworkLogWriter extends LogWriter
 	{
@@ -999,6 +1004,15 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			{
 				if (!this.loggingParent.finished)
 				{
+					debug("sending a log message: ");
+					try
+					{
+						debug(message.translateToXML().toString());
+					}
+					catch (XMLTranslationException e)
+					{
+						e.printStackTrace();
+					}
 					loggingClient.nonBlockingSendMessage(message);
 				}
 				else
@@ -1086,5 +1100,13 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	public ArrayList<T> getOpSequence()
 	{
 		return opSequence;
+	}
+
+	/**
+	 * @return the running
+	 */
+	public boolean isRunning()
+	{
+		return running;
 	}
 }

@@ -10,7 +10,7 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager;
+import ecologylab.services.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.services.distributed.server.clientsessionmanager.HTTPGetClientSessionManager;
 import ecologylab.xml.TranslationScope;
 
@@ -57,7 +57,7 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 	}
 
 	@Override
-	protected AbstractClientSessionManager generateContextManager(String token, SelectionKey sk,
+	protected HTTPGetClientSessionManager generateContextManager(String token, SelectionKey sk,
 			TranslationScope translationSpaceIn, Scope registryIn)
 	{
 		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,

@@ -44,11 +44,6 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 		else
 			this.renderLoading(arg0);
 	}
-
-	protected void load(LogPlaybackControlModel log, Prologue prologue)
-	{
-		load(null,log,prologue);
-	}
 	
 	protected void load(LogPlayer player, LogPlaybackControlModel log, Prologue prologue)
 	{

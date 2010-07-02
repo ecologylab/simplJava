@@ -12,8 +12,9 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.TranslationScope;
+import ecologylab.xml.XMLTranslationException;
 
-public abstract class HTTPClientSessionManager extends AbstractClientSessionManager
+public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClientSessionManager<S>
 {
 
 	static final String	HTTP_VERSION							= "HTTP/1.1";
@@ -81,7 +82,7 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
+	 * @see ecologylab.services.distributed.server.clientsessionmanager.TCPClientSessionManager#clearOutgoingMessageBuffer(java.lang.StringBuilder)
 	 */
 	@Override
 	protected void clearOutgoingMessageBuffer(StringBuilder outgoingMessageBuf)
@@ -89,7 +90,7 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	}
 
 	/**
-	 * @see ecologylab.services.distributed.server.clientsessionmanager.AbstractClientSessionManager#prepareBuffers(java.lang.StringBuilder,
+	 * @see ecologylab.services.distributed.server.clientsessionmanager.TCPClientSessionManager#prepareBuffers(java.lang.StringBuilder,
 	 *      java.lang.StringBuilder, java.lang.StringBuilder)
 	 */
 	@Override
@@ -98,22 +99,12 @@ public abstract class HTTPClientSessionManager extends AbstractClientSessionMana
 	{
 	}
 
+	/**
+	 * @see ecologylab.services.distributed.server.clientsessionmanager.BaseSessionManager#isInitialized()
+	 */
 	@Override
-	protected ResponseMessage performService(RequestMessage requestMessage)
+	public boolean isInitialized()
 	{
-		requestMessage.setSender(((SocketChannel) this.socketKey.channel()).socket().getInetAddress());
-
-		try
-		{
-			return requestMessage.performService(localScope);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-
-			return new BadSemanticContentResponse("The request, "
-					+ requestMessage.toString()
-					+ " caused an exception on the server.");
-		}
+		return true;
 	}
 }

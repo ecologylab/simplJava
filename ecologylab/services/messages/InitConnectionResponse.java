@@ -6,39 +6,48 @@ package ecologylab.services.messages;
 import ecologylab.xml.xml_inherit;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * Response to a request to connect to a server. On a successful connection, sessionId will contain
+ * the server-assigned session identifier. If the connection failed, sessionId will be null.
+ * 
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit class InitConnectionResponse extends ResponseMessage
+public @xml_inherit
+class InitConnectionResponse extends ResponseMessage
 {
-    @xml_attribute String sessionId;
+	/**
+	 * The session identifier used for all communications between this client and the server. If the
+	 * value is null, it means the connection failed.
+	 */
+	@xml_attribute
+	String	sessionId;
 
-    /**
+	/**
      * 
      */
-    public InitConnectionResponse()
-    {
-    }
-    
-    public InitConnectionResponse(String sessionId)
-    {
-        this.sessionId = sessionId;
-    }
+	public InitConnectionResponse()
+	{
+	}
 
-    /**
-     * @see ecologylab.services.messages.ResponseMessage#isOK()
-     */
-    @Override public boolean isOK()
-    {
-        // TODO Auto-generated method stub
-        return false;
-    }
+	public InitConnectionResponse(String sessionId)
+	{
+		this.sessionId = sessionId;
+	}
 
-    /**
-     * @return the sessionId
-     */
-    public String getSessionId()
-    {
-        return sessionId;
-    }
+	/**
+	 * @see ecologylab.services.messages.ResponseMessage#isOK()
+	 */
+	@Override
+	public boolean isOK()
+	{
+		return sessionId != null;
+	}
+
+	/**
+	 * @return the sessionId
+	 */
+	public String getSessionId()
+	{
+		return sessionId;
+	}
 
 }

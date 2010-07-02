@@ -10,7 +10,6 @@ import java.nio.charset.CharsetEncoder;
 import java.util.Date;
 
 import ecologylab.appframework.types.prefs.Pref;
-import ecologylab.collections.Scope;
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;
 import ecologylab.services.distributed.common.ServerConstants;
@@ -21,28 +20,33 @@ import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.xml_inherit;
 
 /**
- * Allows the application to send application-specific content to the log, at
- * the beginning of a session. <p/> NB: this class should *never* be extended in
- * an application specific way, because the LoggingServer should never need to
- * know the TranslationSpace for such a super class. What you do extend is the
- * {@link Prologue Prologue} object.
+ * Allows the application to send application-specific content to the log, at the beginning of a
+ * session.
+ * <p/>
+ * NB: this class should *never* be extended in an application specific way, because the
+ * LoggingServer should never need to know the TranslationSpace for such a super class. What you do
+ * extend is the {@link Prologue Prologue} object.
  * 
  * @author andruid
  * @author eunyee
  */
-@xml_inherit public class SendPrologue extends LogueMessage
+@xml_inherit
+public final class SendPrologue extends LogueMessage
 {
-	@xml_attribute protected String	date		= new Date(System
-																	.currentTimeMillis())
-																	.toString();
+	@xml_attribute
+	protected String	date		= new Date(System.currentTimeMillis()).toString();
 
-	@xml_attribute protected String	ip			= NetTools.localHost();
+	@xml_attribute
+	protected String	ip			= NetTools.localHost();
 
-	@xml_attribute protected String	userID	= "0";
+	@xml_attribute
+	protected String	userID	= "0";
 
-	@xml_attribute protected String	studyName;
-	
-	@xml_attribute protected boolean performEpilogueNow;
+	@xml_attribute
+	protected String	studyName;
+
+	@xml_attribute
+	protected boolean	performEpilogueNow;
 
 	public SendPrologue(Logging logging, Prologue prologue)
 	{
@@ -88,20 +92,20 @@ import ecologylab.xml.xml_inherit;
 	{
 		return getFileName(new Date(), Pref.lookupString(Prologue.STUDY_NAME));
 	}
-	
+
 	public static String getFileName(Date date, String studyName)
 	{
 		String tempDate = date.toString().replace(' ', '_');
-		tempDate 		= tempDate.replace(':', '_');
-		
-		String ip		= NetTools.localHost();
+		tempDate = tempDate.replace(':', '_');
+
+		String ip = NetTools.localHost();
 		/**
 		 * A session log file name of a user
 		 */
 		String sessionLogFile = // "/project/ecologylab/studyResults/CF_LOG/" +
 		// "LogFiles/" +
-			ip + "__" + tempDate + "_" +  Pref.lookupString("uid", "No UID") + ".xml";
-		
+		ip + "__" + tempDate + "_" + Pref.lookupString("uid", "No UID") + ".xml";
+
 		if (studyName != null)
 			sessionLogFile = studyName + Files.sep + sessionLogFile;
 		return sessionLogFile;
@@ -118,82 +122,25 @@ import ecologylab.xml.xml_inherit;
 	}
 
 	/**
-	 * First, configure OUTPUT_WRITER, then, in case we have some data, do
-	 * super.performService(...) to write it out to the file.
+	 * First, configure OUTPUT_WRITER, then, in case we have some data, do super.performService(...)
+	 * to write it out to the file.
 	 */
-	@Override public ResponseMessage performService(Scope clientSessionScope)
+	@Override
+	public ResponseMessage performService(LoggingContextScope contextScope)
 	{
-		debug("performService()");
-		String logFilesPath = (String) clientSessionScope
-				.get(NIOLoggingServer.LOG_FILES_PATH);
-
-		String fileName = logFilesPath + getFileName();
-
 		try
 		{
-			File file = new File(fileName);
-			String dirPath = file.getParent();
-			if (dirPath != null)
-			{
-				debug("dirPath = " + dirPath);
-				
-				File dir = new File(dirPath);
-				if (!dir.exists())
-				{
-					debug("dirPath did not exist. create with mkdirs()");
-					dir.mkdirs();
-				}
-			}
+			contextScope.setUpOutputStreamWriter(this.getFileName());
 
-			debug("attempting to use filename: " + fileName);
-			// rename file until we are not overwriting an existing file
-			if (file.exists())
-			{ // a little weird to do it this way, but the if is cheaper than
-				// potentially reallocating the String over and over
-				String filename = file.getName();
-				int dotIndex 		= filename.lastIndexOf('.');
-				int i 					= 1;
-
-				do
-				{
-					debug(filename + " already exists.");
-					
-					String newFilename = (dotIndex > -1 ? filename.substring(0,
-							dotIndex)
-							+ i + filename.substring(dotIndex) : filename + i);
-					debug("trying new filename = " + newFilename);
-					i++;
-					
-					// we already took care of the parent directories
-					// just need to make a new file w/ a new name
-					file = new File(newFilename);
-				}
-				while (file.exists());
-			}
-			
-			if (!file.createNewFile())
-			{
-				throw new IOException("Could not create the logging file.");
-			}
-			
-			debug("Logging to file at: " + file.getAbsolutePath());
-
-			FileOutputStream fos = new FileOutputStream(file, true);
-			CharsetEncoder encoder = Charset.forName(
-					ServerConstants.CHARACTER_ENCODING).newEncoder();
-
-			clientSessionScope.put(OUTPUT_STREAM, new OutputStreamWriter(fos,
-					encoder));
-			
 			if (this.performEpilogueNow)
 			{
-				SendEpilogue se			= new SendEpilogue();
+				SendEpilogue se = new SendEpilogue();
 				se.bufferToLog = this.bufferToLog;
 				// this will write the buffer and then close the file
-				return se.performService(clientSessionScope);
+				return se.performService(contextScope);
 			}
 			else
-				return super.performService(clientSessionScope);
+				return super.performService(contextScope);
 		}
 		catch (FileNotFoundException e)
 		{
@@ -204,7 +151,7 @@ import ecologylab.xml.xml_inherit;
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			
+
 			return new ErrorResponse(e.getMessage());
 		}
 	}

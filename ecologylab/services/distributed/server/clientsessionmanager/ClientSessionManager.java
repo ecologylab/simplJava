@@ -25,7 +25,7 @@ import ecologylab.xml.XMLTranslationException;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class ClientSessionManager extends AbstractClientSessionManager implements ServerConstants
+public class ClientSessionManager<S extends Scope> extends TCPClientSessionManager<S> implements ServerConstants
 {
 	/**
 	 * Creates a new ContextManager.
@@ -157,5 +157,4 @@ public class ClientSessionManager extends AbstractClientSessionManager implement
 	{
 		responseMessage.translateToXML(messageBuffer);
 	}
-
 }

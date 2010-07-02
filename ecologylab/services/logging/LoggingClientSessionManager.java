@@ -19,7 +19,7 @@ import ecologylab.xml.TranslationScope;
  * @author eunyee
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public class LoggingClientSessionManager extends ClientSessionManager
+public class LoggingClientSessionManager extends ClientSessionManager<LoggingContextScope<?>>
 {
 	boolean	end	= false;
 
@@ -53,7 +53,7 @@ public class LoggingClientSessionManager extends ClientSessionManager
 			}
 		}
 
-		if (this.localScope.containsKey(LogEvent.OUTPUT_STREAM))
+		if (this.localScope.getOutputStreamWriter() != null)
 		{ // if the local scope still contains the output stream, then shutdown isn't complete!
 			// this will make the log readable, but it will not have its real epilogue
 			SendEpilogue sE = new SendEpilogue();
@@ -61,5 +61,14 @@ public class LoggingClientSessionManager extends ClientSessionManager
 		}
 
 		super.shutdown();
+	}
+
+	/**
+	 * @see ecologylab.services.distributed.server.clientsessionmanager.BaseSessionManager#generateContextScope(ecologylab.collections.Scope)
+	 */
+	@Override
+	protected LoggingContextScope<?> generateContextScope(Scope<?> baseScope)
+	{
+		return new LoggingContextScope(baseScope);
 	}
 }

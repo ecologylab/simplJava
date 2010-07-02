@@ -1,9 +1,5 @@
 package ecologylab.services.logging;
 
-import java.util.ArrayList;
-
-import ecologylab.collections.Scope;
-import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
@@ -14,7 +10,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author eunyee
  * @author andruid
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  */
 @xml_inherit public final class LogOps extends LogEvent
 {

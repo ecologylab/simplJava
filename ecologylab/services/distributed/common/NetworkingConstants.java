@@ -52,10 +52,4 @@ public interface NetworkingConstants
 	/** Charset for CHARACTER_ENCODING; to avoid calling forName too much. */
 	static final Charset				CHARSET														= Charset
 																																		.forName(CHARACTER_ENCODING);
-
-	/** The encoder to translate from Strings to bytes. */
-	static final CharsetEncoder	ENCODER														= CHARSET.newEncoder();
-
-	/** The decoder to translate from bytes to Strings. */
-	static final CharsetDecoder	DECODER														= CHARSET.newDecoder();
 }
