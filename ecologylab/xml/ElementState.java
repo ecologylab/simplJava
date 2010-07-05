@@ -2202,7 +2202,8 @@ implements FieldTypes, XMLTranslationExceptionTypes
     static boolean isPublicDeclarationStyle()
     {
     	return declarationStyle() == DeclarationStyle.PUBLIC;
-    }
+    }    
+    
     /**
      * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to as an annotation
      * is a scalar-value,
@@ -2501,6 +2502,30 @@ implements FieldTypes, XMLTranslationExceptionTypes
     	 */
     	String 													value();
     }
+
+
+    public enum DbHint
+    {
+    	PRIMARY_KEY, ALLOW_NOT_NULL, UNIQUE
+    }
+
+    /**
+     * Supplementary metalanguage declaration that can be applied only to a field.
+     * This is used for assigning database constraints to a field, which are referenced in  
+     * creating correponding sql table schema. 
+     * Database constraints are defined in 'DbHint'
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @Inherited
+    public @interface simpl_db
+    {
+      /**
+       * @return assigned database constraints that are defined in 'DbHint'
+       */
+    	DbHint[] value(); 
+    }
+
     
    
 	public void checkAnnotation() throws NoSuchFieldException
