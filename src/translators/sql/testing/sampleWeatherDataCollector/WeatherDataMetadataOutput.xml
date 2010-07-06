@@ -1,0 +1,26 @@
+<weather_report>
+	<meta_metadata_name>wu_weather_report
+	</meta_metadata_name>
+	<location>http://www.wunderground.com/US/TX/Austin.html
+	</location>
+	<city>Austin, Texas</city>
+	<weather>Overcast</weather>
+	<pic_url>http://icons-ecast.wxug.com/i/c/a/cloudy.gif
+	</pic_url>
+	<temperature>78.4</temperature>
+	<humidity>93%</humidity><wind>Calm</wind><dew_point>76 &#176;F</dew_point>
+</weather_report>
+	
+<weather_report>
+	<meta_metadata_name>wu_weather_report
+	</meta_metadata_name>
+	<location>http://www.wunderground.com/US/TX/Dallas.html
+	</location>
+	<city>Dallas, Texas</city>
+	<weather>Overcast</weather>
+	<pic_url>http://icons-ecast.wxug.com/i/c/a/cloudy.gif
+	</pic_url>
+	<temperature>78.9</temperature>
+	<humidity>81%</humidity><wind>Calm</wind><dew_point>73 &#176;F</dew_point>
+</weather_report>
+

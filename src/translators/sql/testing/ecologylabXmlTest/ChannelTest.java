@@ -1,0 +1,139 @@
+package translators.sql.testing.ecologylabXmlTest;
+
+import java.util.ArrayList;
+
+import translators.sql.java2sql.DBName;
+import ecologylab.net.ParsedURL;
+import ecologylab.xml.ElementState;
+import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.xml_inherit;
+import ecologylab.xml.library.yahoo.Result;
+
+/**
+ * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
+ * Used with most RSS versions.
+ *
+ * @author andruid
+ */
+public @xml_inherit class ChannelTest extends ElementState
+{
+   @xml_leaf	String			title;
+   @xml_leaf	String			description;
+   /**
+    * Could point to an HTML rendering of the feed.
+    */
+   @xml_collection("thisLinkTag") @xml_leaf	ParsedURL		link;
+   
+   @xml_nowrap @xml_collection("item") ArrayList<ItemTest> items;
+   
+   @simpl_db({DbHint.PRIMARY_KEY, DbHint.UNIQUE}) String primaryUniqueKey; 
+   
+   
+   /**
+    * @return Returns the description.
+    */
+   public String getDescription()
+   {
+	   return description;
+   }
+   /**
+    * @param description The description to set.
+    */
+   public void setDescription(String description)
+   {
+	   this.description = description;
+   }
+   /**
+    * @return Returns the title.
+    */
+   public String getTitle()
+   {
+	   return title;
+   }
+   /**
+    * @param title The title to set.
+    */
+   public void setTitle(String title)
+   {
+	   this.title = title;
+   }
+   
+	/**
+	 * @return Returns the link.
+	 */
+	public ParsedURL getLink()
+	{
+		return link;
+	}
+	/**
+	 * @param link The link to set.
+	 */
+	public void setLink(ParsedURL link)
+	{
+		this.link = link;
+	}
+
+	public ArrayList<ItemTest> getItems()
+	{
+		return items;
+	}
+
+	public void add(ItemTest item)
+	{
+		if (items == null)
+			items	= new ArrayList<ItemTest>();
+		items.add(item);
+	}
+	
+	public ItemTest get(int i)
+	{
+		return items == null ? null : items.get(i);
+	}
+	public int size()
+	{
+		return items == null ? 0 : items.size();
+	}
+	
+	public static void main(String[] s)
+	{
+		testTranslateTo();
+	}
+	private static void testTranslateTo() 
+	{
+		ChannelTest c	= new ChannelTest();
+		ItemTest i1		= new ItemTest();
+		i1.author	= "zach";
+		i1.title	= "it is called rogue!";
+		i1.link		= ParsedURL.getAbsolute("http://ecologylab.cs.tamu.edu/rogue/");
+		i1.description = "its a game";
+		ItemTest i2 = new ItemTest();
+		i2.author = "andruid";
+		i2.title = "it is called cf!";
+		i2.description	= "its a creativity support tool";
+		c.items		= new ArrayList<ItemTest>();
+		c.items. add(i1);
+		c.items.add(i2);
+		try
+		{
+			StringBuilder buffy	= new StringBuilder();
+			c.translateToXML(buffy);
+			System.out.println(buffy);
+			System.out.println('\n');
+			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
+			System.out.println("retranslated by ElementState");
+			System.out.println(c2.getClass().getCanonicalName());
+			System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 
+			Class<?>[] thisClasses = c2.getClass().getClasses();
+			for (Class<?> class1 : thisClasses)
+			{
+				System.out.println(class1.getCanonicalName()); 
+			}
+			c2.translateToXML(System.out);
+//			println(c.translateToXML());
+		} catch (XMLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
