@@ -10,8 +10,12 @@ import java.io.StringBufferInputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +30,13 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import ecologylab.collections.Scope;
+import ecologylab.generic.HashMapArrayList;
+import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState.xml_format;
 import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.ElementState.xml_tag;
+import ecologylab.xml.types.scalar.MappingConstants;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -1284,5 +1292,211 @@ implements CharacterConstants, SpecialCharacterEntities
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Utility function to check if the field is declared as generic type
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static boolean isGeneric(Field field)
+	{
+		if (field.getGenericType() instanceof ParameterizedType)
+		{
+			return true;
+		}
+		else
+			return false;
+	}
+
+	/**
+	 * Utility function to get the generic parameters of a field as class array
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static Class<?>[] getGenericParameters(Field field)
+	{
+		Class<?>[] result = null;
+
+		if (field.getGenericType() instanceof ParameterizedType)
+		{
+			Type[] ta = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
+			result = new Class<?>[ta.length];
+
+			for (int i = 0; i < ta.length; i++)
+			{
+				result[i] = ((Class<?>) ta[i]);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Utility function to get the generic parameters as string array
+	 * 
+	 * @param field
+	 * @return
+	 * @throws DotNetTranslationException
+	 */
+	public static String[] getCSharpGenericParamters(Field field)
+	{
+		String[] result = null;
+
+		Class<?>[] paramClasses = getGenericParameters(field);
+		if (paramClasses.length > 0)
+		{
+			result = new String[paramClasses.length];
+			for (int i = 0; i < paramClasses.length; i++)
+			{
+				result[i] = inferCSharpType(paramClasses[i]);
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Utility function to get the generic parameters as comma separated String
+	 * 
+	 * @param field
+	 * @return
+	 * @throws DotNetTranslationException
+	 */
+	public static String getCSharpGenericParametersString(Field field)
+	{
+		StringBuilder result = null;
+
+		String[] paramArray = getCSharpGenericParamters(field);
+		if (paramArray.length > 0)
+		{
+			result = new StringBuilder();
+			result.append("<");
+			result.append(implode(paramArray, ", "));
+			result.append(">");
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Utility function to implode an array of strings
+	 * 
+	 * @param ary
+	 * @param delim
+	 * @return
+	 */
+	public static String implode(String[] ary, String delim)
+	{
+		String out = "";
+		for (int i = 0; i < ary.length; i++)
+		{
+			if (i != 0)
+			{
+				out += delim;
+			}
+			out += ary[i];
+		}
+		return out;
+	}
+	
+	/**
+	 * Utility function to translate Java type to CSharp type
+	 * 
+	 * @param fieldType
+	 * @return
+	 * @throws DotNetTranslationException
+	 */
+	public static String inferCSharpType(Class<?> fieldType)
+	{
+		String result = null;
+
+		if (int.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_INTEGER;
+		}
+		else if (float.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_FLOAT;
+		}
+		else if (double.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_DOUBLE;
+		}
+		else if (byte.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_BYTE;
+		}
+		else if (char.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_CHAR;
+		}
+		else if (boolean.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_BOOLEAN;
+		}
+		else if (long.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_LONG;
+		}
+		else if (short.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_SHORT;
+		}
+		else if (String.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_STRING;
+		}
+		else if (StringBuilder.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_STRING_BUILDER;
+		}
+		else if (URL.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_URL;
+		}
+		else if (ParsedURL.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_PARSED_URL;
+		}
+		else if (ScalarType.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_SCALAR_TYPE;
+		}
+		else if (Date.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_DATE;
+		}
+		else if (ArrayList.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_ARRAYLIST;
+		}
+		else if (HashMap.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_HASHMAP;
+		}
+		else if (HashMapArrayList.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_HASHMAPARRAYLIST;
+		}
+		else if (Scope.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_SCOPE;
+		}
+		else if (Class.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_CLASS;
+		}
+		else if (Field.class == fieldType)
+		{
+			result = MappingConstants.DOTNET_FIELD;
+		}
+		else
+		{
+			// Assume the field is custom object
+			result = fieldType.getSimpleName();
+		}
+		return result;
 	}
 }

@@ -68,4 +68,23 @@ public class URLType extends ReferenceType<URL>
 		return ParsedURLType.PRIMARY_URL_DELIM;
 	}
 
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_URL;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_URL;
+	}
+
 }

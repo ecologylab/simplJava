@@ -62,4 +62,23 @@ public class ClassType extends ReferenceType<Class>
 		return instance.getName();
 	}
 
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.OBJC_CLASS;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.DOTNET_CLASS;
+	}
+
 }

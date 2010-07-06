@@ -59,4 +59,23 @@ public class DateType extends ScalarType<Date>
         }
         return result;
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_DATE;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_DATE;
+		}
 }

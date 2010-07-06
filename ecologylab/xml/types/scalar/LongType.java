@@ -142,4 +142,23 @@ public class LongType extends ScalarType<Long>
            
 		buffy.append(Long.toString(value));
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_LONG;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_LONG;
+		}
 }

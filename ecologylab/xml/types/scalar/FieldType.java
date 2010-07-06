@@ -53,4 +53,23 @@ public class FieldType extends ReferenceType<Field>
 			return instance.getName();
 		}
 
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_FIELD;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_FIELD;
+	}
+
 }

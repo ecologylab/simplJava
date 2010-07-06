@@ -27,4 +27,25 @@ public class PatternType extends ReferenceType<Pattern>
 		return (formatStrings == null) ? Pattern.compile(value) : Pattern.compile(value, Integer.parseInt(formatStrings[0]));
 	}
 
+	@Override
+	public String getCSharptType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

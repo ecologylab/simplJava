@@ -51,4 +51,23 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 		return result;			
 	}
 
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_SCALAR_TYPE;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_SCALAR_TYPE;
+	}
+
 }

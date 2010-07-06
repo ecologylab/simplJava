@@ -55,4 +55,23 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 			appendable.append(instance);
 
 	}
+
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_STRING_BUILDER;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.DOTNET_STRING_BUILDER;
+	}
 }

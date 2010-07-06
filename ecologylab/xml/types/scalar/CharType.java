@@ -147,4 +147,23 @@ public class CharType extends ScalarType<Character>
 		buffy.append(Character.toString(value))
 		;
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_CHAR;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_CHAR;
+		}
 }

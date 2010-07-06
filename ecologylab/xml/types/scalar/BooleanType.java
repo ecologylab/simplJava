@@ -170,4 +170,23 @@ public class BooleanType extends ScalarType<Boolean>
     	return (Boolean) field.get(context) == DEFAULT_VALUE;
     }
 
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_BOOLEAN;
+	}
+
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_BOOLEAN;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

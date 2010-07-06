@@ -145,4 +145,23 @@ public class ShortType extends ScalarType<Short>
            
 		buffy.append(Short.toString(value));
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_SHORT;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_SHORT;
+		}
 }

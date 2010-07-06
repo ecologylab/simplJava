@@ -81,4 +81,23 @@ public class StringType extends ReferenceType<String>
 		else
 			appendable.append(instance);
 	}
+
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_STRING;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_STRING;
+	}
 }

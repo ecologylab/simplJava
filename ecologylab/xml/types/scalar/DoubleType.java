@@ -219,4 +219,23 @@ public class DoubleType extends ScalarType<Double>
 		
 		return decFormat;
 	}
+
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_DOUBLE;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_DOUBLE;
+	}
 }

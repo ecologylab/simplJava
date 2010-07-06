@@ -155,4 +155,23 @@ public class IntType extends ScalarType<Integer>
            
 		buffy.append(Integer.toString(value));
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_INTEGER;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_INTEGER;
+		}
 }

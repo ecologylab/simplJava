@@ -147,5 +147,24 @@ public class ByteType extends ScalarType<Byte>
            
 		buffy.append(Byte.toString(value));
     }
+
+		@Override
+		public String getCSharptType()
+		{
+			return MappingConstants.DOTNET_BYTE;
+		}
+
+		@Override
+		public String getDbType()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getObjectiveCType()
+		{
+			return MappingConstants.OBJC_BYTE;
+		}
     
 }

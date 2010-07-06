@@ -153,4 +153,23 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		return PRIMARY_URL_DELIM;
 	}
 
+	@Override
+	public String getCSharptType()
+	{
+		return MappingConstants.DOTNET_PARSED_URL;
+	}
+
+	@Override
+	public String getDbType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getObjectiveCType()
+	{
+		return MappingConstants.OBJC_PARSED_URL;
+	}
+
 }
