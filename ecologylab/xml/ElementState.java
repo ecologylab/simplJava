@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,17 +24,12 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
 
@@ -2060,7 +2054,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
 	   }
 	}
 	/**
-	 * @deprecated should use @xml_text or @xml_leaf to specify text child
+	 * @deprecated should use @xml_text or @simpl_scalar(Hint.XML_LEAF) to specify text child
 	 * @return
 	 */
 	@Deprecated public String getTextNodeString()
@@ -2216,9 +2210,9 @@ implements FieldTypes, XMLTranslationExceptionTypes
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @Inherited
-    public @interface xml_attribute
+    public @interface simpl_scalar
     {
-
+    	Hint[] value() default {Hint.XML_ATTRIBUTE};
     }
 
     /**
@@ -2265,14 +2259,14 @@ implements FieldTypes, XMLTranslationExceptionTypes
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @Inherited
-    public @interface xml_format
+    public @interface simpl_format
     {
     	String[] value();
     }
     
 /**
  * Meta-language declaration for a single text node child, in the case where the parent
- * also has attributes, so @xml_leaf is insufficient.
+ * also has attributes, so @simpl_scalar(Hint.XML_LEAF) is insufficient.
  * 
  * @author andruid
  * @author toupsz
@@ -2297,7 +2291,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @Inherited
-    public @interface xml_nested
+    public @interface simpl_composite
     {
 
     }
@@ -2332,7 +2326,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @Inherited
-    public @interface xml_collection
+    public @interface simpl_collection
     {
        	String value() default NULL_TAG;
     }
@@ -2357,7 +2351,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.FIELD)
     @Inherited
-    public @interface xml_map
+    public @interface simpl_map
     {
        	String value() default NULL_TAG;
     }
@@ -2406,23 +2400,6 @@ implements FieldTypes, XMLTranslationExceptionTypes
     
     /**
      * Supplementary metalanguage declaration that can be applied only to a field.
-     * The argument is a single Class object.
-     * <p/>
-     * Annotation forms a tag name from the class name, using camel case conversion.
-     * It then creates a mapping from the tag and class name to the field it is applied to, 
-     * so that translateFromXML(...) will set a value based on an element with the tag, 
-     * if field is also declared with @xml_nested,
-     * or collect values when elements have the tag, if the field is declared with @xml_collection.
-     */
-    @Retention(RetentionPolicy.RUNTIME) 
-    @Inherited 
-    public @interface xml_class
-    {
-        Class value();
-    }
-    
-    /**
-     * Supplementary metalanguage declaration that can be applied only to a field.
      * The argument is the name of a TranslationScope.
      * <p/>
      * Annotation uses the argument to lookup a TranslationScope.
@@ -2435,22 +2412,9 @@ implements FieldTypes, XMLTranslationExceptionTypes
      */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
-    public @interface xml_scope
+    public @interface simpl_scope
     {
         String value();
-    }
- 
-    /**
-     * Used to specify that the elements of a collection or map should not be wrapped by an outer tag
-     * corresponding to their field name.
-     * 
-     * @author andruid
-     *
-     */
-    @Retention(RetentionPolicy.RUNTIME) 
-    @Inherited 
-    public @interface xml_nowrap
-    {
     }
     
     /**
@@ -2464,10 +2428,23 @@ implements FieldTypes, XMLTranslationExceptionTypes
      * or collect values when elements have the tags, if the field is declared with @xml_collection.
      */
     @Retention(RetentionPolicy.RUNTIME) 
-    public @interface xml_classes
+    public @interface simpl_classes
     {
         Class<? extends ElementState>[] value();
     }
+    /**
+     * Used to specify that the elements of a collection or map should not be wrapped by an outer tag
+     * corresponding to their field name.
+     * 
+     * @author andruid
+     *
+     */
+    @Retention(RetentionPolicy.RUNTIME) 
+    @Inherited 
+    public @interface simpl_nowrap
+    {
+    }
+
     
     /**
      * Source of bindings that will be mapped to an xml_bind_from declaration inside
@@ -2478,7 +2455,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
      */
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
-    public @interface xml_bind_to
+    public @interface simpl_bind_to
     {
     	/**
     	 * @return This is the name of this binding site. It must match the name of the bind_from site.
@@ -2493,7 +2470,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
     
     @Retention(RetentionPolicy.RUNTIME) 
     @Inherited 
-    public @interface xml_bind_from
+    public @interface simpl_bind_from
     {
     	/**
     	 * @return This is the name of this binding site. It must match the name of the bind_to site.
@@ -2530,7 +2507,7 @@ implements FieldTypes, XMLTranslationExceptionTypes
    
 	public void checkAnnotation() throws NoSuchFieldException
 	{
-		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(xml_inherit.class));
+		System.out.println(" isValidatable = " + this.getClass().isAnnotationPresent(simpl_inherit.class));
 		Field f		= this.getClass().getField("foo");
 		System.out.println(" is leaf = " + XMLTools.representAsLeafNode(f));
 	}
