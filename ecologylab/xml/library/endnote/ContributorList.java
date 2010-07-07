@@ -38,10 +38,11 @@ public class ContributorList extends ElementState
     {
         for (Author a : authors)
         {
-            if (a.getTextNodeString().toLowerCase().contains(value))
-            {
-                return true;
-            }
+        	//FIXME -- need to code a newer version of s.im.pl serialization
+//            if (a.getTextNodeString().toLowerCase().contains(value))
+//            {
+//                return true;
+//            }
         }
         return false;
     }
@@ -57,13 +58,14 @@ public class ContributorList extends ElementState
         
         for (Author a : authors)
         {
-            i--;
-            string.append(a.getTextNodeString());
-            
-            if (i != 0)
-            {
-                string.append("; ");
-            }
+        	//FIXME -- need to code a newer version of s.im.pl serialization
+//            i--;
+//            string.append(a.getTextNodeString());
+//            
+//            if (i != 0)
+//            {
+//                string.append("; ");
+//            }
         }
         
         return string.toString();

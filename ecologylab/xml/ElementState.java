@@ -61,19 +61,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	transient ElementState									parent;
 
 	/**
-	 * Enables storage of a single text node child. This facility is meager and rarely used, since the
-	 * leaf nodes facility does the same thing but better.
-	 * <p/>
-	 * We might want to implement the ability to store multiple text nodes here some time in the
-	 * future.
-	 */
-	/**
-	 * The following 'transient' markers are necessary to keep terracotta from sharing these fields.
-	 * TODO Find a better way to do this!
-	 */
-	transient private StringBuilder					textNodeBuffy;
-
-	/**
 	 * Just-in time look-up tables to make translation be efficient. Allocated on a per class basis.
 	 */
 	transient private ClassDescriptor				classDescriptor;
@@ -326,10 +313,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor().elementFieldDescriptors();
 		int numElements = elementFieldDescriptors.size();
 
-		StringBuilder textNode = this.textNodeBuffy;
-
 		boolean hasXmlText = fieldDescriptor.hasXmlText();
-		if ((numElements == 0) && ((textNode == null) || (textNode.length() == 0)) && !hasXmlText)
+		if ((numElements == 0) && !hasXmlText)
 		{
 			buffy.append('/').append('>'); // done! completely close element behind attributes
 		}
@@ -337,12 +322,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		{
 			if (!fieldDescriptor.isXmlNsDecl())
 				buffy.append('>'); // close open tag behind attributes
-
-			// FIXME -- drop old style text node processing
-			if (textNode != null)
-			{
-				XMLTools.escapeXML(buffy, textNode);
-			}
 
 			if (hasXmlText)
 			{
@@ -577,9 +556,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		int numElements = elementFieldDescriptors.size();
 
 		// FIXME -- get rid of old textNode stuff. it doesnt even work
-		StringBuilder textNode = this.textNodeBuffy;
 		boolean hasXmlText = fieldDescriptor.hasXmlText();
-		if ((numElements == 0) && (textNode == null) && !hasXmlText)
+		if ((numElements == 0) && !hasXmlText)
 		{
 			appendable.append('/').append('>'); // done! completely close element behind attributes
 		}
@@ -588,16 +566,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			if (!fieldDescriptor.isXmlNsDecl())
 				appendable.append('>'); // close open tag behind attributes unless in a nested namespace
 																// root
-
-			// FIXME get rid of this block, because this method of dealing with text nodes is obsolete
-			if (textNode != null)
-			{
-				// TODO -- might need to trim the buffy here!
-				// if (textNode.length() > 0 -- not needed with current impl, which doesnt do append to text
-				// node if trim -> empty string
-				// if (textNode.length() > 0)
-				XMLTools.escapeXML(appendable, textNode);
-			}
 
 			if (hasXmlText)
 			{
@@ -916,17 +884,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		serialize(new File(outputFileName));
 	}
 
-	/**
-	 * @deprecated should use @simpl_scalar @simpl_hints(Hint.XML_TEXT) or @simpl_scalar @simpl_hints(Hint.XML_LEAF) to specify text child
-	 * @return
-	 */
-	@Deprecated
-	public String getTextNodeString()
-	{
-		return (textNodeBuffy == null) ? null : textNodeBuffy.toString();
-		// return (textNodeString == null) ? null : XmlTools.unescapeXML(textNodeString);
-	}
-
 	// ///////////////////////// other methods //////////////////////////
 
 	/**
@@ -1029,10 +986,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	static final String		NULL_TAG		= "";
-
-	static final Class[]	NO_CLASSES	= {
-
-																		};
 
 	/**
 	 * Metalanguage declaration that tells ecologylab.xml translators that each Field it is applied to
@@ -1307,7 +1260,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			parent = null;
 
 		elementByIdMap = null;
-		textNodeBuffy = null;
 		classDescriptor = null;
 		if (nestedNameSpaces != null)
 		{
@@ -1322,35 +1274,20 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Add a NestedNameSpace object to this.
-	 * 
-	 * @param urn
-	 * @param nns
-	 */
-	private void nestNameSpace(String urn, ElementState nns)
-	{
-		if (nestedNameSpaces == null)
-			nestedNameSpaces = new HashMap<String, ElementState>(2);
-
-		nestedNameSpaces.put(urn, nns);
-	}
-
-	/**
 	 * Set-up referential chains for a newly born child of this.
 	 * 
-	 * @param newChildES
+	 * @param newParent
+	 * @param ourClassDescriptor TODO
 	 */
-	void setupChildElementState(ElementState newChildES)
+	void setupInParent(ElementState newParent, ClassDescriptor ourClassDescriptor)
 	{
-		newChildES.elementByIdMap = elementByIdMap;
-		newChildES.parent = this;
-		ClassDescriptor parentOptimizations = classDescriptor();
-		// ClassDescriptor childOptimizations =
-		// parentOptimizations.lookupChildOptimizations(newChildES);
-		newChildES.classDescriptor = ClassDescriptor.getClassDescriptor(newChildES);
-		// childOptimizations.setParent(parentOptimizations);
+		this.elementByIdMap		= newParent.elementByIdMap;
+		this.parent						= newParent;
+		this.classDescriptor	= ourClassDescriptor;
 	}
 
+	
+	
 	/**
 	 * Either lookup an existing Nested Namespace object, or form a new one, map it, and return it.
 	 * This lazy evaluation type call is invoked either in translateFromXML(), or, when procedurally
@@ -1375,6 +1312,20 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
+	 * Add a NestedNameSpace object to this.
+	 * 
+	 * @param urn
+	 * @param nns
+	 */
+	private void nestNameSpace(String urn, ElementState nns)
+	{
+		if (nestedNameSpaces == null)
+			nestedNameSpaces = new HashMap<String, ElementState>(2);
+
+		nestedNameSpaces.put(urn, nns);
+	}
+
+	/**
 	 * Lookup an ElementState subclass representing the scope of the nested XML Namespace in this.
 	 * 
 	 * @param id
@@ -1385,20 +1336,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
 	}
 
-	/**
-	 * If the element associated with this is annotated with a field for @simpl_scalar @simpl_hints(Hint.XML_TEXT), make that
-	 * available here.
-	 * 
-	 * @return
-	 */
-	FieldDescriptor scalarTextChildFD()
-	{
-		return classDescriptor().scalarTextFD();
-	}
-
 	public boolean hasScalarTextField()
 	{
 		return classDescriptor().hasScalarTextField();
 	}
-
 }
