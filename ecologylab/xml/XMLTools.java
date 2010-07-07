@@ -524,6 +524,19 @@ implements CharacterConstants, SpecialCharacterEntities
 		return getClassName(o.getClass());
 	}
 
+	public static final int									UTF16_LE	= 0;
+
+	public static final int									UTF16			= 1;
+
+	public static final int									UTF8			= 2;
+
+	/**
+	 * xml header
+	 */
+	static protected final String		XML_FILE_HEADER						= "<?xml version=" + "\"1.0\""
+																																+ " encoding=" + "\"UTF-8\""
+																																+ "?>\n";
+
 	/**
 	 * This method gets the name of <code>this</code> class.
 	 * @return  the abbreviated name of this class - without the package qualifier
@@ -619,7 +632,7 @@ implements CharacterConstants, SpecialCharacterEntities
 	 */
 	static public Document buildDOMFromXMLString(CharSequence charSequence)
 	{
-		return buildDOMFromXMLCharSequence(charSequence, ElementState.UTF8);
+		return buildDOMFromXMLCharSequence(charSequence, XMLTools.UTF8);
 	}
 
 	/**

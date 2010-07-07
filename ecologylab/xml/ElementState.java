@@ -72,32 +72,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	transient HashMap<String, ElementState>	nestedNameSpaces;
 
-	public static final int									UTF16_LE	= 0;
-
-	public static final int									UTF16			= 1;
-
-	public static final int									UTF8			= 2;
-
-	/**
-	 * xml header
-	 */
-	static protected final String		XML_FILE_HEADER						= "<?xml version=" + "\"1.0\""
-																																+ " encoding=" + "\"UTF-8\""
-																																+ "?>\n";
-
-	// static protected final String XML_FILE_HEADER = "<?xml version=" + "\"1.0\"" + " encoding=" +
-	// "\"US-ASCII\"" + "?>";
-
 	static protected final int			ESTIMATE_CHARS_PER_FIELD	= 80;
-
-	static final int								TOP_LEVEL_NODE						= 1;
-
-	/**
-	 * Used for argument marshalling with reflection to access a set method that takes a String as an
-	 * argument.
-	 */
-	protected static Class<?>[]			MARSHALLING_PARAMS				=
-																														{ String.class };
 
 	/**
 	 * Construct. Create a link to a root optimizations object.
