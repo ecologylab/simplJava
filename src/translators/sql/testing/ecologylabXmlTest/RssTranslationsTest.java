@@ -4,7 +4,7 @@ import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Translations for all RSS parsing.
@@ -75,7 +75,7 @@ extends Debug
 			translated.serialize(System.out);
 			System.out.println('\n');
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

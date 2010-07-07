@@ -3,7 +3,7 @@ package translators.cocoa.library;
 import java.net.MalformedURLException;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * xml nested test class
@@ -44,7 +44,7 @@ public class CocoaInheritTest extends ElementState
 		return test;
 	}
 
-	public static void main(String args[]) throws MalformedURLException, XMLTranslationException
+	public static void main(String args[]) throws MalformedURLException, SIMPLTranslationException
 	{
 		CocoaInheritTest t = new CocoaInheritTest();
 		t.serialize(System.out);

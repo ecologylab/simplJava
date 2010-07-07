@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public class _EcologylabXmlTestMain
 {
-	public static void main(String[] args) throws XMLTranslationException
+	public static void main(String[] args) throws SIMPLTranslationException
 	{
 		/*java class definition*/ 
 		ChannelTest c	= new ChannelTest();

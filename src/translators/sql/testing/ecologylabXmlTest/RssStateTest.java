@@ -7,7 +7,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
 import ecologylab.xml.library.media.Thumbnail;
@@ -205,7 +205,7 @@ public class RssStateTest extends ElementState
 			// RssTranslations.get().translateToXML(System.out);
 
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -223,7 +223,7 @@ public class RssStateTest extends ElementState
 		{
 			rss.serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -275,7 +275,7 @@ public class RssStateTest extends ElementState
 //			rssState.translateToXML(outputFile);
 			
 			println("\n");
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

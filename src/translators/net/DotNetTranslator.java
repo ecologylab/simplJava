@@ -19,7 +19,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.rss.Channel;
 
 /**
@@ -133,11 +133,11 @@ public class DotNetTranslator
 	 * @param inputClass
 	 * @param appendable
 	 * @throws IOException
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 * @throws DotNetTranslationException
 	 */
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope)
-			throws IOException, XMLTranslationException, DotNetTranslationException
+			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
 		// Generate header and implementation files
 		ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
@@ -154,12 +154,12 @@ public class DotNetTranslator
 	 * @param tScope
 	 * @param workSpaceLocation
 	 * @throws IOException
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 * @throws ParseException
 	 * @throws DotNetTranslationException
 	 */
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope,
-			File workSpaceLocation) throws IOException, XMLTranslationException, ParseException,
+			File workSpaceLocation) throws IOException, SIMPLTranslationException, ParseException,
 			DotNetTranslationException
 	{
 		// Parse source files for javadocs

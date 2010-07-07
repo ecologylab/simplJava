@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Test Class
@@ -80,7 +80,7 @@ public class CocaTestClass extends ElementState
 		this.hashMapAttribute.put("1", "3");
 	}
 
-	public static void main(String args[]) throws XMLTranslationException, MalformedURLException
+	public static void main(String args[]) throws SIMPLTranslationException, MalformedURLException
 	{
 		CocaTestClass test = new CocaTestClass();
 		test.serialize(System.out);

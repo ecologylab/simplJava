@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import translators.sql.java2sql.DBName;
 import ecologylab.generic.Debug;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public class sqlTranslator implements DBName{
 	String thisStringTargetDirectory = null; 
@@ -52,7 +52,7 @@ public class sqlTranslator implements DBName{
 	/*
 	 * default constructor
 	 */
-	public sqlTranslator() throws XMLTranslationException{
+	public sqlTranslator() throws SIMPLTranslationException{
 //		thisParser = new MetaMetadataRepositoryParser2(); 
 		
 		
@@ -765,7 +765,7 @@ public class sqlTranslator implements DBName{
 		DB_SCHEMA_GENERATOR_MODE = db_schema_generator_mode;
 	}
 
-	public static void main(String args[]) throws XMLTranslationException, IOException{
+	public static void main(String args[]) throws SIMPLTranslationException, IOException{
 		sqlTranslator thisDBSchemaGenerator = new sqlTranslator();
 		thisDBSchemaGenerator.testCreateMMDTableSchema(); 
 		

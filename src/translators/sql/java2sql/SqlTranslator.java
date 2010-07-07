@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public class SqlTranslator extends Debug implements DBName
 {
@@ -37,7 +37,7 @@ public class SqlTranslator extends Debug implements DBName
 	 */
 	protected static ArrayList<HashMap<String, HashMap<String, String>>>	thisHashMapTableArrayListForCompositeType	= new ArrayList<HashMap<String, HashMap<String, String>>>();
 
-	public SqlTranslator() throws XMLTranslationException
+	public SqlTranslator() throws SIMPLTranslationException
 	{
 
 	}
@@ -539,7 +539,7 @@ public class SqlTranslator extends Debug implements DBName
 		DEFAULT_SQL_FILE_NAME = sql_file_name;
 	}
 
-	public static void main(String args[]) throws XMLTranslationException, IOException
+	public static void main(String args[]) throws SIMPLTranslationException, IOException
 	{
 		SqlTranslator thisDBSchemaGenerator = new SqlTranslator();
 

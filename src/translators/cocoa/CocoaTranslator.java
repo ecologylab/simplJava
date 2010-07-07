@@ -23,7 +23,7 @@ import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.rss.RssState;
 
 /**
@@ -427,10 +427,10 @@ public class CocoaTranslator
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public void translateToObjC(File directoryLocation, TranslationScope tScope) throws IOException,
-			CocoaTranslationException, XMLTranslationException
+			CocoaTranslationException, SIMPLTranslationException
 	{
 		// Generate header and implementation files
 		ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
@@ -472,12 +472,12 @@ public class CocoaTranslator
 	 * @param workSpaceLocation
 	 * @throws IOException
 	 * @throws CocoaTranslationException
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 * @throws ParseException
 	 */
 	public void translateToObjC(File directoryLocation, TranslationScope tScope,
 			File workSpaceLocation) throws IOException, CocoaTranslationException,
-			XMLTranslationException, ParseException
+			SIMPLTranslationException, ParseException
 	{
 		// Parse source files for javadocs
 		JavaDocParser.parseSourceFileIfExists(tScope, workSpaceLocation);

@@ -22,7 +22,7 @@ import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.DbHint;
 import ecologylab.xml.ElementState.simpl_collection;
 import ecologylab.xml.ElementState.simpl_db;
@@ -36,7 +36,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	/*
 	 * Default constructor
 	 */
-	public SqlTranslatorMain() throws XMLTranslationException
+	public SqlTranslatorMain() throws SIMPLTranslationException
 	{
 		super();
 
@@ -50,7 +50,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	/*
 	 * Overloaded constructor
 	 */
-	public SqlTranslatorMain(String outputFileName) throws XMLTranslationException
+	public SqlTranslatorMain(String outputFileName) throws SIMPLTranslationException
 	{
 		super();
 		super.setDEFAULT_SQL_FILE_NAME(outputFileName);
@@ -447,7 +447,7 @@ public class SqlTranslatorMain extends SqlTranslator
 
 	}
 
-	public static void main(String[] args) throws XMLTranslationException, IOException
+	public static void main(String[] args) throws SIMPLTranslationException, IOException
 	{
 		// SqlTranslatorMain thisSqlTranslator = new SqlTranslatorMain("postgreSQLOutput.sql");
 		SqlTranslatorMain thisSqlTranslator = new SqlTranslatorMain();
