@@ -614,12 +614,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	/**
-	 * For noting that the object of this root or @xml_nested field has, within it, a field declared
-	 * with @simpl_scalar @simpl_hints(Hint.XML_TEXT).
-	 */
-	private Field	xmlTextScalarField;
-
-	/**
 	 * In the supplied context object, set the *typed* value of the field, using the valueString
 	 * passed in. Unmarshalling is performed automatically, by the ScalarType already stored in this.
 	 * <p/>
@@ -632,60 +626,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 *          The value to set, which this method will use with the ScalarType, to create the value
 	 *          that will be set.
 	 */
-	// FIXME -- pass in ScalarUnmarshallingContext, and use it!
 	public boolean set(ElementState context, String valueString,
 			ScalarUnmarshallingContext scalarUnMarshallingContext)
 	{
 		boolean result = false;
 		// if ((valueString != null) && (context != null)) andruid & andrew 4/14/09 -- why not allow set
 		// to null?!
-		if ((context != null))
+		if (context != null && isScalar() /* do we really need this check??? */)
 		{
-			// FIXME -- clean up this mess!
-			if (xmlTextScalarField != null) // this is for MetadataScalars, to set the value in the nested
-			// object, instead of operating directly on the value
-			{
-				try
-				{
-					ElementState nestedES = (ElementState) field.get(context);
-					if (nestedES == null)
-					{
-						// The field is not initialized...
-						this.setField(context, field.getType().newInstance());
-						nestedES = (ElementState) field.get(context);
-					}
-					if (setValueMethod != null)
-					{
-						ReflectionTools.invoke(setValueMethod, nestedES, valueString);
-						result = true;
-					}
-					else
-						scalarType.setField(nestedES, xmlTextScalarField, valueString, null,
-								scalarUnMarshallingContext);
-					result = true;
-
-				}
-				catch (IllegalArgumentException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (IllegalAccessException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (InstantiationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			else if (isScalar())
-			{
-				scalarType.setField(context, field, valueString, null, scalarUnMarshallingContext);
-				result = true;
-			}
+			scalarType.setField(context, field, valueString, null, scalarUnMarshallingContext);
+			result = true;
 		}
 		return result;
 	}
@@ -732,37 +682,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public String getValueString(Object context)
 	{
 		String result = NULL;
-		if (context != null)
+		if (context != null && isScalar())
 		{
-			Field operativeField = xmlTextScalarField;
-			if (operativeField != null)
-			{
-				try
-				{
-					ElementState nestedES = (ElementState) field.get(context);
-
-					// If nestedES is null...then the field is not initialized.
-					if (nestedES != null)
-					{
-						result = scalarType.toString(operativeField, nestedES);
-					}
-
-				}
-				catch (IllegalArgumentException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (IllegalAccessException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			else if (isScalar())
-			{
 				result = scalarType.toString(field, context);
-			}
 		}
 		return result;
 	}
@@ -818,14 +740,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public int getType()
 	{
 		return type;
-	}
-
-	/**
-	 * @return the xmlTextScalarField
-	 */
-	public Field getXmlTextScalarField()
-	{
-		return xmlTextScalarField;
 	}
 
 	public ElementState getNested(ElementState context)
@@ -1038,7 +952,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(xmlTextScalarField, context))
+			if (!scalarType.isDefaultValue(field, context))
 				appendTextValue(buffy, context, scalarType);
 		}
 	}
@@ -1130,26 +1044,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			appendable.append(END_CDATA);
 	}
 
-	/**
-	 * Append just the text value to the buffy. No element tags, but it does account for CDATA.
-	 * 
-	 * @param buffy
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws IOException
-	 */
-	void appendTextValue(StringBuilder buffy, Object context) 
-	throws IllegalArgumentException, IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(xmlTextScalarField, context))
-				appendTextValue(buffy, context, scalarType);
-		}
-		
-	}
 	/**
 	 * Use this and the context to append a leaf node with value to the Appendable passed in.
 	 * 
