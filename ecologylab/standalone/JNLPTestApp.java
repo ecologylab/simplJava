@@ -4,8 +4,8 @@
 package ecologylab.standalone;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.jnlp.JnlpState;
 import ecologylab.xml.library.jnlp.JnlpTranslations;
 
@@ -26,7 +26,7 @@ public class JNLPTestApp
 		JnlpState jnlp;
 		try
 		{
-			jnlp = (JnlpState) ElementState.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());
+			jnlp = (JnlpState) TranslationScope.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());
 
 			Debug.println("...done.");
 

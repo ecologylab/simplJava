@@ -36,7 +36,7 @@ public class TestXml extends ElementState
     {
     	try
 		{
-			ElementState es		= translateFromXMLCharSequence(STUFF, TS);
+			ElementState es		= TranslationScope.translateFromXMLCharSequence(STUFF, TS);
 			println(es.serialize());
 		} catch (SIMPLTranslationException e)
 		{

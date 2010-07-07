@@ -8,6 +8,7 @@ import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
 import ecologylab.xml.library.media.Thumbnail;
@@ -196,7 +197,7 @@ public class RssState extends ElementState
 		{
 //		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 //			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
-			rss = translateFromXML(CNN_TOP_FEED, RssTranslations.get());
+			rss = TranslationScope.translateFromXML(CNN_TOP_FEED, RssTranslations.get());
 			
 			System.out.println("");
 			rss.serialize(System.out);
@@ -238,7 +239,7 @@ public class RssState extends ElementState
 			ParsedURL feedPURL	= DELICIOUS_FEED; // FLICKR_FEED;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
-			RssState rssState	= (RssState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
+			RssState rssState	= (RssState) TranslationScope.translateFromXML(feedPURL, RssTranslations.get());
 //			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
 			ArrayList<Item> items	= rssState.getChannel().items; //rssState.getChannel().getItems();

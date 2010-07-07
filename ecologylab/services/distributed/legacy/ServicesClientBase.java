@@ -12,7 +12,6 @@ import ecologylab.services.distributed.common.ClientConstants;
 import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 
@@ -141,7 +140,7 @@ public abstract class ServicesClientBase extends Debug implements
             String messageString, boolean doRecursiveDescent)
             throws SIMPLTranslationException
     {
-        return (ResponseMessage) ElementState.translateFromXMLCharSequence(
+        return (ResponseMessage) TranslationScope.translateFromXMLCharSequence(
                 messageString, translationScope);
     }
 

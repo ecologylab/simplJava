@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
@@ -194,7 +195,7 @@ public class JnlpState extends ElementState implements Cloneable
 				+ "    <argument>http://localhost:8080/rogue/lib/</argument>\n"
 				+ "  </application-desc>\n" + "</jnlp> \n" + "";
 
-		JnlpState j = (JnlpState) ElementState.translateFromXMLCharSequence(
+		JnlpState j = (JnlpState) TranslationScope.translateFromXMLCharSequence(
 				jnlpContents, JnlpTranslations.get());
 
 		ArrayList<InformationElement> infos = j.getInformations();
@@ -230,7 +231,7 @@ public class JnlpState extends ElementState implements Cloneable
 		// a bit of a hack, but it's easy! :D
 		try
 		{
-			return (JnlpState) ElementState.translateFromXMLCharSequence(this
+			return (JnlpState) TranslationScope.translateFromXMLCharSequence(this
 					.serialize(), JnlpTranslations.get());
 		}
 		catch (SIMPLTranslationException e)

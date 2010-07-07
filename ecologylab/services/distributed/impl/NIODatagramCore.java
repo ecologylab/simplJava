@@ -28,7 +28,6 @@ import ecologylab.generic.StartAndStoppable;
 import ecologylab.services.distributed.common.NetworkingConstants;
 import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.messages.ServiceMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 
@@ -573,7 +572,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									messageBuffer.flip();
 
-									ServiceMessage<S> message = (ServiceMessage<S>) ElementState
+									ServiceMessage<S> message = (ServiceMessage<S>) TranslationScope
 											.translateFromXMLCharSequence(messageBuffer, translationScope);
 									message.setSender(((InetSocketAddress) address).getAddress());
 

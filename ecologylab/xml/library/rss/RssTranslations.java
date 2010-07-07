@@ -69,7 +69,7 @@ extends Debug
 			tScope.serialize(buffy);
 			System.out.println('\n');
 			
-			ElementState translated	= ElementState.translateFromXMLCharSequence(buffy, TranslationScope.getBasicTranslations());
+			ElementState translated	= TranslationScope.translateFromXMLCharSequence(buffy, TranslationScope.getBasicTranslations());
 				//ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 			
 			translated.serialize(System.out);

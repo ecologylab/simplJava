@@ -15,7 +15,6 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.messages.RequestMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 
@@ -214,7 +213,7 @@ public class ServicesServer extends ServicesServerBase
     public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
             throws SIMPLTranslationException
     {
-        RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
+        RequestMessage requestMessage = (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageString,
                 requestTranslationSpace);
         return requestMessage;
     }

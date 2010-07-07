@@ -28,7 +28,7 @@ public class TestScalarCollection extends ElementState
 	{
 		try
 		{
-			ElementState es	= ElementState.translateFromXMLCharSequence(xml, TS);
+			ElementState es	= TranslationScope.translateFromXMLCharSequence(xml, TS);
 			
 			es.serialize(System.out);
 			

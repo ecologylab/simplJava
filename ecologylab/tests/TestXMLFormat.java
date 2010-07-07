@@ -37,7 +37,7 @@ public class TestXMLFormat extends ElementState
 		t.serialize(System.out);
 		System.out.println();
 
-		ElementState.translateFromXMLCharSequence(t.serialize().toString(),
+		TranslationScope.translateFromXMLCharSequence(t.serialize().toString(),
 				TranslationScope.get("test", TestXMLFormat.class)).serialize(
 				System.out);
 		System.out.println();

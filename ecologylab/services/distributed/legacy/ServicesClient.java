@@ -219,7 +219,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                     }
                     else
                     {
-                        responseMessage = (ResponseMessage) ResponseMessage.translateFromXMLCharSequence(
+                        responseMessage = (ResponseMessage) TranslationScope.translateFromXMLCharSequence(
                                 response, translationScope);
                     }
 

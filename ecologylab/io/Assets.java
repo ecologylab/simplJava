@@ -19,8 +19,8 @@ import ecologylab.appframework.types.AssetsTranslations;
 import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 
 /**
  * Used to manage cachable assets.
@@ -157,7 +157,7 @@ implements ApplicationProperties
 		{
 			try
 			{
-				assetsState			= (AssetsState) ElementState.translateFromXML(assetsXmlFile, AssetsTranslations.get());
+				assetsState			= (AssetsState) TranslationScope.translateFromXML(assetsXmlFile, AssetsTranslations.get());
 
 			} catch (SIMPLTranslationException e)
 			{

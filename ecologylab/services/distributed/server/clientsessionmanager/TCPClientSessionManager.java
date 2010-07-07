@@ -31,7 +31,6 @@ import ecologylab.services.exceptions.BadClientException;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 
@@ -614,7 +613,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		String startLineString = null;
 		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
 		{ // normal case
-			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageCharSequence,
+			return (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageCharSequence,
 					translationScope);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
@@ -633,7 +632,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			if (!messageString.startsWith("<"))
 				messageString = messageString.substring(messageString.indexOf('=') + 1);
 
-			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
+			return (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageString,
 					translationScope);
 		}
 		else

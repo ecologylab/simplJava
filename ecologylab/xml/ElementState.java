@@ -4,14 +4,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,7 +17,6 @@ import java.util.HashMap;
 import org.xml.sax.Attributes;
 
 import ecologylab.generic.Debug;
-import ecologylab.net.ParsedURL;
 
 /**
  * This class is the heart of the <code>ecologylab.xml</code> translation framework.
@@ -687,115 +684,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Translate a file XML to a strongly typed tree of XML objects.
-	 * 
-	 * Use SAX or DOM parsing depending on the value of useDOMForTranslateTo.
-	 * 
-	 * @param fileName
-	 *          the name of the XML file that needs to be translated.
-	 * @param translationScope
-	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
-	 * 
-	 * @return Strongly typed tree of ElementState objects.
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
-			throws SIMPLTranslationException
-	{
-		File xmlFile = new File(fileName);
-		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
-
-		return translateFromXML(xmlFile, translationScope);
-	}
-	/**
 	 * Link new born root element to its Optimizations and create an elementByIdMap for it.
 	 */
 	void setupRoot()
 	{
 		elementByIdMap = new HashMap<String, ElementState>();
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param charSequence
-	 * @param translationScope
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXMLCharSequence(CharSequence charSequence,
-			TranslationScope translationScope) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
-		return saxHandler.parse(charSequence);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param purl
-	 * @param translationScope
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXML(ParsedURL purl, TranslationScope translationScope)
-			throws SIMPLTranslationException
-	{
-		if (purl == null)
-			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
-
-		if (!purl.isNotFileOrExists())
-			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
-
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
-		return saxHandler.parse(purl);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param url
-	 * @param translationScope
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXML(URL url, TranslationScope translationScope)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
-		return saxHandler.parse(url);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param file
-	 * @param translationScope
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXML(File file, TranslationScope translationScope)
-			throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
-		return saxHandler.parse(file);
-	}
-
-	/**
-	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
-	 * 
-	 * @param inputStream
-	 *          An InputStream to the XML that needs to be translated.
-	 * @param translationScope
-	 * @return
-	 * @throws SIMPLTranslationException
-	 */
-	public static ElementState translateFromXML(InputStream inputStream,
-			TranslationScope translationScope) throws SIMPLTranslationException
-	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
-		return saxHandler.parse(inputStream);
 	}
 
 	/**

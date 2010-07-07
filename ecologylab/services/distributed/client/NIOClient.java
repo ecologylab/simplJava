@@ -47,7 +47,6 @@ import ecologylab.services.messages.InitConnectionResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.SendableRequest;
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 
@@ -1355,7 +1354,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	protected MessageWithMetadata<ResponseMessage, Object> translateXMLStringToResponse(
 			String messageString, int incomingUid) throws SIMPLTranslationException
 	{
-		ResponseMessage resp = (ResponseMessage) ElementState.translateFromXMLCharSequence(
+		ResponseMessage resp = (ResponseMessage) TranslationScope.translateFromXMLCharSequence(
 				messageString, translationScope);
 
 		if (resp == null)

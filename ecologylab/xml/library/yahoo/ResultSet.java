@@ -54,7 +54,7 @@ public class ResultSet extends ElementState
 		try
 		{
 			ResultSet resultSet	= 
-				(ResultSet) ElementState.translateFromXML(purl, ResultSet.getTranslationScope());
+				(ResultSet) TranslationScope.translateFromXML(purl, ResultSet.getTranslationScope());
 			
 			resultSet.serialize(System.out);
 		} catch (SIMPLTranslationException e)

@@ -2,7 +2,6 @@ package ecologylab.standalone;
 
 import java.io.File;
 
-import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.rest.Fields;
@@ -28,7 +27,7 @@ public class TestNameSpace
 						= RESTTranslationSpace.get(); 
 		try 
 		{
-			Fields fields= (Fields) ElementState.translateFromXML(xmlFile, tSpace);
+			Fields fields= (Fields) TranslationScope.translateFromXML(xmlFile, tSpace);
 			System.out.println("Fields: \n" + fields.toString());
 		} catch (SIMPLTranslationException e) 
 		{

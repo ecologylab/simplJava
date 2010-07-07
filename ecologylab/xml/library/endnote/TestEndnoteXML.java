@@ -3,8 +3,8 @@
  */
 package ecologylab.xml.library.endnote;
 
-import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 
 public class TestEndnoteXML
 {
@@ -16,7 +16,7 @@ public class TestEndnoteXML
     {
         try
         {
-            XmlState fromFile = (XmlState) ElementState.translateFromXML("/Users/toupsz/Desktop/RSBib.xml", EndnoteNameSpace.get());
+            XmlState fromFile = (XmlState) TranslationScope.translateFromXML("/Users/toupsz/Desktop/RSBib.xml", EndnoteNameSpace.get());
             
             System.out.println(fromFile.serialize());
         }

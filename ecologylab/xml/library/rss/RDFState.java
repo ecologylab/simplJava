@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.dc.Dc;
 
@@ -127,7 +128,7 @@ public class RDFState extends ElementState // ArrayListState<Item>
 			ParsedURL feedPURL	= DELICIOUS_FEED; // DELICIOUS_POPULAR;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
-			RDFState rdfState	= (RDFState) ElementState.translateFromXML(feedPURL, RssTranslations.get());
+			RDFState rdfState	= (RDFState) TranslationScope.translateFromXML(feedPURL, RssTranslations.get());
 //			RDFState rdfState	= (RDFState) ElementState.translateFromXMLCharSequence(DELICIOUS_EXAMPLE, RssTranslations.get());
 
 			ArrayList<Item> items	= rdfState.items; //rssState.getChannel().getItems();
