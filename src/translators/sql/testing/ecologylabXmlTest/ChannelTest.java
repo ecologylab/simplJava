@@ -3,14 +3,14 @@ package translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.Hint;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.simpl_inherit;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Hint;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.simpl_inherit;
 
 /**
- * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
+ * RSS parser <code>channel</code> element {@link ecologylab.serialization.ElementState ElementState} declaration.
  * Used with most RSS versions.
  *
  * @author andruid

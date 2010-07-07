@@ -3,7 +3,7 @@ package translators.parser;
 import java.io.File;
 import java.io.IOException;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 /**
  * Class file to search for java source files. Using the Class type objects this class searches for

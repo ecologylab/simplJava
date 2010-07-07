@@ -4,17 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ClassDescriptor;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.library.feedburner.Feedburner;
-import ecologylab.xml.library.media.Media;
-import ecologylab.xml.library.media.Thumbnail;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.library.feedburner.Feedburner;
+import ecologylab.serialization.library.media.Media;
+import ecologylab.serialization.library.media.Thumbnail;
 
 /**
- * {@link ecologylab.xml.ElementState ElementState} for the root element of the RSS parser.
+ * {@link ecologylab.serialization.ElementState ElementState} for the root element of the RSS parser.
  * In particular, this supports RSS versions such as .91, .92, .93, .94, and 2.0.
  *
  * @author andruid

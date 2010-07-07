@@ -3,14 +3,14 @@ package translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.Hint;
-import ecologylab.xml.library.dc.Dc;
-import ecologylab.xml.library.feedburner.Feedburner;
-import ecologylab.xml.library.media.Media;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Hint;
+import ecologylab.serialization.library.dc.Dc;
+import ecologylab.serialization.library.feedburner.Feedburner;
+import ecologylab.serialization.library.media.Media;
 
 /**
- * RSS parser <code>ite</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
+ * RSS parser <code>ite</code> element {@link ecologylab.serialization.ElementState ElementState} declaration.
  * Used with most (perhaps all) RSS versions.
  * <p/>
  * Includes support for funky included namespace content, such as DublinCore, Yahoo Media, and Feedburner.

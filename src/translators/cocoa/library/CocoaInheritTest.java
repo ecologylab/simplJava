@@ -2,8 +2,8 @@ package translators.cocoa.library;
 
 import java.net.MalformedURLException;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
 
 /**
  * xml nested test class

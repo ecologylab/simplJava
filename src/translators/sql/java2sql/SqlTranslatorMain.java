@@ -18,17 +18,17 @@ import translators.sql.testing.ecologylabXmlTest.ChannelTest;
 import translators.sql.testing.ecologylabXmlTest.ItemTest;
 import translators.sql.testing.ecologylabXmlTest.RssStateTest;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.xml.ClassDescriptor;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.ElementState.DbHint;
-import ecologylab.xml.ElementState.simpl_collection;
-import ecologylab.xml.ElementState.simpl_db;
-import ecologylab.xml.library.rss.Channel;
-import ecologylab.xml.library.rss.Item;
-import ecologylab.xml.library.rss.RssState;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.ElementState.DbHint;
+import ecologylab.serialization.ElementState.simpl_collection;
+import ecologylab.serialization.ElementState.simpl_db;
+import ecologylab.serialization.library.rss.Channel;
+import ecologylab.serialization.library.rss.Item;
+import ecologylab.serialization.library.rss.RssState;
 
 public class SqlTranslatorMain extends SqlTranslator
 {
@@ -329,7 +329,7 @@ public class SqlTranslatorMain extends SqlTranslator
 			System.out.println("(scalarType) : " + thisFieldDescriptor.getScalarType());
 			System.out.println("(GenericString) - " + thisFieldDescriptor.getField().toGenericString());
 			System.out.println("(Field().toString() - " + thisFieldDescriptor.getField().toString());
-			/* java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item> */
+			/* java.util.ArrayList<ecologylab.serialization.tools.sqlTranslator.input.Item> */
 			System.out.println("(GenericType) - " + thisFieldDescriptor.getField().getGenericType());
 
 			/*
@@ -370,7 +370,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	/*
 	 * method to extract FieldType from Generic Type expression e.g. 'ParsedURL' of class
 	 * ecologylab.net.ParsedURL, or 'Item' of
-	 * java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item>
+	 * java.util.ArrayList<ecologylab.serialization.tools.sqlTranslator.input.Item>
 	 */
 	public String getFieldTypeFromGenericFieldType(FieldDescriptor thisFieldDescriptor)
 	{
@@ -386,8 +386,8 @@ public class SqlTranslatorMain extends SqlTranslator
 	@Test
 	public void testGetFieldTypeFromGenericType()
 	{
-		/* java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item> */
-		String thisString = "java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item>";
+		/* java.util.ArrayList<ecologylab.serialization.tools.sqlTranslator.input.Item> */
+		String thisString = "java.util.ArrayList<ecologylab.serialization.tools.sqlTranslator.input.Item>";
 		String thisString2 = "class ecologylab.net.ParsedURL";
 
 		String thisReplacedString = thisString2.replaceAll("[^A-Za-z0-9]", " ");

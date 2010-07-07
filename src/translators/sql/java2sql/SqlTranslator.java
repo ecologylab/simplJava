@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.SIMPLTranslationException;
 
 public class SqlTranslator extends Debug implements DBName
 {

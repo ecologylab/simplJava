@@ -73,7 +73,7 @@ public class DotNetTranslationException extends Exception implements
 		case UNSUPPORTED_DATATYPE:
 			Debug
 					.weird(this,
-							"The datatype supplies is not supported by the cocoa.internaltranslator and ecologylab.xml");
+							"The datatype supplies is not supported by the cocoa.internaltranslator and ecologylab.serialization");
 		default:
 			this.printStackTrace();
 			break;

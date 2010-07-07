@@ -14,20 +14,20 @@ import java.util.Date;
 
 import translators.parser.JavaDocParser;
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.xml.ClassDescriptor;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTools;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.library.rss.Channel;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.library.rss.Channel;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into
  * the C# implementation files.
  * 
  * <p>
- * It uses the same syntactical annotations used the by {@code ecologylab.xml} to translate Java
+ * It uses the same syntactical annotations used the by {@code ecologylab.serialization} to translate Java
  * objects into xml files. Since it uses the same annotations the data types supported for
  * translation are also the same. The entry point functions into the class are.
  * <ul>
@@ -54,11 +54,11 @@ public class DotNetTranslator
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into C# header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
-    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * @xml_nested} attributes of the {@code ecologylab.serialization}.
     * <p>
     * This function will <b>not</b> try to generate the header file for the
     * Class whose objects are present in the current Java file and annotated by
-    * {@code ecologylab.xml} attributes.
+    * {@code ecologylab.serialization} attributes.
     * </p>
     * 
     * @param inputClass

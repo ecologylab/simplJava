@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
 
 /**
  * Test Class

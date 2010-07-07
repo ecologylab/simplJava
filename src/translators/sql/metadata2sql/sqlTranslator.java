@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import translators.sql.java2sql.DBName;
 import ecologylab.generic.Debug;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.SIMPLTranslationException;
 
 public class sqlTranslator implements DBName{
 	String thisStringTargetDirectory = null; 

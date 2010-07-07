@@ -15,8 +15,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * This class is used to parse java source file and mantain optimized datastructure to hold comments

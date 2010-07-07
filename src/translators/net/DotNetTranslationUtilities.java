@@ -2,9 +2,9 @@ package translators.net;
 
 import java.lang.annotation.Annotation;
 
-import ecologylab.xml.ElementState.simpl_classes;
-import ecologylab.xml.ElementState.simpl_collection;
-import ecologylab.xml.ElementState.xml_tag;
+import ecologylab.serialization.ElementState.simpl_classes;
+import ecologylab.serialization.ElementState.simpl_collection;
+import ecologylab.serialization.ElementState.xml_tag;
 
 /**
  * Static methods to do repeated useful tasks during the translation

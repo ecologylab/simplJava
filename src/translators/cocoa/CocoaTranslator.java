@@ -18,20 +18,20 @@ import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ClassDescriptor;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.FieldDescriptor;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTools;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.library.rss.RssState;
+import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.library.rss.RssState;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into
  * the objective class header files.
  * 
  * <p>
- * It uses the same syntactical annotations used the by {@code ecologylab.xml} to translate Java
+ * It uses the same syntactical annotations used the by {@code ecologylab.serialization} to translate Java
  * objects into xml files. Since it uses the same annotations the data types supported for
  * translation are also the same. The entry point functions into the class are.
  * <ul>
@@ -47,7 +47,7 @@ public class CocoaTranslator
 /**
     * Using this internal class for the calling the hook method after
     * translation of a Java class to C This basically used for {@code
-    * @xml_nested} attribute from the {@code ecologylab.xml} When ever we find
+    * @xml_nested} attribute from the {@code ecologylab.serialization} When ever we find
     * an {@code @xml_nested} attribute we want to generate the Objective-C
     * header file for the nested class as well
     * 
@@ -153,11 +153,11 @@ public class CocoaTranslator
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into Objective-C header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
-    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * @xml_nested} attributes of the {@code ecologylab.serialization}.
     * <p>
     * This function will <b>not</b> try to generate the header file for the
     * Class whose objects are present in the current Java file and annotated by
-    * {@code ecologylab.xml} attributes.
+    * {@code ecologylab.serialization} attributes.
     * </p>
     * <p>
     * See {@code translateToObjCRecursive()} if you want to generate nested
@@ -192,11 +192,11 @@ public class CocoaTranslator
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into Objective-C header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
-    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * @xml_nested} attributes of the {@code ecologylab.serialization}.
     * <p>
     * This function will <b>not</b> try to generate the header file only for the
     * Class whose objects are present in the current Java file and annotated by
-    * {@code ecologylab.xml} attributes.
+    * {@code ecologylab.serialization} attributes.
     * </p>
     * <p>
     * See {@code translateToObjCRecursive()} if you want to generate nested
@@ -283,11 +283,11 @@ public class CocoaTranslator
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into Objective-C header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
-    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * @xml_nested} attributes of the {@code ecologylab.serialization}.
     * <p>
     * This function will <b>not</b> try to generate the implementation file only for the
     * Class whose objects are present in the current Java file and annotated by
-    * {@code ecologylab.xml} attributes.
+    * {@code ecologylab.serialization} attributes.
     * </p>
     * <p>
     * See {@code translateToObjCRecursive()} if you want to generate nested
@@ -346,12 +346,12 @@ public class CocoaTranslator
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into Objective-C header file. It mainly
     * looks for {@code @xml_attribute} , {@code @xml_collection} and {@code
-    * @xml_nested} attributes of the {@code ecologylab.xml}.
+    * @xml_nested} attributes of the {@code ecologylab.serialization}.
     * </P>
     * <p>
     * This function will also try to generate the header file for the Class
     * whose objects are present in the current Java file and annotated by
-    * {@code ecologylab.xml} attributes.
+    * {@code ecologylab.serialization} attributes.
     * </p>
     * <p>
     * Currently this function is implemented in such a way as to maintain the
