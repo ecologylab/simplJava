@@ -400,7 +400,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		{
 			switch (activeFieldDescriptor.getType())
 			{
-			case NESTED_ELEMENT:
+			case COMPOSITE_ELEMENT:
 				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
 																																										// should do
@@ -525,7 +525,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
 			// Map map = currentFD.getMap(parentES);
 			map.put(key, currentES);
-		case NESTED_ELEMENT:
+		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case NAME_SPACE_NESTED_ELEMENT:
 			if (parentES != null)
@@ -568,20 +568,26 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				case SCALAR:
 					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
-					String value = new String(currentTextValue.substring(0, length));
+					String value	= new String(currentTextValue.substring(0, length));
 					currentFD.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
 					value = new String(currentTextValue.substring(0, length));
 					currentFD.addLeafNodeToCollection(currentES, value, this);
 					break;
-				case ROOT:
-				case NESTED_ELEMENT:
+				case COMPOSITE_ELEMENT:
 				case COLLECTION_ELEMENT:
+				case PSEUDO_FIELD_DESCRIPTOR:
 					// optimizations in currentN2JO are for its parent (they were in scope when it was
 					// constructed)
 					// so we get the optimizations we need from the currentElementState
 					// FIXME -- implement this!!!
+					FieldDescriptor scalarTextFD	= currentElementState.classDescriptor().getScalarTextFD();
+					if (scalarTextFD != null)
+					{
+						value 			= new String(currentTextValue.substring(0, length));
+						scalarTextFD.setFieldToScalar(currentES, value, this);
+					}
 					// TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
 					// if (scalarTextChildN2jo != null)
 					// {
@@ -635,13 +641,13 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				currentTextValue.append(chars, startIndex, length);
 				// TODO -- unmarshall to set field with scalar type
 				break;
-			case ROOT:
-			case NESTED_ELEMENT:
+			case COMPOSITE_ELEMENT:
 			case COLLECTION_ELEMENT:
+			case PSEUDO_FIELD_DESCRIPTOR:
 				// optimizations in currentN2JO are for its parent (they were in scope when it was
 				// constructed)
 				// so we get the optimizations we need from the currentElementState
-				if (currentElementState.hasScalarTextField())
+				if (currentElementState.classDescriptor().hasScalarFD())
 					currentTextValue.append(chars, startIndex, length);
 				break;
 			default:

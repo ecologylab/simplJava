@@ -121,7 +121,7 @@ public class TypeRegistry extends Debug
 	 */
 	public static <U> ScalarType<U> getType(Class<U> thatClass)
 	{
-		return (XMLTools.isEnum(thatClass)) ? getType(Enum.class) : getType(thatClass.getName());
+		return (XMLTools.isEnum(thatClass)) ? getType(Enum.class.getName()) : getType(thatClass.getName());
 	}
 
 	/**

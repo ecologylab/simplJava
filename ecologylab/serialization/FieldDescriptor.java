@@ -332,7 +332,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private int deriveScalarSerialization(Field scalarField)
 	{
-		return deriveScalarSerialization(scalarField.getType(), scalarField);
+		int result = deriveScalarSerialization(scalarField.getType(), scalarField);
+		if (xmlHint == Hint.XML_TEXT || xmlHint == Hint.XML_TEXT_CDATA)
+			this.declaringClassDescriptor.setScalarTextFD(this);
+		return result;
 	}
 
 	/**
@@ -347,8 +350,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private int deriveScalarSerialization(Class thatClass, Field field)
 	{
-		
-		
 		isEnum 					= XMLTools.isEnum(field);
 		xmlHint					= XMLTools.simplHint(field);	//TODO -- confirm that default case is acceptable
 		scalarType 			= TypeRegistry.getType(thatClass);
@@ -384,7 +385,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		Class fieldClass 	= field.getType();
 		switch (annotationType)
 		{
-		case NESTED_ELEMENT:
+		case COMPOSITE_ELEMENT:
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
 				result = IGNORED_ELEMENT;
 			else if (!isPolymorphic())
@@ -604,7 +605,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public boolean isNested()
 	{
-		return type == NESTED_ELEMENT;
+		return type == COMPOSITE_ELEMENT;
 	}
 
 	public boolean set(ElementState context, String valueString)
@@ -935,120 +936,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	/**
-	 * Use this and the context to set an attribute (name, value) on the Element DOM Node passed in.
-	 * 
-	 * @param element
-	 * @param context
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public void setAttribute(Element element, Object context) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-
-			if (scalarType == null)
-				weird("YO! setAttribute() scalarType == null!!!");
-			else if (!scalarType.isDefaultValue(field, context))
-			{
-				// for this field, generate tags and attach name value pair
-
-				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
-				// (which is an instance variable of this) !!!
-
-				String value = scalarType.toString(field, context);
-
-				element.setAttribute(tagName, value);
-			}
-		}
-	}
-
-	/**
-	 * Use this and the context to set an attribute (name, value) on the Element DOM Node passed in.
-	 * 
-	 * @param element
-	 * @param instance
-	 * @param isAtXMLText
-	 *          TODO
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 */
-	public void appendLeaf(Element element, Object instance) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (instance != null)
-		{
-			ScalarType scalarType = this.scalarType;
-
-			Document document = element.getOwnerDocument();
-
-			Object fieldInstance = field.get(instance);
-			if (fieldInstance != null)
-			{
-
-				String fieldValueString = fieldInstance.toString();
-
-				Text textNode = isCDATA ? document.createCDATASection(fieldValueString) : document
-						.createTextNode(fieldValueString);
-
-				Element leafNode = document.createElement(tagName);
-				leafNode.appendChild(textNode);
-
-				element.appendChild(leafNode);
-			}
-		}
-	}
-
-	public void appendXmlText(Element element, Object instance) throws IllegalArgumentException,
-			IllegalAccessException
-	{
-		if (instance != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(xmlTextScalarField, instance))
-			{
-				Document document = element.getOwnerDocument();
-
-				Object fieldInstance = xmlTextScalarField.get(instance);
-				if (fieldInstance != null)
-				{
-					String fieldValueString = fieldInstance.toString();
-
-					Text textNode = isCDATA ? document.createCDATASection(fieldValueString) : document
-							.createTextNode(fieldValueString);
-
-					element.appendChild(textNode);
-				}
-			}
-		}
-	}
-
-	public void appendCollectionLeaf(Element element, Object instance)
-			throws IllegalArgumentException, IllegalAccessException
-	{
-		if (instance != null)
-		{
-			Document document = element.getOwnerDocument();
-
-			String instanceString = instance.toString();
-
-			// Object fieldInstance = field.get(instance);
-			// String fieldValueString= fieldInstance.toString();
-
-			Text textNode = isCDATA() ? document.createCDATASection(instanceString) : document
-					.createTextNode(instanceString);
-
-			Element leafNode = document.createElement(tagName);
-			leafNode.appendChild(textNode);
-
-			element.appendChild(leafNode);
-		}
-	}
-
-	/**
 	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
 	 * 
 	 * @param appendable
@@ -1111,16 +998,29 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				// (which is an instance variable of this) !!!
 				writeOpenTag(buffy);
 
-				boolean isCdata = isCDATA();
-				if (isCDATA)
-					buffy.append(START_CDATA);
-				scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
-				if (isCDATA)
-					buffy.append(END_CDATA);
+				appendTextValue(buffy, context, scalarType);
 
 				writeCloseTag(buffy);
 			}
 		}
+	}
+
+	/**
+	 * Write the value to the buffy, with appropraite marshalling, and, if specified, a CDATA wrapper.
+	 * 
+	 * @param buffy			Place to write to.
+	 * @param context		Object to get the value from.
+	 * @param scalarType	Performs the marshalling.
+	 * @throws IllegalAccessException
+	 */
+	void appendTextValue(StringBuilder buffy, Object context, ScalarType scalarType)
+			throws IllegalAccessException
+	{
+		if (isCDATA)
+			buffy.append(START_CDATA);
+		scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
+		if (isCDATA)
+			buffy.append(END_CDATA);
 	}
 
 	/**
@@ -1132,25 +1032,33 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void appendXmlText(StringBuilder buffy, Object context) throws IllegalArgumentException,
-			IllegalAccessException
+	void appendXMLTextScalar(StringBuilder buffy, Object context) 
+	throws IllegalArgumentException, IllegalAccessException
 	{
 		if (context != null)
 		{
 			ScalarType scalarType = this.scalarType;
 			if (!scalarType.isDefaultValue(xmlTextScalarField, context))
-			{
-				// for this field, generate <tag>value</tag>
-
-				boolean isCdata = isCDATA();
-				if (isCDATA)
-					buffy.append(START_CDATA);
-				// TODO lkkljhkhj
-				scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
-				if (isCDATA)
-					buffy.append(END_CDATA);
-			}
+				appendTextValue(buffy, context, scalarType);
 		}
+	}
+
+	/**
+	 * Use this and the context to append a text node value to the StringBuilder passed in, unless it
+	 * turns out that the value is the default.
+	 * 
+	 * @param appendable
+	 * @param context
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException 
+	 */
+	void appendXMLScalarText(Appendable appendable, Object context) 
+	throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		ScalarType scalarType = this.scalarType;
+			if (!scalarType.isDefaultValue(field/* GO AWAY! xmlTextScalarField */, context))
+				appendTextValue(appendable, context, scalarType);
 	}
 
 	/**
@@ -1170,12 +1078,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			ScalarType scalarType = this.scalarType;
 
 			writeOpenTag(buffy);
-			boolean isCdata = isCDATA();
-			if (isCDATA)
-				buffy.append(START_CDATA);
-			scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
-			if (isCDATA)
-				buffy.append(END_CDATA);
+
+			appendTextValue(buffy, instance, scalarType);
 
 			writeCloseTag(buffy);
 		}
@@ -1199,17 +1103,53 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			ScalarType scalarType = this.scalarType;
 
 			writeOpenTag(appendable);
-			boolean isCdata = isCDATA();
-			if (isCdata)
-				appendable.append(START_CDATA);
-			scalarType.appendValue(instance, appendable, !isCdata); // escape if not CDATA! :-)
-			if (isCdata)
-				appendable.append(END_CDATA);
+
+			appendTextValue(appendable, instance, scalarType);
 
 			writeCloseTag(appendable);
 		}
 	}
 
+	/**
+	 * Append just the text value to the appendable. No element tags, but it does account for CDATA.
+	 * 
+	 * @param appendable
+	 * @param context
+	 * @param scalarType
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	void appendTextValue(Appendable appendable, Object context, ScalarType scalarType)
+	throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (isCDATA)
+			appendable.append(START_CDATA);
+		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
+		if (isCDATA)
+			appendable.append(END_CDATA);
+	}
+
+	/**
+	 * Append just the text value to the buffy. No element tags, but it does account for CDATA.
+	 * 
+	 * @param buffy
+	 * @param context
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	void appendTextValue(StringBuilder buffy, Object context) 
+	throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (context != null)
+		{
+			ScalarType scalarType = this.scalarType;
+			if (!scalarType.isDefaultValue(xmlTextScalarField, context))
+				appendTextValue(buffy, context, scalarType);
+		}
+		
+	}
 	/**
 	 * Use this and the context to append a leaf node with value to the Appendable passed in.
 	 * 
@@ -1235,7 +1175,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				writeOpenTag(appendable);
 
-				boolean isCdata = isCDATA();
 				if (isCDATA)
 					appendable.append(START_CDATA);
 				scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
@@ -1243,27 +1182,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					appendable.append(END_CDATA);
 
 				writeCloseTag(appendable);
-			}
-		}
-	}
-
-	void appendXmlText(Appendable appendable, Object context) throws IllegalArgumentException,
-			IllegalAccessException, IOException
-	{
-		if (context != null)
-		{
-			ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(xmlTextScalarField, context))
-			{
-				// for this field, generate <tag>value</tag>
-
-				boolean isCdata = isCDATA();
-				if (isCDATA)
-					appendable.append(START_CDATA);
-
-				scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
-				if (isCDATA)
-					appendable.append(END_CDATA);
 			}
 		}
 	}
@@ -1638,13 +1556,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	static final FieldDescriptor	IGNORED_ELEMENT_FIELD_DESCRIPTOR;
 
-	static final FieldDescriptor	ROOT_ELEMENT_FIELD_DESCRIPTOR;
 	static
 	{
 		IGNORED_ELEMENT_FIELD_DESCRIPTOR = new FieldDescriptor("IGNORED");
-
-		ROOT_ELEMENT_FIELD_DESCRIPTOR = new FieldDescriptor("ROOT");
-		ROOT_ELEMENT_FIELD_DESCRIPTOR.type = ROOT;
 	}
 
 	// ----------------------------- convenience methods ---------------------------------------//

@@ -299,7 +299,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			{
 				try
 				{
-					fieldDescriptor.appendXmlText(buffy, this);
+					classDescriptor().getScalarTextFD().appendXMLScalarText(buffy, this);
 				}
 				catch (Exception e)
 				{
@@ -525,10 +525,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
 				.elementFieldDescriptors();
-		int numElements = elementFieldDescriptors.size();
+		int numElements 		= elementFieldDescriptors.size();
 
-		// FIXME -- get rid of old textNode stuff. it doesnt even work
-		boolean hasXmlText = fieldDescriptor.hasXmlText();
+		boolean hasXmlText	= classDescriptor().hasScalarFD();
 		if ((numElements == 0) && !hasXmlText)
 		{
 			appendable.append('/').append('>'); // done! completely close element behind attributes
@@ -543,7 +542,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			{
 				try
 				{
-					fieldDescriptor.appendXmlText(appendable, this);
+					classDescriptor().getScalarTextFD().appendXMLScalarText(appendable, this);
 				}
 				catch (Exception e)
 				{
@@ -1202,10 +1201,5 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public ElementState lookupNestedNameSpace(String id)
 	{
 		return (nestedNameSpaces == null) ? null : nestedNameSpaces.get(id);
-	}
-
-	public boolean hasScalarTextField()
-	{
-		return classDescriptor().hasScalarTextField();
 	}
 }

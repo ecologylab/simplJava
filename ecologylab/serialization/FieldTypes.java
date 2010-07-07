@@ -9,13 +9,11 @@ public interface FieldTypes
 	 */
 	public static final int	BAD_FIELD									= -99;
 
-	public static final int	NAMESPACE_IGNORED_ELEMENT	= 0;
-
 	public static final int	IGNORED_ATTRIBUTE					= -1;
 
 	public static final int SCALAR										= 0x12;
 
-	public static final int	NESTED_ELEMENT						= 3;
+	public static final int	COMPOSITE_ELEMENT						= 3;
 	
 	
 
@@ -23,7 +21,7 @@ public interface FieldTypes
 	 * This means that we don't bother to parse the element, because the programmer developing
 	 * ElementState subclasses did not bother to create fields that use it.
 	 */
-	public static final int	IGNORED_ELEMENT						= -NESTED_ELEMENT;
+	public static final int	IGNORED_ELEMENT						= -3;
 
 	public static final int	COLLECTION_ELEMENT				= 4;
 
@@ -33,19 +31,14 @@ public interface FieldTypes
 
 	public static final int	MAP_SCALAR								= 7;
 
-	/**
-	 * Root node type
-	 */
-	// TODO -- should this be merged with PSEUDO_FIELD_DESCRIPTOR
-	public static final int	ROOT											= 8;
-
-	public static final int	TEXT_ELEMENT							= 9;
 
 	public static final int	WRAPPER										= 0x0a;
 
-	public static final int	TEXT_NODE_VALUE						= 0x0c;
-
 	public static final int	PSEUDO_FIELD_DESCRIPTOR		= 0x0d;
+	
+	
+
+	public static final int	NAMESPACE_IGNORED_ELEMENT	= -2;
 
 	public static final int	XMLNS_ATTRIBUTE						= 0x0e;
 
@@ -55,9 +48,9 @@ public interface FieldTypes
 
 	public static final int	NAMESPACE_TRIAL_ELEMENT		= NAME_SPACE_MASK;
 
-	public static final int	NAME_SPACE_SCALAR			= NAME_SPACE_MASK + SCALAR;
+	public static final int	NAME_SPACE_SCALAR					= NAME_SPACE_MASK + SCALAR;
 
-	public static final int	NAME_SPACE_NESTED_ELEMENT	= NAME_SPACE_MASK + NESTED_ELEMENT;
+	public static final int	NAME_SPACE_NESTED_ELEMENT	= NAME_SPACE_MASK + COMPOSITE_ELEMENT;
 //
 //	public static final int	NAME_SPACE_LEAF_NODE			= NAME_SPACE_MASK + LEAF;
 

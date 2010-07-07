@@ -50,6 +50,22 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	private FieldDescriptor																scalarTextFD;
 
+	FieldDescriptor getScalarTextFD()
+	{
+		return scalarTextFD;
+	}
+
+	void setScalarTextFD(FieldDescriptor scalarTextFD)
+	{
+		this.scalarTextFD = scalarTextFD;
+	}
+	
+	public boolean hasScalarFD()
+	{
+		return scalarTextFD != null;
+	}
+
+
 	private boolean																				isGetAndOrganizeComplete;
 
 	/**
@@ -352,7 +368,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
-				fieldType				= NESTED_ELEMENT;
+				fieldType				= COMPOSITE_ELEMENT;
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
@@ -367,12 +383,27 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
 
-			// create indexes for translateToXML
-			if (fieldDescriptor.getXmlHint() == Hint.XML_ATTRIBUTE)
-				attributeFieldDescriptors.add(fieldDescriptor);
+			// create indexes for serialize
+			if (fieldType == SCALAR)
+			{
+				Hint xmlHint = fieldDescriptor.getXmlHint();
+				switch (xmlHint)
+				{
+				case XML_ATTRIBUTE:
+					attributeFieldDescriptors.add(fieldDescriptor);
+					break;
+				case XML_TEXT:
+				case XML_TEXT_CDATA:
+					break;
+				case XML_LEAF:
+				case XML_LEAF_CDATA:
+					elementFieldDescriptors.add(fieldDescriptor);
+					break;
+				}
+			}
 			else
 				elementFieldDescriptors.add(fieldDescriptor);
-
+			
 			// TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
 			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
@@ -579,16 +610,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public Class<ES> describedClass()
 	{
 		return describedClass;
-	}
-
-	FieldDescriptor scalarTextFD()
-	{
-		return scalarTextFD;
-	}
-
-	public boolean hasScalarTextField()
-	{
-		return scalarTextFD != null;
 	}
 
 	public Class<ES> getDescribedClass()
