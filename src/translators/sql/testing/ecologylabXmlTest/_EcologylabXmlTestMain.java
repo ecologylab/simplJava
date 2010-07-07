@@ -39,7 +39,7 @@ public class _EcologylabXmlTestMain
 		System.out.println('\n');
 		
 		/*translate from xml to java*/
-		ElementState c2	= TranslationScope.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
+		ElementState c2	= RssTranslationsTest.get().deserializeCharSequence(buffy);
 		
 		System.out.println("retranslated by ElementState");
 		System.out.println(c2.getClass().getCanonicalName());

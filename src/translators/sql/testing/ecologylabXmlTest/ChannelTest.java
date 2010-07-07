@@ -119,7 +119,7 @@ public @simpl_inherit class ChannelTest extends ElementState
 			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
-			ElementState c2	= TranslationScope.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
+			ElementState c2	= RssTranslationsTest.get().deserializeCharSequence(buffy);
 			System.out.println("retranslated by ElementState");
 			System.out.println(c2.getClass().getCanonicalName());
 			System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 

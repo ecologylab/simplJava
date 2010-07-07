@@ -197,7 +197,7 @@ public class RssStateTest extends ElementState
 		{
 //		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 //			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
-			rss = TranslationScope.translateFromXML(CNN_TOP_FEED, RssTranslationsTest.get());
+			rss = RssTranslationsTest.get().deserialize(CNN_TOP_FEED);
 			
 			System.out.println("");
 			rss.serialize(System.out);
@@ -239,7 +239,7 @@ public class RssStateTest extends ElementState
 			ParsedURL feedPURL	= DELICIOUS_FEED; // FLICKR_FEED;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
-			RssStateTest rssState	= (RssStateTest) TranslationScope.translateFromXML(feedPURL, RssTranslationsTest.get());
+			RssStateTest rssState	= (RssStateTest) RssTranslationsTest.get().deserialize(feedPURL);
 //			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
 			ArrayList<ItemTest> items	= rssState.getChannel().items; //rssState.getChannel().getItems();
