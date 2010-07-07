@@ -613,8 +613,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		String startLineString = null;
 		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
 		{ // normal case
-			return (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageCharSequence,
-					translationScope);
+			return (RequestMessage) translationScope.deserializeCharSequence(messageCharSequence);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
 		{ // get case
@@ -632,8 +631,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			if (!messageString.startsWith("<"))
 				messageString = messageString.substring(messageString.indexOf('=') + 1);
 
-			return (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageString,
-					translationScope);
+			return (RequestMessage) translationScope.deserializeCharSequence(messageString);
 		}
 		else
 		{ // made of fail case

@@ -170,7 +170,7 @@ public class MetaPrefSet extends ElementState
     public static MetaPrefSet load(ParsedURL purl, TranslationScope translationScope) 
     throws SIMPLTranslationException
     {
-		 return (MetaPrefSet) TranslationScope.translateFromXML(purl, translationScope);
+		 return (MetaPrefSet) translationScope.deserialize(purl);
     	
     }
 

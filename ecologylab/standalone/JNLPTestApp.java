@@ -26,7 +26,7 @@ public class JNLPTestApp
 		JnlpState jnlp;
 		try
 		{
-			jnlp = (JnlpState) TranslationScope.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());
+			jnlp = (JnlpState) JnlpTranslations.get().deserialize("c:\\jnlptest.jnlp");
 
 			Debug.println("...done.");
 

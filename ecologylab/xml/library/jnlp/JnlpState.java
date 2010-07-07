@@ -195,8 +195,8 @@ public class JnlpState extends ElementState implements Cloneable
 				+ "    <argument>http://localhost:8080/rogue/lib/</argument>\n"
 				+ "  </application-desc>\n" + "</jnlp> \n" + "";
 
-		JnlpState j = (JnlpState) TranslationScope.translateFromXMLCharSequence(
-				jnlpContents, JnlpTranslations.get());
+		JnlpState j = (JnlpState) JnlpTranslations.get().deserializeCharSequence(
+				jnlpContents);
 
 		ArrayList<InformationElement> infos = j.getInformations();
 		for (InformationElement i : infos)
@@ -231,8 +231,8 @@ public class JnlpState extends ElementState implements Cloneable
 		// a bit of a hack, but it's easy! :D
 		try
 		{
-			return (JnlpState) TranslationScope.translateFromXMLCharSequence(this
-					.serialize(), JnlpTranslations.get());
+			return (JnlpState) JnlpTranslations.get().deserializeCharSequence(this
+					.serialize());
 		}
 		catch (SIMPLTranslationException e)
 		{

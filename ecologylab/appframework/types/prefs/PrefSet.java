@@ -96,7 +96,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		File file = purl.file();
 		PrefSet pS = null;
 		if ((file != null) && file.exists())
-			pS = (PrefSet) TranslationScope.translateFromXML(purl, translationScope);
+			pS = (PrefSet) translationScope.deserialize(purl);
 
 		return pS;
 	}
@@ -113,7 +113,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public static PrefSet load(String filename, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) TranslationScope.translateFromXML(filename, translationScope);
+		PrefSet pS = (PrefSet) translationScope.deserialize(filename);
 
 		return pS;
 	}
@@ -130,7 +130,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) TranslationScope.translateFromXMLCharSequence(prefXML, translationScope);
+		PrefSet pS = (PrefSet) translationScope.deserializeCharSequence(prefXML);
 
 		return pS;
 	}

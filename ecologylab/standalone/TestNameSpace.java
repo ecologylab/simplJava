@@ -27,7 +27,7 @@ public class TestNameSpace
 						= RESTTranslationSpace.get(); 
 		try 
 		{
-			Fields fields= (Fields) TranslationScope.translateFromXML(xmlFile, tSpace);
+			Fields fields= (Fields) tSpace.deserialize(xmlFile);
 			System.out.println("Fields: \n" + fields.toString());
 		} catch (SIMPLTranslationException e) 
 		{

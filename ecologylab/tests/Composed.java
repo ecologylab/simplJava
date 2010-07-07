@@ -40,7 +40,7 @@ public class Composed extends ElementState
         
 		System.out.println(translatedXML);
         
-        Composed retranslated	= (Composed) TranslationScope.translateFromXMLCharSequence(translatedXML, ts);
+        Composed retranslated	= (Composed) ts.deserializeCharSequence(translatedXML);
 //        Composed retranslated	= (Composed) ElementState.translateFromXMLSAX(translatedXML, ts);
         
         c.serialize(System.out);

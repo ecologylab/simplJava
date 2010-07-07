@@ -157,7 +157,7 @@ implements ApplicationProperties
 		{
 			try
 			{
-				assetsState			= (AssetsState) TranslationScope.translateFromXML(assetsXmlFile, AssetsTranslations.get());
+				assetsState			= (AssetsState) AssetsTranslations.get().deserialize(assetsXmlFile);
 
 			} catch (SIMPLTranslationException e)
 			{

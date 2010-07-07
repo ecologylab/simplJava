@@ -49,8 +49,8 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         }
         
         System.out.println(test.serialize());
-        System.out.println(TranslationScope.translateFromXMLCharSequence(test.serialize(),
-                TranslationScope.get("test", classes)).serialize());
+        TranslationScope translationScope = TranslationScope.get("test", classes);
+				System.out.println(translationScope.deserializeCharSequence(test.serialize()).serialize());
         
 //        System.out.println(taggies.translateToXML());
 //        System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),

@@ -306,7 +306,7 @@ public class ParsedURL extends Debug implements MimeType
 	public ElementState translateFromXML(TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		return TranslationScope.translateFromXML(this, translationScope);
+		return translationScope.deserialize(this);
 	}
 
 	public static URL getURL(URL base, String path, String error)

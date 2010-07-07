@@ -66,7 +66,7 @@ public class Schmannel extends ElementState
 			System.out.println('\n');
 			TRANSLATION_SPACE.serialize(System.out);
 			System.out.println('\n');
-			ElementState s2	= TranslationScope.translateFromXMLCharSequence(buffy, TRANSLATION_SPACE);
+			ElementState s2	= TRANSLATION_SPACE.deserializeCharSequence(buffy);
 			s2.serialize(System.out);
 		}
 		catch (SIMPLTranslationException e)
@@ -81,7 +81,7 @@ public class Schmannel extends ElementState
 	{
 		try
 		{
-			ElementState rap	= TranslationScope.translateFromXMLCharSequence(ITEMS, TRANSLATION_SPACE);
+			ElementState rap	= TRANSLATION_SPACE.deserializeCharSequence(ITEMS);
 			rap.serialize(System.out);
 			System.out.println('\n');
 //			println(c.translateToXML());

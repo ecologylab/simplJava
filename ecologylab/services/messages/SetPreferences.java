@@ -35,7 +35,7 @@ extends RequestMessage
 	public SetPreferences(String preferencesSetString, TranslationScope translationScope)
 	throws SIMPLTranslationException
 	{
-		this((PrefSet) TranslationScope.translateFromXMLCharSequence(preferencesSetString, translationScope));
+		this((PrefSet) translationScope.deserializeCharSequence(preferencesSetString));
 	}
 
 	/**

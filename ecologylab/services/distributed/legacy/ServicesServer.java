@@ -213,8 +213,7 @@ public class ServicesServer extends ServicesServerBase
     public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
             throws SIMPLTranslationException
     {
-        RequestMessage requestMessage = (RequestMessage) TranslationScope.translateFromXMLCharSequence(messageString,
-                requestTranslationSpace);
+        RequestMessage requestMessage = (RequestMessage) requestTranslationSpace.deserializeCharSequence(messageString);
         return requestMessage;
     }
 

@@ -43,7 +43,7 @@ import ecologylab.xml.simpl_inherit;
 
 			StringBuilder buffy = l.serialize((StringBuilder) null);
 			System.out.println("");
-			ElementState l2 = TranslationScope.translateFromXMLCharSequence(buffy.toString(), TS);
+			ElementState l2 = TS.deserializeCharSequence(buffy.toString());
 			l2.serialize(System.out);
 		}
 		catch (SIMPLTranslationException e)

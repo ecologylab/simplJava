@@ -140,8 +140,8 @@ public abstract class ServicesClientBase extends Debug implements
             String messageString, boolean doRecursiveDescent)
             throws SIMPLTranslationException
     {
-        return (ResponseMessage) TranslationScope.translateFromXMLCharSequence(
-                messageString, translationScope);
+        return (ResponseMessage) translationScope.deserializeCharSequence(
+                messageString);
     }
 
     /**

@@ -137,7 +137,7 @@ public class PURLTester extends ElementState {
 		TranslationScope ts = TranslationScope.get("testerscope", PURLTester.class, ParsedURL.class);
 		try {
 			tester.serialize("tester.xml");
-			PURLTester other = (PURLTester) TranslationScope.translateFromXML("tester.xml", ts);
+			PURLTester other = (PURLTester) ts.deserialize("tester.xml");
 			/* I put a breakpoint here to manually inspect other
 			 * to make sure it was read back in correctly -- Marty
 			 */

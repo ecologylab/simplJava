@@ -116,7 +116,7 @@ public @simpl_inherit class Channel extends ElementState
 			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
-			ElementState c2	= TranslationScope.translateFromXMLCharSequence(buffy, RssTranslations.get());
+			ElementState c2	= RssTranslations.get().deserializeCharSequence(buffy);
 			c2.serialize(System.out);
 //			println(c.translateToXML());
 		} catch (SIMPLTranslationException e)

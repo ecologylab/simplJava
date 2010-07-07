@@ -908,34 +908,29 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param fileName
 	 *          the name of the XML file that needs to be translated.
-	 * @param translationScope
-	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
-	 * 
 	 * @return Strongly typed tree of ElementState objects.
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
+	public ElementState deserialize(String fileName)
 			throws SIMPLTranslationException
 	{
 		File xmlFile = new File(fileName);
 		if (!xmlFile.exists() && !xmlFile.canRead())
 			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
 	
-		return translateFromXML(xmlFile, translationScope);
+		return deserialize(xmlFile);
 	}
 
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param charSequence
-	 * @param translationScope
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXMLCharSequence(CharSequence charSequence,
-			TranslationScope translationScope) throws SIMPLTranslationException
+	public ElementState deserializeCharSequence(CharSequence charSequence) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(charSequence);
 	}
 
@@ -943,11 +938,10 @@ public final class TranslationScope extends ElementState
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param purl
-	 * @param translationScope
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(ParsedURL purl, TranslationScope translationScope)
+	public ElementState deserialize(ParsedURL purl)
 			throws SIMPLTranslationException
 	{
 		if (purl == null)
@@ -956,7 +950,7 @@ public final class TranslationScope extends ElementState
 		if (!purl.isNotFileOrExists())
 			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 	
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(purl);
 	}
 
@@ -965,14 +959,12 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param inputStream
 	 *          An InputStream to the XML that needs to be translated.
-	 * @param translationScope
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(InputStream inputStream,
-			TranslationScope translationScope) throws SIMPLTranslationException
+	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(inputStream);
 	}
 
@@ -980,14 +972,13 @@ public final class TranslationScope extends ElementState
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param url
-	 * @param translationScope
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(URL url, TranslationScope translationScope)
+	public ElementState deserialize(URL url)
 			throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(url);
 	}
 
@@ -995,14 +986,13 @@ public final class TranslationScope extends ElementState
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param file
-	 * @param translationScope
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(File file, TranslationScope translationScope)
+	public ElementState deserialize(File file)
 			throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(file);
 	}
 

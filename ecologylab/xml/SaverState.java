@@ -39,7 +39,7 @@ public class SaverState extends ElementState
 	public static SaverState translateFromXML(File xmlFile, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) TranslationScope.translateFromXML(xmlFile, translationScope);
+		SaverState saverState = (SaverState) translationScope.deserialize(xmlFile);
 		saverState.setBackingFilePath(xmlFile.getAbsolutePath());
 
 		return saverState;
@@ -61,7 +61,7 @@ public class SaverState extends ElementState
 	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
 			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) TranslationScope.translateFromXML(fileName, translationScope);
+		SaverState saverState = (SaverState) translationScope.deserialize(fileName);
 		saverState.setBackingFilePath(fileName);
 
 		return saverState;

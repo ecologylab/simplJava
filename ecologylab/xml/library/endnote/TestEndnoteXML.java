@@ -16,7 +16,7 @@ public class TestEndnoteXML
     {
         try
         {
-            XmlState fromFile = (XmlState) TranslationScope.translateFromXML("/Users/toupsz/Desktop/RSBib.xml", EndnoteNameSpace.get());
+            XmlState fromFile = (XmlState) EndnoteNameSpace.get().deserialize("/Users/toupsz/Desktop/RSBib.xml");
             
             System.out.println(fromFile.serialize());
         }

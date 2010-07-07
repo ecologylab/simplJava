@@ -572,8 +572,8 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									messageBuffer.flip();
 
-									ServiceMessage<S> message = (ServiceMessage<S>) TranslationScope
-											.translateFromXMLCharSequence(messageBuffer, translationScope);
+									ServiceMessage<S> message = (ServiceMessage<S>) translationScope
+											.deserializeCharSequence(messageBuffer);
 									message.setSender(((InetSocketAddress) address).getAddress());
 
 									PacketHandler handler = handlerPool.acquire();

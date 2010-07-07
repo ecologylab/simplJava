@@ -141,8 +141,8 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
             String messageString, boolean doRecursiveDescent)
             throws SIMPLTranslationException
     {
-        RequestMessage requestMessage = (RequestMessage) TranslationScope
-                .translateFromXMLCharSequence(messageString, requestTranslationSpace);
+        RequestMessage requestMessage = (RequestMessage) requestTranslationSpace
+                .deserializeCharSequence(messageString);
         return requestMessage;
     }
 

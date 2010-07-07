@@ -1354,8 +1354,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	protected MessageWithMetadata<ResponseMessage, Object> translateXMLStringToResponse(
 			String messageString, int incomingUid) throws SIMPLTranslationException
 	{
-		ResponseMessage resp = (ResponseMessage) TranslationScope.translateFromXMLCharSequence(
-				messageString, translationScope);
+		ResponseMessage resp = (ResponseMessage) translationScope.deserializeCharSequence(
+				messageString);
 
 		if (resp == null)
 		{
