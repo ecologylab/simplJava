@@ -4,7 +4,7 @@
 package ecologylab.appframework.types;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.TranslationScope;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * Simple translations used just for loading the assets.xml file.

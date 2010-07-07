@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Iterator;
 
-import ecologylab.xml.FieldDescriptor;
+import ecologylab.serialization.FieldDescriptor;
 
 /**
  * Iterates through a Collection of things, and then through an Iterator

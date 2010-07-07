@@ -4,8 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.types.element.ElementTypeTranslationsProvider;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
 
 /**
  * Translations for the pref/meta_pref system.

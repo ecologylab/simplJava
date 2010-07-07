@@ -9,8 +9,8 @@ import java.net.UnknownHostException;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.NetTools;
-import ecologylab.services.distributed.client.NIOClient;
-import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
+import ecologylab.oodss.distributed.client.NIOClient;
+import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

@@ -6,10 +6,10 @@ package ecologylab.standalone;
 import java.io.IOException;
 
 import ecologylab.collections.Scope;
-import ecologylab.services.distributed.client.NIOClient;
-import ecologylab.services.distributed.exception.MessageTooLargeException;
-import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.services.messages.Ping;
+import ecologylab.oodss.distributed.client.NIOClient;
+import ecologylab.oodss.distributed.exception.MessageTooLargeException;
+import ecologylab.oodss.messages.DefaultServicesTranslations;
+import ecologylab.oodss.messages.Ping;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

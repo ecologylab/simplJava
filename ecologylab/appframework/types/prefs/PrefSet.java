@@ -11,10 +11,10 @@ import java.util.Set;
 
 import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.simpl_inherit;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * A serial set of Pref objects. Used for reading and writing (load and save). The static
@@ -148,7 +148,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	}
 
 	/**
-	 * @see ecologylab.xml.types.element.HashMapState#clone()
+	 * @see ecologylab.serialization.types.element.HashMapState#clone()
 	 */
 	@Override
 	public PrefSet clone()

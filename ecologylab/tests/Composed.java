@@ -5,10 +5,10 @@ package ecologylab.tests;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.ElementState.xml_tag;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.ElementState.xml_tag;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *

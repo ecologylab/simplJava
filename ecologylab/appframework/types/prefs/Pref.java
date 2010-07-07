@@ -9,9 +9,9 @@ import java.util.LinkedList;
 
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.collections.Scope;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.simpl_inherit;
-import ecologylab.xml.types.element.Mappable;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.types.element.Mappable;
 
 /**
  * Generic base class for application Preference objects.
@@ -602,7 +602,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	}
 
 	/**
-	 * @see ecologylab.xml.types.element.Mappable#key()
+	 * @see ecologylab.serialization.types.element.Mappable#key()
 	 */
 	public String key()
 	{
@@ -610,7 +610,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	}
 
 	/**
-	 * @see ecologylab.xml.types.element.ArrayListState#clone() This clone method is REQUIRED for
+	 * @see ecologylab.serialization.types.element.ArrayListState#clone() This clone method is REQUIRED for
 	 *      preferences being maintained by a servlet. The specific case that we have in place (dec
 	 *      '09) that uses this is the Studies framework. The clone functionality enables maintaining
 	 *      a preference set for each user in a user study.

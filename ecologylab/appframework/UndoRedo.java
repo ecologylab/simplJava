@@ -4,7 +4,7 @@ import ecologylab.generic.Debug;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.collections.SyncLinkedList;
-import ecologylab.services.logging.MixedInitiativeOp;
+import ecologylab.oodss.logging.MixedInitiativeOp;
 
 /**
  * Undo and Redo Mixed Initiative Operations. 

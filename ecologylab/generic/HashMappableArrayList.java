@@ -6,7 +6,7 @@ package ecologylab.generic;
 import java.util.Collection;
 import java.util.Map;
 
-import ecologylab.xml.types.element.Mappable;
+import ecologylab.serialization.types.element.Mappable;
 
 /**
  * A HashMap with an ArrayList backing store, for speedy linear and hashed access.

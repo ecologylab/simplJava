@@ -2,7 +2,7 @@ package ecologylab.generic;
 
 import java.lang.Object;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 /**
  * Reference version of a double type. Re-writable, unlike java.lang.Double.

@@ -3,8 +3,8 @@ package ecologylab.appframework.types;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.simpl_inherit;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Handles the loading and parsing of the asset version XML file

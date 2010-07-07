@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.TranslationsClassProvider;
+import ecologylab.serialization.TranslationsClassProvider;
 
 /**
  * Provides the list of Class'es used for translating the PrefSet class. This class is used to
@@ -20,7 +20,7 @@ public class PrefSetBaseClassProvider extends TranslationsClassProvider
 	}
 
 	/**
-	 * @see ecologylab.xml.TranslationsClassProvider#specificSuppliedClasses()
+	 * @see ecologylab.serialization.TranslationsClassProvider#specificSuppliedClasses()
 	 */
 	@Override
 	protected Class<? extends Pref<?>>[] specificSuppliedClasses()

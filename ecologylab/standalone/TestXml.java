@@ -5,10 +5,10 @@ package ecologylab.standalone;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.ElementState.simpl_nowrap;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.ElementState.simpl_nowrap;
 
 /**
  *

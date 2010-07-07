@@ -7,7 +7,7 @@ import java.io.File;
 
 import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.xml.simpl_inherit;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Pref indicating a File. Stores a value that indicates either an absolute path, or one relative to

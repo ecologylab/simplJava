@@ -5,8 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 
-import ecologylab.xml.types.scalar.ScalarType;
-import ecologylab.xml.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.scalar.ScalarType;
+import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
  * @author awebb

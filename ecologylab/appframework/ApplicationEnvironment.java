@@ -24,11 +24,11 @@ import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
 import ecologylab.net.ParsedURL;
-import ecologylab.services.messages.DefaultServicesTranslations;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.XMLTranslationExceptionTypes;
+import ecologylab.oodss.messages.DefaultServicesTranslations;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLTranslationExceptionTypes;
 
 /**
  * An instance of Environment, which is an application, rather than an applet, or a servlet. The
@@ -120,8 +120,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param applicationName
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
@@ -145,8 +145,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param applicationName
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param customPrefs TODO
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
@@ -168,8 +168,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param applicationName
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param sessionScope
 	 * @param customPrefs
 	 * @param args
@@ -194,8 +194,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param applicationName
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param customPrefsTranslationScope TODO
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
@@ -234,12 +234,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * is a 0th command line argument, that is the name of an additional preferences file.
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.messages.DefaultServicesTranslations
-	 * ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 * ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * 
 	 * @param applicationName
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
@@ -264,8 +264,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.messages.DefaultServicesTranslations
-	 * ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 * ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * 
 	 * @param baseClass
 	 *          Used for computing codeBase property.
@@ -321,8 +321,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.messages.DefaultServicesTranslations
-	 * ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 * ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * 
 	 * @param baseClass
 	 *          Used for computing codeBase property.
@@ -330,8 +330,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          Name of the application.
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
@@ -374,8 +374,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * Also, sets the Assets cacheRoot to the applicationDir().
 	 * <p/>
 	 * The default TranslationSpace, from
-	 * {@link ecologylab.services.messages.DefaultServicesTranslations
-	 * ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 * {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 * ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * 
 	 * @param baseClass
 	 *          Used for computing codeBase property.
@@ -383,8 +383,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          Name of the application.
 	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
-	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
-	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
+	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
+	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
 	 * @param customPrefs
 	 *          An array of Pref subclasses that are used for this specific application. These classes
 	 *          will be automatically composed into a special translation scope used for translating

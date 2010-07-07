@@ -3,9 +3,9 @@
  */
 package ecologylab.tests;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

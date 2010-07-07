@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.simpl_inherit;
-import ecologylab.xml.types.scalar.ScalarType;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.types.scalar.ScalarType;
 
 /**
  * Metadata about a Preference.

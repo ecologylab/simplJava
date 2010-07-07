@@ -3,8 +3,8 @@
  */
 package ecologylab.standalone.xmlpolymorph;
 
-import ecologylab.xml.simpl_inherit;
-import ecologylab.xml.library.rss.Item;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.library.rss.Item;
 
 /**
  * @author andruid

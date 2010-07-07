@@ -1,6 +1,6 @@
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 /**
  * Multi-choice option for a preference.

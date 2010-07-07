@@ -4,10 +4,10 @@
 package ecologylab.standalone;
 
 import ecologylab.generic.Debug;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.library.jnlp.JnlpState;
-import ecologylab.xml.library.jnlp.JnlpTranslations;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.library.jnlp.JnlpState;
+import ecologylab.serialization.library.jnlp.JnlpTranslations;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.UnknownHostException;
 
-import ecologylab.services.distributed.client.NIOClient;
+import ecologylab.oodss.distributed.client.NIOClient;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

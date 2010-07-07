@@ -2,10 +2,10 @@ package ecologylab.standalone;
 
 import java.io.File;
 
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.library.rest.Fields;
-import ecologylab.xml.library.rest.RESTTranslationSpace;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.library.rest.Fields;
+import ecologylab.serialization.library.rest.RESTTranslationSpace;
 
 public class TestNameSpace 
 {

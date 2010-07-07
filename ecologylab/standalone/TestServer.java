@@ -8,8 +8,8 @@ import java.net.BindException;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.NetTools;
-import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.services.messages.DefaultServicesTranslations;
+import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
+import ecologylab.oodss.messages.DefaultServicesTranslations;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

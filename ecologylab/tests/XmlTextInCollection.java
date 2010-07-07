@@ -5,7 +5,7 @@ package ecologylab.tests;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.library.xaml.TextBlockState;
+import ecologylab.serialization.library.xaml.TextBlockState;
 /**
  * @author awebb
  *

@@ -3,8 +3,8 @@
  */
 package ecologylab.tests;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_tag;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.xml_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

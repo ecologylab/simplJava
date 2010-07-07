@@ -5,13 +5,13 @@ package ecologylab.standalone.xmlpolymorph;
 
 import java.util.ArrayList;
 
-import ecologylab.xml.ElementState;
-import ecologylab.xml.TranslationScope;
-import ecologylab.xml.SIMPLTranslationException;
-import ecologylab.xml.ElementState.simpl_collection;
-import ecologylab.xml.library.rss.Channel;
-import ecologylab.xml.library.rss.Item;
-import ecologylab.xml.library.rss.RssTranslations;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.ElementState.simpl_collection;
+import ecologylab.serialization.library.rss.Channel;
+import ecologylab.serialization.library.rss.Item;
+import ecologylab.serialization.library.rss.RssTranslations;
 
 /**
  * @author andruid

@@ -1,6 +1,6 @@
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 abstract public class RangeState<T extends Comparable> extends ElementState
 {

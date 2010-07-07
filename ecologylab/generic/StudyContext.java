@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import ecologylab.xml.TranslationScope;
+import ecologylab.serialization.TranslationScope;
 
 public interface StudyContext 
 {

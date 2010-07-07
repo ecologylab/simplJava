@@ -3,9 +3,9 @@ package ecologylab.textformat;
 import java.awt.Color;
 
 import ecologylab.appframework.types.prefs.Pref;
-import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.simpl_scalar;
-import ecologylab.xml.types.element.Mappable;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.types.element.Mappable;
 
 /**
  * Set of variables that control the font style. May contain a name.

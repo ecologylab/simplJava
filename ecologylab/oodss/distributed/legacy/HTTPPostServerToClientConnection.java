@@ -1,0 +1,57 @@
+package ecologylab.oodss.distributed.legacy;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+
+import ecologylab.oodss.messages.IgnoreRequest;
+import ecologylab.oodss.messages.RequestMessage;
+import ecologylab.serialization.SIMPLTranslationException;
+
+/**
+ * parses HTTP Post request message 
+ * It ignore messages by sending IgnoreRequest when it gets the header strings. 
+ * It only translates strings of body messages to XML RequestMessage.  
+ * 
+ * @author eunyee
+ *
+ */
+@Deprecated public class HTTPPostServerToClientConnection extends ServerToClientConnection
+{
+
+	public HTTPPostServerToClientConnection(Socket incomingSocket, ServicesServer servicesServer) 
+		throws IOException 
+	{
+		super(incomingSocket, servicesServer);
+	}
+	
+	boolean HTTP_HEADER_END = false;
+    /**
+     * Use the ServicesServer and its ObjectRegistry to do the translation. 
+     * 
+     * @param messageString
+     * @return
+     * @throws SIMPLTranslationException
+     */
+    protected RequestMessage translateXMLStringToRequestMessage(
+            String messageString) throws SIMPLTranslationException, UnsupportedEncodingException
+    {
+        int messageLineLength = messageString.getBytes().length;
+        if (HTTP_HEADER_END)
+        {
+            RequestMessage requestMessage = servicesServer
+                    .translateXMLStringToRequestMessage(messageString, true);
+            debug("THIS REQUEST MESSAGE : "
+                    + requestMessage.serialize());
+
+            return requestMessage;
+        }
+        if ((messageLineLength == 2) && "\n\r".equals(messageString))
+        {
+            HTTP_HEADER_END = true;
+        }
+
+        return IgnoreRequest.get();
+
+    }
+}

@@ -3,9 +3,9 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.simpl_inherit;
-import ecologylab.xml.types.scalar.ScalarType;
-import ecologylab.xml.types.scalar.TypeRegistry;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.types.scalar.ScalarType;
+import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
  * Metadata about a Boolean Preference.

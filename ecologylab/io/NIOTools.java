@@ -12,7 +12,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import ecologylab.generic.*;
-import ecologylab.xml.XMLTools;
+import ecologylab.serialization.XMLTools;
 /**
  * Utility class for managing memory mapped buffers. 
  * 

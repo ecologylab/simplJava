@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types;
 
-import ecologylab.xml.ElementState;
+import ecologylab.serialization.ElementState;
 
 /**
  * @author robinson

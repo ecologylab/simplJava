@@ -3,8 +3,8 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.services.logging.MixedInitiativeOp;
-import ecologylab.xml.simpl_inherit;
+import ecologylab.oodss.logging.MixedInitiativeOp;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * @author damaraju

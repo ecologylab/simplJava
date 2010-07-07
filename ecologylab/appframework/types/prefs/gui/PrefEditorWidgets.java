@@ -46,7 +46,7 @@ import ecologylab.appframework.types.prefs.ValueChangedListener;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.serialization.SIMPLTranslationException;
 
 /**
  * Contains methods for creating widgets associated with Prefs.
