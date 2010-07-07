@@ -6,6 +6,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.Hint;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -118,7 +119,7 @@ public @simpl_inherit class ChannelTest extends ElementState
 			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
-			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
+			ElementState c2	= TranslationScope.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
 			System.out.println("retranslated by ElementState");
 			System.out.println(c2.getClass().getCanonicalName());
 			System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 

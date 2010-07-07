@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.SIMPLTranslationException;
+import ecologylab.xml.TranslationScope;
 
 public class _EcologylabXmlTestMain
 {
@@ -38,7 +39,7 @@ public class _EcologylabXmlTestMain
 		System.out.println('\n');
 		
 		/*translate from xml to java*/
-		ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
+		ElementState c2	= TranslationScope.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
 		
 		System.out.println("retranslated by ElementState");
 		System.out.println(c2.getClass().getCanonicalName());
