@@ -16,7 +16,7 @@ import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -61,7 +61,7 @@ public final class SendPrologue extends LogueMessage
 			bufferToLog.insert(0, beginLog());
 			bufferToLog.append(Logging.OP_SEQUENCE_START);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

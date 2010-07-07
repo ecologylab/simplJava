@@ -13,7 +13,7 @@ import ecologylab.services.distributed.common.ServerConstants;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -124,7 +124,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
                 debug("IO ERROR: " + e.getMessage());
                 e.printStackTrace();
             }
-            catch (XMLTranslationException e)
+            catch (SIMPLTranslationException e)
             {
                 // report error on XML passed through the socket
                 debug("Bogus Message ERROR: " + messageString);
@@ -140,7 +140,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
                         // sendResponse(ResponseMessage.BADTransmissionResponse());
                         sendResponse(null, new BadTransmissionResponse());
                     }
-                    catch (XMLTranslationException e1)
+                    catch (SIMPLTranslationException e1)
                     {
                         // TODO Auto-generated catch block
                         e1.printStackTrace();
@@ -166,10 +166,10 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      * 
      * @param messageString
      * @return
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XMLTranslationException,
+            String messageString) throws SIMPLTranslationException,
             UnsupportedEncodingException
     {
         RequestMessage requestMessage = servicesServer
@@ -208,10 +208,10 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
      * 
      * @return True if the connection should be terminated after this.
      * 
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
     protected boolean sendResponse(RequestMessage requestMessage,
-            ResponseMessage responseMessage) throws XMLTranslationException
+            ResponseMessage responseMessage) throws SIMPLTranslationException
     {
         responseMessage.setUid(requestMessage.getUid());
         sendResponse(responseMessage.serialize());
@@ -220,7 +220,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
     }
 
     protected void sendResponse(CharSequence responseString)
-            throws XMLTranslationException
+            throws SIMPLTranslationException
     {
         // send the response
         if (outputStreamWriter != null)

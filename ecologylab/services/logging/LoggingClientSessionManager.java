@@ -28,14 +28,14 @@ public class LoggingClientSessionManager extends ClientSessionManager<LoggingCon
 	 * @param loggingServer
 	 * @param server
 	 * @param socket
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param registry
 	 */
 	public LoggingClientSessionManager(String sessionId, int maxPacketSize,
 			NIOLoggingServer loggingServer, NIOServerIOThread server, SelectionKey sk,
-			TranslationScope translationSpace, Scope registry)
+			TranslationScope translationScope, Scope registry)
 	{
-		super(sessionId, maxPacketSize, server, loggingServer, sk, translationSpace, registry);
+		super(sessionId, maxPacketSize, server, loggingServer, sk, translationScope, registry);
 	}
 
 	@Override

@@ -2,7 +2,7 @@ package ecologylab.services.logging;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -46,7 +46,7 @@ import ecologylab.xml.simpl_inherit;
 			ElementState l2 = ElementState.translateFromXMLCharSequence(buffy.toString(), TS);
 			l2.serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages;
 
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Interface to indicate that a message can be sent over the network. Used for type checking in
@@ -19,7 +19,7 @@ public interface SendableRequest
 	/**
 	 * @param requestBuffer
 	 */
-	StringBuilder serialize(StringBuilder requestBuffer)	throws XMLTranslationException;
+	StringBuilder serialize(StringBuilder requestBuffer)	throws SIMPLTranslationException;
 
 	/**
 	 * @return

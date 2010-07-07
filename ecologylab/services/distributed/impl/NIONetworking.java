@@ -49,7 +49,7 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	/**
 	 * Space that defines mappings between xml names, and Java class names, for request messages.
 	 */
-	protected TranslationScope										translationSpace;
+	protected TranslationScope										translationScope;
 
 	/** Provides a context for request processing. */
 	protected S																		objectRegistry;
@@ -68,7 +68,7 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	 * 
 	 * @param portNumber
 	 *          the port number to use for communicating.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          the TranslationSpace to use for incoming messages; if this is null, uses
 	 *          DefaultServicesTranslations instead.
 	 * @param objectRegistry
@@ -78,15 +78,15 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 	 *           if an I/O error occurs while trying to open a Selector from the system.
 	 */
 	protected NIONetworking(String networkIdentifier, int portNumber,
-			TranslationScope translationSpace, S objectRegistry, int maxMessageSizeChars)
+			TranslationScope translationScope, S objectRegistry, int maxMessageSizeChars)
 			throws IOException
 	{
 		super(networkIdentifier, portNumber);
 
-		if (translationSpace == null)
-			translationSpace = DefaultServicesTranslations.get();
+		if (translationScope == null)
+			translationScope = DefaultServicesTranslations.get();
 
-		this.translationSpace = translationSpace;
+		this.translationScope = translationScope;
 
 		this.objectRegistry = objectRegistry;
 

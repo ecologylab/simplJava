@@ -168,7 +168,7 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 				{
 					debug("server creating context manager for " + sessionToken);
 
-					cm = generateContextManager((String) sessionToken, sk, translationSpace,
+					cm = generateContextManager((String) sessionToken, sk, translationScope,
 							applicationObjectScope);
 					clientSessionManagerMap.put(sessionToken, cm);
 					clientSessionHandleMap.put(sessionToken, cm.getHandle());
@@ -202,16 +202,16 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * 
 	 * @param token
 	 * @param sc
-	 * @param translationSpaceIn
+	 * @param translationScopeIn
 	 * @param registryIn
 	 * @return
 	 */
 	@Override
 	protected TCPClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationSpaceIn, Scope registryIn)
+			TranslationScope translationScopeIn, Scope registryIn)
 	{
 		return new ClientSessionManager(sessionId, maxMessageSize, this.getBackend(), this, sk,
-				translationSpaceIn, registryIn);
+				translationScopeIn, registryIn);
 	}
 
 	public void run()

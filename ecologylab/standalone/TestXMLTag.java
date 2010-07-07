@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.jnlp.information.AssociationElement;
 /**
@@ -34,7 +34,7 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
         }
     }
 
-    public static void main(String[] args) throws XMLTranslationException
+    public static void main(String[] args) throws SIMPLTranslationException
     {
         TestXMLTag test = new TestXMLTag("asdfasdfasdfasdfasdfasdf");
 

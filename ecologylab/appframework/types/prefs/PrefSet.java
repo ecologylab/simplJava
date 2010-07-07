@@ -13,7 +13,7 @@ import ecologylab.appframework.ApplicationPropertyNames;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -86,17 +86,17 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * Read Pref declarations from a file or across the net.
 	 * 
 	 * @param purl
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet load(ParsedURL purl, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static PrefSet load(ParsedURL purl, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
 		File file = purl.file();
 		PrefSet pS = null;
 		if ((file != null) && file.exists())
-			pS = (PrefSet) ElementState.translateFromXML(purl, translationSpace);
+			pS = (PrefSet) ElementState.translateFromXML(purl, translationScope);
 
 		return pS;
 	}
@@ -106,14 +106,14 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * 
 	 * @param prefXML
 	 *          - Preferences in an XML format; to be translated into a PrefSet.
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet load(String filename, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static PrefSet load(String filename, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) ElementState.translateFromXML(filename, translationSpace);
+		PrefSet pS = (PrefSet) ElementState.translateFromXML(filename, translationScope);
 
 		return pS;
 	}
@@ -123,14 +123,14 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 * 
 	 * @param prefXML
 	 *          - Preferences in an XML format; to be translated into a PrefSet.
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static PrefSet loadFromCharSequence(String prefXML, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		PrefSet pS = (PrefSet) ElementState.translateFromXMLCharSequence(prefXML, translationSpace);
+		PrefSet pS = (PrefSet) ElementState.translateFromXMLCharSequence(prefXML, translationScope);
 
 		return pS;
 	}

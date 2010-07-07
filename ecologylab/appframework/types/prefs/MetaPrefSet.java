@@ -11,7 +11,7 @@ import java.util.Set;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 /**
  * Groupings of MetaPrefs, by category. Categories
@@ -148,14 +148,14 @@ public class MetaPrefSet extends ElementState
      * Read MetaPref declarations from a file or across the net.
      * 
      * @param file
-     * @param translationSpace
+     * @param translationScope
      * @return
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
-    public static MetaPrefSet load(File file, TranslationScope translationSpace) 
-    throws XMLTranslationException
+    public static MetaPrefSet load(File file, TranslationScope translationScope) 
+    throws SIMPLTranslationException
     {
-		 return load(new ParsedURL(file), translationSpace);
+		 return load(new ParsedURL(file), translationScope);
     	
     }
 	
@@ -163,14 +163,14 @@ public class MetaPrefSet extends ElementState
      * Read MetaPref declarations from a file or across the net.
      * 
      * @param purl
-     * @param translationSpace
+     * @param translationScope
      * @return
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
-    public static MetaPrefSet load(ParsedURL purl, TranslationScope translationSpace) 
-    throws XMLTranslationException
+    public static MetaPrefSet load(ParsedURL purl, TranslationScope translationScope) 
+    throws SIMPLTranslationException
     {
-		 return (MetaPrefSet) ElementState.translateFromXML(purl, translationSpace);
+		 return (MetaPrefSet) ElementState.translateFromXML(purl, translationScope);
     	
     }
 

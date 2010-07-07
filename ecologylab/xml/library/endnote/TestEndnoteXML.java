@@ -4,7 +4,7 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public class TestEndnoteXML
 {
@@ -20,7 +20,7 @@ public class TestEndnoteXML
             
             System.out.println(fromFile.serialize());
         }
-        catch (XMLTranslationException e)
+        catch (SIMPLTranslationException e)
         {
             e.printStackTrace();
         }

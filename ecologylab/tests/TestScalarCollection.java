@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  *
@@ -32,7 +32,7 @@ public class TestScalarCollection extends ElementState
 			
 			es.serialize(System.out);
 			
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

@@ -5,7 +5,7 @@ package ecologylab.standalone;
 
 import ecologylab.generic.Debug;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.jnlp.JnlpState;
 import ecologylab.xml.library.jnlp.JnlpTranslations;
 
@@ -18,7 +18,7 @@ public class JNLPTestApp
 
 	/**
 	 * @param args
-	 * @throws XMLTranslationException 
+	 * @throws SIMPLTranslationException 
 	 */
 	public static void main(String[] args)
 	{
@@ -31,7 +31,7 @@ public class JNLPTestApp
 			Debug.println("...done.");
 
 			Debug.println("translate to...");
-			jnlp.serializeAsFile("c:\\jnlp2.txt");
+			jnlp.serialize("c:\\jnlp2.txt");
 			Debug.println("...done.");
 		}
 		catch (Exception e)

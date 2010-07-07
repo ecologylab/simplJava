@@ -30,7 +30,7 @@ import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.messages.ServiceMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * 
@@ -413,7 +413,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 				{
 					debug("Failed to send datagram, route unknown!");
 				}
-				catch (XMLTranslationException e)
+				catch (SIMPLTranslationException e)
 				{
 					debug("Failed to translate message!");
 					e.printStackTrace();
@@ -589,7 +589,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 								{
 									e.printStackTrace(System.err);
 								}
-								catch (XMLTranslationException e)
+								catch (SIMPLTranslationException e)
 								{
 									debug("Failed to translate message!");
 									e.printStackTrace();

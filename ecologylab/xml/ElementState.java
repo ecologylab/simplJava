@@ -136,14 +136,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @return the generated xml string, in a Reusable SBtringBuilder
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if there is a problem with the structure. Specifically, in each ElementState object,
 	 *           fields for attributes must be declared before all fields for nested elements (those
 	 *           derived from ElementState). If there is any public field which is not derived from
 	 *           ElementState declared after the declaration for 1 or more ElementState instance
 	 *           variables, this exception will be thrown.
 	 */
-	public StringBuilder serialize() throws XMLTranslationException
+	public StringBuilder serialize() throws SIMPLTranslationException
 	{
 		return serialize((StringBuilder) null);
 	}
@@ -179,11 +179,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @return the generated xml string
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. Problems with Field access are possible, but
 	 *           very unlikely.
 	 */
-	public StringBuilder serialize(StringBuilder buffy) throws XMLTranslationException
+	public StringBuilder serialize(StringBuilder buffy) throws SIMPLTranslationException
 	{
 		if (buffy == null)
 			buffy = allocStringBuilder();
@@ -210,43 +210,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param outputFile
 	 *          File to write the XML to.
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. Problems with Field access are possible, but
 	 *           very unlikely.
 	 * @throws IOException
 	 *           If there are problems with the file.
 	 */
-	public void serialize(File outputFile) throws XMLTranslationException, IOException
+	public void serialize(File outputFile) throws SIMPLTranslationException, IOException
 	{
-		createParentDirs(outputFile);
+		XMLTools.createParentDirs(outputFile);
 
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
 		serialize(bufferedWriter);
 		bufferedWriter.close();
-	}
-
-	/**
-	 * Assumes that outputFile should be a file, whose parent directories may not exist. Creates the
-	 * parent directories for the given File, and throws an XMLTranslationException if outputFile is a
-	 * directory and not a file.
-	 * 
-	 * @param outputFile
-	 * @throws XMLTranslationException
-	 */
-	public static void createParentDirs(File outputFile) throws XMLTranslationException
-	{
-		if (outputFile.isDirectory())
-			throw new XMLTranslationException(
-					"Output path is already a directory, so it can't be a file: "
-							+ outputFile.getAbsolutePath());
-
-		String outputDirName = outputFile.getParent();
-		if (outputDirName != null) // if no parent dir exist, don't make dirs.
-		{
-			File outputDir = new File(outputDirName);
-			outputDir.mkdirs();
-		}
-
 	}
 
 	/**
@@ -264,16 +240,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param appendable
 	 *          Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. The most likely cause is an IOException.
 	 * 
 	 *           <p/>
 	 *           Problems with Field access are possible, but very unlikely.
 	 */
-	public void serialize(Appendable appendable) throws XMLTranslationException
+	public void serialize(Appendable appendable) throws SIMPLTranslationException
 	{
 		if (appendable == null)
-			throw new XMLTranslationException("Appendable is null");
+			throw new SIMPLTranslationException("Appendable is null");
 
 		try
 		{
@@ -281,7 +257,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 		catch (IOException e)
 		{
-			throw new XMLTranslationException("IO", e);
+			throw new SIMPLTranslationException("IO", e);
 		}
 	}
 
@@ -302,12 +278,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @return the generated xml string
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. Problems with Field access are possible, but
 	 *           very unlikely.
 	 */
 	private void serializeToBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		this.preTranslationProcessingHook();
 
@@ -326,8 +302,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// }
 		// }
 
-		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
-				.attributeFieldDescriptors();
+		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor().attributeFieldDescriptors();
 		int numAttributes = attributeFieldDescriptors.size();
 
 		if (numAttributes > 0)
@@ -344,12 +319,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			catch (Exception e)
 			{
 				// IllegalArgumentException, IllegalAccessException
-				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
+				throw new SIMPLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
 
-		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
-				.elementFieldDescriptors();
+		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor().elementFieldDescriptors();
 		int numElements = elementFieldDescriptors.size();
 
 		StringBuilder textNode = this.textNodeBuffy;
@@ -378,7 +352,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				catch (Exception e)
 				{
-					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
+					throw new SIMPLTranslationException("TranslateToXML for @xml_field " + this, e);
 				}
 			}
 
@@ -394,7 +368,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 					}
 					catch (Exception e)
 					{
-						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
+						throw new SIMPLTranslationException("TranslateToXML for leaf node " + this, e);
 					}
 				}
 				else
@@ -456,11 +430,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								}
 								catch (IllegalArgumentException e)
 								{
-									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 								catch (IllegalAccessException e)
 								{
-									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 							}
 							else if (next instanceof ElementState)
@@ -528,9 +502,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param thatReferenceObject
 	 * @return
 	 */
-	private XMLTranslationException collectionElementTypeException(Object thatReferenceObject)
+	private SIMPLTranslationException collectionElementTypeException(Object thatReferenceObject)
 	{
-		return new XMLTranslationException("Collections MUST contain "
+		return new SIMPLTranslationException("Collections MUST contain "
 				+ "objects of class derived from ElementState or Scalars, but " + thatReferenceObject
 				+ " contains some that aren't.");
 	}
@@ -552,13 +526,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param appendable
 	 *          Appendable to translate into. Must be non-null. Can be a Writer, OutputStream, ...
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if a problem arises during translation. Problems with Field access are possible, but
 	 *           very unlikely.
 	 * @throws IOException
 	 */
 	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable)
-			throws XMLTranslationException, IOException
+			throws SIMPLTranslationException, IOException
 	{
 		this.preTranslationProcessingHook();
 
@@ -594,7 +568,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			catch (Exception e)
 			{
 				// IllegalArgumentException, IllegalAccessException
-				throw new XMLTranslationException("TranslateToXML for attribute " + this, e);
+				throw new SIMPLTranslationException("TranslateToXML for attribute " + this, e);
 			}
 		}
 		// ArrayList<Field> elementFields = optimizations.elementFields();
@@ -633,7 +607,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				catch (Exception e)
 				{
-					throw new XMLTranslationException("TranslateToXML for @xml_field " + this, e);
+					throw new SIMPLTranslationException("TranslateToXML for @xml_field " + this, e);
 				}
 			}
 
@@ -650,7 +624,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 					}
 					catch (Exception e)
 					{
-						throw new XMLTranslationException("TranslateToXML for leaf node " + this, e);
+						throw new SIMPLTranslationException("TranslateToXML for leaf node " + this, e);
 					}
 				}
 				else
@@ -711,11 +685,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								}
 								catch (IllegalArgumentException e)
 								{
-									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 								catch (IllegalAccessException e)
 								{
-									throw new XMLTranslationException("TranslateToXML for collection leaf " + this, e);
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
 								}
 							}
 							else if (next instanceof ElementState)
@@ -776,20 +750,20 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @param fileName
 	 *          the name of the XML file that needs to be translated.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(String fileName, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
 		File xmlFile = new File(fileName);
 		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new XMLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
+			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
 
-		return translateFromXML(xmlFile, translationSpace);
+		return translateFromXML(xmlFile, translationScope);
 	}
 	/**
 	 * Link new born root element to its Optimizations and create an elementByIdMap for it.
@@ -803,14 +777,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param charSequence
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public static ElementState translateFromXMLCharSequence(CharSequence charSequence,
-			TranslationScope translationSpace) throws XMLTranslationException
+			TranslationScope translationScope) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
 		return saxHandler.parse(charSequence);
 	}
 
@@ -820,16 +794,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @param purl
 	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public static ElementState translateFromXML(ParsedURL purl, TranslationScope translationScope)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		if (purl == null)
-			throw new XMLTranslationException("Null PURL", NULL_PURL);
+			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
 
 		if (!purl.isNotFileOrExists())
-			throw new XMLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
+			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
 		return saxHandler.parse(purl);
@@ -839,14 +813,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param url
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(URL url, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static ElementState translateFromXML(URL url, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
 		return saxHandler.parse(url);
 	}
 
@@ -854,14 +828,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
 	 * @param file
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(File file, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static ElementState translateFromXML(File file, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
 		return saxHandler.parse(file);
 	}
 
@@ -870,26 +844,26 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * 
 	 * @param inputStream
 	 *          An InputStream to the XML that needs to be translated.
-	 * @param translationSpace
+	 * @param translationScope
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public static ElementState translateFromXML(InputStream inputStream,
-			TranslationScope translationSpace) throws XMLTranslationException
+			TranslationScope translationScope) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationSpace);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(translationScope);
 		return saxHandler.parse(inputStream);
 	}
 
 	/**
 	 * Used in SAX parsing to unmarshall attributes into fields.
 	 * 
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param attributes
 	 * @param scalarUnmarshallingContext
 	 *          TODO
 	 */
-	void translateAttributes(TranslationScope translationSpace, Attributes attributes,
+	void translateAttributes(TranslationScope translationScope, Attributes attributes,
 			ScalarUnmarshallingContext scalarUnmarshallingContext, ElementState context)
 	{
 		int numAttributes = attributes.getLength();
@@ -903,7 +877,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			{
 				ClassDescriptor classDescriptor = classDescriptor();
 				FieldDescriptor fd = classDescriptor
-						.getFieldDescriptorByTag(tag, translationSpace, context);
+						.getFieldDescriptorByTag(tag, translationScope, context);
 				if (fd == null)
 					classDescriptor.warning(" FieldDescriptor not found for tag " + tag);
 				else
@@ -930,66 +904,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 /**
  * Translate to XML, then write the result to a file.
  * 
- * @param xmlFileName
- * @throws XMLTranslationException
+ * @param outputFileName
+ * @throws SIMPLTranslationException
  */
-	public void serializeAsFile(String xmlFileName) throws XMLTranslationException, IOException
+	public void serialize(String outputFileName) throws SIMPLTranslationException, IOException
 	{
-		if (!xmlFileName.endsWith(".xml") && !xmlFileName.endsWith(".XML"))
+		if (!outputFileName.endsWith(".xml") && !outputFileName.endsWith(".XML"))
 		{
-			xmlFileName = xmlFileName + ".xml";
+			outputFileName = outputFileName + ".xml";
 		}
-		serialize(new File(xmlFileName));
-	}
-
-	// ////////////// helper methods used by translateToXML() //////////////////
-
-	static final int			HAVENT_TRIED_ADDING	= 0;
-
-	static final int			DONT_NEED_WARNING		= 1;
-
-	static final int			NEED_WARNING				= -1;
-
-	transient private int	considerWarning			= HAVENT_TRIED_ADDING;
-
-	/**
-	 * This is the hook that enables programmers to do something special when handling a nested XML
-	 * element and its associate ElementState (subclass), by overriding this method and providing a
-	 * custom implementation.
-	 * <p/>
-	 * The default implementation is a no-op. fields that get here are ignored.
-	 * 
-	 * @param elementState
-	 * @throws XMLTranslationException
-	 */
-	protected void addNestedElement(ElementState elementState)
-	{
-		if (considerWarning == HAVENT_TRIED_ADDING)
-			considerWarning = NEED_WARNING;
-	}
-
-	/**
-	 * Called during translateFromXML(). If the textNodeString is currently null, assign to.
-	 * Otherwise, append to it.
-	 * 
-	 * @param newText
-	 *          Text Node value just found parsing the XML.
-	 */
-	protected void appendTextNodeString(String newText)
-	{
-		if ((newText != null) && (newText.length() > 0))
-		{
-			// TODO -- hopefully we can get away with this speed up
-			String trimmed = newText.trim();
-			if (trimmed.length() > 0)
-			{
-				String unescapedString = XMLTools.unescapeXML(newText);
-				if (this.textNodeBuffy == null)
-					textNodeBuffy = new StringBuilder(unescapedString);
-				else
-					textNodeBuffy.append(unescapedString);
-			}
-		}
+		serialize(new File(outputFileName));
 	}
 
 	/**

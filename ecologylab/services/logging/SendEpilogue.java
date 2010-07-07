@@ -7,7 +7,7 @@ import ecologylab.collections.Scope;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -31,7 +31,7 @@ import ecologylab.xml.simpl_inherit;
 			bufferToLog.insert(0, Logging.OP_SEQUENCE_END);
 			bufferToLog.append(endLog());
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

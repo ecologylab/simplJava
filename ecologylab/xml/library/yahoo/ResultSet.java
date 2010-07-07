@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
@@ -57,7 +57,7 @@ public class ResultSet extends ElementState
 				(ResultSet) ElementState.translateFromXML(purl, ResultSet.getTranslationScope());
 			
 			resultSet.serialize(System.out);
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 import ecologylab.xml.library.dc.Dc;
 
@@ -158,7 +158,7 @@ public class RDFState extends ElementState // ArrayListState<Item>
 //			rssState.translateToXML(outputFile);
 			
 			println("\n");
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

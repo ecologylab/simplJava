@@ -27,7 +27,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 {
 	private NIOServerIOThread		backend;
 
-	protected TranslationScope	translationSpace;
+	protected TranslationScope	translationScope;
 
 	protected S									applicationObjectScope;
 
@@ -56,7 +56,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 
 		// we get these from the backend, because it ensures that they are
 		// configured if they are passed in null
-		this.translationSpace = backend.translationSpace;
+		this.translationScope = backend.translationScope;
 		this.applicationObjectScope = (S) backend.objectRegistry;
 
 		this.applicationObjectScope.put(MAIN_START_AND_STOPPABLE, this);
@@ -110,7 +110,7 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	}
 
 	protected abstract BaseSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationSpace, Scope globalScope);
+			TranslationScope translationScope, Scope globalScope);
 
 	/**
 	 * @see ecologylab.generic.StartAndStoppable#start()
@@ -154,10 +154,10 @@ public abstract class AbstractNIOServer<S extends Scope> extends Manager impleme
 	}
 
 	/**
-	 * @return the translationSpace
+	 * @return the translationScope
 	 */
 	public TranslationScope getTranslationSpace()
 	{
-		return translationSpace;
+		return translationScope;
 	}
 }

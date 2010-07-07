@@ -5,7 +5,7 @@ package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Request to start a new connection to a server. If the message has no sessionId value, then it is
@@ -61,7 +61,7 @@ public class InitConnectionRequest extends RequestMessage
 			TranslationScope.get("init_connection_request", InitConnectionRequest.class,
 					RequestMessage.class).serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

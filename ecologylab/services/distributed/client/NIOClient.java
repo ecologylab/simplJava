@@ -49,7 +49,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.SendableRequest;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the
@@ -304,10 +304,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * NIOClient's selection key and calls wakeup() on the selector.
 	 * 
 	 * @param request
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	protected PreppedRequest prepareAndEnqueueRequestForSending(SendableRequest request)
-			throws XMLTranslationException, MessageTooLargeException
+			throws SIMPLTranslationException, MessageTooLargeException
 	{
 		long uid = this.generateUid();
 
@@ -556,7 +556,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			{
 				return this.prepareAndEnqueueRequestForSending(request);
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				error("error translating message; returning null");
 				e.printStackTrace();
@@ -611,7 +611,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			currentMessageUid = this.prepareAndEnqueueRequestForSending(request).getUid();
 		}
-		catch (XMLTranslationException e1)
+		catch (SIMPLTranslationException e1)
 		{
 			error("error translating to XML; returning null");
 			e1.printStackTrace();
@@ -673,7 +673,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					{
 						debug("response: " + respMsg.serialize().toString());
 					}
-					catch (XMLTranslationException e)
+					catch (SIMPLTranslationException e)
 					{
 						e.printStackTrace();
 					}
@@ -1002,7 +1002,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			response = translateXMLStringToResponse(incomingMessage, incomingUid);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}
@@ -1350,13 +1350,13 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 * 
 	 * @param messageString
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	protected MessageWithMetadata<ResponseMessage, Object> translateXMLStringToResponse(
-			String messageString, int incomingUid) throws XMLTranslationException
+			String messageString, int incomingUid) throws SIMPLTranslationException
 	{
 		ResponseMessage resp = (ResponseMessage) ElementState.translateFromXMLCharSequence(
-				messageString, translationSpace);
+				messageString, translationScope);
 
 		if (resp == null)
 		{

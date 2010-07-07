@@ -40,7 +40,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @param authListFilename
 	 *          - a file name indicating the location of the authentication list; this should be an
@@ -61,7 +61,7 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 	 * This is the actual way to create an instance of this.
 	 * 
 	 * @param portNumber
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param objectRegistry
 	 * @param authListFilename
 	 *          - a file name indicating the location of the authentication list; this should be an
@@ -171,10 +171,10 @@ public class NIOLoggingServer extends DoubleThreadedNIOServer implements Service
 
 	@Override
 	protected LoggingClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			TranslationScope translationSpaceIn, Scope registryIn)
+			TranslationScope translationScopeIn, Scope registryIn)
 	{
 		return new LoggingClientSessionManager(sessionId, maxMessageSize, this, this.getBackend(), sk,
-				translationSpaceIn, registryIn);
+				translationScopeIn, registryIn);
 	}
 
 	/**

@@ -5,7 +5,7 @@ package ecologylab.tests;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -28,9 +28,9 @@ public class TestXMLFormat extends ElementState
 
 	/**
 	 * @param args
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static void main(String[] args) throws XMLTranslationException
+	public static void main(String[] args) throws SIMPLTranslationException
 	{
 		TestXMLFormat t = new TestXMLFormat();
 

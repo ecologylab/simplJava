@@ -30,16 +30,16 @@ public class SaverState extends ElementState
 	 * 
 	 * @param xmlFile
 	 *          XML source material.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static SaverState translateFromXML(File xmlFile, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static SaverState translateFromXML(File xmlFile, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) ElementState.translateFromXML(xmlFile, translationSpace);
+		SaverState saverState = (SaverState) ElementState.translateFromXML(xmlFile, translationScope);
 		saverState.setBackingFilePath(xmlFile.getAbsolutePath());
 
 		return saverState;
@@ -52,16 +52,16 @@ public class SaverState extends ElementState
 	 * 
 	 * @param fileName
 	 *          the name of the XML file that needs to be translated.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public static ElementState translateFromXML(String fileName, TranslationScope translationSpace)
-			throws XMLTranslationException
+	public static ElementState translateFromXML(String fileName, TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		SaverState saverState = (SaverState) ElementState.translateFromXML(fileName, translationSpace);
+		SaverState saverState = (SaverState) ElementState.translateFromXML(fileName, translationScope);
 		saverState.setBackingFilePath(fileName);
 
 		return saverState;
@@ -99,7 +99,7 @@ public class SaverState extends ElementState
 		{
 			this.serialize(this.backingFile());
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 			throw new SaveFailedException("Could not write SaverState to file system.", e);

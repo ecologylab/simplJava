@@ -24,7 +24,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Extends the URL with many features for the convenience and power of network programmers. New
@@ -298,15 +298,15 @@ public class ParsedURL extends Debug implements MimeType
 	/**
 	 * Use this as the source of stuff to translate from XML
 	 * 
-	 * @param translationSpace
+	 * @param translationScope
 	 *          Translations that specify package + class names for translating.
 	 * @return ElementState object derived from XML at the InputStream of this.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ElementState translateFromXML(TranslationScope translationSpace)
-			throws XMLTranslationException
+	public ElementState translateFromXML(TranslationScope translationScope)
+			throws SIMPLTranslationException
 	{
-		return ElementState.translateFromXML(this, translationSpace);
+		return ElementState.translateFromXML(this, translationScope);
 	}
 
 	public static URL getURL(URL base, String path, String error)

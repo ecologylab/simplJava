@@ -56,7 +56,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 */
 	FieldDescriptor							currentFD;
 
-	XMLTranslationException			xmlTranslationException;
+	SIMPLTranslationException			xmlTranslationException;
 
 	ArrayList<FieldDescriptor>	fdStack				= new ArrayList<FieldDescriptor>();
 
@@ -69,9 +69,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	/**
 	 * 
 	 */
-	public ElementStateSAXHandler(TranslationScope translationSpace)
+	public ElementStateSAXHandler(TranslationScope translationScope)
 	{
-		this.translationScope = translationSpace;
+		this.translationScope = translationScope;
 
 		// try
 		// {
@@ -117,9 +117,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 * 
 	 * @param charSequence
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ElementState parse(CharSequence charSequence) throws XMLTranslationException
+	public ElementState parse(CharSequence charSequence) throws SIMPLTranslationException
 	{
 		return parse(charSequence, StringInputStream.UTF8);
 	}
@@ -130,10 +130,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 * @param charSequence
 	 * @param charsetType
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ElementState parse(CharSequence charSequence, int charsetType)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		InputStream xmlStream = new StringInputStream(charSequence, charsetType);
 		ElementState result = parse(xmlStream);
@@ -148,7 +148,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return result;
 	}
 
-	public ElementState parseString(String xmlString) throws XMLTranslationException
+	public ElementState parseString(String xmlString) throws SIMPLTranslationException
 	{
 		StringReader reader = new StringReader(xmlString);
 		ElementState result = parse(reader);
@@ -170,9 +170,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ElementState parse(URL url) throws XMLTranslationException
+	public ElementState parse(URL url) throws SIMPLTranslationException
 	{
 		return parse(new ParsedURL(url));
 	}
@@ -188,9 +188,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ElementState parse(ParsedURL purl) throws XMLTranslationException
+	public ElementState parse(ParsedURL purl) throws SIMPLTranslationException
 	{
 		if (purl.isFile())
 			return parse(purl.file());
@@ -215,10 +215,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 *          Specifies mapping from XML nodes (elements and attributes) to Java types.
 	 * 
 	 * @return Strongly typed tree of ElementState objects.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 
-	public ElementState parse(File file) throws XMLTranslationException
+	public ElementState parse(File file) throws SIMPLTranslationException
 	{
 		try
 		{
@@ -233,16 +233,16 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		catch (FileNotFoundException e)
 		{
 			this.fileContext = null;
-			throw new XMLTranslationException("Can't open file " + file.getAbsolutePath(), e);
+			throw new SIMPLTranslationException("Can't open file " + file.getAbsolutePath(), e);
 		}
 		catch (IOException e)
 		{
 			this.fileContext = null;
-			throw new XMLTranslationException("Can't close file " + file.getAbsolutePath(), e);
+			throw new SIMPLTranslationException("Can't close file " + file.getAbsolutePath(), e);
 		}
 	}
 
-	public ElementState parse(Reader reader) throws XMLTranslationException
+	public ElementState parse(Reader reader) throws SIMPLTranslationException
 	{
 		InputSource inputSource = new InputSource(reader);
 		ElementState result = parse(inputSource);
@@ -253,17 +253,17 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		}
 		catch (IOException e)
 		{
-			throw new XMLTranslationException("Can't close reader: " + reader, e);
+			throw new SIMPLTranslationException("Can't close reader: " + reader, e);
 		}
 		return result;
 	}
 
-	public ElementState parse(InputStream inputStream) throws XMLTranslationException
+	public ElementState parse(InputStream inputStream) throws SIMPLTranslationException
 	{
 		return parse(new InputSource(inputStream));
 	}
 
-	public ElementState parse(InputSource inputSource) throws XMLTranslationException
+	public ElementState parse(InputSource inputSource) throws SIMPLTranslationException
 	{
 		XMLReader parser = null;
 		try
@@ -274,14 +274,14 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		}
 		catch (IOException e)
 		{
-			xmlTranslationException = new XMLTranslationException("IOException during parsing", e);
+			xmlTranslationException = new SIMPLTranslationException("IOException during parsing", e);
 		}
 		catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
 			if (!(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) && (currentElementState != null))
 			{
-				xmlTranslationException = new XMLTranslationException("SAXException during parsing", e);
+				xmlTranslationException = new SIMPLTranslationException("SAXException during parsing", e);
 
 				// print xml
 				StringBuilder builder = root.serialize();
@@ -347,7 +347,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						return;
 					}
 				}
-				catch (XMLTranslationException e)
+				catch (SIMPLTranslationException e)
 				{
 					xmlTranslationException = e;
 				}
@@ -359,7 +359,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						+ tagName
 						+ ">: Ignored. ";
 				println(message);
-				xmlTranslationException = new XMLTranslationException(message);
+				xmlTranslationException = new SIMPLTranslationException(message);
 				return;
 			}
 		}
@@ -464,7 +464,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				this.currentFD = activeFieldDescriptor;
 			}
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			this.xmlTranslationException = e;
 		}
@@ -593,7 +593,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 					break;
 				}
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				this.xmlTranslationException = e;
 			}

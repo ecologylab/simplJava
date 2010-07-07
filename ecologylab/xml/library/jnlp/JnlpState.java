@@ -6,7 +6,7 @@ package ecologylab.xml.library.jnlp;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.jnlp.applet.AppletDesc;
 import ecologylab.xml.library.jnlp.application.ApplicationDesc;
 import ecologylab.xml.library.jnlp.information.InformationElement;
@@ -152,7 +152,7 @@ public class JnlpState extends ElementState implements Cloneable
 
 				return thisXml.equals(thatXml);
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				e.printStackTrace();
 
@@ -161,7 +161,7 @@ public class JnlpState extends ElementState implements Cloneable
 		}
 	}
 
-	public static void main(String[] args) throws XMLTranslationException
+	public static void main(String[] args) throws SIMPLTranslationException
 	{
 		String jnlpContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 				+ "<!-- JNLP File for combinFormation launcher Application -->\n"
@@ -233,7 +233,7 @@ public class JnlpState extends ElementState implements Cloneable
 			return (JnlpState) ElementState.translateFromXMLCharSequence(this
 					.serialize(), JnlpTranslations.get());
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

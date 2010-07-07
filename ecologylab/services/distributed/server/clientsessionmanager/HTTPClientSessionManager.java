@@ -12,7 +12,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClientSessionManager<S>
 {
@@ -30,10 +30,10 @@ public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClien
 	protected boolean		ALLOW_HTTP_STYLE_REQUESTS	= true;
 
 	public HTTPClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationSpace,
+			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
 			Scope<?> registry)
 	{
-		super(sessionId, maxPacketSize, server, frontend, socket, translationSpace, registry);
+		super(sessionId, maxPacketSize, server, frontend, socket, translationScope, registry);
 	}
 
 	/**

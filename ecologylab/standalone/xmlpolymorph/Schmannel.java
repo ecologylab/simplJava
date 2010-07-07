@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.simpl_collection;
 import ecologylab.xml.library.rss.Channel;
 import ecologylab.xml.library.rss.Item;
@@ -69,7 +69,7 @@ public class Schmannel extends ElementState
 			ElementState s2	= ElementState.translateFromXMLCharSequence(buffy, TRANSLATION_SPACE);
 			s2.serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,7 +85,7 @@ public class Schmannel extends ElementState
 			rap.serialize(System.out);
 			System.out.println('\n');
 //			println(c.translateToXML());
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

@@ -42,7 +42,7 @@ public class HTTPPostServer extends DoubleThreadedNIOServer
      * 
      * @param portNumber
      * @param inetAddress
-     * @param translationSpace
+     * @param translationScope
      * @param objectRegistry
      * @throws IOException
      * @throws BindException

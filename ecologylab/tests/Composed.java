@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.xml_tag;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -30,7 +30,7 @@ public class Composed extends ElementState
     }
     static final Class[] classes = {Composed.class, ClassTagged.class, FieldTagged.class};
 
-    public static void main(String[] args) throws XMLTranslationException
+    public static void main(String[] args) throws SIMPLTranslationException
     {
         TranslationScope ts = TranslationScope.get("testXMLTag", classes);
         

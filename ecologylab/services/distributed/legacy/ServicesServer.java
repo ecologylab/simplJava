@@ -17,7 +17,7 @@ import ecologylab.services.distributed.impl.ServerEvent;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Interface Ecology Lab Distributed Computing Services framework<p/>
@@ -58,7 +58,7 @@ public class ServicesServer extends ServicesServerBase
      * @param portNumber
      * @param serverType
      *            TODO
-     * @param translationSpace
+     * @param translationScope
      * @param objectRegistry
      *            TODO
      * @return A server instance, or null if it was not possible to open a ServerSocket on the port on this machine.
@@ -85,7 +85,7 @@ public class ServicesServer extends ServicesServerBase
      * 
      * @param portNumber
      * @param serverType
-     * @param translationSpace
+     * @param translationScope
      * @param objectRegistry
      *            Provides a context for request processing.
      * @throws IOException
@@ -212,7 +212,7 @@ public class ServicesServer extends ServicesServerBase
     }
 
     public RequestMessage translateXMLStringToRequestMessage(String messageString, boolean doRecursiveDescent)
-            throws XMLTranslationException
+            throws SIMPLTranslationException
     {
         RequestMessage requestMessage = (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
                 requestTranslationSpace);

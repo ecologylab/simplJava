@@ -527,26 +527,26 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	/**
 	 * Map an XML namespace id to the class that should be instantiated to handle it.
 	 * 
-	 * @param translationSpace
+	 * @param translationScope
 	 *          Used for error messages.
 	 * @param nsID
 	 * @param urn
 	 *          TODO
 	 */
-	void mapNamespaceIdToClass(TranslationScope translationSpace, String nsID, String urn)
+	void mapNamespaceIdToClass(TranslationScope translationScope, String nsID, String urn)
 	{
 		// TODO -- Name Space support!
 		// if (!nameSpaceClassesById.containsKey(nsID))
 		// {
-		// Class<? extends ElementState> nsClass = translationSpace.lookupNameSpaceByURN(urn);
+		// Class<? extends ElementState> nsClass = translationScope.lookupNameSpaceByURN(urn);
 		// final boolean nsUnsupported = (nsClass == null);
 		// nameSpaceClassesById().put(nsID, nsClass);
 		// // FieldToXMLOptimizations xmlnsF2XO = new FieldToXMLOptimizations(nsID, urn, nsUnsupported);
 		// if (nsUnsupported)
-		// warning("No Namespace found in " + translationSpace + " for\t\txmlns:" + nsID +"=" + urn);
+		// warning("No Namespace found in " + translationScope + " for\t\txmlns:" + nsID +"=" + urn);
 		// else
 		// {
-		// debug("FIXME -- COOL! " + translationSpace + " \t" + nsClass.getName() + " ->\t\txmlns:" +
+		// debug("FIXME -- COOL! " + translationScope + " \t" + nsClass.getName() + " ->\t\txmlns:" +
 		// nsID +"=" + urn);
 		// // xmlnsAttributeOptimizations().add(xmlnsF2XO);
 		// }
@@ -616,7 +616,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return describedClassPackageName;
 	}
 
-	public ES getInstance() throws XMLTranslationException
+	public ES getInstance() throws SIMPLTranslationException
 	{
 		return XMLTools.getInstance(describedClass);
 	}
@@ -653,7 +653,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			mostBasicTranslations.serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.ElementState.simpl_nowrap;
 
 /**
@@ -38,7 +38,7 @@ public class TestXml extends ElementState
 		{
 			ElementState es		= translateFromXMLCharSequence(STUFF, TS);
 			println(es.serialize());
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

@@ -10,7 +10,7 @@ import ecologylab.services.messages.HttpRequest;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 {
@@ -23,14 +23,14 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 * @param token
 	 * @param server
 	 * @param socketKey
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param registry
 	 */
 	public HTTPPostClientSessionManager(String token, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
+			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
 			Scope<?> registry)
 	{
-		super(token, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
+		super(token, maxPacketSize, server, frontend, socketKey, translationScope, registry);
 		this.initialized = true;
 	}
 
@@ -45,7 +45,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	@Override
 	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
 			ResponseMessage responseMessage, StringBuilder outgoingMessageBuf)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		if (!(requestMessage instanceof HttpRequest))
 		{
@@ -59,7 +59,7 @@ public class HTTPPostClientSessionManager extends HTTPClientSessionManager
 	 */
 	@Override
 	protected RequestMessage translateStringToRequestMessage(CharSequence incomingMessage)
-			throws XMLTranslationException, UnsupportedEncodingException
+			throws SIMPLTranslationException, UnsupportedEncodingException
 	{
 		String messageString = incomingMessage.toString();
 		// messageString = URLDecoder.decode(messageString, "UTF-8");

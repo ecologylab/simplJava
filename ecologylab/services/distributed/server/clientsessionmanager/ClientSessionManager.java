@@ -10,7 +10,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Stores information about the connection context for the client on the server. Should be extended
@@ -35,14 +35,14 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	 * @param server
 	 * @param frontend
 	 * @param socketKey
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param registry
 	 */
 	public ClientSessionManager(String sessionId, int maxPacketSize, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationSpace,
+			NIOServerProcessor frontend, SelectionKey socketKey, TranslationScope translationScope,
 			Scope<?> registry)
 	{
-		super(sessionId, maxPacketSize, server, frontend, socketKey, translationSpace, registry);
+		super(sessionId, maxPacketSize, server, frontend, socketKey, translationScope, registry);
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	 */
 	@Override
 	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
-			ResponseMessage responseMessage, StringBuilder messageBuffer) throws XMLTranslationException
+			ResponseMessage responseMessage, StringBuilder messageBuffer) throws SIMPLTranslationException
 	{
 		responseMessage.serialize(messageBuffer);
 	}

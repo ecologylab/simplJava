@@ -21,7 +21,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * A base set of fields and methods that are necessary for any server
@@ -64,7 +64,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
      * bind the port. Port binding is to be handled by sublcasses.
      * 
      * @param portNumber
-     * @param translationSpace
+     * @param translationScope
      * @param objectRegistry
      *            Provides a context for request processing.
      * @throws IOException
@@ -140,7 +140,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
 
     public RequestMessage translateXMLStringToRequestMessage(
             String messageString, boolean doRecursiveDescent)
-            throws XMLTranslationException
+            throws SIMPLTranslationException
     {
         RequestMessage requestMessage = (RequestMessage) ElementState
                 .translateFromXMLCharSequence(messageString, requestTranslationSpace);
@@ -178,7 +178,7 @@ public abstract class ServicesServerBase extends Manager implements Runnable,
     }
 
     /**
-     * @return Returns the translationSpace.
+     * @return Returns the translationScope.
      */
     public TranslationScope getRequestTranslationSpace()
     {

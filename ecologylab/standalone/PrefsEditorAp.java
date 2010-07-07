@@ -7,7 +7,7 @@ import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Standalone app to open a prefs editing dialog.
@@ -18,7 +18,7 @@ import ecologylab.xml.XMLTranslationException;
 public class PrefsEditorAp extends ApplicationEnvironment 
 {
 	
-	public PrefsEditorAp(String[] args) throws XMLTranslationException 
+	public PrefsEditorAp(String[] args) throws SIMPLTranslationException 
 	{
 		super("ecologyLabFundamental", PrefsTranslationsProvider.get(), (TranslationScope) null, args, 0);
 
@@ -26,9 +26,9 @@ public class PrefsEditorAp extends ApplicationEnvironment
 	}
 	/**
 	 * @param args
-	 * @throws XMLTranslationException 
+	 * @throws SIMPLTranslationException 
 	 */
-	public static void main(String[] args) throws XMLTranslationException 
+	public static void main(String[] args) throws SIMPLTranslationException 
 	{
 		new PrefsEditorAp(args);
 	}

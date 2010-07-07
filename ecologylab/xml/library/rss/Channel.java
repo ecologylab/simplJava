@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.Hint;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -118,7 +118,7 @@ public @simpl_inherit class Channel extends ElementState
 			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslations.get());
 			c2.serialize(System.out);
 //			println(c.translateToXML());
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

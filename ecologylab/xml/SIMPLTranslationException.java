@@ -31,24 +31,24 @@ import ecologylab.net.ParsedURL;
  * @version 0.5
  */
 
-public class XMLTranslationException extends Exception implements
+public class SIMPLTranslationException extends Exception implements
         XMLTranslationExceptionTypes
 {
     private static final long serialVersionUID = -8326348358064487418L;
 
     private int               exceptionType    = 0;
 
-    public XMLTranslationException()
+    public SIMPLTranslationException()
     {
         super();
     }
 
-    public XMLTranslationException(String msg)
+    public SIMPLTranslationException(String msg)
     {
         super(msg);
     }
 
-    public XMLTranslationException(String msg, Exception e)
+    public SIMPLTranslationException(String msg, Exception e)
     {
         super("XmlTranslationException\n" + msg + "\n\tThe error is "
                 + e.toString() + " in" + "\n\t" + e.getStackTrace()[0] + "\n\t"
@@ -56,21 +56,21 @@ public class XMLTranslationException extends Exception implements
                 + e.getStackTrace()[3] + "\n\t");
     }
 
-    public XMLTranslationException(int exceptionType)
+    public SIMPLTranslationException(int exceptionType)
     {
         super();
 
         this.exceptionType = exceptionType;
     }
 
-    public XMLTranslationException(String msg, int exceptionType)
+    public SIMPLTranslationException(String msg, int exceptionType)
     {
         this(msg);
 
         this.exceptionType = exceptionType;
     }
 
-    public XMLTranslationException(String msg, Exception e, int exceptionType)
+    public SIMPLTranslationException(String msg, Exception e, int exceptionType)
     {
         this(msg, e);
 

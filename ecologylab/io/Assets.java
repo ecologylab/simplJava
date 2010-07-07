@@ -20,7 +20,7 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Used to manage cachable assets.
@@ -159,7 +159,7 @@ implements ApplicationProperties
 			{
 				assetsState			= (AssetsState) ElementState.translateFromXML(assetsXmlFile, AssetsTranslations.get());
 
-			} catch (XMLTranslationException e)
+			} catch (SIMPLTranslationException e)
 			{
 				println("ERROR reading AssetsState from " + assetsXmlFile);
 				e.printStackTrace();
@@ -605,7 +605,7 @@ implements ApplicationProperties
 			}
 			else
 				println("NO NEED to Save Assets XML" + sourceSpot + ": " + assetsXmlFile);
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
 		}

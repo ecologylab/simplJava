@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.Hint;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
@@ -114,7 +114,7 @@ public @simpl_inherit class Channel2 extends ElementState //ArrayListState<Item>
 		try
 		{
 			println(c.serialize());
-		} catch (XMLTranslationException e)
+		} catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -8,7 +8,7 @@ package ecologylab.xml;
  * 
  * @author andruid
  */
-public class RootElementException extends XMLTranslationException
+public class RootElementException extends SIMPLTranslationException
 {
 	/**
 	 * @param msg

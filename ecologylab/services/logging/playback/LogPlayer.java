@@ -22,7 +22,7 @@ import ecologylab.services.logging.Logging;
 import ecologylab.services.logging.MixedInitiativeOp;
 import ecologylab.services.logging.translationScope.MixedInitiativeOpClassesProvider;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * The main application for playing back log files.
@@ -64,7 +64,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	private boolean															guiShown;
 
-	protected TranslationScope									translationSpace;
+	protected TranslationScope									translationScope;
 
 	public final static int											DEFAULT_PLAYBACK_INTERVAL		= 100;
 
@@ -82,16 +82,16 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	 * 
 	 * @param appName
 	 * @param args
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param opSubclasses
 	 *          An array of subclasses of MixedInitiativeOp that will be used to translate the
 	 *          operations read in by the player.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public LogPlayer(String appName, String[] args, TranslationScope translationSpace,
-			Class[] opSubclasses) throws XMLTranslationException
+	public LogPlayer(String appName, String[] args, TranslationScope translationScope,
+			Class[] opSubclasses) throws SIMPLTranslationException
 	{
-		super(appName, translationSpace, (TranslationScope) null, args, 0);
+		super(appName, translationScope, (TranslationScope) null, args, 0);
 
 		// create a translation scope for the opSubclasses
 		if (opSubclasses == null)
@@ -101,7 +101,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		
 		guiShown = false;
 
-		this.translationSpace = translationSpace;
+		this.translationScope = translationScope;
 
 		LOG incomingLog = null;
 
@@ -181,9 +181,9 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	 * 
 	 * @param logToRead
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	protected abstract LOG translateXMLFromFile(File logToRead) throws XMLTranslationException;
+	protected abstract LOG translateXMLFromFile(File logToRead) throws SIMPLTranslationException;
 
 	protected LOG readInXMLFile(File logToRead)
 	{
@@ -200,7 +200,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 			return translateXMLFromFile(logToRead);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			System.err.println("READING LOG FAILED!");
 			e.printStackTrace();

@@ -30,7 +30,7 @@ import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Provides a framework for interaction logging. Uses ecologylab.xml to serialize user and agent
@@ -236,9 +236,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 						try
 						{
-							ElementState.createParentDirs(logFile);
+							XMLTools.createParentDirs(logFile);
 						}
-						catch (XMLTranslationException e)
+						catch (SIMPLTranslationException e)
 						{
 							e.printStackTrace();
 						}
@@ -301,9 +301,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 						try
 						{
-							ElementState.createParentDirs(logFile);
+							XMLTools.createParentDirs(logFile);
 						}
-						catch (XMLTranslationException e)
+						catch (SIMPLTranslationException e)
 						{
 							e.printStackTrace();
 						}
@@ -426,7 +426,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 				return true;
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				e.printStackTrace();
 			}
@@ -523,7 +523,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				{
 					debug("epilogue contents: " + sendEpilogue.serialize());
 				}
-				catch (XMLTranslationException e)
+				catch (SIMPLTranslationException e)
 				{
 					e.printStackTrace();
 				}
@@ -1009,7 +1009,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					{
 						debug(message.serialize().toString());
 					}
-					catch (XMLTranslationException e)
+					catch (SIMPLTranslationException e)
 					{
 						e.printStackTrace();
 					}

@@ -4,7 +4,7 @@ import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 /**
@@ -32,10 +32,10 @@ extends RequestMessage
 		super();
 		this.preferencesSet = preferencesSet;
 	}
-	public SetPreferences(String preferencesSetString, TranslationScope translationSpace)
-	throws XMLTranslationException
+	public SetPreferences(String preferencesSetString, TranslationScope translationScope)
+	throws SIMPLTranslationException
 	{
-		this((PrefSet) translateFromXMLCharSequence(preferencesSetString, translationSpace));
+		this((PrefSet) translateFromXMLCharSequence(preferencesSetString, translationScope));
 	}
 
 	/**

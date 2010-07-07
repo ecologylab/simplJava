@@ -58,9 +58,9 @@ public class HttpGetServer extends DoubleThreadedNIOServer
 
 	@Override
 	protected HTTPGetClientSessionManager generateContextManager(String token, SelectionKey sk,
-			TranslationScope translationSpaceIn, Scope registryIn)
+			TranslationScope translationScopeIn, Scope registryIn)
 	{
 		return new HTTPGetClientSessionManager(token, maxMessageSize, this.getBackend(), this, sk,
-				translationSpaceIn, registryIn);
+				translationScopeIn, registryIn);
 	}
 }

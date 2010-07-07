@@ -33,7 +33,7 @@ import ecologylab.services.messages.ResponseMessage;
 import ecologylab.services.messages.UpdateMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * The base class for all ContextManagers, objects that track the state and respond to clients on a
@@ -98,7 +98,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	protected int																												maxMessageSize;
 
 	/** Used to translate incoming message XML strings into RequestMessages. */
-	protected TranslationScope																					translationSpace;
+	protected TranslationScope																					translationScope;
 
 	/**
 	 * stores the sequence of characters read from the header of an incoming message, may need to
@@ -190,17 +190,17 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * @param server
 	 * @param frontend
 	 * @param socket
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param registry
 	 */
 	public TCPClientSessionManager(String sessionId, int maxMessageSizeIn, NIOServerIOThread server,
-			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationSpace,
+			NIOServerProcessor frontend, SelectionKey socket, TranslationScope translationScope,
 			Scope<?> baseScope)
 	{
 		super(sessionId, frontend, socket, baseScope);
 
 		this.server = server;
-		this.translationSpace = translationSpace;
+		this.translationScope = translationScope;
 
 		// set up session id
 		this.sessionId = sessionId;
@@ -592,7 +592,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 	protected abstract void translateResponseMessageToStringBufferContents(
 			RequestMessage requestMessage, ResponseMessage responseMessage, StringBuilder messageBuffer)
-			throws XMLTranslationException;
+			throws SIMPLTranslationException;
 
 	/**
 	 * Translates the given XML String into a RequestMessage object.
@@ -603,19 +603,19 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * @param messageCharSequence
 	 *          - an XML String representing a RequestMessage object.
 	 * @return the RequestMessage created by translating messageString into an object.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 *           if an error occurs when translating from XML into a RequestMessage.
 	 * @throws UnsupportedEncodingException
 	 *           if the String is not encoded properly.
 	 */
 	protected RequestMessage translateStringToRequestMessage(CharSequence messageCharSequence)
-			throws XMLTranslationException, UnsupportedEncodingException
+			throws SIMPLTranslationException, UnsupportedEncodingException
 	{
 		String startLineString = null;
 		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
 		{ // normal case
 			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageCharSequence,
-					translationSpace);
+					translationScope);
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
 		{ // get case
@@ -634,7 +634,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 				messageString = messageString.substring(messageString.indexOf('=') + 1);
 
 			return (RequestMessage) ElementState.translateFromXMLCharSequence(messageString,
-					translationSpace);
+					translationScope);
 		}
 		else
 		{ // made of fail case
@@ -735,7 +735,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			// setup outgoingMessageBuffer
 			this.translateResponseMessageToStringBufferContents(request, response, msgBufOutgoing);
 		}
-		catch (XMLTranslationException e1)
+		catch (SIMPLTranslationException e1)
 		{
 			e1.printStackTrace();
 		}
@@ -828,7 +828,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			// setup outgoingMessageBuffer
 			update.serialize(msgBufOutgoing);
 		}
-		catch (XMLTranslationException e1)
+		catch (SIMPLTranslationException e1)
 		{
 			e1.printStackTrace();
 		}
@@ -955,7 +955,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		{
 			request = this.translateStringToRequestMessage(incomingMessage);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// drop down to request == null, below
 			failReason = e;

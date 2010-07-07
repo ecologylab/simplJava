@@ -4,7 +4,7 @@ import java.io.File;
 
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.library.rest.Fields;
 import ecologylab.xml.library.rest.RESTTranslationSpace;
 
@@ -30,7 +30,7 @@ public class TestNameSpace
 		{
 			Fields fields= (Fields) ElementState.translateFromXML(xmlFile, tSpace);
 			System.out.println("Fields: \n" + fields.toString());
-		} catch (XMLTranslationException e) 
+		} catch (SIMPLTranslationException e) 
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();

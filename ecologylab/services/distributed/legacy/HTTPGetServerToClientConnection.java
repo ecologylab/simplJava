@@ -10,7 +10,7 @@ import ecologylab.services.messages.HttpGetRequest;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * ServerToClientConnection that can work with HTTP GET format requests.
@@ -49,11 +49,11 @@ public class HTTPGetServerToClientConnection extends ServerToClientConnection
      * 
      * @param messageString
      * @return
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      * @throws UnsupportedEncodingException 
      */
     protected RequestMessage translateXMLStringToRequestMessage(
-            String messageString) throws XMLTranslationException, UnsupportedEncodingException
+            String messageString) throws SIMPLTranslationException, UnsupportedEncodingException
     {
     	if (messageString.startsWith(HTTP_PREPEND))
     	{
@@ -70,10 +70,10 @@ public class HTTPGetServerToClientConnection extends ServerToClientConnection
      * Send the response message back to the client.
      * @param responseMessage
      * 
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
     protected boolean sendResponse(RequestMessage requestMessage, ResponseMessage responseMessage)
-            throws XMLTranslationException
+            throws SIMPLTranslationException
     {
     	if (requestMessage instanceof HttpGetRequest)
     	{

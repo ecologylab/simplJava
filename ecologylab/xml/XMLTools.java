@@ -558,6 +558,30 @@ implements CharacterConstants, SpecialCharacterEntities
 		return getClassName(this);
 	}
 
+	/**
+	 * Assumes that outputFile should be a file, whose parent directories may not exist. Creates the
+	 * parent directories for the given File, and throws an XMLTranslationException if outputFile is a
+	 * directory and not a file.
+	 * 
+	 * @param outputFile
+	 * @throws SIMPLTranslationException
+	 */
+	public static void createParentDirs(File outputFile) throws SIMPLTranslationException
+	{
+		if (outputFile.isDirectory())
+			throw new SIMPLTranslationException(
+					"Output path is already a directory, so it can't be a file: "
+							+ outputFile.getAbsolutePath());
+	
+		String outputDirName = outputFile.getParent();
+		if (outputDirName != null) // if no parent dir exist, don't make dirs.
+		{
+			File outputDir = new File(outputDirName);
+			outputDir.mkdirs();
+		}
+	
+	}
+
 	static void createErrorHandler(final DocumentBuilder builder)
 	{
 	
@@ -827,11 +851,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * 
 	 * @return				The resulting object.
 	 * 
-	 * @throws XMLTranslationException	If the constructor fails, or
+	 * @throws SIMPLTranslationException	If the constructor fails, or
 	 *  if that class lacks a constructor that takes no parameters.
 	 */
 	public static<T> T getInstance(Class<T> thatClass)
-	throws XMLTranslationException
+	throws SIMPLTranslationException
 	{
 		// form the new object derived from ElementState
 		T nestedObject		= null;
@@ -841,7 +865,7 @@ implements CharacterConstants, SpecialCharacterEntities
 		}
 		catch (Exception e)
 		{
-			throw new XMLTranslationException("Instantiation ERROR for " + thatClass +". Is there a public constructor with no arguments?", e);
+			throw new SIMPLTranslationException("Instantiation ERROR for " + thatClass +". Is there a public constructor with no arguments?", e);
 		}
 		return nestedObject;
 	}
@@ -1305,17 +1329,17 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * @param xmlDoc
 	 * @param outputStreamWriter
 	 * @throws FileNotFoundException 
-	 * @throws XMLTranslationException 
+	 * @throws SIMPLTranslationException 
 	 */
 	public static void translateToXML(Document xmlDoc, File outFile) 
-	throws XMLTranslationException 
+	throws SIMPLTranslationException 
 	{
 		try
 		{
 			translateToXML(xmlDoc, new FileOutputStream(outFile));
 		} catch (FileNotFoundException e)
 		{
-			throw new XMLTranslationException("Writing pretty XML[" + outFile + "]", e);
+			throw new SIMPLTranslationException("Writing pretty XML[" + outFile + "]", e);
 		}
 	}
 
@@ -1326,11 +1350,11 @@ implements CharacterConstants, SpecialCharacterEntities
 	 * 
 	 * @param xmlDoc
 	 * @param out
-	 * @throws XMLTranslationException 
+	 * @throws SIMPLTranslationException 
 	 * @throws IOException 
 	 */
 	public static void translateToXML(Document xmlDoc, OutputStream outputStream) 
-	throws XMLTranslationException 
+	throws SIMPLTranslationException 
 	{
 		Transformer transformer;
 		try
@@ -1345,7 +1369,7 @@ implements CharacterConstants, SpecialCharacterEntities
 			osw.close();
 		} catch (Exception e)
 		{
-			throw new XMLTranslationException("Writing pretty XML", e);
+			throw new SIMPLTranslationException("Writing pretty XML", e);
 		} 
 	}
 

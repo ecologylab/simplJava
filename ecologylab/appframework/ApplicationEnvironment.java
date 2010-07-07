@@ -27,7 +27,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.services.messages.DefaultServicesTranslations;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.XMLTranslationExceptionTypes;
 
 /**
@@ -105,9 +105,9 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
 	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ApplicationEnvironment(String applicationName) throws XMLTranslationException
+	public ApplicationEnvironment(String applicationName) throws SIMPLTranslationException
 	{
 		this(null, applicationName, null);
 	}
@@ -118,7 +118,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * is a 0th command line argument, that is the name of an additional preferences file.
 	 * 
 	 * @param applicationName
-	 * @param translationSpace
+	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
 	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
 	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
@@ -129,12 +129,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	public ApplicationEnvironment(String applicationName, TranslationScope translationSpace,
-			String args[], float prefsAssetVersion) throws XMLTranslationException
+	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
+			String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		this(applicationName, translationSpace, (TranslationScope)null, args, prefsAssetVersion);
+		this(applicationName, translationScope, (TranslationScope)null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -155,10 +155,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
-			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
+			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		this(applicationName, null, translationScope, customPrefs, args, prefsAssetVersion);
 	}
@@ -178,11 +178,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, Scope sessionScope,
 			TranslationScope translationScope,
-			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws XMLTranslationException
+			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		this(null, applicationName, sessionScope, translationScope, prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
 	}
@@ -204,10 +204,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
-			TranslationScope customPrefsTranslationScope, String args[], float prefsAssetVersion) throws XMLTranslationException
+			TranslationScope customPrefsTranslationScope, String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		this(null, applicationName, null, translationScope, customPrefsTranslationScope, args, prefsAssetVersion);
 	}
@@ -245,10 +245,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
 	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, String args[])
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		this(applicationName, (TranslationScope) null, (TranslationScope) null, args, 0);
 	}
@@ -275,10 +275,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
 	 *          Relative to CODEBASE/config/preferences/ *) graphics_device (screen number) *)
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, String args[])
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		this(baseClass, applicationName, null, null, null, args, 0);
 	}
@@ -290,10 +290,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param sessionScope
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName,
-			TranslationScope translationSpace, String args[], float prefsAssetVersion)
-			throws XMLTranslationException
+			TranslationScope translationScope, String args[], float prefsAssetVersion)
+			throws SIMPLTranslationException
 	{
-		this(baseClass, applicationName, null, translationSpace, null, args, prefsAssetVersion);
+		this(baseClass, applicationName, null, translationScope, null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -328,7 +328,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          Used for computing codeBase property.
 	 * @param applicationName
 	 *          Name of the application.
-	 * @param translationSpace
+	 * @param translationScope
 	 *          TranslationSpace used for translating preferences XML. If this is null,
 	 *          {@link ecologylab.services.messages.DefaultServicesTranslations
 	 *          ecologylab.services.message.DefaultServicesTranslations} will be used.
@@ -339,14 +339,14 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
-			TranslationScope translationSpace, String args[], float prefsAssetVersion)
-			throws XMLTranslationException
+			TranslationScope translationScope, String args[], float prefsAssetVersion)
+			throws SIMPLTranslationException
 	// String preferencesFileRelativePath, String graphicsDev, String screenSize)
 	{
-		this(baseClass, applicationName, sessionScope, translationSpace, null, args, prefsAssetVersion);
+		this(baseClass, applicationName, sessionScope, translationScope, null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -388,7 +388,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @param customPrefs
 	 *          An array of Pref subclasses that are used for this specific application. These classes
 	 *          will be automatically composed into a special translation scope used for translating
-	 *          prefs for the application. Note that translationSpace is NOT used for translating the
+	 *          prefs for the application. Note that translationScope is NOT used for translating the
 	 *          application prefs, but is still required for other translations in the application.
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
@@ -397,11 +397,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          screen_size (used in TopLevel -- 1 - quarter; 2 - almost half; 3; near full; 4 full)
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
 			TranslationScope translationScope, TranslationScope customPrefsTranslationScope, String args[],
-			float prefsAssetVersion) throws XMLTranslationException
+			float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		// setup the translations used for prefs
 		TranslationScope prefTranslations;
@@ -474,12 +474,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * 
 	 * @author eunyee
 	 * @param prefServlet
-	 * @param translationSpace
+	 * @param translationScope
 	 *          TODO
 	 * @param uid
 	 * @return
 	 */
-	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationScope translationSpace)
+	protected PrefSet requestPrefFromServlet(String prefServlet, TranslationScope translationScope)
 	{
 		System.out.println("retrieving preferences set from servlet: " + prefServlet);
 		/*
@@ -506,13 +506,13 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			PrefSet prfs = null;
 			try
 			{
-				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationSpace);
+				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationScope);
 				System.out.println("Prefs loaded From Servlet:: ");
 				if (prfs != null)
 					prfs.serialize(System.out);
 				System.out.println(" --- End Prefs");
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				e.printStackTrace();
 			}
@@ -531,14 +531,14 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * Load MetaPrefs and Prefs, if possible
 	 * 
 	 * @param baseClass
-	 * @param translationSpace
+	 * @param translationScope
 	 * @param argStack
 	 * @param prefsAssetVersion
 	 *          TODO
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
-	private void processPrefs(Class<?> baseClass, TranslationScope translationSpace,
-			Stack<String> argStack, float prefsAssetVersion) throws XMLTranslationException
+	private void processPrefs(Class<?> baseClass, TranslationScope translationScope,
+			Stack<String> argStack, float prefsAssetVersion) throws SIMPLTranslationException
 	{
 		LaunchType launchType = LaunchType.ECLIPSE; // current default
 
@@ -587,17 +587,17 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				ParsedURL codeBase = ParsedURL.getAbsolute(arg, "Setting up codebase");
 				this.setCodeBase(codeBase);
 
-				XMLTranslationException metaPrefSetException = null;
+				SIMPLTranslationException metaPrefSetException = null;
 				ParsedURL metaPrefsPURL = null;
 				try
 				{
 					Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
 					File metaPrefsFile = Assets.getPreferencesFile(METAPREFS_XML);
 					metaPrefsPURL = new ParsedURL(metaPrefsFile);
-					metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationSpace);
+					metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationScope);
 					println("OK: loaded MetaPrefs from " + metaPrefsFile);
 				}
-				catch (XMLTranslationException e)
+				catch (SIMPLTranslationException e)
 				{
 					metaPrefSetException = e;
 				}
@@ -607,7 +607,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 					debugA("Considering prefSet=" + prefSet + "\tprefsPURL=" + prefsPURL);
 					if (prefSet == null) // Normal Case
 					{
-						prefSet = PrefSet.load(prefsPURL, translationSpace);
+						prefSet = PrefSet.load(prefsPURL, translationScope);
 						if (prefSet != null)
 							println("OK: Loaded Prefs from " + prefsPURL);
 						else
@@ -620,7 +620,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						println("\tContinuing.");
 					}
 				}
-				catch (XMLTranslationException e)
+				catch (SIMPLTranslationException e)
 				{
 					if (metaPrefSetException != null)
 					{
@@ -666,7 +666,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 								if (prefSpec != null)
 								{
-									PrefSet servletPrefSet = requestPrefFromServlet(prefSpec, translationSpace);
+									PrefSet servletPrefSet = requestPrefFromServlet(prefSpec, translationScope);
 									if (servletPrefSet == null)
 										error("incorrect prefXML string returned from the servlet=" + prefSpec);
 									else
@@ -695,15 +695,15 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 			Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
 
-			XMLTranslationException metaPrefSetException = null;
+			SIMPLTranslationException metaPrefSetException = null;
 			File metaPrefsFile = new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
 			ParsedURL metaPrefsPURL = new ParsedURL(metaPrefsFile);
 			try
 			{
-				metaPrefSet = MetaPrefSet.load(metaPrefsPURL, translationSpace);
+				metaPrefSet = MetaPrefSet.load(metaPrefsPURL, translationScope);
 				println("OK: Loaded MetaPrefs from: " + metaPrefsFile);
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				metaPrefSetException = e;
 			}
@@ -713,7 +713,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			// Data\combinFormation\preferences\prefs.xml
 			// these are the ones that get edited interactively!
 
-			prefSet = PrefSet.load(prefsPURL, translationSpace);
+			prefSet = PrefSet.load(prefsPURL, translationScope);
 			if (prefSet != null)
 				println("Loaded Prefs from: " + prefsPURL);
 			else
@@ -732,7 +732,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 					ParsedURL argPrefsPURL = new ParsedURL(argPrefsFile);
 					try
 					{
-						PrefSet argPrefSet = PrefSet.load(argPrefsPURL, translationSpace);
+						PrefSet argPrefSet = PrefSet.load(argPrefsPURL, translationScope);
 						if (metaPrefSetException != null)
 						{
 							warning("Couldn't load MetaPrefs:");
@@ -755,7 +755,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 						}
 
 					}
-					catch (XMLTranslationException e)
+					catch (SIMPLTranslationException e)
 					{
 						if (metaPrefSetException != null)
 						{
@@ -785,7 +785,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			if (prefSet != null)
 				prefSet.serialize(System.out);
 		}
-		catch (XMLTranslationException e)
+		catch (SIMPLTranslationException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -828,7 +828,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			catch (XMLTranslationException e)
+			catch (SIMPLTranslationException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1169,7 +1169,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * 
 	 * @return TranslationSpace in use for parsing Preferences
 	 */
-	public TranslationScope translationSpace()
+	public TranslationScope translationScope()
 	{
 		return translationScope;
 	}

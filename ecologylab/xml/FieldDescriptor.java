@@ -1458,10 +1458,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param childLeafNode
 	 *          XML leafNode that has the value we need to add, after type conversion.
 	 * 
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	void addLeafNodeToCollection(ElementState activeES, Node childLeafNode)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		addLeafNodeToCollection(activeES, getLeafNodeValue(childLeafNode), null);
 	}
@@ -1475,10 +1475,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 *          TODO
 	 * @param childLeafNode
 	 *          XML leafNode that has the value we need to add, after type conversion.
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	void addLeafNodeToCollection(ElementState activeES, String leafNodeValue,
-			ScalarUnmarshallingContext scalarUnmarshallingContext) throws XMLTranslationException
+			ScalarUnmarshallingContext scalarUnmarshallingContext) throws SIMPLTranslationException
 	{
 		if (leafNodeValue != null)
 		{
@@ -1530,9 +1530,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param e
 	 * @return
 	 */
-	private XMLTranslationException fieldAccessException(Object nestedElementState, Exception e)
+	private SIMPLTranslationException fieldAccessException(Object nestedElementState, Exception e)
 	{
-		return new XMLTranslationException("Unexpected Object / Field set problem. \n\t" + "Field = "
+		return new SIMPLTranslationException("Unexpected Object / Field set problem. \n\t" + "Field = "
 				+ field + "\n\ttrying to set to " + nestedElementState.getClass(), e);
 	}
 
@@ -1597,10 +1597,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param tagName
 	 *          TODO
 	 * @return
-	 * @throws XMLTranslationException
+	 * @throws SIMPLTranslationException
 	 */
 	ElementState constructChildElementState(ElementState parent, String tagName)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: tagClassDescriptors.get(tagName);
@@ -1615,7 +1615,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	void setFieldToNestedObject(ElementState context, Object nestedObject)
-			throws XMLTranslationException
+			throws SIMPLTranslationException
 	{
 		try
 		{

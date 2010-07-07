@@ -5,7 +5,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 import ecologylab.xml.simpl_inherit;
 
 @simpl_inherit
@@ -13,7 +13,7 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 
 	@simpl_scalar @simpl_hints(Hint.XML_LEAF_CDATA) protected String surrogateSetString;
 	
-	TranslationScope translationSpace;
+	TranslationScope translationScope;
 	
 	public CfCollaborationGetSurrogate()
 	{
@@ -38,11 +38,11 @@ public class CfCollaborationGetSurrogate extends RequestMessage {
 		return OkResponse.get();
 	}
 	
-	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationScope translationSpace) 
-	throws XMLTranslationException
+	public CfCollaborationGetSurrogate (String surrogateSetString, TranslationScope translationScope) 
+	throws SIMPLTranslationException
 	{
 		this(surrogateSetString);
-		this.translationSpace = translationSpace;
+		this.translationScope = translationScope;
 	}
 	
 	public CfCollaborationGetSurrogate(String surrogateSetString)

@@ -14,7 +14,7 @@ import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.XMLTranslationException;
+import ecologylab.xml.SIMPLTranslationException;
 
 /**
  * Abstract base class for building ecologylab.services clients.
@@ -30,7 +30,7 @@ public abstract class ServicesClientBase extends Debug implements
 
     protected String         server;
 
-    protected TranslationScope      translationSpace = null;
+    protected TranslationScope      translationScope = null;
 
     protected Scope objectRegistry;
 
@@ -45,13 +45,13 @@ public abstract class ServicesClientBase extends Debug implements
     {
         this.port = port;
         this.server = server;
-        this.translationSpace = messageSpace;
+        this.translationScope = messageSpace;
 
         if (objectRegistry == null)
             objectRegistry = new Scope();
         this.objectRegistry = objectRegistry;
         
-        this.translationSpace.addTranslation(InitConnectionResponse.class);
+        this.translationScope.addTranslation(InitConnectionResponse.class);
     }
 
     protected void processResponse(ResponseMessage responseMessage)
@@ -129,20 +129,20 @@ public abstract class ServicesClientBase extends Debug implements
      * 
      * @param messageString
      * @return
-     * @throws XMLTranslationException
+     * @throws SIMPLTranslationException
      */
     protected ResponseMessage translateXMLStringToResponseMessage(
-            String messageString) throws XMLTranslationException
+            String messageString) throws SIMPLTranslationException
     {
         return translateXMLStringToResponseMessage(messageString, true);
     }
 
     public ResponseMessage translateXMLStringToResponseMessage(
             String messageString, boolean doRecursiveDescent)
-            throws XMLTranslationException
+            throws SIMPLTranslationException
     {
         return (ResponseMessage) ElementState.translateFromXMLCharSequence(
-                messageString, translationSpace);
+                messageString, translationScope);
     }
 
     /**
