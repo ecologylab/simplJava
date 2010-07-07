@@ -442,7 +442,7 @@ public class CocoaTranslator
 		}
 
 		// Serialize translation scope
-		tScope.translateToXML(new File(directoryLocation
+		tScope.serialize(new File(directoryLocation
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR + tScope.getName()
 				+ CocoaTranslationConstants.XML_FILE_EXTENSION));
 

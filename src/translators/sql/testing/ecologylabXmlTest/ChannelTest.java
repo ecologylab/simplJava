@@ -2,12 +2,11 @@ package translators.sql.testing.ecologylabXmlTest;
 
 import java.util.ArrayList;
 
-import translators.sql.java2sql.DBName;
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.library.yahoo.Result;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
@@ -15,16 +14,16 @@ import ecologylab.xml.library.yahoo.Result;
  *
  * @author andruid
  */
-public @xml_inherit class ChannelTest extends ElementState
+public @simpl_inherit class ChannelTest extends ElementState
 {
-   @xml_leaf	String			title;
-   @xml_leaf	String			description;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
    /**
     * Could point to an HTML rendering of the feed.
     */
-   @xml_collection("thisLinkTag") @xml_leaf	ParsedURL		link;
+   @simpl_collection("thisLinkTag") @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		link;
    
-   @xml_nowrap @xml_collection("item") ArrayList<ItemTest> items;
+   @simpl_nowrap @simpl_collection("item") ArrayList<ItemTest> items;
    
    @simpl_db({DbHint.PRIMARY_KEY, DbHint.UNIQUE}) String primaryUniqueKey; 
    
@@ -116,7 +115,7 @@ public @xml_inherit class ChannelTest extends ElementState
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			c.translateToXML(buffy);
+			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
 			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslationsTest.get());
@@ -128,7 +127,7 @@ public @xml_inherit class ChannelTest extends ElementState
 			{
 				System.out.println(class1.getCanonicalName()); 
 			}
-			c2.translateToXML(System.out);
+			c2.serialize(System.out);
 //			println(c.translateToXML());
 		} catch (XMLTranslationException e)
 		{

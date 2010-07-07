@@ -1,21 +1,10 @@
 package translators.net;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
-import ecologylab.collections.Scope;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.net.ParsedURL;
-import ecologylab.xml.ElementState.xml_classes;
-import ecologylab.xml.ElementState.xml_collection;
+import ecologylab.xml.ElementState.simpl_classes;
+import ecologylab.xml.ElementState.simpl_collection;
 import ecologylab.xml.ElementState.xml_tag;
-import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Static methods to do repeated useful tasks during the translation
@@ -266,7 +255,7 @@ public class DotNetTranslationUtilities
 	{
 		String simpleName = getSimpleName(annotation);
 
-		if (annotation instanceof xml_collection)
+		if (annotation instanceof simpl_collection)
 		{
 			return getCSharpCollectionAnnotation(annotation);
 		}
@@ -274,7 +263,7 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpTagAnnotation(annotation);
 		}
-		else if (annotation instanceof xml_classes)
+		else if (annotation instanceof simpl_classes)
 		{
 			return getCSharpClassesAnnotation(annotation);
 		}
@@ -291,7 +280,7 @@ public class DotNetTranslationUtilities
 	private static String getCSharpClassesAnnotation(Annotation annotation)
 	{
 		String parameter = null;
-		xml_classes classesAnnotation = (xml_classes) annotation;
+		simpl_classes classesAnnotation = (simpl_classes) annotation;
 		Class<?>[] classArray = classesAnnotation.value();
 
 		String simpleName = getSimpleName(annotation);
@@ -351,7 +340,7 @@ public class DotNetTranslationUtilities
 	private static String getCSharpCollectionAnnotation(Annotation annotation)
 	{
 		String parameter = null;
-		xml_collection collectionAnnotation = (xml_collection) annotation;
+		simpl_collection collectionAnnotation = (simpl_collection) annotation;
 		String tagValue = collectionAnnotation.value();
 		String simpleName = getSimpleName(annotation);
 

@@ -12,10 +12,10 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class CocoaInheritTest extends ElementState
 {
-	@xml_nested
+	@simpl_composite
 	private CocaTestClass	ct;
 
-	@xml_attribute
+	@simpl_scalar
 	private String				test;
 
 	public CocoaInheritTest() throws MalformedURLException
@@ -47,6 +47,6 @@ public class CocoaInheritTest extends ElementState
 	public static void main(String args[]) throws MalformedURLException, XMLTranslationException
 	{
 		CocoaInheritTest t = new CocoaInheritTest();
-		t.translateToXML(System.out);
+		t.serialize(System.out);
 	}
 }

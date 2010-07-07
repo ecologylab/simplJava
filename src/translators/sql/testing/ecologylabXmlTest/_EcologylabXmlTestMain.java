@@ -33,7 +33,7 @@ public class _EcologylabXmlTestMain
  
 		/*translate to xml*/
 		StringBuilder buffy	= new StringBuilder();
-		c.translateToXML(buffy);
+		c.serialize(buffy);
 		System.out.println(buffy);
 		System.out.println('\n');
 		
@@ -48,7 +48,7 @@ public class _EcologylabXmlTestMain
 		{
 			System.out.println(class1.getCanonicalName()); 
 		}
-		c2.translateToXML(System.out);
+		c2.serialize(System.out);
 //			println(c.translateToXML());
 
 	}

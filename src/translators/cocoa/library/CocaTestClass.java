@@ -16,47 +16,47 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class CocaTestClass extends ElementState
 {
-	@xml_attribute
+	@simpl_scalar
 	private int											intAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private float										floatAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private double									doubleAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private byte										byteAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private char										charAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private boolean									booleanAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private long										longAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private short										shortAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private String									stringAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private Date										dateAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private StringBuilder						stringBuilderAttribute;
 
-	@xml_attribute
+	@simpl_scalar
 	private URL											urlAttribute;
 
-	@xml_nowrap
-	@xml_collection
+	@simpl_nowrap
+	@simpl_collection
 	private ArrayList<String>				arrayListAttribute;
 
-	@xml_map
+	@simpl_map
 	private HashMap<String, String>	hashMapAttribute;
 
 	public CocaTestClass() throws MalformedURLException
@@ -83,7 +83,7 @@ public class CocaTestClass extends ElementState
 	public static void main(String args[]) throws XMLTranslationException, MalformedURLException
 	{
 		CocaTestClass test = new CocaTestClass();
-		test.translateToXML(System.out);
+		test.serialize(System.out);
 	}
 
 	public void setIntAttribute(int intAttribute)

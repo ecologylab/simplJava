@@ -1,16 +1,6 @@
 package translators.cocoa;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-
-import ecologylab.collections.Scope;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.net.ParsedURL;
-import ecologylab.xml.types.scalar.ScalarType;
 
 /**
  * Utilities class to provide static helper methods and code logic used again and again by the

@@ -1,6 +1,7 @@
 package translators.net;
 
 import japa.parser.ParseException;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -12,11 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import translators.parser.JavaDocParser;
-
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.standalone.xmlpolymorph.BItem;
-import ecologylab.standalone.xmlpolymorph.SchmItem;
-import ecologylab.standalone.xmlpolymorph.Schmannel;
 import ecologylab.xml.ClassDescriptor;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.FieldDescriptor;
@@ -24,8 +21,6 @@ import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.rss.Channel;
-import ecologylab.xml.library.rss.Item;
-import ecologylab.xml.library.rss.RssState;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import org.junit.Test;
 
@@ -25,8 +24,8 @@ import ecologylab.xml.FieldDescriptor;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.ElementState.DbHint;
+import ecologylab.xml.ElementState.simpl_collection;
 import ecologylab.xml.ElementState.simpl_db;
-import ecologylab.xml.ElementState.xml_collection;
 import ecologylab.xml.library.rss.Channel;
 import ecologylab.xml.library.rss.Item;
 import ecologylab.xml.library.rss.RssState;
@@ -284,7 +283,7 @@ public class SqlTranslatorMain extends SqlTranslator
 		{
 			System.out.println(field.getName() + " " + field.getType().getSimpleName());
 			simpl_db simpdbAnnotation = field.getAnnotation(ElementState.simpl_db.class);
-			xml_collection thisXmlCollection = field.getAnnotation(ElementState.xml_collection.class);
+			simpl_collection thisXmlCollection = field.getAnnotation(ElementState.simpl_collection.class);
 
 			if (simpdbAnnotation != null)
 			{
@@ -336,8 +335,8 @@ public class SqlTranslatorMain extends SqlTranslator
 			/*
 			 * TODO get collection value
 			 */
-			xml_collection thisCollectionValue = thisFieldDescriptor.getField().getAnnotation(
-					ElementState.xml_collection.class);
+			simpl_collection thisCollectionValue = thisFieldDescriptor.getField().getAnnotation(
+					ElementState.simpl_collection.class);
 
 			if (thisCollectionValue != null)
 				System.out.println("**** (@xml_collection value) " + thisCollectionValue.value());

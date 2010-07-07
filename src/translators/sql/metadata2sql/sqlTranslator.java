@@ -1,7 +1,6 @@
 package translators.sql.metadata2sql;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedWriter;
@@ -9,7 +8,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
@@ -18,9 +16,6 @@ import org.junit.Test;
 
 import translators.sql.java2sql.DBName;
 import ecologylab.generic.Debug;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.xml.ClassDescriptor;
-import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
 public class sqlTranslator implements DBName{
