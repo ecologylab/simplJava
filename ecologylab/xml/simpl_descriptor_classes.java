@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-public @interface serial_descriptors_classes
+public @interface simpl_descriptor_classes
 {
   Class[] value();
 }

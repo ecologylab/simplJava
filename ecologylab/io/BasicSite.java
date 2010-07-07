@@ -22,7 +22,7 @@ class BasicSite extends ElementState implements Mappable<String>
 	
 	static Random random = new Random(System.currentTimeMillis());
 	
-	@xml_attribute protected String	domain;
+	@simpl_scalar protected String	domain;
 
   int															numTimeouts;
 
@@ -32,7 +32,7 @@ class BasicSite extends ElementState implements Mappable<String>
    * Minimum time to wait between downloads for this domain
    * Specified in seconds
    */
-  @xml_attribute protected int							minDownloadInterval;
+  @simpl_scalar protected int							minDownloadInterval;
   
   /**
    * Timestamp of last download from this site;

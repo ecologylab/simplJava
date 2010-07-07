@@ -3,6 +3,7 @@ package ecologylab.xml.library.rest;
 import java.net.URL;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 
 /**
  * Rest Search Results
@@ -11,18 +12,18 @@ import ecologylab.xml.ElementState;
  */
 public class RestSearchResult extends ElementState
 {
-	@xml_attribute protected String 		schemaVersion;
-	@xml_attribute protected String 		xmlns;
-	@xml_attribute @xml_tag("xmlns:xsi")	
+	@simpl_scalar protected String 		schemaVersion;
+	@simpl_scalar protected String 		xmlns;
+	@simpl_scalar @xml_tag("xmlns:xsi")	
 					protected String			xsi = "http://www.w3.org/2001/XMLSchema-instance";
-	@xml_attribute @xml_tag("xmlns:dc")	
+	@simpl_scalar @xml_tag("xmlns:dc")	
 					protected String			dc = "http://purl.org/dc/elements/1.1/";
-	@xml_attribute @xml_tag("xsi:schemaLocation")
+	@simpl_scalar @xml_tag("xsi:schemaLocation")
 					protected String		schemaLocation;
 	
-	@xml_leaf 	protected 	 String 		responseTime;
-	@xml_leaf   protected 	 URL			request;
-	@xml_nested @xml_tag("SearchResults") 
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected 	 String 		responseTime;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)   protected 	 URL			request;
+	@simpl_composite @xml_tag("SearchResults") 
 				protected 	 SearchResults 	SearchResults;
 	
 	public RestSearchResult() {}

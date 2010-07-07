@@ -2,6 +2,7 @@ package ecologylab.xml.library.dc;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
 
 /**
@@ -15,25 +16,25 @@ import ecologylab.xml.TranslationScope;
  */
 public class Dc extends ElementState
 {
-	@xml_leaf  	String				title;
-	@xml_leaf  	String				creator;
-	@xml_leaf 	String				subject;
-	@xml_leaf	String				description;
-	@xml_leaf 	String				publisher;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)  	String				title;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)  	String				creator;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	String				subject;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String				description;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	String				publisher;
 	// Contributor
 	// public Date 			date; // we need to implement a better Date type!
 	// values for type: Collection, Dataset, Event, Image, MovingImage, 
 	// InteractiveResource, PhysicalObject, Service, Software, Sound,
 	// StillImage, Text
-	@xml_leaf	String				type;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String				type;
 	/**
 	 * Probably the mime-type, but alas not necessarily.
 	 */
-	@xml_leaf	String				format;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String				format;
 	/**
 	 * Recommended best practice is to identify the resource by means of a string or number conforming to a formal identification system. Formal identification systems include but are not limited to the Uniform Resource Identifier (URI) (including the Uniform Resource Locator (URL)), the Digital Object Identifier (DOI) and the International Standard Book Number (ISBN).
 	 */
-	@xml_leaf 	ParsedURL			identifier;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	ParsedURL			identifier;
 	// language
 	// relation
 	// coverage

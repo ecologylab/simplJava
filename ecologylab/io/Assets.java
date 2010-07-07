@@ -599,8 +599,8 @@ implements ApplicationProperties
 			if (needToWriteAssetsXml)
 			{
 				needToWriteAssetsXml	= false;
-//				assetsState.writePrettyXML(assetsXmlFile);
-				assetsState.translateToXML(assetsXmlFile);
+//				assetsState.translateToXML(assetsXmlFile);
+				assetsState.serialize(assetsXmlFile);
 				println("Saved Assets XML" + sourceSpot + ": " + assetsXmlFile);
 			}
 			else

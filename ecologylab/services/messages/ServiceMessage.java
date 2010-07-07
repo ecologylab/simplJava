@@ -19,14 +19,14 @@ public class ServiceMessage<S extends Scope> extends ElementState implements
 		super();
 	}
 
-	@xml_attribute
+	@simpl_scalar
 	protected long				timeStamp	= 0;
 
 	/**
 	 * Used to carry uid for messages, now only used by legacy code. Retained temporarily for
 	 * backwards compatability.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	@Deprecated
 	protected long				uid;
 

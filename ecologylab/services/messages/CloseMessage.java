@@ -1,9 +1,9 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
-@xml_inherit public class CloseMessage extends RequestMessage
+@simpl_inherit public class CloseMessage extends RequestMessage
 {
 	private static final CloseMessage	INSTANCE	= new CloseMessage();
 

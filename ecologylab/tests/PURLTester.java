@@ -7,6 +7,7 @@ import java.net.URL;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
 
@@ -29,13 +30,13 @@ public class PURLTester extends ElementState {
 	URL relativeURL;
 	URL uncURL;
 	
-	@xml_leaf ParsedURL absolutePURLfromFile;
-	@xml_leaf ParsedURL relativePURLfromFile;
-	@xml_leaf ParsedURL uncPURLfromFILE;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL absolutePURLfromFile;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL relativePURLfromFile;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL uncPURLfromFILE;
 	
-	@xml_leaf ParsedURL absolutePURLfromURL;
-	@xml_leaf ParsedURL relativePURLfromURL;
-	@xml_leaf ParsedURL uncPURLfromURL;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL absolutePURLfromURL;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL relativePURLfromURL;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) ParsedURL uncPURLfromURL;
 
 	
 	public PURLTester()
@@ -135,13 +136,13 @@ public class PURLTester extends ElementState {
 		
 		TranslationScope ts = TranslationScope.get("testerscope", PURLTester.class, ParsedURL.class);
 		try {
-			tester.writePrettyXML("tester.xml");
+			tester.serializeAsFile("tester.xml");
 			PURLTester other = (PURLTester) PURLTester.translateFromXML("tester.xml", ts);
 			/* I put a breakpoint here to manually inspect other
 			 * to make sure it was read back in correctly -- Marty
 			 */
 			System.out.println(other);
-		} catch (XMLTranslationException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

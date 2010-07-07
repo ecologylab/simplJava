@@ -1,7 +1,7 @@
 package ecologylab.xml;
 
-import ecologylab.net.ParsedURL;
 import ecologylab.generic.Debug;
+import ecologylab.net.ParsedURL;
 
 /**
  * There are certain rules one has to follow while using this framework for

@@ -6,7 +6,7 @@ package ecologylab.services.messages;
 import ecologylab.collections.Scope;
 import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.impl.Shutdownable;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A message indicating that the server should shut down it's associated
@@ -22,7 +22,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit public class ShutdownRequest extends RequestMessage implements
+@simpl_inherit public class ShutdownRequest extends RequestMessage implements
 		SessionObjects
 {
 

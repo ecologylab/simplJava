@@ -1,9 +1,9 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
-public @xml_inherit class Ping extends RequestMessage 
+public @simpl_inherit class Ping extends RequestMessage 
 {
 	/**
 	 * @see ecologylab.services.messages.HttpRequest#performService(ecologylab.collections.Scope)

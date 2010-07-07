@@ -5,7 +5,7 @@ package ecologylab.xml.library.xaml;
 
 import java.awt.Rectangle;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A base class for representing WPF FrameworkElements that are children of a WPF
@@ -16,18 +16,18 @@ import ecologylab.xml.xml_inherit;
  * @author awebb
  *
  */
-@xml_inherit
+@simpl_inherit
 public abstract class PanelChildState extends FrameworkElementState
 {
 
-	@xml_attribute @xml_tag("Canvas.ZIndex") 	int zIndex;
-	@xml_attribute @xml_tag("Canvas.Top") 		int top;
-	@xml_attribute @xml_tag("Canvas.Left") 		int left;
+	@simpl_scalar @xml_tag("Canvas.ZIndex") 	int zIndex;
+	@simpl_scalar @xml_tag("Canvas.Top") 		int top;
+	@simpl_scalar @xml_tag("Canvas.Left") 		int left;
 	
-	@xml_attribute @xml_tag("Grid.Column")		int column;
-	@xml_attribute @xml_tag("Grid.Row")			int row;
+	@simpl_scalar @xml_tag("Grid.Column")		int column;
+	@simpl_scalar @xml_tag("Grid.Row")			int row;
 	
-	@xml_attribute @xml_tag("DockPanel.Dock")	String dock;
+	@simpl_scalar @xml_tag("DockPanel.Dock")	String dock;
 	
 	static class Dock
 	{

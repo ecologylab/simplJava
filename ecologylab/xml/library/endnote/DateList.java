@@ -11,7 +11,7 @@ import ecologylab.xml.types.element.StringState;
  */
 public class DateList extends ElementState
 {
-    private @xml_nested StringState year;
+    private @simpl_composite StringState year;
     
 //    private @xml_nested String pub-dates = "";
     

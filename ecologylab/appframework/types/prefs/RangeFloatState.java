@@ -4,23 +4,23 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * @author andruid
  *
  */
-@xml_inherit
+@simpl_inherit
 public class RangeFloatState extends ElementState /* RangeState<Integer> */
 {
     /**
      * Min value.
      */
-    @xml_attribute  float     min;
+    @simpl_scalar  float     min;
     /**
      * Max value.
      */
-    @xml_attribute  float     max;
+    @simpl_scalar  float     max;
     
     /**
      * 

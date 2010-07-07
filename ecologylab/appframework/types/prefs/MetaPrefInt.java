@@ -4,7 +4,7 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 import ecologylab.appframework.types.prefs.RangeIntState;
@@ -16,18 +16,18 @@ import ecologylab.appframework.types.prefs.RangeState;
  * @author andruid
  *
  */
-@xml_inherit
+@simpl_inherit
 public class MetaPrefInt extends MetaPref<Integer>
 {
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	int		               defaultValue;
+	@simpl_scalar	int		               defaultValue;
    
     /**
      * Min/max values
      */
-    @xml_nested     RangeIntState          range;
+    @simpl_composite     RangeIntState          range;
 	
 	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getType(int.class);
 

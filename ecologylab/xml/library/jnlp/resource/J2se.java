@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.library.jnlp.resource;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -17,7 +17,7 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
+public @simpl_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
 {
     /**
      * The version attribute refers, by default, to a platform version (specification version) of the Java 2 platform.
@@ -42,7 +42,7 @@ public @xml_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
      * from Sun Microsystems, Inc., is by convention a non-FCS (milestone) JRE if there is a dash (-) in the version
      * string.
      */
-    @xml_attribute private String                          version;
+    @simpl_scalar private String                          version;
 
     /**
      * The java-vm-args attribute of the j2se element specifies a preferred set of virtual machine arguments to use when
@@ -63,11 +63,11 @@ public @xml_inherit @xml_tag("j2se") class J2se extends HrefBasedResource
      * 
      * 
      */
-    @xml_attribute @xml_tag("java-vm-args") private String javaVmArgs;
+    @simpl_scalar @xml_tag("java-vm-args") private String javaVmArgs;
 
-    @xml_attribute @xml_tag("initial-heap-size") private String initialHeapSize;
+    @simpl_scalar @xml_tag("initial-heap-size") private String initialHeapSize;
     
-    @xml_attribute @xml_tag("max-heap-size") private String maxHeapSize;
+    @simpl_scalar @xml_tag("max-heap-size") private String maxHeapSize;
     
     /**
      * 

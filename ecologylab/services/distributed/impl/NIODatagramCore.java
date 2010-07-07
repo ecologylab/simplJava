@@ -351,7 +351,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 					buffer.putLong(mdataMessage.getUid());
 
-					mdataMessage.getMessage().translateToXML(builder);
+					mdataMessage.getMessage().serialize(builder);
 
 					builder.flip();
 

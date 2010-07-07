@@ -16,9 +16,9 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class TestScalarCollection extends ElementState
 {
-	@xml_collection("person")	ArrayList<String>	stuff;
+	@simpl_collection("person")	ArrayList<String>	stuff;
 	
-	@xml_collection("link")		ArrayList<ParsedURL> purls;
+	@simpl_collection("link")		ArrayList<ParsedURL> purls;
 	
 	static final TranslationScope TS	= TranslationScope.get("test_scalar", null, TestScalarCollection.class);
 	
@@ -28,9 +28,9 @@ public class TestScalarCollection extends ElementState
 	{
 		try
 		{
-			ElementState es	= ElementState.translateFromXMLSAX(xml, TS);
+			ElementState es	= ElementState.translateFromXMLCharSequence(xml, TS);
 			
-			es.translateToXML(System.out);
+			es.serialize(System.out);
 			
 		} catch (XMLTranslationException e)
 		{

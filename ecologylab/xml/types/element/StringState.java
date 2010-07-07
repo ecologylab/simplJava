@@ -4,7 +4,7 @@ import ecologylab.xml.ElementState;
 
 public class StringState extends ElementState
 {
-    @xml_attribute public String string;
+    @simpl_scalar public String string;
     
     public StringState()
     {

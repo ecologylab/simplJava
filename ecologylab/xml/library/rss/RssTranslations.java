@@ -66,13 +66,13 @@ extends Debug
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			tScope.translateToXML(buffy);
+			tScope.serialize(buffy);
 			System.out.println('\n');
 			
 			ElementState translated	= ElementState.translateFromXMLCharSequence(buffy, TranslationScope.getBasicTranslations());
 				//ElementState.translateFromXMLCharSequence(OUT, TranslationScope.getBasicTranslations());
 			
-			translated.translateToXML(System.out);
+			translated.serialize(System.out);
 			System.out.println('\n');
 		}
 		catch (XMLTranslationException e)

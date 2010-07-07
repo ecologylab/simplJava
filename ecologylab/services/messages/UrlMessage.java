@@ -2,14 +2,14 @@ package ecologylab.services.messages;
 
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
-@xml_inherit
+@simpl_inherit
 public class UrlMessage extends RequestMessage
 {
-	@xml_attribute protected String url = "";
+	@simpl_scalar protected String url = "";
 //	@xml_attribute protected	ParsedURL	purl;
-	@xml_attribute protected	String collection = "";
+	@simpl_scalar protected	String collection = "";
 
 
 	public @Override ResponseMessage performService(Scope objectRegistry) 

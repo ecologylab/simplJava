@@ -9,7 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Encapsulates a Rectangle2D.Double for use in translating to/from XML.
@@ -27,16 +27,16 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit class Line2DDoubleState extends ElementState implements
+public @simpl_inherit class Line2DDoubleState extends ElementState implements
 		Shape
 {
-	@xml_attribute protected double	x1					= 0;
+	@simpl_scalar protected double	x1					= 0;
 
-	@xml_attribute protected double	x2					= 0;
+	@simpl_scalar protected double	x2					= 0;
 
-	@xml_attribute protected double	y1					= 0;
+	@simpl_scalar protected double	y1					= 0;
 
-	@xml_attribute protected double	y2					= 0;
+	@simpl_scalar protected double	y2					= 0;
 
 	private Line2D.Double				line				= null;
 

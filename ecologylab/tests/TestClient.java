@@ -5,11 +5,9 @@ package ecologylab.tests;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import ecologylab.services.distributed.client.NIOClient;
-import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

@@ -13,13 +13,13 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class TestXMLFormat extends ElementState
 {
-	@xml_attribute @xml_format("#") double			decimal0	= 1.654654654654645321321;
+	@simpl_scalar @simpl_format("#") double			decimal0	= 1.654654654654645321321;
 
-	@xml_attribute @xml_format("#.#") double		decimal1	= -1.654654654654645321321;
+	@simpl_scalar @simpl_format("#.#") double		decimal1	= -1.654654654654645321321;
 
-	@xml_attribute @xml_format("#.0#") double		decimal2	= -11111.654654654654645321321;
+	@simpl_scalar @simpl_format("#.0#") double		decimal2	= -11111.654654654654645321321;
 
-	@xml_attribute @xml_format("#.###") double	decimal3	= 0.654654654654645321321;
+	@simpl_scalar @simpl_format("#.###") double	decimal3	= 0.654654654654645321321;
 
 	public TestXMLFormat()
 	{
@@ -34,15 +34,15 @@ public class TestXMLFormat extends ElementState
 	{
 		TestXMLFormat t = new TestXMLFormat();
 
-		t.translateToXML(System.out);
+		t.serialize(System.out);
 		System.out.println();
 
-		ElementState.translateFromXMLCharSequence(t.translateToXML().toString(),
-				TranslationScope.get("test", TestXMLFormat.class)).translateToXML(
+		ElementState.translateFromXMLCharSequence(t.serialize().toString(),
+				TranslationScope.get("test", TestXMLFormat.class)).serialize(
 				System.out);
 		System.out.println();
 
-		System.out.println(t.translateToXML());
+		System.out.println(t.serialize());
 	}
 
 }

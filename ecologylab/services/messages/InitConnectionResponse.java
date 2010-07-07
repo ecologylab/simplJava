@@ -3,7 +3,7 @@
  */
 package ecologylab.services.messages;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Response to a request to connect to a server. On a successful connection, sessionId will contain
@@ -11,14 +11,14 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-public @xml_inherit
+public @simpl_inherit
 class InitConnectionResponse extends ResponseMessage
 {
 	/**
 	 * The session identifier used for all communications between this client and the server. If the
 	 * value is null, it means the connection failed.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	String	sessionId;
 
 	/**

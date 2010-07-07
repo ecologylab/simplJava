@@ -6,7 +6,7 @@ package ecologylab.appframework.types.prefs;
 import java.io.File;
 
 import ecologylab.appframework.types.prefs.MetaPref;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -18,13 +18,13 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  */
 
-@xml_inherit
+@simpl_inherit
 public class MetaPrefString extends MetaPref<String>
 {
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	String		defaultValue;
+	@simpl_scalar	String		defaultValue;
 	
 	public static final ScalarType STRING_SCALAR_TYPE	= TypeRegistry.getType(String.class);
 

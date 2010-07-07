@@ -2,7 +2,7 @@ package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A message to be sent to a ServicesServer through HTTP that the Services will 
@@ -11,17 +11,17 @@ import ecologylab.xml.xml_inherit;
  * @author andrew
  */
 
-public @xml_inherit class HttpRequest extends RequestMessage 
+public @simpl_inherit class HttpRequest extends RequestMessage 
 {
 	/**
 	 * Redirect URL if no errors or problems occured.
 	 */
-	protected @xml_attribute ParsedURL okResponseUrl;
+	protected @simpl_scalar ParsedURL okResponseUrl;
 	
 	/**
 	 * Redirect URL if an error or problem occured.
 	 */
-	protected @xml_attribute ParsedURL errorResponseUrl;
+	protected @simpl_scalar ParsedURL errorResponseUrl;
 
 	@Override
 	public ResponseMessage performService(Scope objectRegistry) 

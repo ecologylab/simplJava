@@ -1,24 +1,24 @@
 package ecologylab.services.logging;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A user operation, which can be serialized, logged, Undo/Redo'ed, played in history, and so on.
  * 
  * @author andruid
  */
-abstract public @xml_inherit class MixedInitiativeOp extends BasicOp
+abstract public @simpl_inherit class MixedInitiativeOp extends BasicOp
 {	
-	@xml_attribute protected short	intensity;
+	@simpl_scalar protected short	intensity;
 	
 	/**
 	 * invert value for the dual operation. 
 	 * This value indicates which operation should be performed in the object of dual operations. 
 	 */
-	@xml_attribute protected boolean	invert;
+	@simpl_scalar protected boolean	invert;
 	
-	@xml_attribute protected String		action = null;
-	@xml_attribute protected long		recordTime;
+	@simpl_scalar protected String		action = null;
+	@simpl_scalar protected long		recordTime;
 	
 	static protected final short UNKNOWN_OP		= -1024;
 	static protected final short UNDEFINED_OP		= -1;

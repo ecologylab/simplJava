@@ -4,6 +4,7 @@
 package ecologylab.xml.library.jnlp.information;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -28,9 +29,9 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class Description extends ElementState implements Mappable<String>
 {
-    @xml_attribute private String kind;
+    @simpl_scalar private String kind;
 
-    @xml_text private String      desc;
+    @simpl_scalar @simpl_hints(Hint.XML_TEXT) private String      desc;
 
     /**
      * 

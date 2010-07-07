@@ -3,13 +3,13 @@ package ecologylab.services.logging;
 import java.io.IOException;
 import java.io.Writer;
 
-import ecologylab.collections.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.RequestMessage;
 import ecologylab.services.messages.ResponseMessage;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Transport for getting log data to the server, without need for any additional translation.
@@ -27,10 +27,10 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-@xml_inherit
+@simpl_inherit
 abstract public class LogEvent extends RequestMessage<LoggingContextScope>
 {
-	@xml_leaf(CDATA)
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF_CDATA)
 	protected StringBuilder			bufferToLog;
 
 	/** No argument constructor for serialization. */

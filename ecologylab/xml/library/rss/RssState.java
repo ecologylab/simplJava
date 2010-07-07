@@ -20,9 +20,9 @@ import ecologylab.xml.library.media.Thumbnail;
  */
 public class RssState extends ElementState
 {
-	@xml_attribute	float		version;
+	@simpl_scalar	float		version;
    
-	@xml_nested		Channel		channel;
+	@simpl_composite		Channel		channel;
 
 	/**
 	 * @return Returns the channel.
@@ -199,7 +199,7 @@ public class RssState extends ElementState
 			rss = translateFromXML(CNN_TOP_FEED, RssTranslations.get());
 			
 			System.out.println("");
-			rss.translateToXML(System.out);
+			rss.serialize(System.out);
 			System.out.println("");
 			
 			// RssTranslations.get().translateToXML(System.out);
@@ -221,7 +221,7 @@ public class RssState extends ElementState
 		
 		try
 		{
-			rss.translateToXML(System.out);
+			rss.serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{
@@ -252,27 +252,27 @@ public class RssState extends ElementState
 				{
 					Thumbnail thumbnail	= media.getThumbnail();
 					if (thumbnail != null)
-						thumbnail.translateToXML(System.err);
+						thumbnail.serialize(System.err);
 //					media.translateToXML(System.err);
 					System.err.println('\n');
 				}
 				Feedburner feedburner = (Feedburner) item.getNestedNameSpace("feedburner");
 				if (feedburner != null)
 				{
-					feedburner.translateToXML(System.err);
+					feedburner.serialize(System.err);
 					System.err.println('\n');
 				}
 			}
 
-			rssState.translateToXML(System.err);
+			rssState.serialize(System.err);
 			println("\n");
-			rssState.writePrettyXML(System.err);
+			rssState.serialize(System.err);
 			println("\n");
 			
 //			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
 //			rssState2.translateToXML(System.out);
 
-//			rssState.writePrettyXML(outputFile);
+//			rssState.translateToXML(outputFile);
 			
 			println("\n");
 		} catch (XMLTranslationException e)

@@ -4,12 +4,13 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 
-public @xml_inherit
+public @simpl_inherit
 class Author extends ElementState
 {
-	@xml_text
+	@simpl_scalar @simpl_hints(Hint.XML_TEXT)
 	String	authorName;
 
 	public Author()

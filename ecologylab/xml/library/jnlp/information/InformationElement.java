@@ -6,30 +6,30 @@ package ecologylab.xml.library.jnlp.information;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_nowrap;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_inherit @xml_tag("information") class InformationElement extends ElementState
+public @simpl_inherit @xml_tag("information") class InformationElement extends ElementState
 {
-    @xml_attribute protected String                                               os;
+    @simpl_scalar protected String                                               os;
 
     /** The name of the application. This element is required. */
-    @xml_leaf protected String                                                  title;
+    @simpl_scalar @simpl_hints(Hint.XML_LEAF) protected String                                                  title;
 
     /** The name of the vendor of the application. This element is required. */
-    @xml_leaf protected String                                                  vendor;
+    @simpl_scalar @simpl_hints(Hint.XML_LEAF) protected String                                                  vendor;
 
     /**
      * Contains a single attribute, href, which is a URL locating the home page for the Application. It is used by the
      * Java Application Cache Viewer to point the user to a Web page where more information about the application can be
      * found.
      */
-    @xml_nested protected HomepageElement                                         homepage;
+    @simpl_composite protected HomepageElement                                         homepage;
 
     /**
      * A short statement about the application. Description elements are optional. The kind attribute defines how the
@@ -49,8 +49,8 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * 
      * All descriptions contain plain text. No formatting, such as with HTML tags, is supported.
      */
-  	@xml_nowrap 
-    @xml_collection("description") protected ArrayList<Description>               descriptions   = new ArrayList<Description>();
+  	@simpl_nowrap 
+    @simpl_collection("description") protected ArrayList<Description>               descriptions   = new ArrayList<Description>();
 
     /**
      * Contains an HTTP URL to an image file in either GIF or JPEG format. The icons are used to represents the
@@ -81,8 +81,8 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * file, the old splash image will still be displayed. The new splash image will appear on the second and subsequent
      * launches of the application.
      */
-  	@xml_nowrap 
-    @xml_collection("icon") protected ArrayList<Icon>                             icons          = new ArrayList<Icon>();
+  	@simpl_nowrap 
+    @simpl_collection("icon") protected ArrayList<Icon>                             icons          = new ArrayList<Icon>();
 
     /**
      * offline-allowed element: The optional offline-allowed element indicates if the application can be launched
@@ -105,15 +105,15 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * application will be launched instead. Given a reasonably fast server connection, the latest version of the
      * application will usually be run, but it is not guaranteed. The application, however, can be run offline.
      */
-  	@xml_nowrap 
-    @xml_collection("offline-allowed") protected ArrayList<OfflineAllowedElement> offlineAllowed = new ArrayList<OfflineAllowedElement>();
+  	@simpl_nowrap 
+    @simpl_collection("offline-allowed") protected ArrayList<OfflineAllowedElement> offlineAllowed = new ArrayList<OfflineAllowedElement>();
 
     /**
      * The optional association element is a hint to the JNLP client that it wishes to be registered with the operating
      * system as the primary handler of certain extensions and a certain mime-type. The association element must have
      * the extensions and mime-type attributes.
      */
-    @xml_nested protected AssociationElement                                      association;
+    @simpl_composite protected AssociationElement                                      association;
 
     /**
      * shortcut element: The optional shortcut element can be used to indicate an application's preferences for desktop
@@ -121,7 +121,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * The shortcut element can contain the optional online attribute, and the two optional sub-elements, desktop and
      * menu.
      */
-    @xml_nested protected ShortcutElement                                         shortcut;
+    @simpl_composite protected ShortcutElement                                         shortcut;
 
     /**
      * related-content element: The optional related-content element describes an additional piece of related content,
@@ -132,7 +132,7 @@ public @xml_inherit @xml_tag("information") class InformationElement extends Ele
      * description element: A short description of the related content. icon element: The icon can be used by the JNLP
      * Client to identify the related content to the user.
      */
-    @xml_nested @xml_tag("related-content") RelatedContentElement               relatedContent;
+    @simpl_composite @xml_tag("related-content") RelatedContentElement               relatedContent;
     
     /** No-argument constructor for XML translation. */
     public InformationElement()

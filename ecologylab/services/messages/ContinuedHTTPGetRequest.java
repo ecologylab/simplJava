@@ -3,14 +3,15 @@ package ecologylab.services.messages;
 import java.util.Hashtable;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 
-@xml_inherit
+@simpl_inherit
 public class ContinuedHTTPGetRequest extends HttpRequest
 {
-	@xml_leaf(CDATA)	String	messageFragment;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF_CDATA)	String	messageFragment;
 	
-	@xml_attribute		boolean	isLast;
+	@simpl_scalar		boolean	isLast;
 	
 	static final		Hashtable<String, String>	partialMessages	= new Hashtable<String, String>();
 	

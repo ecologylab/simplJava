@@ -12,13 +12,13 @@ public abstract class RectangularShape extends ElementState implements Shape
 	/**
 	 * Location and dimensions of the ellipse.
 	 */
-	protected @xml_attribute double	x	= 0;
+	protected @simpl_scalar double	x	= 0;
 
-	protected @xml_attribute double	y	= 0;
+	protected @simpl_scalar double	y	= 0;
 
-	protected @xml_attribute double	w	= 0;
+	protected @simpl_scalar double	w	= 0;
 
-	protected @xml_attribute double	h	= 0;
+	protected @simpl_scalar double	h	= 0;
 
 	public RectangularShape()
 	{

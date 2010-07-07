@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * The ResponseMessage send from server to client when the RequestMessage
@@ -10,7 +10,7 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author eunyee
  */
-@xml_inherit
+@simpl_inherit
 public class BadSemanticContentResponse extends ErrorResponse
 {
 

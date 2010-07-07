@@ -1,14 +1,13 @@
 package ecologylab.services.messages;
 
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Base class for all ResponseMessages that indicate errors.
  * 
  * @author andruid
  */
-@xml_inherit
+@simpl_inherit
 public class ErrorResponse extends ExplanationResponse
 {
 	public ErrorResponse()

@@ -14,7 +14,7 @@ import ecologylab.services.distributed.common.SessionObjects;
 import ecologylab.services.distributed.exception.MessageTooLargeException;
 import ecologylab.services.distributed.server.DoubleThreadedNIOServer;
 import ecologylab.services.distributed.server.clientsessionmanager.SessionHandle;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A request that indicates that the client wishes to be permanently
@@ -22,7 +22,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-@xml_inherit public class DisconnectRequest extends RequestMessage
+@simpl_inherit public class DisconnectRequest extends RequestMessage
 {
 	public static final DisconnectRequest	REUSABLE_INSTANCE	= new DisconnectRequest();
 

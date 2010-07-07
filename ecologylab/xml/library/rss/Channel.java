@@ -1,11 +1,12 @@
 package ecologylab.xml.library.rss;
 
 import java.util.ArrayList;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.library.yahoo.Result;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
@@ -13,16 +14,16 @@ import ecologylab.xml.library.yahoo.Result;
  *
  * @author andruid
  */
-public @xml_inherit class Channel extends ElementState
+public @simpl_inherit class Channel extends ElementState
 {
-   @xml_leaf	String			title;
-   @xml_leaf	String			description;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
    /**
     * Could point to an HTML rendering of the feed.
     */
-   @xml_leaf	ParsedURL		link;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		link;
    
-   @xml_nowrap @xml_collection("item") ArrayList<Item> items;
+   @simpl_nowrap @simpl_collection("item") ArrayList<Item> items;
    
    /**
     * @return Returns the description.
@@ -111,11 +112,11 @@ public @xml_inherit class Channel extends ElementState
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			c.translateToXML(buffy);
+			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
 			ElementState c2	= ElementState.translateFromXMLCharSequence(buffy, RssTranslations.get());
-			c2.translateToXML(System.out);
+			c2.serialize(System.out);
 //			println(c.translateToXML());
 		} catch (XMLTranslationException e)
 		{

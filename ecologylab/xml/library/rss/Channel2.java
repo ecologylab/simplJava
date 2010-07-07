@@ -1,27 +1,29 @@
 package ecologylab.xml.library.rss;
 
 import java.util.ArrayList;
+
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.xml.ElementState ElementState} declaration.
  * Used with most RSS versions.
  *
  * @author andruid
  */
-public @xml_inherit class Channel2 extends ElementState //ArrayListState<Item>
+public @simpl_inherit class Channel2 extends ElementState //ArrayListState<Item>
 {
-   @xml_leaf	String			title;
-   @xml_leaf	String			description;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
    /**
     * Could point to an HTML rendering of the feed.
     */
-   @xml_leaf	ParsedURL		link;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		link;
    
-   @xml_nowrap 
-   @xml_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
+   @simpl_nowrap 
+   @simpl_collection("item") ArrayList<Item> items; //	= new ArrayList<Item>();
    
    /**
     * @return Returns the description.
@@ -111,7 +113,7 @@ public @xml_inherit class Channel2 extends ElementState //ArrayListState<Item>
 		// c.add(i2);
 		try
 		{
-			println(c.translateToXML());
+			println(c.serialize());
 		} catch (XMLTranslationException e)
 		{
 			// TODO Auto-generated catch block

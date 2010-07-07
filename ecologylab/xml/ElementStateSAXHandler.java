@@ -284,7 +284,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				xmlTranslationException = new XMLTranslationException("SAXException during parsing", e);
 
 				// print xml
-				StringBuilder builder = root.translateToXML();
+				StringBuilder builder = root.serialize();
 				System.out.println("Failed XML:");
 				System.out.println(builder.toString());
 			}
@@ -414,11 +414,11 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				// childES = activeFieldDescriptor.constructChildElementState(nsContext);
 				// activeFieldDescriptor.setFieldToNestedObject(nsContext, childES);
 				break;
-			case NAME_SPACE_LEAF_NODE:
+			case NAME_SPACE_SCALAR:
 				// TODO Name Space support!
 				// childES = currentElementState.getNestedNameSpace(activeFieldDescriptor.nameSpaceID());
 				break;
-			case LEAF:
+			case SCALAR:
 				// wait for characters to set scalar field
 				// activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
@@ -447,11 +447,6 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				// {
 				// childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
 				// }
-				break;
-			case AWFUL_OLD_NESTED_ELEMENT:
-				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
-				if (childES != null)
-					currentElementState.addNestedElement(childES);
 				break;
 			case IGNORED_ELEMENT:
 				// should get a set of Optimizations for this, to represent its subfields
@@ -539,8 +534,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				debug("cool - post ns element");
 			currentES.postTranslationProcessingHook();
 			this.currentElementState = currentES.parent;
-		case NAME_SPACE_LEAF_NODE:
-		case AWFUL_OLD_NESTED_ELEMENT:
+		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
 			this.currentElementState = parentES; // restore context!
 			break;
@@ -555,7 +549,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	}
 
 	/**
-	 * Assign pending value from an @xml_text or @xml_leaf declaration to the appropriate Field or
+	 * Assign pending value from an @simpl_scalar @simpl_hints(Hint.XML_TEXT) or @simpl_scalar @simpl_hints(Hint.XML_LEAF) declaration to the appropriate Field or
 	 * Collection element.
 	 * 
 	 * @param curentN2JOType
@@ -570,9 +564,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			{
 				switch (curentN2JOType)
 				{
-				case NAME_SPACE_LEAF_NODE:
-				case LEAF:
-				case ENUMERATED_LEAF:
+				case NAME_SPACE_SCALAR:
+				case SCALAR:
 					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
 					String value = new String(currentTextValue.substring(0, length));
@@ -637,10 +630,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			int n2joType = currentFD.getType();
 			switch (n2joType)
 			{
-			case LEAF:
+			case SCALAR:
 			case COLLECTION_SCALAR:
-			case NAME_SPACE_LEAF_NODE:
-			case ENUMERATED_LEAF:
 				currentTextValue.append(chars, startIndex, length);
 				// TODO -- unmarshall to set field with scalar type
 				break;

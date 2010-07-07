@@ -17,7 +17,7 @@ public class MetaPrefColor extends MetaPref<Color>
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	Color		defaultValue;
+	@simpl_scalar	Color		defaultValue;
 	
 	public static final ScalarType COLOR_SCALAR_TYPE	= TypeRegistry.getType(Color.class);
 

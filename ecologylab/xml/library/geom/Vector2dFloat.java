@@ -63,9 +63,9 @@ public @xml_tag("vect2df") class Vector2dFloat extends SpatialVector implements
 		return new Vector2dFloat(v1.x - v2.x, v1.y - v2.y);
 	}
 
-	protected @xml_attribute float	x;
+	protected @simpl_scalar float	x;
 
-	protected @xml_attribute float	y;
+	protected @simpl_scalar float	y;
 
 	protected Point2D.Float				point	= null;
 

@@ -4,12 +4,12 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class Keyword extends ElementState
+public @simpl_inherit class Keyword extends ElementState
 {
     /**
      * 

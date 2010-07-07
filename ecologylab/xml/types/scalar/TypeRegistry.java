@@ -110,10 +110,7 @@ public class TypeRegistry extends Debug
 	 */
 	public static ScalarType getType(Field field)
 	{
-		if (XMLTools.isEnum(field))
-			return getType(Enum.class);
-		else
-			return getType(field.getType());
+		return getType(field.getType());
 	}
 
 	/**
@@ -124,7 +121,7 @@ public class TypeRegistry extends Debug
 	 */
 	public static <U> ScalarType<U> getType(Class<U> thatClass)
 	{
-		return getType(thatClass.getName());
+		return (XMLTools.isEnum(thatClass)) ? getType(Enum.class) : getType(thatClass.getName());
 	}
 
 	/**

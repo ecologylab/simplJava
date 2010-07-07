@@ -1,7 +1,7 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Abstract base class for ecologylab.services DCF response messages.
@@ -9,7 +9,7 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit abstract public class ResponseMessage<S extends Scope> extends ServiceMessage<S>
+@simpl_inherit abstract public class ResponseMessage<S extends Scope> extends ServiceMessage<S>
 {
     public ResponseMessage()
     {

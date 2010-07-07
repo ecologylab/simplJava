@@ -13,7 +13,7 @@ import ecologylab.xml.ElementState;
 public class XmlState extends ElementState
 {
 //    private @xml_nested Records records = new Records();
-    private @xml_collection("Record")
+    private @simpl_collection("Record")
     ArrayList<Record> records;
     /**
      * 

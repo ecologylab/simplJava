@@ -15,22 +15,22 @@ public class Prologue extends ElementState
 {
 	public static final String	STUDY_NAME	= "study_name";
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						date				= new Date(System.currentTimeMillis()).toString();
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						ip					= NetTools.localHost();
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						userID			= "0";
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						questionId;
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						studyName;
 
-	@xml_attribute
+	@simpl_scalar
 	protected String						questionPath;
 
 	public Prologue()

@@ -9,7 +9,7 @@ package ecologylab.xml.library.jnlp.resource;
  */
 public class HrefBasedResource extends ResourceElement
 {
-    @xml_attribute private String href;
+    @simpl_scalar private String href;
 
     /**
      * 

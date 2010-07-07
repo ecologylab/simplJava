@@ -13,11 +13,11 @@ abstract public class Choice<T> extends ElementState
     /**
      * The name for a choice
      */
-    @xml_attribute String      name;
+    @simpl_scalar String      name;
     /**
      * The label text for a choice
      */
-    @xml_attribute String      label;
+    @simpl_scalar String      label;
     //@xml_attribute T           value;
 
     public Choice()

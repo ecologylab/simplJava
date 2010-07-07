@@ -8,7 +8,7 @@ import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.OkResponse;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Allows the application to send application-specific content to the log, at
@@ -20,14 +20,14 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  * @author eunyee
  */
-@xml_inherit public final class SendEpilogue extends LogueMessage
+@simpl_inherit public final class SendEpilogue extends LogueMessage
 {
 	public SendEpilogue(Logging logging, Epilogue epilogue)
 	{
 		super(logging);
 		try
 		{
-			bufferToLog = epilogue.translateToXML((StringBuilder) null);
+			bufferToLog = epilogue.serialize((StringBuilder) null);
 			bufferToLog.insert(0, Logging.OP_SEQUENCE_END);
 			bufferToLog.append(endLog());
 		}

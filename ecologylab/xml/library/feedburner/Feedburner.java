@@ -5,6 +5,7 @@ package ecologylab.xml.library.feedburner;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
 
 /**
@@ -13,7 +14,7 @@ import ecologylab.xml.TranslationScope;
  */
 public class Feedburner extends ElementState
 {
-	@xml_leaf	ParsedURL	origLink;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL	origLink;
 	
 	/**
 	 * 

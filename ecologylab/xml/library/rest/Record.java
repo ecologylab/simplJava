@@ -1,13 +1,14 @@
 package ecologylab.xml.library.rest;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 
 public class Record extends ElementState
 {
-	@xml_leaf	protected	int		position;
-	@xml_leaf	protected	double	score;
-	@xml_nested protected	Header	header;
-	@xml_nested protected 	Fields	fields;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	protected	int		position;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	protected	double	score;
+	@simpl_composite protected	Header	header;
+	@simpl_composite protected 	Fields	fields;
 	
 	public Record() {}
 	

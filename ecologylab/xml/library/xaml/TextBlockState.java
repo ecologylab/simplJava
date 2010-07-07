@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.library.xaml;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -20,14 +20,14 @@ public class TextBlockState extends PanelChildState
 	public static final String BOLD			= "Bold";
 	public static final String UNDERLINE 	= "Underline";
 	
-	@xml_attribute @xml_tag("FontSize") 		int 	fontSize;
-	@xml_attribute @xml_tag("FontFamily") 		String 	fontFamily;
-	@xml_attribute @xml_tag("TextWrapping")		String 	textWrap;
-	@xml_attribute @xml_tag("FontStyle")		String  fontStyle;
-	@xml_attribute @xml_tag("FontWeight")		String  fontWeight;
-	@xml_attribute @xml_tag("TextAlignment") 	String 	alignment;
+	@simpl_scalar @xml_tag("FontSize") 		int 	fontSize;
+	@simpl_scalar @xml_tag("FontFamily") 		String 	fontFamily;
+	@simpl_scalar @xml_tag("TextWrapping")		String 	textWrap;
+	@simpl_scalar @xml_tag("FontStyle")		String  fontStyle;
+	@simpl_scalar @xml_tag("FontWeight")		String  fontWeight;
+	@simpl_scalar @xml_tag("TextAlignment") 	String 	alignment;
 	
-	@xml_text String textNode;
+	@simpl_scalar @simpl_hints(Hint.XML_TEXT) String textNode;
 	
 	public TextBlockState(String text)
 	{

@@ -2,6 +2,7 @@ package ecologylab.xml.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -16,16 +17,16 @@ public
 @xml_tag("Result")
 class Result extends ElementState
 {
-	@xml_leaf	@xml_tag("Title")	String				title;
-	@xml_leaf	@xml_tag("Summary")	String				summary;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Title")	String				title;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Summary")	String				summary;
 	/**
 	 * For web search, the URL of the document.
 	 * For image search, the URL of the image.
 	 */
-	@xml_leaf	@xml_tag("Url")		ParsedURL			url;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Url")		ParsedURL			url;
 
 	// this is a mess double-stuffed url from yahoo. nice to ignore.
-//	@xml_leaf	@xml_tag("ClickUrl")		ParsedURL	clickUrl;
+//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("ClickUrl")		ParsedURL	clickUrl;
 	
 	// there is also a field called ClickUrl. for image search, it duplicates Url.
 	// for web search ClickUrl is that nasty url that takes you through yahoo, and includes
@@ -33,33 +34,33 @@ class Result extends ElementState
 	/**
 	 * For image search, this is the Container web page!
 	 */
-	@xml_leaf	@xml_tag("RefererUrl")	ParsedURL		refererUrl;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("RefererUrl")	ParsedURL		refererUrl;
 	
 	/**
 	 * Another field for image search only. How useful! 
 	 * Lets us know if we want to work with the thumbnail or just download the whole image.
 	 * Seems to be in bytes.
 	 */
-	@xml_leaf	@xml_tag("FileSize")	int				fileSize;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("FileSize")	int				fileSize;
 	
-	@xml_leaf	@xml_tag("Width")		int				width;
-	@xml_leaf	@xml_tag("Height")		int				height;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Width")		int				width;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("Height")		int				height;
 	
 	/**
 	 * For image search only. This seems to be the file suffix, though they use jpeg instead of jpg.
 	 */
-	@xml_leaf	@xml_tag("FileFormat")	String			fileFormat;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("FileFormat")	String			fileFormat;
 	
 	/**
 	 * Specific to news search.
 	 */
-	@xml_leaf	@xml_tag("NewsSource")	String			newsSource;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("NewsSource")	String			newsSource;
 	
 	/**
 	 * For web search only. Like file format, except its true mime type, like text/html.
 	 * Very nice.
 	 */
-	@xml_leaf	@xml_tag("MimeType")	String			mimeType;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	@xml_tag("MimeType")	String			mimeType;
 	
 	// DisplayUrl -- boring. Web search only.
 	
@@ -69,7 +70,7 @@ class Result extends ElementState
 	/**
 	 * Cool! For image search, direct access to their thumbnail image.
 	 */
-	@xml_nested	@xml_tag("Thumbnail")	ThumbnailState	thumbnail;
+	@simpl_composite	@xml_tag("Thumbnail")	ThumbnailState	thumbnail;
 	
 	   
 	public String getTitle()

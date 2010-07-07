@@ -18,7 +18,7 @@ import ecologylab.services.exceptions.SaveFailedException;
  * 
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@xml_inherit
+@simpl_inherit
 public class SaverState extends ElementState
 {
 	protected static final String	XML_FILE_SUFFIX	= ".xml";
@@ -97,7 +97,7 @@ public class SaverState extends ElementState
 
 		try
 		{
-			this.translateToXML(this.backingFile());
+			this.serialize(this.backingFile());
 		}
 		catch (XMLTranslationException e)
 		{

@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_other_tags;
 import ecologylab.xml.ElementState.xml_tag;
 
@@ -30,7 +30,7 @@ import ecologylab.xml.ElementState.xml_tag;
  */
 @xml_tag("El2DD")
 @xml_other_tags("ellipse2_d_double")
-public @xml_inherit
+public @simpl_inherit
 class Ellipse2DDoubleState extends RectangularShape
 {
 	protected Ellipse2D.Double	shape	= null;

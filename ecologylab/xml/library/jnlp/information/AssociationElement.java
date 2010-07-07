@@ -11,9 +11,9 @@ import ecologylab.xml.ElementState;
  */
 public class AssociationElement extends ElementState
 {
-    @xml_attribute @xml_tag("mime-type") private String mimeType;
+    @simpl_scalar @xml_tag("mime-type") private String mimeType;
 
-    @xml_attribute private String                       extensions;
+    @simpl_scalar private String                       extensions;
 
     /**
      * 

@@ -4,7 +4,7 @@
 package ecologylab.xml.types.scalar;
 
 import ecologylab.xml.ScalarUnmarshallingContext;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * For storing actual ScalarType values as meta-metadata.

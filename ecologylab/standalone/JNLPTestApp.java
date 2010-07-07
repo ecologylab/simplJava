@@ -16,19 +16,29 @@ import ecologylab.xml.library.jnlp.JnlpTranslations;
 public class JNLPTestApp
 {
 
-    /**
-     * @param args
-     * @throws XMLTranslationException 
-     */
-    public static void main(String[] args) throws XMLTranslationException
-    {
-        Debug.println("translate from...");
-        JnlpState jnlp = (JnlpState) ElementState.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());
-        Debug.println("...done.");
-        
-        Debug.println("translate to...");
-        jnlp.writePrettyXML("c:\\jnlp2.txt");
-        Debug.println("...done.");
-    }
+	/**
+	 * @param args
+	 * @throws XMLTranslationException 
+	 */
+	public static void main(String[] args)
+	{
+		Debug.println("translate from...");
+		JnlpState jnlp;
+		try
+		{
+			jnlp = (JnlpState) ElementState.translateFromXML("c:\\jnlptest.jnlp", JnlpTranslations.get());
+
+			Debug.println("...done.");
+
+			Debug.println("translate to...");
+			jnlp.serializeAsFile("c:\\jnlp2.txt");
+			Debug.println("...done.");
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 }

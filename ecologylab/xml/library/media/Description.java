@@ -12,7 +12,7 @@ public class Description extends ElementState
 /**
  * Can be plain or html. Plain is the default.
  */
-	@xml_attribute String			type;
+	@simpl_scalar String			type;
 
 	/**
 	 * @return Returns the type.

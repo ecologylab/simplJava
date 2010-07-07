@@ -14,7 +14,7 @@ import ecologylab.xml.ElementState;
  */
 public class HomepageElement extends ElementState
 {
-    private @xml_attribute String href;
+    private @simpl_scalar String href;
 
     /**
      * 

@@ -3,10 +3,10 @@
  */
 package ecologylab.xml;
 
-import ecologylab.generic.ResourcePool;
-
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import ecologylab.generic.ResourcePool;
 
 /**
  * @author toupsz

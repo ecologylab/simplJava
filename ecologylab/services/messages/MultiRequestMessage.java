@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Abstract base class for ecologylab.services DCF request messages.
@@ -12,7 +12,7 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit public abstract class MultiRequestMessage<S extends Scope> extends ServiceMessage<S>
+@simpl_inherit public abstract class MultiRequestMessage<S extends Scope> extends ServiceMessage<S>
 {
 	public MultiRequestMessage()
 	{

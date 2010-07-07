@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState;
  */
 public class MenuElement extends ElementState
 {
-    @xml_attribute private String submenu;
+    @simpl_scalar private String submenu;
 
     /**
      * 

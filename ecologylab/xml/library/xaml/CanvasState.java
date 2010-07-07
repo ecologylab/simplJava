@@ -2,7 +2,7 @@ package ecologylab.xml.library.xaml;
 
 import java.awt.Color;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -11,7 +11,7 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author awebb
  *
  */
-@xml_inherit
+@simpl_inherit
 @xml_tag("Canvas")
 public class CanvasState extends FrameworkElementState
 {

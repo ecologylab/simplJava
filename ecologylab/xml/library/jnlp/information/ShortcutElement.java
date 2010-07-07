@@ -15,11 +15,11 @@ import ecologylab.xml.ElementState;
  */
 public class ShortcutElement extends ElementState
 {
-    @xml_attribute private boolean   online;
+    @simpl_scalar private boolean   online;
 
-    @xml_nested private ElementState desktop;
+    @simpl_composite private ElementState desktop;
 
-    @xml_nested private MenuElement  menu;
+    @simpl_composite private MenuElement  menu;
 
     /**
      * 

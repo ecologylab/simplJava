@@ -10,7 +10,7 @@ import ecologylab.xml.ElementState;
  */
 public class Credit extends ElementState
 {
-	@xml_attribute String		role;
+	@simpl_scalar String		role;
 
 	/**
 	 * @return Returns the role.

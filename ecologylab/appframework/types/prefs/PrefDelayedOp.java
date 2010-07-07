@@ -9,9 +9,9 @@ import javax.swing.Timer;
 import ecologylab.collections.Scope;
 import ecologylab.services.logging.MixedInitiativeOp;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
-@xml_inherit
+@simpl_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener
 {
 	ArrayList<ElementState> nestedOps;
@@ -27,9 +27,9 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 	/**
 	 * delay in seconds
 	 */
-	@xml_attribute	int			delay;
-	@xml_attribute 	boolean repeat 				= false;
-	@xml_attribute	int 		initialDelay 	= 0;
+	@simpl_scalar	int			delay;
+	@simpl_scalar 	boolean repeat 				= false;
+	@simpl_scalar	int 		initialDelay 	= 0;
 	Timer timer;
 	public PrefDelayedOp()
 	{

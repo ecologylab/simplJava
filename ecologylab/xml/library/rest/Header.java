@@ -1,14 +1,15 @@
 package ecologylab.xml.library.rest;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 
 public class Header extends ElementState
 {
-	@xml_leaf 	protected	String	identifier;
-	@xml_leaf 	protected	String	lastIndexed;
-	@xml_leaf 	protected	String	metadataLastModified;
-	@xml_leaf 	protected	String	contentLastModified;
-	@xml_leaf 	protected	String	contentLastFetched;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected	String	identifier;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected	String	lastIndexed;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected	String	metadataLastModified;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected	String	contentLastModified;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) 	protected	String	contentLastFetched;
 	
 	public Header() {}
 	

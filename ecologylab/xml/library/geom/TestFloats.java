@@ -3,17 +3,15 @@
  */
 package ecologylab.xml.library.geom;
 
-import java.awt.geom.Point2D;
-
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class TestFloats extends ElementState implements Cloneable
+public @simpl_inherit class TestFloats extends ElementState implements Cloneable
 {
-    protected @xml_attribute float y = 0;
+    protected @simpl_scalar float y = 0;
 
     /**
      * 

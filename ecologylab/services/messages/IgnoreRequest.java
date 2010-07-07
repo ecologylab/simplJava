@@ -1,7 +1,7 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * This is a message for the case when the server wants to ignore certain requests and send nothing to the client.
@@ -9,7 +9,7 @@ import ecologylab.xml.xml_inherit;
  * @author eunyee
  *
  */
-@xml_inherit
+@simpl_inherit
 public class IgnoreRequest extends RequestMessage
 {
 	static final IgnoreRequest reusableInstance = new IgnoreRequest();

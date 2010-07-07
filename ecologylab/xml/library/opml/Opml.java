@@ -13,7 +13,7 @@ import ecologylab.xml.TranslationScope;
  */
 public class Opml extends ElementState
 {
-	@xml_nested	Body	body;
+	@simpl_composite	Body	body;
 	
 	/**
 	 * 

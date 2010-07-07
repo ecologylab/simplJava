@@ -1,8 +1,8 @@
 package ecologylab.xml.types.element;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
+import ecologylab.xml.simpl_inherit;
+import ecologylab.xml.ElementState.simpl_scalar;
 
 
 /**
@@ -12,7 +12,7 @@ import ecologylab.xml.ElementState.xml_attribute;
  */
 public class IntState extends ElementState implements Comparable<IntState>
 {
-    private @xml_attribute int value;
+    private @simpl_scalar int value;
 
     public IntState(int b)
     {

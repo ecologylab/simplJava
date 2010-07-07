@@ -12,9 +12,9 @@ import ecologylab.xml.types.element.Mappable;
  */
 public class UserAgent extends ElementState implements Mappable<String>
 {
-						@xml_attribute 	String name;
-	@xml_tag("string")	@xml_attribute 	String userAgentString;
-	@xml_tag("default") @xml_attribute	boolean defaultAgent;
+						@simpl_scalar 	String name;
+	@xml_tag("string")	@simpl_scalar 	String userAgentString;
+	@xml_tag("default") @simpl_scalar	boolean defaultAgent;
 	
 	public UserAgent() { }
 	

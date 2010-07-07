@@ -26,8 +26,8 @@ import ecologylab.xml.library.dc.Dc;
 @xml_tag("rdf:RDF")
 public class RDFState extends ElementState // ArrayListState<Item>
 {
-	@xml_nowrap 
-	@xml_collection("item") ArrayList<Item>		items;
+	@simpl_nowrap 
+	@simpl_collection("item") ArrayList<Item>		items;
 	
 	public RDFState()
 	{
@@ -141,21 +141,21 @@ public class RDFState extends ElementState // ArrayListState<Item>
 					Dc dc	= (Dc) item.getNestedNameSpace("dc");
 					if (dc != null)
 					{
-						dc.translateToXML(System.err);
+						dc.serialize(System.err);
 						System.err.println('\n');
 					}
 				}
 			}
 			println("\n");
 			
-			rdfState.translateToXML(System.err);
+			rdfState.serialize(System.err);
 			println("\n");
-			rdfState.writePrettyXML(System.err);
+			rdfState.serialize(System.err);
 			
 //			RssState rssState2	= (RssState) ElementState.translateFromXMLCharSequence(retranslated, RssTranslations.get());
 //			rssState2.translateToXML(System.out);
 
-//			rssState.writePrettyXML(outputFile);
+//			rssState.translateToXML(outputFile);
 			
 			println("\n");
 		} catch (XMLTranslationException e)

@@ -7,21 +7,21 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Nestable Outline Processor Markup Language construct.
  * 
  * @author andruid
  */
-@xml_inherit
+@simpl_inherit
 public class Outline extends ElementState
 {
-	@xml_attribute	String				title;
-	@xml_attribute	ParsedURL			xmlUrl;
-	@xml_attribute	ParsedURL			htmlUrl;
+	@simpl_scalar	String				title;
+	@simpl_scalar	ParsedURL			xmlUrl;
+	@simpl_scalar	ParsedURL			htmlUrl;
 	
-	@xml_collection ArrayList<Outline>	outline; 
+	@simpl_collection ArrayList<Outline>	outline; 
 	
 	/**
 	 * 

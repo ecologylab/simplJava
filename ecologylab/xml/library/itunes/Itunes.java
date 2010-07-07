@@ -2,7 +2,7 @@ package ecologylab.xml.library.itunes;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.Hint;
 
 /**
  * XMLNS (namespace) corresponding to itunes podcasts.
@@ -16,12 +16,12 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class Itunes extends ElementState
 {
-	@xml_leaf	String			subtitle;
-	@xml_leaf	String			author;
-	@xml_leaf	String			summary;
-	@xml_leaf	ParsedURL		image;
-	@xml_leaf	String			duration;
-	@xml_leaf	String			keywords;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			subtitle;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			author;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			summary;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		image;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			duration;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			keywords;
 	//public Owner			owner; subfields -- email, name
 	/**
 	 * @return Returns the author.

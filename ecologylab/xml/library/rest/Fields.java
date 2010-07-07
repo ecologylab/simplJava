@@ -2,26 +2,27 @@ package ecologylab.xml.library.rest;
 
 import java.net.URL;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.library.dc.Dc;
 
-@xml_inherit
+@simpl_inherit
 public class Fields extends Dc
 {
 	
-	@xml_leaf String primaryIdentifier;
-	@xml_leaf String category;
-	@xml_leaf String compoundAgent;
-	@xml_leaf String compoundGenre;
-	@xml_leaf String compoundTitle;
-	@xml_leaf String compoundDescription;
-	@xml_leaf String compoundSubject;
-	@xml_leaf String primaryCollection;
-	@xml_leaf String brandTitle;
-	@xml_leaf URL	 brandIconURL;
-	@xml_leaf int	 brandWidth;
-	@xml_leaf int	 brandHeight;
-	@xml_leaf String bestPassage;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String primaryIdentifier;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String category;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String compoundAgent;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String compoundGenre;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String compoundTitle;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String compoundDescription;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String compoundSubject;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String primaryCollection;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String brandTitle;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) URL	 brandIconURL;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) int	 brandWidth;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) int	 brandHeight;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF) String bestPassage;
 	
 	public Fields()
 	{

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.xml.types.scalar.ScalarType;
@@ -19,7 +20,7 @@ public final class TranslationScope extends ElementState
 {
 	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
 
-	@xml_attribute
+	@simpl_scalar
 	private/* final */String														name;
 
 	private TranslationScope[]													inheritedTranslationScopes;
@@ -37,8 +38,8 @@ public final class TranslationScope extends ElementState
 
 	private Scope<ClassDescriptor>											entriesByClassName				= new Scope<ClassDescriptor>();
 
-	@xml_nowrap
-	@xml_map("class_descriptor")
+	@simpl_nowrap
+	@simpl_map("class_descriptor")
 	private Scope<ClassDescriptor>											entriesByTag							= new Scope<ClassDescriptor>();
 
 	private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN			= new Scope<Class<? extends ElementState>>();

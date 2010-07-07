@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.library.jnlp.resource;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A nativelib element specifies a JAR file that contains native libraries. For example:
@@ -28,7 +28,7 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_inherit class Nativelib extends Jar
+public @simpl_inherit class Nativelib extends Jar
 {
 
     /**

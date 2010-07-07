@@ -20,13 +20,13 @@ import ecologylab.xml.ElementState;
  */
 public class RelatedContentElement extends ElementState
 {
-    @xml_attribute private String   href;
+    @simpl_scalar private String   href;
 
-    @xml_attribute private String   title;
+    @simpl_scalar private String   title;
 
-    @xml_nested private Description description;
+    @simpl_composite private Description description;
 
-    @xml_nested private Icon        icon;
+    @simpl_composite private Icon        icon;
 
     /**
      * 

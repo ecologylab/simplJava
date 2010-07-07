@@ -3,7 +3,7 @@
  */
 package ecologylab.xml.library.jnlp.resource;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A jar element specifies a JAR file that is part of the application's classpath. For example:
@@ -17,14 +17,14 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
  */
-public @xml_inherit class Jar extends HrefBasedResource
+public @simpl_inherit class Jar extends HrefBasedResource
 {
     /**
      * The download attribute is used to control whether a resource is downloaded eagerly or lazily. For example:
      * 
      * <jar href="sound.jar" download="lazy"/> <nativelib href="native-sound.jar" download="eager"/>
      */
-    @xml_attribute protected String download;
+    @simpl_scalar protected String download;
 
     /**
      * 

@@ -1,12 +1,13 @@
 package ecologylab.xml.library.rest;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 
 public class ResultsInfo extends ElementState
 {
-	@xml_leaf	protected int			totalNumResults;
-	@xml_leaf	protected int			numSkipped;
-	@xml_leaf	protected int			numReturned;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	protected int			totalNumResults;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	protected int			numSkipped;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	protected int			numReturned;
 	
 	public ResultsInfo() {}
 	

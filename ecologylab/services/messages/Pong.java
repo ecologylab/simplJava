@@ -1,14 +1,14 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Base class for all ResponseMessages that were processed successfully.
  * 
  * @author andruid
  */
-@xml_inherit
+@simpl_inherit
 public class Pong extends ResponseMessage
 {
 	public static final Pong reusableInstance	= new Pong();

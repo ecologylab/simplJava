@@ -6,7 +6,7 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Encapsulates a Rectangle2D.Double for use in translating to/from XML.
@@ -22,7 +22,7 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class Rectangle2DDoubleState extends RectangularShape
+public @simpl_inherit class Rectangle2DDoubleState extends RectangularShape
 {
     private Rectangle2D.Double shape = null;
     private static final Vector2d[] normals = { new Vector2d(0, -1), new Vector2d(1, 0), new Vector2d(0, 1),

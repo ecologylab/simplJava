@@ -6,7 +6,7 @@ package ecologylab.xml.library.jnlp.resource;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * The resources element is used to specify all the resources, such as Java class files, native libraries, and system properties, that are part of the application.  A resource definition can be restricted to a specific operating system, architecture, or locale using the os, arch, and locale attributes.
@@ -14,13 +14,13 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  *
  */
-public @xml_inherit class ResourceElementArray extends ElementState
+public @simpl_inherit class ResourceElementArray extends ElementState
 {
-    @xml_attribute private String os;
-    @xml_attribute private String arch;
-    @xml_attribute private String locale;
+    @simpl_scalar private String os;
+    @simpl_scalar private String arch;
+    @simpl_scalar private String locale;
     
-    @xml_collection("ResourceElement") ArrayList<ResourceElement> resourceElements;
+    @simpl_collection("ResourceElement") ArrayList<ResourceElement> resourceElements;
 
     /**
      * 

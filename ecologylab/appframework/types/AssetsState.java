@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Handles the loading and parsing of the asset version XML file
@@ -12,12 +12,12 @@ import ecologylab.xml.xml_inherit;
  * @author robinson
  * @author andruid
  */
-@xml_inherit public class AssetsState extends ElementState
+@simpl_inherit public class AssetsState extends ElementState
 {
 	HashMap<String, AssetState>	assetsMap	= new HashMap<String, AssetState>();
 	
-	@xml_collection("asset")
-	@xml_nowrap
+	@simpl_collection("asset")
+	@simpl_nowrap
 	ArrayList<AssetState> assetStates;
 	
 	public ArrayList<AssetState> getAssetStates() {

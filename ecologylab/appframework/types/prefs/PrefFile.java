@@ -7,7 +7,7 @@ import java.io.File;
 
 import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Pref indicating a File. Stores a value that indicates either an absolute path, or one relative to
@@ -17,18 +17,18 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-@xml_inherit
+@simpl_inherit
 public class PrefFile extends Pref<File>
 {
 	/** Path associated with this preference. */
-	@xml_attribute
+	@simpl_scalar
 	String									value;
 
 	/**
 	 * Context indicating the type of path specified by value. Possible values are ABSOLUTE_PATH,
 	 * CODE_BASE, or APP_DATA_DIR.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	int											pathContext		= ABSOLUTE_PATH;
 
 	/** Indicates that value is an absolute path. */

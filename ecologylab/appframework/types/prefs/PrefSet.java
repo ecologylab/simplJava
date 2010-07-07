@@ -14,7 +14,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A serial set of Pref objects. Used for reading and writing (load and save). The static
@@ -24,15 +24,15 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  */
 
-@xml_inherit
+@simpl_inherit
 public class PrefSet extends ElementState implements ApplicationPropertyNames, Cloneable
 {
 	public static final String	PREFS_TRANSLATION_SCOPE	= "PREFS_TRANSLATION_SCOPE";
 
-	@xml_map
-	@xml_nowrap
+	@simpl_map
+	@simpl_nowrap
 	// @xml_classes({PrefInt.class})
-	@xml_scope(PREFS_TRANSLATION_SCOPE)
+	@simpl_scope(PREFS_TRANSLATION_SCOPE)
 	HashMap<String, Pref<?>>		preferences;
 
 	/** No-argument constructor for XML translation. */

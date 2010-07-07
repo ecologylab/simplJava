@@ -18,7 +18,7 @@ public class TestEndnoteXML
         {
             XmlState fromFile = (XmlState) ElementState.translateFromXML("/Users/toupsz/Desktop/RSBib.xml", EndnoteNameSpace.get());
             
-            System.out.println(fromFile.translateToXML());
+            System.out.println(fromFile.serialize());
         }
         catch (XMLTranslationException e)
         {

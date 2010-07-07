@@ -316,7 +316,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		synchronized (requestBuffer)
 		{
 			// fill requestBuffer
-			request.translateToXML(requestBuffer);
+			request.serialize(requestBuffer);
 
 			int reqLength;
 			if ((reqLength = requestBuffer.length()) > this.maxMessageLengthChars)
@@ -671,7 +671,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 					try
 					{
-						debug("response: " + respMsg.translateToXML().toString());
+						debug("response: " + respMsg.serialize().toString());
 					}
 					catch (XMLTranslationException e)
 					{

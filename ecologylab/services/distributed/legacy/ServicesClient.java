@@ -189,7 +189,7 @@ public class ServicesClient extends ServicesClientBase implements ServerConstant
                 StringBuilder requestMessageXML = null;
                 try
                 {
-                    requestMessageXML = requestMessage.translateToXML();
+                    requestMessageXML = requestMessage.serialize();
 
                     if (requestMessageXML.length() > ServerConstants.DEFAULT_MAX_MESSAGE_LENGTH_CHARS)
                     {

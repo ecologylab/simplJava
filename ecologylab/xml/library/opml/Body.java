@@ -12,7 +12,7 @@ import ecologylab.xml.ElementState;
  */
 public class Body extends ElementState
 {
-	@xml_nested	Outline		outline;
+	@simpl_composite	Outline		outline;
 	
 	/**
 	 * 

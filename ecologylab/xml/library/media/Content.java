@@ -1,11 +1,10 @@
 package ecologylab.xml.library.media;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_leaf;
+import ecologylab.xml.Hint;
 
 /**
  * Primary element of the media XML name space. As in <media:content>
@@ -14,22 +13,22 @@ import ecologylab.xml.ElementState.xml_leaf;
  */
 public class Content extends ElementState
 {
-	@xml_attribute	ParsedURL		url;
-	@xml_attribute	String			type;
-	@xml_attribute	int				width;
-	@xml_attribute	int				height;
+	@simpl_scalar	ParsedURL		url;
+	@simpl_scalar	String			type;
+	@simpl_scalar	int				width;
+	@simpl_scalar	int				height;
 	
-	@xml_leaf		String			title;
-	@xml_nested 	Description		description;
-	@xml_attribute	String			keywords;
-	@xml_nested 	Thumbnail		thumbnail;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)		String			title;
+	@simpl_composite 	Description		description;
+	@simpl_scalar	String			keywords;
+	@simpl_composite 	Thumbnail		thumbnail;
 	
 	// there can be 0 or more elements of tag "category"
 	// we will add these to a collection automatically by overriding setField(Field, String)
 	//TODO confirm if this is correct.
-	@xml_collection	ArrayList<String>		categoryStrings;
+	@simpl_collection	ArrayList<String>		categoryStrings;
 	
-	@xml_nested		Credit			credit;
+	@simpl_composite		Credit			credit;
 	
 	//public String 		text -- actually there can be many of these
 	//public String			restriction; // a leaf node

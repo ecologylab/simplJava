@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 
 /**
@@ -11,13 +11,13 @@ import ecologylab.xml.xml_inherit;
  * @author awebb
  *
  */
-@xml_inherit
+@simpl_inherit
 public class ChoiceBoolean extends Choice<Boolean> 
 {
     /**
      * Value of the choice
      */
-    @xml_attribute boolean      value;
+    @simpl_scalar boolean      value;
 
 
 	/**

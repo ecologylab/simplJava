@@ -19,7 +19,7 @@ import ecologylab.xml.XMLTranslationException;
  */
 public class InitConnectionRequest extends RequestMessage
 {
-	@xml_attribute
+	@simpl_scalar
 	String	sessionId;
 
 	/**
@@ -59,7 +59,7 @@ public class InitConnectionRequest extends RequestMessage
 		try
 		{
 			TranslationScope.get("init_connection_request", InitConnectionRequest.class,
-					RequestMessage.class).translateToXML(System.out);
+					RequestMessage.class).serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{

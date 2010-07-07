@@ -19,7 +19,7 @@ public interface SendableRequest
 	/**
 	 * @param requestBuffer
 	 */
-	StringBuilder translateToXML(StringBuilder requestBuffer)	throws XMLTranslationException;
+	StringBuilder serialize(StringBuilder requestBuffer)	throws XMLTranslationException;
 
 	/**
 	 * @return

@@ -826,7 +826,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		try
 		{
 			// setup outgoingMessageBuffer
-			update.translateToXML(msgBufOutgoing);
+			update.serialize(msgBufOutgoing);
 		}
 		catch (XMLTranslationException e1)
 		{

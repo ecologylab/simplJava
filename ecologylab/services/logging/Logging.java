@@ -50,8 +50,8 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 	 * the write the log file all at once, and so can't automatically translate the start tag and end
 	 * tag for this element.
 	 */
-	@xml_collection
-	@xml_scope(MIXED_INITIATIVE_OP_TRANSLATION_SCOPE)
+	@simpl_collection
+	@simpl_scope(MIXED_INITIATIVE_OP_TRANSLATION_SCOPE)
 	protected ArrayList<T>			opSequence;
 
 	Thread											thread;
@@ -409,7 +409,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			{
 				synchronized (incomingOpsBuffer)
 				{
-					op.translateToXML(incomingOpsBuffer);
+					op.serialize(incomingOpsBuffer);
 				}
 
 				// final int bufferLength = incomingOpsBuffer.length();
@@ -521,7 +521,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 				try
 				{
-					debug("epilogue contents: " + sendEpilogue.translateToXML());
+					debug("epilogue contents: " + sendEpilogue.serialize());
 				}
 				catch (XMLTranslationException e)
 				{
@@ -1007,7 +1007,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 					debug("sending a log message: ");
 					try
 					{
-						debug(message.translateToXML().toString());
+						debug(message.serialize().toString());
 					}
 					catch (XMLTranslationException e)
 					{

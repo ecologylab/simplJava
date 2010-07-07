@@ -1,7 +1,7 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.XMLTools;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Base class for SendPrologue and SendEpilogue. Probably should not be used for anything else. Enables passing of the
@@ -9,9 +9,9 @@ import ecologylab.xml.xml_inherit;
  * 
  * @author andruid
  */
-@xml_inherit abstract public class LogueMessage extends LogEvent
+@simpl_inherit abstract public class LogueMessage extends LogEvent
 {
-	@xml_attribute protected String	logName;
+	@simpl_scalar protected String	logName;
 
 	/**
 	 * Constructor for building from the Logging class.

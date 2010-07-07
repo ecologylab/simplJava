@@ -16,8 +16,8 @@ import ecologylab.xml.library.jnlp.information.AssociationElement;
  */
 public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementState
 {
-    @xml_attribute @xml_tag("as-df") String asdf;
-    @xml_collection("nested-tag") ArrayList<AssociationElement> list = new ArrayList<AssociationElement>();
+    @simpl_scalar @xml_tag("as-df") String asdf;
+    @simpl_collection("nested-tag") ArrayList<AssociationElement> list = new ArrayList<AssociationElement>();
 
     public TestXMLTag()
     {
@@ -48,9 +48,9 @@ public @xml_tag("doobie-doobie-dah_dooooooo") class TestXMLTag extends ElementSt
             taggies.add(new TestXMLTag("asdf"+i));
         }
         
-        System.out.println(test.translateToXML());
-        System.out.println(ElementState.translateFromXMLCharSequence(test.translateToXML(),
-                TranslationScope.get("test", classes)).translateToXML());
+        System.out.println(test.serialize());
+        System.out.println(ElementState.translateFromXMLCharSequence(test.serialize(),
+                TranslationScope.get("test", classes)).serialize());
         
 //        System.out.println(taggies.translateToXML());
 //        System.out.println(ElementState.translateFromXMLCharSequence(taggies.translateToXML(),

@@ -38,13 +38,13 @@ import ecologylab.xml.ElementState;
  */
 public class Icon extends ElementState
 {
-    @xml_attribute private String href;
+    @simpl_scalar private String href;
 
-    @xml_attribute private int    width;
+    @simpl_scalar private int    width;
 
-    @xml_attribute private int    height;
+    @simpl_scalar private int    height;
 
-    @xml_attribute private String kind;
+    @simpl_scalar private String kind;
 
     /**
      * 

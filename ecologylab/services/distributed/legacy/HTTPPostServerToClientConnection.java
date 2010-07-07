@@ -42,7 +42,7 @@ import ecologylab.xml.XMLTranslationException;
             RequestMessage requestMessage = servicesServer
                     .translateXMLStringToRequestMessage(messageString, true);
             debug("THIS REQUEST MESSAGE : "
-                    + requestMessage.translateToXML());
+                    + requestMessage.serialize());
 
             return requestMessage;
         }

@@ -27,9 +27,9 @@ public class Point2DDoubleState extends ElementState
 	/**
 	 * Location and dimensions of the point.
 	 */
-	protected @xml_attribute double	x		= 0;
+	protected @simpl_scalar double	x		= 0;
 
-	protected @xml_attribute double	y		= 0;
+	protected @simpl_scalar double	y		= 0;
 
 	public Point2DDoubleState()
 	{

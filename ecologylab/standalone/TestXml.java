@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.ElementState.xml_nowrap;
+import ecologylab.xml.ElementState.simpl_nowrap;
 
 /**
  *
@@ -16,10 +16,10 @@ import ecologylab.xml.ElementState.xml_nowrap;
  */
 public class TestXml extends ElementState
 {
-	@xml_nowrap 
-	@xml_collection("vendor")	ArrayList<String> set	= new ArrayList<String>();
+	@simpl_nowrap 
+	@simpl_collection("vendor")	ArrayList<String> set	= new ArrayList<String>();
 	
-	@xml_attribute				String fooBar;
+	@simpl_scalar				String fooBar;
 	
 	static final TranslationScope TS	= TranslationScope.get("testing123", TestXml.class);
 	/**
@@ -37,7 +37,7 @@ public class TestXml extends ElementState
     	try
 		{
 			ElementState es		= translateFromXMLCharSequence(STUFF, TS);
-			println(es.translateToXML());
+			println(es.serialize());
 		} catch (XMLTranslationException e)
 		{
 			e.printStackTrace();

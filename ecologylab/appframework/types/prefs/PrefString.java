@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Preference that is a String
@@ -11,13 +11,13 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  * 
  */
-@xml_inherit
+@simpl_inherit
 public class PrefString extends Pref<String>
 {
 	/**
 	 * Value of Pref
 	 */
-	@xml_attribute
+	@simpl_scalar
 	String	value;
 
 	/**

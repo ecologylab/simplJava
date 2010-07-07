@@ -37,21 +37,21 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 {
 	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
 
-	@xml_attribute
+	@simpl_scalar
 	protected Field																		field;
 
 	/**
 	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
 	 * this field is meaningless, except for wrapped collections and maps.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	private String																		tagName;
 
 	/**
 	 * Used to specify old translations, for backwards compatability. Never written.
 	 */
-	@xml_nowrap
-	@xml_collection("other_tag")
+	@simpl_nowrap
+	@simpl_collection("other_tag")
 	private ArrayList<String>													otherTags;
 
 	/**
@@ -59,24 +59,35 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	protected ClassDescriptor													declaringClassDescriptor;
 
-	@xml_attribute
+	@simpl_scalar
 	private int																				type;
 
 	/**
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
-	@xml_attribute
+	@simpl_scalar
 	private ScalarType<?>															scalarType;
+	
+	@simpl_scalar
+	private Hint																			xmlHint;
+	
+	public Hint getXmlHint()
+	{
+		return xmlHint;
+	}
+
+	@simpl_scalar
+	private boolean																		isEnum;
 
 	/**
 	 * An option for scalar formatting.
 	 */
 	private String[]																	format;
 
-	@xml_attribute
+	@simpl_scalar
 	private boolean																		isCDATA;
 
-	@xml_attribute
+	@simpl_scalar
 	private boolean																		needsEscaping;
 
 	/**
@@ -98,20 +109,20 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private String																		unresolvedScopeAnnotation	= null;
 
-	@xml_map("tagClasses")
+	@simpl_map("tagClasses")
 	private HashMap<String, Class>										tagClasses;
 
 	/**
  * 
  */
-	@xml_attribute
+	@simpl_scalar
 	private String																		collectionOrMapTagName;
 
 	/**
 	 * Used for Collection and Map fields. Tells if the XML should be wrapped by an intermediate
 	 * element.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	private boolean																		wrapped;
 
 	private Method																		setValueMethod;
@@ -125,7 +136,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private ClassDescriptor														elementClassDescriptor;
 
-	@xml_attribute
+	@simpl_scalar
 	private Class																			elementClass;
 
 	/**
@@ -174,31 +185,26 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 																																																		// nameSpacePrefix
 	{
 		this.declaringClassDescriptor = declaringClassDescriptor;
-		this.field = field;
+		this.field 		= field;
 		this.field.setAccessible(true);
 
 		deriveTagClassDescriptors(field);
 
 		// if (!isPolymorphic())
-		this.tagName = XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
+		this.tagName	= XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
 
 		// TODO XmlNs
 		// if (nameSpacePrefix != null)
 		// {
 		// tagName = nameSpacePrefix + tagName;
 		// }
-		type = UNSET_TYPE; // for debugging!
-		type = deriveTypeFromField(field, annotationType);
+		type 					= UNSET_TYPE; // for debugging!
+		
+		if (annotationType == SCALAR)
+			type				= deriveScalarSerialization(field);
+		else
+			type 				= deriveNestedSerialization(field, annotationType);
 
-		switch (type)
-		{
-		case ATTRIBUTE:
-		case LEAF:
-		case TEXT_ELEMENT:
-		case ENUMERATED_ATTRIBUTE:
-		case ENUMERATED_LEAF:
-			scalarType = deriveScalar(field);
-		}
 		// looks old: -- implement this next???
 		// if (XMLTools.isNested(field))
 		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
@@ -216,8 +222,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	private boolean deriveTagClassDescriptors(Field field)
 	{
 		// @xml_scope
-		final ElementState.xml_scope scopeAnnotationObj = field
-				.getAnnotation(ElementState.xml_scope.class);
+		final ElementState.simpl_scope scopeAnnotationObj = field
+				.getAnnotation(ElementState.simpl_scope.class);
 		final String scopeAnnotation = (scopeAnnotationObj == null) ? null : scopeAnnotationObj.value();
 
 		if (scopeAnnotation != null && scopeAnnotation.length() > 0)
@@ -229,8 +235,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 		}
 		// @xml_classes
-		final ElementState.xml_classes classesAnnotationObj = field
-				.getAnnotation(ElementState.xml_classes.class);
+		final ElementState.simpl_classes classesAnnotationObj = field
+				.getAnnotation(ElementState.simpl_classes.class);
 		final Class[] classesAnnotation = (classesAnnotationObj == null) ? null : classesAnnotationObj
 				.value();
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
@@ -243,17 +249,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					putTagClassDescriptor(classDescriptor);
 					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 				}
-		}
-		// @xml_class
-		final ElementState.xml_class classAnnotationObj = field
-				.getAnnotation(ElementState.xml_class.class);
-		final Class classAnnotation = (classAnnotationObj == null) ? null : classAnnotationObj.value();
-		if (classAnnotation != null)
-		{
-			initTagClassDescriptorsArrayList(1);
-			ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(classAnnotation);
-			putTagClassDescriptor(classDescriptor);
-			tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
 		}
 		return tagClassDescriptors != null;
 	}
@@ -331,33 +326,46 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * <p/>
 	 * This method should only be called when you already know the field has a scalar annotation.
 	 * 
-	 * @param field
-	 * @return The ScalarType for the field, or null, if none can be found.
+	 * @param scalarField	Source for class & for annotations.
+	 * 
+	 * @return						SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
 	 */
-	private ScalarType deriveScalar(Field field)
+	private int deriveScalarSerialization(Field scalarField)
 	{
-		ScalarType result = TypeRegistry.getType(field);
-		if (result != null)
-		{
-			if (type == LEAF || type == TEXT_ELEMENT)
-			{
-				isCDATA = XMLTools.leafIsCDATA(field);
-				needsEscaping = result.needsEscaping();
-			}
-			format = XMLTools.getFormatAnnotation(field);
-		}
-		return result;
+		return deriveScalarSerialization(scalarField.getType(), scalarField);
 	}
 
-	private ScalarType deriveCollectionScalar(Class collectionScalarClass, Field field)
+	/**
+	 * Check for serialization hints for the field.
+	 * 
+	 * Lookup the scalar type for the class, and any serialization details, such as needsEscaping & format.
+	 * 
+	 * @param thatClass		Class that we seek a ScalarType for.
+	 * @param field				Field to acquire annotations about the serialization.
+	 * 
+	 * @return						SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
+	 */
+	private int deriveScalarSerialization(Class thatClass, Field field)
 	{
-		ScalarType result = TypeRegistry.getType(collectionScalarClass);
-		if (result != null)
-		{
-			needsEscaping = result.needsEscaping();
-			format = XMLTools.getFormatAnnotation(field);
+		
+		
+		isEnum 					= XMLTools.isEnum(field);
+		xmlHint					= XMLTools.simplHint(field);	//TODO -- confirm that default case is acceptable
+		scalarType 			= TypeRegistry.getType(thatClass);
+		
+		if (scalarType == null)
+		{	
+			return (xmlHint == Hint.XML_ATTRIBUTE) ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 		}
-		return result;
+		
+		format = XMLTools.getFormatAnnotation(field);
+		if (xmlHint != Hint.XML_ATTRIBUTE)
+		{
+			needsEscaping = scalarType.needsEscaping();
+			isCDATA				= xmlHint == Hint.XML_LEAF_CDATA || xmlHint == Hint.XML_TEXT_CDATA;
+		}
+
+		return SCALAR;
 	}
 
 	/**
@@ -370,27 +378,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	// FIXME -- not complete!!!! return to finish other cases!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@SuppressWarnings("unchecked")
-	private int deriveTypeFromField(Field field, int annotationType)
+	private int deriveNestedSerialization(Field field, int annotationType)
 	{
-		int result = annotationType;
-		Class fieldClass = field.getType();
+		int result 				= annotationType;
+		Class fieldClass 	= field.getType();
 		switch (annotationType)
 		{
-		case ATTRIBUTE:
-			scalarType = deriveScalar(field);
-			if (scalarType == null)
-				result = IGNORED_ATTRIBUTE;
-			break;
-		case LEAF:
-			scalarType = deriveScalar(field);
-			if (scalarType == null)
-				result = IGNORED_ELEMENT;
-			break;
-		case TEXT_ELEMENT:
-			scalarType = deriveScalar(field);
-			if (scalarType == null)
-				result = IGNORED_ELEMENT;
-			break;
 		case NESTED_ELEMENT:
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
 				result = IGNORED_ELEMENT;
@@ -402,7 +395,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 			break;
 		case COLLECTION_ELEMENT:
-			final String collectionTag = field.getAnnotation(ElementState.xml_collection.class).value();
+			final String collectionTag = field.getAnnotation(ElementState.simpl_collection.class).value();
 			if (!checkAssignableFrom(Collection.class, field, fieldClass, "@xml_collection"))
 				return IGNORED_ELEMENT;
 
@@ -433,7 +426,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				else
 				{
 					result = COLLECTION_SCALAR;
-					scalarType = deriveCollectionScalar(collectionElementClass, field);
+					deriveScalarSerialization(collectionElementClass, field);
+					//FIXME -- add error handling for IGNORED due to scalar type lookup fails
+					if (scalarType == null)
+					{
+						result	= IGNORED_ELEMENT;
+						warning("Can't identify ScalarType for serialization of " + collectionElementClass);
+					}
 				}
 			}
 			else
@@ -448,7 +447,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			collectionOrMapTagName = collectionTag;
 			break;
 		case MAP_ELEMENT:
-			String mapTag = field.getAnnotation(ElementState.xml_map.class).value();
+			String mapTag = field.getAnnotation(ElementState.simpl_map.class).value();
 			if (!checkAssignableFrom(Map.class, field, fieldClass, "@xml_map"))
 				return IGNORED_ELEMENT;
 
@@ -479,7 +478,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				else
 				{
 					result = MAP_SCALAR; // TODO -- do we really support this case??
-					scalarType = deriveCollectionScalar(mapElementClass, field);
+					//FIXME -- add error handling for IGNORED due to scalar type lookup fails
+					deriveScalarSerialization(mapElementClass, field);
 				}
 			}
 			else
@@ -498,7 +498,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 		if (annotationType == COLLECTION_ELEMENT || annotationType == MAP_ELEMENT)
 		{
-			if (!field.isAnnotationPresent(ElementState.xml_nowrap.class))
+			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
 				wrapped = true;
 		}
 		/*
@@ -614,7 +614,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	/**
 	 * For noting that the object of this root or @xml_nested field has, within it, a field declared
-	 * with @xml_text.
+	 * with @simpl_scalar @simpl_hints(Hint.XML_TEXT).
 	 */
 	private Field	xmlTextScalarField;
 
@@ -1038,7 +1038,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			// Object fieldInstance = field.get(instance);
 			// String fieldValueString= fieldInstance.toString();
 
-			Text textNode = isCDATA ? document.createCDATASection(instanceString) : document
+			Text textNode = isCDATA() ? document.createCDATASection(instanceString) : document
 					.createTextNode(instanceString);
 
 			Element leafNode = document.createElement(tagName);
@@ -1111,6 +1111,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				// (which is an instance variable of this) !!!
 				writeOpenTag(buffy);
 
+				boolean isCdata = isCDATA();
 				if (isCDATA)
 					buffy.append(START_CDATA);
 				scalarType.appendValue(buffy, this, context); // escape if not CDATA! :-)
@@ -1141,6 +1142,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				// for this field, generate <tag>value</tag>
 
+				boolean isCdata = isCDATA();
 				if (isCDATA)
 					buffy.append(START_CDATA);
 				// TODO lkkljhkhj
@@ -1168,6 +1170,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			ScalarType scalarType = this.scalarType;
 
 			writeOpenTag(buffy);
+			boolean isCdata = isCDATA();
 			if (isCDATA)
 				buffy.append(START_CDATA);
 			scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
@@ -1196,10 +1199,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			ScalarType scalarType = this.scalarType;
 
 			writeOpenTag(appendable);
-			if (isCDATA)
+			boolean isCdata = isCDATA();
+			if (isCdata)
 				appendable.append(START_CDATA);
-			scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
-			if (isCDATA)
+			scalarType.appendValue(instance, appendable, !isCdata); // escape if not CDATA! :-)
+			if (isCdata)
 				appendable.append(END_CDATA);
 
 			writeCloseTag(appendable);
@@ -1231,6 +1235,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				writeOpenTag(appendable);
 
+				boolean isCdata = isCDATA();
 				if (isCDATA)
 					appendable.append(START_CDATA);
 				scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
@@ -1252,6 +1257,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				// for this field, generate <tag>value</tag>
 
+				boolean isCdata = isCDATA();
 				if (isCDATA)
 					appendable.append(START_CDATA);
 

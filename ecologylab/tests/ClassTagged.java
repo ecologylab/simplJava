@@ -12,8 +12,8 @@ import ecologylab.xml.ElementState.xml_tag;
  */
 public @xml_tag("CLASS_NAME_TAG") class ClassTagged extends ElementState
 {
-    @xml_attribute @xml_tag("BLARG") String blarg = null;
-    @xml_nested @xml_tag("ASDF:NU") FieldTagged fieldTagged = new FieldTagged();
+    @simpl_scalar @xml_tag("BLARG") String blarg = null;
+    @simpl_composite @xml_tag("ASDF:NU") FieldTagged fieldTagged = new FieldTagged();
     
     /**
      * 

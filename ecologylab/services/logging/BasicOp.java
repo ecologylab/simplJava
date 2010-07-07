@@ -1,16 +1,16 @@
 package ecologylab.services.logging;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A basic operation that only logs the time that operation took place.
  * @author alexgrau
  */
-abstract public @xml_inherit class BasicOp extends ElementState
+abstract public @simpl_inherit class BasicOp extends ElementState
 {
 	/** Elapsed time since the session started. */
-	@xml_attribute protected long	sessionTime;
+	@simpl_scalar protected long	sessionTime;
 	
 	/** No-argument constructor for XML translation. */
 	public BasicOp()

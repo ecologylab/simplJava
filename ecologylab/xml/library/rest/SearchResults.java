@@ -11,10 +11,10 @@ import ecologylab.xml.ElementState;
  */
 public class SearchResults extends ElementState
 {
-	@xml_nested protected ResultsInfo 				resultsInfo;
+	@simpl_composite protected ResultsInfo 				resultsInfo;
 	
-	@xml_nowrap
-	@xml_collection("Record")
+	@simpl_nowrap
+	@simpl_collection("Record")
 	protected ArrayList<Record>	results = new ArrayList<Record>();
 	
 	public SearchResults() {}

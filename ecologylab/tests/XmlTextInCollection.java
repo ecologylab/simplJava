@@ -5,8 +5,6 @@ package ecologylab.tests;
 
 import java.util.ArrayList;
 
-import ecologylab.generic.Debug;
-import ecologylab.xml.XMLTranslationException;
 import ecologylab.xml.library.xaml.TextBlockState;
 /**
  * @author awebb

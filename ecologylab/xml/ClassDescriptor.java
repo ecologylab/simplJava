@@ -26,10 +26,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	/**
 	 * Class object that we are describing.
 	 */
-	@xml_attribute
+	@simpl_scalar
 	private Class<ES>																			describedClass;
 
-	@xml_attribute
+	@simpl_scalar
 	private String																				tagName;
 
 	private String																				decribedClassSimpleName;
@@ -59,8 +59,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * arrays in Perl, JavaScript, PHP, ..., but with less overhead, because the hashtable is only
 	 * maintained per class, not per instance.
 	 */
-	@xml_nowrap
-	@xml_map("field_descriptor")
+	@simpl_nowrap
+	@simpl_map("field_descriptor")
 	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName		= new HashMapArrayList<String, FD>();
 
 	/**
@@ -149,8 +149,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				result = globalClassDescriptorsMap.get(className);
 				if (result == null)
 				{
-					final serial_descriptors_classes descriptorsClassesAnnotation = thatClass
-							.getAnnotation(serial_descriptors_classes.class);
+					final simpl_descriptor_classes descriptorsClassesAnnotation = thatClass
+							.getAnnotation(simpl_descriptor_classes.class);
 					if (descriptorsClassesAnnotation == null)
 						result = new ClassDescriptor(thatClass);
 					else
@@ -270,8 +270,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private Class<FieldDescriptor> fieldDescriptorAnnotationValue(
 			Class<? extends ElementState> thatClass)
 	{
-		final serial_descriptors_classes fieldDescriptorsClassAnnotation = thatClass
-				.getAnnotation(serial_descriptors_classes.class);
+		final simpl_descriptor_classes fieldDescriptorsClassAnnotation = thatClass
+				.getAnnotation(simpl_descriptor_classes.class);
 		Class<FieldDescriptor> result = null;
 		if (fieldDescriptorsClassAnnotation != null)
 		{
@@ -301,7 +301,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			fieldDescriptorClass = (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
 		}
 
-		if (classWithFields.isAnnotationPresent(xml_inherit.class))
+		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
 		{ // recurse on super class first, so subclass declarations shadow those in superclasses, where
 			// there are field name conflicts
 			Class superClass = classWithFields.getSuperclass();
@@ -329,47 +329,49 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				// debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-			FD fieldDescriptor = null;
-			boolean isElement = true;
-			boolean isEnum = XMLTools.isEnum(thatField);
+//			boolean isEnum = XMLTools.isEnum(thatField);
 			// TODO -- if fieldDescriptorClass is already defined, then use it w reflection, instead of
 			// FieldDescriptor, itself
-			if (XMLTools.representAsAttribute(thatField))
+//			if (XMLTools.representAsAttribute(thatField))
+//			{
+//				isElement = false;
+//				int type = !isEnum ? ATTRIBUTE : ENUMERATED_ATTRIBUTE;
+//				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
+//			}
+//			else if (XMLTools.representAsLeaf(thatField))
+//			{
+//				int type = !isEnum ? LEAF : ENUMERATED_LEAF;
+//				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
+//			}
+//			else 
+			int fieldType			= UNSET_TYPE;
+			
+			if (XMLTools.isScalar(thatField))
 			{
-				isElement = false;
-				int type = !isEnum ? ATTRIBUTE : ENUMERATED_ATTRIBUTE;
-				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
+				fieldType				= SCALAR;
 			}
-			else if (XMLTools.representAsLeaf(thatField))
+			else if (XMLTools.representAsComposite(thatField))
 			{
-				int type = !isEnum ? LEAF : ENUMERATED_LEAF;
-				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
-			}
-			else if (XMLTools.representAsText(thatField))
-			{
-				fieldDescriptor = newFieldDescriptor(thatField, TEXT_ELEMENT, fieldDescriptorClass);
-			}
-			else if (XMLTools.representAsNested(thatField))
-			{
-				fieldDescriptor = newFieldDescriptor(thatField, NESTED_ELEMENT, fieldDescriptorClass);
+				fieldType				= NESTED_ELEMENT;
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldDescriptor = newFieldDescriptor(thatField, COLLECTION_ELEMENT, fieldDescriptorClass);
+				fieldType				= COLLECTION_ELEMENT;
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
-				fieldDescriptor = newFieldDescriptor(thatField, MAP_ELEMENT, fieldDescriptorClass);
+				fieldType				= MAP_ELEMENT;
 			}
-			else
-				// not an ecologylab.xml annotated field
-				continue;
+			if (fieldType == UNSET_TYPE)
+				continue;	// not a simpl serialization annotated field
+			
+			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
 
 			// create indexes for translateToXML
-			if (isElement)
-				elementFieldDescriptors.add(fieldDescriptor);
-			else
+			if (fieldDescriptor.getXmlHint() == Hint.XML_ATTRIBUTE)
 				attributeFieldDescriptors.add(fieldDescriptor);
+			else
+				elementFieldDescriptors.add(fieldDescriptor);
 
 			// TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
@@ -649,7 +651,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 		try
 		{
-			mostBasicTranslations.translateToXML(System.out);
+			mostBasicTranslations.serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{

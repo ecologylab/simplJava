@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.ElementState.xml_collection;
+import ecologylab.xml.ElementState.simpl_collection;
 import ecologylab.xml.library.rss.Channel;
 import ecologylab.xml.library.rss.Item;
 import ecologylab.xml.library.rss.RssTranslations;
@@ -22,11 +22,11 @@ public class Schmannel extends ElementState
   private static final TranslationScope	
   TRANSLATION_SPACE	= TranslationScope.get("schm_rss", RssTranslations.get(), Schmannel.class, SchmItem.class, BItem.class);
 
-  @xml_classes({Item.class, SchmItem.class})
-  @xml_collection ArrayList<Item> schmItems;
+  @simpl_classes({Item.class, SchmItem.class})
+  @simpl_collection ArrayList<Item> schmItems;
 
-  @xml_classes({BItem.class})
-  @xml_nested 							Item 						polyItem;
+  @simpl_classes({BItem.class})
+  @simpl_composite 							Item 						polyItem;
   
 	/**
 	 * 
@@ -60,14 +60,14 @@ public class Schmannel extends ElementState
 		try
 		{
 			StringBuilder buffy	= new StringBuilder();
-			schmannel.translateToXML(buffy);
+			schmannel.serialize(buffy);
 			
 			System.out.println(buffy);
 			System.out.println('\n');
-			TRANSLATION_SPACE.translateToXML(System.out);
+			TRANSLATION_SPACE.serialize(System.out);
 			System.out.println('\n');
 			ElementState s2	= ElementState.translateFromXMLCharSequence(buffy, TRANSLATION_SPACE);
-			s2.translateToXML(System.out);
+			s2.serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{
@@ -82,7 +82,7 @@ public class Schmannel extends ElementState
 		try
 		{
 			ElementState rap	= ElementState.translateFromXMLCharSequence(ITEMS, TRANSLATION_SPACE);
-			rap.translateToXML(System.out);
+			rap.serialize(System.out);
 			System.out.println('\n');
 //			println(c.translateToXML());
 		} catch (XMLTranslationException e)

@@ -3,7 +3,7 @@ package ecologylab.services.logging;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Bundle a sequence of {@link MixedInitiativeOp MixedInitiativeOp}s, and send them to the logging server.
@@ -12,7 +12,7 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
-@xml_inherit public final class LogOps extends LogEvent
+@simpl_inherit public final class LogOps extends LogEvent
 {
 	/** Constructor for XML translation. */
 	public LogOps()
@@ -39,12 +39,12 @@ import ecologylab.xml.xml_inherit;
 
 		try
 		{
-			l.translateToXML(System.out);
+			l.serialize(System.out);
 
-			StringBuilder buffy = l.translateToXML((StringBuilder) null);
+			StringBuilder buffy = l.serialize((StringBuilder) null);
 			System.out.println("");
 			ElementState l2 = ElementState.translateFromXMLCharSequence(buffy.toString(), TS);
-			l2.translateToXML(System.out);
+			l2.serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{

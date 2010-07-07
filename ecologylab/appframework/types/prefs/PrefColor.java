@@ -13,7 +13,7 @@ import java.awt.Color;
  */
 public class PrefColor extends Pref<Color>
 {
-	@xml_attribute
+	@simpl_scalar
 	Color	value;
 
 	public PrefColor()

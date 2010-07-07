@@ -155,6 +155,6 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
 			ResponseMessage responseMessage, StringBuilder messageBuffer) throws XMLTranslationException
 	{
-		responseMessage.translateToXML(messageBuffer);
+		responseMessage.serialize(messageBuffer);
 	}
 }

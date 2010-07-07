@@ -17,7 +17,7 @@ import ecologylab.services.messages.ErrorResponse;
 import ecologylab.services.messages.ResponseMessage;
 import ecologylab.xml.XMLTools;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Allows the application to send application-specific content to the log, at the beginning of a
@@ -30,22 +30,22 @@ import ecologylab.xml.xml_inherit;
  * @author andruid
  * @author eunyee
  */
-@xml_inherit
+@simpl_inherit
 public final class SendPrologue extends LogueMessage
 {
-	@xml_attribute
+	@simpl_scalar
 	protected String	date		= new Date(System.currentTimeMillis()).toString();
 
-	@xml_attribute
+	@simpl_scalar
 	protected String	ip			= NetTools.localHost();
 
-	@xml_attribute
+	@simpl_scalar
 	protected String	userID	= "0";
 
-	@xml_attribute
+	@simpl_scalar
 	protected String	studyName;
 
-	@xml_attribute
+	@simpl_scalar
 	protected boolean	performEpilogueNow;
 
 	public SendPrologue(Logging logging, Prologue prologue)
@@ -57,7 +57,7 @@ public final class SendPrologue extends LogueMessage
 		this.studyName = prologue.getStudyName();
 		try
 		{
-			bufferToLog = prologue.translateToXML((StringBuilder) null);
+			bufferToLog = prologue.serialize((StringBuilder) null);
 			bufferToLog.insert(0, beginLog());
 			bufferToLog.append(Logging.OP_SEQUENCE_START);
 		}

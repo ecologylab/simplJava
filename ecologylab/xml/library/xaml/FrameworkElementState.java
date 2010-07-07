@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -17,28 +17,28 @@ import ecologylab.xml.ElementState.xml_tag;
  * @author awebb
  *
  */
-@xml_inherit
+@simpl_inherit
 @xml_tag("FrameworkElement")
 public class FrameworkElementState extends ElementState
 {
-	@xml_attribute @xml_tag("Name") String name;
-	@xml_attribute @xml_tag("Background") Color background;
-	@xml_attribute @xml_tag("Foreground") Color foreground;
+	@simpl_scalar @xml_tag("Name") String name;
+	@simpl_scalar @xml_tag("Background") Color background;
+	@simpl_scalar @xml_tag("Foreground") Color foreground;
 	
-	@xml_attribute @xml_tag("Height") double height;
-	@xml_attribute @xml_tag("Width") double width;
-	@xml_attribute @xml_tag("Opacity") double opacity;
+	@simpl_scalar @xml_tag("Height") double height;
+	@simpl_scalar @xml_tag("Width") double width;
+	@simpl_scalar @xml_tag("Opacity") double opacity;
 	
-	@xml_attribute @xml_tag("Mouse.MouseEnter") String mouseEnterEventHandler;
-	@xml_attribute @xml_tag("Mouse.MouseLeave") String mouseExitEventHandler;
-	@xml_attribute @xml_tag("Mouse.MouseMove") 	String mouseMoveEventHandler;
-	@xml_attribute @xml_tag("Mouse.MouseUp") 	String mouseUpEventHandler;
-	@xml_attribute @xml_tag("Mouse.MouseDown") 	String mouseDownEventHandler;
-	@xml_attribute @xml_tag("Mouse.MouseWheel") String mouseWheelEventHandler;	
+	@simpl_scalar @xml_tag("Mouse.MouseEnter") String mouseEnterEventHandler;
+	@simpl_scalar @xml_tag("Mouse.MouseLeave") String mouseExitEventHandler;
+	@simpl_scalar @xml_tag("Mouse.MouseMove") 	String mouseMoveEventHandler;
+	@simpl_scalar @xml_tag("Mouse.MouseUp") 	String mouseUpEventHandler;
+	@simpl_scalar @xml_tag("Mouse.MouseDown") 	String mouseDownEventHandler;
+	@simpl_scalar @xml_tag("Mouse.MouseWheel") String mouseWheelEventHandler;	
 	
-	@xml_attribute @xml_tag("x:Class") 			String wpfClass;
+	@simpl_scalar @xml_tag("x:Class") 			String wpfClass;
 	
-	@xml_collection("Element") 
+	@simpl_collection("Element") 
 	ArrayList<ElementState>   frameWorkElements;
 
 	public String getName()

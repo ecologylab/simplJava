@@ -7,9 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Class-level annotation.
- * S.IM.PL Serialization transparency. 
- * Enables overriding the class used for the ClassDescriptor for a particular type.
+ * Metalanguage declaration for classes with metalanguage inside, 
+ * which are derived from other classes that also have metalanguage that needs interpreting.
  * 
  * @author andruid
  */
@@ -18,7 +17,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-public @interface serial_class_descriptor
+public @interface simpl_inherit
 {
-  Class value();
+
 }

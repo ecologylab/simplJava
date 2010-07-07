@@ -32,32 +32,32 @@ public class JnlpState extends ElementState implements Cloneable
 	 * versions support only 1.0. A jnlp file specifying spec="1.5+" will work
 	 * with this version, but not previous versions of Java Web Start.
 	 */
-	@xml_attribute String														spec;
+	@simpl_scalar String														spec;
 
 	/**
 	 * All relative URLs specified in href attributes in the JNLP file are using
 	 * this URL as a base.
 	 */
-	@xml_attribute String														codebase;
+	@simpl_scalar String														codebase;
 
 	/** This is a URL pointing to the location of the JNLP file itself. */
-	@xml_attribute String														href;
+	@simpl_scalar String														href;
 
-	@xml_nowrap 
-	@xml_collection("information") ArrayList<InformationElement>	informations	= new ArrayList<InformationElement>();
+	@simpl_nowrap 
+	@simpl_collection("information") ArrayList<InformationElement>	informations	= new ArrayList<InformationElement>();
 
 	// @xml_nested private InformationElement information;
 
-	@xml_collection("AllPermissionElement")
-	@xml_nowrap
+	@simpl_collection("AllPermissionElement")
+	@simpl_nowrap
 	ArrayList<AllPermissionsElement>					security;
 
-	@xml_nested ResourceElementArray											resources;
+	@simpl_composite ResourceElementArray											resources;
 
-	@xml_nested @xml_tag("application-desc") ApplicationDesc			applicationDesc;
+	@simpl_composite @xml_tag("application-desc") ApplicationDesc			applicationDesc;
 
-	@xml_nowrap 
-	@xml_collection("applet-desc") ArrayList<AppletDesc>				appletDesc		= new ArrayList<AppletDesc>();
+	@simpl_nowrap 
+	@simpl_collection("applet-desc") ArrayList<AppletDesc>				appletDesc		= new ArrayList<AppletDesc>();
 
 	/**
 	 * No-arg constructor for XML translation.
@@ -147,8 +147,8 @@ public class JnlpState extends ElementState implements Cloneable
 			String thisXml;
 			try
 			{
-				thisXml = this.translateToXML().toString();
-				String thatXml = ((ElementState) obj).translateToXML().toString();
+				thisXml = this.serialize().toString();
+				String thatXml = ((ElementState) obj).serialize().toString();
 
 				return thisXml.equals(thatXml);
 			}
@@ -231,7 +231,7 @@ public class JnlpState extends ElementState implements Cloneable
 		try
 		{
 			return (JnlpState) ElementState.translateFromXMLCharSequence(this
-					.translateToXML(), JnlpTranslations.get());
+					.serialize(), JnlpTranslations.get());
 		}
 		catch (XMLTranslationException e)
 		{

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.library.dc.Dc;
 import ecologylab.xml.library.feedburner.Feedburner;
 import ecologylab.xml.library.media.Media;
@@ -18,20 +19,20 @@ import ecologylab.xml.library.media.Media;
  */
 public class Item extends ElementState
 {
-   @xml_leaf	String			title;
-   @xml_leaf	String			description;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
    /**
     * This version of link often has a special url with rss in it.
     */
-   @xml_leaf	ParsedURL		link;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		link;
    /**
     * This seems to be the version of link that users want to see.
     */
-   @xml_leaf	ParsedURL		guid;
-   @xml_leaf	String			author;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		guid;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			author;
 
-   @xml_nowrap
-   @xml_collection("category") ArrayList<String>	categorySet;
+   @simpl_nowrap
+   @simpl_collection("category") ArrayList<String>	categorySet;
    
    public Item()
    {

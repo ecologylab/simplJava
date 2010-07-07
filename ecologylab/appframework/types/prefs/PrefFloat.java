@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Pref for a Float
@@ -12,13 +12,13 @@ import ecologylab.xml.xml_inherit;
  * 
  */
 
-@xml_inherit
+@simpl_inherit
 public class PrefFloat extends Pref<Float>
 {
 	/**
 	 * Value of Pref
 	 */
-	@xml_attribute
+	@simpl_scalar
 	float	value;
 
 	/**

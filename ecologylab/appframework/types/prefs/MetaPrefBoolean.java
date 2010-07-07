@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -14,13 +14,13 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  * @author andruid
  *
  */
-@xml_inherit
+@simpl_inherit
 public class MetaPrefBoolean extends MetaPref<Boolean>
 {
     /**
      * Default value for this MetaPref
      */
-	@xml_attribute	boolean		defaultValue;
+	@simpl_scalar	boolean		defaultValue;
 	
 	public static final ScalarType BOOLEAN_SCALAR_TYPE	= TypeRegistry.getType(boolean.class);
 

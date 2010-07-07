@@ -11,8 +11,8 @@ import ecologylab.xml.ElementState;
  */
 public class AssetState extends ElementState 
 {
-	@xml_attribute	String	id;
-	@xml_attribute	float	version;
+	@simpl_scalar	String	id;
+	@simpl_scalar	float	version;
 	
 	public AssetState()
 	{

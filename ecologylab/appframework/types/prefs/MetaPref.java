@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 
 import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.scalar.ScalarType;
 
 /**
@@ -19,7 +19,7 @@ import ecologylab.xml.types.scalar.ScalarType;
  *
  */
 
-@xml_inherit
+@simpl_inherit
 public abstract class MetaPref<T> extends ElementState implements WidgetTypes
 {
     /** The global registry of Pref objects. Used for providing lookup services. */
@@ -30,41 +30,41 @@ public abstract class MetaPref<T> extends ElementState implements WidgetTypes
      * automatically generated HashMap.
 	 */
   @xml_tag("id")  
-	@xml_attribute 	String		m_id;
+	@simpl_scalar 	String		m_id;
 	
 	/**
 	 * This is the short text that appears in the Swing panel for editing the value.
 	 */
-	@xml_attribute 	String		description;
+	@simpl_scalar 	String		description;
 	
 	/**
 	 * This is longer text about that describes what the Preference does and 
      * more about the implications of its value.
 	 */
-	@xml_attribute 	String		helpText;
+	@simpl_scalar 	String		helpText;
 	
 	/**
 	 * Type of graphical user interface component used to interact with it.
 	 * Must be a constant defined in the interface WidgetTypes
 	 * If this value is left as null, it should default to TEXT_FIELD.
 	 */
-	@xml_attribute	String		widget;
+	@simpl_scalar	String		widget;
 	
 	/**
 	 * Categories enable tabbed panes of preferences to be edited.
 	 */
-	@xml_attribute 	String		category;
+	@simpl_scalar 	String		category;
 	
     /**
      * Whether or not the application has to restart for this pref change to take effect.
      */
-	@xml_attribute	boolean		requiresRestart;
+	@simpl_scalar	boolean		requiresRestart;
     
     /**
      * optional; for preferences with three or more choices
      */
-    @xml_collection 
-    @xml_classes({ChoiceBoolean.class, ChoiceFloat.class, ChoiceInt.class})
+    @simpl_collection 
+    @simpl_classes({ChoiceBoolean.class, ChoiceFloat.class, ChoiceInt.class})
     ArrayList<Choice<T>> choices;
     
     ScalarType<T>                  scalarType;

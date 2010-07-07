@@ -214,7 +214,7 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
             ResponseMessage responseMessage) throws XMLTranslationException
     {
         responseMessage.setUid(requestMessage.getUid());
-        sendResponse(responseMessage.translateToXML());
+        sendResponse(responseMessage.serialize());
 
         return false;
     }

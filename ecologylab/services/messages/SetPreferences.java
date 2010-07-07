@@ -5,7 +5,7 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.ConsoleUtils;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * The message sent by ServicesClientApplet to Java application running ServicesServer at 
@@ -14,13 +14,13 @@ import ecologylab.xml.xml_inherit;
  * @author blake
  * @author andruid
  */
-@xml_inherit
+@simpl_inherit
 @Deprecated public class SetPreferences 
 extends RequestMessage
 {
 	static boolean			firstTime		= true;
 	
-	@xml_nested protected	 PrefSet		preferencesSet;
+	@simpl_composite protected	 PrefSet		preferencesSet;
 	
 	public SetPreferences()
 	{

@@ -1,6 +1,6 @@
 package ecologylab.services.messages;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * A message to be sent to a ServicesServer through HTTP that the Services will 
@@ -10,7 +10,7 @@ import ecologylab.xml.xml_inherit;
  * @deprecated
  */
 
-public @xml_inherit class HttpGetRequest extends HttpRequest 
+public @simpl_inherit class HttpGetRequest extends HttpRequest 
 {
 
 }

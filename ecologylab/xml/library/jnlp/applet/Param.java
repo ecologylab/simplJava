@@ -11,8 +11,8 @@ import ecologylab.xml.ElementState;
  */
 public class Param extends ElementState
 {
-    @xml_attribute private String name;
-    @xml_attribute private String value;
+    @simpl_scalar private String name;
+    @simpl_scalar private String value;
 
     /**
      * 

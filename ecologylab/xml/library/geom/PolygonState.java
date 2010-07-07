@@ -1,18 +1,16 @@
 package ecologylab.xml.library.geom;
 
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.Polygon;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
-import ecologylab.xml.ElementState.xml_attribute;
-import ecologylab.xml.ElementState.xml_nested;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Encapsulates a Polygon for use in translating to/from XML.
@@ -29,12 +27,12 @@ import ecologylab.xml.ElementState.xml_nested;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * @author Alan Blevins (alan.blevins@gmail.com)
  */
-public @xml_inherit
+public @simpl_inherit
 class PolygonState extends ElementState implements Shape
 {
 	private Polygon												shape							= null;
 
-	@xml_collection("point2_d_double")
+	@simpl_collection("point2_d_double")
 	private ArrayList<Point2DDoubleState>	polygonVerticies	= new ArrayList<Point2DDoubleState>();
 
 	public PolygonState()

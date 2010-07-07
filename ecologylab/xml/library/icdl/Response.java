@@ -6,7 +6,8 @@ package ecologylab.xml.library.icdl;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.Hint;
+import ecologylab.xml.simpl_inherit;
 /**
  * The root element in a reply to ICDL BookXMLResults.
  * 
@@ -15,14 +16,14 @@ import ecologylab.xml.xml_inherit;
  * http://www.childrenslibrary.org/icdl/BookXMLResults?ids=133,265&prefcollids=474&lang=English&sort=title&ptype=simple
  * @author andruid
  */
-@xml_inherit
+@simpl_inherit
 public class Response extends ElementState
 {
-	@xml_leaf	int		pnum;
-	@xml_leaf	int		total;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	int		pnum;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	int		total;
 	
-	@xml_collection("Book")
-	@xml_nowrap
+	@simpl_collection("Book")
+	@simpl_nowrap
 	ArrayList<Book> books;
 	
 	/**

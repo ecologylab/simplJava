@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.collections.Scope;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -19,7 +19,7 @@ import ecologylab.xml.types.element.Mappable;
  * @author andruid
  */
 
-@xml_inherit
+@simpl_inherit
 public abstract class Pref<T> extends ElementState implements Mappable<String>, Cloneable
 {
 	/** The global registry of Pref objects. Used for providing lookup services. */
@@ -29,7 +29,7 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	static final ApplicationEnvironment			aE					= null;
 
 	/** Name of a Pref; provides index into the preferences map. */
-	@xml_attribute
+	@simpl_scalar
 	protected String												name;
 
 	/** Cached value */

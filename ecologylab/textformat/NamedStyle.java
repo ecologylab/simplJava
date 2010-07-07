@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.xml.ElementState;
-import ecologylab.xml.ElementState.xml_attribute;
+import ecologylab.xml.ElementState.simpl_scalar;
 import ecologylab.xml.types.element.Mappable;
 
 /**
@@ -21,25 +21,25 @@ implements Mappable<String>
 	public static final						int				STROKE_NONE 					= 3;
 	
 	/**Name for this given style */
-	@xml_attribute protected			String		name;
+	@simpl_scalar protected			String		name;
 	
 	/**Boolean indicating whether to underline the entire chunk or not*/
-	@xml_attribute protected 			boolean		underline;
+	@simpl_scalar protected 			boolean		underline;
 	
 	/**Integer indicating the size of the chunk font*/
-	@xml_attribute protected			int				fontSize;
+	@simpl_scalar protected			int				fontSize;
 	
 	/**Integer indicating the alignment*/
-	@xml_attribute protected			int				alignment;
+	@simpl_scalar protected			int				alignment;
 	
 	/** Integer indicating the faceIndex of the chunk*/
-	@xml_attribute protected			int				faceIndex;
+	@simpl_scalar protected			int				faceIndex;
 	
 	/** Integer indicating the fontStyle of the chunk. Follows Font constants.*/
-	@xml_attribute protected			int				fontStyle;
+	@simpl_scalar protected			int				fontStyle;
 	
 	/** Integer that indicates the stroke style for this chunk*/
-	@xml_attribute protected			int				strokeStyle = Pref.lookupInt("stroke_style", STROKE_RECTANGLE_FIT);
+	@simpl_scalar protected			int				strokeStyle = Pref.lookupInt("stroke_style", STROKE_RECTANGLE_FIT);
 
 	/**
 	 * Set of variables that control the font style. May contain a name.

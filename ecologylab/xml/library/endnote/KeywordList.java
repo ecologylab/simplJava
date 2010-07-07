@@ -6,15 +6,15 @@ package ecologylab.xml.library.endnote;
 import java.util.ArrayList;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public @xml_inherit class KeywordList extends ElementState
+public @simpl_inherit class KeywordList extends ElementState
 {
-    @xml_collection("Keyword")
-    @xml_nowrap
+    @simpl_collection("Keyword")
+    @simpl_nowrap
     ArrayList<Keyword> keywords;
     
     /**

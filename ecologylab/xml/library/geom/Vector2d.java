@@ -60,9 +60,9 @@ public class Vector2d extends SpatialVector implements Cloneable
 		return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
 	}
 
-	protected @xml_attribute double	x;
+	protected @simpl_scalar double	x;
 
-	protected @xml_attribute double	y;
+	protected @simpl_scalar double	y;
 
 	protected Point2D.Double			point	= null;
 

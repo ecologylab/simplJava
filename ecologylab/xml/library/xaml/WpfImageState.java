@@ -4,7 +4,6 @@
 package ecologylab.xml.library.xaml;
 
 import ecologylab.net.ParsedURL;
-import ecologylab.xml.xml_inherit;
 import ecologylab.xml.ElementState.xml_tag;
 
 /**
@@ -16,7 +15,7 @@ import ecologylab.xml.ElementState.xml_tag;
 @xml_tag("Image")
 public class WpfImageState extends PanelChildState 
 {
-    @xml_attribute @xml_tag("Source") ParsedURL source;
+    @simpl_scalar @xml_tag("Source") ParsedURL source;
 	
     public WpfImageState(ParsedURL imageSource)
     {

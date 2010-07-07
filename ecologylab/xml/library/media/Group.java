@@ -13,7 +13,7 @@ import ecologylab.xml.ElementState;
  */
 public class Group extends ElementState
 {
-	@xml_nested	Thumbnail 	thumbnail;
+	@simpl_composite	Thumbnail 	thumbnail;
 	
 	/**
 	 * Lookup a NestedNameSpace element child of this, in case there is one,

@@ -3,7 +3,7 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Pref for a Double
@@ -12,11 +12,11 @@ import ecologylab.xml.xml_inherit;
  * @author Zachary O. Toups (zach@ecologylab.net)
  */
 
-@xml_inherit
+@simpl_inherit
 public class PrefDouble extends Pref<Double>
 {
 	/** Value of Pref */
-	@xml_attribute
+	@simpl_scalar
 	double	value;
 
 	/**

@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.io.File;
 
 import ecologylab.appframework.types.prefs.MetaPref;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 import ecologylab.xml.types.scalar.ScalarType;
 import ecologylab.xml.types.scalar.TypeRegistry;
 
@@ -19,14 +19,14 @@ import ecologylab.xml.types.scalar.TypeRegistry;
  *
  */
 
-@xml_inherit
+@simpl_inherit
 public class MetaPrefFile extends MetaPref<File>
 {
     /**
      * Default value for this MetaPref
      */
-    @xml_attribute  File      defaultValue;
-    @xml_attribute  int       pathContext   = ABSOLUTE_PATH;
+    @simpl_scalar  File      defaultValue;
+    @simpl_scalar  int       pathContext   = ABSOLUTE_PATH;
     
     /** Indicates that value is an absolute path. */
     public static final int ABSOLUTE_PATH = 0;

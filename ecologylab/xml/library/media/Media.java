@@ -1,13 +1,8 @@
 package ecologylab.xml.library.media;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
-import ecologylab.xml.ElementState.xml_leaf;
-import ecologylab.xml.library.dc.Dc;
-import ecologylab.xml.library.rss.Channel;
-import ecologylab.xml.library.rss.Item;
-import ecologylab.xml.library.rss.RDFState;
-import ecologylab.xml.library.rss.RssState;
 
 /**
  * Root class for inserting elements from the Yahoo Media XML Namespace.
@@ -24,26 +19,26 @@ public class Media extends ElementState
 	 * An alternative would be to implement this as an ArrayListState, and be able
 	 * to aggregate a set of these. We can do this when there is a need, with an example.
 	 */
-	@xml_nested Content		content;
+	@simpl_composite Content		content;
 	
-	@xml_nested Credit		credit;
+	@simpl_composite Credit		credit;
 	
-	@xml_nested	Thumbnail	thumbnail;
+	@simpl_composite	Thumbnail	thumbnail;
 	
-	@xml_nested	Group		group;
+	@simpl_composite	Group		group;
 	
-	@xml_leaf	String		title;
-	@xml_leaf	String		description;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		title;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		description;
 	
-	@xml_leaf	String		category;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		category;
 	
-	//FIXME -- need to implement @xml_text directive to parse this properly.
+	//FIXME -- need to implement @simpl_scalar @simpl_hints(Hint.XML_TEXT) directive to parse this properly.
 	// not a leaf! may have type attribute.
 	// it would also be very nice if the parser knew to warn about and then
 	// throw away attributes found inside elements declared as leaf.
 	
-//	@xml_leaf	String		text;
-	@xml_leaf	String		rating;
+//	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		text;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		rating;
 	/**
 	 * @return Returns the category.
 	 */

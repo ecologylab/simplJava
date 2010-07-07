@@ -11,8 +11,8 @@ import ecologylab.xml.ElementState;
  */
 public class ContributorList extends ElementState
 {
-	@xml_collection("Author")
-	@xml_nowrap 
+	@simpl_collection("Author")
+	@simpl_nowrap 
     ArrayList<Author> authors = new ArrayList<Author>();
     
 //    private @xml_nested ArrayListState<Author> secondary-authors = new ArrayListState<Author>();

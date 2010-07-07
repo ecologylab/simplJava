@@ -12,7 +12,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 /**
  * Groupings of MetaPrefs, by category. Categories
  * are also ordered in a separate ArrayList.
@@ -23,16 +23,16 @@ import ecologylab.xml.xml_inherit;
  *
  */
 
-@xml_inherit
+@simpl_inherit
 public class MetaPrefSet extends ElementState
 {
-	@xml_attribute	String	title;
-	@xml_attribute	int		width;
-	@xml_attribute	int		height;
+	@simpl_scalar	String	title;
+	@simpl_scalar	int		width;
+	@simpl_scalar	int		height;
 	
-	@xml_collection
-	@xml_nowrap
-	@xml_scope(MetaPrefsTranslationScope.NAME)
+	@simpl_collection
+	@simpl_nowrap
+	@simpl_scope(MetaPrefsTranslationScope.NAME)
 	ArrayList<MetaPref> metaPreferences;
 	
     /**

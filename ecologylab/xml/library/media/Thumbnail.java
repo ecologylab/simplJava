@@ -11,9 +11,9 @@ import ecologylab.xml.ElementState;
  */
 public class Thumbnail extends ElementState
 {
-	@xml_attribute ParsedURL			url;
-	@xml_attribute  int					width;
-	@xml_attribute  int					height;
+	@simpl_scalar ParsedURL			url;
+	@simpl_scalar  int					width;
+	@simpl_scalar  int					height;
 	
 	
 	/**

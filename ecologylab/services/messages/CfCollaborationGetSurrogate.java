@@ -3,15 +3,15 @@ package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
-import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.TranslationScope;
 import ecologylab.xml.XMLTranslationException;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
-@xml_inherit
+@simpl_inherit
 public class CfCollaborationGetSurrogate extends RequestMessage {
 
-	@xml_leaf(CDATA) protected String surrogateSetString;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF_CDATA) protected String surrogateSetString;
 	
 	TranslationScope translationSpace;
 	

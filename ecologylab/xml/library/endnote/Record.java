@@ -4,36 +4,36 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
-import ecologylab.xml.types.element.StringState;
+import ecologylab.xml.Hint;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
 public class Record extends ElementState
 {
-    private @xml_nested ContributorList contributors = new ContributorList();
+    private @simpl_composite ContributorList contributors = new ContributorList();
     
 //    private @xml_nested int ref-type = 0;
 
-    private @xml_nested TitleList titles = new TitleList();
+    private @simpl_composite TitleList titles = new TitleList();
     
-    private @xml_leaf String volume;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String volume;
     
-    private @xml_leaf String number;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String number;
     
-    private @xml_leaf String pages;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String pages;
     
 //    private @xml_nested String pub-location = "";
    
-    private @xml_leaf String publisher;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String publisher;
     
-    private @xml_leaf String isbn;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String isbn;
     
-    private @xml_nested DateList dates = new DateList();
+    private @simpl_composite DateList dates = new DateList();
     
-    private @xml_leaf String label;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String label;
     
-    private @xml_nested KeywordList keywords = new KeywordList();
+    private @simpl_composite KeywordList keywords = new KeywordList();
     
 //    private @xml_nested URLList urls = new URLList();
     

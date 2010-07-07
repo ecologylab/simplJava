@@ -509,7 +509,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				prfs = PrefSet.loadFromCharSequence(prefSetXML, translationSpace);
 				System.out.println("Prefs loaded From Servlet:: ");
 				if (prfs != null)
-					prfs.translateToXML(System.out);
+					prfs.serialize(System.out);
 				System.out.println(" --- End Prefs");
 			}
 			catch (XMLTranslationException e)
@@ -783,7 +783,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		try
 		{
 			if (prefSet != null)
-				prefSet.translateToXML(System.out);
+				prefSet.serialize(System.out);
 		}
 		catch (XMLTranslationException e)
 		{

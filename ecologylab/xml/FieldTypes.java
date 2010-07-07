@@ -11,17 +11,13 @@ public interface FieldTypes
 
 	public static final int	NAMESPACE_IGNORED_ELEMENT	= 0;
 
-	public static final int	ATTRIBUTE									= 1;
+	public static final int	IGNORED_ATTRIBUTE					= -1;
 
-	public static final int	IGNORED_ATTRIBUTE					= -ATTRIBUTE;
-
-	public static final int	LEAF											= 2;
+	public static final int SCALAR										= 0x12;
 
 	public static final int	NESTED_ELEMENT						= 3;
-
-	public static final int	ENUMERATED_ATTRIBUTE			= 10;
-
-	public static final int	ENUMERATED_LEAF						= 11;
+	
+	
 
 	/**
 	 * This means that we don't bother to parse the element, because the programmer developing
@@ -45,13 +41,6 @@ public interface FieldTypes
 
 	public static final int	TEXT_ELEMENT							= 9;
 
-	/**
-	 * This undocumented feature forms an ElementState subclass instance using lookup by class, if
-	 * that works, and then calls addNestedElement(), which the user can override, to decide what do
-	 * to with it.
-	 */
-	public static final int	AWFUL_OLD_NESTED_ELEMENT	= 99;
-
 	public static final int	WRAPPER										= 0x0a;
 
 	public static final int	TEXT_NODE_VALUE						= 0x0c;
@@ -66,10 +55,10 @@ public interface FieldTypes
 
 	public static final int	NAMESPACE_TRIAL_ELEMENT		= NAME_SPACE_MASK;
 
-	public static final int	NAME_SPACE_ATTRIBUTE			= NAME_SPACE_MASK + ATTRIBUTE;
+	public static final int	NAME_SPACE_SCALAR			= NAME_SPACE_MASK + SCALAR;
 
 	public static final int	NAME_SPACE_NESTED_ELEMENT	= NAME_SPACE_MASK + NESTED_ELEMENT;
-
-	public static final int	NAME_SPACE_LEAF_NODE			= NAME_SPACE_MASK + LEAF;
+//
+//	public static final int	NAME_SPACE_LEAF_NODE			= NAME_SPACE_MASK + LEAF;
 
 }

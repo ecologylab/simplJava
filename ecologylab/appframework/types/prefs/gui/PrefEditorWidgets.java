@@ -693,9 +693,9 @@ public class PrefEditorWidgets extends Debug implements ChangeListener
 		{
 			try
 			{
-				prefSet.writePrettyXML(savePrefsPURL.file());
+				prefSet.serialize(savePrefsPURL.file());
 			}
-			catch (XMLTranslationException e)
+			catch (Exception e)
 			{
 				// TODO auto-generated catch block
 				e.printStackTrace();

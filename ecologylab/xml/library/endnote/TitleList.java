@@ -4,6 +4,7 @@
 package ecologylab.xml.library.endnote;
 
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 import ecologylab.xml.types.element.StringState;
 
 /**
@@ -11,9 +12,9 @@ import ecologylab.xml.types.element.StringState;
  */
 public class TitleList extends ElementState
 {
-    private @xml_leaf String title;
+    private @simpl_scalar @simpl_hints(Hint.XML_LEAF) String title;
     
-    private @xml_nested StringState secondaryTitle;
+    private @simpl_composite StringState secondaryTitle;
     
     /**
      * 

@@ -25,9 +25,9 @@ package ecologylab.xml.library.jnlp.resource;
  */
 public class Property extends ResourceElement
 {
-    @xml_attribute private String name;
+    @simpl_scalar private String name;
 
-    @xml_attribute private String value;
+    @simpl_scalar private String value;
 
     /**
      * 

@@ -5,6 +5,7 @@ package ecologylab.xml.library.icdl;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.xml.ElementState;
+import ecologylab.xml.Hint;
 
 /**
  * Book item in ICDL BookXMLResults response.
@@ -34,22 +35,22 @@ import ecologylab.xml.ElementState;
  */
 public class Book extends ElementState
 {
-	@xml_leaf	String		id;
-	@xml_leaf	String		booktitle;
-	@xml_leaf	String		languages;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		id;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		booktitle;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	String		languages;
 	
 	/**
 	 * Location of a thumbnail image for the cover of this book.
 	 */
-	@xml_leaf	ParsedURL	cover;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL	cover;
 	/**
 	 * Width of the cover image.
 	 */
-	@xml_leaf	int			width;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	int			width;
 	/**
 	 * Height of the cover image.
 	 */
-	@xml_leaf	int			height;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	int			height;
 	
 	/**
 	 * Evidently supposed to enable browsing the book. But it doesn't work.
@@ -61,7 +62,7 @@ public class Book extends ElementState
 	 * http://www.childrenslibrary.org/icdl/BookPreview?bookid=hergran_00030022&summary=true&categories=false&route=simple_0_0_0_English_0&lang=English&msg=
 	 * 
 	 */
-	@xml_leaf	ParsedURL	bookurl;
+	@simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL	bookurl;
 	
 	
 	/**

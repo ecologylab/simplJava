@@ -1,17 +1,17 @@
 package ecologylab.services.messages;
 
 import ecologylab.collections.Scope;
-import ecologylab.xml.xml_inherit;
+import ecologylab.xml.simpl_inherit;
 
 /**
  * Base class for all ResponseMessages that indicate errors.
  * 
  * @author andruid, Zachary O. Toups (zach@ecologylab.net)
  */
-@xml_inherit public class ExplanationResponse<S extends Scope> extends
+@simpl_inherit public class ExplanationResponse<S extends Scope> extends
 		ResponseMessage<S>
 {
-	@xml_attribute protected String	explanation;
+	@simpl_scalar protected String	explanation;
 
 	public ExplanationResponse()
 	{
