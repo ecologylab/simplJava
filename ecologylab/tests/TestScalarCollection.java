@@ -16,9 +16,11 @@ import ecologylab.serialization.TranslationScope;
  */
 public class TestScalarCollection extends ElementState
 {
-	@simpl_collection("person") @simpl_nowrap	ArrayList<String>	stuff;
+	@simpl_nowrap
+	@simpl_collection("person")	ArrayList<String>	stuff;
 	
-	@simpl_collection("link") @simpl_nowrap		ArrayList<ParsedURL> purls;
+	@simpl_nowrap
+	@simpl_collection("link")		ArrayList<ParsedURL> purls;
 	
 	static final TranslationScope TS	= TranslationScope.get("test_scalar", null, TestScalarCollection.class);
 	
