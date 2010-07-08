@@ -15,7 +15,6 @@ import java.util.HashSet;
 import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.ChannelTest;
-import translators.sql.testing.ecologylabXmlTest.GeneratedMetadataTranslationScopeTest;
 import translators.sql.testing.ecologylabXmlTest.ItemTest;
 import translators.sql.testing.ecologylabXmlTest.PdfTest;
 import translators.sql.testing.ecologylabXmlTest.RssStateTest;
