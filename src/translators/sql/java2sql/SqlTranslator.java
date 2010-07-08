@@ -730,7 +730,6 @@ public class SqlTranslator extends Debug implements DBName
 	protected String convertToValidFieldType(String dbCategory, String fieldType,
 			String thisTmpFieldCollectionType)
 	{
-		/* in case of POSTGRESQL */
 		if (dbCategory.equals(DBName.POSTGRESQL))
 		{
 			if (fieldType.equalsIgnoreCase("StringBuilder") || fieldType.equalsIgnoreCase("String"))
@@ -740,11 +739,14 @@ public class SqlTranslator extends Debug implements DBName
 				return "varchar(30)";
 
 			else if (fieldType.equalsIgnoreCase("int"))
-				return "float";
+				return "int4";
 			
 			else if (fieldType.equalsIgnoreCase("File"))
 				return "bytea"; 
-			/* supporting array */
+			
+			else if (fieldType.equalsIgnoreCase("float"))
+				return "float8"; 
+
 			else if (fieldType.equalsIgnoreCase("ArrayList")
 					&& thisTmpFieldCollectionType.equalsIgnoreCase("String"))
 				return "text[]";
