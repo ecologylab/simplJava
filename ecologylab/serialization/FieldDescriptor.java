@@ -1039,7 +1039,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		if (isCDATA)
 			appendable.append(START_CDATA);
-		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
+		scalarType.appendValue(context, appendable, true);
+		// scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
 		if (isCDATA)
 			appendable.append(END_CDATA);
 	}
