@@ -15,9 +15,12 @@ import java.util.HashSet;
 import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.ChannelTest;
+import translators.sql.testing.ecologylabXmlTest.GeneratedMetadataTranslationScopeTest;
 import translators.sql.testing.ecologylabXmlTest.ItemTest;
+import translators.sql.testing.ecologylabXmlTest.PdfTest;
 import translators.sql.testing.ecologylabXmlTest.RssStateTest;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.semantics.generated.library.GeneratedMetadataTranslationScope;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
@@ -36,7 +39,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	/*
 	 * Default constructor
 	 */
-	public SqlTranslatorMain() throws SIMPLTranslationException  
+	public SqlTranslatorMain() throws SIMPLTranslationException
 	{
 		super();
 
@@ -50,7 +53,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	/*
 	 * Overloaded constructor
 	 */
-	public SqlTranslatorMain(String outputFileName) throws SIMPLTranslationException 
+	public SqlTranslatorMain(String outputFileName) throws SIMPLTranslationException
 	{
 		super();
 		super.setDEFAULT_SQL_FILE_NAME(outputFileName);
@@ -97,7 +100,7 @@ public class SqlTranslatorMain extends SqlTranslator
 		HashSet<String> thisTypeSet = new HashSet<String>();
 
 		HashSet<Class<? extends ElementState>> thisResultClassesSet = new HashSet<Class<? extends ElementState>>();
-		
+
 		/*
 		 * Step 1) collect class name
 		 */
@@ -156,7 +159,9 @@ public class SqlTranslatorMain extends SqlTranslator
 	}
 
 	/**
-	 * Create HashMapTable ArrayList, which contains table schema information (className, field, and annotation, etc.)
+	 * Create HashMapTable ArrayList, which contains table schema information (className, field, and
+	 * annotation, etc.)
+	 * 
 	 * @param translationScope
 	 * @param mode
 	 * @throws IOException
@@ -194,34 +199,48 @@ public class SqlTranslatorMain extends SqlTranslator
 
 			/* 2) fields */
 			Field[] fields = thisClassDescriptor.getDescribedClass().getDeclaredFields();
-			
-			/* 3) call newly defined method*/
+
+			/* 3) call newly defined method */
 			this.createTableArrayListForMultiAttributes(thisClassDescriptor, fields);
 
 		}
-		
-		 if (mode == DEFAULT_CREATE_TABLE_MODE) { 
-		 assertNotNull(super.thisHashMapTableArrayList);
-		 super.createMMTableSQLFileFromHashMapArrayList(DBName.POSTGRESQL); 
-		 System.out.println(super.createSQLStringFromHashMapArrayListForDBConstraint(super.thisHashMapTableArrayList));
-		  
-		 } else if (mode == DEFAULT_COMPOSITE_TYPE_TABLE_MODE) {
-		 assertNotNull(super.thisHashMapTableArrayListForCompositeType);
-		 super.createMMTableSQLFileFromHashMapArrayList(DBName.POSTGRESQL); 
-		 System.out.println(super.createSQLStringFromHashMapArrayListForDBConstraint(super.thisHashMapTableArrayListForCompositeType));
-		  
-		 }
-		 
+
+		if (mode == DEFAULT_CREATE_TABLE_MODE)
+		{
+			assertNotNull(super.thisHashMapTableArrayList);
+			super.createMMTableSQLFileFromHashMapArrayList(DBName.POSTGRESQL);
+			System.out.println(super
+					.createSQLStringFromHashMapArrayListForDBConstraint(super.thisHashMapTableArrayList));
+
+		}
+		else if (mode == DEFAULT_COMPOSITE_TYPE_TABLE_MODE)
+		{
+			assertNotNull(super.thisHashMapTableArrayListForCompositeType);
+			super.createMMTableSQLFileFromHashMapArrayList(DBName.POSTGRESQL);
+			System.out
+					.println(super
+							.createSQLStringFromHashMapArrayListForDBConstraint(super.thisHashMapTableArrayListForCompositeType));
+
+		}
 
 	}
-
 
 	@Test
 	public void testCreateSQLTableSchema() throws IOException
 	{
 
 		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope",
-				RssStateTest.class, ItemTest.class, ChannelTest.class);
+				RssStateTest.class, ItemTest.class, ChannelTest.class, PdfTest.class);
+		
+		/*test case for GeneratedMetadataTranslationScope*/ 
+		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
+		Collection<ClassDescriptor> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
+		for (ClassDescriptor classDescriptor : thisClassDescriptor)
+		{
+			System.out.println(classDescriptor.getDecribedClassSimpleName());  
+			
+		}
+		
 		createSQLTableSchema(thisTranslationScope, DEFAULT_CREATE_TABLE_MODE);
 		createSQLTableSchema(thisTranslationScope, DEFAULT_COMPOSITE_TYPE_TABLE_MODE);
 
@@ -258,7 +277,7 @@ public class SqlTranslatorMain extends SqlTranslator
 			System.out.println(field.getName() + " " + field.getType().getSimpleName());
 			simpl_db simpdbAnnotation = field.getAnnotation(ElementState.simpl_db.class);
 			simpl_collection thisXmlCollection = field.getAnnotation(ElementState.simpl_collection.class);
-			
+
 			if (simpdbAnnotation != null)
 			{
 				DbHint enumArray[] = simpdbAnnotation.value();
@@ -343,11 +362,11 @@ public class SqlTranslatorMain extends SqlTranslator
 
 	/**
 	 * method to extract FieldType from Generic Type expression e.g. 'ParsedURL' of class
-	 * ecologylab.net.ParsedURL, or 'Item' of 
+	 * ecologylab.net.ParsedURL, or 'Item' of
 	 * java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item>
 	 * 
 	 * @param thisFieldDescriptor
-	 * @return 
+	 * @return
 	 */
 	public String getFieldTypeFromGenericFieldType(FieldDescriptor thisFieldDescriptor)
 	{
@@ -359,7 +378,7 @@ public class SqlTranslatorMain extends SqlTranslator
 		return thisSplittedString[thisSplittedString.length - 1];
 
 	}
-	
+
 	/**
 	 * method to extract FieldType from Generic Type expression e.g. 'ParsedURL' of class
 	 * ecologylab.net.ParsedURL, or 'Item' of
@@ -371,15 +390,14 @@ public class SqlTranslatorMain extends SqlTranslator
 	private String getFieldTypeFromGenericFieldType(Field thisField)
 	{
 		Type thisGenericTypeExpression = thisField.getGenericType();
-		
+
 		String thisReplacedString = thisGenericTypeExpression.toString()
-		.replaceAll("[^A-Za-z0-9]", " ");
+				.replaceAll("[^A-Za-z0-9]", " ");
 		String[] thisSplittedString = thisReplacedString.split(" ");
 
 		return thisSplittedString[thisSplittedString.length - 1];
 
 	}
-	
 
 	@Test
 	public void testGetFieldTypeFromGenericType()
@@ -387,7 +405,7 @@ public class SqlTranslatorMain extends SqlTranslator
 		/* java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item> */
 		String thisString = "java.util.ArrayList<ecologylab.xml.tools.sqlTranslator.input.Item>";
 		String thisString2 = "class ecologylab.net.ParsedURL";
-		String thisString3 = "java.util.ArrayList<translators.sql.testing.ecologylabXmlTest.ItemTest>"; 
+		String thisString3 = "java.util.ArrayList<translators.sql.testing.ecologylabXmlTest.ItemTest>";
 
 		String thisReplacedString = thisString3.replaceAll("[^A-Za-z0-9]", " ");
 		String[] thisSplittedString = thisReplacedString.split(" ");
@@ -397,94 +415,99 @@ public class SqlTranslatorMain extends SqlTranslator
 
 	}
 
-
 	/**
-	 * TODO considering @simpl_db metalanguage values  
+	 * TODO considering @simpl_db metalanguage values
+	 * 
 	 * @param thisClassDescriptor
 	 * @param fields
 	 */
 	private void createTableArrayListForMultiAttributes(ClassDescriptor thisClassDescriptor,
 			Field[] fields)
 	{
-		String tableName = thisClassDescriptor.getDescribedClass().getSimpleName(); 
+		String tableName = thisClassDescriptor.getDescribedClass().getSimpleName();
 		String tableExtend = new String("null");
 		String tableComment = thisClassDescriptor.toString();
-		
+
 		/**
 		 * table attributes consisting of table name, extend, and comment
-		 */		
+		 */
 		String tableNameForMultiAttributes = tableName + "#" + tableExtend + "#" + tableComment;
-		
-		/*for test*/ 
-//		System.out.println("tableNameForMultiAttributes : " + tableNameForMultiAttributes);
-		
+
+		/* for test */
+		// System.out.println("tableNameForMultiAttributes : " + tableNameForMultiAttributes);
 		for (Field thisField : fields)
 		{
-			String fieldName = thisField.getName(); 
-			String fieldType = thisField.getType().getSimpleName(); 
-			
-			/*added for handling collection field such as 'Item' of Arrayist[Item], default 'null'*/ 
+			String fieldName = thisField.getName();
+			String fieldType = thisField.getType().getSimpleName();
+
+			/* added for handling collection field such as 'Item' of Arrayist[Item], default 'null' */
 			String fieldCollectionType = new String("null");
-			/*check if fieldType == ArrayList*/ 
+			/* check if fieldType == ArrayList */
 			if (fieldType.equalsIgnoreCase("ArrayList"))
 				fieldCollectionType = this.getFieldTypeFromGenericFieldType(thisField);
-			
+
 			/**
-			 * extract annotations (extend field attributes to include fieldDBConstraint)  
+			 * extract annotations (extend field attributes to include fieldDBConstraint)
 			 */
-			/*default value*/ 
-			String fieldComment = ""; 
-			String fieldDBConstraint = ""; 
-			
+			/* default value */
+			String fieldComment = "";
+			String fieldDBConstraint = "";
+
 			Annotation[] fieldAnnotations = thisField.getAnnotations();
 			for (Annotation thisAnnotation : fieldAnnotations)
 			{
-				/*separating DB constraints*/
-				if(thisAnnotation.annotationType().equals(ElementState.simpl_db.class)){
-					DbHint[] thisDBConstraintValue = thisField.getAnnotation(ElementState.simpl_db.class).value();
-					for (DbHint dbHint : thisDBConstraintValue){
+				/* separating DB constraints */
+				if (thisAnnotation.annotationType().equals(ElementState.simpl_db.class))
+				{
+					DbHint[] thisDBConstraintValue = thisField.getAnnotation(ElementState.simpl_db.class)
+							.value();
+					for (DbHint dbHint : thisDBConstraintValue)
+					{
 						fieldDBConstraint += dbHint + " ";
 					}
-				}else{
-					if(thisAnnotation.annotationType().getSimpleName() != null)
-						fieldComment += thisAnnotation.annotationType().getSimpleName() + " "; 
+				}
+				else
+				{
+					if (thisAnnotation.annotationType().getSimpleName() != null)
+						fieldComment += thisAnnotation.annotationType().getSimpleName() + " ";
 				}
 			}
-			
-			/*set null if no value exists*/ 
-			if(fieldComment.equals(""))
+
+			/* set null if no value exists */
+			if (fieldComment.equals(""))
 				fieldComment = "null";
-			if(fieldDBConstraint.equals(""))
+			if (fieldDBConstraint.equals(""))
 				fieldDBConstraint = "null";
-			
-			/*extended field attributes*/
-			String fieldForMultiAttributes = fieldType + "#" + fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
-			
-			/*for test*/ 
-//			System.out.println("fieldForMultiAttributes : " + fieldForMultiAttributes);
-			
+
+			/* extended field attributes */
+			String fieldForMultiAttributes = fieldType + "#" + fieldComment + "#" + fieldCollectionType
+					+ "#" + fieldDBConstraint;
+
+			/* for test */
+			// System.out.println("fieldForMultiAttributes : " + fieldForMultiAttributes);
 			super.createMMTableArrayList(tableNameForMultiAttributes, fieldName, fieldForMultiAttributes);
-			
+
 		}
-		
+
 	}
 
-
 	@Test
-	public void testCreateTableArrayListForMultiAttributes(){
-		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope2", ChannelTest.class);
+	public void testCreateTableArrayListForMultiAttributes()
+	{
+		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope2",
+				ChannelTest.class);
 		Collection<ClassDescriptor> thisClassDescriptors = thisTranslationScope.getClassDescriptors();
-		
+
 		for (ClassDescriptor classDescriptor : thisClassDescriptors)
 		{
 			Field[] thisDeclaredFields = classDescriptor.getDescribedClass().getDeclaredFields();
-			
+
 			this.createTableArrayListForMultiAttributes(classDescriptor, thisDeclaredFields);
-			
+
 		}
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * @param classDescriptor
@@ -528,6 +551,7 @@ public class SqlTranslatorMain extends SqlTranslator
 	public static void main(String[] args) throws IOException
 	{
 		// SqlTranslatorMain thisSqlTranslator = new SqlTranslatorMain("postgreSQLOutput.sql");
+		
 		SqlTranslatorMain thisSqlTranslator = null;
 		try
 		{
@@ -538,10 +562,16 @@ public class SqlTranslatorMain extends SqlTranslator
 			e.printStackTrace();
 		}
 
-		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope",
-				RssStateTest.class, ItemTest.class, ChannelTest.class);
+		TranslationScope thisTranslationScope = null;  
+			
+//		thisTranslationScope = TranslationScope.get("thisTranslationScope", RssStateTest.class, ItemTest.class, ChannelTest.class);
+		
+		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
+		 
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_CREATE_TABLE_MODE);
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_COMPOSITE_TYPE_TABLE_MODE);
+		
+		
 
 	}
 
