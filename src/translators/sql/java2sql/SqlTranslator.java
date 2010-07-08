@@ -36,7 +36,7 @@ public class SqlTranslator extends Debug implements DBName
 	 */
 	protected static ArrayList<HashMap<String, HashMap<String, String>>>	thisHashMapTableArrayListForCompositeType	= new ArrayList<HashMap<String, HashMap<String, String>>>();
 
-	public SqlTranslator() 
+	public SqlTranslator()
 	{
 
 	}
@@ -256,7 +256,8 @@ public class SqlTranslator extends Debug implements DBName
 
 		FileWriter thisFileWriter = new FileWriter(thisResultFile, true);
 		BufferedWriter thisBufferedWriter = new BufferedWriter(thisFileWriter);
-		thisBufferedWriter.write(createSQLStringFromHashMapArrayListForDBConstraint(thisHashMapTableArrayList));
+		thisBufferedWriter
+				.write(createSQLStringFromHashMapArrayListForDBConstraint(thisHashMapTableArrayList));
 
 		thisBufferedWriter.close();
 		thisFileWriter.close();
@@ -266,8 +267,8 @@ public class SqlTranslator extends Debug implements DBName
 	}
 
 	/**
-	 * create SQL schema(CREATE TABLE) in memory 
-	 * ref. printMMTableSchema() body - iterative data search 
+	 * create SQL schema(CREATE TABLE) in memory ref. printMMTableSchema() body - iterative data
+	 * search
 	 * 
 	 * @param thisHashMapTableArrayList
 	 * @return
@@ -278,7 +279,8 @@ public class SqlTranslator extends Debug implements DBName
 		String thisSQLStatement = "";
 
 		/**
-		 * outer iteration for retrieving table attributes such as tableName, tableExtend, and tableComment
+		 * outer iteration for retrieving table attributes such as tableName, tableExtend, and
+		 * tableComment
 		 */
 		for (Iterator iterator = thisHashMapTableArrayList.iterator(); iterator.hasNext();)
 		{
@@ -300,8 +302,8 @@ public class SqlTranslator extends Debug implements DBName
 			String tableComment = this.extractToken("tableComment", thisUpperHashMapTableAttributes);
 
 			String tableCommentExtracted = tableComment.equals("null") ? "" : "--" + tableComment;
-			
-			/*StringBuilder containing each separated SQL statement*/ 
+
+			/* StringBuilder containing each separated SQL statement */
 			StringBuilder thisEachTableSQLStatement = new StringBuilder();
 			thisEachTableSQLStatement.append(tableCommentExtracted + "\n");
 
@@ -311,27 +313,28 @@ public class SqlTranslator extends Debug implements DBName
 				thisEachTableSQLStatement.append("CREATE TYPE " + tableName + " AS (\n");
 
 			/*
-			 * TODO updated to set each field constraints based on @simpl_db annotation (DbHint.PRIMARY_KEY, Db_Hint.ALLOW_NOT_NULL, DbHint.UNIQUE)
+			 * TODO updated to set each field constraints based on @simpl_db annotation
+			 * (DbHint.PRIMARY_KEY, Db_Hint.ALLOW_NOT_NULL, DbHint.UNIQUE)
 			 */
 			/* first element referred to create last PRIMARY KEY constraint */
 			String thisFirstTableElement = "";
 			/* deriving each table - HashMap */
 			HashMap<String, String> thisSubHashMapTable = thisUpperHashMap
 					.get(thisUpperHashMapTableAttributes);
-			
+
 			/* transient counter for checking the order of fields */
 			int thisTmpCount = 1;
 			/**
-			 *  inner iteration for retrieving fieldName and fieldType of individual table 
+			 * inner iteration for retrieving fieldName and fieldType of individual table
 			 */
-			for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator(); fieldNamesIterator.hasNext();)
+			for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator(); fieldNamesIterator
+					.hasNext();)
 			{
 				String thisTmpFieldName = (String) fieldNamesIterator.next();
 
-				/** 
-				 * Extract field values from SubHashMapTable
-				 * ref. field data structure : 
-				 * fieldType + "#" + fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
+				/**
+				 * Extract field values from SubHashMapTable ref. field data structure : fieldType + "#" +
+				 * fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
 				 */
 				/* field attributes tokenize(fieldType#fieldComment#fieldCollectionType) */
 				String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
@@ -343,9 +346,10 @@ public class SqlTranslator extends Debug implements DBName
 				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
 				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
 						+ thisTmpFieldComment + "*/";
-				
-				String thisTmpFieldDBConstraint = this.extractToken("fieldDBConstraint", thisTmpFieldAttributes);
-				
+
+				String thisTmpFieldDBConstraint = this.extractToken("fieldDBConstraint",
+						thisTmpFieldAttributes);
+
 				/**
 				 * setting DB constraints (primary key, unique, not null, etc.)
 				 */
@@ -354,7 +358,7 @@ public class SqlTranslator extends Debug implements DBName
 				{
 					thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
 							+ thisTmpFieldCommentExtracted + "\n");
-					
+
 					if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE))
 						thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
 								+ thisTmpFieldName + "))");
@@ -366,7 +370,7 @@ public class SqlTranslator extends Debug implements DBName
 
 					thisEachTableSQLStatement.append(";");
 				}
-				
+
 				/* in case of first element, adding 'UNIQUE' constraint */
 				else if (thisTmpCount == 1)
 				{
@@ -374,21 +378,23 @@ public class SqlTranslator extends Debug implements DBName
 							+ thisTmpFieldCommentExtracted + "\n");
 					thisFirstTableElement = thisTmpFieldName;
 				}
-				
+
 				/* in case of last element, adding 'Primary Key' constraint at the end */
 				else if (thisTmpCount == thisSubHashMapTable.size())
 				{
-					if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE)){
+					if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE))
+					{
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
 								+ thisTmpFieldCommentExtracted + "\n");
 
 						thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
 								+ thisFirstTableElement + "))");
-					}	
-					else{
-						/* 
-						 * remove trailing comma for COMPOSITE TYPE last element 
-						 */ 
+					}
+					else
+					{
+						/*
+						 * remove trailing comma for COMPOSITE TYPE last element
+						 */
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
 								+ thisTmpFieldCommentExtracted + "\n");
 						thisEachTableSQLStatement.append(")");
@@ -398,7 +404,7 @@ public class SqlTranslator extends Debug implements DBName
 
 					thisEachTableSQLStatement.append(";");
 				}
-				
+
 				/* in case of other intermediate fields */
 				else
 					thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
@@ -423,13 +429,15 @@ public class SqlTranslator extends Debug implements DBName
 	public String createSQLStringFromHashMapArrayListForDBConstraint(
 			ArrayList<HashMap<String, HashMap<String, String>>> thisHashMapTableArrayList)
 	{
-		/*final return SQL string*/ 
+		/* final return SQL string */
 		String thisSQLStatement = "";
 
 		/**
-		 * outer iteration for retrieving table attributes such as tableName, tableExtend, and tableComment
+		 * outer iteration for retrieving table attributes such as tableName, tableExtend, and
+		 * tableComment
 		 */
-		for (Iterator tableListIterator = thisHashMapTableArrayList.iterator(); tableListIterator.hasNext();)
+		for (Iterator tableListIterator = thisHashMapTableArrayList.iterator(); tableListIterator
+				.hasNext();)
 		{
 			HashMap<String, HashMap<String, String>> thisUpperHashMap = (HashMap<String, HashMap<String, String>>) tableListIterator
 					.next();
@@ -449,12 +457,12 @@ public class SqlTranslator extends Debug implements DBName
 			String tableComment = this.extractToken("tableComment", thisUpperHashMapTableAttributes);
 
 			String tableCommentExtracted = tableComment.equals("null") ? "" : "--" + tableComment;
-			
+
 			/*
 			 * StringBuilder containing each separated SQL statement
-			 */ 
+			 */
 			StringBuilder thisEachTableSQLStatement = new StringBuilder();
-			
+
 			thisEachTableSQLStatement.append(tableCommentExtracted + "\n");
 
 			if (getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_CREATE_TABLE_MODE)
@@ -463,174 +471,181 @@ public class SqlTranslator extends Debug implements DBName
 				thisEachTableSQLStatement.append("CREATE TYPE " + tableName + " AS (\n");
 
 			/*
-			 * TODO updated to set each field constraints based on @simpl_db annotation 
+			 * TODO updated to set each field constraints based on @simpl_db annotation
 			 * (DbHint.PRIMARY_KEY, Db_Hint.ALLOW_NOT_NULL, DbHint.UNIQUE)
 			 */
 			HashMap<String, String> thisSubHashMapTable = thisUpperHashMap
-			.get(thisUpperHashMapTableAttributes);			
+					.get(thisUpperHashMapTableAttributes);
 
-			/** 
-			 * Extract field values from SubHashMapTable
-			 * ref. field data structure : 
-			 * fieldType + "#" + fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
+			/**
+			 * Extract field values from SubHashMapTable ref. field data structure : fieldType + "#" +
+			 * fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
 			 */
-			/*to remove trailing comma at the last field*/ 
-			int thisTmpCurrentFieldCount = 0 ;  
-			int thisTmpLastFieldIndex = thisSubHashMapTable.size(); 
+			/* to remove trailing comma at the last field */
+			int thisTmpCurrentFieldCount = 0;
+			int thisTmpLastFieldIndex = thisSubHashMapTable.size();
 
-			for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator(); fieldNamesIterator.hasNext();)
-			{	
-				thisTmpCurrentFieldCount ++; 
-				
-				/*1) field name*/ 
+			for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator(); fieldNamesIterator
+					.hasNext();)
+			{
+				thisTmpCurrentFieldCount++;
+
+				/* 1) field name */
 				String thisTmpFieldName = (String) fieldNamesIterator.next();
 
 				String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
 				/* added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null' */
 				String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType",
 						thisTmpFieldAttributes);
-				/*2) field type*/ 
+				/* 2) field type */
 				String thisTmpFieldType = convertToValidFieldType(DBName.POSTGRESQL, this.extractToken(
 						"fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
-				/*3) field comment*/ 
+				/* 3) field comment */
 				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
 				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
 						+ thisTmpFieldComment + "*/";
-				/*4) field db constraint*/ 
-				String thisTmpFieldDBConstraint = convertToValidDBConstraint(this.extractToken("fieldDBConstraint", thisTmpFieldAttributes));
-				
-				/**
-				 * core routine for generating SQL body 
-				 */
-				if(this.getDB_SCHEMA_GENERATOR_MODE()!= DEFAULT_COMPOSITE_TYPE_TABLE_MODE){
-					/* remove trailing comma following after last field*/
-					if(thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
-						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " " + thisTmpFieldDBConstraint + "," 
-								+ thisTmpFieldCommentExtracted + "\n");
-					else
-						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " " + thisTmpFieldDBConstraint /*+ ","*/  
-								+ thisTmpFieldCommentExtracted + "\n");
-				}
-				else{
-					/* remove trailing comma following after last field*/
-					if(thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
-						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + "," + thisTmpFieldCommentExtracted + "\n");
-					else
-						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType /*+ ","*/ + thisTmpFieldCommentExtracted + "\n");
-				}
-				
-			}	
-			thisEachTableSQLStatement.append("); \n\n");
-			thisSQLStatement += thisEachTableSQLStatement; 
-		}
-		return thisSQLStatement; 
-	}
-			
-//			/* first element referred to create last PRIMARY KEY constraint */
-//			String thisFirstTableElement = "";
-//			/* deriving each table - HashMap */
-////			HashMap<String, String> thisSubHashMapTable = thisUpperHashMap
-////					.get(thisUpperHashMapTableAttributes);
-//			
-//			/* transient counter for checking the order of fields */
-//			int thisTmpCount = 1;
-//			/**
-//			 *  inner iteration for retrieving fieldName and fieldType of individual table 
-//			 */
-//			for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator(); fieldNamesIterator.hasNext();)
-//			{
-//				String thisTmpFieldName = (String) fieldNamesIterator.next();
-//
-//				/** 
-//				 * Extract field values from SubHashMapTable
-//				 * ref. field data structure : 
-//				 * fieldType + "#" + fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
-//				 */
-//				/* field attributes tokenize(fieldType#fieldComment#fieldCollectionType) */
-//				String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
-//				/* added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null' */
-//				String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType",
-//						thisTmpFieldAttributes);
-//				String thisTmpFieldType = convertToValidFieldType(DBName.POSTGRESQL, this.extractToken(
-//						"fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
-//				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
-//				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
-//						+ thisTmpFieldComment + "*/";
-//				
-//				String thisTmpFieldDBConstraint = this.extractToken("fieldDBConstraint", thisTmpFieldAttributes);
-//				
-//				/**
-//				 * setting DB constraints (primary key, unique, not null, etc.)
-//				 */
-//				/* in case of only one field exists, adding 'Primary Key' constraint */
-//				if (thisSubHashMapTable.size() == 1)
-//				{
-//					thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
-//							+ thisTmpFieldCommentExtracted + "\n");
-//					
-//					if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE))
-//						thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
-//								+ thisTmpFieldName + "))");
-//					else
-//						thisEachTableSQLStatement.append(")");
-//
-//					if (!tableExtend.equals("null"))
-//						thisEachTableSQLStatement.append("\nINHERITS (" + tableExtend + ")");
-//
-//					thisEachTableSQLStatement.append(";");
-//				}
-//				/* in case of first element, adding 'UNIQUE' constraint */
-//				else if (thisTmpCount == 1)
-//				{
-//					thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " UNIQUE,"
-//							+ thisTmpFieldCommentExtracted + "\n");
-//					thisFirstTableElement = thisTmpFieldName;
-//				}
-//				/* in case of last element, adding 'Primary Key' constraint at the end */
-//				else if (thisTmpCount == thisSubHashMapTable.size())
-//				{
-//					if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE)){
-//						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
-//								+ thisTmpFieldCommentExtracted + "\n");
-//
-//						thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
-//								+ thisFirstTableElement + "))");
-//					}	
-//					else{
-//						/* 
-//						 * remove trailing comma for COMPOSITE TYPE last element 
-//						 */ 
-//						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
-//								+ thisTmpFieldCommentExtracted + "\n");
-//						thisEachTableSQLStatement.append(")");
-//					}
-//					if (!tableExtend.equals("null"))
-//						thisEachTableSQLStatement.append("\nINHERITS (" + tableExtend + ")");
-//
-//					thisEachTableSQLStatement.append(";");
-//				}
-//				/* in case of other intermediate fields */
-//				else
-//					thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
-//							+ thisTmpFieldCommentExtracted + "\n");
-//
-//				thisTmpCount += 1;
-//
-//			}
-//			thisSQLStatement += thisEachTableSQLStatement.append("\n\n").toString();
-//
-//		}
-//		return thisSQLStatement;
+				/* 4) field db constraint */
+				String thisTmpFieldDBConstraint = convertToValidDBConstraint(this.extractToken(
+						"fieldDBConstraint", thisTmpFieldAttributes));
 
+				/**
+				 * core routine for generating SQL body
+				 */
+				if (this.getDB_SCHEMA_GENERATOR_MODE() != DEFAULT_COMPOSITE_TYPE_TABLE_MODE)
+				{
+					/* remove trailing comma following after last field */
+					if (thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
+						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
+								+ thisTmpFieldDBConstraint + "," + thisTmpFieldCommentExtracted + "\n");
+					else
+						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
+								+ thisTmpFieldDBConstraint /* + "," */
+								+ thisTmpFieldCommentExtracted + "\n");
+				}
+				else
+				{
+					/* remove trailing comma following after last field */
+					if (thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
+						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
+								+ thisTmpFieldCommentExtracted + "\n");
+					else
+						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType /* + "," */
+								+ thisTmpFieldCommentExtracted + "\n");
+				}
+
+			}
+			thisEachTableSQLStatement.append("); \n\n");
+			thisSQLStatement += thisEachTableSQLStatement;
+		}
+		return thisSQLStatement;
+	}
+
+	// /* first element referred to create last PRIMARY KEY constraint */
+	// String thisFirstTableElement = "";
+	// /* deriving each table - HashMap */
+	// // HashMap<String, String> thisSubHashMapTable = thisUpperHashMap
+	// // .get(thisUpperHashMapTableAttributes);
+	//			
+	// /* transient counter for checking the order of fields */
+	// int thisTmpCount = 1;
+	// /**
+	// * inner iteration for retrieving fieldName and fieldType of individual table
+	// */
+	// for (Iterator fieldNamesIterator = thisSubHashMapTable.keySet().iterator();
+	// fieldNamesIterator.hasNext();)
+	// {
+	// String thisTmpFieldName = (String) fieldNamesIterator.next();
+	//
+	// /**
+	// * Extract field values from SubHashMapTable
+	// * ref. field data structure :
+	// * fieldType + "#" + fieldComment + "#" + fieldCollectionType + "#" + fieldDBConstraint;
+	// */
+	// /* field attributes tokenize(fieldType#fieldComment#fieldCollectionType) */
+	// String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
+	// /* added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null' */
+	// String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType",
+	// thisTmpFieldAttributes);
+	// String thisTmpFieldType = convertToValidFieldType(DBName.POSTGRESQL, this.extractToken(
+	// "fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
+	// String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
+	// String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
+	// + thisTmpFieldComment + "*/";
+	//				
+	// String thisTmpFieldDBConstraint = this.extractToken("fieldDBConstraint",
+	// thisTmpFieldAttributes);
+	//				
+	// /**
+	// * setting DB constraints (primary key, unique, not null, etc.)
+	// */
+	// /* in case of only one field exists, adding 'Primary Key' constraint */
+	// if (thisSubHashMapTable.size() == 1)
+	// {
+	// thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
+	// + thisTmpFieldCommentExtracted + "\n");
+	//					
+	// if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE))
+	// thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
+	// + thisTmpFieldName + "))");
+	// else
+	// thisEachTableSQLStatement.append(")");
+	//
+	// if (!tableExtend.equals("null"))
+	// thisEachTableSQLStatement.append("\nINHERITS (" + tableExtend + ")");
+	//
+	// thisEachTableSQLStatement.append(";");
+	// }
+	// /* in case of first element, adding 'UNIQUE' constraint */
+	// else if (thisTmpCount == 1)
+	// {
+	// thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " UNIQUE,"
+	// + thisTmpFieldCommentExtracted + "\n");
+	// thisFirstTableElement = thisTmpFieldName;
+	// }
+	// /* in case of last element, adding 'Primary Key' constraint at the end */
+	// else if (thisTmpCount == thisSubHashMapTable.size())
+	// {
+	// if (!(getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE)){
+	// thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
+	// + thisTmpFieldCommentExtracted + "\n");
+	//
+	// thisEachTableSQLStatement.append("CONSTRAINT " + tableName + "_pkey PRIMARY KEY("
+	// + thisFirstTableElement + "))");
+	// }
+	// else{
+	// /*
+	// * remove trailing comma for COMPOSITE TYPE last element
+	// */
+	// thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
+	// + thisTmpFieldCommentExtracted + "\n");
+	// thisEachTableSQLStatement.append(")");
+	// }
+	// if (!tableExtend.equals("null"))
+	// thisEachTableSQLStatement.append("\nINHERITS (" + tableExtend + ")");
+	//
+	// thisEachTableSQLStatement.append(";");
+	// }
+	// /* in case of other intermediate fields */
+	// else
+	// thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
+	// + thisTmpFieldCommentExtracted + "\n");
+	//
+	// thisTmpCount += 1;
+	//
+	// }
+	// thisSQLStatement += thisEachTableSQLStatement.append("\n\n").toString();
+	//
+	// }
+	// return thisSQLStatement;
 
 	private String convertToValidDBConstraint(String extractToken)
 	{
-		if(extractToken.equals("null"))
-			return ""; 
-		
-		else 
-			return extractToken.replaceAll("[^a-zA-Z0-9]", " "); 
-	
+		if (extractToken.equals("null"))
+			return "";
+
+		else
+			return extractToken.replaceAll("[^a-zA-Z0-9]", " ");
+
 	}
 
 	/**
@@ -653,8 +668,8 @@ public class SqlTranslator extends Debug implements DBName
 			return thisTmpSplittedToken[2];
 
 		else if (targetField.equals("fieldDBConstraint"))
-			return thisTmpSplittedToken[3]; 
-		
+			return thisTmpSplittedToken[3];
+
 		return null;
 	}
 
@@ -732,20 +747,21 @@ public class SqlTranslator extends Debug implements DBName
 	{
 		if (dbCategory.equals(DBName.POSTGRESQL))
 		{
-			if (fieldType.equalsIgnoreCase("StringBuilder") || fieldType.equalsIgnoreCase("String"))
+			if (fieldType.equalsIgnoreCase("StringBuilder") || fieldType.equalsIgnoreCase("String")
+					|| fieldType.equalsIgnoreCase("MetadataString"))
 				return "text";
 
-			else if (fieldType.equalsIgnoreCase("ParsedURL"))
+			else if (fieldType.equalsIgnoreCase("ParsedURL") || fieldType.equalsIgnoreCase("MetadataParsedURL"))
 				return "varchar(30)";
 
-			else if (fieldType.equalsIgnoreCase("int"))
+			else if (fieldType.equalsIgnoreCase("int") || fieldType.equalsIgnoreCase("MetadataInteger"))
 				return "int4";
-			
+
 			else if (fieldType.equalsIgnoreCase("File"))
-				return "bytea"; 
-			
+				return "bytea";
+
 			else if (fieldType.equalsIgnoreCase("float"))
-				return "float8"; 
+				return "float8";
 
 			else if (fieldType.equalsIgnoreCase("ArrayList")
 					&& thisTmpFieldCollectionType.equalsIgnoreCase("String"))
