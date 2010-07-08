@@ -353,6 +353,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		
 		if (scalarType == null)
 		{	
+			String msg		= "Can't find ScalarType to serialize field: \t\t" + thatClass.getSimpleName()  + "\t" + field.getName() + ";";
+			warning("In class " + declaringClassDescriptor.getClass().getName(), msg);
 			return (xmlHint == Hint.XML_ATTRIBUTE) ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 		}
 		
