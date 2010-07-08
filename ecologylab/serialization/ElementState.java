@@ -1048,10 +1048,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public @interface simpl_db
 	{
 		/**
-		 * @return assigned database constraints that are defined in 'DbHint'
+		 * @return database constraints defined in 'DbHint' and name of reference table 
 		 */
 		DbHint[] value();
+		
+		String references() default "null";  
 	}
+	
 
 	/**
 	 * @return Returns the optimizations.
