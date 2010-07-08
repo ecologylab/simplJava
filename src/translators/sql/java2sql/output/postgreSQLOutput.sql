@@ -1,42 +1,55 @@
---ClassDescriptor[ecologylab.xml.library.rss.Channel]
-CREATE TABLE Channel (
-title text UNIQUE,	/*ecologylab.xml.ElementState$xml_leaf*/
-items Item[],	/*ecologylab.xml.ElementState$xml_nowrap*/
-description text,	/*ecologylab.xml.ElementState$xml_leaf*/
-link varchar(30),	/*ecologylab.xml.ElementState$xml_leaf*/
-CONSTRAINT Channel_pkey PRIMARY KEY(title));
+--ClassDescriptor[translators.sql.testing.ecologylabXmlTest.ItemTest]
+CREATE TABLE ItemTest (
+guid varchar(30) ,	/*simpl_scalar simpl_hints */
+categorySet text[] ,	/*simpl_nowrap simpl_collection */
+author text ,	/*simpl_scalar simpl_hints */
+title text ,	/*simpl_scalar simpl_hints */
+description text ,	/*simpl_scalar simpl_hints */
+link varchar(30) 	/*simpl_scalar simpl_hints */
+); 
 
---ClassDescriptor[ecologylab.xml.library.rss.Item]
-CREATE TABLE Item (
-guid varchar(30) UNIQUE,	/*ecologylab.xml.ElementState$xml_leaf*/
-categorySet text[],	/*ecologylab.xml.ElementState$xml_nowrap*/
-author text,	/*ecologylab.xml.ElementState$xml_leaf*/
-title text,	/*ecologylab.xml.ElementState$xml_leaf*/
-description text,	/*ecologylab.xml.ElementState$xml_leaf*/
-link varchar(30),	/*ecologylab.xml.ElementState$xml_leaf*/
-CONSTRAINT Item_pkey PRIMARY KEY(guid));
+--ClassDescriptor[translators.sql.testing.ecologylabXmlTest.ChannelTest]
+CREATE TABLE ChannelTest (
+title text PRIMARY KEY UNIQUE ,	/*simpl_scalar simpl_hints */
+items ItemTest[] NOT NULL ,	/*simpl_nowrap simpl_collection */
+description text NOT NULL UNIQUE ,	/*simpl_scalar simpl_hints */
+link varchar(30) UNIQUE 	/*simpl_scalar simpl_hints */
+); 
 
---ClassDescriptor[ecologylab.xml.library.rss.RssState]
-CREATE TABLE RssState (
-channel Channel UNIQUE,	/*ecologylab.xml.ElementState$xml_nested*/
-version float,	/*ecologylab.xml.ElementState$xml_attribute*/
-CONSTRAINT RssState_pkey PRIMARY KEY(channel));
+--ClassDescriptor[translators.sql.testing.ecologylabXmlTest.RssStateTest]
+CREATE TABLE RssStateTest (
+CNN_TOP_FEED varchar(30) ,
+outputFile bytea ,
+FEEDBURNER_EXAMPlE text ,
+ITEM_EXAMPLE text ,
+ABC_SPORTS_FEED varchar(30) ,
+DELICIOUS_FEED varchar(30) ,
+version float NOT NULL ,	/*simpl_scalar */
+NS_EXAMPLE text ,
+BBC_FRONT_FEED varchar(30) ,
+FLICKR_EXAMPLE text ,
+NABEEL_TEST text ,
+FLICKR_FEED varchar(30) ,
+ABC_EXAMPLE text ,
+channel ChannelTest PRIMARY KEY ,	/*simpl_composite */
+NYT_TECH_FEED varchar(30) 
+); 
 
---ClassDescriptor[ecologylab.xml.library.rss.Channel]
-CREATE TYPE Channel AS (
-title text UNIQUE,	/*ecologylab.xml.ElementState$xml_leaf*/
-items Item[],	/*ecologylab.xml.ElementState$xml_nowrap*/
-description text,	/*ecologylab.xml.ElementState$xml_leaf*/
-link varchar(30) 	/*ecologylab.xml.ElementState$xml_leaf*/
-);
+--ClassDescriptor[translators.sql.testing.ecologylabXmlTest.ItemTest]
+CREATE TYPE ItemTest AS (
+guid varchar(30),	/*simpl_scalar simpl_hints */
+categorySet text[],	/*simpl_nowrap simpl_collection */
+author text,	/*simpl_scalar simpl_hints */
+title text,	/*simpl_scalar simpl_hints */
+description text,	/*simpl_scalar simpl_hints */
+link varchar(30)	/*simpl_scalar simpl_hints */
+); 
 
---ClassDescriptor[ecologylab.xml.library.rss.Item]
-CREATE TYPE Item AS (
-guid varchar(30) UNIQUE,	/*ecologylab.xml.ElementState$xml_leaf*/
-categorySet text[],	/*ecologylab.xml.ElementState$xml_nowrap*/
-author text,	/*ecologylab.xml.ElementState$xml_leaf*/
-title text,	/*ecologylab.xml.ElementState$xml_leaf*/
-description text,	/*ecologylab.xml.ElementState$xml_leaf*/
-link varchar(30) 	/*ecologylab.xml.ElementState$xml_leaf*/
-);
+--ClassDescriptor[translators.sql.testing.ecologylabXmlTest.ChannelTest]
+CREATE TYPE ChannelTest AS (
+title text,	/*simpl_scalar simpl_hints */
+items ItemTest[],	/*simpl_nowrap simpl_collection */
+description text,	/*simpl_scalar simpl_hints */
+link varchar(30)	/*simpl_scalar simpl_hints */
+); 
 
