@@ -7,12 +7,10 @@ import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;
 import ecologylab.serialization.library.jnlp.resource.ResourceElementArray;
-
 
 /**
  * Parses JNLP files for Java web launch.
@@ -27,38 +25,44 @@ import ecologylab.serialization.library.jnlp.resource.ResourceElementArray;
 public class JnlpState extends ElementState implements Cloneable
 {
 	/**
-	 * This attribute must be 1.0 or higher to work with this release. The
-	 * default value is "1.0+". Thus, it can typically be omited. Note that this
-	 * version supports both spec version 1.0 and version 1.5, whereas previous
-	 * versions support only 1.0. A jnlp file specifying spec="1.5+" will work
-	 * with this version, but not previous versions of Java Web Start.
+	 * This attribute must be 1.0 or higher to work with this release. The default value is "1.0+".
+	 * Thus, it can typically be omited. Note that this version supports both spec version 1.0 and
+	 * version 1.5, whereas previous versions support only 1.0. A jnlp file specifying spec="1.5+"
+	 * will work with this version, but not previous versions of Java Web Start.
 	 */
-	@simpl_scalar String														spec;
+	@simpl_scalar
+	String														spec;
 
 	/**
-	 * All relative URLs specified in href attributes in the JNLP file are using
-	 * this URL as a base.
+	 * All relative URLs specified in href attributes in the JNLP file are using this URL as a base.
 	 */
-	@simpl_scalar String														codebase;
+	@simpl_scalar
+	String														codebase;
 
 	/** This is a URL pointing to the location of the JNLP file itself. */
-	@simpl_scalar String														href;
+	@simpl_scalar
+	String														href;
 
-	@simpl_nowrap 
-	@simpl_collection("information") ArrayList<InformationElement>	informations	= new ArrayList<InformationElement>();
+	@simpl_nowrap
+	@simpl_collection("information")
+	ArrayList<InformationElement>			informations	= new ArrayList<InformationElement>();
 
 	// @xml_nested private InformationElement information;
 
-	@simpl_collection("AllPermissionElement")
+	@simpl_collection("all-permissions")
+	ArrayList<AllPermissionsElement>	security;
+
+	@simpl_composite
+	@xml_tag("resources")
+	ResourceElementArray							resources;
+
+	@simpl_composite
+	@xml_tag("application-desc")
+	ApplicationDesc										applicationDesc;
+
 	@simpl_nowrap
-	ArrayList<AllPermissionsElement>					security;
-
-	@simpl_composite ResourceElementArray											resources;
-
-	@simpl_composite @xml_tag("application-desc") ApplicationDesc			applicationDesc;
-
-	@simpl_nowrap 
-	@simpl_collection("applet-desc") ArrayList<AppletDesc>				appletDesc		= new ArrayList<AppletDesc>();
+	@simpl_collection("applet-desc")
+	ArrayList<AppletDesc>							appletDesc		= new ArrayList<AppletDesc>();
 
 	/**
 	 * No-arg constructor for XML translation.
@@ -73,16 +77,15 @@ public class JnlpState extends ElementState implements Cloneable
 	 */
 	public AppletDesc getAppletDesc()
 	{
-		return (appletDesc == null || appletDesc.size() == 0 ? null : appletDesc
-				.get(0));
+		return (appletDesc == null || appletDesc.size() == 0 ? null : appletDesc.get(0));
 	}
 
 	/**
-	 * Sets the applet description and clears the application description (since
-	 * there can only be one or the other) and any previous applet descriptions.
+	 * Sets the applet description and clears the application description (since there can only be one
+	 * or the other) and any previous applet descriptions.
 	 * 
 	 * @param appletDesc
-	 *           the appletDesc to set
+	 *          the appletDesc to set
 	 */
 	public void setAppletDesc(AppletDesc appletDesc)
 	{
@@ -96,8 +99,7 @@ public class JnlpState extends ElementState implements Cloneable
 	}
 
 	/**
-	 * @return the application description, if any (returns null if there is not
-	 *         one)
+	 * @return the application description, if any (returns null if there is not one)
 	 */
 	public ApplicationDesc getApplicationDesc()
 	{
@@ -105,12 +107,11 @@ public class JnlpState extends ElementState implements Cloneable
 	}
 
 	/**
-	 * Sets the application description and clears the applet description (since
-	 * there can only be one or the other) and any previous application
-	 * descriptions.
+	 * Sets the application description and clears the applet description (since there can only be one
+	 * or the other) and any previous application descriptions.
 	 * 
 	 * @param applicationDesc
-	 *           the applicationDesc to set
+	 *          the applicationDesc to set
 	 */
 	public void setApplicationDesc(ApplicationDesc applicationDesc)
 	{
@@ -127,7 +128,7 @@ public class JnlpState extends ElementState implements Cloneable
 
 	/**
 	 * @param href
-	 *           the href to set
+	 *          the href to set
 	 */
 	public void setHref(String href)
 	{
@@ -137,7 +138,8 @@ public class JnlpState extends ElementState implements Cloneable
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	@Override public boolean equals(Object obj)
+	@Override
+	public boolean equals(Object obj)
 	{
 		if (!(obj instanceof JnlpState))
 		{
@@ -193,10 +195,11 @@ public class JnlpState extends ElementState implements Cloneable
 				+ "  <application-desc main-class=\"rogue.executables.ClientExec\">\n"
 				+ "    <argument>JNLP</argument>\n"
 				+ "    <argument>http://localhost:8080/rogue/lib/</argument>\n"
-				+ "  </application-desc>\n" + "</jnlp> \n" + "";
+				+ "  </application-desc>\n"
+				+ "</jnlp> \n"
+				+ "";
 
-		JnlpState j = (JnlpState) JnlpTranslations.get().deserializeCharSequence(
-				jnlpContents);
+		JnlpState j = (JnlpState) JnlpTranslations.get().deserializeCharSequence(jnlpContents);
 
 		ArrayList<InformationElement> infos = j.getInformations();
 		for (InformationElement i : infos)
@@ -212,11 +215,13 @@ public class JnlpState extends ElementState implements Cloneable
 		{
 			System.out.println("arg: " + a);
 		}
+
+		j.serialize(System.out);
 	}
 
 	/**
 	 * @param codebase
-	 *           the codebase to set
+	 *          the codebase to set
 	 */
 	public void setCodebase(String codebase)
 	{
@@ -226,13 +231,13 @@ public class JnlpState extends ElementState implements Cloneable
 	/**
 	 * @see ecologylab.serialization.types.element.ArrayListState#clone()
 	 */
-	@Override public JnlpState clone()
+	@Override
+	public JnlpState clone()
 	{
 		// a bit of a hack, but it's easy! :D
 		try
 		{
-			return (JnlpState) JnlpTranslations.get().deserializeCharSequence(this
-					.serialize());
+			return (JnlpState) JnlpTranslations.get().deserializeCharSequence(this.serialize());
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -241,7 +246,7 @@ public class JnlpState extends ElementState implements Cloneable
 
 		return new JnlpState();
 	}
-	
+
 	public ArrayList<InformationElement> getInformations()
 	{
 		return informations;

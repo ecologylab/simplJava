@@ -14,7 +14,7 @@ import ecologylab.serialization.ElementState.xml_tag;
  * <j2se version="1.3" initial-heap-size="64m" max-heap-size="128m"/> <j2se version="1.4.2+"
  * href="http://java.sun.com/products/autodl/j2se" java-vm-args="-esa -Xnoclassgc"/>
  * 
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
 public @simpl_inherit @xml_tag("j2se") class J2se extends HrefBasedResource

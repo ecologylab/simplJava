@@ -6,7 +6,7 @@ package ecologylab.serialization.library.jnlp.resource;
 import ecologylab.serialization.ElementState;
 
 /**
- * @author Zachary O. Toups (toupsz@cs.tamu.edu)
+ * @author Zachary O. Toups (zach@ecologylab.net)
  *
  */
 public class ResourceElement extends ElementState
