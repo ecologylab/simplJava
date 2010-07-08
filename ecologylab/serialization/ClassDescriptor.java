@@ -382,9 +382,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				continue;	// not a simpl serialization annotated field
 			
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
-
+			
 			// create indexes for serialize
-			if (fieldType == SCALAR)
+			if (fieldDescriptor.getType() == SCALAR)
 			{
 				Hint xmlHint = fieldDescriptor.getXmlHint();
 				switch (xmlHint)
