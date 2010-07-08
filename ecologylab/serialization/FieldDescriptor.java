@@ -1231,7 +1231,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 		else if (scalarType != null && !scalarType.isMarshallOnly())
 		{
-			scalarType.setField(context, field, value, format, null);
+			scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
 		}
 	}
 
