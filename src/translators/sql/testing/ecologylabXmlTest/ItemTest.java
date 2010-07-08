@@ -20,8 +20,7 @@ import ecologylab.serialization.library.media.Media;
 public class ItemTest extends ElementState
 {
    @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
-//   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
-   @simpl_scalar String description; 
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
    /**
     * This version of link often has a special url with rss in it.
     */

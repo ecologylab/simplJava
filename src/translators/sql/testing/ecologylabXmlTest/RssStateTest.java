@@ -12,6 +12,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.feedburner.Feedburner;
 import ecologylab.serialization.library.media.Media;
 import ecologylab.serialization.library.media.Thumbnail;
+import ecologylab.serialization.library.rss.RssTranslations;
 
 /**
  * {@link ecologylab.serialization.ElementState ElementState} for the root element of the RSS parser.
@@ -21,9 +22,9 @@ import ecologylab.serialization.library.media.Thumbnail;
  */
 public class RssStateTest extends ElementState
 {
-	@simpl_scalar	float		version;
+	@simpl_scalar	@simpl_db({DbHint.NOT_NULL}) float		version;
    
-	@simpl_composite		ChannelTest		channel;
+	@simpl_composite	@simpl_db({DbHint.PRIMARY_KEY})	ChannelTest		channel;
 
 	/**
 	 * @return Returns the channel.
@@ -197,7 +198,7 @@ public class RssStateTest extends ElementState
 		{
 //		rss = translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 //			rss = translateFromXMLCharSequence(NABEEL_TEST, RssTranslations.get());
-			rss = RssTranslationsTest.get().deserialize(CNN_TOP_FEED);
+			rss = RssTranslations.get().deserialize(CNN_TOP_FEED);
 			
 			System.out.println("");
 			rss.serialize(System.out);
@@ -239,7 +240,7 @@ public class RssStateTest extends ElementState
 			ParsedURL feedPURL	= DELICIOUS_FEED; // FLICKR_FEED;
 			println("Translating RSS feed: " + feedPURL+"\n");
 
-			RssStateTest rssState	= (RssStateTest) RssTranslationsTest.get().deserialize(feedPURL);
+			RssStateTest rssState	= (RssStateTest) RssTranslations.get().deserialize(feedPURL);
 //			RssState rssState	= (RssState) ElementState.translateFromXMLCharSequence(FLICKR_EXAMPLE, RssTranslations.get());
 
 			ArrayList<ItemTest> items	= rssState.getChannel().items; //rssState.getChannel().getItems();

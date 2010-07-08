@@ -8,6 +8,7 @@ import ecologylab.serialization.Hint;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.library.rss.RssTranslations;
 
 /**
  * RSS parser <code>channel</code> element {@link ecologylab.serialization.ElementState ElementState} declaration.
@@ -17,17 +18,14 @@ import ecologylab.serialization.simpl_inherit;
  */
 public @simpl_inherit class ChannelTest extends ElementState
 {
-   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			title;
-   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	String			description;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db({DbHint.PRIMARY_KEY, DbHint.UNIQUE}) String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db({DbHint.NOT_NULL, DbHint.UNIQUE}) String			description;
    /**
     * Could point to an HTML rendering of the feed.
     */
-   @simpl_collection("thisLinkTag") @simpl_scalar @simpl_hints(Hint.XML_LEAF)	ParsedURL		link;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db({DbHint.UNIQUE}) ParsedURL		link;
    
-   @simpl_nowrap @simpl_collection("item") ArrayList<ItemTest> items;
-   
-   @simpl_db({DbHint.PRIMARY_KEY, DbHint.UNIQUE}) String primaryUniqueKey; 
-   
+   @simpl_nowrap @simpl_collection("item") @simpl_db({DbHint.NOT_NULL}) ArrayList<ItemTest> items;
    
    /**
     * @return Returns the description.
@@ -119,15 +117,7 @@ public @simpl_inherit class ChannelTest extends ElementState
 			c.serialize(buffy);
 			System.out.println(buffy);
 			System.out.println('\n');
-			ElementState c2	= RssTranslationsTest.get().deserializeCharSequence(buffy);
-			System.out.println("retranslated by ElementState");
-			System.out.println(c2.getClass().getCanonicalName());
-			System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 
-			Class<?>[] thisClasses = c2.getClass().getClasses();
-			for (Class<?> class1 : thisClasses)
-			{
-				System.out.println(class1.getCanonicalName()); 
-			}
+			ElementState c2	= RssTranslations.get().deserializeCharSequence(buffy);
 			c2.serialize(System.out);
 //			println(c.translateToXML());
 		} catch (SIMPLTranslationException e)
