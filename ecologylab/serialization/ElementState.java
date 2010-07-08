@@ -1034,7 +1034,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	public enum DbHint
 	{
-		PRIMARY_KEY, ALLOW_NOT_NULL, UNIQUE
+		PRIMARY_KEY, NOT_NULL, UNIQUE
 	}
 
 	/**
