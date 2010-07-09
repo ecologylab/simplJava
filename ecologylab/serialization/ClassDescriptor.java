@@ -517,7 +517,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private void mapTagToFdForTranslateFrom(String tagName, FD fdToMap)
 	{
 		FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
-		if (previousMapping != null)
+		if (previousMapping != null && !fdToMap.isWrapped())
 			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
 					+ previousMapping.getFieldName() + "]");
 	}

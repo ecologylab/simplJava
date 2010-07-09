@@ -56,7 +56,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	 */
 	FieldDescriptor							currentFD;
 
-	SIMPLTranslationException			xmlTranslationException;
+	SIMPLTranslationException		xmlTranslationException;
 
 	ArrayList<FieldDescriptor>	fdStack				= new ArrayList<FieldDescriptor>();
 
@@ -307,7 +307,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	private ClassDescriptor currentClassDescriptor()
 	{
-		return this.currentElementState.classDescriptor();
+		if (currentElementState != null)
+			return this.currentElementState.classDescriptor();
+		else
+			return null;
 	}
 
 	/**
@@ -356,8 +359,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			{
 				// else, we dont translate this element; we ignore it.
 				String message = "XML Translation WARNING: Cant find class object for Root XML element <"
-						+ tagName
-						+ ">: Ignored. ";
+						+ tagName + ">: Ignored. ";
 				println(message);
 				xmlTranslationException = new SIMPLTranslationException(message);
 				return;
@@ -379,10 +381,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 							.getFieldDescriptorByTag(tagName, translationScope, currentES);
 			if (activeFieldDescriptor == null)
 			{
-				currentClassDescriptor.warning(" Ignoring tag <" + tagName + ">");
-				activeFieldDescriptor = new FieldDescriptor(tagName); // TODO -- should we record
-																															// declaringClass in here??!
-				currentClassDescriptor.addFieldDescriptorMapping(activeFieldDescriptor);
+				activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor);
 			}
 		}
 		this.currentFD = activeFieldDescriptor;
@@ -402,10 +401,16 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			{
 			case COMPOSITE_ELEMENT:
 				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
-				activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
-																																										// should do
-																																										// this on close
-																																										// element
+				
+				if(childES == null)
+				{
+					activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
+				}
+				else					
+					activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
+				// should do
+				// this on close
+				// element
 				break;
 			case NAME_SPACE_NESTED_ELEMENT:
 				// TODO Name Space support!
@@ -427,7 +432,15 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+					ElementState childElement = activeFieldDescriptor.constructChildElementState(
+							currentElementState, tagName);
+					childES = childElement;
+					
+					if(childES == null)
+					{
+						activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
+					}
+					
 					collection.add(childES);
 				}
 				// activeNJO.formElementAndAddToCollection(activeES, childNode);
@@ -440,7 +453,14 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				Map map = (Map) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
 				if (map != null)
 				{
-					childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
+					ElementState childElement = activeFieldDescriptor.constructChildElementState(
+							currentElementState, tagName);
+
+					childES = childElement;
+					if(childES == null)
+					{
+						this.currentFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
+					}
 				}
 				// Map map = activeFieldDescriptor.getMap(currentElementState);
 				// if (map != null)
@@ -468,6 +488,18 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		{
 			this.xmlTranslationException = e;
 		}
+	}
+
+	private FieldDescriptor makeIgnoredFieldDescriptor(String tagName,
+			ClassDescriptor currentClassDescriptor)
+	{
+		FieldDescriptor activeFieldDescriptor;
+		currentClassDescriptor.warning(" Ignoring tag <" + tagName + ">");
+		activeFieldDescriptor = new FieldDescriptor(tagName); // TODO -- should we record
+		// declaringClass in here??!
+		if(activeFieldDescriptor.getTagName() != null)
+			currentClassDescriptor.addFieldDescriptorMapping(activeFieldDescriptor);
+		return activeFieldDescriptor;
 	}
 
 	private void pushFD(FieldDescriptor fd)
@@ -499,6 +531,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	public void endElement(String namespaceURI, String localTagName, String prefixedTagName)
 			throws SAXException
 	{
+		// if (this.currentElementState == null)
+		// {
+		// this.currentFD.warning(" Ignoring tag <" + localTagName + ">");
+		// return;
+		// }
+
 		if (xmlTranslationException != null)
 			return;
 
@@ -521,10 +559,13 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		// every good push deserves a pop :-) (and othertimes, not!)
 		{
 		case MAP_ELEMENT:
-			final Object key = ((Mappable) currentES).key();
-			Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
-			// Map map = currentFD.getMap(parentES);
-			map.put(key, currentES);
+			if (currentES instanceof Mappable)
+			{
+				final Object key = ((Mappable) currentES).key();
+				Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
+				// Map map = currentFD.getMap(parentES);
+				map.put(key, currentES);
+			}
 		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
 		case NAME_SPACE_NESTED_ELEMENT:
@@ -549,8 +590,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	}
 
 	/**
-	 * Assign pending value from an @simpl_scalar @simpl_hints(Hint.XML_TEXT) or @simpl_scalar @simpl_hints(Hint.XML_LEAF) declaration to the appropriate Field or
-	 * Collection element.
+	 * Assign pending value from an @simpl_scalar @simpl_hints(Hint.XML_TEXT) or @simpl_scalar
+	 * 
+	 * @simpl_hints(Hint.XML_LEAF) declaration to the appropriate Field or Collection element.
 	 * 
 	 * @param curentN2JOType
 	 * @param currentES
@@ -568,7 +610,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				case SCALAR:
 					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
-					String value	= new String(currentTextValue.substring(0, length));
+					String value = new String(currentTextValue.substring(0, length));
 					currentFD.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
@@ -582,10 +624,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 					// constructed)
 					// so we get the optimizations we need from the currentElementState
 					// FIXME -- implement this!!!
-					FieldDescriptor scalarTextFD	= currentElementState.classDescriptor().getScalarTextFD();
+					FieldDescriptor scalarTextFD = currentElementState.classDescriptor().getScalarTextFD();
 					if (scalarTextFD != null)
 					{
-						value 			= new String(currentTextValue.substring(0, length));
+						value = new String(currentTextValue.substring(0, length));
 						scalarTextFD.setFieldToScalar(currentES, value, this);
 					}
 					// TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
