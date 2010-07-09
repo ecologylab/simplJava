@@ -3,6 +3,7 @@ package translators.sql.testing.ecologylabXmlTest;
 import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
+import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.SIMPLTranslationException;

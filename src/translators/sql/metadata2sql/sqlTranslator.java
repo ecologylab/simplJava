@@ -14,11 +14,11 @@ import java.util.Vector;
 
 import org.junit.Test;
 
-import translators.sql.java2sql.DBName;
+import translators.sql.DBInterface;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.SIMPLTranslationException;
 
-public class sqlTranslator implements DBName{
+public class sqlTranslator implements DBInterface{
 	String thisStringTargetDirectory = null; 
 
 	private File thisMMDTargetDirectory;
@@ -137,7 +137,7 @@ public class sqlTranslator implements DBName{
 		/* Result Data Structure */
 //		assertNotNull(thisHashMapTableArrayList);
 //		printMMTableSchema();
-		assertTrue("MMTableSchemaFile failed to be generated", createMMTableSQLFileFromHashMapArrayList(DBName.POSTGRESQL));
+		assertTrue("MMTableSchemaFile failed to be generated", createMMTableSQLFileFromHashMapArrayList(DBInterface.POSTGRESQL));
 		System.out.println("\n" + createSQLStringFromHashMapArrayList(thisHashMapTableArrayList));
 		
 	}
@@ -424,7 +424,7 @@ public class sqlTranslator implements DBName{
 	 */
 	//TODO make the generated file name(e.g. "primitives.sql") be same as the target metadata file name(e.g. "primitives.xml")
 	public boolean createMMTableSQLFileFromHashMapArrayList(String dbCategory) throws IOException {
-		if(dbCategory.equals(DBName.POSTGRESQL) && getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_CREATE_TABLE_MODE){
+		if(dbCategory.equals(DBInterface.POSTGRESQL) && getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_CREATE_TABLE_MODE){
 			if(sqlTranslator.thisHashMapTableArrayList.size() >= 1){
 				/*MAIN function*/
 				if(createSQLFileWriter(DEFAULT_SQL_FILE_NAME, DEFAULT_MMD_SRC_DIRECTORY, thisHashMapTableArrayList)){
@@ -441,7 +441,7 @@ public class sqlTranslator implements DBName{
 				
 			}
 			
-		}else if(dbCategory.equals(DBName.POSTGRESQL) && getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE){
+		}else if(dbCategory.equals(DBInterface.POSTGRESQL) && getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE){
 			if(sqlTranslator.thisHashMapTableArrayListForCompositeType.size() >= 1){
 				/*MAIN function*/
 				if(createSQLFileWriter(DEFAULT_SQL_FILE_NAME, DEFAULT_MMD_SRC_DIRECTORY, thisHashMapTableArrayListForCompositeType)){
@@ -572,7 +572,7 @@ public class sqlTranslator implements DBName{
 				String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
 				/*added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null'*/
 				String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType", thisTmpFieldAttributes);
-				String thisTmpFieldType = convertToValidFieldType(DBName.POSTGRESQL, this.extractToken("fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
+				String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, this.extractToken("fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
 				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
 				
 				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*" + thisTmpFieldComment + "*/"; 
@@ -687,7 +687,7 @@ public class sqlTranslator implements DBName{
 				int thisTmpCount = 0 ; 
 				for (Iterator iterator2 = thisSubHashMapTable.keySet().iterator(); iterator2.hasNext();) {
 					String thisTmpFieldName = (String) iterator2.next(); 
-					String thisTmpFieldType = convertToValidFieldType(DBName.POSTGRESQL, thisSubHashMapTable.get(thisTmpFieldName), "null"); 
+					String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, thisSubHashMapTable.get(thisTmpFieldName), "null"); 
 					
 					/*in case of first element, adding 'Primary Key' constraint*/
 					if (thisTmpCount == 0)
@@ -716,7 +716,7 @@ public class sqlTranslator implements DBName{
 	 */
 	protected String convertToValidFieldType(String dbCategory, String fieldType, String thisTmpFieldCollectionType) {
 		/*in case of POSTGRESQL*/
-		if (dbCategory.equals(DBName.POSTGRESQL)){
+		if (dbCategory.equals(DBInterface.POSTGRESQL)){
 			if(fieldType.equalsIgnoreCase("StringBuilder") || fieldType.equalsIgnoreCase("String"))
 				return "text";
 			
