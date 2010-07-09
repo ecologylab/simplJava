@@ -257,7 +257,8 @@ public class SqlTranslator extends SqlTranslatorUtil
 		TranslationScope thisTranslationScope = TranslationScope.get("thisTranslationScope",
 				ChannelTest.class, ItemTest.class, RssStateTest.class);
 		
-		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
+//		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
+		
 		ArrayList<Class<? extends ElementState>> thisAllClasses = thisTranslationScope.getAllClasses();
 		for (Class<? extends ElementState> thisClass : thisAllClasses)
 		{
@@ -268,6 +269,8 @@ public class SqlTranslator extends SqlTranslatorUtil
 		String thisString = "ChannelTest";
 		Class<? extends ElementState> thisClass = thisTranslationScope.getClassBySimpleName(thisString);
 		assertNotNull(thisClass);
+		
+		
 		// System.out.println("tag: " + thisTranslationScope.getTagBySimpleName(thisString));
 
 		ClassDescriptor thisClassDescriptor = ClassDescriptor.getClassDescriptor(thisClass);
@@ -290,6 +293,9 @@ public class SqlTranslator extends SqlTranslatorUtil
 				{
 					System.out.println("ElementState.simpl_db value : " + field.getName() + " " + enumValue);
 				}
+				
+				String thisReferences = simpdbAnnotation.references();
+				System.out.println("ElementState.simpl_db value : " + thisReferences);
 			}
 
 			if (thisXmlCollection != null)
