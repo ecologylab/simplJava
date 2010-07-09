@@ -547,7 +547,8 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 
 			}
 			//add 'inherit' keyword corresponding to name of extended class' superclass 
-			if(!tableExtend.equals("null"))
+			if(!(this.getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE) 
+					&& !tableExtend.equals("null"))
 				thisEachTableSQLStatement.append(")INHERITS (" + tableExtend + "); \n\n"); 
 			else
 				thisEachTableSQLStatement.append("); \n\n");
