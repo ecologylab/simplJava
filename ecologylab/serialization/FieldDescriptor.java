@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
 
@@ -86,6 +88,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	@simpl_scalar
 	private boolean																		needsEscaping;
+	
+	@simpl_scalar
+	Pattern																						filterRegex;
+	
+	@simpl_scalar
+	String																						filterReplace;
 
 	/**
 	 * The FieldDescriptor for the field in a wrap.
@@ -365,6 +373,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			isCDATA				= xmlHint == Hint.XML_LEAF_CDATA || xmlHint == Hint.XML_TEXT_CDATA;
 		}
 
+		ElementState.simpl_filter filterAnnotation 	= field.getAnnotation(ElementState.simpl_filter.class);
+		if (filterAnnotation != null)
+		{
+			String regexString	= filterAnnotation.regex();
+			if (regexString != null && regexString.length() > 0)
+			{
+				filterRegex		= Pattern.compile(regexString);
+				filterReplace	= filterAnnotation.replace();
+			}
+		}
 		return SCALAR;
 	}
 
@@ -1202,6 +1220,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			// error("Can't set scalar field with empty String");
 			return;
 		}
+		value = filterValue(value);
 		if (setValueMethod != null && !isPseudoScalar())
 		{
 			// if the method is found, invoke the method
@@ -1233,6 +1252,22 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
 		}
+	}
+
+	/**
+	 * Filter value using filterRegex.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	String filterValue(String value)
+	{
+		if (filterRegex != null)
+		{
+			Matcher matcher = filterRegex.matcher(value);
+			value						= matcher.replaceAll(filterReplace);
+		}
+		return value;
 	}
 
 	/**

@@ -371,7 +371,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			final int currentType = currentFD.getType();
 			ElementState currentES = this.currentElementState;
 			// if there is a pending text node, assign it somehow!
-			processPendingTextScalar(currentType, currentES);
+			processPendingScalar(currentType, currentES);
 
 			ClassDescriptor currentClassDescriptor = currentClassDescriptor();
 			activeFieldDescriptor = (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
@@ -551,7 +551,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		}
 
 		ElementState currentES = this.currentElementState;
-		processPendingTextScalar(curentFdType, currentES);
+		processPendingScalar(curentFdType, currentES);
 
 		final ElementState parentES = currentES.parent;
 
@@ -590,14 +590,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	}
 
 	/**
-	 * Assign pending value from an @simpl_scalar @simpl_hints(Hint.XML_TEXT) or @simpl_scalar
-	 * 
-	 * @simpl_hints(Hint.XML_LEAF) declaration to the appropriate Field or Collection element.
+	 * Assign pending value to a @simpl_scalar
 	 * 
 	 * @param curentN2JOType
 	 * @param currentES
 	 */
-	private void processPendingTextScalar(final int curentN2JOType, ElementState currentES)
+	private void processPendingScalar(final int curentN2JOType, ElementState currentES)
 	{
 		final int length = currentTextValue.length();
 		if (length > 0)
@@ -610,16 +608,17 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				case SCALAR:
 					// TODO -- unmarshall to set field with scalar type
 					// copy from the StringBuilder
-					String value = new String(currentTextValue.substring(0, length));
+					String value = stringToDeserializeAsScalar(length);
 					currentFD.setFieldToScalar(currentES, value, this);
 					break;
 				case COLLECTION_SCALAR:
-					value = new String(currentTextValue.substring(0, length));
+					value = stringToDeserializeAsScalar(length);
 					currentFD.addLeafNodeToCollection(currentES, value, this);
 					break;
 				case COMPOSITE_ELEMENT:
 				case COLLECTION_ELEMENT:
 				case PSEUDO_FIELD_DESCRIPTOR:
+					// TODO - is this code used????
 					// optimizations in currentN2JO are for its parent (they were in scope when it was
 					// constructed)
 					// so we get the optimizations we need from the currentElementState
@@ -627,15 +626,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 					FieldDescriptor scalarTextFD = currentElementState.classDescriptor().getScalarTextFD();
 					if (scalarTextFD != null)
 					{
-						value = new String(currentTextValue.substring(0, length));
+						value = stringToDeserializeAsScalar(length);
 						scalarTextFD.setFieldToScalar(currentES, value, this);
 					}
-					// TagDescriptor scalarTextChildN2jo = currentES.scalarTextChildN2jo();
-					// if (scalarTextChildN2jo != null)
-					// {
-					// value = new String(currentTextValue.substring(0, length));
-					// scalarTextChildN2jo.setFieldToScalar(currentES, value, this);
-					// }
 					break;
 				default:
 					break;
@@ -648,6 +641,23 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 			currentTextValue.setLength(0);
 		}
+	}
+
+	/**
+	 * Get the String that will be marshalled into the value with a ScalarType, using the currentTextValue state variable from the parse,
+	 * and the length parameter.
+	 * If appropriate, use the currentFD to perform a regex filter on the value before passing it to the appropriate
+	 * scalar marshalling and field or collection element setter.
+	 * 
+	 * @param length
+	 * @return
+	 */
+	private String stringToDeserializeAsScalar(final int length)
+	{
+		String result = new String(currentTextValue.substring(0, length));
+		if (translationScope.isPerformFilters())
+			result			= currentFD.filterValue(result);
+		return result;
 	}
 
 	void printStack(String msg)

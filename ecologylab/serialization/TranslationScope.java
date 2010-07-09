@@ -51,6 +51,8 @@ public final class TranslationScope extends ElementState
 	private static HashMap<String, TranslationScope>		allTranslationScopes			= new HashMap<String, TranslationScope>();
 
 	public static final String													STATE											= "State";
+	
+	private boolean																			performFilters;
 
 	/**
 	 * Default constructor only for use by translateFromXML().
@@ -1071,5 +1073,21 @@ public final class TranslationScope extends ElementState
 			}
 		}
 
+	}
+
+	/**
+	 * @return the performFilters
+	 */
+	public boolean isPerformFilters()
+	{
+		return performFilters;
+	}
+
+	/**
+	 * @param performFilters the performFilters to set
+	 */
+	public void setPerformFilters(boolean performFilters)
+	{
+		this.performFilters = performFilters;
 	}
 }

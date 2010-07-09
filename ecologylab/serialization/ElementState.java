@@ -816,6 +816,26 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		Hint[] value() default
 		{ Hint.XML_ATTRIBUTE };
 	}
+	
+	/**
+	 * S.IM.PL	declaration for scalar fields.
+	 * <p/>
+	 * Specifies filtering a scalar value on input, using a regex, before marshalling by a ScalarType.
+	 * Only activated when you call on your TranslationScope instance, setPerformFilters(),
+	 * before calling deserialize(Stream).
+	 *
+	 * @author andruid
+	 *
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	@Inherited
+	public @interface simpl_filter
+	{
+		String regex();
+		String replace() default "";
+	}
+	
 	/**
 	 * Optional metalanguage declaration. Enables specificaition of one or more formatting strings.
 	 * Only affects ScalarTyped Fields (ignored otherwise). The format string will be passed to the
