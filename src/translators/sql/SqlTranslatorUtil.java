@@ -345,8 +345,8 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 				/* added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null' */
 				String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType",
 						thisTmpFieldAttributes);
-				String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, this.extractToken(
-						"fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
+				String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, this
+						.extractToken("fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
 				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
 				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
 						+ thisTmpFieldComment + "*/";
@@ -457,10 +457,11 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 			 * Extract table attributes from UpperHashMapTable
 			 */
 			String tableName = this.extractToken("tableName", thisUpperHashMapTableAttributes);
-			//check if contained in postgreSQL keywords
-			if(isPostgreSQLKeyword(tableName))
-				tableName = "\"" + tableName + "\""; 
-			String tableExtend = this.convertToValidTableExtend(this.extractToken("tableExtend", thisUpperHashMapTableAttributes));
+			// check if contained in postgreSQL keywords
+			if (isPostgreSQLKeyword(tableName))
+				tableName = "\"" + tableName + "\"";
+			String tableExtend = this.convertToValidTableExtend(this.extractToken("tableExtend",
+					thisUpperHashMapTableAttributes));
 			String tableComment = this.extractToken("tableComment", thisUpperHashMapTableAttributes);
 
 			String tableCommentExtracted = tableComment.equals("null") ? "" : "--" + tableComment;
@@ -478,8 +479,8 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 				thisEachTableSQLStatement.append("CREATE TYPE " + tableName + " AS (\n");
 
 			/*
-			 * Updated to set each field constraints based on @simpl_db annotation
-			 * (DbHint.PRIMARY_KEY, Db_Hint.NOT_NULL, DbHint.UNIQUE)
+			 * Updated to set each field constraints based on @simpl_db annotation (DbHint.PRIMARY_KEY,
+			 * Db_Hint.NOT_NULL, DbHint.UNIQUE)
 			 */
 			HashMap<String, String> thisSubHashMapTable = thisUpperHashMap
 					.get(thisUpperHashMapTableAttributes);
@@ -500,16 +501,16 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 				/* 1) field name */
 				String thisTmpFieldName = (String) fieldNamesIterator.next();
 				String thisTmpFieldAttributes = thisSubHashMapTable.get(thisTmpFieldName);
-				//check if contained in postgresql keywords 
-				if(isPostgreSQLKeyword(thisTmpFieldName))
+				// check if contained in postgresql keywords
+				if (isPostgreSQLKeyword(thisTmpFieldName))
 					thisTmpFieldName = "\"" + thisTmpFieldName + "\"";
-				
+
 				/* added for fieldCollectionType e.g. 'Item' of ArrayList[Item] default 'null' */
 				String thisTmpFieldCollectionType = this.extractToken("fieldCollectionType",
 						thisTmpFieldAttributes);
 				/* 2) field type */
-				String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, this.extractToken(
-						"fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
+				String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, this
+						.extractToken("fieldType", thisTmpFieldAttributes), thisTmpFieldCollectionType);
 				/* 3) field comment */
 				String thisTmpFieldComment = this.extractToken("fieldComment", thisTmpFieldAttributes);
 				String thisTmpFieldCommentExtracted = thisTmpFieldComment.equals("null") ? "" : "	/*"
@@ -523,36 +524,36 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 				 */
 				if (this.getDB_SCHEMA_GENERATOR_MODE() != DEFAULT_COMPOSITE_TYPE_TABLE_MODE)
 				{
-					/*condition to remove trailing comma following after last field */
+					/* condition to remove trailing comma following after last field */
 					if (thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
 								+ thisTmpFieldDBConstraint + "," + thisTmpFieldCommentExtracted + "\n");
-					/*in case of last statement*/
-					else  
+					/* in case of last statement */
+					else
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + " "
 								+ thisTmpFieldDBConstraint /* + "," */
 								+ thisTmpFieldCommentExtracted + "\n");
 				}
 				else
 				{
-					/*condition to remove trailing comma following after last field */
+					/* condition to remove trailing comma following after last field */
 					if (thisTmpCurrentFieldCount != thisTmpLastFieldIndex)
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType + ","
 								+ thisTmpFieldCommentExtracted + "\n");
-					/*in case of last statement*/
-					else  
+					/* in case of last statement */
+					else
 						thisEachTableSQLStatement.append(thisTmpFieldName + " " + thisTmpFieldType /* + "," */
 								+ thisTmpFieldCommentExtracted + "\n");
 				}
 
 			}
-			//add 'inherit' keyword corresponding to name of extended class' superclass 
-			if(!(this.getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE) 
+			// add 'inherit' keyword corresponding to name of extended class' superclass
+			if (!(this.getDB_SCHEMA_GENERATOR_MODE() == DEFAULT_COMPOSITE_TYPE_TABLE_MODE)
 					&& !tableExtend.equals("null"))
-				thisEachTableSQLStatement.append(")INHERITS (" + tableExtend + "); \n\n"); 
+				thisEachTableSQLStatement.append(")INHERITS (" + tableExtend + "); \n\n");
 			else
 				thisEachTableSQLStatement.append("); \n\n");
-			
+
 			thisSQLStatement += thisEachTableSQLStatement;
 		}
 		return thisSQLStatement;
@@ -655,12 +656,13 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 	//
 	// }
 	// return thisSQLStatement;
-	
+
 	private String convertToValidTableExtend(String extractToken)
 	{
-		if(extractToken.equalsIgnoreCase("Object") || extractToken.equalsIgnoreCase("ElementState"))
+		if (extractToken.equalsIgnoreCase("Object") || extractToken.equalsIgnoreCase("ElementState")
+				|| extractToken.equalsIgnoreCase("Observable"))
 			return "null";
-		else 
+		else
 			return extractToken;
 	}
 
@@ -671,29 +673,33 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 	 */
 	private boolean isPostgreSQLKeyword(String thisTmpFieldName)
 	{
-		Boolean isKeyword = false; 
+		Boolean isKeyword = false;
 		String[] thisPostgresqlKeywords = DBInterface.POSTGRESQL_RESERVED_KEYWORDS;
 		for (String keyword : thisPostgresqlKeywords)
 		{
-			if(keyword.equalsIgnoreCase(thisTmpFieldName)){
-				isKeyword = true; 
-				break; 
+			if (keyword.equalsIgnoreCase(thisTmpFieldName))
+			{
+				isKeyword = true;
+				// debug
+				// System.out.println("postgresql keyword: " + keyword);
+				break;
 			}
 		}
-		
+
 		return isKeyword;
 	}
 
 	@Test
-	public void testPostgreSQLReservedKeyWords(){
-		String[] thisDBInterface = DBInterface.POSTGRESQL_RESERVED_KEYWORDS; 
+	public void testPostgreSQLReservedKeyWords()
+	{
+		String[] thisDBInterface = DBInterface.POSTGRESQL_RESERVED_KEYWORDS;
 		for (String string : thisDBInterface)
 		{
 			System.out.println("\"" + string + "\"");
 		}
-		
-		System.out.println(this.isPostgreSQLKeyword("NULLIF")); 
-		
+
+		System.out.println(this.isPostgreSQLKeyword("NULLIF"));
+
 	}
 
 	/**
@@ -774,8 +780,8 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 				for (Iterator iterator2 = thisSubHashMapTable.keySet().iterator(); iterator2.hasNext();)
 				{
 					String thisTmpFieldName = (String) iterator2.next();
-					String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL, thisSubHashMapTable
-							.get(thisTmpFieldName), "null");
+					String thisTmpFieldType = convertToValidFieldType(DBInterface.POSTGRESQL,
+							thisSubHashMapTable.get(thisTmpFieldName), "null");
 
 					/* in case of first element, adding 'Primary Key' constraint */
 					if (thisTmpCount == 0)
@@ -811,10 +817,12 @@ public class SqlTranslatorUtil extends Debug implements DBInterface
 		if (dbCategory.equals(DBInterface.POSTGRESQL))
 		{
 			if (fieldType.equalsIgnoreCase("StringBuilder") || fieldType.equalsIgnoreCase("String")
-					|| fieldType.equalsIgnoreCase("MetadataString") || fieldType.equalsIgnoreCase("MetadataStringBuilder"))
+					|| fieldType.equalsIgnoreCase("MetadataString")
+					|| fieldType.equalsIgnoreCase("MetadataStringBuilder"))
 				return "text";
 
-			else if (fieldType.equalsIgnoreCase("ParsedURL") || fieldType.equalsIgnoreCase("MetadataParsedURL"))
+			else if (fieldType.equalsIgnoreCase("ParsedURL")
+					|| fieldType.equalsIgnoreCase("MetadataParsedURL"))
 				return "varchar(64)";
 
 			else if (fieldType.equalsIgnoreCase("int") || fieldType.equalsIgnoreCase("MetadataInteger"))
