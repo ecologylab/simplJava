@@ -19,7 +19,9 @@ import ecologylab.serialization.library.rss.RssTranslations;
  */
 public @simpl_inherit class ChannelTest extends ElementState
 {
-   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db({DbHint.PRIMARY_KEY, DbHint.UNIQUE}) String			title;
+   @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db(references="ItemTest", value =
+ 	{DbHint.NOT_NULL, DbHint.PRIMARY_KEY}) String			title;
+   
    @simpl_scalar @simpl_hints(Hint.XML_LEAF)	@simpl_db({DbHint.NOT_NULL, DbHint.UNIQUE}) String			description;
    /**
     * Could point to an HTML rendering of the feed.
