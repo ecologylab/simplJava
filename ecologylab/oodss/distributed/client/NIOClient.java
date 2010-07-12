@@ -47,6 +47,9 @@ import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
+import ecologylab.oodss.messages.ServiceMessage;
+import ecologylab.oodss.messages.UpdateMessage;
+import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
@@ -98,11 +101,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	 */
 	private final StringBuilder																				currentKeyHeaderSequence			= new StringBuilder();
 
-	private MessageWithMetadata<ResponseMessage, Object>							response											= null;
+	private MessageWithMetadata<ServiceMessage, Object>								response											= null;
 
 	private volatile boolean																					blockingRequestPending				= false;
 
-	private final Queue<MessageWithMetadata<ResponseMessage, Object>>	blockingResponsesQueue				= new LinkedBlockingQueue<MessageWithMetadata<ResponseMessage, Object>>();
+	private final Queue<MessageWithMetadata<ServiceMessage, Object>>	blockingResponsesQueue				= new LinkedBlockingQueue<MessageWithMetadata<ServiceMessage, Object>>();
 
 	protected final Queue<PreppedRequest>															requestsQueue									= new LinkedBlockingQueue<PreppedRequest>();
 
@@ -179,7 +182,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	protected final PreppedRequestPool																pRequestPool;
 
-	protected final MessageWithMetadataPool<ResponseMessage, Object>	responsePool									= new MessageWithMetadataPool<ResponseMessage, Object>(
+	protected final MessageWithMetadataPool<ServiceMessage, Object>	  responsePool									= new MessageWithMetadataPool<ServiceMessage, Object>(
 																																																			2,
 																																																			4);
 
@@ -595,7 +598,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	public synchronized ResponseMessage sendMessage(SendableRequest request, int timeOutMillis)
 			throws MessageTooLargeException
 	{
-		MessageWithMetadata<ResponseMessage, Object> responseMessage = null;
+		MessageWithMetadata<ServiceMessage, Object> responseMessage = null;
 
 		// notify the connection thread that we are waiting on a response
 		blockingRequestPending = true;
@@ -666,7 +669,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 					blockingResponsesQueue.clear();
 
-					ResponseMessage respMsg = responseMessage.getMessage();
+					ResponseMessage respMsg = (ResponseMessage) responseMessage.getMessage();
 
 					try
 					{
@@ -983,15 +986,20 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		}
 	}
 
+	private void processUpdate(UpdateMessage message)
+	{
+		message.processUpdate(objectRegistry);
+	}
+	
 	/**
-	 * Converts incomingMessage to a ResponseMessage, then processes the response and removes its UID
-	 * from the unfulfilledRequests map.
+	 * Converts incomingMessage to a ResponseMessage, then processes the response
+	 * and removes its UID from the unfulfilledRequests map.
 	 * 
 	 * @param incomingMessage
 	 * @return
 	 */
-	private MessageWithMetadata<ResponseMessage, Object> processString(String incomingMessage,
-			int incomingUid)
+	private MessageWithMetadata<ServiceMessage, Object> processString(
+			String incomingMessage, int incomingUid)
 	{
 
 		if (show(5))
@@ -999,7 +1007,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 		try
 		{
-			response = translateXMLStringToResponse(incomingMessage, incomingUid);
+			response = translateXMLStringToServiceMessage(incomingMessage, incomingUid);
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -1012,19 +1020,27 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		}
 		else
 		{
-			// perform the service being requested
-			processResponse(response.getMessage());
-
-			synchronized (unfulfilledRequests)
+			if(response.getMessage() instanceof ResponseMessage)
 			{
-				PreppedRequest finishedReq = unfulfilledRequests.remove(response.getUid());
-
-				if (finishedReq != null)
-				{ // subclasses might choose not to use unfulfilledRequests; this
-					// avoids problems with releasing resources;
-					// NOTE -- it may be necessary to release elsewhere in this case.
-					finishedReq = this.pRequestPool.release(finishedReq);
+				// perform the service being requested
+				processResponse((ResponseMessage) response.getMessage());
+	
+				synchronized (unfulfilledRequests)
+				{
+					PreppedRequest finishedReq = unfulfilledRequests.remove(response
+							.getUid());
+	
+					if (finishedReq != null)
+					{ // subclasses might choose not to use unfulfilledRequests; this
+						// avoids problems with releasing resources;
+						// NOTE -- it may be necessary to release elsewhere in this case.
+						finishedReq = this.pRequestPool.release(finishedReq);
+					}
 				}
+			}
+			else if(response.getMessage() instanceof UpdateMessage)
+			{
+				processUpdate((UpdateMessage) response.getMessage());
 			}
 		}
 
@@ -1155,9 +1171,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 								// done here
 								contentLengthRemaining = Integer
 										.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
-								uidOfCurrentMessage = Integer
+								if(headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
+								{
+									uidOfCurrentMessage = Integer
 										.parseInt(this.headerMap.get(UNIQUE_IDENTIFIER_STRING));
-
+								}
 								contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
 
 								// done with the header; delete it
@@ -1344,25 +1362,25 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	}
 
 	/**
-	 * Use the ServicesClient and its NameSpace to do the translation. Can be overridden to provide
-	 * special functionalities
+	 * Use the ServicesClient and its NameSpace to do the translation. Can be
+	 * overridden to provide special functionalities
 	 * 
 	 * @param messageString
 	 * @return
-	 * @throws SIMPLTranslationException
+	 * @throws XMLTranslationException
 	 */
-	protected MessageWithMetadata<ResponseMessage, Object> translateXMLStringToResponse(
+	protected MessageWithMetadata<ServiceMessage, Object> translateXMLStringToServiceMessage(
 			String messageString, int incomingUid) throws SIMPLTranslationException
 	{
-		ResponseMessage resp = (ResponseMessage) translationScope.deserializeCharSequence(
-				messageString);
+		ServiceMessage resp = (ServiceMessage) this.translationScope
+				.deserializeCharSequence(messageString);
 
 		if (resp == null)
 		{
 			return null;
 		}
 
-		MessageWithMetadata<ResponseMessage, Object> retVal = this.responsePool.acquire();
+		MessageWithMetadata<ServiceMessage, Object> retVal = this.responsePool.acquire();
 
 		retVal.setMessage(resp);
 		retVal.setUid(incomingUid);

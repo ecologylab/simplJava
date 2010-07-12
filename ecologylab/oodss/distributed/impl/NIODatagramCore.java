@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NoRouteToHostException;
 import java.net.PortUnreachableException;
-import java.net.SocketAddress;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -148,7 +147,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	{
 		public SelectionKey		key;
 
-		public SocketAddress	addr;
+		public InetSocketAddress	addr;
 
 	}
 
@@ -206,7 +205,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 		private SelectionKey			recievedOnSocket	= null;
 
-		private SocketAddress			recievedFrom			= null;
+		private InetSocketAddress	recievedFrom			= null;
 
 		private boolean						done							= false;
 
@@ -271,7 +270,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 		}
 
 		synchronized public void processMessage(long uid, ServiceMessage<S> message, SelectionKey key,
-				SocketAddress address)
+				InetSocketAddress address)
 		{
 			this.uid = uid;
 			this.message = message;
@@ -523,7 +522,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 							{
 								try
 								{
-									SocketAddress address = channel.receive(recieveBuffer);
+									InetSocketAddress address = (InetSocketAddress) channel.receive(recieveBuffer);
 									recieveBuffer.flip();
 
 									if (doCompress)
@@ -574,7 +573,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 									ServiceMessage<S> message = (ServiceMessage<S>) translationScope
 											.deserializeCharSequence(messageBuffer);
-									message.setSender(((InetSocketAddress) address).getAddress());
+									message.setSender(address.getAddress());
 
 									PacketHandler handler = handlerPool.acquire();
 									handler.processMessage(uid, message, key, address);
@@ -623,7 +622,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	 * @param uid message uid
 	 * @param addr socket address to send the message to.
 	 */
-	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid, SocketAddress addr)
+	public void sendMessage(ServiceMessage<S> m, SelectionKey key, Long uid, InetSocketAddress addr)
 	{
 		MessageWithMetadata<ServiceMessage<S>, MessageMetaData> mdataMessage = messagePool.acquire();
 		MessageMetaData metaData = metaDataPool.acquire();
@@ -678,5 +677,5 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 	 * @param address
 	 */
 	abstract protected void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
-			SocketAddress address);
+			InetSocketAddress address);
 }

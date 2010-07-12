@@ -4,6 +4,8 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -15,6 +17,7 @@ import ecologylab.oodss.messages.InitConnectionRequest;
 import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
+import ecologylab.oodss.messages.UpdateMessage;
 
 /**
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -254,6 +257,13 @@ public abstract class BaseSessionManager<S extends Scope> extends Debug
 		return invalidating;
 	}
 
+	public abstract void sendUpdateToClient(UpdateMessage<?> update);
+	
+	/**
+	 * @return the address
+	 */
+	public abstract InetSocketAddress getAddress();
+	
 	public String getSessionId()
 	{
 		return this.sessionId;

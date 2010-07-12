@@ -4,6 +4,8 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
@@ -23,6 +25,7 @@ import java.util.zip.Inflater;
 import ecologylab.collections.Scope;
 import ecologylab.generic.StringTools;
 import ecologylab.oodss.distributed.common.ServerConstants;
+import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.impl.MessageWithMetadata;
 import ecologylab.oodss.distributed.impl.MessageWithMetadataPool;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
@@ -208,6 +211,9 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 		this.outgoingChars = CharBuffer.allocate(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
 
+		this.handle = new SessionHandle(this);
+		this.localScope.put(SessionObjects.SESSION_HANDLE, this.handle);
+		
 		this.zippingChars = CharBuffer.allocate(maxMessageSize);
 		this.zippingInBytes = ByteBuffer.allocate(maxMessageSize);
 		this.zippingOutBytes = ByteBuffer.allocate(maxMessageSize);
@@ -1016,6 +1022,12 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		}
 	}
 
+	public InetSocketAddress getAddress()
+	{
+		return (InetSocketAddress) ((SocketChannel) getSocketKey().channel()).socket().getRemoteSocketAddress();
+		
+	}
+	
 	public SessionHandle getHandle()
 	{
 		return handle;

@@ -14,9 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import sun.misc.BASE64Encoder;
 import ecologylab.collections.Scope;
+import ecologylab.generic.HashMapArrayList;
+import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.impl.NIODatagramCore;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.distributed.server.clientsessionmanager.DatagramClientSessionManager;
+import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
 import ecologylab.oodss.distributed.server.clientsessionmanager.TCPClientSessionManager;
 import ecologylab.oodss.messages.MultiRequestMessage;
 import ecologylab.oodss.messages.RequestMessage;
@@ -43,8 +46,10 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 	private ConcurrentHashMap<String, SocketAddress>								sidsToSocketAddresses	= new ConcurrentHashMap<String, SocketAddress>();
 
-	// private ConcurrentHashMap<String, String> reassignedSessions = new ConcurrentHashMap<String,
-	// String>();
+	/**
+	 * Map in which keys are sessionTokens, and values are associated SessionHandles
+	 */
+	private HashMapArrayList<Object, SessionHandle>									clientSessionHandleMap	= new HashMapArrayList<Object, SessionHandle>();
 
 	protected S																											applicationObjectScope;
 
@@ -72,6 +77,8 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 		this.applicationObjectScope = objectRegistry;
 
+		applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
+		
 		DatagramChannel chan;
 
 		this.portNumber = portNumber;
@@ -125,7 +132,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 
 	@Override
 	protected final void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
-			SocketAddress address)
+			InetSocketAddress address)
 	{
 		DatagramClientSessionManager clientSessionManager = null;
 		String sid;
@@ -148,12 +155,25 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 				socketAddressesToSids.put(address, sid);
 				sidsToSocketAddresses.put(sid, address);
 
-				sidToSessionManager.put(sid, this.generateContextManager(sid, key,
-						this.applicationObjectScope, address));
+				DatagramClientSessionManager mngr = this.generateContextManager(sid, key,
+						this.applicationObjectScope, address);
+				
+				SessionHandle hndl = new SessionHandle(mngr);
+				
+				sidToSessionManager.put(sid, mngr);
+				clientSessionHandleMap.put(sid, hndl);
+				
+				mngr.getScope().put(SessionObjects.SESSION_HANDLE, new SessionHandle(mngr));
 			}
 
 			clientSessionManager = sidToSessionManager.get(sid);
 
+			/*
+			 * Have to keep track of the most recent key if messages are
+			 * coming in on multiple ports on the server.
+			 */
+			clientSessionManager.updateKey(key);
+			
 			ResponseMessage response = clientSessionManager.processRequest((RequestMessage) message,
 					((InetSocketAddress) address).getAddress());
 
@@ -256,7 +276,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	// }
 
 	protected void handleAssociatedMessage(ServiceMessage<S> message, Scope clientRegistry,
-			SelectionKey key, Long uid, SocketAddress address)
+			SelectionKey key, Long uid, InetSocketAddress address)
 	{
 		if (message instanceof RequestMessage)
 		{
@@ -333,7 +353,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	 * @return
 	 */
 	protected DatagramClientSessionManager generateContextManager(String sessionId, SelectionKey sk,
-			Scope registryIn, SocketAddress address)
+			Scope registryIn, InetSocketAddress address)
 	{
 		return new DatagramClientSessionManager(sessionId, this, sk, registryIn, address);
 	}
@@ -360,6 +380,7 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 			{ // ...if this session will not be restored, remove the context
 				// manager
 				sidToSessionManager.remove(sessionId);
+				clientSessionHandleMap.remove(sessionId);
 				SocketAddress address = this.sidsToSocketAddresses.remove(sessionId);
 				this.socketAddressesToSids.remove(address);
 			}

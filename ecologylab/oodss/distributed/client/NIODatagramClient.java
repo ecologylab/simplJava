@@ -2,7 +2,6 @@ package ecologylab.oodss.distributed.client;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
@@ -16,6 +15,7 @@ import ecologylab.oodss.messages.InitConnectionResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.ServiceMessage;
+import ecologylab.oodss.messages.UpdateMessage;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -139,7 +139,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 	 */
 	@Override
 	protected void handleMessage(long uid, ServiceMessage<S> message, SelectionKey key,
-			SocketAddress address)
+			InetSocketAddress address)
 	{
 		Thread t;
 		if (message instanceof InitConnectionRequest)
@@ -157,12 +157,17 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 		/*
 		 * Process message and wake up blocked thread based on uid.
 		 */
-		synchronized(pendingThreadsByUID)
+		if (message instanceof UpdateMessage)
 		{
-			t = pendingThreadsByUID.remove(uid);
+			((UpdateMessage) message).processUpdate(objectRegistry);
 		}
 		if (message instanceof ResponseMessage)
 		{
+			synchronized(pendingThreadsByUID)
+			{
+				t = pendingThreadsByUID.remove(uid);
+			}
+			
 			ResponseMessage<S> response = (ResponseMessage<S>) message;
 			response.processResponse(objectRegistry);
 

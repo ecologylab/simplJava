@@ -1,7 +1,9 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 
 import ecologylab.collections.Scope;
@@ -13,26 +15,26 @@ import ecologylab.oodss.messages.UpdateMessage;
  */
 public class SessionHandle
 {
-	private TCPClientSessionManager	sessionManager;
+	private BaseSessionManager	sessionManager;
 
-	public SessionHandle(TCPClientSessionManager cm)
+	public SessionHandle(BaseSessionManager cm)
 	{
 		sessionManager = cm;
 	}
 
-	private Socket getSocket()
-	{
-		return ((SocketChannel) sessionManager.getSocketKey().channel()).socket();
-	}
-
 	public InetAddress getInetAddress()
 	{
-		return getSocket().getInetAddress();
+		return getSocketAddress().getAddress();
 	}
 
+	public InetSocketAddress getSocketAddress()
+	{
+		return sessionManager.getAddress();
+	}
+	
 	public int getPortNumber()
 	{
-		return getSocket().getPort();
+		return getSocketAddress().getPort();
 	}
 
 	public void sendUpdate(UpdateMessage update)
