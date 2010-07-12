@@ -77,7 +77,7 @@ public class PrefixCollection  extends PrefixPhrase
 		String pathStringToParse = usePathFile ? purl.toString() : purl.pathDirectoryString();
 		return (hostPrefix != null) ? hostPrefix.add(pathStringToParse, separator) : lookupChild(host);
 	}
-
+	
 	public boolean match(ParsedURL purl)
 	{
 		String host				= purl.url().getHost();		
@@ -155,4 +155,6 @@ public class PrefixCollection  extends PrefixPhrase
 	{
 		return separator;
 	}
+
+	
 }

@@ -330,4 +330,9 @@ public class PrefixPhrase extends Debug
 			}
 		}
 	}
+	
+	public void removePrefix(String prefix)
+	{
+		childPhraseMap.remove(prefix);		
+	}
 }
