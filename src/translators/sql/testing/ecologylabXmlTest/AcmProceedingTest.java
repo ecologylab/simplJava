@@ -18,11 +18,6 @@ import ecologylab.semantics.library.uva.*;
 import ecologylab.semantics.metadata.Metadata;
 import ecologylab.semantics.metadata.MetadataBuiltinsTranslationScope;
 import ecologylab.semantics.metadata.builtins.*;
-import ecologylab.semantics.metadata.builtins.DebugMetadata;
-import ecologylab.semantics.metadata.builtins.Document;
-import ecologylab.semantics.metadata.builtins.Entity;
-import ecologylab.semantics.metadata.builtins.Image;
-import ecologylab.semantics.metadata.builtins.Media;
 import ecologylab.semantics.metadata.scalar.*;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
@@ -31,6 +26,12 @@ import ecologylab.serialization.Hint;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.element.Mappable;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.*;
 
 
@@ -41,7 +42,7 @@ import java.util.*;
 @simpl_inherit
 
 public class  AcmProceedingTest
-extends  Document
+extends  Document implements Serializable
 {
 
 	@simpl_collection("search_result") private ArrayList<SearchResult>	proceedings;
@@ -128,6 +129,8 @@ this.papers = papers ;
 public  ArrayList<SearchResult> getPapers(){
 return this.papers;
 }
+
+
 
 }
 
