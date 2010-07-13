@@ -407,7 +407,7 @@ public class DotNetTranslationUtilities
 	 */
 	private static String getSimpleName(Annotation annotation)
 	{
-		return annotation.annotationType().getSimpleName().replace("xml", "serial");
+		return annotation.annotationType().getSimpleName();
 	}
 
 }
