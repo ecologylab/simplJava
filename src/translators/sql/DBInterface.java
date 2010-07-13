@@ -4,6 +4,14 @@ public interface DBInterface
 {
 	/*Type of database*/
 	public static final String	POSTGRESQL											= "postgreSQL";
+	
+	public static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
+	
+	public static final String POSTGRESQL_DEFAULT_USER_NAME = "comma78";
+	
+	public static final String POSTGRESQL_DEFAULT_PWD = "postgresql";
+	
+	public static final String POSTGRESQL_DEFAULT_URI = "jdbc:postgresql://127.0.0.1:5432/";
 
 	/**
 	 * a list of postgresql keywords 
