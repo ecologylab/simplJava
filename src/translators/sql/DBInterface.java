@@ -12,6 +12,8 @@ public interface DBInterface
 	public static final String	POSTGRESQL_DEFAULT_PWD					= "postgresql";
 
 	public static final String	POSTGRESQL_DEFAULT_URI					= "jdbc:postgresql://127.0.0.1:5432/";
+	
+	public static final boolean POSTGRESQL_DEFAULT_COMMIT_MODE 	= false; 
 
 	/**
 	 * a list of postgresql keywords ref.
