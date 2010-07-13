@@ -2,20 +2,20 @@ package translators.sql;
 
 public interface DBInterface
 {
-	/*Type of database*/
+	/* Type of database */
 	public static final String	POSTGRESQL											= "postgreSQL";
-	
-	public static final String POSTGRESQL_DRIVER = "org.postgresql.Driver";
-	
-	public static final String POSTGRESQL_DEFAULT_USER_NAME = "comma78";
-	
-	public static final String POSTGRESQL_DEFAULT_PWD = "postgresql";
-	
-	public static final String POSTGRESQL_DEFAULT_URI = "jdbc:postgresql://127.0.0.1:5432/";
+
+	public static final String	POSTGRESQL_DRIVER								= "org.postgresql.Driver";
+
+	public static final String	POSTGRESQL_DEFAULT_USER_NAME		= "comma78";
+
+	public static final String	POSTGRESQL_DEFAULT_PWD					= "postgresql";
+
+	public static final String	POSTGRESQL_DEFAULT_URI					= "jdbc:postgresql://127.0.0.1:5432/";
 
 	/**
-	 * a list of postgresql keywords 
-	 * ref. http://www.postgresql.org/docs/8.4/interactive/sql-keywords-appendix.html
+	 * a list of postgresql keywords ref.
+	 * http://www.postgresql.org/docs/8.4/interactive/sql-keywords-appendix.html
 	 */
 	public static final String	POSTGRESQL_RESERVED_KEYWORDS[]	=
 																															{ "ALL", "ANALYSE", "ANALYZE", "AND",
