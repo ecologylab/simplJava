@@ -3,18 +3,20 @@ package translators.sql;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
-import translators.sql.testing.ecologylabXmlTest.PdfTest;
-
+import translators.sql.testing.ecologylabXmlTest.DocumentTest;
 import ecologylab.generic.Debug;
+import ecologylab.serialization.SIMPLTranslationException;
 
 public class DBUtil extends Debug implements DBInterface
 {
@@ -222,11 +224,49 @@ public class DBUtil extends Debug implements DBInterface
 
 	}
 
+	
 	@Test
-	public void testDBSerializer()
+	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException
 	{
+		// cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
+		// largeobjectManager
+		// http://www.postgresql.org/docs/7.4/interactive/jdbc-binary-data.html
+		// cf2. http://jdbc.postgresql.org/documentation/publicapi/index.html
+		
 		// TODO target class to be serialized
-		// AcmProceedingTest.class; PdfTest.class;
+		// AcmProceedingTest.class; PdfTest.class; --> does not implements Serializable
+		
+		connectToDB(); 
+		String thisStringForWriteObject = "insert into java_objects(name, object_value) values (?, ?)";
+		String thisStringForReadObject = "select object_value from java_objects where id = ?";
+		
+		String className = AcmProceedingTest.class.getName();
+		
+		PreparedStatement thisWritePreparedStatement = thisConnection.prepareStatement(thisStringForWriteObject);
+		
+		// test object 1
+		List<Object> thisList = new ArrayList<Object>(); 
+		thisList.add("hello");
+		thisList.add(new Integer(1234));
+		thisList.add(new Date());
+		
+		// test object 2
+		//add serializable 
+		AcmProceedingTest thisTestObject = new AcmProceedingTest();
+		
+		thisWritePreparedStatement.setString(1, "testObject");
+		thisWritePreparedStatement.setObject(2, thisTestObject.serialize());
+		thisWritePreparedStatement.executeUpdate(); 
+		
+		ResultSet thisResultSets = thisWritePreparedStatement.getGeneratedKeys();
+		int id = -1;
+		if(thisResultSets.next()){
+			id = thisResultSets.getInt(1);
+			
+		}
+		
+		System.out.println("writing java object is done");
+		
 
 	}
 
