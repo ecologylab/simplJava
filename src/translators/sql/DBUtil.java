@@ -1,5 +1,6 @@
 package translators.sql;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -228,10 +229,14 @@ public class DBUtil extends Debug implements DBInterface
 	@Test
 	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException
 	{
-		// cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
+		// ** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
 		// largeobjectManager
-		// http://www.postgresql.org/docs/7.4/interactive/jdbc-binary-data.html
+		// ** http://www.postgresql.org/docs/7.4/interactive/jdbc-binary-data.html
 		// cf2. http://jdbc.postgresql.org/documentation/publicapi/index.html
+		// ***cf3. http://www.javabeginner.com/uncategorized/java-serialization
+		// * cf4. 'java database object serialization' in Google 
+		// *postgresql jdbc api - http://jdbc.postgresql.org/documentation/publicapi/index.html
+		// *serialize in mysql - http://www.java2s.com/Code/Java/Database-SQL-JDBC/HowtoserializedeserializeaJavaobjecttotheMySQLdatabase.htm
 		
 		// TODO target class to be serialized
 		// AcmProceedingTest.class; PdfTest.class; --> does not implements Serializable
