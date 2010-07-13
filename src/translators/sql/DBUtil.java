@@ -1,6 +1,15 @@
 package translators.sql;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.lang.Character.UnicodeBlock;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -8,9 +17,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import org.junit.Test;
 
@@ -66,6 +78,7 @@ public class DBUtil extends Debug implements DBInterface
 		Class.forName(POSTGRESQL_DRIVER);
 
 		thisConnection = DriverManager.getConnection(dbURI, userName, password);
+		thisConnection.setAutoCommit(POSTGRESQL_DEFAULT_COMMIT_MODE);
 		if (thisConnection != null)
 		{
 			DatabaseMetaData thisDBMetadata = thisConnection.getMetaData();
@@ -91,8 +104,10 @@ public class DBUtil extends Debug implements DBInterface
 	 */
 	public Connection connectToDB() throws SQLException, ClassNotFoundException
 	{
-		return this.connectToDB(POSTGRESQL_DEFAULT_URI, POSTGRESQL_DEFAULT_USER_NAME,
+		thisConnection =  this.connectToDB(POSTGRESQL_DEFAULT_URI, POSTGRESQL_DEFAULT_USER_NAME,
 				POSTGRESQL_DEFAULT_PWD);
+		
+		return thisConnection; 
 
 	}
 
@@ -158,9 +173,9 @@ public class DBUtil extends Debug implements DBInterface
 		for (int i = 1; i <= thisColumnCount; i++)
 		{
 			thisColumnNameStringBuilder.append(thisResultSet.getMetaData().getColumnName(i).trim()
-					+ "|\t");
+					+ "|   ");
 			thisColumnTypeStringBuilder.append(thisResultSet.getMetaData().getColumnTypeName(i).trim()
-					+ "|\t");
+					+ "|   ");
 
 		}
 		thisColumnNameStringBuilder.append("\n").append(thisColumnTypeStringBuilder.toString().trim())
@@ -174,7 +189,7 @@ public class DBUtil extends Debug implements DBInterface
 			for (int i = 1; i <= thisColumnCount; i++)
 			{
 				// should trim unnecessary space for pretty display
-				thisDataStringBuilder.append(thisResultSet.getObject(i).toString().trim() + "\t");
+				thisDataStringBuilder.append(thisResultSet.getObject(i).toString().trim() + "  ");
 			}
 			thisDataStringBuilder.append("\n").trimToSize();
 		}
@@ -221,13 +236,13 @@ public class DBUtil extends Debug implements DBInterface
 		// int thisExecuteUpdateResult =
 		// thisStatement.executeUpdate("update bookinfo set sell_price = 12000 where book_name='Korean'");
 		// System.out.println(thisExecuteUpdateResult + " rows has been updated");
-		this.disconnectDB();
+		this.closeDBConnection();
 
 	}
 
 	
 	@Test
-	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException
+	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException, IOException
 	{
 		// ** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
 		// largeobjectManager
@@ -256,11 +271,14 @@ public class DBUtil extends Debug implements DBInterface
 		thisList.add(new Date());
 		
 		// test object 2
-		//add serializable 
-		AcmProceedingTest thisTestObject = new AcmProceedingTest();
-		
+		//add serializable
+		/**
+		 * TODO convert class to byte array
+		 */
 		thisWritePreparedStatement.setString(1, "testObject");
-		thisWritePreparedStatement.setObject(2, thisTestObject.serialize());
+		thisWritePreparedStatement.setBytes(2, 
+				this.convertClassToByteArray(AcmProceedingTest.class));
+
 		thisWritePreparedStatement.executeUpdate(); 
 		
 		ResultSet thisResultSets = thisWritePreparedStatement.getGeneratedKeys();
@@ -270,17 +288,58 @@ public class DBUtil extends Debug implements DBInterface
 			
 		}
 		
+		//should commit to be stored into db 
+		thisConnection.commit(); 
+		
 		System.out.println("writing java object is done");
 		
 
 	}
+	
+	@Test
+	public void testByteArray() throws UnsupportedEncodingException{
+		String thisByteArray = "byteaArrayzZ";
+		byte[] thisBytes = thisByteArray.getBytes();
+		
+		for (byte b : thisBytes)
+		{
+			System.out.println(b);
+		}
+	}
+	
+	/**
+	 * object byte-array converter 
+	 * target object should implement Serializable 
+	 * 
+	 * @param obj
+	 * @return
+	 * @throws IOException 
+	 */
+	public byte[] convertClassToByteArray(Object obj) throws IOException{
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(bos);
+		oos.writeObject(obj);
+		oos.flush(); 
+		oos.close(); 
+		bos.close(); 
+		byte[] thisConvertedByteArray = bos.toByteArray(); 
+		return thisConvertedByteArray; 
+		
+	}
+	
+	@Test
+	public void testConvertClassToByteArray() throws IOException{
+		byte[] thisByteArray = this.convertClassToByteArray(AcmProceedingTest.class);
+		System.out.println(thisByteArray);
+		
+	}
 
 	/**
-	 * disconnect db
+	 * close db connection 
 	 * 
 	 * @throws SQLException
 	 */
-	public void disconnectDB() throws SQLException
+	public void closeDBConnection() throws SQLException
 	{
 		if (thisStatement != null && thisConnection != null)
 		{
