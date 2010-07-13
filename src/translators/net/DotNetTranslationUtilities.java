@@ -2,8 +2,10 @@ package translators.net;
 
 import java.lang.annotation.Annotation;
 
+import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.simpl_classes;
 import ecologylab.serialization.ElementState.simpl_collection;
+import ecologylab.serialization.ElementState.simpl_hints;
 import ecologylab.serialization.ElementState.xml_tag;
 
 /**
@@ -267,6 +269,10 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpClassesAnnotation(annotation);
 		}
+		else if (annotation instanceof simpl_hints)
+		{
+			return getCSharpHintsAnnotation(annotation);
+		}
 
 		return simpleName;
 	}
@@ -330,6 +336,44 @@ public class DotNetTranslationUtilities
 			return simpleName;
 		}
 	}
+	
+	/**
+	 * Utility function to translate java hints annotation to C# attribute
+	 * 
+	 * @param annotation
+	 * @return
+	 */
+	private static String getCSharpHintsAnnotation(Annotation annotation)
+	{
+		String parameter = null;
+		
+		simpl_hints tagAnnotation = (simpl_hints) annotation;
+		Hint[] hintsArray = tagAnnotation.value();
+
+		String simpleName = getSimpleName(annotation);
+
+		if (hintsArray != null && hintsArray.length > 0 )
+		{
+			parameter = "(new Hint[] { ";
+			
+			for (int i = 0; i < hintsArray.length; i++)
+			{
+				String tempString = "Hint." + hintsArray[i].toString();
+				if (i != hintsArray.length - 1)
+					parameter += tempString + ", ";
+				else
+					parameter += tempString;
+			}
+			
+			parameter += " })";
+			return simpleName + parameter;
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
 
 	/**
 	 * Utility function to translate java collection annotation to C# attribute
