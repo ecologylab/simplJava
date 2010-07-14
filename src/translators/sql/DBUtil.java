@@ -2,7 +2,6 @@ package translators.sql;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -20,20 +19,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
-import org.postgresql.util.PGobject;
+import org.postgresql.PGConnection;
+import org.postgresql.jdbc3.Jdbc3Connection;
+import org.postgresql.util.PSQLException;
 import org.postgresql.util.Serialize;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
-import translators.sql.testing.ecologylabXmlTest.ChannelTest;
 import translators.sql.testing.ecologylabXmlTest.DocumentTest;
-import translators.sql.testing.ecologylabXmlTest.ItemTest;
-import translators.sql.testing.ecologylabXmlTest.RssStateTest;
-import tutorials.polymorphic.PolymorphicTutorial;
-import tutorials.rss.MonomorphicTutorial;
+import translators.sql.testing.ecologylabXmlTest.testClass;
 import ecologylab.generic.Debug;
 import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.semantics.metadata.builtins.Entity;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
@@ -46,26 +42,20 @@ public class DBUtil extends Debug implements DBInterface
 	@Test
 	public void testDBUtilScenario()
 	{
-		System.out.println("this is first test");
-
-		Connection isConnected = connectToDB();
-		if (isConnected != null)
-		{
-			boolean isSerialized = serialize(DocumentTest.class);
-			Object thisDeserializedClass = deserialize();
-
-			DocumentTest thisDocumentClass = null;
-			if (thisDeserializedClass instanceof DocumentTest)
-			{
-				thisDocumentClass = (DocumentTest) thisDeserializedClass;
-				System.out.println(thisDocumentClass.getClassName());
-
-			}
-
-		}
-		else
-			System.out.println("db connection failed");
-
+		/*
+		 * System.out.println("this is first test");
+		 * 
+		 * Connection isConnected = connectToDB(); if (isConnected != null) { boolean isSerialized =
+		 * serialize(DocumentTest.class); Object thisDeserializedClass = deserialize();
+		 * 
+		 * DocumentTest thisDocumentClass = null; if (thisDeserializedClass instanceof DocumentTest) {
+		 * thisDocumentClass = (DocumentTest) thisDeserializedClass;
+		 * System.out.println(thisDocumentClass.getClassName());
+		 * 
+		 * }
+		 * 
+		 * } else System.out.println("db connection failed");
+		 */
 	}
 
 	/**
@@ -110,10 +100,10 @@ public class DBUtil extends Debug implements DBInterface
 	 */
 	public Connection connectToDB() throws SQLException, ClassNotFoundException
 	{
-		thisConnection =  this.connectToDB(POSTGRESQL_DEFAULT_URI, POSTGRESQL_DEFAULT_USER_NAME,
+		thisConnection = this.connectToDB(POSTGRESQL_DEFAULT_URI, POSTGRESQL_DEFAULT_USER_NAME,
 				POSTGRESQL_DEFAULT_PWD);
-		
-		return thisConnection; 
+
+		return thisConnection;
 
 	}
 
@@ -246,194 +236,216 @@ public class DBUtil extends Debug implements DBInterface
 
 	}
 
-	
 	@Test
-	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException, IOException
+	public void testDBSerializer() throws SQLException, ClassNotFoundException,
+			SIMPLTranslationException, IOException
 	{
-		// **** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
+		// **** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object,
 		// largeobjectManager
-		// ***** cf. http://www.docjar.org/docs/api/org/postgresql/util/Serialize.html (Serialize java code)
+		// ***** cf. http://www.docjar.org/docs/api/org/postgresql/util/Serialize.html (Serialize java
+		// code)
 		// ** http://www.postgresql.org/docs/7.4/interactive/jdbc-binary-data.html
 		// cf2. http://jdbc.postgresql.org/documentation/publicapi/index.html
 		// ***cf3. http://www.javabeginner.com/uncategorized/java-serialization
-		// * cf4. 'java database object serialization' in Google 
+		// * cf4. 'java database object serialization' in Google
 		// *postgresql jdbc api - http://jdbc.postgresql.org/documentation/publicapi/index.html
-		// *serialize in mysql - http://www.java2s.com/Code/Java/Database-SQL-JDBC/HowtoserializedeserializeaJavaobjecttotheMySQLdatabase.htm
-		
-		//* JAVADOC - http://www.docjar.org/docs/api/org/postgresql/util/
-		//* Documentation - file:///D:/Program%20Files/PostgreSQL/8.4/doc/postgresql/html/index.html
-		//* JDBC Download - http://jdbc.postgresql.org/download.html
-		
+		// *serialize in mysql -
+		// http://www.java2s.com/Code/Java/Database-SQL-JDBC/HowtoserializedeserializeaJavaobjecttotheMySQLdatabase.htm
+
+		// * JAVADOC - http://www.docjar.org/docs/api/org/postgresql/util/
+		// * Documentation - file:///D:/Program%20Files/PostgreSQL/8.4/doc/postgresql/html/index.html
+		// * JDBC Download - http://jdbc.postgresql.org/download.html
+
 		// TODO target class to be serialized
 		// AcmProceedingTest.class; PdfTest.class; --> does not implements Serializable
-		
-		// info. object serialization method(Serialize) has been dropped - http://osdir.com/ml/db.postgresql.jdbc/2004-02/msg00144.html
-		
-		connectToDB(); 
+
+		// info. object serialization method(Serialize) has been dropped -
+		// http://osdir.com/ml/db.postgresql.jdbc/2004-02/msg00144.html
+
+		connectToDB();
 		String thisStringForWriteObject = "insert into java_objects(name, object_value) values (?, ?)";
-		
-		PreparedStatement thisWritePreparedStatement = thisConnection.prepareStatement(thisStringForWriteObject);
-		
+
+		PreparedStatement thisWritePreparedStatement = thisConnection
+				.prepareStatement(thisStringForWriteObject);
+
 		// test object 1
-		List<Object> thisList = new ArrayList<Object>(); 
+		List<Object> thisList = new ArrayList<Object>();
 		thisList.add("hello");
 		thisList.add(new Integer(1234));
 		thisList.add(new Date());
-		
+
 		// test object 2
-		//add serializable
+		// add serializable
 		/**
 		 * TODO convert class to byte array
 		 */
 		thisWritePreparedStatement.setString(1, "testObject");
-		thisWritePreparedStatement.setBytes(2, 
-				this.convertClassToByteArray(AcmProceedingTest.class));
-		
-		thisWritePreparedStatement.executeUpdate(); 
-		
+		thisWritePreparedStatement.setBytes(2, this.convertClassToByteArray(AcmProceedingTest.class));
+
+		thisWritePreparedStatement.executeUpdate();
+
 		ResultSet thisResultSets = thisWritePreparedStatement.getGeneratedKeys();
 		int id = -1;
-		if(thisResultSets.next()){
+		if (thisResultSets.next())
+		{
 			id = thisResultSets.getInt(1);
-			
+
 		}
 		System.out.println("returned id :" + id);
 		System.out.println("writing java object is done");
-		
-		//should commit to store into db
-		thisConnection.commit(); 		
-		closeDBConnection(); 
+
+		// should commit to store into db
+		thisConnection.commit();
+		closeDBConnection();
 
 	}
-	
+
 	@Test
-	public void testDBSerializerThruOldJDBC(){
-		
-		
-		
+	public void testDBSerializerThruOldJDBC() throws SQLException, ClassNotFoundException
+	{
+		Connection thisConnection = connectToDB();
+
+		List<String> thisList = new ArrayList<String>();
+		thisList.add("add0");
+		thisList.add("add1");
+
+		testClass test = new testClass();
+		Jdbc3Connection conn = new Jdbc3Connection();
+
+		// Serialize.create(pgConnection, testClass.class);
+
 	}
-	
+
+	public ResultSet ExecSQL(String sqlString) throws SQLException
+	{
+		return this.executeSelectQuery(sqlString);
+
+	}
+
 	@Test
-	public void testDBDeserializer() throws SQLException, ClassNotFoundException{
-		connectToDB(); 
-		
+	public void testDBDeserializer() throws SQLException, ClassNotFoundException
+	{
+		connectToDB();
+
 		String thisStringForReadObject = "select object_value from java_objects where id = ?";
-		PreparedStatement thisReadPreparedStatement = thisConnection.prepareStatement(thisStringForReadObject);
-		
-		int thisIDint = 6;  
+		PreparedStatement thisReadPreparedStatement = thisConnection
+				.prepareStatement(thisStringForReadObject);
+
+		int thisIDint = 6;
 		thisReadPreparedStatement.setInt(1, thisIDint);
 		ResultSet thisResultSet = thisReadPreparedStatement.executeQuery();
 		thisResultSet.next();
-		
-		//TODO convert byte array into class  
+
+		// TODO convert byte array into class
 		byte[] thisReturnedBytesClass = thisResultSet.getBytes("object_value");
-//		Object thisReturnedObject = thisResultSet.getObject(1);
-		
+		// Object thisReturnedObject = thisResultSet.getObject(1);
+
 		String thisString = new String(thisReturnedBytesClass);
-		
+
 		System.out.println(thisString);
-		
-		thisResultSet.close(); 
-		thisReadPreparedStatement.close(); 
-		
+
+		thisResultSet.close();
+		thisReadPreparedStatement.close();
+
 	}
-	
+
 	@Test
-	public void testByteArray() throws UnsupportedEncodingException{
+	public void testByteArray() throws UnsupportedEncodingException
+	{
 		String thisByteArray = "byteaArrayzZ";
 		byte[] thisBytes = thisByteArray.getBytes();
-		
+
 		for (byte b : thisBytes)
 		{
 			System.out.println(b);
 		}
 	}
-	
+
 	/**
-	 * object byte-array converter 
-	 * target object should implement Serializable 
+	 * object byte-array converter target object should implement Serializable
 	 * 
 	 * @param obj
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public byte[] convertClassToByteArray(Object obj) throws IOException{
+	public byte[] convertClassToByteArray(Object obj) throws IOException
+	{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(bos);
 		oos.writeObject(obj);
-		oos.flush(); 
-		oos.close(); 
-		bos.close(); 
-		byte[] thisConvertedByteArray = bos.toByteArray(); 
-		return thisConvertedByteArray; 
-		
+		oos.flush();
+		oos.close();
+		bos.close();
+		byte[] thisConvertedByteArray = bos.toByteArray();
+		return thisConvertedByteArray;
+
 	}
-	
+
 	/**
-	 * TODO test this code to serialize java object to byte array and vice versa. 
+	 * TODO test this code to serialize java object to byte array and vice versa.
 	 * 
 	 * @throws SIMPLTranslationException
 	 */
 	@Test
-	public void testConvertClassToByteArrayByTranslationScope() throws SIMPLTranslationException{
+	public void testConvertClassToByteArrayByTranslationScope() throws SIMPLTranslationException
+	{
 		TranslationScope ts = TranslationScope.get("test", Entity.class);
-		
+
 		Entity e = new Entity();
 		CharBuffer buf = CharBuffer.allocate(1000);
 		e.serialize(System.out);
-		
+
 		Charset chars = Charset.forName("UTF-8");
 		ByteBuffer bytes = chars.encode(buf);
-		
+
 		byte[] bs = new byte[bytes.capacity()];
-		
-		buf.clear(); 
-		//decode process
+
+		buf.clear();
+		// decode process
 		ByteBuffer readBytes = ByteBuffer.wrap(bs);
 		CharBuffer readChars = chars.decode(readBytes);
-	
+
 		Entity out = (Entity) ts.deserializeCharSequence(readChars);
-		
+
 	}
 
 	/**
-	 * TODO serialize DocumentTest, PdfTest and restore them 
+	 * TODO serialize DocumentTest, PdfTest and restore them
 	 * 
 	 * ? can the methods also be stored in xml format and restored after ?
 	 * 
-	 * cf. MonomorphicTutorial.class; PolymorphicTutorial.class; 
-	 * target - 
+	 * cf. MonomorphicTutorial.class; PolymorphicTutorial.class; target -
 	 */
 	@Test
-	public void testTranslationScopeSerialize() throws SIMPLTranslationException, IOException{
-//		System.out.println();
-//		TranslationScope.get("ts2", DocumentTest.class).serialize(System.out);
-//		Document.class; 
-//		AcmProceeding.class;
-		
-		Document d = new Document();
+	public void testTranslationScopeSerialize() throws SIMPLTranslationException, IOException
+	{
+		// System.out.println();
+		// TranslationScope.get("ts2", DocumentTest.class).serialize(System.out);
+		// Document.class;
+		// AcmProceeding.class;
+
+		// Document d = new Document();
 		TranslationScope.get("ts3", Document.class).serialize(System.out);
-		
-		
-		
+
 	}
-	
+
 	@Test
-	public void testConvertClassToByteArray() throws IOException{
+	public void testConvertClassToByteArray() throws IOException
+	{
 		byte[] thisByteArray = this.convertClassToByteArray(DBInterface.class);
 		for (byte b : thisByteArray)
 		{
-//			System.out.println(b);
+			// System.out.println(b);
 		}
-		
-		//convert into string
+
+		// convert into string
 		String thisString = new String(thisByteArray);
 		System.out.println(thisString);
-		
+
 	}
 
 	/**
-	 * close db connection 
+	 * close db connection
 	 * 
 	 * @throws SQLException
 	 */
