@@ -1,15 +1,13 @@
 package translators.sql;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.Character.UnicodeBlock;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -17,19 +15,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
-
 import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
+import translators.sql.testing.ecologylabXmlTest.ChannelTest;
 import translators.sql.testing.ecologylabXmlTest.DocumentTest;
+import translators.sql.testing.ecologylabXmlTest.ItemTest;
+import translators.sql.testing.ecologylabXmlTest.RssStateTest;
+import tutorials.polymorphic.PolymorphicTutorial;
+import tutorials.rss.MonomorphicTutorial;
 import ecologylab.generic.Debug;
+import ecologylab.semantics.metadata.builtins.Document;
+import ecologylab.semantics.metadata.builtins.Entity;
+import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.serialization.TranslationScope;
 
 public class DBUtil extends Debug implements DBInterface
 {
@@ -258,9 +262,6 @@ public class DBUtil extends Debug implements DBInterface
 		
 		connectToDB(); 
 		String thisStringForWriteObject = "insert into java_objects(name, object_value) values (?, ?)";
-		String thisStringForReadObject = "select object_value from java_objects where id = ?";
-		
-		String className = AcmProceedingTest.class.getName();
 		
 		PreparedStatement thisWritePreparedStatement = thisConnection.prepareStatement(thisStringForWriteObject);
 		
@@ -278,7 +279,7 @@ public class DBUtil extends Debug implements DBInterface
 		thisWritePreparedStatement.setString(1, "testObject");
 		thisWritePreparedStatement.setBytes(2, 
 				this.convertClassToByteArray(AcmProceedingTest.class));
-
+		
 		thisWritePreparedStatement.executeUpdate(); 
 		
 		ResultSet thisResultSets = thisWritePreparedStatement.getGeneratedKeys();
@@ -287,13 +288,38 @@ public class DBUtil extends Debug implements DBInterface
 			id = thisResultSets.getInt(1);
 			
 		}
-		
-		//should commit to be stored into db 
-		thisConnection.commit(); 
-		
+		System.out.println("returned id :" + id);
 		System.out.println("writing java object is done");
 		
+		//should commit to store into db
+		thisConnection.commit(); 		
+		closeDBConnection(); 
 
+	}
+	
+	@Test
+	public void testDBDeserializer() throws SQLException, ClassNotFoundException{
+		connectToDB(); 
+		
+		String thisStringForReadObject = "select object_value from java_objects where id = ?";
+		PreparedStatement thisReadPreparedStatement = thisConnection.prepareStatement(thisStringForReadObject);
+		
+		int thisIDint = 6;  
+		thisReadPreparedStatement.setInt(1, thisIDint);
+		ResultSet thisResultSet = thisReadPreparedStatement.executeQuery();
+		thisResultSet.next();
+		
+		//TODO convert byte array into class  
+		byte[] thisReturnedBytesClass = thisResultSet.getBytes("object_value");
+//		Object thisReturnedObject = thisResultSet.getObject(1);
+		
+		String thisString = new String(thisReturnedBytesClass);
+		
+		System.out.println(thisString);
+		
+		thisResultSet.close(); 
+		thisReadPreparedStatement.close(); 
+		
 	}
 	
 	@Test
@@ -327,10 +353,64 @@ public class DBUtil extends Debug implements DBInterface
 		
 	}
 	
+	/**
+	 * TODO test this code to serialize java object to byte array and vice versa. 
+	 * 
+	 * @throws SIMPLTranslationException
+	 */
+	@Test
+	public void testConvertClassToByteArrayByTranslationScope() throws SIMPLTranslationException{
+		TranslationScope ts = TranslationScope.get("test", Entity.class);
+		
+		Entity e = new Entity();
+		CharBuffer buf = CharBuffer.allocate(1000);
+		e.serialize(System.out);
+		
+		Charset chars = Charset.forName("UTF-8");
+		ByteBuffer bytes = chars.encode(buf);
+		
+		byte[] bs = new byte[bytes.capacity()];
+		
+		buf.clear(); 
+		//decode process
+		ByteBuffer readBytes = ByteBuffer.wrap(bs);
+		CharBuffer readChars = chars.decode(readBytes);
+	
+		Entity out = (Entity) ts.deserializeCharSequence(readChars);
+		
+	}
+
+	/**
+	 * TODO serialize DocumentTest, PdfTest and restore them 
+	 * 
+	 * ? can the methods also be stored in xml format and restored after ?
+	 * 
+	 * cf. MonomorphicTutorial.class; PolymorphicTutorial.class; 
+	 * target - 
+	 */
+	@Test
+	public void testTranslationScopeSerialize() throws SIMPLTranslationException, IOException{
+//		System.out.println();
+//		TranslationScope.get("ts2", DocumentTest.class).serialize(System.out);
+//		Document.class; 
+//		AcmProceeding.class;
+		
+		Document d = new Document();
+		TranslationScope.get("ts3", Document.class).serialize(System.out);
+		
+	}
+	
 	@Test
 	public void testConvertClassToByteArray() throws IOException{
-		byte[] thisByteArray = this.convertClassToByteArray(AcmProceedingTest.class);
-		System.out.println(thisByteArray);
+		byte[] thisByteArray = this.convertClassToByteArray(DBInterface.class);
+		for (byte b : thisByteArray)
+		{
+//			System.out.println(b);
+		}
+		
+		//convert into string
+		String thisString = new String(thisByteArray);
+		System.out.println(thisString);
 		
 	}
 
