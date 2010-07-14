@@ -309,9 +309,6 @@ public class DBUtil extends Debug implements DBInterface
 		thisList.add("add0");
 		thisList.add("add1");
 
-		testClass test = new testClass();
-		Jdbc3Connection conn = new Jdbc3Connection();
-
 		// Serialize.create(pgConnection, testClass.class);
 
 	}
