@@ -19,14 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
-import org.postgresql.PGConnection;
-import org.postgresql.jdbc3.Jdbc3Connection;
-import org.postgresql.util.PSQLException;
-import org.postgresql.util.Serialize;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
-import translators.sql.testing.ecologylabXmlTest.DocumentTest;
-import translators.sql.testing.ecologylabXmlTest.testClass;
 import ecologylab.generic.Debug;
 import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.semantics.metadata.builtins.Entity;
