@@ -42,7 +42,7 @@ import java.util.*;
 @simpl_inherit
 
 public class  AcmProceedingTest
-extends  Document implements Serializable
+extends  Document 
 {
 
 	@simpl_collection("search_result") private ArrayList<SearchResult>	proceedings;
