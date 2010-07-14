@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ecologylabSemantics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jtidy"/>
 	<classpathentry kind="lib" path="lib/postgresql-8.4-701.jdbc4.jar"/>
+	<classpathentry kind="lib" path="lib/pg73jdbc3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
