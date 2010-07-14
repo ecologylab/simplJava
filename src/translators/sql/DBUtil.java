@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
+import org.postgresql.util.PGobject;
+import org.postgresql.util.Serialize;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 import translators.sql.testing.ecologylabXmlTest.ChannelTest;
@@ -248,8 +250,9 @@ public class DBUtil extends Debug implements DBInterface
 	@Test
 	public void testDBSerializer() throws SQLException, ClassNotFoundException, SIMPLTranslationException, IOException
 	{
-		// ** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
+		// **** cf. http://www.postgresql.org/docs/7.1/static/jdbc-ext.html -> large object, 
 		// largeobjectManager
+		// ***** cf. http://www.docjar.org/docs/api/org/postgresql/util/Serialize.html (Serialize java code)
 		// ** http://www.postgresql.org/docs/7.4/interactive/jdbc-binary-data.html
 		// cf2. http://jdbc.postgresql.org/documentation/publicapi/index.html
 		// ***cf3. http://www.javabeginner.com/uncategorized/java-serialization
@@ -257,8 +260,14 @@ public class DBUtil extends Debug implements DBInterface
 		// *postgresql jdbc api - http://jdbc.postgresql.org/documentation/publicapi/index.html
 		// *serialize in mysql - http://www.java2s.com/Code/Java/Database-SQL-JDBC/HowtoserializedeserializeaJavaobjecttotheMySQLdatabase.htm
 		
+		//* JAVADOC - http://www.docjar.org/docs/api/org/postgresql/util/
+		//* Documentation - file:///D:/Program%20Files/PostgreSQL/8.4/doc/postgresql/html/index.html
+		//* JDBC Download - http://jdbc.postgresql.org/download.html
+		
 		// TODO target class to be serialized
 		// AcmProceedingTest.class; PdfTest.class; --> does not implements Serializable
+		
+		// info. object serialization method(Serialize) has been dropped - http://osdir.com/ml/db.postgresql.jdbc/2004-02/msg00144.html
 		
 		connectToDB(); 
 		String thisStringForWriteObject = "insert into java_objects(name, object_value) values (?, ?)";
@@ -295,6 +304,13 @@ public class DBUtil extends Debug implements DBInterface
 		thisConnection.commit(); 		
 		closeDBConnection(); 
 
+	}
+	
+	@Test
+	public void testDBSerializerThruOldJDBC(){
+		
+		
+		
 	}
 	
 	@Test
@@ -397,6 +413,8 @@ public class DBUtil extends Debug implements DBInterface
 		
 		Document d = new Document();
 		TranslationScope.get("ts3", Document.class).serialize(System.out);
+		
+		
 		
 	}
 	
