@@ -1030,8 +1030,8 @@ public final class TranslationScope extends ElementState
 	private static void augmentTranslationScope(Class<? extends ElementState> thatClass,
 			HashMap<String, Class<? extends ElementState>> augmentedClasses)
 	{
-		augmentedClasses.put(thatClass.getSimpleName(), thatClass);
-
+		if(augmentedClasses.put(thatClass.getSimpleName(), thatClass) != null) return;		
+		
 		if (thatClass.getSuperclass() != ElementState.class)
 		{
 			augmentTranslationScope(thatClass.getSuperclass().asSubclass(ElementState.class),
@@ -1056,6 +1056,12 @@ public final class TranslationScope extends ElementState
 				}
 				else
 				{
+					if(fieldDescriptor.isCollection())
+					{
+						Class<? extends ElementState> describedClass = fieldDescriptor.declaringClassDescriptor.getDescribedClass();
+						augmentTranslationScope(describedClass, augmentedClasses);
+					}
+					else
 					if (fieldDescriptor.isPolymorphic())
 					{
 						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
