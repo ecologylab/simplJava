@@ -187,9 +187,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				// instance of itself
 				else if (!result.isGetAndOrganizeComplete)
 				{
-					if (!thatClass.equals(FieldDescriptor.class) && !thatClass.equals(ClassDescriptor.class))
-						result
-								.warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
+					//TODO -- is this case really o.k.?
+//					if (!thatClass.equals(FieldDescriptor.class) && !thatClass.equals(ClassDescriptor.class))
+//						result
+//								.warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
 				}
 			}
 		}
