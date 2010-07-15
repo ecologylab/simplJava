@@ -54,6 +54,17 @@ extends Debug
   	 }
    }
    
+   public static final String capitalize(String cs)
+   {
+  	 if (cs == null || (cs.length() == 0))
+  		 return "";
+  	 char firstUC	= Character.toUpperCase(cs.charAt(0));
+  	 String result = Character.toString(firstUC);
+  	 if (cs.length() > 1)
+  		 result			+= cs.substring(1);
+  	 
+  	 return result;
+    }
    public static final void trim(StringBuilder buffy)
    {
    	for (int i=0; i< buffy.length(); i++)
