@@ -1056,13 +1056,13 @@ public final class TranslationScope extends ElementState
 				}
 				else
 				{
-					if(fieldDescriptor.isCollection())
+					if(fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
 					{
 						Class<?>[] genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
 						
 						for(Class<?> genericClass : genericClasses)
 						{
-							if(genericClass.isAssignableFrom(ElementState.class))
+							if(ElementState.class.isAssignableFrom(genericClass))
 							{
 								augmentTranslationScope(genericClass.asSubclass(ElementState.class), augmentedClasses);
 							}
