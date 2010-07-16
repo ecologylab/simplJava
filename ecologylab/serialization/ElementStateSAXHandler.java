@@ -40,6 +40,7 @@ import ecologylab.serialization.types.element.Mappable;
 public class ElementStateSAXHandler extends Debug implements ContentHandler, FieldTypes,
 		ScalarUnmarshallingContext
 {
+
 	final TranslationScope			translationScope;
 
 	ElementState								root;
@@ -400,13 +401,13 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			switch (activeFieldDescriptor.getType())
 			{
 			case COMPOSITE_ELEMENT:
-				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName);
-				
-				if(childES == null)
+				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName, attributes);
+
+				if (childES == null)
 				{
 					activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 				}
-				else					
+				else
 					activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
 				// should do
 				// this on close
@@ -433,14 +434,14 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (collection != null)
 				{
 					ElementState childElement = activeFieldDescriptor.constructChildElementState(
-							currentElementState, tagName);
+							currentElementState, tagName, attributes);
 					childES = childElement;
-					
-					if(childES == null)
+
+					if (childES == null)
 					{
 						activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 					}
-					
+
 					collection.add(childES);
 				}
 				// activeNJO.formElementAndAddToCollection(activeES, childNode);
@@ -454,10 +455,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (map != null)
 				{
 					ElementState childElement = activeFieldDescriptor.constructChildElementState(
-							currentElementState, tagName);
+							currentElementState, tagName, attributes);
 
 					childES = childElement;
-					if(childES == null)
+					if (childES == null)
 					{
 						this.currentFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 					}
@@ -479,7 +480,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			if (childES != null)
 			{
 				// fill in its attributes
+
 				childES.translateAttributes(translationScope, attributes, this, currentElementState);
+
 				this.currentElementState = childES; // childES.parent = old currentElementState
 				this.currentFD = activeFieldDescriptor;
 			}
@@ -497,7 +500,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		currentClassDescriptor.warning(" Ignoring tag <" + tagName + ">");
 		activeFieldDescriptor = new FieldDescriptor(tagName); // TODO -- should we record
 		// declaringClass in here??!
-		if(activeFieldDescriptor.getTagName() != null)
+		if (activeFieldDescriptor.getTagName() != null)
 			currentClassDescriptor.addFieldDescriptorMapping(activeFieldDescriptor);
 		return activeFieldDescriptor;
 	}
@@ -644,9 +647,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	}
 
 	/**
-	 * Get the String that will be marshalled into the value with a ScalarType, using the currentTextValue state variable from the parse,
-	 * and the length parameter.
-	 * If appropriate, use the currentFD to perform a regex filter on the value before passing it to the appropriate
+	 * Get the String that will be marshalled into the value with a ScalarType, using the
+	 * currentTextValue state variable from the parse, and the length parameter. If appropriate, use
+	 * the currentFD to perform a regex filter on the value before passing it to the appropriate
 	 * scalar marshalling and field or collection element setter.
 	 * 
 	 * @param length
@@ -656,7 +659,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	{
 		String result = new String(currentTextValue.substring(0, length));
 		if (translationScope.isPerformFilters())
-			result			= currentFD.filterValue(result);
+			result = currentFD.filterValue(result);
 		return result;
 	}
 
@@ -721,6 +724,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	{
 		if ((xmlTranslationException == null) && (root != null))
 			root.postTranslationProcessingHook();
+		
+		ElementState.recycleDeserializationMappings();
 	}
 
 	/**

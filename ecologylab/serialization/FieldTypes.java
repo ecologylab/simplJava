@@ -34,9 +34,7 @@ public interface FieldTypes
 
 	public static final int	WRAPPER										= 0x0a;
 
-	public static final int	PSEUDO_FIELD_DESCRIPTOR		= 0x0d;
-	
-	
+	public static final int	PSEUDO_FIELD_DESCRIPTOR		= 0x0d;	
 
 	public static final int	NAMESPACE_IGNORED_ELEMENT	= -2;
 

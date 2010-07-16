@@ -22,6 +22,16 @@ import ecologylab.serialization.types.scalar.TypeRegistry;
  */
 public final class TranslationScope extends ElementState
 {
+	/*
+	 * Cyclic graph handling fields, switches and maps
+	 */
+	public enum GRAPH_SWITCH
+	{
+		ON, OFF
+	}
+
+	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.OFF;
+
 	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
 
 	@simpl_scalar
@@ -51,7 +61,7 @@ public final class TranslationScope extends ElementState
 	private static HashMap<String, TranslationScope>		allTranslationScopes			= new HashMap<String, TranslationScope>();
 
 	public static final String													STATE											= "State";
-	
+
 	private boolean																			performFilters;
 
 	/**
@@ -913,13 +923,13 @@ public final class TranslationScope extends ElementState
 	 * @return Strongly typed tree of ElementState objects.
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(String fileName)
-			throws SIMPLTranslationException
+	public ElementState deserialize(String fileName) throws SIMPLTranslationException
 	{
 		File xmlFile = new File(fileName);
 		if (!xmlFile.exists() && !xmlFile.canRead())
-			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(), FILE_NOT_FOUND);
-	
+			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(),
+					FILE_NOT_FOUND);
+
 		return deserialize(xmlFile);
 	}
 
@@ -930,7 +940,8 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserializeCharSequence(CharSequence charSequence) throws SIMPLTranslationException
+	public ElementState deserializeCharSequence(CharSequence charSequence)
+			throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(charSequence);
@@ -943,15 +954,14 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(ParsedURL purl)
-			throws SIMPLTranslationException
+	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
 	{
 		if (purl == null)
 			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
-	
+
 		if (!purl.isNotFileOrExists())
 			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
-	
+
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(purl);
 	}
@@ -977,8 +987,7 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(URL url)
-			throws SIMPLTranslationException
+	public ElementState deserialize(URL url) throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(url);
@@ -991,8 +1000,7 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(File file)
-			throws SIMPLTranslationException
+	public ElementState deserialize(File file) throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(file);
@@ -1030,8 +1038,9 @@ public final class TranslationScope extends ElementState
 	private static void augmentTranslationScope(Class<? extends ElementState> thatClass,
 			HashMap<String, Class<? extends ElementState>> augmentedClasses)
 	{
-		if(augmentedClasses.put(thatClass.getSimpleName(), thatClass) != null) return;		
-		
+		if (augmentedClasses.put(thatClass.getSimpleName(), thatClass) != null)
+			return;
+
 		if (thatClass.getSuperclass() != ElementState.class)
 		{
 			augmentTranslationScope(thatClass.getSuperclass().asSubclass(ElementState.class),
@@ -1056,20 +1065,20 @@ public final class TranslationScope extends ElementState
 				}
 				else
 				{
-					if(fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
+					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
 					{
 						Class<?>[] genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
-						
-						for(Class<?> genericClass : genericClasses)
+
+						for (Class<?> genericClass : genericClasses)
 						{
-							if(ElementState.class.isAssignableFrom(genericClass))
+							if (ElementState.class.isAssignableFrom(genericClass))
 							{
-								augmentTranslationScope(genericClass.asSubclass(ElementState.class), augmentedClasses);
+								augmentTranslationScope(genericClass.asSubclass(ElementState.class),
+										augmentedClasses);
 							}
 						}
 					}
-					else
-					if (fieldDescriptor.isPolymorphic())
+					else if (fieldDescriptor.isPolymorphic())
 					{
 						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
 								.getTagClassDescriptors();
@@ -1097,7 +1106,8 @@ public final class TranslationScope extends ElementState
 	}
 
 	/**
-	 * @param performFilters the performFilters to set
+	 * @param performFilters
+	 *          the performFilters to set
 	 */
 	public void setPerformFilters(boolean performFilters)
 	{

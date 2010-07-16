@@ -16,60 +16,62 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Node;
+import org.xml.sax.Attributes;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
- * Used to provide convenient access for setting and getting values, using the ecologylab.serialization type
- * system. Provides marshalling and unmarshalling from Strings.
+ * Used to provide convenient access for setting and getting values, using the
+ * ecologylab.serialization type system. Provides marshalling and unmarshalling from Strings.
  * 
  * @author andruid
  */
 public class FieldDescriptor extends ElementState implements FieldTypes
 {
-	public static final String												NULL											= ScalarType.DEFAULT_VALUE_STRING;
+	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 
 	@simpl_scalar
-	protected Field																		field;
+	protected Field							field;
 
 	/**
 	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
 	 * this field is meaningless, except for wrapped collections and maps.
 	 */
 	@simpl_scalar
-	private String																		tagName;
+	private String							tagName;
 
 	/**
 	 * Used to specify old translations, for backwards compatability. Never written.
 	 */
 	@simpl_nowrap
 	@simpl_collection("other_tag")
-	private ArrayList<String>													otherTags;
+	private ArrayList<String>		otherTags;
 
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
-	protected ClassDescriptor													declaringClassDescriptor;
+	protected ClassDescriptor		declaringClassDescriptor;
 
 	@simpl_scalar
-	private int																				type;
+	private int									type;
 
 	/**
 	 * This slot makes sense only for attributes and leaf nodes
 	 */
 	@simpl_scalar
-	private ScalarType<?>															scalarType;
-	
+	private ScalarType<?>				scalarType;
+
 	@simpl_scalar
-	private Hint																			xmlHint;
-	
+	private Hint								xmlHint;
+
 	public Hint getXmlHint()
 	{
 		return xmlHint;
@@ -88,10 +90,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	@simpl_scalar
 	private boolean																		needsEscaping;
-	
+
 	@simpl_scalar
 	Pattern																						filterRegex;
-	
+
 	@simpl_scalar
 	String																						filterReplace;
 
@@ -187,28 +189,28 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 *          from elements, or check for semantic consistency.
 	 */
 	public FieldDescriptor(ClassDescriptor declaringClassDescriptor, Field field, int annotationType) // String
-																																																		// nameSpacePrefix
+	// nameSpacePrefix
 	{
 		this.declaringClassDescriptor = declaringClassDescriptor;
-		this.field 		= field;
+		this.field = field;
 		this.field.setAccessible(true);
 
 		deriveTagClassDescriptors(field);
 
 		// if (!isPolymorphic())
-		this.tagName	= XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
+		this.tagName = XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
 
 		// TODO XmlNs
 		// if (nameSpacePrefix != null)
 		// {
 		// tagName = nameSpacePrefix + tagName;
 		// }
-		type 					= UNSET_TYPE; // for debugging!
-		
+		type = UNSET_TYPE; // for debugging!
+
 		if (annotationType == SCALAR)
-			type				= deriveScalarSerialization(field);
+			type = deriveScalarSerialization(field);
 		else
-			type 				= deriveNestedSerialization(field, annotationType);
+			type = deriveNestedSerialization(field, annotationType);
 
 		// looks old: -- implement this next???
 		// if (XMLTools.isNested(field))
@@ -331,9 +333,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * <p/>
 	 * This method should only be called when you already know the field has a scalar annotation.
 	 * 
-	 * @param scalarField	Source for class & for annotations.
+	 * @param scalarField
+	 *          Source for class & for annotations.
 	 * 
-	 * @return						SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
+	 * @return SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
 	 */
 	private int deriveScalarSerialization(Field scalarField)
 	{
@@ -346,41 +349,46 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	/**
 	 * Check for serialization hints for the field.
 	 * 
-	 * Lookup the scalar type for the class, and any serialization details, such as needsEscaping & format.
+	 * Lookup the scalar type for the class, and any serialization details, such as needsEscaping &
+	 * format.
 	 * 
-	 * @param thatClass		Class that we seek a ScalarType for.
-	 * @param field				Field to acquire annotations about the serialization.
+	 * @param thatClass
+	 *          Class that we seek a ScalarType for.
+	 * @param field
+	 *          Field to acquire annotations about the serialization.
 	 * 
-	 * @return						SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
+	 * @return SCALAR, IGNORED_ATTRIBUTE< or IGNORED_ELEMENT
 	 */
 	private int deriveScalarSerialization(Class thatClass, Field field)
 	{
-		isEnum 					= XMLTools.isEnum(field);
-		xmlHint					= XMLTools.simplHint(field);	//TODO -- confirm that default case is acceptable
-		scalarType 			= TypeRegistry.getType(thatClass);
-		
+		isEnum = XMLTools.isEnum(field);
+		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
+		scalarType = TypeRegistry.getType(thatClass);
+
 		if (scalarType == null)
-		{	
-			String msg		= "Can't find ScalarType to serialize field: \t\t" + thatClass.getSimpleName()  + "\t" + field.getName() + ";";
+		{
+			String msg = "Can't find ScalarType to serialize field: \t\t" + thatClass.getSimpleName()
+					+ "\t" + field.getName() + ";";
 			warning("In class " + declaringClassDescriptor.describedClass().getName(), msg);
 			return (xmlHint == Hint.XML_ATTRIBUTE) ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 		}
-		
+
 		format = XMLTools.getFormatAnnotation(field);
 		if (xmlHint != Hint.XML_ATTRIBUTE)
 		{
 			needsEscaping = scalarType.needsEscaping();
-			isCDATA				= xmlHint == Hint.XML_LEAF_CDATA || xmlHint == Hint.XML_TEXT_CDATA;
+			isCDATA = xmlHint == Hint.XML_LEAF_CDATA || xmlHint == Hint.XML_TEXT_CDATA;
 		}
 
-		ElementState.simpl_filter filterAnnotation 	= field.getAnnotation(ElementState.simpl_filter.class);
+		ElementState.simpl_filter filterAnnotation = field
+				.getAnnotation(ElementState.simpl_filter.class);
 		if (filterAnnotation != null)
 		{
-			String regexString	= filterAnnotation.regex();
+			String regexString = filterAnnotation.regex();
 			if (regexString != null && regexString.length() > 0)
 			{
-				filterRegex		= Pattern.compile(regexString);
-				filterReplace	= filterAnnotation.replace();
+				filterRegex = Pattern.compile(regexString);
+				filterReplace = filterAnnotation.replace();
 			}
 		}
 		return SCALAR;
@@ -398,8 +406,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@SuppressWarnings("unchecked")
 	private int deriveNestedSerialization(Field field, int annotationType)
 	{
-		int result 				= annotationType;
-		Class fieldClass 	= field.getType();
+		int result = annotationType;
+		Class fieldClass = field.getType();
 		switch (annotationType)
 		{
 		case COMPOSITE_ELEMENT:
@@ -420,7 +428,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			if (!isPolymorphic())
 			{
 				Class collectionElementClass = getTypeArgClass(field, 0); // 0th type arg for
-																																	// Collection<FooState>
+				// Collection<FooState>
 
 				if (collectionTag == null || collectionTag.isEmpty())
 				{
@@ -445,10 +453,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					result = COLLECTION_SCALAR;
 					deriveScalarSerialization(collectionElementClass, field);
-					//FIXME -- add error handling for IGNORED due to scalar type lookup fails
+					// FIXME -- add error handling for IGNORED due to scalar type lookup fails
 					if (scalarType == null)
 					{
-						result	= IGNORED_ELEMENT;
+						result = IGNORED_ELEMENT;
 						warning("Can't identify ScalarType for serialization of " + collectionElementClass);
 					}
 				}
@@ -496,7 +504,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				else
 				{
 					result = MAP_SCALAR; // TODO -- do we really support this case??
-					//FIXME -- add error handling for IGNORED due to scalar type lookup fails
+					// FIXME -- add error handling for IGNORED due to scalar type lookup fails
 					deriveScalarSerialization(mapElementClass, field);
 				}
 			}
@@ -701,7 +709,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		String result = NULL;
 		if (context != null && isScalar())
 		{
-				result = scalarType.toString(field, context);
+			result = scalarType.toString(field, context);
 		}
 		return result;
 	}
@@ -939,9 +947,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	/**
 	 * Write the value to the buffy, with appropraite marshalling, and, if specified, a CDATA wrapper.
 	 * 
-	 * @param buffy			Place to write to.
-	 * @param context		Object to get the value from.
-	 * @param scalarType	Performs the marshalling.
+	 * @param buffy
+	 *          Place to write to.
+	 * @param context
+	 *          Object to get the value from.
+	 * @param scalarType
+	 *          Performs the marshalling.
 	 * @throws IllegalAccessException
 	 */
 	void appendTextValue(StringBuilder buffy, Object context, ScalarType scalarType)
@@ -963,8 +974,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void appendXMLTextScalar(StringBuilder buffy, Object context) 
-	throws IllegalArgumentException, IllegalAccessException
+	void appendXMLTextScalar(StringBuilder buffy, Object context) throws IllegalArgumentException,
+			IllegalAccessException
 	{
 		if (context != null)
 		{
@@ -982,14 +993,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param context
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	void appendXMLScalarText(Appendable appendable, Object context) 
-	throws IllegalArgumentException, IllegalAccessException, IOException
+	void appendXMLScalarText(Appendable appendable, Object context) throws IllegalArgumentException,
+			IllegalAccessException, IOException
 	{
 		ScalarType scalarType = this.scalarType;
-			if (!scalarType.isDefaultValue(field/* GO AWAY! xmlTextScalarField */, context))
-				appendTextValue(appendable, context, scalarType);
+		if (!scalarType.isDefaultValue(field/* GO AWAY! xmlTextScalarField */, context))
+			appendTextValue(appendable, context, scalarType);
 	}
 
 	/**
@@ -1060,7 +1071,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws IOException
 	 */
 	void appendTextValue(Appendable appendable, Object context, ScalarType scalarType)
-	throws IllegalArgumentException, IllegalAccessException, IOException
+			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (isCDATA)
 			appendable.append(START_CDATA);
@@ -1265,7 +1276,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		if (filterRegex != null)
 		{
 			Matcher matcher = filterRegex.matcher(value);
-			value						= matcher.replaceAll(filterReplace);
+			value = matcher.replaceAll(filterReplace);
 		}
 		return value;
 	}
@@ -1450,10 +1461,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @param parent
 	 * @param tagName
 	 *          TODO
+	 * @param attributes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	ElementState constructChildElementState(ElementState parent, String tagName)
+	ElementState constructChildElementState(ElementState parent, String tagName, Attributes attributes)
 			throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
@@ -1461,10 +1473,33 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		ElementState result = null;
 		if (childClassDescriptor != null)
 		{
-			result = childClassDescriptor.getInstance();
+			result = getInstance(attributes, childClassDescriptor);
+
 			if (result != null)
 				result.setupInParent(parent, childClassDescriptor);
 		}
+		return result;
+	}
+
+	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor)
+			throws SIMPLTranslationException
+	{
+		ElementState result;
+
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+		{
+			ElementState alreadyUnmarshalledObject = ElementState.getFromMap(attributes);
+
+			if (alreadyUnmarshalledObject != null)
+				result = alreadyUnmarshalledObject;
+			else
+				result = childClassDescriptor.getInstance();
+		}
+		else
+		{
+			result = childClassDescriptor.getInstance();
+		}
+
 		return result;
 	}
 
@@ -1640,7 +1675,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				}
 			}
 		}
-		
+
 		if (XMLTools.isGeneric(this.field))
 		{
 			result += XMLTools.getCSharpGenericParametersString(this.field);
