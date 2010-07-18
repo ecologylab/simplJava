@@ -8,30 +8,62 @@ This is a generated code. DO NOT edit or modify it.
 
 
 
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.net.ParsedURL;
-import ecologylab.semantics.generated.library.*;
-import ecologylab.semantics.library.flickr.*;
-import ecologylab.semantics.library.imdb.*;
-import ecologylab.semantics.library.scholarlyPublication.*;
-import ecologylab.semantics.library.uva.*;
-import ecologylab.semantics.metadata.Metadata;
+//import sun.awt.image.ImageWatched.Link;
+import ecologylab.semantics.generated.library.Anchor;
+import ecologylab.semantics.generated.library.Artwork;
+import ecologylab.semantics.generated.library.Bookmark;
+import ecologylab.semantics.generated.library.Category;
+import ecologylab.semantics.generated.library.DeliciousHomepage;
+import ecologylab.semantics.generated.library.GooglePatent;
+import ecologylab.semantics.generated.library.GooglePatentImage;
+import ecologylab.semantics.generated.library.GoogleSorry;
+import ecologylab.semantics.generated.library.Lolz;
+import ecologylab.semantics.generated.library.MmArtwork;
+import ecologylab.semantics.generated.library.Paragraph;
+import ecologylab.semantics.generated.library.Pdf;
+import ecologylab.semantics.generated.library.Restaurant;
+import ecologylab.semantics.generated.library.Thumbinner;
+import ecologylab.semantics.generated.library.Tumblr;
+import ecologylab.semantics.generated.library.UrbanSpoonGenre;
+import ecologylab.semantics.generated.library.WeatherReport;
+import ecologylab.semantics.generated.library.WikipediaPage;
+import ecologylab.semantics.generated.library.WikipediaPageType;
+import ecologylab.semantics.generated.library.buzz.GoogleTrends;
+import ecologylab.semantics.generated.library.buzz.HotSearch;
+import ecologylab.semantics.generated.library.flickr.FlickrAuthor;
+import ecologylab.semantics.generated.library.flickr.FlickrImage;
+import ecologylab.semantics.generated.library.flickr.FlickrImageDetail;
+import ecologylab.semantics.generated.library.flickr.FlickrLink;
+import ecologylab.semantics.generated.library.flickr.FlickrSearch;
+import ecologylab.semantics.generated.library.flickr.FlickrTag;
+import ecologylab.semantics.generated.library.flickr.FlickrTags;
+import ecologylab.semantics.generated.library.flickr.FlickrTagsInteresting;
+import ecologylab.semantics.generated.library.imdb.BirthDetail;
+import ecologylab.semantics.generated.library.imdb.CastMember;
+import ecologylab.semantics.generated.library.imdb.Genre;
+import ecologylab.semantics.generated.library.imdb.ImdbChart;
+import ecologylab.semantics.generated.library.imdb.ImdbGenre;
+import ecologylab.semantics.generated.library.imdb.ImdbTitle;
+import ecologylab.semantics.generated.library.imdb.PersonDetails;
+import ecologylab.semantics.generated.library.misc.DcDocument;
+import ecologylab.semantics.generated.library.misc.Dlms;
+import ecologylab.semantics.generated.library.misc.Icdl;
+import ecologylab.semantics.generated.library.misc.IcdlImage;
+import ecologylab.semantics.generated.library.misc.Nsdl;
+import ecologylab.semantics.generated.library.misc.Text;
+import ecologylab.semantics.generated.library.rss.Channel;
+import ecologylab.semantics.generated.library.rss.Item;
+import ecologylab.semantics.generated.library.rss.Rss;
+import ecologylab.semantics.generated.library.scholarlyPublication.Author;
+import ecologylab.semantics.generated.library.scholarlyPublication.ScholarlyArticle;
+import ecologylab.semantics.generated.library.scholarlyPublication.Source;
+import ecologylab.semantics.generated.library.search.Result;
+import ecologylab.semantics.generated.library.search.Search;
+import ecologylab.semantics.generated.library.search.SearchResult;
+import ecologylab.semantics.generated.library.search.YahooResultSet;
+import ecologylab.semantics.generated.library.uva.Topic;
 import ecologylab.semantics.metadata.MetadataBuiltinsTranslationScope;
-import ecologylab.semantics.metadata.builtins.*;
-import ecologylab.semantics.metadata.builtins.DebugMetadata;
-import ecologylab.semantics.metadata.builtins.Document;
-import ecologylab.semantics.metadata.builtins.Entity;
-import ecologylab.semantics.metadata.builtins.Image;
-import ecologylab.semantics.metadata.builtins.Media;
-import ecologylab.semantics.metadata.scalar.*;
-import ecologylab.semantics.metametadata.MetaMetadata;
-import ecologylab.semantics.metametadata.MetaMetadataRepository;
-import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.element.Mappable;
-import java.util.*;
 
 
 /**
@@ -44,7 +76,7 @@ public class GeneratedMetadataTranslationScopeTest
 {protected static final Class TRANSLATIONS[]=
 	{Pdf.class,
 
-AcmProceeding.class,
+AcmProceedingTest.class,
 
 MmArtwork.class,
 
@@ -120,9 +152,9 @@ Item.class,
 
 Rss.class,
 
-Link.class,
-
-Link.class,
+//Link.class,
+//
+//Link.class,
 
 ScholarlyArticle.class,
 
