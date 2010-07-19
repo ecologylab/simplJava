@@ -1264,6 +1264,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
 		}
 	}
+	
+	public void setRegexFilter(Pattern regex, String replacement)
+	{
+		filterRegex = regex;
+		filterReplace = replacement;
+	}
 
 	/**
 	 * Filter value using filterRegex.
