@@ -605,14 +605,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	// return result;
 	// }
 
-	/**
-	 * @return the Class Object that this describes.
-	 */
-	public Class<ES> describedClass()
-	{
-		return describedClass;
-	}
-
 	public Class<ES> getDescribedClass()
 	{
 		return describedClass;
@@ -725,7 +717,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	String[] otherTags()
 	{
-		Class<ES> thisClass = describedClass();
+		Class<ES> thisClass = getDescribedClass();
 		final ElementState.xml_other_tags otherTagsAnnotation = thisClass
 				.getAnnotation(xml_other_tags.class);
 

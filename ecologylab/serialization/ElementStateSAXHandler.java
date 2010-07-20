@@ -66,6 +66,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	ParsedURL										purlContext;
 
 	File												fileContext;
+	
+	ElementState								trialRootElement;
 
 	/**
 	 * 
@@ -259,6 +261,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return result;
 	}
 
+	public ElementState parse(InputStream inputStream, ElementState trialRootElement) throws SIMPLTranslationException
+	{
+		this.trialRootElement	= trialRootElement;
+		return parse(new InputSource(inputStream));
+	}
+
 	public ElementState parse(InputStream inputStream) throws SIMPLTranslationException
 	{
 		return parse(new InputSource(inputStream));
@@ -334,10 +342,19 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(tagName);
 			if (rootClassDescriptor != null)
 			{
-				ElementState root;
 				try
 				{
-					root = rootClassDescriptor.getInstance();
+					ElementState root	= null;
+					if (trialRootElement != null)
+					{
+						Class rootClass	= rootClassDescriptor.getDescribedClass();
+						// if the class of the trialRootElement is greater than or equal to that of the
+						// rootClassDescriptor, in its specificity, then use it here.
+						if (rootClass.isAssignableFrom(trialRootElement.getClass()))
+							root					= trialRootElement;
+					}
+					if (root == null)
+						root = rootClassDescriptor.getInstance();
 					if (root != null)
 					{
 						root.setupRoot();

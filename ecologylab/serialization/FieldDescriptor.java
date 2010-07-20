@@ -254,7 +254,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
 					putTagClassDescriptor(classDescriptor);
-					tagClasses.put(classDescriptor.getTagName(), classDescriptor.describedClass());
+					tagClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
 				}
 		}
 		return tagClassDescriptors != null;
@@ -293,7 +293,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				String tagName = classDescriptor.getTagName();
 				tagClassDescriptors.put(tagName, classDescriptor);
-				tagClasses.put(tagName, classDescriptor.describedClass());
+				tagClasses.put(tagName, classDescriptor.getDescribedClass());
 			}
 		}
 		return scope != null;
@@ -369,7 +369,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			String msg = "Can't find ScalarType to serialize field: \t\t" + thatClass.getSimpleName()
 					+ "\t" + field.getName() + ";";
-			warning("In class " + declaringClassDescriptor.describedClass().getName(), msg);
+			warning("In class " + declaringClassDescriptor.getDescribedClass().getName(), msg);
 			return (xmlHint == Hint.XML_ATTRIBUTE) ? IGNORED_ATTRIBUTE : IGNORED_ELEMENT;
 		}
 
@@ -416,7 +416,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			else if (!isPolymorphic())
 			{
 				elementClassDescriptor = ClassDescriptor.getClassDescriptor(fieldClass);
-				elementClass = elementClassDescriptor.describedClass();
+				elementClass = elementClassDescriptor.getDescribedClass();
 				tagName = XMLTools.getXmlTagName(field);
 			}
 			break;
@@ -447,7 +447,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (ElementState.class.isAssignableFrom(collectionElementClass))
 				{
 					elementClassDescriptor = ClassDescriptor.getClassDescriptor(collectionElementClass);
-					elementClass = elementClassDescriptor.describedClass();
+					elementClass = elementClassDescriptor.getDescribedClass();
 				}
 				else
 				{
@@ -499,7 +499,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (ElementState.class.isAssignableFrom(mapElementClass))
 				{
 					elementClassDescriptor = ClassDescriptor.getClassDescriptor(mapElementClass);
-					elementClass = elementClassDescriptor.describedClass();
+					elementClass = elementClassDescriptor.getDescribedClass();
 				}
 				else
 				{

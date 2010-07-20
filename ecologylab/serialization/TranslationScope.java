@@ -983,6 +983,21 @@ public final class TranslationScope extends ElementState
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
+	 * @param inputStream
+	 *          An InputStream to the XML that needs to be translated.
+	 * @return
+	 * @throws SIMPLTranslationException
+	 */
+	public ElementState deserialize(InputStream inputStream, ElementState trialRootElement) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return saxHandler.parse(inputStream, trialRootElement);
+	}
+
+
+	/**
+	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
+	 * 
 	 * @param url
 	 * @return
 	 * @throws SIMPLTranslationException
