@@ -593,7 +593,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				parentES.createChildHook(currentES);
 			else
 				debug("cool - post ns element");
-			currentES.postTranslationProcessingHook();
+			currentES.postDeserializationHook();
 			this.currentElementState = currentES.parent;
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
@@ -740,7 +740,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	public void endDocument() throws SAXException
 	{
 		if ((xmlTranslationException == null) && (root != null))
-			root.postTranslationProcessingHook();
+			root.postDeserializationHook();
 		
 		ElementState.recycleDeserializationMappings();
 	}
