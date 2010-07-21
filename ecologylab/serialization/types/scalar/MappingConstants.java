@@ -97,5 +97,7 @@ public class MappingConstants
 	public static final String	DOTNET_HASHMAPARRAYLIST	= "DictionaryList";
 
 	public static final String	DOTNET_SCOPE						= "Scope";
+	
+	public static final String DOTNET_UUID							= "GUID";
 
 }
