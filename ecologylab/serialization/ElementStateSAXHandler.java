@@ -66,9 +66,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	ParsedURL										purlContext;
 
 	File												fileContext;
-	
-	ElementState								trialRootElement;
 
+	DeserializationHookStrategy deserializationHookStrategy;
 	/**
 	 * 
 	 */
@@ -261,9 +260,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return result;
 	}
 
-	public ElementState parse(InputStream inputStream, ElementState trialRootElement) throws SIMPLTranslationException
+	public ElementState parse(InputStream inputStream, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
-		this.trialRootElement	= trialRootElement;
+		this.deserializationHookStrategy	= deserializationHookStrategy;
 		return parse(new InputSource(inputStream));
 	}
 
@@ -345,20 +344,14 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				try
 				{
 					ElementState root	= null;
-					if (trialRootElement != null)
-					{
-						Class rootClass	= rootClassDescriptor.getDescribedClass();
-						// if the class of the trialRootElement is greater than or equal to that of the
-						// rootClassDescriptor, in its specificity, then use it here.
-						if (rootClass.isAssignableFrom(trialRootElement.getClass()))
-							root					= trialRootElement;
-					}
 					if (root == null)
 						root = rootClassDescriptor.getInstance();
 					if (root != null)
 					{
 						root.setupRoot();
 						setRoot(root);
+						if (deserializationHookStrategy != null)
+							deserializationHookStrategy.preDeserializationHook(root);
 						root.translateAttributes(translationScope, attributes, this, root);
 						activeFieldDescriptor = rootClassDescriptor.pseudoFieldDescriptor();
 					}
@@ -425,7 +418,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 					activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 				}
 				else
-					activeFieldDescriptor.setFieldToNestedObject(currentElementState, childES); // maybe we
+					activeFieldDescriptor.setFieldToComposite(currentElementState, childES); // maybe we
 				// should do
 				// this on close
 				// element
@@ -497,6 +490,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			if (childES != null)
 			{
 				// fill in its attributes
+				if (deserializationHookStrategy != null)
+					deserializationHookStrategy.preDeserializationHook(childES);
 
 				childES.translateAttributes(translationScope, attributes, this, currentElementState);
 

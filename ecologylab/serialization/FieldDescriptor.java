@@ -1509,7 +1509,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
-	void setFieldToNestedObject(ElementState context, Object nestedObject)
+	void setFieldToComposite(ElementState context, Object nestedObject)
 			throws SIMPLTranslationException
 	{
 		try

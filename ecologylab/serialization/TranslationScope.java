@@ -985,13 +985,14 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param inputStream
 	 *          An InputStream to the XML that needs to be translated.
+	 * @param deserializationHookStrategy TODO
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(InputStream inputStream, ElementState trialRootElement) throws SIMPLTranslationException
+	public ElementState deserialize(InputStream inputStream, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
-		return saxHandler.parse(inputStream, trialRootElement);
+		return saxHandler.parse(inputStream, deserializationHookStrategy);
 	}
 
 
