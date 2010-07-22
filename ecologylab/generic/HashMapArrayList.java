@@ -65,6 +65,12 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 		return result;
 	}
 	
+	@Override public void putAll(Map<? extends K, ? extends V> map)
+	{
+		for (K key : map.keySet())
+			this.put(key, map.get(key));
+	}
+	
 	public V get(int index)
 	{
 		return arrayList.get(index);
