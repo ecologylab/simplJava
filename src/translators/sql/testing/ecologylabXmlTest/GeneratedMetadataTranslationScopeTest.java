@@ -47,7 +47,6 @@ import ecologylab.semantics.generated.library.imdb.ImdbTitle;
 import ecologylab.semantics.generated.library.imdb.PersonDetails;
 import ecologylab.semantics.generated.library.misc.DcDocument;
 import ecologylab.semantics.generated.library.misc.Dlms;
-import ecologylab.semantics.generated.library.misc.Icdl;
 import ecologylab.semantics.generated.library.misc.IcdlImage;
 import ecologylab.semantics.generated.library.misc.Nsdl;
 import ecologylab.semantics.generated.library.misc.Text;
@@ -132,7 +131,7 @@ Topic.class,
 
 DcDocument.class,
 
-Icdl.class,
+//Icdl.class,
 
 Text.class,
 
