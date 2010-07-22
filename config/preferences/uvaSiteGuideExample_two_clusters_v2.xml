@@ -12,10 +12,10 @@
  
   <document_set>
   <!-- Set of document-urls. Can be from different web sites-->
-   <document url="http://www.gwhh.com/bar-restaurant.html"/> 
-   <document url="http://www.gwhh.com/menu.html"/> 
-   <document url="http://www.yeoldetalbot.tablesir.com/bar-rest.htm"/> 
-   <document url="http://www.thechandlerybandb.co.uk/whatson/bfaschoice.html"/> 
+   <document location="http://www.gwhh.com/bar-restaurant.html"/> 
+   <document location="http://www.gwhh.com/menu.html"/> 
+   <document location="http://www.yeoldetalbot.tablesir.com/bar-rest.htm"/> 
+   <document location="http://www.thechandlerybandb.co.uk/whatson/bfaschoice.html"/> 
   </document_set>
 
   <keyword_set type="content">
@@ -61,12 +61,12 @@
   <rectangle x="1000" y="1000" width="300" height="300"/>
  
   <document_set>
-   <document url="http://www.gwhh.com/accommodation.html"/>
-   <document url="http://www.masslinkguesthouse.co.uk/pages/accommodation.html"/>
-   <document url="http://www.theguildford.co.uk/guildford-accommodation.html"/>
-   <document url="http://www.yeoldetalbot.tablesir.com/accommodation.htm"/>
-   <document url="http://www.thechandlerybandb.co.uk/history.htm"/>
-   <document url="http://www.thechandlerybandb.co.uk/rooms.html"/>
+   <document location="http://www.gwhh.com/accommodation.html"/>
+   <document location="http://www.masslinkguesthouse.co.uk/pages/accommodation.html"/>
+   <document location="http://www.theguildford.co.uk/guildford-accommodation.html"/>
+   <document location="http://www.yeoldetalbot.tablesir.com/accommodation.htm"/>
+   <document location="http://www.thechandlerybandb.co.uk/history.htm"/>
+   <document location="http://www.thechandlerybandb.co.uk/rooms.html"/>
   </document_set>
 
   <keyword_set type="content">
