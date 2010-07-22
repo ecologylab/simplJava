@@ -35,21 +35,30 @@ public class _EcologylabXmlTestMain
 		/*translate to xml*/
 		StringBuilder buffy	= new StringBuilder();
 		c.serialize(buffy);
-		System.out.println(buffy);
-		System.out.println('\n');
+//		c.serialize(System.out);
+		
+		ChannelTest ct = new ChannelTest();
+		TranslationScope ts = TranslationScope.get("this", ChannelTest.class);
+		ts.serialize(System.out);
+		
+		
+		
+		
+		
 		
 		/*translate from xml to java*/
 		ElementState c2	= RssTranslationsTest.get().deserializeCharSequence(buffy);
 		
-		System.out.println("retranslated by ElementState");
-		System.out.println(c2.getClass().getCanonicalName());
-		System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 
+//		System.out.println("retranslated by ElementState");
+//		System.out.println(c2.getClass().getCanonicalName());
+//		System.out.println(c2.getClass().getSuperclass().getCanonicalName()); 
 		Class<?>[] thisClasses = c2.getClass().getClasses();
 		for (Class<?> class1 : thisClasses)
 		{
-			System.out.println(class1.getCanonicalName()); 
+//			System.out.println(class1.getCanonicalName()); 
 		}
-		c2.serialize(System.out);
+		Appendable a; 
+//		c2.serialize(System.out);
 //			println(c.translateToXML());
 
 	}
