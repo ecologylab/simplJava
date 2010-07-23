@@ -32,7 +32,7 @@ class BasicSite extends ElementState implements Mappable<String>
    * Minimum time to wait between downloads for this domain
    * Specified in seconds
    */
-  @simpl_scalar protected int							minDownloadInterval;
+  @simpl_scalar protected float							minDownloadInterval;
   
   /**
    * Timestamp of last download from this site;
@@ -72,7 +72,7 @@ class BasicSite extends ElementState implements Mappable<String>
 	/**
 	 * @return the minDownloadInterval
 	 */
-	public int getMinDownloadInterval()
+	public float getMinDownloadInterval()
 	{
 		return minDownloadInterval;
 	}
@@ -80,7 +80,7 @@ class BasicSite extends ElementState implements Mappable<String>
 	/**
 	 * @param minDownloadInterval the minDownloadInterval to set
 	 */
-	public void setMinDownloadInterval(int minDownloadInterval)
+	public void setMinDownloadInterval(float minDownloadInterval)
 	{
 		this.minDownloadInterval = minDownloadInterval;
 	}
@@ -108,7 +108,8 @@ class BasicSite extends ElementState implements Mappable<String>
 	 */
 	public long getDecentDownloadInterval()
 	{
-		return minDownloadInterval * 1000 + random.nextInt((minDownloadInterval * 1000)/ 2);
+		int millis = (int) (minDownloadInterval * 1000);
+		return millis + random.nextInt(millis / 2);
 	}
 	public boolean constrainDownloadInterval()
 	{
