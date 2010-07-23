@@ -22,9 +22,9 @@ abstract public @simpl_inherit class BasicOp extends ElementState
 	 * Sets the session time immediately before translating to XML. The session time is based from the time the log
 	 * started recording.
 	 * 
-	 * @see ecologylab.serialization.ElementState#preSerializationHook()
+	 * @see ecologylab.serialization.ElementState#serializationPreHook()
 	 */
-	@Override protected void preSerializationHook(){
+	@Override protected void serializationPreHook(){
 		//this.sessionTime = System.currentTimeMillis() - Logging.sessionStartTime();
 	}
 

@@ -285,7 +285,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		mapCurrentElementState();
 
-		this.preSerializationHook();
+		this.serializationPreHook();
 
 		fieldDescriptor.writeElementStart(buffy);
 
@@ -542,7 +542,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		mapCurrentElementState();
 
-		this.preSerializationHook();
+		this.serializationPreHook();
 
 		fieldDescriptor.writeElementStart(appendable);
 
@@ -1208,7 +1208,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * This, the default implementation, does nothing. Sub-classes may wish to override.
 	 * 
 	 */
-	protected void preSerializationHook()
+	protected void serializationPreHook()
 	{
 
 	}
@@ -1224,7 +1224,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * This, the default implementation, does nothing. Sub-classes may wish to override.
 	 * dd
 	 */
-	protected void postDeserializationHook()
+	protected void deserializationPostHook()
 	{
 
 	}

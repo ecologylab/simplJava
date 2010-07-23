@@ -588,7 +588,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				parentES.createChildHook(currentES);
 			else
 				debug("cool - post ns element");
-			currentES.postDeserializationHook();
+			currentES.deserializationPostHook();
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
 			this.currentElementState = currentES.parent;
@@ -737,7 +737,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	public void endDocument() throws SAXException
 	{
 		if ((xmlTranslationException == null) && (root != null))
-			root.postDeserializationHook();
+			root.deserializationPostHook();
 		
 		ElementState.recycleDeserializationMappings();
 	}
