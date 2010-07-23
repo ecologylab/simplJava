@@ -334,7 +334,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		if (xmlTranslationException != null)
 			return;
 
-		FieldDescriptor activeFieldDescriptor = null;
+		FieldDescriptor childFD = null;
 		final boolean isRoot = (root == null);
 		if (isRoot)
 		{ // form the root ElementState!
@@ -351,9 +351,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						root.setupRoot();
 						setRoot(root);
 						if (deserializationHookStrategy != null)
-							deserializationHookStrategy.preDeserializationHook(root);
+							deserializationHookStrategy.deserializationPreHook(root, null);
 						root.translateAttributes(translationScope, attributes, this, root);
-						activeFieldDescriptor = rootClassDescriptor.pseudoFieldDescriptor();
+						childFD = rootClassDescriptor.pseudoFieldDescriptor();
 					}
 					else
 					{
@@ -385,20 +385,20 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			processPendingScalar(currentType, currentES);
 
 			ClassDescriptor currentClassDescriptor = currentClassDescriptor();
-			activeFieldDescriptor = (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
+			childFD = (currentFD != null) && (currentType == IGNORED_ELEMENT) ?
 			// new NodeToJavaOptimizations(tagName) : // (nice for debugging; slows us down)
 			FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
 					: (currentType == WRAPPER) ? currentFD.getWrappedFD() : currentClassDescriptor
 							.getFieldDescriptorByTag(tagName, translationScope, currentES);
-			if (activeFieldDescriptor == null)
+			if (childFD == null)
 			{
-				activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor);
+				childFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor);
 			}
 		}
-		this.currentFD = activeFieldDescriptor;
+		this.currentFD = childFD;
 		registerXMLNS();
 		// TODO? -- do we need to avoid this if null from an exception in translating root?
-		pushFD(activeFieldDescriptor);
+		pushFD(childFD);
 		// printStack("After push");
 
 		if (isRoot)
@@ -408,17 +408,17 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		ElementState childES = null;
 		try
 		{
-			switch (activeFieldDescriptor.getType())
+			switch (childFD.getType())
 			{
 			case COMPOSITE_ELEMENT:
-				childES = activeFieldDescriptor.constructChildElementState(currentElementState, tagName, attributes);
+				childES = childFD.constructChildElementState(currentElementState, tagName, attributes);
 
 				if (childES == null)
 				{
-					activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
+					childFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 				}
 				else
-					activeFieldDescriptor.setFieldToComposite(currentElementState, childES); // maybe we
+					childFD.setFieldToComposite(currentElementState, childES); // maybe we
 				// should do
 				// this on close
 				// element
@@ -439,17 +439,17 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				// activeN2JO.setScalarFieldWithLeafNode(activeES, childNode);
 				break;
 			case COLLECTION_ELEMENT:
-				Collection collection = (Collection) activeFieldDescriptor
+				Collection collection = (Collection) childFD
 						.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					ElementState childElement = activeFieldDescriptor.constructChildElementState(
+					ElementState childElement = childFD.constructChildElementState(
 							currentElementState, tagName, attributes);
 					childES = childElement;
 
 					if (childES == null)
 					{
-						activeFieldDescriptor = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
+						childFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
 					}
 
 					collection.add(childES);
@@ -461,10 +461,10 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				// activeN2JO.addLeafNodeToCollection(activeES, childNode);
 				break;
 			case MAP_ELEMENT:
-				Map map = (Map) activeFieldDescriptor.automaticLazyGetCollectionOrMap(currentElementState);
+				Map map = (Map) childFD.automaticLazyGetCollectionOrMap(currentElementState);
 				if (map != null)
 				{
-					ElementState childElement = activeFieldDescriptor.constructChildElementState(
+					ElementState childElement = childFD.constructChildElementState(
 							currentElementState, tagName, attributes);
 
 					childES = childElement;
@@ -491,12 +491,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			{
 				// fill in its attributes
 				if (deserializationHookStrategy != null)
-					deserializationHookStrategy.preDeserializationHook(childES);
+					deserializationHookStrategy.deserializationPreHook(childES, childFD);
 
 				childES.translateAttributes(translationScope, attributes, this, currentElementState);
 
 				this.currentElementState = childES; // childES.parent = old currentElementState
-				this.currentFD = activeFieldDescriptor;
+				this.currentFD = childFD;
 			}
 		}
 		catch (SIMPLTranslationException e)
@@ -589,6 +589,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			else
 				debug("cool - post ns element");
 			currentES.postDeserializationHook();
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
 			this.currentElementState = currentES.parent;
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
