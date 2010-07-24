@@ -994,6 +994,12 @@ public final class TranslationScope extends ElementState
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(inputStream, deserializationHookStrategy);
 	}
+	
+	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return saxHandler.parse(file, deserializationHookStrategy);
+	}
 
 
 	/**
