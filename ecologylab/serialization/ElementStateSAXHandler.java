@@ -293,14 +293,17 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if (!(currentFD != null) && (currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) && (currentElementState != null))
+			if ((currentFD == null) || !(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) && (currentElementState != null))
 			{
 				xmlTranslationException = new SIMPLTranslationException("SAXException during parsing", e);
 
 				// print xml
-				StringBuilder builder = root.serialize();
-				System.out.println("Failed XML:");
-				System.out.println(builder.toString());
+				if (root != null)
+				{
+					StringBuilder builder = root.serialize();
+					System.out.println("Failed XML:");
+					System.out.println(builder.toString());
+				}
 			}
 		}
 		finally
