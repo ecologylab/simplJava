@@ -134,7 +134,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private Method																		setValueMethod;
 
-	public static final Class[]												SET_METHOD_ARG						=
+	public static final Class[]												SET_METHOD_STRING_ARG						=
 																																							{ String.class };
 
 	/**
@@ -215,8 +215,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		// looks old: -- implement this next???
 		// if (XMLTools.isNested(field))
 		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
+		
+		String fieldName = field.getName();
+		StringBuilder capFieldName	= new StringBuilder(fieldName);
+		capFieldName.setCharAt(0, Character.toUpperCase(capFieldName.charAt(0)));
+		String setMethodName	= "set" + capFieldName;
 
-		setValueMethod = ReflectionTools.getMethod(field.getType(), "setValue", SET_METHOD_ARG);
+		setValueMethod = ReflectionTools.getMethod(declaringClassDescriptor.getDescribedClass(), setMethodName, SET_METHOD_STRING_ARG);
 	}
 
 	/**
