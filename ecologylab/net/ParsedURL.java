@@ -40,7 +40,7 @@ public class ParsedURL extends Debug implements MimeType
 {
 	private static final String	NOT_IN_THE_FORMAT_OF_A_WEB_ADDRESS	= " is not in the format of a web address";
 
-	private static final String	DEFAULT_USER_AGENT									= "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.7) Gecko/20070914 Firefox/2.0.0.7";
+	private static final String	DEFAULT_USER_AGENT									= "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 (.NET CLR 3.5.30729)";
 
 	/**
 	 * this is the no hash url, that is, the one with # and anything after it stripped out.
