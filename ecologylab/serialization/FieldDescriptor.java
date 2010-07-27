@@ -782,41 +782,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return (Collection) ReflectionTools.getFieldValue(context, field);
 	}
 
-	public boolean isPseudoScalar()
-	{
-		return false;
-	}
-
 	public boolean isMixin()
 	{
 		return false;
-	}
-
-	/**
-	 * 
-	 * @param context
-	 *          Object that the field is in.
-	 * 
-	 * @return true if the field is not a scalar or a psuedo-scalar, and it has a non null value.
-	 */
-	public boolean isNonNullReference(ElementState context)
-	{
-		boolean result = false;
-		try
-		{
-			result = (scalarType == null) && !isPseudoScalar() && (field.get(context) != null);
-		}
-		catch (IllegalArgumentException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IllegalAccessException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
 	}
 
 	public ElementState getAndPerhapsCreateNested(ElementState context)
@@ -1232,7 +1200,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			return;
 		}
 		value = filterValue(value);
-		if (setValueMethod != null && !isPseudoScalar())
+		if (setValueMethod != null)
 		{
 			// if the method is found, invoke the method
 			// fill the String value with the value of the attr node
