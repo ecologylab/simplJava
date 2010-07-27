@@ -264,6 +264,32 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 		}
 		return pref;
 	}
+	
+	/**
+	 * This is for working with <code>Pref</code>s whose values you will continue to access as they
+	 * are edited, live, by the user. The result will be immediate changes in the program's behavior.
+	 * <p/>
+	 * Lookup a Pref associated with name. If you find it return it. If not, create a new Pref object
+	 * of the correct type. Set its value to default value.
+	 * 
+	 * @param name
+	 *          Name of the Pref to lookup and find or create.
+	 * @param defaultValue
+	 *          Initial value of the Pref if it didn't already exist.
+	 * 
+	 * @return A usable Pref object associated with name, either from the registry or newly created
+	 */
+	public static PrefEnum usePrefEnum(String name, Enum defaultValue)
+	{
+		PrefEnum pref = (PrefEnum) lookupPref(name);
+		if (pref == null)
+		{
+			pref = new PrefEnum(defaultValue);
+			pref.name = name;
+			pref.register();
+		}
+		return pref;
+	}
 
 	/**
 	 * Look up a Pref by name in the map of all Prefs
@@ -543,6 +569,12 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	{
 		PrefElementState prefElementState = ((PrefElementState) lookupPref(name));
 		return (ElementState) ((prefElementState == null) ? null : prefElementState.value());
+	}
+	
+	public static Enum lookupEnum(String name, Enum defaultValue) throws ClassCastException
+	{
+		PrefEnum prefEnum = ((PrefEnum) lookupPref(name));
+		return (prefEnum == null) ? defaultValue : prefEnum.value();
 	}
 
 	/**

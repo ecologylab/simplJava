@@ -13,8 +13,10 @@ import java.util.Stack;
 import ecologylab.appframework.types.prefs.MetaPrefSet;
 import ecologylab.appframework.types.prefs.MetaPrefsTranslationScope;
 import ecologylab.appframework.types.prefs.Pref;
+import ecologylab.appframework.types.prefs.PrefEnum;
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
+import ecologylab.appframework.types.prefs.PrefString;
 import ecologylab.appframework.types.prefs.gui.PrefEditorWidgets;
 import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.collections.Scope;
@@ -38,11 +40,13 @@ import ecologylab.serialization.XMLTranslationExceptionTypes;
  * @author Andruid
  */
 public class ApplicationEnvironment extends Debug implements Environment,
-		XMLTranslationExceptionTypes
+		XMLTranslationExceptionTypes, ApplicationPropertyNames
 {
 	public static final String 		CUSTOM_PREF_TRANSLATIONS			= "custom_pref_translations";
 	
 	private static final String		METAPREFS_XML									= "metaprefs.xml";
+	
+	public static final PrefEnum	LAUNCH_TYPE_PREF							= Pref.usePrefEnum(LAUNCH_TYPE, LaunchType.ECLIPSE);
 	
 	// must initialize this before subsequent lookup by scope name.
 	static final TranslationScope	META_PREFS_TRANSLATION_SCOPE	= MetaPrefsTranslationScope.get();
@@ -540,10 +544,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	private void processPrefs(Class<?> baseClass, TranslationScope translationScope,
 			Stack<String> argStack, float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		LaunchType launchType = LaunchType.ECLIPSE; // current default
-
+		LaunchType launchType 		= LaunchType.ECLIPSE; // current default
+		
 		// look for launch method identifier in upper case
 		String arg = pop(argStack);
+		
 		if (arg != null)
 		{
 			String uc = arg.toUpperCase();
@@ -560,6 +565,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				// TODO -- recognize JAR here !!!
 				argStack.push(arg);
 			}
+			LAUNCH_TYPE_PREF.setValue(launchType);
 		}
 		println("see, LaunchType = " + launchType);
 		this.launchType = launchType;
@@ -1259,5 +1265,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		{
 			this.prefSet.put(k, otherPrefs.get(k));
 		}
+	}
+	
+	public static boolean runningInEclipse()
+	{
+		return LaunchType.ECLIPSE == LAUNCH_TYPE_PREF.value();
 	}
 }
