@@ -1,9 +1,11 @@
 package translators.sql;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -22,8 +24,16 @@ import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 import ecologylab.generic.Debug;
+import ecologylab.net.ParsedURL;
+import ecologylab.semantics.generated.library.scholarlyPublication.AcmProceeding;
+import ecologylab.semantics.generated.library.search.SearchResult;
+import ecologylab.semantics.metadata.Metadata;
 import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.semantics.metadata.builtins.Entity;
+import ecologylab.semantics.metadata.scalar.MetadataParsedURL;
+import ecologylab.semantics.metadata.scalar.MetadataString;
+import ecologylab.semantics.metametadata.MetaMetadataRepository;
+import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
@@ -33,6 +43,10 @@ public class DBUtil extends Debug implements DBInterface
 
 	private Statement		thisStatement;
 
+	public DBUtil(){
+		
+	}
+	
 	@Test
 	public void testDBUtilScenario()
 	{
@@ -410,14 +424,59 @@ public class DBUtil extends Debug implements DBInterface
 	@Test
 	public void testTranslationScopeSerialize() throws SIMPLTranslationException, IOException
 	{
-		// System.out.println();
-		// TranslationScope.get("ts2", DocumentTest.class).serialize(System.out);
-		// Document.class;
-		// AcmProceeding.class;
-
-		// Document d = new Document();
-		TranslationScope.get("ts3", Document.class).serialize(System.out);
-
+		// setting MetaMetadataRepository 
+		TranslationScope ts = TranslationScope.get("ts", AcmProceeding.class, SearchResult.class, Document.class, Metadata.class);
+		ts = MetaMetadataTranslationScope.get(); 
+		File f = new File("D://Ecologylab5_2010_07_07//web//code//java//cf//config//semantics//metametadata//repositorySources//acmPortal.xml");
+		MetaMetadataRepository mmr = MetaMetadataRepository.readRepository(f, ts); 
+		
+		AcmProceeding ap = new AcmProceeding();
+		ap.setRepository(mmr);
+		
+		SearchResult sr = new SearchResult();
+//		sr.setDescription("search description");
+//		sr.setTitle("search title"); 
+		sr.setSnippet("search snippet");
+		
+		SearchResult sr1 = new SearchResult();
+//		sr1.setDescription("search description");
+//		sr1.setTitle("search title"); 
+		sr1.setSnippet("search snippet");
+		
+		ArrayList<SearchResult> al = new ArrayList<SearchResult>(); 
+		al.add(0, sr);
+		
+		ArrayList<SearchResult> al1 = new ArrayList<SearchResult>();
+		al1.add(0, sr1);
+		
+		ap.setPapers(al);
+		ap.setProceedings(al1);
+		
+		ap.serialize(System.out);
+		System.out.println();
+		
+		// test case 2
+		Entity e = new Entity(); 
+		MetadataString ms = new MetadataString("ms");
+		MetadataParsedURL mpu = new MetadataParsedURL(new ParsedURL(new URL("http://ecologylab.net"))); 
+		e.setGist(ms);
+		e.setLocation(mpu); 
+		e.serialize(System.out);
+		System.out.println();
+		
+		// test case 3
+		AcmProceeding ap1 = new AcmProceeding(); 
+		SearchResult sr2 = new SearchResult(); 
+		sr2.setHeading("heading");
+		sr2.setSnippet("snippet");
+		sr2.setLink(new ParsedURL(new URL("http://ecologylab.net")));
+		
+		ArrayList<SearchResult> al2 = new ArrayList<SearchResult>(); 
+		al2.add(0, sr2);
+		
+		ap1.setPapers(al2);
+		ap1.serialize(System.out);
+		
 	}
 
 	@Test
