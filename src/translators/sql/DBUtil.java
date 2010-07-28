@@ -43,7 +43,7 @@ public class DBUtil extends Debug implements DBInterface
 
 	private Statement		thisStatement;
 
-	public DBUtil(){
+	public DBUtil(){ 
 		
 	}
 	
@@ -132,7 +132,7 @@ public class DBUtil extends Debug implements DBInterface
 			return thisResultSet;
 		}
 		else
-			println("db connection is not created : create db connection first.");
+			println("db connection is not made : create db connection first.");
 
 		return null;
 	}
@@ -153,7 +153,7 @@ public class DBUtil extends Debug implements DBInterface
 			return thisUpdatedRows;
 		}
 		else
-			println("db connection is not created : create db connection first.");
+			println("db connection is not made : create db connection first.");
 
 		return -1;
 	}
@@ -513,6 +513,7 @@ public class DBUtil extends Debug implements DBInterface
 			println("DB is already disconnected");
 
 	}
+
 
 	/**
 	 * @param args
