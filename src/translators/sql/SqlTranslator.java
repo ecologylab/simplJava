@@ -1,6 +1,8 @@
 package translators.sql;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -12,6 +14,8 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import translators.sql.testing.ecologylabXmlTest.ChannelTest;
@@ -31,6 +35,8 @@ import ecologylab.serialization.ElementState.simpl_db;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
+
+import static org.junit.Assert.*; 
 
 public class SqlTranslator extends SqlTranslatorUtil
 {
@@ -79,6 +85,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		this.createSQLTableSchema(thisNewTranslationScope, DEFAULT_COMPOSITE_TYPE_TABLE_MODE);
 
 	}
+	
 
 	@Test
 	public void testCreateSQLTableCompositeTypeSchema() throws IOException
