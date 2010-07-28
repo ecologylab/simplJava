@@ -4,6 +4,8 @@
  */
 package ecologylab.generic;
 
+import java.awt.Rectangle;
+
 /**
  * Representation of a bounding box, based on 2 points.
  */
@@ -40,4 +42,11 @@ public class Bounds
    {
       return "Bounds[" + xMin+","+yMin+"; "+xMax+","+yMax +"]";
    }
+    
+    public boolean intersects(Rectangle intersectingRect)
+    {
+    	Rectangle boundsRect = new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+    	
+    	return boundsRect.intersects(intersectingRect);
+    }
 }
