@@ -460,7 +460,7 @@ public class DBUtil extends Debug implements DBInterface
 		MetadataString ms = new MetadataString("ms");
 		MetadataParsedURL mpu = new MetadataParsedURL(new ParsedURL(new URL("http://ecologylab.net"))); 
 		e.setGist(ms);
-		e.setLocation(mpu); 
+//		e.setLocation(mpu); 
 		e.serialize(System.out);
 		System.out.println();
 		
