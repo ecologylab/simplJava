@@ -350,7 +350,8 @@ public abstract class ScalarType<T> extends Debug
 	public boolean isDefaultValue(Field field, Object context) throws IllegalArgumentException,
 			IllegalAccessException
 	{
-		return field.get(context) == null;
+		Object fieldValue = field.get(context);
+		return fieldValue == null || DEFAULT_VALUE_STRING.equals(fieldValue.toString());
 	}
 
 	/**
