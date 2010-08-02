@@ -3,27 +3,21 @@
  */
 package ecologylab.standalone;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.helpers.AttributesImpl;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
-/**
- *
- * @author andruid
- */
-public class TestXml2 extends ElementState
+
+public class TestXml2 extends ElementState 
 {
 	@simpl_nowrap 
 	@simpl_collection("vendor_case")	ArrayList<String> vendors	= new ArrayList<String>();
 	
+	@simpl_collection("producer")	ArrayList<String>	producers = new ArrayList<String>();
 	@simpl_nowrap
-	@simpl_collection("producer")	ArrayList<String>	producers = new ArrayList<String>(); 
+	@simpl_collection("test_items") ArrayList<TestItems> test_items = new ArrayList<TestItems>(); 
 	
 	@simpl_scalar				String fooBar;
 	
@@ -31,56 +25,41 @@ public class TestXml2 extends ElementState
 	
 	@simpl_scalar 			String source; 
 	
-	@simpl_scalar String test; 
+	@simpl_scalar String test;
 	
-	static final TranslationScope TS	= TranslationScope.get("testing123", TestXml2.class);
-
-	public TestXml2()
-	{
-		super();
-	}
-
-		static final String STUFF = 
+	static final TranslationScope TS	= TranslationScope.get("testing123", TestXml2.class, TestItems.class);
+	
+	static final String STUFF = 
 			"<test_xml2 property=\"xml\" source=\"ecologylab\" foo_bar=\"baz\">" +
-				"<items>" +
-				"<country name=\"korea\"></country>" +
-				"<country name=\"usa\"></country>" +
-				"</items>" +
-				"<producer>ecologylab</producer>" +
-				"<producer>tamu</producer>" +
+				"<test_items>" +
+					"<country>Korea</country>" +
+					"<country>US</country>" +
+					"<country>China</country>" + 
+				"</test_items>" +
+				"<producers>" +
+					"<producer>Ecologylab</producer>" +
+					"<producer>Tamu</producer>" +
+				"</producers>" + 
 				"<vendor_case>Garmin</vendor_case>" +
 				"<vendor_case>Amazon</vendor_case>" +
 				"</test_xml2>";
     
-		public static void main(String[] a)
-    {
-    	try
-		{
+		public static void main(String args[]) throws SIMPLTranslationException{		
 			TestXml2 es		= (TestXml2)TS.deserializeCharSequence(STUFF);
 			
-			es.getVendors().add("GMC");
-			es.getVendors().add("ABC");
+			es.getVendors().add("added GMC");
+			es.getVendors().add("added ABC");
 			ArrayList<String> s = es.getVendors();
+//			for (String string : s)
+//				System.out.println(string);
 			
-			for (String string : s)
-			{
-				System.out.println(string);
-			}
-			
-			es.getProducers().add("Computer science");
-			es.getProducers().add("texas");
+			es.getProducers().add("added Computer Science");
+			es.getProducers().add("added Texas");
 			ArrayList<String> s1 = es.getProducers(); 
-			for(String st: s1)
-				System.out.println(st);
+//			for(String st: s1)
+//				System.out.println(st);
 			
-			println(es.serialize());
-			
-		} catch (SIMPLTranslationException e)
-		{
-			e.printStackTrace();
-		}
-    	
-    	
+			System.out.println(es.serialize());
     }
 		
 		public ArrayList<String> getProducers()
@@ -92,7 +71,6 @@ public class TestXml2 extends ElementState
 		{
 			this.producers = producers;
 		}
-		
 
 		public String getFooBar()
 		{
