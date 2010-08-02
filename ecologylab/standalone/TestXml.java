@@ -3,12 +3,15 @@
  */
 package ecologylab.standalone;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.helpers.AttributesImpl;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.ElementState.simpl_nowrap;
 
 /**
  *
@@ -31,13 +34,42 @@ public class TestXml extends ElementState
 
 	}
 
-    static final String STUFF = "<test_xml foo_bar=\"baz\"><vendor>Garmin</vendor><vendor>Amazon</vendor></test_xml>";
-    public static void main(String[] a)
+    public ArrayList<String> getSet()
+	{
+		return set;
+	}
+	public void setSet(ArrayList<String> set)
+	{
+		this.set = set;
+	}
+	public String getFooBar()
+	{
+		return fooBar;
+	}
+	public void setFooBar(String fooBar)
+	{
+		this.fooBar = fooBar;
+	}
+
+		static final String STUFF = "<test_xml foo_bar=\"baz\"><vendor>Garmin</vendor><vendor>Amazon</vendor></test_xml>";
+    
+		public static void main(String[] a)
     {
     	try
 		{
-			ElementState es		= TS.deserializeCharSequence(STUFF);
+			TestXml es		= (TestXml)TS.deserializeCharSequence(STUFF);
+			
+			es.getSet().add("GMC");
+			es.getSet().add("ABC");
+			ArrayList<String> s = es.getSet();
+			
+			for (String string : s)
+			{
+				System.out.println(string);
+			}
+			
 			println(es.serialize());
+			
 		} catch (SIMPLTranslationException e)
 		{
 			e.printStackTrace();
