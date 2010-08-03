@@ -51,7 +51,8 @@ public class TestXml_Ecologylab
 					"<vendor_case>Garmin</vendor_case>" +
 					"<vendor_case>Amazon</vendor_case>" +
 				"</test_xml2>";
-				
+		
+		//TODO : extract element value of test_sub_item
 		public static void testTestXml2() throws SIMPLTranslationException{
 			TestXml2 es	= (TestXml2)TS.deserializeCharSequence(STUFF);
 			
@@ -101,7 +102,45 @@ public class TestXml_Ecologylab
 		}
 	}
 	
+	public static class TestRss extends ElementState{
+		@simpl_scalar float version; 
+		
+		static String RSS = 
+				"<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+				"<test_rss version=\"2.0\">" +
+					"<test_channel>" +
+						"<title>xkcd.com</title>" +
+						"<link>http://xkcd.com/</link>" +
+						"<description>webcomic</description>" +
+						"<language>en</language>" +
+						"<test_item>" +
+							"<title>Atheists</title>" +
+							"<link>http://xkcd.com/774/</link>" +
+							"<description>atheists.png</description>" +
+							"<pubDate>Mon, 02 Aug 2010 04:00:00 -0000</pubDate>" +
+							"<guid>http://xkcd.com/774/</guid>" +
+						"</test_item>" +
+						"<test_item>" +
+							"<title>University Website</title>" +
+							"<link>http://xkcd.com/773/</link>" +
+							"<description>university_website.png</description>" +
+							"<pubDate>Fri, 30 Jul 2010 04:00:00 -0000</pubDate>" +
+							"<guid>http://xkcd.com/773/</guid>" +
+						"</test_item>" + 
+					"</test_channel>" +
+				"</test_rss>";
+		
+		public static void testRss(){
+		}
+		
+	public static class BingSearch extends ElementState{
+		static String bingSearch; 
+		//http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
+	}
+	}
+	
 	public static void main(String args[]) throws SIMPLTranslationException{		
-		TestXml2.testTestXml2(); 
+//		TestXml2.testTestXml2(); 
+		TestRss.testRss(); 
 	}
 }
