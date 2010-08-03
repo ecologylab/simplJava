@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?><?pageview_candidate?>
-<SearchResponse
-	xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element"
-	Version="2.2">
+<SearchResponse	xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element"	Version="2.2">
 	<Query>
 		<SearchTerms>texas</SearchTerms>
 	</Query>
-	<mms:Image
-		xmlns:mms="http://schemas.microsoft.com/LiveSearch/2008/04/XML/multimedia">
+	<mms:Image xmlns:mms="http://schemas.microsoft.com/LiveSearch/2008/04/XML/multimedia">
 		<mms:Total>13900000</mms:Total>
 		<mms:Offset>0</mms:Offset>
 		<mms:Results>
