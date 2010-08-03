@@ -3,8 +3,11 @@
  */
 package ecologylab.standalone.researchnotebook;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
@@ -136,8 +139,25 @@ public class TestXml_Ecologylab
 		
 		static TranslationScope TS = TranslationScope.get("TestRss", TestRss.class, TestChannel.class, TestItem.class);
 		
-		public static void testRss() throws SIMPLTranslationException{
+		public static void testRss() throws SIMPLTranslationException, MalformedURLException{
 			TestRss r = (TestRss)TS.deserializeCharSequence(RSS);
+			r.serialize(System.out);
+			
+			TestChannel tc = new TestChannel(); 
+			tc.setTitle("test channel");
+			tc.setDescription("test description");
+			tc.setLanguage("ko");
+			tc.setLink(new ParsedURL(new URL("http://www.korea.net/")));
+			
+			TestItem i = new TestItem(); 
+			i.setTitle("test item");
+			i.setDescription("test item description");
+			i.setPubDate("2010/08/03");
+			
+			tc.getItems().add(i);
+			r.getChannels().add(tc);
+			
+			System.out.println("\nafter adding data ---");
 			r.serialize(System.out);
 		}
 		
@@ -155,7 +175,7 @@ public class TestXml_Ecologylab
 	}
 	}
 	
-	public static void main(String args[]) throws SIMPLTranslationException{		
+	public static void main(String args[]) throws SIMPLTranslationException, MalformedURLException{		
 //		TestXml2.testTestXml2(); 
 		TestRss.testRss(); 
 	}
