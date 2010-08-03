@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?><?pageview_candidate?>
+<SearchResponse
+	xmlns="http://schemas.microsoft.com/LiveSearch/2008/04/XML/element"
+	Version="2.2">
+	<Query>
+		<SearchTerms>texas</SearchTerms>
+	</Query>
+	<mms:Image
+		xmlns:mms="http://schemas.microsoft.com/LiveSearch/2008/04/XML/multimedia">
+		<mms:Total>13900000</mms:Total>
+		<mms:Offset>0</mms:Offset>
+		<mms:Results>
+			<mms:ImageResult>
+				<mms:Title>Texas County Map - Texas Map</mms:Title>
+				<mms:MediaUrl>
+					http://www.digital-topo-maps.com/county-map/texas-county-map.gif
+				</mms:MediaUrl>
+				<mms:Url>http://www.digital-topo-maps.com/county-map/texas.shtml
+				</mms:Url>
+				<mms:DisplayUrl>
+					http://www.digital-topo-maps.com/county-map/texas.shtml
+				</mms:DisplayUrl>
+				<mms:Width>968</mms:Width>
+				<mms:Height>900</mms:Height>
+				<mms:FileSize>94328</mms:FileSize>
+				<mms:ContentType>image/gif</mms:ContentType>
+				<mms:Thumbnail>
+					<mms:Url>http://ts2.mm.bing.net/images/thumbnail.aspx?q=182185757025&amp;id=f15d95c549b1d08c0ae6abbe6f358bc7</mms:Url>
+					<mms:ContentType>image/jpeg</mms:ContentType>
+					<mms:Width>160</mms:Width>
+					<mms:Height>148</mms:Height>
+					<mms:FileSize>4405</mms:FileSize>
+				</mms:Thumbnail>
+			</mms:ImageResult>
+			<mms:ImageResult>
+				<mms:Title>Texas USDA Rural Development ...</mms:Title>
+				<mms:MediaUrl>http://www.texas-capital-mortgage.com/images/Texas_20Logo.jpg</mms:MediaUrl>
+				<mms:Url>http://www.texas-capital-mortgage.com/Texas_20_USDA_20_Rural_20_Development_20_RD_20_Mortgage.html</mms:Url>
+				<mms:DisplayUrl>http://www.texas-capital-mortgage.com/Texas_20_USDA_20_Rural_20_Development_20_RD_20_Mortgage.html</mms:DisplayUrl>
+				<mms:Width>640</mms:Width>
+				<mms:Height>480</mms:Height>
+				<mms:FileSize>40942</mms:FileSize>
+				<mms:ContentType>image/jpeg</mms:ContentType>
+				<mms:Thumbnail>
+					<mms:Url>http://ts1.mm.bing.net/images/thumbnail.aspx?q=183667730616&amp;id=0022415380f4211cbb610cc66d95f612</mms:Url>
+					<mms:ContentType>image/jpeg</mms:ContentType>
+					<mms:Width>160</mms:Width>
+					<mms:Height>120</mms:Height>
+					<mms:FileSize>3305</mms:FileSize>
+				</mms:Thumbnail>
+			</mms:ImageResult>
+		</mms:Results>
+	</mms:Image>
+</SearchResponse>
