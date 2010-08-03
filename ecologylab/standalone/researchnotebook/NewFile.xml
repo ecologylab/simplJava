@@ -20,4 +20,15 @@
 			<pubDate>Fri, 30 Jul 2010 04:00:00 -0000</pubDate>
 		</test_item>
 	</test_channel>
+	<test_channel>
+		<title>test channel</title>
+		<link>http://www.korea.net/</link>
+		<description>test description</description>
+		<language>ko</language>
+		<test_item>
+			<title>test item</title>
+			<description>test item description</description>
+			<pubDate>2010/08/03</pubDate>
+		</test_item>
+	</test_channel>
 </test_rss>
