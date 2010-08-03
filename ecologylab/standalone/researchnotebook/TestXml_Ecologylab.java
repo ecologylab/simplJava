@@ -141,6 +141,14 @@ public class TestXml_Ecologylab
 			r.serialize(System.out);
 		}
 		
+		public ArrayList<TestChannel> getChannels() {
+			return channels;
+		}
+
+		public void setChannels(ArrayList<TestChannel> channels) {
+			this.channels = channels;
+		}
+
 	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
 	public static class BingSearch extends ElementState{
 		static String bingSearch; 
