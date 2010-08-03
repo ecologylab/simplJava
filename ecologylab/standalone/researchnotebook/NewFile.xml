@@ -1,37 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
-	<channel>
+<test_rss version="2.0">
+	<test_channel>
 		<title>xkcd.com</title>
 		<link>http://xkcd.com/</link>
-		<description>xkcd.com: A webcomic of romance and math humor.</description>
+		<description>webcomic</description>
 		<language>en</language>
-		<item>
+		<test_item>
 			<title>Atheists</title>
 			<link>http://xkcd.com/774/</link>
-			<description>&lt;img src="http://imgs.xkcd.com/comics/atheists.png" title="'But you're using that same tactic to try to feel superior to me, too!' 'Sorry, that accusation expires after one use per conversation.'" alt="'But you're using that same tactic to try to feel superior to me, too!' 'Sorry, that accusation expires after one use per conversation.'" /&gt;</description>
-			<pubDate>Mon, 02 Aug 2010 04:00:00 -0000</pubDate>
+			<description>atheists.png</description>
 			<guid>http://xkcd.com/774/</guid>
-		</item>
-		<item>
+		</test_item>
+		<test_item>
 			<title>University Website</title>
 			<link>http://xkcd.com/773/</link>
-			<description>&lt;img src="http://imgs.xkcd.com/comics/university_website.png" title="People go to the website because they can't wait for the next alumni magazine, right? What do you mean, you want a campus map? One of our students made one as a CS class project back in '01!  You can click to zoom and everything!" alt="People go to the website because they can't wait for the next alumni magazine, right? What do you mean, you want a campus map? One of our students made one as a CS class project back in '01!  You can click to zoom and everything!" /&gt;</description>
-			<pubDate>Fri, 30 Jul 2010 04:00:00 -0000</pubDate>
+			<description>university_website.png
+			</description>
 			<guid>http://xkcd.com/773/</guid>
-		</item>
-		<item>
-			<title>Frogger</title>
-			<link>http://xkcd.com/772/</link>
-			<description>&lt;img src="http://imgs.xkcd.com/comics/frogger.png" title="I understand you and your team worked hard on this, but when we said to make it more realistic, we meant the graphics." alt="I understand you and your team worked hard on this, but when we said to make it more realistic, we meant the graphics." /&gt;</description>
-			<pubDate>Wed, 28 Jul 2010 04:00:00 -0000</pubDate>
-			<guid>http://xkcd.com/772/</guid>
-		</item>
-		<item>
-			<title>Period Speech</title>
-			<link>http://xkcd.com/771/</link>
-			<description>&lt;img src="http://imgs.xkcd.com/comics/period_speech.png" title="The same people who spend their weekends at the Blogger Reenactment Festivals will whine about the anachronisms in historical movies, but no one else will care." alt="The same people who spend their weekends at the Blogger Reenactment Festivals will whine about the anachronisms in historical movies, but no one else will care." /&gt;</description>
-			<pubDate>Mon, 26 Jul 2010 04:00:00 -0000</pubDate>
-			<guid>http://xkcd.com/771/</guid>
-		</item>
-	</channel>
-</rss>
+		</test_item>
+	</test_channel>
+</test_rss>
