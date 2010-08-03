@@ -3,6 +3,10 @@
  */
 package ecologylab.standalone.researchnotebook;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -168,15 +172,39 @@ public class TestXml_Ecologylab
 		public void setChannels(ArrayList<TestChannel> channels) {
 			this.channels = channels;
 		}
-
-	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
-	public static class BingSearch extends ElementState{
-		static String bingSearch; 
-	}
 	}
 	
-	public static void main(String args[]) throws SIMPLTranslationException, MalformedURLException{		
+	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
+	// cf2. bingImageResult.xml bingWebResult.xml
+	public static class BingSearch extends ElementState{
+		public static void testBingSearch() throws IOException{
+			StringBuffer b = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
+			System.out.println(b);
+		}
+	}
+	
+	public static StringBuffer readFile(String fileDir) throws IOException{
+		File f = new File(fileDir);
+		if(f.exists()){
+			StringBuffer sb = new StringBuffer(); 
+			String s = new String();
+			
+			FileReader r = new FileReader(f); 
+			BufferedReader br = new BufferedReader(r); 
+			while((s = br.readLine()) != null){
+				sb.append(s+"\n");
+			}
+			return sb;  
+		}else
+			System.out.println("file does not exist");
+		
+		return null; 
+		
+	}
+	
+	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
 //		TestXml2.testTestXml2(); 
-		TestRss.testRss(); 
+//		TestRss.testRss();
+		BingSearch.testBingSearch(); 
 	}
 }
