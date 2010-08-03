@@ -9,6 +9,7 @@
 			<link>http://xkcd.com/774/</link>
 			<description>atheists.png</description>
 			<guid>http://xkcd.com/774/</guid>
+			<pubDate>Mon, 02 Aug 2010 04:00:00 -0000</pubDate>
 		</test_item>
 		<test_item>
 			<title>University Website</title>
@@ -16,6 +17,7 @@
 			<description>university_website.png
 			</description>
 			<guid>http://xkcd.com/773/</guid>
+			<pubDate>Fri, 30 Jul 2010 04:00:00 -0000</pubDate>
 		</test_item>
 	</test_channel>
 </test_rss>
