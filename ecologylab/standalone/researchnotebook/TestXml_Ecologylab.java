@@ -178,7 +178,7 @@ public class TestXml_Ecologylab
 	// cf2. bingImageResult.xml bingWebResult.xml
 	public static class BingSearch extends ElementState{
 
-		// cf. BingImageSearchResult.java (in EcologylabGeneratedSemantics)
+		// cf. BingSearch.java, search.xml (mmd) 
 		//TODO make the root element <SearchResponse> available
 		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
 				SearchResponseState.class, Query.class/*, Image.class, Results.class, 
