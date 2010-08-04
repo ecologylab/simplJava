@@ -177,9 +177,20 @@ public class TestXml_Ecologylab
 	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
 	// cf2. bingImageResult.xml bingWebResult.xml
 	public static class BingSearch extends ElementState{
-		public static void testBingSearch() throws IOException{
-			StringBuffer b = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
-			System.out.println(b);
+
+		// cf. BingImageSearchResult.java (in EcologylabGeneratedSemantics)
+		//TODO make the root element <SearchResponse> available
+		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
+				SearchResponse.class, Query.class/*, Image.class, Results.class, 
+				ImageResult.class, Thumbnail.class */);
+		
+		public static void testBingSearch() throws IOException, SIMPLTranslationException{
+			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
+			System.out.println(sb.toString());
+
+			SearchResponse r = (SearchResponse)TS.deserializeCharSequence(sb.toString());
+			
+			r.serialize(System.out);
 		}
 	}
 	
@@ -199,7 +210,6 @@ public class TestXml_Ecologylab
 			System.out.println("file does not exist");
 		
 		return null; 
-		
 	}
 	
 	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
