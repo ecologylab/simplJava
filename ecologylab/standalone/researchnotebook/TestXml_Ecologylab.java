@@ -21,7 +21,7 @@ public class TestXml_Ecologylab
 {
 	public TestXml_Ecologylab(){	}
 	
-	public static class TestXml2 extends ElementState{
+	public static class TestXml2State extends ElementState{
 		@simpl_nowrap
 		@simpl_collection("test_items") ArrayList<TestItems> test_items = new ArrayList<TestItems>();
 
@@ -38,7 +38,7 @@ public class TestXml_Ecologylab
 		
 		@simpl_scalar 			String test;
 		
-		static final TranslationScope TS = TranslationScope.get("testing123", TestXml2.class, TestItems.class, TestSubItem.class, TestSubItem2.class);
+		static final TranslationScope TS = TranslationScope.get("testing123", TestXml2State.class, TestItems.class, TestSubItem.class, TestSubItem2.class);
 		
 		static final String STUFF = 
 				"<test_xml2 property=\"xml\" source=\"ecologylab\" foo_bar=\"baz\">" +
@@ -61,7 +61,7 @@ public class TestXml_Ecologylab
 		
 		//TODO : extract element value of test_sub_item
 		public static void testTestXml2() throws SIMPLTranslationException{
-			TestXml2 es	= (TestXml2)TS.deserializeCharSequence(STUFF);
+			TestXml2State es	= (TestXml2State)TS.deserializeCharSequence(STUFF);
 			
 			es.getVendors().add("added GMC");
 			es.getVendors().add("added ABC");
@@ -110,7 +110,7 @@ public class TestXml_Ecologylab
 	}
 	
 	// cf. RssState.java Channel.java 
-	public static class TestRss extends ElementState{
+	public static class TestRssState extends ElementState{
 		@simpl_scalar float version; 
 		
 		@simpl_nowrap
@@ -141,10 +141,10 @@ public class TestXml_Ecologylab
 					"</test_channel>" +
 				"</test_rss>";
 		
-		static TranslationScope TS = TranslationScope.get("TestRss", TestRss.class, TestChannel.class, TestItem.class);
+		static TranslationScope TS = TranslationScope.get("TestRss", TestRssState.class, TestChannel.class, TestItem.class);
 		
 		public static void testRss() throws SIMPLTranslationException, MalformedURLException{
-			TestRss r = (TestRss)TS.deserializeCharSequence(RSS);
+			TestRssState r = (TestRssState)TS.deserializeCharSequence(RSS);
 			r.serialize(System.out);
 			
 			TestChannel tc = new TestChannel(); 
@@ -181,14 +181,14 @@ public class TestXml_Ecologylab
 		// cf. BingImageSearchResult.java (in EcologylabGeneratedSemantics)
 		//TODO make the root element <SearchResponse> available
 		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
-				SearchResponse.class, Query.class/*, Image.class, Results.class, 
+				SearchResponseState.class, Query.class/*, Image.class, Results.class, 
 				ImageResult.class, Thumbnail.class */);
 		
 		public static void testBingSearch() throws IOException, SIMPLTranslationException{
 			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
 			System.out.println(sb.toString());
 
-			SearchResponse r = (SearchResponse)TS.deserializeCharSequence(sb.toString());
+			SearchResponseState r = (SearchResponseState)TS.deserializeCharSequence(sb.toString());
 			
 			r.serialize(System.out);
 		}
@@ -213,8 +213,8 @@ public class TestXml_Ecologylab
 	}
 	
 	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
-//		TestXml2.testTestXml2(); 
-//		TestRss.testRss();
+//		TestXml2State.testTestXml2(); 
+//		TestRssState.testRss();
 		BingSearch.testBingSearch(); 
 	}
 }
