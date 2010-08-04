@@ -196,16 +196,15 @@ public class TestXml_Ecologylab
 	// cf2. bingImageResult.xml bingWebResult.xml
 	//TODO serialize() bing search result
 	public static class BingSearch extends ElementState{
-
 		// cf. BingSearch.java, search.xml (mmd) 
 		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
-				SearchResponseState.class, Query.class/*, Image.class, Results.class, 
+				SearchResponseState.class, Query.class, Image.class/*, Results.class, 
 				ImageResult.class, Thumbnail.class */);
 		
 		public static void testBingSearch() throws IOException, SIMPLTranslationException{
 			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
 			System.out.println(sb.toString());
-
+			
 			SearchResponseState r = (SearchResponseState)TS.deserializeCharSequence(sb.toString());
 			
 			r.serialize(System.out);
