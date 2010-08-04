@@ -251,4 +251,10 @@ public class JnlpState extends ElementState implements Cloneable
 	{
 		return informations;
 	}
+
+	@Override
+	public String toString()
+	{
+		return this.getHref();
+	}
 }
