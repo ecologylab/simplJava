@@ -21,6 +21,24 @@ public class TestXml_Ecologylab
 {
 	public TestXml_Ecologylab(){	}
 	
+	public static StringBuffer readFile(String fileDir) throws IOException{
+		File f = new File(fileDir);
+		if(f.exists()){
+			StringBuffer sb = new StringBuffer(); 
+			String s = new String();
+			
+			FileReader r = new FileReader(f); 
+			BufferedReader br = new BufferedReader(r); 
+			while((s = br.readLine()) != null){
+				sb.append(s+"\n");
+			}
+			return sb;  
+		}else
+			System.out.println("file does not exist");
+		
+		return null; 
+	}
+	
 	public static class TestXml2State extends ElementState{
 		@simpl_nowrap
 		@simpl_collection("test_items") ArrayList<TestItems> test_items = new ArrayList<TestItems>();
@@ -176,10 +194,10 @@ public class TestXml_Ecologylab
 	
 	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
 	// cf2. bingImageResult.xml bingWebResult.xml
+	//TODO serialize() bing search result
 	public static class BingSearch extends ElementState{
 
 		// cf. BingSearch.java, search.xml (mmd) 
-		//TODO make the root element <SearchResponse> available
 		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
 				SearchResponseState.class, Query.class/*, Image.class, Results.class, 
 				ImageResult.class, Thumbnail.class */);
@@ -194,22 +212,10 @@ public class TestXml_Ecologylab
 		}
 	}
 	
-	public static StringBuffer readFile(String fileDir) throws IOException{
-		File f = new File(fileDir);
-		if(f.exists()){
-			StringBuffer sb = new StringBuffer(); 
-			String s = new String();
-			
-			FileReader r = new FileReader(f); 
-			BufferedReader br = new BufferedReader(r); 
-			while((s = br.readLine()) != null){
-				sb.append(s+"\n");
-			}
-			return sb;  
-		}else
-			System.out.println("file does not exist");
+	//TODO extract data from composition created
+	public static class CompositionState extends ElementState{
+		//cf. compositionState.java -> main() 
 		
-		return null; 
 	}
 	
 	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
