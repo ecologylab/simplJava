@@ -214,16 +214,22 @@ public class TestXml_Ecologylab
 	public static class Composition extends ElementState{
 		//cf. compositionState.java -> main() 
 		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
-				CompositionState.class);
+				CompositionState.class/*, Preferences.class, SeedSet.class, SiteSet.class, 
+				TraversableSet.class, UntraversableSet.class, RejectDomainSet.class,
+				ContainerSet.class, Set.class, Container.class, Document.class, 
+				WikipediaPage.class, Paragraphs.class, Paragraph.class, Anchors.class,
+				Categories.class, Category.class, Thumbinners.class, Thumbinner.class,
+				SurrogateSet.class, Surrogate.class, ImageElement.class, Image.class,
+				Visual.class, Extent.class, TextElement.class, Text.class, TextChunk.class,
+				CfTextToken.class, NamedStyle.class, InterestModel.class, Values.class,
+				InterestModelEntry.class*/);
 		
 		public static void testComposition() throws IOException, SIMPLTranslationException{
 			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//TestComposition.xml");
 			System.out.println(sb.toString());
 			
 			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
-			
 			r.serialize(System.out);
-			
 		}
 	}
 	
