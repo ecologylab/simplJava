@@ -9,6 +9,7 @@ import ecologylab.serialization.ElementState.xml_tag;
 @simpl_inherit
 
 public class Query extends ElementState{
-	@xml_tag("SearchTerms") @simpl_collection("SearchTerms") ArrayList<String> SearchTerms = new ArrayList<String>();  
+	@simpl_nowrap
+	@simpl_collection("SearchTerms") ArrayList<String> terms = new ArrayList<String>();  
 
 }
