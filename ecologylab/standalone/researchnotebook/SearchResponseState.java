@@ -7,9 +7,8 @@ import ecologylab.serialization.ElementState.xml_tag;
 
 @simpl_inherit
 @xml_tag("SearchResponse")
-
-// BingSearch.java
 public class SearchResponseState extends ElementState{
+	//TODO let xmlns be visible 
 	@xml_tag("xmlns") @simpl_scalar ParsedURL xmlns;
 	@xml_tag("Version") @simpl_scalar float version; 
 
