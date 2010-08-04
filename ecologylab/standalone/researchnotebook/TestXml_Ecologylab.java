@@ -19,7 +19,7 @@ import ecologylab.serialization.TranslationScope;
 
 public class TestXml_Ecologylab   
 {
-	public TestXml_Ecologylab(){	}
+	public TestXml_Ecologylab(){ }
 	
 	public static StringBuffer readFile(String fileDir) throws IOException{
 		File f = new File(fileDir);
@@ -194,12 +194,11 @@ public class TestXml_Ecologylab
 	
 	// cf. http://api.bing.net/xml.aspx?Sources=image&AppId=828DA72AA6D172560F256E7B3784FA2295CB7D99&Version=2.2&Market=en-US&Query=texas&Web.Count=20
 	// cf2. bingImageResult.xml bingWebResult.xml
-	//TODO serialize() bing search result
 	public static class BingSearch extends ElementState{
 		// cf. BingSearch.java, search.xml (mmd) 
 		static final TranslationScope TS = TranslationScope.get("BingSearchTS", 
-				SearchResponseState.class, Query.class, Image.class/*, Results.class, 
-				ImageResult.class, Thumbnail.class */);
+				SearchResponseState.class, Query.class, Image.class, Results.class, 
+				ImageResult.class, Thumbnail.class);
 		
 		public static void testBingSearch() throws IOException, SIMPLTranslationException{
 			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//bingImageResult.xml");
@@ -212,14 +211,26 @@ public class TestXml_Ecologylab
 	}
 	
 	//TODO extract data from composition created
-	public static class CompositionState extends ElementState{
+	public static class Composition extends ElementState{
 		//cf. compositionState.java -> main() 
+		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
+				CompositionState.class);
 		
+		public static void testComposition() throws IOException, SIMPLTranslationException{
+			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//TestComposition.xml");
+			System.out.println(sb.toString());
+			
+			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
+			
+			r.serialize(System.out);
+			
+		}
 	}
 	
 	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
 //		TestXml2State.testTestXml2(); 
 //		TestRssState.testRss();
-		BingSearch.testBingSearch(); 
+//		BingSearch.testBingSearch(); 
+		Composition.testComposition(); 
 	}
 }
