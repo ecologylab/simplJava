@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.ElementState.xml_tag;
 
 @simpl_inherit
 
