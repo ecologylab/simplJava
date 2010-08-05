@@ -1,44 +1,52 @@
-<SearchResponse Version="2.2">
-	<Query>
-		<SearchTerms>texas</SearchTerms>
-	</Query>
-	<mms:Image>
-		<mms:Total>13900000</mms:Total>
-		<mms:Results>
-			<mms:ImageResult>
-				<mms:Title>Texas County Map - Texas Map</mms:Title>
-				<mms:MediaUrl>http://www.digital-topo-maps.com/county-map/texas-county-map.gif</mms:MediaUrl>
-				<mms:Url>http://www.digital-topo-maps.com/county-map/texas.shtml</mms:Url>
-				<mms:DisplayUrl>http://www.digital-topo-maps.com/county-map/texas.shtml</mms:DisplayUrl>
-				<mms:Width>968</mms:Width>
-				<mms:Height>900</mms:Height>
-				<mms:FileSize>94328</mms:FileSize>
-				<mms:ContentType>image/gif</mms:ContentType>
-				<mms:Thumbnail>
-					<mms:Url>http://ts2.mm.bing.net/images/thumbnail.aspx?q=182185757025&amp;id=f15d95c549b1d08c0ae6abbe6f358bc7</mms:Url>
-					<mms:ContentType>image/jpeg</mms:ContentType>
-					<mms:Width>160</mms:Width>
-					<mms:Height>148</mms:Height>
-					<mms:FileSize>4405</mms:FileSize>
-					</mms:Thumbnail>
-			</mms:ImageResult>
-			<mms:ImageResult>
-				<mms:Title>Texas USDA Rural Development ...</mms:Title>
-				<mms:MediaUrl>http://www.texas-capital-mortgage.com/images/Texas_20Logo.jpg</mms:MediaUrl>
-				<mms:Url>http://www.texas-capital-mortgage.com/Texas_20_USDA_20_Rural_20_Development_20_RD_20_Mortgage.html</mms:Url>
-				<mms:DisplayUrl>http://www.texas-capital-mortgage.com/Texas_20_USDA_20_Rural_20_Development_20_RD_20_Mortgage.html</mms:DisplayUrl>
-				<mms:Width>640</mms:Width>
-				<mms:Height>480</mms:Height>
-				<mms:FileSize>40942</mms:FileSize>
-				<mms:ContentType>image/jpeg</mms:ContentType>
-				<mms:Thumbnail>
-					<mms:Url>http://ts1.mm.bing.net/images/thumbnail.aspx?q=183667730616&amp;id=0022415380f4211cbb610cc66d95f612</mms:Url>
-					<mms:ContentType>image/jpeg</mms:ContentType>
-					<mms:Width>160</mms:Width>
-					<mms:Height>120</mms:Height>
-					<mms:FileSize>3305</mms:FileSize>
-				</mms:Thumbnail>
-			</mms:ImageResult>
-		</mms:Results>
-	</mms:Image>
-</SearchResponse>
+<composition version="4.1" save_agent_state="true"
+	cool_space_size="17">
+	<preferences>
+		<screen width="634" height="701" size="2" />
+	</preferences>
+	<seed_set>
+		<search query="picasso" bias="1.0" engine="google"
+			current_first_result_index="20" />
+	</seed_set>
+	<site_set>
+		<site domain="cyberspain.com" stroke_hue="0.8666667" font_index="7" />
+		<site domain="paintings.name" font_index="4" />
+		<site domain="life.com" stroke_hue="0.5555556" font_index="4" />
+		<site domain="wikipedia.org" stroke_hue="0.083333336" font_index="5" />
+	</site_set>
+	<traversable_set />
+	<untraversable_set />
+	<reject_domain_set>
+		<reject>computer.org</reject>
+		<reject>youtube.com</reject>
+		<reject>answers.com</reject>
+		<reject>amazon.com</reject>
+	</reject_domain_set>
+	<container_set>
+		<set>
+			<container purl="http://pablo-picasso.paintings.name/"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://pablo-picasso.paintings.name/"
+					title="Pablo Picasso cubism" page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+			<container purl="http://www.cyberspain.com/passion/picasso.htm"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://www.cyberspain.com/passion/picasso.htm"
+					title="Spain in Cyberspain: PICASSO" page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+			<container purl="http://en.wikipedia.org/wiki/Pablo_Picasso"
+				document_type="XPathParser" generation="1" bias="1.0"></container>
+			<container purl="http://www.life.com/image/50695728/in-gallery/24871"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://www.life.com/image/50695728/in-gallery/24871"
+					title="Picasso: Drawing With Light - Photo Gallery - LIFE"
+					page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+		</set>
+	</container_set>
+</composition>

@@ -15,6 +15,7 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.standalone.researchnotebook.bing.Image;
 
 
 public class TestXml_Ecologylab   
