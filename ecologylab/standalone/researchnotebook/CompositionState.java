@@ -1,10 +1,12 @@
 package ecologylab.standalone.researchnotebook;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.ElementState.xml_tag;
 
 public class CompositionState extends ElementState{
 	@simpl_scalar float version;
-	@simpl_scalar String save_agent_state;
+	@simpl_scalar boolean save_agent_state;
 	@simpl_scalar int cool_space_size; 
 	
 	@simpl_composite Preferences preferences; 
