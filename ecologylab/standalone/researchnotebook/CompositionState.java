@@ -6,7 +6,7 @@ import ecologylab.serialization.ElementState.xml_tag;
 
 public class CompositionState extends ElementState{
 	@simpl_scalar float version;
-	@simpl_scalar boolean save_agent_state;
+	@simpl_scalar String save_agent_state;
 	@simpl_scalar int cool_space_size; 
 	
 	@simpl_composite Preferences preferences; 
@@ -19,9 +19,8 @@ public class CompositionState extends ElementState{
 	@simpl_composite SurrogateSet surrogate_set; 
 	@simpl_composite InterestModel interest_model; 
 	
-	//TODO let this workable 
-	public void setState(boolean isSave){
-		save_agent_state = isSave; 
+	public void setState(String isTrue){
+		save_agent_state = isTrue; 
 	}
 	
 	public void setSize(int size){
