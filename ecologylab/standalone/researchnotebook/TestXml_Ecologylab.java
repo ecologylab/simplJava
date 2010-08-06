@@ -234,6 +234,13 @@ public class TestXml_Ecologylab
 			System.out.println();
 			System.out.println(r.save_agent_state);
 			System.out.println(r.cool_space_size);
+			System.out.println(r.preferences.screen.size);
+			System.out.println(r.seed_set.search.get(0).query); 
+			ArrayList<Search> s = r.seed_set.getSearch();
+			for(Search sr: s){
+				System.out.println(sr.query);
+				
+			}
 		}
 	}
 	
