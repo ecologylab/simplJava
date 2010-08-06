@@ -213,7 +213,6 @@ public class TestXml_Ecologylab
 	
 	//TODO extract data from composition created
 	public static class Composition extends ElementState{
-		//cf. compositionState.java -> main() 
 		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
 				CompositionState.class, Preferences.class, SeedSet.class, SiteSet.class, 
 				TraversableSet.class, UntraversableSet.class, RejectDomainSet.class,
@@ -239,7 +238,6 @@ public class TestXml_Ecologylab
 			ArrayList<Search> s = r.seed_set.getSearch();
 			for(Search sr: s){
 				System.out.println(sr.query);
-				
 			}
 		}
 	}
