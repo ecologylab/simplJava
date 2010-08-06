@@ -231,6 +231,9 @@ public class TestXml_Ecologylab
 			
 			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
 			r.serialize(System.out);
+			System.out.println();
+			System.out.println(r.save_agent_state);
+			System.out.println(r.cool_space_size);
 		}
 	}
 	
