@@ -18,4 +18,13 @@ public class CompositionState extends ElementState{
 	@simpl_composite ContainerSet container_set; 
 	@simpl_composite SurrogateSet surrogate_set; 
 	@simpl_composite InterestModel interest_model; 
+	
+	//TODO let this workable 
+	public void setState(boolean isSave){
+		save_agent_state = isSave; 
+	}
+	
+	public void setSize(int size){
+		cool_space_size = size; 
+	}
 }
