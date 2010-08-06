@@ -243,7 +243,7 @@ public class TestXml_Ecologylab
 			for(Site si: st){
 				System.out.println(si.domain);
 			}
-			
+			r.setState("false"); 
 			r.setSize(30);
 			r.serialize(System.out);			
 		}
