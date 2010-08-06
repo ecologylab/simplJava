@@ -239,6 +239,10 @@ public class TestXml_Ecologylab
 			for(Search sr: s){
 				System.out.println(sr.query);
 			}
+			ArrayList<Site> st = r.site_set.getSite();
+			for(Site si: st){
+				System.out.println(si.domain);
+			}
 		}
 	}
 	
