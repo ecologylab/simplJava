@@ -112,7 +112,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		synchronized (toDownload)
 		{
-			// debug("download("+thatDownloadable);
+			debug("\n download("+thatDownloadable.purl() + ")");
 			toDownload.add(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
