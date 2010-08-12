@@ -3,7 +3,7 @@ package ecologylab.standalone.researchnotebook.compositionTS;
 import java.util.Date;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.standalone.researchnotebook.SiteSet;
+import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 
 public class CompositionState extends ElementState{
 	@simpl_scalar float version;

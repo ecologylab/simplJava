@@ -11,10 +11,10 @@ import java.util.Calendar;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.standalone.researchnotebook.Image;
-import ecologylab.standalone.researchnotebook.SiteSet;
+import ecologylab.standalone.researchnotebook.testxml.Image;
+import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 
-public class MAIN {
+public class TestComposition {
 	public static StringBuffer readFile(String fileDir) throws IOException{
 		File f = new File(fileDir);
 		if(f.exists()){
