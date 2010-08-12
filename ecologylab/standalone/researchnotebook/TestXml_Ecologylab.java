@@ -17,7 +17,37 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.standalone.researchnotebook.bing.Image;
+import ecologylab.standalone.researchnotebook.compositionTS.Anchors;
+import ecologylab.standalone.researchnotebook.compositionTS.Categories;
+import ecologylab.standalone.researchnotebook.compositionTS.Category;
+import ecologylab.standalone.researchnotebook.compositionTS.CfTextToken;
+import ecologylab.standalone.researchnotebook.compositionTS.CompositionState;
+import ecologylab.standalone.researchnotebook.compositionTS.Container;
+import ecologylab.standalone.researchnotebook.compositionTS.ContainerSet;
+import ecologylab.standalone.researchnotebook.compositionTS.Document;
+import ecologylab.standalone.researchnotebook.compositionTS.Extent;
+import ecologylab.standalone.researchnotebook.compositionTS.ImageElement;
+import ecologylab.standalone.researchnotebook.compositionTS.InterestModel;
+import ecologylab.standalone.researchnotebook.compositionTS.InterestModelEntry;
+import ecologylab.standalone.researchnotebook.compositionTS.NamedStyle;
+import ecologylab.standalone.researchnotebook.compositionTS.Paragraph;
+import ecologylab.standalone.researchnotebook.compositionTS.Paragraphs;
+import ecologylab.standalone.researchnotebook.compositionTS.Preferences;
+import ecologylab.standalone.researchnotebook.compositionTS.RejectDomainSet;
+import ecologylab.standalone.researchnotebook.compositionTS.SeedSet;
+import ecologylab.standalone.researchnotebook.compositionTS.Set;
+import ecologylab.standalone.researchnotebook.compositionTS.Surrogate;
+import ecologylab.standalone.researchnotebook.compositionTS.SurrogateSet;
+import ecologylab.standalone.researchnotebook.compositionTS.Text;
+import ecologylab.standalone.researchnotebook.compositionTS.TextChunk;
+import ecologylab.standalone.researchnotebook.compositionTS.TextElement;
+import ecologylab.standalone.researchnotebook.compositionTS.Thumbinner;
+import ecologylab.standalone.researchnotebook.compositionTS.Thumbinners;
+import ecologylab.standalone.researchnotebook.compositionTS.TraversableSet;
+import ecologylab.standalone.researchnotebook.compositionTS.UntraversableSet;
+import ecologylab.standalone.researchnotebook.compositionTS.Values;
+import ecologylab.standalone.researchnotebook.compositionTS.Visual;
+import ecologylab.standalone.researchnotebook.compositionTS.WikipediaPage;
 
 
 public class TestXml_Ecologylab   
@@ -215,52 +245,10 @@ public class TestXml_Ecologylab
 		}
 	}
 	
-	//TODO extract data from composition created
-	public static class Composition extends ElementState{ 
-		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
-				CompositionState.class, Preferences.class, SeedSet.class, SiteSet.class, 
-				TraversableSet.class, UntraversableSet.class, RejectDomainSet.class,
-				ContainerSet.class, Set.class, Container.class, Document.class, 
-				WikipediaPage.class, Paragraphs.class, Paragraph.class, Anchors.class,
-				Categories.class, Category.class, Thumbinners.class, Thumbinner.class,
-				SurrogateSet.class, Surrogate.class, ImageElement.class, Image.class,
-				Visual.class, Extent.class, TextElement.class, Text.class, TextChunk.class,
-				CfTextToken.class, NamedStyle.class, InterestModel.class, Values.class,
-				InterestModelEntry.class);
-		
-		public static void testComposition() throws IOException, SIMPLTranslationException{
-			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//collageData//composition1.xml");
-			System.out.println(sb.toString());
-			
-			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
-			r.serialize(System.out);
-			System.out.println();
-			System.out.println(r.save_agent_state);
-			System.out.println(r.cool_space_size);
-			System.out.println(r.preferences.screen.size);
-			System.out.println(r.seed_set.search.get(0).query); 
-			ArrayList<Search> s = r.seed_set.getSearch();
-			for(Search sr: s){
-				System.out.println(sr.query);
-			}
-			ArrayList<Site> st = r.site_set.getSite();
-			for(Site si: st){
-				System.out.println(si.domain);
-			}
-			r.setState("false"); 
-			r.setSize(30);
-			
-			SimpleDateFormat thisDateFormat = new SimpleDateFormat("MM-dd-yy_'at'_HH_mm_ss");
-			String out = thisDateFormat.format(Calendar.getInstance().getTime());
-			r.setDate(out); 
-			r.serialize(System.out); 
-		}
-	}
-	
 	public static void main(String args[]) throws SIMPLTranslationException, IOException{		
 //		TestXml2State.testTestXml2(); 
 //		TestRssState.testRss();
-//		BingSearch.testBingSearch(); 
-		Composition.testComposition();
+		BingSearch.testBingSearch(); 
+
 	}
 }
