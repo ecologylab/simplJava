@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
@@ -20,6 +22,8 @@ import ecologylab.standalone.researchnotebook.bing.Image;
 
 public class TestXml_Ecologylab   
 {
+	private static boolean DEBUG = false; 
+	
 	public TestXml_Ecologylab(){ }
 	
 	public static StringBuffer readFile(String fileDir) throws IOException{
@@ -212,7 +216,7 @@ public class TestXml_Ecologylab
 	}
 	
 	//TODO extract data from composition created
-	public static class Composition extends ElementState{
+	public static class Composition extends ElementState{ 
 		static final TranslationScope TS = TranslationScope.get("CompositionTS", 
 				CompositionState.class, Preferences.class, SeedSet.class, SiteSet.class, 
 				TraversableSet.class, UntraversableSet.class, RejectDomainSet.class,
@@ -225,7 +229,7 @@ public class TestXml_Ecologylab
 				InterestModelEntry.class);
 		
 		public static void testComposition() throws IOException, SIMPLTranslationException{
-			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//TestComposition.xml");
+			StringBuffer sb = readFile("ecologylab//standalone//researchnotebook//collageData//composition1.xml");
 			System.out.println(sb.toString());
 			
 			CompositionState r = (CompositionState)TS.deserializeCharSequence(sb.toString());
@@ -245,7 +249,11 @@ public class TestXml_Ecologylab
 			}
 			r.setState("false"); 
 			r.setSize(30);
-			r.serialize(System.out);			
+			
+			SimpleDateFormat thisDateFormat = new SimpleDateFormat("MM-dd-yy_'at'_HH_mm_ss");
+			String out = thisDateFormat.format(Calendar.getInstance().getTime());
+			r.setDate(out); 
+			r.serialize(System.out); 
 		}
 	}
 	
@@ -253,6 +261,6 @@ public class TestXml_Ecologylab
 //		TestXml2State.testTestXml2(); 
 //		TestRssState.testRss();
 //		BingSearch.testBingSearch(); 
-		Composition.testComposition(); 
+		Composition.testComposition();
 	}
 }
