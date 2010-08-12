@@ -155,7 +155,7 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	{
 		PrefSet retVal = new PrefSet();
 
-		if (preferences == null)
+		if (preferences != null)
 		{
 			for (Pref<?> p : preferences.values())
 			{
