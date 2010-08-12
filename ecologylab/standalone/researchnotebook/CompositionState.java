@@ -1,13 +1,14 @@
 package ecologylab.standalone.researchnotebook;
 
+import java.util.Date;
+
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.xml_tag;
 
 public class CompositionState extends ElementState{
 	@simpl_scalar float version;
 	@simpl_scalar String save_agent_state;
-	@simpl_scalar int cool_space_size; 
+	@simpl_scalar int cool_space_size;
+	@simpl_scalar String date; 		// added 
 	
 	@simpl_composite Preferences preferences; 
 	@simpl_composite SeedSet seed_set; 
@@ -25,5 +26,10 @@ public class CompositionState extends ElementState{
 	
 	public void setSize(int size){
 		cool_space_size = size; 
+	}
+	
+	// added 
+	public void setDate(String d){
+		date = d; 
 	}
 }
