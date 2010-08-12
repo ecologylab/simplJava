@@ -4,7 +4,6 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.standalone.researchnotebook.bing.Image;
 
 @simpl_inherit
 @xml_tag("SearchResponse")

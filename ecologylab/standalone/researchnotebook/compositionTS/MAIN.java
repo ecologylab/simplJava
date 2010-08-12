@@ -11,8 +11,8 @@ import java.util.Calendar;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.standalone.researchnotebook.Image;
 import ecologylab.standalone.researchnotebook.SiteSet;
-import ecologylab.standalone.researchnotebook.bing.Image;
 
 public class MAIN {
 	public static StringBuffer readFile(String fileDir) throws IOException{

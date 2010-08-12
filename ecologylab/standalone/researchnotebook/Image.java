@@ -2,10 +2,13 @@ package ecologylab.standalone.researchnotebook;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.Hint;
 
 public class Image extends ElementState{
-	@simpl_scalar String context; 
-	@simpl_scalar String caption; 
-	@simpl_scalar ParsedURL location; 
-	@simpl_scalar String local_location; 
+	@xml_tag("xmlns:mms") @simpl_scalar @simpl_hints(Hint.XML_ATTRIBUTE) ParsedURL xmlns;
+	@xml_tag("mms:Total") @simpl_scalar @simpl_hints(Hint.XML_LEAF) int total;
+	@xml_tag("mms:Offset") @simpl_scalar @simpl_hints(Hint.XML_LEAF) int offset;
+	
+	@xml_tag("mms:Results") @simpl_composite Results results; 
+	
 }
