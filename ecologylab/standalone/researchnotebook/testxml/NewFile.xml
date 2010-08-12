@@ -1,0 +1,192 @@
+<composition version="4.1" save_agent_state="true"
+	cool_space_size="17">
+	<preferences>
+		<screen width="634" height="701" size="2" />
+	</preferences>
+	<seed_set>
+		<search query="picasso" bias="1.0" engine="google"
+			current_first_result_index="20" />
+	</seed_set>
+	<site_set>
+		<site domain="cyberspain.com" stroke_hue="0.8666667" font_index="7" />
+		<site domain="paintings.name" font_index="4" />
+		<site domain="life.com" stroke_hue="0.5555556" font_index="4" />
+		<site domain="wikipedia.org" stroke_hue="0.083333336" font_index="5" />
+	</site_set>
+	<traversable_set />
+	<untraversable_set />
+	<reject_domain_set>
+		<reject>computer.org</reject>
+		<reject>youtube.com</reject>
+		<reject>answers.com</reject>
+		<reject>amazon.com</reject>
+	</reject_domain_set>
+	<container_set>
+		<set>
+			<container purl="http://pablo-picasso.paintings.name/"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://pablo-picasso.paintings.name/"
+					title="Pablo Picasso cubism" page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+			<container purl="http://www.cyberspain.com/passion/picasso.htm"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://www.cyberspain.com/passion/picasso.htm"
+					title="Spain in Cyberspain: PICASSO" page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+			<container purl="http://en.wikipedia.org/wiki/Pablo_Picasso"
+				document_type="XPathParser" generation="1" bias="1.0">
+				<wikipedia_page location="http://en.wikipedia.org/wiki/Pablo_Picasso"
+					title="Pablo Picasso" page_structure="null"
+					main_image_src="http://upload.wikimedia.org/wikipedia/commons/9/98/Pablo_picasso_1.jpg">
+					<query>picasso</query>
+					<paragraphs>
+						<paragraph
+							paragraph_text="Pablo Diego Jos&#195;&#169; Francisco de Paula Juan Nepomuceno Mar&#195;&#173;a de los Remedios Cipriano de la Sant&#195;&#173;sima Trinidad Ruiz y Picasso known as Pablo Ruiz Picasso (Spanish pronunciation:&#160;[&#39;pa&#206;&#178;lo &#197;&#8482;u&#39;j&#206;&#184; pi&#39;kasso]; 25 October 1881&#160;&#226;&#8364;&#8220; 8 April 1973) was a Spanish painter, draughtsman, and sculptor. He is best known for co-founding the Cubist movement and for the wide variety of styles embodied in his work. Among his most famous works are the proto-Cubist Les Demoiselles d&#39;Avignon (1907) and Guernica (1937), his portrayal of the German bombing of Guernica during the Spanish Civil War.">
+							<anchors>
+								<anchor anchor_text="painter"
+									link="http://en.wikipedia.org/wiki/Painting" target_title="Painting" />
+								<anchor anchor_text="draughtsman"
+									link="http://en.wikipedia.org/wiki/Drawing" target_title="Drawing" />
+								<anchor anchor_text="sculptor"
+									link="http://en.wikipedia.org/wiki/Sculpture" target_title="Sculpture" />
+							</anchors>
+						</paragraph>
+						<paragraph
+							paragraph_text="Picasso was baptized Pablo Diego Jos&#195;&#169; Francisco de Paula Juan Nepomuceno Mar&#195;&#173;a de los Remedios Crispiniano de la Sant&#195;&#173;sima Trinidad, a series of names honouring various saints and relatives.[2] Added to these were Ruiz and Picasso, for his father and mother, respectively, as per Spanish law. Born in the city of M&#195;&#161;laga in the Andalusian region of Spain, he was the first child of Don Jos&#195;&#169; Ruiz y Blasco (1838&#226;&#8364;&#8220;1913) and Mar&#195;&#173;a Picasso y L&#195;&#179;pez.[3] Picasso&#226;&#8364;&#8482;s family was middle-class; his father was also a painter who specialized in naturalistic depictions of birds and other game. For most of his life Ruiz was a professor of art at the School of Crafts and a curator of a local museum. Ruiz&#226;&#8364;&#8482;s ancestors were minor aristocrats.">
+							<anchors>
+								<anchor anchor_text="M&#195;&#161;laga"
+									link="http://en.wikipedia.org/wiki/M%C3%A1laga" target_title="M&#195;&#161;laga" />
+								<anchor anchor_text="Andalusian"
+									link="http://en.wikipedia.org/wiki/Andalusia" target_title="Andalusia" />
+								<anchor anchor_text="Don Jos&#195;&#169; Ruiz y Blasco"
+									link="http://en.wikipedia.org/wiki/Jos%C3%A9_Ruiz_y_Blasco"
+									target_title="Jos&#195;&#169; Ruiz y Blasco" />
+							</anchors>
+						</paragraph>
+						<paragraph
+							paragraph_text="The family moved to A Coru&#195;&#177;a in 1891 where his father became a professor at the School of Fine Arts. They stayed almost four years. On one occasion the father found his son painting over his unfinished sketch of a pigeon. Observing the precision of his son&#226;&#8364;&#8482;s technique, Ruiz felt that the thirteen-year-old Picasso had surpassed him, and vowed to give up painting.[5]">
+							<anchors>
+								<anchor anchor_text="A Coru&#195;&#177;a"
+									link="http://en.wikipedia.org/wiki/A_Coru%C3%B1a" target_title="A Coru&#195;&#177;a" />
+							</anchors>
+						</paragraph>
+					</paragraphs>
+					<categories>
+						<category name="1881 births"
+							cat_link="http://en.wikipedia.org/wiki/Category:1881_births" />
+						<category name="1973 deaths"
+							cat_link="http://en.wikipedia.org/wiki/Category:1973_deaths" />
+						<category name="Ballet designers"
+							cat_link="http://en.wikipedia.org/wiki/Category:Ballet_designers" />
+						<category name="Cubism"
+							cat_link="http://en.wikipedia.org/wiki/Category:Cubism" />
+					</categories>
+					<thumbinners>
+						<thumbinner
+							thumb_img_caption="The house where Picasso was born, in M&#195;&#161;laga"
+							thumb_img_src="http://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Malaga_Picasso-Geburtshaus2004.jpg/220px-Malaga_Picasso-Geburtshaus2004.jpg" />
+						<thumbinner
+							thumb_img_caption="Portrait of Gertrude Stein, 1906, Metropolitan Museum of Art, New York City. When someone commented that Stein did not look like her portrait, Picasso replied, &#34;She will&#34;.[8]"
+							thumb_img_src="http://upload.wikimedia.org/wikipedia/en/thumb/d/d6/GertrudeStein.JPG/170px-GertrudeStein.JPG" />
+						<thumbinner
+							thumb_img_caption="Portrait of Daniel-Henry Kahnweiler, 1910, The Art Institute of Chicago. Picasso wrote of Kahnweiler What would have become of us if Kahnweiler hadn&#39;t had a business sense?"
+							thumb_img_src="http://upload.wikimedia.org/wikipedia/en/thumb/6/68/Picasso_Portrait_of_Daniel-Henry_Kahnweiler_1910.jpg/170px-Picasso_Portrait_of_Daniel-Henry_Kahnweiler_1910.jpg" />
+					</thumbinners>
+				</wikipedia_page>
+			</container>
+			<container purl="http://www.life.com/image/50695728/in-gallery/24871"
+				document_type="HTMLDOMImageTextParser" generation="1" bias="1.0">
+				<document location="http://www.life.com/image/50695728/in-gallery/24871"
+					title="Picasso: Drawing With Light - Photo Gallery - LIFE"
+					page_structure="null">
+					<query>picasso</query>
+				</document>
+			</container>
+		</set>
+	</container_set>
+	<surrogate_set>
+		<surrogate containerURL="http://www.life.com/image/50695728/in-gallery/24871"
+			history_num="8">
+			<image_element bias="1.0"
+				href="http://www.life.com/image/50378944/in-gallery/24871/picasso-drawing-with-light"
+				has_transparency="true" min_alpha="2555904" alpha_radius="24">
+				<image context="null" caption="View This Image"
+					location="http://www.life.com/static/app/944/50378944/filmstrip.jpg"
+					local_location="untitled-images/www.life.com-filmstrip.jpg" />
+			</image_element>
+			<visual>
+				<extent x="435" y="235" width="70" height="70" />
+			</visual>
+		</surrogate>
+		<surrogate containerURL="http://en.wikipedia.org/wiki/Pablo_Picasso"
+			history_num="7">
+			<text_element bias="1.0" stroke_color="#fcc9e9db"
+				font_color="#9e000000">
+				<text
+					context="ThePicasso Administration functions as his official Estate. The U.S. copyright representative for the Picasso Administration is the Artists Rights Society.[54]" />
+				<text_chunk>
+					<cf_text_token delims_before="" style_plus_one="2"
+						eol="1">
+						<string>Picasso</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" " eol="1">
+						<string>Administration</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" ">
+						<string>functions</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" ">
+						<string>as</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" " eol="1">
+						<string>his</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" ">
+						<string>official</string>
+					</cf_text_token>
+					<cf_text_token delims_before=" ">
+						<string>Estate.</string>
+					</cf_text_token>
+					<named_style font_size="18" />
+				</text_chunk>
+			</text_element>
+			<visual>
+				<extent x="170" y="281" width="137" height="92" />
+			</visual>
+		</surrogate>
+		<surrogate containerURL="http://en.wikipedia.org/wiki/Pablo_Picasso"
+			history_num="4">
+			<image_element bias="1.0" has_transparency="true"
+				min_alpha="2228224" alpha_radius="49">
+				<image context="null"
+					caption="Pablo Picasso, La Vie (1903), Cleveland Museum of Art"
+					location="http://upload.wikimedia.org/wikipedia/en/thumb/b/b1/Picasso_la_vie.jpg/220px-Picasso_la_vie.jpg"
+					local_location="untitled-images/upload.wikimedia.org-220px-Picasso_la_vie.jpg" />
+			</image_element>
+			<visual>
+				<extent x="141" y="369" width="90" height="140" />
+			</visual>
+		</surrogate>
+		<surrogate containerURL="http://en.wikipedia.org/wiki/Pablo_Picasso"
+			history_num="1">
+			<image_element bias="1.0" has_transparency="true"
+				min_alpha="5505024" alpha_radius="35">
+				<image context="null" caption="Picasso sculpture in Halmstad"
+					location="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Kvinnohuvud1-hstd.JPG/170px-Kvinnohuvud1-hstd.JPG"
+					local_location="untitled-images/upload.wikimedia.org-170px-Kvinnohuvud1-hstd.JPG" />
+			</image_element>
+			<visual>
+				<extent x="142" y="161" width="90" height="120" />
+			</visual>
+		</surrogate>
+	</surrogate_set>
+	<interest_model>
+		<values>
+			<interest_model_entry string="picasso" value="2.0" />
+		</values>
+	</interest_model>
+</composition>
