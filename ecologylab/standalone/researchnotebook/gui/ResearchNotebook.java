@@ -1,8 +1,10 @@
 package ecologylab.standalone.researchnotebook.gui;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -10,6 +12,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -26,10 +29,16 @@ public class ResearchNotebook extends JFrame{
 	
 	private ActionHandler h = new ActionHandler(); 
 	
-	private static boolean DEBUG = true; 
+	//add panel 
+	CollectionTreePanel tp = new CollectionTreePanel(); 
+	CollectionPreviewPanel pp = new CollectionPreviewPanel();
+	
+	JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	
+	private static boolean debug = true; 
 	
 	public ResearchNotebook(){
-		super("research notebook"); 
+		super("research notebook");
 		super.setJMenuBar(bar);
 		super.add(bottom, BorderLayout.SOUTH);
 		
@@ -44,12 +53,25 @@ public class ResearchNotebook extends JFrame{
 		item_open.addActionListener(h);
 		item_exit.addActionListener(h);
 		item_about.addActionListener(h); 
+		
+		//add panel 
+		sp.setLeftComponent(tp); 
+		sp.setRightComponent(pp); 
+		sp.setDividerLocation(150); 
+		
+		try {
+			pp.displayUrl("composition3.html");
+		} catch (IOException e) {
+			System.out.println("loading html fails");
+		} 
+		
+		add(sp);
 	}
 	
 	private static class ActionHandler implements ActionListener{
 		public void actionPerformed(ActionEvent e){
 			String action = e.getActionCommand(); 
-			if(DEBUG)
+			if(debug)
 				System.out.println("[INFO] action requested :" + action);
 			if("About" == action)
 				JOptionPane.showMessageDialog(null, "this is a research notebook containing a collection of user-authored cF compositions.", "About", JOptionPane.INFORMATION_MESSAGE);
