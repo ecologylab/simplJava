@@ -13,8 +13,14 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+
+import ecologylab.standalone.researchnotebook.gui.CollectionTreePanel.Collection;
 
 public class ResearchNotebook extends JFrame{
 	private JLabel bottom = new JLabel("research notebook");
@@ -33,6 +39,8 @@ public class ResearchNotebook extends JFrame{
 	CollectionTreePanel tp = new CollectionTreePanel(); 
 	CollectionPreviewPanel pp = new CollectionPreviewPanel();
 	
+	JTree tree; 
+	
 	JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 	
 	private static boolean debug = true; 
@@ -49,7 +57,7 @@ public class ResearchNotebook extends JFrame{
 		bar.add(help);
 		help.add(item_about); 
 		
-		//action handler 
+		//menu action handler 
 		item_open.addActionListener(h);
 		item_exit.addActionListener(h);
 		item_about.addActionListener(h); 
@@ -57,15 +65,36 @@ public class ResearchNotebook extends JFrame{
 		//add panel 
 		sp.setLeftComponent(tp); 
 		sp.setRightComponent(pp); 
-		sp.setDividerLocation(150); 
+		sp.setDividerLocation(150);
 		
-		try {
-			pp.displayUrl("composition3.html");
-		} catch (IOException e) {
-			System.out.println("loading html fails");
-		} 
+		//tree action handler
+		TreeListener l = new TreeListener(); 
+		
+		tree = tp.getTree();
+		tree.addTreeSelectionListener(l);  
 		
 		add(sp);
+	}
+	
+	private class TreeListener implements TreeSelectionListener{
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
+			Object obj = node.getUserObject();
+			
+			if(node.isLeaf() && obj instanceof Collection){
+				Collection col = (Collection)obj;
+				if(debug)
+					System.out.println("[ResearchNotebook] leaf url: " + col.link);
+				try {
+					pp.displayUrl(col.link);
+				} catch (IOException e1) {
+					System.out.println("[ResearchNotebook] fail loading htmls");
+				}
+			}else{
+				System.out.println("parent node : " + e.getPath().getLastPathComponent());
+			}
+		}
 	}
 	
 	private static class ActionHandler implements ActionListener{
