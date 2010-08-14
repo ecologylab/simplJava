@@ -1,16 +1,28 @@
 package ecologylab.standalone.researchnotebook.gui;
 
+import java.awt.GridLayout;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
-public class CollectionListPanel extends JPanel implements TreeSelectionListener{
+public class CollectionListPanel extends JPanel{
+	JTextArea a = new JTextArea(); 
+	JScrollPane sp = new JScrollPane(a);
+	
+	private static boolean debug = true; 
+	
 	public CollectionListPanel(){
+		super(new GridLayout(1,1));
+		
+		add(sp);	
+		if(debug)
+			setText("Collection List Panel");
 	}
 	
-	@Override
-	public void valueChanged(TreeSelectionEvent e) {
+	public void setText(String text){
+		a.setText(text);		
 	}
 	
 	public static void main(String[] args) {
