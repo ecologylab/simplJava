@@ -37,11 +37,13 @@ public class ResearchNotebook extends JFrame{
 	
 	//add panel 
 	CollectionTreePanel tp = new CollectionTreePanel(); 
+	CollectionListPanel lp = new CollectionListPanel(); 
 	CollectionPreviewPanel pp = new CollectionPreviewPanel();
 	
 	JTree tree; 
 	
-	JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	JSplitPane sp_sub = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT); 
 	
 	private static boolean debug = true; 
 	
@@ -61,13 +63,15 @@ public class ResearchNotebook extends JFrame{
 		item_open.addActionListener(h);
 		item_exit.addActionListener(h);
 		item_about.addActionListener(h); 
-		
-		//add panel 
-		sp.setLeftComponent(tp); 
+		 
+		sp_sub.setLeftComponent(tp); 
+		sp_sub.setRightComponent(lp); 
+		sp_sub.setDividerLocation(150);
+		   
+		sp.setLeftComponent(sp_sub); 
 		sp.setRightComponent(pp); 
-		sp.setDividerLocation(150);
+		sp.setDividerLocation(500);
 		
-		//tree action handler
 		TreeListener l = new TreeListener(); 
 		
 		tree = tp.getTree();
@@ -87,6 +91,7 @@ public class ResearchNotebook extends JFrame{
 				if(debug)
 					System.out.println("[ResearchNotebook] leaf url: " + col.link);
 				try {
+					lp.setText(CollectionInfo.collection_path + col.link);
 					pp.displayUrl(col.link);
 				} catch (IOException e1) {
 					System.out.println("[ResearchNotebook] fail loading htmls");
@@ -118,7 +123,7 @@ public class ResearchNotebook extends JFrame{
         
 		ResearchNotebook r = new ResearchNotebook();  
 		r.setVisible(true);
-		r.setSize(900,700); 
+		r.setSize(1200,700); 
 		r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
