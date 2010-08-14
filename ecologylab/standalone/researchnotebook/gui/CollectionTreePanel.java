@@ -18,9 +18,9 @@ public class CollectionTreePanel extends JPanel implements CollectionInfo{
 	DefaultMutableTreeNode c1_3 = new DefaultMutableTreeNode("collection3");
 	
 	// TODO should be collected automatically 
-	DefaultMutableTreeNode c1_1_leaf1 = new DefaultMutableTreeNode(new Collection("composition1", CollectionInfo.collection_path + "composition1.html"));
-	DefaultMutableTreeNode c1_1_leaf2 = new DefaultMutableTreeNode(new Collection("composition2", CollectionInfo.collection_path + "composition2.html"));
-	DefaultMutableTreeNode c1_1_leaf3 = new DefaultMutableTreeNode(new Collection("composition3", CollectionInfo.collection_path + "composition3.html"));
+	DefaultMutableTreeNode c1_1_leaf1 = new DefaultMutableTreeNode(new Collection("composition1", "composition1.html"));
+	DefaultMutableTreeNode c1_1_leaf2 = new DefaultMutableTreeNode(new Collection("composition2", "composition2.html"));
+	DefaultMutableTreeNode c1_1_leaf3 = new DefaultMutableTreeNode(new Collection("composition3", "composition3.html"));
 	
 	private static boolean debug = true; 
 	
@@ -57,8 +57,12 @@ public class CollectionTreePanel extends JPanel implements CollectionInfo{
 		}	
 	}
 	
+	public JTree getTree(){
+		return tree; 
+	}
+	
 	//TODO should include comprehensive metadata - by parsing composition xml 
-	private static class Collection{
+	public static class Collection{
 		String title; 
 		String link; 
 		
