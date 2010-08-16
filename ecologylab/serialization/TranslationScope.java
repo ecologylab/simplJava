@@ -1000,8 +1000,13 @@ public final class TranslationScope extends ElementState
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(file, deserializationHookStrategy);
 	}
-
-
+	
+	public ElementState deserialize(CharSequence charSequence, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return saxHandler.parse(charSequence, deserializationHookStrategy);
+	}
+	
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
