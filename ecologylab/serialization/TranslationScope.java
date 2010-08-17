@@ -376,6 +376,19 @@ public final class TranslationScope extends ElementState
 	public void addTranslation(Class<? extends ElementState> classObj)
 	{
 		ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
+		String tagName = entry.getTagName();
+		
+		if (entriesByTag.containsKey(tagName))
+		{
+			// a class with the same tag already exists; we want to remove it to keep the 3 hash maps
+			// consistent, which is important for overriding classes in a translation scope with the
+			// same tag.
+			ClassDescriptor existingEntry = entriesByTag.get(tagName);
+			entriesByTag.remove(tagName);
+			entriesByClassSimpleName.remove(existingEntry.getDecribedClassSimpleName());
+			entriesByClassName.remove(existingEntry.getDescribedClass().getName());
+		}
+		
 		entriesByTag.put(entry.getTagName(), entry);
 		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
