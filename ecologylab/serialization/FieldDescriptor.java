@@ -1590,33 +1590,31 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public String getObjectiveCType()
 	{
+		if (isCollection())
+		{
+			Class<?> type = this.field.getType();
+
+			if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
+			{
+				return MappingConstants.OBJC_ARRAYLIST;
+			}
+			else if (HashMap.class == type || HashMap.class == type.getSuperclass())
+			{
+				return MappingConstants.OBJC_HASHMAP;
+			}
+			else if (HashMapArrayList.class == type)
+			{
+				return MappingConstants.OBJC_HASHMAPARRAYLIST;
+			}
+			else if (Scope.class == type)
+			{
+				return MappingConstants.OBJC_SCOPE;
+			}
+		}
+		else
 		if (scalarType != null)
 		{
 			return scalarType.getObjectiveCType();
-		}
-		else
-		{
-			if (isCollection())
-			{
-				Class<?> type = this.field.getType();
-
-				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-				{
-					return MappingConstants.OBJC_ARRAYLIST;
-				}
-				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-				{
-					return MappingConstants.OBJC_HASHMAP;
-				}
-				else if (HashMapArrayList.class == type)
-				{
-					return MappingConstants.OBJC_HASHMAPARRAYLIST;
-				}
-				else if (Scope.class == type)
-				{
-					return MappingConstants.OBJC_SCOPE;
-				}
-			}
 		}
 
 		return null;
