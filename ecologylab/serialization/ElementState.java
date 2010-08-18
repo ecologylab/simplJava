@@ -497,6 +497,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			// end the element
 			fieldDescriptor.writeCloseTag(buffy);
 		} // end if no nested elements or text node
+		
+		this.serializationPostHook();
 	}
 
 	/**
@@ -751,6 +753,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			// end the element
 			fieldDescriptor.writeCloseTag(appendable);
 		} // end if no nested elements or text node
+		
+		this.serializationPostHook();
 	}
 
 	/**
@@ -1213,6 +1217,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	}
 
+	/**
+	 * Perform processing immediately after serializing this.
+	 * <p/>
+	 * The default implementation does nothing. Sub-classes may wish to override.
+	 */
+	protected void serializationPostHook()
+	{
+		
+	}
+	
 	/**
 	 * Perform custom processing immediately after all translation from XML is completed. This allows
 	 * a newly-created ElementState object to perform any post processing with all the data it will
