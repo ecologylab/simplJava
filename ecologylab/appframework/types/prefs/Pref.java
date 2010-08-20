@@ -657,6 +657,6 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 	 */
 	public void postLoadHook(Scope scope)
 	{
-
+		
 	}
 }

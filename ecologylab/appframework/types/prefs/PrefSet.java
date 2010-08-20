@@ -174,8 +174,11 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 	public void append(PrefSet jNLPPrefSet)
 	{
-		// FIXME: iterate through set and add each to map
-
+		for (Pref<?> pref : jNLPPrefSet.values())
+		{
+			this.put(pref.key(), pref);
+			pref.register();
+		}
 	}
 
 	public Set<String> keySet()
@@ -216,6 +219,6 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 
 	public int size()
 	{
-		return this.preferences.size();
+		return (preferences != null) ? preferences.size() : 0;
 	}
 }

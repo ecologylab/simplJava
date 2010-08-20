@@ -13,6 +13,7 @@ import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.jnlp.applet.AppletDesc;
 import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;
+import ecologylab.serialization.library.jnlp.resource.Property;
 import ecologylab.serialization.library.jnlp.resource.ResourceElementArray;
 
 import java.io.UnsupportedEncodingException;
@@ -70,6 +71,10 @@ public class JnlpState extends ElementState implements Cloneable
 	@simpl_nowrap
 	@simpl_collection("applet-desc")
 	ArrayList<AppletDesc>							appletDesc		= new ArrayList<AppletDesc>();
+	
+	@simpl_nowrap
+	@simpl_collection("property")
+	ArrayList<Property>								properties;
 
 	/**
 	 * No-arg constructor for XML translation.

@@ -14,6 +14,9 @@ import ecologylab.serialization.simpl_inherit;
 @simpl_inherit
 public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implements ActionListener
 {
+	@simpl_collection
+	@simpl_nowrap
+	@simpl_scope(PrefOpTranslations.SCOPE_NAME)
 	ArrayList<ElementState> nestedOps;
 	
 	
@@ -57,7 +60,7 @@ public class PrefDelayedOp<O extends MixedInitiativeOp> extends PrefOp<O> implem
 		for (int i=0; i < nestedOps.size(); i++)
 			((PreferenceOp) nestedOps.get(i)).setScope(scope);
 		
-		debug("delayed op: " + op.action() + " initialized with delay: " + delay + " seconds");
+		debug("delayed op: " + name + " initialized with delay: " + delay + " seconds");
 		timer = new Timer(delay * 1000, this);
 		timer.setInitialDelay(delay * 1000);
 		timer.start();

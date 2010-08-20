@@ -18,7 +18,7 @@ public class PrefsTranslationsProvider extends Debug
 	/**
 	 * Package name
 	 */
-	private static final String										PREFS_TRANSLATIONS_NAME	= "PREFS_TRANSLATIONS_NAME";
+	public static final String										PREFS_TRANSLATIONS_NAME	= "PREFS_TRANSLATIONS_NAME";
 
 	/**
 	 * Additional classes needed to do Prefs translations. Most are provided by
