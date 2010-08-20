@@ -1,13 +1,24 @@
 package ecologylab.generic;
 
-import java.io.*;
-import java.awt.image.*;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.Locale;
 
-import javax.imageio.*;
-import javax.imageio.stream.*;
-import java.util.*;
-import javax.imageio.plugins.jpeg.*;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  * A set of lovely convenience methods for working with images.
@@ -56,6 +67,7 @@ public class ImageTools extends Debug
 	{
 		// scaleAndCopyImage(srcImage.getWidth(), srcImage.getHeight(), srcImage, destImage);
 		Graphics2D g2 = destImage.createGraphics();
+		g2.setComposite(AlphaComposite.Src);
 		g2.drawImage(srcImage, 0, 0, null);
 		g2.dispose();
 	}
