@@ -53,10 +53,14 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  */
 public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes
 {
-	private static final String										SIMPL_ID									= "simpl_id";
+	private static final String										SIMPL_ID									= "simpl:id";
 
-	private static final String										SIMPL_REF									= "simpl_ref";
+	private static final String										SIMPL_REF									= "simpl:ref";
+	
+	private static final String 									SIMPL_NAMESPACE 							= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
 
+	private boolean isRoot = false;
+	
 	private static HashMap<Integer, ElementState>	marshalledObjects					= new HashMap<Integer, ElementState>();
 
 	private static HashMap<Integer, ElementState>	visitedElements						= new HashMap<Integer, ElementState>();
@@ -168,6 +172,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			// structures.
 			resolveGraph(this);
 
+			isRoot = true;
+			
 			serializeToBuilder(classDescriptor().pseudoFieldDescriptor(), buffy);
 
 			// clear all datastructures used by two-pass algorithm.
@@ -244,7 +250,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			// first-pass of the two pass algorithm. resolves cyclic pointers by creating appropriate data
 			// structures.
 			resolveGraph(this);
-
+			isRoot = true;
 			serializeToAppendable(classDescriptor().pseudoFieldDescriptor(), appendable);
 
 			// clear all data structures used for two pass-algorithm
@@ -322,6 +328,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				// IllegalArgumentException, IllegalAccessException
 				throw new SIMPLTranslationException("TranslateToXML for attribute " + this, e);
 			}
+		}
+		
+		if(isGraph() && isRoot)
+		{
+			appendSimplNameSpace(buffy);
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
@@ -583,8 +594,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 		}
 
+		if(isGraph() && isRoot)
+		{
+			appendSimplNameSpace(appendable);
+		}
+		
 		// To handle cyclic graphs append simpl id as an attribute.
 		appendSimplIdIfRequired(appendable);
+		
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
@@ -1342,8 +1359,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	private void resolveGraph(ElementState elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-		{
-			visitedElements.put(elementState.hashCode(), elementState);
+		{			
+			visitedElements.put(System.identityHashCode(elementState), elementState);
 
 			ArrayList<FieldDescriptor> elementFieldDescriptors = elementState.classDescriptor()
 					.elementFieldDescriptors();
@@ -1400,7 +1417,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 							if (alreadyVisited(compositeElement))
 							{
-								needsAttributeHashCode.put(compositeElement.hashCode(), compositeElement);
+								needsAttributeHashCode.put(System.identityHashCode(compositeElement), compositeElement);
 							}
 							else
 							{
@@ -1415,7 +1432,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 					if (alreadyVisited(compositeElement))
 					{
-						needsAttributeHashCode.put(compositeElement.hashCode(), compositeElement);
+						needsAttributeHashCode.put(System.identityHashCode(compositeElement), compositeElement);
 					}
 					else
 					{
@@ -1428,14 +1445,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	private boolean alreadyVisited(ElementState elementState)
 	{
-		return visitedElements.containsKey(elementState.hashCode());
+		return visitedElements.containsKey(System.identityHashCode(elementState));
 	}
 
 	private void mapCurrentElementState()
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			marshalledObjects.put(this.hashCode(), this);
+			marshalledObjects.put(System.identityHashCode(this), this);
 		}
 	}
 
@@ -1460,9 +1477,17 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private boolean alreadyMarshalled(ElementState compositeElementState)
+	
+	private void appendSimplNameSpace(Appendable appendable) throws IOException
 	{
-		return marshalledObjects.containsKey(compositeElementState.hashCode());
+		appendable.append(SIMPL_NAMESPACE);
+	}
+
+
+	
+	private boolean alreadyMarshalled(ElementState compositeElementState)
+	{	
+		return marshalledObjects.containsKey(System.identityHashCode(compositeElementState));
 	}
 
 	private void appendSimplRefId(Appendable appendable, ElementState elementState,
@@ -1480,7 +1505,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		appendable.append(tagName);
 		appendable.append('=');
 		appendable.append('"');
-		appendable.append(((Integer) elementState.hashCode()).toString());
+		appendable.append(((Integer) System.identityHashCode(elementState)).toString());
 		appendable.append('"');
 	}
 
@@ -1492,7 +1517,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	private boolean needsHashCode()
 	{
-		return needsAttributeHashCode.containsKey(this.hashCode());
+		return needsAttributeHashCode.containsKey(System.identityHashCode(this));
+	}
+	
+	private boolean isGraph()
+	{
+		return needsAttributeHashCode.size() > 0;
 	}
 
 	public static ElementState getFromMap(Attributes attributes)
