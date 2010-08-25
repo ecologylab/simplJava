@@ -1517,22 +1517,24 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.OPENING_CURLY_BRACE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 		
-		appendable.append(CocoaTranslationConstants.TAB);
-		appendable.append(CocoaTranslationConstants.SUPER_DEALLOC);
-		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
-		
 		if (attributes.size() > 0)
 		{
 			for (FieldDescriptor fieldDescriptor : attributes)
 			{
-				if (fieldDescriptor.belongsTo(classDescriptor) && fieldDescriptor.getScalarType() != null
-						&& fieldDescriptor.getScalarType().isReference())
+				if (fieldDescriptor.belongsTo(classDescriptor) && 
+						((fieldDescriptor.getScalarType() != null && fieldDescriptor.getScalarType().isReference()) ||
+								fieldDescriptor.isCollection() ||
+								fieldDescriptor.isNested()))
 				{
 					appendDeallocStatement(fieldDescriptor, appendable);
 				}
 			}
 		}
 
+		appendable.append(CocoaTranslationConstants.TAB);
+		appendable.append(CocoaTranslationConstants.SUPER_DEALLOC);
+		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
+		
 		appendable.append(CocoaTranslationConstants.CLOSING_CURLY_BRACE);
 		appendable.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 	}
