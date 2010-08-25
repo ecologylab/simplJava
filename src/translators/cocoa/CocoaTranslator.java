@@ -24,7 +24,12 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.library.rss.Channel;
+import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
+import ecologylab.standalone.xmlpolymorph.BItem;
+import ecologylab.standalone.xmlpolymorph.SchmItem;
+import ecologylab.standalone.xmlpolymorph.Schmannel;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into
@@ -512,7 +517,7 @@ public class CocoaTranslator
 				+ CocoaTranslationConstants.IMPLEMENTATION_FILE_EXTENSION);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(implementationFile));
 
-		startImport(tScope.getName(), tScope, bufferedWriter);
+		startImport(tScope.getName(), null, bufferedWriter);
 
 		declareStaticTranslationScope(bufferedWriter);
 
@@ -610,10 +615,8 @@ public class CocoaTranslator
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(headerFile));
 
 		CocoaTranslationConstants.INHERITENCE_OBJECT	= CocoaTranslationConstants.OBJC_OBJECT;
-		
-
-		importClass(CocoaTranslationConstants.TRANSLATIONSCOPE, bufferedWriter);
-		
+//		importClass(CocoaTranslationConstants.TRANSLATIONSCOPE, bufferedWriter);
+		startImport(CocoaTranslationConstants.TRANSLATIONSCOPE, tScope, bufferedWriter);
 		openHeaderFile(tScope.getName(), bufferedWriter, null);
 		openFieldDeclartion(bufferedWriter);
 		closeFieldDeclartion(bufferedWriter);	
@@ -1695,15 +1698,15 @@ public class CocoaTranslator
 	public static void main(String args[]) throws Exception
 	{
 		CocoaTranslator c = new CocoaTranslator();
-		// c.translateToObjC(Item.class, new ParsedURL(new File("/")));
-//		c.translateToObjC(
-//						new File("/output"),
-//						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
-//								RssState.class, Item.class, Channel.class),
-//						new File(
-//								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
+		//c.translateToObjC(Item.class, new ParsedURL(new File("/")));
+		c.translateToObjC(
+						new File("/output"),
+						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+								RssState.class, Item.class, Channel.class),
+						new File(
+								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
 
-		c.translateToObjCRecursive(RssState.class, System.out);
+		//c.translateToObjCRecursive(RssState.class, System.out);
 
 	}
 
