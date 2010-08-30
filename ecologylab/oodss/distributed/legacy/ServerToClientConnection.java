@@ -214,7 +214,9 @@ public class ServerToClientConnection extends Debug implements Runnable, ServerC
             ResponseMessage responseMessage) throws SIMPLTranslationException
     {
         responseMessage.setUid(requestMessage.getUid());
-        sendResponse(responseMessage.serialize());
+        StringBuilder serialize = responseMessage.serialize();
+        debug("We are sending back the response: "+serialize);
+		sendResponse(serialize);
 
         return false;
     }

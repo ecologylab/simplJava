@@ -733,6 +733,9 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			MessageWithMetadata<RequestMessage, Object> requestWithMetadata, ResponseMessage response,
 			RequestMessage request)
 	{
+//		debug("enqueuing response to client...");
+	//	long currentTime = System.currentTimeMillis();
+
 		try
 		{
 			// setup outgoingMessageBuffer
@@ -818,6 +821,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			debug("Failed to compress response!");
 			e.printStackTrace();
 		}
+
+//		debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
 	}
 
 	public synchronized void sendUpdateToClient(UpdateMessage<?> update)

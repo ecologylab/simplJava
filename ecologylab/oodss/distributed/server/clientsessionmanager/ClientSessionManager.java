@@ -155,6 +155,9 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	protected void translateResponseMessageToStringBufferContents(RequestMessage requestMessage,
 			ResponseMessage responseMessage, StringBuilder messageBuffer) throws SIMPLTranslationException
 	{
+//		debug("serializing response to client...");
+//		long currentTime = System.currentTimeMillis();
 		responseMessage.serialize(messageBuffer);
+//		debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
 	}
 }

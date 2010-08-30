@@ -204,14 +204,14 @@ public abstract class NIONetworking<S extends Scope> extends NIOCore
 				ByteBuffer bytes = writes.poll();
 
 				bytes.flip();
-				sc.write(bytes);
+				
 
-				if (bytes.remaining() > 0)
+				while (bytes.remaining() > 0)
 				{ // the socket's buffer filled up!; should go out again next time
-					writes.offer(bytes);
-					break;
+					//debug("unable to write all data to client; will try again shortly.");
+					sc.write(bytes);
 				}
-
+				
 				bytes = this.byteBufferPool.release(bytes);
 			}
 		}

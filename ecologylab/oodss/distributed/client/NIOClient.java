@@ -671,14 +671,14 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 					ResponseMessage respMsg = (ResponseMessage) responseMessage.getMessage();
 
-					try
-					{
-						debug("response: " + respMsg.serialize().toString());
-					}
-					catch (SIMPLTranslationException e)
-					{
-						e.printStackTrace();
-					}
+//					try
+//					{
+//						debug("response: " + respMsg.serialize().toString());
+//					}
+//					catch (SIMPLTranslationException e)
+//					{
+//						e.printStackTrace();
+//					}
 
 					responseMessage = responsePool.release(responseMessage);
 
