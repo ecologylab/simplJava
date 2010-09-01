@@ -377,7 +377,7 @@ public final class TranslationScope extends ElementState
 	{
 		ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
 		String tagName = entry.getTagName();
-		
+
 		entriesByTag.put(entry.getTagName(), entry);
 		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
@@ -866,7 +866,7 @@ public final class TranslationScope extends ElementState
 		Collection<ClassDescriptor> result = classDescriptors;
 		if (result == null)
 		{
-//			result = entriesByClassSimpleName.values();
+			// result = entriesByClassSimpleName.values();
 			result = entriesByTag.values(); // we use entriesByTag so that overriding works well.
 			this.classDescriptors = result;
 		}
@@ -936,6 +936,25 @@ public final class TranslationScope extends ElementState
 		return deserialize(xmlFile);
 	}
 
+	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format)
+			throws SIMPLTranslationException
+	{
+		ElementState result = null;
+		switch (format)
+		{
+		case XML:
+			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+			result = saxHandler.parse(charSequence);
+			break;
+		case JSON:
+			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			result = jsonHandler.parse(charSequence);
+			break;
+
+		}
+		return result;
+	}
+
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
@@ -988,28 +1007,32 @@ public final class TranslationScope extends ElementState
 	 * 
 	 * @param inputStream
 	 *          An InputStream to the XML that needs to be translated.
-	 * @param deserializationHookStrategy TODO
+	 * @param deserializationHookStrategy
+	 *          TODO
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(InputStream inputStream, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	public ElementState deserialize(InputStream inputStream,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(inputStream, deserializationHookStrategy);
 	}
-	
-	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+
+	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy)
+			throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(file, deserializationHookStrategy);
 	}
-	
-	public ElementState deserialize(CharSequence charSequence, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+
+	public ElementState deserialize(CharSequence charSequence,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
 		return saxHandler.parse(charSequence, deserializationHookStrategy);
 	}
-	
+
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 

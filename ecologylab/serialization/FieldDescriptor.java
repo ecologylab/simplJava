@@ -4,6 +4,7 @@
 package ecologylab.serialization;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -134,7 +135,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private Method																		setValueMethod;
 
-	public static final Class[]												SET_METHOD_STRING_ARG						=
+	public static final Class[]												SET_METHOD_STRING_ARG			=
 																																							{ String.class };
 
 	/**
@@ -215,13 +216,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		// looks old: -- implement this next???
 		// if (XMLTools.isNested(field))
 		// setupXmlText(ClassDescriptor.getClassDescriptor((Class<ElementState>) field.getType()));
-		
-		String fieldName = field.getName();
-		StringBuilder capFieldName	= new StringBuilder(fieldName);
-		capFieldName.setCharAt(0, Character.toUpperCase(capFieldName.charAt(0)));
-		String setMethodName	= "set" + capFieldName;
 
-		setValueMethod = ReflectionTools.getMethod(declaringClassDescriptor.getDescribedClass(), setMethodName, SET_METHOD_STRING_ARG);
+		String fieldName = field.getName();
+		StringBuilder capFieldName = new StringBuilder(fieldName);
+		capFieldName.setCharAt(0, Character.toUpperCase(capFieldName.charAt(0)));
+		String setMethodName = "set" + capFieldName;
+
+		setValueMethod = ReflectionTools.getMethod(declaringClassDescriptor.getDescribedClass(),
+				setMethodName, SET_METHOD_STRING_ARG);
 	}
 
 	/**
@@ -847,6 +849,39 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
+	public boolean isDefaultValue(Object context) throws IllegalArgumentException, IllegalAccessException
+	{
+		if (context != null)
+			return scalarType.isDefaultValue(this.field, context);
+		return false;
+	}
+
+	public void appendValueAsJSONAttribute(Appendable appendable, Object context, boolean isFirst)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (context != null)
+		{
+			ScalarType scalarType = this.scalarType;
+			Field field = this.field;
+
+			if (!scalarType.isDefaultValue(field, context))
+			{
+				if (!isFirst)
+					appendable.append(", ");
+
+				appendable.append('"');
+				appendable.append(tagName);
+				appendable.append('"');
+				appendable.append(':');
+				appendable.append('"');
+
+				scalarType.appendValue(appendable, this, context);
+				appendable.append('"');
+
+			}
+		}
+	}
+
 	/**
 	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
 	 * 
@@ -1001,6 +1036,23 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				buffy.append(END_CDATA);
 
 			writeCloseTag(buffy);
+		}
+	}
+
+	void appendJSONCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (instance != null)
+		{
+			if (!isFirst)
+			{
+				appendable.append(',');
+			}
+			
+			ScalarType scalarType = this.scalarType;
+			appendable.append('"');
+			scalarType.appendValue(instance, appendable, false);
+			appendable.append('"');
 		}
 	}
 
@@ -1171,6 +1223,21 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		buffy.append(tagName).append('>');
 	}
 
+	public void writeJSONWrap(Appendable appendable, boolean close) throws IOException
+	{
+		if (!close)
+		{
+			appendable.append('"');
+			appendable.append(tagName);
+			appendable.append('"').append(':');
+			appendable.append('{');
+		}
+		else
+		{
+			appendable.append('}');
+		}
+	}
+
 	/**
 	 * Write the tags for opening and closing a wrapped collection.
 	 * 
@@ -1237,7 +1304,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType.setField(context, field, value, format, scalarUnmarshallingContext);
 		}
 	}
-	
+
 	public void setRegexFilter(Pattern regex, String replacement)
 	{
 		filterRegex = regex;
@@ -1482,6 +1549,30 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
+	ElementState constructChildElementState(ElementState parent, String tagName)
+			throws SIMPLTranslationException
+	{
+		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
+				: tagClassDescriptors.get(tagName);
+		ElementState result = null;
+		if (childClassDescriptor != null)
+		{
+			result = getInstance(childClassDescriptor);
+
+			if (result != null)
+				result.setupInParent(parent, childClassDescriptor);
+		}
+		return result;
+	}
+
+	private ElementState getInstance(ClassDescriptor childClassDescriptor)
+			throws SIMPLTranslationException
+	{
+
+		return childClassDescriptor.getInstance();
+
+	}
+
 	void setFieldToComposite(ElementState context, Object nestedObject)
 			throws SIMPLTranslationException
 	{
@@ -1611,8 +1702,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				return MappingConstants.OBJC_SCOPE;
 			}
 		}
-		else
-		if (scalarType != null)
+		else if (scalarType != null)
 		{
 			return scalarType.getObjectiveCType();
 		}
@@ -1661,4 +1751,39 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
+	public void writeJSONElementStart(Appendable appendable, boolean withTag) throws IOException
+	{
+		if (withTag)
+		{
+			appendable.append('"').append(elementStart()).append('"');
+			appendable.append(':');
+		}
+		appendable.append('{');
+	}
+
+	public void writeJSONCloseTag(Appendable appendable) throws IOException
+	{
+		appendable.append('}');
+	}
+
+	public void writeJSONCollectionStart(PrintStream appendable)
+	{
+		appendable.append('"').append(elementStart()).append('"');
+		appendable.append(':');
+		appendable.append('[');
+
+	}
+
+	public void writeJSONPolymorphicCollectionStart(PrintStream appendable)
+	{
+		appendable.append('"').append(tagName).append('"');
+		appendable.append(':');
+		appendable.append('[');
+
+	}
+
+	public void writeJSONCollectionClose(PrintStream appendable)
+	{
+		appendable.append(']');
+	}
 }
