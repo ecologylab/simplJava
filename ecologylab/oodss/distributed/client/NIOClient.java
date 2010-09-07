@@ -182,7 +182,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	protected final PreppedRequestPool																pRequestPool;
 
-	protected final MessageWithMetadataPool<ServiceMessage, Object>	  responsePool									= new MessageWithMetadataPool<ServiceMessage, Object>(
+	protected final MessageWithMetadataPool<ServiceMessage, Object>		responsePool									= new MessageWithMetadataPool<ServiceMessage, Object>(
 																																																			2,
 																																																			4);
 
@@ -203,6 +203,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	private ByteBuffer																								zippingOutBytes;
 
 	private ByteBuffer																								compressedMessageBuffer;
+
+	private List<ClientStatusListener>																clientStatusListeners					= null;
 
 	public NIOClient(String serverAddress, int portNumber, TranslationScope messageSpace,
 			S objectRegistry, int maxMessageLengthChars) throws IOException
@@ -287,6 +289,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			}
 		}
 
+		this.notifyOfStatusChange(this.connected());
+
 		debug("connected? " + this.connected());
 		return connected();
 	}
@@ -358,16 +362,11 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	public void disconnect(boolean waitForResponses)
 	{
 		int attemptsCounter = 0;
-		while (this.requestsRemaining() > 0
-				&& this.connected()
-				&& waitForResponses
+		while (this.requestsRemaining() > 0 && this.connected() && waitForResponses
 				&& attemptsCounter++ < 10)
 		{
-			debug("******************* Request queue not empty, finishing "
-					+ requestsRemaining()
-					+ " messages before disconnecting (attempt "
-					+ attemptsCounter
-					+ ")...");
+			debug("******************* Request queue not empty, finishing " + requestsRemaining()
+					+ " messages before disconnecting (attempt " + attemptsCounter + ")...");
 			synchronized (this)
 			{
 				try
@@ -391,11 +390,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 				while (waitForResponses && connected() && !this.shutdownOK() && attemptsCounter-- > 0)
 				{
-					debug("*** "
-							+ this.unfulfilledRequests.size()
-							+ " requests still pending response from server (attempt "
-							+ attemptsCounter
-							+ ").");
+					debug("*** " + this.unfulfilledRequests.size()
+							+ " requests still pending response from server (attempt " + attemptsCounter + ").");
 					debug("*** connected: " + connected());
 
 					synchronized (this)
@@ -496,12 +492,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		}
 		catch (BindException e)
 		{
-			debug("Couldnt create socket connection to server - "
-					+ serverAddress
-					+ ":"
-					+ portNumber
-					+ " - "
-					+ e);
+			debug("Couldnt create socket connection to server - " + serverAddress + ":" + portNumber
+					+ " - " + e);
 
 			nullOut();
 		}
@@ -671,14 +663,14 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 					ResponseMessage respMsg = (ResponseMessage) responseMessage.getMessage();
 
-//					try
-//					{
-//						debug("response: " + respMsg.serialize().toString());
-//					}
-//					catch (SIMPLTranslationException e)
-//					{
-//						e.printStackTrace();
-//					}
+					// try
+					// {
+					// debug("response: " + respMsg.serialize().toString());
+					// }
+					// catch (SIMPLTranslationException e)
+					// {
+					// e.printStackTrace();
+					// }
 
 					responseMessage = responsePool.release(responseMessage);
 
@@ -782,8 +774,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			synchronized (unfulfilledRequests)
 			{
-				List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(this.unfulfilledRequests
-						.values());
+				List<PreppedRequest> rerequests = new LinkedList<PreppedRequest>(
+						this.unfulfilledRequests.values());
 
 				Collections.sort(rerequests);
 
@@ -910,7 +902,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 				synchronized (encoder)
 				{
 					// XXX
-//					debug(outgoingChars.toString());
+					// debug(outgoingChars.toString());
 					ByteBuffer encodedBytes = encoder.encode(outgoingChars);
 					int sentBytes = 0;
 					int bytesToSend = encodedBytes.limit();
@@ -918,7 +910,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					while (bytesToSend > sentBytes)
 					{
 						sentBytes += thisSocket.write(encodedBytes);
-//						debug("sentBytes: "+sentBytes);
+						// debug("sentBytes: "+sentBytes);
 					}
 				}
 			}
@@ -990,16 +982,16 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	{
 		message.processUpdate(objectRegistry);
 	}
-	
+
 	/**
-	 * Converts incomingMessage to a ResponseMessage, then processes the response
-	 * and removes its UID from the unfulfilledRequests map.
+	 * Converts incomingMessage to a ResponseMessage, then processes the response and removes its UID
+	 * from the unfulfilledRequests map.
 	 * 
 	 * @param incomingMessage
 	 * @return
 	 */
-	private MessageWithMetadata<ServiceMessage, Object> processString(
-			String incomingMessage, int incomingUid)
+	private MessageWithMetadata<ServiceMessage, Object> processString(String incomingMessage,
+			int incomingUid)
 	{
 
 		if (show(5))
@@ -1020,16 +1012,15 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		}
 		else
 		{
-			if(response.getMessage() instanceof ResponseMessage)
+			if (response.getMessage() instanceof ResponseMessage)
 			{
 				// perform the service being requested
 				processResponse((ResponseMessage) response.getMessage());
-	
+
 				synchronized (unfulfilledRequests)
 				{
-					PreppedRequest finishedReq = unfulfilledRequests.remove(response
-							.getUid());
-	
+					PreppedRequest finishedReq = unfulfilledRequests.remove(response.getUid());
+
 					if (finishedReq != null)
 					{ // subclasses might choose not to use unfulfilledRequests; this
 						// avoids problems with releasing resources;
@@ -1038,7 +1029,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 					}
 				}
 			}
-			else if(response.getMessage() instanceof UpdateMessage)
+			else if (response.getMessage() instanceof UpdateMessage)
 			{
 				processUpdate((UpdateMessage) response.getMessage());
 			}
@@ -1111,6 +1102,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			Thread thread = new Thread(new Reconnecter());
 			thread.run();
 		}
+
+		this.notifyOfStatusChange(false);
 	}
 
 	/**
@@ -1145,9 +1138,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 							// clear the buffer
 							BadClientException e = new BadClientException(((SocketChannel) sk.channel()).socket()
 									.getInetAddress().getHostAddress(), "Maximum HTTP header length exceeded. Read "
-									+ incomingMessageBuffer.length()
-									+ "/"
-									+ MAX_HTTP_HEADER_LENGTH);
+									+ incomingMessageBuffer.length() + "/" + MAX_HTTP_HEADER_LENGTH);
 
 							incomingMessageBuffer.setLength(0);
 
@@ -1171,10 +1162,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 								// done here
 								contentLengthRemaining = Integer
 										.parseInt(this.headerMap.get(CONTENT_LENGTH_STRING));
-								if(headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
+								if (headerMap.containsKey(UNIQUE_IDENTIFIER_STRING))
 								{
-									uidOfCurrentMessage = Integer
-										.parseInt(this.headerMap.get(UNIQUE_IDENTIFIER_STRING));
+									uidOfCurrentMessage = Integer.parseInt(this.headerMap
+											.get(UNIQUE_IDENTIFIER_STRING));
 								}
 								contentEncoding = this.headerMap.get(HTTP_CONTENT_CODING);
 
@@ -1257,8 +1248,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 							{
 								throw new BadClientException(((SocketChannel) sk.channel()).socket()
 										.getInetAddress().getHostAddress(), "Specified content encoding: "
-										+ contentEncoding
-										+ "not supported!");
+										+ contentEncoding + "not supported!");
 							}
 						}
 						if (!this.blockingRequestPending)
@@ -1362,8 +1352,8 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	}
 
 	/**
-	 * Use the ServicesClient and its NameSpace to do the translation. Can be
-	 * overridden to provide special functionalities
+	 * Use the ServicesClient and its NameSpace to do the translation. Can be overridden to provide
+	 * special functionalities
 	 * 
 	 * @param messageString
 	 * @return
@@ -1643,5 +1633,42 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	public boolean usesRequestCompression()
 	{
 		return this.sendCompressed;
+	}
+
+	public void addClientStatusListener(ClientStatusListener csl)
+	{
+		this.clientStatusListeners().add(csl);
+	}
+
+	public void removeClientStatusListener(ClientStatusListener csl)
+	{
+		this.clientStatusListeners().remove(csl);
+	}
+
+	private void notifyOfStatusChange(boolean newStatus)
+	{
+		if (this.clientStatusListeners != null)
+		{
+			for (ClientStatusListener csl : this.clientStatusListeners())
+			{
+				csl.clientConnectionStatusChanged(newStatus);
+			}
+		}
+	}
+
+	private List<ClientStatusListener> clientStatusListeners()
+	{
+		if (this.clientStatusListeners == null)
+		{
+			synchronized (this)
+			{
+				if (this.clientStatusListeners == null)
+				{
+					this.clientStatusListeners = new LinkedList<ClientStatusListener>();
+				}
+			}
+		}
+
+		return this.clientStatusListeners;
 	}
 }
