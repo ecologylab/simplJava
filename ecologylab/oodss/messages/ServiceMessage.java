@@ -9,10 +9,9 @@ import ecologylab.serialization.ElementState;
  * Abstract base class for ecologylab.oodss DCF request and response messages.
  * 
  * @author blake
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Dugas Toups (zach@ecologylab.net)
  */
-public class ServiceMessage<S extends Scope> extends ElementState implements
-		Comparable<ServiceMessage>
+public class ServiceMessage<S extends Scope> extends ElementState
 {
 	public ServiceMessage()
 	{
@@ -23,16 +22,8 @@ public class ServiceMessage<S extends Scope> extends ElementState implements
 	protected long				timeStamp	= 0;
 
 	/**
-	 * Used to carry uid for messages, now only used by legacy code. Retained temporarily for
-	 * backwards compatability.
-	 */
-	@simpl_scalar
-	@Deprecated
-	protected long				uid;
-
-	/**
 	 * Contains the IP address of the host that sent this message. sender currently must be set by a
-	 * server that recieves the message and associates it with the IP address from it's packet and/or
+	 * server that receives the message and associates it with the IP address from it's packet and/or
 	 * channel.
 	 */
 	protected InetAddress	sender		= null;
@@ -54,18 +45,6 @@ public class ServiceMessage<S extends Scope> extends ElementState implements
 		return timeStamp;
 	}
 
-	@Deprecated
-	public void setUid(long uid)
-	{
-		this.uid = uid;
-	}
-
-	@Deprecated
-	public long getUid()
-	{
-		return uid;
-	}
-
 	/**
 	 * @return the sender's IP address
 	 */
@@ -83,11 +62,5 @@ public class ServiceMessage<S extends Scope> extends ElementState implements
 	public void setSender(InetAddress sender)
 	{
 		this.sender = sender;
-	}
-
-	@Deprecated
-	public int compareTo(ServiceMessage otherRequest)
-	{
-		return (int) (this.uid - otherRequest.getUid());
 	}
 }

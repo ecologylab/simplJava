@@ -15,24 +15,24 @@ import ecologylab.serialization.types.element.ElementTypeTranslationsProvider;
  */
 public class DefaultServicesTranslations
 {
-	public static final String	PACKAGE_NAME	= "ecologylab.oodss.messages";
+	public static final String	PACKAGE_NAME		= "ecologylab.oodss.messages";
 
-	public static final Class	TRANSLATIONS[]	=
-															{ RequestMessage.class, ResponseMessage.class, CloseMessage.class,
+	public static final Class		TRANSLATIONS[]	=
+																							{ RequestMessage.class, ResponseMessage.class,
+			CloseMessage.class,
 
-															StopMessage.class, OkResponse.class, BadSemanticContentResponse.class,
-			ErrorResponse.class, 
-			
+			OkResponse.class, BadSemanticContentResponse.class, ErrorResponse.class,
+
 			Prologue.class, Epilogue.class, LogOps.class, SendEpilogue.class, SendPrologue.class,
 
-			HttpRequest.class, HttpGetRequest.class, PingRequest.class, Ping.class, Pong.class, UrlMessage.class,
+			HttpRequest.class, HttpGetRequest.class, PingRequest.class, Ping.class, Pong.class,
+			UrlMessage.class,
 
 			CfCollaborationGetSurrogate.class, ContinuedHTTPGetRequest.class, IgnoreRequest.class,
-			
-			InitConnectionRequest.class, InitConnectionResponse.class, DisconnectRequest.class,			
-			
-			ServiceMessage.class, StopMessage.class,
-			UrlMessage.class, UpdateMessage.class};
+
+			InitConnectionRequest.class, InitConnectionResponse.class, DisconnectRequest.class,
+
+			ServiceMessage.class, UrlMessage.class, UpdateMessage.class };
 
 	/**
 	 * This accessor will work from anywhere, in any order, and stay efficient.

@@ -22,7 +22,7 @@ public interface SessionObjects
                                                                                        "Browse",
                                                                                        "ecologylab.oodss.messages"); */
 
-    public static final String           BROWSER_SERVICES_CLIENT       = "browser_services_client";
+//    public static final String           BROWSER_SERVICES_CLIENT       = "browser_services_client";
 
     public static final String           LOGGING                       = "logging";
 
