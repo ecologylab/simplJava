@@ -1030,7 +1030,14 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				if (path != null)
 				{
 					File existentialTester = new File(path);
-					if (existentialTester.exists())
+					boolean firefoxExists = existentialTester.exists();
+					if (!firefoxExists)
+					{
+						path = FIREFOX_PATH_WINDOWS_64;
+						existentialTester = new File(path);
+						firefoxExists = existentialTester.exists();
+					}
+					if (firefoxExists)
 					{ // cool! firefox
 						result = new String[3];
 						result[0] = path;
