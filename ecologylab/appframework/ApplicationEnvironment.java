@@ -940,6 +940,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	}
 
 	static final String	FIREFOX_PATH_WINDOWS	= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+	static final String FIREFOX_PATH_WINDOWS_64 = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
 
 	// TODO -- use "open" on the mac!!!
 	static final String	FIREFOX_PATH_MAC			= "/Applications/Firefox.app/Contents/MacOS/firefox";
@@ -977,10 +978,15 @@ public class ApplicationEnvironment extends Debug implements Environment,
 					File existentialTester = new File(result);
 					if (!existentialTester.exists())
 					{
-						result = IE_PATH_WINDOWS;
+						result = FIREFOX_PATH_WINDOWS_64;
 						existentialTester = new File(result);
 						if (!existentialTester.exists())
-							result = null;
+						{
+							result = IE_PATH_WINDOWS;
+							existentialTester = new File(result);
+							if (!existentialTester.exists())
+								result = null;
+						}
 					}
 				}
 				break;
