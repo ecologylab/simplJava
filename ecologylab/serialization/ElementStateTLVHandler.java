@@ -42,6 +42,11 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		tlvParser = new TLVParser(this, translationScope);
 	}
 
+	public ElementState parse(CharSequence charSequence)
+	{
+		return parse(charSequence.toString().getBytes());
+	}
+
 	public ElementState parse(byte[] byteArray)
 	{
 		tlvParser.parse(byteArray);
@@ -102,7 +107,10 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	@Override
 	public void endTLV()
 	{
-		// TODO Auto-generated method stub
+		if ((tlvTranslationException == null) && (root != null))
+			root.deserializationPostHook();
+
+		ElementState.recycleDeserializationMappings();
 
 	}
 
@@ -449,39 +457,4 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	{
 		return purlContext;
 	}
-
-	// @Override
-	// public void endObject(String objectName)
-	// {
-	// System.out.println("end of object   : " + objectName);
-	//
-	// }
-	//
-	// @Override
-	// public void endTLV()
-	// {
-	// System.out.println("ended TLV Parsing");
-	//
-	// }
-	//
-	// @Override
-	// public void primitive(String value)
-	// {
-	// System.out.println("value of object : " + value);
-	//
-	// }
-	//
-	// @Override
-	// public void startObject(String objectName)
-	// {
-	// System.out.println("start of object : " + objectName);
-	//
-	// }
-	//
-	// @Override
-	// public void startTLV()
-	// {
-	// System.out.println("started TLV Parsing");
-	//
-	// }
 }

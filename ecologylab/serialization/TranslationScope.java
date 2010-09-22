@@ -951,17 +951,23 @@ public final class TranslationScope extends ElementState
 		return deserialize(xmlFile);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
+	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format) throws SIMPLTranslationException
 	{
 		ElementState result = null;
 		switch (format)
 		{
-
+		case XML:
+			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+			result = saxHandler.parse(new String(byteArray));
+			break;
+		case JSON:
+			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			result = jsonHandler.parse(new String(byteArray));
+			break;
 		case TLV:
 			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
 			result = tlvHandler.parse(byteArray);
 			break;
-
 		}
 		return result;
 	}
@@ -980,6 +986,9 @@ public final class TranslationScope extends ElementState
 			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
 			result = jsonHandler.parse(charSequence);
 			break;
+		case TLV:
+			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
+			result = tlvHandler.parse(charSequence);
 		}
 		return result;
 	}
