@@ -457,4 +457,53 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	{
 		return purlContext;
 	}
+	//	
+	// @Override
+	// public void endObject(String objectName)
+	// {
+	// System.out.println("END   of object : " + objectName);
+	//		
+	// }
+	//
+	// @Override
+	// public void endTLV()
+	// {
+	// System.out.println("end of tlv message ");
+	//		
+	// }
+	//
+	// @Override
+	// public void primitive(String value)
+	// {
+	// System.out.println("value of object : " + value);
+	//		
+	// }
+	//
+	// @Override
+	// public void startObject(String objectName)
+	// {
+	// System.out.println("START of object : " + objectName);
+	//		
+	// }
+	//
+	// @Override
+	// public void startTLV()
+	// {
+	// System.out.println("start of tlv message ");
+	//		
+	// }
+	//
+	// @Override
+	// public File fileContext()
+	// {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
+	//
+	// @Override
+	// public ParsedURL purlContext()
+	// {
+	// // TODO Auto-generated method stub
+	// return null;
+	// }
 }

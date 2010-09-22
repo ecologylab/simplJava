@@ -117,6 +117,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private HashMapArrayList<String, ClassDescriptor>	tagClassDescriptors;
 
+	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
+
 	private String																		unresolvedScopeAnnotation	= null;
 
 	@simpl_map("tagClasses")
@@ -272,6 +274,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	private void putTagClassDescriptor(ClassDescriptor classDescriptor)
 	{
 		tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+		tlvClassDescriptors.put(classDescriptor.getTagName().hashCode(), classDescriptor);
+
 		String[] otherTags = classDescriptor.otherTags();
 		if (otherTags != null)
 			for (String otherTag : otherTags)
@@ -279,6 +283,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if ((otherTag != null) && (otherTag.length() > 0))
 				{
 					tagClassDescriptors.put(otherTag, classDescriptor);
+					tlvClassDescriptors.put(otherTag.hashCode(), classDescriptor);
 				}
 			}
 	}
@@ -303,6 +308,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				String tagName = classDescriptor.getTagName();
 				tagClassDescriptors.put(tagName, classDescriptor);
 				tagClasses.put(tagName, classDescriptor.getDescribedClass());
+				tlvClassDescriptors.put(tagName.hashCode(), classDescriptor);
 			}
 		}
 		return scope != null;
@@ -334,6 +340,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			tagClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
 		if (tagClasses == null)
 			tagClasses = new HashMap<String, Class>(initialSize);
+		if (tlvClassDescriptors == null)
+			tlvClassDescriptors = new HashMap<Integer, ClassDescriptor>(initialSize);
 	}
 
 	/**
@@ -1672,6 +1680,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	// ----------------------------- convenience methods ---------------------------------------//
 
+	public String elementName(int tlvId)
+	{
+		return isPolymorphic() ? elementClassDescriptor(tlvId).pseudoFieldDescriptor().getTagName() : isCollection() ? collectionOrMapTagName : tagName;
+	}
 	public String elementStart()
 	{
 		return isCollection() ? collectionOrMapTagName : tagName;
@@ -1885,8 +1897,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return declaringClassDescriptor;
 	}
 
-	public ClassDescriptor elementClassDescriptor()
+	public ClassDescriptor elementClassDescriptor(String tagName)
 	{
-		return elementClassDescriptor;
+		return (!isPolymorphic()) ? elementClassDescriptor : tagClassDescriptors.get(tagName);
 	}
+
+	public ClassDescriptor elementClassDescriptor(int tlvId)
+	{
+		return (!isPolymorphic()) ? elementClassDescriptor : tlvClassDescriptors.get(tlvId);
+	}
+
 }

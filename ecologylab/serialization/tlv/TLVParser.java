@@ -118,7 +118,9 @@ public class TLVParser implements FieldTypes
 			currentFieldDescriptor = (currentType == WRAPPER) ? currentFieldDescriptor.getWrappedFD()
 					: currentClassDescriptor.getFieldDescriptorByTLVId(type);
 
-			String currentObjectName = currentFieldDescriptor.elementStart();
+			//if(currentFieldDescriptor.isPolymorphic()) currentFieldDescriptor = currentFieldDescriptor.elementClassDescriptor(type).pseudoFieldDescriptor();
+			
+			String currentObjectName = currentFieldDescriptor.elementName(type);
 
 			listenerObject.startObject(currentObjectName);
 
@@ -130,7 +132,7 @@ public class TLVParser implements FieldTypes
 						|| currentFieldDescriptor.getType() == COLLECTION_ELEMENT
 						|| currentFieldDescriptor.getType() == MAP_ELEMENT)
 				{
-					currentClassDescriptor = currentFieldDescriptor.elementClassDescriptor();
+					currentClassDescriptor = currentFieldDescriptor.elementClassDescriptor(type);
 				}
 
 				// if its not scalar then there is another tlv block ahead
