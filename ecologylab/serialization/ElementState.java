@@ -1,6 +1,7 @@
 package ecologylab.serialization;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -119,6 +120,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			{
 			case XML:
 				serializeToXML(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream));
+				break;
 			case TLV:
 				serializeToTLV(classDescriptor().pseudoFieldDescriptor(), new DataOutputStream(outStream));
 				break;
@@ -224,9 +226,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 			else
 			{
-//				if (attributesSerialized || i > 0)
-//					appendable.append(", ");
-				
+				// if (attributesSerialized || i > 0)
+				// appendable.append(", ");
+
 				Object thatReferenceObject = null;
 				Field childField = childFD.getField();
 				try
@@ -269,11 +271,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 				if (thatCollection != null && (thatCollection.size() > 0))
 				{
-					if(attributesSerialized || elementsSerialized)
+					if (attributesSerialized || elementsSerialized)
 						appendable.append(", ");
-					
+
 					elementsSerialized = true;
-					
+
 					if (!childFD.isPolymorphic())
 					{
 						if (childFD.isWrapped())
@@ -349,11 +351,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				else if (thatReferenceObject instanceof ElementState)
 				{
-					if(attributesSerialized || elementsSerialized)
+					if (attributesSerialized || elementsSerialized)
 						appendable.append(", ");
-					
+
 					elementsSerialized = true;
-					
+
 					ElementState nestedES = (ElementState) thatReferenceObject;
 					FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 							.pseudoFieldDescriptor() : childFD;
@@ -367,11 +369,179 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		fieldDescriptor.writeJSONCloseTag(appendable);
 	}
 
-	private void serializeToTLV(FieldDescriptor pseudoFieldDescriptor,
-			DataOutputStream dataOutputStream)
+	private void serializeToTLV(FieldDescriptor fieldDescriptor, DataOutputStream dataOutputStream)
+			throws IOException, SIMPLTranslationException
 	{
-		// TODO NOT YET IMPLEMENTED
 
+		// To handle cyclic pointers. map marshalled ElementState Objects.
+		mapCurrentElementState();
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
+
+		int tlvId = fieldDescriptor.getTLVId();
+
+		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
+				.attributeFieldDescriptors();
+
+		int numAttributes = attributeFieldDescriptors.size();
+
+		if (numAttributes > 0)
+		{
+			try
+			{
+				for (int i = 0; i < numAttributes; i++)
+				{
+					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
+					childFD.appendTLV(outputBuffer, this);
+				}
+			}
+			catch (Exception e)
+			{
+				throw new SIMPLTranslationException("TranslateToXML for attribute " + this, e);
+			}
+		}
+
+		// To handle cyclic graphs append simpl id as an attribute.
+		// appendSimplIdIfRequired(buffy);
+
+		// ArrayList<Field> elementFields = optimizations.elementFields();
+		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
+				.elementFieldDescriptors();
+		int numElements = elementFieldDescriptors.size();
+
+		for (int i = 0; i < numElements; i++)
+		{
+			// NodeToJavaOptimizations pte = optimizations.getPTEByFieldName(thatFieldName);
+			FieldDescriptor childFD = elementFieldDescriptors.get(i);
+			final int childFdType = childFD.getType();
+			if (childFdType == SCALAR)
+			{
+				try
+				{
+					childFD.appendTLV(outputBuffer, this);
+				}
+				catch (Exception e)
+				{
+					throw new SIMPLTranslationException("TranslateToXML for leaf node " + this, e);
+				}
+			}
+			else
+			{
+				Object thatReferenceObject = null;
+				Field childField = childFD.getField();
+				try
+				{
+					thatReferenceObject = childField.get(this);
+				}
+				catch (IllegalAccessException e)
+				{
+					debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+					childField.setAccessible(true);
+					try
+					{
+						thatReferenceObject = childField.get(this);
+					}
+					catch (IllegalAccessException e1)
+					{
+						error("Can't access " + childField.getName());
+						e1.printStackTrace();
+					}
+				}
+				// ignore null reference objects
+				if (thatReferenceObject == null)
+					continue;
+
+				final boolean isScalar = (childFdType == COLLECTION_SCALAR) || (childFdType == MAP_SCALAR);
+				// gets Collection object directly or through Map.values()
+				Collection thatCollection;
+				switch (childFdType)
+				{
+				case COLLECTION_ELEMENT:
+				case COLLECTION_SCALAR:
+				case MAP_ELEMENT:
+				case MAP_SCALAR:
+					thatCollection = XMLTools.getCollection(thatReferenceObject);
+					break;
+				default:
+					thatCollection = null;
+					break;
+				}
+
+				if (thatCollection != null && (thatCollection.size() > 0))
+				{
+
+					ByteArrayOutputStream byteArrayOutputStreamCollection = new ByteArrayOutputStream();
+					DataOutputStream collectionBuffer = new DataOutputStream(byteArrayOutputStreamCollection);
+
+					for (Object next : thatCollection)
+					{
+						if (isScalar) // leaf node!
+						{
+							try
+							{
+								childFD.appendTLVCollectionItem(collectionBuffer, next);
+							}
+							catch (IllegalArgumentException e)
+							{
+								throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
+							}
+							catch (IllegalAccessException e)
+							{
+								throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this, e);
+							}
+						}
+						else if (next instanceof ElementState)
+						{
+							ElementState collectionSubElementState = (ElementState) next;
+							final Class<? extends ElementState> collectionElementClass = collectionSubElementState
+									.getClass();
+
+							FieldDescriptor collectionElementFD = childFD.isPolymorphic() ?
+							// tag by class
+							collectionSubElementState.classDescriptor().pseudoFieldDescriptor()
+									: childFD; // tag by annotation
+
+							// inside handles cyclic pointers by translating only the simpl id if already
+							// serialized.
+							collectionSubElementState.serializeToTLV(collectionElementFD, collectionBuffer);
+
+							// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
+						}
+						else
+							throw collectionElementTypeException(thatReferenceObject);
+					}
+
+					if (childFD.isWrapped())
+						childFD.writeTLVWrap(outputBuffer, byteArrayOutputStreamCollection);
+					else
+						byteArrayOutputStreamCollection.writeTo(outputBuffer);
+				}
+				else if (thatReferenceObject instanceof ElementState)
+				{ // one of our nested elements, so recurse
+					ElementState nestedES = (ElementState) thatReferenceObject;
+					// if the field type is the same type of the instance (that is, if no subclassing),
+					// then use the field name to determine the XML tag name.
+					// if the field object is an instance of a subclass that extends the declared type of
+					// the
+					// field, use the instance's type to determine the XML tag name.
+					FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
+							.pseudoFieldDescriptor() : childFD;
+
+					nestedES.serializeToTLV(nestedFD, outputBuffer);
+				}
+			}
+		} // end if no nested elements or text node
+
+		appendTLVHeader(dataOutputStream, byteArrayOutputStream, tlvId);
+	}
+
+	private void appendTLVHeader(DataOutputStream dataOutputStream, ByteArrayOutputStream buffer,
+			int tlvId) throws IOException
+	{
+		dataOutputStream.writeInt(tlvId);
+		dataOutputStream.writeInt(buffer.size());
+		buffer.writeTo(dataOutputStream);
 	}
 
 	/**
@@ -1742,6 +1912,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		else
 		{
 			nestedES.serializeToAppendable(nestedF2XO, appendable);
+		}
+	}
+
+	private void serializeCompositeTLVElements(DataOutputStream appendable, ElementState nestedES,
+			FieldDescriptor nestedF2XO) throws IOException, SIMPLTranslationException
+	{
+		// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && alreadyMarshalled(nestedES))
+		// {
+		// appendSimplRefId(appendable, nestedES, nestedF2XO);
+		// }
+		// else
+		{
+
 		}
 	}
 

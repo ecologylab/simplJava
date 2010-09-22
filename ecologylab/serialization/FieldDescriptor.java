@@ -3,6 +3,8 @@
  */
 package ecologylab.serialization;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
@@ -849,7 +851,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
-	public boolean isDefaultValue(Object context) throws IllegalArgumentException, IllegalAccessException
+	public boolean isDefaultValue(Object context) throws IllegalArgumentException,
+			IllegalAccessException
 	{
 		if (context != null)
 			return scalarType.isDefaultValue(this.field, context);
@@ -879,6 +882,71 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				appendable.append('"');
 
 			}
+		}
+	}
+
+	/**
+	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
+	 * 
+	 * @param appendable
+	 * @param context
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public void appendTLV(DataOutputStream dataOutputStream, Object context)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (context != null)
+		{
+			ScalarType scalarType = this.scalarType;
+			Field field = this.field;
+
+			if (!scalarType.isDefaultValue(field, context))
+			{
+				dataOutputStream.writeInt(getTLVId());
+
+				StringBuilder buffy = new StringBuilder();
+				scalarType.appendValue(buffy, this, context);
+
+				ByteArrayOutputStream temp = new ByteArrayOutputStream();
+				DataOutputStream tempStream = new DataOutputStream(temp);
+				tempStream.writeBytes(buffy.toString());
+
+				dataOutputStream.writeInt(tempStream.size());
+				temp.writeTo(dataOutputStream);
+			}
+		}
+	}
+
+	/**
+	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
+	 * 
+	 * @param appendable
+	 * @param context
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public void appendTLVCollectionItem(DataOutputStream dataOutputStream, Object instance)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (instance != null)
+		{
+			ScalarType scalarType = this.scalarType;
+
+			dataOutputStream.writeInt(getTLVId());
+
+			StringBuilder buffy = new StringBuilder();
+			scalarType.appendValue(instance, buffy, true);
+
+			ByteArrayOutputStream temp = new ByteArrayOutputStream();
+			DataOutputStream tempStream = new DataOutputStream(temp);
+			tempStream.writeBytes(buffy.toString());
+
+			dataOutputStream.writeInt(tempStream.size());
+			temp.writeTo(dataOutputStream);
+
 		}
 	}
 
@@ -1048,7 +1116,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				appendable.append(',');
 			}
-			
+
 			ScalarType scalarType = this.scalarType;
 			appendable.append('"');
 			scalarType.appendValue(instance, appendable, false);
@@ -1751,6 +1819,31 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
+	public int getTLVId()
+	{
+		return elementStart().hashCode();
+	}
+
+	public void writeTLVWrap(DataOutputStream outputBuffer, ByteArrayOutputStream collectionBuffy)
+			throws IOException
+	{
+		outputBuffer.writeInt(getWrappedTLVId());
+		outputBuffer.writeInt(collectionBuffy.size());
+		collectionBuffy.writeTo(outputBuffer);
+	}
+
+	public int getWrappedTLVId()
+	{
+
+		int tempTLVId = 0;
+
+		if (tagName != null)
+			tempTLVId = tagName.hashCode();
+
+		return tempTLVId;
+
+	}
+
 	public void writeJSONElementStart(Appendable appendable, boolean withTag) throws IOException
 	{
 		if (withTag)
@@ -1785,5 +1878,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public void writeJSONCollectionClose(PrintStream appendable)
 	{
 		appendable.append(']');
+	}
+
+	public ClassDescriptor getDeclaringClassDescriptor()
+	{
+		return declaringClassDescriptor;
+	}
+
+	public ClassDescriptor elementClassDescriptor()
+	{
+		return elementClassDescriptor;
 	}
 }

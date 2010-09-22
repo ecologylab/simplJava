@@ -56,6 +56,8 @@ public final class TranslationScope extends ElementState
 	@simpl_map("class_descriptor")
 	private Scope<ClassDescriptor>											entriesByTag							= new Scope<ClassDescriptor>();
 
+	private HashMap<Integer, ClassDescriptor>						entriesByTLVId						= new HashMap<Integer, ClassDescriptor>();
+
 	private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN			= new Scope<Class<? extends ElementState>>();
 
 	private static HashMap<String, TranslationScope>		allTranslationScopes			= new HashMap<String, TranslationScope>();
@@ -381,6 +383,8 @@ public final class TranslationScope extends ElementState
 		entriesByTag.put(entry.getTagName(), entry);
 		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
+		
+		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
 
 		String[] otherTags = entry.otherTags();
 		if (otherTags != null)
@@ -389,6 +393,7 @@ public final class TranslationScope extends ElementState
 				if ((otherTag != null) && (otherTag.length() > 0))
 				{
 					entriesByTag.put(otherTag, entry);
+					entriesByTLVId.put(otherTag.hashCode(), entry);
 				}
 			}
 	}
@@ -452,6 +457,11 @@ public final class TranslationScope extends ElementState
 		return entriesByTag.get(tag);
 	}
 
+	public ClassDescriptor getClassDescriptorByTLVId(int tlvId)
+	{
+		return entriesByTLVId.get(tlvId);
+	}
+
 	/**
 	 * Get the Class object associated with the provided class name, if there is one. Unlike
 	 * xmlTagToClass, this call will not generate a new blank NameEntry.
@@ -472,6 +482,11 @@ public final class TranslationScope extends ElementState
 		ClassDescriptor entry = entriesByClassName.get(className);
 
 		return (entry == null) ? null : entry.getDescribedClass();
+	}
+	
+	public ClassDescriptor getClassDescriptorByClassName(String className)
+	{
+		return entriesByClassName.get(className);
 	}
 
 	public ArrayList<Class<? extends ElementState>> getAllClasses()
@@ -936,6 +951,21 @@ public final class TranslationScope extends ElementState
 		return deserialize(xmlFile);
 	}
 
+	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
+	{
+		ElementState result = null;
+		switch (format)
+		{
+
+		case TLV:
+			ElementStateTLVHandler tlvHandler = new ElementStateTLVHandler(this);
+			result = tlvHandler.parse(byteArray);
+			break;
+
+		}
+		return result;
+	}
+
 	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format)
 			throws SIMPLTranslationException
 	{
@@ -950,7 +980,6 @@ public final class TranslationScope extends ElementState
 			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
 			result = jsonHandler.parse(charSequence);
 			break;
-
 		}
 		return result;
 	}

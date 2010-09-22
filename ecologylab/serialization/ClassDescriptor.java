@@ -27,14 +27,14 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * Class object that we are describing.
 	 */
 	@simpl_scalar
-	private Class<ES>																			describedClass;
+	private Class<ES>				describedClass;
 
 	@simpl_scalar
-	private String																				tagName;
+	private String					tagName;
 
-	private String																				decribedClassSimpleName;
+	private String					decribedClassSimpleName;
 
-	private String																				describedClassPackageName;
+	private String					describedClassPackageName;
 
 	// @xml_attribute
 	// private String describedClassName;
@@ -43,12 +43,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
 	 * the root element or a field is determined by class name, not by field name.
 	 */
-	private FieldDescriptor																pseudoFieldDescriptor;
+	private FieldDescriptor	pseudoFieldDescriptor;
 
 	/**
 	 * Handles a text node.
 	 */
-	private FieldDescriptor																scalarTextFD;
+	private FieldDescriptor	scalarTextFD;
 
 	FieldDescriptor getScalarTextFD()
 	{
@@ -59,12 +59,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		this.scalarTextFD = scalarTextFD;
 	}
-	
+
 	public boolean hasScalarFD()
 	{
 		return scalarTextFD != null;
 	}
-
 
 	private boolean																				isGetAndOrganizeComplete;
 
@@ -86,6 +85,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	// TODO -- consider changing this to Scope<FieldDescriptor>, then nesting scopes when @xml_scope
 	// is encountered, to support dynamic binding of @xml_scope.
 	private HashMap<String, FD>														allFieldDescriptorsByTagNames	= new HashMap<String, FD>();
+
+	private HashMap<Integer, FD>													allFieldDescriptorsByTLVIds		= new HashMap<Integer, FD>();
 
 	private ArrayList<FD>																	attributeFieldDescriptors			= new ArrayList<FD>();
 
@@ -187,10 +188,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				// instance of itself
 				else if (!result.isGetAndOrganizeComplete)
 				{
-					//TODO -- is this case really o.k.?
-//					if (!thatClass.equals(FieldDescriptor.class) && !thatClass.equals(ClassDescriptor.class))
-//						result
-//								.warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
+					// TODO -- is this case really o.k.?
+					// if (!thatClass.equals(FieldDescriptor.class) &&
+					// !thatClass.equals(ClassDescriptor.class))
+					// result
+					// .warning(" Circular reference (probably fine, but perhaps a race condition that should never happen.");
 				}
 			}
 		}
@@ -261,6 +263,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public FD getFieldDescriptorByTag(String tag, TranslationScope tScope)
 	{
 		return getFieldDescriptorByTag(tag, tScope, null);
+	}
+
+	public FD getFieldDescriptorByTLVId(int tlvId)
+	{
+	// TODO -- add support for name space lookup in context here
+		if (unresolvedScopeAnnotationFDs != null)
+			resolveUnresolvedScopeAnnotationFDs();
+
+		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
 
 	public FieldDescriptor getFieldDescriptorByFieldName(String fieldName)
@@ -346,44 +357,44 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				// debug("Skipping " + thatField + " because its static!");
 				continue;
 			}
-//			boolean isEnum = XMLTools.isEnum(thatField);
+			// boolean isEnum = XMLTools.isEnum(thatField);
 			// TODO -- if fieldDescriptorClass is already defined, then use it w reflection, instead of
 			// FieldDescriptor, itself
-//			if (XMLTools.representAsAttribute(thatField))
-//			{
-//				isElement = false;
-//				int type = !isEnum ? ATTRIBUTE : ENUMERATED_ATTRIBUTE;
-//				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
-//			}
-//			else if (XMLTools.representAsLeaf(thatField))
-//			{
-//				int type = !isEnum ? LEAF : ENUMERATED_LEAF;
-//				fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
-//			}
-//			else 
-			int fieldType			= UNSET_TYPE;
-			
+			// if (XMLTools.representAsAttribute(thatField))
+			// {
+			// isElement = false;
+			// int type = !isEnum ? ATTRIBUTE : ENUMERATED_ATTRIBUTE;
+			// fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
+			// }
+			// else if (XMLTools.representAsLeaf(thatField))
+			// {
+			// int type = !isEnum ? LEAF : ENUMERATED_LEAF;
+			// fieldDescriptor = newFieldDescriptor(thatField, type, fieldDescriptorClass);
+			// }
+			// else
+			int fieldType = UNSET_TYPE;
+
 			if (XMLTools.isScalar(thatField))
 			{
-				fieldType				= SCALAR;
+				fieldType = SCALAR;
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
-				fieldType				= COMPOSITE_ELEMENT;
+				fieldType = COMPOSITE_ELEMENT;
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldType				= COLLECTION_ELEMENT;
+				fieldType = COLLECTION_ELEMENT;
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
-				fieldType				= MAP_ELEMENT;
+				fieldType = MAP_ELEMENT;
 			}
 			if (fieldType == UNSET_TYPE)
-				continue;	// not a simpl serialization annotated field
-			
+				continue; // not a simpl serialization annotated field
+
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
-			
+
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -404,7 +415,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 			else
 				elementFieldDescriptors.add(fieldDescriptor);
-			
+
 			// TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
 			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
@@ -518,6 +529,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private void mapTagToFdForTranslateFrom(String tagName, FD fdToMap)
 	{
 		FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
+		allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
 		if (previousMapping != null && !fdToMap.isWrapped())
 			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
 					+ previousMapping.getFieldName() + "]");
