@@ -68,6 +68,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	File												fileContext;
 
 	DeserializationHookStrategy deserializationHookStrategy;
+
+	private boolean	skipClosingTag = false;
 	/**
 	 * 
 	 */
@@ -428,6 +430,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			case COMPOSITE_ELEMENT:
 				childES = childFD.constructChildElementState(currentElementState, tagName, attributes);
 
+				if(childES == currentElementState) skipClosingTag  = true;
+				
 				if (childES == null)
 				{
 					childFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
@@ -561,6 +565,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	public void endElement(String namespaceURI, String localTagName, String prefixedTagName)
 			throws SAXException
 	{
+		if(skipClosingTag)
+		{
+			skipClosingTag = false;
+			return;
+		}
+			
 		// if (this.currentElementState == null)
 		// {
 		// this.currentFD.warning(" Ignoring tag <" + localTagName + ">");

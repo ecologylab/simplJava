@@ -1597,7 +1597,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			result = getInstance(attributes, childClassDescriptor);
 
-			if (result != null)
+			if (result != null && result != parent)
 				result.setupInParent(parent, childClassDescriptor);
 		}
 		return result;
