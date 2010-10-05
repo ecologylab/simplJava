@@ -182,6 +182,17 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		sortIfWeShould();
 		return list.get(--size);
 	}
+	
+	public synchronized E maxPeek(int index)
+	{
+		ArrayList<E> list = this.arrayList;
+		int size = list.size();
+		if (size == 0)
+			return null;
+		sortIfWeShould();
+		int desiredIndex = size - index - 1;
+		return list.get(desiredIndex);
+	}
 
 	/**
 	 * Default implementation of the prune to keep only maxSize elements
@@ -320,7 +331,18 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		if (list.size() == 0)
 			return null;
 		sortIfWeShould();
+		
 		return weightingStrategy.getWeight(list.get(i));
+	}
+	
+	
+	/**
+	 * Fetches the highest weight in this set
+	 * @return
+	 */
+	public synchronized Double maxWeight()
+	{
+		return weightAt(this.arrayList.size() - 1);
 	}
 	
 	/**

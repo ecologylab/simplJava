@@ -39,6 +39,8 @@ class BasicSite extends ElementState implements Mappable<String>
    */
   long														lastDownloadAt;
   
+  @simpl_scalar protected boolean ignoreSemanticBoost;
+  
   boolean													isDownloading;
   
 	/**
@@ -146,5 +148,10 @@ class BasicSite extends ElementState implements Mappable<String>
 	public String domain()
 	{
 		return domain;
+	}
+ 
+	public boolean ignoreSemanticBoost()
+	{
+		return ignoreSemanticBoost;
 	}
 }

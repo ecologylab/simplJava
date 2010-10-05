@@ -298,7 +298,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	/**
 	 * Keep track of system millis that this site can be hit at.
 	 */
-	Hashtable<BasicSite, Long> siteTimeTable = new Hashtable<BasicSite, Long>();
+	public static Hashtable<BasicSite, Long> siteTimeTable = new Hashtable<BasicSite, Long>();
 	/**
 	 * The heart of the workhorse Threads. It loops, pulling a DownloadClosure off the toDownload
 	 * queue, calling its performDownload() method, and then calling dispatch() if there is a

@@ -55,7 +55,8 @@ public class Debug
      */
     // private static PrefInt level = Pref.usePrefInt("debug_global_level", 0);;
 
-
+    static final long initTimestamp = System.currentTimeMillis();
+    
    public static void initialize()
    {
       // class specific
@@ -308,6 +309,16 @@ public class Debug
    public static String toString(Object o)
    {
       return getClassName(o);
+   }
+   
+   public final void debugT(CharSequence message)
+   {
+  	 //FIXME: This may be slow. Use sparingly
+  	 String tStamp = "{t=" + (System.currentTimeMillis() - initTimestamp) + "}";
+  	 print(tStamp);
+  	 print(this.toString());
+  	 println(message);
+  	 
    }
 /**
  * Print a debug message that starts with this.toString().
