@@ -5,12 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -84,6 +85,14 @@ public class ParsedURL extends Debug implements MimeType
 	/* domain value string of the ulr */
 	protected String						domain															= null;
 
+	static CookieManager manager = new CookieManager();
+	
+	static
+	{
+		manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+		CookieHandler.setDefault(manager);
+	}
+	
 	public ParsedURL(URL url)
 	{
 		String hash = url.getRef();
@@ -1336,7 +1345,7 @@ public class ParsedURL extends Debug implements MimeType
 	public PURLConnection connect(ConnectionHelper connectionHelper, String userAgent,
 			int connectionTimeout, int readTimeout)
 	{
-		URLConnection connection = null;
+		HttpURLConnection connection = null;
 		InputStream inStream = null;
 
 		// get an InputStream, and set the mimeType, if not bad
@@ -1373,7 +1382,7 @@ public class ParsedURL extends Debug implements MimeType
 			boolean bad = false;
 			try
 			{
-				connection = this.url().openConnection();
+				connection = (HttpURLConnection) this.url().openConnection();
 
 				// hack so google thinks we're a normal browser
 				// (otherwise, it wont serve us)

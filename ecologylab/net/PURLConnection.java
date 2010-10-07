@@ -3,6 +3,7 @@ package ecologylab.net;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URLConnection;
 
 import ecologylab.generic.Debug;
@@ -16,7 +17,7 @@ public class PURLConnection extends Debug
 {
 	protected	ParsedURL				purl;
 	protected InputStream			inputStream;
-	protected URLConnection		urlConnection;
+	protected HttpURLConnection urlConnection;
 	protected String					mimeType;
 
 	/**
@@ -26,7 +27,7 @@ public class PURLConnection extends Debug
 	 * @param inputStream
 	 */
 	//TODO change to package level access when ParsedURL moves
-	public PURLConnection(ParsedURL purl, URLConnection urlConnection, InputStream inputStream)
+	public PURLConnection(ParsedURL purl, HttpURLConnection urlConnection, InputStream inputStream)
 	{
 		this.purl						= purl;
 		this.inputStream		= inputStream;

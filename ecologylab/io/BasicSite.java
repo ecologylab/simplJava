@@ -43,6 +43,13 @@ class BasicSite extends ElementState implements Mappable<String>
   
   boolean													isDownloading;
   
+  /**
+   * Maintaining site level state on whether this page has been reloaded
+   * FIXME: Must go away when we have persistent cookie storage
+   */
+  private boolean hasBeenReloaded = false;
+  
+
 	/**
 	 * Use for XML Translation
 	 */
@@ -153,5 +160,15 @@ class BasicSite extends ElementState implements Mappable<String>
 	public boolean ignoreSemanticBoost()
 	{
 		return ignoreSemanticBoost;
+	}
+
+	public boolean hasBeenReloaded()
+	{
+		return hasBeenReloaded;
+	}
+	
+	public void setHasBeenReloaded(boolean hasBeenReloaded)
+	{
+		this.hasBeenReloaded = hasBeenReloaded;
 	}
 }
