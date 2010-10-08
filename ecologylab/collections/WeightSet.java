@@ -258,13 +258,14 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	{
 		synchronized (arrayList)
 		{
-			for (int i=0; i<size(); i++)
+			for (int i=size()-1; i>0; i--)
 			{
 				E e	= arrayList.remove(i);
 				e.deleteHook();
 				if (doRecycleElements)
 					e.recycle(false);
 			}
+			arrayList.clear();
 		}
 		hashSet.clear();
 	}
