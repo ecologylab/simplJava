@@ -75,19 +75,18 @@ public class TypeRegistry extends Debug
 
 	private static boolean register(String typeName, ScalarType type)
 	{
-		boolean result;
+		boolean typeContained;
 
 		synchronized (allTypes)
 		{
-			result = !allTypes.containsKey(typeName);
-			if (result)
+			typeContained = allTypes.containsKey(typeName);
+			if (typeContained)
 			{
-				allTypes.put(typeName, type);
+				Debug.warning(TypeRegistry.class, "register(): Redefining scalar type: " + typeName);
 			}
-			else
-				println("TypeRegistry.register() ERROR! Cant redefine  mapping for " + typeName);
+			allTypes.put(typeName, type);
 		}
-		return result;
+		return typeContained;
 	}
 
 	/**
