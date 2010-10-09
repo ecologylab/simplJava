@@ -11,6 +11,7 @@ import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -182,6 +183,10 @@ public class ParsedURL extends Debug implements MimeType
 		return getAbsolute(webAddr, "getAbsolute(String) ");
 	}
 
+	public static ParsedURL get(URI uri)
+	{
+		return getAbsolute(uri.toString());
+	}
 	/**
 	 * Create a PURL from an absolute address.
 	 * 
