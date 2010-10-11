@@ -86,12 +86,12 @@ public class ParsedURL extends Debug implements MimeType
 	/* domain value string of the ulr */
 	protected String						domain															= null;
 
-	static CookieManager manager = new CookieManager();
+	public static CookieManager cookieManager = new CookieManager();
 	
 	static
 	{
-		manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-		CookieHandler.setDefault(manager);
+		//cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+		CookieHandler.setDefault(cookieManager);
 	}
 	
 	public ParsedURL(URL url)
