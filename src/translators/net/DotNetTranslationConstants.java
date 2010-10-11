@@ -6,7 +6,7 @@ package translators.net;
  * 
  * @author Nabeel Shahzad
  */
-public class DotNetTranslationConstants
+public interface DotNetTranslationConstants
 {
 
 	/*
@@ -44,6 +44,8 @@ public class DotNetTranslationConstants
 	public static final String	GENERIC									= "Generic";
 
 	public static final String	ECOLOGYLAB_NAMESPACE		= "ecologylabFundamental.ecologylab.atttributes";
+	
+	public static final String	SERIALIZATION_NAMESPACE		= "ecologylabFundamental.ecologylab.serialization";
 
 	/*
 	 * Formatting constants

@@ -2,10 +2,14 @@ package translators.net;
 
 import java.lang.annotation.Annotation;
 
+import ecologylab.generic.Debug;
+import ecologylab.serialization.ElementState.simpl_scope;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.simpl_classes;
 import ecologylab.serialization.ElementState.simpl_collection;
 import ecologylab.serialization.ElementState.simpl_hints;
+import ecologylab.serialization.ElementState.simpl_map;
+import ecologylab.serialization.ElementState.xml_other_tags;
 import ecologylab.serialization.ElementState.xml_tag;
 
 /**
@@ -261,9 +265,9 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpCollectionAnnotation(annotation);
 		}
-		else if (annotation instanceof xml_tag)
+		else if (annotation instanceof simpl_map)
 		{
-			return getCSharpTagAnnotation(annotation);
+			return getCSharpMapAnnotation(annotation);
 		}
 		else if (annotation instanceof simpl_classes)
 		{
@@ -273,9 +277,23 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpHintsAnnotation(annotation);
 		}
+		else if (annotation instanceof simpl_scope)
+		{
+			return getCSharpScopeAnnotation(annotation);
+		}
+		else if (annotation instanceof xml_tag)
+		{
+			return getCSharpTagAnnotation(annotation);
+		}
+		else if (annotation instanceof xml_other_tags)
+		{
+			return getCSharpOtherTagsAnnotation(annotation);
+		}
 
 		return simpleName;
 	}
+
+
 
 	/**
 	 * Utility function to translate java classes annotation to C# attribute
@@ -375,6 +393,50 @@ public class DotNetTranslationUtilities
 	}
 	
 
+	private static String getCSharpScopeAnnotation(Annotation annotation)
+	{
+		String parameter = null;
+		simpl_scope scopeAnnotation = (simpl_scope) annotation;
+		String scopeValue = scopeAnnotation.value();
+		String simpleName = getSimpleName(scopeAnnotation);
+		if(scopeValue != null && !scopeValue.isEmpty())
+		{
+			parameter = "(\"" + scopeValue + "\")";
+			return simpleName + parameter;
+		}
+		else
+		{
+			Debug.error(scopeAnnotation, "Scope without a parameter");
+			return null;
+		}
+		
+	}
+	
+
+
+	private static String getCSharpOtherTagsAnnotation(Annotation annotation)
+	{
+		String parameter = null;
+		xml_other_tags scopeAnnotation = (xml_other_tags) annotation;
+		String[] scopeValue = scopeAnnotation.value();
+		String simpleName = getSimpleName(scopeAnnotation);
+		if(scopeValue != null && scopeValue.length > 0)
+		{
+			parameter = "(new String[]{";
+			for(String otherTag : scopeValue)
+				parameter += "\"" + otherTag + "\", ";
+			
+			parameter += "})";
+			return simpleName + parameter;
+		}
+		else
+		{
+			Debug.error(scopeAnnotation, "xml_other_tags without any parameters");
+			return null;
+		}
+	}
+
+	
 	/**
 	 * Utility function to translate java collection annotation to C# attribute
 	 * 
@@ -399,6 +461,27 @@ public class DotNetTranslationUtilities
 		}
 	}
 
+
+	private static String getCSharpMapAnnotation(Annotation annotation)
+	{
+		String parameter = null;
+		simpl_map collectionAnnotation = (simpl_map) annotation;
+		String tagValue = collectionAnnotation.value();
+		String simpleName = getSimpleName(annotation);
+
+		if (tagValue != null && !tagValue.isEmpty())
+		{
+			parameter = "(" + "\"" + tagValue + "\"" + ")";
+			return simpleName + parameter;
+		}
+		else
+		{
+			Debug.warning(collectionAnnotation, "Map declared with no tags");
+			return simpleName;
+		}
+	}
+
+	
 	/**
 	 * Gets the simple name of the annotation. For the time being it is replacing xml with serial
 	 * 

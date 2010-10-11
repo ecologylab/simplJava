@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,9 +28,9 @@ import ecologylab.serialization.library.rss.Channel;
  * the C# implementation files.
  * 
  * <p>
- * It uses the same syntactical annotations used the by {@code ecologylab.serialization} to translate Java
- * objects into xml files. Since it uses the same annotations the data types supported for
- * translation are also the same. The entry point functions into the class are.
+ * It uses the same syntactical annotations used the by {@code ecologylab.serialization} to
+ * translate Java objects into xml files. Since it uses the same annotations the data types
+ * supported for translation are also the same. The entry point functions into the class are.
  * <ul>
  * <li>{@code translateToCSharp(Class<? extends ElementState>, Appendable)}</li>
  * </ul>
@@ -38,7 +39,7 @@ import ecologylab.serialization.library.rss.Channel;
  * @author Nabeel Shahzad
  * @version 1.0
  */
-public class DotNetTranslator
+public class DotNetTranslator implements DotNetTranslationConstants
 {
 	/**
 	 * Constructor method
@@ -49,6 +50,12 @@ public class DotNetTranslator
 	public DotNetTranslator()
 	{
 	}
+
+	/**
+	 * This is a way to add specific import namespaces. 
+	 * FIXME: There should be a more elegant way to do this.
+	 */
+	public ArrayList<String>	additionalImportNamespaces;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -235,21 +242,21 @@ public class DotNetTranslator
 		String packageName = XMLTools.getPackageName(inputClass);
 		String className = XMLTools.getClassName(inputClass);
 		String currentDirectory = directoryLocation.toString()
-				+ DotNetTranslationConstants.FILE_PATH_SEPARATOR;
+				+ FILE_PATH_SEPARATOR;
 
 		String[] arrayPackageNames = packageName
-				.split(DotNetTranslationConstants.PACKAGE_NAME_SEPARATOR);
+				.split(PACKAGE_NAME_SEPARATOR);
 
 		for (String directoryName : arrayPackageNames)
 		{
-			currentDirectory += directoryName + DotNetTranslationConstants.FILE_PATH_SEPARATOR;
+			currentDirectory += directoryName + FILE_PATH_SEPARATOR;
 		}
 
 		File directory = new File(currentDirectory);
 		directory.mkdirs();
 
 		File currentFile = new File(currentDirectory + className
-				+ DotNetTranslationConstants.FILE_EXTENSION);
+				+ FILE_EXTENSION);
 
 		if (currentFile.exists())
 		{
@@ -267,30 +274,48 @@ public class DotNetTranslator
 	 */
 	private void importNameSpaces(Appendable appendable) throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.USING);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.SYSTEM);
-		appendable.append(DotNetTranslationConstants.END_LINE);
+		appendable.append(USING);
+		appendable.append(SPACE);
+		appendable.append(SYSTEM);
+		appendable.append(END_LINE);
 
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(SINGLE_LINE_BREAK);
 
-		appendable.append(DotNetTranslationConstants.USING);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.SYSTEM);
-		appendable.append(DotNetTranslationConstants.DOT);
-		appendable.append(DotNetTranslationConstants.COLLECTIONS);
-		appendable.append(DotNetTranslationConstants.DOT);
-		appendable.append(DotNetTranslationConstants.GENERIC);
-		appendable.append(DotNetTranslationConstants.END_LINE);
+		appendable.append(USING);
+		appendable.append(SPACE);
+		appendable.append(SYSTEM);
+		appendable.append(DOT);
+		appendable.append(COLLECTIONS);
+		appendable.append(DOT);
+		appendable.append(GENERIC);
+		appendable.append(END_LINE);
 
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(SINGLE_LINE_BREAK);
 
-		appendable.append(DotNetTranslationConstants.USING);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.ECOLOGYLAB_NAMESPACE);
-		appendable.append(DotNetTranslationConstants.END_LINE);
+		appendable.append(USING);
+		appendable.append(SPACE);
+		appendable.append(ECOLOGYLAB_NAMESPACE);
+		appendable.append(END_LINE);
 
-		appendable.append(DotNetTranslationConstants.DOUBLE_LINE_BREAK);
+		appendable.append(SINGLE_LINE_BREAK);
+
+		appendable.append(USING);
+		appendable.append(SPACE);
+		appendable.append(SERIALIZATION_NAMESPACE);
+		appendable.append(END_LINE);
+	
+		if(additionalImportNamespaces != null && additionalImportNamespaces.size() > 0)
+		{
+			for(String namespace : additionalImportNamespaces)
+			{
+				appendable.append(SINGLE_LINE_BREAK);
+				appendable.append(USING);
+				appendable.append(SPACE);
+				appendable.append(namespace);
+				appendable.append(END_LINE);	
+			}
+		}
+		appendable.append(DOUBLE_LINE_BREAK);
 	}
 
 	/**
@@ -302,13 +327,13 @@ public class DotNetTranslator
 	private void openNameSpace(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.NAMESPACE);
-		appendable.append(DotNetTranslationConstants.SPACE);
+		appendable.append(NAMESPACE);
+		appendable.append(SPACE);
 		appendable.append(inputClass.getPackage().getName());
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
-		appendable.append(DotNetTranslationConstants.OPENING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(SPACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	/**
@@ -318,8 +343,8 @@ public class DotNetTranslator
 	 */
 	private void closeNameSpace(Appendable appendable) throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.CLOSING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	/**
@@ -331,18 +356,18 @@ public class DotNetTranslator
 	private void appendDefaultConstructor(Class<? extends ElementState> inputClass,
 			Appendable appendable) throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-		appendable.append(DotNetTranslationConstants.PUBLIC);
-		appendable.append(DotNetTranslationConstants.SPACE);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
 		appendable.append(inputClass.getSimpleName());
-		appendable.append(DotNetTranslationConstants.OPENING_BRACE);
-		appendable.append(DotNetTranslationConstants.CLOSING_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
-		appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-		appendable.append(DotNetTranslationConstants.OPENING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.CLOSING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(OPENING_BRACE);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SPACE);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	/**
@@ -355,17 +380,23 @@ public class DotNetTranslator
 	private void appendFieldAsCSharpAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
+		String cSharpType = fieldDescriptor.getCSharpType();
+		if (cSharpType == null)
+		{
+			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
+			return;
+		}
 		appendFieldComments(fieldDescriptor, appendable);
 		appendAnnotation(fieldDescriptor, appendable);
-		appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-		appendable.append(DotNetTranslationConstants.PRIVATE);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(fieldDescriptor.getCSharpType());
-//		appendable.append(DotNetTranslationUtilities.getCSharpType(fieldDescriptor.getField()));
-		appendable.append(DotNetTranslationConstants.SPACE);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(cSharpType);
+		// appendable.append(DotNetTranslationUtilities.getCSharpType(fieldDescriptor.getField()));
+		appendable.append(SPACE);
 		appendable.append(fieldDescriptor.getFieldName());
-		appendable.append(DotNetTranslationConstants.END_LINE);
-		appendable.append(DotNetTranslationConstants.DOUBLE_LINE_BREAK);
+		appendable.append(END_LINE);
+		appendable.append(DOUBLE_LINE_BREAK);
 	}
 
 	/**
@@ -377,16 +408,16 @@ public class DotNetTranslator
 	private void appendFieldComments(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-		appendable.append(DotNetTranslationConstants.OPEN_COMMENTS);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(OPEN_COMMENTS);
+		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor
-				.getField()), true);
+		appendCommentsFromArray(appendable,
+				JavaDocParser.getFieldJavaDocsArray(fieldDescriptor.getField()), true);
 
-		appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-		appendable.append(DotNetTranslationConstants.CLOSE_COMMENTS);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(CLOSE_COMMENTS);
+		appendable.append(SINGLE_LINE_BREAK);
 
 	}
 
@@ -400,13 +431,19 @@ public class DotNetTranslator
 			throws IOException
 	{
 		Annotation[] annotations = fieldDescriptor.getField().getAnnotations();
+		appendAnnotations(appendable, annotations, DOUBLE_TAB);
+	}
+
+	private void appendAnnotations(Appendable appendable, Annotation[] annotations, String tabSpacing)
+			throws IOException
+	{
 		for (Annotation annotation : annotations)
 		{
-			appendable.append(DotNetTranslationConstants.DOUBLE_TAB);
-			appendable.append(DotNetTranslationConstants.OPENING_SQUARE_BRACE);
+			appendable.append(tabSpacing);
+			appendable.append(OPENING_SQUARE_BRACE);
 			appendable.append(DotNetTranslationUtilities.getCSharpAnnotation(annotation));
-			appendable.append(DotNetTranslationConstants.CLOSING_SQUARE_BRACE);
-			appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+			appendable.append(CLOSING_SQUARE_BRACE);
+			appendable.append(SINGLE_LINE_BREAK);
 		}
 	}
 
@@ -431,60 +468,67 @@ public class DotNetTranslator
 			throws IOException
 	{
 		appendClassComments(inputClass, appendable);
-		appendable.append(DotNetTranslationConstants.TAB);
-		appendable.append(DotNetTranslationConstants.PUBLIC);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.CLASS);
-		appendable.append(DotNetTranslationConstants.SPACE);
+		
+		Annotation[] annotations = inputClass.getAnnotations();
+
+		Class genericSuperclass = inputClass.getSuperclass();
+		
+		appendAnnotations(appendable, annotations, TAB);
+		
+		appendable.append(TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(CLASS);
+		appendable.append(SPACE);
 		appendable.append(inputClass.getSimpleName());
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.INHERITANCE_OPERATOR);
-		appendable.append(DotNetTranslationConstants.SPACE);
-		appendable.append(DotNetTranslationConstants.INHERITANCE_OBJECT);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
-		appendable.append(DotNetTranslationConstants.TAB);
-		appendable.append(DotNetTranslationConstants.OPENING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(SPACE);
+		appendable.append(INHERITANCE_OPERATOR);
+		appendable.append(SPACE);
+		appendable.append(genericSuperclass.getSimpleName());
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	private void appendClassComments(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.TAB);
-		appendable.append(DotNetTranslationConstants.OPEN_COMMENTS);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(OPEN_COMMENTS);
+		appendable.append(SINGLE_LINE_BREAK);
 
 		appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
 
-		appendable.append(DotNetTranslationConstants.TAB);
-		appendable.append(DotNetTranslationConstants.CLOSE_COMMENTS);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(CLOSE_COMMENTS);
+		appendable.append(SINGLE_LINE_BREAK);
 
 	}
 
 	private void appendCommentsFromArray(Appendable appendable, String[] javaDocCommentArray,
 			boolean doubleTabs) throws IOException
 	{
-		String numOfTabs = DotNetTranslationConstants.TAB;
+		String numOfTabs = TAB;
 		if (doubleTabs)
-			numOfTabs = DotNetTranslationConstants.DOUBLE_TAB;
-		
+			numOfTabs = DOUBLE_TAB;
+
 		if (javaDocCommentArray != null)
 		{
 			for (String comment : javaDocCommentArray)
 			{
 				appendable.append(numOfTabs);
-				appendable.append(DotNetTranslationConstants.XML_COMMENTS);
+				appendable.append(XML_COMMENTS);
 				appendable.append(comment);
-				appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+				appendable.append(SINGLE_LINE_BREAK);
 			}
 		}
 		else
 		{
 			appendable.append(numOfTabs);
-			appendable.append(DotNetTranslationConstants.XML_COMMENTS);
+			appendable.append(XML_COMMENTS);
 			appendable.append("missing java doc comments or could not find the source file.");
-			appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+			appendable.append(SINGLE_LINE_BREAK);
 		}
 	}
 
@@ -495,9 +539,9 @@ public class DotNetTranslator
 	 */
 	private void closeClassFile(Appendable appendable) throws IOException
 	{
-		appendable.append(DotNetTranslationConstants.TAB);
-		appendable.append(DotNetTranslationConstants.CLOSING_CURLY_BRACE);
-		appendable.append(DotNetTranslationConstants.SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 
 	}
 
@@ -511,12 +555,18 @@ public class DotNetTranslator
 	{
 		DotNetTranslator c = new DotNetTranslator();
 
-//		c.translateToCSharp(
-//						new File("/csharp_output"),
-//						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
-//								RssState.class, Item.class, Channel.class),
-//						new File(
-//								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
+		// c.translateToCSharp(
+		// new File("/csharp_output"),
+		// TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+		// RssState.class, Item.class, Channel.class),
+		// new File(
+		// "/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
 		c.translateToCSharp(System.out, Channel.class);
 	}
+
+	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
+	{
+		this.additionalImportNamespaces = additionalImportLines;
+	}
+
 }
