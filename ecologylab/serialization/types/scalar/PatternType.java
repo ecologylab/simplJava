@@ -30,8 +30,7 @@ public class PatternType extends ReferenceType<Pattern>
 	@Override
 	public String getCSharptType()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return "Regex";
 	}
 
 	@Override

@@ -1794,16 +1794,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		String result = null;
 
-		if (scalarType != null)
+		if (scalarType != null && !isCollection())
 		{
 			result = scalarType.getCSharptType();
 		}
 		else
 		{
+			Class<?> type = this.field.getType();
 			if (isCollection())
 			{
-				Class<?> type = this.field.getType();
-
 				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
 				{
 					result = MappingConstants.DOTNET_ARRAYLIST;
@@ -1820,6 +1819,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					result = MappingConstants.DOTNET_SCOPE;
 				}
+			}
+			else
+			{
+				//Simpl composite ?
+				String name = type.getSimpleName();
+				if(name != null && !name.contains("$")) //FIXME:Dealing with inner classes is not done yet
+					result = name;
 			}
 		}
 
