@@ -3,6 +3,7 @@ package translators.net;
 import java.lang.annotation.Annotation;
 
 import ecologylab.generic.Debug;
+import ecologylab.semantics.metadata.Metadata.mm_name;
 import ecologylab.serialization.ElementState.simpl_scope;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.simpl_classes;
@@ -289,9 +290,14 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpOtherTagsAnnotation(annotation);
 		}
+		else if (annotation instanceof mm_name)
+		{
+			return getCSharpMMNameAnnotation(annotation);
+		}
 
 		return simpleName;
 	}
+
 
 
 
@@ -433,6 +439,24 @@ public class DotNetTranslationUtilities
 		{
 			Debug.error(scopeAnnotation, "xml_other_tags without any parameters");
 			return null;
+		}
+	}
+
+
+	private static String getCSharpMMNameAnnotation(Annotation annotation)
+	{
+		String parameter = null;
+		mm_name mmNameAnnotation = (mm_name) annotation;
+		String tagValue = mmNameAnnotation.value();
+		String simpleName = getSimpleName(annotation);
+		if (tagValue != null && !tagValue.isEmpty())
+		{
+			parameter = "(" + "\"" + tagValue + "\"" + ")";
+			return simpleName + parameter;
+		}
+		else
+		{
+			return simpleName;
 		}
 	}
 
