@@ -150,26 +150,7 @@ public class DoubleType extends ScalarType<Double>
 	@Override public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context)
 			throws IllegalArgumentException, IllegalAccessException
 	{
-		double value = (Double) f2xo.getField().get(context);
-		String[] formatStrings = f2xo.getFormat();
-		
-		if (formatStrings != null)
-		{
-			EfficientDecimalFormat decFormat = getFormat(formatStrings[0]);
-			
-			try
-			{
-				decFormat.format(value, buffy);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		else
-		{
-			buffy.append(value);
-		}
+		buffy.append(getValueToAppend(f2xo, context));
 	}
 
 	/**
@@ -180,23 +161,37 @@ public class DoubleType extends ScalarType<Double>
 	 * @param context
 	 * @throws IllegalAccessException 
 	 * @throws IllegalArgumentException 
+	 * @throws IOException 
 	 */
 	@Override public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
+		buffy.append(getValueToAppend(fieldDescriptor, context));
+	}
+	
+	public static String getValueToAppend(FieldDescriptor fieldDescriptor, Object context) 
+		throws IllegalArgumentException, IllegalAccessException
+	{
 		double value = (Double) fieldDescriptor.getField().get(context);
 		String[] formatStrings = fieldDescriptor.getFormat();
+		StringBuilder res = new StringBuilder();
 		
 		if (formatStrings != null)
 		{
 			EfficientDecimalFormat decFormat = getFormat(formatStrings[0]);
 			
-			decFormat.format(value, buffy);
+			
+			try {
+				decFormat.format(value, res);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		else
 		{
-			buffy.append(Double.toString(value));
+			res.append(Double.toString(value));
 		}
+		return res.toString();
 	}
 	
 	private static EfficientDecimalFormat getFormat(String formatString)

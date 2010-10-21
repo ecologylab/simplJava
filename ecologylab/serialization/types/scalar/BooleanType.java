@@ -41,7 +41,7 @@ public class BooleanType extends ScalarType<Boolean>
 	/**
 	 * Convert the parameter to boolean.
 	 */
-	public boolean getValue(String valueString)
+	public static boolean getValue(String valueString)
 	{
 	   String lcValue= valueString.toLowerCase();
 	   return lcValue.equals("t") || lcValue.equals("true") ||
@@ -110,9 +110,7 @@ public class BooleanType extends ScalarType<Boolean>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        boolean value = (Boolean) f2xo.getField().get(context);
-           
-		buffy.append(value);
+        buffy.append(getValueToAppend(f2xo, context));
     }
     static final String TRUE	= "true";
     static final String FALSE	= "false";
@@ -133,15 +131,21 @@ public class BooleanType extends ScalarType<Boolean>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        boolean value = (Boolean) fieldDescriptor.getField().get(context);
+        buffy.append(getValueToAppend(fieldDescriptor, context));
+    }
+    
+    public static String getValueToAppend(FieldDescriptor descriptor, Object context) 
+    throws IllegalArgumentException, IllegalAccessException
+    {
+    	boolean value = (Boolean) descriptor.getField().get(context);
         
-        if(fieldDescriptor.getFormat() != null)
+        if(descriptor.getFormat() != null)
         {
-      	  buffy.append(value ? SHORT_TRUE : SHORT_FALSE);
+      	  return (value ? SHORT_TRUE : SHORT_FALSE);
         }
         else
         {
-      	  buffy.append(value ? TRUE : FALSE);
+      	  return (value ? TRUE : FALSE);
         }
     }
     

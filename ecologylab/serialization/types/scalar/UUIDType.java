@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 
-public class UUIDType extends ScalarType {
+public class UUIDType extends ScalarType<UUID> {
 
 	public UUIDType()
 	{
@@ -28,7 +28,7 @@ public class UUIDType extends ScalarType {
 	}
 
 	@Override
-	public Object getInstance(String value, String[] formatStrings,
+	public UUID getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext) {
 		return UUID.fromString(value);
 	}

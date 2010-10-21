@@ -29,7 +29,7 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
  */
 public abstract class ScalarType<T> extends Debug
 {
-	Class<T>										thatClass;
+	Class<? extends T>										thatClass;
 
 	Class<T>										alternativeClass;
 	
@@ -46,7 +46,7 @@ public abstract class ScalarType<T> extends Debug
 	 * <code>TypeRegistry.get("type-string")</code>.
 	 * 
 	 */
-	protected ScalarType(Class<T> thatClass)
+	protected ScalarType(Class<? extends T> thatClass)
 	{
 		this.thatClass = thatClass;
 		// this.index = index;

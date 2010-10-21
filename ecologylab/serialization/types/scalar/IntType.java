@@ -100,7 +100,7 @@ public class IntType extends ScalarType<Integer>
  * 
  * In this case, "0".
  */
-	@Override protected final String defaultValueString()
+	@Override protected String defaultValueString()
 	{
 	   return DEFAULT_VALUE_STRING;
 	}
@@ -132,9 +132,7 @@ public class IntType extends ScalarType<Integer>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        int value = (Integer) f2xo.getField().get(context);
-           
-		buffy.append(value);
+    	buffy.append(getValueToAppend(f2xo, context));
     }
 
     /**
@@ -151,9 +149,13 @@ public class IntType extends ScalarType<Integer>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        int value = (Integer) fieldDescriptor.getField().get(context);
-           
-		buffy.append(Integer.toString(value));
+        buffy.append(getValueToAppend(fieldDescriptor, context));
+    }
+    
+    public static String getValueToAppend(FieldDescriptor fieldDescriptor, Object context) 
+    	throws IllegalArgumentException, IllegalAccessException
+    {
+    	return fieldDescriptor.getField().get(context).toString();
     }
 
 		@Override

@@ -119,9 +119,7 @@ public class LongType extends ScalarType<Long>
     public void appendValue(StringBuilder buffy, FieldDescriptor f2xo, Object context) 
     throws IllegalArgumentException, IllegalAccessException
     {
-        long value = (Long) f2xo.getField().get(context);
-           
-		buffy.append(value);
+    	buffy.append(getValueToAppend(f2xo, context));
     }
     
     /**
@@ -138,9 +136,13 @@ public class LongType extends ScalarType<Long>
     public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
-        long value = (Long) fieldDescriptor.getField().get(context);
-           
-		buffy.append(Long.toString(value));
+        buffy.append(getValueToAppend(fieldDescriptor, context));
+    }
+    
+    public static String getValueToAppend(FieldDescriptor fieldDescriptor, Object context) 
+    	throws IllegalArgumentException, IllegalAccessException
+    {
+    	return fieldDescriptor.getField().get(context).toString();
     }
 
 		@Override
