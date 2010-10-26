@@ -56,8 +56,7 @@ public class ClientSessionManager<S extends Scope> extends TCPClientSessionManag
 	 * that does nothing.
 	 */
 	@Override
-	protected void prepareBuffers(StringBuilder incomingMessageBuf, StringBuilder outgoingMessageBuf,
-			StringBuilder outgoingMessageHeaderBuf)
+	protected void prepareBuffers(StringBuilder outgoingMessageHeaderBuf)
 	{
 		outgoingMessageHeaderBuf.append(CONTENT_LENGTH_STRING + ":");
 	}

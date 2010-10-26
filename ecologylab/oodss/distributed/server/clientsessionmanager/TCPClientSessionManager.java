@@ -61,7 +61,8 @@ import ecologylab.serialization.TranslationScope;
  * @author Zachary O. Toups (zach@ecologylab.net)
  * 
  */
-public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessionManager<S> implements ServerConstants
+public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessionManager<S>
+		implements ServerConstants
 {
 	/**
 	 * Stores the key-value pairings from a parsed HTTP-like header on an incoming message.
@@ -69,15 +70,6 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	protected final HashMap<String, String>															headerMap									= new HashMap<String, String>();
 
 	protected int																												startReadIndex						= 0;
-
-	/**
-	 * Stores incoming character data until it can be parsed into an XML message and turned into a
-	 * Java object.
-	 */
-	protected final StringBuilder																				msgBufIncoming;
-
-	/** Stores outgoing character data for ResponseMessages. */
-	protected final StringBuilder																				msgBufOutgoing;
 
 	/** Stores outgoing header character data. */
 	protected final StringBuilder																				headerBufOutgoing					= new StringBuilder(
@@ -114,9 +106,6 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 */
 	private final StringBuilder																					currentKeyHeaderSequence	= new StringBuilder();
 
-	/** A buffer for data that will be sent back to the client. */
-	private final CharBuffer																						outgoingChars;
-
 	/**
 	 * Tracks the number of bad transmissions from the client; used for determining if a client is
 	 * bad.
@@ -146,21 +135,13 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * Stores the first XML message from the incomingMessageBuffer, or parts of it (if it is being
 	 * read over several invocations).
 	 */
-	private final StringBuilder																					firstMessageBuffer				= new StringBuilder();
+	private StringBuilder																								persistentMessageBuffer		= null;
 
 	private long																												contentUid								= -1;
-
-	private CharBuffer																									zippingChars;
-
-	private ByteBuffer																									zippingInBytes;
 
 	private Inflater																										inflater									= new Inflater();
 
 	private Deflater																										deflater									= new Deflater();
-
-	private ByteBuffer																									zippingOutBytes;
-
-	private ByteBuffer																									compressedMessageBuffer;
 
 	/**
 	 * A queue of the requests to be performed by this ContextManager. Subclasses may override
@@ -209,21 +190,10 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 		this.maxMessageSize = maxMessageSizeIn;
 
-		this.outgoingChars = CharBuffer.allocate(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
-
 		this.handle = new SessionHandle(this);
 		this.localScope.put(SessionObjects.SESSION_HANDLE, this.handle);
-		
-		this.zippingChars = CharBuffer.allocate(maxMessageSize);
-		this.zippingInBytes = ByteBuffer.allocate(maxMessageSize);
-		this.zippingOutBytes = ByteBuffer.allocate(maxMessageSize);
-		this.compressedMessageBuffer = ByteBuffer.allocate(maxMessageSize);
 
-		msgBufIncoming = new StringBuilder(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
-
-		msgBufOutgoing = new StringBuilder(maxMessageSize + MAX_HTTP_HEADER_LENGTH);
-
-		this.prepareBuffers(msgBufIncoming, msgBufOutgoing, headerBufOutgoing);
+		this.prepareBuffers(headerBufOutgoing);
 	}
 
 	/**
@@ -237,15 +207,17 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	 * @param message
 	 *          the CharBuffer containing one or more messages, or pieces of messages.
 	 */
-	public final void processIncomingSequenceBufToQueue(CharBuffer incomingSequenceBuf)
+	public synchronized final void processIncomingSequenceBufToQueue(CharBuffer incomingSequenceBuf)
 			throws CharacterCodingException, BadClientException
 	{
 		// debug("incoming: " + incomingSequenceBuf);
 
-		synchronized (msgBufIncoming)
-		{
-			msgBufIncoming.append(incomingSequenceBuf);
+		StringBuilder msgBufIncoming = this.frontend.getSharedStringBuilderPool().acquire();
 
+		msgBufIncoming.append(incomingSequenceBuf);
+
+		try
+		{
 			// look for HTTP header
 			while (msgBufIncoming.length() > 0)
 			{
@@ -265,9 +237,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 						BadClientException e = new BadClientException(
 								((SocketChannel) this.socketKey.channel()).socket().getInetAddress()
 										.getHostAddress(), "Maximum HTTP header length exceeded. Read "
-										+ msgBufIncoming.length()
-										+ "/"
-										+ MAX_HTTP_HEADER_LENGTH);
+										+ msgBufIncoming.length() + "/" + MAX_HTTP_HEADER_LENGTH);
 
 						msgBufIncoming.setLength(0);
 
@@ -281,13 +251,15 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 					break;
 				}
 				else
-				{ // we've read all of the header, and have it loaded into the map;
+				{ // we've read all of the header, and have it loaded into
+					// the map;
 					// now we can use it
 					if (contentLengthRemaining == -1)
 					{
 						try
 						{
-							// handle all header information here; delete it when done
+							// handle all header information here; delete it when
+							// done
 							// here
 							String contentLengthString = this.headerMap.get(CONTENT_LENGTH_STRING);
 							contentLengthRemaining = (contentLengthString != null) ? Integer
@@ -309,7 +281,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 								}
 							}
 
-							// done with the header text; delete it; header values will
+							// done with the header text; delete it; header values
+							// will
 							// be retained for later processing by subclasses
 							msgBufIncoming.delete(0, endOfFirstHeader);
 						}
@@ -318,7 +291,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 							e.printStackTrace();
 							contentLengthRemaining = -1;
 						}
-						// next time we read the header (the next message), we need to
+						// next time we read the header (the next message), we need
+						// to
 						// start from the beginning
 						startReadIndex = 0;
 					}
@@ -346,9 +320,13 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 				{
 					// see if the incoming buffer has enough characters to
 					// include the specified content length
+					if (persistentMessageBuffer == null)
+					{
+						persistentMessageBuffer = this.frontend.getSharedStringBuilderPool().acquire();
+					}
 					if (msgBufIncoming.length() >= contentLengthRemaining)
 					{
-						firstMessageBuffer.append(msgBufIncoming.substring(0, contentLengthRemaining));
+						persistentMessageBuffer.append(msgBufIncoming.substring(0, contentLengthRemaining));
 
 						msgBufIncoming.delete(0, contentLengthRemaining);
 
@@ -358,7 +336,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 					}
 					else
 					{
-						firstMessageBuffer.append(msgBufIncoming);
+						persistentMessageBuffer.append(msgBufIncoming);
 
 						// indicate that we need to get more from the buffer in
 						// the next invocation
@@ -376,81 +354,100 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 				{ /*
 					 * if we've read a complete message, then contentLengthRemaining will be reset to -1
 					 */
-					if (this.contentEncoding == null || this.contentEncoding.equals("identity"))
+					try
 					{
-						processString(firstMessageBuffer, contentUid);
-					}
-					else if (contentEncoding.equals(HTTP_DEFLATE_ENCODING))
-					{
-						try
+						if (this.contentEncoding == null || this.contentEncoding.equals("identity"))
 						{
-							processString(this.unCompress(firstMessageBuffer), contentUid);
+							processString(persistentMessageBuffer, contentUid);
 						}
-						catch (DataFormatException e)
+						else if (contentEncoding.equals(HTTP_DEFLATE_ENCODING))
+						{
+							try
+							{
+								processString(this.unCompress(persistentMessageBuffer), contentUid);
+							}
+							catch (DataFormatException e)
+							{
+								throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
+										.getInetAddress().getHostAddress(), "Content was not encoded properly: "
+										+ e.getMessage());
+							}
+						}
+						else
 						{
 							throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
-									.getInetAddress().getHostAddress(), "Content was not encoded properly: "
-									+ e.getMessage());
+									.getInetAddress().getHostAddress(), "Content encoding: " + contentEncoding
+									+ " not supported!");
 						}
 					}
-					else
+					finally
 					{
-						throw new BadClientException(((SocketChannel) this.socketKey.channel()).socket()
-								.getInetAddress().getHostAddress(), "Content encoding: "
-								+ contentEncoding
-								+ " not supported!");
-					}
+						// clean up: clear the message buffer and the header values
+						this.frontend.getSharedStringBuilderPool().release(persistentMessageBuffer);
+						persistentMessageBuffer = null;
 
-					// clean up: clear the message buffer and the header values
-					firstMessageBuffer.setLength(0);
-					this.headerMap.clear();
-					StringTools.clear(this.startLine);
+						this.headerMap.clear();
+						StringTools.clear(this.startLine);
+					}
 				}
 			}
+		}
+		finally
+		{
+			this.frontend.getSharedStringBuilderPool().release(msgBufIncoming);
 		}
 	}
 
 	private CharSequence unCompress(StringBuilder firstMessageBuffer)
 			throws CharacterCodingException, DataFormatException
 	{
-		synchronized (zippingChars)
-		{
-			zippingChars.clear();
+		CharBuffer zippingChars = this.frontend.getSharedCharBufferPool().acquire();
+		ByteBuffer zippingInBytes = this.frontend.getSharedByteBufferPool().acquire();
 
-			firstMessageBuffer.getChars(0, firstMessageBuffer.length(), this.zippingChars.array(), 0);
-			zippingChars.position(0);
-			zippingChars.limit(firstMessageBuffer.length());
+		zippingChars.clear();
 
-			zippingInBytes.clear();
+		firstMessageBuffer.getChars(0, firstMessageBuffer.length(), zippingChars.array(), 0);
+		zippingChars.position(0);
+		zippingChars.limit(firstMessageBuffer.length());
 
-			encoder.reset();
-			encoder.encode(zippingChars, zippingInBytes, true);
-			encoder.flush(zippingInBytes);
+		zippingInBytes.clear();
 
-			zippingInBytes.flip();
+		encoder.reset();
+		encoder.encode(zippingChars, zippingInBytes, true);
+		encoder.flush(zippingInBytes);
 
-			inflater.reset();
-			inflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
+		zippingInBytes.flip();
 
-			zippingOutBytes.clear();
-			inflater
-					.inflate(zippingOutBytes.array(), zippingOutBytes.position(), zippingOutBytes.limit());
+		inflater.reset();
+		inflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
 
-			zippingOutBytes.position(0);
-			zippingOutBytes.limit(inflater.getTotalOut());
+		ByteBuffer zippingOutBytes = this.frontend.getSharedByteBufferPool().acquire();
 
-			zippingChars.clear();
+		zippingOutBytes.clear();
+		inflater.inflate(zippingOutBytes.array(), zippingOutBytes.position(), zippingOutBytes.limit());
 
-			decoder.reset();
-			decoder.decode(zippingOutBytes, zippingChars, true);
-			decoder.flush(zippingChars);
+		zippingOutBytes.position(0);
+		zippingOutBytes.limit(inflater.getTotalOut());
+		this.frontend.getSharedByteBufferPool().release(zippingInBytes);
 
-			zippingChars.flip();
+		zippingChars.clear();
 
-			firstMessageBuffer.setLength(0);
+		decoder.reset();
+		decoder.decode(zippingOutBytes, zippingChars, true);
+		decoder.flush(zippingChars);
 
-			return firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
-		}
+		this.frontend.getSharedByteBufferPool().release(zippingOutBytes);
+
+		zippingChars.flip();
+
+		firstMessageBuffer.setLength(0);
+
+		firstMessageBuffer.append(zippingChars.array(), 0, zippingChars.limit());
+
+		this.frontend.getSharedCharBufferPool().release(zippingChars);
+
+		return firstMessageBuffer;
+
 	}
 
 	/**
@@ -592,8 +589,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		}
 	}
 
-	protected abstract void prepareBuffers(StringBuilder incomingMessageBuf,
-			StringBuilder outgoingMessageBuf, StringBuilder outgoingMessageHeaderBuf);
+	protected abstract void prepareBuffers(StringBuilder outgoingMessageHeaderBuf);
 
 	protected abstract void translateResponseMessageToStringBufferContents(
 			RequestMessage requestMessage, ResponseMessage responseMessage, StringBuilder messageBuffer)
@@ -733,8 +729,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			MessageWithMetadata<RequestMessage, Object> requestWithMetadata, ResponseMessage response,
 			RequestMessage request)
 	{
-//		debug("enqueuing response to client...");
-	//	long currentTime = System.currentTimeMillis();
+
+		StringBuilder msgBufOutgoing = this.frontend.getSharedStringBuilderPool().acquire();
 
 		try
 		{
@@ -748,22 +744,26 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 		try
 		{
+			ByteBuffer compressedMessageBuffer = null;
+			CharBuffer outgoingChars = this.frontend.getSharedCharBufferPool().acquire();
+
 			boolean usingCompression = this.availableEncodings.contains(HTTP_DEFLATE_ENCODING);
 			/*
 			 * If Compressing must know the length of the data being sent so must compress here
 			 */
 			if (usingCompression)
 			{
-				this.compressedMessageBuffer.clear();
-				this.compress(msgBufOutgoing, this.compressedMessageBuffer);
-				this.compressedMessageBuffer.flip();
+				compressedMessageBuffer = this.frontend.getSharedByteBufferPool().acquire();
+				compressedMessageBuffer.clear();
+				this.compress(msgBufOutgoing, compressedMessageBuffer);
+				compressedMessageBuffer.flip();
 				this.clearOutgoingMessageBuffer(msgBufOutgoing);
 			}
 
 			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
 
 			// setup outgoingMessageHeaderBuffer
-			this.createHeader((usingCompression) ? this.compressedMessageBuffer.limit() : msgBufOutgoing
+			this.createHeader((usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing
 					.length(), headerBufOutgoing, request, response, requestWithMetadata.getUid());
 
 			if (usingCompression)
@@ -809,9 +809,12 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 				encoder.flush(outgoingBuffer);
 			}
 
+			this.frontend.getSharedCharBufferPool().release(outgoingChars);
+
 			if (usingCompression)
 			{
-				outgoingBuffer.put(this.compressedMessageBuffer);
+				outgoingBuffer.put(compressedMessageBuffer);
+				this.frontend.getSharedByteBufferPool().release(compressedMessageBuffer);
 			}
 
 			server.enqueueBytesForWriting(this.socketKey, outgoingBuffer);
@@ -821,12 +824,18 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			debug("Failed to compress response!");
 			e.printStackTrace();
 		}
+		finally
+		{
+			this.frontend.getSharedStringBuilderPool().release(msgBufOutgoing);
+		}
 
-//		debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
+		// debug("...done ("+(System.currentTimeMillis()-currentTime)+"ms)");
 	}
 
 	public synchronized void sendUpdateToClient(UpdateMessage<?> update)
 	{
+		StringBuilder msgBufOutgoing = this.frontend.getSharedStringBuilderPool().acquire();
+
 		if (this.isInvalidating())
 		{
 			return;
@@ -843,23 +852,28 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 		try
 		{
+			ByteBuffer compressedMessageBuffer = null;
+			CharBuffer outgoingChars = this.frontend.getSharedCharBufferPool().acquire();
+
 			boolean usingCompression = this.availableEncodings.contains(HTTP_DEFLATE_ENCODING);
 			/*
 			 * If Compressing must know the length of the data being sent so must compress here
 			 */
 			if (usingCompression)
 			{
-				this.compressedMessageBuffer.clear();
-				this.compress(msgBufOutgoing, this.compressedMessageBuffer);
-				this.compressedMessageBuffer.flip();
+				compressedMessageBuffer = this.frontend.getSharedByteBufferPool().acquire();
+
+				compressedMessageBuffer.clear();
+				this.compress(msgBufOutgoing, compressedMessageBuffer);
+				compressedMessageBuffer.flip();
 				this.clearOutgoingMessageBuffer(msgBufOutgoing);
 			}
 
 			this.clearOutgoingMessageHeaderBuffer(headerBufOutgoing);
 
 			// setup outgoingMessageHeaderBuffer
-			this.makeUpdateHeader((usingCompression) ? this.compressedMessageBuffer.limit()
-					: msgBufOutgoing.length(), headerBufOutgoing, update);
+			this.makeUpdateHeader((usingCompression) ? compressedMessageBuffer.limit() : msgBufOutgoing
+					.length(), headerBufOutgoing, update);
 
 			if (usingCompression)
 			{
@@ -904,9 +918,12 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 				encoder.flush(outgoingBuffer);
 			}
 
+			this.frontend.getSharedCharBufferPool().release(outgoingChars);
+
 			if (usingCompression)
 			{
-				outgoingBuffer.put(this.compressedMessageBuffer);
+				outgoingBuffer.put(compressedMessageBuffer);
+				this.frontend.getSharedByteBufferPool().release(compressedMessageBuffer);
 			}
 
 			server.enqueueBytesForWriting(this.socketKey, outgoingBuffer);
@@ -916,33 +933,41 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 			debug("Failed to compress update!");
 			e.printStackTrace();
 		}
+		finally
+		{
+			this.frontend.getSharedStringBuilderPool().release(msgBufOutgoing);
+		}
 	}
 
 	private void compress(StringBuilder src, ByteBuffer dest) throws DataFormatException
 	{
-		synchronized (zippingChars)
-		{
-			zippingChars.clear();
+		CharBuffer zippingChars = this.frontend.getSharedCharBufferPool().acquire();
+		zippingChars.clear();
 
-			src.getChars(0, src.length(), this.zippingChars.array(), 0);
-			zippingChars.position(0);
-			zippingChars.limit(src.length());
+		src.getChars(0, src.length(), zippingChars.array(), 0);
+		zippingChars.position(0);
+		zippingChars.limit(src.length());
 
-			zippingInBytes.clear();
+		ByteBuffer zippingInBytes = this.frontend.getSharedByteBufferPool().acquire();
+		zippingInBytes.clear();
 
-			encoder.reset();
-			encoder.encode(zippingChars, zippingInBytes, true);
-			encoder.flush(zippingInBytes);
+		encoder.reset();
+		encoder.encode(zippingChars, zippingInBytes, true);
+		encoder.flush(zippingInBytes);
 
-			zippingInBytes.flip();
+		this.frontend.getSharedCharBufferPool().release(zippingChars);
 
-			deflater.reset();
-			deflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
-			deflater.finish();
+		zippingInBytes.flip();
 
-			dest.position(dest.position()
-					+ deflater.deflate(dest.array(), dest.position(), dest.remaining()));
-		}
+		deflater.reset();
+		deflater.setInput(zippingInBytes.array(), zippingInBytes.position(), zippingInBytes.limit());
+		deflater.finish();
+
+		this.frontend.getSharedByteBufferPool().release(zippingInBytes);
+
+		dest.position(dest.position()
+				+ deflater.deflate(dest.array(), dest.position(), dest.remaining()));
+
 	}
 
 	/**
@@ -1029,10 +1054,11 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 
 	public InetSocketAddress getAddress()
 	{
-		return (InetSocketAddress) ((SocketChannel) getSocketKey().channel()).socket().getRemoteSocketAddress();
-		
+		return (InetSocketAddress) ((SocketChannel) getSocketKey().channel()).socket()
+				.getRemoteSocketAddress();
+
 	}
-	
+
 	public SessionHandle getHandle()
 	{
 		return handle;

@@ -94,8 +94,7 @@ public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClien
 	 *      java.lang.StringBuilder, java.lang.StringBuilder)
 	 */
 	@Override
-	protected void prepareBuffers(StringBuilder incomingMessageBuf, StringBuilder outgoingMessageBuf,
-			StringBuilder outgoingMessageHeaderBuf)
+	protected void prepareBuffers(StringBuilder outgoingMessageHeaderBuf)
 	{
 	}
 

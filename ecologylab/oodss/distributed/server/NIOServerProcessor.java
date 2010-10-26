@@ -3,7 +3,10 @@
  */
 package ecologylab.oodss.distributed.server;
 
+import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.StartAndStoppable;
+import ecologylab.generic.StringBuilderPool;
+import ecologylab.io.ByteBufferPool;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 
 /**
@@ -38,4 +41,10 @@ public interface NIOServerProcessor extends StartAndStoppable
 	 */
 	public boolean restoreContextManagerFromSessionId(String oldId,
 			BaseSessionManager newContextManager);
+	
+	public ByteBufferPool getSharedByteBufferPool();
+	
+	public CharBufferPool getSharedCharBufferPool();
+	
+	public StringBuilderPool getSharedStringBuilderPool();
 }

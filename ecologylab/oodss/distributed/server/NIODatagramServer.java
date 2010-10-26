@@ -14,7 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import sun.misc.BASE64Encoder;
 import ecologylab.collections.Scope;
+import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.generic.StringBuilderPool;
+import ecologylab.io.ByteBufferPool;
 import ecologylab.oodss.distributed.common.SessionObjects;
 import ecologylab.oodss.distributed.impl.NIODatagramCore;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
@@ -428,5 +431,23 @@ public class NIODatagramServer<S extends Scope> extends NIODatagramCore<S> imple
 	@Override
 	public void run()
 	{
+	}
+
+	@Override
+	public ByteBufferPool getSharedByteBufferPool() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CharBufferPool getSharedCharBufferPool() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public StringBuilderPool getSharedStringBuilderPool() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

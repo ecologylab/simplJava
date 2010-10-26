@@ -17,6 +17,8 @@ import java.util.Iterator;
 import ecologylab.collections.Scope;
 import ecologylab.generic.CharBufferPool;
 import ecologylab.generic.HashMapArrayList;
+import ecologylab.generic.StringBuilderPool;
+import ecologylab.io.ByteBufferPool;
 import ecologylab.net.NetTools;
 import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.distributed.common.SessionObjects;
@@ -95,6 +97,10 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 * messages come through at once.
 	 */
 	protected CharBufferPool																				charBufferPool;
+	
+	protected ByteBufferPool																				byteBufferPool;
+	
+	protected StringBuilderPool																				stringBuilderPool;
 
 	/**
 	 * 
@@ -106,21 +112,25 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 		super(portNumber, inetAddresses, requestTranslationScope, applicationObjectScope,
 				idleConnectionTimeout, maxMessageSize);
 
-		this.maxMessageSize = maxMessageSize;
+		this.maxMessageSize = maxMessageSize + MAX_HTTP_HEADER_LENGTH;
 
 		applicationObjectScope.put(SessionObjects.SESSIONS_MAP, clientSessionHandleMap);
 
-		instantiateCharBufferPool(maxMessageSize);
+		instantiateBufferPools(this.maxMessageSize);
 	}
 
 	/**
 	 * @param maxMessageSize
 	 */
-	protected void instantiateCharBufferPool(int maxMessageSize)
+	protected void instantiateBufferPools(int maxMessageSize)
 	{
 		// make them a little bigger, in case more than one mega-huge message
 		// comes in completely unlikely, but just to be safe
-		this.charBufferPool = new CharBufferPool(maxMessageSize * 2);
+		this.charBufferPool = new CharBufferPool(4,4,maxMessageSize);
+		
+		this.byteBufferPool = new ByteBufferPool(4,4,maxMessageSize);
+		
+		this.stringBuilderPool = new StringBuilderPool(4, 4, maxMessageSize);
 	}
 
 	/**
@@ -417,5 +427,23 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	protected static String connectionTscopeName(InetAddress[] inetAddresses, int portNumber)
 	{
 		return "double_threaded_logging " + inetAddresses[0].toString() + ":" + portNumber;
+	}
+
+	@Override
+	public ByteBufferPool getSharedByteBufferPool() 
+	{
+		return byteBufferPool;
+	}
+
+	@Override
+	public CharBufferPool getSharedCharBufferPool() 
+	{
+		return charBufferPool;
+	}
+
+	@Override
+	public StringBuilderPool getSharedStringBuilderPool() 
+	{
+		return stringBuilderPool;
 	}
 }
