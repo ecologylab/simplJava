@@ -34,7 +34,6 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 
 	DeserializationHookStrategy				deserializationHookStrategy;
 
-	int																numOfCollectionElements	= 0;
 
 	public ElementStateTLVHandler(TranslationScope translationScope)
 	{

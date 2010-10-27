@@ -37,7 +37,9 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 
 	DeserializationHookStrategy	deserializationHookStrategy;
 
-	int													numOfCollectionElements	= 0;
+	//int													numOfCollectionElements	= 0;
+	
+	ArrayList<Integer> 					elementsInCollection = new ArrayList<Integer>();
 
 	public ElementStateJSONHandler(TranslationScope translationScope)
 	{
@@ -64,7 +66,8 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	@Override
 	public boolean endArray() throws ParseException, IOException
 	{
-		numOfCollectionElements = 0;
+		pop();
+		//numOfCollectionElements = 0;
 		return true;
 	}
 
@@ -305,6 +308,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	@Override
 	public boolean startArray() throws ParseException, IOException
 	{
+		push(0);
 		return true;
 	}
 
@@ -322,7 +326,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		if (currentFD != null)
 			if (currentFD.isCollection() && !currentFD.isPolymorphic())
 			{
-				if (numOfCollectionElements != 0)
+				if (top() != 0)
 				{
 					if (currentFD.isWrapped())
 					{
@@ -336,7 +340,8 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 						startObjectEntry(lastFD.getCollectionOrMapTagName());
 					}
 				}
-				numOfCollectionElements++;
+				incrementTop();
+				//numOfCollectionElements++;
 			}
 
 		return true;
@@ -431,7 +436,9 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 					childFD = makeIgnoredFieldDescriptor(key, currentClassDescriptor());
 				}
 				else
-					childFD.setFieldToComposite(currentElementState, childES); // maybe we
+					childFD.setFieldToComposite(currentElementState, childES);
+				
+				// maybe we
 				// should do
 				// this on close
 				// element
@@ -523,5 +530,38 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	{
 		return purlContext;
 	}
-
+	
+	public Integer pop()
+	{
+		int num = 0;
+		
+		if(this.elementsInCollection.size() > 0)
+		{
+			num = this.elementsInCollection.get(elementsInCollection.size() - 1);
+			this.elementsInCollection.remove(elementsInCollection.size() - 1);
+		}
+		return num;
+	}
+	
+	public void push(Integer num)
+	{
+		this.elementsInCollection.add(num);
+	}
+	
+	public int top()
+	{
+		int num = 0;
+		
+		if(this.elementsInCollection.size() > 0)
+		{
+			num = this.elementsInCollection.get(elementsInCollection.size() - 1);
+		}
+		return num;
+	}
+	
+	public void incrementTop()
+	{
+		int num = pop();
+		push(++num);
+	}
 }
