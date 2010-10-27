@@ -77,7 +77,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		if ((jsonTranslationException == null) && (root != null))
 			root.deserializationPostHook();
 
-		ElementState.recycleDeserializationMappings();
+		//ElementState.recycleDeserializationMappings();
 	}
 
 	@Override

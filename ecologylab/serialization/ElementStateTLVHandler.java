@@ -107,9 +107,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	public void endTLV()
 	{
 		if ((tlvTranslationException == null) && (root != null))
-			root.deserializationPostHook();
-
-		ElementState.recycleDeserializationMappings();
+			root.deserializationPostHook();		
 
 	}
 

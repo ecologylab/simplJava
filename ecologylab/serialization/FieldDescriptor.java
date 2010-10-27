@@ -1587,7 +1587,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	ElementState constructChildElementState(ElementState parent, String tagName, Attributes attributes)
+	ElementState constructChildElementState(ElementState parent, String tagName, Attributes attributes, GraphContext graphContext)
 			throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
@@ -1595,7 +1595,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		ElementState result = null;
 		if (childClassDescriptor != null)
 		{
-			result = getInstance(attributes, childClassDescriptor);
+			result = getInstance(attributes, childClassDescriptor, graphContext);
 
 			if (result != null && result != parent)
 				result.setupInParent(parent, childClassDescriptor);
@@ -1603,14 +1603,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
-	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor)
+	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor, GraphContext graphContext)
 			throws SIMPLTranslationException
 	{
 		ElementState result;
 
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			ElementState alreadyUnmarshalledObject = ElementState.getFromMap(attributes);
+			ElementState alreadyUnmarshalledObject = ElementState.getFromMap(attributes, graphContext);
 
 			if (alreadyUnmarshalledObject != null)
 				result = alreadyUnmarshalledObject;

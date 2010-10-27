@@ -68,6 +68,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	File												fileContext;
 
 	DeserializationHookStrategy deserializationHookStrategy;
+	
+	GraphContext 								graphContext = new GraphContext();
 
 	private boolean	skipClosingTag = false;
 	/**
@@ -369,7 +371,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						setRoot(root);
 						if (deserializationHookStrategy != null)
 							deserializationHookStrategy.deserializationPreHook(root, null);
-						root.translateAttributes(translationScope, attributes, this, root);
+						root.translateAttributes(translationScope, attributes, this, root, graphContext);
 						childFD = rootClassDescriptor.pseudoFieldDescriptor();
 					}
 					else
@@ -428,7 +430,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			switch (childFD.getType())
 			{
 			case COMPOSITE_ELEMENT:
-				childES = childFD.constructChildElementState(currentElementState, tagName, attributes);
+				childES = childFD.constructChildElementState(currentElementState, tagName, attributes, graphContext);
 
 				if(childES == currentElementState) skipClosingTag  = true;
 				
@@ -463,7 +465,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (collection != null)
 				{
 					ElementState childElement = childFD.constructChildElementState(
-							currentElementState, tagName, attributes);
+							currentElementState, tagName, attributes, graphContext);
 					childES = childElement;
 
 					if (childES == null)
@@ -484,7 +486,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (map != null)
 				{
 					ElementState childElement = childFD.constructChildElementState(
-							currentElementState, tagName, attributes);
+							currentElementState, tagName, attributes, graphContext);
 
 					childES = childElement;
 					if (childES == null)
@@ -512,7 +514,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (deserializationHookStrategy != null)
 					deserializationHookStrategy.deserializationPreHook(childES, childFD);
 
-				childES.translateAttributes(translationScope, attributes, this, currentElementState);
+				childES.translateAttributes(translationScope, attributes, this, currentElementState, graphContext);
 
 				this.currentElementState = childES; // childES.parent = old currentElementState
 				this.currentFD = childFD;
@@ -763,8 +765,6 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	{
 		if ((xmlTranslationException == null) && (root != null))
 			root.deserializationPostHook();
-		
-		ElementState.recycleDeserializationMappings();
 	}
 
 	/**
