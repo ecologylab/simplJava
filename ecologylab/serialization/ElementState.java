@@ -1832,6 +1832,10 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						e1.printStackTrace();
 					}
 				}
+				catch (Exception e)
+				{
+					System.out.println("yay");
+				}
 				// ignore null reference objects
 				if (thatReferenceObject == null)
 					continue;
@@ -2014,6 +2018,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
+			marshalledObjects.clear();
+			visitedElements.clear();
+			needsAttributeHashCode.clear();
 			unmarshalledObjects.clear();
 		}
 	}
