@@ -30,7 +30,7 @@ public class PatternType extends ReferenceType<Pattern>
 	@Override
 	public String getCSharptType()
 	{
-		return "Regex";
+		return "System.Text.RegularExpressions.Regex";
 	}
 
 	@Override
