@@ -22,6 +22,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.library.rss.Channel;
+import ecologylab.serialization.types.element.Mappable;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into
@@ -56,6 +57,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * FIXME: There should be a more elegant way to do this.
 	 */
 	public ArrayList<String>	additionalImportNamespaces;
+	
+	private boolean	implementMappableInterface = false;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -122,6 +125,11 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
 					appendGettersAndSetters(fieldDescriptor, appendable);
+			}
+			
+			if(implementMappableInterface)
+			{
+				implementMappableMethods(appendable);
 			}
 		}
 
@@ -389,7 +397,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendFieldComments(fieldDescriptor, appendable);
 		appendAnnotation(fieldDescriptor, appendable);
 		appendable.append(DOUBLE_TAB);
-		appendable.append(PUBLIC);
+		appendable.append(PRIVATE);
 		appendable.append(SPACE);
 		appendable.append(cSharpType);
 		// appendable.append(DotNetTranslationUtilities.getCSharpType(fieldDescriptor.getField()));
@@ -451,10 +459,73 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * 
 	 * @param fieldDescriptor
 	 * @param appendable
+	 * @throws IOException 
 	 */
-	private void appendGettersAndSetters(FieldDescriptor fieldDescriptor, Appendable appendable)
+	private void appendGettersAndSetters(FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException
 	{
-		// TODO Auto-generated method stub
+		String cSharpType = fieldDescriptor.getCSharpType();
+		if (cSharpType == null)
+		{
+			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
+			return;
+		}
+		
+		appendable.append(SINGLE_LINE_BREAK);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(cSharpType);
+		appendable.append(SPACE);
+		appendable.append(DotNetTranslationUtilities.getPropertyName(fieldDescriptor.getFieldName()));
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(GET);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(RETURN);
+		appendable.append(SPACE);
+		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(END_LINE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(SET);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(SPACE);
+		appendable.append(ASSIGN);
+		appendable.append(SPACE);
+		appendable.append(VALUE);
+		appendable.append(END_LINE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);		
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		
+		appendable.append(DOUBLE_TAB);	
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
 
 	}
 
@@ -485,6 +556,21 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
 		appendable.append(genericSuperclass.getSimpleName());
+		
+		//add interface implementations
+		Class<?>[] interfaces = inputClass.getInterfaces();
+		
+		for(int i = 0; i < interfaces.length; i ++)
+		{
+			if(interfaces[i].isAssignableFrom(Mappable.class))
+			{
+				appendable.append(',');
+				appendable.append(SPACE);				
+				appendable.append(interfaces[i].getSimpleName());
+				implementMappableInterface  = true;
+			}			
+		}
+		
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
@@ -531,6 +617,30 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			appendable.append(SINGLE_LINE_BREAK);
 		}
 	}
+	
+	private void implementMappableMethods(Appendable appendable) throws IOException
+	{
+		appendable.append(SINGLE_LINE_BREAK);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_OBJECT);
+		appendable.append(SPACE);
+		appendable.append(KEY);
+		appendable.append(OPENING_BRACE);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);		
+		appendable.append(TAB);	
+		appendable.append(DEFAULT_IMPLEMENTATION);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);					
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
 
 	/**
 	 * 
@@ -542,7 +652,6 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-
 	}
 
 	/**

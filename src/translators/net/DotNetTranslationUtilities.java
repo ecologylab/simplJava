@@ -516,5 +516,29 @@ public class DotNetTranslationUtilities
 	{
 		return annotation.annotationType().getSimpleName();
 	}
+	
+	public static String getPropertyName(String fieldName)
+	{
+		if(fieldName == null || fieldName == "")
+		{
+			return "null";
+		}
+		else
+		{
+			StringBuilder propertyName = new StringBuilder();
+			if(Character.isLowerCase(fieldName.charAt(0)))
+			{
+				propertyName.append(Character.toUpperCase(fieldName.charAt(0)));
+				propertyName.append(fieldName.subSequence(1, fieldName.length()));
+			}	
+			else
+			{
+				propertyName.append('P');
+				propertyName.append(fieldName);
+			}
+			return propertyName.toString();
+		}			
+	}
+	
 
 }

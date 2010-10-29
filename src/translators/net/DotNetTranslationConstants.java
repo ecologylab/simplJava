@@ -27,7 +27,15 @@ public interface DotNetTranslationConstants
 
 	public static final String	PRIVATE									= "private";
 
+	public static final String	GET											= "get";
+
+	public static final String	SET											= "set";
+
 	public static final String	CLASS										= "class";
+
+	public static final String	RETURN									= "return";
+
+	public static final String	VALUE										= "value";
 
 	public static final String	INHERITANCE_OBJECT			= "ElementState";
 
@@ -44,8 +52,12 @@ public interface DotNetTranslationConstants
 	public static final String	GENERIC									= "Generic";
 
 	public static final String	ECOLOGYLAB_NAMESPACE		= "ecologylabFundamental.ecologylab.atttributes";
-	
-	public static final String	SERIALIZATION_NAMESPACE		= "ecologylabFundamental.ecologylab.serialization";
+
+	public static final String	SERIALIZATION_NAMESPACE	= "ecologylabFundamental.ecologylab.serialization";
+
+	public static final String	KEY											= "key";
+
+	public static final String	DEFAULT_IMPLEMENTATION	= "throw new NotImplementedException();";
 
 	/*
 	 * Formatting constants
@@ -76,6 +88,8 @@ public interface DotNetTranslationConstants
 	public static final String	DOT											= ".";
 
 	public static final String	END_LINE								= ";";
+
+	public static final String	ASSIGN									= "=";
 
 	public static final String	OPEN_COMMENTS						= "/// <summary>";
 
@@ -120,6 +134,8 @@ public interface DotNetTranslationConstants
 	public static final String	DOTNET_CLASS						= "Type";
 
 	public static final String	DOTNET_FIELD						= "FieldInfo";
+
+	public static final String	DOTNET_OBJECT						= "Object";
 
 	/*
 	 * Collection types
