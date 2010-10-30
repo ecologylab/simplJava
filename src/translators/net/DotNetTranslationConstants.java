@@ -97,6 +97,8 @@ public interface DotNetTranslationConstants
 
 	public static final String	CLOSE_COMMENTS					= "/// </summary>";
 
+	public static final String	SINGLE_LINE_COMMENT			= "//";
+
 	/*
 	 * Scalar types
 	 */

@@ -13,7 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import translators.cocoa.CocoaTranslationConstants;
+import translators.cocoa.CocoaTranslationUtilities;
 import translators.parser.JavaDocParser;
+import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
@@ -53,12 +56,12 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	}
 
 	/**
-	 * This is a way to add specific import namespaces. 
-	 * FIXME: There should be a more elegant way to do this.
+	 * This is a way to add specific import namespaces. FIXME: There should be a more elegant way to
+	 * do this.
 	 */
 	public ArrayList<String>	additionalImportNamespaces;
-	
-	private boolean	implementMappableInterface = false;
+
+	private boolean						implementMappableInterface	= false;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -126,8 +129,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				if (fieldDescriptor.belongsTo(classDescriptor))
 					appendGettersAndSetters(fieldDescriptor, appendable);
 			}
-			
-			if(implementMappableInterface)
+
+			if (implementMappableInterface)
 			{
 				implementMappableMethods(appendable);
 			}
@@ -249,11 +252,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
 		String className = XMLTools.getClassName(inputClass);
-		String currentDirectory = directoryLocation.toString()
-				+ FILE_PATH_SEPARATOR;
+		String currentDirectory = directoryLocation.toString() + FILE_PATH_SEPARATOR;
 
-		String[] arrayPackageNames = packageName
-				.split(PACKAGE_NAME_SEPARATOR);
+		String[] arrayPackageNames = packageName.split(PACKAGE_NAME_SEPARATOR);
 
 		for (String directoryName : arrayPackageNames)
 		{
@@ -263,8 +264,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		File directory = new File(currentDirectory);
 		directory.mkdirs();
 
-		File currentFile = new File(currentDirectory + className
-				+ FILE_EXTENSION);
+		File currentFile = new File(currentDirectory + className + FILE_EXTENSION);
 
 		if (currentFile.exists())
 		{
@@ -311,16 +311,16 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(SERIALIZATION_NAMESPACE);
 		appendable.append(END_LINE);
-	
-		if(additionalImportNamespaces != null && additionalImportNamespaces.size() > 0)
+
+		if (additionalImportNamespaces != null && additionalImportNamespaces.size() > 0)
 		{
-			for(String namespace : additionalImportNamespaces)
+			for (String namespace : additionalImportNamespaces)
 			{
 				appendable.append(SINGLE_LINE_BREAK);
 				appendable.append(USING);
 				appendable.append(SPACE);
 				appendable.append(namespace);
-				appendable.append(END_LINE);	
+				appendable.append(END_LINE);
 			}
 		}
 		appendable.append(DOUBLE_LINE_BREAK);
@@ -388,23 +388,60 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void appendFieldAsCSharpAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
+
+		boolean ignoreField = false;
+		
 		String cSharpType = fieldDescriptor.getCSharpType();
 		if (cSharpType == null)
 		{
 			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
 			return;
 		}
+
+		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
+		appendComments(appendable, true, isKeyword);
+
 		appendFieldComments(fieldDescriptor, appendable);
 		appendAnnotation(fieldDescriptor, appendable);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PRIVATE);
 		appendable.append(SPACE);
 		appendable.append(cSharpType);
-		// appendable.append(DotNetTranslationUtilities.getCSharpType(fieldDescriptor.getField()));
 		appendable.append(SPACE);
 		appendable.append(fieldDescriptor.getFieldName());
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
+
+		appendComments(appendable, false, isKeyword);
+	}
+
+	private boolean checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
+			throws IOException
+	{
+		if (DotNetTranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		{
+			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getFieldName()
+					+ "]. This is a keyword in C#. Cannot translate");
+			return true;
+		}
+
+		return false;
+	}
+
+	private void appendComments(Appendable appendable, boolean start, boolean isKeywrord)
+			throws IOException
+	{
+		if (isKeywrord)
+			if (start)
+			{
+				appendable.append("/*");
+				appendable.append(SINGLE_LINE_BREAK);
+			}
+			else
+			{
+				appendable.append("*/");
+				appendable.append(SINGLE_LINE_BREAK);
+			}
 	}
 
 	/**
@@ -420,8 +457,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable,
-				JavaDocParser.getFieldJavaDocsArray(fieldDescriptor.getField()), true);
+		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor
+				.getField()), true);
 
 		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSE_COMMENTS);
@@ -459,9 +496,10 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * 
 	 * @param fieldDescriptor
 	 * @param appendable
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	private void appendGettersAndSetters(FieldDescriptor fieldDescriptor, Appendable appendable) throws IOException
+	private void appendGettersAndSetters(FieldDescriptor fieldDescriptor, Appendable appendable)
+			throws IOException
 	{
 		String cSharpType = fieldDescriptor.getCSharpType();
 		if (cSharpType == null)
@@ -469,8 +507,12 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			System.out.println("ERROR, no valid CSharpType found for : " + fieldDescriptor);
 			return;
 		}
-		
-		appendable.append(SINGLE_LINE_BREAK);		
+
+		appendable.append(SINGLE_LINE_BREAK);
+
+		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
+		appendComments(appendable, true, isKeyword);
+
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
@@ -478,39 +520,39 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(DotNetTranslationUtilities.getPropertyName(fieldDescriptor.getFieldName()));
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(GET);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(DOUBLE_TAB);
 		appendable.append(RETURN);
 		appendable.append(SPACE);
 		appendable.append(fieldDescriptor.getFieldName());
 		appendable.append(END_LINE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(SET);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(DOUBLE_TAB);
 		appendable.append(fieldDescriptor.getFieldName());
 		appendable.append(SPACE);
 		appendable.append(ASSIGN);
@@ -518,14 +560,16 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(VALUE);
 		appendable.append(END_LINE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		
-		appendable.append(DOUBLE_TAB);	
+
+		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
+
+		appendComments(appendable, false, isKeyword);
 
 	}
 
@@ -539,13 +583,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			throws IOException
 	{
 		appendClassComments(inputClass, appendable);
-		
+
 		Annotation[] annotations = inputClass.getAnnotations();
 
 		Class genericSuperclass = inputClass.getSuperclass();
-		
+
 		appendAnnotations(appendable, annotations, TAB);
-		
+
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
@@ -556,21 +600,21 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
 		appendable.append(genericSuperclass.getSimpleName());
-		
-		//add interface implementations
+
+		// add interface implementations
 		Class<?>[] interfaces = inputClass.getInterfaces();
-		
-		for(int i = 0; i < interfaces.length; i ++)
+
+		for (int i = 0; i < interfaces.length; i++)
 		{
-			if(interfaces[i].isAssignableFrom(Mappable.class))
+			if (interfaces[i].isAssignableFrom(Mappable.class))
 			{
 				appendable.append(',');
-				appendable.append(SPACE);				
+				appendable.append(SPACE);
 				appendable.append(interfaces[i].getSimpleName());
-				implementMappableInterface  = true;
-			}			
+				implementMappableInterface = true;
+			}
 		}
-		
+
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
@@ -617,10 +661,10 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			appendable.append(SINGLE_LINE_BREAK);
 		}
 	}
-	
+
 	private void implementMappableMethods(Appendable appendable) throws IOException
 	{
-		appendable.append(SINGLE_LINE_BREAK);		
+		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
@@ -630,14 +674,14 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(OPENING_BRACE);
 		appendable.append(CLOSING_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
+		appendable.append(DOUBLE_TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);		
-		appendable.append(TAB);	
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
 		appendable.append(DEFAULT_IMPLEMENTATION);
 		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);					
+		appendable.append(DOUBLE_TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 	}
