@@ -51,9 +51,9 @@ public interface DotNetTranslationConstants
 
 	public static final String	GENERIC									= "Generic";
 
-	public static final String	ECOLOGYLAB_NAMESPACE		= "ecologylabFundamental.ecologylab.atttributes";
+	public static final String	ECOLOGYLAB_NAMESPACE		= "ecologylab.atttributes";
 
-	public static final String	SERIALIZATION_NAMESPACE	= "ecologylabFundamental.ecologylab.serialization";
+	public static final String	SERIALIZATION_NAMESPACE	= "ecologylab.serialization";
 
 	public static final String	KEY											= "key";
 

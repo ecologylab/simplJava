@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import translators.cocoa.CocoaTranslationConstants;
 import translators.cocoa.CocoaTranslationUtilities;
@@ -59,9 +60,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * This is a way to add specific import namespaces. FIXME: There should be a more elegant way to
 	 * do this.
 	 */
-	public ArrayList<String>	additionalImportNamespaces;
+	public ArrayList<String>				additionalImportNamespaces;
 
-	private boolean						implementMappableInterface	= false;
+	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
+
+	private String									currentNamespace;
+
+	private boolean									implementMappableInterface	= false;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -105,12 +110,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
 				.getFieldDescriptorsByFieldName();
 
-		appendHeaderComments(inputClass, appendable);
+		StringBuilder classFile = new StringBuilder();
+		StringBuilder header = new StringBuilder();
 
-		importNameSpaces(appendable);
+		appendHeaderComments(inputClass, header);
 
-		openNameSpace(inputClass, appendable);
-		openClassFile(inputClass, appendable);
+		openNameSpace(inputClass, classFile);
+		openClassFile(inputClass, classFile);
 
 		if (fieldDescriptors.size() > 0)
 		{
@@ -119,25 +125,30 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendFieldAsCSharpAttribute(fieldDescriptor, appendable);
+					appendFieldAsCSharpAttribute(fieldDescriptor, classFile);
 			}
 
-			appendDefaultConstructor(inputClass, appendable);
+			appendDefaultConstructor(inputClass, classFile);
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendGettersAndSetters(fieldDescriptor, appendable);
+					appendGettersAndSetters(fieldDescriptor, classFile);
 			}
 
 			if (implementMappableInterface)
 			{
-				implementMappableMethods(appendable);
+				implementMappableMethods(classFile);
 			}
 		}
 
-		closeClassFile(appendable);
-		closeNameSpace(appendable);
+		closeClassFile(classFile);
+		closeNameSpace(classFile);
+
+		importNameSpaces(header);
+
+		appendable.append(header);
+		appendable.append(classFile);
 	}
 
 	/**
@@ -305,13 +316,6 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(ECOLOGYLAB_NAMESPACE);
 		appendable.append(END_LINE);
 
-		appendable.append(SINGLE_LINE_BREAK);
-
-		appendable.append(USING);
-		appendable.append(SPACE);
-		appendable.append(SERIALIZATION_NAMESPACE);
-		appendable.append(END_LINE);
-
 		if (additionalImportNamespaces != null && additionalImportNamespaces.size() > 0)
 		{
 			for (String namespace : additionalImportNamespaces)
@@ -323,6 +327,24 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				appendable.append(END_LINE);
 			}
 		}
+
+		//append all the registered namespace
+		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
+		{
+			for (String namespace : libraryNamespaces.values())
+			{
+				//do not append if it belogns to current namespace
+				if (!namespace.equals(currentNamespace))
+				{
+					appendable.append(SINGLE_LINE_BREAK);
+					appendable.append(USING);
+					appendable.append(SPACE);
+					appendable.append(namespace);
+					appendable.append(END_LINE);
+				}
+			}
+		}
+
 		appendable.append(DOUBLE_LINE_BREAK);
 	}
 
@@ -335,9 +357,10 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void openNameSpace(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException
 	{
+		currentNamespace = inputClass.getPackage().getName();
 		appendable.append(NAMESPACE);
 		appendable.append(SPACE);
-		appendable.append(inputClass.getPackage().getName());
+		appendable.append(currentNamespace);
 		appendable.append(SPACE);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(OPENING_CURLY_BRACE);
@@ -388,9 +411,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void appendFieldAsCSharpAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
+		registerNamespaces(fieldDescriptor);
 
-		boolean ignoreField = false;
-		
 		String cSharpType = fieldDescriptor.getCSharpType();
 		if (cSharpType == null)
 		{
@@ -413,6 +435,30 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(DOUBLE_LINE_BREAK);
 
 		appendComments(appendable, false, isKeyword);
+	}
+
+	private void registerNamespaces(FieldDescriptor fieldDescriptor)
+	{
+		Class[] genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
+		Class typeClass = fieldDescriptor.getFieldType();
+
+		if (genericClasses != null)
+			for (Class genericClass : genericClasses)
+			{
+				if (ElementState.class.isAssignableFrom(genericClass))
+				{
+					libraryNamespaces.put(genericClass.getPackage().getName(), genericClass.getPackage()
+							.getName());
+				}
+			}
+
+		if (typeClass != null)
+		{
+			if (ElementState.class.isAssignableFrom(typeClass))
+			{
+				libraryNamespaces.put(typeClass.getPackage().getName(), typeClass.getPackage().getName());
+			}
+		}
 	}
 
 	private boolean checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
@@ -586,7 +632,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 		Annotation[] annotations = inputClass.getAnnotations();
 
-		Class genericSuperclass = inputClass.getSuperclass();
+		Class<?> genericSuperclass = inputClass.getSuperclass();
 
 		appendAnnotations(appendable, annotations, TAB);
 
@@ -600,6 +646,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
 		appendable.append(genericSuperclass.getSimpleName());
+
+		if (ElementState.class.isAssignableFrom(genericSuperclass))
+			;
+		{
+			libraryNamespaces.put(genericSuperclass.getPackage().getName(), genericSuperclass
+					.getPackage().getName());
+		}
 
 		// add interface implementations
 		Class<?>[] interfaces = inputClass.getInterfaces();
