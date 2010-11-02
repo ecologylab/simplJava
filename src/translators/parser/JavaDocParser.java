@@ -94,7 +94,7 @@ public class JavaDocParser
 		else
 			return null;
 	}
-	
+
 	public static String[] getFieldJavaDocsArray(Field field)
 	{
 		String javaDocs = getFieldJavaDocs(field);
@@ -179,14 +179,21 @@ public class JavaDocParser
 	}
 
 	public static void parseSourceFileIfExists(TranslationScope translationScope,
-			File workSpaceLocation) throws ParseException, IOException
+			File workSpaceLocation) throws IOException
 	{
-		ArrayList<Class<? extends ElementState>> classes = translationScope.getAllClasses();
-		int length = classes.size();
-
-		for (int i = 0; i < length; i++)
+		try
 		{
-			parseSourceFileIfExists(classes.get(i), workSpaceLocation);
+			ArrayList<Class<? extends ElementState>> classes = translationScope.getAllClasses();
+			int length = classes.size();
+
+			for (int i = 0; i < length; i++)
+			{
+				parseSourceFileIfExists(classes.get(i), workSpaceLocation);
+			}
+		}
+		catch (ParseException e)
+		{
+			e.printStackTrace();
 		}
 	}
 
@@ -235,14 +242,13 @@ public class JavaDocParser
 
 		return finalComment.toString().trim();
 	}
-	
+
 	private static String[] escapeToArray(String javaDocs)
 	{
 		String strippedComments = javaDocs.replace("*", "").replace("/", "").trim();
 		String[] commentsArray = strippedComments.split("\n");
 
-
-		for(int i=0; i<commentsArray.length; i++)
+		for (int i = 0; i < commentsArray.length; i++)
 		{
 			commentsArray[i] = commentsArray[i].trim();
 		}

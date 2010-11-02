@@ -1,12 +1,15 @@
 package translators.net;
 
 import japa.parser.ParseException;
+import japa.parser.ast.type.Type;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.TypeVariable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -640,6 +643,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(CLASS);
 		appendable.append(SPACE);
 		appendable.append(inputClass.getSimpleName());
+		appendGenericTypeVariables(appendable, inputClass);
 		appendable.append(SPACE);
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
@@ -670,6 +674,25 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	private void appendGenericTypeVariables(Appendable appendable, Class<? extends ElementState> inputClass) throws IOException
+	{
+		TypeVariable<?>[] typeVariables = inputClass.getTypeParameters();
+		if(typeVariables != null && typeVariables.length > 0)
+		{
+			appendable.append('<');
+			int i = 0;
+			for(TypeVariable<?> typeVariable : typeVariables)
+			{
+				if(i == 0) appendable.append(typeVariable.getName());
+				else appendable.append(", " + typeVariable.getName());
+				i++;
+			}
+			
+			appendable.append('>');
+		}
+		
 	}
 
 	private void appendClassComments(Class<? extends ElementState> inputClass, Appendable appendable)
