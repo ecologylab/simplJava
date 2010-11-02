@@ -7,15 +7,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-
-import translators.cocoa.CocoaTranslationConstants;
-import translators.cocoa.CocoaTranslationUtilities;
 import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -84,7 +80,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
     * @throws IOException
     * @throws DotNetTranslationException
     */
-	public void translateToCSharp(Appendable appendable, Class<? extends ElementState>... classes)
+	private void translateToCSharp(Appendable appendable, Class<? extends ElementState>... classes)
 			throws IOException, DotNetTranslationException
 	{
 		int length = classes.length;
@@ -102,7 +98,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws IOException
 	 * @throws DotNetTranslationException
 	 */
-	public void translateToCSharp(Class<? extends ElementState> inputClass, Appendable appendable)
+	private void translateToCSharp(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
 		ClassDescriptor<?, ?> classDescriptor = ClassDescriptor.getClassDescriptor(inputClass);
@@ -168,8 +164,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope)
 			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
-		// Generate header and implementation files
-		ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
+		// Generate header and implementation files		
+		ArrayList<Class<? extends ElementState>> classes = TranslationScope.augmentTranslationScope(tScope).getAllClasses();
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
@@ -188,12 +184,14 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws DotNetTranslationException
 	 */
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope,
-			File workSpaceLocation) throws IOException, SIMPLTranslationException, ParseException,
+			File workSpaceLocation) throws IOException, SIMPLTranslationException, 
 			DotNetTranslationException
 	{
+		System.out.println("Parsing source files to extract comments");
 		// Parse source files for javadocs
 		JavaDocParser.parseSourceFileIfExists(tScope, workSpaceLocation);
 
+		System.out.println("generating classes...");
 		// Generate header and implementation files
 		ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
 		int length = classes.size();
@@ -439,7 +437,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	private void registerNamespaces(FieldDescriptor fieldDescriptor)
 	{
-		Class[] genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
+		ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
 		Class typeClass = fieldDescriptor.getFieldType();
 
 		if (genericClasses != null)
