@@ -1158,7 +1158,7 @@ public final class TranslationScope extends ElementState
 				{
 					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
 					{
-						Class<?>[] genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
+						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
 
 						for (Class<?> genericClass : genericClasses)
 						{
