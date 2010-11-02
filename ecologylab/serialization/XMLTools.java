@@ -1665,8 +1665,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		String result;
 		if(isGeneric(field)) 
 		{
-			result = getCSharpGenericParametersStringRecursive((ParameterizedType) field.getGenericType());
-			System.out.println(result);
+			result = getCSharpGenericParametersStringRecursive((ParameterizedType) field.getGenericType());			
 			return result;
 		}			
 		else
