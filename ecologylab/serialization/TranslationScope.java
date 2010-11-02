@@ -1162,7 +1162,7 @@ public final class TranslationScope extends ElementState
 
 						for (Class<?> genericClass : genericClasses)
 						{
-							if (ElementState.class.isAssignableFrom(genericClass))
+							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
 							{
 								augmentTranslationScope(genericClass.asSubclass(ElementState.class),
 										augmentedClasses);

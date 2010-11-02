@@ -1596,7 +1596,8 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 			for (int i = 0; i < ta.length; i++)
 			{
-				result[i] = ((Class<?>) ta[i]);
+				if(ta[i] instanceof Class<?>)
+					result[i] = ((Class<?>) ta[i]);
 			}
 		}
 
