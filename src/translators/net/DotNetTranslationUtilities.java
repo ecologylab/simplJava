@@ -6,6 +6,7 @@ import java.util.HashMap;
 import ecologylab.generic.Debug;
 import ecologylab.semantics.metadata.Metadata.mm_name;
 import ecologylab.serialization.ElementState.simpl_scope;
+import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.simpl_classes;
 import ecologylab.serialization.ElementState.simpl_collection;
@@ -13,6 +14,7 @@ import ecologylab.serialization.ElementState.simpl_hints;
 import ecologylab.serialization.ElementState.simpl_map;
 import ecologylab.serialization.ElementState.xml_other_tags;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_descriptor_classes;
 
 /**
  * Static methods to do repeated useful tasks during the translation
@@ -384,6 +386,10 @@ public class DotNetTranslationUtilities
 		{
 			return getCSharpOtherTagsAnnotation(annotation);
 		}
+		else if (annotation instanceof simpl_descriptor_classes)
+		{
+			return getCSharpOtherDescAnnotation(annotation);
+		}
 		else if (annotation instanceof mm_name)
 		{
 			return getCSharpMMNameAnnotation(annotation);
@@ -395,6 +401,34 @@ public class DotNetTranslationUtilities
 
 
 
+	private static String getCSharpOtherDescAnnotation(Annotation annotation)
+{
+		String parameter = null;
+		simpl_descriptor_classes classesAnnotation = (simpl_descriptor_classes) annotation;
+		Class<?>[] classArray = classesAnnotation.value();
+
+		String simpleName = getSimpleName(annotation);
+
+		if (classArray != null)
+		{
+			parameter = "(new Type[] { ";
+
+			for (int i = 0; i < classArray.length; i++)
+			{
+				String tempString = "typeof(" + classArray[i].getSimpleName() + ")";
+				if (i != classArray.length - 1)
+					parameter += tempString + ", ";
+				else
+					parameter += tempString;
+			}
+
+			parameter += " })";
+
+			return simpleName + parameter;
+		}
+		else
+			return null;
+}
 	/**
 	 * Utility function to translate java classes annotation to C# attribute
 	 * 
@@ -611,19 +645,33 @@ public class DotNetTranslationUtilities
 		return annotation.annotationType().getSimpleName();
 	}
 	
-	public static String getPropertyName(String fieldName)
+	public static String getPropertyName(FieldDescriptor fieldDescriptor)
 	{
-		if(fieldName == null || fieldName == "")
+		if(fieldDescriptor == null)
 		{
 			return "null";
 		}
 		else
 		{
+			String fieldName = fieldDescriptor.getFieldName();
 			StringBuilder propertyName = new StringBuilder();
+			
+			String declaringClassName = fieldDescriptor.getField().getDeclaringClass().getSimpleName();
+			
 			if(Character.isLowerCase(fieldName.charAt(0)))
 			{
 				propertyName.append(Character.toUpperCase(fieldName.charAt(0)));
 				propertyName.append(fieldName.subSequence(1, fieldName.length()));
+				
+				if(propertyName.toString().equals(declaringClassName))
+				{
+					StringBuilder pName = new StringBuilder();
+					
+					pName.append('P');
+					pName.append(propertyName);
+					
+					return pName.toString();
+				}
 			}	
 			else
 			{

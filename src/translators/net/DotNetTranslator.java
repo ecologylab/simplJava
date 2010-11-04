@@ -15,6 +15,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+
 import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -55,17 +57,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	{
 	}
 
-	/**
-	 * This is a way to add specific import namespaces. FIXME: There should be a more elegant way to
-	 * do this.
-	 */
-	public ArrayList<String>				additionalImportNamespaces;
-
 	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
 
 	private String									currentNamespace;
 
 	private boolean									implementMappableInterface	= false;
+
+	private ArrayList<String>	additionalImportLines;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -138,6 +136,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			if (implementMappableInterface)
 			{
 				implementMappableMethods(classFile);
+				implementMappableInterface = false;
 			}
 		}
 
@@ -145,6 +144,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		closeNameSpace(classFile);
 
 		importNameSpaces(header);
+		
+		libraryNamespaces.clear();
+		setAdditionalImportNamespaces(additionalImportLines);
 
 		appendable.append(header);
 		appendable.append(classFile);
@@ -191,17 +193,20 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			DotNetTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
+		
+		TranslationScope anotherScope = TranslationScope.augmentTranslationScope(tScope);
 		// Parse source files for javadocs
-		JavaDocParser.parseSourceFileIfExists(tScope, workSpaceLocation);
+		JavaDocParser.parseSourceFileIfExists(anotherScope, workSpaceLocation);
 
 		System.out.println("generating classes...");
 		// Generate header and implementation files
-		ArrayList<Class<? extends ElementState>> classes = tScope.getAllClasses();
+		ArrayList<Class<? extends ElementState>> classes = anotherScope.getAllClasses();
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
 			translateToCSharp(classes.get(i), directoryLocation);
 		}
+		System.out.println("DONE !");
 	}
 
 	/**
@@ -316,18 +321,6 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(ECOLOGYLAB_NAMESPACE);
 		appendable.append(END_LINE);
-
-		if (additionalImportNamespaces != null && additionalImportNamespaces.size() > 0)
-		{
-			for (String namespace : additionalImportNamespaces)
-			{
-				appendable.append(SINGLE_LINE_BREAK);
-				appendable.append(USING);
-				appendable.append(SPACE);
-				appendable.append(namespace);
-				appendable.append(END_LINE);
-			}
-		}
 
 		//append all the registered namespace
 		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
@@ -565,7 +558,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(cSharpType);
 		appendable.append(SPACE);
-		appendable.append(DotNetTranslationUtilities.getPropertyName(fieldDescriptor.getFieldName()));
+		appendable.append(DotNetTranslationUtilities.getPropertyName(fieldDescriptor));
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(DOUBLE_TAB);
 		appendable.append(OPENING_CURLY_BRACE);
@@ -667,6 +660,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				appendable.append(SPACE);
 				appendable.append(interfaces[i].getSimpleName());
 				implementMappableInterface = true;
+				
+				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage().getName());
 			}
 		}
 
@@ -772,6 +767,16 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SINGLE_LINE_BREAK);
 	}
 
+	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
+	{
+		if(additionalImportLines == null)
+			return;
+		for(String newImport : additionalImportLines)
+			libraryNamespaces.put(newImport, newImport);
+		
+		this.additionalImportLines = additionalImportLines;
+	}
+	
 	/**
 	 * Main method to test the working of the library.
 	 * 
@@ -791,9 +796,6 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		c.translateToCSharp(System.out, Channel.class);
 	}
 
-	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
-	{
-		this.additionalImportNamespaces = additionalImportLines;
-	}
+
 
 }
