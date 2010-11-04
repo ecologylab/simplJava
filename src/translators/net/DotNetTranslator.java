@@ -240,7 +240,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		importDefaultNamespaces(bufferedWriter);
 		importAllNamespaces(bufferedWriter);
 
-		bufferedWriter.append("//modify the package if class name conflicts with s.im.pl serialization class");
+		namespaceComments(bufferedWriter);
+		
+		
 		bufferedWriter.append(SINGLE_LINE_BREAK);
 		
 		openNameSpace(tScope.getPackageName(), bufferedWriter);
@@ -254,6 +256,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		closeNameSpace(bufferedWriter);
 		bufferedWriter.close();
 
+	}
+
+	private void namespaceComments(Appendable appendable) throws IOException
+	{
+		appendable.append("//developer should modify the namespace");
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append("//by default it falls into ecologylab.serialization");
 	}
 	
 	private void appendTranslationScopeGetterFunction(String functionName, Appendable appendable, TranslationScope tScope) throws IOException
@@ -976,9 +985,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				.translateToCSharp(
 						new File("/csharp_output"),
 						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
-								RssState.class, Item.class, Channel.class),
-						new File(
-								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
+								RssState.class, Item.class, Channel.class));
 		// c.translateToCSharp(System.out, Channel.class);
 	}
 
