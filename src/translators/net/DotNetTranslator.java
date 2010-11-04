@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import translators.cocoa.CocoaTranslationConstants;
 import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -27,7 +28,12 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.library.rss.Channel;
+import ecologylab.serialization.library.rss.Item;
+import ecologylab.serialization.library.rss.RssState;
 import ecologylab.serialization.types.element.Mappable;
+import ecologylab.standalone.xmlpolymorph.BItem;
+import ecologylab.standalone.xmlpolymorph.SchmItem;
+import ecologylab.standalone.xmlpolymorph.Schmannel;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into
@@ -59,11 +65,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
 
+	private HashMap<String, String>	allNamespaces								= new HashMap<String, String>();
+
 	private String									currentNamespace;
 
 	private boolean									implementMappableInterface	= false;
 
-	private ArrayList<String>	additionalImportLines;
+	private ArrayList<String>				additionalImportLines;
 
 /**
     * The main entry function into the class. Goes through a sequence of steps
@@ -144,7 +152,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		closeNameSpace(classFile);
 
 		importNameSpaces(header);
-		
+
 		libraryNamespaces.clear();
 		setAdditionalImportNamespaces(additionalImportLines);
 
@@ -169,13 +177,19 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope)
 			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
-		// Generate header and implementation files		
-		ArrayList<Class<? extends ElementState>> classes = TranslationScope.augmentTranslationScope(tScope).getAllClasses();
+		// Generate header and implementation files
+		ArrayList<Class<? extends ElementState>> classes = TranslationScope.augmentTranslationScope(
+				tScope).getAllClasses();
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
 			translateToCSharp(classes.get(i), directoryLocation);
 		}
+		
+		// create a folder to put the translation scope getter class
+		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
+		// generate translation scope getter class
+		generateTranslationScopeGetterClass(tScopeDirectory, tScope);
 	}
 
 	/**
@@ -189,16 +203,17 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws DotNetTranslationException
 	 */
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope,
-			File workSpaceLocation) throws IOException, SIMPLTranslationException, 
+			File workSpaceLocation) throws IOException, SIMPLTranslationException,
 			DotNetTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
-		
+
 		TranslationScope anotherScope = TranslationScope.augmentTranslationScope(tScope);
 		// Parse source files for javadocs
 		JavaDocParser.parseSourceFileIfExists(anotherScope, workSpaceLocation);
 
 		System.out.println("generating classes...");
+
 		// Generate header and implementation files
 		ArrayList<Class<? extends ElementState>> classes = anotherScope.getAllClasses();
 		int length = classes.size();
@@ -206,7 +221,134 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		{
 			translateToCSharp(classes.get(i), directoryLocation);
 		}
+
+		// create a folder to put the translation scope getter class
+		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
+		// generate translation scope getter class
+		generateTranslationScopeGetterClass(tScopeDirectory, tScope);
+
 		System.out.println("DONE !");
+	}
+
+	private void generateTranslationScopeGetterClass(File directoryLocation, TranslationScope tScope)
+			throws IOException
+	{
+		File sourceFile = new File(directoryLocation + FILE_PATH_SEPARATOR + tScope.getName()
+				+ FILE_EXTENSION);
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
+
+		importDefaultNamespaces(bufferedWriter);
+		importAllNamespaces(bufferedWriter);
+
+		bufferedWriter.append("//modify the package if class name conflicts with s.im.pl serialization class");
+		bufferedWriter.append(SINGLE_LINE_BREAK);
+		
+		openNameSpace(tScope.getPackageName(), bufferedWriter);
+
+		openTranslationScopeClassFile(tScope.getName(), bufferedWriter);
+
+		appendDefaultConstructor(tScope.getName(), bufferedWriter);
+		appendTranslationScopeGetterFunction(FGET, bufferedWriter, tScope);
+		
+		closeClassFile(bufferedWriter);
+		closeNameSpace(bufferedWriter);
+		bufferedWriter.close();
+
+	}
+	
+	private void appendTranslationScopeGetterFunction(String functionName, Appendable appendable, TranslationScope tScope) throws IOException
+	{
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(STATIC);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(SPACE);
+		appendable.append(functionName);
+		appendable.append(OPENING_BRACE);
+		appendable.append(CLOSING_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+		
+		appendable.append(DOUBLE_TAB);
+		appendable.append(TAB);
+		appendable.append(RETURN);
+		appendable.append(SPACE);
+		appendable.append(DOTNET_TRANSLATION_SCOPE);
+		appendable.append(DOT);
+		appendable.append(FGET);
+		appendable.append(OPENING_BRACE);
+		appendable.append(QUOTE);
+		appendable.append(tScope.getName());
+		appendable.append(QUOTE);
+				
+		ArrayList<Class<? extends ElementState>> allClasses = tScope.getAllClasses();		
+		for(Class<? extends ElementState> myClass : allClasses)
+		{
+			appendable.append(COMMA);
+			appendable.append(SINGLE_LINE_BREAK);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(DOUBLE_TAB);
+			appendable.append(TYPE_OF);
+			appendable.append(OPENING_BRACE);
+			appendable.append(myClass.getSimpleName());
+			appendable.append(CLOSING_BRACE);
+		}
+		
+		appendable.append(CLOSING_BRACE);
+		appendable.append(END_LINE);
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(DOUBLE_TAB);
+		appendable.append(CLOSING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	private void openTranslationScopeClassFile(String className, Appendable appendable)
+			throws IOException
+	{
+		appendable.append(TAB);
+		appendable.append(PUBLIC);
+		appendable.append(SPACE);
+		appendable.append(CLASS);
+		appendable.append(SPACE);
+		appendable.append(className);
+		
+		appendable.append(SINGLE_LINE_BREAK);
+		appendable.append(TAB);
+		appendable.append(OPENING_CURLY_BRACE);
+		appendable.append(SINGLE_LINE_BREAK);
+	}
+
+	private void importAllNamespaces(Appendable appendable) throws IOException
+	{
+		// append all the registered namespace
+		if (allNamespaces != null && allNamespaces.size() > 0)
+		{
+			for (String namespace : allNamespaces.values())
+			{
+					appendable.append(SINGLE_LINE_BREAK);
+					appendable.append(USING);
+					appendable.append(SPACE);
+					appendable.append(namespace);
+					appendable.append(END_LINE);
+			}
+		}
+
+		appendable.append(DOUBLE_LINE_BREAK);
+	}
+
+	private File createGetTranslationScopeFolder(File directoryLocation)
+	{
+		String tScopeDirectoryPath = directoryLocation.toString() + FILE_PATH_SEPARATOR;
+
+		tScopeDirectoryPath += TRANSATIONSCOPE_FOLDER + FILE_PATH_SEPARATOR;
+		File tScopeDirectory = new File(tScopeDirectoryPath);
+		tScopeDirectory.mkdir();
+		return tScopeDirectory;
 	}
 
 	/**
@@ -299,6 +441,30 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 */
 	private void importNameSpaces(Appendable appendable) throws IOException
 	{
+		importDefaultNamespaces(appendable);
+
+		// append all the registered namespace
+		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
+		{
+			for (String namespace : libraryNamespaces.values())
+			{
+				// do not append if it belogns to current namespace
+				if (!namespace.equals(currentNamespace))
+				{
+					appendable.append(SINGLE_LINE_BREAK);
+					appendable.append(USING);
+					appendable.append(SPACE);
+					appendable.append(namespace);
+					appendable.append(END_LINE);
+				}
+			}
+		}
+
+		appendable.append(DOUBLE_LINE_BREAK);
+	}
+
+	private void importDefaultNamespaces(Appendable appendable) throws IOException
+	{
 		appendable.append(USING);
 		appendable.append(SPACE);
 		appendable.append(SYSTEM);
@@ -321,25 +487,6 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(ECOLOGYLAB_NAMESPACE);
 		appendable.append(END_LINE);
-
-		//append all the registered namespace
-		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
-		{
-			for (String namespace : libraryNamespaces.values())
-			{
-				//do not append if it belogns to current namespace
-				if (!namespace.equals(currentNamespace))
-				{
-					appendable.append(SINGLE_LINE_BREAK);
-					appendable.append(USING);
-					appendable.append(SPACE);
-					appendable.append(namespace);
-					appendable.append(END_LINE);
-				}
-			}
-		}
-
-		appendable.append(DOUBLE_LINE_BREAK);
 	}
 
 	/**
@@ -351,7 +498,20 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void openNameSpace(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException
 	{
-		currentNamespace = inputClass.getPackage().getName();
+		openNameSpace(inputClass.getPackage().getName(), appendable);
+	}
+
+	/**
+	 * 
+	 * @param inputClass
+	 * @param appendable
+	 * @throws IOException
+	 */
+	private void openNameSpace(String classNameSpace, Appendable appendable) throws IOException
+	{
+		currentNamespace = classNameSpace;
+		allNamespaces.put(currentNamespace, currentNamespace);
+		
 		appendable.append(NAMESPACE);
 		appendable.append(SPACE);
 		appendable.append(currentNamespace);
@@ -381,10 +541,22 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void appendDefaultConstructor(Class<? extends ElementState> inputClass,
 			Appendable appendable) throws IOException
 	{
+		appendDefaultConstructor(inputClass.getSimpleName(), appendable);
+	}
+	
+	/**
+	 * 
+	 * @param inputClass
+	 * @param appendable
+	 * @throws IOException
+	 */
+	private void appendDefaultConstructor(String className,
+			Appendable appendable) throws IOException
+	{
 		appendable.append(DOUBLE_TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
-		appendable.append(inputClass.getSimpleName());
+		appendable.append(className);
 		appendable.append(OPENING_BRACE);
 		appendable.append(CLOSING_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -443,6 +615,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				{
 					libraryNamespaces.put(genericClass.getPackage().getName(), genericClass.getPackage()
 							.getName());
+					allNamespaces.put(genericClass.getPackage().getName(), genericClass.getPackage()
+							.getName());
 				}
 			}
 
@@ -451,6 +625,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 			if (ElementState.class.isAssignableFrom(typeClass))
 			{
 				libraryNamespaces.put(typeClass.getPackage().getName(), typeClass.getPackage().getName());
+				allNamespaces.put(typeClass.getPackage().getName(), typeClass.getPackage().getName());
 			}
 		}
 	}
@@ -647,6 +822,8 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		{
 			libraryNamespaces.put(genericSuperclass.getPackage().getName(), genericSuperclass
 					.getPackage().getName());
+			allNamespaces.put(genericSuperclass.getPackage().getName(), genericSuperclass.getPackage()
+					.getName());
 		}
 
 		// add interface implementations
@@ -660,8 +837,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				appendable.append(SPACE);
 				appendable.append(interfaces[i].getSimpleName());
 				implementMappableInterface = true;
-				
-				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage().getName());
+
+				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
+						.getName());
 			}
 		}
 
@@ -671,23 +849,26 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SINGLE_LINE_BREAK);
 	}
 
-	private void appendGenericTypeVariables(Appendable appendable, Class<? extends ElementState> inputClass) throws IOException
+	private void appendGenericTypeVariables(Appendable appendable,
+			Class<? extends ElementState> inputClass) throws IOException
 	{
 		TypeVariable<?>[] typeVariables = inputClass.getTypeParameters();
-		if(typeVariables != null && typeVariables.length > 0)
+		if (typeVariables != null && typeVariables.length > 0)
 		{
 			appendable.append('<');
 			int i = 0;
-			for(TypeVariable<?> typeVariable : typeVariables)
+			for (TypeVariable<?> typeVariable : typeVariables)
 			{
-				if(i == 0) appendable.append(typeVariable.getName());
-				else appendable.append(", " + typeVariable.getName());
+				if (i == 0)
+					appendable.append(typeVariable.getName());
+				else
+					appendable.append(", " + typeVariable.getName());
 				i++;
 			}
-			
+
 			appendable.append('>');
 		}
-		
+
 	}
 
 	private void appendClassComments(Class<? extends ElementState> inputClass, Appendable appendable)
@@ -769,14 +950,18 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
 	{
-		if(additionalImportLines == null)
+		if (additionalImportLines == null)
 			return;
-		for(String newImport : additionalImportLines)
+
+		for (String newImport : additionalImportLines)
+		{
 			libraryNamespaces.put(newImport, newImport);
-		
+			allNamespaces.put(newImport, newImport);
+		}
+
 		this.additionalImportLines = additionalImportLines;
 	}
-	
+
 	/**
 	 * Main method to test the working of the library.
 	 * 
@@ -787,15 +972,14 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	{
 		DotNetTranslator c = new DotNetTranslator();
 
-		// c.translateToCSharp(
-		// new File("/csharp_output"),
-		// TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
-		// RssState.class, Item.class, Channel.class),
-		// new File(
-		// "/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
-		c.translateToCSharp(System.out, Channel.class);
+		c
+				.translateToCSharp(
+						new File("/csharp_output"),
+						TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+								RssState.class, Item.class, Channel.class),
+						new File(
+								"/Users/nabeelshahzad/Documents/workspace/ecologylabFundamental/ecologylab/xml/library/rss"));
+		// c.translateToCSharp(System.out, Channel.class);
 	}
-
-
 
 }
