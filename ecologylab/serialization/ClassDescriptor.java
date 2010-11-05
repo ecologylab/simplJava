@@ -95,6 +95,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap			= new HashMap<String, ClassDescriptor>();
 
 	private ArrayList<FD>																	unresolvedScopeAnnotationFDs;
+	
+	private String bibtexType = "";
 
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
@@ -121,6 +123,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return tagName;
 	}
+	
+	public String getBibtexType()
+	{
+		if(this.bibtexType == null || this.bibtexType.equals(""))
+		{
+			return tagName;
+		}		
+		return bibtexType;
+	}
+
 
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations. Uses just-in-time / lazy
@@ -342,6 +354,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				if (fieldDescriptorClass == null)
 					fieldDescriptorClass = superFieldDescriptorClass;
 			}
+		}
+		
+		if(classWithFields.isAnnotationPresent(bibtex_type.class))
+		{
+			bibtex_type bibtexTypeAnnotation = classWithFields.getAnnotation(bibtex_type.class);
+			bibtexType = bibtexTypeAnnotation.value();
 		}
 
 		Field[] fields = classWithFields.getDeclaredFields();

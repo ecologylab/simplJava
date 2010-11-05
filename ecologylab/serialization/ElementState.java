@@ -58,28 +58,32 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
  */
 public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes
 {
-	
-	private static final String										SIMPL_ID								= "simpl:id";
 
-	private static final String										SIMPL_REF								= "simpl:ref";
+	private static final String	SIMPL_ID				= "simpl:id";
 
-	private static final String										SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+	private static final String	SIMPL_REF				= "simpl:ref";
 
-	private boolean																isRoot									= false;
-	
-//	private static HashMap<Integer, ElementState>	marshalledObjects				= new HashMap<Integer, ElementState>();
-//
-//	private static HashMap<Integer, ElementState>	visitedElements					= new HashMap<Integer, ElementState>();
-//
-//	private static HashMap<Integer, ElementState>	needsAttributeHashCode	= new HashMap<Integer, ElementState>();
-//
-//	public static HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
+	private static final String	SIMPL_NAMESPACE	= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+
+	private boolean							isRoot					= false;
+
+	// private static HashMap<Integer, ElementState> marshalledObjects = new HashMap<Integer,
+	// ElementState>();
+	//
+	// private static HashMap<Integer, ElementState> visitedElements = new HashMap<Integer,
+	// ElementState>();
+	//
+	// private static HashMap<Integer, ElementState> needsAttributeHashCode = new HashMap<Integer,
+	// ElementState>();
+	//
+	// public static HashMap<String, ElementState> unmarshalledObjects = new HashMap<String,
+	// ElementState>();
 
 	// --------//
 
 	public enum FORMAT
 	{
-		XML, JSON, TLV, YAML;
+		XML, JSON, TLV, YAML, BIBTEX;
 	}
 
 	/**
@@ -121,13 +125,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			switch (format)
 			{
 			case XML:
-				serializeToXML(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream), graphContext);
+				serializeToXML(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
+						graphContext);
 				break;
 			case TLV:
-				serializeToTLV(classDescriptor().pseudoFieldDescriptor(), new DataOutputStream(outStream), graphContext);
+				serializeToTLV(classDescriptor().pseudoFieldDescriptor(), new DataOutputStream(outStream),
+						graphContext);
 				break;
 			case JSON:
-				serializeToJSON(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream), graphContext);
+				serializeToJSON(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
+						graphContext);
+			case BIBTEX:
+				serializeToBibtex(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
+						graphContext);
 			}
 
 		}
@@ -137,14 +147,176 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private void serializeToXML(FieldDescriptor pseudoFieldDescriptor, PrintStream printStream, GraphContext graphContext)
-			throws SIMPLTranslationException, IOException
+	private void serializeToBibtex(FieldDescriptor fieldDescritpor, PrintStream appendable,
+			GraphContext graphContext) throws SIMPLTranslationException, IOException
+	{
+		appendable.append("@");
+		appendable.append(fieldDescritpor.getBibtexTagName());
+		appendable.append('\n');
+		appendable.append('{');
+
+		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
+				.elementFieldDescriptors();
+
+		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
+				.attributeFieldDescriptors();
+
+		int numAttributes = attributeFieldDescriptors.size();
+		int numElements = elementFieldDescriptors.size();
+
+		boolean attributesSerialized = false;
+
+		if (numAttributes > 0)
+		{
+			try
+			{
+				for (int i = 0; i < numAttributes; i++)
+				{
+					// iterate through fields
+					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
+					boolean isDefaultValue = childFD.isDefaultValue(this);
+					if (!isDefaultValue)
+					{
+						childFD.appendValueAsBibtexAttribute(appendable, this, !attributesSerialized);
+						if (!attributesSerialized)
+						{
+							attributesSerialized = true;
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				// IllegalArgumentException, IllegalAccessException
+				throw new SIMPLTranslationException("TranslateToXML for attribute " + this, e);
+			}
+		}
+
+		boolean elementsSerialized = false;
+
+		for (int i = 0; i < numElements; i++)
+		{
+			FieldDescriptor childFD = elementFieldDescriptors.get(i);
+			final int childFdType = childFD.getType();
+			if (childFdType == SCALAR)
+			{
+				try
+				{
+					boolean isDefaultValue = childFD.isDefaultValue(this);
+					if (!isDefaultValue)
+					{
+						childFD.appendValueAsBibtexAttribute(appendable, this, !elementsSerialized);
+						if (!elementsSerialized)
+						{
+							elementsSerialized = true;
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					throw new SIMPLTranslationException("TranslateToXML for leaf node " + this, e);
+				}
+			}
+			else
+			{
+				Object thatReferenceObject = null;
+				Field childField = childFD.getField();
+				try
+				{
+					thatReferenceObject = childField.get(this);
+				}
+				catch (IllegalAccessException e)
+				{
+					debugA("WARNING re-trying access! " + e.getStackTrace()[0]);
+					childField.setAccessible(true);
+					try
+					{
+						thatReferenceObject = childField.get(this);
+					}
+					catch (IllegalAccessException e1)
+					{
+						error("Can't access " + childField.getName());
+						e1.printStackTrace();
+					}
+				}
+				// ignore null reference objects
+				if (thatReferenceObject == null)
+					continue;
+
+				final boolean isScalar = (childFdType == COLLECTION_SCALAR) || (childFdType == MAP_SCALAR);
+				// gets Collection object directly or through Map.values()
+				Collection thatCollection;
+				switch (childFdType)
+				{
+				case COLLECTION_ELEMENT:
+				case COLLECTION_SCALAR:
+				case MAP_ELEMENT:
+				case MAP_SCALAR:
+					thatCollection = XMLTools.getCollection(thatReferenceObject);
+					break;
+				default:
+					thatCollection = null;
+					break;
+				}
+				if (thatCollection != null && (thatCollection.size() > 0))
+				{
+					if (attributesSerialized || elementsSerialized)
+						appendable.append(", ");
+
+					elementsSerialized = true;
+
+					if (!childFD.isPolymorphic())
+					{
+						Object[] collecitonArray = thatCollection.toArray();
+						int collectionSize = thatCollection.size();
+
+						if(collectionSize > 0)
+							{
+								childFD.writeBibtexCollectionStart(appendable);
+								appendable.append("{");
+							}						
+							
+						for (int j = 0; j < collectionSize; j++)
+						{
+							Object next = collecitonArray[j];
+							if (isScalar) // leaf node!
+							{
+								try
+								{
+									childFD.appendBibtexCollectionAttribute(appendable, next, j == 0);
+								}
+								catch (IllegalArgumentException e)
+								{
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this,
+											e);
+								}
+								catch (IllegalAccessException e)
+								{
+									throw new SIMPLTranslationException("TranslateToXML for collection leaf " + this,
+											e);
+								}
+							}
+						}
+						
+						if(collectionSize > 0) appendable.append("}");
+					}
+				}
+			}
+		}
+		
+		appendable.append('\n');
+		appendable.append('}');
+
+	}
+
+	private void serializeToXML(FieldDescriptor pseudoFieldDescriptor, PrintStream printStream,
+			GraphContext graphContext) throws SIMPLTranslationException, IOException
 	{
 		serializeToAppendable(pseudoFieldDescriptor, printStream, graphContext);
 	}
 
-	private void serializeToJSON(FieldDescriptor fieldDescriptor, PrintStream appendable, GraphContext graphContext)
-			throws IOException, SIMPLTranslationException
+	private void serializeToJSON(FieldDescriptor fieldDescriptor, PrintStream appendable,
+			GraphContext graphContext) throws IOException, SIMPLTranslationException
 	{
 		appendable.append('{');
 		serializeToJSONRecursive(fieldDescriptor, appendable, true, graphContext);
@@ -312,7 +484,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 									appendable.append(',');
 
 								ElementState collectionSubElementState = (ElementState) next;
-								collectionSubElementState.serializeToJSONRecursive(childFD, appendable, false, graphContext);
+								collectionSubElementState.serializeToJSONRecursive(childFD, appendable, false,
+										graphContext);
 							}
 						}
 
@@ -369,8 +542,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		fieldDescriptor.writeJSONCloseTag(appendable);
 	}
 
-	private void serializeToTLV(FieldDescriptor fieldDescriptor, DataOutputStream dataOutputStream, GraphContext graphContext)
-			throws IOException, SIMPLTranslationException
+	private void serializeToTLV(FieldDescriptor fieldDescriptor, DataOutputStream dataOutputStream,
+			GraphContext graphContext) throws IOException, SIMPLTranslationException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
@@ -504,7 +677,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 							// inside handles cyclic pointers by translating only the simpl id if already
 							// serialized.
-							collectionSubElementState.serializeToTLV(collectionElementFD, collectionBuffer, graphContext);
+							collectionSubElementState.serializeToTLV(collectionElementFD, collectionBuffer,
+									graphContext);
 
 							// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
 						}
@@ -623,7 +797,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			isRoot = true;
 
 			serializeToBuilder(classDescriptor().pseudoFieldDescriptor(), buffy, graphContext);
-			
 
 			return buffy;
 		}
@@ -729,8 +902,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 *           very unlikely.
 	 * @throws IOException
 	 */
-	private void serializeToBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy, GraphContext graphContext)
-			throws SIMPLTranslationException, IOException
+	private void serializeToBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy,
+			GraphContext graphContext) throws SIMPLTranslationException, IOException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
@@ -910,7 +1083,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 								// inside handles cyclic pointers by translating only the simpl id if already
 								// serialized.
-								serializeCompositeElements(buffy, collectionSubElementState, collectionElementFD, graphContext);
+								serializeCompositeElements(buffy, collectionSubElementState, collectionElementFD,
+										graphContext);
 								// collectionSubElementState.serializeToBuilder(collectionElementFD, buffy);
 							}
 							else
@@ -993,8 +1167,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 *           very unlikely.
 	 * @throws IOException
 	 */
-	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable, GraphContext graphContext)
-			throws SIMPLTranslationException, IOException
+	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable,
+			GraphContext graphContext) throws SIMPLTranslationException, IOException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
@@ -1235,7 +1409,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 *          TODO
 	 */
 	void translateAttributes(TranslationScope translationScope, Attributes attributes,
-			ScalarUnmarshallingContext scalarUnmarshallingContext, ElementState context, GraphContext graphContext)
+			ScalarUnmarshallingContext scalarUnmarshallingContext, ElementState context,
+			GraphContext graphContext)
 	{
 		int numAttributes = attributes.getLength();
 		for (int i = 0; i < numAttributes; i++)
@@ -1518,6 +1693,40 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public @interface xml_tag
 	{
 		String value();
+	}
+
+	/**
+	 * annotation used for serializing in bibtex format. The tag value is the name of the key in
+	 * key-value pairs of a bibtex entry
+	 * 
+	 * @author nabeel
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface bibtex_tag
+	{
+		String value();
+	}
+
+	/**
+	 * annotation to define the type of a bibtex entry.
+	 * 
+	 * @author nabeel
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface bibtex_type
+	{
+		String value();
+	}
+	
+	/**
+	 * annotation to define the type of a bibtex key.
+	 * 
+	 * @author nabeel
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface bibtex_key
+	{
+		
 	}
 
 	/**
@@ -1880,7 +2089,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 					if (alreadyVisited(compositeElement, graphContext))
 					{
-						graphContext.needsAttributeHashCode.put(System.identityHashCode(compositeElement), compositeElement);
+						graphContext.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+								compositeElement);
 					}
 					else
 					{
@@ -1905,9 +2115,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeCompositeElements(Appendable appendable, ElementState nestedES,
-			FieldDescriptor nestedF2XO, GraphContext graphContext) throws IOException, SIMPLTranslationException
+			FieldDescriptor nestedF2XO, GraphContext graphContext) throws IOException,
+			SIMPLTranslationException
 	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && alreadyMarshalled(nestedES, graphContext))
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON
+				&& alreadyMarshalled(nestedES, graphContext))
 		{
 			appendSimplRefId(appendable, nestedES, nestedF2XO);
 		}
@@ -1930,7 +2142,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private void appendSimplIdIfRequired(Appendable appendable, GraphContext graphContext) throws IOException
+	private void appendSimplIdIfRequired(Appendable appendable, GraphContext graphContext)
+			throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && needsHashCode(graphContext))
 		{
@@ -1945,7 +2158,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	private boolean alreadyMarshalled(ElementState compositeElementState, GraphContext graphContext)
 	{
-		return graphContext.marshalledObjects.containsKey(System.identityHashCode(compositeElementState));
+		return graphContext.marshalledObjects.containsKey(System
+				.identityHashCode(compositeElementState));
 	}
 
 	private void appendSimplRefId(Appendable appendable, ElementState elementState,
@@ -2002,24 +2216,24 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return unMarshalledObject;
 	}
 
-//	public static void recycleSerializationMappings()
-//	{
-//		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-//		{
-//			marshalledObjects.clear();
-//			visitedElements.clear();
-//			needsAttributeHashCode.clear();
-//		}
-//	}
-//
-//	public static void recycleDeserializationMappings()
-//	{
-//		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
-//		{
-//			marshalledObjects.clear();
-//			visitedElements.clear();
-//			needsAttributeHashCode.clear();
-//			unmarshalledObjects.clear();
-//		}
-//	}
+	// public static void recycleSerializationMappings()
+	// {
+	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+	// {
+	// marshalledObjects.clear();
+	// visitedElements.clear();
+	// needsAttributeHashCode.clear();
+	// }
+	// }
+	//
+	// public static void recycleDeserializationMappings()
+	// {
+	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
+	// {
+	// marshalledObjects.clear();
+	// visitedElements.clear();
+	// needsAttributeHashCode.clear();
+	// unmarshalledObjects.clear();
+	// }
+	// }
 }

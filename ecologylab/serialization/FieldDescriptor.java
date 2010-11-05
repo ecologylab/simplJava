@@ -151,6 +151,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@simpl_scalar
 	private Class																			elementClass;
 
+	private String																		bibtexTag									= "";
+
+	private boolean																		isBibtexKey								= false;
+
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -173,6 +177,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		this.tagName = baseClassDescriptor.getTagName();
 		this.type = PSEUDO_FIELD_DESCRIPTOR;
 		this.scalarType = null;
+		this.bibtexTag = baseClassDescriptor.getBibtexType();
 	}
 
 	public FieldDescriptor(ClassDescriptor baseClassDescriptor, FieldDescriptor wrappedFD,
@@ -204,6 +209,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		// if (!isPolymorphic())
 		this.tagName = XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
+		this.bibtexTag = XMLTools.getBibtexTagName(field);
+		this.isBibtexKey = XMLTools.getBibtexKey(field);
 
 		// TODO XmlNs
 		// if (nameSpacePrefix != null)
@@ -752,6 +759,19 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	/**
+	 * NB: For polymorphic fields, the value of this field is meaningless, except for wrapped
+	 * collections and maps.
+	 * 
+	 * @return The tag name that this field is translated to XML with.
+	 */
+	public String getBibtexTagName()
+	{
+		if (bibtexTag == null || bibtexTag.equals(""))
+			return tagName;
+		return bibtexTag;
+	}
+
+	/**
 	 * @return the scalarType of the field
 	 */
 	public ScalarType<?> getScalarType()
@@ -993,6 +1013,50 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
+	/**
+	 * Use this and the context to append an attribute / value pair to the Appendable passed in.
+	 * 
+	 * @param appendable
+	 * @param context
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
+	public void appendValueAsBibtexAttribute(Appendable appendable, Object context, boolean isFirst)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (context != null)
+		{
+			ScalarType scalarType = this.scalarType;
+			Field field = this.field;
+
+			if (!scalarType.isDefaultValue(field, context))
+			{
+				// for this field, generate tags and attach name value pair
+
+				// TODO if type.isFloatingPoint() -- deal with floatValuePrecision here!
+				// (which is an instance variable of this) !!!
+
+				if (!isFirst)
+					appendable.append(",");
+
+				if (!isBibtexKey)
+				{
+					appendable.append('\n');
+					appendable.append(' ');
+					appendable.append(getBibtexTagName());
+					appendable.append('=');
+					appendable.append('{');
+				}
+
+				scalarType.appendValue(appendable, this, context);
+
+				if (!isBibtexKey)
+					appendable.append('}');
+			}
+		}
+	}
+
 	static final String	START_CDATA	= "<![CDATA[";
 
 	static final String	END_CDATA		= "]]>";
@@ -1112,6 +1176,22 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				buffy.append(END_CDATA);
 
 			writeCloseTag(buffy);
+		}
+	}
+
+	void appendBibtexCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
+			throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (instance != null)
+		{
+			if (!isFirst)
+			{
+				appendable.append(", ");
+			}
+
+			ScalarType scalarType = this.scalarType;
+			scalarType.appendValue(instance, appendable, false);
+
 		}
 	}
 
@@ -1587,8 +1667,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	ElementState constructChildElementState(ElementState parent, String tagName, Attributes attributes, GraphContext graphContext)
-			throws SIMPLTranslationException
+	ElementState constructChildElementState(ElementState parent, String tagName,
+			Attributes attributes, GraphContext graphContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: tagClassDescriptors.get(tagName);
@@ -1603,8 +1683,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		return result;
 	}
 
-	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor, GraphContext graphContext)
-			throws SIMPLTranslationException
+	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
+			GraphContext graphContext) throws SIMPLTranslationException
 	{
 		ElementState result;
 
@@ -1682,8 +1762,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public String elementName(int tlvId)
 	{
-		return isPolymorphic() ? elementClassDescriptor(tlvId).pseudoFieldDescriptor().getTagName() : isCollection() ? collectionOrMapTagName : tagName;
+		return isPolymorphic() ? elementClassDescriptor(tlvId).pseudoFieldDescriptor().getTagName()
+				: isCollection() ? collectionOrMapTagName : tagName;
 	}
+
 	public String elementStart()
 	{
 		return isCollection() ? collectionOrMapTagName : tagName;
@@ -1822,9 +1904,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 			else
 			{
-				//Simpl composite ?
+				// Simpl composite ?
 				String name = type.getSimpleName();
-				if(name != null && !name.contains("$")) //FIXME:Dealing with inner classes is not done yet
+				if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 					result = name;
 			}
 		}
@@ -1911,6 +1993,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public ClassDescriptor elementClassDescriptor(int tlvId)
 	{
 		return (!isPolymorphic()) ? elementClassDescriptor : tlvClassDescriptors.get(tlvId);
+	}
+
+	public void writeBibtexCollectionStart(PrintStream appendable)
+	{
+		appendable.append('\n');
+		appendable.append(' ');
+		appendable.append(tagName);
+		appendable.append('=');
+
 	}
 
 }

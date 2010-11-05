@@ -37,6 +37,8 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ElementState.bibtex_key;
+import ecologylab.serialization.ElementState.bibtex_tag;
 import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
@@ -293,6 +295,30 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		if (result == null)
 		{
 			result = getXmlTagName(thatField.getName(), null);
+		}
+		return result;
+	}
+
+	public static String getBibtexTagName(Field thatField)
+	{
+		final ElementState.bibtex_tag tagAnnotation = thatField.getAnnotation(bibtex_tag.class);
+
+		String result = getBibtexTagAnnotationIfPresent(tagAnnotation);
+		if (result == null)
+		{
+			result = getXmlTagName(thatField.getName(), null);
+		}
+		return result;
+	}
+
+	public static String getBibtexTagAnnotationIfPresent(final ElementState.bibtex_tag tagAnnotation)
+	{
+		String result = null;
+		if (tagAnnotation != null)
+		{
+			String thatTag = tagAnnotation.value();
+			if ((thatTag != null) && (thatTag.length() > 0))
+				result = thatTag;
 		}
 		return result;
 	}
@@ -1626,20 +1652,20 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 		return result;
 	}
-	
+
 	public static String getCSharpGenericParametersStringRecursive(ParameterizedType pType)
 	{
 		StringBuilder result = new StringBuilder();
-		
+
 		Type[] ta = pType.getActualTypeArguments();
-		
+
 		result.append('<');
-		
+
 		for (int i = 0; i < ta.length; i++)
 		{
 			if (ta[i] instanceof Class<?>)
 			{
-				if(i == 0)
+				if (i == 0)
 					result.append(inferCSharpType((Class<?>) ta[i]));
 				else
 					result.append(", " + inferCSharpType((Class<?>) ta[i]));
@@ -1648,26 +1674,26 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 			{
 				ParameterizedType pT = (ParameterizedType) ta[i];
 				Class<?> rT = (Class<?>) pT.getRawType();
-				if(i == 0)
+				if (i == 0)
 					result.append(inferCSharpType(rT) + getCSharpGenericParametersStringRecursive(pT));
 				else
 					result.append(", " + inferCSharpType(rT) + getCSharpGenericParametersStringRecursive(pT));
-			}					
+			}
 		}
-		
+
 		result.append('>');
-		
+
 		return result.toString();
 	}
-	
+
 	public static String getCSharpGenericParametersString(Field field)
 	{
 		String result;
-		if(isGeneric(field)) 
+		if (isGeneric(field))
 		{
-			result = getCSharpGenericParametersStringRecursive((ParameterizedType) field.getGenericType());			
+			result = getCSharpGenericParametersStringRecursive((ParameterizedType) field.getGenericType());
 			return result;
-		}			
+		}
 		else
 			return "";
 	}
@@ -2000,5 +2026,15 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	public static String tlvLength(StringBuilder buffy)
 	{
 		return padLeft(Integer.toHexString(buffy.length()), 4, '0');
+	}
+
+	public static boolean getBibtexKey(Field thatField)
+	{
+		final ElementState.bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
+
+		if (keyAnnotation == null)
+			return false;
+		else
+			return true;
 	}
 }
