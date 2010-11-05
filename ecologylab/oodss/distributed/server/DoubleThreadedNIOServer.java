@@ -124,15 +124,17 @@ public class DoubleThreadedNIOServer<S extends Scope> extends AbstractNIOServer<
 	 */
 	protected void instantiateBufferPools(int maxMessageSize)
 	{
-		// make them a little bigger, in case more than one mega-huge message
-		// comes in completely unlikely, but just to be safe
-		this.charBufferPool = new CharBufferPool(4,4,maxMessageSize);
-		
-		this.byteBufferPool = new ByteBufferPool(4,4,maxMessageSize);
-		
-		this.stringBuilderPool = new StringBuilderPool(4, 4, maxMessageSize);
+		instantiateBufferPools(4, 4, maxMessageSize);
 	}
-
+	
+	protected void instantiateBufferPools(int poolSize, int minimumCapicity, int maxMessageSize)
+	{
+		this.charBufferPool 		= new CharBufferPool(poolSize, minimumCapicity, maxMessageSize);
+		
+		this.byteBufferPool 		= new ByteBufferPool(poolSize, minimumCapicity, maxMessageSize);
+		
+		this.stringBuilderPool 	= new StringBuilderPool(poolSize, minimumCapicity, maxMessageSize);
+	}
 	/**
 	 * 
 	 */
