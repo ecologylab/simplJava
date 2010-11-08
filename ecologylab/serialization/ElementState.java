@@ -135,6 +135,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			case JSON:
 				serializeToJSON(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
 						graphContext);
+				break;
 			case BIBTEX:
 				serializeToBibtex(classDescriptor().pseudoFieldDescriptor(), new PrintStream(outStream),
 						graphContext);
