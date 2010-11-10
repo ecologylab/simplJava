@@ -73,6 +73,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 
 	private ArrayList<String>				additionalImportLines;
 
+	private ArrayList<Class> 				excludeClassesFromTranslation = new ArrayList<Class>();
 /**
     * The main entry function into the class. Goes through a sequence of steps
     * to convert the Java class file into C# header file. It mainly
@@ -177,19 +178,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	public void translateToCSharp(File directoryLocation, TranslationScope tScope)
 			throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
-		// Generate header and implementation files
-		ArrayList<Class<? extends ElementState>> classes = TranslationScope.augmentTranslationScope(
-				tScope).getAllClasses();
-		int length = classes.size();
-		for (int i = 0; i < length; i++)
-		{
-			translateToCSharp(classes.get(i), directoryLocation);
-		}
-		
-		// create a folder to put the translation scope getter class
-		File tScopeDirectory = createGetTranslationScopeFolder(directoryLocation);
-		// generate translation scope getter class
-		generateTranslationScopeGetterClass(tScopeDirectory, tScope);
+		translateToCSharp(directoryLocation, tScope, null);
 	}
 
 	/**
@@ -202,15 +191,15 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	 * @throws ParseException
 	 * @throws DotNetTranslationException
 	 */
-	public void translateToCSharp(File directoryLocation, TranslationScope tScope,
-			File workSpaceLocation) throws IOException, SIMPLTranslationException,
-			DotNetTranslationException
+	public void translateToCSharp(File directoryLocation, TranslationScope tScope, File workSpaceLocation)
+		throws IOException, SIMPLTranslationException, DotNetTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
 
 		TranslationScope anotherScope = TranslationScope.augmentTranslationScope(tScope);
 		// Parse source files for javadocs
-		JavaDocParser.parseSourceFileIfExists(anotherScope, workSpaceLocation);
+		if(workSpaceLocation != null)
+			JavaDocParser.parseSourceFileIfExists(anotherScope, workSpaceLocation);
 
 		System.out.println("generating classes...");
 
@@ -219,7 +208,13 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		int length = classes.size();
 		for (int i = 0; i < length; i++)
 		{
-			translateToCSharp(classes.get(i), directoryLocation);
+			Class<? extends ElementState> inputClass = classes.get(i);
+			if(excludeClassesFromTranslation.contains(inputClass))
+			{
+				System.out.println("Excluding " + inputClass + " from translation as requested");
+				continue;
+			}
+			translateToCSharp(inputClass, directoryLocation);
 		}
 
 		// create a folder to put the translation scope getter class
@@ -233,8 +228,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private void generateTranslationScopeGetterClass(File directoryLocation, TranslationScope tScope)
 			throws IOException
 	{
-		File sourceFile = new File(directoryLocation + FILE_PATH_SEPARATOR + tScope.getName()
-				+ FILE_EXTENSION);
+		
+		String tScopeCamelCasedName = XMLTools.javaNameFromElementName(tScope.getName(), true);
+		File sourceFile = new File(directoryLocation + FILE_PATH_SEPARATOR + tScopeCamelCasedName + FILE_EXTENSION);
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(sourceFile));
 
 		importDefaultNamespaces(bufferedWriter);
@@ -247,9 +243,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		
 		openNameSpace(tScope.getPackageName(), bufferedWriter);
 
-		openTranslationScopeClassFile(tScope.getName(), bufferedWriter);
+		openTranslationScopeClassFile(tScopeCamelCasedName, bufferedWriter);
 
-		appendDefaultConstructor(tScope.getName(), bufferedWriter);
+		appendDefaultConstructor(tScopeCamelCasedName, bufferedWriter);
 		appendTranslationScopeGetterFunction(FGET, bufferedWriter, tScope);
 		
 		closeClassFile(bufferedWriter);
@@ -750,42 +746,23 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(DOUBLE_TAB);
 		appendable.append(TAB);
 		appendable.append(GET);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(DOUBLE_TAB);
 		appendable.append(RETURN);
 		appendable.append(SPACE);
 		appendable.append(fieldDescriptor.getFieldName());
 		appendable.append(END_LINE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
-
 		appendable.append(DOUBLE_TAB);
 		appendable.append(TAB);
 		appendable.append(SET);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
 		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(DOUBLE_TAB);
 		appendable.append(fieldDescriptor.getFieldName());
 		appendable.append(SPACE);
 		appendable.append(ASSIGN);
 		appendable.append(SPACE);
 		appendable.append(VALUE);
 		appendable.append(END_LINE);
-		appendable.append(SINGLE_LINE_BREAK);
-		appendable.append(DOUBLE_TAB);
-		appendable.append(TAB);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 
@@ -957,6 +934,11 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SINGLE_LINE_BREAK);
 	}
 
+	public void excludeClassFromTranslation(Class someClass)
+	{
+		excludeClassesFromTranslation.add(someClass);
+	}
+	
 	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
 	{
 		if (additionalImportLines == null)
