@@ -8,7 +8,7 @@ import java.io.IOException;
 import ecologylab.serialization.XMLTools;
 
 /**
- *
+ * 
  * @author andruid
  */
 abstract public class ReferenceType<T> extends ScalarType<T>
@@ -29,23 +29,23 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	 * @param buffy
 	 * @param needsEscaping
 	 */
-	@Override 
+	@Override
 	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
-    {
-		String instanceString	= marshall(instance);//instance.toString();
+	{
+		String instanceString = marshall(instance);// instance.toString();
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instanceString);
 		else
 			buffy.append(instanceString);
-    }
-    public void appendValue(T instance, Appendable buffy, boolean needsEscaping)
-    throws IOException
-    {
-		String instanceString	= marshall(instance); // andruid 1/4/10 instance.toString();
+	}
+
+	public void appendValue(T instance, Appendable buffy, boolean needsEscaping) throws IOException
+	{
+		String instanceString = marshall(instance); // andruid 1/4/10 instance.toString();
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instanceString);
 		else
 			buffy.append(instanceString);
-    }
-	
+	}
+
 }
