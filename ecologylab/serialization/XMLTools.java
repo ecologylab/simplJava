@@ -112,7 +112,10 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		// &#8212; is really — = &#151; -- em dash
 		putEntityInTable("#8212", '—');
 		putEntityInTable("#151", '—');
-
+		putEntityInTable("#xa0", ' ');
+		putEntityInTable("#x2019", '\'');
+		putEntityInTable("#x2013", '-');
+		putEntityInTable("#x2014", '?');
 		// defined in the XML 1.0 spec: "predefined entities"
 		putEntityInTable("amp", '&');
 		putEntityInTable("AMP", '&');
