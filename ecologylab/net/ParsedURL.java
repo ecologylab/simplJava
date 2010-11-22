@@ -254,6 +254,19 @@ public class ParsedURL extends Debug implements MimeType
 		if (isFile())
 		{
 			File newFile = Files.newFile(file, relativeURLPath);
+			// remove ..'s from path
+			if (newFile.getAbsolutePath().contains(".."))
+			{
+				try
+				{
+					File canonicalFile = newFile.getCanonicalFile();
+					return new ParsedURL(canonicalFile);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
 			return new ParsedURL(newFile);
 		}
 		else
