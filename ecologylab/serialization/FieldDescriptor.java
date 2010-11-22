@@ -906,7 +906,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				appendable.append(':');
 				appendable.append('"');
 
-				scalarType.appendValue(appendable, this, context);
+				scalarType.appendValue(appendable, this, context, null);
 				appendable.append('"');
 
 			}
@@ -966,7 +966,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			dataOutputStream.writeInt(getTLVId());
 
 			StringBuilder buffy = new StringBuilder();
-			scalarType.appendValue(instance, buffy, true);
+			scalarType.appendValue(instance, buffy, true, null);
 
 			ByteArrayOutputStream temp = new ByteArrayOutputStream();
 			DataOutputStream tempStream = new DataOutputStream(temp);
@@ -983,11 +983,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * 
 	 * @param appendable
 	 * @param context
+	 * @param serializationContext TODO
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public void appendValueAsAttribute(Appendable appendable, Object context)
+	public void appendValueAsAttribute(Appendable appendable, Object context, SerializationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (context != null)
@@ -1007,7 +1008,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				appendable.append('=');
 				appendable.append('"');
 
-				scalarType.appendValue(appendable, this, context);
+				scalarType.appendValue(appendable, this, context, serializationContext);
 				appendable.append('"');
 			}
 		}
@@ -1049,7 +1050,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					appendable.append('{');
 				}
 
-				scalarType.appendValue(appendable, this, context);
+				scalarType.appendValue(appendable, this, context, null);
 
 				if (!isBibtexKey)
 					appendable.append('}');
@@ -1171,7 +1172,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 			if (isCDATA)
 				buffy.append(START_CDATA);
-			scalarType.appendValue(instance, buffy, !isCDATA); // escape if not CDATA! :-)
+			scalarType.appendValue(instance, buffy, !isCDATA, null); // escape if not CDATA! :-)
 			if (isCDATA)
 				buffy.append(END_CDATA);
 
@@ -1190,7 +1191,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 
 			ScalarType scalarType = this.scalarType;
-			scalarType.appendValue(instance, appendable, false);
+			scalarType.appendValue(instance, appendable, false, null);
 
 		}
 	}
@@ -1207,7 +1208,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 			ScalarType scalarType = this.scalarType;
 			appendable.append('"');
-			scalarType.appendValue(instance, appendable, false);
+			scalarType.appendValue(instance, appendable, false, null);
 			appendable.append('"');
 		}
 	}
@@ -1233,7 +1234,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 			if (isCDATA)
 				appendable.append(START_CDATA);
-			scalarType.appendValue(instance, appendable, !isCDATA); // escape if not CDATA! :-)
+			scalarType.appendValue(instance, appendable, !isCDATA, null); // escape if not CDATA! :-)
 			if (isCDATA)
 				appendable.append(END_CDATA);
 
@@ -1256,21 +1257,22 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		if (isCDATA)
 			appendable.append(START_CDATA);
-		scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
+		scalarType.appendValue(appendable, this, context, null); // escape if not CDATA! :-)
 		if (isCDATA)
 			appendable.append(END_CDATA);
 	}
 
 	/**
 	 * Use this and the context to append a leaf node with value to the Appendable passed in.
-	 * 
-	 * @param buffy
 	 * @param context
+	 * @param serializationContext TODO
+	 * @param buffy
 	 * @param isAtXMLText
+	 * 
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void appendLeaf(Appendable appendable, Object context) throws IllegalArgumentException,
+	void appendLeaf(Appendable appendable, Object context, SerializationContext serializationContext) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		if (context != null)
@@ -1288,7 +1290,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				if (isCDATA)
 					appendable.append(START_CDATA);
-				scalarType.appendValue(appendable, this, context); // escape if not CDATA! :-)
+				scalarType.appendValue(appendable, this, context, serializationContext); // escape if not CDATA! :-)
 				if (isCDATA)
 					appendable.append(END_CDATA);
 
@@ -1668,7 +1670,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	ElementState constructChildElementState(ElementState parent, String tagName,
-			Attributes attributes, GraphContext graphContext) throws SIMPLTranslationException
+			Attributes attributes, SerializationContext graphContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: tagClassDescriptors.get(tagName);
@@ -1684,7 +1686,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
-			GraphContext graphContext) throws SIMPLTranslationException
+			SerializationContext graphContext) throws SIMPLTranslationException
 	{
 		ElementState result;
 

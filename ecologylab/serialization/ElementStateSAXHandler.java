@@ -69,7 +69,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	DeserializationHookStrategy deserializationHookStrategy;
 	
-	GraphContext 								graphContext = new GraphContext();
+	SerializationContext 								graphContext = new SerializationContext();
 
 	private boolean	skipClosingTag = false;
 	/**
@@ -230,7 +230,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		{
 			FileInputStream fileInputStream = new FileInputStream(file);
 			BufferedInputStream bufferedStream = new BufferedInputStream(fileInputStream);
-			this.fileContext = file;
+			this.fileContext = file.getParentFile();
 			ElementState elementState = parse(bufferedStream);
 			this.fileContext = null;
 			bufferedStream.close();
@@ -916,7 +916,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	public ParsedURL purlContext()
 	{
-		return purlContext;
+		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext) : null;
 	}
 
 }

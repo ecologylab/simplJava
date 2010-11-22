@@ -117,7 +117,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		if (outStream == null)
 			throw new SIMPLTranslationException("outStream is null");
 
-		GraphContext graphContext = new GraphContext();
+		SerializationContext graphContext = new SerializationContext();
 		try
 		{
 			resolveGraph(this, graphContext);
@@ -149,7 +149,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeToBibtex(FieldDescriptor fieldDescritpor, PrintStream appendable,
-			GraphContext graphContext) throws SIMPLTranslationException, IOException
+			SerializationContext graphContext) throws SIMPLTranslationException, IOException
 	{
 		appendable.append("@");
 		appendable.append(fieldDescritpor.getBibtexTagName());
@@ -311,13 +311,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeToXML(FieldDescriptor pseudoFieldDescriptor, PrintStream printStream,
-			GraphContext graphContext) throws SIMPLTranslationException, IOException
+			SerializationContext graphContext) throws SIMPLTranslationException, IOException
 	{
 		serializeToAppendable(pseudoFieldDescriptor, printStream, graphContext);
 	}
 
 	private void serializeToJSON(FieldDescriptor fieldDescriptor, PrintStream appendable,
-			GraphContext graphContext) throws IOException, SIMPLTranslationException
+			SerializationContext graphContext) throws IOException, SIMPLTranslationException
 	{
 		appendable.append('{');
 		serializeToJSONRecursive(fieldDescriptor, appendable, true, graphContext);
@@ -325,7 +325,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeToJSONRecursive(FieldDescriptor fieldDescriptor, PrintStream appendable,
-			boolean withTag, GraphContext graphContext) throws IOException, SIMPLTranslationException
+			boolean withTag, SerializationContext graphContext) throws IOException, SIMPLTranslationException
 	{
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		mapCurrentElementState(graphContext);
@@ -544,7 +544,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeToTLV(FieldDescriptor fieldDescriptor, DataOutputStream dataOutputStream,
-			GraphContext graphContext) throws IOException, SIMPLTranslationException
+			SerializationContext graphContext) throws IOException, SIMPLTranslationException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
@@ -792,7 +792,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		{
 			// first-pass of the two pass algorithm. resolves cyclic pointers by creating appropriate data
 			// structures.
-			GraphContext graphContext = new GraphContext();
+			SerializationContext graphContext = new SerializationContext();
 			resolveGraph(this, graphContext);
 
 			isRoot = true;
@@ -835,7 +835,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		XMLTools.createParentDirs(outputFile);
 
 		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile));
-		serialize(bufferedWriter);
+		serialize(bufferedWriter, outputFile.getParentFile());
 		bufferedWriter.close();
 	}
 
@@ -862,6 +862,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public void serialize(Appendable appendable) throws SIMPLTranslationException
 	{
+		serialize(appendable, null);
+	}
+		
+	public void serialize(Appendable appendable, File fileContext) throws SIMPLTranslationException
+	{
 		if (appendable == null)
 			throw new SIMPLTranslationException("Appendable is null");
 
@@ -869,7 +874,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		{
 			// first-pass of the two pass algorithm. resolves cyclic pointers by creating appropriate data
 			// structures.
-			GraphContext graphContext = new GraphContext();
+			SerializationContext graphContext = (fileContext == null) ? new SerializationContext() : new SerializationContext(fileContext);
 			resolveGraph(this, graphContext);
 			isRoot = true;
 			serializeToAppendable(classDescriptor().pseudoFieldDescriptor(), appendable, graphContext);
@@ -904,7 +909,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @throws IOException
 	 */
 	private void serializeToBuilder(FieldDescriptor fieldDescriptor, StringBuilder buffy,
-			GraphContext graphContext) throws SIMPLTranslationException, IOException
+			SerializationContext graphContext) throws SIMPLTranslationException, IOException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
@@ -1169,11 +1174,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 * @throws IOException
 	 */
 	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable,
-			GraphContext graphContext) throws SIMPLTranslationException, IOException
+			SerializationContext serializationContext) throws SIMPLTranslationException, IOException
 	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
-		mapCurrentElementState(graphContext);
+		mapCurrentElementState(serializationContext);
 
 		this.serializationPreHook();
 
@@ -1204,7 +1209,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				{
 					// iterate through fields
 					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
-					childFD.appendValueAsAttribute(appendable, this);
+					childFD.appendValueAsAttribute(appendable, this, serializationContext);
 				}
 			}
 			catch (Exception e)
@@ -1214,13 +1219,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 		}
 
-		if (isGraph(graphContext) && isRoot)
+		if (isGraph(serializationContext) && isRoot)
 		{
 			appendSimplNameSpace(appendable);
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
-		appendSimplIdIfRequired(appendable, graphContext);
+		appendSimplIdIfRequired(appendable, serializationContext);
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
@@ -1259,7 +1264,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				{
 					try
 					{
-						childFD.appendLeaf(appendable, this);
+						childFD.appendLeaf(appendable, this, serializationContext);
 					}
 					catch (Exception e)
 					{
@@ -1347,7 +1352,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								// inside handles cyclic pointers by translating only the simpl id if already
 								// serialized.
 								serializeCompositeElements(appendable, collectionSubElementState,
-										collectionElementFD, graphContext);
+										collectionElementFD, serializationContext);
 
 								// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
 							}
@@ -1370,7 +1375,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 						// inside handles cyclic pointers by translating only the simpl id if already
 						// serialized.
-						serializeCompositeElements(appendable, nestedES, nestedFD, graphContext);
+						serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
 					}
 				}
 			} // end of for each element child
@@ -1411,7 +1416,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	void translateAttributes(TranslationScope translationScope, Attributes attributes,
 			ScalarUnmarshallingContext scalarUnmarshallingContext, ElementState context,
-			GraphContext graphContext)
+			SerializationContext graphContext)
 	{
 		int numAttributes = attributes.getLength();
 		for (int i = 0; i < numAttributes; i++)
@@ -1452,7 +1457,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private boolean handleSimplIds(final String tag, final String value, GraphContext graphContext)
+	private boolean handleSimplIds(final String tag, final String value, SerializationContext graphContext)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -2009,7 +2014,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/*
 	 * Cyclic graph related functions
 	 */
-	private void resolveGraph(ElementState elementState, GraphContext graphContext)
+	private void resolveGraph(ElementState elementState, SerializationContext graphContext)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -2102,12 +2107,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private boolean alreadyVisited(ElementState elementState, GraphContext graphContext)
+	private boolean alreadyVisited(ElementState elementState, SerializationContext graphContext)
 	{
 		return graphContext.visitedElements.containsKey(System.identityHashCode(elementState));
 	}
 
-	private void mapCurrentElementState(GraphContext graphContext)
+	private void mapCurrentElementState(SerializationContext graphContext)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -2116,7 +2121,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeCompositeElements(Appendable appendable, ElementState nestedES,
-			FieldDescriptor nestedF2XO, GraphContext graphContext) throws IOException,
+			FieldDescriptor nestedF2XO, SerializationContext graphContext) throws IOException,
 			SIMPLTranslationException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON
@@ -2143,7 +2148,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	private void appendSimplIdIfRequired(Appendable appendable, GraphContext graphContext)
+	private void appendSimplIdIfRequired(Appendable appendable, SerializationContext graphContext)
 			throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && needsHashCode(graphContext))
@@ -2157,7 +2162,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		appendable.append(SIMPL_NAMESPACE);
 	}
 
-	private boolean alreadyMarshalled(ElementState compositeElementState, GraphContext graphContext)
+	private boolean alreadyMarshalled(ElementState compositeElementState, SerializationContext graphContext)
 	{
 		return graphContext.marshalledObjects.containsKey(System
 				.identityHashCode(compositeElementState));
@@ -2188,17 +2193,17 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		appendSimplIdAttributeWithTagName(appendable, SIMPL_ID, elementState);
 	}
 
-	private boolean needsHashCode(GraphContext graphContext)
+	private boolean needsHashCode(SerializationContext graphContext)
 	{
 		return graphContext.needsAttributeHashCode.containsKey(System.identityHashCode(this));
 	}
 
-	private boolean isGraph(GraphContext graphContext)
+	private boolean isGraph(SerializationContext graphContext)
 	{
 		return graphContext.needsAttributeHashCode.size() > 0;
 	}
 
-	public static ElementState getFromMap(Attributes attributes, GraphContext graphContext)
+	public static ElementState getFromMap(Attributes attributes, SerializationContext graphContext)
 	{
 		ElementState unMarshalledObject = null;
 
