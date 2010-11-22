@@ -636,5 +636,60 @@ extends Debug
 			
 			return result;
     }
+
+  private static final StringBuilderPool RELATIVE_PATH_STRINGS = new StringBuilderPool(25);
+    
+  public static String getPathRelativeTo(String absoluteFile, String relativeToFile, char separatorChar)
+  {
+  	if (separatorChar == '\\')
+  	{
+  		absoluteFile 		= absoluteFile.replace('\\', '/');
+  		relativeToFile 	= relativeToFile.replace('\\', '/');
+  		separatorChar 	= '/';
+  	}
+  	
+  	String result 		= null; 
+  	String separator = Character.toString(separatorChar);
+
+  	String[] relativeTo 		= relativeToFile.split(separator);
+  	String[] absolutePath 	= absoluteFile.split(separator);
+
+  	int length = absolutePath.length < relativeTo.length ? absolutePath.length : relativeTo.length;
+
+  	int lastCommonRoot = -1;
+  	int index = 0;
+
+  	for (index = 0; index < length; index++)
+  	{
+  		if (absolutePath[index].equals(relativeTo[index]))
+  			lastCommonRoot = index;
+  		else
+  			break;
+  	}
+
+  	if (lastCommonRoot != -1)
+  	{
+  		StringBuilder relativePath = RELATIVE_PATH_STRINGS.acquire();
+
+  		for (index = lastCommonRoot + 1; index < relativeTo.length; index++)
+  		{
+  			if (absolutePath[index].length() > 0)
+  				relativePath.append(".." + separator);
+  		}
+
+  		for (index = lastCommonRoot + 1; index < absolutePath.length - 1; index++)
+  		{
+  			relativePath.append(absolutePath[index] + separator);
+  		}
+
+  		relativePath.append(absolutePath[absolutePath.length - 1]);
+
+  		result = relativePath.toString();
+
+  		RELATIVE_PATH_STRINGS.release(relativePath);
+  	}
+
+  	return result;
+  }
 }
 
