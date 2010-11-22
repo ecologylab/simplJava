@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * For marshalling the name of a field, for transmission to other platforms.
@@ -48,7 +49,7 @@ public class FieldType extends ReferenceType<Field>
 	 * The string representation for a Field of the type Field, used for marshalling.
 	 */
 		@Override
-		public String marshall(Field instance)
+		public String marshall(Field instance, SerializationContext serializationContext)
 		{
 			return instance.getName();
 		}

@@ -5,12 +5,16 @@ package ecologylab.serialization.types.scalar;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
 
 import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -74,8 +78,15 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 //		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
 //		   file					= (fileContext == null) ? new File(value) : new File(fileContext, value);
 
-	   	ParsedURL purlContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.purlContext();
-	   	return (purlContext != null) ? purlContext.getRelative(value) : ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
+	  	 // if no colon in first seven characters, must be relative path
+	  	 if (value.lastIndexOf(':', 7) == -1 && scalarUnmarshallingContext != null)
+	  	 {
+	  		 // TODO Auto-generated catch block
+		  	 ParsedURL purlContext = scalarUnmarshallingContext.purlContext();
+		  	 if (purlContext != null)
+		  		 return purlContext.getRelative(value);
+	  	 }
+	  	 return ParsedURL.getAbsolute(value, "ParsedURLType.getInstance()");
 	   }
 	}
 	
@@ -172,4 +183,22 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		return MappingConstants.OBJC_PARSED_URL;
 	}
 
+	
+	@Override
+	public String marshall(ParsedURL instance, SerializationContext serializationContext)
+	{
+		ParsedURL contextualizedInstance = instance;
+		if (serializationContext != null)
+		{
+			ParsedURL purlContext = serializationContext.purlContext();
+			if (purlContext != null)
+			{
+				String pathRelativeTo = StringTools.getPathRelativeTo(instance.toString(), purlContext.toString(), '/');
+				if (pathRelativeTo != null)
+					return pathRelativeTo;
+			}
+		}
+		
+		return super.marshall(contextualizedInstance, serializationContext);
+	}
 }

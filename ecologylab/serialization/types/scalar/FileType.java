@@ -4,8 +4,12 @@
 package ecologylab.serialization.types.scalar;
 
 import java.io.File;
+import java.io.IOException;
 
+import ecologylab.generic.StringTools;
+import ecologylab.io.Files;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -22,8 +26,17 @@ public class FileType extends ScalarType<File>
 
     @Override public File getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
     {
-		   File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
-		   return (fileContext == null) ? new File(value) : new File(fileContext, value);
+    	File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
+    	File file 				= (fileContext == null) ? new File(value) : new File(fileContext, value);
+    	try
+    	{
+    		return file.getCanonicalFile();
+    	}
+    	catch (IOException e)
+    	{
+    		e.printStackTrace();
+    		return file;
+    	}
     }
 
 		@Override
@@ -43,5 +56,23 @@ public class FileType extends ScalarType<File>
 		public String getObjectiveCType()
 		{
 			return MappingConstants.OBJC_FILE;
+		}
+		
+		@Override
+		public String marshall(File instance, SerializationContext serializationContext)
+		{
+			File contextualizedInstance = instance;
+			if (serializationContext != null)
+			{
+				File fileContext = serializationContext.fileContext();
+				if (fileContext != null)
+				{
+					String pathRelativeTo = StringTools.getPathRelativeTo(instance.getAbsolutePath(), fileContext.getAbsolutePath(), Files.sep);
+					if (pathRelativeTo != null)
+						return pathRelativeTo;
+				}
+			}
+			
+			return super.marshall(contextualizedInstance, serializationContext);
 		}
 }

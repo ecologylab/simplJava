@@ -11,6 +11,7 @@ import java.util.HashMap;
 import ecologylab.generic.text.EfficientDecimalFormat;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Type system entry for double, a built-in primitive.
@@ -157,13 +158,13 @@ public class DoubleType extends ScalarType<Double>
 	 * Get the value from the Field, in the context. Append its value to the buffy.
 	 * 
 	 * @param buffy
-	 * @param field
 	 * @param context
+	 * @param field
 	 * @throws IllegalAccessException 
 	 * @throws IllegalArgumentException 
 	 * @throws IOException 
 	 */
-	@Override public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context)
+	@Override public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

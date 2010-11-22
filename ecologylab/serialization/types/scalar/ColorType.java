@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -57,7 +58,7 @@ public class ColorType extends ScalarType<Color>
 	 * @return
 	 */
 	@Override
-	public String marshall(Color color)
+	public String marshall(Color color, SerializationContext serializationContext)
 	{
 		String result;
 		int argb		= color.getRGB();

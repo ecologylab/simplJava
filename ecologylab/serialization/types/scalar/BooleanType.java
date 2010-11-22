@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Type system entry for boolean, a built-in primitive.
@@ -122,13 +123,13 @@ public class BooleanType extends ScalarType<Boolean>
      * Append its value to the buffy.
      * 
      * @param buffy
-     * @param field
      * @param context
+     * @param field
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
         buffy.append(getValueToAppend(fieldDescriptor, context));

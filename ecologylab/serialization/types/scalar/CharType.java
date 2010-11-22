@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Type system entry for char, a built-in primitive.
@@ -133,13 +134,13 @@ public class CharType extends ScalarType<Character>
      * Append its value to the buffy.
      * 
      * @param buffy
-     * @param field
      * @param context
+     * @param field
      * @throws IllegalAccessException 
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
         char value = fieldDescriptor.getField().getChar(context);

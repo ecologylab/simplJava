@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.SerializationContext;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a
@@ -234,7 +235,7 @@ public abstract class ScalarType<T> extends Debug
 			if (instance == null)
 				result = DEFAULT_VALUE_STRING;
 			else
-				result = marshall(instance);
+				result = marshall(instance, null);
 		}
 		catch (Exception e)
 		{
@@ -249,19 +250,20 @@ public abstract class ScalarType<T> extends Debug
 	 * Should only be called *after* checking !isDefault() yourself.
 	 * 
 	 * @param buffy
-	 * @param field
 	 * @param context
+	 * @param serializationContext TODO
+	 * @param field
 	 * @param needsEscaping
 	 *          TODO
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context)
+	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		Object instance = fieldDescriptor.getField().get(context);
 
-		appendValue((T) instance, buffy, !fieldDescriptor.isCDATA());
+		appendValue((T) instance, buffy, !fieldDescriptor.isCDATA(), serializationContext);
 	}
 
 	/**
@@ -269,9 +271,10 @@ public abstract class ScalarType<T> extends Debug
 	 * method on the instance.
 	 * 
 	 * @param instance
+	 * @param serializationContext TODO
 	 * @return
 	 */
-	public String marshall(T instance)
+	public String marshall(T instance, SerializationContext serializationContext)
 	{
 		return instance.toString();
 	}
@@ -296,7 +299,7 @@ public abstract class ScalarType<T> extends Debug
 		{
 			Object instance = fieldDescriptor.getField().get(context);
 
-			appendValue((T) instance, buffy, !fieldDescriptor.isCDATA());
+			appendValue((T) instance, buffy, !fieldDescriptor.isCDATA(), null);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -304,15 +307,15 @@ public abstract class ScalarType<T> extends Debug
 		}
 	}
 
-	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping)
+	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping, SerializationContext serializationContext)
 	{
-		buffy.append(marshall(instance));
+		buffy.append(marshall(instance, serializationContext));
 	}
 
-	public void appendValue(T instance, Appendable appendable, boolean needsEscaping)
+	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, SerializationContext serializationContext)
 			throws IOException
 	{
-		appendable.append(marshall(instance));
+		appendable.append(marshall(instance, serializationContext));
 	}
 
 	/**
