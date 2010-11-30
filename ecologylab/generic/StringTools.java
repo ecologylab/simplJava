@@ -641,15 +641,16 @@ extends Debug
     
   public static String getPathRelativeTo(String absoluteFile, String relativeToFile, char separatorChar)
   {
-  	if (separatorChar == '\\')
+  	/*if (separatorChar == '\\')
   	{
   		absoluteFile 		= absoluteFile.replace('\\', '/');
   		relativeToFile 	= relativeToFile.replace('\\', '/');
   		separatorChar 	= '/';
-  	}
+  	}*/
   	
-  	String result 		= null; 
-  	String separator = Character.toString(separatorChar);
+  	String result 			= null; 
+  	boolean windowsFile = separatorChar == '\\';
+		String separator 		= !windowsFile ? Character.toString(separatorChar) : "\\\\";
 
   	String[] relativeTo 		= relativeToFile.split(separator);
   	String[] absolutePath 	= absoluteFile.split(separator);
@@ -685,6 +686,8 @@ extends Debug
   		relativePath.append(absolutePath[absolutePath.length - 1]);
 
   		result = relativePath.toString();
+  		if (windowsFile)
+  			result = result.replace("\\\\", "/");
 
   		RELATIVE_PATH_STRINGS.release(relativePath);
   	}
