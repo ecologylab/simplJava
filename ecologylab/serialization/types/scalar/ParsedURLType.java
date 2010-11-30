@@ -191,11 +191,22 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		if (serializationContext != null)
 		{
 			ParsedURL purlContext = serializationContext.purlContext();
+			
 			if (purlContext != null)
 			{
-				String pathRelativeTo = StringTools.getPathRelativeTo(instance.toString(), purlContext.toString(), '/');
-				if (pathRelativeTo != null)
-					return pathRelativeTo;
+				String instanceProtocol = instance.url().getProtocol();
+				String contextProtocol 	= purlContext.url().getProtocol();
+				
+				if (instanceProtocol.equals(contextProtocol))
+				{
+					int afterProtocolIndex 		= instanceProtocol.length()+3;
+					String instanceString 		= instance.toString().substring(afterProtocolIndex);
+					String purlContextString 	= purlContext.toString().substring(afterProtocolIndex);
+				
+					String pathRelativeTo 		= StringTools.getPathRelativeTo(instanceString, purlContextString, '/');
+					if (pathRelativeTo != null)
+						return pathRelativeTo;
+				}
 			}
 		}
 		
