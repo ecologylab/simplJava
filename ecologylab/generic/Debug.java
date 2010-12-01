@@ -183,6 +183,10 @@ public class Debug
    }
    public static void print(char c) 
    {
+  	 print(c, System.out);
+   }
+  public static void print(char c, PrintStream pStream) 
+   {
 	   if (logToFile)
 	   {
 		   try
@@ -194,10 +198,14 @@ public class Debug
 		   }  
 	   }  
 	   else
-		   System.err.print(c);
+	  	 pStream.print(c);
 	   
    }
-   public static void print(CharSequence message) 
+  public static void print(CharSequence message) 
+  {
+  	print(message, System.out);
+  }
+   public static void print(CharSequence message, PrintStream pStream) 
    {
    	  if (logToFile)
    	  {
@@ -210,7 +218,7 @@ public class Debug
    		  }  
    	  }  
    	  else
-		 System.err.print(message);
+   	  	pStream.print(message);
    }
 /**
  * Print a debug message, starting with the abbreviated class name of
@@ -364,14 +372,14 @@ public class Debug
     */
    static void emphasized(Object that, String header, CharSequence message)
    {
-	   print('\n');
-	   print(header);
-	   print(that.toString());
-	   print(SEPARATOR);
-	   print(' ');
-	   print(message);
-	   print('\n');
-	   print('\n');	   
+	   print('\n', System.err);
+	   print(header, System.err);
+	   print(that.toString(), System.err);
+	   print(SEPARATOR, System.err);
+	   print(' ', System.err);
+	   print(message, System.err);
+	   print('\n', System.err);
+	   print('\n', System.err);	   
    }
    /**
     * Print a message about a warning, starting with that.toString().
