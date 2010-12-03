@@ -79,6 +79,8 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 
 
 	private final Object					TOO_MANY_PENDING_LOCK	= new Object();
+	
+	private boolean stopRequested = false;
 
 	public DownloadMonitor(String name, int numDownloadThreads)
 	{
@@ -456,13 +458,16 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					}
 				}
 			}
-
+			
 			int sleepTime = dontWait || isLocalFile ? NO_SLEEP
 											: (lowMemory ? LOW_MEMORY_SLEEP 
 											: (hurry ? SHORT_SLEEP
 											: (REGULAR_SLEEP + MathTools.random(100))));
 //			debug("\t\t-------\tSleeping for: " + sleepTime);
 			Generic.sleep(sleepTime);
+			
+			if (stopRequested && isIdle())
+				break;
 		} // while (!finished)
 		debug("exiting -- " + Thread.currentThread());
 	}
@@ -691,6 +696,15 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	public boolean isIdle()
 	{
 		return pending() == 0 && toDownloadSize() == 0;
+	}
+	
+	/**
+	 * this will cause the main loop (performDownloads()) stops after isIdle() == true. (after sleeping for some time)
+	 * 
+	 */
+	public void requestStop()
+	{
+		stopRequested = true;
 	}
 	
 }
