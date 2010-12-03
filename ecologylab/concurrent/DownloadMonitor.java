@@ -682,4 +682,15 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		return toDownloadSize();
 	}
+	
+	/**
+	 * check if the monitor is in idle state -- no downloads in the queue nor pending for dispatching.
+	 * 
+	 * @return
+	 */
+	public boolean isIdle()
+	{
+		return pending() == 0 && toDownloadSize() == 0;
+	}
+	
 }
