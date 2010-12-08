@@ -1,10 +1,7 @@
 package ecologylab.textformat;
 
-import java.awt.Color;
-
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
