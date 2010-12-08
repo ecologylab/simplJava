@@ -117,6 +117,11 @@ public class ImageTools extends Debug
 			{
 				writer = (ImageWriter) iter.next();
 			}
+			else
+			{
+				Debug.error(rendImage, "no image writer for " + outfile.getName());
+				return;
+			}
 
 			// Prepare output file
 			ImageOutputStream ios = ImageIO.createImageOutputStream(outfile);

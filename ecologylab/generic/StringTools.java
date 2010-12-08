@@ -674,7 +674,7 @@ extends Debug
 
   		for (index = lastCommonRoot + 1; index < relativeTo.length; index++)
   		{
-  			if (absolutePath[index].length() > 0)
+  			if (relativeTo[index].length() > 0)
   				relativePath.append(".." + separator);
   		}
 
