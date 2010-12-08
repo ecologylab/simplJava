@@ -78,7 +78,7 @@ public class MappingConstants
 
 	public static final String	DOTNET_URL							= "Uri";
 
-	public static final String	DOTNET_PARSED_URL				= DOTNET_URL; //We don't yet have a parsedURL type in CSharp
+	public static final String	DOTNET_PARSED_URL				= "ParsedUri";
 
 	public static final String	DOTNET_SCALAR_TYPE			= "ScalarType";
 
