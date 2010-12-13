@@ -451,16 +451,6 @@ public abstract class ScalarType<T> extends Debug
 		return true;
 	}
 
-	/**
-	 * True if the user should be able to express interest in fields of this type.
-	 * 
-	 * @return true for Strings
-	 */
-	public boolean affordsInterestExpression()
-	{
-		return true;
-	}
-
 	String	fieldTypeName;
 
 	public String fieldTypeName()

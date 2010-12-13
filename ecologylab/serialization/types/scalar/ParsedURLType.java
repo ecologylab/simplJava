@@ -144,15 +144,6 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	{
 		return false;
 	}
-	/**
-	 * True if the user should be able to express interest in fields of this type.
-	 * 
-	 * @return	false for URLs
-	 */
-	public boolean affordsInterestExpression()
-	{
-		return false;
-	}
 
 	/**
 	 * The most basic and fundamental delimiter to use between characters.
