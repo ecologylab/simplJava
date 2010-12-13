@@ -26,6 +26,8 @@ class BasicSite extends ElementState implements Mappable<String>
 
   int															numTimeouts;
 
+  boolean													ignore;
+  
   static final int							MAX_TIMEOUTS	= 3;
 
   /**
@@ -43,13 +45,6 @@ class BasicSite extends ElementState implements Mappable<String>
   
   boolean													isDownloading;
   
-  /**
-   * Maintaining site level state on whether this page has been reloaded
-   * FIXME: Must go away when we have persistent cookie storage
-   */
-  private boolean hasBeenReloaded = false;
-  
-
 	/**
 	 * Use for XML Translation
 	 */
@@ -162,13 +157,17 @@ class BasicSite extends ElementState implements Mappable<String>
 		return ignoreSemanticBoost;
 	}
 
-	public boolean hasBeenReloaded()
+	public boolean shouldIgnore()
 	{
-		return hasBeenReloaded;
+		return ignore;
 	}
-	
-	public void setHasBeenReloaded(boolean hasBeenReloaded)
+
+	/**
+	 * Recycle and Mark this site as recycled.
+	 * 
+	 */
+	public void setIgnored(boolean ignore)
 	{
-		this.hasBeenReloaded = hasBeenReloaded;
+		this.ignore = ignore;
 	}
 }

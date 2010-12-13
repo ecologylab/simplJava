@@ -35,9 +35,9 @@ extends Debug
 		dispatch();
 	}
 
-	boolean cancel()
+	boolean shouldCancel()
 	{
-		return downloadable.cancel() || downloadable.isRecycled();
+		return downloadable.shouldCancel() || downloadable.isRecycled();
 	}
 
 	/**

@@ -162,7 +162,7 @@ public class DownloadableHtmlPage implements Downloadable
 		return false;
 	}
 
-	public boolean cancel()
+	public boolean shouldCancel()
 	{
 		// TODO Auto-generated method stub
 		return false;
@@ -185,5 +185,10 @@ public class DownloadableHtmlPage implements Downloadable
   public ParsedURL purl()
   {
 	  return purl;
+  }
+  
+  public void recycleUnconditionally()
+  {
+  	
   }
 }

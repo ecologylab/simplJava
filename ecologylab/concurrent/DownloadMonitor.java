@@ -317,6 +317,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			boolean isLocalFile						= false;
 			
 			DownloadClosure thatClosure = null;	// define out here to use outside of synchronized
+			Downloadable downloadable = null;
 			synchronized (toDownload)
 			{
 				// debug("-- got lock");
@@ -334,10 +335,19 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 				final int toDownloadSize 			= toDownloadSize();
 				if (toDownloadSize > 0)
 				{
+					boolean recycleClosure = false;
 					while (closureNum < toDownloadSize)
 					{
+						recycleClosure = false;
 						thatClosure 		= toDownload.get(closureNum);
-						BasicSite site 	= thatClosure.downloadable.getSite();
+						downloadable = thatClosure.downloadable;
+						BasicSite site 	= downloadable.getSite();
+						
+						if(site.shouldIgnore())
+						{
+							recycleClosure = true;
+							break;
+						}
 						
 						if (site != null && site.constrainDownloadInterval())
 						{
@@ -345,9 +355,14 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							if(nextDownloadableAt != null)
 							{
 								long timeRemaining 			= nextDownloadableAt - currentTimeMillis;
-								if (timeRemaining < 0 && !thatClosure.cancel())
+								if (timeRemaining < 0 )
 								{
-									debug("\t\t-- Downloading: " + thatClosure.downloadable + " at\t" + new Date(currentTimeMillis) + " --");
+									if(thatClosure.shouldCancel() && !downloadable.isRecycled())
+									{
+										recycleClosure = true;
+										break;
+									}
+									debug("\t\t-- Downloading: " + downloadable + " at\t" + new Date(currentTimeMillis) + " --");
 									setNextAvailableTimeForSite(site);
 									break;
 								}
@@ -359,7 +374,9 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 								}
 							}
 							else
-							{ // No nextDownloadableAt time found for this site, put in a new value, and accept this downloadClosure
+							{ 
+								// No nextDownloadableAt time found for this site, 
+								//put in a new value, and accept this downloadClosure
 								setNextAvailableTimeForSite(site);
 								break;
 							}
@@ -368,23 +385,29 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						{	// Another one from this site is already downloading, so skip this downloadable.
 							thatClosure = null;
 						}
-						else if (!thatClosure.cancel())
+						else if (!thatClosure.shouldCancel())
 						{
 							// Site-less downloadables	
-							isLocalFile = thatClosure.downloadable.purl().isFile();
+							isLocalFile = downloadable.purl().isFile();
 							break;
 						}
 						closureNum++;
 						thatClosure = null;
 					}	// end while
+					
 					if (thatClosure != null)
-					{	// We have a satisfactory downloadClosure, ready to be downloaded. Remove from toDownload Vector
-//						toDownload.remove(thatClosure);
+					{	
+						// We have a satisfactory downloadClosure, ready to be downloaded. 
+					
 						toDownload.remove(closureNum);
-//						System.out.println("Download Queue after this download:");
-//						int tempClosureNum = 0;
-//						for(DownloadClosure closure : toDownload)
-//							System.out.println("\t\t"+ tempClosureNum+ ": " + closure);
+						if(recycleClosure)
+						{
+							//Set Site recycled flag to true, 
+							// ignore containers that might be already queued in the DownloadMonitor.
+							debug(" Recycling downloadable : " + downloadable);
+							thatClosure.downloadable.recycleUnconditionally();
+						}
+						//System.out.println("Download Queue after this download:");
 					}
 				}
 			}	// end synchronized
@@ -415,7 +438,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						thatClosure.performDownload();
 
 						// Just when the download is done, remove from the potentialTimeouts.
-						if (thatClosure.downloadable.isDownloadDone())
+						if (downloadable.isDownloadDone())
 						{
 							thatClosure.dispatch();
 						}
@@ -452,7 +475,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					finally
 					{
 						pending--;
-						BasicSite site	= thatClosure.downloadable.getSite();
+						BasicSite site	= downloadable.getSite();
 						if (site != null)
 							site.endDownloading();
 					}

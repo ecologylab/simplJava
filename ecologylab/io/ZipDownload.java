@@ -431,7 +431,7 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 		return false;
 	}
 
-	public boolean cancel()
+	public boolean shouldCancel()
 	{
 		// TODO Auto-generated method stub
 		return false;
@@ -465,4 +465,17 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 		return null;
 	}
 
+	public void recycleUnconditionally()
+	{
+		if(inputStream != null )
+			try
+			{
+				inputStream.close();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
 }

@@ -47,13 +47,15 @@ public interface Downloadable
     */
    public boolean isRecycled();
    
+   public void recycleUnconditionally();
+   
    /**
     * Check to find out if this should not be downloaded, even though it was queued, because conditions have changed
     * since then.
     * 
     * @return	true if this should no longer be downloaded, because conditions have changed since it was queued.
     */
-   public boolean cancel();
+   public boolean shouldCancel();
    
    public BasicSite getSite();
    public ParsedURL purl();

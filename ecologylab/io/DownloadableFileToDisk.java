@@ -172,7 +172,7 @@ implements Downloadable, DispatchTarget
 		return false;
 	}
 
-	public boolean cancel()
+	public boolean shouldCancel()
 	{
 		// TODO Auto-generated method stub
 		return false;
@@ -195,6 +195,12 @@ implements Downloadable, DispatchTarget
   public String message()
   {
   	return null;
+  }
+  
+  public void recycleUnconditionally()
+  {
+  	//What to do ?
+  	closeStreams(); //??
   }
 
 }
