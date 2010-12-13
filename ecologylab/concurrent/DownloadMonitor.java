@@ -338,12 +338,12 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					boolean recycleClosure = false;
 					while (closureNum < toDownloadSize)
 					{
-						recycleClosure = false;
+						recycleClosure 	= false;
 						thatClosure 		= toDownload.get(closureNum);
-						downloadable = thatClosure.downloadable;
+						downloadable 		= thatClosure.downloadable;
 						BasicSite site 	= downloadable.getSite();
 						
-						if(site.shouldIgnore())
+						if(site != null && site.shouldIgnore())
 						{
 							recycleClosure = true;
 							break;
