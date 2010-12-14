@@ -1185,9 +1185,26 @@ public final class TranslationScope extends ElementState
 				}
 			}
 		}
-
 	}
+	
+	public void augment()
+  {
+      Class<? extends ElementState>[] augmentedClassesArray = getClassesArray(this);
 
+      this.addTranslations(augmentedClassesArray);
+  }
+
+	private static Class<? extends ElementState>[] getClassesArray(TranslationScope translationScope) 
+  {
+      ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
+      Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
+              .values();
+
+      Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
+              .toArray(new Class<?>[augmentedClasses.size()]);
+      return augmentedClassesArray;
+  }
+	
 	/**
 	 * @return the performFilters
 	 */

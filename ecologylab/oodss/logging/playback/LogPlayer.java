@@ -96,12 +96,15 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 		// create a translation scope for the opSubclasses
 		if (opSubclasses == null)
 			opSubclasses = MixedInitiativeOpClassesProvider.STATIC_INSTANCE.provideClasses();
-		
+
 		TranslationScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE, opSubclasses);
-		
+
 		guiShown = false;
 
-		this.translationScope = translationScope;
+		if (translationScope != null)
+			this.translationScope = translationScope;
+		else
+			this.translationScope = TranslationScope.get(Logging.MIXED_INITIATIVE_OP_TRANSLATION_SCOPE);
 
 		LOG incomingLog = null;
 
@@ -292,7 +295,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 			log.forward();
 		}
 
-		logDisplay.changeOp(log.getCurrentOp());
+		if (logDisplay != null)
+			logDisplay.changeOp(log.getCurrentOp());
 
 		mainFrame.repaint();
 	}
@@ -312,33 +316,40 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 	protected void showLogPlaybackGUI()
 	{
-		logDisplay.load(this, log, log.getLogPrologue());
+		if (logDisplay != null)
+			logDisplay.load(this, log, log.getLogPrologue());
 
 		controlsDisplay = generateLogPlaybackControls();
-		controlsDisplay.setPreferredSize(new Dimension(800, 100));
-		controlsDisplay.setMinimumSize(new Dimension(800, 100));
-		controlsDisplay.setLoading(true);
+		if (controlsDisplay != null)
+		{
+			controlsDisplay.setPreferredSize(new Dimension(800, 100));
+			controlsDisplay.setMinimumSize(new Dimension(800, 100));
+			controlsDisplay.setLoading(true);
 
-		controlsDisplay.setLog(log);
-		controlsDisplay.setLoading(false);
+			controlsDisplay.setLog(log);
+			controlsDisplay.setLoading(false);
 
-		controlsDisplay.setupImportantEvents();
+			controlsDisplay.setupImportantEvents();
+		}
 
 		// logDisplay.setPreferredSize(new Dimension(800, 600));
 		// logDisplay.setMinimumSize(new Dimension(800, 600));
 		// logDisplay.setMaximumSize(new Dimension(800, 600));
-		logDisplay.invalidate();
+		if (logDisplay != null)
+			logDisplay.invalidate();
 
 		mainFrame.getContentPane().removeAll();
-		mainFrame.getContentPane().add(logDisplay, BorderLayout.CENTER);
-		mainFrame.getContentPane().add(controlsDisplay, BorderLayout.SOUTH);
+		if (logDisplay != null)
+			mainFrame.getContentPane().add(logDisplay, BorderLayout.CENTER);
+		if (controlsDisplay != null)
+			mainFrame.getContentPane().add(controlsDisplay, BorderLayout.SOUTH);
 
-		if (logDisplay.hasKeyListenerSubObject())
+		if (logDisplay != null && logDisplay.hasKeyListenerSubObject())
 		{
 			mainFrame.addKeyListener(logDisplay.getKeyListenerSubObject());
 		}
 
-		if (logDisplay.hasActionListenerSubObject())
+		if (logDisplay != null && logDisplay.hasActionListenerSubObject())
 		{
 			t.addActionListener(logDisplay.getActionListenerSubObject());
 		}
@@ -354,7 +365,8 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 	{
 		// logDisplay.setPreferredSize(new Dimension(800, 600));
 
-		logDisplay.invalidate();
+		if (logDisplay != null)
+			logDisplay.invalidate();
 	}
 
 	/**
@@ -403,7 +415,7 @@ public abstract class LogPlayer<OP extends MixedInitiativeOp, LOG extends Loggin
 
 		logDisplay = this.generateView();
 
-//		mainFrame.getContentPane().add(logDisplay);
+		// mainFrame.getContentPane().add(logDisplay);
 
 		mainFrame.validate();
 		mainFrame.pack();

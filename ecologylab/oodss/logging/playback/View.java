@@ -15,7 +15,8 @@ import ecologylab.oodss.logging.MixedInitiativeOp;
 import ecologylab.oodss.logging.Prologue;
 
 /**
- * Abstract class for displaying logged operations. Subclasses provide specific visualization of log ops.
+ * Abstract class for displaying logged operations. Subclasses provide specific visualization of log
+ * ops.
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  * 
@@ -23,7 +24,7 @@ import ecologylab.oodss.logging.Prologue;
  */
 public abstract class View<T extends MixedInitiativeOp> extends JPanel
 {
-	protected T				currentOp;
+	protected T					currentOp;
 
 	protected Prologue	prologue;
 
@@ -37,14 +38,15 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 	/**
 	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
 	 */
-	@Override protected void paintComponent(Graphics arg0)
+	@Override
+	protected void paintComponent(Graphics arg0)
 	{
 		if (loaded)
 			this.render(arg0);
 		else
 			this.renderLoading(arg0);
 	}
-	
+
 	protected void load(LogPlayer player, LogPlaybackControlModel log, Prologue prologue)
 	{
 		if (!loaded)
@@ -90,11 +92,11 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 	}
 
 	/**
-	 * If this View contains a KeyListener object (for example, to enable some sort of keyboard interaction with the log
-	 * frame); this method returns it.
+	 * If this View contains a KeyListener object (for example, to enable some sort of keyboard
+	 * interaction with the log frame); this method returns it.
 	 * 
-	 * If hasKeyListener() returns true, then this method must return a KeyListener object; otherwise, it should return
-	 * null.
+	 * If hasKeyListener() returns true, then this method must return a KeyListener object; otherwise,
+	 * it should return null.
 	 * 
 	 * @return
 	 */
@@ -114,11 +116,11 @@ public abstract class View<T extends MixedInitiativeOp> extends JPanel
 	}
 
 	/**
-	 * If this View contains a ActionListener object (for example, to enable some sort of interaction with the log
-	 * frame); this method returns it.
+	 * If this View contains a ActionListener object (for example, to enable some sort of interaction
+	 * with the log frame); this method returns it.
 	 * 
-	 * If hasActionListener() returns true, then this method must return a KeyListener object; otherwise, it should
-	 * return null.
+	 * If hasActionListener() returns true, then this method must return a KeyListener object;
+	 * otherwise, it should return null.
 	 * 
 	 * @return
 	 */

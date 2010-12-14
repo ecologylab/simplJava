@@ -1,19 +1,5 @@
 package ecologylab.oodss.logging;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.util.ArrayList;
-
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Pref;
@@ -32,10 +18,24 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.XMLTools;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
+
 /**
- * Provides a framework for interaction logging. Uses ecologylab.serialization to serialize user and agent
- * actions, and write them either to a file on the user's local machine, or, across the network, to
- * the LoggingServer.
+ * Provides a framework for interaction logging. Uses ecologylab.serialization to serialize user and
+ * agent actions, and write them either to a file on the user's local machine, or, across the
+ * network, to the LoggingServer.
  * 
  * @author andruid
  * @author Zachary O. Toups (zach@ecologylab.net)
@@ -482,8 +482,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 
 			while (!this.runMethodDone && timesToWait-- > 0)
 			{
-				debug("waiting on run method to finish log writing (attempts remaining "
-						+ timesToWait
+				debug("waiting on run method to finish log writing (attempts remaining " + timesToWait
 						+ ")...");
 				thread.interrupt();
 				Generic.sleep(500);
@@ -819,9 +818,9 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 						numTries++;
 					}
 
-					if (numTries == 10)
+					if (numTries == 100)
 					{
-						debug("Tried to unmap file 10 times; failing now.");
+						debug("Tried to unmap file 100 times; failing now.");
 
 						truncated = true;
 					}
@@ -843,18 +842,11 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				if (remaining < incoming.remaining())
 				{ // we want to write more than will fit; so we just write
 					// what we can first...
-					debug("not enough space in the buffer: "
-							+ remaining
-							+ " remaining, "
-							+ incoming.remaining()
-							+ " needed.");
-					debug("last range file range: "
-							+ (endOfMappedBytes - LOG_FILE_INCREMENT)
-							+ "-"
+					debug("not enough space in the buffer: " + remaining + " remaining, "
+							+ incoming.remaining() + " needed.");
+					debug("last range file range: " + (endOfMappedBytes - LOG_FILE_INCREMENT) + "-"
 							+ endOfMappedBytes);
-					debug("new range will be: "
-							+ (endOfMappedBytes)
-							+ "-"
+					debug("new range will be: " + (endOfMappedBytes) + "-"
 							+ (endOfMappedBytes + LOG_FILE_INCREMENT));
 
 					byte[] temp = new byte[remaining];
@@ -997,6 +989,10 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				loggingClient.setPriority(priority);
 		}
 
+		/**
+		 * Writes the given message to the logging server. Recursively calls itself if the message is
+		 * too large to send at once.
+		 */
 		@Override
 		void writeLogMessage(LogEvent message)
 		{
@@ -1004,7 +1000,7 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			{
 				if (!this.loggingParent.finished)
 				{
-					debug("sending a log message: ");
+					debug(">> sending a normal log message (non-blocking): ");
 					try
 					{
 						debug(message.serialize().toString());
@@ -1017,17 +1013,19 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 				}
 				else
 				{
-					debug("network logging finishing, waiting up to 50 seconds");
-					// finishing, wait 500 seconds
-					ResponseMessage rm = loggingClient.sendMessage(message, 50000);
+					// finishing, wait 50 seconds
+					int timeOutMillis = 50000;
+
+					debug(">> network logging finishing, waiting up to " + (timeOutMillis / 1000)
+							+ " seconds...");
+
+					ResponseMessage rm = loggingClient.sendMessage(message, timeOutMillis);
+
 					if (rm == null)
-					{
-						debug("gave up after 50 seconds.");
-					}
+						debug("!!! gave up waiting for server response after " + (timeOutMillis / 1000)
+								+ " seconds.");
 					else
-					{
-						debug("network logging finished sending final log ops");
-					}
+						debug(">>> final log ops sent successfully!");
 				}
 			}
 			catch (IOException e)
@@ -1036,31 +1034,43 @@ public class Logging<T extends MixedInitiativeOp> extends ElementState implement
 			}
 			catch (MessageTooLargeException e)
 			{
-				warning("message too large, splitting in half and trying again recursively");
-
 				StringBuilder bufferToLog = message.bufferToLog();
 				int half = bufferToLog.length() / 2;
 
-				if (message instanceof SendPrologue)
-				{ // if this is a send prologue, send prologue has to happen first
-					message.setBuffer(new StringBuilder(bufferToLog.subSequence(0, half)));
-					this.writeLogMessage(message);
-				}
-				else
-				{
-					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(0, half)));
-				}
+				warning("!!!! attempted to send a message that was too large, splitting in half and trying again recursively ("
+						+ bufferToLog.length() + "/2 == " + half + ")");
 
-				if (message instanceof SendEpilogue)
-				{ // if this is a send epilogue, send epilogue has to happen last
-					message.setBuffer(new StringBuilder(bufferToLog.subSequence(half, bufferToLog.length())));
-					this.writeLogMessage(message);
-				}
-				else
-				{
-					this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(half, bufferToLog
-							.length())));
-				}
+				LogOps firstHalf = new LogOps();
+				firstHalf.setBuffer(new StringBuilder(bufferToLog.subSequence(0, half)));
+
+				LogOps secondHalf = new LogOps();
+				secondHalf
+						.setBuffer(new StringBuilder(bufferToLog.subSequence(half, bufferToLog.length())));
+
+				this.writeLogMessage(firstHalf);
+				this.writeLogMessage(secondHalf);
+
+				// if (message instanceof SendPrologue)
+				// { // if this is a send prologue, send prologue has to happen first
+				// message.setBuffer(new StringBuilder(bufferToLog.subSequence(0, half)));
+				// this.writeLogMessage(message);
+				// }
+				// else
+				// {
+				// this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(0, half)));
+				// }
+				//
+				// if (message instanceof SendEpilogue)
+				// { // if this is a send epilogue, send epilogue has to happen last
+				// message.setBuffer(new StringBuilder(bufferToLog.subSequence(half,
+				// bufferToLog.length())));
+				// this.writeLogMessage(message);
+				// }
+				// else
+				// {
+				// this.writeBufferedOps(new StringBuilder(bufferToLog.subSequence(half, bufferToLog
+				// .length())));
+				// }
 			}
 		}
 

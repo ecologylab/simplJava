@@ -3,31 +3,6 @@
  */
 package ecologylab.oodss.distributed.client;
 
-import java.io.IOException;
-import java.net.BindException;
-import java.net.InetSocketAddress;
-import java.net.PortUnreachableException;
-import java.net.SocketException;
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.zip.DataFormatException;
-import java.util.zip.Deflater;
-import java.util.zip.Inflater;
-
 import ecologylab.collections.Scope;
 import ecologylab.generic.Generic;
 import ecologylab.generic.StringBuilderPool;
@@ -49,9 +24,31 @@ import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.SendableRequest;
 import ecologylab.oodss.messages.ServiceMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.InetSocketAddress;
+import java.net.PortUnreachableException;
+import java.net.SocketException;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.CharacterCodingException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Services Client using NIO; a major difference with the NIO version is state tracking. Since the
@@ -66,7 +63,7 @@ import ecologylab.serialization.TranslationScope;
  * Another major difference between this and the non-NIO version of ServicesClient is that it is
  * StartAndStoppable.
  * 
- * @author Zachary O. Toups (zach@ecologylab.net)
+ * @author Zachary O. Dugas Toups (zach@ecologylab.net)
  */
 public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runnable,
 		ClientConstants
@@ -75,6 +72,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 
 	protected final CharBuffer																				outgoingChars;
 
+	/**
+	 * A temporary buffer of characters into which requests are placed before they are moved to
+	 * outgoingChars.
+	 */
 	protected final StringBuilder																			requestBuffer;
 
 	/**
@@ -315,6 +316,10 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 	protected PreppedRequest prepareAndEnqueueRequestForSending(SendableRequest request)
 			throws SIMPLTranslationException, MessageTooLargeException
 	{
+		int reqLength = requestBuffer.length();
+		if (reqLength > this.maxMessageLengthChars)
+			throw new MessageTooLargeException(this.maxMessageLengthChars, reqLength);
+		
 		long uid = this.generateUid();
 
 		PreppedRequest pReq = null;
@@ -324,13 +329,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 			// fill requestBuffer
 			request.serialize(requestBuffer);
 
-			int reqLength;
-			if ((reqLength = requestBuffer.length()) > this.maxMessageLengthChars)
-			{
-				requestBuffer.setLength(0);
-				throw new MessageTooLargeException(this.maxMessageLengthChars, reqLength);
-			}
-
+			// TODO not convinced this is the most efficient workflow. Why do we need requestBuffer at all??? -ZODT
 			// drain requestBuffer and fill a prepped request
 			pReq = this.pRequestPool.acquire();
 			pReq.setRequest(requestBuffer);
@@ -616,6 +615,7 @@ public class NIOClient<S extends Scope> extends NIONetworking<S> implements Runn
 		{
 			blockingRequestPending = false;
 			error("message too large to send");
+			e.printStackTrace();
 			throw e;
 		}
 
