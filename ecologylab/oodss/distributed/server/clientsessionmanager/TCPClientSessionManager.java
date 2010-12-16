@@ -614,8 +614,8 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 	{
 		String startLineString = null;
 		
-		debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		debug(this.startLine);
+//		debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//		debug(this.startLine);
 		
 		if (this.startLine == null || (startLineString = startLine.toString()).equals(""))
 		{ // normal case
@@ -623,7 +623,7 @@ public abstract class TCPClientSessionManager<S extends Scope> extends BaseSessi
 		}
 		else if (startLineString.startsWith(GET_PREFIX))
 		{ // get case
-			debug("GET case!");
+//			debug("GET case!");
 			return this.translateGetRequest(messageCharSequence, startLineString);
 		}
 		else if (startLineString.startsWith(POST_PREFIX))
