@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import ecologylab.appframework.ApplicationEnvironment;
 import ecologylab.appframework.ApplicationProperties;
 import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.appframework.PropertiesAndDirectories;
@@ -48,14 +49,6 @@ extends Debug
 implements ApplicationProperties
 {
 	/**
-	 * current known assets (although arbitrary ones can exist)
-	 */
-	public static final String INTERFACE		= "interface/";
-	public static final String SEMANTICS		= "semantics/";
-	public static final String PREFERENCES	= "preferences/";
-	public static final String STUDY				= "study/";
-	
-	/**
 	 * Source URL root of the tree of assets for this application.
 	 * Default is the configDir(), which in turn is the config subdir of codebase.
 
@@ -75,66 +68,12 @@ implements ApplicationProperties
 	
 	static boolean		needToWriteAssetsXml;
 	
-	/**
-	 * Source URL root of the tree of interface assets for this application.
-	 * This should always be set to the INTERFACE subdir of the assetsRoot.
-	 * 
-	 * The source location of any interface asset is specified relative to here.
-	 */
-	static ParsedURL	interfaceAssetsRoot;
-	
-	/**
-	 * Source URL root of the tree of semantics assets for this application.
-	 * This should always be set to the SEMANTICS subdir of the assetsRoot.
-	 * 
-	 * The source location of any semantics asset is specified relative to here.
-	 */
-	static ParsedURL	semanticsAssetsRoot;
-	
-	/**
-	 * Source URL root of the tree of preferences assets for this application.
-	 * This should always be set to the PREFERENCES subdir of the assetsRoot.
-	 * 
-	 * The source location of any preferences asset is specified relative to here.
-	 */
-	static ParsedURL	preferencesAssetsRoot;
-	
-	/**
-	 * Source URL root of the tree of study assets for this application.
-	 * This should always be set to the STUDY subdir of the assetsRoot.
-	 * 
-	 * The source location of any study asset is specified relative to here.
-	 */
-	static ParsedURL	studyAssetsRoot;
-	
 /**
  * The root directory on the local machine where assets will be stored (cached).
  * 
  * The cache destination  of any asset is applied relative to here.
  */
 	static File			cacheRoot;
-	
-	/**
-	 * The root directory on the local machine where interface assets will be stored
-	 * (cached). 
-	 * This should always be set to the INTERFACE subdir of the cacheRoot.
-	 * 
-	 * The location of any interface asset is specified relative to here.
-	 */
-	static File			interfaceCacheRoot;
-	
-	/**
-	 * The root directory on the local machine where semantics assets will be stored
-	 * (cached). 
-	 * This should always be set to the SEMANTICS subdir of the cacheRoot.
-	 * 
-	 * The location of any semantics asset is specified relative to here.
-	 */
-	static File			semanticsCacheRoot;
-	
-	static File			preferencesCacheRoot;
-	
-	static File			studyCacheRoot;
 
 	/*
 	 * Set-up assets and cache roots.
@@ -142,15 +81,8 @@ implements ApplicationProperties
 	 */
 	static
 	{
-		ParsedURL configDir = EnvironmentGeneric.configDir();
-		if (configDir != null)
-			setAssetsRoot(configDir);
-		else
-		{
-			ParsedURL codeBaseSlashConfig	= EnvironmentGeneric.getRelativeToCodeBase("config/", "Forming assetsPURL");
-			setAssetsRoot(codeBaseSlashConfig);
-		}
-		setCacheRoot(PropertiesAndDirectories.thisApplicationDir());
+		assetsRoot 								= EnvironmentGeneric.configDir();
+		cacheRoot 								= /*ApplicationEnvironment.runningInEclipse() ? EnvironmentGeneric.configDir().file() :*/ PropertiesAndDirectories.thisApplicationDir();
 		
 		assetsXmlFile	= new File(cacheRoot, ASSETS_XML_NAME);
 		if (assetsXmlFile.exists())
@@ -248,180 +180,33 @@ implements ApplicationProperties
 		
 		return theAsset;
 	}
-	/**
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	public static File getInterfaceFile(String assetRelativePath)
+	
+	public static File getAsset(AssetsRoot assetsRoot, String relativePath)
 	{
-		//FIXME need to make sure zip has been downloaded here
-		// if not, initiate download & wait for it!
-		return getCachedInterfaceFile(assetRelativePath);		
-	}
-	/**
-	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	public static File getCachedInterfaceFile(String assetRelativePath)
-	{
-		return Files.newFile(interfaceCacheRoot, assetRelativePath);
-	}
-	/**
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	public static File getSemanticsFile(String assetRelativePath)
-	{
-		//FIXME need to make sure zip has been downloaded here
-		// if not, initiate download & wait for it!
-		return getCachedSemanticsFile(assetRelativePath);		
-	}
-	/**
-	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	protected static File getCachedSemanticsFile(String assetRelativePath)
-	{
-		return Files.newFile(semanticsCacheRoot, assetRelativePath);
+		return Files.newFile(assetsRoot.getCacheRoot(), relativePath);
 	}
 	
-	public static File getPreferencesFile(String assetRelativePath)
+	public static File getAsset(AssetsRoot assetsRoot, String relativePath, StatusReporter status, boolean forceDownload, float version)
 	{
-		return getCachedPreferencesFile(assetRelativePath);
-	}
-	/**
-	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	protected static File getCachedPreferencesFile(String assetRelativePath)
-	{
-		return Files.newFile(preferencesCacheRoot, assetRelativePath);
-	}
-	
-	public static File getStudyFile(String assetRelativePath)
-	{
-		return getCachedStudyFile(assetRelativePath);
-	}
-	/**
-	 * Use the interfaceCacheRoot to produce a File object using the specified relative path.
-	 * 
-	 * @param assetRelativePath
-	 * @return
-	 */
-	protected static File getCachedStudyFile(String assetRelativePath)
-	{
-		return Files.newFile(studyCacheRoot, assetRelativePath);
-	}
-	
-	/**
-	 * Download an interface assets zip file from the interfaceAssetsRoot.
-	 * Unzip it into the cacheRoot.
-	 * 
-	 * @param assetRelativePath -- This is the name of the interface. It does not end in .zip!
-	 * @param status	Provide feedback to the user at the bottom of a window, or such.
-	 * 
-	 * @return	false if the assetRelativePath is null; otherwise true.
-	 */
-	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
-											   boolean forceDownload)
-	{
-		return downloadInterfaceZip(assetRelativePath, status, forceDownload, IGNORE_VERSION);
-	}
-	public static boolean downloadInterfaceZip(String assetRelativePath, StatusReporter status,
-											   boolean forceDownload, float version)
-	{
-		if (assetRelativePath == null)
-			return false;
+		File result = getAsset(assetsRoot, relativePath);
+		if (!result.exists())
+			downloadZip(assetsRoot, relativePath, status, forceDownload, version);
 		
-		downloadZip(interfaceAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
-				interfaceCacheRoot, status, forceDownload, version);
-		
-		return true;
+		return result;
 	}
-	
-	/**
-	 * Download an semantics assets zip file from the semanticsAssetsRoot.
-	 * Unzip it into the cacheRoot.
-	 * 
-	 * @param assetRelativePath
-	 * @param status	Provide feedback to the user at the bottom of a window, or such.
-	 */
-	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
-										    boolean forceDownload)
-	{
-		downloadSemanticsZip(assetRelativePath, status, forceDownload, IGNORE_VERSION);
-	}
-	public static void downloadSemanticsZip(String assetRelativePath, StatusReporter status,
-											boolean forceDownload, float version)
-	{
-		downloadZip(semanticsAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"), 
-					semanticsCacheRoot, status, forceDownload, version);
-	}
-	
-	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
-			  boolean forceDownload)
-	{
-		downloadPreferencesZip(assetRelativePath,  status, forceDownload, IGNORE_VERSION);
-	}
-	public static void downloadPreferencesZip(String assetRelativePath, StatusReporter status,
-											  boolean forceDownload, float version)
-	{
-		downloadZip(preferencesAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
-					preferencesCacheRoot, status, forceDownload, version);
-	}
-	
-	public static void downloadStudyZip(String assetRelativePath, StatusReporter status,
-			  boolean forceDownload)
-	{
-		downloadStudyZip(assetRelativePath,  status, forceDownload, IGNORE_VERSION);
-	}
-	public static void downloadStudyZip(String assetRelativePath, StatusReporter status,
-											  boolean forceDownload, float version)
-	{
-		downloadZip(studyAssetsRoot.getRelative(assetRelativePath + ".zip", "forming zip location"),
-					studyCacheRoot, status, forceDownload, version);
-	}
-	/**
-	 * Download the assets zip file from the assetsRoot.
-	 * Unzip it into the cacheRoot.
-	 * 
-	 * @param assetRelativePath
-	 * @param status	Provide feedback to the user at the bottom of a window, or such.
-	 */
-	public static void downloadZip(String assetRelativePath, StatusReporter status,
-								   boolean forceDownload, float version)
-	{
-		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
-					Files.newFile(cacheRoot, assetRelativePath), status, forceDownload, version);
-	}
-	/**
-	 * Download the assets zip file from the assetsRoot.
-	 * Unzip it into the cacheRoot.
-	 * 
-	 * Don't bother providing feedback to the user.
-	 * 
-	 * @param assetRelativePath
-	 */
-	public static void downloadZip(String assetRelativePath,
-								   boolean forceDownload, float version)
-	{
-		downloadZip(assetsRoot.getRelative(assetRelativePath, "forming zip location"), 
-					Files.newFile(cacheRoot, assetRelativePath), null, forceDownload, version);
-	}
-	
+
 	public static void downloadZip(ParsedURL sourceZip, File targetFile,
 								   boolean forceDownload, float version)
 	{
 		downloadZip(sourceZip, targetFile, null, forceDownload, version);
 	}
+	
+	public static void downloadZip(AssetsRoot assetsRoot, String assetRelativePath, StatusReporter status, boolean forceDownload, float version)
+	{
+		String relativeZipPath = assetRelativePath + ".zip";
+		downloadZip(assetsRoot.getAssetRoot().getRelative(relativeZipPath, "forming zip location"), Files.newFile(assetsRoot.getCacheRoot(), relativeZipPath), status, forceDownload, version);
+	}
+	
 	/**
 	 * Download and uncompress a zip file from a source to a target location with minimal effort,
 	 * unless the zip file already exists at the target location, in which case, 
@@ -452,34 +237,6 @@ implements ApplicationProperties
 		else
 			println("Using cached " + zipFileDestination);
 	}	
-
-	/**
-	 * Set the source URL root of the tree of assets for this application.
-	 * Default is the configDir(), which in turn is the config subdir of codebase.
-	 * 
-	 * The source location of any asset is specified relative to here.
-	 */
-	public static void setAssetsRoot(ParsedURL assetsRoot)
-	{
-		Assets.assetsRoot 		= assetsRoot;
-		interfaceAssetsRoot		= assetsRoot.getRelative(INTERFACE, "forming interface assets root");
-		semanticsAssetsRoot		= assetsRoot.getRelative(SEMANTICS, "forming semantics assets root");
-		preferencesAssetsRoot	= assetsRoot.getRelative(PREFERENCES, "forming preferences assets root");
-		studyAssetsRoot				= assetsRoot.getRelative(STUDY, "forming study assets root");
-	}
-
-	/**
-	 * Sets the root file path for caching. Assets are specified relative to this path.
-	 * @param cacheRoot The root file path for caching assets.
-	 */
-	public static void setCacheRoot(File cacheRoot)
-	{
-		Assets.cacheRoot		= cacheRoot;
-		interfaceCacheRoot		= Files.newFile(cacheRoot, INTERFACE);
-		semanticsCacheRoot		= Files.newFile(cacheRoot, SEMANTICS);
-		preferencesCacheRoot	= Files.newFile(cacheRoot, PREFERENCES);
-		studyCacheRoot				= Files.newFile(cacheRoot, STUDY);
-	}
 
 	/**
 	 * Get the source URL root of the tree of assets for this application.

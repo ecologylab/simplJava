@@ -11,6 +11,7 @@ import ecologylab.appframework.types.prefs.gui.PrefsEditor;
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.io.Assets;
+import ecologylab.io.AssetsRoot;
 import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Files;
 import ecologylab.io.ZipDownload;
@@ -52,7 +53,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	/**
 	 * Subdirectory for eclipse launches.
 	 */
-	protected static final String	ECLIPSE_PREFS_DIR							= "config/preferences/";
+	protected static final 	String	ECLIPSE_PREFS_DIR							= "config/preferences/";
+	
+	public static final 		String 	PREFERENCES										= "preferences/";
+	
 
 	// private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String		ECLIPSE_BASE_PREFERENCE_PATH	= ECLIPSE_PREFS_DIR
@@ -595,8 +599,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				ParsedURL metaPrefsPURL = null;
 				try
 				{
-					Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
-					File metaPrefsFile = Assets.getPreferencesFile(METAPREFS_XML);
+					AssetsRoot prefAssetsRoot = new AssetsRoot(PREFERENCES, null);
+					File metaPrefsFile = Assets.getAsset(prefAssetsRoot, METAPREFS_XML, null, false, prefsAssetVersion);
 					metaPrefsPURL = new ParsedURL(metaPrefsFile);
 					metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationScope);
 					println("OK: loaded MetaPrefs from " + metaPrefsFile);
@@ -697,7 +701,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			File localCodeBasePath = deriveLocalFileCodeBase(baseClass); // sets codeBase()!
 			argStack.push(arg);
 
-			Assets.downloadPreferencesZip("prefs", null, false, prefsAssetVersion);
+			AssetsRoot prefAssetsRoot = new AssetsRoot(Assets.getAssetsRoot().getRelative(PREFERENCES), Files.newFile(PropertiesAndDirectories.thisApplicationDir(), PREFERENCES));
+			Assets.downloadZip(prefAssetsRoot, "prefs", null, false, prefsAssetVersion);
 
 			SIMPLTranslationException metaPrefSetException = null;
 			File metaPrefsFile = new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
