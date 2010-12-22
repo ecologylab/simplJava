@@ -1580,29 +1580,32 @@ public class ParsedURL extends Debug implements MimeType
 		if (url != null)
 		{
 			String query	= url.getQuery();
-			StringTokenizer tokenizer	= new StringTokenizer(query, "&");
-			if (!tokenizer.hasMoreElements())
-				return this;
-			StringBuilder resultQuery	= new StringBuilder(noAnchorNoQueryPageString());	// initialize w base URL
-			boolean first							= true;
-			while (tokenizer.hasMoreElements())
+			if (query !=null)
 			{
-				String token	= tokenizer.nextToken();
-				int argEnd		= token.indexOf('=');
-				String arg		= argEnd == -1 ? token : token.substring(0, argEnd);
-				if (!argsToIgnore.containsKey(arg))
+				StringTokenizer tokenizer	= new StringTokenizer(query, "&");
+				if (!tokenizer.hasMoreElements())
+					return this;
+				StringBuilder resultQuery	= new StringBuilder(noAnchorNoQueryPageString());	// initialize w base URL
+				boolean first							= true;
+				while (tokenizer.hasMoreElements())
 				{
-					if (first)
+					String token	= tokenizer.nextToken();
+					int argEnd		= token.indexOf('=');
+					String arg		= argEnd == -1 ? token : token.substring(0, argEnd);
+					if (!argsToIgnore.containsKey(arg))
 					{
-						first		= false;
-						resultQuery.append('?');
+						if (first)
+						{
+							first		= false;
+							resultQuery.append('?');
+						}
+						else
+							resultQuery.append('&');
+						resultQuery.append(token);
 					}
-					else
-						resultQuery.append('&');
-					resultQuery.append(token);
 				}
+				return getAbsolute(resultQuery.toString());
 			}
-			return getAbsolute(resultQuery.toString());
 		}
 		return this;
 	}
