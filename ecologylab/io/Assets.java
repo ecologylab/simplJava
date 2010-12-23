@@ -186,11 +186,11 @@ implements ApplicationProperties
 		return Files.newFile(assetsRoot.getCacheRoot(), relativePath);
 	}
 	
-	public static File getAsset(AssetsRoot assetsRoot, String relativePath, StatusReporter status, boolean forceDownload, float version)
+	public static File getAsset(AssetsRoot assetsRoot, String relativePath, String assetName, StatusReporter status, boolean forceDownload, float version)
 	{
-		File result = getAsset(assetsRoot, relativePath);
+		File result = relativePath != null ? getAsset(assetsRoot, relativePath) : assetsRoot.getCacheRoot();
 		if (!result.exists())
-			downloadZip(assetsRoot, relativePath, status, forceDownload, version);
+			downloadZip(assetsRoot, assetName, status, forceDownload, version);
 		
 		return result;
 	}
@@ -201,10 +201,9 @@ implements ApplicationProperties
 		downloadZip(sourceZip, targetFile, null, forceDownload, version);
 	}
 	
-	public static void downloadZip(AssetsRoot assetsRoot, String assetRelativePath, StatusReporter status, boolean forceDownload, float version)
+	public static void downloadZip(AssetsRoot assetsRoot, String assetName, StatusReporter status, boolean forceDownload, float version)
 	{
-		String relativeZipPath = assetRelativePath + ".zip";
-		downloadZip(assetsRoot.getAssetRoot().getRelative(relativeZipPath, "forming zip location"), Files.newFile(assetsRoot.getCacheRoot(), relativeZipPath), status, forceDownload, version);
+		downloadZip(assetsRoot.getAssetRoot().getRelative(assetName + ".zip", "forming zip location"), assetsRoot.getCacheRoot(), status, forceDownload, version);
 	}
 	
 	/**

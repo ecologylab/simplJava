@@ -30,7 +30,7 @@ public class AssetsRoot
 	 */
 	public AssetsRoot(String relativePath, File cacheDir)
 	{
-		this(Assets.assetsRoot().getRelative(relativePath, "forming interface assets root"), Files.newFile((cacheDir == null) ? Assets.cacheRoot() : cacheDir, relativePath));
+		this(Assets.assetsRoot().getRelative(relativePath, "forming assets root"), Files.newFile((cacheDir == null) ? Assets.cacheRoot() : cacheDir, relativePath));
 	}
 	
 	public ParsedURL getAssetRoot()

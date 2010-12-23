@@ -600,7 +600,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				try
 				{
 					AssetsRoot prefAssetsRoot = new AssetsRoot(PREFERENCES, null);
-					File metaPrefsFile = Assets.getAsset(prefAssetsRoot, METAPREFS_XML, null, false, prefsAssetVersion);
+					File metaPrefsFile = Assets.getAsset(prefAssetsRoot, METAPREFS_XML, "prefs", null, false, prefsAssetVersion);
 					metaPrefsPURL = new ParsedURL(metaPrefsFile);
 					metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationScope);
 					println("OK: loaded MetaPrefs from " + metaPrefsFile);
