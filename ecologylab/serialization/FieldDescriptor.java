@@ -1430,6 +1430,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			return;
 		}
 		value = filterValue(value);
+		if (!isCDATA)
+			value	= XMLTools.unescapeXML(value);
 		if (setValueMethod != null)
 		{
 			// if the method is found, invoke the method
