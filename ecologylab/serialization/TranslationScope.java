@@ -1036,8 +1036,9 @@ public final class TranslationScope extends ElementState
 	 */
 	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
-		return saxHandler.parse(inputStream);
+		return deserialize(inputStream, null);
+//		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+//		return saxHandler.parse(inputStream);
 	}
 
 	/**
@@ -1057,6 +1058,14 @@ public final class TranslationScope extends ElementState
 		return saxHandler.parse(inputStream, deserializationHookStrategy);
 	}
 
+	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return saxHandler.parse(purlConnection, deserializationHookStrategy);
+	}
+
+	
 	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy)
 			throws SIMPLTranslationException
 	{
