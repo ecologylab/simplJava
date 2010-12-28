@@ -16,13 +16,25 @@ import ecologylab.net.ParsedURL;
  * @author andruid
  *
  */
-public class PrefixPhrase extends Debug
+public class PrefixPhrase<O extends Object> extends Debug
 {
 	final	String			phrase;
 	
 	final	PrefixPhrase	parent;
 	
-	HashMap<String, PrefixPhrase>	childPhraseMap	= new HashMap<String, PrefixPhrase>();
+	ChildPrefixMap	childPhraseMap	= new ChildPrefixMap();
+	
+	private	O					mappedObject;
+
+	public O getMappedObject()
+	{
+		return mappedObject;
+	}
+
+	public void setMappedObject(O mappedObject)
+	{
+		this.mappedObject = mappedObject;
+	}
 
 	/**
 	 * 
@@ -129,14 +141,7 @@ public class PrefixPhrase extends Debug
 //		String phraseString	= string.substring(start, nextSeparator);
 //		PrefixPhrase nextPrefixPhrase	= lookupChild(phraseString);
 		PrefixPhrase nextPrefixPhrase	= matchChild(string, start, nextSeparator);
-		if (nextPrefixPhrase != null)
-		{
-			return nextPrefixPhrase.match(string, nextSeparator, separator);
-		}
-		else
-		{
-			return false;
-		}
+		return (nextPrefixPhrase != null) ? nextPrefixPhrase.match(string, nextSeparator, separator) : false;
 	}
 	
 	/**
@@ -194,25 +199,25 @@ public class PrefixPhrase extends Debug
 	 */
 	protected PrefixPhrase getPrefix(PrefixPhrase parent, String prefixPhrase)
 	{
-		PrefixPhrase domainPrefix	= childPhraseMap.get(prefixPhrase);
+		PrefixPhrase preexistingPrefix	= childPhraseMap.get(prefixPhrase);	// will match wildcard specially, if this is called for
 		boolean createNew			= false;
 		
-		if (domainPrefix == null)
+		if (preexistingPrefix == null)
 		{
 			synchronized (childPhraseMap)
 			{
-				if (domainPrefix == null)
+				if (preexistingPrefix == null)
 				{
-					domainPrefix	= new PrefixPhrase(parent, prefixPhrase);
-					childPhraseMap.put(prefixPhrase, domainPrefix);
+					preexistingPrefix	= new PrefixPhrase(parent, prefixPhrase);
+					childPhraseMap.put(prefixPhrase, preexistingPrefix);
 					createNew		= true;
 				}
 			}
 		}
-		if (!createNew && (domainPrefix.isTerminal()|| (phrase!=null && prefixPhrase.equals("*"))))
+		if (!createNew && preexistingPrefix.isTerminal())
 			return null;
 		
-		return domainPrefix;
+		return preexistingPrefix;
 	}
 
 	protected PrefixPhrase lookupChild(String prefix)
@@ -317,12 +322,13 @@ public class PrefixPhrase extends Debug
 			String phrase 			= purl.substring(seperatorIndex+1,purl.length());
 			PrefixPhrase childPrefixPhrase= childPhraseMap.get(key);
 			
-			if(childPrefixPhrase==null)
-			{
-				// try getting it using wildcard as key
-				childPrefixPhrase = childPhraseMap.get("*");
-				key="*";
-			}
+// now handled inside ChildPrefixMap
+//			if(childPrefixPhrase==null)
+//			{
+//				// try getting it using wildcard as key
+//				childPrefixPhrase = childPhraseMap.get("*");
+//				key="*";
+//			}
 			if(childPrefixPhrase!=null)
 			{
 				buffy.append(returnValue).append(key).append(seperator);
@@ -331,8 +337,34 @@ public class PrefixPhrase extends Debug
 		}
 	}
 	
+	public PrefixPhrase getMatchingPrefix(String input, int start, char seperator)
+	{
+		if (isTerminal())
+			return this;
+		int seperatorIndex	= input.indexOf(seperator, start);
+		if(seperatorIndex>0)
+		{
+			String key 				= input.substring(start, seperatorIndex);
+			PrefixPhrase childPrefixPhrase	= childPhraseMap.get(key);
+			if (childPrefixPhrase!=null)
+			{
+				return (seperatorIndex < input.length()) ? childPrefixPhrase.getMatchingPrefix(input, seperatorIndex+1, seperator) : this;
+			}
+		}
+		return null;
+	}
+	
 	public void removePrefix(String prefix)
 	{
 		childPhraseMap.remove(prefix);		
+	}
+	
+	@Override
+	public String toString()
+	{
+		String result = this.phrase;
+		if (parent != null)
+			result			+= " < " + parent;
+		return result;
 	}
 }
