@@ -189,7 +189,7 @@ implements ApplicationProperties
 	public static File getAsset(AssetsRoot assetsRoot, String relativePath, String assetName, StatusReporter status, boolean forceDownload, float version)
 	{
 		File result = relativePath != null ? getAsset(assetsRoot, relativePath) : assetsRoot.getCacheRoot();
-		if (!result.exists())
+		if (!ApplicationEnvironment.runningInEclipse())
 			downloadZip(assetsRoot, assetName, status, forceDownload, version);
 		
 		return result;
