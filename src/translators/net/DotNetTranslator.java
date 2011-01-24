@@ -214,6 +214,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 				System.out.println("Excluding " + inputClass + " from translation as requested");
 				continue;
 			}
+			System.out.println("Translating " + inputClass);
 			translateToCSharp(inputClass, directoryLocation);
 		}
 
