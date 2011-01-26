@@ -27,6 +27,11 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
+import ecologylab.serialization.library.html.Anchor;
+import ecologylab.serialization.library.html.Div;
+import ecologylab.serialization.library.html.Span;
+import ecologylab.serialization.library.html.Td;
+import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;
@@ -734,6 +739,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		if (context != null && isScalar())
 		{
 			result = scalarType.toString(field, context);
+
 		}
 		return result;
 	}
@@ -1010,6 +1016,52 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				scalarType.appendValue(appendable, this, context, serializationContext);
 				appendable.append('"');
+			}
+		}
+	}
+	
+	public void appendHtmlValueAsAttribute(Appendable a, Object context, SerializationContext serializationContext, boolean bold,
+			String navigatesTo, FieldDescriptor navigatesFD)
+		throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (context != null)
+		{
+			ScalarType scalarType = this.scalarType;
+			Field field = this.field;
+			if (!scalarType.isDefaultValue(field, context))
+			{
+				Td fieldName = new Td();
+				Td value = new Td();
+				Span text = new Span();
+				Anchor anchor = new Anchor();
+				text.setCssClass("text");
+				fieldName.setAlign("right");
+				fieldName.setCssClass("name");
+				a.append(fieldName.open());
+				a.append(text.open());
+				if (navigatesTo != null && navigatesTo.length() > 0)
+				{
+					a.append(anchor.open());
+					scalarType.appendValue(a, navigatesFD, context, serializationContext);
+					a.append("\">");
+				}	
+				a.append(tagName);			
+				a.append(text.close());
+				a.append(Td.close());				
+				a.append(value.open());
+				a.append(text.open());
+				if (bold) a.append("<b>");
+				if (navigatesTo != null && navigatesTo.length() > 0)
+				{
+					a.append(anchor.open());
+					scalarType.appendValue(a, navigatesFD, context, serializationContext);
+					a.append("\">");
+				}
+				scalarType.appendValue(a, this, context, serializationContext);
+				if (navigatesTo != null && navigatesTo.length() > 0) a.append(anchor.open());
+				if (bold) a.append("</b>");
+				a.append(text.close());
+				a.append(Td.close());
 			}
 		}
 	}
@@ -1409,6 +1461,29 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		if (close)
 			appendable.append('/');
 		appendable.append(tagName).append('>');
+	}
+	
+	public void writeHtmlWrap(Appendable a, boolean close) throws IOException
+	{
+		String button = "<input type=\"image\" src=\"button.jpg\" value=\"\" />";
+		Td td = new Td();
+		Td fieldName = new Td();
+		Span text = new Span();
+		text.setCssClass("text");
+		fieldName.setCssClass("name");
+		fieldName.setAlign("right");
+		if (close) a.append(Td.close());
+		else
+		{
+			a.append(fieldName.open());
+			a.append(text.open());
+			a.append(button);
+			a.append(tagName);
+			a.append(text.close());			
+			a.append(Td.close());
+			a.append(td.open());
+		}
+
 	}
 
 	// ----------------------------- methods from TagDescriptor

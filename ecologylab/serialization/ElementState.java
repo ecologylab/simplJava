@@ -885,6 +885,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			throw new SIMPLTranslationException("IO", e);
 		}
 	}
+	
+	public SerializationContext createGraphContext() throws SIMPLTranslationException
+	{
+			SerializationContext graphContext = new SerializationContext();
+			resolveGraph(this, graphContext);
+			isRoot = true;
+			return graphContext;
+	}
 
 	/**
 	 * Translates a tree of ElementState objects into an equivalent XML string.
@@ -1175,7 +1183,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable,
 			SerializationContext serializationContext) throws SIMPLTranslationException, IOException
-	{
+			{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		mapCurrentElementState(serializationContext);
@@ -1197,7 +1205,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// }
 		// }
 		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
-				.attributeFieldDescriptors();
+		.attributeFieldDescriptors();
 
 		int numAttributes = attributeFieldDescriptors.size();
 
@@ -1229,7 +1237,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
-				.elementFieldDescriptors();
+		.elementFieldDescriptors();
 		int numElements = elementFieldDescriptors.size();
 
 		boolean hasXmlText = classDescriptor().hasScalarFD();
@@ -1298,7 +1306,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						continue;
 
 					final boolean isScalar = (childFdType == COLLECTION_SCALAR)
-							|| (childFdType == MAP_SCALAR);
+					|| (childFdType == MAP_SCALAR);
 					// gets Collection object directly or through Map.values()
 					Collection thatCollection;
 					switch (childFdType)
@@ -1342,19 +1350,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState
-										.getClass();
+								.getClass();
 
 								FieldDescriptor collectionElementFD = childFD.isPolymorphic() ?
-								// tag by class
-								collectionSubElementState.classDescriptor().pseudoFieldDescriptor()
+										// tag by class
+										collectionSubElementState.classDescriptor().pseudoFieldDescriptor()
 										: childFD; // tag by annotation
 
-								// inside handles cyclic pointers by translating only the simpl id if already
-								// serialized.
-								serializeCompositeElements(appendable, collectionSubElementState,
-										collectionElementFD, serializationContext);
+										// inside handles cyclic pointers by translating only the simpl id if already
+										// serialized.
+										serializeCompositeElements(appendable, collectionSubElementState,
+												collectionElementFD, serializationContext);
 
-								// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
+										// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -1373,9 +1381,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 								.pseudoFieldDescriptor() : childFD;
 
-						// inside handles cyclic pointers by translating only the simpl id if already
-						// serialized.
-						serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
+								// inside handles cyclic pointers by translating only the simpl id if already
+								// serialized.
+								serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
 					}
 				}
 			} // end of for each element child
