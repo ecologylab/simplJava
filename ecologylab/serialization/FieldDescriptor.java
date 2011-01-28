@@ -1032,11 +1032,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				Td fieldName = new Td();
 				Td value = new Td();
-				Span text = new Span();
+				Div text = new Div();
 				Anchor anchor = new Anchor();
-				text.setCssClass("text");
+				String textClass = (bold) ? "metadata_h1" : "metadata_text";
+				text.setCssClass(textClass);
 				fieldName.setAlign("right");
-				fieldName.setCssClass("name");
+				fieldName.setCssClass("metadata_field_name");
 				a.append(fieldName.open());
 				a.append(text.open());
 				if (navigatesTo != null && navigatesTo.length() > 0)
@@ -1468,9 +1469,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		String button = "<input type=\"image\" src=\"button.jpg\" value=\"\" />";
 		Td td = new Td();
 		Td fieldName = new Td();
-		Span text = new Span();
-		text.setCssClass("text");
-		fieldName.setCssClass("name");
+		Div text = new Div();
+		text.setCssClass("metadata_text");
+		fieldName.setCssClass("metadata_field_name");
 		fieldName.setAlign("right");
 		if (close) a.append(Td.close());
 		else
