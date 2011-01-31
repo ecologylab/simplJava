@@ -1020,50 +1020,53 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 	
-	public void appendHtmlValueAsAttribute(Appendable a, Object context, SerializationContext serializationContext, boolean bold,
-			String navigatesTo, FieldDescriptor navigatesFD)
+	public void appendHtmlValueAsAttribute(Appendable a, Object context, SerializationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
 		throws IllegalArgumentException, IllegalAccessException, IOException
 	{
-		if (context != null)
+		if (!scalarType.isDefaultValue(field, context))
 		{
-			ScalarType scalarType = this.scalarType;
-			Field field = this.field;
-			if (!scalarType.isDefaultValue(field, context))
+			Td fieldName 			= new Td();
+			Td value 					= new Td();
+			Div text 					= new Div();
+			Anchor anchor 		= new Anchor();
+			String textClass 	= (bold) ? "metadata_h1" : "metadata_text";
+			
+			boolean hasNavigatesTo 						= navigatesFD != null;
+			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
+			Field navigatesField 							= (hasNavigatesTo) ? navigatesFD.getField() : null;
+			
+			text.setCssClass(textClass);
+			fieldName.setAlign("right");
+			fieldName.setCssClass("metadata_field_name");
+			a.append(fieldName.open());
+			a.append(text.open());
+			
+			
+			if (hasNavigatesTo)
 			{
-				Td fieldName = new Td();
-				Td value = new Td();
-				Div text = new Div();
-				Anchor anchor = new Anchor();
-				String textClass = (bold) ? "metadata_h1" : "metadata_text";
-				text.setCssClass(textClass);
-				fieldName.setAlign("right");
-				fieldName.setCssClass("metadata_field_name");
-				a.append(fieldName.open());
-				a.append(text.open());
-				if (navigatesTo != null && navigatesTo.length() > 0)
-				{
-					a.append(anchor.open());
-					scalarType.appendValue(a, navigatesFD, context, serializationContext);
-					a.append("\">");
-				}	
-				a.append(tagName);			
-				a.append(text.close());
-				a.append(Td.close());				
-				a.append(value.open());
-				a.append(text.open());
-				if (bold) a.append("<b>");
-				if (navigatesTo != null && navigatesTo.length() > 0)
-				{
-					a.append(anchor.open());
-					scalarType.appendValue(a, navigatesFD, context, serializationContext);
-					a.append("\">");
-				}
-				scalarType.appendValue(a, this, context, serializationContext);
-				if (navigatesTo != null && navigatesTo.length() > 0) a.append(anchor.open());
-				if (bold) a.append("</b>");
-				a.append(text.close());
-				a.append(Td.close());
-			}
+				a.append(anchor.open());
+				if (!navigatesScalarType.isDefaultValue(navigatesField, context))
+					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
+				a.append("\">");
+			}	
+			a.append(tagName);			
+			a.append(text.close());
+			a.append(Td.close());				
+			a.append(value.open());
+			a.append(text.open());
+			if (bold) a.append("<b>");
+			if (hasNavigatesTo)
+			{
+				a.append(anchor.open());
+				if (!navigatesScalarType.isDefaultValue(navigatesField, context))
+					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
+				a.append("\">");
+			}	
+			scalarType.appendValue(a, this, context, serializationContext);
+			if (hasNavigatesTo) a.append(anchor.open());
+			if (bold) a.append("</b>");
+			a.append(text.close());
+			a.append(Td.close());
 		}
 	}
 
