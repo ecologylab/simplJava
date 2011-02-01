@@ -1469,7 +1469,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	
 	public void writeHtmlWrap(Appendable a, boolean close) throws IOException
 	{
-		String button = "<input type=\"image\" src=ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />";
+		String button = "<input type=\"image\" src=\"ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />";
 		Td td = new Td();
 		Td fieldName = new Td();
 		Div text = new Div();
