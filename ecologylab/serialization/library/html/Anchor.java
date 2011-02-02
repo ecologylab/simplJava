@@ -17,7 +17,7 @@ public class Anchor extends HtmlElement
 	
 	public String open()
 	{
-		String open = "<a href=\"";
+		String open = "<a target=\"_blank\" href=\"";
 		return open;
 	}
 	
