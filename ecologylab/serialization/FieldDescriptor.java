@@ -1028,6 +1028,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			Td fieldName 			= new Td();
 			Td value 					= new Td();
 			Div text 					= new Div();
+			Div name					= new Div();
 			Anchor anchor 		= new Anchor();
 			String textClass 	= (bold) ? "metadata_h1" : "metadata_text";
 			
@@ -1039,7 +1040,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			fieldName.setAlign("right");
 			fieldName.setCssClass("metadata_field_name");
 			a.append(fieldName.open());
-			a.append(text.open());
+			a.append(name.open());
 			
 			
 			if (hasNavigatesTo)
@@ -1050,7 +1051,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				a.append("\">");
 			}	
 			a.append(tagName);			
-			a.append(text.close());
+			a.append(name.close());
 			a.append(Td.close());				
 			a.append(value.open());
 			a.append(text.open());
