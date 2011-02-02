@@ -1035,6 +1035,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			boolean hasNavigatesTo 						= navigatesFD != null;
 			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
 			Field navigatesField 							= (hasNavigatesTo) ? navigatesFD.getField() : null;
+			hasNavigatesTo										= hasNavigatesTo && !navigatesScalarType.isDefaultValue(navigatesField, context);
 			
 			text.setCssClass(textClass);
 			fieldName.setAlign("right");
@@ -1042,32 +1043,35 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			a.append(fieldName.open());
 			a.append(name.open());
 			
-			
 			if (hasNavigatesTo)
 			{
 				a.append(anchor.open());
-				if (!navigatesScalarType.isDefaultValue(navigatesField, context))
-					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
+				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
-			}	
+			}
+			
 			a.append(tagName);
-			if (hasNavigatesTo)a.append(Anchor.close());
+			if (hasNavigatesTo)
+				a.append(Anchor.close());
 			a.append(name.close());
 			a.append(Td.close());				
 			a.append(value.open());
 			a.append(text.open());
-			if (bold) a.append("<b>");
+			if (bold) 
+				a.append("<b>");
+			
 			if (hasNavigatesTo)
 			{
 				a.append(anchor.open());
-				if (!navigatesScalarType.isDefaultValue(navigatesField, context))
-					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
+				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
-				
 			}	
+			
 			scalarType.appendValue(a, this, context, serializationContext);
-			if (hasNavigatesTo) a.append(Anchor.close());
-			if (bold) a.append("</b>");
+			if (hasNavigatesTo) 
+				a.append(Anchor.close());
+			if (bold) 
+				a.append("</b>");
 			a.append(text.close());
 			a.append(Td.close());
 		}
