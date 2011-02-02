@@ -57,6 +57,8 @@ public final class TranslationScope extends ElementState
 	private Scope<ClassDescriptor>											entriesByTag							= new Scope<ClassDescriptor>();
 
 	private HashMap<Integer, ClassDescriptor>						entriesByTLVId						= new HashMap<Integer, ClassDescriptor>();
+	
+	private Scope<ClassDescriptor>											entriesByBibTeXType				= new Scope<ClassDescriptor>();
 
 	private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN			= new Scope<Class<? extends ElementState>>();
 
@@ -385,6 +387,7 @@ public final class TranslationScope extends ElementState
 		entriesByClassName.put(classObj.getName(), entry);
 		
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
+		entriesByBibTeXType.put(entry.getBibtexType(), entry);
 
 		String[] otherTags = entry.otherTags();
 		if (otherTags != null)
@@ -460,6 +463,11 @@ public final class TranslationScope extends ElementState
 	public ClassDescriptor getClassDescriptorByTLVId(int tlvId)
 	{
 		return entriesByTLVId.get(tlvId);
+	}
+	
+	public ClassDescriptor getClassDescriptorByBibTeXType(String typeName)
+	{
+		return entriesByBibTeXType.get(typeName);
 	}
 
 	/**

@@ -87,6 +87,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private HashMap<String, FD>														allFieldDescriptorsByTagNames	= new HashMap<String, FD>();
 
 	private HashMap<Integer, FD>													allFieldDescriptorsByTLVIds		= new HashMap<Integer, FD>();
+	
+	private FD																						fieldDescriptorForBibTeXKey		= null;
+	
+	private HashMap<String, FD>														allFieldDescriptorsByBibTeXTag= new HashMap<String, FD>();
 
 	private ArrayList<FD>																	attributeFieldDescriptors			= new ArrayList<FD>();
 
@@ -285,6 +289,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
+	
+	public FD getFieldDescriptorForBibTeXKey()
+	{
+		return fieldDescriptorForBibTeXKey;
+	}
+	
+	public FD getFieldDescriptorByBibTeXTag(String bibTeXTag)
+	{
+		return allFieldDescriptorsByBibTeXTag.get(bibTeXTag);
+	}
 
 	public FieldDescriptor getFieldDescriptorByFieldName(String fieldName)
 	{
@@ -440,6 +454,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 			if (fieldDescriptor.isMarshallOnly())
 				continue; // not translated from XML, so don't add those mappings
+			
+			// find the field descriptor for bibtex citation key
+			bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
+			if (keyAnnotation != null)
+				fieldDescriptorForBibTeXKey = fieldDescriptor;
+			
+			// create mappings for translateFromBibTeX() --> allFieldDescriptorsByBibTeXTag
+			final String bibTeXTag = fieldDescriptor.getBibtexTagName();
+			allFieldDescriptorsByBibTeXTag.put(bibTeXTag, fieldDescriptor);
 
 			// create mappings for translateFromXML() --> allFieldDescriptorsByTagNames
 			final String fieldTagName = fieldDescriptor.getTagName();
@@ -552,7 +575,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
 					+ previousMapping.getFieldName() + "]");
 	}
-
+	
 	/**
 	 * @param thatField
 	 * @param tagFromAnnotation
