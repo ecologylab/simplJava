@@ -1050,7 +1050,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}	
-			a.append(tagName);			
+			a.append(tagName);
+			if (hasNavigatesTo)a.append(Anchor.close());
 			a.append(name.close());
 			a.append(Td.close());				
 			a.append(value.open());
@@ -1062,9 +1063,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				if (!navigatesScalarType.isDefaultValue(navigatesField, context))
 					navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
+				
 			}	
 			scalarType.appendValue(a, this, context, serializationContext);
-			if (hasNavigatesTo) a.append(anchor.open());
+			if (hasNavigatesTo) a.append(Anchor.close());
 			if (bold) a.append("</b>");
 			a.append(text.close());
 			a.append(Td.close());
@@ -1477,6 +1479,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		text.setCssClass("metadata_text");
 		fieldName.setCssClass("metadata_field_name");
 		fieldName.setAlign("right");
+		td.setCssClass("nested_field_value");
 		if (close) a.append(Td.close());
 		else
 		{
