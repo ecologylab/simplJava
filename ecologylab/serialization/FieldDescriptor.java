@@ -1474,7 +1474,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName).append('>');
 	}
 	
-	public void writeHtmlWrap(Appendable a, boolean close) throws IOException
+	public void writeHtmlWrap(Appendable a, boolean close, int size) throws IOException
 	{
 		String button = "<input type=\"image\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />";
 		Td td = new Td();
@@ -1491,6 +1491,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			a.append(text.open());
 			a.append(button);
 			a.append(tagName);
+			a.append(" (");
+			a.append(Integer.toString(size));
+			a.append(")");
 			a.append(text.close());			
 			a.append(Td.close());
 			a.append(td.open());
