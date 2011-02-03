@@ -994,7 +994,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public void appendValueAsAttribute(Appendable appendable, Object context, SerializationContext serializationContext)
+	public void appendValueAsAttribute(Appendable appendable, Object context, TranslationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (context != null)
@@ -1020,7 +1020,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 	
-	public void appendHtmlValueAsAttribute(Appendable a, Object context, SerializationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
+	public void appendHtmlValueAsAttribute(Appendable a, Object context, TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
 		throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (!scalarType.isDefaultValue(field, context))
@@ -1335,7 +1335,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void appendLeaf(Appendable appendable, Object context, SerializationContext serializationContext) throws IllegalArgumentException,
+	void appendLeaf(Appendable appendable, Object context, TranslationContext serializationContext) throws IllegalArgumentException,
 			IllegalAccessException, IOException
 	{
 		if (context != null)
@@ -1759,7 +1759,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * @throws SIMPLTranslationException
 	 */
 	ElementState constructChildElementState(ElementState parent, String tagName,
-			Attributes attributes, SerializationContext graphContext) throws SIMPLTranslationException
+			Attributes attributes, TranslationContext graphContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: tagClassDescriptors.get(tagName);
@@ -1775,7 +1775,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
-			SerializationContext graphContext) throws SIMPLTranslationException
+			TranslationContext graphContext) throws SIMPLTranslationException
 	{
 		ElementState result;
 

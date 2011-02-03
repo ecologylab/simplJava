@@ -14,7 +14,7 @@ import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -176,7 +176,7 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 
 	
 	@Override
-	public String marshall(ParsedURL instance, SerializationContext serializationContext)
+	public String marshall(ParsedURL instance, TranslationContext serializationContext)
 	{
 		ParsedURL contextualizedInstance = instance;
 		if (serializationContext != null)

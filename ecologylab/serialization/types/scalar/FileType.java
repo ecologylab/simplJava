@@ -9,7 +9,7 @@ import java.io.IOException;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
@@ -59,7 +59,7 @@ public class FileType extends ScalarType<File>
 		}
 		
 		@Override
-		public String marshall(File instance, SerializationContext serializationContext)
+		public String marshall(File instance, TranslationContext serializationContext)
 		{
 			File contextualizedInstance = instance;
 			if (serializationContext != null)

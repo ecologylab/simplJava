@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 
 /**
  * Type system entry for float, a built-in primitive.
@@ -159,7 +159,7 @@ public class FloatType extends ScalarType<Float>
 	 * @throws IllegalArgumentException
 	 */
 	@Override
-	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext)
+	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		buffy.append(getValueToAppend(fieldDescriptor, context));

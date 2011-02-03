@@ -6,7 +6,7 @@ package ecologylab.serialization.types.scalar;
 import java.io.IOException;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 
 /**
@@ -45,7 +45,7 @@ public class StringType extends ReferenceType<String>
 	 * @param instance
 	 * @return
 	 */
-	@Override public String marshall(String instance, SerializationContext serializationContext)
+	@Override public String marshall(String instance, TranslationContext serializationContext)
 	{
 		return instance;
 	}
@@ -58,7 +58,7 @@ public class StringType extends ReferenceType<String>
 	 * @param needsEscaping
 	 */
 	@Override
-	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping, SerializationContext serializationContext)
+	public void appendValue(String instance, StringBuilder buffy, boolean needsEscaping, TranslationContext serializationContext)
 	{
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instance);
@@ -74,7 +74,7 @@ public class StringType extends ReferenceType<String>
 	 * @throws IOException 
 	 */
 	@Override
-	public void appendValue(String instance, Appendable appendable, boolean needsEscaping, SerializationContext serializationContext) 
+	public void appendValue(String instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext) 
 	throws IOException
 	{
 		if (needsEscaping)

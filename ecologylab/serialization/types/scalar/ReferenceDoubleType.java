@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 
 public class ReferenceDoubleType extends ScalarType<Double>
 {
@@ -62,7 +62,7 @@ public class ReferenceDoubleType extends ScalarType<Double>
      * @throws IllegalArgumentException 
      */
     @Override
-    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext) 
+    public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext) 
     throws IllegalArgumentException, IllegalAccessException, IOException
     {
         buffy.append(getValueToAppend(fieldDescriptor, context));

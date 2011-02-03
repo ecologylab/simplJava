@@ -6,7 +6,7 @@ package ecologylab.serialization.types.scalar;
 import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -58,7 +58,7 @@ public class ClassType extends ReferenceType<Class>
 	 * The string representation for a Field of the type Class
 	 */
 	@Override
-	public String marshall(Class instance, SerializationContext serializationContext)
+	public String marshall(Class instance, TranslationContext serializationContext)
 	{
 		return instance.getName();
 	}

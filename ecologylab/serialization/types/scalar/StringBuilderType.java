@@ -6,7 +6,7 @@ package ecologylab.serialization.types.scalar;
 import java.io.IOException;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
 
 /**
@@ -40,14 +40,14 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	}
 
 	@Override
-	public void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping, SerializationContext serializationContext)
+	public void appendValue(StringBuilder instance, StringBuilder buffy, boolean needsEscaping, TranslationContext serializationContext)
 	{
 		if (needsEscaping)
 			XMLTools.escapeXML(buffy, instance);
 		else
 			buffy.append(instance);
 	}
-	public void appendValue(StringBuilder instance, Appendable appendable, boolean needsEscaping, SerializationContext serializationContext)
+	public void appendValue(StringBuilder instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext)
 	throws IOException
 	{
 		if (needsEscaping)

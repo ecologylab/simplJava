@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.SerializationContext;
+import ecologylab.serialization.TranslationContext;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a
@@ -258,7 +258,7 @@ public abstract class ScalarType<T> extends Debug
 	 * @throws IllegalAccessException
 	 * @throws IllegalArgumentException
 	 */
-	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, SerializationContext serializationContext)
+	public void appendValue(Appendable buffy, FieldDescriptor fieldDescriptor, Object context, TranslationContext serializationContext)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		Object instance = fieldDescriptor.getField().get(context);
@@ -274,7 +274,7 @@ public abstract class ScalarType<T> extends Debug
 	 * @param serializationContext TODO
 	 * @return
 	 */
-	public String marshall(T instance, SerializationContext serializationContext)
+	public String marshall(T instance, TranslationContext serializationContext)
 	{
 		return instance.toString();
 	}
@@ -307,12 +307,12 @@ public abstract class ScalarType<T> extends Debug
 		}
 	}
 
-	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping, SerializationContext serializationContext)
+	public void appendValue(T instance, StringBuilder buffy, boolean needsEscaping, TranslationContext serializationContext)
 	{
 		buffy.append(marshall(instance, serializationContext));
 	}
 
-	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, SerializationContext serializationContext)
+	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext)
 			throws IOException
 	{
 		appendable.append(marshall(instance, serializationContext));

@@ -57,7 +57,7 @@ public final class TranslationScope extends ElementState
 	private Scope<ClassDescriptor>											entriesByTag							= new Scope<ClassDescriptor>();
 
 	private HashMap<Integer, ClassDescriptor>						entriesByTLVId						= new HashMap<Integer, ClassDescriptor>();
-	
+
 	private Scope<ClassDescriptor>											entriesByBibTeXType				= new Scope<ClassDescriptor>();
 
 	private final Scope<Class<? extends ElementState>>	nameSpaceClassesByURN			= new Scope<Class<? extends ElementState>>();
@@ -385,7 +385,7 @@ public final class TranslationScope extends ElementState
 		entriesByTag.put(entry.getTagName(), entry);
 		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
-		
+
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
 		entriesByBibTeXType.put(entry.getBibtexType(), entry);
 
@@ -464,7 +464,7 @@ public final class TranslationScope extends ElementState
 	{
 		return entriesByTLVId.get(tlvId);
 	}
-	
+
 	public ClassDescriptor getClassDescriptorByBibTeXType(String typeName)
 	{
 		return entriesByBibTeXType.get(typeName);
@@ -491,7 +491,7 @@ public final class TranslationScope extends ElementState
 
 		return (entry == null) ? null : entry.getDescribedClass();
 	}
-	
+
 	public ClassDescriptor getClassDescriptorByClassName(String className)
 	{
 		return entriesByClassName.get(className);
@@ -951,21 +951,33 @@ public final class TranslationScope extends ElementState
 	 */
 	public ElementState deserialize(String fileName) throws SIMPLTranslationException
 	{
+		return deserialize(fileName, new TranslationContext());
+	}
+	
+	public ElementState deserialize(String fileName, TranslationContext translationContext) throws SIMPLTranslationException
+	{
 		File xmlFile = new File(fileName);
 		if (!xmlFile.exists() && !xmlFile.canRead())
 			throw new SIMPLTranslationException("Can't access " + xmlFile.getAbsolutePath(),
 					FILE_NOT_FOUND);
 
-		return deserialize(xmlFile);
+		return deserialize(xmlFile, translationContext);
 	}
 
-	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format) throws SIMPLTranslationException
+	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format)
+			throws SIMPLTranslationException
+	{
+		return deserializeByteArray(byteArray, format, new TranslationContext());
+	}
+
+	public ElementState deserializeByteArray(byte[] byteArray, FORMAT format,
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
 		ElementState result = null;
 		switch (format)
 		{
 		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 			result = saxHandler.parse(new String(byteArray));
 			break;
 		case JSON:
@@ -983,11 +995,17 @@ public final class TranslationScope extends ElementState
 	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format)
 			throws SIMPLTranslationException
 	{
+		return deserializeCharSequence(charSequence, format, new TranslationContext());
+	}
+
+	public ElementState deserializeCharSequence(CharSequence charSequence, FORMAT format,
+			TranslationContext translationContext) throws SIMPLTranslationException
+	{
 		ElementState result = null;
 		switch (format)
 		{
 		case XML:
-			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+			ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 			result = saxHandler.parse(charSequence);
 			break;
 		case JSON:
@@ -1001,6 +1019,12 @@ public final class TranslationScope extends ElementState
 		return result;
 	}
 
+	public ElementState deserializeCharSequence(CharSequence charSequence)
+			throws SIMPLTranslationException
+	{
+		return deserializeCharSequence(charSequence, new TranslationContext());
+	}
+
 	/**
 	 * Use the (faster!) SAX parser to form a strongly typed tree of ElementState objects from XML.
 	 * 
@@ -1008,11 +1032,16 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserializeCharSequence(CharSequence charSequence)
-			throws SIMPLTranslationException
+	public ElementState deserializeCharSequence(CharSequence charSequence,
+			TranslationContext translationContext) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(charSequence);
+	}
+
+	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
+	{
+		return deserialize(purl, new TranslationContext());
 	}
 
 	/**
@@ -1022,7 +1051,8 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
+	public ElementState deserialize(ParsedURL purl, TranslationContext translationContext)
+			throws SIMPLTranslationException
 	{
 		if (purl == null)
 			throw new SIMPLTranslationException("Null PURL", NULL_PURL);
@@ -1030,8 +1060,13 @@ public final class TranslationScope extends ElementState
 		if (!purl.isNotFileOrExists())
 			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(purl);
+	}
+
+	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
+	{
+		return deserialize(inputStream, new TranslationContext());
 	}
 
 	/**
@@ -1042,11 +1077,12 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
+	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext)
+			throws SIMPLTranslationException
 	{
-		return deserialize(inputStream, null);
-//		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
-//		return saxHandler.parse(inputStream);
+		return deserialize(inputStream, translationContext, null);
+		// ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		// return saxHandler.parse(inputStream);
 	}
 
 	/**
@@ -1062,29 +1098,54 @@ public final class TranslationScope extends ElementState
 	public ElementState deserialize(InputStream inputStream,
 			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(inputStream, new TranslationContext(), deserializationHookStrategy);
+	}
+
+	public ElementState deserialize(InputStream inputStream, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(inputStream, deserializationHookStrategy);
 	}
 
 	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
 			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(purlConnection, new TranslationContext(), deserializationHookStrategy);
+
+	}
+
+	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+			throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(purlConnection, deserializationHookStrategy);
 	}
 
-	
 	public ElementState deserialize(File file, DeserializationHookStrategy deserializationHookStrategy)
 			throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(file, new TranslationContext(), deserializationHookStrategy);
+	}
+
+	public ElementState deserialize(File file, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(file, deserializationHookStrategy);
 	}
 
 	public ElementState deserialize(CharSequence charSequence,
 			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(charSequence, new TranslationContext(), deserializationHookStrategy);
+	}
+
+	public ElementState deserialize(CharSequence charSequence, TranslationContext translationContext,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(charSequence, deserializationHookStrategy);
 	}
 
@@ -1097,7 +1158,13 @@ public final class TranslationScope extends ElementState
 	 */
 	public ElementState deserialize(URL url) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(url, new TranslationContext());
+	}
+
+	public ElementState deserialize(URL url, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(url);
 	}
 
@@ -1110,7 +1177,13 @@ public final class TranslationScope extends ElementState
 	 */
 	public ElementState deserialize(File file) throws SIMPLTranslationException
 	{
-		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this);
+		return deserialize(file, new TranslationContext());
+	}
+
+	public ElementState deserialize(File file, TranslationContext translationContext)
+			throws SIMPLTranslationException
+	{
+		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(file);
 	}
 
@@ -1175,7 +1248,8 @@ public final class TranslationScope extends ElementState
 				{
 					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
 					{
-						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor.getField());
+						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor
+								.getField());
 
 						for (Class<?> genericClass : genericClasses)
 						{
@@ -1203,25 +1277,25 @@ public final class TranslationScope extends ElementState
 			}
 		}
 	}
-	
+
 	public void augment()
-  {
-      Class<? extends ElementState>[] augmentedClassesArray = getClassesArray(this);
+	{
+		Class<? extends ElementState>[] augmentedClassesArray = getClassesArray(this);
 
-      this.addTranslations(augmentedClassesArray);
-  }
+		this.addTranslations(augmentedClassesArray);
+	}
 
-	private static Class<? extends ElementState>[] getClassesArray(TranslationScope translationScope) 
-  {
-      ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
-      Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
-              .values();
+	private static Class<? extends ElementState>[] getClassesArray(TranslationScope translationScope)
+	{
+		ArrayList<Class<? extends ElementState>> allClasses = translationScope.getAllClasses();
+		Collection<Class<? extends ElementState>> augmentedClasses = augmentTranslationScope(allClasses)
+				.values();
 
-      Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
-              .toArray(new Class<?>[augmentedClasses.size()]);
-      return augmentedClassesArray;
-  }
-	
+		Class<? extends ElementState>[] augmentedClassesArray = (Class<? extends ElementState>[]) augmentedClasses
+				.toArray(new Class<?>[augmentedClasses.size()]);
+		return augmentedClassesArray;
+	}
+
 	/**
 	 * @return the performFilters
 	 */

@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import ecologylab.net.ParsedURL;
 
-public class SerializationContext implements ScalarUnmarshallingContext
+public class TranslationContext implements ScalarUnmarshallingContext
 {
 	public HashMap<Integer, ElementState>	marshalledObjects				= new HashMap<Integer, ElementState>();
 
@@ -19,12 +19,12 @@ public class SerializationContext implements ScalarUnmarshallingContext
 	
 	protected File fileContext;
 	
-	public SerializationContext()
+	public TranslationContext()
 	{
 		
 	}
 	
-	public SerializationContext(File fileContext)
+	public TranslationContext(File fileContext)
 	{
 		this.fileContext = fileContext;
 		this.purlContext = new ParsedURL(fileContext);
