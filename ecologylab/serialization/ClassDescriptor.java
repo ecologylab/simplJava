@@ -95,6 +95,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private ArrayList<FD>																	attributeFieldDescriptors			= new ArrayList<FD>();
 
 	private ArrayList<FD>																	elementFieldDescriptors				= new ArrayList<FD>();										;
+	
+	private FD 																						scalarValueFieldDescripotor   = null;
 
 	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap			= new HashMap<String, ClassDescriptor>();
 
@@ -233,7 +235,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				if (result == null)
 				{
 					result = new FieldDescriptor(this);
-					pseudoFieldDescriptor = result;
+					pseudoFieldDescriptor = result; 
 				}
 			}
 		}
@@ -447,6 +449,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 			else
 				elementFieldDescriptors.add(fieldDescriptor);
+			
+			if(XMLTools.isCompositeAsScalarvalue(thatField))
+			{
+				scalarValueFieldDescripotor = fieldDescriptor;
+			}
 
 			// TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
@@ -781,5 +788,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			return null;
 		String[] result = otherTagsAnnotation.value();
 		return result == null ? null : result.length == 0 ? null : result;
+	}
+
+	public FD getScalarValueFieldDescripotor()
+	{
+		return scalarValueFieldDescripotor;
 	}
 }

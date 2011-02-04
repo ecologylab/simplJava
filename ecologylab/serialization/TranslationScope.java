@@ -904,7 +904,7 @@ public final class TranslationScope extends ElementState
 	 */
 	<U> ScalarType<U> getType(Class<U> thatClass)
 	{
-		return TypeRegistry.getType(thatClass);
+		return TypeRegistry.getType(thatClass, null);
 	}
 
 	/**

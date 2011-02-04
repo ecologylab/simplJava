@@ -1508,6 +1508,12 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	{
 		return field.isAnnotationPresent(ElementState.simpl_scalar.class);
 	}
+	
+	static boolean isCompositeAsScalarvalue(Field field)
+	{
+		return field.isAnnotationPresent(ElementState.simpl_composite_as_scalar.class);
+	}
+	
 
 	static Hint simplHint(Field field)
 	{
@@ -1573,6 +1579,11 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	public static boolean isEnum(Class thatClass)
 	{
 		return Enum.class.isAssignableFrom(thatClass);
+	}
+
+	public static boolean isComposite(Class thatClass)
+	{
+		return ElementState.class.isAssignableFrom(thatClass);
 	}
 
 	public static Enum<?> createEnumeratedType(Field field, String valueString)

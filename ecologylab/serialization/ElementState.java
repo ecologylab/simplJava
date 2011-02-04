@@ -297,9 +297,53 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 											e);
 								}
 							}
+							else if (next instanceof ElementState)
+							{
+								ElementState nestedES = (ElementState) next;
+								FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor().getScalarValueFieldDescripotor();
+								try
+								{
+									if(compositeAsScalarFD != null)
+										compositeAsScalarFD.appendBibtexCollectionCompositeAttribute(appendable, nestedES, j == 0);
+									else
+										debugA("WARNING : Serializing composite object " + nestedES + " failed. No inner annotation @simpl_composte_as_scalar present");
+								}
+								catch (IllegalArgumentException e)
+								{
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								catch (IllegalAccessException e)
+								{
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
 						}
 						
 						if(collectionSize > 0) appendable.append("}");
+					}
+				}
+				else if(thatReferenceObject instanceof ElementState)
+				{
+					ElementState nestedES = (ElementState) thatReferenceObject;
+					FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor().getScalarValueFieldDescripotor();
+					try
+					{
+						if(compositeAsScalarFD != null)
+							compositeAsScalarFD.appendValueAsBibtexAttribute(appendable, nestedES, !elementsSerialized);
+						else
+							debugA("WARNING : Serializing composite object " + nestedES + " failed. No inner annotation @simpl_composte_as_scalar present");
+					}
+					catch (IllegalArgumentException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					catch (IllegalAccessException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
@@ -1739,6 +1783,28 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface bibtex_key
+	{
+		
+	}
+	
+	/**
+	 * annotation to define the type of a bibtex key.
+	 * 
+	 * @author nabeel
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface simpl_composite_as_scalar
+	{
+		
+	}
+	
+	/**
+	 * annotation to define the type of a bibtex key.
+	 * 
+	 * @author nabeel
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface simpl_composite_as_scalar_value
 	{
 		
 	}

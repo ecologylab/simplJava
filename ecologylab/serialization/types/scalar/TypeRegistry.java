@@ -39,7 +39,11 @@ public class TypeRegistry extends Debug
 
 			PatternType.class, EnumeratedType.class,
 
-			ClassType.class, FieldType.class,												};
+			ClassType.class, FieldType.class,											
+			
+			//This scalar type is not used anywhere as of now. see class commemts.
+			CompositeAsScalarType.class
+																																};
 
 	static
 	{
@@ -109,7 +113,7 @@ public class TypeRegistry extends Debug
 	 */
 	public static ScalarType getType(Field field)
 	{
-		return getType(field.getType());
+		return getType(field.getType(), field);
 	}
 
 	/**
@@ -120,7 +124,25 @@ public class TypeRegistry extends Debug
 	 */
 	public static <U> ScalarType<U> getType(Class<U> thatClass)
 	{
-		return (XMLTools.isEnum(thatClass)) ? getType(Enum.class.getName()) : getType(thatClass.getName());
+		return getType(thatClass, null);
+	}
+
+	public static <U> ScalarType<U> getType(Class<U> thatClass, Field field)
+	{
+		if (field == null)
+		{
+			return (XMLTools.isEnum(thatClass)) ? getType(Enum.class.getName()) : getType(thatClass
+					.getName());
+		}
+		else if (XMLTools.isComposite(thatClass))
+		{
+			return getType(CompositeAsScalarType.class.getName());
+		}
+		else
+		{	
+			return (XMLTools.isEnum(thatClass)) ? getType(Enum.class.getName()) : getType(thatClass
+					.getName());
+		}
 	}
 
 	/**

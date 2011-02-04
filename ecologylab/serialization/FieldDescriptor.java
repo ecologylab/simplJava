@@ -1258,6 +1258,22 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		}
 	}
+	
+	void appendBibtexCollectionCompositeAttribute(Appendable appendable, Object instance,
+			boolean isFirst) throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (instance != null)
+		{
+			if (!isFirst)
+			{
+				appendable.append(", ");
+			}
+
+			ScalarType scalarType = this.scalarType;
+			scalarType.appendValue(appendable, this, instance, null);
+
+		}
+	}
 
 	void appendJSONCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
