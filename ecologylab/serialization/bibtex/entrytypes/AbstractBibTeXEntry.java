@@ -25,6 +25,10 @@ public abstract class AbstractBibTeXEntry extends ElementState
 	@bibtex_tag("author")
 	private ArrayList<String>	authors;
 
+	@simpl_scalar
+	@bibtex_tag("year")
+	private int								year;
+
 	// optional fields
 
 	@simpl_scalar
@@ -125,6 +129,16 @@ public abstract class AbstractBibTeXEntry extends ElementState
 	public void setDoi(String doi)
 	{
 		this.doi = doi;
+	}
+
+	public void setYear(int year)
+	{
+		this.year = year;
+	}
+
+	public int getYear()
+	{
+		return year;
 	}
 
 }

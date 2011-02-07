@@ -17,12 +17,6 @@ public class BibTeXArticle extends AbstractBibTeXEntry
 	private String	journal;
 
 	@simpl_scalar
-	@bibtex_tag("year")
-	private int			year;
-
-	// optional fields
-
-	@simpl_scalar
 	@bibtex_tag("volume")
 	private String	volume;
 
@@ -42,16 +36,6 @@ public class BibTeXArticle extends AbstractBibTeXEntry
 	public void setJournal(String journal)
 	{
 		this.journal = journal;
-	}
-
-	public int getYear()
-	{
-		return year;
-	}
-
-	public void setYear(int year)
-	{
-		this.year = year;
 	}
 
 	public String getVolume()

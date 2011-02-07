@@ -17,12 +17,6 @@ public class BibTeXTechReport extends AbstractBibTeXEntry
 	private String	institution;
 
 	@simpl_scalar
-	@bibtex_tag("year")
-	private int			year;
-
-	// optional fields
-
-	@simpl_scalar
 	@bibtex_tag("type")
 	private String	type;
 
@@ -42,16 +36,6 @@ public class BibTeXTechReport extends AbstractBibTeXEntry
 	public void setInstitution(String institution)
 	{
 		this.institution = institution;
-	}
-
-	public int getYear()
-	{
-		return year;
-	}
-
-	public void setYear(int year)
-	{
-		this.year = year;
 	}
 
 	public String getType()

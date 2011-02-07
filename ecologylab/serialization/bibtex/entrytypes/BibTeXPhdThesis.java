@@ -17,12 +17,6 @@ public class BibTeXPhdThesis extends AbstractBibTeXEntry
 	private String	school;
 
 	@simpl_scalar
-	@bibtex_tag("year")
-	private int			year;
-
-	// optional fields
-
-	@simpl_scalar
 	@bibtex_tag("address")
 	private String	address;
 
@@ -34,16 +28,6 @@ public class BibTeXPhdThesis extends AbstractBibTeXEntry
 	public void setSchool(String school)
 	{
 		this.school = school;
-	}
-
-	public int getYear()
-	{
-		return year;
-	}
-
-	public void setYear(int year)
-	{
-		this.year = year;
 	}
 
 	public String getAddress()

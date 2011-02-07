@@ -18,12 +18,6 @@ public class BibTeXInProceedings extends AbstractBibTeXEntry
 	@bibtex_tag("booktitle")
 	private String						booktitle;
 
-	@simpl_scalar
-	@bibtex_tag("year")
-	private int								year;
-
-	// optional fields
-
 	@simpl_collection("editor")
 	@bibtex_tag("editor")
 	private ArrayList<String>	editors;
@@ -52,16 +46,6 @@ public class BibTeXInProceedings extends AbstractBibTeXEntry
 	public void setBooktitle(String booktitle)
 	{
 		this.booktitle = booktitle;
-	}
-
-	public int getYear()
-	{
-		return year;
-	}
-
-	public void setYear(int year)
-	{
-		this.year = year;
 	}
 
 	public ArrayList<String> getEditors()

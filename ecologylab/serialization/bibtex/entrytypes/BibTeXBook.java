@@ -23,12 +23,6 @@ public class BibTeXBook extends AbstractBibTeXEntry
 	private String						publisher;
 
 	@simpl_scalar
-	@bibtex_tag("year")
-	private int								year;
-
-	// optional fields
-
-	@simpl_scalar
 	@bibtex_tag("volume")
 	private String						volume;
 
@@ -52,16 +46,6 @@ public class BibTeXBook extends AbstractBibTeXEntry
 	public void setPublisher(String publisher)
 	{
 		this.publisher = publisher;
-	}
-
-	public int getYear()
-	{
-		return year;
-	}
-
-	public void setYear(int year)
-	{
-		this.year = year;
 	}
 
 	public ArrayList<String> getEditors()
