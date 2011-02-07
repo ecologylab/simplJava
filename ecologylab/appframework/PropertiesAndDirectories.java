@@ -103,39 +103,54 @@ extends Debug
 		return applicationName;
 	}
 
-/**
- * This function now uses the Assets class that manages caching and retrieval of
- * assets.
- * 
- * @return		The directory where we like to cache files.
- *				not user files (information spaces), but our application files.
- */
+	/**
+	 * This function now uses the Assets class that manages caching and retrieval of assets.
+	 * 
+	 * @return The directory where we like to cache files. not user files (information spaces), but
+	 *         our application files.
+	 */
 	public static File thisApplicationDir()
 	{
 		File result = THIS_APPLICATION_DIR;
 		if (result == null)
 		{
-			File apDataDir			= applicationDataDir();
-			//println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName +" os()="
-			//	   +os());
-			switch (os)
-			{
-			case XP:
-			case VISTA_AND_7:
-			case MAC:
-			case MAC_OLD: 
-				result	= Files.newFile(apDataDir, applicationName);
-				break;
-			case LINUX:
-			case OTHER_UNIX:
-			case UNKNOWN:
-				result	= Files.newFile(apDataDir, "." + applicationName);
-			}
-			
-			result				= createDirsAsNeeded(result);
+			result = lookupApplicationDir(applicationName);
+			result = createDirsAsNeeded(result);
 			if (result != null)
-				THIS_APPLICATION_DIR= result;
+				THIS_APPLICATION_DIR = result;
 		}
+		return result;
+	}
+
+	/**
+	 * Lookup the location for application files, given the application name.
+	 * 
+	 * @param applicationName
+	 *          name of the application whose application files directory we want to find.
+	 * @return the application files directory for the application.
+	 */
+	public static File lookupApplicationDir(String applicationName)
+	{
+		File apDataDir = applicationDataDir();
+		File result = null;
+
+		// println("thisApplicationDir() apDataDir="+apDataDir+" applicationName="+applicationName
+		// +" os()="
+		// +os());
+		switch (os)
+		{
+		case XP:
+		case VISTA_AND_7:
+		case MAC:
+		case MAC_OLD:
+			result = Files.newFile(apDataDir, applicationName);
+			break;
+		case LINUX:
+		case OTHER_UNIX:
+		case UNKNOWN:
+			result = Files.newFile(apDataDir, "." + applicationName);
+		}
+
 		return result;
 	}
 	
@@ -151,11 +166,7 @@ extends Debug
 			
 			if (apDataDir != null)
 			{
-				int thisOS = os();
-				if (thisOS == XP || thisOS == VISTA_AND_7)
-					result			= Files.newFile(apDataDir, "log");
-				else
-					result			= Files.newFile(apDataDir, "." + "log");
+				result = lookupApplicationLogDir(apDataDir);
 				
 				result				= createDirsAsNeeded(result);
 				if (result != null)
@@ -163,6 +174,20 @@ extends Debug
 			}
 			println("LOG_DIR = "+LOG_DIR);
 		}
+		return result;
+	}
+	/**
+	 * @param apDataDir
+	 * @return
+	 */
+	public static File lookupApplicationLogDir(File apDataDir)
+	{
+		File result;
+		int thisOS = os();
+		if (thisOS == XP || thisOS == VISTA_AND_7)
+			result			= Files.newFile(apDataDir, "log");
+		else
+			result			= Files.newFile(apDataDir, "." + "log");
 		return result;
 	}
 	/**
