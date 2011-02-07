@@ -7,6 +7,7 @@ import java.util.List;
 
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.FORMAT;
+import ecologylab.serialization.bibtex.entrytypes.AbstractBibTeXEntry;
 import ecologylab.serialization.bibtex.entrytypes.BibTeXInProceedings;
 import ecologylab.serialization.ElementStateBibTeXHandler;
 import ecologylab.serialization.FieldTypes;
@@ -354,18 +355,18 @@ public class BibTeXParser implements FieldTypes
 			sb.append(buf, 0, len);
 		}
 		
-		List<BibTeXInProceedings> entities = parse(sb.toString().toCharArray());
-		for (BibTeXInProceedings entity : entities)
+		List<AbstractBibTeXEntry> entities = parse(sb.toString().toCharArray());
+		for (AbstractBibTeXEntry entity : entities)
 		{
 			entity.serialize(System.out, FORMAT.XML);
 			System.out.println();
-			entity.serialize(System.out, FORMAT.BIBTEX);
+//			entity.serialize(System.out, FORMAT.BIBTEX);
 		}
 	}
 
 	public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException, IOException
 	{
-		BibTeXEvents listener = new ElementStateBibTeXHandler(TranslationScope.get("bibtex_test", BibTeXInProceedings.class));
+		BibTeXEvents listener = new ElementStateBibTeXHandler(BibTeXEntryTranslationScope.get());
 		BibTeXParser parser = new BibTeXParser(listener);
 //		parser.testReadValue();
 //		parser.testParser1();
