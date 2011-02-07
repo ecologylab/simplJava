@@ -13,17 +13,19 @@ public class TranslationContext implements ScalarUnmarshallingContext
 
 	public HashMap<Integer, ElementState>	needsAttributeHashCode	= new HashMap<Integer, ElementState>();
 
-	public HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
-	
-	protected ParsedURL purlContext;
-	
-	protected File fileContext;
-	
+	public HashMap<String, ElementState>	unmarshalledObjects			= new HashMap<String, ElementState>();
+
+	protected ParsedURL										purlContext;
+
+	protected File												fileContext;
+
+	protected String											delimiter								= ",";
+
 	public TranslationContext()
 	{
-		
+
 	}
-	
+
 	public TranslationContext(File fileContext)
 	{
 		this.fileContext = fileContext;
@@ -33,7 +35,8 @@ public class TranslationContext implements ScalarUnmarshallingContext
 	@Override
 	public ParsedURL purlContext()
 	{
-		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext) : null;
+		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext)
+				: null;
 	}
 
 	@Override
@@ -41,4 +44,10 @@ public class TranslationContext implements ScalarUnmarshallingContext
 	{
 		return (fileContext != null) ? fileContext : (purlContext != null) ? purlContext.file() : null;
 	}
+
+	public String getDelimiter()
+	{
+		return delimiter;
+	}
+
 }

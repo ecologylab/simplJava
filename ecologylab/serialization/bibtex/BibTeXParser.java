@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.FORMAT;
+import ecologylab.serialization.bibtex.entrytypes.BibTeXInProceedings;
 import ecologylab.serialization.ElementStateBibTeXHandler;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.tests.BibTeXEntity;
 
 public class BibTeXParser implements FieldTypes
 {
@@ -333,8 +334,8 @@ public class BibTeXParser implements FieldTypes
 	void testParser1() throws BibTeXFormatException, SIMPLTranslationException
 	{
 		String data = "   @inproceedings   {  article1  ,  author   =   \"Author 1\"   ,   title    =   {TITLE 1}     }    @inproceedings {   article2,  author = \"Somebody\", sometag={some value}}   ";
-		List<BibTeXEntity> entities = parse(data.toCharArray());
-		for (BibTeXEntity entity : entities)
+		List<BibTeXInProceedings> entities = parse(data.toCharArray());
+		for (BibTeXInProceedings entity : entities)
 		{
 			System.out.println(entity.serialize().toString());
 		}
@@ -353,16 +354,18 @@ public class BibTeXParser implements FieldTypes
 			sb.append(buf, 0, len);
 		}
 		
-		List<BibTeXEntity> entities = parse(sb.toString().toCharArray());
-		for (BibTeXEntity entity : entities)
+		List<BibTeXInProceedings> entities = parse(sb.toString().toCharArray());
+		for (BibTeXInProceedings entity : entities)
 		{
-			System.out.println(entity.serialize().toString());
+			entity.serialize(System.out, FORMAT.XML);
+			System.out.println();
+			entity.serialize(System.out, FORMAT.BIBTEX);
 		}
 	}
 
 	public static void main(String[] args) throws BibTeXFormatException, SIMPLTranslationException, IOException
 	{
-		BibTeXEvents listener = new ElementStateBibTeXHandler(TranslationScope.get("bibtex_test", BibTeXEntity.class));
+		BibTeXEvents listener = new ElementStateBibTeXHandler(TranslationScope.get("bibtex_test", BibTeXInProceedings.class));
 		BibTeXParser parser = new BibTeXParser(listener);
 //		parser.testReadValue();
 //		parser.testParser1();

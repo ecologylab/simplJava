@@ -153,8 +153,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		appendable.append("@");
 		appendable.append(fieldDescritpor.getBibtexTagName());
-		appendable.append('\n');
-		appendable.append('{');
+		appendable.append(" { ");
 
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
 				.elementFieldDescriptors();
@@ -165,24 +164,32 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		int numAttributes = attributeFieldDescriptors.size();
 		int numElements = elementFieldDescriptors.size();
 
-		boolean attributesSerialized = false;
-
 		if (numAttributes > 0)
 		{
 			try
 			{
+				// iterate through fields to find @bibtex_key
 				for (int i = 0; i < numAttributes; i++)
 				{
-					// iterate through fields
 					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
+					if (childFD.getField().getAnnotation(bibtex_key.class) != null)
+					{
+						childFD.appendValueAsBibtexAttribute(appendable, this, true);
+						break;
+					}
+				}
+				
+				// iterate through fields that are not @bibtex_key
+				for (int i = 0; i < numAttributes; i++)
+				{
+					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
+					if (childFD.getField().getAnnotation(bibtex_key.class) != null)
+						continue;
+					
 					boolean isDefaultValue = childFD.isDefaultValue(this);
 					if (!isDefaultValue)
 					{
-						childFD.appendValueAsBibtexAttribute(appendable, this, !attributesSerialized);
-						if (!attributesSerialized)
-						{
-							attributesSerialized = true;
-						}
+						childFD.appendValueAsBibtexAttribute(appendable, this, false);
 					}
 				}
 			}
@@ -261,8 +268,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				if (thatCollection != null && (thatCollection.size() > 0))
 				{
-					if (attributesSerialized || elementsSerialized)
-						appendable.append(", ");
+					if (elementsSerialized)
+							appendable.append(", ");
 
 					elementsSerialized = true;
 
@@ -284,7 +291,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							{
 								try
 								{
-									childFD.appendBibtexCollectionAttribute(appendable, next, j == 0);
+									String delim = "author".equals(childFD.getBibtexTagName()) ? " and " : graphContext.getDelimiter() + " ";
+									childFD.appendBibtexCollectionAttribute(appendable, next, j == 0, delim);
 								}
 								catch (IllegalArgumentException e)
 								{
@@ -350,7 +358,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 		
 		appendable.append('\n');
-		appendable.append('}');
+		appendable.append("}\n");
 
 	}
 
