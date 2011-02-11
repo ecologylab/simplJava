@@ -1491,7 +1491,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	
 	public void writeHtmlWrap(Appendable a, boolean close, int size) throws IOException
 	{
-		String button = "<input type=\"image\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />";
+		String button = "&nbsp;<input type=\"image\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />&nbsp;";
 		Td td = new Td();
 		Td fieldName = new Td();
 		Div text = new Div();
@@ -1499,14 +1499,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		fieldName.setCssClass("metadata_field_name");
 		fieldName.setAlign("right");
 		td.setCssClass("nested_field_value");
-		if (close) a.append(Td.close());
+		if (close) 
+			a.append(Td.close());
 		else
 		{
 			a.append(fieldName.open());
 			a.append(text.open());
 			a.append(button);
 			a.append(tagName);
-			a.append(" (");
+			a.append("&nbsp;(");
 			a.append(Integer.toString(size));
 			a.append(")");
 			a.append(text.close());			
