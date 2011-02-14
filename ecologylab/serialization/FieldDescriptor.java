@@ -1273,6 +1273,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		}
 	}
+	
+	public void appendHtmlCollectionCompositeAttribute(Appendable a, Object instance, boolean isFirst) throws IllegalArgumentException, IllegalAccessException, IOException
+	{
+		if (instance != null)
+		{
+			if (!isFirst)
+				a.append(",&nbsp;");
+			scalarType.appendValue(a, this, instance, null);
+		}
+	}
 
 	void appendJSONCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
@@ -1505,11 +1515,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		{
 			a.append(fieldName.open());
 			a.append(text.open());
-			a.append(button);
+			if (size > 1 || size == 0) a.append(button);
 			a.append(tagName);
-			a.append("&nbsp;(");
-			a.append(Integer.toString(size));
-			a.append(")");
+			if (size > 1)
+			{
+				a.append("&nbsp;(");
+				a.append(Integer.toString(size));
+				a.append(")");
+			}
 			a.append(text.close());			
 			a.append(Td.close());
 			a.append(td.open());
