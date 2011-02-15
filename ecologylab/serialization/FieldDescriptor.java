@@ -989,13 +989,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * 
 	 * @param appendable
 	 * @param context
-	 * @param serializationContext TODO
+	 * @param serializationContext
+	 *          TODO
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public void appendValueAsAttribute(Appendable appendable, Object context, TranslationContext serializationContext)
-			throws IllegalArgumentException, IllegalAccessException, IOException
+	public void appendValueAsAttribute(Appendable appendable, Object context,
+			TranslationContext serializationContext) throws IllegalArgumentException,
+			IllegalAccessException, IOException
 	{
 		if (context != null)
 		{
@@ -1019,58 +1021,60 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			}
 		}
 	}
-	
-	public void appendHtmlValueAsAttribute(Appendable a, Object context, TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
-		throws IllegalArgumentException, IllegalAccessException, IOException
+
+	public void appendHtmlValueAsAttribute(Appendable a, Object context,
+			TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
+			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (!scalarType.isDefaultValue(field, context))
 		{
-			Td fieldName 			= new Td();
-			Td value 					= new Td();
-			Div text 					= new Div();
-			Div name					= new Div();
-			Anchor anchor 		= new Anchor();
-			String textClass 	= (bold) ? "metadata_h1" : "metadata_text";
-			
-			boolean hasNavigatesTo 						= navigatesFD != null;
+			Td fieldName = new Td();
+			Td value = new Td();
+			Div text = new Div();
+			Div name = new Div();
+			Anchor anchor = new Anchor();
+			String textClass = (bold) ? "metadata_h1" : "metadata_text";
+
+			boolean hasNavigatesTo = navigatesFD != null;
 			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
-			Field navigatesField 							= (hasNavigatesTo) ? navigatesFD.getField() : null;
-			hasNavigatesTo										= hasNavigatesTo && !navigatesScalarType.isDefaultValue(navigatesField, context);
-			
+			Field navigatesField = (hasNavigatesTo) ? navigatesFD.getField() : null;
+			hasNavigatesTo = hasNavigatesTo
+					&& !navigatesScalarType.isDefaultValue(navigatesField, context);
+
 			text.setCssClass(textClass);
 			fieldName.setAlign("right");
 			fieldName.setCssClass("metadata_field_name");
 			a.append(fieldName.open());
 			a.append(name.open());
-			
+
 			if (hasNavigatesTo)
 			{
 				a.append(anchor.open());
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}
-			
+
 			a.append(tagName);
 			if (hasNavigatesTo)
 				a.append(Anchor.close());
 			a.append(name.close());
-			a.append(Td.close());				
+			a.append(Td.close());
 			a.append(value.open());
 			a.append(text.open());
-			if (bold) 
+			if (bold)
 				a.append("<b>");
-			
+
 			if (hasNavigatesTo)
 			{
 				a.append(anchor.open());
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
-			}	
-			
+			}
+
 			scalarType.appendValue(a, this, context, serializationContext);
-			if (hasNavigatesTo) 
+			if (hasNavigatesTo)
 				a.append(Anchor.close());
-			if (bold) 
+			if (bold)
 				a.append("</b>");
 			a.append(text.close());
 			a.append(Td.close());
@@ -1243,8 +1247,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
-	void appendBibtexCollectionAttribute(Appendable appendable, Object instance, boolean isFirst, String delim)
-			throws IllegalArgumentException, IllegalAccessException, IOException
+	void appendBibtexCollectionAttribute(Appendable appendable, Object instance, boolean isFirst,
+			String delim) throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (instance != null)
 		{
@@ -1257,7 +1261,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			scalarType.appendValue(instance, appendable, false, null);
 		}
 	}
-	
+
 	void appendBibtexCollectionCompositeAttribute(Appendable appendable, Object instance,
 			boolean isFirst) throws IllegalArgumentException, IllegalAccessException, IOException
 	{
@@ -1273,8 +1277,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		}
 	}
-	
-	public void appendHtmlCollectionCompositeAttribute(Appendable a, Object instance, boolean isFirst) throws IllegalArgumentException, IllegalAccessException, IOException
+
+	public void appendHtmlCollectionCompositeAttribute(Appendable a, Object instance, boolean isFirst)
+			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (instance != null)
 		{
@@ -1352,16 +1357,18 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	/**
 	 * Use this and the context to append a leaf node with value to the Appendable passed in.
+	 * 
 	 * @param context
-	 * @param serializationContext TODO
+	 * @param serializationContext
+	 *          TODO
 	 * @param buffy
 	 * @param isAtXMLText
 	 * 
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	void appendLeaf(Appendable appendable, Object context, TranslationContext serializationContext) throws IllegalArgumentException,
-			IllegalAccessException, IOException
+	void appendLeaf(Appendable appendable, Object context, TranslationContext serializationContext)
+			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (context != null)
 		{
@@ -1378,7 +1385,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 				if (isCDATA)
 					appendable.append(START_CDATA);
-				scalarType.appendValue(appendable, this, context, serializationContext); // escape if not CDATA! :-)
+				scalarType.appendValue(appendable, this, context, serializationContext); // escape if not
+																																									// CDATA! :-)
 				if (isCDATA)
 					appendable.append(END_CDATA);
 
@@ -1498,7 +1506,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			appendable.append('/');
 		appendable.append(tagName).append('>');
 	}
-	
+
 	public void writeHtmlWrap(Appendable a, boolean close, int size) throws IOException
 	{
 		String button = "&nbsp;<input type=\"image\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />&nbsp;";
@@ -1507,15 +1515,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		Div text = new Div();
 		text.setCssClass("metadata_text");
 		fieldName.setCssClass("metadata_field_name");
-		fieldName.setAlign("right");
 		td.setCssClass("nested_field_value");
-		if (close) 
+		if (close)
 			a.append(Td.close());
 		else
 		{
 			a.append(fieldName.open());
 			a.append(text.open());
-			if (size > 1 || size == 0) a.append(button);
+			if (size > 1)
+				a.append(button);
 			a.append(tagName);
 			if (size > 1)
 			{
@@ -1523,11 +1531,32 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				a.append(Integer.toString(size));
 				a.append(")");
 			}
-			a.append(text.close());			
+			a.append(text.close());
 			a.append(Td.close());
 			a.append(td.open());
 		}
 
+	}
+
+	public void writeCompositeHtmlWrap(Appendable a, boolean close) throws IOException
+	{		
+		if (close)
+			a.append(Td.close());
+		else
+		{
+			Td td = new Td();
+			Td fieldName = new Td();
+			Div text = new Div();
+			text.setCssClass("metadata_text");
+			fieldName.setCssClass("metadata_field_name");
+			td.setCssClass("nested_field_value");
+			a.append(fieldName.open());
+			a.append(text.open());
+			a.append(tagName);
+			a.append(text.close());
+			a.append(Td.close());
+			a.append(td.open());
+		}
 	}
 
 	// ----------------------------- methods from TagDescriptor
@@ -1550,7 +1579,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 		value = filterValue(value);
 		if (!isCDATA)
-			value	= XMLTools.unescapeXML(value);
+			value = XMLTools.unescapeXML(value);
 		if (setValueMethod != null)
 		{
 			// if the method is found, invoke the method
