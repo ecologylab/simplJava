@@ -1507,9 +1507,9 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName).append('>');
 	}
 
-	public void writeHtmlWrap(Appendable a, boolean close, int size) throws IOException
+	public void writeHtmlWrap(Appendable a, boolean close, int size, String displayLabel) throws IOException
 	{
-		String button = "&nbsp;<input type=\"image\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />&nbsp;";
+		String button = "&nbsp;<input type=\"image\" class=\"general\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />&nbsp;";
 		Td td = new Td();
 		Td fieldName = new Td();
 		Div text = new Div();
@@ -1524,7 +1524,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			a.append(text.open());
 			if (size > 1)
 				a.append(button);
-			a.append(tagName);
+			a.append(displayLabel);
 			if (size > 1)
 			{
 				a.append("&nbsp;(");
@@ -1538,7 +1538,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	}
 
-	public void writeCompositeHtmlWrap(Appendable a, boolean close) throws IOException
+	public void writeCompositeHtmlWrap(Appendable a, boolean close, String displayLabel) throws IOException
 	{		
 		if (close)
 			a.append(Td.close());
@@ -1552,7 +1552,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			td.setCssClass("nested_field_value");
 			a.append(fieldName.open());
 			a.append(text.open());
-			a.append(tagName);
+			a.append(displayLabel);
 			a.append(text.close());
 			a.append(Td.close());
 			a.append(td.open());

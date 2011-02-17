@@ -10,7 +10,7 @@ public class Table extends HtmlElement
 		return "<table>";
 	}
 	
-	public String close()
+	public static String close()
 	{
 		return "</table>";
 	}
