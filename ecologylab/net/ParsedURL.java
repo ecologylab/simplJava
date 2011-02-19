@@ -1152,6 +1152,11 @@ public class ParsedURL extends Debug implements MimeType
 
 		return path;
 	}
+	
+	public String path()
+	{
+		return (url == null) ? null : url.getFile();
+	}
 
 	/**
 	 * Return true if the other object is either a ParsedURL or a URL that refers to the same location
