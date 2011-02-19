@@ -85,7 +85,8 @@ public class PrefixCollection  extends PrefixPhrase
 		PrefixPhrase hostPrefix	= lookupChild(host);
 		
 		// children of hostPrefix
-		return (hostPrefix == null) ? null : hostPrefix.getMatchingPrefix(purl.pathDirectoryString(), 1, separator);	// skip over starting '/'
+		String path = purl.path();
+		return (hostPrefix == null) ? null : hostPrefix.getMatchingPrefix(path, 1, separator);	// skip over starting '/'
 	}
 	
 	public boolean match(ParsedURL purl)
