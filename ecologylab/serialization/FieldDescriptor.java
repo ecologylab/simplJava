@@ -1023,7 +1023,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	public void appendHtmlValueAsAttribute(Appendable a, Object context,
-			TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD)
+			TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD, String fieldLabel)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 		if (!scalarType.isDefaultValue(field, context))
@@ -1054,7 +1054,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				a.append("\">");
 			}
 
-			a.append(tagName);
+			a.append(fieldLabel);
 			if (hasNavigatesTo)
 				a.append(Anchor.close());
 			a.append(name.close());
