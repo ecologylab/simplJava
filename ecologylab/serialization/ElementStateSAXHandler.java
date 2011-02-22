@@ -284,6 +284,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return parse(file);
 	}
 	
+	public ElementState parse(ParsedURL purl, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		this.deserializationHookStrategy = deserializationHookStrategy;
+		return parse(purl);
+	}
+	
 	public ElementState parse(CharSequence charSequence, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
 		this.deserializationHookStrategy = deserializationHookStrategy;

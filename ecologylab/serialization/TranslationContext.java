@@ -31,6 +31,13 @@ public class TranslationContext implements ScalarUnmarshallingContext
 		this.fileContext = fileContext;
 		this.purlContext = new ParsedURL(fileContext);
 	}
+	
+	public TranslationContext(ParsedURL purlContext)
+	{
+		this.purlContext = purlContext;
+		if (purlContext.isFile())
+			this.fileContext = purlContext.file();
+	}
 
 	@Override
 	public ParsedURL purlContext()

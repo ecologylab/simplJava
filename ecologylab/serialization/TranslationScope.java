@@ -1041,7 +1041,12 @@ public final class TranslationScope extends ElementState
 
 	public ElementState deserialize(ParsedURL purl) throws SIMPLTranslationException
 	{
-		return deserialize(purl, new TranslationContext());
+		return deserialize(purl, new TranslationContext(), null);
+	}
+	
+	public ElementState deserialize(ParsedURL purl, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	{
+		return deserialize(purl, new TranslationContext(), deserializationHookStrategy);
 	}
 
 	/**
@@ -1051,7 +1056,7 @@ public final class TranslationScope extends ElementState
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	public ElementState deserialize(ParsedURL purl, TranslationContext translationContext)
+	public ElementState deserialize(ParsedURL purl, TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
 			throws SIMPLTranslationException
 	{
 		if (purl == null)
@@ -1061,7 +1066,7 @@ public final class TranslationScope extends ElementState
 			throw new SIMPLTranslationException("Can't find " + purl.toString(), FILE_NOT_FOUND);
 
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
-		return saxHandler.parse(purl);
+		return saxHandler.parse(purl, deserializationHookStrategy);
 	}
 
 	public ElementState deserialize(InputStream inputStream) throws SIMPLTranslationException
