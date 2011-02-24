@@ -11,8 +11,7 @@ import java.awt.geom.Point2D;
 public class Vector2d extends SpatialVector implements Cloneable
 {
 	/**
-	 * Adds two vectors together and returns a new Vector2d object representing
-	 * the sum.
+	 * Adds two vectors together and returns a new Vector2d object representing the sum.
 	 * 
 	 * @param v1
 	 * @param v2
@@ -24,8 +23,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 	}
 
 	/**
-	 * Multiplies a vector by a scalar value and returns a new Vector2d
-	 * representing the result.
+	 * Multiplies a vector by a scalar value and returns a new Vector2d representing the result.
 	 * 
 	 * @param vector
 	 * @param scalar
@@ -60,11 +58,13 @@ public class Vector2d extends SpatialVector implements Cloneable
 		return new Vector2d(v1.getX() - v2.getX(), v1.getY() - v2.getY());
 	}
 
-	protected @simpl_scalar double	x;
+	protected @simpl_scalar
+	double										x;
 
-	protected @simpl_scalar double	y;
+	protected @simpl_scalar
+	double										y;
 
-	protected Point2D.Double			point	= null;
+	protected Point2D.Double	point	= null;
 
 	/**
 	 * 
@@ -90,8 +90,21 @@ public class Vector2d extends SpatialVector implements Cloneable
 
 	public void add(Vector2d v)
 	{
-		this.x += v.getX();
-		this.y += v.getY();
+		this.scaledAdd(v, 1.0);
+	}
+
+	/**
+	 * Scale a vector and add it to this.
+	 * 
+	 * @param v
+	 *          the vector to be scaled and added to this.
+	 * @param scale
+	 *          the scale for the vector to be added.
+	 */
+	public void scaledAdd(Vector2d v, double scale)
+	{
+		this.x += v.getX() * scale;
+		this.y += v.getY() * scale;
 
 		updatePointIfNotNull();
 	}
@@ -112,8 +125,8 @@ public class Vector2d extends SpatialVector implements Cloneable
 	/**
 	 * Rotates this vector around the origin by the specified angle in degrees.
 	 * 
-	 * @param angle -
-	 *           in radians
+	 * @param angle
+	 *          - in radians
 	 */
 	public void rotate(double angle)
 	{
@@ -130,11 +143,10 @@ public class Vector2d extends SpatialVector implements Cloneable
 	}
 
 	/**
-	 * Rotates this vector so that it is aligned to the specified angle in
-	 * radians.
+	 * Rotates this vector so that it is aligned to the specified angle in radians.
 	 * 
-	 * @param angle -
-	 *           in radians
+	 * @param angle
+	 *          - in radians
 	 */
 	public void rotateTo(double angle)
 	{
@@ -151,8 +163,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 	}
 
 	/**
-	 * Converts the vector into a radian angle. If the result would be NaN,
-	 * returns 0.
+	 * Converts the vector into a radian angle. If the result would be NaN, returns 0.
 	 * 
 	 * @return
 	 */
@@ -183,7 +194,8 @@ public class Vector2d extends SpatialVector implements Cloneable
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	@Override public Vector2d clone()
+	@Override
+	public Vector2d clone()
 	{
 		return new Vector2d(this);
 	}
@@ -193,7 +205,8 @@ public class Vector2d extends SpatialVector implements Cloneable
 		this.set(pos.getX(), pos.getY());
 	}
 
-	@Override public Point2D toPoint()
+	@Override
+	public Point2D toPoint()
 	{
 		if (this.point == null)
 			point = new Point2D.Double(x, y);
@@ -204,7 +217,8 @@ public class Vector2d extends SpatialVector implements Cloneable
 	/**
 	 * @see ecologylab.generic.Debug#toString()
 	 */
-	@Override public String toString()
+	@Override
+	public String toString()
 	{
 		return "(" + x + ", " + y + ")";
 	}
@@ -250,7 +264,7 @@ public class Vector2d extends SpatialVector implements Cloneable
 
 	/**
 	 * @param y
-	 *           the y to set
+	 *          the y to set
 	 */
 	public void setX(double x)
 	{
@@ -259,10 +273,9 @@ public class Vector2d extends SpatialVector implements Cloneable
 		updatePointIfNotNull();
 	}
 
-	
 	/**
 	 * @param y
-	 *           the y to set
+	 *          the y to set
 	 */
 	public void setY(double y)
 	{
@@ -274,7 +287,8 @@ public class Vector2d extends SpatialVector implements Cloneable
 	/**
 	 * @return the x
 	 */
-	@Override public double getX()
+	@Override
+	public double getX()
 	{
 		return x;
 	}
@@ -282,8 +296,17 @@ public class Vector2d extends SpatialVector implements Cloneable
 	/**
 	 * @return the y
 	 */
-	@Override public double getY()
+	@Override
+	public double getY()
 	{
 		return y;
+	}
+
+	public void add(double x, double y)
+	{
+		this.x += x;
+		this.y += y;
+
+		updatePointIfNotNull();
 	}
 }
