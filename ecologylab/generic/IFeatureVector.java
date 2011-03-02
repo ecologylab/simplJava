@@ -107,4 +107,5 @@ public interface IFeatureVector<T>
 	 */
 	public int commonDimensions ( IFeatureVector<T> v );
 
+	public boolean isRecycled();
 }

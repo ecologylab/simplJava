@@ -407,5 +407,11 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 			values	= null;//TODO could drop this line to be more moderate
 		}
 	}
+
+	@Override
+	public boolean isRecycled() 
+	{
+		return values == null;
+	}
 	
 }
