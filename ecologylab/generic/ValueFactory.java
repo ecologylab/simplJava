@@ -9,5 +9,5 @@ package ecologylab.generic;
  */
 public interface ValueFactory<K, V>
 {
-	public V createValue(K key);
+	public V constructValue(K key);
 }

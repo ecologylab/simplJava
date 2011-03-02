@@ -42,7 +42,7 @@ public class HashMapArrayList<K, V> extends HashMap<K, V> implements Iterable<V>
 	public HashMapArrayList(Map arg0)
 	{
 		super(arg0);
-		arrayList	= new ArrayList<V>();
+		arrayList	= new ArrayList<V>(arg0.size());
 	}
 
 	/**

@@ -14,7 +14,7 @@ import java.util.Map;
  *
  * @author andruid
  */
-public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
+public class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 {
 
 	public HashMapWriteSynchBase(int size, float load)
@@ -46,12 +46,16 @@ public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 	 */
 	public V getOrPutIfNew(K key, V value)
 	{
-		V result	= get(key);
+		V result		= get(key);
 		if (result == null)
 		{
 			synchronized (this)
 			{
-				result		= put(key, value);
+				result	= get(key);
+				if (result == null)
+				{
+					result		= super.put(key, value);
+				}
 			}
 		}
 		return result;
@@ -67,13 +71,18 @@ public abstract class HashMapWriteSynchBase<K, V> extends HashMap<K, V>
 	}
 
 	/**
-     * Sycnhronizes if you add another map to this one.
-     */
-    @Override
-    public synchronized void putAll(Map<? extends K, ? extends V> m)
-    {
-        super.putAll(m);
-    }
-
-    
+	 * Sycnhronizes if you add another map to this one.
+	 */
+	@Override
+	public synchronized void putAll(Map<? extends K, ? extends V> m)
+	{
+		super.putAll(m);
+	}
+/*
+	@Override
+	public V put(K key, V value)
+	{
+		throw new RuntimeException("Don't call plain put on this class!!! Bad synch mojo.");
+	}
+    */
 }

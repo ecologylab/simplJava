@@ -13,47 +13,30 @@ import java.util.Map;
  */
 public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 {
-
-	public HashMapWriteSynch(int arg0, float arg1)
+	final ValueFactory<K, V> factory;
+	
+	public HashMapWriteSynch(ValueFactory<K, V> factory, int arg0, float arg1)
 	{
 		super(arg0, arg1);
+		this.factory	= factory;
 	}
 
-	public HashMapWriteSynch(int arg0)
+	public HashMapWriteSynch(ValueFactory<K, V> factory, int arg0)
 	{
 		super(arg0);
+		this.factory	= factory;
 	}
 
-	public HashMapWriteSynch()
+	public HashMapWriteSynch(ValueFactory<K, V> factory)
 	{
 		super();
+		this.factory	= factory;
 	}
 
-	public HashMapWriteSynch(Map<? extends K, ? extends V> arg0)
+	public HashMapWriteSynch(ValueFactory<K, V> factory, Map<? extends K, ? extends V> arg0)
 	{
 		super(arg0);
-	}
-
-	/**
-	 * If there is already an entry, return it.
-	 * 
-	 * Otherwise, add the entry, and return null.
-	 * <p/>
-	 * NB: NEVER replaces an existing entry.
-	 */
-	public V getOrPutIfNew(K key, V value)
-	{
-		V result	= get(key);
-		if (result == null)
-		{
-			synchronized (this)
-			{
-				result		= get(key);
-				if (result == null)
-					result		= super.put(key, value);
-			}
-		}
-		return result;
+		this.factory	= factory;
 	}
 
 	/**
@@ -63,7 +46,7 @@ public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 	 * 
 	 * @return	The entry matching key, found or constructed.
 	 */
-	public V getOrCreateAndPutIfNew(K key, ValueFactory<K, V> factory)
+	public V getOrConstruct(K key)
 	{
 		V result	= get(key);
 		if (result == null)
@@ -73,13 +56,14 @@ public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 				result		= get(key);
 				if (result == null)
 				{
-					result = factory.createValue(key);
+					result = factory.constructValue(key);
 					super.put(key, result);
 				}
 			}
 		}
 		return result;
 	}
+
 	
 	@Override
 	public V put(K key, V value)
@@ -89,5 +73,5 @@ public class HashMapWriteSynch<K, V> extends HashMapWriteSynchBase<K, V>
 			return super.put(key, value);
 		}
 	}
-	
+
 }

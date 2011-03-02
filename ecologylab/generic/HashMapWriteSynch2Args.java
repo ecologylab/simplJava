@@ -17,7 +17,8 @@ import java.util.Map;
  */
 public class HashMapWriteSynch2Args<K, V, A> extends HashMapWriteSynchBase<K, V>
 {
-
+	ValueFactory2<K, V, A> factory;
+	
 	/**
 	 * @param arg0
 	 * @param arg1
@@ -61,7 +62,7 @@ public class HashMapWriteSynch2Args<K, V, A> extends HashMapWriteSynchBase<K, V>
 	 * 
 	 * @return	The entry matching key, found or constructed.
 	 */
-	public V getOrCreateAndPutIfNew(K key, A arg, ValueFactory2<K, V, A> factory)
+	public V getOrCreateAndPutIfNew(K key, A arg)
 	{
 		V result	= get(key);
 		if (result == null)
@@ -71,12 +72,20 @@ public class HashMapWriteSynch2Args<K, V, A> extends HashMapWriteSynchBase<K, V>
 				result		= get(key);
 				if (result == null)
 				{
-					result = factory.createValue(key, arg);
+					result = this.factory.createValue(key, arg);
 					super.put(key, result);
 				}
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @param factory the factory to set
+	 */
+	public void setFactory(ValueFactory2<K, V, A> factory)
+	{
+		this.factory = factory;
 	}
 
 }
