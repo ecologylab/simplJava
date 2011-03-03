@@ -95,7 +95,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 
 	protected enum LaunchType
 	{
-		JNLP, ECLIPSE, JAR, STUDIES,
+		JNLP, LOCAL_JNLP, ECLIPSE, JAR, STUDIES,
 	}
 
 	LaunchType	launchType;
@@ -595,6 +595,13 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				ParsedURL codeBase = ParsedURL.getAbsolute(arg, "Setting up codebase");
 				this.setCodeBase(codeBase);
 
+				final String host = codeBase.host();
+				if ("localhost".equals(host) || "127.0.0.1".equals(host))
+				{
+					debug("launched from localhost. must be a developer.");
+					LAUNCH_TYPE_PREF.setValue(LaunchType.LOCAL_JNLP);
+				}
+				
 				SIMPLTranslationException metaPrefSetException = null;
 				ParsedURL metaPrefsPURL = null;
 				try
@@ -701,8 +708,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			File localCodeBasePath = deriveLocalFileCodeBase(baseClass); // sets codeBase()!
 			argStack.push(arg);
 
-			AssetsRoot prefAssetsRoot = new AssetsRoot(Assets.getAssetsRoot().getRelative(PREFERENCES), Files.newFile(PropertiesAndDirectories.thisApplicationDir(), PREFERENCES));
-			Assets.downloadZip(prefAssetsRoot, "prefs", null, false, prefsAssetVersion);
+			//AssetsRoot prefAssetsRoot = new AssetsRoot(Assets.getAssetsRoot().getRelative(PREFERENCES), Files.newFile(PropertiesAndDirectories.thisApplicationDir(), PREFERENCES));
+			//Assets.downloadZip(prefAssetsRoot, "prefs", null, false, prefsAssetVersion);
 
 			SIMPLTranslationException metaPrefSetException = null;
 			File metaPrefsFile = new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
@@ -1286,5 +1293,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public static boolean runningInEclipse()
 	{
 		return LaunchType.ECLIPSE == LAUNCH_TYPE_PREF.value();
+	}
+	
+	public static boolean runningLocalhost()
+	{
+		return LaunchType.LOCAL_JNLP == LAUNCH_TYPE_PREF.value();
 	}
 }
