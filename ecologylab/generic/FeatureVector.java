@@ -37,7 +37,7 @@ public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 	public FeatureVector ( IFeatureVector<T> copyMe )
 	{
 		Map<T, Double> otherMap = copyMe.map();
-		if (otherMap.size() > 0)
+		if (otherMap != null && otherMap.size() > 0)
 			values = new HashMap<T,Double>(otherMap);
 		norm = copyMe.norm();
 	}
