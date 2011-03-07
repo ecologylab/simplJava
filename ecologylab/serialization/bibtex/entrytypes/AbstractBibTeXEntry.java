@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
 
+/**
+ * The abstract base class for BibTeX entry types. Holds the citation key and common fields such
+ * as title, authors, year, etc.
+ * 
+ * @author quyin
+ *
+ */
 @simpl_inherit
 public abstract class AbstractBibTeXEntry extends ElementState
 {

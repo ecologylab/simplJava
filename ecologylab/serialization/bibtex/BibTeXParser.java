@@ -12,8 +12,13 @@ import ecologylab.serialization.bibtex.entrytypes.BibTeXInProceedings;
 import ecologylab.serialization.ElementStateBibTeXHandler;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 
+/**
+ * The BibTeX parser class.
+ * 
+ * @author quyin
+ *
+ */
 public class BibTeXParser implements FieldTypes
 {
 
@@ -26,11 +31,28 @@ public class BibTeXParser implements FieldTypes
 
 	State							state;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param eventListener An event listener to handle parsing events.
+	 * 
+	 */
 	public BibTeXParser(BibTeXEvents eventListener)
 	{
 		this.eventListener = eventListener;
 	}
 
+	/**
+	 * The entry method to parse BibTeX for deserialization. Accept a char array. Output a list of
+	 * ElementState (which has been annotated with S.IM.PL's bibtex annotations) since one BibTeX
+	 * file can contain multiple entries.
+	 * <p />
+	 * The parsing process is controlled by a DFA.
+	 * 
+	 * @param data
+	 * @return
+	 * @throws BibTeXFormatException
+	 */
 	public <ES extends ElementState> List<ES> parse(char[] data) throws BibTeXFormatException
 	{
 		List<ES> rst = new ArrayList<ES>();
