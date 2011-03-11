@@ -201,7 +201,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		boolean elementsSerialized = false;
-
+		boolean isFirstCollection = true;
 		for (int i = 0; i < numElements; i++)
 		{
 			FieldDescriptor childFD = elementFieldDescriptors.get(i);
@@ -268,8 +268,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 				if (thatCollection != null && (thatCollection.size() > 0))
 				{
-					if (elementsSerialized)
+					if (elementsSerialized || isFirstCollection)
+					{
 							appendable.append(", ");
+							isFirstCollection = false;
+					}
 
 					elementsSerialized = true;
 
