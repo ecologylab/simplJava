@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -1491,7 +1490,7 @@ public class ParsedURL extends Debug implements MimeType
 	}
 
 	/**
-	 * If true, check for timeout during connect().
+	 * If true, a timeout occurred during connect().
 	 */
 	boolean	timeout	= false;
 
