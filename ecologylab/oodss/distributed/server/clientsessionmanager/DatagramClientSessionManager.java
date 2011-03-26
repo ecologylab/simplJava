@@ -5,12 +5,10 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.server.NIODatagramServer;
-import ecologylab.oodss.distributed.server.NIOServerProcessor;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;

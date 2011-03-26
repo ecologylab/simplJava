@@ -4,8 +4,6 @@
 package ecologylab.oodss.distributed.common;
 
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

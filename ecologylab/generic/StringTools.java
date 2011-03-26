@@ -1,6 +1,7 @@
 package ecologylab.generic;
 
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -8,10 +9,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.HashMap;
 
 import sun.misc.BASE64Encoder;
-
 import ecologylab.collections.CollectionTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.XMLTools;

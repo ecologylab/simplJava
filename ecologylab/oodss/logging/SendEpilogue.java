@@ -3,7 +3,6 @@ package ecologylab.oodss.logging;
 import java.io.IOException;
 import java.io.Writer;
 
-import ecologylab.collections.Scope;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.OkResponse;
 import ecologylab.oodss.messages.ResponseMessage;

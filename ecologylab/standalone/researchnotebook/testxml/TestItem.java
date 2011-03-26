@@ -1,7 +1,5 @@
 package ecologylab.standalone.researchnotebook.testxml;
 
-import java.util.Date;
-
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.Hint;

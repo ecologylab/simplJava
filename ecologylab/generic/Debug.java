@@ -1,11 +1,15 @@
 package ecologylab.generic;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 import ecologylab.appframework.Environment;
 import ecologylab.appframework.types.prefs.Pref;
-import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.io.Files;
 
 

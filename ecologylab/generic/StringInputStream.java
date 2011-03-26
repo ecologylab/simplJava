@@ -1,6 +1,7 @@
 package ecologylab.generic;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A mechanism for reading <code>String</code>s from

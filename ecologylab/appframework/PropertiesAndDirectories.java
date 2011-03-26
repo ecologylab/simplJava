@@ -5,7 +5,6 @@ import java.util.Properties;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
 import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 

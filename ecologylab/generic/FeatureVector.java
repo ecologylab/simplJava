@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Set;
 
-import ecologylab.pools.HashMapPool;
-
 public class FeatureVector<T> extends Observable implements IFeatureVector<T>
 {
 

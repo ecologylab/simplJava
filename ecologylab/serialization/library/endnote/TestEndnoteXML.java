@@ -4,7 +4,6 @@
 package ecologylab.serialization.library.endnote;
 
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 
 public class TestEndnoteXML
 {

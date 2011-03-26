@@ -1,6 +1,6 @@
 package ecologylab.generic;
 
-import java.awt.*;
+import java.awt.Graphics;
 
 /**
  * A 2D line, as defined by parametric coefficients.

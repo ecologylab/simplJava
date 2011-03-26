@@ -2,7 +2,6 @@ package ecologylab.serialization.bibtex.entrytypes;
 
 import java.util.ArrayList;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.bibtex_type;
 import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.simpl_inherit;

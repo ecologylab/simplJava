@@ -2,9 +2,6 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
 
 import ecologylab.collections.Scope;
 import ecologylab.oodss.messages.UpdateMessage;

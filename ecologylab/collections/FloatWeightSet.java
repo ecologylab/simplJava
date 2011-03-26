@@ -4,7 +4,7 @@
  */
 package ecologylab.collections;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;

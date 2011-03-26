@@ -22,6 +22,11 @@ package ecologylab.generic.text;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.ChoiceFormat;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Digit List. Private to DecimalFormat.

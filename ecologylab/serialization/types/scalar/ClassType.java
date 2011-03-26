@@ -3,8 +3,6 @@
  */
 package ecologylab.serialization.types.scalar;
 
-import java.lang.reflect.Field;
-
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;

@@ -1,12 +1,15 @@
 package ecologylab.concurrent;
 
-import java.util.*;
 import java.nio.channels.ClosedByInterruptException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import ecologylab.appframework.Memory;
 import ecologylab.appframework.OutOfMemoryErrorHandler;
 import ecologylab.appframework.StatusReporter;
-import ecologylab.collections.FloatWeightSet;
 import ecologylab.generic.Debug;
 import ecologylab.generic.DispatchTarget;
 import ecologylab.generic.Generic;
@@ -114,7 +117,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		synchronized (toDownload)
 		{
-			debug("\n download("+thatDownloadable.purl() + ")");
+			debug("\n download("+thatDownloadable.location() + ")");
 			toDownload.add(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
@@ -388,7 +391,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						else if (!thatClosure.shouldCancel())
 						{
 							// Site-less downloadables	
-							isLocalFile = downloadable.purl().isFile();
+							isLocalFile = downloadable.location().isFile();
 							break;
 						}
 						closureNum++;

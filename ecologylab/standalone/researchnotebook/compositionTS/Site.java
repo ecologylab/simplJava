@@ -1,6 +1,5 @@
 package ecologylab.standalone.researchnotebook.compositionTS;
 
-import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 
 public class Site extends ElementState{

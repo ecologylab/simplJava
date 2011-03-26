@@ -5,7 +5,6 @@ package ecologylab.serialization.types.scalar;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import ecologylab.generic.text.EfficientDecimalFormat;

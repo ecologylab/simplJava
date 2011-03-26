@@ -58,7 +58,7 @@ public interface Downloadable
    public boolean shouldCancel();
    
    public BasicSite getSite();
-   public ParsedURL purl();
+   public ParsedURL location();
    /**
     * 
     * @return	What to tell the user about what is being downloaded.

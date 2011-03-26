@@ -1,7 +1,6 @@
 package ecologylab.standalone.researchnotebook.compositionTS;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
 
 public class TextElement extends ElementState{
 	@simpl_scalar float bias; 

@@ -1,7 +1,6 @@
 package ecologylab.generic;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Iterator;
 
 import ecologylab.serialization.FieldDescriptor;

@@ -23,7 +23,6 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.CappedResourcePool;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ResourcePool;
-import ecologylab.generic.StartAndStoppable;
 import ecologylab.oodss.distributed.common.NetworkingConstants;
 import ecologylab.oodss.distributed.exception.MessageTooLargeException;
 import ecologylab.oodss.messages.ServiceMessage;

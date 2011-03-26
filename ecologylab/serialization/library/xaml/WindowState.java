@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.TranslationScope;
 
 /**
  * 

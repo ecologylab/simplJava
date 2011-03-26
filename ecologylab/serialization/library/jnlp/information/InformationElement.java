@@ -6,9 +6,9 @@ package ecologylab.serialization.library.jnlp.information;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.xml_tag;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

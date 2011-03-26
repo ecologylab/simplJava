@@ -5,7 +5,6 @@ package ecologylab.io;
 
 import java.io.File;
 
-import ecologylab.appframework.EnvironmentGeneric;
 import ecologylab.net.ParsedURL;
 
 /**

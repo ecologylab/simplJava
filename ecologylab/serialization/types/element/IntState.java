@@ -1,8 +1,6 @@
 package ecologylab.serialization.types.element;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.simpl_scalar;
 
 
 /**

@@ -459,7 +459,7 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 	}
 
 	@Override
-	public ParsedURL purl()
+	public ParsedURL location()
 	{
 		// TODO Auto-generated method stub
 		return null;

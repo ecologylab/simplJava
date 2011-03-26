@@ -1,13 +1,22 @@
 package ecologylab.concurrent;
 
-import java.util.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Observer;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.ObservableDebug;
-
-import java.awt.event.*;
-import java.awt.*;
 
 /**
  * @author vikrams

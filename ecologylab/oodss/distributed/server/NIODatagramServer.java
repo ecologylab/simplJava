@@ -23,7 +23,6 @@ import ecologylab.oodss.distributed.impl.NIODatagramCore;
 import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.distributed.server.clientsessionmanager.DatagramClientSessionManager;
 import ecologylab.oodss.distributed.server.clientsessionmanager.SessionHandle;
-import ecologylab.oodss.distributed.server.clientsessionmanager.TCPClientSessionManager;
 import ecologylab.oodss.messages.MultiRequestMessage;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import org.xml.sax.Attributes;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 /**

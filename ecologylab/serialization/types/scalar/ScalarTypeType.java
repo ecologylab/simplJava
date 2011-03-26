@@ -4,7 +4,6 @@
 package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.simpl_inherit;
 
 /**
  * For storing actual ScalarType values as meta-metadata.

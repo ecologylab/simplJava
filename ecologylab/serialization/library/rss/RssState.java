@@ -8,7 +8,6 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.feedburner.Feedburner;
 import ecologylab.serialization.library.media.Media;
 import ecologylab.serialization.library.media.Thumbnail;

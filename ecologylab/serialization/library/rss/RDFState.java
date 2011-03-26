@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.library.dc.Dc;
 
 /**

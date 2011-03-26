@@ -1,5 +1,4 @@
 package ecologylab.serialization.library.html;
-import java.util.ArrayList;
 
 public class Td extends HtmlElement
 {

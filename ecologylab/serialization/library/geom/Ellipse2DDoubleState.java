@@ -5,12 +5,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D.Double;
+import java.awt.geom.Rectangle2D;
 
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_other_tags;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Encapsulates a Ellipse2D.Double for use in translating to/from XML.

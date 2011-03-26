@@ -1,10 +1,7 @@
 package ecologylab.serialization.types.scalar;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.regex.Pattern;
 
-import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.XMLTools;
 

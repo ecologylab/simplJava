@@ -1,27 +1,17 @@
 package ecologylab.appframework.types.prefs;
 
-import javax.swing.JTabbedPane;
 import java.awt.Dimension;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.GridBagLayout;
-import javax.swing.JInternalFrame;
-import java.awt.BorderLayout;
-import javax.swing.JWindow;
-import javax.swing.BoxLayout;
-import java.awt.GridLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.FlowLayout;
-import java.awt.CardLayout;
-import javax.swing.JDialog;
 import java.awt.Rectangle;
-import javax.swing.JRadioButton;
-import javax.swing.JRadioButtonMenuItem;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.JScrollPane;
 
 public class PrefVisual {
 

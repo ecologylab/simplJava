@@ -1,7 +1,5 @@
 package ecologylab.generic;
 
-import java.lang.Object;
-
 import ecologylab.serialization.ElementState;
 
 /**

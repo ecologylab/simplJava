@@ -5,7 +5,6 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;

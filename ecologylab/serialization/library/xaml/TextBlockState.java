@@ -3,8 +3,8 @@
  */
 package ecologylab.serialization.library.xaml;
 
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.Hint;
 
 /**
  * ecologylab.serialization representation of the TextBlock WPF element for translating to XAML.

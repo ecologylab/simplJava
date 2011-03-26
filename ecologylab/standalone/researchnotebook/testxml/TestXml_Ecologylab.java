@@ -9,45 +9,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.standalone.researchnotebook.compositionTS.Anchors;
-import ecologylab.standalone.researchnotebook.compositionTS.Categories;
-import ecologylab.standalone.researchnotebook.compositionTS.Category;
-import ecologylab.standalone.researchnotebook.compositionTS.CfTextToken;
-import ecologylab.standalone.researchnotebook.compositionTS.CompositionState;
-import ecologylab.standalone.researchnotebook.compositionTS.Container;
-import ecologylab.standalone.researchnotebook.compositionTS.ContainerSet;
-import ecologylab.standalone.researchnotebook.compositionTS.Document;
-import ecologylab.standalone.researchnotebook.compositionTS.Extent;
-import ecologylab.standalone.researchnotebook.compositionTS.ImageElement;
-import ecologylab.standalone.researchnotebook.compositionTS.InterestModel;
-import ecologylab.standalone.researchnotebook.compositionTS.InterestModelEntry;
-import ecologylab.standalone.researchnotebook.compositionTS.NamedStyle;
-import ecologylab.standalone.researchnotebook.compositionTS.Paragraph;
-import ecologylab.standalone.researchnotebook.compositionTS.Paragraphs;
-import ecologylab.standalone.researchnotebook.compositionTS.Preferences;
-import ecologylab.standalone.researchnotebook.compositionTS.RejectDomainSet;
-import ecologylab.standalone.researchnotebook.compositionTS.SeedSet;
-import ecologylab.standalone.researchnotebook.compositionTS.Set;
-import ecologylab.standalone.researchnotebook.compositionTS.Surrogate;
-import ecologylab.standalone.researchnotebook.compositionTS.SurrogateSet;
-import ecologylab.standalone.researchnotebook.compositionTS.Text;
-import ecologylab.standalone.researchnotebook.compositionTS.TextChunk;
-import ecologylab.standalone.researchnotebook.compositionTS.TextElement;
-import ecologylab.standalone.researchnotebook.compositionTS.Thumbinner;
-import ecologylab.standalone.researchnotebook.compositionTS.Thumbinners;
-import ecologylab.standalone.researchnotebook.compositionTS.TraversableSet;
-import ecologylab.standalone.researchnotebook.compositionTS.UntraversableSet;
-import ecologylab.standalone.researchnotebook.compositionTS.Values;
-import ecologylab.standalone.researchnotebook.compositionTS.Visual;
-import ecologylab.standalone.researchnotebook.compositionTS.WikipediaPage;
 
 
 public class TestXml_Ecologylab   

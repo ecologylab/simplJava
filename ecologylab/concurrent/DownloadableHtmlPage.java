@@ -182,7 +182,7 @@ public class DownloadableHtmlPage implements Downloadable
   	return purl.toString();
   }
   
-  public ParsedURL purl()
+  public ParsedURL location()
   {
 	  return purl;
   }

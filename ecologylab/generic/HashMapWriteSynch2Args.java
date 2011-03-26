@@ -30,12 +30,23 @@ public class HashMapWriteSynch2Args<K, V, A> extends HashMapWriteSynchBase<K, V>
 	}
 
 	/**
-	 * @param arg0
+	 * @param arg0	number of elements allocated for initially.
 	 */
 	public HashMapWriteSynch2Args(int arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * 
+	 * @param arg0	number of elements allocated for initially.
+	 * 
+	 * @param factory
+	 */
+	public HashMapWriteSynch2Args(int arg0, ValueFactory2<K, V, A> factory)
+	{
+		super(arg0);
+		this.factory	= factory;
 	}
 
 	/**

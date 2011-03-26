@@ -26,13 +26,11 @@ package ecologylab.serialization.tlv;
  * information or have any questions.
  */
 
-import java.security.MessageDigest;
-
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
-
-import java.util.*;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.util.Calendar;
 
 /**
  * This class implements miscellaneous utility methods including

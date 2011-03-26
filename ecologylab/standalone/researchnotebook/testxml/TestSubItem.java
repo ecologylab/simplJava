@@ -1,7 +1,5 @@
 package ecologylab.standalone.researchnotebook.testxml;
 
-import java.util.ArrayList;
-
 import ecologylab.serialization.ElementState;
 
 public class TestSubItem extends ElementState{	

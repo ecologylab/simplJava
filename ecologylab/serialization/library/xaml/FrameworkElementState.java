@@ -7,8 +7,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * ecologylab.serialization representation of the Microsoft WPF FrameworkElement object. FrameworkElement

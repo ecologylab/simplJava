@@ -11,8 +11,7 @@ import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-import ecologylab.generic.*;
-import ecologylab.serialization.XMLTools;
+import ecologylab.generic.Debug;
 /**
  * Utility class for managing memory mapped buffers. 
  * 

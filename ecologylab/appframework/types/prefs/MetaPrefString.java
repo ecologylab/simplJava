@@ -3,9 +3,6 @@
  */
 package ecologylab.appframework.types.prefs;
 
-import java.io.File;
-
-import ecologylab.appframework.types.prefs.MetaPref;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;

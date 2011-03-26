@@ -22,6 +22,7 @@ package ecologylab.generic.text;
 import java.io.Serializable;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParseException;
 import java.text.ParsePosition;

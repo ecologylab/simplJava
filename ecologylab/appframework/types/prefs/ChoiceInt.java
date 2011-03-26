@@ -1,8 +1,6 @@
 package ecologylab.appframework.types.prefs;
 
-import ecologylab.serialization.ElementState;
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.simpl_scalar;
 
 /**
  * An Integer Choice object, for a multi-choice preference.

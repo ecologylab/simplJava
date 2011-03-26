@@ -5,7 +5,6 @@
  */
 package ecologylab.generic;
 
-import java.lang.Math;
 import java.util.Vector;
 
 /**

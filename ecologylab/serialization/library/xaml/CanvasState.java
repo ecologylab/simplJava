@@ -2,8 +2,8 @@ package ecologylab.serialization.library.xaml;
 
 import java.awt.Color;
 
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * ecologylab.serialization representation of the Canvas WPF element for translating to XAML.

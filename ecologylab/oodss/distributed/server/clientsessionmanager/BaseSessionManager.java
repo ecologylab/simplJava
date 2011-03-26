@@ -5,9 +5,7 @@ package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;

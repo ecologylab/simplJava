@@ -10,7 +10,6 @@ import java.nio.channels.SelectionKey;
 
 import ecologylab.collections.Scope;
 import ecologylab.oodss.distributed.server.DoubleThreadedNIOServer;
-import ecologylab.oodss.distributed.server.clientsessionmanager.BaseSessionManager;
 import ecologylab.oodss.distributed.server.clientsessionmanager.HTTPGetClientSessionManager;
 import ecologylab.serialization.TranslationScope;
 

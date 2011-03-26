@@ -2,8 +2,8 @@ package ecologylab.serialization.library.yahoo;
 
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.Hint;
 
 /**
  * Result from a Yahoo Search.

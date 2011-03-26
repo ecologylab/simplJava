@@ -3,8 +3,9 @@
  */
 package ecologylab.pools;
 
-import ecologylab.generic.ResourcePoolWithSize;
 import java.util.HashMap;
+
+import ecologylab.generic.ResourcePoolWithSize;
 
 /**
  * @author andruid

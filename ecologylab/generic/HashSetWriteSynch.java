@@ -2,7 +2,6 @@ package ecologylab.generic;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 
 /**
  * Hashed data structure with synchronized writes/deletes and unsynchronized reads.

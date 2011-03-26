@@ -5,8 +5,6 @@ package ecologylab.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 
 import ecologylab.appframework.ApplicationEnvironment;
@@ -21,7 +19,6 @@ import ecologylab.generic.Debug;
 import ecologylab.generic.StringBuilderPool;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.SIMPLTranslationException;
-import ecologylab.serialization.TranslationScope;
 
 /**
  * Used to manage cachable assets.

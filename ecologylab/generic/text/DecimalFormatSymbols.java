@@ -20,8 +20,6 @@
 
 package ecologylab.generic.text;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Currency;

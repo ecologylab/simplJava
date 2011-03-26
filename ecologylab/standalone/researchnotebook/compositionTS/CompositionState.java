@@ -1,7 +1,5 @@
 package ecologylab.standalone.researchnotebook.compositionTS;
 
-import java.util.Date;
-
 import ecologylab.serialization.ElementState;
 import ecologylab.standalone.researchnotebook.testxml.SiteSet;
 

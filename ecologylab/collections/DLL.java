@@ -3,7 +3,7 @@
  * CONFIDENTIAL. Use is subject to license terms.
  */
 package ecologylab.collections;
-import java.awt.*;
+import java.awt.Toolkit;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;

@@ -42,7 +42,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import javax.swing.event.ChangeListener;
 
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.appframework.types.prefs.Choice;

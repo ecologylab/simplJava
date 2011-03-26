@@ -1,9 +1,9 @@
 package ecologylab.appframework;
 
-import ecologylab.generic.Debug;
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.appframework.types.prefs.PrefInt;
 import ecologylab.collections.SyncLinkedList;
+import ecologylab.generic.Debug;
 import ecologylab.oodss.logging.MixedInitiativeOp;
 
 /**

@@ -1,17 +1,14 @@
 package ecologylab.oodss.distributed.server.clientsessionmanager;
 
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 import ecologylab.collections.Scope;
 import ecologylab.net.ParsedURL;
 import ecologylab.oodss.distributed.impl.NIOServerIOThread;
 import ecologylab.oodss.distributed.server.NIOServerProcessor;
-import ecologylab.oodss.messages.BadSemanticContentResponse;
 import ecologylab.oodss.messages.RequestMessage;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.oodss.messages.UpdateMessage;
-import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 
 public abstract class HTTPClientSessionManager<S extends Scope> extends TCPClientSessionManager<S>

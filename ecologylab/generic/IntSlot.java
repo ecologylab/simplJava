@@ -1,7 +1,6 @@
 // Copyright 1996 by Creating Media.  All rights reserved.
 package ecologylab.generic;
 
-import java.lang.Object;
 
 /**
  * Reference version of an int type. Re-writable, unlike java.lang.Integer.

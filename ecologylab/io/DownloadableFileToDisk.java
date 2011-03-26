@@ -184,7 +184,7 @@ implements Downloadable, DispatchTarget
 		return null;
 	}
 	
-	public ParsedURL purl()
+	public ParsedURL location()
 	{
 		return target;
 	}

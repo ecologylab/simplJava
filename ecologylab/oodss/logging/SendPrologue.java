@@ -1,18 +1,12 @@
 package ecologylab.oodss.logging;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
 import java.util.Date;
 
 import ecologylab.appframework.types.prefs.Pref;
 import ecologylab.io.Files;
 import ecologylab.net.NetTools;
-import ecologylab.oodss.distributed.common.ServerConstants;
 import ecologylab.oodss.messages.ErrorResponse;
 import ecologylab.oodss.messages.ResponseMessage;
 import ecologylab.serialization.SIMPLTranslationException;

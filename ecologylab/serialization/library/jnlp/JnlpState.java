@@ -3,9 +3,12 @@
  */
 package ecologylab.serialization.library.jnlp;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+
 import ecologylab.appframework.types.prefs.PrefSet;
 import ecologylab.appframework.types.prefs.PrefSetBaseClassProvider;
-import ecologylab.appframework.types.prefs.PrefsTranslationsProvider;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.SIMPLTranslationException;
@@ -15,10 +18,6 @@ import ecologylab.serialization.library.jnlp.application.ApplicationDesc;
 import ecologylab.serialization.library.jnlp.information.InformationElement;
 import ecologylab.serialization.library.jnlp.resource.Property;
 import ecologylab.serialization.library.jnlp.resource.ResourceElementArray;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
 
 /**
  * Parses JNLP files for Java web launch.

@@ -3,7 +3,6 @@
  */
 package ecologylab.appframework;
 
-import ecologylab.generic.Debug;
 import ecologylab.generic.Generic;
 import ecologylab.net.ParsedURL;
 

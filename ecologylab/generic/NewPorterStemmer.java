@@ -37,8 +37,9 @@ package ecologylab.generic;
 
 */
 
-import java.io.*;
-import java.lang.StringBuffer;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
   * Stemmer, implementing the Porter Stemming Algorithm

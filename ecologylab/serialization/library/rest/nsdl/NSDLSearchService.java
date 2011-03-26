@@ -1,7 +1,7 @@
 package ecologylab.serialization.library.rest.nsdl;
 
-import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.xml_tag;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.library.rest.RestSearchResult;
 
 /**

@@ -4,9 +4,7 @@
 package ecologylab.collections;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 
 /**

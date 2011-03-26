@@ -4,12 +4,13 @@
  */
 package ecologylab.collections;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import ecologylab.appframework.Memory;
-import ecologylab.generic.Debug;
-import ecologylab.generic.Generic;
-import ecologylab.generic.MathTools;
 import ecologylab.generic.ObservableDebug;
 import ecologylab.generic.ThreadMaster;
 
