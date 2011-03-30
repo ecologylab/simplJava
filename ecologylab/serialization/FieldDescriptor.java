@@ -1124,6 +1124,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					appendable.append('\n');
 					appendable.append(' ');
+					String bibTeXTagName = getBibtexTagName();
+					bibTeXTagName = bibTeXTagName.replace('_', ' ');
 					appendable.append(getBibtexTagName());
 					appendable.append('=');
 					appendable.append('{');
