@@ -5,6 +5,7 @@
 package ecologylab.collections;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -27,7 +28,7 @@ import ecologylab.generic.ThreadMaster;
  * Gotta be careful to be thread safe. Seems no operations can safely occur concurrently. There are
  * a bunch of synchronized methods to affect this.
  **/
-public class WeightSet<E extends AbstractSetElement> extends ObservableDebug implements Iterable<E>
+public class WeightSet<E extends AbstractSetElement> extends ObservableDebug implements Iterable<E>, Collection<E>
 {
 	private static final int						NO_MAX_SIZE	= -1;
 
@@ -218,30 +219,39 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 		
 		Memory.reclaim();
 	}
-
-	public synchronized void insert ( E el )
+	
+	public boolean add(E el)
 	{
+		return insert(el);
+	}
+
+	public synchronized boolean insert ( E el )
+	{
+		boolean result = false;
 		if (!hashSet.contains(el))
 		{
 			weightingStrategy.insert(el);
-			arrayList.add(el);
+			result	|= arrayList.add(el);
 			hashSet.add(el);
 			el.addSet(this);
 			el.insertHook();
 		}
+		return result;
 	}
 
-	public synchronized void remove ( E el )
+	public synchronized boolean remove ( E el )
 	{
-		removeFromSet(el);
+		boolean result = removeFromSet(el);
 		el.removeSet(this);
+		return result;
 	}
 
-	protected synchronized void removeFromSet ( E e )
+	protected synchronized boolean removeFromSet ( E e )
 	{
 		weightingStrategy.remove(e);
-		arrayList.remove(e);
+		boolean result = arrayList.remove(e);
 		hashSet.remove(e);
+		return result;
 	}
 
 	public E get(int i)
@@ -376,5 +386,66 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	public synchronized Iterator<E> iterator ( )
 	{
 		return arrayList.iterator();
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> arg0)
+	{
+		boolean result = false;
+		for (E element: arg0)
+			result |= add(element);
+		return result;
+	}
+
+	@Override
+	public void clear()
+	{
+		clear(false);
+	}
+
+	@Override
+	public boolean contains(Object arg0)
+	{
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> arg0)
+	{
+		throw new RuntimeException("not implemented.");
+	}
+
+	@Override
+	public boolean remove(Object arg0)
+	{
+		return remove((E) arg0);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> arg0)
+	{
+		boolean result	= false;
+		for (Object o : arg0)
+			result |= remove(o);
+		return result;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> arg0)
+	{
+		throw new RuntimeException("not implemented.");
+	}
+
+	@Override
+	public Object[] toArray()
+	{
+		return arrayList.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] arg0)
+	{
+		return arrayList.toArray(arg0);
 	}
 }
