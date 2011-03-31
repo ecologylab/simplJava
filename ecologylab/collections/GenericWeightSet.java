@@ -56,4 +56,8 @@ public class GenericWeightSet<GO> extends WeightSet<GenericElement<GO>>
 		return (resultElement == null) ? null : resultElement.getGeneric();
 	}
 
+	public boolean insert(GO go)
+	{
+		return insert(new GenericElement<GO>(go));
+	}
 }
