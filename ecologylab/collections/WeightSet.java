@@ -407,7 +407,7 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	public boolean contains(Object arg0)
 	{
 		// TODO Auto-generated method stub
-		return false;
+		return hashSet.contains(arg0);
 	}
 
 	@Override
@@ -448,4 +448,12 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	{
 		return arrayList.toArray(arg0);
 	}
+	
+	public void toArray(E[] arg0, int start)
+	{
+		int pos		= start;
+		for (int i = 0; i < size(); i++)
+			arg0[pos++]	= arrayList.get(i);
+	}
+
 }

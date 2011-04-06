@@ -1,5 +1,6 @@
 package ecologylab.collections;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import ecologylab.generic.Debug;
@@ -17,7 +18,7 @@ import ecologylab.generic.StringBuilderBaseUtils;
  * @param <E> WeightSet is parameterized with E, where E extends SetElement.
  */
 public class PrioritizedPool<E extends SetElement>
-		extends Debug implements Iterable<E>
+		extends Debug implements Iterable<E>, Collection<E>
 {
 
 	/**
@@ -89,6 +90,7 @@ public class PrioritizedPool<E extends SetElement>
 			weightSet.clear(doRecycleElements);
 	}
 
+	@Override
 	public int size()
 	{
 		int size = 0;
@@ -96,13 +98,23 @@ public class PrioritizedPool<E extends SetElement>
 			size += weightSet.size();
 		return size;
 	}
-
+	public int maxSize()
+	{
+		int result	= 0;
+		for (WeightSet<E> weightSet : weightSets)
+		{
+			int size	= weightSet.size();
+			if (size > result)
+				result	= size;
+		}
+		return result;
+	}
 	/**
 	 * Inserts element into a set of the given priority.
 	 * @param element
 	 * @param priority
 	 */
-	public synchronized void insert(E element, int priority)
+	public synchronized boolean insert(E element, int priority)
 	{
 		if(priority >= weightSets.length || priority < 0)
 			debug("invalid priority for Prioritized Pools (" + weightSets.length + ") : " + priority);
@@ -110,10 +122,9 @@ public class PrioritizedPool<E extends SetElement>
 		if(weightSet == null)
 		{
 			debug("no pool exists with priority: " + priority);
-			return;
+			return false;
 		}
-		weightSet.insert(element);
-		
+		return weightSet.insert(element);
 	}
 
 	/**
@@ -190,9 +201,12 @@ public class PrioritizedPool<E extends SetElement>
 	 * Remove an element from all the Sets in this pool.
 	 * @param el
 	 */
-	public synchronized void remove(E el) {
+	public synchronized boolean remove(E el) 
+	{
+		boolean result	= false;
 		for(WeightSet<E>  weightSet : weightSets)
-			weightSet.remove(el);
+			result			 |= weightSet.remove(el);
+		return result;
 	}
 	
 	public WeightSet<E> getWeightSet(int poolNum)
@@ -254,7 +268,7 @@ public class PrioritizedPool<E extends SetElement>
 		{
 			if (idx >= weightSetIterators.length)
 				return null;
-			
+
 			E next = weightSetIterators[idx].next();
 			if (next == null)
 			{
@@ -269,6 +283,104 @@ public class PrioritizedPool<E extends SetElement>
 		{
 			// does nothing
 		}
-		
+
+	}
+
+	@Override
+	public boolean add(E e)
+	{
+		return insert(e, 0);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> c)
+	{
+		boolean result	= false;
+		for (E element : c)
+			result	|= add(element);
+		return result;
+	}
+
+	@Override
+	public void clear()
+	{
+		clear(false);
+	}
+
+	@Override
+	public boolean contains(Object o)
+	{
+		for (WeightSet<E> weightSet : weightSets)
+		{
+			if (weightSet.contains(o))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c)
+	{
+		boolean result	= false;
+		for (Object element : c)
+		{
+			for (WeightSet<E> weightSet : weightSets)
+			{
+				if (!weightSet.contains(element))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean remove(Object arg0)
+	{
+		return remove((E) arg0);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c)
+	{
+		boolean result	= false;
+		for (Object o : c)
+			result |= remove(o);
+		return result;
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c)
+	{
+		throw new RuntimeException("not implemented.");
+	}
+
+	@Override
+	public Object[] toArray()
+	{
+		E[] result	= (E[]) new SetElement[size()];
+		toArray(result);		
+		return result;
+	}
+
+	/**
+	 * @param result
+	 */
+	protected void toArray(E[] result)
+	{
+		int start		= 0;
+		for (WeightSet<E> weightSet : weightSets)
+		{
+			weightSet.toArray(result, start);
+			start		 += weightSet.size();
+		}
+	}
+
+	@Override
+	public <T> T[] toArray(T[] input)
+	{
+		E[] result	= (E[]) input;
+		if (result.length < size())
+			result	= (E[]) toArray();
+		return (T[]) result;
 	}
 }
