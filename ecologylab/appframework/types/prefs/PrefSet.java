@@ -54,6 +54,15 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 		pref.register();
 		return result;
 	}
+	
+	public Pref<?> addLocalOnly(Pref<?> pref)
+	{
+		constructPreferencesIfNeeded();
+
+		Pref<?> result = preferences.put(pref.key(), pref);
+
+		return result;
+	}
 
 	/**
 	 * 
