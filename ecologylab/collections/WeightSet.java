@@ -49,12 +49,12 @@ public class WeightSet<E extends AbstractSetElement> extends ObservableDebug imp
 	 */
 	ThreadMaster												threadMaster;
 
-	public WeightSet (int maxSize, int setSize, WeightingStrategy<E> weightingStrategy)
+	public WeightSet (int maxSize, int initialSize, WeightingStrategy<E> weightingStrategy)
 	{
 		assert weightingStrategy != null;
 		
-		this.hashSet			= new HashSet<E>(setSize);
-		this.arrayList		= new ArrayListX<E>(setSize);
+		this.hashSet			= new HashSet<E>(initialSize);
+		this.arrayList		= new ArrayListX<E>(initialSize);
 		this.maxSize			= maxSize;
 		
 		this.weightingStrategy	= weightingStrategy;
