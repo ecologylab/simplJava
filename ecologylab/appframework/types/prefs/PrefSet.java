@@ -48,10 +48,16 @@ public class PrefSet extends ElementState implements ApplicationPropertyNames, C
 	 */
 	public Pref<?> add(Pref<?> pref)
 	{
+		Pref<?> result = null;
+		
+		if (pref != null)
+		{
 		constructPreferencesIfNeeded();
 
-		Pref<?> result = preferences.put(pref.key(), pref);
+		result = preferences.put(pref.key(), pref);
 		pref.register();
+		}
+		
 		return result;
 	}
 	
