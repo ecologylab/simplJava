@@ -1053,7 +1053,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}
-			else if(tagName.equals("location"))
+			else if(tagName.equals("location") || tagName.equals("link"))
 			{
 				a.append(anchor.open());
 				scalarType.appendValue(a, this, context, serializationContext);
@@ -1076,7 +1076,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}
-			else if(tagName.equals("location"))
+			else if(tagName.equals("location") || tagName.equals("link"))
 			{
 				a.append(anchor.open());
 				scalarType.appendValue(a, this, context, serializationContext);
