@@ -50,7 +50,7 @@ public abstract class NIODatagramCore<S extends Scope> extends Debug implements 
 
 	private MessageMetaDataPool																												metaDataPool					= new MessageMetaDataPool();
 
-	protected static final int																												MAX_DATAGRAM_SIZE			= 6000;
+	protected static final int																												MAX_DATAGRAM_SIZE			= 10000;
 
 	protected static final int																												HEADER_SIZE						= Long.SIZE / 8;
 
