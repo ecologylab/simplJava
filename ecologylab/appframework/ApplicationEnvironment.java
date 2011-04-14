@@ -61,7 +61,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	// private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String		ECLIPSE_BASE_PREFERENCE_PATH	= ECLIPSE_PREFS_DIR
 																																	+ "preferences.xml";
-
+	private static boolean				inUse;
+	
 	Scope													sessionScope;
 
 	TranslationScope							translationScope;
@@ -409,6 +410,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			TranslationScope translationScope, TranslationScope customPrefsTranslationScope, String args[],
 			float prefsAssetVersion) throws SIMPLTranslationException
 	{
+		inUse	= true;
 		// setup the translations used for prefs
 		TranslationScope prefTranslations;
 		if (customPrefsTranslationScope != null)
@@ -473,6 +475,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		}
 
 		// could parse more args here
+	}
+
+	public static boolean isInUse()
+	{
+		return inUse;
 	}
 
 	/**
