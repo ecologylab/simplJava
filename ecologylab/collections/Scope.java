@@ -151,7 +151,7 @@ public class Scope<T> extends HashMap<String, T>
     {
     	for (String key : this.keySet())
     	{
-    		result.append('\n').append(prefix).append(key).append("\t: ").append(get(key));
+    		result.append(prefix).append(key).append("\t: ").append(get(key)).append('\n');
     	}
     }
 
