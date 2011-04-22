@@ -70,7 +70,7 @@ public class BibTeXParser implements FieldTypes
 			switch (state)
 			{
 			case START:
-				if (Character.isWhitespace((int) data[p]))
+				if (data[p] != '@')
 				{
 					++p;
 				}
@@ -85,7 +85,7 @@ public class BibTeXParser implements FieldTypes
 				break;
 
 			case TYPE:
-				if (Character.isLetter((int) data[p]))
+				if (!(Character.isWhitespace((int) data[p])) && data[p] != '{')
 				{
 					++p;
 				}
@@ -122,6 +122,8 @@ public class BibTeXParser implements FieldTypes
 			case KEY_START:
 				if (Character.isWhitespace((int) data[p]))
 				{
+					state = State.KEY;
+					valueStart = p;
 					++p;
 				}
 				else if (Character.isLetterOrDigit((int) data[p]))
@@ -130,12 +132,18 @@ public class BibTeXParser implements FieldTypes
 					valueStart = p;
 					++p;
 				}
+				else if (data[p] == ',')
+				{
+					state = State.TAG_START;
+					eventListener.key(new String(data, valueStart, p - valueStart));
+					++p;
+				}
 				else
 					throw new BibTeXFormatException(data, p, "expecting letters, digits or whitespaces.");
 				break;
 
 			case KEY:
-				if (Character.isLetterOrDigit((int) data[p]))
+				if (!(Character.isWhitespace((int) data[p])) && data[p] != ',')
 				{
 					++p;
 				}
@@ -185,7 +193,7 @@ public class BibTeXParser implements FieldTypes
 				break;
 
 			case TAG:
-				if (Character.isLetterOrDigit((int) data[p]) || data[p] == '-')
+				if (Character.isLetterOrDigit((int) data[p]) || data[p] == '_')
 				{
 					++p;
 				}

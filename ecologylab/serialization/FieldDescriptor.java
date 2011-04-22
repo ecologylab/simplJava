@@ -1051,7 +1051,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}
-			else if(tagName.equals("location"))
+			else if(tagName.equals("location") || tagName.equals("link"))
 			{
 				a.append(anchor.open());
 				scalarType.appendValue(a, this, context, serializationContext);
@@ -1074,7 +1074,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
 				a.append("\">");
 			}
-			else if(tagName.equals("location"))
+			else if(tagName.equals("location") || tagName.equals("link"))
 			{
 				a.append(anchor.open());
 				scalarType.appendValue(a, this, context, serializationContext);
@@ -1122,6 +1122,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					appendable.append('\n');
 					appendable.append(' ');
+					String bibTeXTagName = getBibtexTagName();
+					bibTeXTagName = bibTeXTagName.replace('_', ' ');
 					appendable.append(getBibtexTagName());
 					appendable.append('=');
 					appendable.append('{');

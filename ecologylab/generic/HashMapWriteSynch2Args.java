@@ -90,6 +90,11 @@ public class HashMapWriteSynch2Args<K, V, A> extends HashMapWriteSynchBase<K, V>
 		}
 		return result;
 	}
+	
+	public ValueFactory2<K, V, A> getFactory()
+	{
+		return factory;
+	}
 
 	/**
 	 * @param factory the factory to set
