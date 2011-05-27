@@ -1790,6 +1790,16 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				Class collectionType = field.getType();
 				try
 				{
+					// this is a workaround for enabling List in ElementState subclasses,
+					// it uses ArrayList as the default List implementation for List fields.
+					// we need List in ORM layer.
+					// clients can still use ArrayList, HashMapArrayList or any other List implementations
+					// if they need to.
+					// this could be improved, e.g. by using a preference system.
+					// -- yin
+					if (collectionType.equals(java.util.List.class))
+						collectionType = ArrayList.class;
+					
 					collection = collectionType.newInstance();
 					// set the field to the new collection
 					field.set(activeES, collection);
