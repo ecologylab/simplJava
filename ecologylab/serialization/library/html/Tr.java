@@ -1,28 +1,22 @@
 package ecologylab.serialization.library.html;
 
+import java.util.ArrayList;
 
+import ecologylab.serialization.Hint;
+import ecologylab.serialization.simpl_inherit;
+
+@simpl_inherit
 public class Tr extends HtmlElement
 {
+	@simpl_nowrap
+	@simpl_collection("td")
+	@simpl_hints(Hint.XML_LEAF)
+	public ArrayList<Td>	cells;
+
 	public Tr()
 	{
 		this.setId("");
 		this.setCssClass("");
-	}
-	public String open()
-	{
-		String open = "<tr";
-		if (this.getId() != null && this.getId().length() > 0)
-			open += " id=\"" + this.getId() + "\"";
-		if (this.getCssClass() != null && this.getCssClass().length() > 0)
-			open += " class=\"" + this.getCssClass() + "\"";
-		open += ">";
-		
-		return open;
-	}
-	
-	public static String close()
-	{
-		return "</tr>";
-
+		cells = new ArrayList<Td>();
 	}
 }

@@ -4,8 +4,17 @@ import ecologylab.serialization.ElementState;
 
 public class HtmlElement extends ElementState
 {
-	String id;
-	String CssClass;
+	@simpl_scalar
+	String	id;
+
+	@xml_tag("class")
+	@simpl_scalar
+	String	CssClass;
+
+	public HtmlElement()
+	{
+	}
+
 	public String getCssClass()
 	{
 		return CssClass;
@@ -16,12 +25,11 @@ public class HtmlElement extends ElementState
 		CssClass = cssClass;
 	}
 
-	HtmlElement() {}
-	
 	public String getId()
 	{
 		return id;
 	}
+
 	public void setId(String id)
 	{
 		this.id = id;

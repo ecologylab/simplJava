@@ -27,9 +27,11 @@ import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
-import ecologylab.serialization.library.html.Anchor;
+import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
+import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
+import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;
@@ -1020,74 +1022,82 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
-	public void appendHtmlValueAsAttribute(Appendable a, Object context,
-			TranslationContext serializationContext, boolean bold, FieldDescriptor navigatesFD, String fieldLabel)
+	public void appendHtmlValueAsAttribute(Object context, TranslationContext serializationContext,
+			boolean bold, FieldDescriptor navigatesFD, String fieldLabel, Tr tr)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
+
 		if (!scalarType.isDefaultValue(field, context))
 		{
 			Td fieldName = new Td();
 			Td value = new Td();
 			Div text = new Div();
 			Div name = new Div();
-			Anchor anchor = new Anchor();
+			A labelAnchor = new A();
+			A valueAnchor = new A();
+			
 			String textClass = (bold) ? "metadata_h1" : "metadata_text";
 
 			boolean hasNavigatesTo = navigatesFD != null;
 			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
 			Field navigatesField = (hasNavigatesTo) ? navigatesFD.getField() : null;
-			hasNavigatesTo = hasNavigatesTo
-					&& !navigatesScalarType.isDefaultValue(navigatesField, context);
+			hasNavigatesTo = hasNavigatesTo && !navigatesScalarType.isDefaultValue(navigatesField, context);
 
 			text.setCssClass(textClass);
 			fieldName.setAlign("right");
 			fieldName.setCssClass("metadata_field_name");
-			a.append(fieldName.open());
-			a.append(name.open());
-
+			
 			if (hasNavigatesTo)
 			{
-				a.append(anchor.open());
-				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
-				a.append("\">");
+				StringBuilder navigatesToBuffy = new StringBuilder();
+
+				navigatesScalarType.appendValue(navigatesToBuffy, navigatesFD, context, serializationContext);
+				labelAnchor.setHref(navigatesToBuffy.toString());
+				labelAnchor.setLink(fieldLabel);
+				name.members.add(labelAnchor);
 			}
 			else if(tagName.equals("location") || tagName.equals("link"))
 			{
-				a.append(anchor.open());
-				scalarType.appendValue(a, this, context, serializationContext);
-				a.append("\">");
+				StringBuilder locationBuffy = new StringBuilder();
+				scalarType.appendValue(locationBuffy, this, context, serializationContext);
+				labelAnchor.setHref(locationBuffy.toString());
+				labelAnchor.setLink(fieldLabel);
+				name.members.add(labelAnchor);
+			}
+			else
+			{
+				name.setText(fieldLabel);
 			}
 
-			a.append(fieldLabel);
-			if (hasNavigatesTo)
-				a.append(Anchor.close());
-			a.append(name.close());
-			a.append(Td.close());
-			a.append(value.open());
-			a.append(text.open());
-			if (bold)
-				a.append("<b>");
+			fieldName.items.add(name);
+			tr.cells.add(fieldName);
 
+			StringBuilder valueBuffy = new StringBuilder();
+			scalarType.appendValue(valueBuffy, this, context, serializationContext);
+			
 			if (hasNavigatesTo)
 			{
-				a.append(anchor.open());
-				navigatesScalarType.appendValue(a, navigatesFD, context, serializationContext);
-				a.append("\">");
+				StringBuilder buffy = new StringBuilder();
+				navigatesScalarType.appendValue(buffy, navigatesFD, context, serializationContext);
+				valueAnchor.setHref(buffy.toString());
+				valueAnchor.setLink(valueBuffy.toString());
+				text.members.add(valueAnchor);
 			}
 			else if(tagName.equals("location") || tagName.equals("link"))
 			{
-				a.append(anchor.open());
-				scalarType.appendValue(a, this, context, serializationContext);
-				a.append("\">");
+				StringBuilder buffy = new StringBuilder();
+				scalarType.appendValue(buffy, this, context, serializationContext);
+				valueAnchor.setHref(buffy.toString());
+				valueAnchor.setLink(valueBuffy.toString());
+				text.members.add(valueAnchor);
 			}
-
-			scalarType.appendValue(a, this, context, serializationContext);
-			if (hasNavigatesTo)
-				a.append(Anchor.close());
-			if (bold)
-				a.append("</b>");
-			a.append(text.close());
-			a.append(Td.close());
+			else
+			{
+				text.setText(valueBuffy.toString());
+			}
+			
+			value.items.add(text);
+			tr.cells.add(value);
 		}
 	}
 
@@ -1290,15 +1300,19 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		}
 	}
 
-	public void appendHtmlCollectionCompositeAttribute(Appendable a, Object instance, boolean isFirst)
+	public String getHtmlCompositeCollectionValue(Object instance, boolean isFirst)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
+		StringBuilder value = new StringBuilder();
+		
 		if (instance != null)
 		{
 			if (!isFirst)
-				a.append(",&nbsp;");
-			scalarType.appendValue(a, this, instance, null);
+				value.append(", ");
+			scalarType.appendValue(value, this, instance, null);			
 		}
+		
+		return value.toString();
 	}
 
 	void appendJSONCollectionAttribute(Appendable appendable, Object instance, boolean isFirst)
@@ -1519,56 +1533,49 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName).append('>');
 	}
 
-	public void writeHtmlWrap(Appendable a, boolean close, int size, String displayLabel) throws IOException
+	public void writeHtmlWrap(Appendable a, boolean close, int size, String displayLabel, Tr tr) throws IOException
 	{
-		String button = "&nbsp;<input type=\"image\" class=\"general\" src=\"http://ecologylab.net/cf/compositionIncludes/button.jpg\" value=\"\" />&nbsp;";
+		Input button = new Input();
+		
+		button.setType("image");
+		button.setCssClass("general");
+		button.setSrc("http://ecologylab.net/cf/compositionIncludes/button.jpg");
+		button.setValue("");
+		
 		Td td = new Td();
 		Td fieldName = new Td();
 		Div text = new Div();
+		
 		text.setCssClass("metadata_text");
 		fieldName.setCssClass("metadata_field_name");
 		td.setCssClass("nested_field_value");
-		if (close)
-			a.append(Td.close());
-		else
-		{
-			a.append(fieldName.open());
-			a.append(text.open());
+		
 			if (size > 1)
-				a.append(button);
-			a.append(displayLabel);
+				text.members.add(button);
+			String s = displayLabel;
 			if (size > 1)
 			{
-				a.append("&nbsp;(");
-				a.append(Integer.toString(size));
-				a.append(")");
+				s += " (" + Integer.toString(size) + ")";
 			}
-			a.append(text.close());
-			a.append(Td.close());
-			a.append(td.open());
-		}
+			
+			text.setText(s);
 
+			td.items.add(text);
+			tr.cells.add(td);
 	}
 
-	public void writeCompositeHtmlWrap(Appendable a, boolean close, String displayLabel) throws IOException
+	public void writeCompositeHtmlWrap(Appendable a, boolean close, String displayLabel, Tr tr) throws IOException
 	{		
-		if (close)
-			a.append(Td.close());
-		else
-		{
 			Td td = new Td();
 			Td fieldName = new Td();
 			Div text = new Div();
 			text.setCssClass("metadata_text");
 			fieldName.setCssClass("metadata_field_name");
 			td.setCssClass("nested_field_value");
-			a.append(fieldName.open());
-			a.append(text.open());
-			a.append(displayLabel);
-			a.append(text.close());
-			a.append(Td.close());
-			a.append(td.open());
-		}
+
+			text.setText(displayLabel);
+			td.items.add(text);
+			tr.cells.add(td);
 	}
 
 	// ----------------------------- methods from TagDescriptor

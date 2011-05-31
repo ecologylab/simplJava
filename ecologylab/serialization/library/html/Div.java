@@ -1,8 +1,23 @@
 package ecologylab.serialization.library.html;
 
+import java.util.ArrayList;
+
+import ecologylab.serialization.Hint;
+import ecologylab.serialization.simpl_inherit;
+
+@simpl_inherit
 public class Div extends HtmlElement
 {
-	private String CssClass;
+	@simpl_classes(
+	{ HtmlElement.class, Table.class, Tr.class, Span.class, Div.class, Td.class, A.class })
+	@simpl_collection
+	@simpl_nowrap
+	public ArrayList<Object>	members	= new ArrayList<Object>();
+	
+	@simpl_scalar
+	@simpl_hints(Hint.XML_TEXT)
+	String text;
+
 	public Div()
 	{
 		CssClass = "";
@@ -18,21 +33,14 @@ public class Div extends HtmlElement
 	{
 		CssClass = cssClass;
 	}
-	
-	public String open()
+
+	public String getText()
 	{
-		String open = "<div";
-		if (this.getId() != null && this.getId().length() > 0)
-			open += " id=\"" + this.getId() + "\"";
-		if (this.getCssClass() != null && this.getCssClass().length() > 0)
-			open += " class=\"" + this.getCssClass() + "\"";
-		open += ">";
-		return open;
+		return text;
 	}
-	
-	public String close()
+
+	public void setText(String text)
 	{
-		return "</div>";
+		this.text = text;
 	}
-	
 }
