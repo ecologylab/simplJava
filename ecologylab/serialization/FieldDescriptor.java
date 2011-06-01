@@ -1023,7 +1023,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	}
 
 	public void appendHtmlValueAsAttribute(Object context, TranslationContext serializationContext,
-			boolean bold, FieldDescriptor navigatesFD, String fieldLabel, Tr tr)
+			String textClass, FieldDescriptor navigatesFD, String fieldLabel, Tr tr)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
 
@@ -1035,14 +1035,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			Div name = new Div();
 			A labelAnchor = new A();
 			A valueAnchor = new A();
-			
-			String textClass = (bold) ? "metadata_h1" : "metadata_text";
 
 			boolean hasNavigatesTo = navigatesFD != null;
 			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
 			Field navigatesField = (hasNavigatesTo) ? navigatesFD.getField() : null;
 			hasNavigatesTo = hasNavigatesTo && !navigatesScalarType.isDefaultValue(navigatesField, context);
-
+			
+			if (textClass == null || textClass.equals("default")) textClass = "metadata_text";
+			
 			text.setCssClass(textClass);
 			fieldName.setAlign("right");
 			fieldName.setCssClass("metadata_field_name");
@@ -1533,7 +1533,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName).append('>');
 	}
 
-	public void writeHtmlWrap(Appendable a, boolean close, int size, String displayLabel, Tr tr) throws IOException
+	public void writeHtmlWrap(boolean close, int size, String displayLabel, Tr tr) throws IOException
 	{
 		Input button = new Input();
 		
@@ -1564,7 +1564,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			tr.cells.add(td);
 	}
 
-	public void writeCompositeHtmlWrap(Appendable a, boolean close, String displayLabel, Tr tr) throws IOException
+	public void writeCompositeHtmlWrap(boolean close, String displayLabel, Tr tr) throws IOException
 	{		
 			Td td = new Td();
 			Td fieldName = new Td();
