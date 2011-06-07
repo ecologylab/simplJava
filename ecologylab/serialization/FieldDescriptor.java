@@ -1035,7 +1035,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			Div name = new Div();
 			A labelAnchor = new A();
 			A valueAnchor = new A();
-
 			boolean hasNavigatesTo = navigatesFD != null;
 			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
 			Field navigatesField = (hasNavigatesTo) ? navigatesFD.getField() : null;
@@ -1542,13 +1541,13 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		button.setSrc("http://ecologylab.net/cf/compositionIncludes/button.jpg");
 		button.setValue("");
 		
-		Td td = new Td();
+//		Td td = new Td();
 		Td fieldName = new Td();
 		Div text = new Div();
 		
 		text.setCssClass("metadata_text");
 		fieldName.setCssClass("metadata_field_name");
-		td.setCssClass("nested_field_value");
+//		td.setCssClass("nested_field_value");
 		
 			if (size > 1)
 				text.members.add(button);
@@ -1560,22 +1559,22 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			
 			text.setText(s);
 
-			td.items.add(text);
-			tr.cells.add(td);
+			fieldName.items.add(text);
+			tr.cells.add(fieldName);
 	}
 
 	public void writeCompositeHtmlWrap(boolean close, String displayLabel, Tr tr) throws IOException
 	{		
-			Td td = new Td();
+//			Td td = new Td();
 			Td fieldName = new Td();
 			Div text = new Div();
 			text.setCssClass("metadata_text");
 			fieldName.setCssClass("metadata_field_name");
-			td.setCssClass("nested_field_value");
+//			td.setCssClass("nested_field_value");
 
 			text.setText(displayLabel);
-			td.items.add(text);
-			tr.cells.add(td);
+			fieldName.items.add(text);
+			tr.cells.add(fieldName);
 	}
 
 	// ----------------------------- methods from TagDescriptor
