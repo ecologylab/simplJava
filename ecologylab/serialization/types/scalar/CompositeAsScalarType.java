@@ -117,4 +117,11 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

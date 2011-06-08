@@ -87,4 +87,10 @@ public class ColorType extends ScalarType<Color>
 	{
 		return MappingConstants.OBJC_COLOR;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_COLOR;
+	}
 }

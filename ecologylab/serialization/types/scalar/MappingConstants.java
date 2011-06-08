@@ -99,5 +99,54 @@ public class MappingConstants
 	public static final String	DOTNET_SCOPE						= "Scope";
 	
 	public static final String DOTNET_UUID							= "GUID";
+	
+	/*
+	 * Java Scalar Types
+	 */
+	public static final String	JAVA_INTEGER					= "int";
+
+	public static final String	JAVA_FLOAT						= "float";
+
+	public static final String	JAVA_DOUBLE						= "double";
+
+	public static final String	JAVA_BYTE							= "byte";
+
+	public static final String	JAVA_CHAR							= "char";
+
+	public static final String	JAVA_BOOLEAN					= "boolean";
+
+	public static final String	JAVA_LONG							= "long";
+
+	public static final String	JAVA_SHORT						= "short";
+
+	public static final String	JAVA_STRING						= "String";
+
+	public static final String	JAVA_DATE							= "Date";
+
+	public static final String	JAVA_STRING_BUILDER		= "StringBuilder";
+
+	public static final String	JAVA_URL							= "Url";
+
+	public static final String	JAVA_PARSED_URL				= "ParsedURL";
+
+	public static final String	JAVA_SCALAR_TYPE			= "ScalarType";
+
+	public static final String	JAVA_CLASS						= "Class";
+
+	public static final String	JAVA_FIELD						= "Field";
+
+	public static final String	JAVA_COLOR						= "Color";
+
+	public static final String	JAVA_FILE							= "File";
+
+	public static final String	JAVA_ARRAYLIST				= "ArrayList";
+
+	public static final String	JAVA_HASHMAP					= "HashMap";
+
+	public static final String	JAVA_HASHMAPARRAYLIST	= "HashMapArrayList";
+
+	public static final String	JAVA_SCOPE						= "Scope";
+	
+	public static final String JAVA_UUID							= "GUID";
 
 }

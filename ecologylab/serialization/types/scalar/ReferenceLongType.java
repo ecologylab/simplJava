@@ -17,6 +17,11 @@ public class ReferenceLongType extends ScalarType<Long>
 	public String getCSharptType() {
 		return MappingConstants.DOTNET_LONG;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_LONG;
+	}
 
 	@Override
 	public String getDbType() {

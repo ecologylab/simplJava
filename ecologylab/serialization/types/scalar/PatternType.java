@@ -46,5 +46,12 @@ public class PatternType extends ReferenceType<Pattern>
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

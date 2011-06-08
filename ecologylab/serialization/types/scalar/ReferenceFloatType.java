@@ -17,6 +17,11 @@ public class ReferenceFloatType extends ScalarType<Float>
 	public String getCSharptType() {
 		return MappingConstants.DOTNET_FLOAT;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_FLOAT;
+	}
 
 	@Override
 	public String getDbType() {

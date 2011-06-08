@@ -59,6 +59,12 @@ public class FileType extends ScalarType<File>
 		}
 		
 		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_FILE;
+		}
+		
+		@Override
 		public String marshall(File instance, TranslationContext serializationContext)
 		{
 			File contextualizedInstance = instance;

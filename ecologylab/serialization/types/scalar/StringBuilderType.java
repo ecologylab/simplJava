@@ -62,6 +62,12 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	{
 		return MappingConstants.DOTNET_STRING_BUILDER;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_STRING_BUILDER;
+	}
 
 	@Override
 	public String getDbType()

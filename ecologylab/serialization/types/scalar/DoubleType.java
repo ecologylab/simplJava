@@ -233,4 +233,10 @@ public class DoubleType extends ScalarType<Double>
 	{
 		return MappingConstants.OBJC_DOUBLE;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_DOUBLE;
+	}
 }

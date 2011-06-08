@@ -17,6 +17,11 @@ public class ReferenceDoubleType extends ScalarType<Double>
 	public String getCSharptType() {
 		return MappingConstants.DOTNET_DOUBLE;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_DOUBLE;
+	}
 
 	@Override
 	public String getDbType() {

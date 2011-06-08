@@ -2098,6 +2098,53 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		return result;
 	}
+	
+	public String getJavaType()
+	{
+		String result = null;
+
+		if (scalarType != null && !isCollection())
+		{
+			result = scalarType.getJavaType();
+		}
+		else
+		{
+			Class<?> type = this.field.getType();
+			if (isCollection())
+			{
+				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
+				{
+					result = MappingConstants.JAVA_ARRAYLIST;
+				}
+				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
+				{
+					result = MappingConstants.JAVA_HASHMAP;
+				}
+				else if (HashMapArrayList.class == type)
+				{
+					result = MappingConstants.JAVA_HASHMAPARRAYLIST;
+				}
+				else if (Scope.class == type)
+				{
+					result = MappingConstants.JAVA_SCOPE;
+				}
+			}
+			else
+			{
+				// Simpl composite ?
+				String name = type.getSimpleName();
+				if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
+					result = name;
+			}
+		}
+
+		if (XMLTools.isGeneric(this.field))
+		{
+			result += XMLTools.getJavaGenericParametersString(this.field);
+		}
+
+		return result;
+	}
 
 	public int getTLVId()
 	{

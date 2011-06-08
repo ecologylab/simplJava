@@ -164,4 +164,10 @@ public class LongType extends ScalarType<Long>
 		{
 			return MappingConstants.OBJC_LONG;
 		}
+		
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_LONG;
+		}
 }

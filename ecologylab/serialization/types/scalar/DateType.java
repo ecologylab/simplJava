@@ -78,4 +78,10 @@ public class DateType extends ScalarType<Date>
 		{
 			return MappingConstants.OBJC_DATE;
 		}
+		
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_DATE;
+		}
 }

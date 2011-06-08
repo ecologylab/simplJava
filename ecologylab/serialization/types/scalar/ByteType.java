@@ -168,4 +168,9 @@ public class ByteType extends ScalarType<Byte>
 			return MappingConstants.OBJC_BYTE;
 		}
     
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_BYTE;
+		}
 }

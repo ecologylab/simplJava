@@ -189,4 +189,10 @@ public class FloatType extends ScalarType<Float>
 	{
 		return MappingConstants.OBJC_FLOAT;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_FLOAT;
+	}
 }

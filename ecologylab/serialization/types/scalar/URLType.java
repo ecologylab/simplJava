@@ -87,4 +87,10 @@ public class URLType extends ReferenceType<URL>
 		return MappingConstants.OBJC_URL;
 	}
 
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_URL;
+	}	
+	
 }

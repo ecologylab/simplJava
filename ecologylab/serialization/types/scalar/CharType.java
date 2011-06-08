@@ -167,4 +167,10 @@ public class CharType extends ScalarType<Character>
 		{
 			return MappingConstants.OBJC_CHAR;
 		}
+		
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_CHAR;
+		}
 }

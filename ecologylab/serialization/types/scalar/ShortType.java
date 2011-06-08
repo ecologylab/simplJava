@@ -152,6 +152,12 @@ public class ShortType extends ScalarType<Short>
 		{
 			return MappingConstants.DOTNET_SHORT;
 		}
+		
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_SHORT;
+		}
 
 		@Override
 		public String getDbType()

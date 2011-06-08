@@ -55,6 +55,12 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 	{
 		return MappingConstants.DOTNET_SCALAR_TYPE;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_SCALAR_TYPE;
+	}
 
 	@Override
 	public String getDbType()

@@ -2052,4 +2052,151 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		else
 			return true;
 	}
+	
+
+	public static String getJavaGenericParametersStringRecursive(ParameterizedType pType)
+	{
+		StringBuilder result = new StringBuilder();
+
+		Type[] ta = pType.getActualTypeArguments();
+
+		result.append('<');
+
+		for (int i = 0; i < ta.length; i++)
+		{
+			if (ta[i] instanceof Class<?>)
+			{
+				if (i == 0)
+					result.append(inferJavaType((Class<?>) ta[i]));
+				else
+					result.append(", " + inferJavaType((Class<?>) ta[i]));
+			}
+			else
+			{
+				ParameterizedType pT = (ParameterizedType) ta[i];
+				Class<?> rT = (Class<?>) pT.getRawType();
+				if (i == 0)
+					result.append(inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
+				else
+					result.append(", " + inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
+			}
+		}
+
+		result.append('>');
+
+		return result.toString();
+	}
+	
+
+	public static String getJavaGenericParametersString(Field field)
+	{
+		String result;
+		if (isGeneric(field))
+		{
+			result = getJavaGenericParametersStringRecursive((ParameterizedType) field.getGenericType());
+			return result;
+		}
+		else
+			return "";
+	}
+	
+
+	/**
+	 * Utility function to translate Java type to CSharp type
+	 * 
+	 * @param fieldType
+	 * @return
+	 * @throws DotNetTranslationException
+	 */
+	public static String inferJavaType(Class<?> fieldType)
+	{
+		String result = null;
+		
+		if (int.class == fieldType)
+		{
+			result = MappingConstants.JAVA_INTEGER;
+		}
+		else if (float.class == fieldType)
+		{
+			result = MappingConstants.JAVA_FLOAT;
+		}
+		else if (double.class == fieldType)
+		{
+			result = MappingConstants.JAVA_DOUBLE;
+		}
+		else if (byte.class == fieldType)
+		{
+			result = MappingConstants.JAVA_BYTE;
+		}
+		else if (char.class == fieldType)
+		{
+			result = MappingConstants.JAVA_CHAR;
+		}
+		else if (boolean.class == fieldType)
+		{
+			result = MappingConstants.JAVA_BOOLEAN;
+		}
+		else if (long.class == fieldType)
+		{
+			result = MappingConstants.JAVA_LONG;
+		}
+		else if (short.class == fieldType)
+		{
+			result = MappingConstants.JAVA_SHORT;
+		}
+		else if (String.class == fieldType)
+		{
+			result = MappingConstants.JAVA_STRING;
+		}
+		else if (StringBuilder.class == fieldType)
+		{
+			result = MappingConstants.JAVA_STRING_BUILDER;
+		}
+		else if (URL.class == fieldType)
+		{
+			result = MappingConstants.JAVA_URL;
+		}
+		else if (ParsedURL.class == fieldType)
+		{
+			result = MappingConstants.JAVA_PARSED_URL;
+		}
+		else if (ScalarType.class == fieldType)
+		{
+			result = MappingConstants.JAVA_SCALAR_TYPE;
+		}
+		else if (Date.class == fieldType)
+		{
+			result = MappingConstants.JAVA_DATE;
+		}
+		else if (ArrayList.class == fieldType)
+		{
+			result = MappingConstants.JAVA_ARRAYLIST;
+		}
+		else if (HashMap.class == fieldType)
+		{
+			result = MappingConstants.JAVA_HASHMAP;
+		}
+		else if (HashMapArrayList.class == fieldType)
+		{
+			result = MappingConstants.JAVA_HASHMAPARRAYLIST;
+		}
+		else if (Scope.class == fieldType)
+		{
+			result = MappingConstants.JAVA_SCOPE;
+		}
+		else if (Class.class == fieldType)
+		{
+			result = MappingConstants.JAVA_CLASS;
+		}
+		else if (Field.class == fieldType)
+		{
+			result = MappingConstants.JAVA_FIELD;
+		}
+		else
+		{
+			// Assume the field is custom object
+			result = fieldType.getSimpleName();
+		}
+		return result;
+	}
 }

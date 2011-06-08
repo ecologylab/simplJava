@@ -194,4 +194,9 @@ public class BooleanType extends ScalarType<Boolean>
 		return null;
 	}
 
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_BOOLEAN;
+	}
 }

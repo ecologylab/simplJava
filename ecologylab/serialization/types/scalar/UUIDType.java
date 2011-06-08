@@ -38,5 +38,10 @@ public class UUIDType extends ScalarType<UUID> {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_UUID;
+	}
 
 }

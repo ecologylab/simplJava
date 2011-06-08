@@ -17,6 +17,11 @@ public class ReferenceIntegerType extends ScalarType<Integer>
 	public String getCSharptType() {
 		return MappingConstants.DOTNET_INTEGER;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_INTEGER;
+	}
 
 	@Override
 	public String getDbType() {

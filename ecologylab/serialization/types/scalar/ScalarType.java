@@ -526,4 +526,6 @@ public abstract class ScalarType<T> extends Debug
 	abstract public String getCSharptType();
 
 	abstract public String getDbType();
+	
+	abstract public String getJavaType();
 }

@@ -101,4 +101,10 @@ public class StringType extends ReferenceType<String>
 	{
 		return MappingConstants.OBJC_STRING;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_STRING;
+	}
 }

@@ -71,5 +71,11 @@ public class FieldType extends ReferenceType<Field>
 	{
 		return MappingConstants.OBJC_FIELD;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_FIELD;
+	}
 
 }

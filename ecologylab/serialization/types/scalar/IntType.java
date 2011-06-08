@@ -177,4 +177,10 @@ public class IntType extends ScalarType<Integer>
 		{
 			return MappingConstants.OBJC_INTEGER;
 		}
+		
+		@Override
+		public String getJavaType()
+		{
+			return MappingConstants.JAVA_INTEGER;
+		}
 }

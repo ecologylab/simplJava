@@ -79,5 +79,11 @@ public class ClassType extends ReferenceType<Class>
 	{
 		return MappingConstants.DOTNET_CLASS;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_CLASS;
+	}
 
 }

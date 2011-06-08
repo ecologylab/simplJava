@@ -171,6 +171,12 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	{
 		return MappingConstants.OBJC_PARSED_URL;
 	}
+	
+	@Override
+	public String getJavaType()
+	{
+		return MappingConstants.JAVA_PARSED_URL;
+	}
 
 	
 	@Override

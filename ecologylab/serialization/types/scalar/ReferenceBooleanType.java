@@ -17,6 +17,11 @@ public class ReferenceBooleanType extends ScalarType<Boolean>
 	public String getCSharptType() {
 		return MappingConstants.DOTNET_BOOLEAN;
 	}
+	
+	@Override
+	public String getJavaType() {
+		return MappingConstants.JAVA_BOOLEAN;
+	}
 
 	@Override
 	public String getDbType() {
