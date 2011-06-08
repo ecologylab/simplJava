@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
+import java.util.HashMap;
 
+import ecologylab.collections.CollectionTools;
 import ecologylab.generic.Debug;
 
 /**
@@ -130,5 +132,18 @@ public class PURLConnection extends Debug
 	public ParsedURL getPurl()
 	{
 		return purl;
+	}
+	
+	static final String[]									noAlphaMimeStrings					=
+	{ 
+		"image/jpeg", "image/bmp", 
+	};
+
+	static final HashMap									noAlphaMimeMap						= CollectionTools
+																																				.buildHashMapFromStrings(noAlphaMimeStrings);
+
+	public boolean isNoAlpha()
+	{
+		return mimeType != null && noAlphaMimeMap.containsKey(mimeType);
 	}
 }

@@ -667,19 +667,22 @@ public class ParsedURL extends Debug implements MimeType
 	static final HashMap									jpegSuffixMap								= CollectionTools
 																																				.buildHashMapFromStrings(jpegMimeStrings);
 
-	static final String[]									htmlMimeStrings							=
+	static final String[]									htmlSuffixStrings							=
 																																		{ "html", "htm", "stm", "php",
 			"jhtml", "jsp", "asp", "txt", "shtml", "pl", "plx", "exe"		};
 
-	static final String[]									noAlphaMimeStrings					=
-																																		{ "bmp", "wbmp", "jpg", "jpeg",
-			"pjpg", "pjpeg"																							};
+	static final String[]									noAlphaSuffixStrings					=
+	{ 
+		"bmp", "BMP", "wbmp", "WBMP", 
+		"jpg", "JPG", "jpeg", "JPEG",
+		"pjpg", "PJPG", "pjpeg", "PJPEG",
+	};
 
 	static final HashMap									noAlphaSuffixMap						= CollectionTools
-																																				.buildHashMapFromStrings(noAlphaMimeStrings);
+																																				.buildHashMapFromStrings(noAlphaSuffixStrings);
 
 	static final HashMap									htmlSuffixMap								= CollectionTools
-																																				.buildHashMapFromStrings(htmlMimeStrings);
+																																				.buildHashMapFromStrings(htmlSuffixStrings);
 
 	static final String[]									pdfMimeStrings							=
 																																		{ "pdf" };
@@ -698,8 +701,8 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		for (int i = 0; i < pdfMimeStrings.length; i++)
 			CollectionTools.stringIntMapEntry(suffixesToMap, pdfMimeStrings[i], PDF);
-		for (int i = 0; i < htmlMimeStrings.length; i++)
-			CollectionTools.stringIntMapEntry(suffixesToMap, htmlMimeStrings[i], HTML);
+		for (int i = 0; i < htmlSuffixStrings.length; i++)
+			CollectionTools.stringIntMapEntry(suffixesToMap, htmlSuffixStrings[i], HTML);
 		for (int i = 0; i < rssMimeStrings.length; i++)
 			CollectionTools.stringIntMapEntry(suffixesToMap, rssMimeStrings[i], RSS);
 		for (int i = 0; i < jpegMimeStrings.length; i++)
@@ -1020,7 +1023,7 @@ public class ParsedURL extends Debug implements MimeType
 	 */
 	public boolean isNoAlpha()
 	{
-		return jpegSuffixMap.containsKey(suffix());
+		return noAlphaSuffixMap.containsKey(suffix());
 	}
 
 	/**
