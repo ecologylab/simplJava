@@ -1,4 +1,4 @@
-package translators.cocoa;
+package ecologylab.translators.cocoa;
 
 /**
  * Types of exceptions that occur during operation of the translation framework.

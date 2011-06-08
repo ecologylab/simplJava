@@ -1,4 +1,4 @@
-package translators.net;
+package ecologylab.translators.net;
 
 import japa.parser.ParseException;
 import japa.parser.ast.type.Type;
@@ -17,8 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import translators.cocoa.CocoaTranslationConstants;
-import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
@@ -34,6 +32,8 @@ import ecologylab.serialization.types.element.Mappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.translators.cocoa.CocoaTranslationConstants;
+import ecologylab.translators.parser.JavaDocParser;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into

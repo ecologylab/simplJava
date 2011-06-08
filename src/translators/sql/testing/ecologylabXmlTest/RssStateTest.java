@@ -1,4 +1,4 @@
-package translators.sql.testing.ecologylabXmlTest;
+package ecologylab.translators.sql.testing.ecologylabXmlTest;
 
 import java.io.File;
 import java.util.ArrayList;

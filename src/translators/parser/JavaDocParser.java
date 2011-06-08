@@ -1,4 +1,4 @@
-package translators.parser;
+package ecologylab.translators.parser;
 
 import japa.parser.JavaParser;
 import japa.parser.ParseException;

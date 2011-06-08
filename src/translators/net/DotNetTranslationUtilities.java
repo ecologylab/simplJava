@@ -1,4 +1,4 @@
-package translators.net;
+package ecologylab.translators.net;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;

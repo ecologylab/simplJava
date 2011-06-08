@@ -1,4 +1,4 @@
-package translators.sql;
+package ecologylab.translators.sql;
 
 import java.io.*;
 import java.lang.*;

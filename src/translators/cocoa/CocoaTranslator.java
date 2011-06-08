@@ -1,4 +1,4 @@
-package translators.cocoa;
+package ecologylab.translators.cocoa;
 
 import japa.parser.ParseException;
 
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-import translators.parser.JavaDocParser;
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
@@ -30,6 +29,7 @@ import ecologylab.serialization.library.rss.RssState;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.translators.parser.JavaDocParser;
 
 /**
  * This class is the main class which provides the functionality of translation of Java classes into

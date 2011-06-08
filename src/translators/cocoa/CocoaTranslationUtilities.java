@@ -1,4 +1,4 @@
-package translators.cocoa;
+package ecologylab.translators.cocoa;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package translators.net;
+package ecologylab.translators.net;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;

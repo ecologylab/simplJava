@@ -1,4 +1,4 @@
-package translators.sql.metadata2sql;
+package ecologylab.translators.sql.metadata2sql;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -14,9 +14,9 @@ import java.util.Vector;
 
 import org.junit.Test;
 
-import translators.sql.DBInterface;
 import ecologylab.generic.Debug;
 import ecologylab.serialization.SIMPLTranslationException;
+import ecologylab.translators.sql.DBInterface;
 
 public class sqlTranslator implements DBInterface{
 	String thisStringTargetDirectory = null; 

@@ -1,4 +1,4 @@
-package translators.cocoa.library;
+package ecologylab.translators.cocoa.library;
 
 import java.net.MalformedURLException;
 import java.net.URL;

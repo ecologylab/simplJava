@@ -1,4 +1,4 @@
-package translators.parser;
+package ecologylab.translators.parser;
 
 import java.io.File;
 import java.io.IOException;

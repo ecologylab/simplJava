@@ -1,4 +1,4 @@
-package translators.sql.testing.ecologylabXmlTest;
+package ecologylab.translators.sql.testing.ecologylabXmlTest;
 
 /**
  * This is not generated code, but a hand-authored base class in the 

@@ -1,4 +1,4 @@
-package translators.sql;
+package ecologylab.translators.sql;
 
 public interface DBInterface
 {

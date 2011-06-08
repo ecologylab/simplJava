@@ -1,4 +1,4 @@
-package translators.sql;
+package ecologylab.translators.sql;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,10 +18,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import translators.sql.testing.ecologylabXmlTest.ChannelTest;
-import translators.sql.testing.ecologylabXmlTest.ItemTest;
-import translators.sql.testing.ecologylabXmlTest.PdfTest;
-import translators.sql.testing.ecologylabXmlTest.RssStateTest;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.semantics.generated.library.GeneratedMetadataTranslationScope;
 import ecologylab.serialization.ClassDescriptor;
@@ -35,6 +31,10 @@ import ecologylab.serialization.ElementState.simpl_db;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
+import ecologylab.translators.sql.testing.ecologylabXmlTest.ChannelTest;
+import ecologylab.translators.sql.testing.ecologylabXmlTest.ItemTest;
+import ecologylab.translators.sql.testing.ecologylabXmlTest.PdfTest;
+import ecologylab.translators.sql.testing.ecologylabXmlTest.RssStateTest;
 
 import static org.junit.Assert.*; 
 

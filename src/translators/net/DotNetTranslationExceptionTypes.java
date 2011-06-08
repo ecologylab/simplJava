@@ -1,4 +1,4 @@
-package translators.net;
+package ecologylab.translators.net;
 
 /**
  * Types of exceptions that occur during operation of the translation framework.

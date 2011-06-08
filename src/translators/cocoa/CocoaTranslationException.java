@@ -1,4 +1,4 @@
-package translators.cocoa;
+package ecologylab.translators.cocoa;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;

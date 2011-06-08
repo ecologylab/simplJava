@@ -1,4 +1,4 @@
-package translators.sql.testing.sampleWeatherDataCollector;
+package ecologylab.translators.sql.testing.sampleWeatherDataCollector;
 
 /**
 This is a generated code. DO NOT edit or modify it.

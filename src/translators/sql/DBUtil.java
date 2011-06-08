@@ -1,4 +1,4 @@
-package translators.sql;
+package ecologylab.translators.sql;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
@@ -37,6 +36,7 @@ import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataTranslationScope;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.translators.sql.testing.ecologylabXmlTest.AcmProceedingTest;
 
 public class DBUtil extends Debug implements DBInterface
 {

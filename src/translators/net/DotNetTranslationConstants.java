@@ -1,4 +1,4 @@
-package translators.net;
+package ecologylab.translators.net;
 
 /**
  * General class file declares various constants used by the translators for generating the right

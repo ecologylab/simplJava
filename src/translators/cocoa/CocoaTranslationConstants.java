@@ -1,4 +1,4 @@
-package translators.cocoa;
+package ecologylab.translators.cocoa;
 
 /**
  * General class file declares various constants used by the translators for generating the right
