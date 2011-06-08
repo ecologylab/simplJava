@@ -17,12 +17,12 @@ public interface DownloadProcessor<T extends Downloadable>
 	
 /**
  * Download the Downloadable, perhaps concurrently.
- * If concurrently, call the dispatchTarget.delivery(Object) when done.
+ * If concurrently, call the Continuation.callback(T) method when done.
  * 
  * @param thatDownloadable
  * @param dispatchTarget
  * @throws IOException 
  */
 	public void download(T thatDownloadable,
-			Continuation<T> dispatchTarget) throws IOException;
+			Continuation<T> continuation) throws IOException;
 }
