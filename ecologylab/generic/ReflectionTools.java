@@ -226,12 +226,22 @@ public class ReflectionTools extends Debug
 	 */
 	public static Type[] getParameterizedTypeTokens(Field field)
 	{
-		Type[] result				= null;
 		Type reflectType			= field.getGenericType();
+		return getParameterizedTypeTokens(reflectType);
+	}
+
+	private static Type[] getParameterizedTypeTokens(Type reflectType)
+	{
+		Type[] result				= null;
 		if (reflectType instanceof ParameterizedType)
 		{		
 			ParameterizedType pType	= (ParameterizedType) reflectType;
 			result	= pType.getActualTypeArguments();
+		}
+		else if (reflectType instanceof Class)
+		{
+			Type superType = ((Class) reflectType).getGenericSuperclass();
+			return getParameterizedTypeTokens(superType);
 		}
 		return result;
 	}
