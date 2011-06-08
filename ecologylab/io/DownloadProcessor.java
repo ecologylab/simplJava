@@ -2,7 +2,7 @@ package ecologylab.io;
 
 import java.io.IOException;
 
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 
 
 /**
@@ -24,5 +24,5 @@ public interface DownloadProcessor<T extends Downloadable>
  * @throws IOException 
  */
 	public void download(T thatDownloadable,
-			DispatchTarget<T> dispatchTarget) throws IOException;
+			Continuation<T> dispatchTarget) throws IOException;
 }

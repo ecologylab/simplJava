@@ -3,7 +3,7 @@ package ecologylab.concurrent;
 import java.io.IOException;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.io.BasicSite;
 import ecologylab.io.Downloadable;
 
@@ -15,14 +15,14 @@ extends Debug
 {
 	T													downloadable;
 	
-	private DispatchTarget<T>	dispatchTarget;
+	private Continuation<T>	dispatchTarget;
 	private DownloadMonitor								downloadMonitor;
 	private Thread												downloadingThread;
 
 	private boolean												dispatched;
 
 
-	DownloadClosure(T downloadable, DispatchTarget<T> dispatchTarget,DownloadMonitor downloadMonitor)
+	DownloadClosure(T downloadable, Continuation<T> dispatchTarget,DownloadMonitor downloadMonitor)
 	{
 		this.downloadable		= downloadable;
 		this.dispatchTarget	= dispatchTarget;
@@ -68,7 +68,7 @@ extends Debug
 			dispatched		= true;
 			downloadMonitor.dispatched++;
 			if (dispatchTarget != null)
-				dispatchTarget.delivery(downloadable);
+				dispatchTarget.callback(downloadable);
 		}
 	}
 

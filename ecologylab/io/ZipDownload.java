@@ -19,7 +19,7 @@ import java.util.zip.ZipFile;
 
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -28,7 +28,7 @@ import ecologylab.net.ParsedURL;
  * 
  * @author Blake Dworaczyk
  */
-public class ZipDownload extends Debug implements Downloadable, DispatchTarget
+public class ZipDownload extends Debug implements Downloadable, Continuation
 {
 
 	static DownloadProcessor	downloadProcessor;
@@ -259,7 +259,7 @@ public class ZipDownload extends Debug implements Downloadable, DispatchTarget
 		System.err.println("IO Error while download zip file: " + zipSource);
 	}
 
-	public void delivery(Object o)
+	public void callback(Object o)
 	{
 		System.out.println("ZipDownload delivered: + " + ((ZipDownload) o));
 	}

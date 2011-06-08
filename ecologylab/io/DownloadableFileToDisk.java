@@ -9,12 +9,12 @@ import java.io.OutputStream;
 
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.net.ParsedURL;
 
 public class DownloadableFileToDisk 
 extends Debug
-implements Downloadable, DispatchTarget
+implements Downloadable, Continuation<Object>
 {
 	private boolean		downloadDone 		= false;
 	private boolean 	downloadStarted 	= false;
@@ -161,7 +161,7 @@ implements Downloadable, DispatchTarget
 		}
 	}
 
-	public void delivery(Object o)
+	public void callback(Object o)
 	{
 		System.out.println("Finished download file: " + target + " -> " + destination);
 	}

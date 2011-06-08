@@ -6,7 +6,7 @@ package ecologylab.appframework;
 import java.io.IOException;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.io.DownloadProcessor;
 import ecologylab.io.Downloadable;
 
@@ -41,7 +41,7 @@ public class SimpleDownloadProcessor extends Debug implements DownloadProcessor
  */
 	//TODO improve error handling here
 	public void download(Downloadable thatDownloadable,
-			DispatchTarget dispatchTarget) throws IOException
+			Continuation dispatchTarget) throws IOException
 	{
 			thatDownloadable.performDownload();
 	}

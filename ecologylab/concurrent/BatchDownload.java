@@ -5,10 +5,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Observable;
 
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.io.Downloadable;
 
-public class BatchDownload extends Observable implements DispatchTarget
+public class BatchDownload extends Observable implements Continuation<Object>
 {
 	/**
 	 * Where the Downloadables are placed after download.
@@ -121,7 +121,7 @@ public class BatchDownload extends Observable implements DispatchTarget
 		*/
 	}
 
-	public void delivery(Object o)
+	public void callback(Object o)
 	{
 		if (o == null)
 		{

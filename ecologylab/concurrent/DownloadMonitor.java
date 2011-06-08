@@ -11,7 +11,7 @@ import ecologylab.appframework.Memory;
 import ecologylab.appframework.OutOfMemoryErrorHandler;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
-import ecologylab.generic.DispatchTarget;
+import ecologylab.generic.Continuation;
 import ecologylab.generic.Generic;
 import ecologylab.generic.MathTools;
 import ecologylab.generic.NewPorterStemmer;
@@ -113,7 +113,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 * is called, and then the DispatchTarget is called. In the error case, handleIOError() or
 	 * handleTimeout() is called.
 	 */
-	public void download(T thatDownloadable, DispatchTarget<T> dispatchTarget)
+	public void download(T thatDownloadable, Continuation<T> dispatchTarget)
 	{
 		synchronized (toDownload)
 		{
