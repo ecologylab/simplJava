@@ -105,6 +105,11 @@ public class PURLConnection extends Debug
 			}
 		} // end else network based URL
 	}
+	public void networkConnect(ConnectionHelperJustRemote connectionHelper, String userAgent) 
+	throws IOException, Exception
+	{
+		networkConnect(connectionHelper, userAgent, ParsedURL.CONNECT_TIMEOUT, ParsedURL.READ_TIMEOUT);
+	}
 	/**
 	 * @param connectionHelper
 	 * @param userAgent
@@ -113,8 +118,9 @@ public class PURLConnection extends Debug
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public void networkConnect(ConnectionHelper connectionHelper, String userAgent,
-			int connectionTimeout, int readTimeout) throws IOException, Exception
+	public void networkConnect(ConnectionHelperJustRemote connectionHelper, String userAgent,
+			int connectionTimeout, int readTimeout) 
+	throws IOException, Exception
 	{
 		URL url = purl.url();
 		urlConnection 							= (HttpURLConnection) url.openConnection();
