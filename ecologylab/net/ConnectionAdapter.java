@@ -25,17 +25,6 @@ implements ConnectionHelper
 	public void handleFileDirectory(File file)
 	{
 	}
-
-	/**
-	 * Called at the end of processing, if it turns out that something went wrong
-	 * while opening the connection.
-	 * 
-	 * This version does nothing.
-	 */
-	public void badResult()
-	{
-		
-	}
 	
 	/**
 	 * Used to provid status feedback to the user.

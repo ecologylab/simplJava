@@ -1,5 +1,7 @@
 package ecologylab.net;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -116,6 +118,17 @@ public class NetTools extends Debug
 		}
 	}
 
+	public static void close(InputStream inStream)
+	{
+		if (inStream != null)
+			try
+			{
+				inStream.close();
+			}
+			catch (IOException e)
+			{
+			}
+	}
 	static String localHost = null;
 	/**
 	 * local host address (parse out only IP address)

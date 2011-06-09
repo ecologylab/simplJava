@@ -9,7 +9,7 @@ import java.net.URL;
  *
  * @author andruid
  */
-public interface ConnectionHelper
+public interface ConnectionHelper extends ConnectionHelperJustRemote
 {
 	/**
 	 * When this method is called, you know the file is a directory.
@@ -28,27 +28,4 @@ public interface ConnectionHelper
 	 */
 	public boolean	parseFilesWithSuffix(String suffix);
 	
-	/**
-	 * Called at the end of processing, if it turns out that something went wrong
-	 * while opening the connection.
-	 */
-	public void badResult();
-	
-	/**
-	 * Used to provid status feedback to the user.
-	 * 
-	 * @param message
-	 */
-	public void		displayStatus(String message);
-	
-	/**
-	 * Shuffle referential models when a redirect is observed, if you like.
-	 * 
-	 * @param connectionURL
-	 * 
-	 * @return		true if the redirect is o.k., and we should continue processing the connect().
-	 * 				false if the redirect is unacceptable, and we should terminate processing.
-	 * @throws Exception 
-	 */
-	public boolean	processRedirect(URL connectionURL) throws Exception;
 }

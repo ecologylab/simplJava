@@ -306,9 +306,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		XMLReader parser = null;
 		try
 		{
-			parser = xmlReaderPool.acquire();
-			parser.setContentHandler(this);
-			parser.parse(inputSource);
+			parser = parseAndThrow(inputSource);
 		}
 		catch (IOException e)
 		{
@@ -338,6 +336,21 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		if (xmlTranslationException != null)
 			throw xmlTranslationException;
 		return root;
+	}
+
+	/**
+	 * @param inputSource
+	 * @return
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	public XMLReader parseAndThrow(InputSource inputSource) throws IOException, SAXException
+	{
+		XMLReader parser;
+		parser = xmlReaderPool.acquire();
+		parser.setContentHandler(this);
+		parser.parse(inputSource);
+		return parser;
 	}
 
 	private void setRoot(ElementState root)

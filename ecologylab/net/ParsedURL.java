@@ -84,7 +84,7 @@ public class ParsedURL extends Debug implements MimeType
 
 	/* domain value string of the ulr */
 	protected String						domain															= null;
-
+	
 	public static CookieManager cookieManager = new CookieManager();
 	
 	static
@@ -1370,136 +1370,9 @@ public class ParsedURL extends Debug implements MimeType
 	public PURLConnection connect(ConnectionHelper connectionHelper, String userAgent,
 			int connectionTimeout, int readTimeout)
 	{
-		HttpURLConnection connection = null;
-		InputStream inStream = null;
-
-		// get an InputStream, and set the mimeType, if not bad
-		if (isFile())
-		{
-			PURLConnection result = null;
-			File file = file();
-			if (file.isDirectory())
-				connectionHelper.handleFileDirectory(file);
-			else
-			{
-				String suffix = suffix();
-				if (suffix != null)
-				{
-					if (connectionHelper.parseFilesWithSuffix(suffix))
-					{
-						try
-						{
-							inStream = new FileInputStream(file);
-							result = new PURLConnection(this, null, inStream);
-						}
-						catch (FileNotFoundException e)
-						{
-							connectionHelper.badResult();
-							println("Can't open because FileNotFoundException: " + this);
-						}
-					}
-				}
-			}
-			return result;
-		}
-		else
-		{ // network based URL
-			boolean bad = false;
-			try
-			{
-				connection = (HttpURLConnection) this.url().openConnection();
-
-				// hack so google thinks we're a normal browser
-				// (otherwise, it wont serve us)
-				// connection.setRequestProperty("user-agent", GOOGLE_BOT_USER_AGENT_0);
-				connection.setRequestProperty("user-agent", userAgent);
-
-				// Set the connection and read timeout.
-				connection.setConnectTimeout(connectionTimeout);
-				connection.setReadTimeout(readTimeout);
-
-				/*
-				 * //TODO include more structure instead of this total hack! if
-				 * ("nytimes.com".equals(this.domain())) { String auth = new
-				 * sun.misc.BASE64Encoder().encode("fred66:fred66".getBytes());
-				 * connection.setRequestProperty("Authorization", auth); }
-				 */
-				connection.getContentLength();
-				String mimeType = connection.getContentType();
-
-				// no one uses the encoding header: connection.getContentEncoding();
-				String unsupportedCharset = NetTools.isCharsetSupported(mimeType);
-				if (unsupportedCharset != null)
-				{
-					String message = "Cant process charset " + unsupportedCharset + " in "
-							+ this;
-					connectionHelper.displayStatus(message);
-					error(message);
-					return null;
-				}
-
-				// notice if url changed between request and retrieved connection
-				// if so, this is a server-side redirect
-				URL connectionURL = connection.getURL();
-
-				if (!this.equals(connectionURL)) // follow redirects!
-				{
-					// avoid doubly stuffed urls
-					String connectionFile = connectionURL.getFile();
-					String file = url().getFile();
-
-					if ((file.indexOf("http://") != -1) || (connectionFile.indexOf("http://") == -1))
-					{
-						if (connectionHelper.processRedirect(connectionURL))
-							inStream = connection.getInputStream();
-
-					}
-					else
-						println("WEIRD: skipping double stuffed url: " + connectionURL);
-				}
-				else
-					// no redirect, eveything is kewl
-					inStream = connection.getInputStream();
-			}
-			catch (SocketTimeoutException e)
-			{
-				bad = true;
-				timeout = true;
-				error("connect() " + e);
-			}
-			catch (FileNotFoundException e)
-			{
-				bad = true;
-				error("connect() " + e);
-			}
-			catch (IOException e)
-			{
-				bad = true;
-				error("connect() " + e);
-			}
-			catch (Exception e) // catch all exceptions, including security
-			{
-				bad = true;
-				error("connect() " + e);
-			}
-			PURLConnection result = ((inStream == null) || bad) ? null : new PURLConnection(this, connection, inStream);
-			return result;
-		} // end else network based URL
-
-		// TODO -- how are the headers (like ContentType) read?
-		// is the inputStream really created automatically for us behind the scences???
-		// if so, we need to get it, close it, disconnect() it, etc. --
-		// just because we read the headers???
-	}
-
-	/**
-	 * If true, a timeout occurred during connect().
-	 */
-	boolean	timeout	= false;
-
-	public boolean getTimeout()
-	{
-		return timeout;
+		PURLConnection result	= new PURLConnection(this);
+		result.connect(connectionHelper,  userAgent, connectionTimeout,  readTimeout);
+		return result;
 	}
 
 	/**

@@ -1,5 +1,8 @@
 package ecologylab.concurrent;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -443,8 +446,28 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						// Just when the download is done, remove from the potentialTimeouts.
 						if (downloadable.isDownloadDone())
 						{
-							thatClosure.dispatch();
+							thatClosure.callContinuation();
 						}
+					}
+					catch (SocketTimeoutException e)
+					{
+						BasicSite site	= downloadable.getSite();
+						if (site != null)
+							site.incrementNumTimeouts();
+						error("Timeout: " + downloadable.location());
+						downloadable.handleTimeout();
+						downloadable.downloadAndParseDone();
+					}
+					catch (FileNotFoundException e)
+					{
+						error("File not found: " + downloadable.location());
+						downloadable.handleIoError();
+						downloadable.downloadAndParseDone();
+					}
+					catch (IOException e)
+					{
+						downloadable.handleIoError();
+						downloadable.downloadAndParseDone();
 					}
 					catch (ThreadDeath e)
 					{
@@ -452,12 +475,12 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						e.printStackTrace();
 						throw e;
 					}
-					catch (ClosedByInterruptException e)
-					{
-						debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
-						e.printStackTrace();
-						thatClosure.ioError();
-					}
+//					catch (ClosedByInterruptException e)
+//					{
+//						debug("Recovering from ClosedByInterruptException in performDownloads() loop.");
+//						e.printStackTrace();
+//						thatClosure.handleIoError();
+//					}
 					catch (OutOfMemoryError e)
 					{
 						finished = true; // give up!
@@ -473,7 +496,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						debugA("performDownloads() -- recovering from " + interruptedStr + " exception on "
 								+ thatClosure + ":");
 						e.printStackTrace();
-						thatClosure.ioError();
+						thatClosure.handleIoError();
 					}
 					finally
 					{

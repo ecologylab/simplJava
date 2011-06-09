@@ -15,24 +15,24 @@ extends Debug
 {
 	T													downloadable;
 	
-	private Continuation<T>	dispatchTarget;
-	private DownloadMonitor								downloadMonitor;
-	private Thread												downloadingThread;
+	private Continuation<T>		continuation;
+	private DownloadMonitor		downloadMonitor;
+	private Thread						downloadingThread;
 
-	private boolean												dispatched;
+	private boolean						continued;
 
 
 	DownloadClosure(T downloadable, Continuation<T> dispatchTarget,DownloadMonitor downloadMonitor)
 	{
-		this.downloadable		= downloadable;
-		this.dispatchTarget	= dispatchTarget;
+		this.downloadable			= downloadable;
+		this.continuation			= dispatchTarget;
 		this.downloadMonitor	= downloadMonitor;
 	}
 
-	synchronized void ioError()
+	synchronized void handleIoError()
 	{
 		downloadable.handleIoError();
-		dispatch();
+		callContinuation();
 	}
 
 	boolean shouldCancel()
@@ -60,15 +60,15 @@ extends Debug
 			downloadable.downloadAndParseDone();
 		}
 	}
-	public synchronized void dispatch()
+	protected synchronized void callContinuation()
 	{
-		if (!dispatched)
+		if (!continued)
 		{
 			//	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
-			dispatched		= true;
+			continued		= true;
 			downloadMonitor.dispatched++;
-			if (dispatchTarget != null)
-				dispatchTarget.callback(downloadable);
+			if (continuation != null)
+				continuation.callback(downloadable);
 		}
 	}
 
