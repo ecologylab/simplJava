@@ -81,29 +81,44 @@ public class PURLConnection extends Debug
 			}
 		}
 		else
-		{ // network based URL
-			try
-			{
-				networkConnect(connectionHelper, userAgent, connectionTimeout, readTimeout);
-			}
-			catch (SocketTimeoutException e)
-			{
-				timeout = true;
-				cleanup(e);
-			}
-			catch (FileNotFoundException e)
-			{
-				error("connect() " + e);
-			}
-			catch (IOException e)
-			{
-				cleanup(e);
-			}
-			catch (Exception e) // catch all exceptions, including security
-			{
-				cleanup(e);
-			}
-		} // end else network based URL
+		{
+			networkConnectAndCatch(connectionHelper, userAgent, connectionTimeout, readTimeout);
+		}
+	}
+	public void networkConnectAndCatch(ConnectionHelper connectionHelper, String userAgent)
+	{
+		networkConnectAndCatch(connectionHelper, userAgent, ParsedURL.CONNECT_TIMEOUT, ParsedURL.READ_TIMEOUT);
+	}
+	/**
+	 * @param connectionHelper
+	 * @param userAgent
+	 * @param connectionTimeout
+	 * @param readTimeout
+	 */
+	public void networkConnectAndCatch(ConnectionHelper connectionHelper, String userAgent,
+			int connectionTimeout, int readTimeout)
+	{
+		try
+		{
+			networkConnect(connectionHelper, userAgent, connectionTimeout, readTimeout);
+		}
+		catch (SocketTimeoutException e)
+		{
+			timeout = true;
+			cleanup(e);
+		}
+		catch (FileNotFoundException e)
+		{
+			cleanup(e);
+		}
+		catch (IOException e)
+		{
+			cleanup(e);
+		}
+		catch (Exception e) // catch all exceptions, including security
+		{
+			cleanup(e);
+		}
 	}
 	public void networkConnect(ConnectionHelperJustRemote connectionHelper, String userAgent) 
 	throws IOException, Exception
