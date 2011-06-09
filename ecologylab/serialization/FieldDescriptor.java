@@ -47,8 +47,42 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 
 	@simpl_scalar
-	protected Field							field;
+	protected Field							field;		//TODO -- will not need to serialize this field, but lets keep doing it
+																				// but lets keep doing it; 
+																				// otherwise: that will temporarily break de/serialization in Objective C
+	/**
+	 * For nested elements, and collections or maps of nested elements. The class descriptor
+	 */
 
+	private ClassDescriptor			elementClassDescriptor; //TODO -- de/serialize this field
+																											// note: reading this representation in any other language
+																											// will require it to have graph serialization working!
+	/**
+	 * Descriptor for the class that this field is declared in.
+	 */
+	protected ClassDescriptor		declaringClassDescriptor; //TODO -- serialize this field
+
+	@simpl_scalar
+	private Class								elementClass; //TODO -- do not serialize this field 
+
+	
+	/////////////////// next fields are for polymorphic fields ////////////////////////////////////////
+	/**
+	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
+	 * derived from the field declaration (using field name or @xml_tag).
+	 * <p/>
+	 * However, for polymorphic fields, such as those declared using @xml_class, @xml_classes, or @xml_scope,
+	 * the tag is derived from the class declaration (using class name or @xml_tag). This is, for
+	 * example, required for polymorphic nested and collection fields. For these fields, this slot
+	 * contains an array of the legal classes, which will be bound to this field during
+	 * translateFromXML().
+	 */
+	private HashMapArrayList<String, ClassDescriptor>	tagClassDescriptors; //TODO serialize this
+
+	@simpl_map("tagClasses")
+	private HashMap<String, Class>										tagClasses;					//TODO do not serialize this
+
+	
 	/**
 	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
 	 * this field is meaningless, except for wrapped collections and maps.
@@ -63,10 +97,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@simpl_collection("other_tag")
 	private ArrayList<String>		otherTags;
 
-	/**
-	 * Descriptor for the class that this field is declared in.
-	 */
-	protected ClassDescriptor		declaringClassDescriptor;
 
 	@simpl_scalar
 	private int									type;
@@ -110,24 +140,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	private FieldDescriptor														wrappedFD;
 
-	/**
-	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
-	 * derived from the field declaration (using field name or @xml_tag).
-	 * <p/>
-	 * However, for some fields, such as those declared using @xml_class, @xml_classes, or @xml_scope,
-	 * the tag is derived from the class declaration (using class name or @xml_tag). This is, for
-	 * example, required for polymorphic nested and collection fields. For these fields, this slot
-	 * contains an array of the legal classes, which will be bound to this field during
-	 * translateFromXML().
-	 */
-	private HashMapArrayList<String, ClassDescriptor>	tagClassDescriptors;
 
 	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
 
 	private String																		unresolvedScopeAnnotation	= null;
-
-	@simpl_map("tagClasses")
-	private HashMap<String, Class>										tagClasses;
 
 	/**
  * 
@@ -147,14 +163,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public static final Class[]												SET_METHOD_STRING_ARG			=
 																																							{ String.class };
 
-	/**
-	 * For nested elements, and collections or maps of nested elements. The class descriptor
-	 */
-
-	private ClassDescriptor														elementClassDescriptor;
-
-	@simpl_scalar
-	private Class																			elementClass;
 
 	private String																		bibtexTag									= "";
 

@@ -27,7 +27,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * Class object that we are describing.
 	 */
 	@simpl_scalar
-	private Class<ES>				describedClass;
+	private Class<ES>				describedClass;		//TODO -- donot de/serialize this field
+																						// instead need to serialize full, qualified class name (w package)
+																						// but lets keep doing it; 
+																						// otherwise: that will temporarily break de/serialization in Objective C
 
 	@simpl_scalar
 	private String					tagName;
