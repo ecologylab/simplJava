@@ -1,5 +1,6 @@
 package ecologylab.net;
 
+import java.io.IOException;
 import java.net.URL;
 
 /**
@@ -25,6 +26,6 @@ public interface ConnectionHelperJustRemote
 	 * 				false if the redirect is unacceptable, and we should terminate processing.
 	 * @throws Exception 
 	 */
-	public boolean	processRedirect(URL connectionURL) throws Exception;
+	public boolean	processRedirect(URL connectionURL) throws IOException;
 
 }

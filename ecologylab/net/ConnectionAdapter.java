@@ -45,9 +45,8 @@ implements ConnectionHelper
 	 * 
 	 * @return		true if the redirect is o.k., and we should continue processing the connect().
 	 * 				false if the redirect is unacceptable, and we should terminate processing.
-	 * @throws Exception 
 	 */
-	public boolean processRedirect(URL connectionURL) throws Exception
+	public boolean processRedirect(URL connectionURL)
 	{
 		return true;
 	}

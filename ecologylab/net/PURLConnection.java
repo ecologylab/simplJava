@@ -121,7 +121,7 @@ public class PURLConnection extends Debug
 		}
 	}
 	public void networkConnect(ConnectionHelperJustRemote connectionHelper, String userAgent) 
-	throws IOException, Exception
+	throws IOException
 	{
 		networkConnect(connectionHelper, userAgent, ParsedURL.CONNECT_TIMEOUT, ParsedURL.READ_TIMEOUT);
 	}
@@ -135,7 +135,7 @@ public class PURLConnection extends Debug
 	 */
 	public void networkConnect(ConnectionHelperJustRemote connectionHelper, String userAgent,
 			int connectionTimeout, int readTimeout) 
-	throws IOException, Exception
+	throws IOException
 	{
 		URL url = purl.url();
 		urlConnection 							= (HttpURLConnection) url.openConnection();
@@ -236,9 +236,11 @@ public class PURLConnection extends Debug
 		// parsing done. now free resources asap to avert leaking and memory fragmentation
 		// (this is a known problem w java.net.HttpURLConnection)
 		InputStream inputStream		= this.inputStream;
-		NetTools.close(inputStream);
-		this.inputStream		= null;
-		
+		if (inputStream != null)
+		{
+			NetTools.close(inputStream);
+			this.inputStream		= null;
+		}
 		if (urlConnection != null)
 		{
 			urlConnection.disconnect();
