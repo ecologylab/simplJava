@@ -40,7 +40,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	/**
 	 * This is the queue of DownloadClosures waiting to be downloaded.
 	 */
-	private Vector<DownloadClosure>						toDownload						= new Vector<DownloadClosure>(30);
+	private Vector<DownloadState>						toDownload						= new Vector<DownloadState>(30);
 
 	static final int	NO_SLEEP							= 0;
 	static final int 	REGULAR_SLEEP					= 400;
@@ -116,12 +116,16 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	 * is called, and then the DispatchTarget is called. In the error case, handleIOError() or
 	 * handleTimeout() is called.
 	 */
-	public void download(T thatDownloadable, Continuation<T> dispatchTarget)
+	public void download(T thatDownloadable, Continuation<T> continuation)
 	{
 		synchronized (toDownload)
 		{
+			BasicSite site					= thatDownloadable.getSite();
+			if (site != null)
+				site.queuedDownload();
+			
 			debug("\n download("+thatDownloadable.location() + ")");
-			toDownload.add(new DownloadClosure<T>(thatDownloadable, dispatchTarget, this));
+			toDownload.add(new DownloadState<T>(thatDownloadable, continuation, this));
 			if (downloadThreads == null)
 				startPerformDownloadsThreads();
 			else
@@ -138,7 +142,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 	{
 		synchronized (toDownload)
 		{
-			for (DownloadClosure dc : toDownload)
+			for (DownloadState dc : toDownload)
 			{
 				if (dc.downloadable.equals(thatDownloadable))
 				{
@@ -322,7 +326,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 			// keep track if local file to avoid wait
 			boolean isLocalFile						= false;
 			
-			DownloadClosure thatClosure = null;	// define out here to use outside of synchronized
+			DownloadState thatClosure = null;	// define out here to use outside of synchronized
 			Downloadable downloadable = null;
 			synchronized (toDownload)
 			{
@@ -411,7 +415,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 							//Set Site recycled flag to true, 
 							// ignore containers that might be already queued in the DownloadMonitor.
 							debug(" Recycling downloadable : " + downloadable);
-							thatClosure.downloadable.recycleUnconditionally();
+							thatClosure.recycle(true);
 						}
 						//System.out.println("Download Queue after this download:");
 					}
@@ -441,33 +445,28 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						// ThreadDebugger.waitIfPaused(downloadThread);
 						// NEW -- set the priority of the download, based on how backed up we are
 						setDownloadPriority();
-						thatClosure.performDownload();
-
-						// Just when the download is done, remove from the potentialTimeouts.
-						if (downloadable.isDownloadDone())
-						{
-							thatClosure.callContinuation();
-						}
+						thatClosure.performDownload();	// HERE!
 					}
 					catch (SocketTimeoutException e)
 					{
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
-							site.incrementNumTimeouts();
-						error("Timeout: " + downloadable.location());
-						downloadable.handleTimeout();
-						downloadable.downloadAndParseDone();
+							site.countTimeout(downloadable.location());
+						downloadable.handleIoError();
 					}
 					catch (FileNotFoundException e)
 					{
-						error("File not found: " + downloadable.location());
+						BasicSite site	= downloadable.getSite();
+						if (site != null)
+							site.countFileNotFound(downloadable.location());
 						downloadable.handleIoError();
-						downloadable.downloadAndParseDone();
 					}
 					catch (IOException e)
 					{
+						BasicSite site	= downloadable.getSite();
+						if (site != null)
+							site.countOtherIoError(downloadable.location());
 						downloadable.handleIoError();
-						downloadable.downloadAndParseDone();
 					}
 					catch (ThreadDeath e)
 					{
@@ -484,26 +483,27 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					catch (OutOfMemoryError e)
 					{
 						finished = true; // give up!
+						downloadable.handleIoError();
 						OutOfMemoryErrorHandler.handleException(e);
 
 					}
 					catch (Throwable e)
 					{
-						boolean interrupted = Thread.interrupted();
-						String interruptedStr = interrupted ? " interrupted" : "";
-						// TODO -- i'm concerned that we might need different error handling for different kinds
-						// of errors.
+						String interruptedStr = Thread.interrupted() ? " interrupted" : "";
 						debugA("performDownloads() -- recovering from " + interruptedStr + " exception on "
 								+ thatClosure + ":");
 						e.printStackTrace();
-						thatClosure.handleIoError();
+						downloadable.handleIoError();
 					}
 					finally
 					{
 						pending--;
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
-							site.endDownloading();
+							site.endDownload();
+						
+						thatClosure.callContinuation();		// always call the continuation, error or not!
+						thatClosure.recycle(false);
 					}
 				}
 			}
@@ -682,7 +682,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		synchronized (toDownload)
 		{
 			System.out.println(this.toString() + "QUEUE:");
-			for (DownloadClosure d : toDownload)
+			for (DownloadState d : toDownload)
 			{
 				System.out.println("\t" + d.downloadable);
 			}
@@ -710,7 +710,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 		{
 			ArrayList<Integer> indexesToRemove = new ArrayList<Integer>();
 			int index = 0;
-			for(DownloadClosure d : toDownload)
+			for(DownloadState d : toDownload)
 				if(d.downloadable != null && d.downloadable.getSite() == site)
 					indexesToRemove.add(index++);
 			if(indexesToRemove.size() > 0)

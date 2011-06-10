@@ -10,7 +10,7 @@ import ecologylab.io.Downloadable;
 /**
  * Closure that keeps state about a download, as it progresses.
  */
-public class DownloadClosure<T extends Downloadable>
+public class DownloadState<T extends Downloadable>
 extends Debug
 {
 	T													downloadable;
@@ -22,22 +22,23 @@ extends Debug
 	private boolean						continued;
 
 
-	DownloadClosure(T downloadable, Continuation<T> dispatchTarget,DownloadMonitor downloadMonitor)
+	DownloadState(T downloadable, Continuation<T> dispatchTarget,DownloadMonitor downloadMonitor)
 	{
 		this.downloadable			= downloadable;
 		this.continuation			= dispatchTarget;
 		this.downloadMonitor	= downloadMonitor;
 	}
 
-	synchronized void handleIoError()
-	{
-		downloadable.handleIoError();
-		callContinuation();
-	}
-
 	boolean shouldCancel()
 	{
-		return downloadable.shouldCancel() || downloadable.isRecycled();
+		boolean result				= downloadable.isRecycled();
+		if (!result)
+		{
+			BasicSite site = downloadable.getSite();
+			if (site != null)
+				result						= site.isDown();
+		}
+		return result;
 	}
 
 	/**
@@ -55,9 +56,10 @@ extends Debug
 			//Update site statistics if available
 			BasicSite site = downloadable.getSite();
 			if(site != null)
-				site.setLastDownloadAt(System.currentTimeMillis());
+				site.beginActualDownload();
 			downloadable.performDownload();
-			downloadable.downloadAndParseDone();
+			if(site != null)
+				site.countNormalDownload();
 		}
 	}
 	protected synchronized void callContinuation()
@@ -76,6 +78,17 @@ extends Debug
 	{
 		return super.toString() + "["+downloadable.toString() +" "+
 		downloadingThread + "]";
+	}
+	
+	public void recycle(boolean recycleDownloadable)
+	{
+		if (recycleDownloadable)
+			downloadable.recycle();
+		downloadable	= null;
+		continuation	= null;
+		downloadMonitor	= null;
+		downloadingThread	= null;
+		
 	}
 
 }

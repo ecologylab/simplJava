@@ -5,6 +5,7 @@ package ecologylab.io;
 
 import java.util.Random;
 
+import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.types.element.Mappable;
@@ -24,7 +25,19 @@ class BasicSite extends ElementState implements Mappable<String>
 	
 	@simpl_scalar protected String	domain;
 
+	@simpl_scalar
   int															numTimeouts;
+
+	@simpl_scalar
+  int															numFileNotFounds;
+
+	@simpl_scalar
+  int															numOtherIoErrors;
+
+	@simpl_scalar
+  int															numNormalDownloads;
+
+	protected int										downloadsQueuedOrInProgress;
 
   boolean													ignore;
   
@@ -53,17 +66,53 @@ class BasicSite extends ElementState implements Mappable<String>
 		// TODO Auto-generated constructor stub
 	}
 
-	public void incrementNumTimeouts()
+	public void countTimeout(ParsedURL location)
 	{
 		numTimeouts++;
-		warning("Timeout " + numTimeouts);
+		warning("Timeout " + numTimeouts + "\t" + location);
 	}
+	
+	public void countFileNotFound(ParsedURL location)
+	{
+		numTimeouts++;
+		warning("FileNotFound " + numFileNotFounds + "\t" + location);
+	}
+	
+	public void countOtherIoError(ParsedURL location)
+	{
+		numTimeouts++;
+		warning("Other IO Error " + numOtherIoErrors + "\t" + location);
+	}
+	
+	public void countNormalDownload()
+	{
+		numTimeouts++;
+	}
+	
+	public synchronized void queuedDownload()
+	{
+		downloadsQueuedOrInProgress++;
+	}
+
+	public synchronized void endDownload()
+	{
+		isDownloading	= false;
+		downloadsQueuedOrInProgress--;
+	}
+
 	
 	public boolean tooManyTimeouts()
 	{
 		return numTimeouts >= MAX_TIMEOUTS;
 	}
 	
+	public boolean isDown()
+	{
+		boolean result = tooManyTimeouts();
+		if (result)
+			warning("Cancelling because " + numTimeouts + " timeouts");
+		return result;
+	}
 	/**
 	 *	
 	 * @return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
@@ -98,12 +147,12 @@ class BasicSite extends ElementState implements Mappable<String>
 	}
 
 	/**
-	 * @param lastDownloadAt the lastDownloadAt to set
+	 * Register that we are down loading, and the current time as when the down load started.
 	 */
-	public void setLastDownloadAt(long lastDownloadAt)
+	public void beginActualDownload()
 	{
 		this.isDownloading	= true;
-		this.lastDownloadAt = lastDownloadAt;
+		this.lastDownloadAt = System.currentTimeMillis();
 	}
 	
 	/**
@@ -132,11 +181,6 @@ class BasicSite extends ElementState implements Mappable<String>
 	public boolean isDownloading()
 	{
 		return isDownloading;
-	}
-	
-	public void endDownloading()
-	{
-		isDownloading	= false;
 	}
 	
 	/**

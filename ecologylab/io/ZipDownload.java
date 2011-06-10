@@ -20,6 +20,7 @@ import java.util.zip.ZipFile;
 import ecologylab.appframework.StatusReporter;
 import ecologylab.generic.Debug;
 import ecologylab.generic.Continuation;
+import ecologylab.net.NetTools;
 import ecologylab.net.ParsedURL;
 
 /**
@@ -230,33 +231,17 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		return downloadDone;
 	}
 
-	public boolean handleTimeout()
-	{
-		if (!downloadDone && !aborted)
-		{
-			aborted = true;
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-
-					return false;
-				}
-				return true;
-			}
-		}
-
-		return true;
-	}
-
+	@Override
 	public void handleIoError()
 	{
-		System.err.println("IO Error while download zip file: " + zipSource);
+		aborted	= true;
+		NetTools.close(inputStream);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "ZipDownload() " + zipSource + " -> " + zipTarget;
 	}
 
 	public void callback(Object o)
@@ -431,12 +416,6 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		return false;
 	}
 
-	public boolean shouldCancel()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public BasicSite getSite()
 	{
 		// TODO Auto-generated method stub
@@ -452,20 +431,13 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
   }
 
 	@Override
-	public void downloadAndParseDone()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public ParsedURL location()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public void recycleUnconditionally()
+	public void recycle()
 	{
 		if(inputStream != null )
 			try

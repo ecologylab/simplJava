@@ -18,55 +18,45 @@ implements Downloadable, Continuation<Object>
 {
 	private boolean		downloadDone 		= false;
 	private boolean 	downloadStarted 	= false;
-	
+
 	private InputStream inputStream 		= null;
-	
+
 	private OutputStream outputStream;
-	
+
 	private ParsedURL	target;
 	private File		destination;
-	
+
 	private static final int BUFFER_SIZE	= 8192;
 	private StatusReporter status 			= null;
 	private int			fileSize			= -1;
-	
+
 	public DownloadableFileToDisk(ParsedURL target, File destination, StatusReporter status)
 	{
 		this.target 		= target;
 		this.destination 	= destination;
 		this.status			= status;
 	}
-	
+
 	public DownloadableFileToDisk(ParsedURL target, InputStream inputStream, File destination, StatusReporter status)
 	{
 		this(target, destination, status);
 		this.inputStream	= inputStream;
 	}
-	
+
 	public DownloadableFileToDisk(ParsedURL target, File destination)
 	{
 		this(target, destination, null);
 	}
-	
+
 	public DownloadableFileToDisk(ParsedURL target, InputStream inputStream, File destination)
 	{
 		this(target, inputStream, destination, null);
-	}
-	
-	public void downloadAndParseDone()
-	{
-		downloadDone = true;
 	}
 
 	public void handleIoError()
 	{
 		closeStreams();
-	}
-
-	public boolean handleTimeout()
-	{
-		closeStreams();
-		return false;
+		downloadDone = true;
 	}
 
 	public boolean isDownloadDone()
@@ -79,14 +69,14 @@ implements Downloadable, Continuation<Object>
 		debug("performDownload() top");
 		if (downloadStarted)
 			return;
-		
+
 		downloadStarted = true;
-		
+
 		//this gets the stream and sets the member field 'fileSize'
-//		inputStream = getInputStream(zipSource);
+		//		inputStream = getInputStream(zipSource);
 		if (inputStream == null)
 			inputStream = target.url().openStream();
-		
+
 		debug("performDownload() got InputStream");
 
 		//actually read and write the file
@@ -97,41 +87,41 @@ implements Downloadable, Continuation<Object>
 			boolean deleted = destination.delete();
 			debug("File exists, so deleting = " + deleted);
 		}
-		
-		  outputStream 		= new BufferedOutputStream(new FileOutputStream(destination));
-		  debug("performDownload() got outputStream from " + destination);
 
-		  byte fileBytes[] 	= new byte[BUFFER_SIZE];
-		  
-		  //Read data from the source url and write it out to the file
-          int count 		= 0;
-          int lastTenth 	= 1;
-          int incrementSize = fileSize/10;
-          //int i=0;
-          while(( count = inputStream.read(fileBytes, 0, BUFFER_SIZE)) != -1 )
-          {
-        	  if (status != null)
-        	  {
-        		  //Our status will be in 10% increments
-        		  if (count >=  incrementSize*(lastTenth))
-        			  status.display("Downloading file " + destination.getName(),
-        				  					1, count/10, incrementSize);
-        		  
-        		  //can't just increment because we maybe skip/hit 1/10ths due to 
-        		  //faster/slower transfer rates, traffic, etc.
-        		  lastTenth = (int) Math.floor(((double)count/fileSize)*10);
-        	  }
-        	  outputStream.write(fileBytes, 0, count);
-          }
-		  
-          closeStreams();
-          
-          synchronized (this)
-          {
-        	  downloadDone	= true;
-          }
+		outputStream 		= new BufferedOutputStream(new FileOutputStream(destination));
+		debug("performDownload() got outputStream from " + destination);
+
+		byte fileBytes[] 	= new byte[BUFFER_SIZE];
+
+		//Read data from the source url and write it out to the file
+		int count 		= 0;
+		int lastTenth 	= 1;
+		int incrementSize = fileSize/10;
+		//int i=0;
+		while(( count = inputStream.read(fileBytes, 0, BUFFER_SIZE)) != -1 )
+		{
+			if (status != null)
+			{
+				//Our status will be in 10% increments
+				if (count >=  incrementSize*(lastTenth))
+					status.display("Downloading file " + destination.getName(),
+							1, count/10, incrementSize);
+
+				//can't just increment because we maybe skip/hit 1/10ths due to 
+				//faster/slower transfer rates, traffic, etc.
+				lastTenth = (int) Math.floor(((double)count/fileSize)*10);
+			}
+			outputStream.write(fileBytes, 0, count);
+		}
+
+		closeStreams();
+
+		synchronized (this)
+		{
+			downloadDone	= true;
+		}
 	}
-	
+
 	public void closeStreams()
 	{
 		try
@@ -172,35 +162,27 @@ implements Downloadable, Continuation<Object>
 		return false;
 	}
 
-	public boolean shouldCancel()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public BasicSite getSite()
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	public ParsedURL location()
 	{
 		return target;
 	}
-  /**
-   * 
-   * @return	What to tell the user about what is being downloaded.
-   */
-  public String message()
-  {
-  	return null;
-  }
-  
-  public void recycleUnconditionally()
-  {
-  	//What to do ?
-  	closeStreams(); //??
-  }
+	/**
+	 * 
+	 * @return	What to tell the user about what is being downloaded.
+	 */
+	public String message()
+	{
+		return null;
+	}
+
+	public void recycle()
+	{
+	}
 
 }
