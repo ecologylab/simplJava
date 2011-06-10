@@ -271,11 +271,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return parse(new InputSource(inputStream));
 	}
 	
-	public ElementState parse(PURLConnection purlConnection, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	public ElementState parse(PURLConnection purlConnection, DeserializationHookStrategy deserializationHookStrategy) 
+	throws SIMPLTranslationException, IOException
 	{
 		this.deserializationHookStrategy	= deserializationHookStrategy;
 		this.purlContext									= purlConnection.getPurl();
-		return parse(new InputSource(purlConnection.inputStream()));
+		return parseAndThrowIO(new InputSource(purlConnection.inputStream()));
 	}
 	
 	public ElementState parse(File file, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
@@ -303,14 +304,23 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	public ElementState parse(InputSource inputSource) throws SIMPLTranslationException
 	{
-		XMLReader parser = null;
+		ElementState result = null;
 		try
 		{
-			parser = parseAndThrow(inputSource);
+			result = parseAndThrowIO(inputSource);
 		}
 		catch (IOException e)
 		{
 			xmlTranslationException = new SIMPLTranslationException("IOException during parsing", e);
+		}
+		return result;
+	}
+	public ElementState parseAndThrowIO(InputSource inputSource) throws SIMPLTranslationException, IOException
+	{
+		XMLReader parser = null;
+		try
+		{
+			parser = parseAndThrow(inputSource);
 		}
 		catch (SAXException e)
 		{

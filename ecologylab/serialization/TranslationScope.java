@@ -1,6 +1,7 @@
 package ecologylab.serialization;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -1114,7 +1115,7 @@ public final class TranslationScope extends ElementState
 	}
 
 	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
-			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException, IOException
 	{
 		return deserialize(purlConnection, new TranslationContext(), deserializationHookStrategy);
 
@@ -1122,7 +1123,7 @@ public final class TranslationScope extends ElementState
 
 	public ElementState deserialize(ecologylab.net.PURLConnection purlConnection,
 			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
-			throws SIMPLTranslationException
+			throws SIMPLTranslationException, IOException
 	{
 		ElementStateSAXHandler saxHandler = new ElementStateSAXHandler(this, translationContext);
 		return saxHandler.parse(purlConnection, deserializationHookStrategy);
