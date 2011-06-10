@@ -27,10 +27,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * Class object that we are describing.
 	 */
 	@simpl_scalar
-	private Class<ES>				describedClass;		//TODO -- donot de/serialize this field
-																						// instead need to serialize full, qualified class name (w package)
-																						// but lets keep doing it; 
-																						// otherwise: that will temporarily break de/serialization in Objective C
+	private Class<ES>				describedClass;						// TODO -- donot de/serialize this field
+
+	// instead need to serialize full, qualified class name (w package)
+	// but lets keep doing it;
+	// otherwise: that will temporarily break de/serialization in Objective C
 
 	@simpl_scalar
 	private String					tagName;
@@ -79,7 +80,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	@simpl_nowrap
 	@simpl_map("field_descriptor")
-	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName		= new HashMapArrayList<String, FD>();
+	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
 
 	/**
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this
@@ -87,25 +88,25 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	// TODO -- consider changing this to Scope<FieldDescriptor>, then nesting scopes when @xml_scope
 	// is encountered, to support dynamic binding of @xml_scope.
-	private HashMap<String, FD>														allFieldDescriptorsByTagNames	= new HashMap<String, FD>();
+	private HashMap<String, FD>														allFieldDescriptorsByTagNames		= new HashMap<String, FD>();
 
-	private HashMap<Integer, FD>													allFieldDescriptorsByTLVIds		= new HashMap<Integer, FD>();
-	
-	private FD																						fieldDescriptorForBibTeXKey		= null;
-	
-	private HashMap<String, FD>														allFieldDescriptorsByBibTeXTag= new HashMap<String, FD>();
+	private HashMap<Integer, FD>													allFieldDescriptorsByTLVIds			= new HashMap<Integer, FD>();
 
-	private ArrayList<FD>																	attributeFieldDescriptors			= new ArrayList<FD>();
+	private FD																						fieldDescriptorForBibTeXKey			= null;
 
-	private ArrayList<FD>																	elementFieldDescriptors				= new ArrayList<FD>();										;
-	
-	private FD 																						scalarValueFieldDescripotor   = null;
+	private HashMap<String, FD>														allFieldDescriptorsByBibTeXTag	= new HashMap<String, FD>();
 
-	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap			= new HashMap<String, ClassDescriptor>();
+	private ArrayList<FD>																	attributeFieldDescriptors				= new ArrayList<FD>();
+
+	private ArrayList<FD>																	elementFieldDescriptors					= new ArrayList<FD>();										;
+
+	private FD																						scalarValueFieldDescripotor			= null;
+
+	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap				= new HashMap<String, ClassDescriptor>();
 
 	private ArrayList<FD>																	unresolvedScopeAnnotationFDs;
-	
-	private String bibtexType = "";
+
+	private String																				bibtexType											= "";
 
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
@@ -132,16 +133,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return tagName;
 	}
-	
+
 	public String getBibtexType()
 	{
-		if(this.bibtexType == null || this.bibtexType.equals(""))
+		if (this.bibtexType == null || this.bibtexType.equals(""))
 		{
 			return tagName;
-		}		
+		}
 		return bibtexType;
 	}
-
 
 	/**
 	 * Obtain Optimizations object in the global scope of root Optimizations. Uses just-in-time / lazy
@@ -238,7 +238,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				if (result == null)
 				{
 					result = new FieldDescriptor(this);
-					pseudoFieldDescriptor = result; 
+					pseudoFieldDescriptor = result;
 				}
 			}
 		}
@@ -288,18 +288,18 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	public FD getFieldDescriptorByTLVId(int tlvId)
 	{
-	// TODO -- add support for name space lookup in context here
+		// TODO -- add support for name space lookup in context here
 		if (unresolvedScopeAnnotationFDs != null)
 			resolveUnresolvedScopeAnnotationFDs();
 
 		return allFieldDescriptorsByTLVIds.get(tlvId);
 	}
-	
+
 	public FD getFieldDescriptorForBibTeXKey()
 	{
 		return fieldDescriptorForBibTeXKey;
 	}
-	
+
 	public FD getFieldDescriptorByBibTeXTag(String bibTeXTag)
 	{
 		return allFieldDescriptorsByBibTeXTag.get(bibTeXTag);
@@ -374,8 +374,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 					fieldDescriptorClass = superFieldDescriptorClass;
 			}
 		}
-		
-		if(classWithFields.isAnnotationPresent(bibtex_type.class))
+
+		if (classWithFields.isAnnotationPresent(bibtex_type.class))
 		{
 			bibtex_type bibtexTypeAnnotation = classWithFields.getAnnotation(bibtex_type.class);
 			bibtexType = bibtexTypeAnnotation.value();
@@ -452,8 +452,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			}
 			else
 				elementFieldDescriptors.add(fieldDescriptor);
-			
-			if(XMLTools.isCompositeAsScalarvalue(thatField))
+
+			if (XMLTools.isCompositeAsScalarvalue(thatField))
 			{
 				scalarValueFieldDescripotor = fieldDescriptor;
 			}
@@ -464,12 +464,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 			if (fieldDescriptor.isMarshallOnly())
 				continue; // not translated from XML, so don't add those mappings
-			
+
 			// find the field descriptor for bibtex citation key
 			bibtex_key keyAnnotation = thatField.getAnnotation(bibtex_key.class);
 			if (keyAnnotation != null)
 				fieldDescriptorForBibTeXKey = fieldDescriptor;
-			
+
 			// create mappings for translateFromBibTeX() --> allFieldDescriptorsByBibTeXTag
 			final String bibTeXTag = fieldDescriptor.getBibtexTagName();
 			allFieldDescriptorsByBibTeXTag.put(bibTeXTag, fieldDescriptor);
@@ -579,13 +579,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	private void mapTagToFdForTranslateFrom(String tagName, FD fdToMap)
 	{
-		FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
-		allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
-		if (previousMapping != null && !fdToMap.isWrapped())
-			warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
-					+ previousMapping.getFieldName() + "]");
+		if (!fdToMap.isWrapped())
+		{
+			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
+			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
+			if (previousMapping != null)
+				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
+						+ previousMapping.getFieldName() + "]");
+		}
 	}
-	
+
 	/**
 	 * @param thatField
 	 * @param tagFromAnnotation
