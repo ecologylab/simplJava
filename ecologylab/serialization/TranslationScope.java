@@ -31,7 +31,7 @@ public final class TranslationScope extends ElementState
 		ON, OFF
 	}
 
-	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.OFF;
+	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.ON;
 
 	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
 
@@ -111,6 +111,23 @@ public final class TranslationScope extends ElementState
 		addTranslation(translation);
 		addTranslationScope(name);
 	}
+	
+	/**
+	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * subclasses of ElementState. Begin by creating the inherited TranslationScope ad then adding 
+	 * the new ClassDescriptor intothat
+	 * 
+	 * @param name
+	 * @param inheritedTranslationScope
+	 * @param translation
+	 */
+	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+			ClassDescriptor translation)
+	{
+		this(name, inheritedTranslationScope);
+		addTranslation(translation);
+		addTranslationScope(name);
+	}
 
 	/**
 	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
@@ -166,6 +183,23 @@ public final class TranslationScope extends ElementState
 		this(name, (TranslationScope[]) null, translations);
 		addTranslationScope(name);
 	}
+	
+	/**
+	 * Create a new TranslationScope that defines how to translate xml tag names into class names of
+	 * subclasses of ElementState.
+	 * 
+	 * Set a new default package, and a set of defined translations.
+	 * 
+	 * @param name
+	 *          Name of the TranslationSpace to be A key for use in the TranslationSpace registry.
+	 * @param translation
+	 *          Set of initially defined translations for this.
+	 */
+	private TranslationScope(String name, ClassDescriptor... translation)
+	{
+		this(name, (TranslationScope[]) null, translation);
+		addTranslationScope(name);
+	}
 
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
@@ -181,6 +215,21 @@ public final class TranslationScope extends ElementState
 		this(name, inheritedTranslationScopes);
 		addTranslations(translations);
 	}
+	
+	/**
+	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * the array of translations, then, make the defaultPackageName available.
+	 * 
+	 * @param name
+	 * @param inheritedTranslationScopes
+	 * @param translations
+	 */
+	private TranslationScope(String name, TranslationScope[] inheritedTranslationScopes,
+			ClassDescriptor[]... translations)
+	{
+		this(name, inheritedTranslationScopes);
+		addTranslations(translations);
+	}
 
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
@@ -192,6 +241,23 @@ public final class TranslationScope extends ElementState
 	 */
 	private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet,
 			Class<? extends ElementState>[] translations)
+	{
+		this(name, inheritedTranslationsSet);
+		addTranslations(translations);
+
+		addTranslationScope(name);
+	}
+	
+	/**
+	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * the array of translations, then, make the defaultPackageName available.
+	 * 
+	 * @param name
+	 * @param inheritedTranslationsSet
+	 * @param translations
+	 */
+	private TranslationScope(String name, Collection<TranslationScope> inheritedTranslationsSet,
+			ClassDescriptor[] translations)
 	{
 		this(name, inheritedTranslationsSet);
 		addTranslations(translations);
@@ -215,6 +281,23 @@ public final class TranslationScope extends ElementState
 
 		addTranslationScope(name);
 	}
+	
+	/**
+	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * the array of translations, then, make the defaultPackageName available.
+	 * 
+	 * @param name
+	 * @param inheritedTranslationScope
+	 * @param translations
+	 */
+	private TranslationScope(String name, TranslationScope inheritedTranslationScope,
+			ClassDescriptor[]... translations)
+	{
+		this(name, inheritedTranslationScope);
+		addTranslations(translations);
+
+		addTranslationScope(name);
+	}
 
 	/**
 	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
@@ -229,6 +312,25 @@ public final class TranslationScope extends ElementState
 	 */
 	private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls,
 			TranslationScope[] inheritedTranslationScopes, Class<? extends ElementState>[] translations)
+	{
+		this(name, inheritedTranslationScopes, translations);
+		addNameSpaceDecls(nameSpaceDecls);
+
+		addTranslationScope(name);
+	}
+	
+	/**
+	 * Construct a new TranslationScope, with this name, using the baseTranslations first. Then, add
+	 * the array of translations, then, make the defaultPackageName available. Map XML Namespace
+	 * declarations.
+	 * 
+	 * @param name
+	 * @param nameSpaceDecls
+	 * @param inheritedTranslationScopes
+	 * @param translations
+	 */
+	private TranslationScope(String name, NameSpaceDecl[] nameSpaceDecls,
+			TranslationScope[] inheritedTranslationScopes, ClassDescriptor[] translations)
 	{
 		this(name, inheritedTranslationScopes, translations);
 		addNameSpaceDecls(nameSpaceDecls);
@@ -287,6 +389,33 @@ public final class TranslationScope extends ElementState
 		allTranslationScopes.put(name, this);
 	}
 
+	/**
+	 * Add translations, where each translation is defined by an actual Class object. We can get both
+	 * the class name and the package name from the Class object.
+	 * 
+	 * @param arrayOfClasses
+	 */
+	private void addTranslations(ClassDescriptor[]... arrayOfClasses)
+	{
+		if (arrayOfClasses != null)
+		{
+			int numClasses = arrayOfClasses.length;
+
+			for (int i = 0; i < numClasses; i++)
+			{
+				if (arrayOfClasses[i] != null)
+				{
+					for (ClassDescriptor thatClass : arrayOfClasses[i])
+					{
+						addTranslation(thatClass);
+					}
+				}
+			}
+		}
+
+		allTranslationScopes.put(name, this);
+	}
+	
 	/**
 	 * Utility for composing <code>TranslationScope</code>s. Performs composition by value. That is,
 	 * the entries are copied.
@@ -381,6 +510,39 @@ public final class TranslationScope extends ElementState
 	public void addTranslation(Class<? extends ElementState> classObj)
 	{
 		ClassDescriptor entry = ClassDescriptor.getClassDescriptor(classObj);
+		String tagName = entry.getTagName();
+
+		entriesByTag.put(entry.getTagName(), entry);
+		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
+		entriesByClassName.put(classObj.getName(), entry);
+
+		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
+		entriesByBibTeXType.put(entry.getBibtexType(), entry);
+
+		String[] otherTags = entry.otherTags();
+		if (otherTags != null)
+			for (String otherTag : otherTags)
+			{
+				if ((otherTag != null) && (otherTag.length() > 0))
+				{
+					entriesByTag.put(otherTag, entry);
+					entriesByTLVId.put(otherTag.hashCode(), entry);
+				}
+			}
+	}
+	
+	/**
+	 * Add a translation table entry for an ElementState derived sub-class. Assumes that the xmlTag
+	 * can be derived automatically from the className, by translating case-based separators to
+	 * "_"-based separators.
+	 * 
+	 * @param classObj
+	 *          The object for the class.
+	 */
+
+	public void addTranslation(ClassDescriptor classObj)
+	{
+		ClassDescriptor entry = classObj;
 		String tagName = entry.getTagName();
 
 		entriesByTag.put(entry.getTagName(), entry);
@@ -1318,4 +1480,141 @@ public final class TranslationScope extends ElementState
 	{
 		this.performFilters = performFilters;
 	}
+	
+
+	/**
+	 * Augment the given translationScope and return the augmented one
+	 * 
+	 * @param translationScope
+	 * @return
+	 */
+	public static TranslationScope augmentTranslationScopeWithClassDescriptors(TranslationScope translationScope)
+	{
+		Collection<ClassDescriptor> allClassDescriptors = translationScope.classDescriptors;
+		
+		ArrayList<ClassDescriptor> allClasses = translationScope.getAllClassDescriptors();
+		Collection<ClassDescriptor> augmentedClasses = augmentTranslationScopeWithClassDescriptors(allClasses)
+				.values();
+
+		ClassDescriptor[] augmentedClassesArray = (ClassDescriptor[]) augmentedClasses
+				.toArray(new ClassDescriptor[augmentedClasses.size()]);
+
+		return new TranslationScope(translationScope.getName(), augmentedClassesArray);
+	}
+
+	/**
+	 * augment the given the list of classes
+	 * 
+	 * @param allClasses
+	 * @return
+	 */
+	private static HashMap<String, ClassDescriptor> augmentTranslationScopeWithClassDescriptors(
+			ArrayList<ClassDescriptor> allClasses)
+	{
+		HashMap<String, ClassDescriptor> augmentedClasses = new HashMap<String, ClassDescriptor>();
+		for (ClassDescriptor thatClass : allClasses)
+		{
+			augmentTranslationScope(thatClass, augmentedClasses);
+		}
+		return augmentedClasses;
+	}	
+
+	/**
+	 * augment the given ClassDescriptor 
+	 * 
+	 * @param thatClass
+	 * @param augmentedClasses
+	 */
+	private static void augmentTranslationScope(ClassDescriptor thatClass,
+			HashMap<String, ClassDescriptor> augmentedClasses)
+	{
+		if (augmentedClasses.put(thatClass.getDecribedClassSimpleName(), thatClass) != null)
+			return;
+
+		if (!thatClass.getSuperClass().getClassName().equals("ElementState"))
+		{
+			augmentTranslationScope(thatClass.getSuperClass(),
+					augmentedClasses);
+		}	
+
+		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass.getFieldDescriptorsByFieldName();
+
+		if (fieldDescriptors.size() > 0)
+		{
+			thatClass.resolveUnresolvedScopeAnnotationFDs();
+
+			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
+			{
+				if (fieldDescriptor.isNested())
+				{
+					augmentTranslationScope(fieldDescriptor.getElementClassDescriptor(),
+							augmentedClasses);
+				}
+				else
+				{
+					// check whether it is OK to use the Java reflection
+					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
+					{
+						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor
+								.getField());
+
+						for (Class<?> genericClass : genericClasses)
+						{
+							if (genericClass != null && ElementState.class.isAssignableFrom(genericClass))
+							{
+								augmentTranslationScope(ClassDescriptor.getClassDescriptor(genericClass.asSubclass(ElementState.class)),
+										augmentedClasses);
+							}
+						}
+					}
+					else if (fieldDescriptor.isPolymorphic())
+					{
+						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
+								.getTagClassDescriptors();
+
+						if (tagClassDescriptors != null)
+						{
+							for (ClassDescriptor<?, ?> classDescriptor : tagClassDescriptors)
+							{
+								augmentTranslationScope(classDescriptor, augmentedClasses);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Method returning all the class descriptors corresponds to all the translation Scopes
+	 * 	
+	 * @return
+	 */
+	public ArrayList<ClassDescriptor> getAllClassDescriptors()
+	{
+		ArrayList<ClassDescriptor> classes = new ArrayList<ClassDescriptor>();
+		
+		for (TranslationScope translationScope : allTranslationScopes.values())
+		{
+			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByClassSimpleName
+					.values())
+			{
+				classes.add(classDescriptor);
+			}
+		}
+		return classes;
+	}
+	
+	/**
+	 * A method to clear the exisitng translationScopes and add the given one
+	 * 
+	 * @param name
+	 * @param translationScope
+	 */
+	public static void AddTranslationScope(String name, TranslationScope translationScope)
+	{
+		allTranslationScopes.clear();
+		allTranslationScopes.put(name, translationScope);
+	}
+
 }

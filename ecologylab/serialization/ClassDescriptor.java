@@ -36,12 +36,17 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_scalar
 	private String					tagName;
 
+	@simpl_scalar
 	private String					decribedClassSimpleName;
 
+	@simpl_scalar
 	private String					describedClassPackageName;
+			
+	@simpl_composite
+	private ClassDescriptor superClass;
 
-	// @xml_attribute
-	// private String describedClassName;
+	@simpl_scalar
+	private String describedClassName;
 
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
@@ -125,8 +130,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		this.describedClass = thatClass;
 		this.decribedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
-		// this.describedClassName = thatClass.getName();
+		this.describedClassName = thatClass.getName();
 		this.tagName = XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
+		
+		if(thatClass != ElementState.class){
+			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
+		}		
 	}
 
 	public String getTagName()
@@ -799,5 +808,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public FD getScalarValueFieldDescripotor()
 	{
 		return scalarValueFieldDescripotor;
+	}
+	
+	public ClassDescriptor getSuperClass()
+	{
+		return superClass;
+	}
+	
+	public String getName()
+	{
+		return describedClassName;
 	}
 }

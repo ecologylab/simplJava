@@ -54,12 +54,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * For nested elements, and collections or maps of nested elements. The class descriptor
 	 */
 
+	@simpl_composite
 	private ClassDescriptor			elementClassDescriptor; //TODO -- de/serialize this field
 																											// note: reading this representation in any other language
 																											// will require it to have graph serialization working!
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
+	@simpl_composite
 	protected ClassDescriptor		declaringClassDescriptor; //TODO -- serialize this field
 
 	@simpl_scalar
@@ -77,6 +79,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * contains an array of the legal classes, which will be bound to this field during
 	 * translateFromXML().
 	 */
+	@simpl_map("tagClassDescriptors")
 	private HashMapArrayList<String, ClassDescriptor>	tagClassDescriptors; //TODO serialize this
 
 	@simpl_map("tagClasses")
@@ -106,7 +109,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	@simpl_scalar
 	private ScalarType<?>				scalarType;
-
+	
 	@simpl_scalar
 	private Hint								xmlHint;
 
@@ -143,6 +146,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private HashMap<Integer, ClassDescriptor>					tlvClassDescriptors;
 
+	@simpl_scalar
 	private String																		unresolvedScopeAnnotation	= null;
 
 	/**
@@ -2219,6 +2223,11 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		return declaringClassDescriptor;
 	}
+	
+	public ClassDescriptor getElementClassDescriptor()
+	{
+		return elementClassDescriptor;
+	}
 
 	public ClassDescriptor elementClassDescriptor(String tagName)
 	{
@@ -2237,6 +2246,5 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(tagName);
 		appendable.append('=');
 
-	}
-
+	}	
 }
