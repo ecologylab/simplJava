@@ -918,6 +918,30 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		serialize(appendable, null);
 	}
+
+	/**
+	 * Serialize to System.out. Catch and report exceptions. Output a new line to System.out.
+	 */
+	public void serializeOut()
+	{
+		
+	}
+	public void serializeOut(String msg)
+	{
+		try
+		{
+			System.out.print(msg);
+			System.out.print(": ");
+			serialize(System.out);
+			System.out.println();
+			
+		}
+		catch (SIMPLTranslationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 		
 	public void serialize(Appendable appendable, File fileContext) throws SIMPLTranslationException
 	{
