@@ -66,7 +66,12 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	@simpl_scalar
 	private Class								elementClass; //TODO -- do not serialize this field 
+	
+	@simpl_scalar
+	private String								fieldName;
 
+	@simpl_scalar
+	private String 								fieldComment;
 	
 	/////////////////// next fields are for polymorphic fields ////////////////////////////////////////
 	/**
@@ -79,12 +84,14 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 * contains an array of the legal classes, which will be bound to this field during
 	 * translateFromXML().
 	 */
-	@simpl_map("tagClassDescriptors")
-	private HashMapArrayList<String, ClassDescriptor>	tagClassDescriptors; //TODO serialize this
+	@simpl_map("polymorph_class_descriptor")
+	private HashMapArrayList<String, ClassDescriptor>	polymorphClassDescriptors; //TODO serialize this
 
-	@simpl_map("tagClasses")
-	private HashMap<String, Class>										tagClasses;					//TODO do not serialize this
+	@simpl_map("polymorph_class")
+	private HashMap<String, Class>										polymorphClasses;					//TODO do not serialize this
 
+	@simpl_map("library_namespace")
+	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
 	
 	/**
 	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
@@ -221,6 +228,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
 		this.field.setAccessible(true);
+		this.fieldName = (field != null) ? field.getName() : "NULL";
 
 		deriveTagClassDescriptors(field);
 
@@ -252,6 +260,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 		setValueMethod = ReflectionTools.getMethod(declaringClassDescriptor.getDescribedClass(),
 				setMethodName, SET_METHOD_STRING_ARG);
+		
+		addNamespaces();
 	}
 
 	/**
@@ -289,15 +299,15 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				{
 					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
 					putTagClassDescriptor(classDescriptor);
-					tagClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
+					polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
 				}
 		}
-		return tagClassDescriptors != null;
+		return polymorphClassDescriptors != null;
 	}
 
 	private void putTagClassDescriptor(ClassDescriptor classDescriptor)
 	{
-		tagClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
+		polymorphClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
 		tlvClassDescriptors.put(classDescriptor.getTagName().hashCode(), classDescriptor);
 
 		String[] otherTags = classDescriptor.otherTags();
@@ -306,7 +316,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			{
 				if ((otherTag != null) && (otherTag.length() > 0))
 				{
-					tagClassDescriptors.put(otherTag, classDescriptor);
+					polymorphClassDescriptors.put(otherTag, classDescriptor);
 					tlvClassDescriptors.put(otherTag.hashCode(), classDescriptor);
 				}
 			}
@@ -330,8 +340,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			for (ClassDescriptor classDescriptor : scopeClassDescriptors)
 			{
 				String tagName = classDescriptor.getTagName();
-				tagClassDescriptors.put(tagName, classDescriptor);
-				tagClasses.put(tagName, classDescriptor.getDescribedClass());
+				polymorphClassDescriptors.put(tagName, classDescriptor);
+				polymorphClasses.put(tagName, classDescriptor.getDescribedClass());
 				tlvClassDescriptors.put(tagName.hashCode(), classDescriptor);
 			}
 		}
@@ -360,10 +370,10 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	private void initTagClassDescriptorsArrayList(int initialSize)
 	{
-		if (tagClassDescriptors == null)
-			tagClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
-		if (tagClasses == null)
-			tagClasses = new HashMap<String, Class>(initialSize);
+		if (polymorphClassDescriptors == null)
+			polymorphClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
+		if (polymorphClasses == null)
+			polymorphClasses = new HashMap<String, Class>(initialSize);
 		if (tlvClassDescriptors == null)
 			tlvClassDescriptors = new HashMap<Integer, ClassDescriptor>(initialSize);
 	}
@@ -762,7 +772,8 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	public String getFieldName()
 	{
-		return (field != null) ? field.getName() : "NULL";
+		return fieldName;
+		//return (field != null) ? field.getName() : "NULL";
 	}
 
 	/**
@@ -1456,18 +1467,18 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public HashMapArrayList<String, ClassDescriptor> getTagClassDescriptors()
 	{
-		if (tagClassDescriptors == null)
+		if (polymorphClassDescriptors == null)
 			return null;
 		else
-			return tagClassDescriptors;
+			return polymorphClassDescriptors;
 	}
 
 	public HashMap<String, Class> getTagClasses()
 	{
-		if (tagClasses == null)
+		if (polymorphClasses == null)
 			return null;
 		else
-			return tagClasses;
+			return polymorphClasses;
 	}
 
 	public void writeElementStart(StringBuilder buffy)
@@ -1863,7 +1874,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			Attributes attributes, TranslationContext graphContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
-				: tagClassDescriptors.get(tagName);
+				: polymorphClassDescriptors.get(tagName);
 		ElementState result = null;
 		if (childClassDescriptor != null)
 		{
@@ -1901,7 +1912,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 			throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
-				: tagClassDescriptors.get(tagName);
+				: polymorphClassDescriptors.get(tagName);
 		ElementState result = null;
 		if (childClassDescriptor != null)
 		{
@@ -1976,7 +1987,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	 */
 	public boolean isPolymorphic()
 	{
-		return (tagClassDescriptors != null) || (unresolvedScopeAnnotation != null);
+		return (polymorphClassDescriptors != null) || (unresolvedScopeAnnotation != null);
 		// else return true;
 		// return tagClassDescriptors != null;
 	}
@@ -2231,7 +2242,7 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 
 	public ClassDescriptor elementClassDescriptor(String tagName)
 	{
-		return (!isPolymorphic()) ? elementClassDescriptor : tagClassDescriptors.get(tagName);
+		return (!isPolymorphic()) ? elementClassDescriptor : polymorphClassDescriptors.get(tagName);
 	}
 
 	public ClassDescriptor elementClassDescriptor(int tlvId)
@@ -2245,6 +2256,43 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 		appendable.append(' ');
 		appendable.append(tagName);
 		appendable.append('=');
-
 	}	
+	
+	/**
+	 * A method to add the namespaces corresponds to the field descriptor.
+	 */
+	
+	private void addNamespaces()
+	{
+		ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(field);
+		Class typeClass = field.getType();
+
+		if (genericClasses != null)
+			for (Class genericClass : genericClasses)
+			{
+				if (ElementState.class.isAssignableFrom(genericClass))
+				{
+					libraryNamespaces.put(genericClass.getPackage().getName(), genericClass.getPackage()
+							.getName());					
+				}
+			}
+
+		if (typeClass != null)
+		{
+			if (ElementState.class.isAssignableFrom(typeClass))
+			{
+				libraryNamespaces.put(typeClass.getPackage().getName(), typeClass.getPackage().getName());
+			}
+		}
+	}
+	
+	/**
+	 * method to access the namespace information related to field descriptor
+	 * 
+	 * @return HashMap <String, String>
+	 */
+	public HashMap<String, String> getNamespaces()
+	{
+		return libraryNamespaces;
+	}
 }

@@ -2,6 +2,7 @@ package ecologylab.serialization;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,6 +45,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			
 	@simpl_composite
 	private ClassDescriptor superClass;
+	
+	@simpl_collection("inerface")
+	private ArrayList<String> interfaces;
 
 	@simpl_scalar
 	private String describedClassName;
@@ -113,6 +117,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	private String																				bibtexType											= "";
 
+	@simpl_collection("generic_type_variable")
+	private ArrayList<String>	genericTypeVariables = new ArrayList<String>();
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
 
@@ -135,9 +141,45 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		
 		if(thatClass != ElementState.class){
 			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
-		}		
+		}
+		addGenericTypeVariables();
+	}
+	
+	private void addInterfaces()
+	{
+		Class<?>[] interfaceList = describedClass.getInterfaces();
+		
+		for(int i=0;i<interfaceList.length;i++)
+		{
+			if(interfaceList[i].isAssignableFrom(Mappable.class))
+			{
+				interfaces.add(interfaceList[i].getSimpleName());
+			}
+		}
+	}
+	
+	public ArrayList<String> getInterfaceList()
+	{
+		return interfaces;
 	}
 
+	private void addGenericTypeVariables()
+	{
+		TypeVariable<?>[] typeVariables = describedClass.getTypeParameters();
+		if (typeVariables != null && typeVariables.length > 0)
+		{
+			for (TypeVariable<?> typeVariable : typeVariables)
+			{	
+				genericTypeVariables.add(typeVariable.getName());
+			}			
+		}
+	}
+	
+	public ArrayList getGenericTypeVariables()
+	{
+		return genericTypeVariables;
+	}
+	
 	public String getTagName()
 	{
 		return tagName;
@@ -368,7 +410,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{ // look for annotation in super class if subclass didn't have one
 			fieldDescriptorClass = (Class<FD>) fieldDescriptorAnnotationValue(classWithFields);
 		}
-
+		
 		if (classWithFields.isAnnotationPresent(simpl_inherit.class))
 		{ // recurse on super class first, so subclass declarations shadow those in superclasses, where
 			// there are field name conflicts

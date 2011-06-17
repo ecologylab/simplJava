@@ -31,7 +31,7 @@ public final class TranslationScope extends ElementState
 		ON, OFF
 	}
 
-	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.ON;
+	public static GRAPH_SWITCH													graphSwitch								= GRAPH_SWITCH.OFF;
 
 	private static final int														GUESS_CLASSES_PER_TSCOPE	= 5;
 
@@ -1615,6 +1615,14 @@ public final class TranslationScope extends ElementState
 	{
 		allTranslationScopes.clear();
 		allTranslationScopes.put(name, translationScope);
+	}
+	
+	/**
+	 * This will switch on the graph serialization
+	 */
+	public static void setGraphSwitch()
+	{
+		graphSwitch = GRAPH_SWITCH.ON;
 	}
 
 }
