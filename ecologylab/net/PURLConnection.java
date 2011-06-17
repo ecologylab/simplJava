@@ -69,8 +69,7 @@ public class PURLConnection extends Debug
 					{
 						try
 						{
-							inputStream = new FileInputStream(file);
-							good				= true;
+							fileConnect();
 						}
 						catch (FileNotFoundException e)
 						{
@@ -84,6 +83,11 @@ public class PURLConnection extends Debug
 		{
 			networkConnectAndCatch(connectionHelper, userAgent, connectionTimeout, readTimeout);
 		}
+	}
+	public void fileConnect() throws FileNotFoundException
+	{
+		inputStream = new FileInputStream(purl.file());
+		good				= true;
 	}
 	public void networkConnectAndCatch(ConnectionHelper connectionHelper, String userAgent)
 	{
