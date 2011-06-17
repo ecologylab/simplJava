@@ -10,6 +10,7 @@ import ecologylab.serialization.library.rss.RssState;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.translators.java.JavaTranslator;
 
 public class JavaTranslatorTest {
 	
@@ -18,8 +19,9 @@ public class JavaTranslatorTest {
 		try{
 			testSerialization(args[0]);
 			
-			System.out.println("testing deserialization");
-			testDeserialization(args[0]);
+			//System.out.println("testing deserialization");
+			//testDeserialization(args[0]);
+			//testJavaCodeGeneration(args[0],args[1]);
 			
 		}catch(Exception ex)
 		{
@@ -27,17 +29,47 @@ public class JavaTranslatorTest {
 		}
 	}
 	
+	/**
+	 * Testing serialising Translation scope
+	 * 
+	 * @param filename
+	 * @throws Exception
+	 */
 	private static void testSerialization(String filename) throws Exception
 	{
-		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", Schmannel.class, BItem.class, SchmItem.class,
-				RssState.class, Item.class, Channel.class);
+		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class, Channel.class);
+		ts2.setGraphSwitch();
 		ts2.serialize(new File(filename));
 	}
 	
+	/**
+	 * Testing deserialising the translation scope
+	 * 
+	 * @param filename
+	 * @throws Exception
+	 */
 	private static void testDeserialization(String filename) throws Exception
 	{
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
+		ts.setGraphSwitch();
 		TranslationScope t = (TranslationScope)ts.deserialize(filename);
+	}	
+	
+	/**
+	 * Testing the Java code generation from serialised translation scope
+	 * 
+	 * @param filename
+	 * @throws Exception
+	 */
+	private static void testJavaCodeGeneration(String filename, String codeLocation) throws Exception
+	{
+		JavaTranslator c = new JavaTranslator();
+		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
+		TranslationScope.setGraphSwitch();
+		TranslationScope t = (TranslationScope)ts.deserialize(filename);
+		
+		TranslationScope.AddTranslationScope(t.getName(),t);
+		c.translateToJava(new File(codeLocation),t);
 	}	
 
 }
