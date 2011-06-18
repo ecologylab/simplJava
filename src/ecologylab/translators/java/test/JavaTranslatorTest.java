@@ -38,7 +38,7 @@ public class JavaTranslatorTest {
 	private static void testSerialization(String filename) throws Exception
 	{
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class, Channel.class);
-		ts2.setGraphSwitch();
+		TranslationScope.setGraphSwitch();
 		ts2.serialize(new File(filename));
 	}
 	
@@ -51,7 +51,7 @@ public class JavaTranslatorTest {
 	private static void testDeserialization(String filename) throws Exception
 	{
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
-		ts.setGraphSwitch();
+		TranslationScope.setGraphSwitch();
 		TranslationScope t = (TranslationScope)ts.deserialize(filename);
 	}	
 	

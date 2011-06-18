@@ -520,8 +520,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor
-				.getField()), true);
+		appendCommentsFromArray(appendable, escapeToArray(fieldDescriptor.getFieldComment()), true);
 
 		appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
@@ -804,7 +803,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		//appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
+		appendCommentsFromArray(appendable, escapeToArray(inputClass.getClassComment()), false);
 
 		//appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
@@ -914,6 +913,19 @@ public class JavaTranslator implements JavaTranslationConstants
 		}
 
 		this.additionalImportLines = additionalImportLines;
+	}
+	
+	private static String[] escapeToArray(String javaDocs)
+	{
+		String strippedComments = javaDocs.replace("*", "").replace("/", "").trim();
+		String[] commentsArray = strippedComments.split("\n");
+
+		for (int i = 0; i < commentsArray.length; i++)
+		{
+			commentsArray[i] = commentsArray[i].trim();
+		}
+
+		return commentsArray;
 	}
 
 	/**
