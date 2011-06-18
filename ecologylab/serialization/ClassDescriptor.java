@@ -52,6 +52,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_scalar
 	private String describedClassName;
 
+	@simpl_scalar
+	private String comment;
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
 	 * the root element or a field is determined by class name, not by field name.
@@ -122,6 +124,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
 
+	private JavaDocumentParser parser;
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -130,7 +133,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		super();
 	}
 
-	protected ClassDescriptor(Class<ES> thatClass)
+	protected ClassDescriptor(Class<ES> thatClass) 
 	{
 		super();
 		this.describedClass = thatClass;
@@ -143,6 +146,14 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
 		}
 		addGenericTypeVariables();
+		try{
+			parser = new JavaDocumentParser(thatClass);
+			parser.Parse();
+			this.comment = parser.getClassComment();
+		}catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 	
 	private void addInterfaces()
@@ -860,5 +871,25 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public String getName()
 	{
 		return describedClassName;
+	}
+	
+	/**
+	 * return the java parser for the corresponding source file
+	 * 
+	 * @return
+	 */
+	public JavaDocumentParser getParser()
+	{
+		return parser;
+	}
+	
+	/**
+	 * method returning he class comment
+	 * 
+	 * @return
+	 */
+	public String getClassComment()
+	{
+		return comment;
 	}
 }
