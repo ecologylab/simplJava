@@ -262,7 +262,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 				setMethodName, SET_METHOD_STRING_ARG);
 		
 		addNamespaces();
-		this.fieldComment = declaringClassDescriptor.getParser().getFieldComment(field);
 	}
 
 	/**
@@ -2295,15 +2294,5 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	public HashMap<String, String> getNamespaces()
 	{
 		return libraryNamespaces;
-	}
-	
-	/**
-	 * method returning the field comment
-	 * 
-	 * @return
-	 */
-	public String getFieldComment()
-	{
-		return fieldComment;
 	}
 }
