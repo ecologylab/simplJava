@@ -21,8 +21,9 @@ import ecologylab.serialization.types.element.Mappable;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
-		ElementState implements FieldTypes, Mappable<String>, Iterable<FD>
+		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
 {
 	/**
 	 * Class object that we are describing.
@@ -139,7 +140,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		this.describedClassName = thatClass.getName();
 		this.tagName = XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
 		
-		if(thatClass != ElementState.class){
+		if (thatClass != ElementState.class)
+		{
 			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
 		}
 		addGenericTypeVariables();

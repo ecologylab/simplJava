@@ -42,7 +42,8 @@ import ecologylab.serialization.types.scalar.TypeRegistry;
  * 
  * @author andruid
  */
-public class FieldDescriptor extends ElementState implements FieldTypes
+@simpl_inherit
+public class FieldDescriptor extends DescriptorBase implements FieldTypes
 {
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 
@@ -70,9 +71,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@simpl_scalar
 	private String								fieldName;
 
-	@simpl_scalar
-	private String 								fieldComment;
-	
 	/////////////////// next fields are for polymorphic fields ////////////////////////////////////////
 	/**
 	 * Null if the tag for this field is derived from its field declaration. For most fields, tag is
@@ -93,13 +91,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	@simpl_map("library_namespace")
 	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
 	
-	/**
-	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
-	 * this field is meaningless, except for wrapped collections and maps.
-	 */
-	@simpl_scalar
-	private String							tagName;
-
 	/**
 	 * Used to specify old translations, for backwards compatability. Never written.
 	 */
@@ -774,17 +765,6 @@ public class FieldDescriptor extends ElementState implements FieldTypes
 	{
 		return fieldName;
 		//return (field != null) ? field.getName() : "NULL";
-	}
-
-	/**
-	 * NB: For polymorphic fields, the value of this field is meaningless, except for wrapped
-	 * collections and maps.
-	 * 
-	 * @return The tag name that this field is translated to XML with.
-	 */
-	public String getTagName()
-	{
-		return tagName;
 	}
 
 	/**
