@@ -21,6 +21,7 @@ extends Debug
 
 	private boolean						continued;
 
+	private boolean						recycled;
 
 	DownloadState(T downloadable, Continuation<T> dispatchTarget,DownloadMonitor downloadMonitor)
 	{
@@ -51,7 +52,7 @@ extends Debug
 	{
 		downloadingThread		= Thread.currentThread();
 		//TODO need a lock here to prevent recycle() while downloading!!!!!!
-		if (!downloadable.isRecycled())
+		if (downloadable != null && !downloadable.isRecycled())
 		{
 			//Update site statistics if available
 			BasicSite site = downloadable.getSite();
@@ -64,7 +65,7 @@ extends Debug
 	}
 	protected synchronized void callContinuation()
 	{
-		if (!continued)
+		if (!continued && !recycled)
 		{
 			//	 debug("dispatch()"+" "+downloadable+" -> "+dispatchTarget);
 			continued		= true;
@@ -76,19 +77,24 @@ extends Debug
 
 	public String toString()
 	{
-		return super.toString() + "["+downloadable.toString() +" "+
+		String downloadableString = downloadable == null ? "recycled" : downloadable.toString();
+		return super.toString() + "["+downloadableString +" "+
 		downloadingThread + "]";
 	}
 	
 	public void recycle(boolean recycleDownloadable)
 	{
-		if (recycleDownloadable)
-			downloadable.recycle();
-		downloadable	= null;
-		continuation	= null;
-		downloadMonitor	= null;
-		downloadingThread	= null;
-		
+		if (!recycled)
+		{
+			recycled			= true;
+			
+			if (recycleDownloadable)
+				downloadable.recycle();
+			downloadable	= null;
+			continuation	= null;
+			downloadMonitor	= null;
+			downloadingThread	= null;
+		}
 	}
 
 }
