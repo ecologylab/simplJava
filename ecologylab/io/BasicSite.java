@@ -41,7 +41,7 @@ class BasicSite extends ElementState implements Mappable<String>
 
   boolean													ignore;
   
-  static final int							MAX_TIMEOUTS	= 3;
+  static final int							MAX_TIMEOUTS	= 6;
 
   /**
    * Minimum time to wait between downloads for this domain
