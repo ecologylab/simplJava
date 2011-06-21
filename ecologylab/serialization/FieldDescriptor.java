@@ -32,6 +32,7 @@ import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
+import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;
@@ -43,7 +44,7 @@ import ecologylab.serialization.types.scalar.TypeRegistry;
  * @author andruid
  */
 @simpl_inherit
-public class FieldDescriptor extends DescriptorBase implements FieldTypes
+public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappable<String>
 {
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 
@@ -1860,7 +1861,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes
 		{
 			result = getInstance(attributes, childClassDescriptor, graphContext);
 
-			if (result != null && result != parent)
+			if (result != null)
 				result.setupInParent(parent, childClassDescriptor);
 		}
 		return result;
@@ -2274,5 +2275,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes
 	public HashMap<String, String> getNamespaces()
 	{
 		return libraryNamespaces;
+	}
+
+	@Override
+	public String key()
+	{
+		return this.fieldName;
 	}
 }

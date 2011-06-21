@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.xml.sax.Attributes;
 
@@ -66,18 +67,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	private boolean							isRoot					= false;
 
-	// private static HashMap<Integer, ElementState> marshalledObjects = new HashMap<Integer,
-	// ElementState>();
-	//
-	// private static HashMap<Integer, ElementState> visitedElements = new HashMap<Integer,
-	// ElementState>();
-	//
-	// private static HashMap<Integer, ElementState> needsAttributeHashCode = new HashMap<Integer,
-	// ElementState>();
-	//
-	// public static HashMap<String, ElementState> unmarshalledObjects = new HashMap<String,
-	// ElementState>();
-
 	// --------//
 
 	public enum FORMAT
@@ -86,9 +75,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Link for a DOM tree.
+	 * Link for a DOM tree.	
+	 * should be removed. its not a tree!!
 	 */
 	transient ElementState									parent;
+	
+	/** 
+	 * to handle objects with multiple parents
+	 * this variable helps keep track of parents in deserializing graph
+	 */
+	Stack<ElementState> 									  parents = new Stack<ElementState>();
 
 	/**
 	 * Just-in time look-up tables to make translation be efficient. Allocated on a per class basis.
@@ -2067,7 +2063,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	void setupInParent(ElementState newParent, ClassDescriptor ourClassDescriptor)
 	{
 		this.elementByIdMap = newParent.elementByIdMap;
-		this.parent = newParent;
+		this.parents.push(newParent);
 		this.classDescriptor = ourClassDescriptor;
 	}
 

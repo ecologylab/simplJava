@@ -27,7 +27,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 
 	SIMPLTranslationException		jsonTranslationException;
 
-	ArrayList<FieldDescriptor>	fdStack									= new ArrayList<FieldDescriptor>();
+	ArrayList<FieldDescriptor>	fdStack								= new ArrayList<FieldDescriptor>();
 
 	ParsedURL										purlContext;
 
@@ -35,9 +35,9 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 
 	DeserializationHookStrategy	deserializationHookStrategy;
 
-	//int													numOfCollectionElements	= 0;
-	
-	ArrayList<Integer> 					elementsInCollection = new ArrayList<Integer>();
+	// int numOfCollectionElements = 0;
+
+	ArrayList<Integer>					elementsInCollection	= new ArrayList<Integer>();
 
 	public ElementStateJSONHandler(TranslationScope translationScope)
 	{
@@ -48,7 +48,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	{
 		try
 		{
-			
+
 			JSONParser parser = new JSONParser();
 			parser.parse(charSequence.toString(), this);
 			return root;
@@ -65,7 +65,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	public boolean endArray() throws ParseException, IOException
 	{
 		pop();
-		//numOfCollectionElements = 0;
+		// numOfCollectionElements = 0;
 		return true;
 	}
 
@@ -75,7 +75,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		if ((jsonTranslationException == null) && (root != null))
 			root.deserializationPostHook();
 
-		//ElementState.recycleDeserializationMappings();
+		// ElementState.recycleDeserializationMappings();
 	}
 
 	@Override
@@ -97,7 +97,12 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		ElementState currentES = this.currentElementState;
 		processPendingScalar(curentFdType, currentES);
 
-		final ElementState parentES = currentES.parent;
+		final ElementState parentES;
+
+		if (currentES.parents.isEmpty())
+			parentES = null;
+		else
+			parentES = currentES.parents.peek();
 
 		switch (curentFdType)
 		// every good push deserves a pop :-) (and othertimes, not!)
@@ -120,7 +125,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 			currentES.deserializationPostHook();
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
-			this.currentElementState = currentES.parent;
+			this.currentElementState = currentES.parents.peek();
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
 			this.currentElementState = parentES; // restore context!
@@ -132,7 +137,8 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 		// if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
 		// this.currentElementState = this.currentElementState.parent;
 		popAndPeekFD();
-
+		
+		if(!currentES.parents.isEmpty() && currentES.parents.size() > 1) currentES.parents.pop();
 		// if (this.startElementPushed) // every good push deserves a pop :-) (and othertimes, not!)
 
 		return true;
@@ -320,7 +326,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	@Override
 	public boolean startObject() throws ParseException, IOException
 	{
-		//hack to deal with json arrays with list tag outside the array.
+		// hack to deal with json arrays with list tag outside the array.
 		if (currentFD != null)
 			if (currentFD.isCollection() && !currentFD.isPolymorphic())
 			{
@@ -339,7 +345,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 					}
 				}
 				incrementTop();
-				//numOfCollectionElements++;
+				// numOfCollectionElements++;
 			}
 
 		return true;
@@ -435,7 +441,7 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 				}
 				else
 					childFD.setFieldToComposite(currentElementState, childES);
-				
+
 				// maybe we
 				// should do
 				// this on close
@@ -528,35 +534,35 @@ public class ElementStateJSONHandler extends Debug implements ContentHandler, Fi
 	{
 		return purlContext;
 	}
-	
+
 	public Integer pop()
 	{
 		int num = 0;
-		
-		if(this.elementsInCollection.size() > 0)
+
+		if (this.elementsInCollection.size() > 0)
 		{
 			num = this.elementsInCollection.get(elementsInCollection.size() - 1);
 			this.elementsInCollection.remove(elementsInCollection.size() - 1);
 		}
 		return num;
 	}
-	
+
 	public void push(Integer num)
 	{
 		this.elementsInCollection.add(num);
 	}
-	
+
 	public int top()
 	{
 		int num = 0;
-		
-		if(this.elementsInCollection.size() > 0)
+
+		if (this.elementsInCollection.size() > 0)
 		{
 			num = this.elementsInCollection.get(elementsInCollection.size() - 1);
 		}
 		return num;
 	}
-	
+
 	public void incrementTop()
 	{
 		int num = pop();

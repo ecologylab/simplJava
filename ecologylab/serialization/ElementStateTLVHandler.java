@@ -16,7 +16,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 {
 	TranslationScope									translationScope;
 
-	TLVParser													tlvParser								= null;
+	TLVParser													tlvParser	= null;
 
 	ElementState											root;
 
@@ -26,14 +26,13 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 
 	private SIMPLTranslationException	tlvTranslationException;
 
-	ArrayList<FieldDescriptor>				fdStack									= new ArrayList<FieldDescriptor>();
+	ArrayList<FieldDescriptor>				fdStack		= new ArrayList<FieldDescriptor>();
 
 	ParsedURL													purlContext;
 
 	File															fileContext;
 
 	DeserializationHookStrategy				deserializationHookStrategy;
-
 
 	public ElementStateTLVHandler(TranslationScope translationScope)
 	{
@@ -64,7 +63,12 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		ElementState currentES = this.currentElementState;
 		processPendingScalar(curentFdType, currentES);
 
-		final ElementState parentES = currentES.parent;
+		final ElementState parentES;
+
+		if (currentES.parents.isEmpty())
+			parentES = null;
+		else
+			parentES = currentES.parents.peek();
 
 		switch (curentFdType)
 		// every good push deserves a pop :-) (and othertimes, not!)
@@ -87,7 +91,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 			currentES.deserializationPostHook();
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
-			this.currentElementState = currentES.parent;
+			this.currentElementState = currentES.parents.peek();
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
 			this.currentElementState = parentES; // restore context!
@@ -99,7 +103,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		// if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
 		// this.currentElementState = this.currentElementState.parent;
 		popAndPeekFD();
-
+		if(!currentES.parents.isEmpty() && currentES.parents.size() > 1) currentES.parents.pop();
 		// if (this.startElementPushed) // every good push deserves a pop :-) (and othertimes, not!)
 	}
 
@@ -107,7 +111,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 	public void endTLV()
 	{
 		if ((tlvTranslationException == null) && (root != null))
-			root.deserializationPostHook();		
+			root.deserializationPostHook();
 
 	}
 
