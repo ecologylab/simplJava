@@ -23,6 +23,7 @@ public interface DownloadProcessor<T extends Downloadable>
  * @param dispatchTarget
  * @throws IOException 
  */
-	public void download(T thatDownloadable,
-			Continuation<T> continuation) throws IOException;
+	public void download(T thatDownloadable, Continuation<T> continuation);
+	
+	public void requestStop();
 }
