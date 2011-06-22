@@ -1574,6 +1574,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public ElementState parent()
 	{
+//		return (parent != null) ? parent : 
+//			(parents != null && !parents.empty()) ? parents.firstElement() : null;
 		return parent;
 	}
 
@@ -1589,6 +1591,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	public ElementState getRoot()
 	{
+		ElementState parent	= parent();
 		return parent == null ? this : parent.getRoot();
 	}
 
