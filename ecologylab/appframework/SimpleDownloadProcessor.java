@@ -36,21 +36,27 @@ implements DownloadProcessor<T>
 	/**
 	 * Download it now, in this thread.
 	 * 
-	 * @param thatDownloadable
+	 * @param downloadable
 	 *          The thing to download.
 	 * @param dispatchTarget
 	 *          Ignored, since we are not asynchronous, there are no callbacks.
 	 */
 	// TODO improve error handling here
-	public void download(T thatDownloadable, Continuation<T> dispatchTarget)
+	public void download(T downloadable, Continuation<T> continuation)
 	{
 		try
 		{
-			thatDownloadable.performDownload();
+			downloadable.performDownload();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			downloadable.handleIoError();
+		}
+		finally
+		{
+			if (continuation != null)
+				continuation.callback(downloadable);
 		}
 	}
 
