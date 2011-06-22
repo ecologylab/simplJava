@@ -15,7 +15,8 @@ import ecologylab.io.Downloadable;
  * 
  * @author andruid
  */
-public class SimpleDownloadProcessor extends Debug implements DownloadProcessor
+public class SimpleDownloadProcessor<T extends Downloadable> extends Debug 
+implements DownloadProcessor<T>
 {
 	/**
 	 * 
@@ -41,7 +42,7 @@ public class SimpleDownloadProcessor extends Debug implements DownloadProcessor
 	 *          Ignored, since we are not asynchronous, there are no callbacks.
 	 */
 	// TODO improve error handling here
-	public void download(Downloadable thatDownloadable, Continuation dispatchTarget)
+	public void download(T thatDownloadable, Continuation<T> dispatchTarget)
 	{
 		try
 		{
