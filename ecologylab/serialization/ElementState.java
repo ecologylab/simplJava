@@ -2326,6 +2326,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		return unMarshalledObject;
 	}
 
+	public Stack<ElementState> parents()
+	{
+		return parents;
+	}
+
 	// public static void recycleSerializationMappings()
 	// {
 	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
