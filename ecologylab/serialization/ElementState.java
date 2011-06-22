@@ -1593,7 +1593,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public ElementState parent()
 	{
-		return parent;
+		return (parent != null) ? parent : 
+			(parents != null && !parents.empty()) ? parents.firstElement() : null;
 	}
 
 	/**
@@ -2324,11 +2325,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		return unMarshalledObject;
-	}
-
-	public Stack<ElementState> parents()
-	{
-		return parents;
 	}
 
 	// public static void recycleSerializationMappings()
