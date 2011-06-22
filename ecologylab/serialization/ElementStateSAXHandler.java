@@ -59,23 +59,25 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	SIMPLTranslationException		xmlTranslationException;
 
-	ArrayList<FieldDescriptor>	fdStack				= new ArrayList<FieldDescriptor>();
+	ArrayList<FieldDescriptor>	fdStack							= new ArrayList<FieldDescriptor>();
 
-	static XMLReaderPool				xmlReaderPool	= new XMLReaderPool(1, 1);
+	static XMLReaderPool				xmlReaderPool				= new XMLReaderPool(1, 1);
 
 	ParsedURL										purlContext;
 
 	File												fileContext;
 
-	DeserializationHookStrategy deserializationHookStrategy;
-	
-	TranslationContext 								translationContext = new TranslationContext();
+	DeserializationHookStrategy	deserializationHookStrategy;
 
-	private boolean	skipClosingTag = false;
+	TranslationContext					translationContext	= new TranslationContext();
+
+	private boolean							skipClosingTag			= false;
+
 	/**
 	 * 
 	 */
-	public ElementStateSAXHandler(TranslationScope translationScope, TranslationContext translationContext)
+	public ElementStateSAXHandler(TranslationScope translationScope,
+			TranslationContext translationContext)
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
@@ -265,33 +267,38 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		return result;
 	}
 
-	public ElementState parse(InputStream inputStream, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+	public ElementState parse(InputStream inputStream,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
-		this.deserializationHookStrategy	= deserializationHookStrategy;
+		this.deserializationHookStrategy = deserializationHookStrategy;
 		return parse(new InputSource(inputStream));
 	}
-	
-	public ElementState parse(PURLConnection purlConnection, DeserializationHookStrategy deserializationHookStrategy) 
-	throws SIMPLTranslationException, IOException
+
+	public ElementState parse(PURLConnection purlConnection,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException,
+			IOException
 	{
-		this.deserializationHookStrategy	= deserializationHookStrategy;
-		this.purlContext									= purlConnection.getPurl();
+		this.deserializationHookStrategy = deserializationHookStrategy;
+		this.purlContext = purlConnection.getPurl();
 		return parseAndThrowIO(new InputSource(purlConnection.inputStream()));
 	}
-	
-	public ElementState parse(File file, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+
+	public ElementState parse(File file, DeserializationHookStrategy deserializationHookStrategy)
+			throws SIMPLTranslationException
 	{
 		this.deserializationHookStrategy = deserializationHookStrategy;
 		return parse(file);
 	}
-	
-	public ElementState parse(ParsedURL purl, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+
+	public ElementState parse(ParsedURL purl, DeserializationHookStrategy deserializationHookStrategy)
+			throws SIMPLTranslationException
 	{
 		this.deserializationHookStrategy = deserializationHookStrategy;
 		return parse(purl);
 	}
-	
-	public ElementState parse(CharSequence charSequence, DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
+
+	public ElementState parse(CharSequence charSequence,
+			DeserializationHookStrategy deserializationHookStrategy) throws SIMPLTranslationException
 	{
 		this.deserializationHookStrategy = deserializationHookStrategy;
 		return parse(charSequence);
@@ -315,7 +322,9 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		}
 		return result;
 	}
-	public ElementState parseAndThrowIO(InputSource inputSource) throws SIMPLTranslationException, IOException
+
+	public ElementState parseAndThrowIO(InputSource inputSource) throws SIMPLTranslationException,
+			IOException
 	{
 		XMLReader parser = null;
 		try
@@ -325,7 +334,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		catch (SAXException e)
 		{
 			// (condition trys to ignore weird characters at the end of yahoo's xml on 9/9/08
-			if ((currentFD == null) || !(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR) && (currentElementState != null))
+			if ((currentFD == null) || !(currentFD.getType() == PSEUDO_FIELD_DESCRIPTOR)
+					&& (currentElementState != null))
 			{
 				xmlTranslationException = new SIMPLTranslationException("SAXException during parsing", e);
 
@@ -399,7 +409,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			{
 				try
 				{
-					ElementState root	= null;
+					ElementState root = null;
 					if (root == null)
 						root = rootClassDescriptor.getInstance();
 					if (root != null)
@@ -467,10 +477,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			switch (childFD.getType())
 			{
 			case COMPOSITE_ELEMENT:
-				childES = childFD.constructChildElementState(currentElementState, tagName, attributes, translationContext);
+				childES = childFD.constructChildElementState(currentElementState, tagName, attributes,
+						translationContext);
 
-				if(childES == currentElementState) skipClosingTag  = true;
-				
+				if (childES == currentElementState)
+					skipClosingTag = true;
+
 				if (childES == null)
 				{
 					childFD = makeIgnoredFieldDescriptor(tagName, currentClassDescriptor());
@@ -501,8 +513,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 						.automaticLazyGetCollectionOrMap(currentElementState);
 				if (collection != null)
 				{
-					ElementState childElement = childFD.constructChildElementState(
-							currentElementState, tagName, attributes, translationContext);
+					ElementState childElement = childFD.constructChildElementState(currentElementState,
+							tagName, attributes, translationContext);
 					childES = childElement;
 
 					if (childES == null)
@@ -522,8 +534,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				Map map = (Map) childFD.automaticLazyGetCollectionOrMap(currentElementState);
 				if (map != null)
 				{
-					ElementState childElement = childFD.constructChildElementState(
-							currentElementState, tagName, attributes, translationContext);
+					ElementState childElement = childFD.constructChildElementState(currentElementState,
+							tagName, attributes, translationContext);
 
 					childES = childElement;
 					if (childES == null)
@@ -551,7 +563,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				if (deserializationHookStrategy != null)
 					deserializationHookStrategy.deserializationPreHook(childES, childFD);
 
-				childES.translateAttributes(translationScope, attributes, this, currentElementState, translationContext);
+				childES.translateAttributes(translationScope, attributes, this, currentElementState,
+						translationContext);
 
 				this.currentElementState = childES; // childES.parent = old currentElementState
 				this.currentFD = childFD;
@@ -604,12 +617,12 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 	public void endElement(String namespaceURI, String localTagName, String prefixedTagName)
 			throws SAXException
 	{
-		if(skipClosingTag)
+		if (skipClosingTag)
 		{
 			skipClosingTag = false;
 			return;
 		}
-			
+
 		// if (this.currentElementState == null)
 		// {
 		// this.currentFD.warning(" Ignoring tag <" + localTagName + ">");
@@ -633,11 +646,13 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		processPendingScalar(curentFdType, currentES);
 
 		final ElementState parentES;
-		
-		if(currentES.parents.isEmpty())
-			parentES = null;
+
+		if (currentES.parents == null || currentES.parents.isEmpty())
+			parentES = currentES.parent;
 		else
 			parentES = currentES.parents.peek();
+
+		// final ElementState parentES = currentES.parent;
 
 		switch (curentFdType)
 		// every good push deserves a pop :-) (and othertimes, not!)
@@ -660,7 +675,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 			currentES.deserializationPostHook();
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
-			this.currentElementState = currentES.parents.peek();
+			this.currentElementState = parentES;
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
 			this.currentElementState = parentES; // restore context!
@@ -673,7 +688,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 		// this.currentElementState = this.currentElementState.parent;
 		popAndPeekFD();
 		
-		if(!currentES.parents.isEmpty() && currentES.parents.size() > 1) currentES.parents.pop();
+		if (currentES.parents != null && !currentES.parents.isEmpty() && currentES.parents.size() > 1)
+			currentES.parents.pop();
 		// if (this.startElementPushed) // every good push deserves a pop :-) (and othertimes, not!)
 	}
 
@@ -960,7 +976,8 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 	public ParsedURL purlContext()
 	{
-		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext) : null;
+		return (purlContext != null) ? purlContext : (fileContext != null) ? new ParsedURL(fileContext)
+				: null;
 	}
 
 }

@@ -1874,7 +1874,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			ElementState alreadyUnmarshalledObject = ElementState.getFromMap(attributes, graphContext);
+			ElementState alreadyUnmarshalledObject = graphContext.getFromMap(attributes);
 
 			if (alreadyUnmarshalledObject != null)
 				result = alreadyUnmarshalledObject;

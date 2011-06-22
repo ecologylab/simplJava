@@ -65,8 +65,8 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 
 		final ElementState parentES;
 
-		if (currentES.parents.isEmpty())
-			parentES = null;
+		if (currentES.parents == null || currentES.parents.isEmpty())
+			parentES = currentES.parent;
 		else
 			parentES = currentES.parents.peek();
 
@@ -91,7 +91,7 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 			currentES.deserializationPostHook();
 			if (deserializationHookStrategy != null)
 				deserializationHookStrategy.deserializationPostHook(currentES, currentFD);
-			this.currentElementState = currentES.parents.peek();
+			this.currentElementState = currentES.parent;
 		case NAME_SPACE_SCALAR:
 			// case WRAPPER:
 			this.currentElementState = parentES; // restore context!
@@ -103,8 +103,9 @@ public class ElementStateTLVHandler extends Debug implements TLVEvents, FieldTyp
 		// if (curentN2JOType == NAME_SPACE_NESTED_ELEMENT)
 		// this.currentElementState = this.currentElementState.parent;
 		popAndPeekFD();
-		if(!currentES.parents.isEmpty() && currentES.parents.size() > 1) currentES.parents.pop();
-		// if (this.startElementPushed) // every good push deserves a pop :-) (and othertimes, not!)
+		
+		if (currentES.parents != null && !currentES.parents.isEmpty() && currentES.parents.size() > 1)
+			currentES.parents.pop();
 	}
 
 	@Override
