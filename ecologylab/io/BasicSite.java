@@ -74,19 +74,19 @@ class BasicSite extends ElementState implements Mappable<String>
 	
 	public void countFileNotFound(ParsedURL location)
 	{
-		numTimeouts++;
+		numFileNotFounds++;
 		warning("FileNotFound " + numFileNotFounds + "\t" + location);
 	}
 	
 	public void countOtherIoError(ParsedURL location)
 	{
-		numTimeouts++;
+		numOtherIoErrors++;
 		warning("Other IO Error " + numOtherIoErrors + "\t" + location);
 	}
 	
 	public void countNormalDownload()
 	{
-		numTimeouts++;
+		numNormalDownloads++;
 	}
 	
 	public synchronized void queuedDownload()
@@ -113,6 +113,7 @@ class BasicSite extends ElementState implements Mappable<String>
 			warning("Cancelling because " + numTimeouts + " timeouts");
 		return result;
 	}
+	
 	/**
 	 *	
 	 * @return (numTimeouts == 0) ? 1 : 1.0 / (numTimeouts + 1);
