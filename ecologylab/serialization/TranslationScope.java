@@ -1531,13 +1531,10 @@ public final class TranslationScope extends ElementState
 		if (augmentedClasses.put(thatClass.getDecribedClassSimpleName(), thatClass) != null)
 			return;
 
-		if(thatClass.getSuperClass() != null)
+		ClassDescriptor superClass = thatClass.getSuperClass();
+		if (superClass != null && !"ElementState".equals(superClass.getDecribedClassSimpleName()))
 		{
-			if (!thatClass.getSuperClass().getDecribedClassSimpleName().equals("ElementState"))
-			{
-				augmentTranslationScope(thatClass.getSuperClass(),
-						augmentedClasses);
-			}	
+			augmentTranslationScope(superClass, augmentedClasses);
 		}
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass.getFieldDescriptorsByFieldName();
