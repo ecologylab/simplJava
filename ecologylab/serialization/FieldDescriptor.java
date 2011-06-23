@@ -170,7 +170,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	private String																		bibtexTag									= "";
 
 	private boolean																		isBibtexKey								= false;
-
+	
+	@simpl_scalar
+	private String fieldType ;
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -220,10 +223,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		this.declaringClassDescriptor = declaringClassDescriptor;
 		this.field = field;
 		this.field.setAccessible(true);
+		this.fieldType = field.getType().getSimpleName();
 		this.fieldName = (field != null) ? field.getName() : "NULL";
 
 		deriveTagClassDescriptors(field);
-
+;
 		// if (!isPolymorphic())
 		this.tagName = XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
 		this.bibtexTag = XMLTools.getBibtexTagName(field);
@@ -254,6 +258,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				setMethodName, SET_METHOD_STRING_ARG);
 		
 		addNamespaces();
+		if(javaParser != null)
+		{
+			comment = javaParser.getJavaDocComment(field);
+		}
 	}
 
 	/**
@@ -2008,7 +2016,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	public boolean belongsTo(ClassDescriptor c)
 	{
-		return this.field.getDeclaringClass() == c.getDescribedClass();
+		return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
 
 	String[] otherTags()
@@ -2113,9 +2121,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 		else
 		{
-			Class<?> type = this.field.getType();
+			//Class<?> type = this.field.getType();
 			if (isCollection())
 			{
+				/*
 				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
 				{
 					result = MappingConstants.JAVA_ARRAYLIST;
@@ -2131,12 +2140,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				else if (Scope.class == type)
 				{
 					result = MappingConstants.JAVA_SCOPE;
-				}
+				}*/
+				result = fieldType;
 			}
 			else
 			{
 				// Simpl composite ?
-				String name = type.getSimpleName();
+				String name = fieldType;
 				if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 					result = name;
 			}

@@ -145,6 +145,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
 		}
 		addGenericTypeVariables();
+		if(javaParser != null)
+		{
+			comment = javaParser.getJavaDocComment(thatClass);
+		}
 	}
 	
 	private void addInterfaces()

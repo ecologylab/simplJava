@@ -1490,7 +1490,7 @@ public final class TranslationScope extends ElementState
 	 */
 	public static TranslationScope augmentTranslationScopeWithClassDescriptors(TranslationScope translationScope)
 	{
-		Collection<ClassDescriptor> allClassDescriptors = translationScope.classDescriptors;
+		Collection<ClassDescriptor> allClassDescriptors = translationScope.getClassDescriptors();
 		
 		ArrayList<ClassDescriptor> allClasses = translationScope.getAllClassDescriptors();
 		Collection<ClassDescriptor> augmentedClasses = augmentTranslationScopeWithClassDescriptors(allClasses)
@@ -1531,11 +1531,14 @@ public final class TranslationScope extends ElementState
 		if (augmentedClasses.put(thatClass.getDecribedClassSimpleName(), thatClass) != null)
 			return;
 
-		if (!thatClass.getSuperClass().getClassName().equals("ElementState"))
+		if(thatClass.getSuperClass() != null)
 		{
-			augmentTranslationScope(thatClass.getSuperClass(),
-					augmentedClasses);
-		}	
+			if (!thatClass.getSuperClass().getDecribedClassSimpleName().equals("ElementState"))
+			{
+				augmentTranslationScope(thatClass.getSuperClass(),
+						augmentedClasses);
+			}	
+		}
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = thatClass.getFieldDescriptorsByFieldName();
 
@@ -1552,7 +1555,6 @@ public final class TranslationScope extends ElementState
 				}
 				else
 				{
-					// check whether it is OK to use the Java reflection
 					if (fieldDescriptor.isCollection() && !fieldDescriptor.isPolymorphic())
 					{
 						ArrayList<Class<?>> genericClasses = XMLTools.getGenericParameters(fieldDescriptor
@@ -1596,7 +1598,7 @@ public final class TranslationScope extends ElementState
 		
 		for (TranslationScope translationScope : allTranslationScopes.values())
 		{
-			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByClassSimpleName
+			for (ClassDescriptor<?, ?> classDescriptor : translationScope.entriesByTag
 					.values())
 			{
 				classes.add(classDescriptor);

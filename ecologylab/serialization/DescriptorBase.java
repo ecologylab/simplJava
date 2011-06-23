@@ -49,5 +49,14 @@ public class DescriptorBase extends ElementState
 	{
 		DescriptorBase.javaParser = javaParser;
 	}
+	
+	/**
+	 * 
+	 * @return the java doc comment
+	 */
+	public String getComment()
+	{
+		return comment;
+	}
 
 }
