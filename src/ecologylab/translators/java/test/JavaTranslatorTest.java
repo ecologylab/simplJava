@@ -2,6 +2,7 @@ package ecologylab.translators.java.test;
 
 import java.io.File;
 import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.DescriptorBase;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.library.rss.Channel;
@@ -11,6 +12,7 @@ import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
 import ecologylab.translators.java.JavaTranslator;
+import ecologylab.translators.parser.JavaDocParser;
 
 public class JavaTranslatorTest {
 	
@@ -21,7 +23,7 @@ public class JavaTranslatorTest {
 			
 			//System.out.println("testing deserialization");
 			//testDeserialization(args[0]);
-			//testJavaCodeGeneration(args[0],args[1]);
+			testJavaCodeGeneration(args[0],args[1]);
 			
 		}catch(Exception ex)
 		{
@@ -37,8 +39,9 @@ public class JavaTranslatorTest {
 	 */
 	private static void testSerialization(String filename) throws Exception
 	{
+		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class, Channel.class);
-		TranslationScope.setGraphSwitch();
+		TranslationScope.setGraphSwitch();		
 		ts2.serialize(new File(filename));
 	}
 	
@@ -53,6 +56,7 @@ public class JavaTranslatorTest {
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.setGraphSwitch();
 		TranslationScope t = (TranslationScope)ts.deserialize(filename);
+		System.out.println("Test");
 	}	
 	
 	/**
@@ -65,7 +69,7 @@ public class JavaTranslatorTest {
 	{
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
-		TranslationScope.setGraphSwitch();
+		TranslationScope.setGraphSwitch();		
 		TranslationScope t = (TranslationScope)ts.deserialize(filename);
 		
 		TranslationScope.AddTranslationScope(t.getName(),t);

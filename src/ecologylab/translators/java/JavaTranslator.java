@@ -520,8 +520,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor
-				.getField()), true);
+		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor), false);
 
 		appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
@@ -547,19 +546,19 @@ public class JavaTranslator implements JavaTranslationConstants
 		Hint hint = fieldDescriptor.getXmlHint();
 		if(hint != null)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()));
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
 		}
 		
 		if(type == FieldTypes.COLLECTION_ELEMENT)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(tagValue));
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(tagValue),TAB);
 		}
 		else if(type == FieldTypes.MAP_ELEMENT)
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(tagValue));
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(tagValue),TAB);
 		}else
 		{
-			appendAnnotation(appendable, simpl_scalar.class.getSimpleName());
+			appendAnnotation(appendable, simpl_scalar.class.getSimpleName(),TAB);
 		}
 		//TODO simpl_classes, simpl_scope,			
 	}
@@ -578,14 +577,14 @@ public class JavaTranslator implements JavaTranslationConstants
 		ClassDescriptor superClass = classDesc.getSuperClass();
 		if(superClass != null && !superClass.getDecribedClassSimpleName().equals("ElementState"))
 		{
-			appendAnnotation(appendable,simpl_inherit.class.getSimpleName());			
+			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");			
 		}
 		
 		String tagName = classDesc.getTagName();
 		
 		if(tagName != null && !tagName.equals(""))
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName));			
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"");			
 		}		
 	}
 	
@@ -596,9 +595,9 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @param annotation
 	 * @throws IOException
 	 */
-	private void appendAnnotation(Appendable appendable,String annotation) throws IOException
+	private void appendAnnotation(Appendable appendable,String annotation, String tab) throws IOException
 	{
-		appendable.append(TAB);
+		appendable.append(tab);
 		appendable.append(AT_SIGN);
 		appendable.append(annotation);
 	}
@@ -742,18 +741,20 @@ public class JavaTranslator implements JavaTranslationConstants
 
 		ArrayList<String> interfaces = inputClass.getInterfaceList();
 
-		for (int i = 0; i < interfaces.size(); i++)
+		if(interfaces != null)
 		{
-			appendable.append(',');
-			appendable.append(SPACE);
-			appendable.append(interfaces.get(i));
-			implementMappableInterface = true;
-
-			libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
-					.getName());
-			
+			for (int i = 0; i < interfaces.size(); i++)
+			{
+				appendable.append(',');
+				appendable.append(SPACE);
+				appendable.append(interfaces.get(i));
+				implementMappableInterface = true;
+	
+				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
+						.getName());
+				
+			}		
 		}		
-		
 
 		appendable.append(SINGLE_LINE_BREAK);
 		//appendable.append(TAB);
@@ -804,7 +805,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		//appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
+		appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
 
 		//appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
@@ -832,6 +833,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			{
 				appendable.append(numOfTabs);
 				appendable.append(XML_COMMENTS);
+				appendable.append(SPACE);
 				appendable.append(comment);
 				appendable.append(SINGLE_LINE_BREAK);
 			}
@@ -840,7 +842,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		{
 			appendable.append(numOfTabs);
 			appendable.append(XML_COMMENTS);
-			appendable.append("missing java doc comments or could not find the source file.");
+			appendable.append(" missing java doc comments or could not find the source file.");
 			appendable.append(SINGLE_LINE_BREAK);
 		}
 	}

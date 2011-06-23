@@ -384,7 +384,7 @@ public class JavaTranslationUtilities {
 			String fieldName = fieldDescriptor.getFieldName();
 			StringBuilder propertyName = new StringBuilder();
 			
-			String declaringClassName = fieldDescriptor.getField().getDeclaringClass().getSimpleName();
+			String declaringClassName = fieldDescriptor.getDeclaringClassDescriptor().getDecribedClassSimpleName();
 			
 			propertyName.append(JavaTranslationConstants.GET);
 			propertyName.append(Character.toUpperCase(fieldName.charAt(0)));
@@ -411,7 +411,7 @@ public class JavaTranslationUtilities {
 			String fieldName = fieldDescriptor.getFieldName();
 			StringBuilder propertyName = new StringBuilder();
 			
-			String declaringClassName = fieldDescriptor.getField().getDeclaringClass().getSimpleName();
+			String declaringClassName = fieldDescriptor.getDeclaringClassDescriptor().getDecribedClassSimpleName();
 			
 			propertyName.append(JavaTranslationConstants.SET);
 			propertyName.append(Character.toUpperCase(fieldName.charAt(0)));

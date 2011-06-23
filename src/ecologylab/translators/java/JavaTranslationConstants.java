@@ -110,11 +110,11 @@ public interface JavaTranslationConstants {
 
 	public static final String	ASSIGN										= "=";
 
-	public static final String	OPEN_COMMENTS							= "/// <summary>";
+	public static final String	OPEN_COMMENTS							= "/** ";
 
-	public static final String	XML_COMMENTS							= "/// ";
+	public static final String	XML_COMMENTS							= " *";
 
-	public static final String	CLOSE_COMMENTS						= "/// </summary>";
+	public static final String	CLOSE_COMMENTS						= " */ ";
 
 	public static final String	SINGLE_LINE_COMMENT				= "//";
 

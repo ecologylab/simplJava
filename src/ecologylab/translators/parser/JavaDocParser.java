@@ -12,10 +12,14 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
+import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.IJavaParser;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -24,7 +28,7 @@ import ecologylab.serialization.TranslationScope;
  * 
  * @author nabeel
  */
-public class JavaDocParser
+public class JavaDocParser implements IJavaParser
 {
 	/**
 	 * Hashmap maps class names to hashmap of fields to java docs on fields
@@ -94,10 +98,45 @@ public class JavaDocParser
 		else
 			return null;
 	}
+	
+	/**
+	 * returns the java doc comment for the given class descriptor
+	 * @param inputClass
+	 * @return
+	 */
+	public static String[] getClassJavaDocsArray(ClassDescriptor inputClass)
+	{
+		String javaDocs = getClassJavaDocs(inputClass.getDecribedClassSimpleName());;
+		if (javaDocs != null)
+		{
+			return escapeToArray(javaDocs);
+		}
+		else
+			return null;
+	}
 
 	public static String[] getFieldJavaDocsArray(Field field)
 	{
 		String javaDocs = getFieldJavaDocs(field);
+		if (javaDocs != null)
+		{
+			return escapeToArray(javaDocs);
+		}
+		else
+			return null;
+	}
+	
+	/**
+	 * returns the java doc comment of the given field descriptor 
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static String[] getFieldJavaDocsArray(FieldDescriptor field)
+	{
+		ClassDescriptor thatClass = field.getDeclaringClassDescriptor();
+		String javaDocs = getFieldJavaDocs(thatClass.getDecribedClassSimpleName(), field.getFieldName());
+		
 		if (javaDocs != null)
 		{
 			return escapeToArray(javaDocs);
@@ -139,8 +178,12 @@ public class JavaDocParser
 	 */
 	public static String getFieldJavaDocs(Field thatField)
 	{
-		Class<?> thatClass = thatField.getDeclaringClass();
-		return getFieldJavaDocs(thatClass.getSimpleName(), thatField.getName());
+		if(thatField != null)
+		{
+			Class<?> thatClass = thatField.getDeclaringClass();
+			return getFieldJavaDocs(thatClass.getSimpleName(), thatField.getName());
+		} 
+		return "";
 	}
 
 	/**
@@ -270,5 +313,67 @@ public class JavaDocParser
 			tabString.append('\t');
 		}
 		return tabString.toString();
+	}
+
+	@Override
+	public String getJavaDocComment(Class thatClass){
+		try
+		{
+			File sourceFile = new File(getJavaFilePath(thatClass));
+			if (sourceFile != null)
+			{
+				parse(sourceFile);
+				javaDocFieldComments.isEmpty();
+				return javaDocClassComments.get(thatClass.getSimpleName());
+			}			
+		}catch(Exception ex)
+		{
+			// exception handling code
+		}
+		return "";
+	}
+
+	@Override
+	public String getJavaDocComment(Field field) {
+		// TODO Auto-generated method stub
+		try
+		{
+			HashMap<String, String> fieldComments = javaDocFieldComments.get(field.getDeclaringClass().getSimpleName());
+			if(fieldComments == null)
+			{
+				getJavaDocComment(field.getDeclaringClass());
+				fieldComments = javaDocFieldComments.get(field.getDeclaringClass().getSimpleName());
+			}
+			if(fieldComments != null)
+			{
+				return fieldComments.get(field.getName());
+			}
+		}catch(Exception ex)
+		{
+			// exception handling code
+		}
+		return "";		
+	}
+	
+	/**
+	 * return the path of the java source file
+	 * @param javaClass
+	 * @return
+	 */
+	private String getJavaFilePath(Class javaClass)
+	{
+		URL location;
+		String classLocation = javaClass.getName().replace('.', '/') + ".java";
+		final ClassLoader loader = javaClass.getClassLoader();
+		if (loader == null) 
+		{
+			location = null;
+			System.out.println("Cannot load the class");
+		} else 
+		{
+			location = loader.getResource(classLocation);
+			System.out.println("Class "+location);
+		}
+		return (location==null)?"":location.getPath();
 	}
 }
