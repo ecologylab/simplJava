@@ -25,17 +25,21 @@ implements Iterator<I>
 	
 	protected Iterator<I>	currentIterator;
 	
-	public OneLevelNestingIterator(O firstObject, Iterator<? extends O> iterableCollection)
+	public OneLevelNestingIterator(O firstObject)
 	{
 		this.firstIterator	= firstObject.iterator();
 		this.currentObject	= firstObject;
+	}
+	
+	public OneLevelNestingIterator(O firstObject, Iterator<? extends O> iterableCollection)
+	{
+		this(firstObject);
 		this.collection			= iterableCollection;
 	}
 	
 	public OneLevelNestingIterator(O firstObject, Iterable<? extends O> iterableCollection)
 	{
-		this.firstIterator	= firstObject.iterator();
-		this.currentObject	= firstObject;
+		this(firstObject);
 		this.collection			= (iterableCollection != null) ? iterableCollection.iterator() : null;
 	}
 	
@@ -72,6 +76,7 @@ implements Iterator<I>
 			currentIterator		= currentObject.iterator();
 			return currentIterator.next();
 		}
+		
 		return null;
 	}
 	
