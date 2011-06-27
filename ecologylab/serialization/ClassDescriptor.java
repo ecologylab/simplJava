@@ -35,8 +35,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	// but lets keep doing it;
 	// otherwise: that will temporarily break de/serialization in Objective C
 
-	@simpl_scalar
-	private String					tagName;
+//	@simpl_scalar
+//	private String					tagName;
 
 	@simpl_scalar
 	private String					decribedClassSimpleName;
