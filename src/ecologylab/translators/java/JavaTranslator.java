@@ -22,6 +22,8 @@ import ecologylab.serialization.Hint;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.ElementState.simpl_composite;
+import ecologylab.serialization.ElementState.simpl_nowrap;
 import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
@@ -95,7 +97,14 @@ public class JavaTranslator implements JavaTranslationConstants
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-					appendFieldAsJavaAttribute(fieldDescriptor, classFile);
+				{
+					if(classDescriptor.getSuperClass() != null){
+						if(!fieldDescriptor.isInherited(classDescriptor.getSuperClass()))
+						{
+							appendFieldAsJavaAttribute(fieldDescriptor, classFile);
+						}
+					}
+				}
 			}
 
 			appendDefaultConstructor(inputClass, classFile);
@@ -104,8 +113,11 @@ public class JavaTranslator implements JavaTranslationConstants
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
 				{
-					appendGetters(fieldDescriptor, classFile);
-					appendSetters(fieldDescriptor, classFile);
+					if(!fieldDescriptor.isInherited(classDescriptor.getSuperClass()))
+					{
+						appendGetters(fieldDescriptor, classFile);
+						appendSetters(fieldDescriptor, classFile);
+					}
 				}
 			}
 
@@ -165,7 +177,8 @@ public class JavaTranslator implements JavaTranslationConstants
 	{
 		System.out.println("Parsing source files to extract comments");
 
-		TranslationScope anotherScope = TranslationScope.augmentTranslationScopeWithClassDescriptors(tScope);
+		//TranslationScope anotherScope = TranslationScope.augmentTranslationScopeWithClassDescriptors(tScope);
+		TranslationScope anotherScope = tScope;
 		
 		// Parse source files for javadocs
 		//if(workSpaceLocation != null)
@@ -538,27 +551,33 @@ public class JavaTranslator implements JavaTranslationConstants
 	private void appendAnnotation(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
-		//TODO need to incoperate other annotations
-		
 		int type = fieldDescriptor.getType();
-		String tagValue = fieldDescriptor.getTagName();
+		String collectionMapTagValue = fieldDescriptor.getCollectionOrMapTagName();		
+		
+		if(type == FieldTypes.COMPOSITE_ELEMENT)
+		{
+			appendAnnotation(appendable,simpl_composite.class.getSimpleName(),TAB);
+		}
+		else if(type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
+		{
+			if(!fieldDescriptor.isWrapped())
+			{
+				appendAnnotation(appendable,simpl_nowrap.class.getSimpleName(),TAB);
+			}
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);
+		}
+		else if(type == FieldTypes.MAP_ELEMENT)
+		{
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(collectionMapTagValue),TAB);
+		}else
+		{
+			appendAnnotation(appendable, simpl_scalar.class.getSimpleName(),TAB);
+		}
 		
 		Hint hint = fieldDescriptor.getXmlHint();
 		if(hint != null)
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
-		}
-		
-		if(type == FieldTypes.COLLECTION_ELEMENT)
-		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(tagValue),TAB);
-		}
-		else if(type == FieldTypes.MAP_ELEMENT)
-		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(tagValue),TAB);
-		}else
-		{
-			appendAnnotation(appendable, simpl_scalar.class.getSimpleName(),TAB);
 		}
 		//TODO simpl_classes, simpl_scope,			
 	}
@@ -584,7 +603,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		if(tagName != null && !tagName.equals(""))
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"");			
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");			
 		}		
 	}
 	

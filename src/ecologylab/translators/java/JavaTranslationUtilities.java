@@ -239,8 +239,9 @@ public class JavaTranslationUtilities {
 
 		if (tagName != null && !tagName.equals("") )
 		{
-			parameter = "(new Hint[] { " + tagName;			
-			parameter += " })";
+			parameter = "(Hint." + tagName;
+			//parameter = "(new Hint[] { " + tagName;			
+			parameter += ")";
 			return simpleName + parameter;
 		}
 		else

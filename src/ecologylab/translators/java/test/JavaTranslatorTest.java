@@ -19,12 +19,8 @@ public class JavaTranslatorTest {
 	public static void main(String[] args) 
 	{
 		try{
-			testSerialization(args[0]);
-			
-			//System.out.println("testing deserialization");
-			//testDeserialization(args[0]);
-			testJavaCodeGeneration(args[0],args[1]);
-			
+			//testJavaCodeGeneration(args[0],args[1]);
+			testJavaCodeGenerationWithPolymorphicInfo(args[0],args[2]);
 		}catch(Exception ex)
 		{
 			ex.printStackTrace();
@@ -41,6 +37,21 @@ public class JavaTranslatorTest {
 	{
 		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class, Channel.class);
+		TranslationScope.setGraphSwitch();		
+		ts2.serialize(new File(filename));
+	}
+	
+	/**
+	 * Testing serialising Translation scope
+	 * 
+	 * @param filename
+	 * @throws Exception
+	 */
+	private static void testSerializationWithPolymorph(String filename) throws Exception
+	{
+		DescriptorBase.setJavaParser(new JavaDocParser());
+		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class, SchmItem.class,
+				RssState.class, Item.class, Channel.class);
 		TranslationScope.setGraphSwitch();		
 		ts2.serialize(new File(filename));
 	}
@@ -67,8 +78,27 @@ public class JavaTranslatorTest {
 	 */
 	private static void testJavaCodeGeneration(String filename, String codeLocation) throws Exception
 	{
+		testSerialization(filename);
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
+		TranslationScope.setGraphSwitch();		
+		TranslationScope t = (TranslationScope)ts.deserialize(filename);
+		
+		TranslationScope.AddTranslationScope(t.getName(),t);
+		c.translateToJava(new File(codeLocation),t);
+	}	
+	
+	/**
+	 * Testing the Java code generation from serialised translation scope
+	 * 
+	 * @param filename
+	 * @throws Exception
+	 */
+	private static void testJavaCodeGenerationWithPolymorphicInfo(String filename, String codeLocation) throws Exception
+	{
+		testSerializationWithPolymorph(filename);
+		JavaTranslator c = new JavaTranslator();
+		TranslationScope ts = TranslationScope.get("tscope_tscope_polymorphic", TranslationScope.class, ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.setGraphSwitch();		
 		TranslationScope t = (TranslationScope)ts.deserialize(filename);
 		
