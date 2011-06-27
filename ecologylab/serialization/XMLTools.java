@@ -2064,7 +2064,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 		for (int i = 0; i < ta.length; i++)
 		{
-			if (ta[i] instanceof Class<?>)
+			if ((ta[i] instanceof Class<?>))
 			{
 				if (i == 0)
 					result.append(inferJavaType((Class<?>) ta[i]));
@@ -2073,12 +2073,21 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 			}
 			else
 			{
-				ParameterizedType pT = (ParameterizedType) ta[i];
-				Class<?> rT = (Class<?>) pT.getRawType();
-				if (i == 0)
-					result.append(inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
-				else
-					result.append(", " + inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
+				try
+				{
+					ParameterizedType pT = (ParameterizedType) ta[i];
+					Class<?> rT = (Class<?>) pT.getRawType();
+					if (i == 0)
+						result.append(inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
+					else
+						result.append(", " + inferJavaType(rT) + getJavaGenericParametersStringRecursive(pT));
+				}catch(Exception ex)
+				{
+					if (i == 0)
+						result.append("?");
+					else
+						result.append(", " + "?");
+				}
 			}
 		}
 

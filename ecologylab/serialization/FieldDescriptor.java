@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,6 +72,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	
 	@simpl_scalar
 	private String								fieldName;
+	
+	@simpl_scalar
+	private boolean isGeneric;
 
 	/////////////////// next fields are for polymorphic fields ////////////////////////////////////////
 	/**
@@ -174,6 +178,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@simpl_scalar
 	private String fieldType ;
 	
+	@simpl_scalar
+	private String genericParametersString;
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -261,6 +268,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if(javaParser != null)
 		{
 			comment = javaParser.getJavaDocComment(field);
+		}
+		isGeneric = (field.getGenericType() instanceof ParameterizedType)?true:false;		
+		if(isGeneric)
+		{
+			genericParametersString = XMLTools.getJavaGenericParametersString(field);
 		}
 	}
 
@@ -2018,6 +2030,31 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
+	
+	/**
+	 * A method to decide whether the field is inherited from its super class
+	 * 	
+	 * @param superC
+	 * @return
+	 */
+	public boolean isInherited(ClassDescriptor superC)
+	{
+		if(superC != null)
+		{
+			FieldDescriptor fieldDescriptor = superC.getFieldDescriptorByFieldName(fieldName);
+			
+			if(fieldDescriptor != null)
+			{
+				return true;
+			}else
+			{
+				return isInherited(superC.getSuperClass());
+			}
+		}else
+		{
+			return false;
+		}
+	}
 
 	String[] otherTags()
 	{
@@ -2152,9 +2189,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			}
 		}
 
-		if (XMLTools.isGeneric(this.field))
+		if (this.IsGeneric())
 		{
-			result += XMLTools.getJavaGenericParametersString(this.field);
+			result += getGenericParametersString();
 		}
 
 		return result;
@@ -2292,4 +2329,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		return this.fieldName;
 	}
+	
+	public boolean IsGeneric()
+	{
+		return isGeneric;
+	}
+	
+	public String getGenericParametersString()
+	{
+		return genericParametersString;
+	}
+	
 }
