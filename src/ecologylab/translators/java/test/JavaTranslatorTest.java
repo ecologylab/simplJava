@@ -1,16 +1,22 @@
 package ecologylab.translators.java.test;
 
 import java.io.File;
+import java.io.IOException;
+
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DescriptorBase;
+import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
+import ecologylab.translators.java.JavaTranslationException;
 import ecologylab.translators.java.JavaTranslator;
 import ecologylab.translators.parser.JavaDocParser;
 
@@ -20,7 +26,9 @@ public class JavaTranslatorTest {
 	{
 		try{
 			//testJavaCodeGeneration(args[0],args[1]);
-			testJavaCodeGenerationWithPolymorphicInfo(args[0],args[2]);
+//			testSerializationWithPolymorph(args[0]);
+			// testJavaCodeGenerationWithPolymorphicInfo(args[0],args[2]);
+			testJavaCodeGenerationWithInheritance();
 		}catch(Exception ex)
 		{
 			ex.printStackTrace();
@@ -105,5 +113,24 @@ public class JavaTranslatorTest {
 		TranslationScope.AddTranslationScope(t.getName(),t);
 		c.translateToJava(new File(codeLocation),t);
 	}	
+	
+	@simpl_inherit class Base extends ElementState
+	{
+		@simpl_scalar private String fieldA;
+	}
+	
+	@simpl_inherit class Sub extends Base
+	{
+		@simpl_scalar private String fieldB;
+	}
 
+	private static void testJavaCodeGenerationWithInheritance() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		TranslationScope ts = TranslationScope.get("test_inheritance", Base.class, Sub.class);
+		ts.setGraphSwitch();
+		ts.serialize(new File("c:/tmp/ts.xml"));
+		JavaTranslator jt = new JavaTranslator();
+		jt.translateToJava(new File("c:/tmp/jt"), ts);
+	}
+	
 }
