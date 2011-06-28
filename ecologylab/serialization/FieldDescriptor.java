@@ -2029,7 +2029,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public boolean belongsTo(ClassDescriptor c)
 	{
 		// FIXME here should we use ClassDescriptor instead of Class? this is used by java code gen.
-		return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
+		return (this.getDeclaringClassDescriptor() == c);
+		//return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
 	
 	/**
