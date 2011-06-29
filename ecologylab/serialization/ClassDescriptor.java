@@ -25,6 +25,8 @@ import ecologylab.serialization.types.element.Mappable;
 public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
 		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
 {
+	private static final String	PACKAGE_CLASS_SEP	= ".";
+
 	/**
 	 * Class object that we are describing.
 	 */
@@ -39,7 +41,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 //	private String					tagName;
 
 	@simpl_scalar
-	private String					decribedClassSimpleName;
+	private String					describedClassSimpleName;
 
 	@simpl_scalar
 	private String					describedClassPackageName;
@@ -135,7 +137,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		super();
 		this.describedClass = thatClass;
-		this.decribedClassSimpleName = thatClass.getSimpleName();
+		this.describedClassSimpleName = thatClass.getSimpleName();
 		this.describedClassPackageName = thatClass.getPackage().getName();
 		this.describedClassName = thatClass.getName();
 		this.tagName = XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
@@ -151,6 +153,24 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		}
 	}
 	
+	protected ClassDescriptor(
+			String tagName,
+			String comment,
+			String describedClassPackageName,
+			String describedClassSimpleName,
+			ClassDescriptor superClass,
+			ArrayList<String> interfaces)
+	{
+		super();
+		this.tagName = tagName;
+		this.comment = comment;
+		this.describedClassPackageName = describedClassPackageName;
+		this.describedClassSimpleName = describedClassSimpleName;
+		this.describedClassName = describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName;
+		this.superClass = superClass;
+		this.interfaces = interfaces;
+	}
+
 	private void addInterfaces()
 	{
 		Class<?>[] interfaceList = describedClass.getInterfaces();
@@ -657,7 +677,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				+ tagFromAnnotation + "\"");
 
 		error("@xml_collection(" + tagMsg + ") declared as type " + thatField.getType().getSimpleName()
-				+ " for field named " + thatField.getName() + ", which is not a " + required + ".");
+				+ " for field named " + thatField.getName() + ", which is not a " + required + PACKAGE_CLASS_SEP);
 	}
 
 	/**
@@ -673,10 +693,20 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		if (tagName != null)
 			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
 	}
+	
+	/**
+	 * (used by the compiler)
+	 * 
+	 * @param fieldDescriptor
+	 */
+	protected void addFieldDescriptor(FD fieldDescriptor)
+	{
+		fieldDescriptorsByFieldName.put(fieldDescriptor.getFieldName(), fieldDescriptor);
+	}
 
 	public String toString()
 	{
-		return getClassName() + "[" + describedClass.getName() + "]";
+		return getClassName() + "[" + this.describedClassName + "]";
 	}
 
 	/**
@@ -743,9 +773,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return describedClass == null;
 	}
 
-	public String getDecribedClassSimpleName()
+	public String getDescribedClassSimpleName()
 	{
-		return decribedClassSimpleName;
+		return describedClassSimpleName;
 	}
 
 	public String getDescribedClassPackageName()
@@ -841,6 +871,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	String[] otherTags()
 	{
 		Class<ES> thisClass = getDescribedClass();
+		if (thisClass == null)
+			return null; // we don't have the Class object yet (e.g. for generating code)
+		
 		final ElementState.xml_other_tags otherTagsAnnotation = thisClass
 				.getAnnotation(xml_other_tags.class);
 

@@ -513,7 +513,7 @@ public final class TranslationScope extends ElementState
 		String tagName = entry.getTagName();
 
 		entriesByTag.put(entry.getTagName(), entry);
-		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
+		entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
 
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
@@ -546,7 +546,7 @@ public final class TranslationScope extends ElementState
 		String tagName = entry.getTagName();
 
 		entriesByTag.put(entry.getTagName(), entry);
-		entriesByClassSimpleName.put(entry.getDecribedClassSimpleName(), entry);
+		entriesByClassSimpleName.put(entry.getDescribedClassSimpleName(), entry);
 		entriesByClassName.put(classObj.getName(), entry);
 
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
@@ -1528,11 +1528,11 @@ public final class TranslationScope extends ElementState
 	private static void augmentTranslationScope(ClassDescriptor thatClass,
 			HashMap<String, ClassDescriptor> augmentedClasses)
 	{
-		if (augmentedClasses.put(thatClass.getDecribedClassSimpleName(), thatClass) != null)
+		if (augmentedClasses.put(thatClass.getDescribedClassSimpleName(), thatClass) != null)
 			return;
 
 		ClassDescriptor superClass = thatClass.getSuperClass();
-		if (superClass != null && !"ElementState".equals(superClass.getDecribedClassSimpleName()))
+		if (superClass != null && !"ElementState".equals(superClass.getDescribedClassSimpleName()))
 		{
 			augmentTranslationScope(superClass, augmentedClasses);
 		}

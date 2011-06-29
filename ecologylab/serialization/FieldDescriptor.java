@@ -276,6 +276,29 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 	}
 
+	protected FieldDescriptor(
+			String tagName,
+			String comment,
+			int type,
+			ClassDescriptor elementClassDescriptor,
+			ClassDescriptor declaringClassDescriptor,
+			String fieldName,
+			ScalarType scalarType,
+			Hint xmlHint,
+			String fieldType)
+	{
+		super();
+		this.tagName = tagName;
+		this.comment = comment;
+		this.type = type;
+		this.elementClassDescriptor = elementClassDescriptor;
+		this.declaringClassDescriptor = declaringClassDescriptor;
+		this.fieldName = fieldName;
+		this.scalarType = scalarType;
+		this.xmlHint = xmlHint;
+		this.fieldType = fieldType;
+	}
+
 	/**
 	 * Process annotations that use meta-language to map tags for translate from based on classes
 	 * (instead of field names).
@@ -869,6 +892,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public boolean isWrapped()
 	{
 		return wrapped;
+	}
+	
+	protected void setWrapped(boolean wrapped)
+	{
+		this.wrapped = wrapped;
 	}
 
 	/**
@@ -2153,10 +2181,13 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public String getJavaType()
 	{
 		String result = null;
-
+		
 		if (scalarType != null && !isCollection())
 		{
-			result = scalarType.getJavaType();
+			if (fieldType != null)
+				result = fieldType;
+			else
+				result = scalarType.getJavaType();
 		}
 		else
 		{
