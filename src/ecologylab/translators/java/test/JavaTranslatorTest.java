@@ -122,6 +122,7 @@ public class JavaTranslatorTest {
 	@simpl_inherit class Sub extends Base
 	{
 		@simpl_scalar private String fieldB;
+		@simpl_scalar private int    fieldC;
 	}
 
 	private static void testJavaCodeGenerationWithInheritance() throws IOException, SIMPLTranslationException, JavaTranslationException

@@ -106,7 +106,7 @@ public class JavaDocParser implements IJavaParser
 	 */
 	public static String[] getClassJavaDocsArray(ClassDescriptor inputClass)
 	{
-		String javaDocs = getClassJavaDocs(inputClass.getDecribedClassSimpleName());;
+		String javaDocs = getClassJavaDocs(inputClass.getDescribedClassSimpleName());;
 		if (javaDocs != null)
 		{
 			return escapeToArray(javaDocs);
@@ -135,7 +135,7 @@ public class JavaDocParser implements IJavaParser
 	public static String[] getFieldJavaDocsArray(FieldDescriptor field)
 	{
 		ClassDescriptor thatClass = field.getDeclaringClassDescriptor();
-		String javaDocs = getFieldJavaDocs(thatClass.getDecribedClassSimpleName(), field.getFieldName());
+		String javaDocs = getFieldJavaDocs(thatClass.getDescribedClassSimpleName(), field.getFieldName());
 		
 		if (javaDocs != null)
 		{

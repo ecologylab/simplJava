@@ -246,7 +246,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		Collection<ClassDescriptor> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
 		for (ClassDescriptor classDescriptor : thisClassDescriptor)
 		{
-			System.out.println(classDescriptor.getDecribedClassSimpleName());  
+			System.out.println(classDescriptor.getDescribedClassSimpleName());  
 			
 		}
 		
@@ -539,7 +539,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 	private void createTableArrayListForMultiAttributes(ClassDescriptor classDescriptor,
 			FieldDescriptor fieldDescriptor, Annotation annotation)
 	{
-		String tableName = classDescriptor.getDecribedClassSimpleName();
+		String tableName = classDescriptor.getDescribedClassSimpleName();
 		String tableExtend = new String("null");
 		String tableComment = classDescriptor.toString();
 
