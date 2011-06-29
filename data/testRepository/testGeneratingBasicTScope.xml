@@ -11,10 +11,10 @@
 		<composite name="a_comp" type="metadata" comment="Comment for comp">
 			<scalar name="meta_metadata_name" hide="false" />
 		</composite>
-		<collection name="a_coll" child_type="metadata" comment="Comment for coll">
+		<collection name="items" child_type="metadata" child_tag="item" comment="Comment for coll">
 			<scalar name="meta_metadata_name" hide="false" />
 		</collection>
-		<collection name="coll_2" child_type="metadata" no_wrap="true">
+		<collection name="coll_2" child_type="metadata" no_wrap="true" child_tag="thing">
 		</collection>
 	</meta_metadata>
 
@@ -23,7 +23,7 @@
 		<composite name="a_comp" xpath=".">
 			<scalar name="meta_metadata_name" hide="true" xpath="." />
 		</composite>
-		<collection name="a_coll" xpath=".">
+		<collection name="items" xpath=".">
 			<scalar name="meta_metadata_name" hide="true" xpath="." />
 		</collection>
 	</meta_metadata>

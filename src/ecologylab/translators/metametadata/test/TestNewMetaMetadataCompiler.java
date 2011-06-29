@@ -25,9 +25,23 @@ public class TestNewMetaMetadataCompiler
 			jt.excludeClassFromTranslation(cd);
 		jt.translateToJava(new File("c:/tmp/testbasictscope/"), tscope);
 	}
+	
+	public static void testTypeGraphs() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(new File("data/testRepository/testTypeGraphs.xml"));
+		TranslationScope tscope = repository.traverseAndGenerateTranslationScope();
+		TranslationScope.setGraphSwitch();
+		JavaTranslator jt = new JavaTranslator();
+		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
+		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
+			jt.excludeClassFromTranslation(cd);
+		jt.translateToJava(new File("c:/tmp/testtypegraphs/"), tscope);
+	}
 
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		testGeneratingBasicTScope();
+//		testGeneratingBasicTScope();
+		testTypeGraphs();
 	}
+	
 }

@@ -1,0 +1,34 @@
+<meta_metadata_repository name="test_repo" package="ecologylab.semantics.generated.test.test_repo">
+
+	<meta_metadata name="metadata" comment="The Metadata Class" built_in="true">
+		<scalar name="meta_metadata_name" tag="mm_name" hide="true" ignore_in_term_vector="true" comment="Stores the name of the meta-metadata, and is used on restoring from XML." scalar_type="String" />
+		<collection name="mixins" child_type="metadata" polymorphic_global="true"/>
+	</meta_metadata>
+	
+	<meta_metadata name="test_base" extends="metadata">
+		<scalar name="a_scalar" scalar_type="String" comment="whatever scalar here ..." />
+		<composite name="nested_base" type="test_base">
+			<scalar name="a_scalar" hide="false" />
+		</composite>
+		<collection name="nested_bases" child_type="test_base" child_tag="a_nested_base">
+			<scalar name="a_scalar" hide="false" />
+		</collection>
+	</meta_metadata>
+	
+	<meta_metadata name="test_a" extends="metadata">
+		<composite name="ref_to_test_sub" type="test_sub" />
+	</meta_metadata>
+	
+	<meta_metadata name="test_sub" extends="test_base">
+		<composite name="ref_to_test_a" type="test_a" />
+	</meta_metadata>
+	
+	<meta_metadata name="test_b" extends="metadata">
+		<collection name="coll_of_test_a" child_type="test_a" child_tag="a">
+			<composite name="ref_to_test_sub">
+				<scalar name="a_scalar" xpath="." />
+			</composite>
+		</collection>
+	</meta_metadata>
+	
+</meta_metadata_repository>
