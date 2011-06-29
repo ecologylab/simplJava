@@ -2025,6 +2025,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		return collectionOrMapTagName;
 	}
+	
+	protected void setCollectionOrMapTagName(String collectionOrMapTagName)
+	{
+		this.collectionOrMapTagName = collectionOrMapTagName;
+	}
 
 	// FIXME -- these are temporary bullshit declarations which need to be turned into something real
 	public boolean hasXmlText()
