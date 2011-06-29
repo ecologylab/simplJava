@@ -29,7 +29,6 @@ import ecologylab.net.ParsedURL;
 import ecologylab.semantics.generated.library.search.SearchResult;
 import ecologylab.semantics.metadata.Metadata;
 import ecologylab.semantics.metadata.builtins.Document;
-import ecologylab.semantics.metadata.builtins.Entity;
 import ecologylab.semantics.metadata.scalar.MetadataParsedURL;
 import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
@@ -395,23 +394,23 @@ public class DBUtil extends Debug implements DBInterface
 	@Test
 	public void testConvertClassToByteArrayByTranslationScope() throws SIMPLTranslationException
 	{
-		TranslationScope ts = TranslationScope.get("test", Entity.class);
-
-		Entity e = new Entity();
-		CharBuffer buf = CharBuffer.allocate(1000);
-		e.serialize(System.out);
-
-		Charset chars = Charset.forName("UTF-8");
-		ByteBuffer bytes = chars.encode(buf);
-
-		byte[] bs = new byte[bytes.capacity()];
-
-		buf.clear();
-		// decode process
-		ByteBuffer readBytes = ByteBuffer.wrap(bs);
-		CharBuffer readChars = chars.decode(readBytes);
-
-		Entity out = (Entity) ts.deserializeCharSequence(readChars);
+//		TranslationScope ts = TranslationScope.get("test", Entity.class);
+//
+//		Entity e = new Entity();
+//		CharBuffer buf = CharBuffer.allocate(1000);
+//		e.serialize(System.out);
+//
+//		Charset chars = Charset.forName("UTF-8");
+//		ByteBuffer bytes = chars.encode(buf);
+//
+//		byte[] bs = new byte[bytes.capacity()];
+//
+//		buf.clear();
+//		// decode process
+//		ByteBuffer readBytes = ByteBuffer.wrap(bs);
+//		CharBuffer readChars = chars.decode(readBytes);
+//
+//		Entity out = (Entity) ts.deserializeCharSequence(readChars);
 
 	}
 

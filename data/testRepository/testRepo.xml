@@ -1,0 +1,36 @@
+<meta_metadata_repository name="test_repo" package="ecologylab.semantics.generated.test.test_repo">
+
+	<meta_metadata name="metadata" comment="The Metadata Class" built_in="true">
+		<scalar name="meta_metadata_name" tag="mm_name" hide="true" ignore_in_term_vector="true" comment="Stores the name of the meta-metadata, and is used on restoring from XML." scalar_type="String" />
+		<collection name="mixins" child_type="metadata" polymorphic_global="true"/>
+	</meta_metadata>
+	
+	<meta_metadata name="test_base" extends="metadata">
+		<scalar name="a_scalar" scalar_type="String" />
+		<composite name="a_composite" type="metadata">
+			<scalar name="meta_metadata_name" hide="false" />
+		</composite>
+		<collection name="a_collection" child_type="metadata">
+			<scalar name="meta_metadata_name" hide="false" />
+		</collection>
+		
+		<collection name="search_results" child_type="search_result" child_extends="metadata" child_tag="search_result">
+			<scalar name="title" scalar_type="String" />
+		</collection>
+	</meta_metadata>
+
+	<meta_metadata name="test_sub" extends="test_base">
+		<scalar name="another_scalar" scalar_type="ParsedURL" />
+		<composite name="a_composite">
+			<scalar name="meta_metadata_name" hide="true" />
+		</composite>
+		<collection name="a_collection">
+			<scalar name="meta_metadata_name" hide="true" />
+		</collection>
+		
+		<collection name="xxx_search_results" child_type="xxx_search_result" child_extends="search_result" child_tag="xxx_search_result">
+			<scalar name="author" scalar_type="String" />
+		</collection>
+	</meta_metadata>
+	
+</meta_metadata_repository>
