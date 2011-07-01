@@ -2,6 +2,7 @@ package ecologylab.translators.java.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DescriptorBase;
@@ -123,6 +124,7 @@ public class JavaTranslatorTest {
 	{
 		@simpl_scalar private String fieldB;
 		@simpl_scalar private int    fieldC;
+		@simpl_collection("item") private ArrayList<String> strs;
 	}
 
 	private static void testJavaCodeGenerationWithInheritance() throws IOException, SIMPLTranslationException, JavaTranslationException

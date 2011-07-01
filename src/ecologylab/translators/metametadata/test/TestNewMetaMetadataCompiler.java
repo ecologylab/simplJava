@@ -3,6 +3,7 @@ package ecologylab.translators.metametadata.test;
 import java.io.File;
 import java.io.IOException;
 
+import ecologylab.semantics.metadata.builtins.Document;
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.serialization.ClassDescriptor;
@@ -41,11 +42,23 @@ public class TestNewMetaMetadataCompiler
 		doTest("inline-mmd", new File("data/testRepository/testInlineMmd.xml"), new File("c:/tmp/testinlinemmd/"));
 	}
 
+	public static void testArticles() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		doTest("articles", new File("data/testRepository/testArticles.xml"), new File("c:/tmp/testarticles/"));
+	}
+	
+	public static void testCollectionOfScalars()
+	{
+		TranslationScope ts = TranslationScope.get("test-collection-of-scalars", Document.class);
+	}
+
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		testGeneratingBasicTScope();
-		testTypeGraphs();
-		testInlineMmd();
+//		testGeneratingBasicTScope();
+//		testTypeGraphs();
+//		testInlineMmd();
+		testArticles();
+//		testCollectionOfScalars();
 	}
 	
 }
