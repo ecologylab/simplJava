@@ -2066,31 +2066,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		//return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
 	
-	/**
-	 * A method to decide whether the field is inherited from its super class
-	 * 	
-	 * @param superC
-	 * @return
-	 */
-	public boolean isInherited(ClassDescriptor superC)
-	{
-		if(superC != null)
-		{
-			FieldDescriptor fieldDescriptor = superC.getFieldDescriptorByFieldName(fieldName);
-			
-			if(fieldDescriptor != null)
-			{
-				return true;
-			}else
-			{
-				return isInherited(superC.getSuperClass());
-			}
-		}else
-		{
-			return false;
-		}
-	}
-
 	String[] otherTags()
 	{
 		final ElementState.xml_other_tags otherTagsAnnotation = this.getField().getAnnotation(

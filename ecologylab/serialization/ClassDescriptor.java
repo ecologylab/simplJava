@@ -90,9 +90,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * arrays in Perl, JavaScript, PHP, ..., but with less overhead, because the hashtable is only
 	 * maintained per class, not per instance.
 	 */
+	
+	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
+
 	@simpl_nowrap
 	@simpl_map("field_descriptor")
-	private HashMapArrayList<String, FD>									fieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
+	private HashMapArrayList<String, FD>									declaredFieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
 
 	/**
 	 * This data structure is handy for translateFromXML(). There can be multiple tags (keys in this
@@ -150,7 +153,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		if(javaParser != null)
 		{
 			comment = javaParser.getJavaDocComment(thatClass);
-		}
+		}		
 	}
 	
 	protected ClassDescriptor(
@@ -538,7 +541,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			// TODO -- throughout this block -- instead of just put, do contains() before put,
 			// and generate a warning message if a mapping is being overridden
 			fieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
-
+			if(classWithFields == describedClass)
+			{
+				declaredFieldDescriptorsByFieldName.put(thatField.getName(), fieldDescriptor);
+			}
+			
 			if (fieldDescriptor.isMarshallOnly())
 				continue; // not translated from XML, so don't add those mappings
 
@@ -804,6 +811,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public HashMapArrayList<String, FD> getFieldDescriptorsByFieldName()
 	{
 		return fieldDescriptorsByFieldName;
+	}
+	
+	public HashMapArrayList<String, FD> getDeclaredFieldDescriptorsByFieldName()
+	{
+		return declaredFieldDescriptorsByFieldName;
 	}
 
 	public String getSuperClassName()
