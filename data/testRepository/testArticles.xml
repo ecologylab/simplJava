@@ -13,10 +13,8 @@
 	<meta_metadata name="article" extends="document">
 		<scalar name="title" style="metadata_h1" layer="10.0" navigates_to="location" schema_org_itemprop="name" comment="The Title of the Document" scalar_type="String"  hint="XML_LEAF"/>
 		<collection name="authors" child_type="author" child_extends="metadata">
-			<scalar name="location" hide="true" schema_org_itemprop="url"/>
 			<scalar name="name" scalar_type="String" navigates_to="location" is_facet="true" as_composite_scalar="true" schema_org_itemprop="name" />
 			<scalar name="affiliation" scalar_type="String" schema_org_itemprop="affiliation"/>
-			<scalar name="city" scalar_type="String" />
 		</collection>
 		<composite name="source" extends="document" comment="Metadata related to where an article is published.">
 			<scalar name="archive_name" scalar_type="String" as_composite_scalar="true" comment="Same as title, but used for composite scalar" />
@@ -29,10 +27,14 @@
 	</meta_metadata>
 
 	<meta_metadata name="paper" extends="article">
+		<collection name="authors" child_type="scholar" child_extends="author"><!-- here is polymorphism! -->
+			<scalar name="location" scalar_type="ParsedURL" hide="true" schema_org_itemprop="url"/>
+			<scalar name="city" scalar_type="String" />
+		</collection>
 		<scalar name="abstract_field" scalar_type="String" shadows="summary" tag="abstract" label="abstract" layer="9.0" hint="XML_LEAF" />
 		<collection name="references" comment="Papers cited by this paper." child_tag="reference" child_type="paper" />
 		<collection name="citations" comment="Papers that cite this paper." child_tag="citation" child_type="paper" />
-		<collection name="classifications" comment="The Classifications of this paper." child_type="tag">
+		<collection name="classifications" comment="The Classifications of this paper." child_type="tag" child_extends="metadata">
 			<scalar name="tag_name" scalar_type="String" navigates_to="link" />
 			<scalar name="link" hide="true" scalar_type="ParsedURL" />
 		</collection>
