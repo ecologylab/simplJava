@@ -708,7 +708,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	protected void addFieldDescriptor(FD fieldDescriptor)
 	{
-		fieldDescriptorsByFieldName.put(fieldDescriptor.getFieldName(), fieldDescriptor);
+		declaredFieldDescriptorsByFieldName.put(fieldDescriptor.getFieldName(), fieldDescriptor);
 	}
 
 	public String toString()
