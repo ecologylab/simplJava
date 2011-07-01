@@ -7,6 +7,9 @@
 	
 	<meta_metadata name="article" extends="metadata">
 		<scalar name="title" scalar_type="String" />
+		<collection name="authors" child_type="author" child_extends="metadata">
+			
+		</collection>
 	</meta_metadata>
 
 	<meta_metadata name="paper" extends="article">

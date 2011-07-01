@@ -12,6 +12,9 @@
 		</composite>
 		<collection name="coll" child_type="item" child_extends="test_base" child_tag="item">
 			<scalar name="link" scalar_type="ParsedURL" />
+			<composite name="item_comp" extends="item" tag="ic">
+				<scalar name="link2" scalar_type="ParsedURL" />
+			</composite>
 		</collection>
 	</meta_metadata>
 	
@@ -19,8 +22,11 @@
 		<composite name="comp2" extends="comp">
 			<scalar name="snippet" scalar_type="String" />
 		</composite>
-		<collection name="coll2" child_type="item2" child_extends="item" cihld_tag="thing">
+		<collection name="coll2" child_extends="item" child_tag="thing"> <!-- child_type="coll2" -->
 			<scalar name="id" scalar_type="Int" />
+			<composite name="item_comp2" extends="item_comp" tag="ic2">
+				<scalar name="str" scalar_type="String" />
+			</composite>
 		</collection>
 	</meta_metadata>
 	

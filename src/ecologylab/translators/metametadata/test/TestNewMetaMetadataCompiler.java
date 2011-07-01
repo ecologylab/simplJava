@@ -43,9 +43,9 @@ public class TestNewMetaMetadataCompiler
 
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		testGeneratingBasicTScope();
-		testTypeGraphs();
-//		testInlineMmd();
+//		testGeneratingBasicTScope();
+//		testTypeGraphs();
+		testInlineMmd();
 	}
 	
 }
