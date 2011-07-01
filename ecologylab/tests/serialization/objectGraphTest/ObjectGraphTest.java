@@ -68,18 +68,18 @@ public class ObjectGraphTest {
 	public void testEqualsEquals() {
 		TranslationScope.graphSwitch = GRAPH_SWITCH.ON;
 		ListEqEq list = new ListEqEq();
-		list.points.add(new Point(4, 5));
-		list.points.add(new Point(5, 4)); // same hash
-		list.points.add(new Point(1, 2)); // totally different
-		list.points.add(new Point(4, 5)); // same hash and .equals
+		list.points.add(new PointEqEq(4, 5));
+		list.points.add(new PointEqEq(5, 4)); // same hash
+		list.points.add(new PointEqEq(1, 2)); // totally different
+		list.points.add(new PointEqEq(4, 5)); // same hash and .equals
 		list.points.add(list.points.get(0)); // same reference
 		
 		try {
 			StringBuilder sb = list.serialize();
 			ListEqEq deserialized = (ListEqEq) TranslationScope.get("testEqualsEquals", 
-					ListEqEq.class, Point.class).deserializeCharSequence(sb.toString());
-			Point first = deserialized.points.get(0);
-			Point last = deserialized.points.get(deserialized.points.size()-1);
+					ListEqEq.class, PointEqEq.class).deserializeCharSequence(sb.toString());
+			PointEqEq first = deserialized.points.get(0);
+			PointEqEq last = deserialized.points.get(deserialized.points.size()-1);
 			if (first != last)
 			{
 				fail("first--last reference was not maintained.");
@@ -101,19 +101,19 @@ public class ObjectGraphTest {
 	public void testDotEquals() {
 		TranslationScope.graphSwitch = GRAPH_SWITCH.ON;
 		ListDotEquals list = new ListDotEquals();
-		list.points.add(new Point(4, 5));
-		list.points.add(new Point(5, 4)); // same hash
-		list.points.add(new Point(1, 2)); // totally different
-		list.points.add(new Point(4, 5)); // same hash and .equals
+		list.points.add(new PointDotEquals(4, 5));
+		list.points.add(new PointDotEquals(5, 4)); // same hash
+		list.points.add(new PointDotEquals(1, 2)); // totally different
+		list.points.add(new PointDotEquals(4, 5)); // same hash and .equals
 		list.points.add(list.points.get(0)); // same reference
 		
 		try {
 			StringBuilder sb = list.serialize();
 			ListDotEquals deserialized = (ListDotEquals) TranslationScope.get("ListDotEquals", 
-					ListDotEquals.class, Point.class).deserializeCharSequence(sb.toString());
-			Point first = deserialized.points.get(0);
-			Point secondToLast = deserialized.points.get(deserialized.points.size()-2);
-			Point last = deserialized.points.get(deserialized.points.size()-1);
+					ListDotEquals.class, PointDotEquals.class).deserializeCharSequence(sb.toString());
+			PointDotEquals first = deserialized.points.get(0);
+			PointDotEquals secondToLast = deserialized.points.get(deserialized.points.size()-2);
+			PointDotEquals last = deserialized.points.get(deserialized.points.size()-1);
 			if (first != last) {
 				fail("first--last reference was not maintained.");
 			}

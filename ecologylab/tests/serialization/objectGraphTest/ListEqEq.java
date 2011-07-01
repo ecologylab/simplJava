@@ -6,8 +6,7 @@ import ecologylab.serialization.ElementState;
 
 public class ListEqEq extends ElementState {
 	@simpl_collection("points")
-	//@simpl_use_equals_equals
-	public ArrayList<Point> points = new ArrayList<Point>();
+	public ArrayList<PointEqEq> points = new ArrayList<PointEqEq>();
 	
 	public ListEqEq() {}
 }
