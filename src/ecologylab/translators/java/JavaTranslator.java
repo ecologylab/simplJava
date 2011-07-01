@@ -81,7 +81,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		ClassDescriptor classDescriptor = inputClass;
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
-				.getFieldDescriptorsByFieldName();
+				.getDeclaredFieldDescriptorsByFieldName();
 
 		StringBuilder classFile = new StringBuilder();
 		StringBuilder header = new StringBuilder();
@@ -97,13 +97,8 @@ public class JavaTranslator implements JavaTranslationConstants
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-				{
-					if(classDescriptor.getSuperClass() != null){
-						if(!fieldDescriptor.isInherited(classDescriptor.getSuperClass()))
-						{
-							appendFieldAsJavaAttribute(fieldDescriptor, classFile);
-						}
-					}
+				{					
+					appendFieldAsJavaAttribute(fieldDescriptor, classFile);						
 				}
 			}
 
@@ -112,12 +107,9 @@ public class JavaTranslator implements JavaTranslationConstants
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
-				{
-					if(!fieldDescriptor.isInherited(classDescriptor.getSuperClass()))
-					{
-						appendGetters(fieldDescriptor, classFile);
-						appendSetters(fieldDescriptor, classFile);
-					}
+				{					
+					appendGetters(fieldDescriptor, classFile);
+					appendSetters(fieldDescriptor, classFile);					
 				}
 			}
 
