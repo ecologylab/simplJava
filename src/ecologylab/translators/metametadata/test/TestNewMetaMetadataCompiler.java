@@ -14,10 +14,10 @@ import ecologylab.translators.java.JavaTranslator;
 public class TestNewMetaMetadataCompiler
 {
 	
-	private static void doTest(File testingRepository, File outputDir) throws IOException, SIMPLTranslationException, JavaTranslationException
+	private static void doTest(String TSName, File testingRepository, File outputDir) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(testingRepository);
-		TranslationScope tscope = repository.traverseAndGenerateTranslationScope();
+		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(TSName);
 		TranslationScope.setGraphSwitch();
 		JavaTranslator jt = new JavaTranslator();
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
@@ -28,23 +28,23 @@ public class TestNewMetaMetadataCompiler
 	
 	public static void testGeneratingBasicTScope() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest(new File("data/testRepository/testGeneratingBasicTScope.xml"), new File("c:/tmp/testbasictscope/"));
+		doTest("basic-tscope", new File("data/testRepository/testGeneratingBasicTScope.xml"), new File("c:/tmp/testbasictscope/"));
 	}
 	
 	public static void testTypeGraphs() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest(new File("data/testRepository/testTypeGraphs.xml"), new File("c:/tmp/testtypegraphs/"));
+		doTest("type-graphs", new File("data/testRepository/testTypeGraphs.xml"), new File("c:/tmp/testtypegraphs/"));
 	}
 
 	public static void testInlineMmd() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest(new File("data/testRepository/testInlineMmd.xml"), new File("c:/tmp/testinlinemmd/"));
+		doTest("inline-mmd", new File("data/testRepository/testInlineMmd.xml"), new File("c:/tmp/testinlinemmd/"));
 	}
 
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-//		testGeneratingBasicTScope();
-//		testTypeGraphs();
+		testGeneratingBasicTScope();
+		testTypeGraphs();
 		testInlineMmd();
 	}
 	
