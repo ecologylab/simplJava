@@ -28,4 +28,10 @@
 		</collection>
 	</meta_metadata>
 	
+	<meta_metadata name="test_sub_sub" extends="test_sub">
+		<collection name="coll_2" xpath=".">
+			<scalar name="meta_metadata_name" xpath="." />
+		</collection>
+	</meta_metadata>
+	
 </meta_metadata_repository>
