@@ -325,10 +325,14 @@ public class Debug
    
    public final void debugT(CharSequence message)
    {
+  	 debugT(this, message);
+   }
+   public static final void debugT(Object that, CharSequence message)
+   {
   	 //FIXME: This may be slow. Use sparingly
   	 String tStamp = "{t=" + (System.currentTimeMillis() - initTimestamp) + "}";
   	 print(tStamp);
-  	 print(this.toString());
+  	 print(that.toString());
   	 println(message);
   	 
    }
