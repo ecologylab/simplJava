@@ -21,7 +21,7 @@ public class NewMetaMetadataCompiler extends Debug
 
 	public static final String	DEFAULT_REPOSITORY_DIRECTORY					= ".." + Files.sep + "ecologylabSemantics" + Files.sep + "repository";
 
-	public static final String	DEFAULT_GENERATED_SEMANTICS_LOCATION	= ".." + Files.sep + "ecologylabGeneratedSemantics";
+	public static final String	DEFAULT_GENERATED_SEMANTICS_LOCATION	= ".." + Files.sep + "ecologylabGeneratedSemanticsNew";
 	
 	public static final String	META_METADATA_COMPILER_TSCOPE_NAME		= "meta-metadata-compiler-tscope";
 
