@@ -35,7 +35,7 @@ public class ConcurrentHashSet<E extends Object> extends AbstractSet<E>
 	/**
 	 * Add element to set if it wasn't there already.
 	 * 
-	 * @param	element	Element to test for membership and add if it was abset.
+	 * @param	element	Element to test for membership and add if it was absent.
 	 * 
 	 * @return	true if the set changed, that is, if the element was new.
 	 */
