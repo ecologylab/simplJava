@@ -21,16 +21,16 @@
 			<scalar name="location" hide="true" />
 			<scalar name="year_of_publication" scalar_type="Int" is_facet="true" />
 			<scalar name="isbn" scalar_type="String" />
-			<scalar name="pages" scalar_type="String" />
 		</composite>
 		<scalar name="pages" layer="-1.0" navigates_to="table_of_contents" scalar_type="String" />
 	</meta_metadata>
 
 	<meta_metadata name="paper" extends="article">
-		<collection name="authors" child_type="scholar" child_extends="author"><!-- here is polymorphism! -->
-			<scalar name="location" scalar_type="ParsedURL" hide="true" schema_org_itemprop="url"/>
-			<scalar name="city" scalar_type="String" />
-		</collection>
+		<!-- authors: polymorphism is to be implemented -->
+<!--		<collection name="authors" child_type="scholar" child_extends="author">-->
+<!--			<scalar name="location" scalar_type="ParsedURL" hide="true" schema_org_itemprop="url"/>-->
+<!--			<scalar name="city" scalar_type="String" />-->
+<!--		</collection>-->
 		<scalar name="abstract_field" scalar_type="String" shadows="summary" tag="abstract" label="abstract" layer="9.0" hint="XML_LEAF" />
 		<collection name="references" comment="Papers cited by this paper." child_tag="reference" child_type="paper" />
 		<collection name="citations" comment="Papers that cite this paper." child_tag="citation" child_type="paper" />
@@ -38,7 +38,15 @@
 			<scalar name="tag_name" scalar_type="String" navigates_to="link" />
 			<scalar name="link" hide="true" scalar_type="ParsedURL" />
 		</collection>
-		<collection name="keywords" comment="Key Terms of the paper." child_type="tag"/>
+		<collection name="keywords" comment="Key Terms of the paper." child_type="tag"/><!-- can refer to the generated mmd 'tag' from the same local scope. -->
+	</meta_metadata>
+	
+	<meta_metadata name="acm_paper" type="paper">
+		<scalar name="title" xpath="/source" />
+		<collection name="authors" xpath="/author">
+			<scalar name="name" xpath="./name" />
+		</collection>
+		<!-- attach xpaths for other fields -->
 	</meta_metadata>
 
 </meta_metadata_repository>

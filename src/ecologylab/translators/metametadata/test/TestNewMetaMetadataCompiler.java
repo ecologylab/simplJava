@@ -3,8 +3,15 @@ package ecologylab.translators.metametadata.test;
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
+import ecologylab.semantics.metametadata.MetaMetadata;
+import ecologylab.semantics.metametadata.MetaMetadataCollectionField;
+import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
+import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
@@ -51,12 +58,213 @@ public class TestNewMetaMetadataCompiler
 		doTest("scalar-collections", new File("data/testRepository/testScalarCollections.xml"), new File("c:/tmp/testscalarcollections/"));
 	}
 	
+	/**
+	 * use testArticles.xml as the input repository to validate inheritance relationships (any field:
+	 * declaredMmd, inheritedField, nested field + mmds: inheritedMmd, mmds: inlineMmds).
+	 */
+	@Test
+	public void testArticlesInheritanceRelationships()
+	{
+		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(new File("data/testRepository/testArticles.xml"));
+		TranslationScope tscope  = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
+		
+		
+		
+		MetaMetadata metadata = repository.getByTagName("metadata");
+		Assert.assertNull(metadata.getInheritedMmd());
+		Assert.assertNull(metadata.getInlineMmds());
+		// meta_metadata_name
+		MetaMetadataScalarField metadata__meta_metadata_name = (MetaMetadataScalarField) metadata.getChildMetaMetadata().get("meta_metadata_name");
+		Assert.assertNull(metadata__meta_metadata_name.getInheritedField());
+		Assert.assertSame(metadata, metadata__meta_metadata_name.getDeclaringMmd());
+		// mixins
+		MetaMetadataCollectionField metadata__mixins = (MetaMetadataCollectionField) metadata.getChildMetaMetadata().get("mixins");
+		Assert.assertNull(metadata__mixins.getInheritedField());
+		Assert.assertSame(metadata, metadata__mixins.getDeclaringMmd());
+		Assert.assertSame(metadata, metadata__mixins.getInheritedMmd());
+		
+		
+		
+		MetaMetadata document = repository.getByTagName("document");
+		Assert.assertSame(metadata, document.getInheritedMmd());
+		Assert.assertNull(document.getInlineMmds());
+		Assert.assertSame(metadata__meta_metadata_name, document.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, document.getChildMetaMetadata().get("mixins"));
+		// location
+		MetaMetadataScalarField document__location = (MetaMetadataScalarField) document.getChildMetaMetadata().get("location");
+		Assert.assertNull(document__location.getInheritedField());
+		Assert.assertSame(document, document__location.getDeclaringMmd());
+		// additional_locations
+		MetaMetadataCollectionField document__additional_locations = (MetaMetadataCollectionField) document.getChildMetaMetadata().get("additional_locations");
+		Assert.assertNull(document__additional_locations.getInheritedField());
+		Assert.assertSame(document, document__additional_locations.getDeclaringMmd());
+		Assert.assertNull(document__additional_locations.getInheritedMmd());
+		
+		
+		
+		MetaMetadata author = repository.getByTagName("mmd_inline_author_in_authors_in_article");
+		Assert.assertSame(metadata, author.getInheritedMmd());
+		Assert.assertNull(author.getInlineMmds());
+		Assert.assertSame(metadata__meta_metadata_name, author.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, author.getChildMetaMetadata().get("mixins"));
+		// name
+		MetaMetadataScalarField author__name = (MetaMetadataScalarField) author.getChildMetaMetadata().get("name");
+		Assert.assertNull(author__name.getInheritedField());
+		Assert.assertSame(author, author__name.getDeclaringMmd());
+		// affiliation
+		MetaMetadataScalarField author__affiliation = (MetaMetadataScalarField) author.getChildMetaMetadata().get("affiliation");
+		Assert.assertNull(author__affiliation.getInheritedField());
+		Assert.assertSame(author, author__affiliation.getDeclaringMmd());
+		
+		
+		
+		MetaMetadata source = repository.getByTagName("mmd_inline_source_in_article");
+		Assert.assertSame(document, source.getInheritedMmd());
+		Assert.assertNull(source.getInlineMmds());
+		Assert.assertSame(metadata__meta_metadata_name, source.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, source.getChildMetaMetadata().get("mixins"));
+		Assert.assertSame(document__additional_locations, source.getChildMetaMetadata().get("additional_locations"));
+		// archive_name
+		MetaMetadataScalarField source__archive_name = (MetaMetadataScalarField) source.getChildMetaMetadata().get("archive_name");
+		Assert.assertNull(source__archive_name.getInheritedField());
+		Assert.assertSame(source, source__archive_name.getDeclaringMmd());
+		// location
+		MetaMetadataScalarField source__location = (MetaMetadataScalarField) source.getChildMetaMetadata().get("location");
+		Assert.assertSame(document__location, source__location.getInheritedField());
+		Assert.assertTrue(!document__location.isHide());
+		Assert.assertTrue(source__location.isHide());
+		// year_of_publication
+		MetaMetadataScalarField source__year_of_publication = (MetaMetadataScalarField) source.getChildMetaMetadata().get("year_of_publication");
+		Assert.assertNull(source__year_of_publication.getInheritedField());
+		Assert.assertSame(source, source__year_of_publication.getDeclaringMmd());
+		// isbn
+		MetaMetadataScalarField source__isbn = (MetaMetadataScalarField) source.getChildMetaMetadata().get("isbn");
+		Assert.assertNull(source__isbn.getInheritedField());
+		Assert.assertSame(source, source__isbn.getDeclaringMmd());
+		
+		
+		
+		MetaMetadata article = repository.getByTagName("article");
+		Assert.assertSame(document, article.getInheritedMmd());
+		Assert.assertTrue(article.getInlineMmds().size() == 2);
+		Assert.assertSame(author, article.getInlineMmd("author"));
+		Assert.assertSame(source, article.getInlineMmd("source"));
+		Assert.assertSame(metadata__meta_metadata_name, article.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, article.getChildMetaMetadata().get("mixins"));
+		Assert.assertSame(document__location, article.getChildMetaMetadata().get("location"));
+		Assert.assertSame(document__additional_locations, article.getChildMetaMetadata().get("additional_locations"));
+		// title
+		MetaMetadataScalarField article__title = (MetaMetadataScalarField) article.getChildMetaMetadata().get("title");
+		Assert.assertNull(article__title.getInheritedField());
+		Assert.assertSame(article, article__title.getDeclaringMmd());
+		// authors
+		MetaMetadataCollectionField article__authors = (MetaMetadataCollectionField) article.getChildMetaMetadata().get("authors");
+		Assert.assertNull(article__authors.getInheritedField());
+		Assert.assertSame(article, article__authors.getDeclaringMmd());
+		Assert.assertSame(author, article__authors.getInheritedMmd());
+		// source
+		MetaMetadataCompositeField article__source = (MetaMetadataCompositeField) article.getChildMetaMetadata().get("source");
+		Assert.assertNull(article__source.getInheritedField());
+		Assert.assertSame(article, article__source.getDeclaringMmd());
+		Assert.assertSame(source, article__source.getInheritedMmd());
+		// pages
+		MetaMetadataScalarField article__pages = (MetaMetadataScalarField) article.getChildMetaMetadata().get("pages");
+		Assert.assertNull(article__pages.getInheritedField());
+		Assert.assertSame(article, article__pages.getDeclaringMmd());
+		
+		
+		
+		MetaMetadata tag = repository.getByTagName("mmd_inline_tag_in_classifications_in_paper");
+		Assert.assertSame(metadata, tag.getInheritedMmd());
+		Assert.assertNull(tag.getInlineMmds());
+		Assert.assertSame(metadata__meta_metadata_name, tag.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, tag.getChildMetaMetadata().get("mixins"));
+		// tag_name
+		MetaMetadataScalarField tag__tag_name = (MetaMetadataScalarField) tag.getChildMetaMetadata().get("tag_name");
+		Assert.assertNull(tag__tag_name.getInheritedField());
+		Assert.assertSame(tag, tag__tag_name.getDeclaringMmd());
+		// link
+		MetaMetadataScalarField tag__link = (MetaMetadataScalarField) tag.getChildMetaMetadata().get("link");
+		Assert.assertNull(tag__link.getInheritedField());
+		Assert.assertSame(tag, tag__link.getDeclaringMmd());
+		
+		
+		
+		MetaMetadata paper = repository.getByTagName("paper");
+		Assert.assertSame(article, paper.getInheritedMmd());
+		Assert.assertTrue(paper.getInlineMmds().size() == 1);
+		Assert.assertSame(tag, paper.getInlineMmd("tag"));
+		Assert.assertSame(metadata__meta_metadata_name, paper.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, paper.getChildMetaMetadata().get("mixins"));
+		Assert.assertSame(document__location, paper.getChildMetaMetadata().get("location"));
+		Assert.assertSame(document__additional_locations, paper.getChildMetaMetadata().get("additional_locations"));
+		Assert.assertSame(article__title, paper.getChildMetaMetadata().get("title"));
+		Assert.assertSame(article__authors, paper.getChildMetaMetadata().get("authors"));
+		Assert.assertSame(article__source, paper.getChildMetaMetadata().get("source"));
+		Assert.assertSame(article__pages, paper.getChildMetaMetadata().get("pages"));
+		// authors: omitted because polymorphism is not yet implemented
+		// abstract_field
+		MetaMetadataScalarField paper__abstract_field = (MetaMetadataScalarField) paper.getChildMetaMetadata().get("abstract_field");
+		Assert.assertNull(paper__abstract_field.getInheritedField());
+		Assert.assertSame(paper, paper__abstract_field.getDeclaringMmd());
+		// references
+		MetaMetadataCollectionField paper__references = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("references");
+		Assert.assertNull(paper__references.getInheritedField());
+		Assert.assertSame(paper, paper__references.getDeclaringMmd());
+		Assert.assertSame(paper, paper__references.getInheritedMmd());
+		// citations
+		MetaMetadataCollectionField paper__citations = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("citations");
+		Assert.assertNull(paper__citations.getInheritedField());
+		Assert.assertSame(paper, paper__citations.getDeclaringMmd());
+		Assert.assertSame(paper, paper__citations.getInheritedMmd());
+		// classifications
+		MetaMetadataCollectionField paper__classifications = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("classifications");
+		Assert.assertNull(paper__classifications.getInheritedField());
+		Assert.assertSame(paper, paper__classifications.getDeclaringMmd());
+		Assert.assertSame(tag, paper__classifications.getInheritedMmd());
+		// keywords
+		MetaMetadataCollectionField paper__keywords = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("keywords");
+		Assert.assertNull(paper__keywords.getInheritedField());
+		Assert.assertSame(paper, paper__keywords.getDeclaringMmd());
+		Assert.assertSame(tag, paper__keywords.getInheritedMmd());
+		
+		
+		
+		MetaMetadata acm_paper = repository.getByTagName("acm_paper");
+		Assert.assertSame(paper, acm_paper.getInheritedMmd());
+		Assert.assertTrue(acm_paper.getInlineMmds().isEmpty()); // acm_paper should inherit inline mmds from paper, so it is not null
+		Assert.assertSame(metadata__meta_metadata_name, acm_paper.getChildMetaMetadata().get("meta_metadata_name"));
+		Assert.assertSame(metadata__mixins, acm_paper.getChildMetaMetadata().get("mixins"));
+		Assert.assertSame(document__location, acm_paper.getChildMetaMetadata().get("location"));
+		Assert.assertSame(document__additional_locations, acm_paper.getChildMetaMetadata().get("additional_locations"));
+		Assert.assertSame(article__source, acm_paper.getChildMetaMetadata().get("source"));
+		Assert.assertSame(article__pages, acm_paper.getChildMetaMetadata().get("pages"));
+		Assert.assertSame(paper__abstract_field, acm_paper.getChildMetaMetadata().get("abstract_field"));
+		Assert.assertSame(paper__references, acm_paper.getChildMetaMetadata().get("references"));
+		Assert.assertSame(paper__citations, acm_paper.getChildMetaMetadata().get("citations"));
+		Assert.assertSame(paper__classifications, acm_paper.getChildMetaMetadata().get("classifications"));
+		Assert.assertSame(paper__keywords, acm_paper.getChildMetaMetadata().get("keywords"));
+		// title
+		MetaMetadataScalarField acm_paper__title = (MetaMetadataScalarField) acm_paper.getChildMetaMetadata().get("title");
+		Assert.assertSame(article__title, acm_paper__title.getInheritedField());
+		Assert.assertSame(article, acm_paper__title.getDeclaringMmd());
+		// authors
+		MetaMetadataCollectionField acm_paper__authors = (MetaMetadataCollectionField) acm_paper.getChildMetaMetadata().get("authors");
+		Assert.assertSame(article__authors, acm_paper__authors.getInheritedField());
+		Assert.assertSame(article, acm_paper__authors.getDeclaringMmd());
+		Assert.assertSame(author, acm_paper__authors.getInheritedMmd());
+		// authors.name
+		MetaMetadataScalarField acm_paper__authors__name = (MetaMetadataScalarField) acm_paper__authors.getChildMetaMetadata().get("name");
+		Assert.assertSame(author__name, acm_paper__authors__name.getInheritedField());
+		Assert.assertSame(author, acm_paper__authors__name.getDeclaringMmd());
+	}
+	
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-//		testGeneratingBasicTScope();
-//		testTypeGraphs();
-//		testInlineMmd();
-//		testArticles();
+		testGeneratingBasicTScope();
+		testTypeGraphs();
+		testInlineMmd();
+		testArticles();
 		testScalarCollections();
 	}
 	
