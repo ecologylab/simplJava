@@ -749,7 +749,13 @@ public final class TranslationScope extends ElementState
 	{
 		return (TranslationScope) allTranslationScopes.get(name);
 	}
-
+	/**
+	 * Unlike other get() methods in this class, this one is not a factory, but a simple accessor.
+	 * It performs a lookup, but does not construct.
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static TranslationScope get(String name)
 	{
 		return lookup(name);
@@ -1602,6 +1608,38 @@ public final class TranslationScope extends ElementState
 			}
 		}
 		return classes;
+	}
+	
+	/**
+	 * Make a new TranslationScope from a subset of this, making sure that the class of all entries in the subset is 
+	 * either superClassCriterion or a subclass thereof.
+	 * 
+	 * @param newName							Name for new TranslationScope.
+	 * @param superClassCriterion	Super class discriminant for all classes in the subset.
+	 * 
+	 * @return										New or existing TranslationScope with subset of classes in this, based on assignableCriterion.
+	 */
+	public TranslationScope getAssignableSubset(String newName, Class<? extends ElementState> superClassCriterion)
+	{
+		TranslationScope result = lookup(newName);
+		if (result == null)
+		{
+			synchronized (newName)
+			{
+				result = lookup(newName);
+				if (result == null)
+				{
+					result = new TranslationScope(newName);
+					for (ClassDescriptor classDescriptor: entriesByClassName.values())
+					{
+						Class<? extends ElementState> thatClass	= classDescriptor.getDescribedClass();
+						if (superClassCriterion.isAssignableFrom(thatClass))
+							result.addTranslation(classDescriptor);
+					}
+				}
+			}
+		}
+		return result;
 	}
 	
 	/**
