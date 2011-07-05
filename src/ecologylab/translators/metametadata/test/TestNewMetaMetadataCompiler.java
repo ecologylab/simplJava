@@ -16,7 +16,7 @@ import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.java.JavaTranslationException;
-import ecologylab.translators.java.JavaTranslator;
+import ecologylab.translators.metametadata.MetaMetadataJavaTranslator;
 
 public class TestNewMetaMetadataCompiler
 {
@@ -26,7 +26,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(testingRepository);
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(TSName);
 		TranslationScope.setGraphSwitch();
-		JavaTranslator jt = new JavaTranslator();
+		MetaMetadataJavaTranslator jt = new MetaMetadataJavaTranslator();
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
 			jt.excludeClassFromTranslation(cd);
@@ -72,7 +72,7 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata metadata = repository.getByTagName("metadata");
 		Assert.assertNull(metadata.getInheritedMmd());
-		Assert.assertNull(metadata.getInlineMmds());
+		Assert.assertTrue(metadata.getInlineMmds() == null || metadata.getInlineMmds().isEmpty());
 		// meta_metadata_name
 		MetaMetadataScalarField metadata__meta_metadata_name = (MetaMetadataScalarField) metadata.getChildMetaMetadata().get("meta_metadata_name");
 		Assert.assertNull(metadata__meta_metadata_name.getInheritedField());
@@ -87,7 +87,7 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata document = repository.getByTagName("document");
 		Assert.assertSame(metadata, document.getInheritedMmd());
-		Assert.assertNull(document.getInlineMmds());
+		Assert.assertTrue(document.getInlineMmds() == null || document.getInlineMmds().isEmpty());
 		Assert.assertSame(metadata__meta_metadata_name, document.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertSame(metadata__mixins, document.getChildMetaMetadata().get("mixins"));
 		// location
@@ -104,7 +104,8 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata author = repository.getByTagName("mmd_inline_author_in_authors_in_article");
 		Assert.assertSame(metadata, author.getInheritedMmd());
-		Assert.assertNull(author.getInlineMmds());
+		Assert.assertTrue(author.getInlineMmds().size() == 1);
+		Assert.assertSame(author, author.getInlineMmd("author"));
 		Assert.assertSame(metadata__meta_metadata_name, author.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertSame(metadata__mixins, author.getChildMetaMetadata().get("mixins"));
 		// name
@@ -120,7 +121,8 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata source = repository.getByTagName("mmd_inline_source_in_article");
 		Assert.assertSame(document, source.getInheritedMmd());
-		Assert.assertNull(source.getInlineMmds());
+		Assert.assertTrue(source.getInlineMmds().size() == 1);
+		Assert.assertSame(source, source.getInlineMmd("source"));
 		Assert.assertSame(metadata__meta_metadata_name, source.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertSame(metadata__mixins, source.getChildMetaMetadata().get("mixins"));
 		Assert.assertSame(document__additional_locations, source.getChildMetaMetadata().get("additional_locations"));
@@ -176,7 +178,8 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata tag = repository.getByTagName("mmd_inline_tag_in_classifications_in_paper");
 		Assert.assertSame(metadata, tag.getInheritedMmd());
-		Assert.assertNull(tag.getInlineMmds());
+		Assert.assertTrue(tag.getInlineMmds().size() == 1);
+		Assert.assertSame(tag, tag.getInlineMmd("tag"));
 		Assert.assertSame(metadata__meta_metadata_name, tag.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertSame(metadata__mixins, tag.getChildMetaMetadata().get("mixins"));
 		// tag_name
@@ -232,7 +235,7 @@ public class TestNewMetaMetadataCompiler
 		
 		MetaMetadata acm_paper = repository.getByTagName("acm_paper");
 		Assert.assertSame(paper, acm_paper.getInheritedMmd());
-		Assert.assertTrue(acm_paper.getInlineMmds().isEmpty()); // acm_paper should inherit inline mmds from paper, so it is not null
+		Assert.assertTrue(acm_paper.getInlineMmds() == null || acm_paper.getInlineMmds().isEmpty());
 		Assert.assertSame(metadata__meta_metadata_name, acm_paper.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertSame(metadata__mixins, acm_paper.getChildMetaMetadata().get("mixins"));
 		Assert.assertSame(document__location, acm_paper.getChildMetaMetadata().get("location"));
