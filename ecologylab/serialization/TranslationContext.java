@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import org.xml.sax.Attributes;
 
+import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
@@ -22,11 +23,11 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	private static final String							SIMPL_REF								= "simpl:ref";
 
-	private HashMap<Integer, ElementState>	marshalledObjects				= new HashMap<Integer, ElementState>();
+	private MultiMap<Integer, ElementState>	marshalledObjects				= new MultiMap<Integer, ElementState>();
 
-	private HashMap<Integer, ElementState>	visitedElements					= new HashMap<Integer, ElementState>();
+	private MultiMap<Integer, ElementState>	visitedElements					= new MultiMap<Integer, ElementState>();
 
-	private HashMap<Integer, ElementState>	needsAttributeHashCode	= new HashMap<Integer, ElementState>();
+	private MultiMap<Integer, ElementState>	needsAttributeHashCode	= new MultiMap<Integer, ElementState>();
 
 	private HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
 
@@ -172,7 +173,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean alreadyVisited(ElementState elementState)
 	{
-		return this.visitedElements.containsKey(System.identityHashCode(elementState));
+		return this.visitedElements.contains(System.identityHashCode(elementState), elementState);		
 	}
 
 	public void mapElementState(ElementState elementState)
@@ -194,8 +195,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean alreadyMarshalled(ElementState compositeElementState)
 	{
-		return this.marshalledObjects.containsKey(System
-				.identityHashCode(compositeElementState));
+		return this.marshalledObjects.contains(System.identityHashCode(compositeElementState), compositeElementState);		
 	}
 	
 	public void appendSimplNameSpace(Appendable appendable) throws IOException
@@ -230,7 +230,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean needsHashCode(ElementState elementState)
 	{
-		return this.needsAttributeHashCode.containsKey(System.identityHashCode(elementState));
+		return this.needsAttributeHashCode.contains(System.identityHashCode(elementState), elementState);		
 	}
 
 	public boolean isGraph()

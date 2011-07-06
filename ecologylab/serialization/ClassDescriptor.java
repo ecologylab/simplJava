@@ -153,7 +153,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		if(javaParser != null)
 		{
 			comment = javaParser.getJavaDocComment(thatClass);
-		}		
+		}
+		if(thatClass.isAnnotationPresent(simpl_equals.class))
+		{
+			super.setStrictObjectGraphRequired();
+		}
 	}
 	
 	protected ClassDescriptor(
