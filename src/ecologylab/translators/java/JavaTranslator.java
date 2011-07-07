@@ -6,12 +6,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -21,6 +23,7 @@ import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
+import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.simpl_composite;
 import ecologylab.serialization.ElementState.simpl_nowrap;
@@ -574,10 +577,13 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		// @xml_tag
 		String tagName = fieldDescriptor.getTagName();
-		if(tagName != null && !tagName.equals(""))
+		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getFieldName(), null);
+		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName), TAB);			
 		}		
+		
+		// TODO @xml_other_tags
 		
 		Hint hint = fieldDescriptor.getXmlHint();
 		if(hint != null)
@@ -585,7 +591,16 @@ public class JavaTranslator implements JavaTranslationConstants
 			// @simpl_hints
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
 		}
-		//TODO @simpl_classes, @simpl_scope,			
+		
+		// @simpl_classes
+		HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fieldDescriptor.getTagClassDescriptors();
+		if (polyClassDescriptors != null && polyClassDescriptors.size() > 0)
+		{
+			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors.values());
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors), TAB);
+		}
+		
+		// TODO @simpl_scope
 		
 		appendFieldAnnotationsHook(appendable, fieldDescriptor);
 	}
@@ -621,11 +636,18 @@ public class JavaTranslator implements JavaTranslationConstants
 		}
 		
 		String tagName = classDesc.getTagName();
-		
-		if(tagName != null && !tagName.equals(""))
+		String autoTagName = XMLTools.getXmlTagName(classDesc.getDescribedClassSimpleName(), null);
+		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");			
 		}		
+		
+		// TODO @xml_other_tags
+		ArrayList<String> otherTags = classDesc.otherTags();
+		if (otherTags != null && otherTags.size() > 0)
+		{
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
+		}
 		
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
 	}

@@ -23,6 +23,8 @@ public class TestNewMetaMetadataCompiler
 	
 	private static void doTest(String TSName, File testingRepository, File outputDir) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
+		System.err.println("\n\n\n\nTest: " + TSName + "\n\n\n\n\n");
+		
 		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(testingRepository);
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(TSName);
 		TranslationScope.setGraphSwitch();
@@ -56,6 +58,11 @@ public class TestNewMetaMetadataCompiler
 	public static void testScalarCollections() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("scalar-collections", new File("data/testRepository/testScalarCollections.xml"), new File("c:/tmp/testscalarcollections/"));
+	}
+	
+	public static void testPolymorphicFields() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		doTest("poly-fields", new File("data/testRepository/testPolymorphicFields.xml"), new File("c:/tmp/testpolyfields/"));
 	}
 	
 	/**
@@ -269,6 +276,7 @@ public class TestNewMetaMetadataCompiler
 		testInlineMmd();
 		testArticles();
 		testScalarCollections();
+		testPolymorphicFields();
 	}
 	
 }

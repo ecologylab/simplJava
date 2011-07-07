@@ -1,9 +1,13 @@
 package ecologylab.translators.java;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import ecologylab.generic.Debug;
+import ecologylab.semantics.html.utils.StringBuilderUtils;
+import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.simpl_descriptor_classes;
 import ecologylab.serialization.ElementState.simpl_classes;
@@ -272,26 +276,26 @@ public class JavaTranslationUtilities {
 	
 
 
-	private static String getJavaOtherTagsAnnotation(Annotation annotation)
+	public static String getJavaOtherTagsAnnotation(ArrayList<String> otherTags)
 	{
-		String parameter = null;
-		xml_other_tags scopeAnnotation = (xml_other_tags) annotation;
-		String[] scopeValue = scopeAnnotation.value();
-		String simpleName = getSimpleName(scopeAnnotation);
-		if(scopeValue != null && scopeValue.length > 0)
+		if (otherTags != null && otherTags.size() > 0)
 		{
-			parameter = "(new String[]{";
-			for(String otherTag : scopeValue)
-				parameter += "\"" + otherTag + "\", ";
-			
-			parameter += "})";
-			return simpleName + parameter;
+			StringBuilder sb = StringBuilderUtils.acquire();
+			sb.append(xml_other_tags.class.getSimpleName()).append("({");
+			boolean notFirst = false;
+			for (String otherTag : otherTags)
+			{
+				if (notFirst)
+					sb.append(", ");
+				sb.append('"').append(otherTag).append('"');
+				notFirst = true;
+			}
+			sb.append("})");
+			String rst = sb.toString();
+			StringBuilderUtils.release(sb);
+			return rst;
 		}
-		else
-		{
-			Debug.error(scopeAnnotation, "xml_other_tags without any parameters");
-			return null;
-		}
+		return "";
 	}
 
 	/*
@@ -420,5 +424,34 @@ public class JavaTranslationUtilities {
 						
 			return propertyName.toString();
 		}			
+	}
+
+	/**
+	 * Generate simpl_classes annotations.
+	 * 
+	 * @param cDs
+	 * @param tab
+	 * @return
+	 */
+	public static String getJavaClassesAnnotation(HashSet<ClassDescriptor> classDescriptors)
+	{
+		if (classDescriptors != null && classDescriptors.size() > 0)
+		{
+			StringBuilder sb = StringBuilderUtils.acquire();
+			sb.append(simpl_classes.class.getSimpleName()).append("({");
+			boolean notFirst = false;
+			for (ClassDescriptor cd : classDescriptors)
+			{
+				if (notFirst)
+					sb.append(", ");
+				sb.append(cd.getDescribedClassSimpleName()).append(".class");
+				notFirst = true;
+			}
+			sb.append("})");
+			String rst = sb.toString();
+			StringBuilderUtils.release(sb);
+			return rst;
+		}
+		return "";
 	}
 }

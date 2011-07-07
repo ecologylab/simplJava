@@ -10,9 +10,9 @@
 		<composite name="comp" extends="metadata"> <!-- when type not specified, use name as type name -->
 			<scalar name="title" scalar_type="String" />
 		</composite>
-		<collection name="coll" child_type="item" child_extends="test_base" child_tag="item">
+		<collection name="coll" child_type="item" child_extends="metadata" child_tag="item">
 			<scalar name="link" scalar_type="ParsedURL" />
-			<composite name="item_comp" extends="item" tag="ic">
+			<composite name="nested_item" extends="item" tag="ic">
 				<scalar name="link2" scalar_type="ParsedURL" />
 			</composite>
 		</collection>
@@ -24,8 +24,8 @@
 		</composite>
 		<collection name="coll2" child_extends="item" child_tag="thing"> <!-- child_type="coll2" -->
 			<scalar name="id" scalar_type="Int" />
-			<composite name="item_comp2" extends="item_comp" tag="ic2">
-				<scalar name="str" scalar_type="String" />
+			<composite name="new_nested_item" extends="nested_item" tag="ic2">
+				<scalar name="descr" scalar_type="String" />
 			</composite>
 		</collection>
 	</meta_metadata>
