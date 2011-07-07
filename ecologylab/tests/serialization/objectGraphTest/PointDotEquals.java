@@ -27,5 +27,12 @@ public class PointDotEquals extends ElementState {
 		}
 		PointDotEquals o = (PointDotEquals)other;
 		return x == o.x && y == o.y;
+//		return (x + y) == (o.x + o.y);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "["+x+","+y+"]";
 	}
 }
