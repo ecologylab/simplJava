@@ -940,6 +940,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	public boolean getStrictObjectGraphRequired()
 	{
-		return getStrictObjectGraphRequired();
+		return this.strictObjectGraphRequired;
 	}
 }
