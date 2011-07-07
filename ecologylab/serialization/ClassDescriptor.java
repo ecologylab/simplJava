@@ -154,10 +154,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			comment = javaParser.getJavaDocComment(thatClass);
 		}
-		if(thatClass.isAnnotationPresent(simpl_equals.class))
-		{
-			super.setStrictObjectGraphRequired();
-		}
+//		if(thatClass.isAnnotationPresent(simpl_equals.class))
+//		{
+//			super.setStrictObjectGraphRequired();
+//		}
 	}
 	
 	protected ClassDescriptor(
@@ -576,7 +576,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
 
 				// also add mappings for @xml_other_tags
-				String[] otherTags = fieldDescriptor.otherTags();
+				ArrayList<String> otherTags = fieldDescriptor.otherTags();
 				if (otherTags != null)
 				{
 					// TODO -- @xml_other_tags for collection/map how should it work?!
@@ -884,22 +884,29 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * 
 	 * @return The array of old tags, or null, if there is no @xml_other_tags annotation.
 	 */
-	String[] otherTags()
+	public ArrayList<String> otherTags()
 	{
-		Class<ES> thisClass = getDescribedClass();
-		if (thisClass == null)
-			return null; // we don't have the Class object yet (e.g. for generating code)
+		ArrayList<String> result = this.otherTags;
+		if (result == null)
+		{
+			result = new ArrayList<String>();
+			
+			Class<ES> thisClass = getDescribedClass();
+			if (thisClass != null)
+			{
+				final ElementState.xml_other_tags otherTagsAnnotation = thisClass .getAnnotation(xml_other_tags.class);
 		
-		final ElementState.xml_other_tags otherTagsAnnotation = thisClass
-				.getAnnotation(xml_other_tags.class);
-
-		// commented out since getAnnotation also includes inherited annotations
-		// ElementState.xml_other_tags otherTagsAnnotation =
-		// thisClass.getAnnotation(ElementState.xml_other_tags.class);
-		if (otherTagsAnnotation == null)
-			return null;
-		String[] result = otherTagsAnnotation.value();
-		return result == null ? null : result.length == 0 ? null : result;
+				// commented out since getAnnotation also includes inherited annotations
+				// ElementState.xml_other_tags otherTagsAnnotation =
+				// thisClass.getAnnotation(ElementState.xml_other_tags.class);
+				if (otherTagsAnnotation != null)
+					for (String otherTag : otherTagsAnnotation.value())
+						result.add(otherTag);
+			}
+			
+			this.otherTags = result;
+		}
+		return result;
 	}
 
 	public FD getScalarValueFieldDescripotor()

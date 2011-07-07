@@ -519,7 +519,7 @@ public final class TranslationScope extends ElementState
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
 		entriesByBibTeXType.put(entry.getBibtexType(), entry);
 
-		String[] otherTags = entry.otherTags();
+		ArrayList<String> otherTags = entry.otherTags();
 		if (otherTags != null)
 			for (String otherTag : otherTags)
 			{
@@ -552,7 +552,7 @@ public final class TranslationScope extends ElementState
 		entriesByTLVId.put(entry.getTagName().hashCode(), entry);
 		entriesByBibTeXType.put(entry.getBibtexType(), entry);
 
-		String[] otherTags = entry.otherTags();
+		ArrayList<String> otherTags = entry.otherTags();
 		if (otherTags != null)
 			for (String otherTag : otherTags)
 			{

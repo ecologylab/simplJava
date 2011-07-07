@@ -96,14 +96,6 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@simpl_map("library_namespace")
 	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
 	
-	/**
-	 * Used to specify old translations, for backwards compatability. Never written.
-	 */
-	@simpl_nowrap
-	@simpl_collection("other_tag")
-	private ArrayList<String>		otherTags;
-
-
 	@simpl_scalar
 	private int									type;
 
@@ -340,12 +332,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return polymorphClassDescriptors != null;
 	}
 
-	private void putTagClassDescriptor(ClassDescriptor classDescriptor)
+	protected void putTagClassDescriptor(ClassDescriptor classDescriptor)
 	{
+		if (polymorphClassDescriptors == null)
+			initTagClassDescriptorsArrayList(1);
+		
 		polymorphClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
 		tlvClassDescriptors.put(classDescriptor.getTagName().hashCode(), classDescriptor);
 
-		String[] otherTags = classDescriptor.otherTags();
+		ArrayList<String> otherTags = classDescriptor.otherTags();
 		if (otherTags != null)
 			for (String otherTag : otherTags)
 			{
@@ -1501,7 +1496,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		else
 			return polymorphClassDescriptors;
 	}
-
+	
 	public HashMap<String, Class> getTagClasses()
 	{
 		if (polymorphClasses == null)
@@ -2066,18 +2061,26 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		//return this.getDeclaringClassDescriptor().getDescribedClass() == c.getDescribedClass();
 	}
 	
-	String[] otherTags()
+	public ArrayList<String> otherTags()
 	{
-		final ElementState.xml_other_tags otherTagsAnnotation = this.getField().getAnnotation(
-				xml_other_tags.class);
-
-		// commented out since getAnnotation also includes inherited annotations
-		// ElementState.xml_other_tags otherTagsAnnotation =
-		// thisClass.getAnnotation(ElementState.xml_other_tags.class);
-		if (otherTagsAnnotation == null)
-			return null;
-		String[] result = otherTagsAnnotation.value();
-		return result == null ? null : result.length == 0 ? null : result;
+		ArrayList<String> result = this.otherTags;
+		if (result == null)
+		{
+			result = new ArrayList<String>();
+			if (this.getField() != null)
+			{
+				final ElementState.xml_other_tags otherTagsAnnotation = this.getField().getAnnotation(xml_other_tags.class);
+		
+				// commented out since getAnnotation also includes inherited annotations
+				// ElementState.xml_other_tags otherTagsAnnotation =
+				// thisClass.getAnnotation(ElementState.xml_other_tags.class);
+				if (otherTagsAnnotation != null)
+					for (String otherTag : otherTagsAnnotation.value())
+						result.add(otherTag);
+			}
+			this.otherTags = result;
+		}
+		return result;
 	}
 
 	public String getObjectiveCType()
