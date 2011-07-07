@@ -100,9 +100,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	static protected final int							ESTIMATE_CHARS_PER_FIELD	= 80;
 	
-	@simpl_scalar
-	private boolean strictObjectGraphRequired = false;
-
 	/**
 	 * Construct. Create a link to a root optimizations object.
 	 */
@@ -2181,19 +2178,11 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	// }
 	
 	/**
-	 * method to set the strictObjectGraphRequired
-	 */
-	public void setStrictObjectGraphRequired()
-	{
-		this.strictObjectGraphRequired = true;
-	}
-	
-	/**
 	 * method returns whether a strict pbject graph is required
 	 * @return
 	 */
 	public boolean getStrictObjectGraphRequired()
 	{
-		return strictObjectGraphRequired;
+		return classDescriptor().getStrictObjectGraphRequired();
 	}
 }

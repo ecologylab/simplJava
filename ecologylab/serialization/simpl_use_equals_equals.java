@@ -7,8 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Metalanguage declaration for classes with metalanguage inside, 
- * which are derived from other classes that also have metalanguage that needs interpreting.
+ * This annotation specifices that the ==  test (not .equals) will be used during de/serialization
+ * to detect equivalent objects
  * 
  * @author sumith
  */
@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 
-public @interface simpl_equals
+public @interface simpl_use_equals_equals
 {
 	
 }

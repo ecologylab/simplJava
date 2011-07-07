@@ -125,6 +125,14 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	@simpl_collection("generic_type_variable")
 	private ArrayList<String>	genericTypeVariables = new ArrayList<String>();
+	
+	/**
+	 * true if the class was annotated with @simpl_use_equals_equals, and thus that test will be used during de/serialization
+	 * to detect equivalent objects
+	 */
+	@simpl_scalar
+	private boolean strictObjectGraphRequired = false;
+
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
 
@@ -154,9 +162,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			comment = javaParser.getJavaDocComment(thatClass);
 		}
-		if(thatClass.isAnnotationPresent(simpl_equals.class))
+		if(thatClass.isAnnotationPresent(simpl_use_equals_equals.class))
 		{
-			super.setStrictObjectGraphRequired();
+			this.strictObjectGraphRequired	= true;
 		}
 	}
 	
@@ -922,5 +930,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public String getName()
 	{
 		return describedClassName;
+	}
+	
+	/**
+	 * method returns whether a strict object graph is required
+	 * 
+	 * @return	true if the class was annotated with @simpl_use_equals_equals, and thus that test will be used during de/serialization
+	 *          to detect equivalent objects
+	 */
+	public boolean getStrictObjectGraphRequired()
+	{
+		return getStrictObjectGraphRequired();
 	}
 }
