@@ -576,21 +576,14 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			{
 				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName, fieldDescriptorClass);
 				mapTagToFdForTranslateFrom(fieldTagName, wrapper);
+				mapOtherTagsToFdForTranslateFrom(wrapper, fieldDescriptor.otherTags());
 			}
 			else if (!fieldDescriptor.isPolymorphic()) // tag(s) from field, not from class :-)
 			{
 				String tag = fieldDescriptor.isCollection() ? fieldDescriptor.getCollectionOrMapTagName()
 						: fieldTagName;
 				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
-
-				// also add mappings for @xml_other_tags
-				ArrayList<String> otherTags = fieldDescriptor.otherTags();
-				if (otherTags != null)
-				{
-					// TODO -- @xml_other_tags for collection/map how should it work?!
-					for (String otherTag : otherTags)
-						mapTagToFdForTranslateFrom(otherTag, fieldDescriptor);
-				}
+				mapOtherTagsToFdForTranslateFrom(fieldDescriptor, fieldDescriptor.otherTags());
 			}
 			else
 			{ // add mappings by class tagNames for polymorphic elements & collections
@@ -600,6 +593,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
 		} // end for all fields
 		return fieldDescriptorClass;
+	}
+
+	protected void mapOtherTagsToFdForTranslateFrom(FD fieldDescriptor, ArrayList<String> otherTags)
+	{
+		if (otherTags != null)
+		{
+			// TODO -- @xml_other_tags for collection/map how should it work?!
+			for (String otherTag : otherTags)
+				mapTagToFdForTranslateFrom(otherTag, fieldDescriptor);
+		}
 	}
 
 	/**
