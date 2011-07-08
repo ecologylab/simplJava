@@ -1070,80 +1070,62 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	}
 
 	public void appendHtmlValueAsAttribute(Object context, TranslationContext serializationContext,
-			String textClass, FieldDescriptor navigatesFD, String fieldLabel, Tr tr)
+			Tr tr, String labelString, String labelCssClass, String valueCssClass, FieldDescriptor navigatesFD, String schemaOrgItemProp)
 			throws IllegalArgumentException, IllegalAccessException, IOException
 	{
-
 		if (!scalarType.isDefaultValue(field, context))
 		{
-			Td fieldName = new Td();
-			Td value = new Td();
-			Div text = new Div();
-			Div name = new Div();
+			Td labelTd 		= new Td();
+			Td valueTd 		= new Td();
+			Div valueDiv	= new Div();
+			Div labelDiv	= new Div();
 			A labelAnchor = new A();
 			A valueAnchor = new A();
-			boolean hasNavigatesTo = navigatesFD != null;
-			ScalarType<?> navigatesScalarType = (hasNavigatesTo) ? navigatesFD.getScalarType() : null;
-			Field navigatesField = (hasNavigatesTo) ? navigatesFD.getField() : null;
-			hasNavigatesTo = hasNavigatesTo && !navigatesScalarType.isDefaultValue(navigatesField, context);
 			
-			if (textClass == null || textClass.equals("default")) textClass = "metadata_text";
+			if (valueCssClass != null)			// does this cause problems? if so, is it because mmd is wrong? andruid & aaron 7/8/11
+				valueDiv.setCssClass(valueCssClass);
+			if (schemaOrgItemProp != null)
+				valueDiv.setSchemaOrgItemProp(schemaOrgItemProp);
 			
-			text.setCssClass(textClass);
-			fieldName.setAlign("right");
-			fieldName.setCssClass("metadata_field_name");
+			labelTd.setAlign("right");
+			labelTd.setCssClass(labelCssClass);
 			
-			if (hasNavigatesTo)
+			ScalarType navigatesScalarType	= null;
+			if (navigatesFD != null)
 			{
-				StringBuilder navigatesToBuffy = new StringBuilder();
-
+				StringBuilder navigatesToBuffy	= new StringBuilder();
+				navigatesScalarType							= navigatesFD.getScalarType();
 				navigatesScalarType.appendValue(navigatesToBuffy, navigatesFD, context, serializationContext);
 				labelAnchor.setHref(navigatesToBuffy.toString());
-				labelAnchor.setLink(fieldLabel);
-				name.members.add(labelAnchor);
-			}
-			else if(tagName.equals("location") || tagName.equals("link"))
-			{
-				StringBuilder locationBuffy = new StringBuilder();
-				scalarType.appendValue(locationBuffy, this, context, serializationContext);
-				labelAnchor.setHref(locationBuffy.toString());
-				labelAnchor.setLink(fieldLabel);
-				name.members.add(labelAnchor);
+				labelAnchor.setLink(labelString);
+				labelDiv.members.add(labelAnchor);
 			}
 			else
 			{
-				name.setText(fieldLabel);
+				labelDiv.setText(labelString);
 			}
 
-			fieldName.items.add(name);
-			tr.cells.add(fieldName);
+			labelTd.items.add(labelDiv);
+			tr.cells.add(labelTd);
 
 			StringBuilder valueBuffy = new StringBuilder();
 			scalarType.appendValue(valueBuffy, this, context, serializationContext);
 			
-			if (hasNavigatesTo)
+			if (navigatesFD != null)
 			{
 				StringBuilder buffy = new StringBuilder();
 				navigatesScalarType.appendValue(buffy, navigatesFD, context, serializationContext);
 				valueAnchor.setHref(buffy.toString());
 				valueAnchor.setLink(valueBuffy.toString());
-				text.members.add(valueAnchor);
-			}
-			else if(tagName.equals("location") || tagName.equals("link"))
-			{
-				StringBuilder buffy = new StringBuilder();
-				scalarType.appendValue(buffy, this, context, serializationContext);
-				valueAnchor.setHref(buffy.toString());
-				valueAnchor.setLink(valueBuffy.toString());
-				text.members.add(valueAnchor);
+				valueDiv.members.add(valueAnchor);
 			}
 			else
 			{
-				text.setText(valueBuffy.toString());
+				valueDiv.setText(valueBuffy.toString());
 			}
 			
-			value.items.add(text);
-			tr.cells.add(value);
+			valueTd.items.add(valueDiv);
+			tr.cells.add(valueTd);
 		}
 	}
 
