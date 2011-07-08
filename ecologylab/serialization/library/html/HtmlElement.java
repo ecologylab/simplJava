@@ -9,7 +9,11 @@ public class HtmlElement extends ElementState
 
 	@xml_tag("class")
 	@simpl_scalar
-	String	CssClass;
+	String	cssClass;
+
+	@xml_tag("itemprop")
+	@simpl_scalar
+	String	schemaOrgItemProp;
 
 	public HtmlElement()
 	{
@@ -17,12 +21,12 @@ public class HtmlElement extends ElementState
 
 	public String getCssClass()
 	{
-		return CssClass;
+		return cssClass;
 	}
 
 	public void setCssClass(String cssClass)
 	{
-		CssClass = cssClass;
+		this.cssClass = cssClass;
 	}
 
 	public String getId()
@@ -33,6 +37,22 @@ public class HtmlElement extends ElementState
 	public void setId(String id)
 	{
 		this.id = id;
+	}
+
+	/**
+	 * @return the schemaOrgItemProp
+	 */
+	public String getSchemaOrgItemProp()
+	{
+		return schemaOrgItemProp;
+	}
+
+	/**
+	 * @param schemaOrgItemProp the schemaOrgItemProp to set
+	 */
+	public void setSchemaOrgItemProp(String schemaOrgItemProp)
+	{
+		this.schemaOrgItemProp = schemaOrgItemProp;
 	}
 
 }

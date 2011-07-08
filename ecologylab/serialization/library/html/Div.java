@@ -20,18 +20,8 @@ public class Div extends HtmlElement
 
 	public Div()
 	{
-		CssClass = "";
+		cssClass = "";
 		this.setId("");
-	}
-
-	public String getCssClass()
-	{
-		return CssClass;
-	}
-
-	public void setCssClass(String cssClass)
-	{
-		CssClass = cssClass;
 	}
 
 	public String getText()
