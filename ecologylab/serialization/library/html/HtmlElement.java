@@ -14,6 +14,10 @@ public class HtmlElement extends ElementState
 	@xml_tag("itemprop")
 	@simpl_scalar
 	String	schemaOrgItemProp;
+	
+	@xml_tag("itemscope itemtype")
+	@simpl_scalar
+	String schemaOrgItemType;
 
 	public HtmlElement()
 	{
@@ -53,6 +57,16 @@ public class HtmlElement extends ElementState
 	public void setSchemaOrgItemProp(String schemaOrgItemProp)
 	{
 		this.schemaOrgItemProp = schemaOrgItemProp;
+	}
+
+	public String getSchemaOrgItemType()
+	{
+		return schemaOrgItemType;
+	}
+
+	public void setSchemaOrgItemType(String schemaOrgItemType)
+	{
+		this.schemaOrgItemType = schemaOrgItemType;
 	}
 
 }
