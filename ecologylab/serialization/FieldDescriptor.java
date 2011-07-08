@@ -1069,6 +1069,22 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 	}
 
+	/**
+	 * Appends the label and value of a metadata field to HTML elements, including anchors where appropriate
+	 * 
+	 * @param context
+	 * @param serializationContext
+	 * @param tr
+	 * @param labelString
+	 * @param labelCssClass
+	 * @param valueCssClass
+	 * @param navigatesFD
+	 * @param schemaOrgItemProp
+	 * 
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 * @throws IOException
+	 */
 	public void appendHtmlValueAsAttribute(Object context, TranslationContext serializationContext,
 			Tr tr, String labelString, String labelCssClass, String valueCssClass, FieldDescriptor navigatesFD, String schemaOrgItemProp)
 			throws IllegalArgumentException, IllegalAccessException, IOException
