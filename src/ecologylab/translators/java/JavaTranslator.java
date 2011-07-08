@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,6 +27,8 @@ import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.ElementState.simpl_composite;
 import ecologylab.serialization.ElementState.simpl_nowrap;
 import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.ElementState.xml_other_tags;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
@@ -35,7 +36,6 @@ import ecologylab.serialization.types.element.Mappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
-import ecologylab.translators.net.DotNetTranslationException;
 import ecologylab.translators.parser.JavaDocParser;
 
 /**
@@ -335,12 +335,12 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(JAVA_ARRAYLIST);
 		appendable.append(END_LINE);
 
-		appendable.append(SINGLE_LINE_BREAK);
+		//appendable.append(SINGLE_LINE_BREAK);
 
-		appendable.append(IMPORT);
+		/*appendable.append(IMPORT);
 		appendable.append(SPACE);
 		appendable.append(ECOLOGYLAB_NAMESPACE);
-		appendable.append(END_LINE);
+		appendable.append(END_LINE);*/
 	}
 
 	/**
@@ -353,7 +353,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	private void openNameSpace(ClassDescriptor inputClass, Appendable appendable)
 			throws IOException
 	{
-		openNameSpace(inputClass.getPackageName(), appendable);
+		openNameSpace(inputClass.getDescribedClassPackageName(), appendable);
 	}
 
 	/**
@@ -528,8 +528,10 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable, JavaDocParser.getFieldJavaDocsArray(fieldDescriptor), false);
-
+		if(fieldDescriptor.getComment() != null)
+		{
+			appendCommentsFromArray(appendable, escapeToArray(fieldDescriptor.getComment()), false);
+		}
 		appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -552,7 +554,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(type == FieldTypes.COMPOSITE_ELEMENT)
 		{
 			// @simpl_composite
-			appendAnnotation(appendable,simpl_composite.class.getSimpleName(),TAB);
+			appendAnnotation(appendable,simpl_composite.class.getSimpleName(),TAB);			
 		}
 		else if(type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
 		{
@@ -562,12 +564,12 @@ public class JavaTranslator implements JavaTranslationConstants
 				appendAnnotation(appendable,simpl_nowrap.class.getSimpleName(),TAB);
 			}
 			// @simpl_collection
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);			
 		}
 		else if(type == FieldTypes.MAP_ELEMENT)
 		{
 			// @simpl_map
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(collectionMapTagValue),TAB);
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaMapAnnotation(collectionMapTagValue),TAB);			
 		}
 		else
 		{
@@ -585,12 +587,15 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		// TODO @xml_other_tags
 		
-		Hint hint = fieldDescriptor.getXmlHint();
-		if(hint != null)
+		if(!((type == FieldTypes.COMPOSITE_ELEMENT) || (type == FieldTypes.COLLECTION_ELEMENT) || (type == FieldTypes.COLLECTION_SCALAR)))
 		{
-			// @simpl_hints
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
-		}
+			Hint hint = fieldDescriptor.getXmlHint();
+			if(hint != null)
+			{
+				// @simpl_hints
+				appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
+			}
+		}		
 		
 		// @simpl_classes
 		HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fieldDescriptor.getTagClassDescriptors();
@@ -632,14 +637,18 @@ public class JavaTranslator implements JavaTranslationConstants
 		ClassDescriptor superClass = classDesc.getSuperClass();
 		if(superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
 		{
-			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");			
+			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");
+			allNamespaces.put(simpl_inherit.class.getPackage().getName() + ".simpl_inherit", simpl_inherit.class.getPackage().getName() +  ".simpl_inherit");
+			libraryNamespaces.put(simpl_inherit.class.getPackage().getName() + ".simpl_inherit", simpl_inherit.class.getPackage().getName()+ ".simpl_inherit");
 		}
 		
 		String tagName = classDesc.getTagName();
 		String autoTagName = XMLTools.getXmlTagName(classDesc.getDescribedClassSimpleName(), null);
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");			
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");
+			allNamespaces.put(xml_tag.class.getPackage().getName() + ".xml_tag", xml_tag.class.getPackage().getName() +  ".xml_tag");
+			libraryNamespaces.put(xml_tag.class.getPackage().getName() + ".xml_tag", xml_tag.class.getPackage().getName()+ ".xml_tag");
 		}		
 		
 		// TODO @xml_other_tags
@@ -647,6 +656,8 @@ public class JavaTranslator implements JavaTranslationConstants
 		if (otherTags != null && otherTags.size() > 0)
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
+			allNamespaces.put(xml_other_tags.class.getPackage().getName() + ".xml_other_tags", xml_other_tags.class.getPackage().getName() +  ".xml_other_tags");
+			libraryNamespaces.put(xml_other_tags.class.getPackage().getName() + ".xml_other_tags", xml_other_tags.class.getPackage().getName()+ ".xml_other_tags");
 		}
 		
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
@@ -751,7 +762,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
-		appendable.append(javaType);
+		appendable.append(VOID);
 		appendable.append(SPACE);
 		appendable.append(JavaTranslationUtilities.getSetMethodName(fieldDescriptor));
 		appendable.append(OPENING_BRACE);
@@ -809,12 +820,11 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
 		appendable.append(genericSuperclass.getDescribedClassSimpleName());
-
-			
-		libraryNamespaces.put(genericSuperclass.getPackageName(), genericSuperclass
-				.getPackageName());
-		allNamespaces.put(genericSuperclass.getPackageName(), genericSuperclass.getPackageName());		
-
+		
+		
+		libraryNamespaces.put(genericSuperclass.getDescribedClassPackageName() + "."+ genericSuperclass.getDescribedClassSimpleName(), genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName());
+		allNamespaces.put(genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName(), genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName());		
+	
 		ArrayList<String> interfaces = inputClass.getInterfaceList();
 
 		if(interfaces != null)
@@ -881,8 +891,11 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPEN_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
-
+		//appendCommentsFromArray(appendable, JavaDocParser.getClassJavaDocsArray(inputClass), false);
+		if(inputClass.getComment() != null)
+		{
+			appendCommentsFromArray(appendable, escapeToArray(inputClass.getComment()), false);
+		}
 		//appendable.append(TAB);
 		appendable.append(CLOSE_COMMENTS);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -993,6 +1006,26 @@ public class JavaTranslator implements JavaTranslationConstants
 
 		this.additionalImportLines = additionalImportLines;
 	}
+	
+	/**
+	 * build up the array of java doc comments
+	 * 
+	 * @param javaDocs
+	 * @return
+	 */
+	private static String[] escapeToArray(String javaDocs)
+	{
+		String strippedComments = javaDocs.replace("*", "").replace("/", "").trim();
+		String[] commentsArray = strippedComments.split("\n");
+
+		for (int i = 0; i < commentsArray.length; i++)
+		{
+			commentsArray[i] = commentsArray[i].trim();
+		}
+
+		return commentsArray;
+	}
+
 
 	/**
 	 * Main method to test the working of the library.

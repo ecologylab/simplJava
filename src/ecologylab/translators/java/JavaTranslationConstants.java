@@ -69,6 +69,8 @@ public interface JavaTranslationConstants {
 	public static final String	JAVA		= "java";
 	
 	public static final String	UTIL		= "util";
+	
+	public static final String VOID = "void";
 
 	/*
 	 * Formatting constants

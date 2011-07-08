@@ -216,7 +216,7 @@ public class JavaTranslationUtilities {
 
 		//String simpleName = getSimpleName(annotation);
 		String simpleName = xml_tag.class.getSimpleName();
-
+		
 		if (tagValue != null && !tagValue.isEmpty())
 		{
 			parameter = "(" + "\"" + tagValue + "\"" + ")";
