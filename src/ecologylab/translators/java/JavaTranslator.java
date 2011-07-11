@@ -584,7 +584,12 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName), TAB);			
 		}		
 		
-		// TODO @xml_other_tags
+		// @xml_other_tags
+		ArrayList<String> otherTags = fieldDescriptor.otherTags();
+		if (otherTags != null && otherTags.size() > 0)
+		{
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), TAB);
+		}
 		
 		if(!((type == FieldTypes.COMPOSITE_ELEMENT) || (type == FieldTypes.COLLECTION_ELEMENT) || (type == FieldTypes.COLLECTION_SCALAR)))
 		{
