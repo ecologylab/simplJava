@@ -258,23 +258,10 @@ public class JavaTranslationUtilities {
 	}
 	
 
-	private static String getJavaScopeAnnotation(Annotation annotation)
+	public static String getJavaScopeAnnotation(String scopeName)
 	{
-		String parameter = null;
-		simpl_scope scopeAnnotation = (simpl_scope) annotation;
-		String scopeValue = scopeAnnotation.value();
-		String simpleName = getSimpleName(scopeAnnotation);
-		if(scopeValue != null && !scopeValue.isEmpty())
-		{
-			parameter = "(\"" + scopeValue + "\")";
-			return simpleName + parameter;
-		}
-		else
-		{
-			Debug.error(scopeAnnotation, "Scope without a parameter");
-			return null;
-		}
-		
+		String scope = simpl_scope.class.getSimpleName();
+		return scope + "(\"" + scopeName + "\")";
 	}
 	
 

@@ -70,6 +70,11 @@ public class TestNewMetaMetadataCompiler
 		doTest("other-tags", new File("data/testRepository/testOtherTags.xml"), new File("c:/tmp/testothertags/"));
 	}
 	
+	public static void testPolymorphicScope() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		doTest("poly-scope", new File("data/testRepository/testPolymorphicScope.xml"), new File("c:/tmp/testpolyscope/"));
+	}
+	
 	/**
 	 * use testArticles.xml as the input repository to validate inheritance relationships (any field:
 	 * declaredMmd, inheritedField, nested field + mmds: inheritedMmd, mmds: inlineMmds).
@@ -280,13 +285,14 @@ public class TestNewMetaMetadataCompiler
 	
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-//		testGeneratingBasicTScope();
-//		testTypeGraphs();
-//		testInlineMmd();
-//		testArticles();
-//		testScalarCollections();
-//		testPolymorphicFields();
+		testGeneratingBasicTScope();
+		testTypeGraphs();
+		testInlineMmd();
+		testArticles();
+		testScalarCollections();
+		testPolymorphicFields();
 		testOtherTags();
+		testPolymorphicScope();
 	}
 	
 }

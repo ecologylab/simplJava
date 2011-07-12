@@ -638,7 +638,12 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors), TAB);
 		}
 		
-		// TODO @simpl_scope
+		// @simpl_scope
+		String polyScope = fieldDescriptor.getUnresolvedScopeAnnotation();
+		if (polyScope != null && polyScope.length() > 0)
+		{
+			appendAnnotation(appendable, JavaTranslationUtilities.getJavaScopeAnnotation(polyScope), TAB);
+		}
 		
 		appendFieldAnnotationsHook(appendable, fieldDescriptor);
 	}
