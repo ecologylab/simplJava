@@ -1,6 +1,6 @@
 package ecologylab.serialization.types.scalar;
 
-public class MappingConstants
+public interface MappingConstants
 {
 	/*
 	 * Objective-C Scalar types
