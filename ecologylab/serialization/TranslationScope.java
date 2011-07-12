@@ -1630,6 +1630,7 @@ public final class TranslationScope extends ElementState
 				if (result == null)
 				{
 					result = new TranslationScope(newName);
+					addTranslationScope(newName);
 					for (ClassDescriptor classDescriptor: entriesByClassName.values())
 					{
 						Class<? extends ElementState> thatClass	= classDescriptor.getDescribedClass();
