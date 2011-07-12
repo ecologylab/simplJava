@@ -2096,6 +2096,36 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		return result.toString();
 	}
 	
+	public static ArrayList<Class> getJavaGenericDependenciesRecursive(ParameterizedType pType)
+	{
+		ArrayList<Class> result = new ArrayList<Class>();
+
+		Type[] ta = pType.getActualTypeArguments();
+
+		for (int i = 0; i < ta.length; i++)
+		{
+			if ((ta[i] instanceof Class<?>))
+			{			
+				result.add((Class<?>) ta[i]);				
+			}
+			else
+			{
+				try
+				{
+					ParameterizedType pT = (ParameterizedType) ta[i];
+					Class<?> rT = (Class<?>) pT.getRawType();
+					result.add(rT);
+					getJavaGenericDependenciesRecursive(pT);					
+				}catch(Exception ex)
+				{
+					
+				}
+			}
+		}
+
+		return result;
+	}
+	
 
 	public static String getJavaGenericParametersString(Field field)
 	{
@@ -2107,6 +2137,18 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		}
 		else
 			return "";
+	}
+	
+	public static ArrayList<Class> getJavaGenericDependencies(Field field)
+	{
+		ArrayList<Class> result;
+		if (isGeneric(field))
+		{
+			result = getJavaGenericDependenciesRecursive((ParameterizedType) field.getGenericType());
+			return result;
+		}
+		else
+			return null;
 	}
 	
 

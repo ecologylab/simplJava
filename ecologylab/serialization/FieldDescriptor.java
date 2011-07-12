@@ -173,6 +173,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@simpl_scalar
 	private String genericParametersString;
 	
+	private ArrayList<Class> dependencies = new ArrayList<Class>();
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -265,6 +267,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if(isGeneric)
 		{
 			genericParametersString = XMLTools.getJavaGenericParametersString(field);
+			dependencies = XMLTools.getJavaGenericDependencies(field);
 		}
 	}
 
@@ -2354,4 +2357,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return genericParametersString;
 	}
 	
+	public ArrayList<Class> getDependencies()
+	{
+		return dependencies;
+	}
 }

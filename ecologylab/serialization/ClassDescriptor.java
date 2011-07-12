@@ -10,6 +10,8 @@ import java.util.Iterator;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.scalar.ScalarType;
+import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
  * Cached object that holds all of the structures needed to optimize translations to and from XML
@@ -136,6 +138,15 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
 	// HashMap<String, Class<? extends ElementState>>();
 
+	@simpl_collection("composite_dependency")
+	private ArrayList<ClassDescriptor> compositeDependencies = new ArrayList<ClassDescriptor>();
+	
+	@simpl_collection("scalar_dependency")
+	private ArrayList<String> scalarDependencies = new ArrayList<String>();
+	
+	@simpl_collection("collection_dependency")
+	private ArrayList<String> collectionDependencies = new ArrayList<String>();
+	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -212,6 +223,27 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			for (TypeVariable<?> typeVariable : typeVariables)
 			{	
 				genericTypeVariables.add(typeVariable.getName());
+				
+				String typeClass = typeVariable.getName();
+				if(TypeRegistry.contains(typeClass))
+				{
+					ScalarType type = TypeRegistry.getType(typeClass);
+					System.out.println("COming herereeeeeeeeeeeeeeeeeee " + typeClass);
+					
+					if(!scalarDependencies.contains(typeClass))
+					{
+						scalarDependencies.add(typeClass);
+					}
+					//scalarDependencies.add(TypeRegistry.getType(typeClass));
+				}else
+				{
+					try{
+						compositeDependencies.add(ClassDescriptor.getClassDescriptor((Class.forName(typeVariable.getName())).asSubclass(ElementState.class)));
+					}catch(ClassNotFoundException ex)
+					{
+						
+					}
+				}
 			}			
 		}
 	}
@@ -506,14 +538,26 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			if (XMLTools.isScalar(thatField))
 			{
 				fieldType = SCALAR;
+				if(!TypeRegistry.getType(thatField).isPrimitive())
+				{
+					if(!scalarDependencies.contains(TypeRegistry.getType(thatField).getTypeClass().getName()))
+					{					
+						scalarDependencies.add(TypeRegistry.getType(thatField).getTypeClass().getName());
+					}
+				}
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
 				fieldType = COMPOSITE_ELEMENT;
+				ClassDescriptor compositeClass = ClassDescriptor.getClassDescriptor(thatField.getType().asSubclass(ElementState.class));
+				if(!compositeDependencies.contains(compositeClass))
+				{
+					compositeDependencies.add(compositeClass);
+				}
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
-				fieldType = COLLECTION_ELEMENT;
+				fieldType = COLLECTION_ELEMENT;				
 			}
 			else if (XMLTools.representAsMap(thatField))
 			{
@@ -523,6 +567,32 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				continue; // not a simpl serialization annotated field
 
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
+			if(fieldType == COLLECTION_ELEMENT || fieldType == MAP_ELEMENT)
+			{
+				if(!collectionDependencies.contains(thatField.getType().getName()))
+				{
+					collectionDependencies.add(thatField.getType().getName());
+				}
+				ArrayList<Class> dependencies = fieldDescriptor.getDependencies();
+				for(Class thatClass : dependencies)
+				{
+					if(TypeRegistry.contains(thatClass))
+					{
+						ScalarType type = TypeRegistry.getType(thatClass);
+						if(!type.isPrimitive())
+						{
+							if(!scalarDependencies.contains(thatClass.getName()))
+							{
+								scalarDependencies.add(thatClass.getName());
+							}							
+						}
+					}
+					else
+					{
+						compositeDependencies.add(ClassDescriptor.getClassDescriptor(thatClass.asSubclass(ElementState.class)));
+					}					
+				}
+			}
 
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
@@ -944,5 +1014,20 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public boolean getStrictObjectGraphRequired()
 	{
 		return this.strictObjectGraphRequired;
+	}
+	
+	public ArrayList<ClassDescriptor> getCompositrDependencies()
+	{
+		return compositeDependencies;
+	}
+	
+	public ArrayList<String> getScalarDependencies()
+	{
+		return scalarDependencies;
+	}
+	
+	public ArrayList<String> getCollectionDependencies()
+	{
+		return collectionDependencies;
 	}
 }
