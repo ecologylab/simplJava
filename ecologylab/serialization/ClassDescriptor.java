@@ -538,11 +538,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			if (XMLTools.isScalar(thatField))
 			{
 				fieldType = SCALAR;
-				if(!TypeRegistry.getType(thatField).isPrimitive())
+				ScalarType type = TypeRegistry.getType(thatField);
+				if (type == null)
 				{
-					if(!scalarDependencies.contains(TypeRegistry.getType(thatField).getTypeClass().getName()))
+					error("Missing ScalarType for " + thatField);
+				}
+				else if(!type.isPrimitive())
+				{
+					if(!scalarDependencies.contains(type.getTypeClass().getName()))
 					{					
-						scalarDependencies.add(TypeRegistry.getType(thatField).getTypeClass().getName());
+						scalarDependencies.add(type.getTypeClass().getName());
 					}
 				}
 			}
