@@ -238,6 +238,12 @@ public abstract class Pref<T> extends ElementState implements Mappable<String>, 
 		PrefInt thatPrefInt = usePrefInt(name, value);
 		thatPrefInt.setValue(value);
 	}
+	
+	public static void useAndSetPrefEnum(String name, Enum value)
+	{
+		PrefEnum thatPrefEnum = usePrefEnum(name, value);
+		thatPrefEnum.setValue(value);
+	}
 
 	/**
 	 * This is for working with <code>Pref</code>s whose values you will continue to access as they

@@ -402,6 +402,11 @@ extends Debug
 		return result;
 	}
 	
+	public static String userName()
+	{
+		return sysProperty("user.name");
+	}
+	
 /**
  * A default place for storing the user's files.
  * 

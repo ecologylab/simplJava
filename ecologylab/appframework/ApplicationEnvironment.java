@@ -41,6 +41,8 @@ import ecologylab.serialization.XMLTranslationExceptionTypes;
 public class ApplicationEnvironment extends Debug implements Environment,
 		XMLTranslationExceptionTypes, ApplicationPropertyNames
 {
+	public static final String		SCREEN_SIZE										= "screen_size";
+
 	public static final String 		CUSTOM_PREF_TRANSLATIONS			= "custom_pref_translations";
 	
 	private static final String		METAPREFS_XML									= "metaprefs.xml";
@@ -98,6 +100,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	{
 		JNLP, LOCAL_JNLP, ECLIPSE, JAR, STUDIES,
 	}
+
+	public static enum WindowSize { PASS_PARAMS, QUARTER_SCREEN, ALMOST_HALF, NEAR_FULL, FULL_SCREEN }
 
 	LaunchType	launchType;
 
@@ -466,10 +470,14 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			arg = pop(argStack);
 			if (arg == null)
 				return;
-			Pref.useAndSetPrefInt("screen_size", Integer.parseInt(arg));
 
+			Pref.useAndSetPrefEnum(SCREEN_SIZE, WindowSize.valueOf(arg.toUpperCase()));
 		}
 		catch (NumberFormatException e)
+		{
+			argStack.push(arg);
+		}
+		catch (IllegalArgumentException e)
 		{
 			argStack.push(arg);
 		}

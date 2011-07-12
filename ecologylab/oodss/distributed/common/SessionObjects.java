@@ -37,4 +37,6 @@ public interface SessionObjects
     public static final String				SESSIONS_MAP					= "sessions_map";
 
 	public static final String															SESSION_HANDLE					= "SESSION_HANLDE";
+	
+	public static final String							APPLICATION_ENVIRONMENT				= "application_environment";
 }

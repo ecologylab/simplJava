@@ -4,13 +4,13 @@
  */
 package ecologylab.generic;
 
-import java.util.Observer;
+import ecologylab.serialization.ElementObserver;
 
 /**
  * @author Andrew Webb
  *
  */
-public interface ScaledValueObserver extends Observer 
+public interface ScaledValueObserver extends ElementObserver 
 {
 	public short getScaledValue();
 }

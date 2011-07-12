@@ -148,5 +148,7 @@ public interface MappingConstants
 	public static final String	JAVA_SCOPE						= "Scope";
 	
 	public static final String JAVA_UUID							= "GUID";
+	
+	public static final String	JAVA_RECTANGLE				= "Rectangle";
 
 }
