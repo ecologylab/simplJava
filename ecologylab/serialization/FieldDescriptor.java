@@ -293,6 +293,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		this.xmlHint = xmlHint;
 		this.fieldType = fieldType;
 	}
+	
+	public String getUnresolvedScopeAnnotation()
+	{
+		return this.unresolvedScopeAnnotation;
+	}
+	
+	protected void setUnresolvedScopeAnnotation(String scopeName)
+	{
+		this.unresolvedScopeAnnotation = scopeName;
+	}
 
 	/**
 	 * Process annotations that use meta-language to map tags for translate from based on classes
@@ -2361,4 +2371,5 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		return dependencies;
 	}
+	
 }
