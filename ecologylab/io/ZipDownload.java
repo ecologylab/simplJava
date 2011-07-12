@@ -232,7 +232,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	}
 
 	@Override
-	public void handleIoError()
+	public void handleIoError(Throwable e)
 	{
 		aborted	= true;
 		NetTools.close(inputStream);

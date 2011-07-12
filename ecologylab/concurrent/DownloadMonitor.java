@@ -452,21 +452,21 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
 							site.countTimeout(downloadable.location());
-						downloadable.handleIoError();
+						downloadable.handleIoError(e);
 					}
 					catch (FileNotFoundException e)
 					{
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
 							site.countFileNotFound(downloadable.location());
-						downloadable.handleIoError();
+						downloadable.handleIoError(e);
 					}
 					catch (IOException e)
 					{
 						BasicSite site	= downloadable.getSite();
 						if (site != null)
 							site.countOtherIoError(downloadable.location());
-						downloadable.handleIoError();
+						downloadable.handleIoError(e);
 					}
 					catch (ThreadDeath e)
 					{
@@ -483,7 +483,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 					catch (OutOfMemoryError e)
 					{
 						finished = true; // give up!
-						downloadable.handleIoError();
+						downloadable.handleIoError(e);
 						OutOfMemoryErrorHandler.handleException(e);
 
 					}
@@ -493,7 +493,7 @@ public class DownloadMonitor<T extends Downloadable> extends Monitor implements
 						debugA("performDownloads() -- recovering from " + interruptedStr + " exception on "
 								+ thatClosure + ":");
 						e.printStackTrace();
-						downloadable.handleIoError();
+						downloadable.handleIoError(e);
 					}
 					finally
 					{

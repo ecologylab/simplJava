@@ -51,7 +51,7 @@ implements DownloadProcessor<T>
 		catch (IOException e)
 		{
 			e.printStackTrace();
-			downloadable.handleIoError();
+			downloadable.handleIoError(e);
 		}
 		finally
 		{

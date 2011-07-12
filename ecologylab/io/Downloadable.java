@@ -19,8 +19,9 @@ public interface Downloadable
 
 /**
  * Called in case an IO error happens.
+ * @param e TODO
  */
-   public void handleIoError();
+   public void handleIoError(Throwable e);
    
    /**
     * True if the Downloadable has been recycled, and thus should not be downloaded.

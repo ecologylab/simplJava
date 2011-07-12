@@ -53,7 +53,7 @@ implements Downloadable, Continuation<Object>
 		this(target, inputStream, destination, null);
 	}
 
-	public void handleIoError()
+	public void handleIoError(Throwable e)
 	{
 		closeStreams();
 		downloadDone = true;
