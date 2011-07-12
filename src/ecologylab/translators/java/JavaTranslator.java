@@ -33,6 +33,8 @@ import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.serialization.types.element.Mappable;
+import ecologylab.serialization.types.scalar.ScalarType;
+import ecologylab.serialization.types.scalar.TypeRegistry;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
@@ -89,6 +91,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		StringBuilder classFile = new StringBuilder();
 		StringBuilder header = new StringBuilder();
 
+		addNamespaces(inputClass);
 		openNameSpace(inputClass, header);
 		
 		openClassFile(inputClass, classFile);
@@ -135,6 +138,32 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(classFile);
 	}
 
+	private void addNamespaces(ClassDescriptor thatClass)
+	{
+		ArrayList<ClassDescriptor> dependencies =  thatClass.getCompositrDependencies();
+		for(ClassDescriptor classDesc : dependencies)
+		{
+			libraryNamespaces.put(classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName() , classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName());
+			allNamespaces.put(classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName(), classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName());
+		}
+		
+		ArrayList<String> scalarDependencies = thatClass.getScalarDependencies();
+		System.out.println("No of scalarDependencies : " + scalarDependencies.size());
+		for(String type : scalarDependencies)
+		{
+			libraryNamespaces.put(type, type);
+			allNamespaces.put(type, type);			
+		}
+		
+		ArrayList<String> colelctionDependencies = thatClass.getCollectionDependencies();
+		for(String type : colelctionDependencies)
+		{
+			System.out.println("Collection Dependencies : " + type);
+			libraryNamespaces.put(type, type);
+			allNamespaces.put(type, type);			
+		}
+	}
+	
 	/**
 	 * Takes an input class to generate an Java source files. Takes the {@code directoryLocation}
 	 * of the files where the file needs to be generated.
@@ -288,15 +317,15 @@ public class JavaTranslator implements JavaTranslationConstants
 	 */
 	private void importNameSpaces(Appendable appendable) throws IOException
 	{
-		importDefaultNamespaces(appendable);
-
+		//importDefaultNamespaces(appendable);
+		
 		// append all the registered namespace
 		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
 		{
 			for (String namespace : libraryNamespaces.values())
 			{
 				// do not append if it belogns to current namespace
-				if (!namespace.equals(currentNamespace))
+				if (!namespace.equals(currentNamespace) && !namespace.startsWith("java.lang."))
 				{
 					appendable.append(SINGLE_LINE_BREAK);
 					appendable.append(IMPORT);
@@ -364,7 +393,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(currentNamespace);
 		appendable.append(END_LINE);	
-		appendable.append(DOUBLE_LINE_BREAK);
+		appendable.append(SINGLE_LINE_BREAK);
 	}
 
 	/**
