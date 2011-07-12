@@ -149,6 +149,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
  */
 	@simpl_scalar
 	private String																		collectionOrMapTagName;
+	
+	@simpl_scalar
+	private String																		compositeTagName;
 
 	/**
 	 * Used for Collection and Map fields. Tells if the XML should be wrapped by an intermediate
@@ -505,14 +508,44 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		switch (annotationType)
 		{
 		case COMPOSITE_ELEMENT:
-			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@xml_nested"))
+		
+			String compositeTag = field.getAnnotation(ElementState.simpl_composite.class).value();
+			Boolean isWrap = field.isAnnotationPresent(ElementState.simpl_wrap.class);
+			
+			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
 				result = IGNORED_ELEMENT;
-			else if (!isPolymorphic())
+
+			if (!isPolymorphic())
 			{
-				elementClassDescriptor = ClassDescriptor.getClassDescriptor(fieldClass);
-				elementClass = elementClassDescriptor.getDescribedClass();
-				tagName = XMLTools.getXmlTagName(field);
+				if (isWrap && (compositeTag == null || compositeTag.isEmpty()))
+				{
+					warning("In " + declaringClassDescriptor.getDescribedClass()
+							+ "\n\tCan't translate  @simpl_composite() " + field.getName()
+							+ " because its tag argument is missing.");
+					return IGNORED_ELEMENT;
+				}
+				
+				if(!isWrap & (compositeTag != null && !compositeTag.isEmpty()))
+				{
+					warning("In " + declaringClassDescriptor.getDescribedClass()
+							+ "\n\tIgnoring argument to  @simpl_composite() " + field.getName()
+							+ " because it is declared polymorphic.");
+				}
+			
+				 elementClassDescriptor = ClassDescriptor.getClassDescriptor(fieldClass);
+				 elementClass = elementClassDescriptor.getDescribedClass();
+				 compositeTag = XMLTools.getXmlTagName(field);
 			}
+			else
+			{
+				if (compositeTag != null && !compositeTag.isEmpty())
+				{
+					warning("In " + declaringClassDescriptor.getDescribedClass()
+							+ "\n\tIgnoring argument to  @simpl_composite() " + field.getName()
+							+ " because it is declared polymorphic.");
+				}
+			}
+			compositeTagName = compositeTag;
 			break;
 		case COLLECTION_ELEMENT:
 			final String collectionTag = field.getAnnotation(ElementState.simpl_collection.class).value();
@@ -621,6 +654,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
 				wrapped = true;
 		}
+		
+		if (annotationType == COMPOSITE_ELEMENT)
+		{
+			if(field.isAnnotationPresent(ElementState.simpl_wrap.class))
+				wrapped = true;
+		}
+		
+		
+		
 		/*
 		 * else { // deriveTagFromClasses // TODO Monday }
 		 */
@@ -2006,7 +2048,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	public String elementStart()
 	{
-		return isCollection() ? collectionOrMapTagName : tagName;
+		return isCollection() ? collectionOrMapTagName : isNested() ? compositeTagName :  tagName;
 	}
 
 	/**

@@ -1191,10 +1191,18 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						// field, use the instance's type to determine the XML tag name.
 						FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 								.pseudoFieldDescriptor() : childFD;
-
+								
+								if (childFD.isWrapped())
+									childFD.writeWrap(buffy, false);
+								
+								
 						// inside handles cyclic pointers by translating only the simpl id if already
 						// serialized.
 						serializeCompositeElements(buffy, nestedES, nestedFD, graphContext);
+						
+						if (childFD.isWrapped())
+							childFD.writeWrap(buffy, true);
+
 						// buffy.append('\n');
 					}
 				}
@@ -1455,9 +1463,15 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 								.pseudoFieldDescriptor() : childFD;
 
+								
+								if (childFD.isWrapped())
+									childFD.writeWrap(appendable, false);
 								// inside handles cyclic pointers by translating only the simpl id if already
 								// serialized.
 								serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
+								
+								if (childFD.isWrapped())
+									childFD.writeWrap(appendable, true);
 					}
 				}
 			} // end of for each element child
@@ -1678,7 +1692,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	@Inherited
 	public @interface simpl_composite
 	{
-
+		String value() default NULL_TAG;
 	}
 
 	static final String	NULL_TAG	= "";
@@ -1880,6 +1894,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
 	public @interface simpl_nowrap
+	{
+	}
+	
+	/**
+	 * Used to specify that the elements of a collection or map should be wrapped by an outer tag
+	 * corresponding to their field name.
+	 * 
+	 * @author andruid
+	 * 
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	public @interface simpl_wrap
 	{
 	}
 
