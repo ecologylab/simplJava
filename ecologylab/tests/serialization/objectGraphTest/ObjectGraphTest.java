@@ -119,7 +119,7 @@ public class ObjectGraphTest
 		{
 			fail("exception.");
 			e.printStackTrace();
-		}
+		}		
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class ObjectGraphTest
 			{
 				fail("secondToLast--last reference was not maintained.");
 			}
-			for (int i = 1; i < deserialized.points.size() - 2; ++i)
+			for (int i = 1; i < deserialized.points.size() - 3; ++i)
 			{
 				if (first == deserialized.points.get(i))
 					fail("extra reference was created between items 0 and " + i);

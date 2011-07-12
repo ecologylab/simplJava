@@ -82,7 +82,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			this.visitedElements.put(System.identityHashCode(elementState), elementState);
+			//this.visitedElements.put(System.identityHashCode(elementState), elementState);
+			this.visitedElements.put(elementState.hashCode(), elementState);
 
 			ArrayList<FieldDescriptor> elementFieldDescriptors = elementState.classDescriptor()
 					.elementFieldDescriptors();
@@ -143,7 +144,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 							if (this.alreadyVisited(compositeElement))
 							{
-								this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+								//this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+								//		compositeElement);
+								this.needsAttributeHashCode.put(compositeElement.hashCode(),
 										compositeElement);
 							}
 							else
@@ -159,7 +162,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 					if (this.alreadyVisited(compositeElement))
 					{
-						this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+						//this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+						//		compositeElement);
+						this.needsAttributeHashCode.put(compositeElement.hashCode(),
 								compositeElement);
 					}
 					else
@@ -173,14 +178,16 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean alreadyVisited(ElementState elementState)
 	{
-		return this.visitedElements.contains(System.identityHashCode(elementState), elementState);		
+		//return this.visitedElements.contains(System.identityHashCode(elementState), elementState);
+		return this.visitedElements.contains(elementState.hashCode(), elementState);
 	}
 
 	public void mapElementState(ElementState elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
+			//this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
+			this.marshalledObjects.put(elementState.hashCode(), elementState);
 		}
 	}
 
@@ -195,7 +202,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean alreadyMarshalled(ElementState compositeElementState)
 	{
-		return this.marshalledObjects.contains(System.identityHashCode(compositeElementState), compositeElementState);		
+		//return this.marshalledObjects.contains(System.identityHashCode(compositeElementState), compositeElementState);	
+		return this.marshalledObjects.contains(compositeElementState.hashCode(), compositeElementState);
 	}
 	
 	public void appendSimplNameSpace(Appendable appendable) throws IOException
@@ -218,7 +226,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		appendable.append(tagName);
 		appendable.append('=');
 		appendable.append('"');
-		appendable.append(((Integer) System.identityHashCode(elementState)).toString());
+		//appendable.append(((Integer) System.identityHashCode(elementState)).toString());
+		appendable.append(((Integer) elementState.hashCode()).toString());
 		appendable.append('"');
 	}
 
@@ -230,7 +239,8 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean needsHashCode(ElementState elementState)
 	{
-		return this.needsAttributeHashCode.contains(System.identityHashCode(elementState), elementState);		
+		//return this.needsAttributeHashCode.contains(System.identityHashCode(elementState), elementState);
+		return this.needsAttributeHashCode.contains(elementState.hashCode(), elementState);
 	}
 
 	public boolean isGraph()
