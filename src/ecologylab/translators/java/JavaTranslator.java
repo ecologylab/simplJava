@@ -138,11 +138,7 @@ public class JavaTranslator implements JavaTranslationConstants
 
 	private void addNamespaces(ClassDescriptor classDescriptor)
 	{
-		Set<String> dependencies =  classDescriptor.deriveCompositeDependencies();
-		for (String dependencyClassName : dependencies)
-		{
-			addDependency(dependencyClassName);
-		}
+		addDependencies(classDescriptor.deriveCompositeDependencies());
 		
 		Set<ScalarType> scalarDependencies = classDescriptor.deriveScalarDependencies();
 		System.out.println(classDescriptor.getDescribedClassName()+" HAS " + scalarDependencies.size() + " scalar dependencies\n");
@@ -171,7 +167,21 @@ public class JavaTranslator implements JavaTranslationConstants
 		libraryNamespaces.put(fullClassName, fullClassName);
 		allNamespaces.put(fullClassName, fullClassName);
 	}
-	
+	/**
+	 * Add a bunch of dependencies, by class full name.
+	 * 
+	 * @param fullClassNames
+	 */
+	public void addDependencies(Iterable<String> fullClassNames)
+	{
+		for (String fullClassName : fullClassNames)
+			addDependency(fullClassName);
+	}
+	public void addDependencies(String[] fullClassNames)
+	{
+		for (String fullClassName : fullClassNames)
+			addDependency(fullClassName);
+	}
 	/**
 	 * Takes an input class to generate an Java source files. Takes the {@code directoryLocation}
 	 * of the files where the file needs to be generated.
