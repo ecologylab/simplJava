@@ -33,6 +33,7 @@ import ecologylab.serialization.library.html.Div;
 import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
+import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.types.scalar.MappingConstants;
 import ecologylab.serialization.types.scalar.ScalarType;
@@ -104,6 +105,9 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 */
 	@simpl_scalar
 	private ScalarType<?>				scalarType;
+	
+	@simpl_composite
+	private CollectionType			collectionType;
 	
 	@simpl_scalar
 	private Hint								xmlHint;
@@ -285,16 +289,33 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			Hint xmlHint,
 			String fieldType)
 	{
+		this(tagName, comment, type, elementClassDescriptor, declaringClassDescriptor, fieldName, 
+				scalarType, xmlHint, fieldType, 
+				(type == COLLECTION_ELEMENT || type == COLLECTION_SCALAR) ? CollectionType.ARRAYLIST_TYPE : null);
+	}
+	protected FieldDescriptor(
+			String tagName,
+			String comment,
+			int type,
+			ClassDescriptor elementClassDescriptor,
+			ClassDescriptor declaringClassDescriptor,
+			String fieldName,
+			ScalarType scalarType,
+			Hint xmlHint,
+			String fieldType, CollectionType collectionType)
+	{
 		super();
-		this.tagName = tagName;
-		this.comment = comment;
-		this.type = type;
-		this.elementClassDescriptor = elementClassDescriptor;
-		this.declaringClassDescriptor = declaringClassDescriptor;
-		this.fieldName = fieldName;
-		this.scalarType = scalarType;
-		this.xmlHint = xmlHint;
-		this.fieldType = fieldType;
+		assert(type != COMPOSITE_ELEMENT || elementClassDescriptor != null);
+		this.tagName	= tagName;
+		this.comment	= comment;
+		this.type			= type;
+		this.elementClassDescriptor		= elementClassDescriptor;
+		this.declaringClassDescriptor	= declaringClassDescriptor;
+		this.fieldName 								= fieldName;
+		this.scalarType 							= scalarType;
+		this.xmlHint 									= xmlHint;
+		this.fieldType								= fieldType;
+		this.collectionType						= collectionType;
 	}
 	
 	public String getUnresolvedScopeAnnotation()
@@ -597,7 +618,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 							+ " because it is declared polymorphic with @xml_classes.");
 				}
 			}
-			collectionOrMapTagName = collectionTag;
+			collectionOrMapTagName	= collectionTag;
+			collectionType					= CollectionType.getType(field);
 			break;
 		case MAP_ELEMENT:
 			String mapTag = field.getAnnotation(ElementState.simpl_map.class).value();
@@ -645,6 +667,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				}
 			}
 			collectionOrMapTagName = mapTag;
+			collectionType					= CollectionType.getType(field);
 			break;
 		default:
 			break;
@@ -653,6 +676,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
 				wrapped = true;
+			collectionType	= CollectionType.getType(field);
 		}
 		
 		if (annotationType == COMPOSITE_ELEMENT)
@@ -660,9 +684,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			if(field.isAnnotationPresent(ElementState.simpl_wrap.class))
 				wrapped = true;
 		}
-		
-		
-		
+	
 		/*
 		 * else { // deriveTagFromClasses // TODO Monday }
 		 */
@@ -673,6 +695,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 
 		return result;
+	}
+
+	public CollectionType getCollectionType()
+	{
+		return collectionType;
 	}
 
 	private boolean checkAssignableFrom(Class targetClass, Field field, Class fieldClass,
@@ -2412,6 +2439,20 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public ArrayList<Class> getDependencies()
 	{
 		return dependencies;
+	}
+	
+	@Override
+	protected void deserializationPostHook()
+	{
+		switch (type)
+		{
+		case COLLECTION_ELEMENT:
+		case COLLECTION_SCALAR:
+		case MAP_ELEMENT:
+		case MAP_SCALAR:
+			collectionType	= CollectionType.getTypeByName(fieldType);
+			break;
+		}
 	}
 	
 }

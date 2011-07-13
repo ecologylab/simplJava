@@ -5,10 +5,13 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.serialization.types.scalar.TypeRegistry;
@@ -222,17 +225,18 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		{
 			for (TypeVariable<?> typeVariable : typeVariables)
 			{	
-				genericTypeVariables.add(typeVariable.getName());
+				String typeClassName = typeVariable.getName();
 				
-				String typeClass = typeVariable.getName();
-				if(TypeRegistry.contains(typeClass))
+				genericTypeVariables.add(typeClassName);
+				
+				if(TypeRegistry.contains(typeClassName))
 				{
-					ScalarType type = TypeRegistry.getType(typeClass);
-					System.out.println("COming herereeeeeeeeeeeeeeeeeee " + typeClass);
+					ScalarType type = TypeRegistry.getType(typeClassName);
+					System.out.println("COming herereeeeeeeeeeeeeeeeeee " + typeClassName);
 					
-					if(!scalarDependencies.contains(typeClass))
+					if(!scalarDependencies.contains(typeClassName))
 					{
-						scalarDependencies.add(typeClass);
+						scalarDependencies.add(typeClassName);
 					}
 					//scalarDependencies.add(TypeRegistry.getType(typeClass));
 				}else
@@ -879,6 +883,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return describedClassPackageName;
 	}
+	public String getDescribedClassName()
+	{
+		return describedClass != null ? describedClass.getName() : describedClassPackageName + "." + describedClassSimpleName;
+	}
 
 	public ES getInstance() throws SIMPLTranslationException
 	{
@@ -1034,5 +1042,62 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public ArrayList<String> getCollectionDependencies()
 	{
 		return collectionDependencies;
+	}
+	
+	public Set<CollectionType> deriveCollectionDependencies()
+	{
+		HashSet<CollectionType> result = new HashSet<CollectionType>();
+		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		{
+			if (fd.isCollection())
+				result.add(fd.getCollectionType());
+		}
+		return result;
+	}
+
+
+	public Set<String> deriveCompositeDependencies()
+	{
+		HashSet<String> result = new HashSet<String>();
+		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		{
+			if (fd.isNested())
+			{
+				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
+				result.add(elementClassDescriptor.getDescribedClassName());
+			}
+		}
+		if (superClass != null)
+		{
+			result.add(superClass.getDescribedClassName());
+		}
+		for (String genericTypeName: genericTypeVariables)
+		{
+			//FIXME what do we do here???
+		}
+		return result;
+	}
+
+	public Set<ScalarType> deriveScalarDependencies()
+	{
+		HashSet<ScalarType> result = new HashSet<ScalarType>();
+		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
+		{
+			if (fd.isScalar())
+			{
+				ScalarType<?> scalarType = fd.getScalarType();
+				if (!scalarType.isPrimitive())
+					result.add(scalarType);
+			}
+		}
+		/*
+		for (String genericTypeName: genericTypeVariables)
+		{
+			ScalarType scalarType	= TypeRegistry.getType(genericTypeName);
+			if (scalarType != null)
+				result.add(scalarType);
+		}
+		*/
+		return result;
 	}
 }
