@@ -58,9 +58,20 @@ public class JavaTranslator implements JavaTranslationConstants
 	{
 	}
 
-	private HashMap<String, String>	libraryNamespaces						= new HashMap<String, String>();
+	/**
+	 * These are import dependencies for the current source file.
+	 */
+	private HashMap<String, String>	currentImportDependencies		= new HashMap<String, String>();
 
-	private HashMap<String, String>	allNamespaces								= new HashMap<String, String>();
+	/**
+	 * This is the global set of import dependencies for the whole TranslationScope.
+	 */
+	private HashMap<String, String>	allImportDependencies								= new HashMap<String, String>();
+	
+	/**
+	 * These will be used for generating imports, but not cleared after each source file.
+	 */
+	private HashSet<String>					globalImportDependencies			= new HashSet<String>();
 
 	private String									currentNamespace;
 
@@ -87,7 +98,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		StringBuilder classFile = new StringBuilder();
 		StringBuilder header = new StringBuilder();
 
-		addNamespaces(inputClass);
+		addClassDependencies(inputClass);
 		openNameSpace(inputClass, header);
 		
 		openClassFile(inputClass, classFile);
@@ -124,16 +135,16 @@ public class JavaTranslator implements JavaTranslationConstants
 
 		closeClassFile(classFile);
 		
-		importNameSpaces(header);
+		generateImportStatements(header);
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), header);
 
-		libraryNamespaces.clear();
+		currentImportDependencies.clear();
 
 		appendable.append(header);
 		appendable.append(classFile);
 	}
 
-	private void addNamespaces(ClassDescriptor classDescriptor)
+	private void addClassDependencies(ClassDescriptor classDescriptor)
 	{
 		addDependencies(classDescriptor.deriveCompositeDependencies());
 		
@@ -159,10 +170,24 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * 
 	 * @param fullClassName
 	 */
-	public void addDependency(String fullClassName)
+	protected void addDependency(String fullClassName)
 	{
-		libraryNamespaces.put(fullClassName, fullClassName);
-		allNamespaces.put(fullClassName, fullClassName);
+		addCurrentImportTarget(fullClassName);
+		allImportDependencies.put(fullClassName, fullClassName);
+	}
+
+	/**
+	 * @param fullClassName
+	 */
+	protected void addCurrentImportTarget(String fullClassName)
+	{
+		currentImportDependencies.put(fullClassName, fullClassName);
+	}
+	protected void addCurrentImportTargets(Iterable<String> targetNames)
+	{
+		if (targetNames != null)
+			for (String fullClassName: targetNames)
+				addCurrentImportTarget(fullClassName);
 	}
 	/**
 	 * Add a bunch of dependencies, by class full name.
@@ -211,13 +236,12 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @throws ParseException
 	 * @throws JavaTranslationException
 	 */
-	public void translateToJava(File directoryLocation, TranslationScope tScope, File workSpaceLocation)
+	public void translateToJava(File directoryLocation, final TranslationScope tScope, File workSpaceLocation)
 		throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		System.out.println("Parsing source files to extract comments");
 
 		//TranslationScope anotherScope = TranslationScope.augmentTranslationScopeWithClassDescriptors(tScope);
-		TranslationScope anotherScope = tScope;
 		
 		// Parse source files for javadocs
 		//if(workSpaceLocation != null)
@@ -226,7 +250,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		System.out.println("generating classes...");
 
 		// Generate header and implementation files
-		Collection<ClassDescriptor>  classes = anotherScope.getClassDescriptors();
+		Collection<ClassDescriptor>  classes = tScope.getClassDescriptors();
 		
 		int length = classes.size();
 		for (ClassDescriptor classDesc : classes)
@@ -325,58 +349,28 @@ public class JavaTranslator implements JavaTranslationConstants
 	}
 
 	/**
-	 * metod generating the required namespaces
+	 * method for generating the required import statements
 	 * 
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void importNameSpaces(Appendable appendable) throws IOException
+	private void generateImportStatements(Appendable appendable) throws IOException
 	{
-		//importDefaultNamespaces(appendable);
+		addCurrentImportTargets(globalImportDependencies);
 		
-		// append all the registered namespace
-		if (libraryNamespaces != null && libraryNamespaces.size() > 0)
+		for (String namespace : currentImportDependencies.values())
 		{
-			for (String namespace : libraryNamespaces.values())
+			// do not append if it belogns to current namespace
+			if (!namespace.equals(currentNamespace) && !namespace.startsWith("java.lang."))
 			{
-				// do not append if it belogns to current namespace
-				if (!namespace.equals(currentNamespace) && !namespace.startsWith("java.lang."))
-				{
-					appendable.append(SINGLE_LINE_BREAK);
-					appendable.append(IMPORT);
-					appendable.append(SPACE);
-					appendable.append(namespace);
-					appendable.append(END_LINE);
-				}
+				appendable.append(SINGLE_LINE_BREAK);
+				appendable.append(IMPORT);
+				appendable.append(SPACE);
+				appendable.append(namespace);
+				appendable.append(END_LINE);
 			}
 		}
-
 		appendable.append(DOUBLE_LINE_BREAK);
-	}
-
-	/**
-	 * A method importing the default namespaces
-	 * 
-	 * @param appendable
-	 * @throws IOException
-	 */
-	private void importDefaultNamespaces(Appendable appendable) throws IOException
-	{
-		appendable.append(IMPORT);
-		appendable.append(SPACE);
-		appendable.append(JAVA);
-		appendable.append(DOT);
-		appendable.append(UTIL);
-		appendable.append(DOT);
-		appendable.append(JAVA_ARRAYLIST);
-		appendable.append(END_LINE);
-
-		//appendable.append(SINGLE_LINE_BREAK);
-
-		/*appendable.append(IMPORT);
-		appendable.append(SPACE);
-		appendable.append(ECOLOGYLAB_NAMESPACE);
-		appendable.append(END_LINE);*/
 	}
 
 	/**
@@ -402,7 +396,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	private void openNameSpace(String classNameSpace, Appendable appendable) throws IOException
 	{
 		currentNamespace = classNameSpace;
-		allNamespaces.put(currentNamespace, currentNamespace);
+		allImportDependencies.put(currentNamespace, currentNamespace);
 		
 		appendable.append(PACKAGE);
 		appendable.append(SPACE);
@@ -505,8 +499,8 @@ public class JavaTranslator implements JavaTranslationConstants
 		{			
 			for (String key : namespaces.keySet())
 			{
-				libraryNamespaces.put(key, namespaces.get(key));
-				allNamespaces.put(key, namespaces.get(key));
+				currentImportDependencies.put(key, namespaces.get(key));
+				allImportDependencies.put(key, namespaces.get(key));
 			}			
 		}	
 		
@@ -897,7 +891,7 @@ public class JavaTranslator implements JavaTranslationConstants
 				appendable.append(interfaces.get(i));
 				implementMappableInterface = true;
 	
-				libraryNamespaces.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
+				currentImportDependencies.put(Mappable.class.getPackage().getName(), Mappable.class.getPackage()
 						.getName());
 				
 			}		
@@ -1068,7 +1062,10 @@ public class JavaTranslator implements JavaTranslationConstants
 		return commentsArray;
 	}
 
-
+	public void addGlobalImportDependency(String fullClassName)
+	{
+		globalImportDependencies.add(fullClassName);
+	}
 	/**
 	 * Main method to test the working of the library.
 	 * 
