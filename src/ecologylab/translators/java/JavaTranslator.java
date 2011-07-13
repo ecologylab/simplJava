@@ -141,8 +141,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		Set<String> dependencies =  classDescriptor.deriveCompositeDependencies();
 		for (String dependencyClassName : dependencies)
 		{
-			libraryNamespaces.put(dependencyClassName , dependencyClassName);
-			allNamespaces.put(dependencyClassName, dependencyClassName);
+			addDependency(dependencyClassName);
 		}
 		
 		Set<ScalarType> scalarDependencies = classDescriptor.deriveScalarDependencies();
@@ -150,8 +149,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		for (ScalarType thatScalarType : scalarDependencies)
 		{
 			String typeName	= thatScalarType.getTypeClass().getName();
-			libraryNamespaces.put(typeName, typeName);
-			allNamespaces.put(typeName, typeName);			
+			addDependency(typeName);			
 		}
 		
 		Set<CollectionType> colletionDependencies = classDescriptor.deriveCollectionDependencies();
@@ -159,9 +157,17 @@ public class JavaTranslator implements JavaTranslationConstants
 		{
 			String collectionTypeName		= collectionType.getJavaName();
 			System.out.println("Collection Dependencies : " + collectionTypeName);
-			libraryNamespaces.put(collectionTypeName, collectionTypeName);
-			allNamespaces.put(collectionTypeName, collectionTypeName);			
+			addDependency(collectionTypeName);			
 		}
+	}
+
+	/**
+	 * @param typeName
+	 */
+	public void addDependency(String typeName)
+	{
+		libraryNamespaces.put(typeName, typeName);
+		allNamespaces.put(typeName, typeName);
 	}
 	
 	/**
@@ -1048,8 +1054,7 @@ public class JavaTranslator implements JavaTranslationConstants
 
 		for (String newImport : additionalImportLines)
 		{
-			libraryNamespaces.put(newImport, newImport);
-			allNamespaces.put(newImport, newImport);
+			addDependency(newImport);
 		}
 
 		this.additionalImportLines = additionalImportLines;
