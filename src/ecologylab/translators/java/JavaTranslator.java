@@ -66,8 +66,6 @@ public class JavaTranslator implements JavaTranslationConstants
 
 	private boolean									implementMappableInterface	= false;
 
-	private ArrayList<String>				additionalImportLines;
-
 	private ArrayList<ClassDescriptor> 				excludeClassesFromTranslation = new ArrayList<ClassDescriptor>();
 
 	/**
@@ -130,7 +128,6 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendHeaderComments(inputClass.getDescribedClassSimpleName(), header);
 
 		libraryNamespaces.clear();
-		setAdditionalImportNamespaces(additionalImportLines);
 
 		appendable.append(header);
 		appendable.append(classFile);
@@ -1050,21 +1047,6 @@ public class JavaTranslator implements JavaTranslationConstants
 	public void excludeClassFromTranslation(ClassDescriptor someClass)
 	{
 		excludeClassesFromTranslation.add(someClass);
-	}
-	
-	/**
-	 * Adding additional Imports in to the generated code
-	 * 
-	 * @param additionalImportLines
-	 */
-	public void setAdditionalImportNamespaces(ArrayList<String> additionalImportLines)
-	{
-		if (additionalImportLines == null)
-			return;
-
-		addDependencies(additionalImportLines);
-
-		this.additionalImportLines = additionalImportLines;
 	}
 	
 	/**
