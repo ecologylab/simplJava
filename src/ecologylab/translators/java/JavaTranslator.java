@@ -685,8 +685,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
 		{
 			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");
-			String simplInherit = simpl_inherit.class.getPackage().getName() + ".simpl_inherit";
-			addDependency(simplInherit);
+			addAnnotationDependency(simpl_inherit.class);
 		}
 		
 		String tagName = classDesc.getTagName();
@@ -694,8 +693,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");
-			String xmlTag = xml_tag.class.getPackage().getName() + ".xml_tag";
-			addDependency(xmlTag);
+			addAnnotationDependency(xml_tag.class);
 		}		
 		
 		// TODO @xml_other_tags
@@ -703,13 +701,16 @@ public class JavaTranslator implements JavaTranslationConstants
 		if (otherTags != null && otherTags.size() > 0)
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
-			String xmlOtherTag = xml_other_tags.class.getPackage().getName() + ".xml_other_tags";
-			addDependency(xmlOtherTag);
+			addAnnotationDependency(xml_other_tags.class);
 		}
 		
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
 	}
 	
+	protected void addAnnotationDependency(Class annotationClass)
+	{
+		addDependency(annotationClass.getCanonicalName());
+	}
 	/**
 	 * (for adding customized annotations, e.g. meta-metadata specific ones)
 	 * 
