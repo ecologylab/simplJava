@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ecologylab.collections.Scope;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.types.scalar.MappingConstants;
@@ -48,9 +50,9 @@ implements MappingConstants
 	{
 		new CollectionType(JAVA_ARRAYLIST, ArrayList.class, DOTNET_ARRAYLIST, OBJC_ARRAYLIST, false);
 		
-		new CollectionType(JAVA_HASHMAP, ArrayList.class, DOTNET_HASHMAP, OBJC_HASHMAP, true);
-		new CollectionType(JAVA_HASHMAPARRAYLIST, ArrayList.class, DOTNET_HASHMAPARRAYLIST, OBJC_HASHMAPARRAYLIST, true);
-		new CollectionType(JAVA_SCOPE, ArrayList.class, DOTNET_SCOPE, OBJC_SCOPE, true);
+		new CollectionType(JAVA_HASHMAP, HashMap.class, DOTNET_HASHMAP, OBJC_HASHMAP, true);
+		new CollectionType(JAVA_HASHMAPARRAYLIST, HashMapArrayList.class, DOTNET_HASHMAPARRAYLIST, OBJC_HASHMAPARRAYLIST, true);
+		new CollectionType(JAVA_SCOPE, Scope.class, DOTNET_SCOPE, OBJC_SCOPE, true);
 	}
 	
 	/**
