@@ -430,7 +430,6 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		}
 		
 		this.sessionScope = sessionScope;
-		this.translationScope = translationScope;
 
 		// this is the one and only singleton Environment
 		Environment.the.set(this);
@@ -446,6 +445,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			// default translation scope changed by andruid 5/27/10
 			translationScope = prefTranslations;
 //		translationScope = DefaultServicesTranslations.get();
+		
+		this.translationScope = translationScope;
 
 		Stack<String> argStack = new Stack<String>();
 
