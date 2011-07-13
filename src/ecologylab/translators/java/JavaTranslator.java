@@ -6,13 +6,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
@@ -32,13 +30,13 @@ import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
+import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
 import ecologylab.standalone.xmlpolymorph.Schmannel;
-import ecologylab.translators.parser.JavaDocParser;
+import ecologylab.translators.net.DotNetTranslationException;
 
 /**
  * This class is the main class which provides the functionality of translation of Translation Scope into
@@ -138,29 +136,31 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(classFile);
 	}
 
-	private void addNamespaces(ClassDescriptor thatClass)
+	private void addNamespaces(ClassDescriptor classDescriptor)
 	{
-		ArrayList<ClassDescriptor> dependencies =  thatClass.getCompositrDependencies();
-		for(ClassDescriptor classDesc : dependencies)
+		Set<String> dependencies =  classDescriptor.deriveCompositeDependencies();
+		for (String dependencyClassName : dependencies)
 		{
-			libraryNamespaces.put(classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName() , classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName());
-			allNamespaces.put(classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName(), classDesc.getDescribedClassPackageName() + "." + classDesc.getDescribedClassSimpleName());
+			libraryNamespaces.put(dependencyClassName , dependencyClassName);
+			allNamespaces.put(dependencyClassName, dependencyClassName);
 		}
 		
-		ArrayList<String> scalarDependencies = thatClass.getScalarDependencies();
-		System.out.println("No of scalarDependencies : " + scalarDependencies.size());
-		for(String type : scalarDependencies)
+		Set<ScalarType> scalarDependencies = classDescriptor.deriveScalarDependencies();
+		System.out.println(classDescriptor.getDescribedClassName()+" HAS " + scalarDependencies.size() + " scalar dependencies\n");
+		for (ScalarType thatScalarType : scalarDependencies)
 		{
-			libraryNamespaces.put(type, type);
-			allNamespaces.put(type, type);			
+			String typeName	= thatScalarType.getTypeClass().getName();
+			libraryNamespaces.put(typeName, typeName);
+			allNamespaces.put(typeName, typeName);			
 		}
 		
-		ArrayList<String> colelctionDependencies = thatClass.getCollectionDependencies();
-		for(String type : colelctionDependencies)
+		Set<CollectionType> colletionDependencies = classDescriptor.deriveCollectionDependencies();
+		for (CollectionType collectionType : colletionDependencies)
 		{
-			System.out.println("Collection Dependencies : " + type);
-			libraryNamespaces.put(type, type);
-			allNamespaces.put(type, type);			
+			String collectionTypeName		= collectionType.getJavaName();
+			System.out.println("Collection Dependencies : " + collectionTypeName);
+			libraryNamespaces.put(collectionTypeName, collectionTypeName);
+			allNamespaces.put(collectionTypeName, collectionTypeName);			
 		}
 	}
 	
