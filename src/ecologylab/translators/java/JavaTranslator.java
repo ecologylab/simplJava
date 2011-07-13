@@ -162,12 +162,14 @@ public class JavaTranslator implements JavaTranslationConstants
 	}
 
 	/**
-	 * @param typeName
+	 * Add a dependency, by name, for inclusion in imports, and such.
+	 * 
+	 * @param fullClassName
 	 */
-	public void addDependency(String typeName)
+	public void addDependency(String fullClassName)
 	{
-		libraryNamespaces.put(typeName, typeName);
-		allNamespaces.put(typeName, typeName);
+		libraryNamespaces.put(fullClassName, fullClassName);
+		allNamespaces.put(fullClassName, fullClassName);
 	}
 	
 	/**
@@ -682,8 +684,8 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(superClass != null && !superClass.getDescribedClassSimpleName().equals("ElementState"))
 		{
 			appendAnnotation(appendable,simpl_inherit.class.getSimpleName(),"");
-			allNamespaces.put(simpl_inherit.class.getPackage().getName() + ".simpl_inherit", simpl_inherit.class.getPackage().getName() +  ".simpl_inherit");
-			libraryNamespaces.put(simpl_inherit.class.getPackage().getName() + ".simpl_inherit", simpl_inherit.class.getPackage().getName()+ ".simpl_inherit");
+			String simplInherit = simpl_inherit.class.getPackage().getName() + ".simpl_inherit";
+			addDependency(simplInherit);
 		}
 		
 		String tagName = classDesc.getTagName();
@@ -691,8 +693,8 @@ public class JavaTranslator implements JavaTranslationConstants
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName),"\n");
-			allNamespaces.put(xml_tag.class.getPackage().getName() + ".xml_tag", xml_tag.class.getPackage().getName() +  ".xml_tag");
-			libraryNamespaces.put(xml_tag.class.getPackage().getName() + ".xml_tag", xml_tag.class.getPackage().getName()+ ".xml_tag");
+			String xmlTag = xml_tag.class.getPackage().getName() + ".xml_tag";
+			addDependency(xmlTag);
 		}		
 		
 		// TODO @xml_other_tags
@@ -700,8 +702,8 @@ public class JavaTranslator implements JavaTranslationConstants
 		if (otherTags != null && otherTags.size() > 0)
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaOtherTagsAnnotation(otherTags), "\n");
-			allNamespaces.put(xml_other_tags.class.getPackage().getName() + ".xml_other_tags", xml_other_tags.class.getPackage().getName() +  ".xml_other_tags");
-			libraryNamespaces.put(xml_other_tags.class.getPackage().getName() + ".xml_other_tags", xml_other_tags.class.getPackage().getName()+ ".xml_other_tags");
+			String xmlOtherTag = xml_other_tags.class.getPackage().getName() + ".xml_other_tags";
+			addDependency(xmlOtherTag);
 		}
 		
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
@@ -858,7 +860,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	{
 		appendClassComments(inputClass, appendable);
 
-		ClassDescriptor genericSuperclass = inputClass.getSuperClass();
+		ClassDescriptor genericSuperclassDescriptor = inputClass.getSuperClass();
 
 		appendClassAnnotations(appendable, inputClass, "");
 
@@ -873,11 +875,9 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(INHERITANCE_OPERATOR);
 		appendable.append(SPACE);
-		appendable.append(genericSuperclass.getDescribedClassSimpleName());
+		appendable.append(genericSuperclassDescriptor.getDescribedClassSimpleName());
 		
-		
-		libraryNamespaces.put(genericSuperclass.getDescribedClassPackageName() + "."+ genericSuperclass.getDescribedClassSimpleName(), genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName());
-		allNamespaces.put(genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName(), genericSuperclass.getDescribedClassPackageName()+ "." + genericSuperclass.getDescribedClassSimpleName());		
+		addDependency(genericSuperclassDescriptor.getDescribedClassName());
 	
 		ArrayList<String> interfaces = inputClass.getInterfaceList();
 
