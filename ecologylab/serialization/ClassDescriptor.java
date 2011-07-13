@@ -1061,10 +1061,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		HashSet<String> result = new HashSet<String>();
 		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
 		{
-			if (fd.isNested())
+			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
-				result.add(elementClassDescriptor.getDescribedClassName());
+				if (elementClassDescriptor != null)
+					result.add(elementClassDescriptor.getDescribedClassName());
 			}
 		}
 		if (superClass != null)
