@@ -1087,7 +1087,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			{
 				ScalarType<?> scalarType = fd.getScalarType();
 				if (!scalarType.isPrimitive())
-					result.add(scalarType);
+				{
+						result.add(scalarType);
+					ScalarType<?> operativeScalarType	= scalarType.operativeScalarType();
+					if (!scalarType.equals(operativeScalarType))
+						result.add(operativeScalarType);
+				}
 			}
 		}
 		/*
