@@ -468,15 +468,17 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		{
 			Pref.useAndSetPrefInt("graphics_device", Integer.parseInt(arg));
 
-			arg = pop(argStack);
-			if (arg == null)
-				return;
-
-			Pref.useAndSetPrefEnum(SCREEN_SIZE, WindowSize.valueOf(arg.toUpperCase()));
 		}
 		catch (NumberFormatException e)
 		{
 			argStack.push(arg);
+		}
+		try
+		{
+			arg = pop(argStack);
+			if (arg == null)
+				return;
+			Pref.useAndSetPrefInt(SCREEN_SIZE, WindowSize.valueOf(arg.toUpperCase()).ordinal());
 		}
 		catch (IllegalArgumentException e)
 		{
