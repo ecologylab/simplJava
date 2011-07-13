@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadataField;
+import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
@@ -77,6 +78,8 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 	{
 		if (fieldDescriptor.getType() == FieldTypes.SCALAR)
 		{
+			MetaMetadataScalarField scalar = (MetaMetadataScalarField) ((MetadataFieldDescriptor) fieldDescriptor).getDefiningMmdField();
+			
 			// metadata scalar types!
 			ScalarType<?> scalarType = fieldDescriptor.getScalarType();
 			if (scalarType == null)
@@ -85,7 +88,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 			String fieldName = fieldDescriptor.getFieldName();
 			String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 			String typeName = scalarType.getJavaType();
-			String mdTypeName = "Metadata" + (typeName.equals("int") ? "Integer" : typeName);
+			String mdTypeName = scalar.getTypeNameInJava();
 			
 			appendLazyEvaluation(fieldName, mdTypeName, appendable);
 			

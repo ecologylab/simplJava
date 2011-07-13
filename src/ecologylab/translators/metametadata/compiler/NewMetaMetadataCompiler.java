@@ -1,4 +1,4 @@
-package ecologylab.translators.metametadata;
+package ecologylab.translators.metametadata.compiler;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -17,6 +17,7 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.java.JavaTranslationException;
 import ecologylab.translators.java.JavaTranslationUtilities;
+import ecologylab.translators.metametadata.MetaMetadataJavaTranslator;
 
 public class NewMetaMetadataCompiler extends Debug
 {
@@ -25,21 +26,22 @@ public class NewMetaMetadataCompiler extends Debug
 	
 	private static final String	GENERATED_METADATA_TRANSLATION_SCOPE_CLASS_NAME	= "GeneratedMetadataTranslationScope";
 
-	public static final String	DEFAULT_GENERATED_SEMANTICS_LOCATION	= ".." + Files.sep + "ecologylabGeneratedSemantics";
-	
 	public static final String	META_METADATA_COMPILER_TSCOPE_NAME		= "meta-metadata-compiler-tscope";
 
-	public void compile() throws IOException, SIMPLTranslationException, JavaTranslationException
+	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		MetaMetadataRepository repository = MetaMetadataRepositoryInit.getRepository();
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 		TranslationScope.setGraphSwitch();
-		MetaMetadataJavaTranslator jt = new MetaMetadataJavaTranslator();
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
+		
+		MetaMetadataJavaTranslator jt = new MetaMetadataJavaTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
 			jt.excludeClassFromTranslation(cd);
-		jt.translateToJava(new File(DEFAULT_GENERATED_SEMANTICS_LOCATION), tscope);
-		createTranslationScopeClass(DEFAULT_GENERATED_SEMANTICS_LOCATION, GENERATED_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, tscope);
+		
+		String generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
+		jt.translateToJava(new File(generatedSemanticsLocation), tscope);
+		createTranslationScopeClass(generatedSemanticsLocation, GENERATED_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, tscope);
 	}
 
 	public void createTranslationScopeClass(String generatedSemanticsRootDir, String packageName, TranslationScope compilerTScope) throws IOException
@@ -94,11 +96,25 @@ public class NewMetaMetadataCompiler extends Debug
 	 * @throws JavaTranslationException 
 	 * @throws SIMPLTranslationException 
 	 * @throws IOException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
+	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException, InstantiationException, IllegalAccessException
 	{
+		Class<? extends CompilerConfig> configClass = DefaultCompilerConfig.class;
+		int i = 0;
+		while (i < args.length)
+		{
+			if ("-orm".equals(args[i]))
+			{
+				configClass = ORMCompilerConfig.class;
+			}
+			++i;
+		}
+		
+		CompilerConfig config = configClass.newInstance();
 		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
-		compiler.compile();
+		compiler.compile(config);
 	}
 
 }
