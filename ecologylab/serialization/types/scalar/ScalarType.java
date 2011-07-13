@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
-import ecologylab.generic.Debug;
+import ecologylab.serialization.ElementState;
+import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
@@ -28,13 +29,31 @@ import ecologylab.serialization.TranslationContext;
  * 
  * @author andruid
  */
-public abstract class ScalarType<T> extends Debug
+public abstract class ScalarType<T> extends ElementState
 {
-	Class<? extends T>										thatClass;
+	Class<? extends T>					thatClass;
 
 	Class<T>										alternativeClass;
 	
-	// int index;
+	/**
+	 * Full name, with package, of the type.
+	 */
+	@simpl_scalar
+	String											name;
+	
+	/**
+	 * Short name of the type: without package.
+	 */
+	@simpl_scalar
+	String											simpleName;
+
+	/**
+	 * Package name, for non primitives.
+	 */
+	@simpl_scalar
+	String											packageName;
+	
+	@simpl_scalar
 	boolean											isPrimitive;
 
 	public static final Object	DEFAULT_VALUE					= null;
@@ -49,9 +68,13 @@ public abstract class ScalarType<T> extends Debug
 	 */
 	protected ScalarType(Class<? extends T> thatClass)
 	{
-		this.thatClass = thatClass;
-		// this.index = index;
-		this.isPrimitive = thatClass.isPrimitive();
+		this.thatClass 		= thatClass;
+		
+		this.isPrimitive 	= thatClass.isPrimitive();
+		this.name					= thatClass.getName();
+		this.simpleName		= thatClass.getSimpleName();
+		if (!isPrimitive)
+			this.packageName	= thatClass.getPackage().getName(); 
 	}
 
 	/**
