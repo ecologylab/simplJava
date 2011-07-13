@@ -916,7 +916,7 @@ public class JavaTranslator implements JavaTranslationConstants
 				if (i == 0)
 					appendable.append(typeVariable);
 				else
-					appendable.append(", " + typeVariable);
+					appendable.append(", ").append(typeVariable);
 				i++;
 			}
 			appendable.append('>');
