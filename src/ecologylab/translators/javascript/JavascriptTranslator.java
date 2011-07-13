@@ -23,6 +23,27 @@ public class JavascriptTranslator
 
 	}
 
+	/*
+	 function player(json,name,strength,speed,skin)
+{
+   this._simpl_object_name = "player";
+   this._simpl_collection_types = {};
+   this._simpl_map_types = {};
+   if(json)
+   {
+      jsonConstruct(json,this);
+      return;
+    }
+    else
+    {
+       if(name) this.name = name;
+       if(strength) this.strength = strength;
+       if(speed) this.speed = speed;
+       if(skin) this.skin = skin;
+    }
+}
+
+	 */
 	private void translateToJavascript(Class<? extends ElementState> inputClass, Appendable appendable)
 			throws IOException, DotNetTranslationException
 	{
@@ -30,10 +51,34 @@ public class JavascriptTranslator
 
 		HashMapArrayList<String, ? extends FieldDescriptor> fieldDescriptors = classDescriptor
 				.getFieldDescriptorsByFieldName();
-
-		appendable.append("function "+XMLTools.getXmlTagName(inputClass.getSimpleName()+"(",""));
+    String functionName = XMLTools.getXmlTagName(inputClass.getSimpleName(),"");
+		appendable.append("\nfunction "+functionName+"(");
 		//itterate through member's names... and add to parameters
-		appendable.append(")\n{\n");
+		String parameters = "json";
+		String constructFields = "";
+		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
+		{
+			String fieldName = XMLTools.getXmlTagName(fieldDescriptor.getFieldName(),"");
+			parameters += ","+fieldName;
+			constructFields += "\n        if("+fieldName+") this."+fieldName+" = "+fieldName+";";
+		}
+		
+		appendable.append(parameters+")\n{");
+		
+		String collectionTypes = "";
+		String mapTypes = "";
+		appendable.append("\n    this._simpl_object_name = \""+functionName+"\";");
+		appendable.append("\n    this._simpl_collection_types = {};");
+		appendable.append("\n    this._simpl_map_types = {};");
+		appendable.append("\n    if(json)");
+		appendable.append("\n    {");
+		appendable.append("\n        jsonConstruct(json,this);");
+		appendable.append("\n        return;");
+		appendable.append("\n    }");
+		appendable.append("\n    else");
+		appendable.append("\n    {");
+		appendable.append(constructFields);
+		appendable.append("\n    }");
 		
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
@@ -85,7 +130,7 @@ public class JavascriptTranslator
 		libraryNamespaces.clear();
 		setAdditionalImportNamespaces(additionalImportLines);
 */
-		appendable.append("\n}");
+		appendable.append("\n}\n\n");
 	}
 
 	private File createCSharpFileWithDirectoryStructure(Class<?> inputClass, File directoryLocation)
@@ -143,6 +188,11 @@ public class JavascriptTranslator
 		// if(workSpaceLocation != null)
 		// JavaDocParser.parseSourceFileIfExists(anotherScope,
 		// workSpaceLocation);
+		
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/testjs/js/gamething.js")));
+
+		
+		
 
 		System.out.println("generating classes...");
 
@@ -159,7 +209,8 @@ public class JavascriptTranslator
 			// continue;
 			// }
 			System.out.println("Translating " + inputClass + ".....  but not really :)");
-			translateToJavascript(inputClass, directoryLocation);
+			//translateToJavascript(inputClass, directoryLocation);
+			translateToJavascript(inputClass, bufferedWriter);
 		}
 
 		// create a folder to put the translation scope getter class
@@ -167,7 +218,7 @@ public class JavascriptTranslator
 		// createGetTranslationScopeFolder(directoryLocation);
 		// generate translation scope getter class
 		// generateTranslationScopeGetterClass(tScopeDirectory, tScope);
-
+		bufferedWriter.close();
 		System.out.println("DONE !");
 	}
 }
