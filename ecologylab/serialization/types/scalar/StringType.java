@@ -107,4 +107,16 @@ public class StringType extends ReferenceType<String>
 	{
 		return MappingConstants.JAVA_STRING;
 	}
+	
+	/**
+	 * When editing, determines whether delimiters can be included in token strings.
+	 * 
+	 * @return
+	 */
+	// FIXME -- Add String delimitersAfter to TextChunk -- interleaved with TextTokens, and
+	// get rid of this!!!
+	public boolean allowDelimitersInTokens()
+	{
+		return true;
+	}
 }
