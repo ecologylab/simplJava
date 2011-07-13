@@ -1062,10 +1062,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		if (additionalImportLines == null)
 			return;
 
-		for (String newImport : additionalImportLines)
-		{
-			addDependency(newImport);
-		}
+		addDependencies(additionalImportLines);
 
 		this.additionalImportLines = additionalImportLines;
 	}
