@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.translators.metametadata.test;
+package ecologylab.semantics.compiler.test;
 
 import java.io.File;
 import java.util.ArrayList;

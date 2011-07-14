@@ -1,4 +1,4 @@
-<meta_metadata_repository name="test_repo" package="ecologylab.semantics.generated.test.test_repo">
+<meta_metadata_repository name="test_other_tags" package="ecologylab.semantics.generated.test.test_other_tags">
 
 	<meta_metadata name="metadata" comment="The Metadata Class" built_in="true">
 		<scalar name="meta_metadata_name" tag="mm_name" hide="true" ignore_in_term_vector="true" comment="Stores the name of the meta-metadata, and is used on restoring from XML." scalar_type="String" />

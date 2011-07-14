@@ -1,4 +1,4 @@
-<meta_metadata_repository name="test_repo" package="ecologylab.semantics.generated.test.test_repo">
+<meta_metadata_repository name="test_scalar_collections" package="ecologylab.semantics.generated.test.test_scalar_collections">
 
 	<meta_metadata name="metadata" comment="The Metadata Class" built_in="true">
 		<scalar name="meta_metadata_name" tag="mm_name" hide="true" ignore_in_term_vector="true" comment="Stores the name of the meta-metadata, and is used on restoring from XML." scalar_type="String" />
@@ -14,9 +14,10 @@
 		<collection name="coll4" child_scalar_type="Int">
 			<scalar name="this_is_wrong" scalar_type="String" />
 		</collection>
-		<collection name="coll4" child_type="thing" child_extends="test" child_scalar_type="Int">
+		<collection name="coll5" child_type="thing" child_extends="test" child_scalar_type="Int">
 			<scalar name="this_is_wrong" scalar_type="String" /><!-- produces a warning -->
 		</collection>
+		<collection name="coll6" child_scalar_type="Float"/>
 	</meta_metadata>
 	
 </meta_metadata_repository>

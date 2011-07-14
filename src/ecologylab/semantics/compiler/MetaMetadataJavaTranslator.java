@@ -1,31 +1,34 @@
-package ecologylab.translators.metametadata;
+package ecologylab.semantics.compiler;
 
 import java.io.IOException;
 
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
+import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
-import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState.xml_other_tags;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
+import ecologylab.serialization.Hint;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.types.scalar.ScalarType;
 import ecologylab.translators.java.JavaTranslator;
 
 public class MetaMetadataJavaTranslator extends JavaTranslator
 {
+	
+	private static String[] metaMetadataDefaultImports = {
+		MetaMetadataCompositeField.class.getName(),
+		Hint.class.getName(),
+		xml_tag.class.getName().replace('$', '.'),
+		xml_other_tags.class.getName().replace('$', '.'),
+	};
 
 	public MetaMetadataJavaTranslator()
 	{
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	protected void appendClassAnnotationsHook(Appendable appendable, ClassDescriptor classDesc,
-			String tabSpacing)
-	{
-		// TODO Auto-generated method stub
-		super.appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
+		for (String importTarget : metaMetadataDefaultImports)
+			this.addGlobalImportDependency(importTarget);
 	}
 
 	@Override
@@ -88,11 +91,11 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 			String fieldName = fieldDescriptor.getFieldName();
 			String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 			String typeName = scalarType.getJavaType();
-			String mdTypeName = scalar.getTypeNameInJava();
 			
-			appendLazyEvaluation(fieldName, mdTypeName, appendable);
+			appendLazyEvaluation(fieldName, typeName, appendable);
 			
-			appendable.append("\tpublic ").append(typeName).append(" get").append(capFieldName).append("()\n");
+			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaType();
+			appendable.append("\tpublic ").append(javaPrimitiveTypeName).append(" get").append(capFieldName).append("()\n");
 			appendable.append("\t{\n");
 			appendable.append("\t\treturn this.").append(fieldName).append("().getValue();\n");
 			appendable.append("\t}\n\n");
@@ -116,9 +119,9 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 			
 			String fieldName = fieldDescriptor.getFieldName();
 			String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-			String typeName = scalarType.getJavaType();
 			
-			appendable.append("\tpublic void set").append(capFieldName).append("(").append(typeName).append(" ").append(fieldName).append(")\n");
+			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaType();
+			appendable.append("\tpublic void set").append(capFieldName).append("(").append(javaPrimitiveTypeName).append(" ").append(fieldName).append(")\n");
 			appendable.append("\t{\n");
 			appendable.append("\t\tthis.").append(fieldName).append("().setValue(").append(fieldName).append(");\n");
 			appendable.append("\t}\n\n");

@@ -1,4 +1,4 @@
-package ecologylab.translators.metametadata.test;
+package ecologylab.semantics.compiler.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,73 +6,81 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
+import ecologylab.io.Files;
+import ecologylab.semantics.compiler.CompilerConfig;
+import ecologylab.semantics.compiler.DefaultCompilerConfig;
+import ecologylab.semantics.compiler.NewMetaMetadataCompiler;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionField;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
-import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.translators.java.JavaTranslationException;
-import ecologylab.translators.metametadata.MetaMetadataJavaTranslator;
 
 public class TestNewMetaMetadataCompiler
 {
 	
-	private static void doTest(String TSName, File testingRepository, File outputDir) throws IOException, SIMPLTranslationException, JavaTranslationException
+	private static void doTest(String testName, final File testingRepository) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		System.err.println("\n\n\n\nTest: " + TSName + "\n\n\n\n\n");
+		System.err.println("\n\n\n\nTest: " + testName + "\n\n\n\n\n");
 		
-		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(testingRepository);
-		TranslationScope tscope = repository.traverseAndGenerateTranslationScope(TSName);
-		TranslationScope.setGraphSwitch();
-		MetaMetadataJavaTranslator jt = new MetaMetadataJavaTranslator();
-		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
-		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
-			jt.excludeClassFromTranslation(cd);
-		jt.translateToJava(outputDir, tscope);
+		CompilerConfig config = new DefaultCompilerConfig() {
+			@Override
+			public String getGeneratedSemanticsLocation()
+			{
+				return ".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src";
+			}
+
+			@Override
+			public MetaMetadataRepository loadRepository()
+			{
+				return MetaMetadataRepository.readRepository(testingRepository);
+			}
+		};
+		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
+		compiler.compile(config);
 	}
 	
 	public static void testGeneratingBasicTScope() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("basic-tscope", new File("data/testRepository/testGeneratingBasicTScope.xml"), new File("c:/tmp/testbasictscope/"));
+		doTest("basic-tscope", new File("data/testRepository/testGeneratingBasicTScope.xml"));
 	}
 	
 	public static void testTypeGraphs() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("type-graphs", new File("data/testRepository/testTypeGraphs.xml"), new File("c:/tmp/testtypegraphs/"));
+		doTest("type-graphs", new File("data/testRepository/testTypeGraphs.xml"));
 	}
 
 	public static void testInlineMmd() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("inline-mmd", new File("data/testRepository/testInlineMmd.xml"), new File("c:/tmp/testinlinemmd/"));
+		doTest("inline-mmd", new File("data/testRepository/testInlineMmd.xml"));
 	}
 
 	public static void testArticles() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("articles", new File("data/testRepository/testArticles.xml"), new File("c:/tmp/testarticles/"));
+		doTest("articles", new File("data/testRepository/testArticles.xml"));
 	}
 	
 	public static void testScalarCollections() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("scalar-collections", new File("data/testRepository/testScalarCollections.xml"), new File("c:/tmp/testscalarcollections/"));
+		doTest("scalar-collections", new File("data/testRepository/testScalarCollections.xml"));
 	}
 	
 	public static void testPolymorphicFields() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("poly-fields", new File("data/testRepository/testPolymorphicFields.xml"), new File("c:/tmp/testpolyfields/"));
+		doTest("poly-fields", new File("data/testRepository/testPolymorphicFields.xml"));
 	}
 	
 	public static void testOtherTags() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("other-tags", new File("data/testRepository/testOtherTags.xml"), new File("c:/tmp/testothertags/"));
+		doTest("other-tags", new File("data/testRepository/testOtherTags.xml"));
 	}
 	
 	public static void testPolymorphicScope() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		doTest("poly-scope", new File("data/testRepository/testPolymorphicScope.xml"), new File("c:/tmp/testpolyscope/"));
+		doTest("poly-scope", new File("data/testRepository/testPolymorphicScope.xml"));
 	}
 	
 	/**
