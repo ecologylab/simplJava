@@ -1436,12 +1436,11 @@ public final class TranslationScope extends ElementState
 					}
 					else if (fieldDescriptor.isPolymorphic())
 					{
-						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
-								.getTagClassDescriptors();
+						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor.getPolymorphicClassDescriptors();
 
-						if (tagClassDescriptors != null)
+						if (polymorphDescriptors != null)
 						{
-							for (ClassDescriptor<?, ?> classDescriptor : tagClassDescriptors)
+							for (ClassDescriptor<?, ?> classDescriptor : polymorphDescriptors)
 							{
 								augmentTranslationScope(classDescriptor.getDescribedClass(), augmentedClasses);
 							}
@@ -1574,12 +1573,11 @@ public final class TranslationScope extends ElementState
 					}
 					else if (fieldDescriptor.isPolymorphic())
 					{
-						HashMapArrayList<String, ? extends ClassDescriptor> tagClassDescriptors = fieldDescriptor
-								.getTagClassDescriptors();
+						Collection<ClassDescriptor> polymorphDescriptors = fieldDescriptor.getPolymorphicClassDescriptors();
 
-						if (tagClassDescriptors != null)
+						if (polymorphDescriptors != null)
 						{
-							for (ClassDescriptor<?, ?> classDescriptor : tagClassDescriptors)
+							for (ClassDescriptor<?, ?> classDescriptor : polymorphDescriptors)
 							{
 								augmentTranslationScope(classDescriptor, augmentedClasses);
 							}

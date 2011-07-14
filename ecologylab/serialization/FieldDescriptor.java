@@ -234,7 +234,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		this.fieldType = field.getType().getSimpleName();
 		this.fieldName = (field != null) ? field.getName() : "NULL";
 
-		deriveTagClassDescriptors(field);
+		derivePolymorphicDescriptors(field);
 ;
 		// if (!isPolymorphic())
 		this.tagName = XMLTools.getXmlTagName(field); // uses field name or @xml_tag declaration
@@ -329,13 +329,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	}
 
 	/**
-	 * Process annotations that use meta-language to map tags for translate from based on classes
+	 * Process annotations for polymorphic fields.
+	 * These use meta-language to map tags for translate from based on classes
 	 * (instead of field names).
 	 * 
 	 * @param field
 	 * @return
 	 */
-	private boolean deriveTagClassDescriptors(Field field)
+	private boolean derivePolymorphicDescriptors(Field field)
 	{
 		// @xml_scope
 		final ElementState.simpl_scope scopeAnnotationObj = field
@@ -357,25 +358,31 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				.value();
 		if ((classesAnnotation != null) && (classesAnnotation.length > 0))
 		{
-			initTagClassDescriptorsArrayList(classesAnnotation.length);
+			initPolymorphClassDescriptorsArrayList(classesAnnotation.length);
 			for (Class thatClass : classesAnnotation)
 				if (ElementState.class.isAssignableFrom(thatClass))
 				{
 					ClassDescriptor classDescriptor = ClassDescriptor.getClassDescriptor(thatClass);
-					putTagClassDescriptor(classDescriptor);
+					registerPolymorphicDescriptor(classDescriptor);
 					polymorphClasses.put(classDescriptor.getTagName(), classDescriptor.getDescribedClass());
 				}
 		}
 		return polymorphClassDescriptors != null;
 	}
 
-	protected void putTagClassDescriptor(ClassDescriptor classDescriptor)
+	/**
+	 * Register a ClassDescriptor that is polymorphically engaged with this field.
+	 * 
+	 * @param classDescriptor
+	 */
+	protected void registerPolymorphicDescriptor(ClassDescriptor classDescriptor)
 	{
 		if (polymorphClassDescriptors == null)
-			initTagClassDescriptorsArrayList(1);
-		
-		polymorphClassDescriptors.put(classDescriptor.getTagName(), classDescriptor);
-		tlvClassDescriptors.put(classDescriptor.getTagName().hashCode(), classDescriptor);
+			initPolymorphClassDescriptorsArrayList(1);
+
+		String classTag = classDescriptor.getTagName();
+		polymorphClassDescriptors.put(classTag, classDescriptor);
+		tlvClassDescriptors.put(classTag.hashCode(), classDescriptor);
 
 		ArrayList<String> otherTags = classDescriptor.otherTags();
 		if (otherTags != null)
@@ -403,7 +410,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (scope != null)
 		{
 			Collection<ClassDescriptor> scopeClassDescriptors = scope.getClassDescriptors();
-			initTagClassDescriptorsArrayList(scopeClassDescriptors.size());
+			initPolymorphClassDescriptorsArrayList(scopeClassDescriptors.size());
 			for (ClassDescriptor classDescriptor : scopeClassDescriptors)
 			{
 				String tagName = classDescriptor.getTagName();
@@ -430,12 +437,12 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		if (result)
 		{
 			unresolvedScopeAnnotation = null;
-			declaringClassDescriptor.mapTagClassDescriptors(this);
+			declaringClassDescriptor.mapPolymorphicClassDescriptors(this);
 		}
 		return result;
 	}
 
-	private void initTagClassDescriptorsArrayList(int initialSize)
+	private void initPolymorphClassDescriptorsArrayList(int initialSize)
 	{
 		if (polymorphClassDescriptors == null)
 			polymorphClassDescriptors = new HashMapArrayList<String, ClassDescriptor>(initialSize);
@@ -1569,15 +1576,34 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				+ " type=0x" + Integer.toHexString(type) + "]";
 	}
 
-	public HashMapArrayList<String, ClassDescriptor> getTagClassDescriptors()
+	/**
+	 * If this field is polymorphic, a Collection of ClassDescriptors for the polymorphically associated classes.
+	 * 
+	 * @return	Collection, or null, if the field is not polymorphic
+	 */
+	public Collection<ClassDescriptor> getPolymorphicClassDescriptors()
 	{
-		if (polymorphClassDescriptors == null)
-			return null;
-		else
-			return polymorphClassDescriptors;
+		return (polymorphClassDescriptors == null || polymorphClassDescriptors.size() == 0) ?
+			null :
+			polymorphClassDescriptors.values();
 	}
 	
-	public HashMap<String, Class> getTagClasses()
+	/**
+	 * If this field is polymorphic, a Collection of Strings of all possible tags
+	 * for the polymorphically associated classes.
+	 * This is usually the tagName field of each ClassDescriptor.
+	 * But it may be more, specifically if any of the classes are defined with @xml_other_tags.
+	 * 
+	 * @return	Collection, or null, if the field is not polymorphic
+	 */
+	public Collection<String> getPolymorphicTags()
+	{
+		return (polymorphClassDescriptors == null || polymorphClassDescriptors.size() == 0) ?
+				null :
+				polymorphClassDescriptors.keySet();
+	}
+	
+	public HashMap<String, Class> getPolymorphicClasses()
 	{
 		if (polymorphClasses == null)
 			return null;

@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -602,58 +603,48 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			if (fieldDescriptor.isWrapped())
 			{
 				FD wrapper = newFieldDescriptor(fieldDescriptor, fieldTagName, fieldDescriptorClass);
-				mapTagToFdForTranslateFrom(fieldTagName, wrapper);
-				mapOtherTagsToFdForTranslateFrom(wrapper, fieldDescriptor.otherTags());
+				mapTagToFdForDeserialize(fieldTagName, wrapper);
+				mapOtherTagsToFdForDeserialize(wrapper, fieldDescriptor.otherTags());
 			}
 			else if (!fieldDescriptor.isPolymorphic()) // tag(s) from field, not from class :-)
 			{
 				String tag = fieldDescriptor.isCollection() ? fieldDescriptor.getCollectionOrMapTagName()
 						: fieldTagName;
-				mapTagToFdForTranslateFrom(tag, fieldDescriptor);
-				mapOtherTagsToFdForTranslateFrom(fieldDescriptor, fieldDescriptor.otherTags());
+				mapTagToFdForDeserialize(tag, fieldDescriptor);
+				mapOtherTagsToFdForDeserialize(fieldDescriptor, fieldDescriptor.otherTags());
 			}
 			else
 			{ // add mappings by class tagNames for polymorphic elements & collections
 				// TODO add support for wrapped polymorphic collections!
-				mapTagClassDescriptors(fieldDescriptor);
+				mapPolymorphicClassDescriptors(fieldDescriptor);
 			}
 			thatField.setAccessible(true); // else -- ignore non-annotated fields
 		} // end for all fields
 		return fieldDescriptorClass;
 	}
 
-	protected void mapOtherTagsToFdForTranslateFrom(FD fieldDescriptor, ArrayList<String> otherTags)
+	protected void mapOtherTagsToFdForDeserialize(FD fieldDescriptor, ArrayList<String> otherTags)
 	{
 		if (otherTags != null)
 		{
 			// TODO -- @xml_other_tags for collection/map how should it work?!
 			for (String otherTag : otherTags)
-				mapTagToFdForTranslateFrom(otherTag, fieldDescriptor);
+				mapTagToFdForDeserialize(otherTag, fieldDescriptor);
 		}
 	}
 
 	/**
 	 * @param fieldDescriptor
 	 */
-	void mapTagClassDescriptors(FD fieldDescriptor)
+	void mapPolymorphicClassDescriptors(FD fieldDescriptor)
 	{
-		HashMapArrayList<String, ClassDescriptor> tagClassDescriptors = fieldDescriptor
-				.getTagClassDescriptors();
+		Collection<String> tagClassDescriptors = fieldDescriptor.getPolymorphicTags();
 
 		if (tagClassDescriptors != null)
-			for (String tagName : tagClassDescriptors.keySet())
+			for (String tagName : tagClassDescriptors)
 			{
-				mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
+				mapTagToFdForDeserialize(tagName, fieldDescriptor);
 			}
-
-		// Collection<ClassDescriptor> tagClassDescriptors = fieldDescriptor.getTagClassDescriptors();
-		// if (tagClassDescriptors != null)
-		// {
-		// for (ClassDescriptor classDescriptor: tagClassDescriptors)
-		// {
-		// mapTagToFdForTranslateFrom(classDescriptor.tagName, fieldDescriptor);
-		// }
-		// }
 	}
 
 	static final Class[]	FIELD_DESCRIPTOR_ARGS	=
@@ -703,7 +694,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * @param tagName
 	 * @param fdToMap
 	 */
-	private void mapTagToFdForTranslateFrom(String tagName, FD fdToMap)
+	private void mapTagToFdForDeserialize(String tagName, FD fdToMap)
 	{
 		if (!fdToMap.isWrapped())
 		{
@@ -740,7 +731,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		// FIXME is tag determined by field by class?
 		String tagName = fieldDescriptor.getTagName();
 		if (tagName != null)
-			mapTagToFdForTranslateFrom(tagName, fieldDescriptor);
+			mapTagToFdForDeserialize(tagName, fieldDescriptor);
 	}
 	
 	/**
@@ -1026,9 +1017,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				if (elementClassDescriptor != null)
 					result.add(elementClassDescriptor);
 				
-				HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fd.getTagClassDescriptors();
+				Collection<ClassDescriptor> polyClassDescriptors = fd.getPolymorphicClassDescriptors();
 				if (polyClassDescriptors != null)
-					for (ClassDescriptor polyCd : polyClassDescriptors.values())
+					for (ClassDescriptor polyCd : polyClassDescriptors)
 						result.add(polyCd);
 			}
 		}
