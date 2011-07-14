@@ -291,7 +291,7 @@ public class Debug
 /**
  * @return  the abbreviated name of this class - without the package qualifier.
  */
-   public String getClassName()
+   public String getClassSimpleName()
    {
       return getClassName(this);
    }
