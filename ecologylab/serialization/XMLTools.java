@@ -275,7 +275,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		String result = getXmlTagAnnotationIfPresent(tagAnnotation);
 		if (result == null)
 		{
-			result = getXmlTagName(getClassName(thatClass), suffix);
+			result = getXmlTagName(getClassSimpleName(thatClass), suffix);
 		}
 		return result;
 	}
@@ -488,7 +488,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	public static String fieldNameFromObject(ElementState elementState)
 	{
 		StringBuilder result = new StringBuilder(DEFAULT_TAG_LENGTH);
-		String elementName = getClassName(elementState);
+		String elementName = getClassSimpleName(elementState);
 
 		for (int i = 0; i < elementName.length(); i++)
 		{
@@ -514,7 +514,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	 *          the <code>Class</code> type of an object
 	 * @return the abbreviated name of the class - without the package qualifier
 	 */
-	public static String getClassName(Class thatClass)
+	public static String getClassSimpleName(Class thatClass)
 	{
 		String fullName = thatClass.getName();
 		String abbrevName = classAbbrevNames.get(fullName);
@@ -568,9 +568,9 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	 *          the object
 	 * @return the abbreviated name of the class - without the package qualifier.
 	 */
-	public static String getClassName(Object o)
+	public static String getClassSimpleName(Object o)
 	{
-		return getClassName(o.getClass());
+		return getClassSimpleName(o.getClass());
 	}
 
 	public static final int				UTF16_LE				= 0;
@@ -590,9 +590,9 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	 * 
 	 * @return the abbreviated name of this class - without the package qualifier
 	 */
-	public String getClassName()
+	public String getClassSimpleName()
 	{
-		return getClassName(this);
+		return getClassSimpleName(this);
 	}
 
 	/**
@@ -620,7 +620,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 	public String toString()
 	{
-		return getClassName(this);
+		return getClassSimpleName(this);
 	}
 
 	/**
@@ -941,7 +941,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 	public static String toString(Object o)
 	{
-		return getClassName(o);
+		return getClassSimpleName(o);
 	}
 
 	/**
