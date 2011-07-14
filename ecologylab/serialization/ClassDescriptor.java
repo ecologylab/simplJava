@@ -881,7 +881,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	public String getSuperClassName()
 	{
-		return XMLTools.getClassName(describedClass.getSuperclass());
+		return XMLTools.getClassSimpleName(describedClass.getSuperclass());
 	}
 
 	public static void main(String[] s)
