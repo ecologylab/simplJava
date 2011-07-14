@@ -1066,6 +1066,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
 				if (elementClassDescriptor != null)
 					result.add(elementClassDescriptor.getDescribedClassName());
+				
+				HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fd.getTagClassDescriptors();
+				if (polyClassDescriptors != null)
+					for (ClassDescriptor polyCd : polyClassDescriptors.values())
+						result.add(polyCd.getDescribedClassName());
 			}
 		}
 		if (superClass != null)
