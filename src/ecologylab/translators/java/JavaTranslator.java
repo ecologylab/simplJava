@@ -654,10 +654,10 @@ public class JavaTranslator implements JavaTranslationConstants
 		}		
 		
 		// @simpl_classes
-		HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fieldDescriptor.getTagClassDescriptors();
-		if (polyClassDescriptors != null && polyClassDescriptors.size() > 0)
+		Collection<ClassDescriptor> polyClassDescriptors = fieldDescriptor.getPolymorphicClassDescriptors();
+		if (polyClassDescriptors != null)
 		{
-			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors.values());
+			HashSet<ClassDescriptor> classDescriptors = new HashSet<ClassDescriptor>(polyClassDescriptors);
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaClassesAnnotation(classDescriptors), TAB);
 		}
 		

@@ -1110,7 +1110,7 @@ public class CocoaTranslator
 			
 			if(fieldDescriptor.isPolymorphic())
 			{
-				HashMap<String, Class> tagClasses = fieldDescriptor.getTagClasses();
+				HashMap<String, Class> tagClasses = fieldDescriptor.getPolymorphicClasses();
 				
 				if(tagClasses != null)
 					for(Class classObj : tagClasses.values())
