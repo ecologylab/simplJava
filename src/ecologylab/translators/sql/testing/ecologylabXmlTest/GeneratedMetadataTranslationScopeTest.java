@@ -7,7 +7,7 @@ package ecologylab.translators.sql.testing.ecologylabXmlTest;
  **/
 
 // import sun.awt.image.ImageWatched.Link;
-import ecologylab.semantics.generated.library.GeneratedMetadataTranslationScope;
+import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.serialization.TranslationScope;
 
 /**
@@ -21,6 +21,6 @@ public class GeneratedMetadataTranslationScopeTest
 	public static TranslationScope get()
 	{
 		return TranslationScope.get("generated_metadata_translations_test",
-				GeneratedMetadataTranslationScope.get(), TRANSLATIONS);
+				RepositoryMetadataTranslationScope.get(), TRANSLATIONS);
 	}
 }

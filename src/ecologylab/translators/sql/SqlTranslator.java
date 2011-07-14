@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ecologylab.generic.HashMapArrayList;
-import ecologylab.semantics.generated.library.GeneratedMetadataTranslationScope;
+import ecologylab.semantics.generated.library.RepositoryMetadataTranslationScope;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
@@ -241,7 +241,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 				RssStateTest.class, ItemTest.class, ChannelTest.class, PdfTest.class);
 		
 		/*test case for GeneratedMetadataTranslationScope*/ 
-		thisTranslationScope = GeneratedMetadataTranslationScope.get();
+		thisTranslationScope = RepositoryMetadataTranslationScope.get();
 		
 		Collection<ClassDescriptor> thisClassDescriptor = thisTranslationScope.getClassDescriptors();
 		for (ClassDescriptor classDescriptor : thisClassDescriptor)
@@ -588,7 +588,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 			
 //		thisTranslationScope = TranslationScope.get("thisTranslationScope", RssStateTest.class, ItemTest.class, ChannelTest.class);
 		
-		thisTranslationScope = GeneratedMetadataTranslationScope.get(); 
+		thisTranslationScope = RepositoryMetadataTranslationScope.get(); 
 		 
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_CREATE_TABLE_MODE);
 		thisSqlTranslator.createSQLTableSchema(thisTranslationScope, DEFAULT_COMPOSITE_TYPE_TABLE_MODE);

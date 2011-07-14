@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import ecologylab.appframework.PropertiesAndDirectories;
 import ecologylab.generic.Debug;
 import ecologylab.io.Files;
-import ecologylab.semantics.collecting.MetaMetadataRepositoryInit;
 import ecologylab.semantics.metadata.builtins.MetadataBuiltinsTranslationScope;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
 import ecologylab.semantics.namesandnums.SemanticsNames;
@@ -21,11 +20,11 @@ import ecologylab.translators.java.JavaTranslationUtilities;
 public class NewMetaMetadataCompiler extends Debug
 {
 
-	private static final String	GENERATED_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
+	private static final String	REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME	= "ecologylab.semantics.generated.library";
 
-	private static final String	GENERATED_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "GeneratedMetadataTranslationScope";
+	private static final String	REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME		= "RepositoryMetadataTranslationScope";
 
-	public static final String	META_METADATA_COMPILER_TSCOPE_NAME								= "meta-metadata-compiler-tscope";
+	private static final String	META_METADATA_COMPILER_TSCOPE_NAME									= "meta-metadata-compiler-tscope";
 
 	public void compile(CompilerConfig config) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
@@ -42,21 +41,21 @@ public class NewMetaMetadataCompiler extends Debug
 		String generatedSemanticsLocation = config.getGeneratedSemanticsLocation();
 		debug("\n\ncompiling to " + generatedSemanticsLocation + " ...\n\n");
 		jt.translateToJava(new File(generatedSemanticsLocation), tscope);
-		createTranslationScopeClass(generatedSemanticsLocation, GENERATED_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, tscope);
+		createTranslationScopeClass(generatedSemanticsLocation, REPOSITORY_METADATA_TRANSLATION_SCOPE_PACKAGE_NAME, tscope);
 	}
 
 	public void createTranslationScopeClass(String generatedSemanticsRootDir, String packageName, TranslationScope compilerTScope) throws IOException
 	{
 		File rootDir = PropertiesAndDirectories.createDirsAsNeeded(new File(generatedSemanticsRootDir));
 		File packageDir = PropertiesAndDirectories.createDirsAsNeeded(new File(rootDir, packageName.replace('.', Files.sep)));
-		File file = new File(packageDir, GENERATED_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
+		File file = new File(packageDir, REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME + ".java");
 		PrintWriter printWriter = new PrintWriter(new FileWriter(file));
 		
 		// Write the package
 		printWriter.println("package " + packageName + ";\n");
 
 		// write java doc comment
-		printWriter.println(JavaTranslationUtilities.getJavaClassComments(GENERATED_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
+		printWriter.println(JavaTranslationUtilities.getJavaClassComments(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME));
 		printWriter.println("\n");
 
 		// Write the import statements
