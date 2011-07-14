@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.ElementState;
@@ -21,7 +22,7 @@ import ecologylab.serialization.types.scalar.MappingConstants;
  * @author andruid
  */
 public class CollectionType extends ElementState
-implements MappingConstants
+implements MappingConstants, Describable
 {
 	/**
 	 * This is a platform-independent identifier that S.IM.PL uses for the CollectionType.
@@ -129,15 +130,29 @@ implements MappingConstants
 		return mapByClassName.get(javaClassName);
 	}
 	
-	
 	public String getName()
 	{
 		return name;
 	}
 
+	/**
+	 * The full, qualified name of the class that this describes
+	 * @return
+	 */
 	public String getJavaName()
 	{
 		return javaName;
+	}
+
+	/**
+	 * The full, qualified name of the class that this describes
+	 * 
+	 * @return	Full Java class name.
+	 */
+	@Override
+	public String getDescription()
+	{
+		return getJavaName();
 	}
 
 	public String getJavaSimpleName()

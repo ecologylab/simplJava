@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
+import ecologylab.generic.Describable;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.FieldDescriptor;
@@ -30,6 +31,7 @@ import ecologylab.serialization.TranslationContext;
  * @author andruid
  */
 public abstract class ScalarType<T> extends ElementState
+implements Describable
 {
 	Class<? extends T>					thatClass;
 
@@ -199,12 +201,24 @@ public abstract class ScalarType<T> extends ElementState
 	/**
 	 * @return Returns the simple className (unqualified) for this type.
 	 */
-	@Override
-	public String getClassName()
+	public String getClassSimpleName()
 	{
 		return thatClass.getSimpleName();
 	}
 
+	/**
+	 * @return Returns the full, qualified name of the class for this type.
+	 */
+	public String getClassFullName()
+	{
+		return thatClass.getName();
+	}
+
+	@Override
+	public String getDescription()
+	{
+		return getClassFullName();
+	}
 	/**
 	 * @return Returns the integer index associated with this type.
 	 */
@@ -481,7 +495,7 @@ public abstract class ScalarType<T> extends ElementState
 		String result = fieldTypeName;
 		if (result == null)
 		{
-			result = this.getClassName();
+			result = this.getClassSimpleName();
 			int index = result.indexOf("Type");
 			if (index != -1)
 			{
