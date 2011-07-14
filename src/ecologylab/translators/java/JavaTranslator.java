@@ -13,8 +13,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ecologylab.generic.Debug;
+import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
+import ecologylab.serialization.ElementState.simpl_composite;
+import ecologylab.serialization.ElementState.simpl_nowrap;
+import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.ElementState.xml_other_tags;
+import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Hint;
@@ -22,11 +28,6 @@ import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.ElementState.simpl_composite;
-import ecologylab.serialization.ElementState.simpl_nowrap;
-import ecologylab.serialization.ElementState.simpl_scalar;
-import ecologylab.serialization.ElementState.xml_other_tags;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.library.rss.Channel;
 import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
@@ -144,25 +145,22 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(classFile);
 	}
 
+	/**
+	 * Set-up import dependencies for the class whose source is currently being emitted.
+	 * 
+	 * @param classDescriptor
+	 */
 	private void addClassDependencies(ClassDescriptor classDescriptor)
 	{
-		addDependencies(classDescriptor.deriveCompositeDependencies());
+		Set<ClassDescriptor> compositeDependencies = classDescriptor.deriveCompositeDependencies();
+		addDependencies(compositeDependencies);
 		
 		Set<ScalarType> scalarDependencies = classDescriptor.deriveScalarDependencies();
 		System.out.println(classDescriptor.getDescribedClassName()+" HAS " + scalarDependencies.size() + " scalar dependencies\n");
-		for (ScalarType thatScalarType : scalarDependencies)
-		{
-			String typeName	= thatScalarType.getTypeClass().getName();
-			addDependency(typeName);			
-		}
+		addDependencies(scalarDependencies);
 		
 		Set<CollectionType> colletionDependencies = classDescriptor.deriveCollectionDependencies();
-		for (CollectionType collectionType : colletionDependencies)
-		{
-			String collectionTypeName		= collectionType.getJavaName();
-			System.out.println("Collection Dependencies : " + collectionTypeName);
-			addDependency(collectionTypeName);			
-		}
+		addDependencies(colletionDependencies);
 	}
 
 	/**
@@ -190,7 +188,7 @@ public class JavaTranslator implements JavaTranslationConstants
 				addCurrentImportTarget(fullClassName);
 	}
 	/**
-	 * Add a bunch of dependencies, by class full name.
+	 * Add dependencies, using a Collection or other Iterable of class full name Strings.
 	 * 
 	 * @param fullClassNames
 	 */
@@ -199,11 +197,27 @@ public class JavaTranslator implements JavaTranslationConstants
 		for (String fullClassName : fullClassNames)
 			addDependency(fullClassName);
 	}
+	/**
+	 * Add dependencies, using an array of class full name Strings.
+	 * 
+	 * @param fullClassNames
+	 */
 	public void addDependencies(String[] fullClassNames)
 	{
 		for (String fullClassName : fullClassNames)
 			addDependency(fullClassName);
 	}
+	/**
+	 * Add dependencies, using a collection of objects that implement Describable.
+	 * 
+	 * @param describables
+	 */
+	public void addDependencies(Collection<? extends Describable> describables)
+	{
+		for (Describable describable: describables)
+			addDependency(describable.getDescription());
+	}
+
 	/**
 	 * Takes an input class to generate an Java source files. Takes the {@code directoryLocation}
 	 * of the files where the file needs to be generated.
