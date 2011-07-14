@@ -10,6 +10,7 @@ import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
+import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.TranslationScope;
 import ecologylab.serialization.XMLTools;
 import ecologylab.translators.net.DotNetTranslationException;
@@ -56,20 +57,45 @@ public class JavascriptTranslator
 		//itterate through member's names... and add to parameters
 		String parameters = "json";
 		String constructFields = "";
+		String collectionTypes = "";
+		String mapTypes = "";
+		
+		boolean hasCollectionBefore = false;
+		String leadingCommaCollection = "";
+		boolean hasMapBefore = false;
+		String leadingCommaMap = "";
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
 			String fieldName = XMLTools.getXmlTagName(fieldDescriptor.getFieldName(),"");
+			if(fieldDescriptor.getType() == FieldTypes.MAP_ELEMENT || fieldDescriptor.getType() == FieldTypes.MAP_SCALAR || fieldDescriptor.getType() == FieldTypes.COLLECTION_ELEMENT)
+				fieldName = XMLTools.getXmlTagName(fieldDescriptor.getCollectionOrMapTagName(),"");
 			parameters += ","+fieldName;
 			constructFields += "\n        if("+fieldName+") this."+fieldName+" = "+fieldName+";";
+			if(fieldName.equals("moves"))
+				System.out.println("Found moves");
+			if(fieldDescriptor.getType() == FieldTypes.COLLECTION_ELEMENT)
+			{
+				if(hasCollectionBefore)
+					leadingCommaCollection = ",";
+				String elementType = XMLTools.getXmlTagName(fieldDescriptor.getElementClassDescriptor().getDescribedClassSimpleName(), "");
+				collectionTypes += leadingCommaCollection+"\""+fieldName+"\":\""+elementType+"\"";
+			}			
+			if(fieldDescriptor.getType() == FieldTypes.MAP_ELEMENT || fieldDescriptor.getType() == FieldTypes.MAP_SCALAR)
+			{
+				if(hasMapBefore)
+					leadingCommaMap = ",";
+				String elementType = XMLTools.getXmlTagName(fieldDescriptor.getElementClassDescriptor().getDescribedClassSimpleName(), "");
+				mapTypes += leadingCommaMap+"\""+fieldName+"\":\""+elementType+"\"";
+			}
+			
 		}
-		
+		//fieldDescriptor.
 		appendable.append(parameters+")\n{");
-		
-		String collectionTypes = "";
-		String mapTypes = "";
+
+
 		appendable.append("\n    this._simpl_object_name = \""+functionName+"\";");
-		appendable.append("\n    this._simpl_collection_types = {};");
-		appendable.append("\n    this._simpl_map_types = {};");
+		appendable.append("\n    this._simpl_collection_types = {"+collectionTypes+"};");
+		appendable.append("\n    this._simpl_map_types = {"+mapTypes+"};");
 		appendable.append("\n    if(json)");
 		appendable.append("\n    {");
 		appendable.append("\n        jsonConstruct(json,this);");
@@ -175,7 +201,7 @@ public class JavascriptTranslator
 
 	}
 
-	public void translateToJavascript(File directoryLocation, TranslationScope tScope)
+	public void translateToJavascript(File fileLocation, TranslationScope tScope)
 			throws IOException, DotNetTranslationException
 	{
 		System.out.println("Translating...");
@@ -189,7 +215,7 @@ public class JavascriptTranslator
 		// JavaDocParser.parseSourceFileIfExists(anotherScope,
 		// workSpaceLocation);
 		
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new File("C:/testjs/js/gamething.js")));
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(fileLocation));
 
 		
 		

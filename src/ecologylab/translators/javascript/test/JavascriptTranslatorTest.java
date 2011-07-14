@@ -35,7 +35,7 @@ public class JavascriptTranslatorTest {
 		CocoaTranslator coco = new CocoaTranslator();
 		
 		JavascriptTranslator jst = new JavascriptTranslator();
-		jst.translateToJavascript(new File("C:/testjs/js"), ts);
+		jst.translateToJavascript(new File("C:/testjs/js/gamething.js"), ts);
 
 		//not sure why this is failing
 		//coco.translateToObjC(new File("C:/testjs/coco"), ts);
