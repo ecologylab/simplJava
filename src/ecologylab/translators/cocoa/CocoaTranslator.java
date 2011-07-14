@@ -316,7 +316,7 @@ public class CocoaTranslator
 
 		appendImplementationComments(inputClass, appendable);
 
-		startImport(XMLTools.getClassName(inputClass), appendable);
+		startImport(XMLTools.getClassSimpleName(inputClass), appendable);
 		openImplementationFile(inputClass, appendable);
 
 		if (attributes.size() > 0)
@@ -728,7 +728,7 @@ public class CocoaTranslator
 	private void openHeaderFile(Class<? extends ElementState> thatClass, Appendable appendable)
 			throws IOException
 	{
-		openHeaderFile(XMLTools.getClassName(thatClass), appendable, thatClass);
+		openHeaderFile(XMLTools.getClassSimpleName(thatClass), appendable, thatClass);
 	}
 
 	/**
@@ -781,13 +781,13 @@ public class CocoaTranslator
 					if(fieldDescriptor.isNested())
 					{											
 							appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-									CocoaTranslationConstants.AT, XMLTools.getClassName(field.getType())));
+									CocoaTranslationConstants.AT, XMLTools.getClassSimpleName(field.getType())));
 							appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 					}
 					else if(field.getType() == ParsedURL.class)
 					{
 						appendable.append(CocoaTranslationConstants.INCLUDE_OBJECT.replace(
-								CocoaTranslationConstants.AT, XMLTools.getClassName(field.getType())));
+								CocoaTranslationConstants.AT, XMLTools.getClassSimpleName(field.getType())));
 						appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 					}
 					importedFiles.put(field.getType(), true);
@@ -919,7 +919,7 @@ public class CocoaTranslator
 	private void openImplementationFile(Class<? extends ElementState> inputClass,
 			Appendable appendable) throws IOException
 	{
-		openImplementationFile(XMLTools.getClassName(inputClass), appendable);
+		openImplementationFile(XMLTools.getClassSimpleName(inputClass), appendable);
 	}
 
 	/**
@@ -960,7 +960,7 @@ public class CocoaTranslator
 			int length = classes.size();
 			for (int i = 0; i < length; i++)
 			{
-				importClass(XMLTools.getClassName(classes.get(i)), appendable);
+				importClass(XMLTools.getClassSimpleName(classes.get(i)), appendable);
 			}
 		}
 
@@ -1618,7 +1618,7 @@ public class CocoaTranslator
 			throws IOException
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
-		String className = XMLTools.getClassName(inputClass);
+		String className = XMLTools.getClassSimpleName(inputClass);
 		String currentDirectory = directoryLocation.toString()
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
 
@@ -1663,7 +1663,7 @@ public class CocoaTranslator
 			File directoryLocation) throws IOException
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
-		String className = XMLTools.getClassName(inputClass);
+		String className = XMLTools.getClassSimpleName(inputClass);
 		String currentDirectory = directoryLocation.toString()
 				+ CocoaTranslationConstants.FILE_PATH_SEPARATOR;
 

@@ -163,7 +163,7 @@ public class JavascriptTranslator
 			throws IOException
 	{
 		String packageName = XMLTools.getPackageName(inputClass);
-		String className = XMLTools.getClassName(inputClass);
+		String className = XMLTools.getClassSimpleName(inputClass);
 		String currentDirectory = directoryLocation.toString() + "/";
 
 		// String[] arrayPackageNames = packageName.split(PACKAGE_NAME_SEPARATOR);
