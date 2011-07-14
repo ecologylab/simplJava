@@ -9,12 +9,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.element.Mappable;
 import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
  * Cached object that holds all of the structures needed to optimize translations to and from XML
@@ -28,7 +28,7 @@ import ecologylab.serialization.types.scalar.TypeRegistry;
  */
 @simpl_inherit
 public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
-		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
+		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>, Describable
 {
 	private static final String	PACKAGE_CLASS_SEP	= ".";
 
@@ -127,15 +127,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_scalar
 	private boolean strictObjectGraphRequired = false;
 
-	@simpl_collection("composite_dependency")
-	private ArrayList<ClassDescriptor> compositeDependencies = new ArrayList<ClassDescriptor>();
-	
-	@simpl_collection("scalar_dependency")
-	private ArrayList<String> scalarDependencies = new ArrayList<String>();
-	
-	@simpl_collection("collection_dependency")
-	private ArrayList<String> collectionDependencies = new ArrayList<String>();
-	
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -249,26 +240,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				String typeClassName = typeVariable.getName();
 				
 				genericTypeVariables.add(typeClassName);
-				
-				if(TypeRegistry.contains(typeClassName))
-				{
-					ScalarType type = TypeRegistry.getType(typeClassName);
-					System.out.println("COming herereeeeeeeeeeeeeeeeeee " + typeClassName);
-					
-					if(!scalarDependencies.contains(typeClassName))
-					{
-						scalarDependencies.add(typeClassName);
-					}
-					//scalarDependencies.add(TypeRegistry.getType(typeClass));
-				}else
-				{
-					try{
-						compositeDependencies.add(ClassDescriptor.getClassDescriptor((Class.forName(typeVariable.getName())).asSubclass(ElementState.class)));
-					}catch(ClassNotFoundException ex)
-					{
-						
-					}
-				}
 			}			
 		}
 	}
@@ -563,27 +534,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			if (XMLTools.isScalar(thatField))
 			{
 				fieldType = SCALAR;
-				ScalarType type = TypeRegistry.getType(thatField);
-				if (type == null)
-				{
-					error("Missing ScalarType for " + thatField);
-				}
-				else if(!type.isPrimitive())
-				{
-					if(!scalarDependencies.contains(type.getTypeClass().getName()))
-					{					
-						scalarDependencies.add(type.getTypeClass().getName());
-					}
-				}
 			}
 			else if (XMLTools.representAsComposite(thatField))
 			{
 				fieldType = COMPOSITE_ELEMENT;
-				ClassDescriptor compositeClass = ClassDescriptor.getClassDescriptor(thatField.getType().asSubclass(ElementState.class));
-				if(!compositeDependencies.contains(compositeClass))
-				{
-					compositeDependencies.add(compositeClass);
-				}
 			}
 			else if (XMLTools.representAsCollection(thatField))
 			{
@@ -597,33 +551,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 				continue; // not a simpl serialization annotated field
 
 			FD fieldDescriptor = newFieldDescriptor(thatField, fieldType, fieldDescriptorClass);
-			if(fieldType == COLLECTION_ELEMENT || fieldType == MAP_ELEMENT)
-			{
-				if(!collectionDependencies.contains(thatField.getType().getName()))
-				{
-					collectionDependencies.add(thatField.getType().getName());
-				}
-				ArrayList<Class> dependencies = fieldDescriptor.getDependencies();
-				for(Class thatClass : dependencies)
-				{
-					if(TypeRegistry.contains(thatClass))
-					{
-						ScalarType type = TypeRegistry.getType(thatClass);
-						if(!type.isPrimitive())
-						{
-							if(!scalarDependencies.contains(thatClass.getName()))
-							{
-								scalarDependencies.add(thatClass.getName());
-							}							
-						}
-					}
-					else
-					{
-						compositeDependencies.add(ClassDescriptor.getClassDescriptor(thatClass.asSubclass(ElementState.class)));
-					}					
-				}
-			}
-
 			// create indexes for serialize
 			if (fieldDescriptor.getType() == SCALAR)
 			{
@@ -828,7 +755,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	public String toString()
 	{
-		return getClassName() + "[" + this.describedClassName + "]";
+		return getClassSimpleName() + "[" + this.describedClassName + "]";
 	}
 
 	/**
@@ -904,9 +831,24 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	{
 		return describedClassPackageName;
 	}
+	/**
+	 * Get the full name of the class that this describes.
+	 * Use the Class to get this, if there is one; else use de/serialize fields that describe this.
+	 * 
+	 * @return
+	 */
 	public String getDescribedClassName()
 	{
 		return describedClass != null ? describedClass.getName() : describedClassPackageName + "." + describedClassSimpleName;
+	}
+
+	/**
+	 * @return	The full, qualified name of the class that this describes.
+	 */
+	@Override
+	public String getDescription()
+	{
+		return getDescribedClassName();
 	}
 
 	public ES getInstance() throws SIMPLTranslationException
@@ -1050,21 +992,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return this.strictObjectGraphRequired;
 	}
 	
-	public ArrayList<ClassDescriptor> getCompositrDependencies()
-	{
-		return compositeDependencies;
-	}
-	
-	public ArrayList<String> getScalarDependencies()
-	{
-		return scalarDependencies;
-	}
-	
-	public ArrayList<String> getCollectionDependencies()
-	{
-		return collectionDependencies;
-	}
-	
+	/**
+	 * Find all the Collection fields in this.
+	 * Assemble a Set of them, in order to generate import statements.
+	 * 
+	 * @return
+	 */
 	public Set<CollectionType> deriveCollectionDependencies()
 	{
 		HashSet<CollectionType> result = new HashSet<CollectionType>();
@@ -1076,35 +1009,46 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return result;
 	}
 
-
-	public Set<String> deriveCompositeDependencies()
+	/**
+	 * Find all the Composite fields in this.
+	 * Assemble a Set of them, in order to generate import statements.
+	 * 
+	 * @return
+	 */
+	public Set<ClassDescriptor> deriveCompositeDependencies()
 	{
-		HashSet<String> result = new HashSet<String>();
+		HashSet<ClassDescriptor> result = new HashSet<ClassDescriptor>();
 		for (FieldDescriptor fd: declaredFieldDescriptorsByFieldName)
 		{
 			if (fd.isNested() || (fd.isCollection()))
 			{
 				ClassDescriptor elementClassDescriptor = fd.getElementClassDescriptor();
 				if (elementClassDescriptor != null)
-					result.add(elementClassDescriptor.getDescribedClassName());
+					result.add(elementClassDescriptor);
 				
 				HashMapArrayList<String, ClassDescriptor> polyClassDescriptors = fd.getTagClassDescriptors();
 				if (polyClassDescriptors != null)
 					for (ClassDescriptor polyCd : polyClassDescriptors.values())
-						result.add(polyCd.getDescribedClassName());
+						result.add(polyCd);
 			}
 		}
 		if (superClass != null)
 		{
-			result.add(superClass.getDescribedClassName());
+			result.add(superClass);
 		}
-		for (String genericTypeName: genericTypeVariables)
-		{
-			//FIXME what do we do here???
-		}
+//		for (String genericTypeName: genericTypeVariables)
+//		{
+//			//FIXME what do we do here???
+//		}
 		return result;
 	}
 
+	/**
+	 * Find all the Scalar fields in this.
+	 * Assemble a Set of them, in order to generate import statements.
+	 * 
+	 * @return
+	 */
 	public Set<ScalarType> deriveScalarDependencies()
 	{
 		HashSet<ScalarType> result = new HashSet<ScalarType>();

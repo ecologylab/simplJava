@@ -1565,7 +1565,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public String toString()
 	{
 		String name = (field != null) ? field.getName() : "NO_FIELD";
-		return this.getClassName() + "[" + name + " < " + declaringClassDescriptor.getDescribedClass()
+		return this.getClassSimpleName() + "[" + name + " < " + declaringClassDescriptor.getDescribedClass()
 				+ " type=0x" + Integer.toHexString(type) + "]";
 	}
 
