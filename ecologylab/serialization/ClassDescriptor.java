@@ -57,6 +57,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_collection("inerface")
 	private ArrayList<String> interfaces;
 
+	/**
+	 * The full name of the class that this is the descriptor for.
+	 */
 	@simpl_scalar
 	private String describedClassName;
 
@@ -67,25 +70,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private FieldDescriptor	pseudoFieldDescriptor;
 
 	/**
-	 * Handles a text node.
+	 * This flag prevents loops when creating descriptors for type graphs.
 	 */
-	private FieldDescriptor	scalarTextFD;
-
-	FieldDescriptor getScalarTextFD()
-	{
-		return scalarTextFD;
-	}
-
-	void setScalarTextFD(FieldDescriptor scalarTextFD)
-	{
-		this.scalarTextFD = scalarTextFD;
-	}
-
-	public boolean hasScalarFD()
-	{
-		return scalarTextFD != null;
-	}
-
 	private boolean																				isGetAndOrganizeComplete;
 
 	/**
@@ -122,6 +108,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	private FD																						scalarValueFieldDescripotor			= null;
 
+	/**
+	 * Global map of all ClassDescriptors. Key is the full, qualified name of the class == describedClassName.
+	 */
 	private static final HashMap<String, ClassDescriptor>	globalClassDescriptorsMap				= new HashMap<String, ClassDescriptor>();
 
 	private ArrayList<FD>																	unresolvedScopeAnnotationFDs;
@@ -137,9 +126,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	@simpl_scalar
 	private boolean strictObjectGraphRequired = false;
-
-	// private HashMap<String, Class<? extends ElementState>> nameSpaceClassesById = new
-	// HashMap<String, Class<? extends ElementState>>();
 
 	@simpl_collection("composite_dependency")
 	private ArrayList<ClassDescriptor> compositeDependencies = new ArrayList<ClassDescriptor>();
@@ -158,6 +144,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		super();
 	}
 
+	/**
+	 * Constructor typically used by this class for creating a ClassDescriptor given its Java Class.
+	 * 
+	 * @param thatClass
+	 */
 	protected ClassDescriptor(Class<ES> thatClass)
 	{
 		super();
@@ -182,6 +173,16 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		}
 	}
 	
+	/**
+	 * Constructor used by Meta-Metadata Compiler.
+	 * 
+	 * @param tagName
+	 * @param comment
+	 * @param describedClassPackageName
+	 * @param describedClassSimpleName
+	 * @param superClass
+	 * @param interfaces
+	 */
 	protected ClassDescriptor(
 			String tagName,
 			String comment,
@@ -213,6 +214,26 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		}
 	}
 	
+	/**
+	 * Handles a text node.
+	 */
+	private FieldDescriptor	scalarTextFD;
+
+	FieldDescriptor getScalarTextFD()
+	{
+		return scalarTextFD;
+	}
+
+	void setScalarTextFD(FieldDescriptor scalarTextFD)
+	{
+		this.scalarTextFD = scalarTextFD;
+	}
+
+	public boolean hasScalarFD()
+	{
+		return scalarTextFD != null;
+	}
+
 	public ArrayList<String> getInterfaceList()
 	{
 		return interfaces;
