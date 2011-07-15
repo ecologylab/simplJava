@@ -1,7 +1,23 @@
 package ecologylab.serialization.types;
 
-public interface MappingConstants
+/**
+ * Type constants for defining many SimplTypes across Java, C#, and Objective C.
+ * 
+ * @author andruid
+ */
+public interface CrossLanguageTypeConstants
 {
+	/**
+	 * Prefix for unique S.IM.PL Collection Type Names
+	 */
+	public static final String	SIMPL_COLLECTION_TYPES_PREFIX	= "simpl.types.collection.";
+
+	/**
+	 * Prefix for unique S.IM.PL Scalar Type Names
+	 */
+	public static final String	SIMPL_SCALAR_TYPES_PREFIX	= "simpl.types.scalar.";
+
+	
 	/*
 	 * Objective-C Scalar types
 	 */
