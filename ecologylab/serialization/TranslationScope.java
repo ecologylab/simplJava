@@ -14,6 +14,8 @@ import java.util.Map;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.types.CollectionType;
+import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -69,6 +71,10 @@ public final class TranslationScope extends ElementState
 
 	private boolean																			performFilters;
 
+	static
+	{
+		TypeRegistry.init();
+	}
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
