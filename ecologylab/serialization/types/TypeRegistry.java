@@ -3,6 +3,7 @@ package ecologylab.serialization.types;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
+import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.XMLTools;
@@ -45,15 +46,21 @@ import ecologylab.serialization.types.scalar.UUIDType;
  * declarations do not know about these Types, only about the underlying Java types.
  */
 public class TypeRegistry extends Debug
-implements FundamentalTypes
+implements CrossLanguageTypeConstants
 {
+	private static TypeRegistry	singleton;
+	
 	/**
 	 * Maps Strings that represent classes to integers. These integers, some of which are defined in
 	 * the interface {@link BuiltinTypeIndices Types}. Type to integer mappings that are defined in
 	 * this class use positive integers. All other extended types should use negative integers.
 	 */
-	private static final HashMap<String, ScalarType>	allScalarTypes		= new HashMap<String, ScalarType>(
-																																		32);
+	private final HashMap<String, ScalarType>	allScalarTypes		= new HashMap<String, ScalarType>(32);
+
+	private final  HashMap<String, CollectionType>	collectionTypesByName 			= new HashMap<String, CollectionType>();
+	
+	private final  HashMap<String, CollectionType>	collectionTypesByClassName	= new HashMap<String, CollectionType>();
+	
 
 	static Class[]																		BASIC_SCALAR_TYPES	=
 	{ StringType.class,
@@ -77,9 +84,27 @@ implements FundamentalTypes
 
 	static
 	{
-		registerScalarType(BASIC_SCALAR_TYPES);
+		init();
+	}
+	private static boolean init;
+	
+	/**
+	 * 
+	 */
+	public static void init()
+	{
+		if (!init)
+		{
+			init	= true;
+			registerScalarType(BASIC_SCALAR_TYPES);
+			new FundamentalTypes();
+		}
 	}
 
+	public TypeRegistry()
+	{
+		
+	}
 	/**
 	 * Enter this type in the registry, which is a map in which the Type's Class object's fully
 	 * qualified named is used as a key.
@@ -103,24 +128,41 @@ implements FundamentalTypes
 	{
 		String typeName = type.getTypeClass().getName();
 		String simpleName = type.getClass().getSimpleName();
-		registerScalarType(simpleName, type);
-		return registerScalarType(typeName, type);
+		singleton().registerScalarType(simpleName, type);
+		return singleton().registerScalarType(typeName, type);
 	}
 
-	private static boolean registerScalarType(String typeName, ScalarType type)
+	private static TypeRegistry singleton()
 	{
-		boolean typeContained;
+		TypeRegistry result	= singleton;
+		if (result == null)
+		{
+			synchronized (TypeRegistry.class)
+			{
+				result			= singleton;
+				if (result == null)
+				{
+					result		= new TypeRegistry();
+					singleton	= result;
+				}
+			}
+		}
+		return result;
+	}
+	private boolean registerScalarType(String typeName, ScalarType type)
+	{
+		boolean definingNewType;
 
 		synchronized (allScalarTypes)
 		{
-			typeContained = allScalarTypes.containsKey(typeName);
-			if (typeContained)
+			ScalarType previous	= allScalarTypes.put(typeName, type);
+			definingNewType 		= previous != null && !previous.equals(type);
+			if (definingNewType)
 			{
 				Debug.warning(TypeRegistry.class, "register(): Redefining scalar type: " + typeName);
 			}
-			allScalarTypes.put(typeName, type);
 		}
-		return typeContained;
+		return definingNewType;
 	}
 
 	/**
@@ -183,7 +225,7 @@ implements FundamentalTypes
 	 */
 	public static final ScalarType getScalarType(String className)
 	{
-		return allScalarTypes.get(className);
+		return singleton().allScalarTypes.get(className);
 	}
 
 	/**
@@ -205,6 +247,75 @@ implements FundamentalTypes
 	 */
 	public static boolean containsScalarType(String className)
 	{
-		return allScalarTypes.containsKey(className);
+		return singleton().allScalarTypes.containsKey(className);
+	}
+	
+	/**
+	 * This method is only called by the constructor of CollectionType.
+	 * 
+	 * @param collectionType
+	 */
+	static void registerCollectionType(CollectionType collectionType)
+	{
+		TypeRegistry registrySingleton = singleton();
+		registrySingleton.collectionTypesByName.put(collectionType.getName(), collectionType);
+		registrySingleton.collectionTypesByClassName.put(collectionType.getJavaTypeName(), collectionType);
+	}
+
+	/**
+	 * Get by unique, cross-platform name.
+	 * 
+	 * @param crossPlatformName
+	 * @return
+	 */
+	public static CollectionType getCollectionTypeByCrossPlatformName(String crossPlatformName)
+	{
+		return singleton().collectionTypesByName.get(crossPlatformName);
+	}
+
+	/**
+	 * Lookup a collection type using the Java class or its full unqualifiedName.
+	 * 
+	 * @param javaField	Declaring class of this field is key for lookup
+	 * 
+	 * @return
+	 */
+	public static CollectionType getCollectionType(Field javaField)
+	{
+		return getCollectionType(javaField.getType());
+	}
+
+	/**
+	 * Lookup a collection type using the Java class or its full unqualifiedName.
+	 * If it does not exist, construct a new CollectionType, but with no capabilities for Cross-Language Code Generation.
+	 * 
+	 * @param javaClass
+	 * @return
+	 */
+	public static CollectionType getCollectionType(Class javaClass)
+	{
+		CollectionType result = getCollectionType(javaClass.getName());
+		if (result == null)
+		{
+			String simplName			= SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName();
+			singleton().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
+			result							= new CollectionType(javaClass, null, null);
+		}
+		return result;
+	}
+	/**
+	 * Lookup a collection type using the Java class or its full unqualifiedName.
+	 * 
+	 * @param javaClassName
+	 * @return
+	 */
+	public static CollectionType getCollectionType(String javaClassName)
+	{
+		return singleton().collectionTypesByClassName.get(javaClassName);
+	}
+
+	public static TypeRegistry typeRegistry()
+	{
+		return singleton;
 	}
 }
