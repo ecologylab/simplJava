@@ -16,6 +16,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class StringType extends ReferenceType<String>
+implements MappingConstants
 {
 	/**
 	 * This constructor should only be called once per session, through
@@ -27,7 +28,7 @@ public class StringType extends ReferenceType<String>
 	 */
 	public StringType()
 	{
-		super(String.class);
+		super(String.class, JAVA_STRING, DOTNET_STRING, OBJC_STRING, null);
 	}
 
 	/**
@@ -82,31 +83,6 @@ public class StringType extends ReferenceType<String>
 			XMLTools.escapeXML(appendable, instance);
 		else
 			appendable.append(instance);
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_STRING;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_STRING;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_STRING;
 	}
 	
 	/**

@@ -18,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class BooleanType extends ScalarType<Boolean>
+implements MappingConstants
 {
 	public static final boolean	DEFAULT_VALUE			= false;
 
@@ -33,12 +34,12 @@ public class BooleanType extends ScalarType<Boolean>
  */
 	public BooleanType()
 	{
-		super(boolean.class);
+		this(boolean.class);
 	}
 	
 	public BooleanType(Class<Boolean> thatClass) 
     {
-		super(thatClass);
+		super(thatClass, JAVA_BOOLEAN, DOTNET_BOOLEAN, OBJC_BOOLEAN, null);
 	}
 
 	/**
@@ -177,28 +178,4 @@ public class BooleanType extends ScalarType<Boolean>
     	return (Boolean) field.get(context) == DEFAULT_VALUE;
     }
 
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_BOOLEAN;
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_BOOLEAN;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_BOOLEAN;
-	}
 }

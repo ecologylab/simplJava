@@ -18,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class ByteType extends ScalarType<Byte>
+implements MappingConstants
 {
 	public static final byte	DEFAULT_VALUE			= 0;
 	public static final String	DEFAULT_VALUE_STRING	= "0";
@@ -32,7 +33,7 @@ public class ByteType extends ScalarType<Byte>
  */
 	public ByteType()
 	{
-		super(byte.class);
+		super(byte.class, JAVA_BYTE, DOTNET_BYTE, OBJC_BYTE, null);
 	}
 
 	/**
@@ -150,29 +151,4 @@ public class ByteType extends ScalarType<Byte>
            
 		buffy.append(Byte.toString(value));
     }
-
-		@Override
-		public String getCSharptType()
-		{
-			return MappingConstants.DOTNET_BYTE;
-		}
-
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_BYTE;
-		}
-    
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_BYTE;
-		}
 }

@@ -18,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class IntType extends ScalarType<Integer>
+implements MappingConstants
 {
 	public static final int		DEFAULT_VALUE			= 0;
 	public static final String	DEFAULT_VALUE_STRING	= "0";
@@ -31,12 +32,12 @@ public class IntType extends ScalarType<Integer>
  */
 	public IntType()
 	{
-		super(int.class);
+		this(int.class);
 	}
 	
 	public IntType(Class<Integer> thatClass)
 	{
-		super(thatClass);
+		super(thatClass, JAVA_INTEGER, DOTNET_INTEGER, OBJC_INTEGER, null);
 	}
 
 	/**
@@ -161,28 +162,5 @@ public class IntType extends ScalarType<Integer>
     	return fieldDescriptor.getField().get(context).toString();
     }
 
-		@Override
-		public String getCSharptType()
-		{
-			return MappingConstants.DOTNET_INTEGER;
-		}
 
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_INTEGER;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_INTEGER;
-		}
 }

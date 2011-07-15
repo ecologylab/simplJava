@@ -18,10 +18,11 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class URLType extends ReferenceType<URL>
+implements MappingConstants
 {
 	public URLType()
 	{
-		super(URL.class);
+		super(URL.class, JAVA_URL, DOTNET_URL, OBJC_URL, null);
 	}
 
 	/**
@@ -68,30 +69,5 @@ public class URLType extends ReferenceType<URL>
 	{
 		return ParsedURLType.PRIMARY_URL_DELIM;
 	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_URL;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_URL;
-	}
-
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_URL;
-	}	
 	
 }

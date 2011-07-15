@@ -16,9 +16,8 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class ColorType extends ScalarType<Color>
+implements MappingConstants
 {
-	
-	
 /**
  * This constructor should only be called once per session, through
  * a static initializer, typically in TypeRegistry.
@@ -29,7 +28,7 @@ public class ColorType extends ScalarType<Color>
  */
 	public ColorType()
 	{
-		super(Color.class);
+		super(Color.class, JAVA_COLOR, DOTNET_COLOR, OBJC_COLOR, null);
 	}
 
 	/**
@@ -71,28 +70,4 @@ public class ColorType extends ScalarType<Color>
 		return '#' + result;
 	}
 
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_COLOR;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_COLOR;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_COLOR;
-	}
 }

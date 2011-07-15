@@ -9,26 +9,13 @@ import ecologylab.serialization.types.MappingConstants;
 import ecologylab.serialization.types.ScalarType;
 
 public class ReferenceBooleanType extends ScalarType<Boolean>
+implements MappingConstants
 {
 	public ReferenceBooleanType()
 	{
-		super(Boolean.class);
+		super(Boolean.class, JAVA_BOOLEAN, DOTNET_BOOLEAN, OBJC_BOOLEAN, null);
 	}
 
-	@Override
-	public String getCSharptType() {
-		return MappingConstants.DOTNET_BOOLEAN;
-	}
-	
-	@Override
-	public String getJavaType() {
-		return MappingConstants.JAVA_BOOLEAN;
-	}
-
-	@Override
-	public String getDbType() {
-		return null;
-	}
 
 	@Override
 	public Boolean getInstance(String value, String[] formatStrings,
@@ -36,10 +23,6 @@ public class ReferenceBooleanType extends ScalarType<Boolean>
 		return ("null".equalsIgnoreCase(value))?null:new Boolean(value);
 	}
 
-	@Override
-	public String getObjectiveCType() {
-		return MappingConstants.OBJC_BOOLEAN;
-	}
 	
     /**
      * Get the value from the Field, in the context.

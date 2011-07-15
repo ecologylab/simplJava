@@ -10,7 +10,7 @@ public class EnumeratedType extends ReferenceType<Enum>
 
 	public EnumeratedType()
 	{
-		super(Enum.class);
+		super(Enum.class, null, null, null, null);
 	}
 
 	@Override
@@ -41,34 +41,6 @@ public class EnumeratedType extends ReferenceType<Enum>
 	@Override
 	public Enum getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public String getJavaType()
 	{
 		// TODO Auto-generated method stub
 		return null;

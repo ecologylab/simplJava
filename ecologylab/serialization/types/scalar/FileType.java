@@ -16,71 +16,50 @@ import ecologylab.serialization.types.ScalarType;
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class FileType extends ScalarType<File>
+public class FileType extends ReferenceType<File> implements MappingConstants
 {
 
-    /**
+	/**
      */
-    public FileType()
-    {
-        super(File.class);
-    }
+	public FileType()
+	{
+		super(File.class, JAVA_FILE, DOTNET_FILE, OBJC_FILE, null);
+	}
 
-    @Override public File getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
-    {
-    	File fileContext	= (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext.fileContext();
-    	File file 				= (fileContext == null) ? new File(value) : new File(fileContext, value);
-    	try
-    	{
-    		return file.getCanonicalFile();
-    	}
-    	catch (IOException e)
-    	{
-    		e.printStackTrace();
-    		return file;
-    	}
-    }
+	@Override
+	public File getInstance(String value, String[] formatStrings,
+			ScalarUnmarshallingContext scalarUnmarshallingContext)
+	{
+		File fileContext = (scalarUnmarshallingContext == null) ? null : scalarUnmarshallingContext
+				.fileContext();
+		File file = (fileContext == null) ? new File(value) : new File(fileContext, value);
+		try
+		{
+			return file.getCanonicalFile();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return file;
+		}
+	}
 
-		@Override
-		public String getCSharptType()
+	@Override
+	public String marshall(File instance, TranslationContext serializationContext)
+	{
+		File contextualizedInstance = instance;
+		if (serializationContext != null)
 		{
-			return MappingConstants.DOTNET_FILE;
-		}
-
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_FILE;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_FILE;
-		}
-		
-		@Override
-		public String marshall(File instance, TranslationContext serializationContext)
-		{
-			File contextualizedInstance = instance;
-			if (serializationContext != null)
+			File fileContext = serializationContext.fileContext();
+			if (fileContext != null)
 			{
-				File fileContext = serializationContext.fileContext();
-				if (fileContext != null)
-				{
-					String pathRelativeTo = StringTools.getPathRelativeTo(instance.getAbsolutePath(), fileContext.getAbsolutePath(), Files.sep);
-					if (pathRelativeTo != null)
-						return pathRelativeTo;
-				}
+				String pathRelativeTo = StringTools.getPathRelativeTo(instance.getAbsolutePath(),
+						fileContext.getAbsolutePath(), Files.sep);
+				if (pathRelativeTo != null)
+					return pathRelativeTo;
 			}
-			
-			return super.marshall(contextualizedInstance, serializationContext);
 		}
+
+		return super.marshall(contextualizedInstance, serializationContext);
+	}
 }

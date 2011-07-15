@@ -6,44 +6,25 @@ import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.types.MappingConstants;
 import ecologylab.serialization.types.ScalarType;
 
-public class UUIDType extends ScalarType<UUID> {
+public class UUIDType extends ScalarType<UUID>
+implements MappingConstants
+{
 
 	public UUIDType()
 	{
-		super(UUID.class);
-	}
-	
-	public UUIDType(Class<? extends UUID> clazz)
-	{
-		super(clazz);
-	}
-	
-	@Override
-	public String getCSharptType() {
-		return MappingConstants.DOTNET_UUID;
+		this(UUID.class);
 	}
 
-	@Override
-	public String getDbType() {
-		// TODO Auto-generated method stub
-		return null;
+	public UUIDType(Class<? extends UUID> clazz)
+	{
+		super(clazz, JAVA_UUID, DOTNET_UUID, null, null);
 	}
 
 	@Override
 	public UUID getInstance(String value, String[] formatStrings,
-			ScalarUnmarshallingContext scalarUnmarshallingContext) {
+			ScalarUnmarshallingContext scalarUnmarshallingContext)
+	{
 		return UUID.fromString(value);
-	}
-
-	@Override
-	public String getObjectiveCType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public String getJavaType() {
-		return MappingConstants.JAVA_UUID;
 	}
 
 }

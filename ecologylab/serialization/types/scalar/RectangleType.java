@@ -18,12 +18,13 @@ import ecologylab.serialization.types.ScalarType;
  *
  */
 public class RectangleType extends ScalarType<Rectangle>
+implements MappingConstants
 {
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[, ]");
 	
 	public RectangleType()
 	{
-		super(Rectangle.class);
+		super(Rectangle.class, JAVA_RECTANGLE, null, null, null);
 	}
 	
 	@Override
@@ -58,34 +59,6 @@ public class RectangleType extends ScalarType<Rectangle>
 	public String marshall(Rectangle rectangle, TranslationContext serializationContext)
 	{
 		return rectangle.x + " " + rectangle.y + " " + rectangle.width + " " + rectangle.height;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getJavaType()
-	{
-		// TODO Auto-generated method stub
-		return MappingConstants.JAVA_RECTANGLE;
 	}
 
 }

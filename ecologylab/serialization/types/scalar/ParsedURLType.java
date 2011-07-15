@@ -21,6 +21,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class ParsedURLType extends ReferenceType<ParsedURL>
+implements MappingConstants
 {
 /**
  * This constructor should only be called once per session, through
@@ -32,7 +33,7 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
  */
 	public ParsedURLType()
 	{
-		super(ParsedURL.class);
+		super(ParsedURL.class, JAVA_PARSED_URL, DOTNET_PARSED_URL, OBJC_PARSED_URL, null);
 	}
 
 	/**
@@ -154,32 +155,6 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 		return PRIMARY_URL_DELIM;
 	}
 
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_PARSED_URL;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_PARSED_URL;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_PARSED_URL;
-	}
-
-	
 	@Override
 	public String marshall(ParsedURL instance, TranslationContext serializationContext)
 	{

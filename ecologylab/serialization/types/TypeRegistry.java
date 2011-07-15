@@ -45,6 +45,7 @@ import ecologylab.serialization.types.scalar.UUIDType;
  * declarations do not know about these Types, only about the underlying Java types.
  */
 public class TypeRegistry extends Debug
+implements FundamentalTypes
 {
 	/**
 	 * Maps Strings that represent classes to integers. These integers, some of which are defined in

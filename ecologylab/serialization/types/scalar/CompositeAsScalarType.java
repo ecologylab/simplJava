@@ -17,7 +17,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 {
 	public CompositeAsScalarType()
 	{
-		super((Class<? extends T>) CompositeAsScalarType.class);
+		super((Class<? extends T>) CompositeAsScalarType.class, null, null, null, null);
 	}
 
 	/**
@@ -89,20 +89,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 			}
 		}
 	}
-	
-	@Override
-	public String getCSharptType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public T getInstance(String value, String[] formatStrings,
@@ -112,17 +99,4 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 		return null;
 	}
 
-	@Override
-	public String getObjectiveCType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

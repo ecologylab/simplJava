@@ -18,18 +18,19 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class LongType extends ScalarType<Long>
+implements MappingConstants
 {
 	public static final long	DEFAULT_VALUE			= 0;
 	public static final String	DEFAULT_VALUE_STRING	= "0";
 
 	public LongType()
 	{
-		super(long.class);
+		this(long.class);
 	}
 
 	public LongType(Class<Long> thatClass) 
 	{
-		super(thatClass);
+		super(thatClass, JAVA_LONG, DOTNET_LONG, OBJC_LONG	, null);
 	}
 
 	/**
@@ -148,28 +149,4 @@ public class LongType extends ScalarType<Long>
     	return fieldDescriptor.getField().get(context).toString();
     }
 
-		@Override
-		public String getCSharptType()
-		{
-			return MappingConstants.DOTNET_LONG;
-		}
-
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_LONG;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_LONG;
-		}
 }

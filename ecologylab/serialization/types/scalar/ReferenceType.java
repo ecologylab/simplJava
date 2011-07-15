@@ -10,6 +10,7 @@ import ecologylab.serialization.XMLTools;
 import ecologylab.serialization.types.ScalarType;
 
 /**
+ * All non-primitive ScalarType subclasses should extend this class.
  * 
  * @author andruid
  */
@@ -18,10 +19,14 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 
 	/**
 	 * @param thatClass
+	 * @param javaTypeName TODO
+	 * @param cSharpTypeName TODO
+	 * @param objectiveCTypeName TODO
+	 * @param dbTypeName TODO
 	 */
-	public ReferenceType(Class<T> thatClass)
+	public ReferenceType(Class<T> thatClass, String javaTypeName, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(thatClass);
+		super(thatClass, javaTypeName, cSharpTypeName, objectiveCTypeName, dbTypeName);
 	}
 
 	/**

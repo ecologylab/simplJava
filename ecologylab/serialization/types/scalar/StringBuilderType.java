@@ -16,6 +16,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class StringBuilderType extends ReferenceType<StringBuilder>
+implements MappingConstants
 {
 	/**
 	 * This constructor should only be called once per session, through
@@ -27,7 +28,7 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	 */
 	public StringBuilderType()
 	{
-		super(StringBuilder.class);
+		super(StringBuilder.class, JAVA_STRING_BUILDER, DOTNET_STRING_BUILDER, OBJC_STRING_BUILDER, null);
 	}
 
 	/**
@@ -69,28 +70,5 @@ public class StringBuilderType extends ReferenceType<StringBuilder>
 	{
 		return true;
 	}
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_STRING_BUILDER;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_STRING_BUILDER;
-	}
 
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.DOTNET_STRING_BUILDER;
-	}
 }

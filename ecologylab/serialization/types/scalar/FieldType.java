@@ -15,11 +15,12 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class FieldType extends ReferenceType<Field>
+implements MappingConstants
 {
 
 	public FieldType()
 	{
-		super(Field.class);
+		super(Field.class, JAVA_FIELD, DOTNET_FIELD, OBJC_FIELD, null);
 	}
 
 	/**
@@ -54,29 +55,5 @@ public class FieldType extends ReferenceType<Field>
 			return instance.getName();
 		}
 
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_FIELD;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_FIELD;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_FIELD;
-	}
 
 }

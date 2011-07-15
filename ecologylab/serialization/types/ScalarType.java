@@ -57,6 +57,20 @@ implements Describable
 	
 	@simpl_scalar
 	boolean											isPrimitive;
+	
+	@simpl_scalar
+	private String							javaTypeName;
+	
+	@simpl_scalar
+	private String							cSharpTypeName;
+	
+	@simpl_scalar
+	private String							objectiveCTypeName;
+	
+	@simpl_scalar
+	private String							dbTypeName;
+	
+	
 
 	public static final Object	DEFAULT_VALUE					= null;
 
@@ -66,9 +80,17 @@ implements Describable
 	 * Constructor is protected because there should only be 1 instance that gets re-used, for each
 	 * type. To get the instance of this type object for use in translations, call
 	 * <code>TypeRegistry.get("type-string")</code>.
+	 * @param javaTypeName TODO
+	 * @param cSharpTypeName TODO
+	 * @param objectiveCTypeName TODO
+	 * @param dbTypeName TODO
+	 * @param javaTypeName TODO
+	 * @param cSharpTypeName TODO
+	 * @param objectiveCTypeName TODO
+	 * @param dbTypeName TODO
 	 * 
 	 */
-	protected ScalarType(Class<? extends T> thatClass)
+	protected ScalarType(Class<? extends T> thatClass, String javaTypeName, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
 		this.thatClass 		= thatClass;
 		
@@ -76,7 +98,13 @@ implements Describable
 		this.name					= thatClass.getName();
 		this.simpleName		= thatClass.getSimpleName();
 		if (!isPrimitive)
-			this.packageName	= thatClass.getPackage().getName(); 
+			this.packageName	= thatClass.getPackage().getName();
+		
+		
+		this.javaTypeName				= javaTypeName;
+		this.cSharpTypeName			= cSharpTypeName;
+		this.objectiveCTypeName	= objectiveCTypeName;
+		this.dbTypeName					= dbTypeName;
 	}
 
 	/**
@@ -558,11 +586,22 @@ implements Describable
 		return (T) largerContext;
 	}
 
-	abstract public String getObjectiveCType();
+	public String getJavaType()
+	{
+		return javaTypeName;
+	}
+	public String getCSharptType()
+	{
+		return cSharpTypeName;
+	}
+	public String getObjectiveCType()
+	{
+		return objectiveCTypeName;
+	}
 
-	abstract public String getCSharptType();
-
-	abstract public String getDbType();
+	public String getDbType()
+	{
+		return dbTypeName;
+	}
 	
-	abstract public String getJavaType();
 }

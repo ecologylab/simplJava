@@ -15,13 +15,14 @@ import ecologylab.serialization.types.TypeRegistry;
  *
  */
 public class ScalarTypeType extends ReferenceType<ScalarType>
+implements MappingConstants
 {
 	/**
 	 * @param thatClass
 	 */
 	public ScalarTypeType()
 	{
-		super(ScalarType.class);
+		super(ScalarType.class, JAVA_SCALAR_TYPE, DOTNET_SCALAR_TYPE, OBJC_SCALAR_TYPE, null);
 	}
 
 	/**
@@ -51,31 +52,6 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 			result	= TypeRegistry.getScalarType(buffy.toString());
 		}
 		return result;			
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_SCALAR_TYPE;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_SCALAR_TYPE;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_SCALAR_TYPE;
 	}
 
 }

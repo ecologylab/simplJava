@@ -14,10 +14,11 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class ClassType extends ReferenceType<Class>
+implements MappingConstants
 {
 	public ClassType()
 	{
-		super(Class.class);
+		super(Class.class, JAVA_CLASS, DOTNET_CLASS, OBJC_CLASS, null);
 	}
 
 	/**
@@ -60,31 +61,6 @@ public class ClassType extends ReferenceType<Class>
 	public String marshall(Class instance, TranslationContext serializationContext)
 	{
 		return instance.getName();
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.OBJC_CLASS;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.DOTNET_CLASS;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_CLASS;
 	}
 
 }

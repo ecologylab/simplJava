@@ -18,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class CharType extends ScalarType<Character>
+implements MappingConstants
 {
 	public static final char	DEFAULT_VALUE			= ' ';
 	public static final String	DEFAULT_VALUE_STRING	= " ";
@@ -32,7 +33,7 @@ public class CharType extends ScalarType<Character>
  */
 	public CharType()
 	{
-		super(char.class);
+		super(char.class, JAVA_CHAR, DOTNET_CHAR, OBJC_CHAR, null);
 	}
 
 	/**
@@ -150,29 +151,4 @@ public class CharType extends ScalarType<Character>
 		buffy.append(Character.toString(value))
 		;
     }
-
-		@Override
-		public String getCSharptType()
-		{
-			return MappingConstants.DOTNET_CHAR;
-		}
-
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_CHAR;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_CHAR;
-		}
 }

@@ -4,14 +4,11 @@
 package ecologylab.serialization.types;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import ecologylab.collections.Scope;
 import ecologylab.generic.Describable;
-import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.ElementState;
 
@@ -48,14 +45,6 @@ implements MappingConstants, Describable
 	private static final  HashMap<String, CollectionType>	mapByName 			= new HashMap<String, CollectionType>();
 	
 	private static final  HashMap<String, CollectionType>	mapByClassName	= new HashMap<String, CollectionType>();
-	
-	public static final CollectionType	ARRAYLIST_TYPE	= new CollectionType(JAVA_ARRAYLIST, ArrayList.class, DOTNET_ARRAYLIST, OBJC_ARRAYLIST, false);
-
-	public static final CollectionType	HASHMAP_TYPE	= new CollectionType(JAVA_HASHMAP, HashMap.class, DOTNET_HASHMAP, OBJC_HASHMAP, true);
-
-	public static final CollectionType	HASHMAPARRAYLIST_TYPE	= new CollectionType(JAVA_HASHMAPARRAYLIST, HashMapArrayList.class, DOTNET_HASHMAPARRAYLIST, OBJC_HASHMAPARRAYLIST, true);
-
-	public static final CollectionType	SCOPE_TYPE	= new CollectionType(JAVA_SCOPE, Scope.class, DOTNET_SCOPE, OBJC_SCOPE, true);
 	
 	/**
 	 * 

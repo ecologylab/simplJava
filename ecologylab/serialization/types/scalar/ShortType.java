@@ -32,7 +32,7 @@ public class ShortType extends ScalarType<Short>
  */
 	public ShortType()
 	{
-		super(short.class);
+		super(short.class, MappingConstants.JAVA_SHORT, MappingConstants.DOTNET_SHORT, MappingConstants.OBJC_SHORT, null);
 	}
 
 	/**
@@ -149,28 +149,4 @@ public class ShortType extends ScalarType<Short>
 		buffy.append(Short.toString(value));
     }
 
-		@Override
-		public String getCSharptType()
-		{
-			return MappingConstants.DOTNET_SHORT;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_SHORT;
-		}
-
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_SHORT;
-		}
 }

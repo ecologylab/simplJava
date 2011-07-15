@@ -6,17 +6,19 @@ package ecologylab.serialization.types.scalar;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.types.MappingConstants;
 
 /**
  * @author andruid
  *
  */
 public class PatternType extends ReferenceType<Pattern>
+implements MappingConstants
 {
 
 	public PatternType()
 	{
-		super(Pattern.class);
+		super(Pattern.class, JAVA_PATTERN, DOTNET_PATTERN, null, null);
 	}
 
 	@Override
@@ -25,33 +27,6 @@ public class PatternType extends ReferenceType<Pattern>
 	{
 		// TODO Auto-generated method stub
 		return (formatStrings == null) ? Pattern.compile(value) : Pattern.compile(value, Integer.parseInt(formatStrings[0]));
-	}
-
-	@Override
-	public String getCSharptType()
-	{
-		return "System.Text.RegularExpressions.Regex";
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

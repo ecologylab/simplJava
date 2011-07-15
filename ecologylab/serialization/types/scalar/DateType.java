@@ -17,73 +17,50 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DateType extends ScalarType<Date>
+public class DateType extends ReferenceType<Date> implements MappingConstants
 {
-    static final DateFormat df      = new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+	static final DateFormat	df			= new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
 
-    static final DateFormat plainDf = DateFormat.getDateTimeInstance();
+	static final DateFormat	plainDf	= DateFormat.getDateTimeInstance();
 
-    public DateType()
-    {
-        super(Date.class);
-    }
+	public DateType()
+	{
+		super(Date.class, JAVA_DATE, DOTNET_DATE, OBJC_DATE, null);
+	}
 
-    /**
-     * @param value
-     *            is interpreted as a SimpleDateFormat in the form EEE MMM dd kk:mm:ss zzz yyyy (for
-     *            example Wed Aug 02 13:12:50 CDT 2006); if that does not work, then attempts to use
-     *            the DateFormat for the current locale instead.
-     * 
-     * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
-     */
-    public Date getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
-    {
-    	Date result = null;
+	/**
+	 * @param value
+	 *          is interpreted as a SimpleDateFormat in the form EEE MMM dd kk:mm:ss zzz yyyy (for
+	 *          example Wed Aug 02 13:12:50 CDT 2006); if that does not work, then attempts to use the
+	 *          DateFormat for the current locale instead.
+	 * 
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[],
+	 *      ScalarUnmarshallingContext)
+	 */
+	public Date getInstance(String value, String[] formatStrings,
+			ScalarUnmarshallingContext scalarUnmarshallingContext)
+	{
+		Date result = null;
 
-        try
-        {
-            result = df.parse(value);
-        }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-            debug("exception caught, trying plainDf");
-
-            try
-            {
-                result = plainDf.parse(value);
-            }
-            catch (ParseException e1)
-            {
-                debug("failed to parse date!");
-                e1.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-		@Override
-		public String getCSharptType()
+		try
 		{
-			return MappingConstants.DOTNET_DATE;
+			result = df.parse(value);
 		}
+		catch (ParseException e)
+		{
+			e.printStackTrace();
+			debug("exception caught, trying plainDf");
 
-		@Override
-		public String getDbType()
-		{
-			// TODO Auto-generated method stub
-			return null;
+			try
+			{
+				result = plainDf.parse(value);
+			}
+			catch (ParseException e1)
+			{
+				debug("failed to parse date!");
+				e1.printStackTrace();
+			}
 		}
-
-		@Override
-		public String getObjectiveCType()
-		{
-			return MappingConstants.OBJC_DATE;
-		}
-		
-		@Override
-		public String getJavaType()
-		{
-			return MappingConstants.JAVA_DATE;
-		}
+		return result;
+	}
 }

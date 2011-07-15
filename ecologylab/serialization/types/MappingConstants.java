@@ -150,5 +150,9 @@ public interface MappingConstants
 	public static final String JAVA_UUID							= "GUID";
 	
 	public static final String	JAVA_RECTANGLE				= "Rectangle";
+	
+	public static final String	JAVA_PATTERN					= "Pattern";
+	
+	public static final String	DOTNET_PATTERN				= "System.Text.RegularExpressions.Regex";
 
 }

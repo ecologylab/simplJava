@@ -9,25 +9,11 @@ import ecologylab.serialization.types.MappingConstants;
 import ecologylab.serialization.types.ScalarType;
 
 public class ReferenceFloatType extends ScalarType<Float>
+implements MappingConstants
 {
 	public ReferenceFloatType()
 	{
-		super(Float.class);
-	}
-
-	@Override
-	public String getCSharptType() {
-		return MappingConstants.DOTNET_FLOAT;
-	}
-	
-	@Override
-	public String getJavaType() {
-		return MappingConstants.JAVA_FLOAT;
-	}
-
-	@Override
-	public String getDbType() {
-		return null;
+		super(Float.class, JAVA_FLOAT, DOTNET_FLOAT, OBJC_FLOAT, null);
 	}
 
 	@Override
@@ -36,10 +22,6 @@ public class ReferenceFloatType extends ScalarType<Float>
 		return ("null".equalsIgnoreCase(value))?null:new Float(value);
 	}
 
-	@Override
-	public String getObjectiveCType() {
-		return MappingConstants.OBJC_FLOAT;
-	}
 	
 	/**
 	 * Get the value from the Field, in the context. Append its value to the buffy.

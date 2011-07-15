@@ -18,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class FloatType extends ScalarType<Float>
+implements MappingConstants
 {
 	public static final float		DEFAULT_VALUE					= 0;
 
@@ -33,12 +34,12 @@ public class FloatType extends ScalarType<Float>
 	 */
 	public FloatType()
 	{
-		super(float.class);
+		this(float.class);
 	}
 
 	public FloatType(Class<Float> thatClass)
 	{
-		super(thatClass);
+		super(thatClass, JAVA_FLOAT, DOTNET_FLOAT, OBJC_FLOAT, null);
 	}
 
 	/**
@@ -173,28 +174,4 @@ public class FloatType extends ScalarType<Float>
 		return fieldDescriptor.getField().get(context).toString();
 	}
 
-	@Override
-	public String getCSharptType()
-	{
-		return MappingConstants.DOTNET_FLOAT;
-	}
-
-	@Override
-	public String getDbType()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getObjectiveCType()
-	{
-		return MappingConstants.OBJC_FLOAT;
-	}
-	
-	@Override
-	public String getJavaType()
-	{
-		return MappingConstants.JAVA_FLOAT;
-	}
 }

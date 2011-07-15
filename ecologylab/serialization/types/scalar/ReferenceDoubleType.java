@@ -9,25 +9,11 @@ import ecologylab.serialization.types.MappingConstants;
 import ecologylab.serialization.types.ScalarType;
 
 public class ReferenceDoubleType extends ScalarType<Double>
+implements MappingConstants
 {
 	public ReferenceDoubleType()
 	{
-		super(Double.class);
-	}
-
-	@Override
-	public String getCSharptType() {
-		return MappingConstants.DOTNET_DOUBLE;
-	}
-	
-	@Override
-	public String getJavaType() {
-		return MappingConstants.JAVA_DOUBLE;
-	}
-
-	@Override
-	public String getDbType() {
-		return null;
+		super(Double.class, JAVA_DOUBLE, DOTNET_DOUBLE, OBJC_DOUBLE, null);
 	}
 
 	@Override
@@ -36,10 +22,6 @@ public class ReferenceDoubleType extends ScalarType<Double>
 		return ("null".equalsIgnoreCase(value))?null:new Double(value);
 	}
 
-	@Override
-	public String getObjectiveCType() {
-		return MappingConstants.OBJC_DOUBLE;
-	}
 	
     /**
      * Get the value from the Field, in the context.
