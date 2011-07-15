@@ -615,7 +615,10 @@ public class JavaTranslator implements JavaTranslationConstants
 				appendAnnotation(appendable,simpl_nowrap.class.getSimpleName(),TAB);
 			}
 			// @simpl_collection
-			appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);			
+			if (fieldDescriptor.isPolymorphic())
+				appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(null),TAB);			
+			else
+				appendAnnotation(appendable, JavaTranslationUtilities.getJavaCollectionAnnotation(collectionMapTagValue),TAB);			
 		}
 		else if(type == FieldTypes.MAP_ELEMENT)
 		{

@@ -71,7 +71,9 @@ public class NewMetaMetadataCompiler extends Debug
 		printWriter.println("/**\n * This is the tranlation scope class for generated files.\n */\n");
 
 		// Write the class
-		printWriter.print("public class GeneratedMetadataTranslationScope\n{\n");
+		printWriter.print("public class ");
+		printWriter.print(REPOSITORY_METADATA_TRANSLATION_SCOPE_CLASS_NAME);
+		printWriter.print("\n{\n");
 		printWriter.print("\tprotected static final Class TRANSLATIONS[] =\n\t{\n");
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
 		for (ClassDescriptor cd : compilerTScope.getClassDescriptors())
@@ -82,7 +84,7 @@ public class NewMetaMetadataCompiler extends Debug
 		
 		// Write get() method
 		printWriter.println("\tpublic static TranslationScope get()\n\t{");
-		printWriter.println("\t\treturn TranslationScope.get(SemanticsNames.GENERATED_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
+		printWriter.println("\t\treturn TranslationScope.get(SemanticsNames.REPOSITORY_METADATA_TRANSLATIONS, MetadataBuiltinsTranslationScope.get(), TRANSLATIONS);");
 		printWriter.println("\t}\n");
 		
 		// End the class
