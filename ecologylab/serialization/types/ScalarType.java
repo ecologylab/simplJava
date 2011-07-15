@@ -30,24 +30,18 @@ import ecologylab.serialization.TranslationContext;
  * 
  * @author andruid
  */
-public abstract class ScalarType<T> extends ElementState
-implements Describable
+public abstract class ScalarType<T> extends SimplType
+implements Describable, CrossLanguageTypeConstants
 {
 	Class<? extends T>					thatClass;
 
 	Class<T>										alternativeClass;
 	
 	/**
-	 * Full name, with package, of the type.
-	 */
-	@simpl_scalar
-	String											name;
-	
-	/**
 	 * Short name of the type: without package.
 	 */
 	@simpl_scalar
-	String											simpleName;
+	String											javaSimpleName;
 
 	/**
 	 * Package name, for non primitives.
@@ -56,20 +50,10 @@ implements Describable
 	String											packageName;
 	
 	@simpl_scalar
-	boolean											isPrimitive;
-	
-	@simpl_scalar
-	private String							javaTypeName;
-	
-	@simpl_scalar
-	private String							cSharpTypeName;
-	
-	@simpl_scalar
-	private String							objectiveCTypeName;
-	
-	@simpl_scalar
 	private String							dbTypeName;
 	
+	@simpl_scalar
+	boolean											isPrimitive;
 	
 
 	public static final Object	DEFAULT_VALUE					= null;
@@ -92,19 +76,17 @@ implements Describable
 	 */
 	protected ScalarType(Class<? extends T> thatClass, String javaTypeName, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		this.thatClass 		= thatClass;
+		super(thatClass.isPrimitive() ? thatClass.getCanonicalName() : SIMPL_SCALAR_TYPES_PREFIX + thatClass.getSimpleName(), 
+				javaTypeName, cSharpTypeName, objectiveCTypeName);
 		
-		this.isPrimitive 	= thatClass.isPrimitive();
-		this.name					= thatClass.getName();
-		this.simpleName		= thatClass.getSimpleName();
+		this.thatClass 				= thatClass;
+		
+		this.isPrimitive 			= thatClass.isPrimitive();
+		this.javaSimpleName		= thatClass.getSimpleName();
 		if (!isPrimitive)
-			this.packageName	= thatClass.getPackage().getName();
+			this.packageName		= thatClass.getPackage().getName();
 		
-		
-		this.javaTypeName				= javaTypeName;
-		this.cSharpTypeName			= cSharpTypeName;
-		this.objectiveCTypeName	= objectiveCTypeName;
-		this.dbTypeName					= dbTypeName;
+		this.dbTypeName				= dbTypeName;
 	}
 
 	/**
@@ -586,22 +568,9 @@ implements Describable
 		return (T) largerContext;
 	}
 
-	public String getJavaType()
-	{
-		return javaTypeName;
-	}
-	public String getCSharptType()
-	{
-		return cSharpTypeName;
-	}
-	public String getObjectiveCType()
-	{
-		return objectiveCTypeName;
-	}
-
-	public String getDbType()
+	public String getDbTypeName()
 	{
 		return dbTypeName;
 	}
-	
+
 }
