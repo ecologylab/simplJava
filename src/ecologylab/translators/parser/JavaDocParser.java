@@ -135,7 +135,7 @@ public class JavaDocParser implements IJavaParser
 	public static String[] getFieldJavaDocsArray(FieldDescriptor field)
 	{
 		ClassDescriptor thatClass = field.getDeclaringClassDescriptor();
-		String javaDocs = getFieldJavaDocs(thatClass.getDescribedClassSimpleName(), field.getFieldName());
+		String javaDocs = getFieldJavaDocs(thatClass.getDescribedClassSimpleName(), field.getName());
 		
 		if (javaDocs != null)
 		{

@@ -997,9 +997,9 @@ public class CocoaTranslator
 		checkForKeywords(fieldAccessor, appendable);
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.SET
-				+ fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
-		appendable.append(fieldAccessor.getFieldName().substring(1,
-				fieldAccessor.getFieldName().length()));
+				+ fieldAccessor.getName().substring(0, 1).toUpperCase());
+		appendable.append(fieldAccessor.getName().substring(1,
+				fieldAccessor.getName().length()));
 		appendable.append(CocoaTranslationConstants.WITH_REFERENCE);
 		appendable.append(CocoaTranslationConstants.OPENING_BRACE);
 		appendable.append(fieldAccessor.getObjectiveCType());
@@ -1008,7 +1008,7 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.CLOSING_BRACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.PARAMETER);
-		appendable.append(fieldAccessor.getFieldName());
+		appendable.append(fieldAccessor.getName());
 		appendable.append(CocoaTranslationConstants.END_LINE);
 	}
 
@@ -1025,7 +1025,7 @@ public class CocoaTranslator
 	{
 
 		boolean isKeywordField = false;
-		if (CocoaTranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		if (CocoaTranslationUtilities.isKeyword(fieldAccessor.getName()))
 		{
 			isKeywordField = true;
 		}
@@ -1035,9 +1035,9 @@ public class CocoaTranslator
 
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.SET
-				+ fieldAccessor.getFieldName().substring(0, 1).toUpperCase());
-		appendable.append(fieldAccessor.getFieldName().substring(1,
-				fieldAccessor.getFieldName().length()));
+				+ fieldAccessor.getName().substring(0, 1).toUpperCase());
+		appendable.append(fieldAccessor.getName().substring(1,
+				fieldAccessor.getName().length()));
 		appendable.append(CocoaTranslationConstants.WITH_REFERENCE);
 		appendable.append(CocoaTranslationConstants.OPENING_BRACE);
 		appendable.append(fieldAccessor.getObjectiveCType());
@@ -1045,7 +1045,7 @@ public class CocoaTranslator
 		appendable.append(CocoaTranslationConstants.REFERENCE);
 		appendable.append(CocoaTranslationConstants.CLOSING_BRACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
-		appendable.append(CocoaTranslationConstants.PARAMETER + fieldAccessor.getFieldName());
+		appendable.append(CocoaTranslationConstants.PARAMETER + fieldAccessor.getName());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.OPENING_CURLY_BRACE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -1054,11 +1054,11 @@ public class CocoaTranslator
 			appendable.append(CocoaTranslationConstants.SINGLE_LINE_COMMENT);
 
 		appendable.append(CocoaTranslationConstants.TAB);
-		appendable.append(fieldAccessor.getFieldName());
+		appendable.append(fieldAccessor.getName());
 		appendable.append(CocoaTranslationConstants.EQUALTO);
 		appendable.append(CocoaTranslationConstants.REFERENCE);
 		appendable.append(CocoaTranslationConstants.PARAMETER);
-		appendable.append(fieldAccessor.getFieldName());
+		appendable.append(fieldAccessor.getName());
 
 		appendable.append(CocoaTranslationConstants.END_LINE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -1178,7 +1178,7 @@ public class CocoaTranslator
 		appendable.append("@var");
 
 		appendable.append(CocoaTranslationConstants.DOUBLE_TAB);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 		appendable.append(CocoaTranslationConstants.DOUBLE_TAB);
 		appendable.append("@abstract");
@@ -1218,9 +1218,9 @@ public class CocoaTranslator
 	private void checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
 			throws IOException
 	{
-		if (CocoaTranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		if (CocoaTranslationUtilities.isKeyword(fieldAccessor.getName()))
 		{
-			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getFieldName()
+			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getName()
 					+ "]. This is a keyword in objective-c. Cannot translate");
 			appendComments(appendable);
 		}
@@ -1289,7 +1289,7 @@ public class CocoaTranslator
 
 		synthesizeDeclaration.append(CocoaTranslationConstants.SYNTHESIZE);
 		synthesizeDeclaration.append(CocoaTranslationConstants.SPACE);
-		synthesizeDeclaration.append(fieldAccessor.getFieldName());
+		synthesizeDeclaration.append(fieldAccessor.getName());
 		synthesizeDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		synthesizeDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1317,7 +1317,7 @@ public class CocoaTranslator
 		fieldDeclaration.append(fieldAccessor.getObjectiveCType());
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
 		fieldDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		fieldDeclaration.append(fieldAccessor.getFieldName());
+		fieldDeclaration.append(fieldAccessor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1340,9 +1340,9 @@ public class CocoaTranslator
 		fieldDeclaration.append(CocoaTranslationConstants.TAB);
 //		fieldDeclaration.append(CocoaTranslationUtilities.getObjectiveCType(fieldAccessor.getField()
 //				.getType()));
-		fieldDeclaration.append(fieldAccessor.getScalarType().getObjectiveCType());
+		fieldDeclaration.append(fieldAccessor.getScalarType().getObjectiveCTypeName());
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
-		fieldDeclaration.append(fieldAccessor.getFieldName());
+		fieldDeclaration.append(fieldAccessor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1366,7 +1366,7 @@ public class CocoaTranslator
 				.append(CocoaTranslationUtilities.classSimpleName(fieldAccessor.getFieldType()));
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
 		fieldDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		fieldDeclaration.append(fieldAccessor.getFieldName());
+		fieldDeclaration.append(fieldAccessor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1391,7 +1391,7 @@ public class CocoaTranslator
 		propertyDeclaration.append(fieldAccessor.getObjectiveCType());
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		propertyDeclaration.append(fieldAccessor.getFieldName());
+		propertyDeclaration.append(fieldAccessor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		propertyDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1417,7 +1417,7 @@ public class CocoaTranslator
 				.getFieldType()));
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		propertyDeclaration.append(fieldAccessor.getFieldName());
+		propertyDeclaration.append(fieldAccessor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		propertyDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1441,7 +1441,7 @@ public class CocoaTranslator
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(fieldAccessor.getObjectiveCType());
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
-		propertyDeclaration.append(fieldAccessor.getFieldName());
+		propertyDeclaration.append(fieldAccessor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		propertyDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1550,7 +1550,7 @@ public class CocoaTranslator
 	{
 		appendable.append(CocoaTranslationConstants.TAB);
 		appendable.append(CocoaTranslationConstants.OPENING_SQUARE_BRACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.RELEASE);
 		appendable.append(CocoaTranslationConstants.CLOSING_SQUARE_BRACE);

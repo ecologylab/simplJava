@@ -493,7 +493,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(javaType);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
 
@@ -531,9 +531,9 @@ public class JavaTranslator implements JavaTranslationConstants
 	private boolean checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
 			throws IOException
 	{
-		if (JavaTranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		if (JavaTranslationUtilities.isKeyword(fieldAccessor.getName()))
 		{
-			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getFieldName()
+			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getName()
 					+ "]. This is a keyword in C#. Cannot translate");
 			return true;
 		}
@@ -633,7 +633,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		// @xml_tag
 		String tagName = fieldDescriptor.getTagName();
-		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getFieldName(), null);
+		String autoTagName = XMLTools.getXmlTagName(fieldDescriptor.getName(), null);
 		if(tagName != null && !tagName.equals("") && !tagName.equals(autoTagName))
 		{
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaTagAnnotation(tagName), TAB);			
@@ -797,7 +797,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(DOUBLE_TAB);
 		appendable.append(RETURN);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
@@ -844,7 +844,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(OPENING_BRACE);
 		appendable.append(javaType);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(CLOSING_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);
@@ -853,11 +853,11 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(DOUBLE_TAB);
 		appendable.append(THIS);
 		appendable.append(DOT);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(SPACE);
 		appendable.append(EQUALS);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(TAB);

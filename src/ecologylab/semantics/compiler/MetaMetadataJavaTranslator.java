@@ -88,13 +88,13 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 			if (scalarType == null)
 				throw new MetaMetadataException("scalar type not specified!");
 			
-			String fieldName = fieldDescriptor.getFieldName();
+			String fieldName = fieldDescriptor.getName();
 			String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-			String typeName = scalarType.getJavaType();
+			String typeName = scalarType.getJavaTypeName();
 			
 			appendLazyEvaluation(fieldName, typeName, appendable);
 			
-			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaType();
+			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaTypeName();
 			appendable.append("\tpublic ").append(javaPrimitiveTypeName).append(" get").append(capFieldName).append("()\n");
 			appendable.append("\t{\n");
 			appendable.append("\t\treturn this.").append(fieldName).append("().getValue();\n");
@@ -117,10 +117,10 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 			if (scalarType == null)
 				throw new MetaMetadataException("scalar type not specified!");
 			
-			String fieldName = fieldDescriptor.getFieldName();
+			String fieldName = fieldDescriptor.getName();
 			String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 			
-			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaType();
+			String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaTypeName();
 			appendable.append("\tpublic void set").append(capFieldName).append("(").append(javaPrimitiveTypeName).append(" ").append(fieldName).append(")\n");
 			appendable.append("\t{\n");
 			appendable.append("\t\tthis.").append(fieldName).append("().setValue(").append(fieldName).append(");\n");

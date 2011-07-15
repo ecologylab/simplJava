@@ -653,7 +653,7 @@ public class DotNetTranslationUtilities
 		}
 		else
 		{
-			String fieldName = fieldDescriptor.getFieldName();
+			String fieldName = fieldDescriptor.getName();
 			StringBuilder propertyName = new StringBuilder();
 			
 			String declaringClassName = fieldDescriptor.getField().getDeclaringClass().getSimpleName();

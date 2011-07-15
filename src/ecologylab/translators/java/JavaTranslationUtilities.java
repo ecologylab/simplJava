@@ -376,7 +376,7 @@ public class JavaTranslationUtilities {
 		}
 		else
 		{
-			String fieldName = fieldDescriptor.getFieldName();
+			String fieldName = fieldDescriptor.getName();
 			StringBuilder propertyName = new StringBuilder();
 			
 			String declaringClassName = fieldDescriptor.getDeclaringClassDescriptor().getDescribedClassSimpleName();
@@ -403,7 +403,7 @@ public class JavaTranslationUtilities {
 		}
 		else
 		{
-			String fieldName = fieldDescriptor.getFieldName();
+			String fieldName = fieldDescriptor.getName();
 			StringBuilder propertyName = new StringBuilder();
 			
 			String declaringClassName = fieldDescriptor.getDeclaringClassDescriptor().getDescribedClassSimpleName();

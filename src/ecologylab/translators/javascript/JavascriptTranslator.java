@@ -66,7 +66,7 @@ public class JavascriptTranslator
 		String leadingCommaMap = "";
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
-			String fieldName = XMLTools.getXmlTagName(fieldDescriptor.getFieldName(),"");
+			String fieldName = XMLTools.getXmlTagName(fieldDescriptor.getName(),"");
 			if(fieldDescriptor.getType() == FieldTypes.MAP_ELEMENT || fieldDescriptor.getType() == FieldTypes.MAP_SCALAR || fieldDescriptor.getType() == FieldTypes.COLLECTION_ELEMENT)
 				fieldName = XMLTools.getXmlTagName(fieldDescriptor.getCollectionOrMapTagName(),"");
 			parameters += ","+fieldName;
@@ -109,7 +109,7 @@ public class JavascriptTranslator
 		for (FieldDescriptor fieldDescriptor : fieldDescriptors)
 		{
 			if (fieldDescriptor.belongsTo(classDescriptor))
-				System.out.println(fieldDescriptor.getFieldName());
+				System.out.println(fieldDescriptor.getName());
 				//appendFieldAsCSharpAttribute(fieldDescriptor, classFile);
 		}
 		

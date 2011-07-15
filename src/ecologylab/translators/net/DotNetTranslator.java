@@ -602,7 +602,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(cSharpType);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
 
@@ -639,9 +639,9 @@ public class DotNetTranslator implements DotNetTranslationConstants
 	private boolean checkForKeywords(FieldDescriptor fieldAccessor, Appendable appendable)
 			throws IOException
 	{
-		if (DotNetTranslationUtilities.isKeyword(fieldAccessor.getFieldName()))
+		if (DotNetTranslationUtilities.isKeyword(fieldAccessor.getName()))
 		{
-			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getFieldName()
+			Debug.warning(fieldAccessor, " Field Name: [" + fieldAccessor.getName()
 					+ "]. This is a keyword in C#. Cannot translate");
 			return true;
 		}
@@ -750,7 +750,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(OPENING_CURLY_BRACE);
 		appendable.append(RETURN);
 		appendable.append(SPACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(END_LINE);
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -758,7 +758,7 @@ public class DotNetTranslator implements DotNetTranslationConstants
 		appendable.append(TAB);
 		appendable.append(SET);
 		appendable.append(OPENING_CURLY_BRACE);
-		appendable.append(fieldDescriptor.getFieldName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(SPACE);
 		appendable.append(ASSIGN);
 		appendable.append(SPACE);

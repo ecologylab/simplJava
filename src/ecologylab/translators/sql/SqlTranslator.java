@@ -318,7 +318,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		{
 			FieldDescriptor thisFieldDescriptor = (FieldDescriptor) object;
 			Class<?> thisFieldType = thisFieldDescriptor.getFieldType();
-			String thisFieldName = thisFieldDescriptor.getFieldName();
+			String thisFieldName = thisFieldDescriptor.getName();
 
 			// System.out.println("className : " + thisClassDescriptor.getDecribedClassSimpleName() +
 			// " fieldType - " + thisFieldType.getSimpleName());
@@ -549,7 +549,7 @@ public class SqlTranslator extends SqlTranslatorUtil
 		String tableNameForMultiAttributes = tableName + "#" + tableExtend + "#" + tableComment;
 
 		/* FieldName(key of hashMap) */
-		String fieldName = fieldDescriptor.getFieldName();
+		String fieldName = fieldDescriptor.getName();
 		String fieldType = fieldDescriptor.getFieldType().getSimpleName();
 
 		/* added for handling collection field, default 'null' e.g. 'Item' of ArrayList[Item] */
