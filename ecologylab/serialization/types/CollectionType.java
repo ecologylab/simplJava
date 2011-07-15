@@ -3,49 +3,31 @@
  */
 package ecologylab.serialization.types;
 
-import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import ecologylab.collections.Scope;
 import ecologylab.generic.Describable;
+import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
-import ecologylab.serialization.ElementState;
 
 /**
  * Basic cross-platform unit for managing Collection and Map types in S.IM.PL Serialization.
  * 
  * @author andruid
  */
-public class CollectionType extends ElementState
-implements MappingConstants, Describable
+public class CollectionType extends SimplType
+implements CrossLanguageTypeConstants, Describable
 {
-	/**
-	 * This is a platform-independent identifier that S.IM.PL uses for the CollectionType.
-	 */
-	@simpl_scalar
-	private String			name;
-	
-	@simpl_scalar
-	private String			javaName;
+	private Class				javaClass;
 	
 	private String			javaSimpleName;
 	
-	private Class				javaClass;
-	
 	@simpl_scalar
 	private boolean			isMap;
-	
-	@simpl_scalar
-	private String			cSharpName;
-	
-	@simpl_scalar
-	private String			objCName;
 
-	private static final  HashMap<String, CollectionType>	mapByName 			= new HashMap<String, CollectionType>();
-	
-	private static final  HashMap<String, CollectionType>	mapByClassName	= new HashMap<String, CollectionType>();
-	
 	/**
 	 * 
 	 */
@@ -53,21 +35,17 @@ implements MappingConstants, Describable
 	{
 	}
 	
-	public CollectionType(String name, Class javaClass, String cSharpName, String objCName, boolean isMap)
+	public CollectionType(Class javaClass, String cSharpName, String objCName)
 	{
-		this.name				= name;
-		this.javaClass	= javaClass;
-		this.javaName		= javaClass.getName();
+		super(CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
+		this.javaClass			= javaClass;
 		this.javaSimpleName	= javaClass.getSimpleName();
 		
-		this.cSharpName	= cSharpName;
-		this.objCName		= objCName;
-		this.isMap			= isMap;
+		this.isMap			= Map.class.isAssignableFrom(javaClass);
 		
-		mapByName.put(name, this);
-		mapByClassName.put(javaName, this);
+		TypeRegistry.registerCollectionType(this);
 	}
-	
+
 	public Object getInstance()
 	{
 		return ReflectionTools.getInstance(javaClass);
@@ -84,67 +62,6 @@ implements MappingConstants, Describable
 	}
 	
 	/**
-	 * Get by unique, cross-platform name.
-	 * 
-	 * @param crossPlatformName
-	 * @return
-	 */
-	public static CollectionType getCollectionTypeByCrossPlatformName(String crossPlatformName)
-	{
-		return mapByName.get(crossPlatformName);
-	}
-	
-	/**
-	 * Lookup a collection type using the Java class or its full unqualifiedName.
-	 * 
-	 * @param javaField	Declaring class of this field is key for lookup
-	 * 
-	 * @return
-	 */
-	public static CollectionType getCollectionType(Field javaField)
-	{
-		return getCollectionType(javaField.getType());
-	}
-	/**
-	 * Lookup a collection type using the Java class or its full unqualifiedName.
-	 * @param javaClass
-	 * @return
-	 */
-	public static CollectionType getCollectionType(Class javaClass)
-	{
-		return getCollectionType(javaClass.getName());
-	}
-	/**
-	 * Lookup a collection type using the Java class or its full unqualifiedName.
-	 * 
-	 * @param javaClassName
-	 * @return
-	 */
-	public static CollectionType getCollectionType(String javaClassName)
-	{
-		return mapByClassName.get(javaClassName);
-	}
-	
-	/**
-	 * This is the cross-platform S.IM.PL name.
-	 * 
-	 * @return
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * The full, qualified name of the class that this describes
-	 * @return
-	 */
-	public String getJavaName()
-	{
-		return javaName;
-	}
-
-	/**
 	 * The full, qualified name of the class that this describes
 	 * 
 	 * @return	Full Java class name.
@@ -152,7 +69,7 @@ implements MappingConstants, Describable
 	@Override
 	public String getDescription()
 	{
-		return getJavaName();
+		return getJavaTypeName();
 	}
 
 	/**
@@ -173,16 +90,6 @@ implements MappingConstants, Describable
 	public boolean isMap()
 	{
 		return isMap;
-	}
-
-	public String getcSharpName()
-	{
-		return cSharpName;
-	}
-
-	public String getObjCName()
-	{
-		return objCName;
 	}
 
 }
