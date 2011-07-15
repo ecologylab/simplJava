@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -18,7 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  *
  */
 public class RectangleType extends ScalarType<Rectangle>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	private static final Pattern DELIMITER_PATTERN = Pattern.compile("[, ]");
 	

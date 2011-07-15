@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -32,7 +32,7 @@ public class ShortType extends ScalarType<Short>
  */
 	public ShortType()
 	{
-		super(short.class, MappingConstants.JAVA_SHORT, MappingConstants.DOTNET_SHORT, MappingConstants.OBJC_SHORT, null);
+		super(short.class, CrossLanguageTypeConstants.JAVA_SHORT, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
 	}
 
 	/**

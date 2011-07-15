@@ -10,13 +10,13 @@ import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class FileType extends ReferenceType<File> implements MappingConstants
+public class FileType extends ReferenceType<File> implements CrossLanguageTypeConstants
 {
 
 	/**

@@ -7,7 +7,7 @@ import java.awt.Color;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -16,7 +16,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class ColorType extends ScalarType<Color>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 /**
  * This constructor should only be called once per session, through

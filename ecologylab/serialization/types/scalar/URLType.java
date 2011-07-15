@@ -8,7 +8,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * Type system entry for {@link java.net.URL URL}.
@@ -18,7 +18,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class URLType extends ReferenceType<URL>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	public URLType()
 	{

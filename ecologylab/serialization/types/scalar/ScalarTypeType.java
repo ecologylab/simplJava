@@ -4,7 +4,7 @@
 package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -15,7 +15,7 @@ import ecologylab.serialization.types.TypeRegistry;
  *
  */
 public class ScalarTypeType extends ReferenceType<ScalarType>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	/**
 	 * @param thatClass

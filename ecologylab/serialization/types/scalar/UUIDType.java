@@ -3,11 +3,11 @@ package ecologylab.serialization.types.scalar;
 import java.util.UUID;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 public class UUIDType extends ScalarType<UUID>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 
 	public UUIDType()

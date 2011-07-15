@@ -13,7 +13,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -21,7 +21,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class ParsedURLType extends ReferenceType<ParsedURL>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 /**
  * This constructor should only be called once per session, through

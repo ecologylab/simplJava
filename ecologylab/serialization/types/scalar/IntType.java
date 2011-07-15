@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -18,7 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andruid
  */
 public class IntType extends ScalarType<Integer>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	public static final int		DEFAULT_VALUE			= 0;
 	public static final String	DEFAULT_VALUE_STRING	= "0";

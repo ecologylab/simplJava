@@ -8,7 +8,7 @@ import java.io.IOException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
@@ -16,7 +16,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class StringBuilderType extends ReferenceType<StringBuilder>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	/**
 	 * This constructor should only be called once per session, through

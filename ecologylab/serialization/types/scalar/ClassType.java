@@ -6,7 +6,7 @@ package ecologylab.serialization.types.scalar;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * For marshalling Class objects themselves. Particularly useful in ports.
@@ -14,7 +14,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class ClassType extends ReferenceType<Class>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	public ClassType()
 	{

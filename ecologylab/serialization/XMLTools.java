@@ -34,13 +34,14 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import ecologylab.collections.Scope;
+import ecologylab.generic.Debug;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.StringInputStream;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState.bibtex_key;
 import ecologylab.serialization.ElementState.bibtex_tag;
 import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 
@@ -53,7 +54,7 @@ import ecologylab.serialization.types.TypeRegistry;
  * @author Madhur Khandelwal
  * @version 0.5
  */
-public class XMLTools extends TypeRegistry implements CharacterConstants, SpecialCharacterEntities
+public class XMLTools extends Debug implements CharacterConstants, SpecialCharacterEntities
 {
 	private static final int				DEFAULT_TAG_LENGTH	= 15;
 
@@ -1775,83 +1776,83 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 
 		if (int.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_INTEGER;
+			result = CrossLanguageTypeConstants.DOTNET_INTEGER;
 		}
 		else if (float.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_FLOAT;
+			result = CrossLanguageTypeConstants.DOTNET_FLOAT;
 		}
 		else if (double.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_DOUBLE;
+			result = CrossLanguageTypeConstants.DOTNET_DOUBLE;
 		}
 		else if (byte.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_BYTE;
+			result = CrossLanguageTypeConstants.DOTNET_BYTE;
 		}
 		else if (char.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_CHAR;
+			result = CrossLanguageTypeConstants.DOTNET_CHAR;
 		}
 		else if (boolean.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_BOOLEAN;
+			result = CrossLanguageTypeConstants.DOTNET_BOOLEAN;
 		}
 		else if (long.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_LONG;
+			result = CrossLanguageTypeConstants.DOTNET_LONG;
 		}
 		else if (short.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_SHORT;
+			result = CrossLanguageTypeConstants.DOTNET_SHORT;
 		}
 		else if (String.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_STRING;
+			result = CrossLanguageTypeConstants.DOTNET_STRING;
 		}
 		else if (StringBuilder.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_STRING_BUILDER;
+			result = CrossLanguageTypeConstants.DOTNET_STRING_BUILDER;
 		}
 		else if (URL.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_URL;
+			result = CrossLanguageTypeConstants.DOTNET_URL;
 		}
 		else if (ParsedURL.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_PARSED_URL;
+			result = CrossLanguageTypeConstants.DOTNET_PARSED_URL;
 		}
 		else if (ScalarType.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_SCALAR_TYPE;
+			result = CrossLanguageTypeConstants.DOTNET_SCALAR_TYPE;
 		}
 		else if (Date.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_DATE;
+			result = CrossLanguageTypeConstants.DOTNET_DATE;
 		}
 		else if (ArrayList.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_ARRAYLIST;
+			result = CrossLanguageTypeConstants.DOTNET_ARRAYLIST;
 		}
 		else if (HashMap.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_HASHMAP;
+			result = CrossLanguageTypeConstants.DOTNET_HASHMAP;
 		}
 		else if (HashMapArrayList.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_HASHMAPARRAYLIST;
+			result = CrossLanguageTypeConstants.DOTNET_HASHMAPARRAYLIST;
 		}
 		else if (Scope.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_SCOPE;
+			result = CrossLanguageTypeConstants.DOTNET_SCOPE;
 		}
 		else if (Class.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_CLASS;
+			result = CrossLanguageTypeConstants.DOTNET_CLASS;
 		}
 		else if (Field.class == fieldType)
 		{
-			result = MappingConstants.DOTNET_FIELD;
+			result = CrossLanguageTypeConstants.DOTNET_FIELD;
 		}
 		else
 		{
@@ -2165,83 +2166,83 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 		
 		if (int.class == fieldType)
 		{
-			result = MappingConstants.JAVA_INTEGER;
+			result = CrossLanguageTypeConstants.JAVA_INTEGER;
 		}
 		else if (float.class == fieldType)
 		{
-			result = MappingConstants.JAVA_FLOAT;
+			result = CrossLanguageTypeConstants.JAVA_FLOAT;
 		}
 		else if (double.class == fieldType)
 		{
-			result = MappingConstants.JAVA_DOUBLE;
+			result = CrossLanguageTypeConstants.JAVA_DOUBLE;
 		}
 		else if (byte.class == fieldType)
 		{
-			result = MappingConstants.JAVA_BYTE;
+			result = CrossLanguageTypeConstants.JAVA_BYTE;
 		}
 		else if (char.class == fieldType)
 		{
-			result = MappingConstants.JAVA_CHAR;
+			result = CrossLanguageTypeConstants.JAVA_CHAR;
 		}
 		else if (boolean.class == fieldType)
 		{
-			result = MappingConstants.JAVA_BOOLEAN;
+			result = CrossLanguageTypeConstants.JAVA_BOOLEAN;
 		}
 		else if (long.class == fieldType)
 		{
-			result = MappingConstants.JAVA_LONG;
+			result = CrossLanguageTypeConstants.JAVA_LONG;
 		}
 		else if (short.class == fieldType)
 		{
-			result = MappingConstants.JAVA_SHORT;
+			result = CrossLanguageTypeConstants.JAVA_SHORT;
 		}
 		else if (String.class == fieldType)
 		{
-			result = MappingConstants.JAVA_STRING;
+			result = CrossLanguageTypeConstants.JAVA_STRING;
 		}
 		else if (StringBuilder.class == fieldType)
 		{
-			result = MappingConstants.JAVA_STRING_BUILDER;
+			result = CrossLanguageTypeConstants.JAVA_STRING_BUILDER;
 		}
 		else if (URL.class == fieldType)
 		{
-			result = MappingConstants.JAVA_URL;
+			result = CrossLanguageTypeConstants.JAVA_URL;
 		}
 		else if (ParsedURL.class == fieldType)
 		{
-			result = MappingConstants.JAVA_PARSED_URL;
+			result = CrossLanguageTypeConstants.JAVA_PARSED_URL;
 		}
 		else if (ScalarType.class == fieldType)
 		{
-			result = MappingConstants.JAVA_SCALAR_TYPE;
+			result = CrossLanguageTypeConstants.JAVA_SCALAR_TYPE;
 		}
 		else if (Date.class == fieldType)
 		{
-			result = MappingConstants.JAVA_DATE;
+			result = CrossLanguageTypeConstants.JAVA_DATE;
 		}
 		else if (ArrayList.class == fieldType)
 		{
-			result = MappingConstants.JAVA_ARRAYLIST;
+			result = CrossLanguageTypeConstants.JAVA_ARRAYLIST;
 		}
 		else if (HashMap.class == fieldType)
 		{
-			result = MappingConstants.JAVA_HASHMAP;
+			result = CrossLanguageTypeConstants.JAVA_HASHMAP;
 		}
 		else if (HashMapArrayList.class == fieldType)
 		{
-			result = MappingConstants.JAVA_HASHMAPARRAYLIST;
+			result = CrossLanguageTypeConstants.JAVA_HASHMAPARRAYLIST;
 		}
 		else if (Scope.class == fieldType)
 		{
-			result = MappingConstants.JAVA_SCOPE;
+			result = CrossLanguageTypeConstants.JAVA_SCOPE;
 		}
 		else if (Class.class == fieldType)
 		{
-			result = MappingConstants.JAVA_CLASS;
+			result = CrossLanguageTypeConstants.JAVA_CLASS;
 		}
 		else if (Field.class == fieldType)
 		{
-			result = MappingConstants.JAVA_FIELD;
+			result = CrossLanguageTypeConstants.JAVA_FIELD;
 		}
 		else
 		{

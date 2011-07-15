@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * For marshalling the name of a field, for transmission to other platforms.
@@ -15,7 +15,7 @@ import ecologylab.serialization.types.MappingConstants;
  * @author andruid
  */
 public class FieldType extends ReferenceType<Field>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 
 	public FieldType()

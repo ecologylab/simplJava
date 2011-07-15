@@ -5,11 +5,11 @@ import java.io.IOException;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 public class ReferenceFloatType extends ScalarType<Float>
-implements MappingConstants
+implements CrossLanguageTypeConstants
 {
 	public ReferenceFloatType()
 	{

@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
-import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -17,7 +17,7 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)
  */
-public class DateType extends ReferenceType<Date> implements MappingConstants
+public class DateType extends ReferenceType<Date> implements CrossLanguageTypeConstants
 {
 	static final DateFormat	df			= new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
 
