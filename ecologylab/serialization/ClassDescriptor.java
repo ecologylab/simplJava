@@ -14,7 +14,9 @@ import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.types.CollectionType;
+import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
@@ -55,14 +57,9 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_composite
 	private ClassDescriptor superClass;
 	
-	@simpl_collection("inerface")
+	@simpl_collection("interface")
+	@xml_other_tags("inerface")					// handle spelling error that was here
 	private ArrayList<String> interfaces;
-
-	/**
-	 * The full name of the class that this is the descriptor for.
-	 */
-	@simpl_scalar
-	private String describedClassName;
 
 	/**
 	 * This is a pseudo FieldDescriptor object, defined for the class, for cases in which the tag for
@@ -128,6 +125,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	@simpl_scalar
 	private boolean strictObjectGraphRequired = false;
 
+	static
+	{
+		TypeRegistry.init();
+	}
 	/**
 	 * Default constructor only for use by translateFromXML().
 	 */
@@ -143,12 +144,11 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	protected ClassDescriptor(Class<ES> thatClass)
 	{
-		super();
-		this.describedClass = thatClass;
+		super(XMLTools.getXmlTagName(thatClass, TranslationScope.STATE), thatClass.getName());
+		
+		this.describedClass 					= thatClass;
 		this.describedClassSimpleName = thatClass.getSimpleName();
-		this.describedClassPackageName = thatClass.getPackage().getName();
-		this.describedClassName = thatClass.getName();
-		this.tagName = XMLTools.getXmlTagName(thatClass, TranslationScope.STATE);
+		this.describedClassPackageName= thatClass.getPackage().getName();
 		
 		if (thatClass != ElementState.class)
 		{
@@ -183,12 +183,10 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			ClassDescriptor superClass,
 			ArrayList<String> interfaces)
 	{
-		super();
-		this.tagName = tagName;
-		this.comment = comment;
-		this.describedClassPackageName = describedClassPackageName;
-		this.describedClassSimpleName = describedClassSimpleName;
-		this.describedClassName = describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName;
+		super(tagName, describedClassPackageName + PACKAGE_CLASS_SEP + describedClassSimpleName, comment);
+
+		this.describedClassPackageName	= describedClassPackageName;
+		this.describedClassSimpleName 	= describedClassSimpleName;
 		this.superClass = superClass;
 		this.interfaces = interfaces;
 	}
@@ -701,8 +699,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			FD previousMapping = allFieldDescriptorsByTagNames.put(tagName, fdToMap);
 			allFieldDescriptorsByTLVIds.put(tagName.hashCode(), fdToMap);
 			if (previousMapping != null)
-				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getFieldName() + "] overrides field["
-						+ previousMapping.getFieldName() + "]");
+				warning(" tag <" + tagName + ">:\tfield[" + fdToMap.getName() + "] overrides field["
+						+ previousMapping.getName() + "]");
 		}
 	}
 
@@ -741,12 +739,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 */
 	protected void addFieldDescriptor(FD fieldDescriptor)
 	{
-		declaredFieldDescriptorsByFieldName.put(fieldDescriptor.getFieldName(), fieldDescriptor);
+		declaredFieldDescriptorsByFieldName.put(fieldDescriptor.getName(), fieldDescriptor);
 	}
 
 	public String toString()
 	{
-		return getClassSimpleName() + "[" + this.describedClassName + "]";
+		return getClassSimpleName() + "[" + this.name + "]";
 	}
 
 	/**
@@ -965,11 +963,6 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	public ClassDescriptor getSuperClass()
 	{
 		return superClass;
-	}
-	
-	public String getName()
-	{
-		return describedClassName;
 	}
 	
 	/**

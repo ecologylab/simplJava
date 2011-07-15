@@ -5,12 +5,17 @@ package ecologylab.serialization;
 
 import java.util.ArrayList;
 
+import ecologylab.serialization.ElementState.simpl_collection;
+import ecologylab.serialization.ElementState.simpl_nowrap;
+import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.serialization.types.SimplBaseType;
+
 /**
  * Common code for ClassDescriptor and FieldDescriptor.
  * 
  * @author andruid
  */
-public abstract class DescriptorBase extends ElementState
+public abstract class DescriptorBase extends SimplBaseType
 {
 	/**
 	 * The tag name that this field is translated to XML with. For polymorphic fields, the value of
@@ -26,6 +31,9 @@ public abstract class DescriptorBase extends ElementState
 	@simpl_collection("other_tag")
 	protected ArrayList<String>		otherTags;
 
+	/**
+	 * Documentation comment for a class or field.
+	 */
 	@simpl_scalar
 	protected String							comment;
 
@@ -36,9 +44,17 @@ public abstract class DescriptorBase extends ElementState
 	 */
 	public DescriptorBase()
 	{
-		// TODO Auto-generated constructor stub
 	}
-
+	public DescriptorBase(String tagName, String name)
+	{
+		this(tagName, name, null);
+	}
+	public DescriptorBase(String tagName, String name, String comment)
+	{
+		super(name);
+		this.comment		= comment;
+		this.tagName		= tagName;
+	}
 	/**
 	 * NB: For polymorphic fields, the value of this field is meaningless, except for wrapped
 	 * collections and maps.
