@@ -12,7 +12,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.Hint;
 import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.types.scalar.ScalarType;
+import ecologylab.serialization.types.ScalarType;
 import ecologylab.translators.java.JavaTranslator;
 
 public class MetaMetadataJavaTranslator extends JavaTranslator
