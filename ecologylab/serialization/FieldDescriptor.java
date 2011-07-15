@@ -36,6 +36,7 @@ import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.MappingConstants;
 import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.Mappable;
 
@@ -291,7 +292,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		this(tagName, comment, type, elementClassDescriptor, declaringClassDescriptor, fieldName, 
 				scalarType, xmlHint, fieldType, 
-				(type == COLLECTION_ELEMENT || type == COLLECTION_SCALAR) ? CollectionType.ARRAYLIST_TYPE : null);
+				(type == COLLECTION_ELEMENT || type == COLLECTION_SCALAR) ? FundamentalTypes.ARRAYLIST_TYPE : null);
 	}
 	protected FieldDescriptor(
 			String tagName,
