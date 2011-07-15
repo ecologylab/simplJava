@@ -8,6 +8,7 @@ import java.io.IOException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.types.MappingConstants;
 
 /**
  * Type system entry for {@link java.lang.String String}. A very simple case.
@@ -32,7 +33,7 @@ public class StringType extends ReferenceType<String>
 	/**
 	 * Just return the value itself. A transparent pass-through.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
 	@Override public String getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{

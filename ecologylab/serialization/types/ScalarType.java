@@ -1,7 +1,7 @@
 /*
  * Created on Dec 31, 2004
  */
-package ecologylab.serialization.types.scalar;
+package ecologylab.serialization.types;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

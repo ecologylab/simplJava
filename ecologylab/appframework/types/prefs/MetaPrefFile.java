@@ -6,8 +6,8 @@ package ecologylab.appframework.types.prefs;
 import java.io.File;
 
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Metadata about a File Preference.
@@ -41,7 +41,7 @@ public class MetaPrefFile extends MetaPref<File>
      */
     public static final int APP_DATA_DIR  = 2;
     
-	public static final ScalarType FILE_SCALAR_TYPE	= TypeRegistry.getType(File.class);
+	public static final ScalarType FILE_SCALAR_TYPE	= TypeRegistry.getScalarType(File.class);
 
     /**
      * Instantiate.

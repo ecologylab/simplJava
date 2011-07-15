@@ -4,8 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Metadata about a Float Preference.
@@ -27,7 +27,7 @@ public class MetaPrefFloat extends MetaPref<Float>
      */
     @simpl_composite     RangeFloatState     range;
 	
-	public static final ScalarType FLOAT_SCALAR_TYPE	= TypeRegistry.getType(float.class);
+	public static final ScalarType FLOAT_SCALAR_TYPE	= TypeRegistry.getScalarType(float.class);
 
 	     /**
      * Instantiate.

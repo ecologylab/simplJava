@@ -4,8 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 /**
  * Metadata about an Integer Preference.
  * Defines information to enable editing the Preference.
@@ -26,7 +26,7 @@ public class MetaPrefInt extends MetaPref<Integer>
      */
     @simpl_composite     RangeIntState          range;
 	
-	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getType(int.class);
+	public static final ScalarType INT_SCALAR_TYPE	= TypeRegistry.getScalarType(int.class);
 
     /**
      * Instantiate.

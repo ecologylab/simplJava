@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
 
 /**
  * For marshalling the name of a field, for transmission to other platforms.

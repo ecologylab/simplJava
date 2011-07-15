@@ -14,7 +14,6 @@ import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.types.scalar.MappingConstants;
 
 /**
  * Basic cross-platform unit for managing Collection and Map types in S.IM.PL Serialization.
@@ -28,23 +27,23 @@ implements MappingConstants, Describable
 	 * This is a platform-independent identifier that S.IM.PL uses for the CollectionType.
 	 */
 	@simpl_scalar
-	String			name;
+	private String			name;
 	
 	@simpl_scalar
-	String			javaName;
+	private String			javaName;
 	
-	String			javaSimpleName;
+	private String			javaSimpleName;
 	
-	Class				javaClass;
-	
-	@simpl_scalar
-	boolean			isMap;
+	private Class				javaClass;
 	
 	@simpl_scalar
-	String			cSharpName;
+	private boolean			isMap;
 	
 	@simpl_scalar
-	String			objCName;
+	private String			cSharpName;
+	
+	@simpl_scalar
+	private String			objCName;
 
 	private static final  HashMap<String, CollectionType>	mapByName 			= new HashMap<String, CollectionType>();
 	
@@ -95,10 +94,17 @@ implements MappingConstants, Describable
 		return isMap ? (Map) getInstance() : null;
 	}
 	
-	public static CollectionType getTypeByName(String javaName)
+	/**
+	 * Get by unique, cross-platform name.
+	 * 
+	 * @param crossPlatformName
+	 * @return
+	 */
+	public static CollectionType getCollectionTypeByCrossPlatformName(String crossPlatformName)
 	{
-		return mapByName.get(javaName);
+		return mapByName.get(crossPlatformName);
 	}
+	
 	/**
 	 * Lookup a collection type using the Java class or its full unqualifiedName.
 	 * 
@@ -106,18 +112,18 @@ implements MappingConstants, Describable
 	 * 
 	 * @return
 	 */
-	public static CollectionType getType(Field javaField)
+	public static CollectionType getCollectionType(Field javaField)
 	{
-		return getType(javaField.getType());
+		return getCollectionType(javaField.getType());
 	}
 	/**
 	 * Lookup a collection type using the Java class or its full unqualifiedName.
 	 * @param javaClass
 	 * @return
 	 */
-	public static CollectionType getType(Class javaClass)
+	public static CollectionType getCollectionType(Class javaClass)
 	{
-		return getType(javaClass.getName());
+		return getCollectionType(javaClass.getName());
 	}
 	/**
 	 * Lookup a collection type using the Java class or its full unqualifiedName.
@@ -125,11 +131,16 @@ implements MappingConstants, Describable
 	 * @param javaClassName
 	 * @return
 	 */
-	public static CollectionType getType(String javaClassName)
+	public static CollectionType getCollectionType(String javaClassName)
 	{
 		return mapByClassName.get(javaClassName);
 	}
 	
+	/**
+	 * This is the cross-platform S.IM.PL name.
+	 * 
+	 * @return
+	 */
 	public String getName()
 	{
 		return name;
@@ -155,6 +166,11 @@ implements MappingConstants, Describable
 		return getJavaName();
 	}
 
+	/**
+	 * This is the unqualified Java class name, without package.
+	 * 
+	 * @return
+	 */
 	public String getJavaSimpleName()
 	{
 		return javaSimpleName;

@@ -13,6 +13,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -40,7 +41,7 @@ public class ParsedURLType extends ReferenceType<ParsedURL>
 	 * 
 	 * @param value 	String to marshall into a typed instance.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
 	public ParsedURL getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{

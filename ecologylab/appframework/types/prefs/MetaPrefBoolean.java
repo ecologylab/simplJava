@@ -4,8 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Metadata about a Boolean Preference.
@@ -22,7 +22,7 @@ public class MetaPrefBoolean extends MetaPref<Boolean>
      */
 	@simpl_scalar	boolean		defaultValue;
 	
-	public static final ScalarType BOOLEAN_SCALAR_TYPE	= TypeRegistry.getType(boolean.class);
+	public static final ScalarType BOOLEAN_SCALAR_TYPE	= TypeRegistry.getScalarType(boolean.class);
 
 	/**
 	 * Instantiate.

@@ -7,6 +7,8 @@ import java.awt.Color;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * Type system entry for java.awt.Color. Uses a hex string as initialization.
@@ -35,7 +37,7 @@ public class ColorType extends ScalarType<Color>
 	 * same style as HTML & CSS. A # character at the start is unneccesary,
 	 * but acceptable.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
 	public Color getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{

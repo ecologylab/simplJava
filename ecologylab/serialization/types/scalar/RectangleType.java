@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * @author andrew

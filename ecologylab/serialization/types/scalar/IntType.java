@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * Type system entry for int, a built-in primitive.
@@ -60,7 +62,7 @@ public class IntType extends ScalarType<Integer>
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#setField(Object, Field, String)
+	 * @see ecologylab.serialization.types.ScalarType#setField(Object, Field, String)
 	 */
 	@Override public boolean setField(Object object, Field field, String value) 
 	{

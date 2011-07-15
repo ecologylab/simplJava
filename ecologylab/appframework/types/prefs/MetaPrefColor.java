@@ -5,8 +5,8 @@ package ecologylab.appframework.types.prefs;
 
 import java.awt.Color;
 
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * @author awebb
@@ -19,7 +19,7 @@ public class MetaPrefColor extends MetaPref<Color>
      */
 	@simpl_scalar	Color		defaultValue;
 	
-	public static final ScalarType COLOR_SCALAR_TYPE	= TypeRegistry.getType(Color.class);
+	public static final ScalarType COLOR_SCALAR_TYPE	= TypeRegistry.getScalarType(Color.class);
 
 	public MetaPrefColor()
 	{

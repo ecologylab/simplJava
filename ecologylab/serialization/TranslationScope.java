@@ -14,8 +14,8 @@ import java.util.Map;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.net.ParsedURL;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * A set of bindings between XML element names (tags) and associated simple (without package) class
@@ -1073,7 +1073,7 @@ public final class TranslationScope extends ElementState
 	 */
 	<U> ScalarType<U> getType(Class<U> thatClass)
 	{
-		return TypeRegistry.getType(thatClass, null);
+		return TypeRegistry.getScalarType(thatClass, null);
 	}
 
 	/**

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.types.MappingConstants;
 
 /**
  * Type system entry for {@link java.net.URL URL}.
@@ -26,7 +27,7 @@ public class URLType extends ReferenceType<URL>
 	/**
 	 * @param value is interpreted as an absolute internet address.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
+	 * @see ecologylab.serialization.types.ScalarType#getInstance(java.lang.String, String[], ScalarUnmarshallingContext)
 	 */
 	public URL getInstance(String value, String[] formatStrings, ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{

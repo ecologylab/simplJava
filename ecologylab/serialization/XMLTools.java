@@ -40,9 +40,9 @@ import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ElementState.bibtex_key;
 import ecologylab.serialization.ElementState.bibtex_tag;
 import ecologylab.serialization.ElementState.xml_tag;
-import ecologylab.serialization.types.scalar.MappingConstants;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Static helper methods that are used during the translation of java objects to XML and back. The
@@ -1547,7 +1547,7 @@ public class XMLTools extends TypeRegistry implements CharacterConstants, Specia
 	 */
 	public static boolean isScalarValue(Field field)
 	{
-		return TypeRegistry.contains(field.getType());
+		return TypeRegistry.containsScalarType(field.getType());
 	}
 
 	/**

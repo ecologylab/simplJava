@@ -4,8 +4,8 @@
 package ecologylab.appframework.types.prefs;
 
 import ecologylab.serialization.simpl_inherit;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * Metadata about a String Preference.
@@ -23,7 +23,7 @@ public class MetaPrefString extends MetaPref<String>
      */
 	@simpl_scalar	String		defaultValue;
 	
-	public static final ScalarType STRING_SCALAR_TYPE	= TypeRegistry.getType(String.class);
+	public static final ScalarType STRING_SCALAR_TYPE	= TypeRegistry.getScalarType(String.class);
 
     /**
      * Instantiate.

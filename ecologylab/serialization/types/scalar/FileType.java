@@ -10,6 +10,8 @@ import ecologylab.generic.StringTools;
 import ecologylab.io.Files;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * @author Zachary O. Toups (toupsz@cs.tamu.edu)

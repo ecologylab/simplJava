@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * Type system entry for boolean, a built-in primitive.
@@ -64,7 +66,7 @@ public class BooleanType extends ScalarType<Boolean>
 	/**
 	 * This is a primitive type, so we set it specially.
 	 * 
-	 * @see ecologylab.serialization.types.scalar.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
+	 * @see ecologylab.serialization.types.ScalarType#setField(java.lang.Object, java.lang.reflect.Field, java.lang.String)
 	 */
 	@Override public boolean setField(Object object, Field field, String value) 
 	{

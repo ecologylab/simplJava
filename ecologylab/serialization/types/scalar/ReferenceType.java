@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.types.ScalarType;
 
 /**
  * 

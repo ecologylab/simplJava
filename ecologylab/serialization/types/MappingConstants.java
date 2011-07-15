@@ -1,4 +1,4 @@
-package ecologylab.serialization.types.scalar;
+package ecologylab.serialization.types;
 
 public interface MappingConstants
 {

@@ -34,10 +34,10 @@ import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.types.CollectionType;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.Mappable;
-import ecologylab.serialization.types.scalar.MappingConstants;
-import ecologylab.serialization.types.scalar.ScalarType;
-import ecologylab.serialization.types.scalar.TypeRegistry;
 
 /**
  * Used to provide convenient access for setting and getting values, using the
@@ -488,7 +488,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		isEnum = XMLTools.isEnum(field);
 		xmlHint = XMLTools.simplHint(field); // TODO -- confirm that default case is acceptable
-		scalarType = TypeRegistry.getType(thatClass);
+		scalarType = TypeRegistry.getScalarType(thatClass);
 
 		if (scalarType == null)
 		{
@@ -626,7 +626,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				}
 			}
 			collectionOrMapTagName	= collectionTag;
-			collectionType					= CollectionType.getType(field);
+			collectionType					= CollectionType.getCollectionType(field);
 			break;
 		case MAP_ELEMENT:
 			String mapTag = field.getAnnotation(ElementState.simpl_map.class).value();
@@ -674,7 +674,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 				}
 			}
 			collectionOrMapTagName = mapTag;
-			collectionType					= CollectionType.getType(field);
+			collectionType					= CollectionType.getCollectionType(field);
 			break;
 		default:
 			break;
@@ -683,7 +683,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		{
 			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
 				wrapped = true;
-			collectionType	= CollectionType.getType(field);
+			collectionType	= CollectionType.getCollectionType(field);
 		}
 		
 		if (annotationType == COMPOSITE_ELEMENT)
@@ -2476,7 +2476,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		case COLLECTION_SCALAR:
 		case MAP_ELEMENT:
 		case MAP_SCALAR:
-			collectionType	= CollectionType.getTypeByName(fieldType);
+			collectionType	= CollectionType.getCollectionTypeByCrossPlatformName(fieldType);
 			break;
 		}
 	}

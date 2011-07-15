@@ -14,8 +14,8 @@ import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.types.CollectionType;
+import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.element.Mappable;
-import ecologylab.serialization.types.scalar.ScalarType;
 
 /**
  * Cached object that holds all of the structures needed to optimize translations to and from XML

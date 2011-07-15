@@ -4,6 +4,9 @@
 package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.TypeRegistry;
 
 /**
  * For storing actual ScalarType values as meta-metadata.
@@ -45,7 +48,7 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 				buffy.append(value);
 			buffy.append("Type");
 			
-			result	= TypeRegistry.getType(buffy.toString());
+			result	= TypeRegistry.getScalarType(buffy.toString());
 		}
 		return result;			
 	}

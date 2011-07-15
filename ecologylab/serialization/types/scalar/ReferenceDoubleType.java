@@ -5,6 +5,8 @@ import java.io.IOException;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.types.MappingConstants;
+import ecologylab.serialization.types.ScalarType;
 
 public class ReferenceDoubleType extends ScalarType<Double>
 {
