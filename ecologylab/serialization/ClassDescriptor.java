@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import ecologylab.generic.Debug;
 import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
@@ -152,7 +153,13 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		
 		if (thatClass != ElementState.class)
 		{
-			this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(ElementState.class));
+			if (ElementState.class.isAssignableFrom(thatClass.getSuperclass()))
+				this.superClass = getClassDescriptor(thatClass.getSuperclass().asSubclass(
+						ElementState.class));
+			else
+				warning(" The class "
+						+ thatClass.toString()
+						+ " is NOT a subclass of ElementState. All serialized classes must extend from ElementState. Check your TranslationScope declarations.");
 		}
 		addGenericTypeVariables();
 		if(javaParser != null)
