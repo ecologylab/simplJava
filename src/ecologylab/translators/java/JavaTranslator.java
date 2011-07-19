@@ -122,8 +122,8 @@ public class JavaTranslator implements JavaTranslationConstants
 			{
 				if (fieldDescriptor.belongsTo(classDescriptor))
 				{					
-					appendGetters(fieldDescriptor, classFile);
-					appendSetters(fieldDescriptor, classFile);					
+					appendGetters(fieldDescriptor, classFile, null);
+					appendSetters(fieldDescriptor, classFile, null);					
 				}
 			}
 
@@ -759,10 +759,10 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * 
 	 * @param fieldDescriptor
 	 * @param appendable
+	 * @param suffix TODO
 	 * @throws IOException
 	 */
-	protected void appendGetters(FieldDescriptor fieldDescriptor, Appendable appendable)
-			throws IOException
+	protected void appendGetters(FieldDescriptor fieldDescriptor, Appendable appendable, String suffix) throws IOException
 	{
 		String javaType = fieldDescriptor.getJavaType();
 		if (javaType == null)
@@ -771,11 +771,10 @@ public class JavaTranslator implements JavaTranslationConstants
 			return;
 		}
 
-		appendGettersHelper(fieldDescriptor, javaType, appendable);
+		appendGettersHelper(fieldDescriptor, javaType, appendable, suffix);
 	}
 
-	protected void appendGettersHelper(FieldDescriptor fieldDescriptor, String javaType,
-			Appendable appendable) throws IOException
+	protected void appendGettersHelper(FieldDescriptor fieldDescriptor, String javaType, Appendable appendable, String suffix) throws IOException
 	{
 		appendable.append(SINGLE_LINE_BREAK);
 
@@ -787,7 +786,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(javaType);
 		appendable.append(SPACE);
-		appendable.append(JavaTranslationUtilities.getGetMethodName(fieldDescriptor));
+		appendable.append(JavaTranslationUtilities.getGetMethodName(fieldDescriptor) + (suffix == null ? "" : suffix));
 		appendable.append(OPENING_BRACE);
 		appendable.append(CLOSING_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
@@ -812,10 +811,10 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * 
 	 * @param fieldDescriptor
 	 * @param appendable
+	 * @param suffix TODO
 	 * @throws IOException
 	 */
-	protected void appendSetters(FieldDescriptor fieldDescriptor, Appendable appendable)
-			throws IOException
+	protected void appendSetters(FieldDescriptor fieldDescriptor, Appendable appendable, String suffix) throws IOException
 	{
 		String javaType = fieldDescriptor.getJavaType();
 		if (javaType == null)
@@ -824,11 +823,10 @@ public class JavaTranslator implements JavaTranslationConstants
 			return;
 		}
 
-		appendSettersHelper(fieldDescriptor, javaType, appendable);
+		appendSettersHelper(fieldDescriptor, javaType, appendable, suffix);
 	}
 
-	protected void appendSettersHelper(FieldDescriptor fieldDescriptor, String javaType,
-			Appendable appendable) throws IOException
+	protected void appendSettersHelper(FieldDescriptor fieldDescriptor, String javaType, Appendable appendable, String suffix) throws IOException
 	{
 		appendable.append(SINGLE_LINE_BREAK);
 
@@ -840,7 +838,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SPACE);
 		appendable.append(VOID);
 		appendable.append(SPACE);
-		appendable.append(JavaTranslationUtilities.getSetMethodName(fieldDescriptor));
+		appendable.append(JavaTranslationUtilities.getSetMethodName(fieldDescriptor) + (suffix == null ? "" : suffix));
 		appendable.append(OPENING_BRACE);
 		appendable.append(javaType);
 		appendable.append(SPACE);
