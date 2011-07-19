@@ -87,6 +87,11 @@ implements CrossLanguageTypeConstants, Describable
 		return javaClass;
 	}
 
+	public Object getJavaInstance()
+	{
+		return ReflectionTools.getInstance(javaClass);
+	}
+	
 	public boolean isMap()
 	{
 		return isMap;

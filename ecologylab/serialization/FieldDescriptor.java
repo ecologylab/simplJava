@@ -1934,34 +1934,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		Object collection = null;
 		try
 		{
-			collection = field.get(activeES);
+			collection 			= field.get(activeES);
 			if (collection == null)
 			{
-				// initialize the collection for the caller! automatic lazy evaluation :-)
-				Class collectionClass = collectionType.getJavaClass(); // field.getType();
-				try
-				{
-					// this is a workaround for enabling List in ElementState subclasses,
-					// it uses ArrayList as the default List implementation for List fields.
-					// we need List in ORM layer.
-					// clients can still use ArrayList, HashMapArrayList or any other List implementations
-					// if they need to.
-					// this could be improved, e.g. by using a preference system.
-					// -- yin
-//					if (collectionType.equals(java.util.List.class))
-//						collectionType = ArrayList.class;
-					
-					collection = collectionClass.newInstance();
-					// set the field to the new collection
-					field.set(activeES, collection);
-				}
-				catch (InstantiationException e)
-				{
-					warning("Can't instantiate collection of type" + collectionClass + " for field "
-							+ field.getName() + " in " + activeES);
-					e.printStackTrace();
-					// return
-				}
+				collection 		= collectionType.getJavaInstance();
+				field.set(activeES, collection);
 			}
 		}
 		catch (IllegalArgumentException e)
