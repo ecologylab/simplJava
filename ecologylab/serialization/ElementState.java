@@ -1,19 +1,24 @@
 package ecologylab.serialization;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.StringWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,11 +64,7 @@ import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 public class ElementState extends Debug implements FieldTypes, XMLTranslationExceptionTypes
 {
 
-	
-
-	
-
-	private boolean							isRoot					= false;
+	private boolean	isRoot	= false;
 
 	// --------//
 
@@ -73,18 +74,15 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
-	 * Link for a DOM tree.	
-	 * should be removed. its not a tree!!
+	 * Link for a DOM tree. should be removed. its not a tree!!
 	 */
 	transient ElementState									parent;
-	
+
 	/**
 	 * to handle objects with multiple parents this variable helps keep track of parents in
 	 * deserializing graph
 	 */
-	 Stack<ElementState>							parents									= null;
-	
-	
+	Stack<ElementState>											parents										= null;
 
 	/**
 	 * Just-in time look-up tables to make translation be efficient. Allocated on a per class basis.
@@ -99,12 +97,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	transient HashMap<String, ElementState>	nestedNameSpaces;
 
 	static protected final int							ESTIMATE_CHARS_PER_FIELD	= 80;
-	
+
 	/**
 	 * Construct. Create a link to a root optimizations object.
 	 */
 	public ElementState()
-	{		
+	{
 	}
 
 	public void serialize(OutputStream outStream, FORMAT format) throws SIMPLTranslationException
@@ -173,14 +171,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						break;
 					}
 				}
-				
+
 				// iterate through fields that are not @bibtex_key
 				for (int i = 0; i < numAttributes; i++)
 				{
 					FieldDescriptor childFD = attributeFieldDescriptors.get(i);
 					if (childFD.getField().getAnnotation(bibtex_key.class) != null)
 						continue;
-					
+
 					boolean isDefaultValue = childFD.isDefaultValue(this);
 					if (!isDefaultValue)
 					{
@@ -265,8 +263,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				{
 					if (elementsSerialized || isFirstCollection)
 					{
-							appendable.append(", ");
-							isFirstCollection = false;
+						appendable.append(", ");
+						isFirstCollection = false;
 					}
 
 					elementsSerialized = true;
@@ -276,12 +274,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						Object[] collecitonArray = thatCollection.toArray();
 						int collectionSize = thatCollection.size();
 
-						if(collectionSize > 0)
-							{
-								childFD.writeBibtexCollectionStart(appendable);
-								appendable.append("{");
-							}						
-							
+						if (collectionSize > 0)
+						{
+							childFD.writeBibtexCollectionStart(appendable);
+							appendable.append("{");
+						}
+
 						for (int j = 0; j < collectionSize; j++)
 						{
 							Object next = collecitonArray[j];
@@ -289,7 +287,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							{
 								try
 								{
-									String delim = "author".equals(childFD.getBibtexTagName()) ? " and " : graphContext.getDelimiter() + " ";
+									String delim = "author".equals(childFD.getBibtexTagName()) ? " and "
+											: graphContext.getDelimiter() + " ";
 									childFD.appendBibtexCollectionAttribute(appendable, next, j == 0, delim);
 								}
 								catch (IllegalArgumentException e)
@@ -306,13 +305,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							else if (next instanceof ElementState)
 							{
 								ElementState nestedES = (ElementState) next;
-								FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor().getScalarValueFieldDescripotor();
+								FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor()
+										.getScalarValueFieldDescripotor();
 								try
 								{
-									if(compositeAsScalarFD != null)
-										compositeAsScalarFD.appendBibtexCollectionCompositeAttribute(appendable, nestedES, j == 0);
+									if (compositeAsScalarFD != null)
+										compositeAsScalarFD.appendBibtexCollectionCompositeAttribute(appendable,
+												nestedES, j == 0);
 									else
-										debugA("WARNING : Serializing composite object " + nestedES + " failed. No inner annotation @simpl_composte_as_scalar present");
+										debugA("WARNING : Serializing composite object " + nestedES
+												+ " failed. No inner annotation @simpl_composte_as_scalar present");
 								}
 								catch (IllegalArgumentException e)
 								{
@@ -326,20 +328,24 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								}
 							}
 						}
-						
-						if(collectionSize > 0) appendable.append("}");
+
+						if (collectionSize > 0)
+							appendable.append("}");
 					}
 				}
-				else if(thatReferenceObject instanceof ElementState)
+				else if (thatReferenceObject instanceof ElementState)
 				{
 					ElementState nestedES = (ElementState) thatReferenceObject;
-					FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor().getScalarValueFieldDescripotor();
+					FieldDescriptor compositeAsScalarFD = nestedES.classDescriptor()
+							.getScalarValueFieldDescripotor();
 					try
 					{
-						if(compositeAsScalarFD != null)
-							compositeAsScalarFD.appendValueAsBibtexAttribute(appendable, nestedES, !elementsSerialized);
+						if (compositeAsScalarFD != null)
+							compositeAsScalarFD.appendValueAsBibtexAttribute(appendable, nestedES,
+									!elementsSerialized);
 						else
-							debugA("WARNING : Serializing composite object " + nestedES + " failed. No inner annotation @simpl_composte_as_scalar present");
+							debugA("WARNING : Serializing composite object " + nestedES
+									+ " failed. No inner annotation @simpl_composte_as_scalar present");
 					}
 					catch (IllegalArgumentException e)
 					{
@@ -354,7 +360,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 				}
 			}
 		}
-		
+
 		appendable.append('\n');
 		appendable.append("}\n");
 
@@ -375,7 +381,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	private void serializeToJSONRecursive(FieldDescriptor fieldDescriptor, PrintStream appendable,
-			boolean withTag, TranslationContext graphContext) throws IOException, SIMPLTranslationException
+			boolean withTag, TranslationContext graphContext) throws IOException,
+			SIMPLTranslationException
 	{
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		graphContext.mapElementState(this);
@@ -799,6 +806,24 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	}
 
 	/**
+	 * Serializes this object in the specified format and returns as a string builder.
+	 * 
+	 * @param format
+	 *          The desired format.
+	 * @throws SIMPLTranslationException
+	 * 
+	 */
+	public StringBuilder serialize(FORMAT format) throws SIMPLTranslationException
+	{
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
+		serialize(outputBuffer, format);
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(byteArrayOutputStream.toByteArray());
+		return stringBuilder;
+	}
+
+	/**
 	 * Allocated a StringBuilder for translateToXML(), based on a rough guess of how many fields there
 	 * are to translate.
 	 * 
@@ -920,8 +945,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public void serializeOut()
 	{
-		
+
 	}
+
 	public void serializeOut(String msg)
 	{
 		try
@@ -930,7 +956,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			System.out.print(": ");
 			serialize(System.out);
 			System.out.println();
-			
+
 		}
 		catch (SIMPLTranslationException e)
 		{
@@ -938,7 +964,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			e.printStackTrace();
 		}
 	}
-		
+
 	public void serialize(Appendable appendable, File fileContext) throws SIMPLTranslationException
 	{
 		if (appendable == null)
@@ -948,7 +974,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		{
 			// first-pass of the two pass algorithm. resolves cyclic pointers by creating appropriate data
 			// structures.
-			TranslationContext graphContext = (fileContext == null) ? new TranslationContext() : new TranslationContext(fileContext);
+			TranslationContext graphContext = (fileContext == null) ? new TranslationContext()
+					: new TranslationContext(fileContext);
 			graphContext.resolveGraph(this);
 			isRoot = true;
 			serializeToAppendable(classDescriptor().pseudoFieldDescriptor(), appendable, graphContext);
@@ -959,13 +986,13 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			throw new SIMPLTranslationException("IO", e);
 		}
 	}
-	
+
 	public TranslationContext createGraphContext() throws SIMPLTranslationException
 	{
-			TranslationContext graphContext = new TranslationContext();
-			graphContext.resolveGraph(this);
-			isRoot = true;
-			return graphContext;
+		TranslationContext graphContext = new TranslationContext();
+		graphContext.resolveGraph(this);
+		isRoot = true;
+		return graphContext;
 	}
 
 	/**
@@ -1166,8 +1193,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								// and it fixes @simpl_scalar @simpl_hints(Hint.XML_TEXT) output
 
 								FieldDescriptor collectionElementFD = childFD.isPolymorphic() ? collectionSubElementState
-										.classDescriptor().pseudoFieldDescriptor()
-										: childFD;
+										.classDescriptor().pseudoFieldDescriptor() : childFD;
 
 								// inside handles cyclic pointers by translating only the simpl id if already
 								// serialized.
@@ -1191,15 +1217,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						// field, use the instance's type to determine the XML tag name.
 						FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 								.pseudoFieldDescriptor() : childFD;
-								
-								if (childFD.isWrapped())
-									childFD.writeWrap(buffy, false);
-								
-								
+
+						if (childFD.isWrapped())
+							childFD.writeWrap(buffy, false);
+
 						// inside handles cyclic pointers by translating only the simpl id if already
 						// serialized.
 						serializeCompositeElements(buffy, nestedES, nestedFD, graphContext);
-						
+
 						if (childFD.isWrapped())
 							childFD.writeWrap(buffy, true);
 
@@ -1265,7 +1290,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	private void serializeToAppendable(FieldDescriptor fieldDescriptor, Appendable appendable,
 			TranslationContext serializationContext) throws SIMPLTranslationException, IOException
-			{
+	{
 
 		// To handle cyclic pointers. map marshalled ElementState Objects.
 		serializationContext.mapElementState(this);
@@ -1287,7 +1312,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		// }
 		// }
 		ArrayList<FieldDescriptor> attributeFieldDescriptors = classDescriptor()
-		.attributeFieldDescriptors();
+				.attributeFieldDescriptors();
 
 		int numAttributes = attributeFieldDescriptors.size();
 
@@ -1319,7 +1344,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
-		.elementFieldDescriptors();
+				.elementFieldDescriptors();
 		int numElements = elementFieldDescriptors.size();
 
 		boolean hasXmlText = classDescriptor().hasScalarFD();
@@ -1388,7 +1413,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						continue;
 
 					final boolean isScalar = (childFdType == COLLECTION_SCALAR)
-					|| (childFdType == MAP_SCALAR);
+							|| (childFdType == MAP_SCALAR);
 					// gets Collection object directly or through Map.values()
 					Collection thatCollection;
 					switch (childFdType)
@@ -1432,19 +1457,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 							{
 								ElementState collectionSubElementState = (ElementState) next;
 								final Class<? extends ElementState> collectionElementClass = collectionSubElementState
-								.getClass();
+										.getClass();
 
 								FieldDescriptor collectionElementFD = childFD.isPolymorphic() ?
-										// tag by class
-										collectionSubElementState.classDescriptor().pseudoFieldDescriptor()
+								// tag by class
+								collectionSubElementState.classDescriptor().pseudoFieldDescriptor()
 										: childFD; // tag by annotation
 
-										// inside handles cyclic pointers by translating only the simpl id if already
-										// serialized.
-										serializeCompositeElements(appendable, collectionSubElementState,
-												collectionElementFD, serializationContext);
+								// inside handles cyclic pointers by translating only the simpl id if already
+								// serialized.
+								serializeCompositeElements(appendable, collectionSubElementState,
+										collectionElementFD, serializationContext);
 
-										// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
+								// collectionSubElementState.serializeToAppendable(collectionElementFD, appendable);
 							}
 							else
 								throw collectionElementTypeException(thatReferenceObject);
@@ -1463,15 +1488,14 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 						FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 								.pseudoFieldDescriptor() : childFD;
 
-								
-								if (childFD.isWrapped())
-									childFD.writeWrap(appendable, false);
-								// inside handles cyclic pointers by translating only the simpl id if already
-								// serialized.
-								serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
-								
-								if (childFD.isWrapped())
-									childFD.writeWrap(appendable, true);
+						if (childFD.isWrapped())
+							childFD.writeWrap(appendable, false);
+						// inside handles cyclic pointers by translating only the simpl id if already
+						// serialized.
+						serializeCompositeElements(appendable, nestedES, nestedFD, serializationContext);
+
+						if (childFD.isWrapped())
+							childFD.writeWrap(appendable, true);
 					}
 				}
 			} // end of for each element child
@@ -1553,8 +1577,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	
-
 	/**
 	 * Translate to XML, then write the result to a file.
 	 * 
@@ -1588,8 +1610,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public ElementState parent()
 	{
-//		return (parent != null) ? parent : 
-//			(parents != null && !parents.empty()) ? parents.firstElement() : null;
+		// return (parent != null) ? parent :
+		// (parents != null && !parents.empty()) ? parents.firstElement() : null;
 		return parent;
 	}
 
@@ -1605,7 +1627,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	public ElementState getRoot()
 	{
-		ElementState parent	= parent();
+		ElementState parent = parent();
 		return parent == null ? this : parent.getRoot();
 	}
 
@@ -1803,7 +1825,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		String value();
 	}
-	
+
 	/**
 	 * annotation to define the type of a bibtex key.
 	 * 
@@ -1812,9 +1834,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface bibtex_key
 	{
-		
+
 	}
-	
+
 	/**
 	 * annotation to define the type of a bibtex key.
 	 * 
@@ -1823,9 +1845,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface simpl_composite_as_scalar
 	{
-		
+
 	}
-	
+
 	/**
 	 * annotation to define the type of a bibtex key.
 	 * 
@@ -1834,7 +1856,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface simpl_composite_as_scalar_value
 	{
-		
+
 	}
 
 	/**
@@ -1896,7 +1918,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public @interface simpl_nowrap
 	{
 	}
-	
+
 	/**
 	 * Used to specify that the elements of a collection or map should be wrapped by an outer tag
 	 * corresponding to their field name.
@@ -2077,16 +2099,16 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		this.manageParents(newParent);
 		this.classDescriptor = ourClassDescriptor;
 	}
-	
+
 	private void manageParents(ElementState newParent)
 	{
-		if(this.parent == null)
+		if (this.parent == null)
 		{
 			this.parent = newParent;
 		}
 		else
 		{
-			if(this.parents == null)
+			if (this.parents == null)
 			{
 				this.parents = new Stack<ElementState>();
 				this.parents.push(this.parent);
@@ -2098,7 +2120,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 		}
 	}
-	
 
 	/**
 	 * Either lookup an existing Nested Namespace object, or form a new one, map it, and return it.
@@ -2151,14 +2172,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	/*
 	 * Cyclic graph related functions
 	 */
-	
 
 	private void serializeCompositeElements(Appendable appendable, ElementState nestedES,
 			FieldDescriptor nestedF2XO, TranslationContext graphContext) throws IOException,
 			SIMPLTranslationException
 	{
-		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON
-				&& graphContext.alreadyMarshalled(nestedES))
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && graphContext.alreadyMarshalled(nestedES))
 		{
 			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO);
 		}
@@ -2181,8 +2200,6 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 	}
 
-	
-
 	// public static void recycleSerializationMappings()
 	// {
 	// if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
@@ -2203,9 +2220,10 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	// unmarshalledObjects.clear();
 	// }
 	// }
-	
+
 	/**
 	 * method returns whether a strict pbject graph is required
+	 * 
 	 * @return
 	 */
 	public boolean getStrictObjectGraphRequired()
