@@ -1,7 +1,9 @@
 package ecologylab.serialization.types;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Map;
 
 import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
@@ -61,7 +63,8 @@ implements CrossLanguageTypeConstants
 	
 	private final		HashMap<String, CollectionType>	collectionTypesByClassName	= new HashMap<String, CollectionType>();
 	
-
+	private CollectionType defaultCollectionType, defaultMapType;
+	
 	static Class[]									                BASIC_SCALAR_TYPES	=
 	{ StringType.class,
 		StringBuilderType.class, 
@@ -310,9 +313,16 @@ implements CrossLanguageTypeConstants
 		CollectionType result = getCollectionType(javaClass.getName());
 		if (result == null)
 		{
-			String simplName			= SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName();
-			singleton().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
-			result							= new CollectionType(javaClass, null, null);
+			if (javaClass.isInterface() || Modifier.isAbstract(javaClass.getModifiers()))
+			{
+				return Map.class.isAssignableFrom(javaClass) ? singleton().defaultMapType : singleton().defaultCollectionType;
+			}
+			else
+			{
+				String simplName			= SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName();
+				singleton().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
+				result							= new CollectionType(javaClass, null, null);
+			}
 		}
 		return result;
 	}
@@ -331,4 +341,15 @@ implements CrossLanguageTypeConstants
 	{
 		return singleton;
 	}
+	
+	public static void setDefaultCollectionType(CollectionType ct)
+	{
+		singleton().defaultCollectionType	= ct;
+	}
+	
+	public static void setDefaultMapType(CollectionType ct)
+	{
+		singleton().defaultMapType	= ct;
+	}
+
 }

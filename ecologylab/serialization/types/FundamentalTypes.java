@@ -21,5 +21,9 @@ implements CrossLanguageTypeConstants
 	public static final CollectionType SCOPE_TYPE						= 
 		new CollectionType(Scope.class, DOTNET_SCOPE, OBJC_SCOPE);
 	
-	
+	static
+	{
+		TypeRegistry.setDefaultCollectionType(ARRAYLIST_TYPE);
+		TypeRegistry.setDefaultMapType(HASHMAP_TYPE);
+	}
 }

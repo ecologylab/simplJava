@@ -681,15 +681,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		default:
 			break;
 		}
-		if (annotationType == COLLECTION_ELEMENT || annotationType == MAP_ELEMENT)
+		switch (annotationType)	// set-up wrap as appropriate
 		{
+		case COLLECTION_ELEMENT:
+		case MAP_ELEMENT:
 			if (!field.isAnnotationPresent(ElementState.simpl_nowrap.class))
 				wrapped = true;
 			collectionType	= TypeRegistry.getCollectionType(field);
-		}
-		
-		if (annotationType == COMPOSITE_ELEMENT)
-		{
+			break;
+		case COMPOSITE_ELEMENT:
 			if(field.isAnnotationPresent(ElementState.simpl_wrap.class))
 				wrapped = true;
 		}
@@ -1938,7 +1938,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			if (collection == null)
 			{
 				// initialize the collection for the caller! automatic lazy evaluation :-)
-				Class collectionType = field.getType();
+				Class collectionClass = collectionType.getJavaClass(); // field.getType();
 				try
 				{
 					// this is a workaround for enabling List in ElementState subclasses,
@@ -1948,16 +1948,16 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 					// if they need to.
 					// this could be improved, e.g. by using a preference system.
 					// -- yin
-					if (collectionType.equals(java.util.List.class))
-						collectionType = ArrayList.class;
+//					if (collectionType.equals(java.util.List.class))
+//						collectionType = ArrayList.class;
 					
-					collection = collectionType.newInstance();
+					collection = collectionClass.newInstance();
 					// set the field to the new collection
 					field.set(activeES, collection);
 				}
 				catch (InstantiationException e)
 				{
-					warning("Can't instantiate collection of type" + collectionType + " for field "
+					warning("Can't instantiate collection of type" + collectionClass + " for field "
 							+ field.getName() + " in " + activeES);
 					e.printStackTrace();
 					// return
