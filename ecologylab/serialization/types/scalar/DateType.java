@@ -19,9 +19,24 @@ import ecologylab.serialization.types.ScalarType;
  */
 public class DateType extends ReferenceType<Date> implements CrossLanguageTypeConstants
 {
-	static final DateFormat	df			= new SimpleDateFormat("EEE MMM dd kk:mm:ss zzz yyyy");
+	static final String datePatterns[] = 
+	{
+		"EEE MMM dd kk:mm:ss zzz yyyy",
+		"yyyy:MM:dd HH:mm:ss",
+		"yyyy:MM:dd HH:mm",
+		"yyyy-MM-dd HH:mm:ss",
+		"yyyy-MM-dd HH:mm"
+	};
+	static final DateFormat	dateFormats[]			= new DateFormat[datePatterns.length + 1];
 
 	static final DateFormat	plainDf	= DateFormat.getDateTimeInstance();
+	
+	static
+	{
+		for (int i=0; i< datePatterns.length; i++)
+			dateFormats[i]												= new SimpleDateFormat(datePatterns[i]);
+		dateFormats[datePatterns.length]				= plainDf;
+	}
 
 	public DateType()
 	{
@@ -40,27 +55,17 @@ public class DateType extends ReferenceType<Date> implements CrossLanguageTypeCo
 	public Date getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		Date result = null;
-
-		try
+		for (DateFormat dateFormatParser: dateFormats)
 		{
-			result = df.parse(value);
-		}
-		catch (ParseException e)
-		{
-			e.printStackTrace();
-			debug("exception caught, trying plainDf");
-
-			try
-			{
-				result = plainDf.parse(value);
-			}
-			catch (ParseException e1)
-			{
-				debug("failed to parse date!");
-				e1.printStackTrace();
-			}
-		}
-		return result;
+      try 
+      {
+        return dateFormatParser.parse(value);
+      } catch (java.text.ParseException ex) 
+      {
+      	// simply try the next pattern
+      }
+ 		}
+		error("Failed to parse date: " + value);
+		return null;
 	}
 }

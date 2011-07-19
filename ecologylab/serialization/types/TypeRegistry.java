@@ -55,20 +55,32 @@ implements CrossLanguageTypeConstants
 	 * the interface {@link BuiltinTypeIndices Types}. Type to integer mappings that are defined in
 	 * this class use positive integers. All other extended types should use negative integers.
 	 */
-	private final HashMap<String, ScalarType>	allScalarTypes		= new HashMap<String, ScalarType>(32);
+	private final		HashMap<String, ScalarType>	    allScalarTypes		= new HashMap<String, ScalarType>(32);
 
-	private final  HashMap<String, CollectionType>	collectionTypesByName 			= new HashMap<String, CollectionType>();
+	private final 	HashMap<String, CollectionType>	collectionTypesByName 			= new HashMap<String, CollectionType>();
 	
-	private final  HashMap<String, CollectionType>	collectionTypesByClassName	= new HashMap<String, CollectionType>();
+	private final		HashMap<String, CollectionType>	collectionTypesByClassName	= new HashMap<String, CollectionType>();
 	
 
-	static Class[]																		BASIC_SCALAR_TYPES	=
+	static Class[]									                BASIC_SCALAR_TYPES	=
 	{ StringType.class,
-		StringBuilderType.class, IntType.class, ReferenceIntegerType.class, BooleanType.class,
-		ReferenceBooleanType.class, FloatType.class, ReferenceFloatType.class, DoubleType.class,
-		ReferenceDoubleType.class, LongType.class, ReferenceLongType.class, ShortType.class,
-		ByteType.class, CharType.class, ColorType.class, URLType.class, ParsedURLType.class,
-		FileType.class, UUIDType.class, RectangleType.class,
+		StringBuilderType.class, 
+		
+		IntType.class, LongType.class, 
+		ShortType.class, BooleanType.class,
+		FloatType.class, DoubleType.class,
+		ByteType.class, CharType.class, 
+		
+		
+		ReferenceIntegerType.class, ReferenceLongType.class, 
+		ReferenceBooleanType.class, 
+		ReferenceFloatType.class, ReferenceDoubleType.class, 
+		
+		
+		ColorType.class, RectangleType.class,	//FIXME -- move to ecologylabImage for android!!!
+		
+		URLType.class, ParsedURLType.class,
+		FileType.class, UUIDType.class, 
 
 		DateType.class,
 
@@ -97,6 +109,7 @@ implements CrossLanguageTypeConstants
 		{
 			init	= true;
 			registerScalarType(BASIC_SCALAR_TYPES);
+			
 			new FundamentalTypes();
 		}
 	}

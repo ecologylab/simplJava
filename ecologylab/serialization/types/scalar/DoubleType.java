@@ -64,7 +64,16 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 	public Double getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		return new Double(value);
+		return "null".equalsIgnoreCase(value) ? null : (value != null && value.contains("/")) ?  rationalToDouble(value) : new Double(value);
+	}
+	
+	public static double rationalToDouble(String rationalString)
+	{
+		String[] stringD	= rationalString.split("/", 2);
+		double d0 				= Double.parseDouble(stringD[0]);
+		double d1					= Double.parseDouble(stringD[1]);
+		
+		return d0 / d1;
 	}
 
 	/**
@@ -183,7 +192,10 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 	public static String getValueToAppend(FieldDescriptor fieldDescriptor, Object context)
 			throws IllegalArgumentException, IllegalAccessException
 	{
-		double value = (Double) fieldDescriptor.getField().get(context);
+  	if (fieldDescriptor.getField() == null || fieldDescriptor.getField().get(context) == null)
+  		return "null";
+
+  	double value = (Double) fieldDescriptor.getField().get(context);
 		String[] formatStrings = fieldDescriptor.getFormat();
 		StringBuilder res = new StringBuilder();
 

@@ -573,4 +573,9 @@ implements Describable, CrossLanguageTypeConstants
 		return dbTypeName;
 	}
 
+	protected static String getNullStringIfNull(FieldDescriptor fieldDescriptor, Object context) 
+	throws IllegalArgumentException, IllegalAccessException
+	{
+		return (fieldDescriptor.getField() == null || fieldDescriptor.getField().get(context) == null) ? "null" : null;
+	}
 }

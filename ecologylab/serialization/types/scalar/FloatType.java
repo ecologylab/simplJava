@@ -60,7 +60,7 @@ implements CrossLanguageTypeConstants
 	public Float getInstance(String value, String[] formatStrings,
 			ScalarUnmarshallingContext scalarUnmarshallingContext)
 	{
-		return new Float(getValue(value));
+		return "null".equalsIgnoreCase(value) ? null : (value != null && value.contains("/")) ?  (float) DoubleType.rationalToDouble(value) : getValue(value);
 	}
 
 	/**
@@ -171,7 +171,10 @@ implements CrossLanguageTypeConstants
 	public static String getValueToAppend(FieldDescriptor fieldDescriptor, Object context) 
 		throws IllegalArgumentException, IllegalAccessException
 	{
-		return fieldDescriptor.getField().get(context).toString();
+		String result	= getNullStringIfNull(fieldDescriptor, context);
+		if (result == null)
+			result			= fieldDescriptor.getField().get(context).toString();
+		return result;
 	}
 
 }
