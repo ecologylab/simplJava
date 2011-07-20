@@ -58,6 +58,8 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 	
 	protected void appendLazyEvaluation(String fieldName, String typeName, Appendable appendable) throws IOException
 	{
+		appendable.append("\n");
+		
 		// TODO write comments?
 		
 		// first line. Start of method name
@@ -76,7 +78,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		appendable.append("\t\t\tthis.").append(fieldName).append(" = result;\n\t\t}\n");
 	
 		// sixth line. return statement and end of method.
-		appendable.append("\t\treturn result;\n\t}\n\n");
+		appendable.append("\t\treturn result;\n\t}\n");
 	}
 
 	@Override
@@ -110,10 +112,11 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		appendLazyEvaluation(fieldName, typeName, appendable);
 		
 		String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaTypeName();
+		appendable.append("\n");
 		appendable.append("\tpublic ").append(javaPrimitiveTypeName).append(" get").append(capFieldName).append("()\n");
 		appendable.append("\t{\n");
 		appendable.append("\t\treturn this.").append(fieldName).append("().getValue();\n");
-		appendable.append("\t}\n\n");
+		appendable.append("\t}\n");
 	}
 
 	@Override
@@ -142,10 +145,11 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 		
 		String javaPrimitiveTypeName = scalarType.operativeScalarType().getJavaTypeName();
+		appendable.append("\n");
 		appendable.append("\tpublic void set").append(capFieldName).append("(").append(javaPrimitiveTypeName).append(" ").append(fieldName).append(")\n");
 		appendable.append("\t{\n");
 		appendable.append("\t\tthis.").append(fieldName).append("().setValue(").append(fieldName).append(");\n");
-		appendable.append("\t}\n\n");
+		appendable.append("\t}\n");
 	}
 	
 }

@@ -1,4 +1,4 @@
-package ecologylab.semantics.compiler.test;
+package ecologylab.semantics.compiler;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,12 +21,11 @@ import ecologylab.translators.java.JavaTranslationException;
 
 public class TestNewMetaMetadataCompiler
 {
-	
-	private static void doTest(String testName, final File testingRepository) throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	protected CompilerConfig getCompilerConfig(final File testingRepository)
 	{
-		System.err.println("\n\n\n\nTest: " + testName + "\n\n\n\n\n");
-		
-		CompilerConfig config = new DefaultCompilerConfig() {
+		CompilerConfig config = new DefaultCompilerConfig()
+		{
 			@Override
 			public String getGeneratedSemanticsLocation()
 			{
@@ -39,50 +38,57 @@ public class TestNewMetaMetadataCompiler
 				return MetaMetadataRepository.readRepository(testingRepository);
 			}
 		};
+		return config;
+	}
+
+	protected void doTest(String testName, final File testingRepository) throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		System.err.println("\n\n\n\nTest: " + testName + "\n\n\n\n\n");
+		CompilerConfig config = getCompilerConfig(testingRepository);
 		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
 		compiler.compile(config);
 	}
-	
-	public static void testGeneratingBasicTScope() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testGeneratingBasicTScope() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("basic-tscope", new File("data/testRepository/testGeneratingBasicTScope.xml"));
 	}
-	
-	public static void testTypeGraphs() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testTypeGraphs() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("type-graphs", new File("data/testRepository/testTypeGraphs.xml"));
 	}
 
-	public static void testInlineMmd() throws IOException, SIMPLTranslationException, JavaTranslationException
+	public void testInlineMmd() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("inline-mmd", new File("data/testRepository/testInlineMmd.xml"));
 	}
 
-	public static void testArticles() throws IOException, SIMPLTranslationException, JavaTranslationException
+	public void testArticles() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("articles", new File("data/testRepository/testArticles.xml"));
 	}
-	
-	public static void testScalarCollections() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testScalarCollections() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("scalar-collections", new File("data/testRepository/testScalarCollections.xml"));
 	}
-	
-	public static void testPolymorphicFields() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testPolymorphicFields() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("poly-fields", new File("data/testRepository/testPolymorphicFields.xml"));
 	}
-	
-	public static void testOtherTags() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testOtherTags() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("other-tags", new File("data/testRepository/testOtherTags.xml"));
 	}
-	
-	public static void testPolymorphicScope() throws IOException, SIMPLTranslationException, JavaTranslationException
+
+	public void testPolymorphicScope() throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		doTest("poly-scope", new File("data/testRepository/testPolymorphicScope.xml"));
 	}
-	
+
 	/**
 	 * use testArticles.xml as the input repository to validate inheritance relationships (any field:
 	 * declaredMmd, inheritedField, nested field + mmds: inheritedMmd, mmds: inlineMmds).
@@ -91,10 +97,8 @@ public class TestNewMetaMetadataCompiler
 	public void testArticlesInheritanceRelationships()
 	{
 		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(new File("data/testRepository/testArticles.xml"));
-		TranslationScope tscope  = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
-		
-		
-		
+		TranslationScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
+
 		MetaMetadata metadata = repository.getByTagName("metadata");
 		Assert.assertNull(metadata.getInheritedMmd());
 		Assert.assertTrue(metadata.getInlineMmds() == null || metadata.getInlineMmds().isEmpty());
@@ -107,9 +111,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(metadata__mixins.getInheritedField());
 		Assert.assertSame(metadata, metadata__mixins.getDeclaringMmd());
 		Assert.assertSame(metadata, metadata__mixins.getInheritedMmd());
-		
-		
-		
+
 		MetaMetadata document = repository.getByTagName("document");
 		Assert.assertSame(metadata, document.getInheritedMmd());
 		Assert.assertTrue(document.getInlineMmds() == null || document.getInlineMmds().isEmpty());
@@ -120,13 +122,12 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(document__location.getInheritedField());
 		Assert.assertSame(document, document__location.getDeclaringMmd());
 		// additional_locations
-		MetaMetadataCollectionField document__additional_locations = (MetaMetadataCollectionField) document.getChildMetaMetadata().get("additional_locations");
+		MetaMetadataCollectionField document__additional_locations = (MetaMetadataCollectionField) document.getChildMetaMetadata().get(
+				"additional_locations");
 		Assert.assertNull(document__additional_locations.getInheritedField());
 		Assert.assertSame(document, document__additional_locations.getDeclaringMmd());
 		Assert.assertNull(document__additional_locations.getInheritedMmd());
-		
-		
-		
+
 		MetaMetadata author = repository.getByTagName("mmd_inline_author_in_authors_in_article");
 		Assert.assertSame(metadata, author.getInheritedMmd());
 		Assert.assertTrue(author.getInlineMmds().size() == 1);
@@ -141,9 +142,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataScalarField author__affiliation = (MetaMetadataScalarField) author.getChildMetaMetadata().get("affiliation");
 		Assert.assertNull(author__affiliation.getInheritedField());
 		Assert.assertSame(author, author__affiliation.getDeclaringMmd());
-		
-		
-		
+
 		MetaMetadata source = repository.getByTagName("mmd_inline_source_in_article");
 		Assert.assertSame(document, source.getInheritedMmd());
 		Assert.assertTrue(source.getInlineMmds().size() == 1);
@@ -168,9 +167,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataScalarField source__isbn = (MetaMetadataScalarField) source.getChildMetaMetadata().get("isbn");
 		Assert.assertNull(source__isbn.getInheritedField());
 		Assert.assertSame(source, source__isbn.getDeclaringMmd());
-		
-		
-		
+
 		MetaMetadata article = repository.getByTagName("article");
 		Assert.assertSame(document, article.getInheritedMmd());
 		Assert.assertTrue(article.getInlineMmds().size() == 2);
@@ -198,9 +195,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataScalarField article__pages = (MetaMetadataScalarField) article.getChildMetaMetadata().get("pages");
 		Assert.assertNull(article__pages.getInheritedField());
 		Assert.assertSame(article, article__pages.getDeclaringMmd());
-		
-		
-		
+
 		MetaMetadata tag = repository.getByTagName("mmd_inline_tag_in_classifications_in_paper");
 		Assert.assertSame(metadata, tag.getInheritedMmd());
 		Assert.assertTrue(tag.getInlineMmds().size() == 1);
@@ -215,9 +210,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataScalarField tag__link = (MetaMetadataScalarField) tag.getChildMetaMetadata().get("link");
 		Assert.assertNull(tag__link.getInheritedField());
 		Assert.assertSame(tag, tag__link.getDeclaringMmd());
-		
-		
-		
+
 		MetaMetadata paper = repository.getByTagName("paper");
 		Assert.assertSame(article, paper.getInheritedMmd());
 		Assert.assertTrue(paper.getInlineMmds().size() == 1);
@@ -227,7 +220,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertEquals(document__location, paper.getChildMetaMetadata().get("location"));
 		Assert.assertEquals(document__additional_locations, paper.getChildMetaMetadata().get("additional_locations"));
 		Assert.assertEquals(article__title, paper.getChildMetaMetadata().get("title"));
-//		Assert.assertSame(article__authors, paper.getChildMetaMetadata().get("authors"));
+		// Assert.assertSame(article__authors, paper.getChildMetaMetadata().get("authors"));
 		Assert.assertEquals(article__source, paper.getChildMetaMetadata().get("source"));
 		Assert.assertEquals(article__pages, paper.getChildMetaMetadata().get("pages"));
 		// authors: TODO
@@ -255,9 +248,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(paper__keywords.getInheritedField());
 		Assert.assertSame(paper, paper__keywords.getDeclaringMmd());
 		Assert.assertSame(tag, paper__keywords.getInheritedMmd());
-		
-		
-		
+
 		MetaMetadata acm_paper = repository.getByTagName("acm_paper");
 		Assert.assertSame(paper, acm_paper.getInheritedMmd());
 		Assert.assertTrue(acm_paper.getInlineMmds() == null || acm_paper.getInlineMmds().isEmpty());
@@ -278,7 +269,8 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertSame(article, acm_paper__title.getDeclaringMmd());
 		// authors
 		MetaMetadataCollectionField acm_paper__authors = (MetaMetadataCollectionField) acm_paper.getChildMetaMetadata().get("authors");
-//		Assert.assertSame(article__authors, acm_paper__authors.getInheritedField()); // should inherit from paper__authors
+		// Assert.assertSame(article__authors, acm_paper__authors.getInheritedField()); // should
+		// inherit from paper__authors
 		Assert.assertSame(article, acm_paper__authors.getDeclaringMmd());
 		Assert.assertSame(author, acm_paper__authors.getInheritedMmd());
 		// authors.name
@@ -290,17 +282,18 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataScalarField acm_paper__authors__affiliation = (MetaMetadataScalarField) acm_paper__authors.getChildMetaMetadata().get("affiliation");
 		Assert.assertEquals("./affiliation", acm_paper__authors__affiliation.getXpath());
 	}
-	
+
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
-		testGeneratingBasicTScope();
-		testTypeGraphs();
-		testInlineMmd();
-		testArticles();
-		testScalarCollections();
-		testPolymorphicFields();
-		testOtherTags();
-		testPolymorphicScope();
+		TestNewMetaMetadataCompiler test = new TestNewMetaMetadataCompiler();
+		test.testGeneratingBasicTScope();
+		test.testTypeGraphs();
+		test.testInlineMmd();
+		test.testArticles();
+		test.testScalarCollections();
+		test.testPolymorphicFields();
+		test.testOtherTags();
+		test.testPolymorphicScope();
 	}
-	
+
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ecologylab.semantics.compiler.test;
+package ecologylab.semantics.compiler;
 
 import java.io.File;
 import java.util.ArrayList;

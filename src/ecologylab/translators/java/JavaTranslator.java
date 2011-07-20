@@ -484,7 +484,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		}
 
 		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
-		appendComments(appendable, true, isKeyword);
+		appendCommentBoundary(appendable, true, isKeyword);
 
 		appendFieldComments(fieldDescriptor, appendable);
 		appendFieldAnnotations(fieldDescriptor, appendable);
@@ -497,7 +497,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(END_LINE);
 		appendable.append(DOUBLE_LINE_BREAK);
 
-		appendComments(appendable, false, isKeyword);
+		appendCommentBoundary(appendable, false, isKeyword);
 	}
 
 	/**
@@ -549,7 +549,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @param isKeywrord
 	 * @throws IOException
 	 */
-	private void appendComments(Appendable appendable, boolean start, boolean isKeywrord)
+	private void appendCommentBoundary(Appendable appendable, boolean start, boolean isKeywrord)
 			throws IOException
 	{
 		if (isKeywrord)
@@ -779,7 +779,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SINGLE_LINE_BREAK);
 
 		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
-		appendComments(appendable, true, isKeyword);
+		appendCommentBoundary(appendable, true, isKeyword);
 
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
@@ -803,7 +803,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendComments(appendable, false, isKeyword);
+		appendCommentBoundary(appendable, false, isKeyword);
 	}
 	
 	/**
@@ -831,7 +831,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(SINGLE_LINE_BREAK);
 
 		boolean isKeyword = checkForKeywords(fieldDescriptor, appendable);
-		appendComments(appendable, true, isKeyword);
+		appendCommentBoundary(appendable, true, isKeyword);
 
 		appendable.append(TAB);
 		appendable.append(PUBLIC);
@@ -862,7 +862,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendable.append(CLOSING_CURLY_BRACE);
 		appendable.append(SINGLE_LINE_BREAK);
 
-		appendComments(appendable, false, isKeyword);
+		appendCommentBoundary(appendable, false, isKeyword);
 	}
 
 	/**
