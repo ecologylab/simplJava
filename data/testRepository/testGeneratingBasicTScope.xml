@@ -5,7 +5,7 @@
 		<collection name="mixins" child_type="metadata" polymorphic_global="true"/>
 	</meta_metadata>
 	
-	<meta_metadata name="test_base" extends="metadata">
+	<meta_metadata name="test_base" extends="metadata" tag="the_base_class">
 		<scalar name="a_string" scalar_type="String" />
 		<scalar name="an_int" scalar_type="Int" />
 		<composite name="a_comp" type="metadata" comment="Comment for comp">
