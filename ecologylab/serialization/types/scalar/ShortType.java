@@ -95,7 +95,7 @@ public class ShortType extends ScalarType<Short>
  * 
  * In this case, "0".
  */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 	   return DEFAULT_VALUE_STRING;
 	}

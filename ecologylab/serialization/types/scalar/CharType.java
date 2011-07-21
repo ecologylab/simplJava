@@ -101,13 +101,13 @@ public class CharType extends ScalarType<Character> implements CrossLanguageType
 	 * 
 	 * In this case, "false".
 	 */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
 
 	@Override
-	protected Character defaultValue()
+	public Character defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}

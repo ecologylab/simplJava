@@ -122,7 +122,7 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 	 * @return "0"
 	 */
 	@Override
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}

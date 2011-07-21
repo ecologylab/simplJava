@@ -371,7 +371,7 @@ implements Describable, CrossLanguageTypeConstants
 	 * 
 	 * In this case, "null".
 	 */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
@@ -381,7 +381,7 @@ implements Describable, CrossLanguageTypeConstants
 	 * 
 	 * @return
 	 */
-	protected T defaultValue()
+	public T defaultValue()
 	{
 		return null;
 	}

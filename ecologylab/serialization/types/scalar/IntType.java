@@ -112,13 +112,13 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 	 * In this case, "0".
 	 */
 	@Override
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
 
 	@Override
-	protected Integer defaultValue()
+	public Integer defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}

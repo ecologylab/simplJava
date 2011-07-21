@@ -96,13 +96,13 @@ implements CrossLanguageTypeConstants
  * 
  * In this case, "false".
  */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 	   return DEFAULT_VALUE_STRING;
 	}
 	
 	@Override
-	protected Byte defaultValue()
+	public Byte defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}

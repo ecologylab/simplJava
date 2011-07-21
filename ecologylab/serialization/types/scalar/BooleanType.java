@@ -172,13 +172,13 @@ public class BooleanType extends ScalarType<Boolean> implements CrossLanguageTyp
 	 * 
 	 * @return "false"
 	 */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
 
 	@Override
-	protected Boolean defaultValue()
+	public Boolean defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}

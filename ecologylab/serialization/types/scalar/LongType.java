@@ -97,13 +97,13 @@ public class LongType extends ScalarType<Long> implements CrossLanguageTypeConst
 	 * 
 	 * In this case, "0".
 	 */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
 
 	@Override
-	protected Long defaultValue()
+	public Long defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}

@@ -107,13 +107,13 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return "0"
 	 */
-	protected String defaultValueString()
+	public String defaultValueString()
 	{
 		return DEFAULT_VALUE_STRING;
 	}
 
 	@Override
-	protected Float defaultValue()
+	public Float defaultValue()
 	{
 		return DEFAULT_VALUE;
 	}
