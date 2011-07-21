@@ -101,6 +101,12 @@ implements CrossLanguageTypeConstants
 	   return DEFAULT_VALUE_STRING;
 	}
 	
+	@Override
+	protected Byte defaultValue()
+	{
+		return DEFAULT_VALUE;
+	}
+	
 	/**
 	 * True if the value in the Field object matches the default value for this type.
 	 * 

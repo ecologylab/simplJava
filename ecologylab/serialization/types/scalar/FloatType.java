@@ -112,6 +112,12 @@ implements CrossLanguageTypeConstants
 		return DEFAULT_VALUE_STRING;
 	}
 
+	@Override
+	protected Float defaultValue()
+	{
+		return DEFAULT_VALUE;
+	}
+
 	/**
 	 * Since FloatType is a floating point value, returns true.
 	 * 

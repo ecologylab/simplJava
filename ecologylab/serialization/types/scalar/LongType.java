@@ -102,6 +102,12 @@ public class LongType extends ScalarType<Long> implements CrossLanguageTypeConst
 		return DEFAULT_VALUE_STRING;
 	}
 
+	@Override
+	protected Long defaultValue()
+	{
+		return DEFAULT_VALUE;
+	}
+
 	/**
 	 * True if the value in the Field object matches the default value for this type.
 	 * 

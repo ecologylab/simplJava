@@ -117,6 +117,11 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 		return DEFAULT_VALUE_STRING;
 	}
 
+	@Override
+	protected Integer defaultValue()
+	{
+		return DEFAULT_VALUE;
+	}
 	/**
 	 * True if the value in the Field object matches the default value for this type.
 	 * 
