@@ -87,6 +87,8 @@ implements Describable, CrossLanguageTypeConstants
 			this.packageName		= thatClass.getPackage().getName();
 		
 		this.dbTypeName				= dbTypeName;
+		
+		TypeRegistry.registerScalarType(this);
 	}
 
 	/**

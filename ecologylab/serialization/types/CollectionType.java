@@ -37,7 +37,10 @@ implements CrossLanguageTypeConstants, Describable
 	
 	public CollectionType(Class javaClass, String cSharpName, String objCName)
 	{
-		super(CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
+		super(javaClass.getName().startsWith("java") ?
+				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() :
+					javaClass.getName(), 
+					javaClass.getName(), cSharpName, objCName);
 		this.javaClass			= javaClass;
 		this.javaSimpleName	= javaClass.getSimpleName();
 		

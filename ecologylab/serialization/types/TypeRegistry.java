@@ -65,38 +65,6 @@ implements CrossLanguageTypeConstants
 	
 	private CollectionType defaultCollectionType, defaultMapType;
 	
-	static Class[]									                BASIC_SCALAR_TYPES	=
-	{ StringType.class,
-		StringBuilderType.class, 
-		
-		IntType.class, LongType.class, 
-		ShortType.class, BooleanType.class,
-		FloatType.class, DoubleType.class,
-		ByteType.class, CharType.class, 
-		
-		
-		ReferenceIntegerType.class, ReferenceLongType.class, 
-		ReferenceBooleanType.class, 
-		ReferenceFloatType.class, ReferenceDoubleType.class, 
-		
-		
-		ColorType.class, RectangleType.class,	//FIXME -- move to ecologylabImage for android!!!
-		
-		URLType.class, ParsedURLType.class,
-		FileType.class, UUIDType.class, 
-
-		DateType.class,
-
-		ScalarTypeType.class,
-
-		PatternType.class, EnumeratedType.class,
-
-		ClassType.class, FieldType.class,											
-
-		//This scalar type is not used anywhere as of now. see class commemts.
-		CompositeAsScalarType.class
-	};
-
 	static
 	{
 		init();
@@ -111,7 +79,6 @@ implements CrossLanguageTypeConstants
 		if (!init)
 		{
 			init	= true;
-			registerScalarType(BASIC_SCALAR_TYPES);
 			
 			new FundamentalTypes();
 		}
@@ -120,32 +87,6 @@ implements CrossLanguageTypeConstants
 	public TypeRegistry()
 	{
 		
-	}
-	/**
-	 * Enter this type in the registry, which is a map in which the Type's Class object's fully
-	 * qualified named is used as a key.
-	 */
-	public static boolean registerScalarType(Class<? extends ScalarType> typeClass)
-	{
-		ScalarType type = (ScalarType) ReflectionTools.getInstance(typeClass);
-		if (type == null)
-		{
-			error(typeClass, "Can't register this Type, because we can't instantiate it!");
-			return false;
-		}
-		return registerScalarType(type);
-	}
-
-	/**
-	 * Enter this type in the registry, which is a map in which the Type's Class object's fully
-	 * qualified named is used as a key.
-	 */
-	static boolean registerScalarType(ScalarType type)
-	{
-		String typeName = type.getTypeClass().getName();
-		String simpleName = type.getClass().getSimpleName();
-		singleton().registerScalarType(simpleName, type);
-		return singleton().registerScalarType(typeName, type);
 	}
 
 	private static TypeRegistry singleton()
@@ -165,6 +106,19 @@ implements CrossLanguageTypeConstants
 		}
 		return result;
 	}
+
+	/**
+	 * Enter this type in the registry, which is a map in which the Type's Class object's fully
+	 * qualified named is used as a key.
+	 */
+	static boolean registerScalarType(ScalarType type)
+	{
+		String typeName = type.getTypeClass().getName();
+		String simpleName = type.getClass().getSimpleName();
+		singleton().registerScalarType(simpleName, type);
+		return singleton().registerScalarType(typeName, type);
+	}
+
 	private boolean registerScalarType(String typeName, ScalarType type)
 	{
 		boolean definingNewType;
@@ -179,18 +133,6 @@ implements CrossLanguageTypeConstants
 			}
 		}
 		return definingNewType;
-	}
-
-	/**
-	 * Register a batch of Types.
-	 * 
-	 * @param thoseTypeClasses
-	 */
-	public static void registerScalarType(Class<? extends ScalarType> thoseTypeClasses[])
-	{
-		int size = thoseTypeClasses.length;
-		for (int i = 0; i < size; i++)
-			registerScalarType(thoseTypeClasses[i]);
 	}
 
 	/**
