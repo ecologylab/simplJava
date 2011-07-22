@@ -989,26 +989,26 @@ public class CocoaTranslator
 	 * @throws IOException
 	 */
 	private void appendFieldSetterFunctionDefinition(Appendable appendable,
-			FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException
+			FieldDescriptor fieldDescriptor) throws IOException, CocoaTranslationException
 	{
 
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
-		checkForKeywords(fieldAccessor, appendable);
+		checkForKeywords(fieldDescriptor, appendable);
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.SET
-				+ fieldAccessor.getName().substring(0, 1).toUpperCase());
-		appendable.append(fieldAccessor.getName().substring(1,
-				fieldAccessor.getName().length()));
+				+ fieldDescriptor.getName().substring(0, 1).toUpperCase());
+		appendable.append(fieldDescriptor.getName().substring(1,
+				fieldDescriptor.getName().length()));
 		appendable.append(CocoaTranslationConstants.WITH_REFERENCE);
 		appendable.append(CocoaTranslationConstants.OPENING_BRACE);
-		appendable.append(fieldAccessor.getObjectiveCType());
+		appendable.append(fieldDescriptor.getObjectiveCType());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.REFERENCE);
 		appendable.append(CocoaTranslationConstants.CLOSING_BRACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.PARAMETER);
-		appendable.append(fieldAccessor.getName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(CocoaTranslationConstants.END_LINE);
 	}
 
@@ -1021,11 +1021,11 @@ public class CocoaTranslator
 	 * @throws IOException
 	 */
 	private void appendFieldSetterFunctionImplementation(Appendable appendable,
-			FieldDescriptor fieldAccessor) throws IOException, CocoaTranslationException
+			FieldDescriptor fieldDescriptor) throws IOException, CocoaTranslationException
 	{
 
 		boolean isKeywordField = false;
-		if (CocoaTranslationUtilities.isKeyword(fieldAccessor.getName()))
+		if (CocoaTranslationUtilities.isKeyword(fieldDescriptor.getName()))
 		{
 			isKeywordField = true;
 		}
@@ -1035,17 +1035,17 @@ public class CocoaTranslator
 
 		appendable.append(CocoaTranslationConstants.RETURN_VOID);
 		appendable.append(CocoaTranslationConstants.SET
-				+ fieldAccessor.getName().substring(0, 1).toUpperCase());
-		appendable.append(fieldAccessor.getName().substring(1,
-				fieldAccessor.getName().length()));
+				+ fieldDescriptor.getName().substring(0, 1).toUpperCase());
+		appendable.append(fieldDescriptor.getName().substring(1,
+				fieldDescriptor.getName().length()));
 		appendable.append(CocoaTranslationConstants.WITH_REFERENCE);
 		appendable.append(CocoaTranslationConstants.OPENING_BRACE);
-		appendable.append(fieldAccessor.getObjectiveCType());
+		appendable.append(fieldDescriptor.getObjectiveCType());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.REFERENCE);
 		appendable.append(CocoaTranslationConstants.CLOSING_BRACE);
 		appendable.append(CocoaTranslationConstants.SPACE);
-		appendable.append(CocoaTranslationConstants.PARAMETER + fieldAccessor.getName());
+		appendable.append(CocoaTranslationConstants.PARAMETER + fieldDescriptor.getName());
 		appendable.append(CocoaTranslationConstants.SPACE);
 		appendable.append(CocoaTranslationConstants.OPENING_CURLY_BRACE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -1054,11 +1054,11 @@ public class CocoaTranslator
 			appendable.append(CocoaTranslationConstants.SINGLE_LINE_COMMENT);
 
 		appendable.append(CocoaTranslationConstants.TAB);
-		appendable.append(fieldAccessor.getName());
+		appendable.append(fieldDescriptor.getName());
 		appendable.append(CocoaTranslationConstants.EQUALTO);
 		appendable.append(CocoaTranslationConstants.REFERENCE);
 		appendable.append(CocoaTranslationConstants.PARAMETER);
-		appendable.append(fieldAccessor.getName());
+		appendable.append(fieldDescriptor.getName());
 
 		appendable.append(CocoaTranslationConstants.END_LINE);
 		appendable.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
@@ -1237,36 +1237,36 @@ public class CocoaTranslator
 	 * a primitive or reference type. Reference type can be a single object, a collection or a nested
 	 * class object
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendPropertyOfField(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendPropertyOfField(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
-		checkForKeywords(fieldAccessor, appendable);
+		checkForKeywords(fieldDescriptor, appendable);
 
-		if (fieldAccessor.isCollection())
+		if (fieldDescriptor.isCollection())
 		{
-			appendPropertyAsReference(fieldAccessor, appendable);
+			appendPropertyAsReference(fieldDescriptor, appendable);
 		}
-		else if (fieldAccessor.isScalar())
+		else if (fieldDescriptor.isScalar())
 		{
-			if (fieldAccessor.getScalarType().isPrimitive()
-					&& fieldAccessor.getField().getType() != String.class)
+			if (fieldDescriptor.getScalarType().isPrimitive()
+					&& fieldDescriptor.getField().getType() != String.class)
 			{
-				appendPropertyAsPrimitive(fieldAccessor, appendable);
+				appendPropertyAsPrimitive(fieldDescriptor, appendable);
 			}
-			else if (fieldAccessor.getScalarType().isReference()
-					|| fieldAccessor.getField().getType() == String.class)
+			else if (fieldDescriptor.getScalarType().isReference()
+					|| fieldDescriptor.getField().getType() == String.class)
 			{
-				appendPropertyAsReference(fieldAccessor, appendable);
+				appendPropertyAsReference(fieldDescriptor, appendable);
 			}
 		}
-		else if (fieldAccessor.isNested())
+		else if (fieldDescriptor.isNested())
 		{
-			appendPropertyAsNestedAttribute(fieldAccessor, appendable);
+			appendPropertyAsNestedAttribute(fieldDescriptor, appendable);
 		}
 	}
 
@@ -1275,21 +1275,21 @@ public class CocoaTranslator
 	 * class file. The attribute can be a primitive type or reference type. Reference type can be a
 	 * single object, a collection or a nested class object.
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendSynthesizedField(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendSynthesizedField(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
-		checkForKeywords(fieldAccessor, appendable);
+		checkForKeywords(fieldDescriptor, appendable);
 
 		StringBuilder synthesizeDeclaration = new StringBuilder();
 
 		synthesizeDeclaration.append(CocoaTranslationConstants.SYNTHESIZE);
 		synthesizeDeclaration.append(CocoaTranslationConstants.SPACE);
-		synthesizeDeclaration.append(fieldAccessor.getName());
+		synthesizeDeclaration.append(fieldDescriptor.getName());
 		synthesizeDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		synthesizeDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1300,12 +1300,12 @@ public class CocoaTranslator
 	/**
 	 * Appends a reference type field in the output Objective-C header file
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendFieldAsReference(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendFieldAsReference(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 		StringBuilder fieldDeclaration = new StringBuilder();
@@ -1314,10 +1314,10 @@ public class CocoaTranslator
 //		fieldDeclaration.append(CocoaTranslationUtilities.getObjectiveCType(fieldAccessor.getField()
 //				.getType()));
 		
-		fieldDeclaration.append(fieldAccessor.getObjectiveCType());
+		fieldDeclaration.append(fieldDescriptor.getObjectiveCType());
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
 		fieldDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		fieldDeclaration.append(fieldAccessor.getName());
+		fieldDeclaration.append(fieldDescriptor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1327,12 +1327,12 @@ public class CocoaTranslator
 	/**
 	 * Appends a primitive type field in the output Objective-C header file
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendFieldAsPrimitive(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendFieldAsPrimitive(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 		StringBuilder fieldDeclaration = new StringBuilder();
@@ -1340,9 +1340,9 @@ public class CocoaTranslator
 		fieldDeclaration.append(CocoaTranslationConstants.TAB);
 //		fieldDeclaration.append(CocoaTranslationUtilities.getObjectiveCType(fieldAccessor.getField()
 //				.getType()));
-		fieldDeclaration.append(fieldAccessor.getScalarType().getObjectiveCTypeName());
+		fieldDeclaration.append(fieldDescriptor.getScalarType().deriveObjectiveCTypeName());
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
-		fieldDeclaration.append(fieldAccessor.getName());
+		fieldDeclaration.append(fieldDescriptor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1352,21 +1352,21 @@ public class CocoaTranslator
 	/**
 	 * Appends a reference type nested field in the output Objective-C header file
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 */
-	private void appendFieldAsNestedAttribute(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendFieldAsNestedAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException
 	{
 		StringBuilder fieldDeclaration = new StringBuilder();
 
 		fieldDeclaration.append(CocoaTranslationConstants.TAB);
 		fieldDeclaration
-				.append(CocoaTranslationUtilities.classSimpleName(fieldAccessor.getFieldType()));
+				.append(CocoaTranslationUtilities.classSimpleName(fieldDescriptor.getFieldType()));
 		fieldDeclaration.append(CocoaTranslationConstants.SPACE);
 		fieldDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		fieldDeclaration.append(fieldAccessor.getName());
+		fieldDeclaration.append(fieldDescriptor.getName());
 		fieldDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		fieldDeclaration.append(CocoaTranslationConstants.DOUBLE_LINE_BREAK);
 
@@ -1376,22 +1376,22 @@ public class CocoaTranslator
 	/**
 	 * Appends a reference type attributes property in the output Objective-C header file
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendPropertyAsReference(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendPropertyAsReference(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 		StringBuilder propertyDeclaration = new StringBuilder();
 
 		propertyDeclaration.append(CocoaTranslationConstants.PROPERTY_REFERENCE);
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
-		propertyDeclaration.append(fieldAccessor.getObjectiveCType());
+		propertyDeclaration.append(fieldDescriptor.getObjectiveCType());
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		propertyDeclaration.append(fieldAccessor.getName());
+		propertyDeclaration.append(fieldDescriptor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		propertyDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
@@ -1401,23 +1401,23 @@ public class CocoaTranslator
 	/**
 	 * Appends a reference type attributes property in the output Objective-C header file
 	 * 
-	 * @param fieldAccessor
+	 * @param fieldDescriptor
 	 * @param appendable
 	 * @throws IOException
 	 * @throws CocoaTranslationException
 	 */
-	private void appendPropertyAsNestedAttribute(FieldDescriptor fieldAccessor, Appendable appendable)
+	private void appendPropertyAsNestedAttribute(FieldDescriptor fieldDescriptor, Appendable appendable)
 			throws IOException, CocoaTranslationException
 	{
 		StringBuilder propertyDeclaration = new StringBuilder();
 
 		propertyDeclaration.append(CocoaTranslationConstants.PROPERTY_REFERENCE);
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
-		propertyDeclaration.append(CocoaTranslationUtilities.classSimpleName(fieldAccessor
+		propertyDeclaration.append(CocoaTranslationUtilities.classSimpleName(fieldDescriptor
 				.getFieldType()));
 		propertyDeclaration.append(CocoaTranslationConstants.SPACE);
 		propertyDeclaration.append(CocoaTranslationConstants.REFERENCE);
-		propertyDeclaration.append(fieldAccessor.getName());
+		propertyDeclaration.append(fieldDescriptor.getName());
 		propertyDeclaration.append(CocoaTranslationConstants.TERMINATOR);
 		propertyDeclaration.append(CocoaTranslationConstants.SINGLE_LINE_BREAK);
 
