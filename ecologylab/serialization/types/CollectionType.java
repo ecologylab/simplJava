@@ -35,10 +35,7 @@ implements CrossLanguageTypeConstants, Describable
 	
 	public CollectionType(Class javaClass, String cSharpName, String objCName)
 	{
-		super(javaClass.getName().startsWith("java") ?
-				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() :
-					javaClass.getName(), 
-					javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
+		super(deriveCrossPlatformName(javaClass), javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
 		
 		this.javaClass			= javaClass;
 		
@@ -86,6 +83,30 @@ implements CrossLanguageTypeConstants, Describable
 	public boolean isMap()
 	{
 		return isMap;
+	}
+
+	/**
+	 * The name to use when declaring a field in C# cross-compilation.
+	 * 
+	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, the cSharpTypeName of the default Collection or Map type.
+	 */
+	@Override
+	public String deriveCSharpTypeName()
+	{
+		String cSharpTypeName	= super.getCSharpTypeName();
+		return cSharpTypeName != null ? cSharpTypeName : TypeRegistry.getDefaultCollectionOrMapType(isMap).getCSharpTypeName();
+	}
+	
+	/**
+	 * The name to use when declaring a field in Objective C cross-compilation.
+	 * 
+	 * @return	objectiveCTypeName, if one was passed in explicitly.  otherwise, the objectiveCTypeName of the default Collection or Map type.
+	 */
+	@Override
+	public String deriveObjectiveCTypeName()
+	{
+		String objectiveCTypeName	= super.getObjectiveCTypeName();
+		return objectiveCTypeName != null ? objectiveCTypeName : TypeRegistry.getDefaultCollectionOrMapType(isMap).getObjectiveCTypeName();
 	}
 
 }

@@ -66,18 +66,16 @@ implements Describable, CrossLanguageTypeConstants
 	 * @param dbTypeName TODO
 	 * 
 	 */
-	protected ScalarType(Class<? extends T> thatClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
+	protected ScalarType(Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(thatClass.isPrimitive() ? thatClass.getName() : 
-			thatClass.getName().startsWith("java") ? SIMPL_SCALAR_TYPES_PREFIX + thatClass.getSimpleName() :
-				thatClass.getName(), 
-				thatClass.getSimpleName(), thatClass.getName(), cSharpTypeName, objectiveCTypeName);
+		super(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass), 
+				javaClass.getSimpleName(), javaClass.getName(), cSharpTypeName, objectiveCTypeName);
 		
-		this.thatClass 				= thatClass;
+		this.thatClass 				= javaClass;
 		
-		this.isPrimitive 			= thatClass.isPrimitive();
+		this.isPrimitive 			= javaClass.isPrimitive();
 		if (!isPrimitive)
-			this.packageName		= thatClass.getPackage().getName();
+			this.packageName		= javaClass.getPackage().getName();
 		
 		this.dbTypeName				= dbTypeName;
 		
@@ -578,4 +576,31 @@ implements Describable, CrossLanguageTypeConstants
 	{
 		return (fieldDescriptor.getField() == null || fieldDescriptor.getField().get(context) == null) ? "null" : null;
 	}
+	
+	/**
+	 * The name to use when declaring a field in C# cross-compilation.
+	 * For ScalarType, be aggressive in seeking a suitable type name.
+	 * 
+	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, assume its the same as javaTypeName, and pass that.
+	 */
+	@Override
+	public String deriveCSharpTypeName()
+	{
+		String cSharpTypeName	= super.getCSharpTypeName();
+		return cSharpTypeName != null ? cSharpTypeName : super.getJavaTypeName();
+	}
+
+	/**
+	 * The name to use when declaring a field in Objective C cross-compilation.
+	 * For ScalarType, be aggressive in seeking a suitable type name.
+	 * 
+	 * @return	objectiveCTypeName, if one was passed in explicitly. otherwise, assume its the same as simple name, and pass that.
+	 */
+	@Override
+	public String deriveObjectiveCTypeName()
+	{
+		String objectiveCTypeName	= super.getObjectiveCTypeName();
+		return objectiveCTypeName != null ? objectiveCTypeName : super.getSimpleName();
+	}
+
 }

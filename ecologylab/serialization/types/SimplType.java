@@ -12,7 +12,7 @@ import ecologylab.serialization.ElementState.simpl_scalar;
  * 
  * @author andruid
  */
-public class SimplType extends SimplBaseType
+public abstract class SimplType extends SimplBaseType
 {
 	/**
 	 * Short name of the type: without package.
@@ -76,7 +76,7 @@ public class SimplType extends SimplBaseType
 	/**
 	 * The name to use when declaring a field in C# cross-compilation.
 	 * 
-	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, assume its the same as javaTypeName, and pass that.
+	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, null.
 	 */
 	public String getCSharpTypeName()
 	{
@@ -85,7 +85,7 @@ public class SimplType extends SimplBaseType
 	/**
 	 * The name to use when declaring a field in Objective C cross-compilation.
 	 * 
-	 * @return	objectiveCTypeName, , if one was passed in explicitly. otherwise, assume its the same as simple name, and pass that.
+	 * @return	objectiveCTypeName, if one was passed in explicitly. otherwise, null.
 	 */
 	public String getObjectiveCTypeName()
 	{
@@ -107,6 +107,28 @@ public class SimplType extends SimplBaseType
 	public String getDbTypeName()
 	{
 		return null;
+	}
+
+	/**
+	 * Use the field in this, if it is set, or do something smart to derive a type name for C#.
+	 * 
+	 * @return	never null; some kind of a type name String.
+	 */
+	abstract public String deriveCSharpTypeName();
+
+	/**
+	 * Use the field in this, if it is set, or do something smart to derive a type name for C#.
+	 * 
+	 * @return	never null; some kind of a type name String.
+	 */
+	abstract public String deriveObjectiveCTypeName();
+
+	
+	static String deriveCrossPlatformName(Class javaClass)
+	{
+		String javaClassName 	= javaClass.getName();
+		return javaClassName.startsWith("java") ? 
+				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() : javaClassName;
 	}
 
 }
