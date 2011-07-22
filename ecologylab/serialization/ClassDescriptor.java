@@ -1067,4 +1067,12 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		*/
 		return result;
 	}
+	
+	/**
+	 * Rebuild structures after serializing only some fields.
+	 */
+	@Override
+	protected void deserializationPostHook()
+	{
+	}
 }
