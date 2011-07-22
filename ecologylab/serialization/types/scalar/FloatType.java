@@ -22,7 +22,7 @@ implements CrossLanguageTypeConstants
 {
 	public static final float		DEFAULT_VALUE					= 0;
 
-	public static final String	DEFAULT_VALUE_STRING	= "0.0";
+	public static final String	DEFAULT_VALUE_STRING	= "0";
 
 	/**
 	 * This constructor should only be called once per session, through a static initializer,
