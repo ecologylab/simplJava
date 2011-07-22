@@ -46,7 +46,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 			buffy.append(instanceString);
 	}
 
-	
+	@Override
 	public void appendValue(T instance, Appendable buffy, boolean needsEscaping, TranslationContext serializationContext) throws IOException
 	{
 		String instanceString = marshall(instance, serializationContext); // andruid 1/4/10 instance.toString();
