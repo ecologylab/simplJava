@@ -34,6 +34,8 @@ implements CrossLanguageTypeConstants
 	 */
 	private final 	HashMap<String, ST>	typesByJavaName 			= new HashMap<String, ST>();
 	
+	private final 	HashMap<String, ST>	typesByCrossPlatformName 			= new HashMap<String, ST>();
+	
 	private final		HashMap<String, ST>	typesBySimpleName			= new HashMap<String, ST>();
 	
 	private final 	HashMap<String, ST>	typesByCSharpName 		= new HashMap<String, ST>();
@@ -117,6 +119,9 @@ implements CrossLanguageTypeConstants
 	{
 		String javaTypeName = type.getJavaTypeName();
 		typesByJavaName.put(javaTypeName, type);
+		
+		String crossPlatformName	= type.getName();
+		typesByCrossPlatformName.put(crossPlatformName, type);
 		
 		String cSharpTypeName 		= type.getCSharpTypeName();
 		if (cSharpTypeName != null)
@@ -235,7 +240,22 @@ implements CrossLanguageTypeConstants
 	 */
 	public static CollectionType getCollectionTypeByCrossPlatformName(String crossPlatformName)
 	{
-		return collectionRegistry().typesByJavaName.get(crossPlatformName);
+		return collectionRegistry().typesByCrossPlatformName.get(crossPlatformName);
+	}
+
+	public static CollectionType getCollectionTypeByCSharpName(String cSharpName)
+	{
+		return collectionRegistry().typesByCSharpName.get(cSharpName);
+	}
+
+	public static CollectionType getCollectionTypeByObjectiveCName(String objectiveCName)
+	{
+		return collectionRegistry().typesByObjectiveCName.get(objectiveCName);
+	}
+
+	public static CollectionType getCollectionTypeBySimpleName(String simpleName)
+	{
+		return collectionRegistry().typesBySimpleName.get(simpleName);
 	}
 
 	/**
@@ -259,7 +279,8 @@ implements CrossLanguageTypeConstants
 	 */
 	public static CollectionType getCollectionType(Class javaClass)
 	{
-		CollectionType result = getCollectionType(javaClass.getName());
+		String javaClassName 	= javaClass.getName();
+		CollectionType result = getCollectionTypeByJavaName(javaClassName);
 		if (result == null)
 		{
 			if (javaClass.isInterface() || Modifier.isAbstract(javaClass.getModifiers()))
@@ -268,9 +289,9 @@ implements CrossLanguageTypeConstants
 			}
 			else
 			{
-				String simplName			= SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName();
-				collectionRegistry().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
-				result							= new CollectionType(javaClass, null, null);
+				String crossPlatformName	= SimplType.deriveCrossPlatformName(javaClass);
+				collectionRegistry().warning("No CollectionType was pre-defined for " + crossPlatformName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
+				result										= new CollectionType(javaClass, null, null);
 			}
 		}
 		return result;
@@ -281,7 +302,7 @@ implements CrossLanguageTypeConstants
 	 * @param javaClassName
 	 * @return
 	 */
-	public static CollectionType getCollectionType(String javaClassName)
+	public static CollectionType getCollectionTypeByJavaName(String javaClassName)
 	{
 		return collectionRegistry().typesByJavaName.get(javaClassName);
 	}
@@ -300,5 +321,21 @@ implements CrossLanguageTypeConstants
 	{
 		collectionRegistry().defaultMapType	= ct;
 	}
+	
+	static CollectionType getDefaultCollectionType()
+	{
+		return collectionRegistry().defaultCollectionType;
+	}
+
+	static CollectionType getDefaultMapType()
+	{
+		return collectionRegistry().defaultMapType;
+	}
+
+	static CollectionType getDefaultCollectionOrMapType(boolean isMap)
+	{
+		return isMap ? getDefaultMapType() : getDefaultCollectionType();
+	}
+
 
 }
