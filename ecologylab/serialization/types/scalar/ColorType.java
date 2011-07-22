@@ -28,7 +28,7 @@ implements CrossLanguageTypeConstants
  */
 	public ColorType()
 	{
-		super(Color.class, JAVA_COLOR, DOTNET_COLOR, OBJC_COLOR, null);
+		super(Color.class, DOTNET_COLOR, OBJC_COLOR, null);
 	}
 
 	/**

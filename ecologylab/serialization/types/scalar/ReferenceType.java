@@ -26,7 +26,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 	 */
 	public ReferenceType(Class<T> thatClass, String javaTypeName, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(thatClass, javaTypeName, cSharpTypeName, objectiveCTypeName, dbTypeName);
+		super(thatClass, cSharpTypeName, objectiveCTypeName, dbTypeName);
 	}
 
 	/**

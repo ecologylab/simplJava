@@ -47,9 +47,9 @@ implements CrossLanguageTypeConstants
 			}
 			else
 				buffy.append(value);
-			buffy.append("Type");
+//			buffy.append("Type");	//TODO -- verify that this change is correct -- andruid & yin 7/21/2011
 			
-			result	= TypeRegistry.getScalarType(buffy.toString());
+			result	= TypeRegistry.getScalarTypeBySimpleName(buffy.toString());
 		}
 		return result;			
 	}

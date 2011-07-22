@@ -17,7 +17,7 @@ implements CrossLanguageTypeConstants
 
 	public UUIDType(Class<? extends UUID> clazz)
 	{
-		super(clazz, JAVA_UUID, DOTNET_UUID, null, null);
+		super(clazz, DOTNET_UUID, null, null);
 	}
 
 	@Override

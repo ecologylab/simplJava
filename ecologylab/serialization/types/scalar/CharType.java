@@ -33,7 +33,7 @@ public class CharType extends ScalarType<Character> implements CrossLanguageType
 	 */
 	public CharType()
 	{
-		super(char.class, JAVA_CHAR, DOTNET_CHAR, OBJC_CHAR, null);
+		super(char.class, DOTNET_CHAR, OBJC_CHAR, null);
 	}
 
 	/**

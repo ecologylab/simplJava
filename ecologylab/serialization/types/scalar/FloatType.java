@@ -39,7 +39,7 @@ implements CrossLanguageTypeConstants
 
 	public FloatType(Class<Float> thatClass)
 	{
-		super(thatClass, JAVA_FLOAT, DOTNET_FLOAT, OBJC_FLOAT, null);
+		super(thatClass, DOTNET_FLOAT, OBJC_FLOAT, null);
 	}
 
 	/**

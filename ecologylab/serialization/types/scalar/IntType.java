@@ -38,7 +38,7 @@ public class IntType extends ScalarType<Integer> implements CrossLanguageTypeCon
 
 	public IntType(Class<Integer> thatClass)
 	{
-		super(thatClass, JAVA_INTEGER, DOTNET_INTEGER, OBJC_INTEGER, null);
+		super(thatClass, DOTNET_INTEGER, OBJC_INTEGER, null);
 	}
 
 	/**

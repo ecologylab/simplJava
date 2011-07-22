@@ -43,7 +43,7 @@ public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeC
 
 	public DoubleType(Class<Double> thatClass)
 	{
-		super(thatClass, JAVA_DOUBLE, DOTNET_DOUBLE, OBJC_DOUBLE, null);
+		super(thatClass, DOTNET_DOUBLE, OBJC_DOUBLE, null);
 	}
 
 	/**

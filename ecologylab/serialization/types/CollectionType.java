@@ -23,8 +23,6 @@ implements CrossLanguageTypeConstants, Describable
 {
 	private Class				javaClass;
 	
-	private String			javaSimpleName;
-	
 	@simpl_scalar
 	private boolean			isMap;
 
@@ -40,9 +38,9 @@ implements CrossLanguageTypeConstants, Describable
 		super(javaClass.getName().startsWith("java") ?
 				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() :
 					javaClass.getName(), 
-					javaClass.getName(), cSharpName, objCName);
+					javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
+		
 		this.javaClass			= javaClass;
-		this.javaSimpleName	= javaClass.getSimpleName();
 		
 		this.isMap			= Map.class.isAssignableFrom(javaClass);
 		
@@ -73,16 +71,6 @@ implements CrossLanguageTypeConstants, Describable
 	public String getDescription()
 	{
 		return getJavaTypeName();
-	}
-
-	/**
-	 * This is the unqualified Java class name, without package.
-	 * 
-	 * @return
-	 */
-	public String getJavaSimpleName()
-	{
-		return javaSimpleName;
 	}
 
 	public Class getJavaClass()

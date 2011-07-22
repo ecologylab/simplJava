@@ -5,38 +5,9 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import ecologylab.collections.Scope;
 import ecologylab.generic.Debug;
-import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.XMLTools;
-import ecologylab.serialization.types.scalar.BooleanType;
-import ecologylab.serialization.types.scalar.ByteType;
-import ecologylab.serialization.types.scalar.CharType;
-import ecologylab.serialization.types.scalar.ClassType;
-import ecologylab.serialization.types.scalar.ColorType;
 import ecologylab.serialization.types.scalar.CompositeAsScalarType;
-import ecologylab.serialization.types.scalar.DateType;
-import ecologylab.serialization.types.scalar.DoubleType;
-import ecologylab.serialization.types.scalar.EnumeratedType;
-import ecologylab.serialization.types.scalar.FieldType;
-import ecologylab.serialization.types.scalar.FileType;
-import ecologylab.serialization.types.scalar.FloatType;
-import ecologylab.serialization.types.scalar.IntType;
-import ecologylab.serialization.types.scalar.LongType;
-import ecologylab.serialization.types.scalar.ParsedURLType;
-import ecologylab.serialization.types.scalar.PatternType;
-import ecologylab.serialization.types.scalar.RectangleType;
-import ecologylab.serialization.types.scalar.ReferenceBooleanType;
-import ecologylab.serialization.types.scalar.ReferenceDoubleType;
-import ecologylab.serialization.types.scalar.ReferenceFloatType;
-import ecologylab.serialization.types.scalar.ReferenceIntegerType;
-import ecologylab.serialization.types.scalar.ReferenceLongType;
-import ecologylab.serialization.types.scalar.ScalarTypeType;
-import ecologylab.serialization.types.scalar.ShortType;
-import ecologylab.serialization.types.scalar.StringBuilderType;
-import ecologylab.serialization.types.scalar.StringType;
-import ecologylab.serialization.types.scalar.URLType;
-import ecologylab.serialization.types.scalar.UUIDType;
 
 /**
  * This class implements registries of instances of ScalarType and CollectionType. 
@@ -47,21 +18,29 @@ import ecologylab.serialization.types.scalar.UUIDType;
  * this way, because automatic translation is performed based on Field declarations, and the Field
  * declarations do not know about these Types, only about the underlying Java types.
  */
-public class TypeRegistry extends Debug
+public class TypeRegistry<ST extends SimplType> extends Debug
 implements CrossLanguageTypeConstants
 {
-	private static TypeRegistry	singleton;
-	
 	/**
-	 * Maps Strings that represent classes to integers. These integers, some of which are defined in
-	 * the interface {@link BuiltinTypeIndices Types}. Type to integer mappings that are defined in
-	 * this class use positive integers. All other extended types should use negative integers.
+	 * This is now a doubleton class, like a singleton, but there are 2.
+	 * One instance for ScalarType, one instance for CollectionType.
 	 */
-	private final		HashMap<String, ScalarType>	    allScalarTypes		= new HashMap<String, ScalarType>(32);
-
-	private final 	HashMap<String, CollectionType>	collectionTypesByName 			= new HashMap<String, CollectionType>();
+	private static TypeRegistry<ScalarType>					scalarRegistry;
 	
-	private final		HashMap<String, CollectionType>	collectionTypesByClassName	= new HashMap<String, CollectionType>();
+	private static TypeRegistry<CollectionType>			collectionRegistry;
+
+	/**
+	 * These are by Java full name.
+	 */
+	private final 	HashMap<String, ST>	typesByJavaName 			= new HashMap<String, ST>();
+	
+	private final		HashMap<String, ST>	typesBySimpleName			= new HashMap<String, ST>();
+	
+	private final 	HashMap<String, ST>	typesByCSharpName 		= new HashMap<String, ST>();
+	
+	private final		HashMap<String, ST>	typesByObjectiveCName	= new HashMap<String, ST>();
+	
+	private final		HashMap<String, ST>	typesByDbName					= new HashMap<String, ST>();
 	
 	private CollectionType defaultCollectionType, defaultMapType;
 	
@@ -89,18 +68,36 @@ implements CrossLanguageTypeConstants
 		
 	}
 
-	private static TypeRegistry singleton()
+	private static TypeRegistry<ScalarType> scalarRegistry()
 	{
-		TypeRegistry result	= singleton;
+		TypeRegistry<ScalarType> result	= scalarRegistry;
 		if (result == null)
 		{
 			synchronized (TypeRegistry.class)
 			{
-				result			= singleton;
+				result			= scalarRegistry;
 				if (result == null)
 				{
-					result		= new TypeRegistry();
-					singleton	= result;
+					result		= new TypeRegistry<ScalarType>();
+					scalarRegistry	= result;
+				}
+			}
+		}
+		return result;
+	}
+
+	private static TypeRegistry<CollectionType> collectionRegistry()
+	{
+		TypeRegistry<CollectionType> result	= collectionRegistry;
+		if (result == null)
+		{
+			synchronized (TypeRegistry.class)
+			{
+				result			= collectionRegistry;
+				if (result == null)
+				{
+					result		= new TypeRegistry<CollectionType>();
+					collectionRegistry	= result;
 				}
 			}
 		}
@@ -113,39 +110,35 @@ implements CrossLanguageTypeConstants
 	 */
 	static boolean registerScalarType(ScalarType type)
 	{
-		String typeName = type.getTypeClass().getName();
-		String simpleName = type.getClass().getSimpleName();
-		singleton().registerScalarType(simpleName, type);
-		return singleton().registerScalarType(typeName, type);
+		return scalarRegistry().registerType(type);
 	}
 
-	private boolean registerScalarType(String typeName, ScalarType type)
+	private synchronized boolean registerType(ST type)
 	{
-		boolean definingNewType;
-
-		synchronized (allScalarTypes)
+		String javaTypeName = type.getJavaTypeName();
+		typesByJavaName.put(javaTypeName, type);
+		
+		String cSharpTypeName 		= type.getCSharpTypeName();
+		if (cSharpTypeName != null)
+			typesByCSharpName.put(cSharpTypeName, type);
+		
+		String objectiveCTypeName = type.getObjectiveCTypeName();
+		if (objectiveCTypeName != null)
+			typesByObjectiveCName.put(objectiveCTypeName, type);
+		
+		String dbTypeName 				= type.getDbTypeName();
+		if (dbTypeName != null)
+			typesByDbName.put(dbTypeName, type);
+		
+		String simpleName 	= type.getSimpleName();
+		ST previous					= typesBySimpleName.put(simpleName, type);
+		boolean definingNewType 		= previous != null && !previous.equals(type);
+		if (definingNewType)
 		{
-			ScalarType previous	= allScalarTypes.put(typeName, type);
-			definingNewType 		= previous != null && !previous.equals(type);
-			if (definingNewType)
-			{
-				Debug.warning(TypeRegistry.class, "register(): Redefining scalar type: " + typeName);
-			}
+			warning("registerType(): Redefining scalar type: " + simpleName);
 		}
 		return definingNewType;
 	}
-
-	/**
-	 * Get the Type corresponding to the Field, by using the Field's Class.
-	 * 
-	 * @param field
-	 * @return Type associated with the class of the specified Field
-	 */
-	public static ScalarType getScalarType(Field field)
-	{
-		return getScalarType(field.getType(), field);
-	}
-
 	/**
 	 * Get the Scalar Type corresponding to the Class, by using its name.
 	 * 
@@ -154,36 +147,18 @@ implements CrossLanguageTypeConstants
 	 */
 	public static <U> ScalarType<U> getScalarType(Class<U> thatClass)
 	{
-		return getScalarType(thatClass, null);
-	}
-
-	public static <U> ScalarType<U> getScalarType(Class<U> thatClass, Field field)
-	{
-		if (field == null)
+		if (XMLTools.isEnum(thatClass))
 		{
-			return (XMLTools.isEnum(thatClass)) ? getScalarType(Enum.class.getName()) : getScalarType(thatClass
-					.getName());
+			return scalarRegistry().getTypeByClass(Enum.class);
 		}
-		else if (XMLTools.isComposite(thatClass))
+		else 
 		{
-			return getScalarType(CompositeAsScalarType.class.getName());
+			ScalarType<U> result	= scalarRegistry().getTypeByClass(thatClass);
+			if (result == null && XMLTools.isComposite(thatClass))
+				result							= scalarRegistry().getTypeByClass(CompositeAsScalarType.class);
+			
+			return result;
 		}
-		else
-		{	
-			return (XMLTools.isEnum(thatClass)) ? getScalarType(Enum.class.getName()) : getScalarType(thatClass
-					.getName());
-		}
-	}
-
-	/**
-	 * Get the Scalar Type corresponding to the Class name.
-	 * 
-	 * @param className
-	 * @return Type associated with class of the specified name
-	 */
-	public static final ScalarType getScalarType(String className)
-	{
-		return singleton().allScalarTypes.get(className);
 	}
 
 	/**
@@ -194,20 +169,51 @@ implements CrossLanguageTypeConstants
 	 */
 	public static boolean containsScalarType(Class thatClass)
 	{
-		return containsScalarType(thatClass.getName());
-	}
-
-	/**
-	 * Check to see if we have a Type corresponding to the Class name.
-	 * 
-	 * @param className
-	 * @return true if a class with this name is in this TypeRegistry
-	 */
-	public static boolean containsScalarType(String className)
-	{
-		return singleton().allScalarTypes.containsKey(className);
+		return scalarRegistry().contains(thatClass);
 	}
 	
+	public static ScalarType getScalarTypeBySimpleName(String simpleName)
+	{
+		return scalarRegistry().getTypeBySimpleName(simpleName);
+	}
+	
+	ST getTypeBySimpleName(String simpleName)
+	{
+		return typesBySimpleName.get(simpleName);
+	}
+	
+	boolean contains(Class javaClass)
+	{
+		return containsByJavaName(javaClass.getName());
+	}
+	boolean containsByJavaName(String javaName)
+	{
+		return typesByJavaName.containsKey(javaName);
+	}
+	ST getTypeByClass(Class javaClass)
+	{
+		return getTypeByJavaName(javaClass.getName());
+	}
+	
+	ST getTypeByJavaName(String javaName)
+	{
+		return typesByJavaName.get(javaName);
+	}
+	
+	ST getTypeByCSharpName(String cSharpName)
+	{
+		return typesByCSharpName.get(cSharpName);
+	}
+	
+	ST getTypeByObjectiveCName(String objectiveCName)
+	{
+		return typesByObjectiveCName.get(objectiveCName);
+	}
+	
+	ST getTypeByDbName(String dbName)
+	{
+		return typesByDbName.get(dbName);
+	}
 	/**
 	 * This method is only called by the constructor of CollectionType.
 	 * 
@@ -215,9 +221,10 @@ implements CrossLanguageTypeConstants
 	 */
 	static void registerCollectionType(CollectionType collectionType)
 	{
-		TypeRegistry registrySingleton = singleton();
-		registrySingleton.collectionTypesByName.put(collectionType.getName(), collectionType);
-		registrySingleton.collectionTypesByClassName.put(collectionType.getJavaTypeName(), collectionType);
+		collectionRegistry().registerType(collectionType);
+//		TypeRegistry registrySingleton = collectionRegistry();
+//		registrySingleton.typesByJavaName.put(collectionType.getName(), collectionType);
+//		registrySingleton.typesBySimpleName.put(collectionType.getJavaTypeName(), collectionType);
 	}
 
 	/**
@@ -228,7 +235,7 @@ implements CrossLanguageTypeConstants
 	 */
 	public static CollectionType getCollectionTypeByCrossPlatformName(String crossPlatformName)
 	{
-		return singleton().collectionTypesByName.get(crossPlatformName);
+		return collectionRegistry().typesByJavaName.get(crossPlatformName);
 	}
 
 	/**
@@ -257,12 +264,12 @@ implements CrossLanguageTypeConstants
 		{
 			if (javaClass.isInterface() || Modifier.isAbstract(javaClass.getModifiers()))
 			{
-				return Map.class.isAssignableFrom(javaClass) ? singleton().defaultMapType : singleton().defaultCollectionType;
+				return Map.class.isAssignableFrom(javaClass) ? collectionRegistry().defaultMapType : collectionRegistry().defaultCollectionType;
 			}
 			else
 			{
 				String simplName			= SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName();
-				singleton().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
+				collectionRegistry().warning("No CollectionType was pre-defined for " + simplName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
 				result							= new CollectionType(javaClass, null, null);
 			}
 		}
@@ -276,22 +283,22 @@ implements CrossLanguageTypeConstants
 	 */
 	public static CollectionType getCollectionType(String javaClassName)
 	{
-		return singleton().collectionTypesByClassName.get(javaClassName);
+		return collectionRegistry().typesBySimpleName.get(javaClassName);
 	}
 
 	public static TypeRegistry typeRegistry()
 	{
-		return singleton;
+		return scalarRegistry;
 	}
 	
 	public static void setDefaultCollectionType(CollectionType ct)
 	{
-		singleton().defaultCollectionType	= ct;
+		collectionRegistry().defaultCollectionType	= ct;
 	}
 	
 	public static void setDefaultMapType(CollectionType ct)
 	{
-		singleton().defaultMapType	= ct;
+		collectionRegistry().defaultMapType	= ct;
 	}
 
 }

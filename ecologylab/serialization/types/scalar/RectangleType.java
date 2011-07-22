@@ -24,7 +24,7 @@ implements CrossLanguageTypeConstants
 	
 	public RectangleType()
 	{
-		super(Rectangle.class, JAVA_RECTANGLE, null, null, null);
+		super(Rectangle.class, null, null, null);
 	}
 	
 	@Override

@@ -38,7 +38,7 @@ public class BooleanType extends ScalarType<Boolean> implements CrossLanguageTyp
 
 	public BooleanType(Class<Boolean> thatClass)
 	{
-		super(thatClass, JAVA_BOOLEAN, DOTNET_BOOLEAN, OBJC_BOOLEAN, null);
+		super(thatClass, DOTNET_BOOLEAN, OBJC_BOOLEAN, null);
 	}
 
 	/**

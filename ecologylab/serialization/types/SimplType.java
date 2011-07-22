@@ -15,6 +15,12 @@ import ecologylab.serialization.ElementState.simpl_scalar;
 public class SimplType extends SimplBaseType
 {
 	/**
+	 * Short name of the type: without package.
+	 */
+	@simpl_scalar
+	String											simpleName;
+
+	/**
 	 * Fully qualified name of the Java type that this represents, including package.
 	 */
 	@simpl_scalar
@@ -43,13 +49,16 @@ public class SimplType extends SimplBaseType
 	 * Run-time constructor.
 	 * 
 	 * @param name 							The unique platform-independent identifier that S.IM.PL uses for the type name.
+	 * @param simpleName TODO
 	 * @param javaTypeName			Fully qualified name of the Java type that this represents, including package.
 	 * @param cSharpTypeName 		Name for declaring the type in C#.
 	 * @param objectiveCTypeName Name for declaring the type in Objective C.
 	 */
-	public SimplType(String name, String javaTypeName, String cSharpTypeName, String objectiveCTypeName)
+	public SimplType(String name, String simpleName, String javaTypeName, String cSharpTypeName, String objectiveCTypeName)
 	{
 		super(name);
+		
+		this.simpleName					= simpleName;
 		
 		this.javaTypeName				= javaTypeName;
 		this.cSharpTypeName			= cSharpTypeName;
@@ -71,6 +80,23 @@ public class SimplType extends SimplBaseType
 	public String getObjectiveCTypeName()
 	{
 		return objectiveCTypeName;
+	}
+	/**
+	 * @return the simpleName
+	 */
+	public String getSimpleName()
+	{
+		return simpleName;
+	}
+
+	/**
+	 * Empty base type implementation.
+	 * 
+	 * @return	always null.
+	 */
+	public String getDbTypeName()
+	{
+		return null;
 	}
 
 }

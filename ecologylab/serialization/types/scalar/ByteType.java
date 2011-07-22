@@ -33,7 +33,7 @@ implements CrossLanguageTypeConstants
  */
 	public ByteType()
 	{
-		super(byte.class, JAVA_BYTE, DOTNET_BYTE, OBJC_BYTE, null);
+		super(byte.class, DOTNET_BYTE, OBJC_BYTE, null);
 	}
 
 	/**

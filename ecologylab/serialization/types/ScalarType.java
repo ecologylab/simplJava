@@ -38,12 +38,6 @@ implements Describable, CrossLanguageTypeConstants
 	Class<T>										alternativeClass;
 	
 	/**
-	 * Short name of the type: without package.
-	 */
-	@simpl_scalar
-	String											javaSimpleName;
-
-	/**
 	 * Package name, for non primitives.
 	 */
 	@simpl_scalar
@@ -64,25 +58,24 @@ implements Describable, CrossLanguageTypeConstants
 	 * Constructor is protected because there should only be 1 instance that gets re-used, for each
 	 * type. To get the instance of this type object for use in translations, call
 	 * <code>TypeRegistry.get("type-string")</code>.
-	 * @param javaTypeName TODO
 	 * @param cSharpTypeName TODO
+	 * @param cSharpTypeName TODO
+	 * @param objectiveCTypeName TODO
 	 * @param objectiveCTypeName TODO
 	 * @param dbTypeName TODO
-	 * @param javaTypeName TODO
-	 * @param cSharpTypeName TODO
-	 * @param objectiveCTypeName TODO
 	 * @param dbTypeName TODO
 	 * 
 	 */
-	protected ScalarType(Class<? extends T> thatClass, String javaTypeName, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
+	protected ScalarType(Class<? extends T> thatClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(thatClass.isPrimitive() ? thatClass.getCanonicalName() : SIMPL_SCALAR_TYPES_PREFIX + thatClass.getSimpleName(), 
-				javaTypeName, cSharpTypeName, objectiveCTypeName);
+		super(thatClass.isPrimitive() ? thatClass.getName() : 
+			thatClass.getName().startsWith("java") ? SIMPL_SCALAR_TYPES_PREFIX + thatClass.getSimpleName() :
+				thatClass.getName(), 
+				thatClass.getSimpleName(), thatClass.getName(), cSharpTypeName, objectiveCTypeName);
 		
 		this.thatClass 				= thatClass;
 		
 		this.isPrimitive 			= thatClass.isPrimitive();
-		this.javaSimpleName		= thatClass.getSimpleName();
 		if (!isPrimitive)
 			this.packageName		= thatClass.getPackage().getName();
 		
@@ -570,6 +563,11 @@ implements Describable, CrossLanguageTypeConstants
 		return (T) largerContext;
 	}
 
+	/**
+	 * 
+	 * @return	Name of this type for database columns.
+	 */
+	@Override
 	public String getDbTypeName()
 	{
 		return dbTypeName;

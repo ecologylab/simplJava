@@ -17,7 +17,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 {
 	public CompositeAsScalarType()
 	{
-		super((Class<? extends T>) CompositeAsScalarType.class, null, null, null, null);
+		super((Class<? extends T>) CompositeAsScalarType.class, null, null, null);
 	}
 
 	/**

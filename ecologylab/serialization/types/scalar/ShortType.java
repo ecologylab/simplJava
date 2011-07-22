@@ -32,7 +32,7 @@ public class ShortType extends ScalarType<Short>
  */
 	public ShortType()
 	{
-		super(short.class, CrossLanguageTypeConstants.JAVA_SHORT, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
+		super(short.class, CrossLanguageTypeConstants.DOTNET_SHORT, CrossLanguageTypeConstants.OBJC_SHORT, null);
 	}
 
 	/**

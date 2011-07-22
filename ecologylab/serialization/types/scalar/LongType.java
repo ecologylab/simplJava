@@ -30,7 +30,7 @@ public class LongType extends ScalarType<Long> implements CrossLanguageTypeConst
 
 	public LongType(Class<Long> thatClass)
 	{
-		super(thatClass, JAVA_LONG, DOTNET_LONG, OBJC_LONG, null);
+		super(thatClass, DOTNET_LONG, OBJC_LONG, null);
 	}
 
 	/**
