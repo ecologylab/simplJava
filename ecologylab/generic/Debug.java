@@ -230,7 +230,7 @@ public class Debug
  */
    public static void printlnA(Object that, CharSequence message) 
    {
-      println(getClassName(that)+SEPARATOR + message/* +" " +level(that) */);
+      println(getClassSimpleName(that)+SEPARATOR + message/* +" " +level(that) */);
    }
 /**
  * Print a debug message, starting with the abbreviated class name.
@@ -284,7 +284,7 @@ public class Debug
 /**
  * @return   the abbreviated name of the class - without the package qualifier.
  */
-   public static String getClassName(Object o)
+   public static String getClassSimpleName(Object o)
    {
       return (o == null) ? "null" : classSimpleName(o.getClass());
    }
@@ -293,7 +293,7 @@ public class Debug
  */
    public String getClassSimpleName()
    {
-      return getClassName(this);
+      return getClassSimpleName(this);
    }
    
 /**
@@ -312,7 +312,7 @@ public class Debug
    }
    @Override public String toString()
    {
-      return getClassName(this);
+      return getClassSimpleName(this);
    }
    public String superString()
    {
@@ -320,7 +320,7 @@ public class Debug
    }
    public static String toString(Object o)
    {
-      return getClassName(o);
+      return getClassSimpleName(o);
    }
    
    public final void debugT(CharSequence message)

@@ -41,7 +41,7 @@ extends Observable
    
    public final String getClassName()
    {
-      return Debug.getClassName(this);
+      return Debug.getClassSimpleName(this);
    }
    public static void print(String message) 
    {
