@@ -15,6 +15,7 @@ import ecologylab.serialization.types.SimplBaseType;
  * 
  * @author andruid
  */
+@simpl_inherit
 public abstract class DescriptorBase extends SimplBaseType
 {
 	/**
