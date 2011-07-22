@@ -9,6 +9,7 @@ import ecologylab.serialization.types.scalar.BooleanType;
 import ecologylab.serialization.types.scalar.ByteType;
 import ecologylab.serialization.types.scalar.CharType;
 import ecologylab.serialization.types.scalar.ClassType;
+import ecologylab.serialization.types.scalar.CollectionTypeType;
 import ecologylab.serialization.types.scalar.ColorType;
 import ecologylab.serialization.types.scalar.CompositeAsScalarType;
 import ecologylab.serialization.types.scalar.DateType;
@@ -98,6 +99,8 @@ implements CrossLanguageTypeConstants
 	public static final ScalarType DATE_TYPE 						= new DateType();
 	
 	public static final ScalarType SCALAR_TYPE_TYPE 		= new ScalarTypeType();
+	
+	public static final ScalarType COLLECTION_TYPE_TYPE = new CollectionTypeType();
 	
 	public static final ScalarType PATTERN_TYPE 				= new PatternType();
 	
