@@ -3,7 +3,10 @@
  */
 package ecologylab.serialization.types.scalar;
 
+import java.io.IOException;
+
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -18,7 +21,7 @@ public class ScalarTypeType extends ReferenceType<ScalarType>
 implements CrossLanguageTypeConstants
 {
 	/**
-	 * @param thatClass
+	 * @param javaClass
 	 */
 	public ScalarTypeType()
 	{
@@ -54,4 +57,9 @@ implements CrossLanguageTypeConstants
 		return result;			
 	}
 
+	@Override
+	public String marshall(ScalarType instance, TranslationContext serializationContext)
+	{
+		return instance.getJavaClass().getSimpleName();
+	}
 }
