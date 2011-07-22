@@ -2160,31 +2160,35 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 
 	public String getObjectiveCType()
 	{
-		if (isCollection())
+		if (collectionType != null)
 		{
-			Class<?> type = this.field.getType();
-
-			if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-			{
-				return CrossLanguageTypeConstants.OBJC_ARRAYLIST;
-			}
-			else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-			{
-				return CrossLanguageTypeConstants.OBJC_HASHMAP;
-			}
-			else if (HashMapArrayList.class == type)
-			{
-				return CrossLanguageTypeConstants.OBJC_HASHMAPARRAYLIST;
-			}
-			else if (Scope.class == type)
-			{
-				return CrossLanguageTypeConstants.OBJC_SCOPE;
-			}
+			return collectionType.deriveObjectiveCTypeName();
 		}
 		else if (scalarType != null)
 		{
-			return scalarType.getObjectiveCTypeName();
+			return scalarType.deriveObjectiveCTypeName();
 		}
+//		if (isCollection())
+//		{
+//			Class<?> type = this.field.getType();
+//
+//			if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
+//			{
+//				return CrossLanguageTypeConstants.OBJC_ARRAYLIST;
+//			}
+//			else if (HashMap.class == type || HashMap.class == type.getSuperclass())
+//			{
+//				return CrossLanguageTypeConstants.OBJC_HASHMAP;
+//			}
+//			else if (HashMapArrayList.class == type)
+//			{
+//				return CrossLanguageTypeConstants.OBJC_HASHMAPARRAYLIST;
+//			}
+//			else if (Scope.class == type)
+//			{
+//				return CrossLanguageTypeConstants.OBJC_SCOPE;
+//			}
+//		}
 
 		return null;
 	}
@@ -2193,39 +2197,43 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		String result = null;
 
-		if (scalarType != null && !isCollection())
+		if (collectionType != null)
 		{
-			result = scalarType.getCSharpTypeName();
+			result	= collectionType.deriveCSharpTypeName();
+		}
+		else if (scalarType != null /* && !isCollection() */)
+		{
+			result = scalarType.deriveCSharpTypeName();
 		}
 		else
 		{
 			Class<?> type = this.field.getType();
-			if (isCollection())
-			{
-				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-				{
-					result = CrossLanguageTypeConstants.DOTNET_ARRAYLIST;
-				}
-				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-				{
-					result = CrossLanguageTypeConstants.DOTNET_HASHMAP;
-				}
-				else if (HashMapArrayList.class == type)
-				{
-					result = CrossLanguageTypeConstants.DOTNET_HASHMAPARRAYLIST;
-				}
-				else if (Scope.class == type)
-				{
-					result = CrossLanguageTypeConstants.DOTNET_SCOPE;
-				}
-			}
-			else
-			{
+//			if (isCollection())
+//			{
+//				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
+//				{
+//					result = CrossLanguageTypeConstants.DOTNET_ARRAYLIST;
+//				}
+//				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
+//				{
+//					result = CrossLanguageTypeConstants.DOTNET_HASHMAP;
+//				}
+//				else if (HashMapArrayList.class == type)
+//				{
+//					result = CrossLanguageTypeConstants.DOTNET_HASHMAPARRAYLIST;
+//				}
+//				else if (Scope.class == type)
+//				{
+//					result = CrossLanguageTypeConstants.DOTNET_SCOPE;
+//				}
+//			}
+//			else
+//			{
 				// Simpl composite ?
 				String name = type.getSimpleName();
 				if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 					result = name;
-			}
+//			}
 		}
 
 		if (XMLTools.isGeneric(this.field))
@@ -2240,6 +2248,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		String result = null;
 		
+		if (collectionType != null)
+		{
+			result	= collectionType.getJavaTypeName();
+		}
 		if (scalarType != null && !isCollection())
 		{
 			if (fieldType != null)
@@ -2250,34 +2262,34 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		else
 		{
 			//Class<?> type = this.field.getType();
-			if (isCollection())
-			{
-				/*
-				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
-				{
-					result = MappingConstants.JAVA_ARRAYLIST;
-				}
-				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
-				{
-					result = MappingConstants.JAVA_HASHMAP;
-				}
-				else if (HashMapArrayList.class == type)
-				{
-					result = MappingConstants.JAVA_HASHMAPARRAYLIST;
-				}
-				else if (Scope.class == type)
-				{
-					result = MappingConstants.JAVA_SCOPE;
-				}*/
-				result = fieldType;
-			}
-			else
-			{
+//			if (isCollection())
+//			{
+//				/*
+//				if (ArrayList.class == type || ArrayList.class == type.getSuperclass())
+//				{
+//					result = MappingConstants.JAVA_ARRAYLIST;
+//				}
+//				else if (HashMap.class == type || HashMap.class == type.getSuperclass())
+//				{
+//					result = MappingConstants.JAVA_HASHMAP;
+//				}
+//				else if (HashMapArrayList.class == type)
+//				{
+//					result = MappingConstants.JAVA_HASHMAPARRAYLIST;
+//				}
+//				else if (Scope.class == type)
+//				{
+//					result = MappingConstants.JAVA_SCOPE;
+//				}*/
+//				result = fieldType;
+//			}
+//			else
+//			{
 				// Simpl composite ?
 				String name = fieldType;
 				if (name != null && !name.contains("$")) // FIXME:Dealing with inner classes is not done yet
 					result = name;
-			}
+//			}
 		}
 
 		if (this.IsGeneric())
@@ -2445,7 +2457,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		case COLLECTION_SCALAR:
 		case MAP_ELEMENT:
 		case MAP_SCALAR:
-			collectionType	= TypeRegistry.getCollectionTypeByCrossPlatformName(fieldType);
+			collectionType	= TypeRegistry.getCollectionTypeByJavaName(fieldType);
 			break;
 		}
 	}
