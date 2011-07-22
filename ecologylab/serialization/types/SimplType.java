@@ -73,10 +73,20 @@ public class SimplType extends SimplBaseType
 	{
 		return javaTypeName;
 	}
+	/**
+	 * The name to use when declaring a field in C# cross-compilation.
+	 * 
+	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, assume its the same as javaTypeName, and pass that.
+	 */
 	public String getCSharpTypeName()
 	{
-		return cSharpTypeName;
+		return cSharpTypeName != null ? cSharpTypeName : javaTypeName;
 	}
+	/**
+	 * The name to use when declaring a field in Objective C cross-compilation.
+	 * 
+	 * @return	objectiveCTypeName, , if one was passed in explicitly. otherwise, assume its the same as simple name, and pass that.
+	 */
 	public String getObjectiveCTypeName()
 	{
 		return objectiveCTypeName;
