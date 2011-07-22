@@ -135,7 +135,7 @@ implements CrossLanguageTypeConstants
 		boolean definingNewType 		= previous != null && !previous.equals(type);
 		if (definingNewType)
 		{
-			warning("registerType(): Redefining scalar type: " + simpleName);
+			warning("registerType(): Redefining type: " + simpleName);
 		}
 		return definingNewType;
 	}
@@ -283,7 +283,7 @@ implements CrossLanguageTypeConstants
 	 */
 	public static CollectionType getCollectionType(String javaClassName)
 	{
-		return collectionRegistry().typesBySimpleName.get(javaClassName);
+		return collectionRegistry().typesByJavaName.get(javaClassName);
 	}
 
 	public static TypeRegistry typeRegistry()
