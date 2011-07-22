@@ -1655,8 +1655,9 @@ public final class TranslationScope extends ElementState
 	 */
 	public static void AddTranslationScope(String name, TranslationScope translationScope)
 	{
-		allTranslationScopes.clear();
-		allTranslationScopes.put(name, translationScope);
+		// not needed due to deserializationPostHook() below.
+//		allTranslationScopes.clear();
+//		allTranslationScopes.put(name, translationScope);
 	}
 	
 	/**
@@ -1666,5 +1667,20 @@ public final class TranslationScope extends ElementState
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
 	}
-
+	/**
+	 * Rebuild structures after serializing only some fields.
+	 */
+	@Override
+	protected void deserializationPostHook()
+	{
+		for (ClassDescriptor classDescriptor: entriesByTag.values())
+		{
+			entriesByClassName.put(classDescriptor.getName(), classDescriptor);
+			String simpleName = classDescriptor.getDescribedClassSimpleName();
+			entriesByClassSimpleName.put(simpleName, classDescriptor);
+		}
+		if (allTranslationScopes.containsKey(name))
+			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t" + name);
+		allTranslationScopes.put(name, this);
+	}
 }
