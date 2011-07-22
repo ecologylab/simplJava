@@ -33,9 +33,7 @@ import ecologylab.serialization.TranslationContext;
 public abstract class ScalarType<T> extends SimplType
 implements Describable, CrossLanguageTypeConstants
 {
-	Class<? extends T>					thatClass;
-
-	Class<T>										alternativeClass;
+	Class<? extends T>					javaClass;
 	
 	/**
 	 * Package name, for non primitives.
@@ -71,7 +69,7 @@ implements Describable, CrossLanguageTypeConstants
 		super(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass), 
 				javaClass.getSimpleName(), javaClass.getName(), cSharpTypeName, objectiveCTypeName);
 		
-		this.thatClass 				= javaClass;
+		this.javaClass 				= javaClass;
 		
 		this.isPrimitive 			= javaClass.isPrimitive();
 		if (!isPrimitive)
@@ -206,7 +204,7 @@ implements Describable, CrossLanguageTypeConstants
 	 */
 	public String getClassSimpleName()
 	{
-		return thatClass.getSimpleName();
+		return javaClass.getSimpleName();
 	}
 
 	/**
@@ -214,7 +212,7 @@ implements Describable, CrossLanguageTypeConstants
 	 */
 	public String getClassFullName()
 	{
-		return thatClass.getName();
+		return javaClass.getName();
 	}
 
 	@Override
@@ -421,9 +419,9 @@ implements Describable, CrossLanguageTypeConstants
 	 * 
 	 * @return Class associated with this Type.
 	 */
-	public Class getTypeClass()
+	public Class getJavaClass()
 	{
-		return thatClass;
+		return javaClass;
 	}
 
 	public static final String	DEFAULT_DELIMS						= " \n\t";
