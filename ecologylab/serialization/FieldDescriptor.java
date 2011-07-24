@@ -2457,7 +2457,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		case COLLECTION_SCALAR:
 		case MAP_ELEMENT:
 		case MAP_SCALAR:
-			collectionType	= TypeRegistry.getCollectionTypeByJavaName(fieldType);
+			collectionType	= TypeRegistry.getCollectionTypeBySimpleName(fieldType);
 			break;
 		}
 	}
