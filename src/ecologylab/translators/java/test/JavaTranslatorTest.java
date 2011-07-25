@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import ecologylab.appframework.PropertiesAndDirectories;
+import ecologylab.generic.Debug;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.DescriptorBase;
 import ecologylab.serialization.ElementState;
@@ -22,7 +23,8 @@ import ecologylab.translators.java.JavaTranslationException;
 import ecologylab.translators.java.JavaTranslator;
 import ecologylab.translators.parser.JavaDocParser;
 
-public class JavaTranslatorTest
+public class JavaTranslatorTest 
+extends Debug
 {
 	public static final String	OUTPUT_DIR	= PropertiesAndDirectories.isWindows() ? "c:/tmp/" : "/tmp/";
 
@@ -49,6 +51,7 @@ public class JavaTranslatorTest
 	 */
 	private static void testSerialization(String filename) throws Exception
 	{
+		println("testSerialization("+filename);
 		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations5", RssState.class, Item.class,
 				Channel.class);
@@ -64,6 +67,7 @@ public class JavaTranslatorTest
 	 */
 	private static void testSerializationWithPolymorph(String filename) throws Exception
 	{
+		println("testSerializationWithPolymorph("+filename);
 		DescriptorBase.setJavaParser(new JavaDocParser());
 		TranslationScope ts2 = TranslationScope.get("RSSTranslations", Schmannel.class, BItem.class,
 				SchmItem.class, RssState.class, Item.class, Channel.class);
@@ -79,6 +83,7 @@ public class JavaTranslatorTest
 	 */
 	private static void testDeserialization(String filename) throws Exception
 	{
+		println("testDeserialization("+filename);
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.setGraphSwitch();
@@ -94,6 +99,7 @@ public class JavaTranslatorTest
 	 */
 	private static void testJavaCodeGeneration(String filename, String codeLocation) throws Exception
 	{
+		println("testJavaCodeGeneration"+filename);
 		testSerialization(filename);
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope2", TranslationScope.class,
@@ -101,7 +107,6 @@ public class JavaTranslatorTest
 		TranslationScope.setGraphSwitch();
 		TranslationScope t = (TranslationScope) ts.deserialize(filename);
 
-		TranslationScope.AddTranslationScope(t.getName(), t);
 		c.translateToJava(new File(codeLocation), t);
 	}
 
@@ -115,13 +120,13 @@ public class JavaTranslatorTest
 			throws Exception
 	{
 		testSerializationWithPolymorph(filename);
+		println("testJavaCodeGenerationWithPolymorphicInfo("+filename+", "+ codeLocation);
 		JavaTranslator c = new JavaTranslator();
 		TranslationScope ts = TranslationScope.get("tscope_tscope_polymorphic", TranslationScope.class,
 				ClassDescriptor.class, FieldDescriptor.class);
 		TranslationScope.setGraphSwitch();
 		TranslationScope t = (TranslationScope) ts.deserialize(filename);
 
-		TranslationScope.AddTranslationScope(t.getName(), t);
 		c.translateToJava(new File(codeLocation), t);
 	}
 
@@ -148,6 +153,7 @@ public class JavaTranslatorTest
 	private static void testJavaCodeGenerationWithInheritance(String outputDir) throws IOException,
 			SIMPLTranslationException, JavaTranslationException
 	{
+		println("testJavaCodeGenerationWithInheritance(" + outputDir);
 		TranslationScope ts = TranslationScope.get("test_inheritance", Base.class, Sub.class);
 		ts.setGraphSwitch();
 		ts.serialize(new File(outputDir + "ts.xml"));
