@@ -131,4 +131,9 @@ public abstract class SimplType extends SimplBaseType
 				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() : javaClassName;
 	}
 
+	@Override
+	public String toString()
+	{
+		return getClassSimpleName() + ": crossPlatform=" + getName() + "\tjava=" + javaTypeName + "\tsimple=" + simpleName;
+	}
 }
