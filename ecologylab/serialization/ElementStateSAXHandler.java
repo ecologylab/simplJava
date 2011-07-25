@@ -416,6 +416,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 					{
 						root.setupRoot();
 						setRoot(root);
+						root.deserializationPreHook();
 						if (deserializationHookStrategy != null)
 							deserializationHookStrategy.deserializationPreHook(root, null);
 						root.translateAttributes(translationScope, attributes, this, root, translationContext);
@@ -565,6 +566,7 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 
 				childES.translateAttributes(translationScope, attributes, this, currentElementState,
 						translationContext);
+				childES.deserializationPreHook();
 
 				this.currentElementState = childES; // childES.parent = old currentElementState
 				this.currentFD = childFD;

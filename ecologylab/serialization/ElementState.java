@@ -2055,6 +2055,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 
 	}
 
+	protected void deserializationPreHook()
+	{
+	}
 	/**
 	 * Clear data structures and references to enable garbage collecting of resources associated with
 	 * this.

@@ -1067,12 +1067,30 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		*/
 		return result;
 	}
-	
+	@Override
+	protected void deserializationPreHook()
+	{
+		synchronized (globalClassDescriptorsMap)
+		{
+			String name	= this.getName();
+			if (name != null)
+			{
+				if (globalClassDescriptorsMap.containsKey(name))
+					error("Already a ClassDescriptor for " + name);
+				else
+				{
+					globalClassDescriptorsMap.put(name, this);
+				}
+			}
+		}
+	}
 	/**
 	 * Rebuild structures after serializing only some fields.
 	 */
 	@Override
 	protected void deserializationPostHook()
 	{
+		String name	= this.getName();
+		
 	}
 }
