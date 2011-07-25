@@ -2451,15 +2451,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@Override
 	protected void deserializationPostHook()
 	{
-		switch (type)
-		{
-		case COLLECTION_ELEMENT:
-		case COLLECTION_SCALAR:
-		case MAP_ELEMENT:
-		case MAP_SCALAR:
-			collectionType	= TypeRegistry.getCollectionTypeBySimpleName(fieldType);
-			break;
-		}
+//		switch (type)
+//		{
+//		case COLLECTION_ELEMENT:
+//		case COLLECTION_SCALAR:
+//		case MAP_ELEMENT:
+//		case MAP_SCALAR:
+//			collectionType	= TypeRegistry.getCollectionTypeBySimpleName(fieldType);
+//			break;
+//		}
 	}
 	
 }
