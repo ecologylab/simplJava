@@ -1,7 +1,7 @@
 package ecologylab.serialization.types;
 
 import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.xml_other_tags;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Common base class for S.IM.PL scalar (ScalarType), composite (ClassDescriptor), and collection (CollectionType) types.
@@ -11,7 +11,8 @@ import ecologylab.serialization.ElementState.xml_other_tags;
  *
  * @author andruid
  */
-public class SimplBaseType extends ElementState
+@simpl_inherit
+abstract public class SimplBaseType extends ElementState
 {
 
 	/**
@@ -42,4 +43,5 @@ public class SimplBaseType extends ElementState
 		return name;
 	}
 
+	public abstract String getJavaTypeName();
 }
