@@ -105,7 +105,12 @@ implements CrossLanguageTypeConstants
 		}
 		return result;
 	}
-
+	static boolean registerSimplType(SimplType type)
+	{
+		TypeRegistry registry	= CollectionType.class.isAssignableFrom(type.getClass()) ? collectionRegistry() : scalarRegistry();
+		
+		return registry.registerType(type);
+	}
 	/**
 	 * Enter this type in the registry, which is a map in which the Type's Class object's fully
 	 * qualified named is used as a key.
