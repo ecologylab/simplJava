@@ -103,7 +103,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@simpl_scalar
 	private ScalarType<?>				scalarType;
 	
-	@simpl_scalar
+	@simpl_composite
 	private CollectionType			collectionType;
 	
 	@simpl_scalar
