@@ -3,17 +3,19 @@
  */
 package ecologylab.serialization.types;
 
-import ecologylab.serialization.ElementState.simpl_scalar;
+import ecologylab.generic.ReflectionTools;
 
 /**
- * Re-usable unit of the S.IM.PL type system.
+ * Re-usable unit of the cross-language S.IM.PL type system.
  * 
  * This is the base class for ScalarType and CollectionType.
  * 
  * @author andruid
  */
-public abstract class SimplType extends SimplBaseType
+public abstract class SimplType<T> extends SimplBaseType
 {
+	private Class<? extends T>	javaClass;
+	
 	/**
 	 * Short name of the type: without package.
 	 */
@@ -38,6 +40,15 @@ public abstract class SimplType extends SimplBaseType
 	@simpl_scalar
 	private String							objectiveCTypeName;
 	
+	@simpl_scalar
+	private String							dbTypeName;
+	
+	/**
+	 * Package name, for non primitives.
+	 */
+	@simpl_scalar
+	private String							packageName;
+	
 	/**
 	 * Empty constructor for S.IM.PL Serialization.
 	 */
@@ -45,24 +56,37 @@ public abstract class SimplType extends SimplBaseType
 	{
 		
 	}
+	protected SimplType(Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
+	{
+		this(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass), 
+				javaClass, cSharpTypeName, objectiveCTypeName, dbTypeName);
+	}
 	/**
-	 * Run-time constructor.
+	 * Run-time constructor. Create object for cross-platform type representation. 
+	 * Register this in TypeRegistry appropriate (collection() or scalar()).
 	 * 
-	 * @param name 							The unique platform-independent identifier that S.IM.PL uses for the type name.
-	 * @param simpleName TODO
-	 * @param javaTypeName			Fully qualified name of the Java type that this represents, including package.
+	 * @param javaClass TODO
 	 * @param cSharpTypeName 		Name for declaring the type in C#.
 	 * @param objectiveCTypeName Name for declaring the type in Objective C.
+	 * @param dbTypeName TODO
 	 */
-	public SimplType(String name, String simpleName, String javaTypeName, String cSharpTypeName, String objectiveCTypeName)
+	protected SimplType(String name, Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
 		super(name);
 		
-		this.simpleName					= simpleName;
+		this.javaClass					= javaClass;
+		this.simpleName					= javaClass.getSimpleName();	
+		this.javaTypeName				= javaClass.getName();
 		
-		this.javaTypeName				= javaTypeName;
 		this.cSharpTypeName			= cSharpTypeName;
 		this.objectiveCTypeName	= objectiveCTypeName;
+
+		if (!javaClass.isPrimitive())
+			this.packageName			= javaClass.getPackage().getName();
+		
+		this.dbTypeName					= dbTypeName;
+
+		TypeRegistry.registerSimplType(this);
 	}
 	
 	/**
@@ -100,13 +124,13 @@ public abstract class SimplType extends SimplBaseType
 	}
 
 	/**
-	 * Empty base type implementation.
 	 * 
-	 * @return	always null.
+	 * 
+	 * @return	Name of this type for database columns.
 	 */
 	public String getDbTypeName()
 	{
-		return null;
+		return dbTypeName;
 	}
 
 	/**
@@ -123,7 +147,6 @@ public abstract class SimplType extends SimplBaseType
 	 */
 	abstract public String deriveObjectiveCTypeName();
 
-	
 	static String deriveCrossPlatformName(Class javaClass)
 	{
 		String javaClassName 	= javaClass.getName();
@@ -134,6 +157,18 @@ public abstract class SimplType extends SimplBaseType
 	@Override
 	public String toString()
 	{
-		return getClassSimpleName() + ": crossPlatform=" + getName() + "\tjava=" + javaTypeName + "\tsimple=" + simpleName;
+		return getSimpleName() + ": crossPlatform=" + getName() + "\tjava=" + javaTypeName + "\tsimple=" + simpleName;
 	}
+	
+	public T getInstance()
+	{
+		return ReflectionTools.getInstance(javaClass);
+	}
+
+	public Class getJavaClass()
+	{
+		return javaClass;
+	}
+	
+
 }

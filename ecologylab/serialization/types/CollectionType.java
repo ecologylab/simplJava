@@ -18,11 +18,9 @@ import ecologylab.generic.ReflectionTools;
  * 
  * @author andruid
  */
-public class CollectionType extends SimplType
+public class CollectionType<T> extends SimplType
 implements CrossLanguageTypeConstants, Describable
 {
-	private Class				javaClass;
-	
 	@simpl_scalar
 	private boolean			isMap;
 
@@ -35,20 +33,11 @@ implements CrossLanguageTypeConstants, Describable
 	
 	public CollectionType(Class javaClass, String cSharpName, String objCName)
 	{
-		super(deriveCrossPlatformName(javaClass), javaClass.getSimpleName(), javaClass.getName(), cSharpName, objCName);
+		super(javaClass, cSharpName, objCName, null);
 		
-		this.javaClass			= javaClass;
-		
-		this.isMap			= Map.class.isAssignableFrom(javaClass);
-		
-		TypeRegistry.registerCollectionType(this);
+		this.isMap			= Map.class.isAssignableFrom(javaClass);	
 	}
 
-	public Object getInstance()
-	{
-		return ReflectionTools.getInstance(javaClass);
-	}
-	
 	public Collection getCollection()
 	{
 		return isMap ? null : (Collection) getInstance();
@@ -70,16 +59,6 @@ implements CrossLanguageTypeConstants, Describable
 		return getJavaTypeName();
 	}
 
-	public Class getJavaClass()
-	{
-		return javaClass;
-	}
-
-	public Object getJavaInstance()
-	{
-		return ReflectionTools.getInstance(javaClass);
-	}
-	
 	public boolean isMap()
 	{
 		return isMap;

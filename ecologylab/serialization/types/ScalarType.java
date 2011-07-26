@@ -33,17 +33,6 @@ import ecologylab.serialization.TranslationContext;
 public abstract class ScalarType<T> extends SimplType
 implements Describable, CrossLanguageTypeConstants
 {
-	Class<? extends T>					javaClass;
-	
-	/**
-	 * Package name, for non primitives.
-	 */
-	@simpl_scalar
-	String											packageName;
-	
-	@simpl_scalar
-	private String							dbTypeName;
-	
 	@simpl_scalar
 	boolean											isPrimitive;
 	
@@ -66,18 +55,9 @@ implements Describable, CrossLanguageTypeConstants
 	 */
 	protected ScalarType(Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass), 
-				javaClass.getSimpleName(), javaClass.getName(), cSharpTypeName, objectiveCTypeName);
-		
-		this.javaClass 				= javaClass;
+		super(javaClass, cSharpTypeName, objectiveCTypeName, dbTypeName);
 		
 		this.isPrimitive 			= javaClass.isPrimitive();
-		if (!isPrimitive)
-			this.packageName		= javaClass.getPackage().getName();
-		
-		this.dbTypeName				= dbTypeName;
-		
-		TypeRegistry.registerScalarType(this);
 	}
 
 	/**
@@ -199,26 +179,10 @@ implements Describable, CrossLanguageTypeConstants
 		error("Got " + e + " while trying to set field " + field + " to " + value);
 	}
 
-	/**
-	 * @return Returns the simple className (unqualified) for this type.
-	 */
-	public String getClassSimpleName()
-	{
-		return javaClass.getSimpleName();
-	}
-
-	/**
-	 * @return Returns the full, qualified name of the class for this type.
-	 */
-	public String getClassFullName()
-	{
-		return javaClass.getName();
-	}
-
 	@Override
 	public String getDescription()
 	{
-		return getClassFullName();
+		return getJavaTypeName();
 	}
 	/**
 	 * @return Returns the integer index associated with this type.
@@ -414,16 +378,6 @@ implements Describable, CrossLanguageTypeConstants
 		return true;
 	}
 
-	/**
-	 * Get the class object for the Type for which this manages conversion.
-	 * 
-	 * @return Class associated with this Type.
-	 */
-	public Class getJavaClass()
-	{
-		return javaClass;
-	}
-
 	public static final String	DEFAULT_DELIMS						= " \n\t";
 
 	public static final Pattern	DEFAULT_DELIMS_TOKENIZER	= Pattern.compile("([" + DEFAULT_DELIMS
@@ -496,7 +450,7 @@ implements Describable, CrossLanguageTypeConstants
 		String result = fieldTypeName;
 		if (result == null)
 		{
-			result = this.getClassSimpleName();
+			result = this.getSimpleName();
 			int index = result.indexOf("Type");
 			if (index != -1)
 			{
@@ -557,16 +511,6 @@ implements Describable, CrossLanguageTypeConstants
 	public T unpackContext(Object largerContext, Field field)
 	{
 		return (T) largerContext;
-	}
-
-	/**
-	 * 
-	 * @return	Name of this type for database columns.
-	 */
-	@Override
-	public String getDbTypeName()
-	{
-		return dbTypeName;
 	}
 
 	protected static String getNullStringIfNull(FieldDescriptor fieldDescriptor, Object context) 
