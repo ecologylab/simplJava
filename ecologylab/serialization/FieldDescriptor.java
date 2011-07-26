@@ -2461,5 +2461,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 //			break;
 //		}
 	}
+
+	/**
+	 * @return	The Java name of the ElementState subclass or ScalarType of the this, depending on whether it is composite or scalar.
+	 */
+	@Override
+	public String getJavaTypeName()
+	{
+		return elementClassDescriptor != null ? elementClassDescriptor.getJavaTypeName() : scalarType.getJavaTypeName();
+	}
 	
 }

@@ -32,7 +32,7 @@ import ecologylab.serialization.types.element.Mappable;
  */
 @simpl_inherit
 public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
-		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>, Describable
+		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
 {
 	private static final String	PACKAGE_CLASS_SEP	= ".";
 
@@ -842,7 +842,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	 * @return	The full, qualified name of the class that this describes.
 	 */
 	@Override
-	public String getDescription()
+	public String getJavaTypeName()
 	{
 		return getDescribedClassName();
 	}
