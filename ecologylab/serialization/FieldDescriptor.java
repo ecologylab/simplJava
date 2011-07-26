@@ -1937,7 +1937,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			collection 			= field.get(activeES);
 			if (collection == null)
 			{
-				collection 		= collectionType.getJavaInstance();
+				collection 		= collectionType.getInstance();
 				field.set(activeES, collection);
 			}
 		}
