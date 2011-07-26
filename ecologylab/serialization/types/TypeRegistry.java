@@ -120,6 +120,11 @@ implements CrossLanguageTypeConstants
 		return scalarRegistry().registerType(type);
 	}
 
+	private synchronized boolean registerTypeIfNew(ST type)
+	{
+		String javaTypeName = type.getJavaTypeName();
+		return typesByJavaName.containsKey(javaTypeName) ? false : registerType(type);
+	}
 	private synchronized boolean registerType(ST type)
 	{
 		String javaTypeName = type.getJavaTypeName();
@@ -294,7 +299,7 @@ implements CrossLanguageTypeConstants
 			}
 			else
 			{
-				String crossPlatformName	= SimplType.deriveCrossPlatformName(javaClass);
+				String crossPlatformName	= SimplType.deriveCrossPlatformName(javaClass, false);
 				collectionRegistry().warning("No CollectionType was pre-defined for " + crossPlatformName + ", so constructing one on the fly.\nCross-language code for fields defined with this type cannot be generated.");
 				result										= new CollectionType(javaClass, null, null);
 			}
