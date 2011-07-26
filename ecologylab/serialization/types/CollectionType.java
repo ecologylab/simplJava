@@ -3,21 +3,18 @@
  */
 package ecologylab.serialization.types;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
-import ecologylab.collections.Scope;
 import ecologylab.generic.Describable;
-import ecologylab.generic.HashMapArrayList;
-import ecologylab.generic.ReflectionTools;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Basic cross-platform unit for managing Collection and Map types in S.IM.PL Serialization.
  * 
  * @author andruid
  */
+@simpl_inherit
 public class CollectionType<T> extends SimplType
 implements CrossLanguageTypeConstants, Describable
 {
@@ -33,7 +30,7 @@ implements CrossLanguageTypeConstants, Describable
 	
 	public CollectionType(Class javaClass, String cSharpName, String objCName)
 	{
-		super(javaClass, cSharpName, objCName, null);
+		super(javaClass, false, cSharpName, objCName, null);
 		
 		this.isMap			= Map.class.isAssignableFrom(javaClass);	
 	}
@@ -88,4 +85,9 @@ implements CrossLanguageTypeConstants, Describable
 		return objectiveCTypeName != null ? objectiveCTypeName : TypeRegistry.getDefaultCollectionOrMapType(isMap).getObjectiveCTypeName();
 	}
 
+	@Override
+	public boolean isScalar()
+	{
+		return false;
+	}
 }

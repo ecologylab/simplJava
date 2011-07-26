@@ -4,6 +4,7 @@
 package ecologylab.serialization.types;
 
 import ecologylab.generic.ReflectionTools;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Re-usable unit of the cross-language S.IM.PL type system.
@@ -12,7 +13,9 @@ import ecologylab.generic.ReflectionTools;
  * 
  * @author andruid
  */
+@simpl_inherit
 public abstract class SimplType<T> extends SimplBaseType
+implements CrossLanguageTypeConstants
 {
 	private Class<? extends T>	javaClass;
 	
@@ -56,9 +59,9 @@ public abstract class SimplType<T> extends SimplBaseType
 	{
 		
 	}
-	protected SimplType(Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
+	protected SimplType(Class<? extends T> javaClass, boolean isScalar, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		this(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass), 
+		this(javaClass.isPrimitive() ? javaClass.getName() : deriveCrossPlatformName(javaClass, isScalar), 
 				javaClass, cSharpTypeName, objectiveCTypeName, dbTypeName);
 	}
 	/**
@@ -146,12 +149,14 @@ public abstract class SimplType<T> extends SimplBaseType
 	 * @return	never null; some kind of a type name String.
 	 */
 	abstract public String deriveObjectiveCTypeName();
+	
+	abstract boolean isScalar();
 
-	static String deriveCrossPlatformName(Class javaClass)
+	static String deriveCrossPlatformName(Class javaClass, boolean isScalar)
 	{
 		String javaClassName 	= javaClass.getName();
 		return javaClassName.startsWith("java") ? 
-				CrossLanguageTypeConstants.SIMPL_COLLECTION_TYPES_PREFIX + javaClass.getSimpleName() : javaClassName;
+				(isScalar ? SIMPL_SCALAR_TYPES_PREFIX : SIMPL_COLLECTION_TYPES_PREFIX) + javaClass.getSimpleName() : javaClassName;
 	}
 
 	@Override
