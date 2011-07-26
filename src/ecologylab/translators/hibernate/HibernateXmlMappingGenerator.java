@@ -237,7 +237,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		HibernateProperty prop = new HibernateProperty();
 		prop.setName(fd.getName());
 		prop.setColumn(columnNames.get(fd));
-		prop.setType(fd.getScalarType().getClassFullName());
+		prop.setType(fd.getScalarType().getJavaTypeName());
 		return prop;
 	}
 
@@ -288,7 +288,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		coll.setName(fd.getName());
 		coll.setTable(getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(getAssociationTableColumnName(cd)));
-		coll.setElement(new HibernateCollectionScalar(SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getClassFullName()));
+		coll.setElement(new HibernateCollectionScalar(SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getJavaTypeName()));
 		return coll;
 	}
 
