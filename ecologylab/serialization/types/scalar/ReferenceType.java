@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.ScalarType;
 
 /**
@@ -14,6 +15,7 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author andruid
  */
+@simpl_inherit
 abstract public class ReferenceType<T> extends ScalarType<T>
 {
 

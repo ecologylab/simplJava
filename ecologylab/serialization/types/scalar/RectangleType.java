@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -17,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * @author andrew
  *
  */
+@simpl_inherit
 public class RectangleType extends ScalarType<Rectangle>
 implements CrossLanguageTypeConstants
 {

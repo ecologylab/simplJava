@@ -7,12 +7,14 @@ import ecologylab.serialization.ElementState;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.ScalarType;
 
 /*
  * This is not being used as composite are only treated as scalars in a certain context of serialization. for example bibtex 
  * but not in XML. 
  */
+@simpl_inherit
 public class CompositeAsScalarType<T> extends ScalarType<T>
 {
 	public CompositeAsScalarType()

@@ -1,7 +1,9 @@
 package ecologylab.serialization.types.scalar;
 
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
+@simpl_inherit
 public class ReferenceBooleanType extends BooleanType
 implements CrossLanguageTypeConstants
 {

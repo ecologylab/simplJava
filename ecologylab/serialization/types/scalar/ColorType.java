@@ -7,6 +7,7 @@ import java.awt.Color;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -15,6 +16,7 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class ColorType extends ScalarType<Color>
 implements CrossLanguageTypeConstants
 {

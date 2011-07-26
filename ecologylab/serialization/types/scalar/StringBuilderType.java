@@ -8,6 +8,7 @@ import java.io.IOException;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.XMLTools;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
@@ -15,6 +16,7 @@ import ecologylab.serialization.types.CrossLanguageTypeConstants;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class StringBuilderType extends ReferenceType<StringBuilder>
 implements CrossLanguageTypeConstants
 {

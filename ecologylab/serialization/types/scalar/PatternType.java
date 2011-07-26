@@ -6,12 +6,14 @@ package ecologylab.serialization.types.scalar;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
  * @author andruid
  *
  */
+@simpl_inherit
 public class PatternType extends ReferenceType<Pattern>
 implements CrossLanguageTypeConstants
 {

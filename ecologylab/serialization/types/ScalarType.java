@@ -8,11 +8,10 @@ import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 
 import ecologylab.generic.Describable;
-import ecologylab.serialization.ElementState;
-import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 
 /**
  * Basic unit of the scalar type system. Manages marshalling from a Java class that represents a
@@ -30,6 +29,7 @@ import ecologylab.serialization.TranslationContext;
  * 
  * @author andruid
  */
+@simpl_inherit
 public abstract class ScalarType<T> extends SimplType
 implements Describable, CrossLanguageTypeConstants
 {
@@ -41,6 +41,13 @@ implements Describable, CrossLanguageTypeConstants
 
 	public static final String	DEFAULT_VALUE_STRING	= "null";
 
+	/**
+	 * Blank constructor for S.IM.PL deserialization.
+	 */
+	public ScalarType()
+	{
+		
+	}
 	/**
 	 * Constructor is protected because there should only be 1 instance that gets re-used, for each
 	 * type. To get the instance of this type object for use in translations, call
@@ -55,7 +62,7 @@ implements Describable, CrossLanguageTypeConstants
 	 */
 	protected ScalarType(Class<? extends T> javaClass, String cSharpTypeName, String objectiveCTypeName, String dbTypeName)
 	{
-		super(javaClass, cSharpTypeName, objectiveCTypeName, dbTypeName);
+		super(javaClass, true, cSharpTypeName, objectiveCTypeName, dbTypeName);
 		
 		this.isPrimitive 			= javaClass.isPrimitive();
 	}
@@ -545,4 +552,9 @@ implements Describable, CrossLanguageTypeConstants
 		return objectiveCTypeName != null ? objectiveCTypeName : super.getSimpleName();
 	}
 
+	@Override
+	public boolean isScalar()
+	{
+		return true;
+	}
 }

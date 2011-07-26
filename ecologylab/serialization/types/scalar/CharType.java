@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -17,6 +18,7 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class CharType extends ScalarType<Character> implements CrossLanguageTypeConstants
 {
 	public static final char		DEFAULT_VALUE					= ' ';

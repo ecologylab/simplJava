@@ -11,6 +11,7 @@ import ecologylab.generic.text.EfficientDecimalFormat;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 import ecologylab.serialization.types.ScalarType;
 
@@ -19,6 +20,7 @@ import ecologylab.serialization.types.ScalarType;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class DoubleType extends ScalarType<Double> implements CrossLanguageTypeConstants
 {
 	public static final double																		DEFAULT_VALUE					= 0;

@@ -13,6 +13,7 @@ import ecologylab.generic.StringTools;
 import ecologylab.net.ParsedURL;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
@@ -20,6 +21,7 @@ import ecologylab.serialization.types.CrossLanguageTypeConstants;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class ParsedURLType extends ReferenceType<ParsedURL>
 implements CrossLanguageTypeConstants
 {

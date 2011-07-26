@@ -5,6 +5,7 @@ package ecologylab.serialization.types.scalar;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -13,6 +14,7 @@ import ecologylab.serialization.types.TypeRegistry;
  * @author andruid
  *
  */
+@simpl_inherit
 public class CollectionTypeType extends ReferenceType<CollectionType>
 {
 	public CollectionTypeType()

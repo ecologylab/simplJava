@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import ecologylab.serialization.ScalarUnmarshallingContext;
+import ecologylab.serialization.simpl_inherit;
 import ecologylab.serialization.types.CrossLanguageTypeConstants;
 
 /**
@@ -17,6 +18,7 @@ import ecologylab.serialization.types.CrossLanguageTypeConstants;
  * 
  * @author andruid
  */
+@simpl_inherit
 public class URLType extends ReferenceType<URL>
 implements CrossLanguageTypeConstants
 {
