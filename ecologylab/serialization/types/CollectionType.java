@@ -16,7 +16,7 @@ import ecologylab.serialization.simpl_inherit;
  */
 @simpl_inherit
 public class CollectionType<T> extends SimplType
-implements CrossLanguageTypeConstants, Describable
+implements CrossLanguageTypeConstants
 {
 	@simpl_scalar
 	private boolean			isMap;
@@ -43,17 +43,6 @@ implements CrossLanguageTypeConstants, Describable
 	public Map getMap()
 	{
 		return isMap ? (Map) getInstance() : null;
-	}
-	
-	/**
-	 * The full, qualified name of the class that this describes
-	 * 
-	 * @return	Full Java class name.
-	 */
-	@Override
-	public String getDescription()
-	{
-		return getJavaTypeName();
 	}
 
 	public boolean isMap()

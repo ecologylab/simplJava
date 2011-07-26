@@ -31,7 +31,7 @@ import ecologylab.serialization.simpl_inherit;
  */
 @simpl_inherit
 public abstract class ScalarType<T> extends SimplType
-implements Describable, CrossLanguageTypeConstants
+implements CrossLanguageTypeConstants
 {
 	@simpl_scalar
 	boolean											isPrimitive;
@@ -186,11 +186,6 @@ implements Describable, CrossLanguageTypeConstants
 		error("Got " + e + " while trying to set field " + field + " to " + value);
 	}
 
-	@Override
-	public String getDescription()
-	{
-		return getJavaTypeName();
-	}
 	/**
 	 * @return Returns the integer index associated with this type.
 	 */

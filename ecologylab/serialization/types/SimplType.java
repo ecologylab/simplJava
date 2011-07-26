@@ -96,6 +96,7 @@ implements CrossLanguageTypeConstants
 	 * The full, qualified name of the class that this describes
 	 * @return
 	 */
+	@Override
 	public String getJavaTypeName()
 	{
 		return javaTypeName;
