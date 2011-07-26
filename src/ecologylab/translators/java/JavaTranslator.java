@@ -33,6 +33,7 @@ import ecologylab.serialization.library.rss.Item;
 import ecologylab.serialization.library.rss.RssState;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
+import ecologylab.serialization.types.SimplBaseType;
 import ecologylab.serialization.types.element.Mappable;
 import ecologylab.standalone.xmlpolymorph.BItem;
 import ecologylab.standalone.xmlpolymorph.SchmItem;
@@ -212,10 +213,10 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * 
 	 * @param describables
 	 */
-	public void addDependencies(Collection<? extends Describable> describables)
+	public void addDependencies(Collection<? extends SimplBaseType> simplBaseTypeSet)
 	{
-		for (Describable describable: describables)
-			addDependency(describable.getDescription());
+		for (SimplBaseType simplBaseType: simplBaseTypeSet)
+			addDependency(simplBaseType.getJavaTypeName());
 	}
 
 	/**
