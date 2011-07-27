@@ -106,6 +106,7 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	cSharpTypeName, if one was passed in explicitly. otherwise, null.
 	 */
+	@Override
 	public String getCSharpTypeName()
 	{
 		return cSharpTypeName != null ? cSharpTypeName : javaTypeName;
@@ -115,26 +116,28 @@ implements CrossLanguageTypeConstants
 	 * 
 	 * @return	objectiveCTypeName, if one was passed in explicitly. otherwise, null.
 	 */
+	@Override
 	public String getObjectiveCTypeName()
 	{
 		return objectiveCTypeName;
 	}
+	/**
+	 * 
+	 * 
+	 * @return	Name of this type for database columns.
+	 */
+	@Override
+	public String getDbTypeName()
+	{
+		return dbTypeName;
+	}
+
 	/**
 	 * @return the simpleName
 	 */
 	public String getSimpleName()
 	{
 		return simpleName;
-	}
-
-	/**
-	 * 
-	 * 
-	 * @return	Name of this type for database columns.
-	 */
-	public String getDbTypeName()
-	{
-		return dbTypeName;
 	}
 
 	/**
