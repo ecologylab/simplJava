@@ -717,4 +717,17 @@ public class StringTools extends Debug
 		processedString				= StringTools.toString(buffy);
 		return processedString;
 	}
+	
+	/**
+	 * Test to see if the String is null, then, if not, empty.
+	 * Works with Android or Java SE.
+	 * 
+	 * @param string	The input to test.
+	 * 
+	 * @return				true if null, or if not null, if length is 0.
+	 */
+	public static boolean isNullOrEmpty(String string)
+	{
+		return string == null || string.length() == 0;
+	}
 }
