@@ -847,6 +847,24 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		return getDescribedClassName();
 	}
 
+	@Override
+	public String getCSharpTypeName()
+	{
+		return getDescribedClassName();
+	}
+
+	@Override
+	public String getObjectiveCTypeName()
+	{
+		return this.getDescribedClassSimpleName();
+	}
+
+	@Override
+	public String getDbTypeName()
+	{
+		return null;
+	}
+
 	public ES getInstance() throws SIMPLTranslationException
 	{
 		return XMLTools.getInstance(describedClass);

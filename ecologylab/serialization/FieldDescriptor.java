@@ -2473,4 +2473,22 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return elementClassDescriptor != null ? elementClassDescriptor.getJavaTypeName() : scalarType.getJavaTypeName();
 	}
 	
+	@Override
+	public String getCSharpTypeName()
+	{
+		return elementClassDescriptor != null ? elementClassDescriptor.getCSharpTypeName() : scalarType.getCSharpTypeName();
+	}
+	
+	@Override
+	public String getObjectiveCTypeName()
+	{
+		return elementClassDescriptor != null ? elementClassDescriptor.getObjectiveCTypeName() : scalarType.getObjectiveCTypeName();
+	}
+	
+	@Override
+	public String getDbTypeName()
+	{
+		return elementClassDescriptor != null ? elementClassDescriptor.getDbTypeName() : scalarType.getDbTypeName();
+	}
+	
 }
