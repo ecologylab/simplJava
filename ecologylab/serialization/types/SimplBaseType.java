@@ -44,4 +44,10 @@ abstract public class SimplBaseType extends ElementState
 	}
 
 	public abstract String getJavaTypeName();
+
+	public abstract String getCSharpTypeName();
+
+	public abstract String getObjectiveCTypeName();
+
+	public abstract String getDbTypeName();
 }
