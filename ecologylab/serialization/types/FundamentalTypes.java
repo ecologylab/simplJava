@@ -17,7 +17,6 @@ import ecologylab.serialization.types.scalar.ByteType;
 import ecologylab.serialization.types.scalar.CharType;
 import ecologylab.serialization.types.scalar.ClassType;
 import ecologylab.serialization.types.scalar.CollectionTypeType;
-import ecologylab.serialization.types.scalar.ColorType;
 import ecologylab.serialization.types.scalar.CompositeAsScalarType;
 import ecologylab.serialization.types.scalar.DateType;
 import ecologylab.serialization.types.scalar.DoubleType;
@@ -29,7 +28,6 @@ import ecologylab.serialization.types.scalar.IntType;
 import ecologylab.serialization.types.scalar.LongType;
 import ecologylab.serialization.types.scalar.ParsedURLType;
 import ecologylab.serialization.types.scalar.PatternType;
-import ecologylab.serialization.types.scalar.RectangleType;
 import ecologylab.serialization.types.scalar.ReferenceBooleanType;
 import ecologylab.serialization.types.scalar.ReferenceDoubleType;
 import ecologylab.serialization.types.scalar.ReferenceFloatType;
@@ -119,8 +117,4 @@ implements CrossLanguageTypeConstants
 	
 	public static final ScalarType COMPOSITE_AS_SCALAR_TYPE = new CompositeAsScalarType();
 	
-	public static final ScalarType COLOR_TYPE 					= new ColorType();
-	
-	public static final ScalarType RECTANGLE_TYPE 			= new RectangleType();
-
 }
