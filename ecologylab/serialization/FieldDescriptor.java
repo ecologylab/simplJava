@@ -27,6 +27,7 @@ import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.generic.StringTools;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
@@ -545,9 +546,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			if (!checkAssignableFrom(ElementState.class, field, fieldClass, "@simpl_composite"))
 				result = IGNORED_ELEMENT;
 
+			boolean compositeTagIsNullOrEmpty = StringTools.isNullOrEmpty(compositeTag);
 			if (!isPolymorphic())
 			{
-				if (isWrap && (compositeTag == null || compositeTag.isEmpty()))
+				if (isWrap && compositeTagIsNullOrEmpty)
 				{
 					warning("In " + declaringClassDescriptor.getDescribedClass()
 							+ "\n\tCan't translate  @simpl_composite() " + field.getName()
@@ -555,7 +557,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 					return IGNORED_ELEMENT;
 				}
 				
-				if(!isWrap & (compositeTag != null && !compositeTag.isEmpty()))
+				if(!isWrap & !compositeTagIsNullOrEmpty)
 				{
 					warning("In " + declaringClassDescriptor.getDescribedClass()
 							+ "\n\tIgnoring argument to  @simpl_composite() " + field.getName()
@@ -568,7 +570,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 			}
 			else
 			{
-				if (compositeTag != null && !compositeTag.isEmpty())
+				if (!compositeTagIsNullOrEmpty)
 				{
 					warning("In " + declaringClassDescriptor.getDescribedClass()
 							+ "\n\tIgnoring argument to  @simpl_composite() " + field.getName()
