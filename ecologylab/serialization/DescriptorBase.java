@@ -67,6 +67,11 @@ public abstract class DescriptorBase extends SimplBaseType
 		return tagName;
 	}
 	
+	protected void setTagName(String tagName)
+	{
+		this.tagName = tagName;
+	}
+	
 	abstract public ArrayList<String> otherTags();
 	
 	protected void addOtherTag(String otherTag)

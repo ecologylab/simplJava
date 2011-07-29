@@ -1035,6 +1035,11 @@ public final class TranslationScope extends ElementState
 		return entriesByClassSimpleName;
 	}
 
+	public HashMap<String, ClassDescriptor> entriesByClassName()
+	{
+		return entriesByClassName;
+	}
+
 	public HashSet<String> addClassNamesToHashSet(HashSet<String> hashSet)
 	{
 		if (inheritedTranslationScopes != null)
@@ -1667,6 +1672,7 @@ public final class TranslationScope extends ElementState
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
 	}
+	
 	/**
 	 * Rebuild structures after serializing only some fields.
 	 */
@@ -1683,4 +1689,5 @@ public final class TranslationScope extends ElementState
 			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t" + name);
 		allTranslationScopes.put(name, this);
 	}
+	
 }

@@ -2372,6 +2372,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	{
 		return elementClassDescriptor;
 	}
+	
+	public void setElementClassDescriptor(ClassDescriptor elementClassDescriptor)
+	{
+		this.elementClassDescriptor = elementClassDescriptor;
+		Class elementClass = elementClassDescriptor.getDescribedClass();
+		if (elementClass != null)
+			this.elementClass = elementClass;
+	}
 
 	public ClassDescriptor elementClassDescriptor(String tagName)
 	{
