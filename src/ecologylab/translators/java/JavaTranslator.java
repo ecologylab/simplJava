@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ecologylab.generic.Debug;
-import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.ElementState.simpl_composite;
@@ -105,8 +104,9 @@ public class JavaTranslator implements JavaTranslationConstants
 		
 		openClassFile(inputClass, classFile);
 
-		if (fieldDescriptors.size() > 0)
-		{
+		// we still need to generate the constructors for empty metadata classes!
+//		if (fieldDescriptors.size() > 0)
+//		{
 			classDescriptor.resolveUnresolvedScopeAnnotationFDs();
 
 			for (FieldDescriptor fieldDescriptor : fieldDescriptors)
@@ -133,7 +133,7 @@ public class JavaTranslator implements JavaTranslationConstants
 				implementMappableMethods(classFile);
 				implementMappableInterface = false;
 			}
-		}
+//		}
 
 		closeClassFile(classFile);
 		
@@ -265,7 +265,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		System.out.println("generating classes...");
 
 		// Generate header and implementation files
-		Collection<ClassDescriptor>  classes = tScope.getClassDescriptors();
+		Collection<ClassDescriptor>  classes = tScope.entriesByClassName().values();
 		
 		int length = classes.size();
 		for (ClassDescriptor classDesc : classes)

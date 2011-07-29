@@ -76,7 +76,7 @@ public class NewMetaMetadataCompiler extends Debug
 		printWriter.print("\n{\n");
 		printWriter.print("\tprotected static final Class TRANSLATIONS[] =\n\t{\n");
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
-		for (ClassDescriptor cd : compilerTScope.getClassDescriptors())
+		for (ClassDescriptor cd : compilerTScope.entriesByClassName().values())
 			if (!metadataBuiltInTScope.getClassDescriptors().contains(cd))
 				printWriter.println("\t\t" + cd.getDescribedClassPackageName() + "." + cd.getDescribedClassSimpleName() + ".class,\n");
 		printWriter.println("\t};\n");

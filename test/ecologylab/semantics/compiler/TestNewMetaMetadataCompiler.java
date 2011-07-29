@@ -89,6 +89,11 @@ public class TestNewMetaMetadataCompiler
 		doTest("poly-scope", new File("data/testRepository/testPolymorphicScope.xml"));
 	}
 
+	public void testYahooGeoCode() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		doTest("yahoo-geo-code", new File("data/testRepository/testYahooGeoCode.xml"));
+	}
+
 	/**
 	 * use testArticles.xml as the input repository to validate inheritance relationships (any field:
 	 * declaredMmd, inheritedField, nested field + mmds: inheritedMmd, mmds: inlineMmds).
@@ -99,7 +104,7 @@ public class TestNewMetaMetadataCompiler
 		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(new File("data/testRepository/testArticles.xml"));
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
 
-		MetaMetadata metadata = repository.getByTagName("metadata");
+		MetaMetadata metadata = repository.getByName("metadata");
 		Assert.assertNull(metadata.getInheritedMmd());
 		Assert.assertTrue(metadata.getInlineMmds() == null || metadata.getInlineMmds().isEmpty());
 		// meta_metadata_name
@@ -112,7 +117,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertSame(metadata, metadata__mixins.getDeclaringMmd());
 		Assert.assertSame(metadata, metadata__mixins.getInheritedMmd());
 
-		MetaMetadata document = repository.getByTagName("document");
+		MetaMetadata document = repository.getByName("document");
 		Assert.assertSame(metadata, document.getInheritedMmd());
 		Assert.assertTrue(document.getInlineMmds() == null || document.getInlineMmds().isEmpty());
 		Assert.assertEquals(metadata__meta_metadata_name, document.getChildMetaMetadata().get("meta_metadata_name"));
@@ -122,13 +127,12 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(document__location.getInheritedField());
 		Assert.assertSame(document, document__location.getDeclaringMmd());
 		// additional_locations
-		MetaMetadataCollectionField document__additional_locations = (MetaMetadataCollectionField) document.getChildMetaMetadata().get(
-				"additional_locations");
+		MetaMetadataCollectionField document__additional_locations = (MetaMetadataCollectionField) document.getChildMetaMetadata().get("additional_locations");
 		Assert.assertNull(document__additional_locations.getInheritedField());
 		Assert.assertSame(document, document__additional_locations.getDeclaringMmd());
 		Assert.assertNull(document__additional_locations.getInheritedMmd());
 
-		MetaMetadata author = repository.getByTagName("mmd_inline_author_in_authors_in_article");
+		MetaMetadata author = repository.getByName("mmd_inline_author_in_authors_in_article");
 		Assert.assertSame(metadata, author.getInheritedMmd());
 		Assert.assertTrue(author.getInlineMmds().size() == 1);
 		Assert.assertSame(author, author.getInlineMmd("author"));
@@ -143,7 +147,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(author__affiliation.getInheritedField());
 		Assert.assertSame(author, author__affiliation.getDeclaringMmd());
 
-		MetaMetadata source = repository.getByTagName("mmd_inline_source_in_article");
+		MetaMetadata source = repository.getByName("mmd_inline_source_in_article");
 		Assert.assertSame(document, source.getInheritedMmd());
 		Assert.assertTrue(source.getInlineMmds().size() == 1);
 		Assert.assertSame(source, source.getInlineMmd("source"));
@@ -168,7 +172,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(source__isbn.getInheritedField());
 		Assert.assertSame(source, source__isbn.getDeclaringMmd());
 
-		MetaMetadata article = repository.getByTagName("article");
+		MetaMetadata article = repository.getByName("article");
 		Assert.assertSame(document, article.getInheritedMmd());
 		Assert.assertTrue(article.getInlineMmds().size() == 2);
 		Assert.assertSame(author, article.getInlineMmd("author"));
@@ -196,7 +200,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(article__pages.getInheritedField());
 		Assert.assertSame(article, article__pages.getDeclaringMmd());
 
-		MetaMetadata tag = repository.getByTagName("mmd_inline_tag_in_classifications_in_paper");
+		MetaMetadata tag = repository.getByName("mmd_inline_tag_in_classifications_in_paper");
 		Assert.assertSame(metadata, tag.getInheritedMmd());
 		Assert.assertTrue(tag.getInlineMmds().size() == 1);
 		Assert.assertSame(tag, tag.getInlineMmd("tag"));
@@ -211,7 +215,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(tag__link.getInheritedField());
 		Assert.assertSame(tag, tag__link.getDeclaringMmd());
 
-		MetaMetadata paper = repository.getByTagName("paper");
+		MetaMetadata paper = repository.getByName("paper");
 		Assert.assertSame(article, paper.getInheritedMmd());
 		Assert.assertTrue(paper.getInlineMmds().size() == 1);
 		Assert.assertSame(tag, paper.getInlineMmd("tag"));
@@ -249,7 +253,7 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertSame(paper, paper__keywords.getDeclaringMmd());
 		Assert.assertSame(tag, paper__keywords.getInheritedMmd());
 
-		MetaMetadata acm_paper = repository.getByTagName("acm_paper");
+		MetaMetadata acm_paper = repository.getByName("acm_paper");
 		Assert.assertSame(paper, acm_paper.getInheritedMmd());
 		Assert.assertTrue(acm_paper.getInlineMmds() == null || acm_paper.getInlineMmds().isEmpty());
 		Assert.assertEquals(metadata__meta_metadata_name, acm_paper.getChildMetaMetadata().get("meta_metadata_name"));
@@ -286,14 +290,15 @@ public class TestNewMetaMetadataCompiler
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		TestNewMetaMetadataCompiler test = new TestNewMetaMetadataCompiler();
-		test.testGeneratingBasicTScope();
-		test.testTypeGraphs();
-		test.testInlineMmd();
-		test.testArticles();
-		test.testScalarCollections();
-		test.testPolymorphicFields();
-		test.testOtherTags();
-		test.testPolymorphicScope();
+//		test.testGeneratingBasicTScope();
+//		test.testTypeGraphs();
+//		test.testInlineMmd();
+//		test.testArticles();
+//		test.testScalarCollections();
+//		test.testPolymorphicFields();
+//		test.testOtherTags();
+//		test.testPolymorphicScope();
+		test.testYahooGeoCode();
 	}
 
 }
