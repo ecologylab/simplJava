@@ -12,16 +12,21 @@ import org.xml.sax.Attributes;
 import ecologylab.collections.MultiMap;
 import ecologylab.generic.Debug;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 
 public class TranslationContext extends Debug implements ScalarUnmarshallingContext, FieldTypes
 {
 
-	private static final String							SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
+	public static final String							SIMPL_NAMESPACE					= " xmlns:simpl=\"http://ecologylab.net/research/simplGuide/serialization/index.html\"";
 
-	private static final String							SIMPL_ID								= "simpl:id";
+	public static final String							SIMPL_ID								= "simpl:id";
 
-	private static final String							SIMPL_REF								= "simpl:ref";
+	public static final String							SIMPL_REF								= "simpl:ref";
+
+	public static final String							JSON_SIMPL_ID						= "simpl.id";
+
+	public static final String							JSON_SIMPL_REF					= "simpl.ref";
 
 	private MultiMap<Integer, ElementState>	marshalledObjects				= new MultiMap<Integer, ElementState>();
 
@@ -30,8 +35,6 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	private MultiMap<Integer, ElementState>	needsAttributeHashCode	= new MultiMap<Integer, ElementState>();
 
 	private HashMap<String, ElementState>		unmarshalledObjects			= new HashMap<String, ElementState>();
-
-
 
 	protected ParsedURL											purlContext;
 
@@ -63,7 +66,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		{
 			if (tag.equals(TranslationContext.SIMPL_ID))
 			{
-				this.unmarshalledObjects.put(value, elementState);
+				markAsUnmarshalled(value, elementState);
 				return true;
 			}
 			else
@@ -77,12 +80,17 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 		return false;
 	}
+	
+	public void markAsUnmarshalled(String value, ElementState elementState)
+	{
+		this.unmarshalledObjects.put(value, elementState);
+	}
 
 	public void resolveGraph(ElementState elementState)
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			//this.visitedElements.put(System.identityHashCode(elementState), elementState);
+			// this.visitedElements.put(System.identityHashCode(elementState), elementState);
 			this.visitedElements.put(elementState.hashCode(), elementState);
 
 			ArrayList<FieldDescriptor> elementFieldDescriptors = elementState.classDescriptor()
@@ -144,10 +152,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 							if (this.alreadyVisited(compositeElement))
 							{
-								//this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
-								//		compositeElement);
-								this.needsAttributeHashCode.put(compositeElement.hashCode(),
-										compositeElement);
+								// this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+								// compositeElement);
+								this.needsAttributeHashCode.put(compositeElement.hashCode(), compositeElement);
 							}
 							else
 							{
@@ -162,10 +169,9 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 					if (this.alreadyVisited(compositeElement))
 					{
-						//this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
-						//		compositeElement);
-						this.needsAttributeHashCode.put(compositeElement.hashCode(),
-								compositeElement);
+						// this.needsAttributeHashCode.put(System.identityHashCode(compositeElement),
+						// compositeElement);
+						this.needsAttributeHashCode.put(compositeElement.hashCode(), compositeElement);
 					}
 					else
 					{
@@ -178,7 +184,7 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 
 	public boolean alreadyVisited(ElementState elementState)
 	{
-		//return this.visitedElements.contains(System.identityHashCode(elementState), elementState);
+		// return this.visitedElements.contains(System.identityHashCode(elementState), elementState);
 		return this.visitedElements.contains(elementState.hashCode(), elementState);
 	}
 
@@ -186,60 +192,111 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
-			//this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
+			// this.marshalledObjects.put(System.identityHashCode(elementState), elementState);
 			this.marshalledObjects.put(elementState.hashCode(), elementState);
 		}
 	}
 
-	public void appendSimplIdIfRequired(Appendable appendable, ElementState elementState)
-			throws IOException
+	public void appendSimplIdIfRequired(Appendable appendable, ElementState elementState,
+			FORMAT format) throws IOException
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && this.needsHashCode(elementState))
 		{
-			this.appendSimplIdAttribute(appendable, elementState);
+			this.appendSimplIdAttribute(appendable, elementState, format);
 		}
 	}
 
 	public boolean alreadyMarshalled(ElementState compositeElementState)
 	{
-		//return this.marshalledObjects.contains(System.identityHashCode(compositeElementState), compositeElementState);	
+		// return this.marshalledObjects.contains(System.identityHashCode(compositeElementState),
+		// compositeElementState);
 		return this.marshalledObjects.contains(compositeElementState.hashCode(), compositeElementState);
 	}
-	
+
 	public void appendSimplNameSpace(Appendable appendable) throws IOException
 	{
 		appendable.append(SIMPL_NAMESPACE);
 	}
 
 	public void appendSimplRefId(Appendable appendable, ElementState elementState,
+			FieldDescriptor compositeElementFD, FORMAT format, boolean withTag) throws IOException
+	{
+		switch (format)
+		{
+		case XML:
+			appendXMLSimplRefId(appendable, elementState, compositeElementFD);
+			break;
+		case JSON:
+			appendJSONSimplRefId(appendable, elementState, compositeElementFD, withTag);
+			break;
+		}
+	}
+
+	private void appendXMLSimplRefId(Appendable appendable, ElementState elementState,
 			FieldDescriptor compositeElementFD) throws IOException
 	{
 		compositeElementFD.writeElementStart(appendable);
-		appendSimplIdAttributeWithTagName(appendable, SIMPL_REF, elementState);
+		appendXMLSimplIdAttributeWithTagName(appendable, SIMPL_REF, elementState);
 		appendable.append("/>");
 	}
 
-	public void appendSimplIdAttributeWithTagName(Appendable appendable, String tagName,
+	private void appendJSONSimplRefId(Appendable appendable, ElementState elementState,
+			FieldDescriptor compositeElementFD, boolean withTag) throws IOException
+	{
+		
+		compositeElementFD.writeJSONElementStart(appendable, withTag);
+		appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_REF, elementState, false);
+		compositeElementFD.writeJSONCloseTag(appendable);
+	}
+
+	private void appendXMLSimplIdAttributeWithTagName(Appendable appendable, String tagName,
 			ElementState elementState) throws IOException
 	{
 		appendable.append(' ');
 		appendable.append(tagName);
 		appendable.append('=');
 		appendable.append('"');
-		//appendable.append(((Integer) System.identityHashCode(elementState)).toString());
+		// appendable.append(((Integer) System.identityHashCode(elementState)).toString());
 		appendable.append(((Integer) elementState.hashCode()).toString());
 		appendable.append('"');
 	}
 
-	public void appendSimplIdAttribute(Appendable appendable, ElementState elementState)
-			throws IOException
+	private void appendJSONSimplIdAttributeWithTagName(Appendable appendable, String tagName,
+			ElementState elementState, boolean ifLast) throws IOException
 	{
-		appendSimplIdAttributeWithTagName(appendable, SIMPL_ID, elementState);
+		if (ifLast)
+		{
+			appendable.append(',');
+			appendable.append(' ');
+		}
+		
+		appendable.append('"');
+		appendable.append(tagName);
+		appendable.append('"');
+		appendable.append(':');
+		appendable.append('"');
+		appendable.append(((Integer) elementState.hashCode()).toString());
+		appendable.append('"');
+	}
+
+	private void appendSimplIdAttribute(Appendable appendable, ElementState elementState,
+			FORMAT format) throws IOException
+	{
+		switch (format)
+		{
+		case XML:
+			appendXMLSimplIdAttributeWithTagName(appendable, SIMPL_ID, elementState);
+			break;
+		case JSON:
+			appendJSONSimplIdAttributeWithTagName(appendable, JSON_SIMPL_ID, elementState, true);
+			break;
+		}
 	}
 
 	public boolean needsHashCode(ElementState elementState)
 	{
-		//return this.needsAttributeHashCode.contains(System.identityHashCode(elementState), elementState);
+		// return this.needsAttributeHashCode.contains(System.identityHashCode(elementState),
+		// elementState);
 		return this.needsAttributeHashCode.contains(elementState.hashCode(), elementState);
 	}
 
@@ -265,6 +322,11 @@ public class TranslationContext extends Debug implements ScalarUnmarshallingCont
 		}
 
 		return unMarshalledObject;
+	}
+	
+	public ElementState getFromMap(String value)
+	{
+		return this.unmarshalledObjects.get(value);
 	}
 
 	@Override

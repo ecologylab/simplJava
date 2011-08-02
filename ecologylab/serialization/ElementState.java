@@ -111,6 +111,9 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			throw new SIMPLTranslationException("outStream is null");
 
 		TranslationContext graphContext = new TranslationContext();
+
+		isRoot = true;
+
 		try
 		{
 			graphContext.resolveGraph(this);
@@ -427,8 +430,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 			}
 		}
 
-		// To handle cyclic graphs append simpl id as an attribute.
-		// appendSimplIdIfRequired(appendable);
+		graphContext.appendSimplIdIfRequired(appendable, this, FORMAT.JSON);
 
 		boolean elementsSerialized = false;
 		for (int i = 0; i < numElements; i++)
@@ -542,8 +544,10 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 									appendable.append(',');
 
 								ElementState collectionSubElementState = (ElementState) next;
-								collectionSubElementState.serializeToJSONRecursive(childFD, appendable, false,
-										graphContext);
+								serializeCompositeJSONElements(appendable, collectionSubElementState, childFD,
+										graphContext, false);
+								// collectionSubElementState.serializeToJSONRecursive(childFD, appendable, false,
+								// graphContext);
 							}
 						}
 
@@ -571,8 +575,12 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 									.pseudoFieldDescriptor();
 
 							appendable.append('{');
-							collectionSubElementState.serializeToJSONRecursive(collectionElementFD, appendable,
-									true, graphContext);
+
+							serializeCompositeJSONElements(appendable, collectionSubElementState,
+									collectionElementFD, graphContext, true);
+
+							// collectionSubElementState.serializeToJSONRecursive(collectionElementFD, appendable,
+							// true, graphContext);
 							appendable.append('}');
 						}
 
@@ -591,7 +599,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 					FieldDescriptor nestedFD = childFD.isPolymorphic() ? nestedES.classDescriptor()
 							.pseudoFieldDescriptor() : childFD;
 
-					nestedES.serializeToJSONRecursive(nestedFD, appendable, true, graphContext);
+					serializeCompositeJSONElements(appendable, nestedES, nestedFD, graphContext, true);
+					// nestedES.serializeToJSONRecursive(nestedFD, appendable, true, graphContext);
 
 				}
 			}
@@ -1069,7 +1078,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
-		graphContext.appendSimplIdIfRequired(buffy, this);
+		graphContext.appendSimplIdIfRequired(buffy, this, FORMAT.XML);
 
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
 				.elementFieldDescriptors();
@@ -1193,7 +1202,8 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 								// and it fixes @simpl_scalar @simpl_hints(Hint.XML_TEXT) output
 
 								FieldDescriptor collectionElementFD = childFD.isPolymorphic() ? collectionSubElementState
-										.classDescriptor().pseudoFieldDescriptor() : childFD;
+										.classDescriptor().pseudoFieldDescriptor()
+										: childFD;
 
 								// inside handles cyclic pointers by translating only the simpl id if already
 								// serialized.
@@ -1340,7 +1350,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 		}
 
 		// To handle cyclic graphs append simpl id as an attribute.
-		serializationContext.appendSimplIdIfRequired(appendable, this);
+		serializationContext.appendSimplIdIfRequired(appendable, this, FORMAT.XML);
 
 		// ArrayList<Field> elementFields = optimizations.elementFields();
 		ArrayList<FieldDescriptor> elementFieldDescriptors = classDescriptor()
@@ -2058,6 +2068,7 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	protected void deserializationPreHook()
 	{
 	}
+
 	/**
 	 * Clear data structures and references to enable garbage collecting of resources associated with
 	 * this.
@@ -2182,11 +2193,25 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	{
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && graphContext.alreadyMarshalled(nestedES))
 		{
-			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO);
+			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, FORMAT.XML, false);
 		}
 		else
 		{
 			nestedES.serializeToAppendable(nestedF2XO, appendable, graphContext);
+		}
+	}
+
+	private void serializeCompositeJSONElements(PrintStream appendable, ElementState nestedES,
+			FieldDescriptor nestedF2XO, TranslationContext graphContext, boolean withTag)
+			throws IOException, SIMPLTranslationException
+	{
+		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON && graphContext.alreadyMarshalled(nestedES))
+		{
+			graphContext.appendSimplRefId(appendable, nestedES, nestedF2XO, FORMAT.JSON, withTag);
+		}
+		else
+		{
+			nestedES.serializeToJSONRecursive(nestedF2XO, appendable, withTag, graphContext);
 		}
 	}
 

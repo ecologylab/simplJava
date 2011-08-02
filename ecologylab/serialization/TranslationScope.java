@@ -1161,7 +1161,8 @@ public final class TranslationScope extends ElementState
 			result = saxHandler.parse(new String(byteArray));
 			break;
 		case JSON:
-			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			//ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this, new TranslationContext());
 			result = jsonHandler.parse(new String(byteArray));
 			break;
 		case TLV:
@@ -1189,7 +1190,8 @@ public final class TranslationScope extends ElementState
 			result = saxHandler.parse(charSequence);
 			break;
 		case JSON:
-			ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			//ElementStateJSONHandler jsonHandler = new ElementStateJSONHandler(this);
+			ElementStateJSONPushHandler jsonHandler = new ElementStateJSONPushHandler(this, new TranslationContext());
 			result = jsonHandler.parse(charSequence);
 			break;
 		case TLV:
@@ -1672,7 +1674,6 @@ public final class TranslationScope extends ElementState
 	{
 		graphSwitch = GRAPH_SWITCH.ON;
 	}
-	
 	/**
 	 * Rebuild structures after serializing only some fields.
 	 */
@@ -1689,5 +1690,4 @@ public final class TranslationScope extends ElementState
 			warning("REPLACING another TranslationScope of the SAME NAME during deserialization!\t" + name);
 		allTranslationScopes.put(name, this);
 	}
-	
 }

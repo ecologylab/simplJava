@@ -1986,6 +1986,14 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		}
 		return result;
 	}
+	
+	public ClassDescriptor getChildClassDescriptor(String tagName)
+	{
+		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
+				: polymorphClassDescriptors.get(tagName);
+		
+		return childClassDescriptor;
+	}
 
 	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
 			TranslationContext graphContext) throws SIMPLTranslationException
