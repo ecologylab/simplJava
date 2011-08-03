@@ -824,11 +824,10 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	 */
 	public StringBuilder serialize(FORMAT format) throws SIMPLTranslationException
 	{
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		DataOutputStream outputBuffer = new DataOutputStream(byteArrayOutputStream);
-		serialize(outputBuffer, format);
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		serialize(outputStream, format);
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(byteArrayOutputStream.toByteArray());
+		stringBuilder.append(outputStream);
 		return stringBuilder;
 	}
 
