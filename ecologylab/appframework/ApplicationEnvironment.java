@@ -43,28 +43,29 @@ public class ApplicationEnvironment extends Debug implements Environment,
 {
 	public static final String		SCREEN_SIZE										= "screen_size";
 
-	public static final String 		CUSTOM_PREF_TRANSLATIONS			= "custom_pref_translations";
-	
+	public static final String		CUSTOM_PREF_TRANSLATIONS			= "custom_pref_translations";
+
 	private static final String		METAPREFS_XML									= "metaprefs.xml";
-	
-	public static final PrefEnum	LAUNCH_TYPE_PREF							= Pref.usePrefEnum(LAUNCH_TYPE, LaunchType.ECLIPSE);
-	
+
+	public static final PrefEnum	LAUNCH_TYPE_PREF							= Pref.usePrefEnum(LAUNCH_TYPE,
+																																	LaunchType.ECLIPSE);
+
 	// must initialize this before subsequent lookup by scope name.
 	static final TranslationScope	META_PREFS_TRANSLATION_SCOPE	= MetaPrefsTranslationScope.get();
 
 	/**
 	 * Subdirectory for eclipse launches.
 	 */
-	protected static final 	String	ECLIPSE_PREFS_DIR							= "config/preferences/";
-	
-	public static final 		String 	PREFERENCES										= "preferences/";
-	
+	protected static final String	ECLIPSE_PREFS_DIR							= "config/preferences/";
+
+	public static final String		PREFERENCES										= "preferences/";
 
 	// private static final String BASE_PREFERENCE_PATH = PREFERENCES_SUBDIR_PATH+"preferences.txt";
 	private static final String		ECLIPSE_BASE_PREFERENCE_PATH	= ECLIPSE_PREFS_DIR
 																																	+ "preferences.xml";
+
 	private static boolean				inUse;
-	
+
 	Scope													sessionScope;
 
 	TranslationScope							translationScope;
@@ -101,7 +102,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		JNLP, LOCAL_JNLP, ECLIPSE, JAR, STUDIES,
 	}
 
-	public static enum WindowSize { PASS_PARAMS, QUARTER_SCREEN, ALMOST_HALF, NEAR_FULL, FULL_SCREEN }
+	public static enum WindowSize
+	{
+		PASS_PARAMS, QUARTER_SCREEN, ALMOST_HALF, NEAR_FULL, FULL_SCREEN
+	}
 
 	LaunchType	launchType;
 
@@ -145,7 +149,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
 			String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		this(applicationName, translationScope, (TranslationScope)null, args, prefsAssetVersion);
+		this(applicationName, translationScope, (TranslationScope) null, args, prefsAssetVersion);
 	}
 
 	/**
@@ -158,7 +162,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          TranslationSpace used for translating preferences XML. If this is null,
 	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
 	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
-	 * @param customPrefs TODO
+	 * @param customPrefs
+	 *          TODO
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
@@ -169,11 +174,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
-			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws SIMPLTranslationException
+			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion)
+			throws SIMPLTranslationException
 	{
 		this(applicationName, null, translationScope, customPrefs, args, prefsAssetVersion);
 	}
-	
+
 	/**
 	 * 
 	 * @param applicationName
@@ -192,11 +198,13 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, Scope sessionScope,
-			TranslationScope translationScope,
-			Class<? extends Pref<?>>[] customPrefs, String args[], float prefsAssetVersion) throws SIMPLTranslationException
+			TranslationScope translationScope, Class<? extends Pref<?>>[] customPrefs, String args[],
+			float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		this(null, applicationName, sessionScope, translationScope, prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
+		this(null, applicationName, sessionScope, translationScope,
+				prefsClassArrayToTranslationScope(customPrefs), args, prefsAssetVersion);
 	}
+
 	/**
 	 * Create an ApplicationEnvironment. Load preferences from XML file founds in the
 	 * config/preferences directory. Default preferences will be loaded from preferences.xml. If there
@@ -207,7 +215,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 *          TranslationSpace used for translating preferences XML. If this is null,
 	 *          {@link ecologylab.oodss.messages.DefaultServicesTranslations
 	 *          ecologylab.oodss.message.DefaultServicesTranslations} will be used.
-	 * @param customPrefsTranslationScope TODO
+	 * @param customPrefsTranslationScope
+	 *          TODO
 	 * @param args
 	 *          The args array, which is treated as a stack with optional entries. They are: *) JNLP
 	 *          -- if that is the launch method *) preferences file if you are running in eclipse.
@@ -218,24 +227,27 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(String applicationName, TranslationScope translationScope,
-			TranslationScope customPrefsTranslationScope, String args[], float prefsAssetVersion) throws SIMPLTranslationException
+			TranslationScope customPrefsTranslationScope, String args[], float prefsAssetVersion)
+			throws SIMPLTranslationException
 	{
-		this(null, applicationName, null, translationScope, customPrefsTranslationScope, args, prefsAssetVersion);
+		this(null, applicationName, null, translationScope, customPrefsTranslationScope, args,
+				prefsAssetVersion);
 	}
-	
-	
+
 	/**
-	 * Configures a TranslationScope for the PREFS_TRANSLATION_SCOPE using the given customPrefs and returns it.
+	 * Configures a TranslationScope for the PREFS_TRANSLATION_SCOPE using the given customPrefs and
+	 * returns it.
 	 * 
 	 * @param customPrefs
 	 * @return
 	 */
-	private static final TranslationScope prefsClassArrayToTranslationScope(Class<? extends Pref<?>>[] customPrefs)
+	private static final TranslationScope prefsClassArrayToTranslationScope(
+			Class<? extends Pref<?>>[] customPrefs)
 	{
 		// configure the PrefSet translation scope, incorporating custom translations, if any
 		if (customPrefs == null)
 			customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
-		
+
 		return TranslationScope.get(CUSTOM_PREF_TRANSLATIONS, customPrefs);
 	}
 
@@ -411,24 +423,26 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	 * @throws SIMPLTranslationException
 	 */
 	public ApplicationEnvironment(Class<?> baseClass, String applicationName, Scope sessionScope,
-			TranslationScope translationScope, TranslationScope customPrefsTranslationScope, String args[],
-			float prefsAssetVersion) throws SIMPLTranslationException
+			TranslationScope translationScope, TranslationScope customPrefsTranslationScope,
+			String args[], float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		inUse	= true;
+		inUse = true;
 		// setup the translations used for prefs
 		TranslationScope prefTranslations;
 		if (customPrefsTranslationScope != null)
 		{
-			TranslationScope[] arrayToMakeJavaShutUp = {customPrefsTranslationScope};
-			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
+			TranslationScope[] arrayToMakeJavaShutUp =
+			{ customPrefsTranslationScope };
+			prefTranslations = TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE,
+					arrayToMakeJavaShutUp, PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses());
 		}
 		else
 		{
 			Class[] customPrefs = PrefSetBaseClassProvider.STATIC_INSTANCE.provideClasses();
-			
-			prefTranslations	= TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
+
+			prefTranslations = TranslationScope.get(PrefSet.PREFS_TRANSLATION_SCOPE, customPrefs);
 		}
-		
+
 		this.sessionScope = sessionScope;
 
 		// this is the one and only singleton Environment
@@ -444,8 +458,8 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		if (translationScope == null)
 			// default translation scope changed by andruid 5/27/10
 			translationScope = prefTranslations;
-//		translationScope = DefaultServicesTranslations.get();
-		
+		// translationScope = DefaultServicesTranslations.get();
+
 		this.translationScope = translationScope;
 
 		Stack<String> argStack = new Stack<String>();
@@ -564,11 +578,11 @@ public class ApplicationEnvironment extends Debug implements Environment,
 	private void processPrefs(Class<?> baseClass, TranslationScope translationScope,
 			Stack<String> argStack, float prefsAssetVersion) throws SIMPLTranslationException
 	{
-		LaunchType launchType 		= LaunchType.ECLIPSE; // current default
-		
+		LaunchType launchType = LaunchType.ECLIPSE; // current default
+
 		// look for launch method identifier in upper case
 		String arg = pop(argStack);
-		
+
 		if (arg != null)
 		{
 			String uc = arg.toUpperCase();
@@ -587,7 +601,7 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			}
 			LAUNCH_TYPE_PREF.setValue(launchType);
 		}
-		println("see, LaunchType = " + launchType);
+		println("LaunchType = " + launchType);
 		this.launchType = launchType;
 		// look for codeBase path
 		arg = pop(argStack);
@@ -614,18 +628,19 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				this.setCodeBase(codeBase);
 
 				final String host = codeBase.host();
-				if ("localhost".equals(host) || "127.0.0.1".equals(host))
-				{
-					debug("launched from localhost. must be a developer.");
-					LAUNCH_TYPE_PREF.setValue(LaunchType.LOCAL_JNLP);
-				}
-				
+//				if ("localhost".equals(host) || "127.0.0.1".equals(host))
+//				{
+//					debug("launched from localhost. must be a developer.");
+//					LAUNCH_TYPE_PREF.setValue(LaunchType.LOCAL_JNLP);
+//				}
+
 				SIMPLTranslationException metaPrefSetException = null;
 				ParsedURL metaPrefsPURL = null;
 				try
 				{
 					AssetsRoot prefAssetsRoot = new AssetsRoot(PREFERENCES, null);
-					File metaPrefsFile = Assets.getAsset(prefAssetsRoot, METAPREFS_XML, "prefs", null, false, prefsAssetVersion);
+					File metaPrefsFile = Assets.getAsset(prefAssetsRoot, METAPREFS_XML, "prefs", null, false,
+							prefsAssetVersion);
 					metaPrefsPURL = new ParsedURL(metaPrefsFile);
 					metaPrefSet = MetaPrefSet.load(metaPrefsFile, translationScope);
 					println("OK: loaded MetaPrefs from " + metaPrefsFile);
@@ -633,6 +648,10 @@ public class ApplicationEnvironment extends Debug implements Environment,
 				catch (SIMPLTranslationException e)
 				{
 					metaPrefSetException = e;
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
 				}
 				// from supplied URL instead of from here
 				try
@@ -726,8 +745,9 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			File localCodeBasePath = deriveLocalFileCodeBase(baseClass); // sets codeBase()!
 			argStack.push(arg);
 
-			//AssetsRoot prefAssetsRoot = new AssetsRoot(Assets.getAssetsRoot().getRelative(PREFERENCES), Files.newFile(PropertiesAndDirectories.thisApplicationDir(), PREFERENCES));
-			//Assets.downloadZip(prefAssetsRoot, "prefs", null, false, prefsAssetVersion);
+			// AssetsRoot prefAssetsRoot = new AssetsRoot(Assets.getAssetsRoot().getRelative(PREFERENCES),
+			// Files.newFile(PropertiesAndDirectories.thisApplicationDir(), PREFERENCES));
+			// Assets.downloadZip(prefAssetsRoot, "prefs", null, false, prefsAssetVersion);
 
 			SIMPLTranslationException metaPrefSetException = null;
 			File metaPrefsFile = new File(localCodeBasePath, ECLIPSE_PREFS_DIR + METAPREFS_XML);
@@ -969,18 +989,19 @@ public class ApplicationEnvironment extends Debug implements Environment,
 		return purl;
 	}
 
-	static final String	FIREFOX_PATH_WINDOWS	= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
-	static final String FIREFOX_PATH_WINDOWS_64 = "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
+	static final String	FIREFOX_PATH_WINDOWS		= "C:\\Program Files\\Mozilla Firefox\\firefox.exe";
+
+	static final String	FIREFOX_PATH_WINDOWS_64	= "C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe";
 
 	// TODO -- use "open" on the mac!!!
-	static final String	FIREFOX_PATH_MAC			= "/Applications/Firefox.app/Contents/MacOS/firefox";
+	static final String	FIREFOX_PATH_MAC				= "/Applications/Firefox.app/Contents/MacOS/firefox";
 
 	// static final String FIREFOX_PATH_MAC = null;
-	static final String	SAFARI_PATH_MAC				= "/Applications/Safari.app/Contents/MacOS/Safari";
+	static final String	SAFARI_PATH_MAC					= "/Applications/Safari.app/Contents/MacOS/Safari";
 
-	static final String	FIREFOX_PATH_LINUX		= "/usr/bin/firefox";
+	static final String	FIREFOX_PATH_LINUX			= "/usr/bin/firefox";
 
-	static final String	IE_PATH_WINDOWS				= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
+	static final String	IE_PATH_WINDOWS					= "C:\\Program Files\\Internet Explorer\\IEXPLORE.EXE";
 
 	static String				browserPath;
 
@@ -1307,12 +1328,12 @@ public class ApplicationEnvironment extends Debug implements Environment,
 			this.prefSet.put(k, otherPrefs.get(k));
 		}
 	}
-	
+
 	public static boolean runningInEclipse()
 	{
 		return LaunchType.ECLIPSE == LAUNCH_TYPE_PREF.value();
 	}
-	
+
 	public static boolean runningLocalhost()
 	{
 		return LaunchType.LOCAL_JNLP == LAUNCH_TYPE_PREF.value();

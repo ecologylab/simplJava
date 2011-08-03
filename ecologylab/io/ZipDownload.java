@@ -32,29 +32,29 @@ import ecologylab.net.ParsedURL;
 public class ZipDownload extends Debug implements Downloadable, Continuation
 {
 
-	static DownloadProcessor	downloadProcessor;
+	static DownloadProcessor<ZipDownload>	downloadProcessor;
 
-	ParsedURL									zipSource;
+	ParsedURL															zipSource;
 
-	File											zipTarget;
+	File																	zipTarget;
 
-	StatusReporter						status;
+	StatusReporter												status;
 
-	boolean										keepStatus					= false;
+	boolean																keepStatus					= false;
 
-	boolean										downloadDone				= false;
+	boolean																downloadDone				= false;
 
-	boolean										downloadStarted			= false;
+	boolean																downloadStarted			= false;
 
-	boolean										aborted							= false;
+	boolean																aborted							= false;
 
-	boolean										extractWhenComplete	= false;
+	boolean																extractWhenComplete	= false;
 
-	int												fileSize						= -1;
+	int																		fileSize						= -1;
 
-	InputStream								inputStream					= null;
+	InputStream														inputStream					= null;
 
-	private static final int	BUFFER_SIZE					= 8192;
+	private static final int							BUFFER_SIZE					= 8192;
 
 	public ZipDownload(ParsedURL zipSource, File zipTarget, StatusReporter status)
 	{
@@ -107,7 +107,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	 */
 	public void performDownload() throws IOException
 	{
-		debug("performDOwnload() top");
+//		debug("performDOwnload() top");
 		if (downloadStarted)
 			return;
 
@@ -234,10 +234,10 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	@Override
 	public void handleIoError(Throwable e)
 	{
-		aborted	= true;
+		aborted = true;
 		NetTools.close(inputStream);
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -246,7 +246,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 
 	public void callback(Object o)
 	{
-		System.out.println("ZipDownload delivered: + " + ((ZipDownload) o));
+		System.out.println("ZipDownload delivered: " + ((ZipDownload) o));
 	}
 
 	/**
@@ -283,7 +283,8 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 				File sourceZipFile = sourceZip.file();
 				String fileName = sourceZipFile.getName();
 				File destFile = Files.newFile(targetDir, fileName);
-				File destFileDir = Files.newFile(targetDir, destFile.toString().substring(0, destFile.toString().length() - 4));
+				File destFileDir = Files.newFile(targetDir,
+						destFile.toString().substring(0, destFile.toString().length() - 4));
 
 				println("Checking if dir exists: " + destFileDir.toString());
 
@@ -293,6 +294,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 
 				StreamUtils.copyFile(sourceZipFile, destFile);
 				extractZipFile(sourceZipFile, targetDir);
+
 				return null;
 			}
 			else
@@ -307,8 +309,8 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		catch (IOException e)
 		{
 			System.err.println("Error, zip file not found on the server!");
-			// hiding stack trace -- it's annoying.
-			// e.printStackTrace();
+			//	hiding stack trace -- it's annoying.
+			//	e.printStackTrace();
 			return null;
 		}
 	}
@@ -369,7 +371,8 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 			File dir = new File(dirPath);
 			if (!dir.exists())
 				dir.mkdirs();
-			StreamUtils.copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(outFile)));
+			StreamUtils.copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(
+					new FileOutputStream(outFile)));
 		}
 
 		zipFile.close();
@@ -390,7 +393,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 	{
 		synchronized (this)
 		{
-			if (!downloadDone)
+			if (!downloadDone && !aborted)
 			{
 				try
 				{
@@ -421,14 +424,15 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 		// TODO Auto-generated method stub
 		return null;
 	}
-  /**
-   * 
-   * @return	What to tell the user about what is being downloaded.
-   */
-  public String message()
-  {
-  	return "zip archive " + zipSource.toString();
-  }
+
+	/**
+	 * 
+	 * @return What to tell the user about what is being downloaded.
+	 */
+	public String message()
+	{
+		return "zip archive " + zipSource.toString();
+	}
 
 	@Override
 	public ParsedURL location()
@@ -439,7 +443,7 @@ public class ZipDownload extends Debug implements Downloadable, Continuation
 
 	public void recycle()
 	{
-		if(inputStream != null )
+		if (inputStream != null)
 			try
 			{
 				inputStream.close();

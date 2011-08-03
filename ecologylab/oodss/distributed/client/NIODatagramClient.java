@@ -316,7 +316,7 @@ public class NIODatagramClient<S extends Scope> extends NIODatagramCore<S>
 
 	public boolean connected()
 	{
-		return key.channel().isOpen() && super.isRunning();
+		return key != null && key.channel().isOpen() && super.isRunning();
 	}
 
 	public InetSocketAddress getServer()
