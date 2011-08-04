@@ -10,12 +10,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import ecologylab.generic.Debug;
-import ecologylab.generic.Describable;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.serialization.types.CollectionType;
-import ecologylab.serialization.types.FundamentalTypes;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.Mappable;
@@ -34,6 +31,7 @@ import ecologylab.serialization.types.element.Mappable;
 public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor> extends
 		DescriptorBase implements FieldTypes, Mappable<String>, Iterable<FD>
 {
+	
 	private static final String	PACKAGE_CLASS_SEP	= ".";
 
 	/**
@@ -104,7 +102,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 	private ArrayList<FD>																	attributeFieldDescriptors				= new ArrayList<FD>();
 
 	private ArrayList<FD>																	elementFieldDescriptors					= new ArrayList<FD>();										;
-
+	
 	private FD																						scalarValueFieldDescripotor			= null;
 
 	/**
@@ -1111,4 +1109,5 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 		String name	= this.getName();
 		
 	}
+
 }

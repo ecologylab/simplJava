@@ -24,7 +24,6 @@ import org.xml.sax.Attributes;
 
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
-import ecologylab.collections.Scope;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
@@ -35,9 +34,8 @@ import ecologylab.serialization.library.html.Input;
 import ecologylab.serialization.library.html.Td;
 import ecologylab.serialization.library.html.Tr;
 import ecologylab.serialization.types.CollectionType;
-import ecologylab.serialization.types.CrossLanguageTypeConstants;
-import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.FundamentalTypes;
+import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
 import ecologylab.serialization.types.element.Mappable;
 
@@ -50,6 +48,7 @@ import ecologylab.serialization.types.element.Mappable;
 @simpl_inherit
 public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappable<String>
 {
+	
 	public static final String	NULL	= ScalarType.DEFAULT_VALUE_STRING;
 
 	@simpl_scalar
@@ -63,6 +62,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	@simpl_composite
 	private ClassDescriptor			elementClassDescriptor; // TODO: reading this representation in any other language
 																											// will require it to have graph serialization working!
+	
+	@simpl_scalar
+	private	String							mapKeyFieldName;
+	
 	/**
 	 * Descriptor for the class that this field is declared in.
 	 */
@@ -109,12 +112,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	
 	@simpl_scalar
 	private Hint								xmlHint;
-
-	public Hint getXmlHint()
-	{
-		return xmlHint;
-	}
-
+	
 	@simpl_scalar
 	private boolean																		isEnum;
 
@@ -238,6 +236,8 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		this.field 			= field;
 		this.field.setAccessible(true);
 		this.fieldType 	= field.getType().getSimpleName();
+		if (field.isAnnotationPresent(simpl_map_key_field.class))
+			this.mapKeyFieldName = field.getAnnotation(simpl_map_key_field.class).value();
 //		this.name = (field != null) ? field.getName() : "NULL";
 
 		derivePolymorphicDescriptors(field);
@@ -807,6 +807,11 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return type == COMPOSITE_ELEMENT;
 	}
 
+	public Hint getXmlHint()
+	{
+		return xmlHint;
+	}
+	
 	public boolean set(ElementState context, String valueString)
 	{
 		return set(context, valueString, null);
@@ -2379,6 +2384,15 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	public ClassDescriptor getElementClassDescriptor()
 	{
 		return elementClassDescriptor;
+	}
+	
+	/**
+	 * @return the name of the field used for key in this map. this is indicated through
+	 * {@code @simpl_map_key_field}, and is de/serializable.
+	 */
+	public String getMapKeyFieldName()
+	{
+		return this.mapKeyFieldName;
 	}
 	
 	public void setElementClassDescriptor(ClassDescriptor elementClassDescriptor)

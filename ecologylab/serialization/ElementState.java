@@ -1,24 +1,19 @@
 package ecologylab.serialization;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.StringWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -1781,6 +1776,19 @@ public class ElementState extends Debug implements FieldTypes, XMLTranslationExc
 	public @interface simpl_map
 	{
 		String value() default NULL_TAG;
+	}
+	
+	/**
+	 * Indicate name of the field used as key in a map. Used together with {@code @simpl_map}.
+	 * 
+	 * @author quyin
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	@Inherited
+	public @interface simpl_map_key_field
+	{
+		String value();
 	}
 
 	/**

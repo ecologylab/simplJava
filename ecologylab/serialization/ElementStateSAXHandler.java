@@ -30,6 +30,7 @@ import ecologylab.generic.StringInputStream;
 import ecologylab.net.ConnectionAdapter;
 import ecologylab.net.PURLConnection;
 import ecologylab.net.ParsedURL;
+import ecologylab.serialization.ElementState.simpl_map_key_field;
 import ecologylab.serialization.types.element.Mappable;
 
 /**
@@ -666,6 +667,35 @@ public class ElementStateSAXHandler extends Debug implements ContentHandler, Fie
 				Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
 				// Map map = currentFD.getMap(parentES);
 				map.put(key, currentES);
+			}
+			else
+			{
+				String mapKeyFieldName = currentFD.getMapKeyFieldName();
+				FieldDescriptor elementMapKeyFD = null;
+				if (mapKeyFieldName != null)
+				{
+					ClassDescriptor currentMapElementCD = currentFD.getElementClassDescriptor();
+					elementMapKeyFD = currentMapElementCD.getFieldDescriptorByFieldName(mapKeyFieldName);
+					if (elementMapKeyFD != null)
+					{
+						try
+						{
+							Object key = elementMapKeyFD.getField().get(currentES);
+							Map map = (Map) currentFD.automaticLazyGetCollectionOrMap(parentES);
+							map.put(key, currentES);
+						}
+						catch (IllegalArgumentException e)
+						{
+							this.xmlTranslationException = new SIMPLTranslationException("field not found: " + elementMapKeyFD.getField() + " on " + currentES, e);
+						}
+						catch (IllegalAccessException e)
+						{
+							this.xmlTranslationException = new SIMPLTranslationException("cannot access field: " + elementMapKeyFD.getField() + " on " + currentES, e);
+						}
+					}
+				}
+				if (mapKeyFieldName == null || elementMapKeyFD == null)
+					this.xmlTranslationException = new SIMPLTranslationException("a map element should either implement Mappable or have annotation " + simpl_map_key_field.class.getSimpleName());
 			}
 		case COMPOSITE_ELEMENT:
 		case COLLECTION_ELEMENT:
