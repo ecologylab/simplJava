@@ -27,6 +27,7 @@ import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
 import ecologylab.generic.StringTools;
+import ecologylab.serialization.ElementState.simpl_map_key_field;
 import ecologylab.serialization.TranslationScope.GRAPH_SWITCH;
 import ecologylab.serialization.library.html.A;
 import ecologylab.serialization.library.html.Div;
@@ -90,6 +91,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * translateFromXML().
 	 */
 	@simpl_map("polymorph_class_descriptor")
+	@simpl_map_key_field("tagName")
 	private HashMapArrayList<String, ClassDescriptor>	polymorphClassDescriptors; //TODO serialize this
 
 	@simpl_map("polymorph_class")

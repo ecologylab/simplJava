@@ -12,6 +12,7 @@ import java.util.Set;
 
 import ecologylab.generic.HashMapArrayList;
 import ecologylab.generic.ReflectionTools;
+import ecologylab.serialization.ElementState.simpl_map_key_field;
 import ecologylab.serialization.types.CollectionType;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.serialization.types.TypeRegistry;
@@ -83,6 +84,7 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 
 	@simpl_nowrap
 	@simpl_map("field_descriptor")
+	@simpl_map_key_field("name")
 	private HashMapArrayList<String, FD>									declaredFieldDescriptorsByFieldName			= new HashMapArrayList<String, FD>();
 
 	/**
