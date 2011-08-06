@@ -2,6 +2,7 @@ package ecologylab.translators.javascript.test;
 
 import java.io.File;
 import java.io.IOException;
+import ecologylab.serialization.ElementState.FORMAT;
 
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
@@ -27,15 +28,24 @@ public class JavascriptTranslatorTest {
 		TranslationScope ts = new TranslationScope();
 		ts.addTranslation(Player.class);
 		
-		ts = TranslationScope.get("somegame",Bank.class,Computer.class,Human.class,Item.class,Move.class, Movements.class,Player.class);
+		ts = TranslationScope.get("somegame",Bank.class,Computer.class,Human.class,Item.class,Move.class, Movements.class,Player.class, ReferToSelf.class);
 		
-		System.out.println(ts.getClassByName("player"));
-		DotNetTranslator c = new DotNetTranslator();
-		c.translateToCSharp(new File("C:/testjs/cs"),ts);
-		CocoaTranslator coco = new CocoaTranslator();
+		//System.out.println(ts.getClassByName("player"));
+		//DotNetTranslator c = new DotNetTranslator();
+		//c.translateToCSharp(new File("C:/testjs/cs"),ts);
+		//CocoaTranslator coco = new CocoaTranslator();
 		
 		JavascriptTranslator jst = new JavascriptTranslator();
-		jst.translateToJavascript(new File("C:/testjs/js/gamething.js"), ts);
+		jst.translateToJavascript(new File("jscode/gamething.js"), ts);
+		
+		ReferToSelf self1 = new ReferToSelf();
+		ReferToSelf self2 = new ReferToSelf(1);
+		
+		System.out.println("var self1 = '"+self1.serialize(FORMAT.JSON).toString()+"';");
+		System.out.println("var self1 = '"+self2.serialize(FORMAT.JSON).toString()+"';");
+		
+		
+		
 
 		//not sure why this is failing
 		//coco.translateToObjC(new File("C:/testjs/coco"), ts);

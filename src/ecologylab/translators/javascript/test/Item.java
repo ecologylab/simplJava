@@ -5,7 +5,7 @@ import ecologylab.serialization.ElementState.simpl_scalar;
 import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.types.element.Mappable;
 
-public class Item extends ElementState implements Mappable{
+public class Item extends ElementState{// implements Mappable{
 	
 	@simpl_scalar float price;
 	@simpl_scalar String ownerName;
@@ -16,8 +16,8 @@ public class Item extends ElementState implements Mappable{
 		this.ownerName = ownerName;
 		this.name = name;
 	}
-	@Override
-	public Object key() {
-		return ownerName;
-	}
+	//@Override
+	//public Object key() {
+	//	return ownerName;
+	//}
 }
