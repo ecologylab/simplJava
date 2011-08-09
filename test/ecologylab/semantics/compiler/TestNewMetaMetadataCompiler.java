@@ -10,6 +10,7 @@ import ecologylab.io.Files;
 import ecologylab.semantics.compiler.CompilerConfig;
 import ecologylab.semantics.compiler.DefaultCompilerConfig;
 import ecologylab.semantics.compiler.NewMetaMetadataCompiler;
+import ecologylab.semantics.metadata.scalar.MetadataString;
 import ecologylab.semantics.metametadata.MetaMetadata;
 import ecologylab.semantics.metametadata.MetaMetadataCollectionField;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
@@ -21,7 +22,7 @@ import ecologylab.translators.java.JavaTranslationException;
 
 public class TestNewMetaMetadataCompiler
 {
-
+	
 	protected CompilerConfig getCompilerConfig(final File testingRepository)
 	{
 		CompilerConfig config = new DefaultCompilerConfig()
@@ -35,7 +36,30 @@ public class TestNewMetaMetadataCompiler
 			@Override
 			public MetaMetadataRepository loadRepository()
 			{
-				return MetaMetadataRepository.readRepository(testingRepository);
+				return MetaMetadataRepository.loadFromFiles(testingRepository);
+			}
+		};
+		return config;
+	}
+
+	protected CompilerConfig getCompilerConfigForDir(final File testingRepositoryDir)
+	{
+		CompilerConfig config = new DefaultCompilerConfig()
+		{
+			MetaMetadataRepository repo = null;
+			
+			@Override
+			public String getGeneratedSemanticsLocation()
+			{
+				return ".." + Files.sep + "testMetaMetadataCompiler" + Files.sep + "src";
+			}
+
+			@Override
+			public MetaMetadataRepository loadRepository()
+			{
+				if (repo == null)
+					repo =  MetaMetadataRepository.loadFromDir(testingRepositoryDir);
+				return repo;
 			}
 		};
 		return config;
@@ -47,6 +71,15 @@ public class TestNewMetaMetadataCompiler
 		CompilerConfig config = getCompilerConfig(testingRepository);
 		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
 		compiler.compile(config);
+	}
+
+	protected MetaMetadataRepository doTestForDir(String testName, final File testingRepositoryDir) throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		System.err.println("\n\n\n\nTest: " + testName + "\n\n\n\n\n");
+		CompilerConfig config = getCompilerConfigForDir(testingRepositoryDir);
+		NewMetaMetadataCompiler compiler = new NewMetaMetadataCompiler();
+		compiler.compile(config);
+		return config.loadRepository();
 	}
 
 	public void testGeneratingBasicTScope() throws IOException, SIMPLTranslationException, JavaTranslationException
@@ -94,6 +127,23 @@ public class TestNewMetaMetadataCompiler
 		doTest("yahoo-geo-code", new File("data/testRepository/testYahooGeoCode.xml"));
 	}
 
+	public void testLocalMmdScopes() throws IOException, SIMPLTranslationException, JavaTranslationException
+	{
+		MetaMetadataRepository repo = doTestForDir("local-mmd-scopes", new File("data/testRepository/testLocalMmdScopes"));
+		System.out.println("\n\nScopes by Package:");
+		for (String packageName : repo.getPackageMmdScopes().keySet())
+		{
+			System.out.println("\n" + packageName + ":");
+			System.out.println(repo.getPackageMmdScopes().get(packageName));
+		}
+		System.out.println("\n\nMMD Local Scopes:");
+		for (MetaMetadata mmd : repo.values())
+		{
+			System.out.println("\nLocal MMD Scope for " + mmd.getName() + ":");
+			System.out.println(mmd.getMmdScope());
+		}
+	}
+
 	/**
 	 * use testArticles.xml as the input repository to validate inheritance relationships (any field:
 	 * declaredMmd, inheritedField, nested field + mmds: inheritedMmd, mmds: inlineMmds).
@@ -101,25 +151,26 @@ public class TestNewMetaMetadataCompiler
 	@Test
 	public void testArticlesInheritanceRelationships()
 	{
-		MetaMetadataRepository repository = MetaMetadataRepository.readRepository(new File("data/testRepository/testArticles.xml"));
+		MetaMetadataRepository repository = MetaMetadataRepository.loadFromFiles(new File("data/testRepository/testArticles.xml"));
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
 
-		MetaMetadata metadata = repository.getByName("metadata");
+		MetaMetadata metadata = repository.getMMByName("metadata");
 		Assert.assertNull(metadata.getInheritedMmd());
-		Assert.assertTrue(metadata.getInlineMmds() == null || metadata.getInlineMmds().isEmpty());
+		Assert.assertTrue(metadata.getMmdScope() == null || metadata.getMmdScope().isEmpty());
 		// meta_metadata_name
 		MetaMetadataScalarField metadata__meta_metadata_name = (MetaMetadataScalarField) metadata.getChildMetaMetadata().get("meta_metadata_name");
 		Assert.assertNull(metadata__meta_metadata_name.getInheritedField());
 		Assert.assertSame(metadata, metadata__meta_metadata_name.getDeclaringMmd());
+		Assert.assertEquals(MetadataString.class.getName(), metadata__meta_metadata_name.getScalarType().getJavaTypeName());
 		// mixins
 		MetaMetadataCollectionField metadata__mixins = (MetaMetadataCollectionField) metadata.getChildMetaMetadata().get("mixins");
 		Assert.assertNull(metadata__mixins.getInheritedField());
 		Assert.assertSame(metadata, metadata__mixins.getDeclaringMmd());
 		Assert.assertSame(metadata, metadata__mixins.getInheritedMmd());
 
-		MetaMetadata document = repository.getByName("document");
+		MetaMetadata document = repository.getMMByName("document");
 		Assert.assertSame(metadata, document.getInheritedMmd());
-		Assert.assertTrue(document.getInlineMmds() == null || document.getInlineMmds().isEmpty());
+		Assert.assertTrue(document.getMmdScope() == null || document.getMmdScope().isEmpty());
 		Assert.assertEquals(metadata__meta_metadata_name, document.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, document.getChildMetaMetadata().get("mixins"));
 		// location
@@ -132,10 +183,9 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertSame(document, document__additional_locations.getDeclaringMmd());
 		Assert.assertNull(document__additional_locations.getInheritedMmd());
 
-		MetaMetadata author = repository.getByName("mmd_inline_author_in_authors_in_article");
+		MetaMetadata article = repository.getMMByName("article");
+		MetaMetadata author = article.getMmdScope().get("author");
 		Assert.assertSame(metadata, author.getInheritedMmd());
-		Assert.assertTrue(author.getInlineMmds().size() == 1);
-		Assert.assertSame(author, author.getInlineMmd("author"));
 		Assert.assertEquals(metadata__meta_metadata_name, author.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, author.getChildMetaMetadata().get("mixins"));
 		// name
@@ -147,10 +197,8 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(author__affiliation.getInheritedField());
 		Assert.assertSame(author, author__affiliation.getDeclaringMmd());
 
-		MetaMetadata source = repository.getByName("mmd_inline_source_in_article");
+		MetaMetadata source = article.getMmdScope().get("source");
 		Assert.assertSame(document, source.getInheritedMmd());
-		Assert.assertTrue(source.getInlineMmds().size() == 1);
-		Assert.assertSame(source, source.getInlineMmd("source"));
 		Assert.assertEquals(metadata__meta_metadata_name, source.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, source.getChildMetaMetadata().get("mixins"));
 		Assert.assertEquals(document__additional_locations, source.getChildMetaMetadata().get("additional_locations"));
@@ -172,11 +220,8 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(source__isbn.getInheritedField());
 		Assert.assertSame(source, source__isbn.getDeclaringMmd());
 
-		MetaMetadata article = repository.getByName("article");
 		Assert.assertSame(document, article.getInheritedMmd());
-		Assert.assertTrue(article.getInlineMmds().size() == 2);
-		Assert.assertSame(author, article.getInlineMmd("author"));
-		Assert.assertSame(source, article.getInlineMmd("source"));
+		Assert.assertTrue(article.getMmdScope().size() == 2);
 		Assert.assertEquals(metadata__meta_metadata_name, article.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, article.getChildMetaMetadata().get("mixins"));
 		Assert.assertEquals(document__location, article.getChildMetaMetadata().get("location"));
@@ -200,10 +245,9 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(article__pages.getInheritedField());
 		Assert.assertSame(article, article__pages.getDeclaringMmd());
 
-		MetaMetadata tag = repository.getByName("mmd_inline_tag_in_classifications_in_paper");
+		MetaMetadata paper = repository.getMMByName("paper");
+		MetaMetadata tag = paper.getMmdScope().get("tag");
 		Assert.assertSame(metadata, tag.getInheritedMmd());
-		Assert.assertTrue(tag.getInlineMmds().size() == 1);
-		Assert.assertSame(tag, tag.getInlineMmd("tag"));
 		Assert.assertEquals(metadata__meta_metadata_name, tag.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, tag.getChildMetaMetadata().get("mixins"));
 		// tag_name
@@ -215,10 +259,8 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(tag__link.getInheritedField());
 		Assert.assertSame(tag, tag__link.getDeclaringMmd());
 
-		MetaMetadata paper = repository.getByName("paper");
 		Assert.assertSame(article, paper.getInheritedMmd());
-		Assert.assertTrue(paper.getInlineMmds().size() == 1);
-		Assert.assertSame(tag, paper.getInlineMmd("tag"));
+		Assert.assertTrue(paper.getMmdScope().size() == 1);
 		Assert.assertEquals(metadata__meta_metadata_name, paper.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, paper.getChildMetaMetadata().get("mixins"));
 		Assert.assertEquals(document__location, paper.getChildMetaMetadata().get("location"));
@@ -242,20 +284,15 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertNull(paper__citations.getInheritedField());
 		Assert.assertSame(paper, paper__citations.getDeclaringMmd());
 		Assert.assertSame(paper, paper__citations.getInheritedMmd());
-		// classifications
-		MetaMetadataCollectionField paper__classifications = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("classifications");
-		Assert.assertNull(paper__classifications.getInheritedField());
-		Assert.assertSame(paper, paper__classifications.getDeclaringMmd());
-		Assert.assertSame(tag, paper__classifications.getInheritedMmd());
 		// keywords
 		MetaMetadataCollectionField paper__keywords = (MetaMetadataCollectionField) paper.getChildMetaMetadata().get("keywords");
 		Assert.assertNull(paper__keywords.getInheritedField());
 		Assert.assertSame(paper, paper__keywords.getDeclaringMmd());
-		Assert.assertSame(tag, paper__keywords.getInheritedMmd());
+		Assert.assertEquals(MetadataString.class.getName(), paper__keywords.getChildScalarType().getJavaTypeName());
 
-		MetaMetadata acm_paper = repository.getByName("acm_paper");
+		MetaMetadata acm_paper = repository.getMMByName("acm_paper");
 		Assert.assertSame(paper, acm_paper.getInheritedMmd());
-		Assert.assertTrue(acm_paper.getInlineMmds() == null || acm_paper.getInlineMmds().isEmpty());
+		Assert.assertTrue(acm_paper.getMmdScope() == null || acm_paper.getMmdScope().isEmpty());
 		Assert.assertEquals(metadata__meta_metadata_name, acm_paper.getChildMetaMetadata().get("meta_metadata_name"));
 		Assert.assertEquals(metadata__mixins, acm_paper.getChildMetaMetadata().get("mixins"));
 		Assert.assertEquals(document__location, acm_paper.getChildMetaMetadata().get("location"));
@@ -265,7 +302,6 @@ public class TestNewMetaMetadataCompiler
 		Assert.assertEquals(paper__abstract_field, acm_paper.getChildMetaMetadata().get("abstract_field"));
 		Assert.assertEquals(paper__references, acm_paper.getChildMetaMetadata().get("references"));
 		Assert.assertEquals(paper__citations, acm_paper.getChildMetaMetadata().get("citations"));
-		Assert.assertEquals(paper__classifications, acm_paper.getChildMetaMetadata().get("classifications"));
 		Assert.assertEquals(paper__keywords, acm_paper.getChildMetaMetadata().get("keywords"));
 		// title
 		MetaMetadataScalarField acm_paper__title = (MetaMetadataScalarField) acm_paper.getChildMetaMetadata().get("title");
@@ -290,14 +326,15 @@ public class TestNewMetaMetadataCompiler
 	public static void main(String[] args) throws IOException, SIMPLTranslationException, JavaTranslationException
 	{
 		TestNewMetaMetadataCompiler test = new TestNewMetaMetadataCompiler();
-//		test.testGeneratingBasicTScope();
-//		test.testTypeGraphs();
-//		test.testInlineMmd();
-//		test.testArticles();
-//		test.testScalarCollections();
-//		test.testPolymorphicFields();
-//		test.testOtherTags();
-//		test.testPolymorphicScope();
+		test.testGeneratingBasicTScope();
+		test.testTypeGraphs();
+		test.testInlineMmd();
+		test.testArticles();
+		test.testScalarCollections();
+		test.testPolymorphicFields();
+		test.testOtherTags();
+		test.testPolymorphicScope();
+		test.testLocalMmdScopes();
 		test.testYahooGeoCode();
 	}
 

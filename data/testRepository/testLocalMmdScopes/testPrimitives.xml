@@ -1,0 +1,21 @@
+<meta_metadata_repository name="test_local_mmd_scopes" package="ecologylab.semantics.generated.test.test_local_mmd_scopes.primitives">
+
+	<meta_metadata name="metadata" comment="The Metadata Class" built_in="true">
+		<scalar name="meta_metadata_name" tag="mm_name" hide="true" ignore_in_term_vector="true" comment="Stores the name of the meta-metadata, and is used on restoring from XML." scalar_type="String" />
+		<collection name="mixins" child_type="metadata" promote_children="true" polymorphic_scope="repository_metadata"/>
+	</meta_metadata>
+	
+	<meta_metadata name="document" extends="metadata" comment="The Document Class" built_in="true" schema_org_itemtype="http://schema.org/Thing">
+		<scalar name="location" always_show="true" layer="8.0" comment="The document's actual location." scalar_type="ParsedURL" schema_org_itemprop="url"/>
+		<scalar name="title" style="metadata_h1" layer="10.0" navigates_to="location" schema_org_itemprop="name" comment="The Title of the Document" scalar_type="String"  hint="XML_LEAF"/>
+		<scalar name="description" layer="9.0" scalar_type="String" schema_org_itemprop="description"/>
+		<collection name="additional_locations" child_scalar_type="ParsedURL" child_tag="location"/>
+	</meta_metadata>
+	
+	<meta_metadata name="compound_document"  extends="document" built_in="true" schema_org_itemtype="http://schema.org/Thing">
+		<scalar name="query" layer="5.0" comment="The search query" scalar_type="String" />
+		<scalar name="page_structure" layer="6.0" comment="For debugging. Type of the structure recognized by information extraction." scalar_type="String" />
+<!--		<collection name="clippings" child_type="clipping" comment="Clippings that this document contains." hide="true"  polymorphic_scope="repository_clippings"/>-->
+	</meta_metadata>
+	
+</meta_metadata_repository>

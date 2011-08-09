@@ -1,0 +1,26 @@
+<meta_metadata_repository name="test_local_mmd_scopes" package="ecologylab.semantics.generated.test.test_local_mmd_scopes.articles">
+
+	<meta_metadata name="article" extends="document">
+		<scalar name="title" scalar_type="String"  hint="XML_LEAF" style="metadata_h1" layer="10.0" navigates_to="location" schema_org_itemprop="name" comment="The Title of the article." />
+		<collection name="authors" child_type="author" child_extends="metadata">
+			<scalar name="name" scalar_type="String" navigates_to="location" as_composite_scalar="true" schema_org_itemprop="name" />
+			<scalar name="affiliation" scalar_type="String" schema_org_itemprop="affiliation"/>
+		</collection>
+		<composite name="source" extends="document" comment="Metadata related to where an article is published.">
+			<scalar name="archive_name" scalar_type="String" as_composite_scalar="true" is_facet="true" />
+			<scalar name="location" hide="true" />
+			<scalar name="year_of_publication" scalar_type="Int" is_facet="true" />
+			<scalar name="isbn" scalar_type="String" />
+		</composite>
+		<scalar name="pages" scalar_type="String" layer="-1.0" />
+		
+		<collection name="test_articles" child_type="test_article" comment="for debug.">
+		  <scalar name="debug_info" tag="serializedDebugInfo" />
+		</collection>
+	</meta_metadata>
+	
+	<meta_metadata name="test_article" extends="article" visibility="PACKAGE">
+    <scalar name="debug_info" scalar_type="String" />
+	</meta_metadata>
+
+</meta_metadata_repository>
