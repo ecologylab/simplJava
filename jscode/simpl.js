@@ -1,3 +1,10 @@
+//simpl.js
+//Author Rhema Linder
+//Use the methods simplDeserialze and simplSerialze to de/serialze simpl objects.
+//simpl objects can be made by using simplTranslator and annotating java code.
+/////////////////////
+
+
 var _simpl_ref_index_map = {};
 var _simpl_class_descriptor_map = {};
 
@@ -85,6 +92,13 @@ function simplDeserialize(json_string)
 
 function no_underscore_replacer(key, value)
 {
+  if(key == "simpl.id")
+  {
+    if(typeof(value) != "string")
+    {
+    	return undefined;
+    }
+  }
   if (key[0]=="_")
   {
       return undefined;
@@ -99,9 +113,11 @@ function simplStringify(obj)
     return JSON.stringify(obj, no_underscore_replacer);
 }
 
+
 //This function is needed to support simpl type maps.
 function reformatObject(obj, unwrap) {
         console_message("reformatObject",3);
+    
         if(unwrap)//Unwrap puts associative arrays back into Arrays.
         {
            var k = Array();
@@ -111,6 +127,8 @@ function reformatObject(obj, unwrap) {
         }
         var clone = {};
         for(var i in obj) {
+            if(i[0] == "_")
+              continue;
             var type_inside = null;
             if(obj._simpl_map_types)
             {
@@ -129,13 +147,18 @@ function reformatObject(obj, unwrap) {
         return clone;   
     }
 
+
 //This serialized object.
 function simplSerialize(simpl_object)//we could add something for this...
 {
     console_message("simplSerialize",3);
+    simpl_object = recursivlyGiveEachSimplObjectAnId(simpl_object);
+    var simpl_object_2 = recursivlyFillReferences(simpl_object);
+
     var return_object = new Object();
-    return_object[""+(simpl_object._simpl_object_name)] = simpl_object;
+    return_object[""+(simpl_object_2._simpl_object_name)] = simpl_object_2;
     return_object = reformatObject(return_object);
+    simpl_object = cleanAsYouGo(simpl_object);
 	return simplStringify(return_object);
 }
 
@@ -272,4 +295,182 @@ function jsonConstruct(json,target_object)
      }
      //check on type of class descriptor
      //target_object['_simpl_class_descriptor'] = simplDeserialize(target_object['_simpl_class_descriptor']);
+}
+
+
+///
+///
+///
+//graph part---------------
+//graphing happens with 2 passes of recursive functions
+//
+//1. pass, labels everything with a simpl_id
+//2. pass, 
+//
+//
+
+function getNewUnusedId()
+{
+  var same = 1;
+  var returnId = 1;
+  while(same)
+  {
+    returnId = ""+Math.floor(Math.random()*100000000);
+    if(!(returnId in _simpl_ref_index_map))
+      same = 0;
+  }
+  return returnId;
+}
+
+function isSimplObject(obj)
+{
+   if(!obj)
+     return false;
+   if(typeof(obj) == "object" && '_simpl_object_name' in obj)
+      return true;
+    return false;
+}
+
+function cleanAsYouGo(obj, seen_before_things)
+{
+   if(!seen_before_things)
+       seen_before_things = {};
+
+   if(isSimplObject(obj))
+   {
+      if(obj['simpl.id'])
+      {
+        if(obj['simpl.id'] in seen_before_things)
+        {
+           return obj;
+        }
+        seen_before_things[obj['simpl.id']] = 1;
+      }
+   }
+    for(var i in obj) {
+    //should only be for simpl objects inside of simpl objects but what about collections>>>???
+       if(isSimplObject(obj[i]))
+           cleanAsYouGo(obj[i],seen_before_things);
+    }
+    
+   if(isSimplObject(obj))
+   { 
+      obj['simpl.id'] = null;
+      obj._seen_before = null;
+   }
+   return obj;
+}
+
+function cleanupGraphContex(obj)
+{
+    console_message("cleanupGraphContex",3);
+    if(isSimplObject(obj))
+    {
+       console_message("this is a simpl object",3);
+      if('_simpl_crumbs_cleanup' in obj)
+      {
+       console_message("simpl crumbs do exist",3);
+        for(var i=0; i<obj._simpl_crumbs_cleanup.length; i+=1) {
+          console_message("cleaning stuff up",3);
+          obj._simpl_crumbs_cleanup[i]['simpl.id'] = null;
+          obj._simpl_crumbs_cleanup[i]._seen_before = undefined;
+        }
+      }
+    }
+    //return obj;
+}
+
+
+//this pass adds id's to objects... i may want to start with a clone but i'm not sure
+function recursivlyGiveEachSimplObjectAnId(obj, cleanup_crumb_holder)
+{
+    console_message("recursivlyGiveEacbSimplObjectAnId:"+typeof(obj)+":"+obj,3);
+    var crumb = null;
+    if(cleanup_crumb_holder)
+       crumb = cleanup_crumb_holder;
+    else
+       crumb = obj;
+    if(!('_simpl_crumbs_cleanup' in crumb))
+       crumb._simpl_crumbs_cleanup = new Array();
+       
+
+    if(typeof(obj) == "object" && '_simpl_object_name' in obj)
+    {
+      crumb._simpl_crumbs_cleanup.push(obj);
+      console_message("Need to add an id here",3);
+      if(obj['_seen_before'])
+      {
+         obj['simpl.id'] = getNewUnusedId();
+         return;
+      }
+      obj['_seen_before'] = 1;
+    }
+    else
+    {
+      console_message("this is not a simpl object");
+    }
+    for(var i in obj) {
+    //should only be for simpl objects inside of simpl objects but what about collections>>>???
+       if(isSimplObject(obj[i]))
+           recursivlyGiveEachSimplObjectAnId(obj[i],crumb);
+    }
+    return obj;
+}
+
+function recursivlyFillReferences(obj,old_clone)
+{
+   console_message("recursivlyFillReferences",3);
+   var clone = {};
+   if(old_clone)
+      clone = old_clone;
+   for(var i in obj) 
+   {
+      //if(typeof(obj[i]) == "object")
+      //{
+      //   clone[i] = obj[i];
+     //    console_message(i+" was just an object that should not be done anything with...",3);
+         
+      //}
+      //else 
+      if(isSimplObject(obj[i]))//'_simpl_object_name' in obj[i])
+      {
+         console_message("simpl object found",3);
+         if('simpl.id' in obj[i])
+         {
+            console_message("simpl.id found in object",3);
+            if(obj[i]['simpl.id'] in _simpl_ref_index_map)
+            {
+                console_message("This object is already made, referencing it",3);
+                refedObj = {};
+                refedNumber = {};
+                refedNumber['simpl.ref'] = obj[i]['simpl.id'];
+                refedObj[obj['_simpl_object_name']] = refedNumber;//old bad
+                ////refedObj[i] = refedNumber;
+                clone[i] = refedNumber;//refedObj;
+                //refedNumber;//no really old
+            }
+            else
+            {
+               //add to _simpl_ref_index_map
+               //clone
+               console_message("This object has not been made.  Making it.",3);
+               _simpl_ref_index_map[obj[i]['simpl.id']] = obj[i];
+               clone[i] = obj[i];
+               recursivlyFillReferences(obj[i],clone);
+            }
+          }
+          else
+          {
+            console_message("Cloneing field " + i + " with teh val "+obj[i],3);
+            clone[i] = obj[i];
+          }
+
+       }
+       else
+       {
+         console_message("Cloneing field " + i + " with teh val "+obj[i],3);
+         clone[i] = obj[i];//could probably make a better structure for this starement
+       }
+    }
+    return clone;
 }
