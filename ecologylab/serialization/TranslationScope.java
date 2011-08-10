@@ -649,9 +649,13 @@ public final class TranslationScope extends ElementState
 	 */
 	public Class<? extends ElementState> getClassBySimpleName(String classSimpleName)
 	{
-		ClassDescriptor entry = entriesByClassSimpleName.get(classSimpleName);
-
+		ClassDescriptor entry = getClassDescriptorBySimpleName(classSimpleName);
 		return (entry == null) ? null : entry.getDescribedClass();
+	}
+	
+	public ClassDescriptor getClassDescriptorBySimpleName(String classSimpleName)
+	{
+		return entriesByClassSimpleName.get(classSimpleName);
 	}
 
 	public Class<? extends ElementState> getClassByName(String className)
