@@ -39,6 +39,8 @@ public class NewMetaMetadataCompiler extends Debug
 				.traverseAndGenerateTranslationScope(META_METADATA_COMPILER_TSCOPE_NAME);
 		TranslationScope.setGraphSwitch();
 		TranslationScope metadataBuiltInTScope = MetadataBuiltinsTranslationScope.get();
+		
+		System.out.println(tscope.serialize());
 
 		MetaMetadataJavaTranslator jt = config.createJavaTranslator();
 		for (ClassDescriptor cd : metadataBuiltInTScope.getClassDescriptors())
