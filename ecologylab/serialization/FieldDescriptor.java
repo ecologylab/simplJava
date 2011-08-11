@@ -605,7 +605,7 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 							+ " because the parameterized type argument for the Collection is missing.");
 					return IGNORED_ELEMENT;
 				}
-				if (ElementState.class.isAssignableFrom(collectionElementClass))
+				if (ElementState.class.isAssignableFrom(collectionElementClass) && !TypeRegistry.containsScalarType(collectionElementClass))
 				{
 					elementClassDescriptor = ClassDescriptor.getClassDescriptor(collectionElementClass);
 					elementClass = elementClassDescriptor.getDescribedClass();
