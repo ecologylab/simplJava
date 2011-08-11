@@ -107,12 +107,12 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		
 		String fieldName = fieldDescriptor.getName();
 		String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-		String typeName = scalarType.getJavaTypeName();
+		String typeName = scalarType.getSimpleName();
 		
 		appendLazyEvaluation(fieldName, typeName, appendable);
 		
 		ScalarType operativeScalarType = scalarType.operativeScalarType();
-		String javaPrimitiveTypeName = operativeScalarType.getJavaTypeName();
+		String javaPrimitiveTypeName = operativeScalarType.getSimpleName();
 		appendable.append("\n");
 		appendable.append("\tpublic ").append(javaPrimitiveTypeName).append(" get").append(capFieldName).append("()\n");
 		appendable.append("\t{\n");
@@ -146,7 +146,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 		String capFieldName = Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
 		
 		ScalarType operativeScalarType = scalarType.operativeScalarType();
-		String javaPrimitiveTypeName = operativeScalarType.getJavaTypeName();
+		String javaPrimitiveTypeName = operativeScalarType.getSimpleName();
 		appendable.append("\n");
 		appendable.append("\tpublic void set").append(capFieldName).append("(").append(javaPrimitiveTypeName).append(" ").append(fieldName).append(")\n");
 		appendable.append("\t{\n");

@@ -36,7 +36,7 @@ public class TestNewMetaMetadataCompiler
 			@Override
 			public MetaMetadataRepository loadRepository()
 			{
-				return MetaMetadataRepository.loadFromFiles(testingRepository);
+				return MetaMetadataRepository.loadXmlFromFiles(testingRepository);
 			}
 		};
 		return config;
@@ -58,7 +58,7 @@ public class TestNewMetaMetadataCompiler
 			public MetaMetadataRepository loadRepository()
 			{
 				if (repo == null)
-					repo =  MetaMetadataRepository.loadFromDir(testingRepositoryDir);
+					repo =  MetaMetadataRepository.loadXmlFromDir(testingRepositoryDir);
 				return repo;
 			}
 		};
@@ -151,7 +151,7 @@ public class TestNewMetaMetadataCompiler
 	@Test
 	public void testArticlesInheritanceRelationships()
 	{
-		MetaMetadataRepository repository = MetaMetadataRepository.loadFromFiles(new File("data/testRepository/testArticles.xml"));
+		MetaMetadataRepository repository = MetaMetadataRepository.loadXmlFromFiles(new File("data/testRepository/testArticles.xml"));
 		TranslationScope tscope = repository.traverseAndGenerateTranslationScope("test-articles-inheritance");
 
 		MetaMetadata metadata = repository.getMMByName("metadata");
