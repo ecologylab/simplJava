@@ -17,7 +17,6 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
 import ecologylab.serialization.SIMPLTranslationException;
 import ecologylab.serialization.TranslationScope;
-import ecologylab.serialization.XMLTools;
 import ecologylab.translators.hibernate.hbmxml.HibernateClass;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassCache;
 import ecologylab.translators.hibernate.hbmxml.HibernateClassId;
@@ -50,7 +49,11 @@ public class HibernateXmlMappingGenerator extends Debug
 	public static final String						ASSOCIATION_TABLE_SEP								= "__";
 
 	public static final String						SCALAR_COLLECTION_VALUE_COLUMN_NAME	= "value";
+	
+	public static Class										DB_NAME_GENERATOR_CLASS							= DbNameGenerator.class;
 
+	private DbNameGenerator								dbNameGenerator;
+	
 	private NameTable<ClassDescriptor>		tableNames;
 
 	private NameTable<FieldDescriptor>		columnNames;
@@ -63,37 +66,35 @@ public class HibernateXmlMappingGenerator extends Debug
 
 	public HibernateXmlMappingGenerator()
 	{
+		try
+		{
+			dbNameGenerator = (DbNameGenerator) DB_NAME_GENERATOR_CLASS.newInstance();
+		}
+		catch (InstantiationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		tableNames = new NameTable<ClassDescriptor>() {
 			@Override
 			public String createName(ClassDescriptor obj)
 			{
-				return createTableName(obj);
+				return dbNameGenerator.createTableName(obj);
 			}
 		};
 		columnNames = new NameTable<FieldDescriptor>() {
 			@Override
 			public String createName(FieldDescriptor obj)
 			{
-				return createColumnName(obj);
+				return dbNameGenerator.createColumnName(obj);
 			}
 		};
-	}
-
-	protected String createTableName(ClassDescriptor cd)
-	{
-		// TODO potentially, need to escape SQL keywords: use ` as quote?
-		return cd.getTagName();
-	}
-
-	protected String createColumnName(FieldDescriptor fd)
-	{
-		return createColumnName(fd.getName());
-	}
-	
-	protected String createColumnName(String fieldName)
-	{
-		// TODO potentially, need to escape SQL keywords: use ` as quote?
-		return XMLTools.getXmlTagName(fieldName, null);
 	}
 
 	protected String getAssociationTableName(ClassDescriptor cd, FieldDescriptor fd)
@@ -186,7 +187,7 @@ public class HibernateXmlMappingGenerator extends Debug
 	protected String findIdColName(ClassDescriptor cd)
 	{
 		String idFieldName = findIdFieldName(cd);
-		return createColumnName(idFieldName);
+		return dbNameGenerator.createColumnName(idFieldName);
 	}
 
 	protected String findIdFieldName(ClassDescriptor cd)

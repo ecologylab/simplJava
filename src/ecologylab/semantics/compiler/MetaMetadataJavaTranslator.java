@@ -36,9 +36,9 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 	}
 
 	@Override
-	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc) throws IOException
+	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc, String spacing) throws IOException
 	{
-		super.appendFieldAnnotationsHook(appendable, fieldDesc);
+		super.appendFieldAnnotationsHook(appendable, fieldDesc, spacing);
 		
 		MetadataFieldDescriptor fd = (MetadataFieldDescriptor) fieldDesc;
 		MetaMetadataField f = fd.getDefiningMmdField();

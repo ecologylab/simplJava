@@ -672,7 +672,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			appendAnnotation(appendable, JavaTranslationUtilities.getJavaScopeAnnotation(polyScope), TAB);
 		}
 		
-		appendFieldAnnotationsHook(appendable, fieldDescriptor);
+		appendFieldAnnotationsHook(appendable, fieldDescriptor, TAB);
 	}
 	
 	/**
@@ -683,7 +683,7 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @param tabSpacing
 	 * @throws IOException 
 	 */
-	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc) throws IOException
+	protected void appendFieldAnnotationsHook(Appendable appendable, FieldDescriptor fieldDesc, String spacing) throws IOException
 	{
 		
 	}
@@ -735,8 +735,9 @@ public class JavaTranslator implements JavaTranslationConstants
 	 * @param appendable
 	 * @param classDesc
 	 * @param tabSpacing
+	 * @throws IOException 
 	 */
-	protected void appendClassAnnotationsHook(Appendable appendable, ClassDescriptor classDesc, String tabSpacing)
+	protected void appendClassAnnotationsHook(Appendable appendable, ClassDescriptor classDesc, String tabSpacing) throws IOException
 	{
 		
 	}

@@ -14,6 +14,8 @@ public interface JavaTranslationConstants {
 	public static final String	PACKAGE_NAME_SEPARATOR		= "\\.";
 
 	public static final String	FILE_PATH_SEPARATOR				= "/";
+	
+	public static final String	ANNOTATION_PREFIX					= "@";
 
 	public static final String	FILE_EXTENSION						= ".java";
 

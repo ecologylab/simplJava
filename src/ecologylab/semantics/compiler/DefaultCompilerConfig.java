@@ -1,5 +1,7 @@
 package ecologylab.semantics.compiler;
 
+import java.io.File;
+
 import ecologylab.io.Files;
 import ecologylab.semantics.collecting.MetaMetadataRepositoryInit;
 import ecologylab.semantics.metametadata.MetaMetadataRepository;
@@ -18,7 +20,7 @@ public class DefaultCompilerConfig implements CompilerConfig
 	@Override
 	public MetaMetadataRepository loadRepository()
 	{
-		return MetaMetadataRepositoryInit.getRepository();
+		return MetaMetadataRepository.loadXmlFromDir(new File(MetaMetadataRepositoryInit.DEFAULT_REPOSITORY_LOCATION));
 	}
 
 	@Override
