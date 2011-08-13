@@ -4,7 +4,9 @@
 package ecologylab.collections;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ecologylab.generic.Debug;
 import ecologylab.generic.IntSlot;
@@ -31,6 +33,19 @@ public class CollectionTools extends Debug
 		HashMap<String, String> hashMap = new HashMap<String, String>(strings.length);
 		buildMapFromStrings(hashMap, strings);
 		return hashMap;
+	}
+
+	/**
+	 * Create a HashSet, and populate with entries from the passed in array of Strings. 
+	 * 
+	 * @param strings
+	 * @return
+	 */
+	public static final HashSet<String> buildHashSetFromStrings(String[] strings)
+	{
+		HashSet<String> result = new HashSet<String>(strings.length);
+		buildSetFromStrings(result, strings);
+		return result;
 	}
 
 	/**
@@ -70,11 +85,21 @@ public class CollectionTools extends Debug
 	 */
 	public static final void buildMapFromStrings(Map<String, String> map, String[] strings)
 	{
-		for (int i = 0; i < strings.length; i++)
-		{
-			String thatString = strings[i];
+		for (String thatString: strings)
 			map.put(thatString, thatString);
-		}
+	}
+
+	/**
+	 * Populate a HashMap from the supplied array of Strings. The key and value will be the same for
+	 * each entry.
+	 * 
+	 * @param map
+	 * @param strings
+	 */
+	public static final void buildSetFromStrings(Set<String> set, String[] strings)
+	{
+		for (String thatString: strings)
+			set.add(thatString);
 	}
 
 	/**
@@ -87,9 +112,8 @@ public class CollectionTools extends Debug
 	 */
 	public static final void buildMapFromLCStrings(Map<String, String> map, String[] strings)
 	{
-		for (int i = 0; i < strings.length; i++)
+		for (String thatString: strings)
 		{
-			String thatString = strings[i];
 			if (StringTools.isLowerCase(thatString))
 				map.put(thatString, thatString);
 		}
