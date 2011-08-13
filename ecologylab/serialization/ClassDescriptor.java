@@ -650,6 +650,8 @@ public class ClassDescriptor<ES extends ElementState, FD extends FieldDescriptor
 			{
 				mapTagToFdForDeserialize(tagName, fieldDescriptor);
 			}
+		
+		mapTagToFdForDeserialize(fieldDescriptor.getTagName(), fieldDescriptor);
 	}
 
 	static final Class[]	FIELD_DESCRIPTOR_ARGS	=

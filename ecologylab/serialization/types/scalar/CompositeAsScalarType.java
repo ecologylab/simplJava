@@ -8,6 +8,7 @@ import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.ScalarUnmarshallingContext;
 import ecologylab.serialization.TranslationContext;
 import ecologylab.serialization.simpl_inherit;
+import ecologylab.serialization.ElementState.FORMAT;
 import ecologylab.serialization.types.ScalarType;
 
 /*
@@ -65,7 +66,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 	 * @throws IOException 
 	 */
 	@Override
-	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext) 
+	public void appendValue(T instance, Appendable appendable, boolean needsEscaping, TranslationContext serializationContext, FORMAT format) 
 	throws IOException
 	{
 		if(instance instanceof ElementState)
@@ -76,7 +77,7 @@ public class CompositeAsScalarType<T> extends ScalarType<T>
 			{
 				try
 				{
-					scalarValueFD.getScalarType().appendValue(appendable, scalarValueFD, instance, null);
+					scalarValueFD.getScalarType().appendValue(appendable, scalarValueFD, instance, null, format);
 				}
 				catch (IllegalArgumentException e)
 				{
