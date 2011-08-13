@@ -70,7 +70,7 @@ abstract public class ReferenceType<T> extends ScalarType<T>
 			switch (format)
 			{
 			case JSON:
-				buffy.append(JSONObject.escape(instance.toString()));
+				buffy.append(JSONObject.escape(instanceString));
 				;
 				break;
 			case XML:
