@@ -1,7 +1,10 @@
 package ecologylab.generic;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -10,6 +13,7 @@ import java.nio.charset.CoderResult;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.Set;
 
 import sun.misc.BASE64Encoder;
 import ecologylab.collections.CollectionTools;
@@ -22,6 +26,8 @@ import ecologylab.serialization.XMLTools;
  */
 public class StringTools extends Debug
 {
+	private static final String	UTF_8	= "UTF-8";
+
 	static final String[]				oneDotDomainStrings	=
 																									{ "com", "edu", "gov", "org", "net", "tv", "info" };
 
@@ -29,6 +35,9 @@ public class StringTools extends Debug
 																											.buildHashMapFromStrings(oneDotDomainStrings);
 
 	public static final String	EMPTY_STRING				= "";
+	
+	public static final int AVERAGE_PARAM_NAME_VALUE_LENGTH = 8;
+
 
 	/**
 	 * Changes the StringBuffer to lower case, in place, without any new storage allocation.
@@ -170,65 +179,63 @@ public class StringTools extends Debug
 	 * Very efficiently forms String representation of url (better than
 	 * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include query or anchor.
 	 */
-	public static final String noAnchorNoQueryPageString(URL u)
+	public static final String noAnchorNoQueryPageString(URL url)
 	{
-		String protocol = u.getProtocol();
-		String authority = u.getAuthority(); // authority is host:port
-		String path = u.getPath(); // doesn't include query
+		return noAnchorPageString(url, false);
+	}
 
-		int pathLength = (path == null) ? 0 : path.length();
+	/**
+	 * Very efficiently forms String representation of url (better than
+	 * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include anchor.
+	 */
+	public static final String noAnchorPageString(URL url)
+	{
+		return noAnchorPageString(url, true);
+	}
+	/**
+	 * Very efficiently forms String representation of url (better than
+	 * <code>URL.toExternalForm(), URL.toString()</code>). Doesn't include anchor.
+	 * May include query, depending on param 2.
+	 * 
+	 * @param url						Input URL.
+	 * @param includeQuery	include query or not.
+	 * 
+	 * @return							String representation of URL.
+	 */
+	public static final String noAnchorPageString(URL url, boolean includeQuery)
+	{
+		if (url == null)
+			return "";
+
+		String protocol 	= url.getProtocol();
+		String authority 	= url.getAuthority(); // authority is host:port
+		String path 			= url.getPath(); // doesn't include query
+		String query 			= includeQuery ? url.getQuery() : null;
+
+		int pathLength 		= (path == null) ? 0 : path.length();
+		int queryLength 	= (query == null) ? 0 : query.length();
+		includeQuery			= includeQuery && queryLength > 0;
+		
 		// pre-compute length of StringBuffer
 		int length = 0;
-
 		try
 		{
 			length = protocol.length() + 3 /* :// */+ authority.length() + pathLength;
+			if (includeQuery)
+				length	+= 1/* ? */ + queryLength;
 		}
 		catch (Exception e)
 		{
-			Debug.println("protocol=" + protocol + " authority=" + authority + u.toExternalForm());
+			Debug.println("protocol=" + protocol + " authority=" + authority + " " + url.toExternalForm());
 			e.printStackTrace();
 		}
 
-		StringBuffer result = new StringBuffer(length);
+		StringBuilder result = new StringBuilder(length);
 		result.append(protocol).append("://").append(authority).append(path);
-
-		return new String(result);
-	}
-
-	public static final String noAnchorPageString(URL u)
-	{
-		if (u == null)
-			return "";
-
-		String protocol = u.getProtocol();
-		String authority = u.getAuthority(); // authority is host:port
-		String path = u.getPath(); // doesn't include query
-		String query = u.getQuery();
-
-		int pathLength = (path == null) ? 0 : path.length();
-		int queryLength = (query == null) ? 0 : query.length();
-
-		// pre-compute length of StringBuffer
-		int length = 0;
-
-		try
-		{
-			length = protocol.length() + 3 /* :// */+ authority.length() + pathLength + 1/* ? */
-					+ queryLength;
-		}
-		catch (Exception e)
-		{
-			Debug.println("protocol=" + protocol + " authority=" + authority + u.toExternalForm());
-			e.printStackTrace();
-		}
-
-		StringBuffer result = new StringBuffer(length);
-		result.append(protocol).append("://").append(authority).append(path);
-		if (query != null)
+		if (includeQuery)
 			result.append("?").append(query);
 
-		return new String(result);
+		return result.toString();
 	}
 
 	public static final String pageString(URL u)
@@ -590,7 +597,7 @@ public class StringTools extends Debug
 	 */
 	private static final int				DECODER_POOL_SIZE	= 10;
 
-	public static final Charset			UTF8_CHARSET			= Charset.forName("UTF-8");
+	public static final Charset			UTF8_CHARSET			= Charset.forName(UTF_8);
 
 	static final CharsetDecoderPool	utf8DecoderPool		= new CharsetDecoderPool(UTF8_CHARSET,
 																												DECODER_POOL_SIZE);
@@ -729,5 +736,118 @@ public class StringTools extends Debug
 	public static boolean isNullOrEmpty(String string)
 	{
 		return string == null || string.length() == 0;
+	}
+	
+	/**
+	 * Extract a bunch of name value pairs from an input string from the query string of a URL.
+	 * 
+	 * @param input		The argument string.
+	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 */
+	public static HashMap<String, String> doubleSplit(URL input)
+	{
+		return doubleSplit(input.getQuery());
+	}
+	/**
+	 * Extract a bunch of name value pairs from an input string from a URL.
+	 * 
+	 * @param input		The argument string.
+	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 */
+	public static HashMap<String, String> doubleSplit(String input)
+	{
+		return doubleSplit(input, "&", ":", true);
+	}
+	/**
+	 * Extract a bunch of name value pairs from an input string.
+	 * 
+	 * @param input		The argument string.
+	 * @param regex1	Delimiter between argument pairs. For URLs, this is "&".
+	 * @param regex2	Delimiter between name and value amidst an argument pair. For URLs and Cookies, this is "=".
+	 * @param uudecodeArgs TODO
+	 * @return				Map with arg names as keys, and arg values as values. Or null if no arg name/values were extracted.
+	 */
+	public static HashMap<String, String> doubleSplit(String input, String regex1, String regex2, boolean uudecodeArgs)
+	{
+		HashMap<String, String> result	= null;
+		if (input != null && input.length() > 2)
+		{
+			String[] split1		= input.split(regex1);
+			for (String argPair: split1)
+			{
+				String[] split2	= argPair.split(regex2);
+				if (split2.length == 2)
+				{
+					if (result == null)
+						result			= new HashMap<String, String>(split1.length);
+					String value	= split2[1];
+					if (uudecodeArgs)
+					{
+						try
+						{
+							value				= URLDecoder.decode(value, UTF_8);
+						}
+						catch (UnsupportedEncodingException e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						};
+					}
+					result.put(split2[0], value);
+				}
+			}
+		}
+		return result;
+	}
+	/**
+	 * Assemble a String of URL parameters from a map of parameters.
+	 * 
+	 * @param parametersMap			Map of parameters, with names as keys and values as values.
+	 * 
+	 * @return									Output String of parameters, or null, if the map was empty.
+	 */
+	public static String unDoubleSplit(HashMap<String, String> parametersMap)
+	{
+		return unDoubleSplit(parametersMap, "&", "=", true);
+	}
+	/**
+	 * Assemble a String of parameters from a map of parameters.
+	 * 
+	 * @param parametersMap			Map of parameters, with names as keys and values as values.
+	 * @param delim1
+	 * @param delim2
+	 * @param uuencodeArgs if true, UUEncode each parameter before adding it to the output String.
+	 * 
+	 * @return									Output String of parameters, or null, if the map was empty.
+	 */
+	public static String unDoubleSplit(HashMap<String, String> parametersMap, String delim1, String delim2, boolean uuencodeArgs)
+	{
+		if (parametersMap == null)
+			return null;
+		
+		int size = parametersMap.size();
+		if (size == 0)
+			return null;
+		
+		StringBuilder buffy	= new StringBuilder(size * AVERAGE_PARAM_NAME_VALUE_LENGTH);
+		Set<String> keySet 	= parametersMap.keySet();
+		for (String key: keySet)
+		{
+			if (buffy.length() > 0)			// (not the 1st time, though)
+				buffy.append(delim1);			// append outer delimiter after the previous key/value append
+
+			String value = parametersMap.get(key);
+			try
+			{
+				value				= URLEncoder.encode(value, UTF_8);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			};
+			buffy.append(key).append(delim2).append(value);
+		}	
+		return buffy.toString();
 	}
 }
