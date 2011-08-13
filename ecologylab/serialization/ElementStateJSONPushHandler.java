@@ -140,7 +140,16 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 					break;
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
-					subRoot = getSubRoot(currentFieldDescriptor, jp.getCurrentName());
+					
+					String tagName = jp.getCurrentName();
+					subRoot = getSubRoot(currentFieldDescriptor, tagName);
+					
+					ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
+					.getChildClassDescriptor(tagName);
+					
+					if (subRoot != null)
+						subRoot.setupInParent(root, subRootClassDescriptor);
+					
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
 				case COLLECTION_ELEMENT:
@@ -234,6 +243,8 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 
 			jp.nextToken();
 		}
+		
+		root.deserializationPostHook();
 	}
 
 	/**
@@ -295,6 +306,8 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 				}
 
 				subRoot = subRootClassDescriptor.getInstance();
+				
+				
 				createObjectModel(subRoot, subRootClassDescriptor);
 			}
 		}
