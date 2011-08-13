@@ -24,14 +24,16 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 		FieldTypes
 {
 
-	TranslationScope		translationScope;
+	TranslationScope						translationScope;
 
-	TranslationContext	translationContext;
+	TranslationContext					translationContext;
 
 	/**
 	 * JsonParser object from the Jackson JSON parsing library. Implements a push API for parsing JSON
 	 */
-	JsonParser					jp	= null;
+	JsonParser									jp	= null;
+
+	DeserializationHookStrategy	deserializationHookStrategy;
 
 	/**
 	 * Constructs that creates a JSON deserialization handler
@@ -46,6 +48,23 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 	{
 		this.translationScope = translationScope;
 		this.translationContext = translationContext;
+		this.deserializationHookStrategy = null;
+	}
+	
+	/**
+	 * Constructs that creates a JSON deserialization handler
+	 * 
+	 * @param translationScope
+	 *          translation scope to use for de/serializing subsequent char sequences
+	 * @param translationContext
+	 *          used for graph handling
+	 */
+	public ElementStateJSONPushHandler(TranslationScope translationScope,
+			TranslationContext translationContext, DeserializationHookStrategy deserializationHookStrategy)
+	{
+		this.translationScope = translationScope;
+		this.translationContext = translationContext;
+		this.deserializationHookStrategy = deserializationHookStrategy;
 	}
 
 	/**
@@ -82,7 +101,12 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 			// find the classdescriptor for the root element.
 			ClassDescriptor rootClassDescriptor = translationScope.getClassDescriptorByTag(jp
 					.getCurrentName());
+			
 			root = rootClassDescriptor.getInstance();
+			root.setupRoot();
+			root.deserializationPreHook();
+			if (deserializationHookStrategy != null)
+				deserializationHookStrategy.deserializationPreHook(root, null);
 
 			// move to the first field of the root element.
 			jp.nextToken();
@@ -128,7 +152,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 						&& (currentFieldDescriptor.getType() == IGNORED_ELEMENT) ? FieldDescriptor.IGNORED_ELEMENT_FIELD_DESCRIPTOR
 						: (currentFieldDescriptor != null && currentFieldDescriptor.getType() == WRAPPER) ? currentFieldDescriptor
 								.getWrappedFD()
-								: rootClassDescriptor.getFieldDescriptorByTag(jp.getText(), translationScope, null);				
+								: rootClassDescriptor.getFieldDescriptorByTag(jp.getText(), translationScope, null);
 
 				int fieldType = currentFieldDescriptor.getType();
 
@@ -140,16 +164,16 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 					break;
 				case COMPOSITE_ELEMENT:
 					jp.nextToken();
-					
+
 					String tagName = jp.getCurrentName();
 					subRoot = getSubRoot(currentFieldDescriptor, tagName);
-					
+
 					ClassDescriptor subRootClassDescriptor = currentFieldDescriptor
-					.getChildClassDescriptor(tagName);
-					
+							.getChildClassDescriptor(tagName);
+
 					if (subRoot != null)
 						subRoot.setupInParent(root, subRootClassDescriptor);
-					
+
 					currentFieldDescriptor.setFieldToComposite(root, subRoot);
 					break;
 				case COLLECTION_ELEMENT:
@@ -243,8 +267,10 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 
 			jp.nextToken();
 		}
-		
+
 		root.deserializationPostHook();
+		if (deserializationHookStrategy != null)
+			deserializationHookStrategy.deserializationPostHook(root, currentFieldDescriptor);
 	}
 
 	/**
@@ -306,8 +332,7 @@ public class ElementStateJSONPushHandler extends Debug implements ScalarUnmarsha
 				}
 
 				subRoot = subRootClassDescriptor.getInstance();
-				
-				
+
 				createObjectModel(subRoot, subRootClassDescriptor);
 			}
 		}
