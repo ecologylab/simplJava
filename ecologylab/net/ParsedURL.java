@@ -1513,7 +1513,7 @@ public class ParsedURL extends Debug implements MimeType
 	{
 		HashMap<String, String> oldParamMap	= extractParams();
 		
-		String newArgString	= StringTools.unDoubleSplit(newParamMap, "&", ":", true);
+		String newArgString	= StringTools.unDoubleSplit(newParamMap);
 		String noArgsNoQuery= StringTools.noAnchorPageString(url, false);
 		ParsedURL result		= this;
 		if (newArgString != null && newArgString.length() > 0)

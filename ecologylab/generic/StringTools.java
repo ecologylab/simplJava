@@ -756,7 +756,7 @@ public class StringTools extends Debug
 	 */
 	public static HashMap<String, String> doubleSplit(String input)
 	{
-		return doubleSplit(input, "&", ":", true);
+		return doubleSplit(input, "&", "=", true);
 	}
 	/**
 	 * Extract a bunch of name value pairs from an input string.
