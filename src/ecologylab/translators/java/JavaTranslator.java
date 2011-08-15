@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ecologylab.generic.Debug;
@@ -610,6 +611,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		}
 		else if(type == FieldTypes.COLLECTION_ELEMENT || type == FieldTypes.COLLECTION_SCALAR)
 		{
+			addDependency(List.class.getName());
 			if(!fieldDescriptor.isWrapped())
 			{
 				// @simpl_nowrap
@@ -654,6 +656,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			{
 				// @simpl_hints
 				appendAnnotation(appendable, JavaTranslationUtilities.getJavaHintsAnnotation(hint.name()),TAB);
+				addDependency(Hint.class.getName());
 			}
 		}		
 		
@@ -722,6 +725,7 @@ public class JavaTranslator implements JavaTranslationConstants
 			addAnnotationDependency(xml_other_tags.class);
 		}
 		
+		appendable.append(SINGLE_LINE_BREAK);
 		appendClassAnnotationsHook(appendable, classDesc, tabSpacing);
 	}
 	
@@ -884,7 +888,7 @@ public class JavaTranslator implements JavaTranslationConstants
 		appendClassAnnotations(appendable, inputClass, "");
 
 		//appendable.append(TAB);
-		appendable.append(SINGLE_LINE_BREAK);
+//		appendable.append(SINGLE_LINE_BREAK);
 		appendable.append(PUBLIC);
 		appendable.append(SPACE);
 		appendable.append(CLASS);

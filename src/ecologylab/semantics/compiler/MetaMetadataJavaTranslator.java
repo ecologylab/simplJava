@@ -1,18 +1,14 @@
 package ecologylab.semantics.compiler;
 
 import java.io.IOException;
-import java.util.List;
 
 import ecologylab.semantics.metadata.MetadataFieldDescriptor;
 import ecologylab.semantics.metametadata.MetaMetadataCompositeField;
 import ecologylab.semantics.metametadata.MetaMetadataField;
 import ecologylab.semantics.metametadata.MetaMetadataScalarField;
 import ecologylab.semantics.metametadata.exceptions.MetaMetadataException;
-import ecologylab.serialization.ElementState.xml_other_tags;
 import ecologylab.serialization.FieldDescriptor;
 import ecologylab.serialization.FieldTypes;
-import ecologylab.serialization.Hint;
-import ecologylab.serialization.ElementState.xml_tag;
 import ecologylab.serialization.types.ScalarType;
 import ecologylab.translators.java.JavaTranslator;
 
@@ -22,11 +18,7 @@ public class MetaMetadataJavaTranslator extends JavaTranslator
 	public static final String	SCALAR_GETTER_SETTER_SUFFIX	= "Metadata";
 
 	private static String[]			metaMetadataDefaultImports	= {
-		List.class.getName(),
 		MetaMetadataCompositeField.class.getName(),
-		Hint.class.getName(),
-		xml_tag.class.getName().replace('$', '.'),
-		xml_other_tags.class.getName().replace('$', '.'),
 	};
 
 	public MetaMetadataJavaTranslator()

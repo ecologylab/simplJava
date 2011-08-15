@@ -1,28 +1,36 @@
 package ecologylab.translators.hibernate;
 
-import ecologylab.generic.Debug;
 import ecologylab.serialization.ClassDescriptor;
 import ecologylab.serialization.FieldDescriptor;
-import ecologylab.serialization.XMLTools;
 
-public class DbNameGenerator extends Debug
+/**
+ * generate names used by object-relational mapping generator.
+ * 
+ * @author quyin
+ * 
+ */
+public interface DbNameGenerator
 {
 
-	public String createTableName(ClassDescriptor cd)
-	{
-		// TODO potentially, need to escape SQL keywords: use ` as quote?
-		return cd.getTagName();
-	}
+	public static final String	DEFAULT_ORM_ID_FIELD_NAME						= "ormId";
 
-	public String createColumnName(FieldDescriptor fd)
-	{
-		return createColumnName(fd.getName());
-	}
-	
-	public String createColumnName(String fieldName)
-	{
-		// TODO potentially, need to escape SQL keywords: use ` as quote?
-		return XMLTools.getXmlTagName(fieldName, null);
-	}
+	// public static final String DISCRIMINATOR_COLUMN_NAME = "type_discrim";
+
+	public static final String	SCALAR_COLLECTION_VALUE_COLUMN_NAME	= "value";
+
+	public String getTableName(ClassDescriptor cd);
+
+	public String getColumnName(FieldDescriptor fd);
+
+	public String getColumnName(String fieldName);
+
+	public String getAssociationTableName(ClassDescriptor cd, FieldDescriptor fd);
+
+	public String getAssociationTableColumnName(ClassDescriptor cd);
+
+	/**
+	 * clear cache if any.
+	 */
+	public void clearCache();
 
 }

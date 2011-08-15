@@ -39,25 +39,17 @@ import ecologylab.translators.hibernate.hbmxml.HibernateProperty;
 @SuppressWarnings("rawtypes")
 public class HibernateXmlMappingGenerator extends Debug
 {
-
+	
 	public static final String						XML_HEAD														= "<?xml version=\"1.0\"?>\n<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" \"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd\">\n";
 
-	public static final String						DEFAULT_ORM_ID_FIELD_NAME						= "ormId";
-
-	// public static final String DISCRIMINATOR_COLUMN_NAME = "type_discrim";
-
-	public static final String						ASSOCIATION_TABLE_SEP								= "__";
-
-	public static final String						SCALAR_COLLECTION_VALUE_COLUMN_NAME	= "value";
-	
-	public static Class										DB_NAME_GENERATOR_CLASS							= DbNameGenerator.class;
+	/**
+	 * the implementation class of DbNameGenerator. when a new HibernateXmlMappingGenerator is newed,
+	 * this static member will be used to create the generator.
+	 */
+	public static Class										DB_NAME_GENERATOR_CLASS							= DefaultCachedDbNameGenerator.class;
 
 	private DbNameGenerator								dbNameGenerator;
 	
-	private NameTable<ClassDescriptor>		tableNames;
-
-	private NameTable<FieldDescriptor>		columnNames;
-
 	private TranslationScope							translationScope;
 
 	private Map<String, String>						idFieldNameByClass;
@@ -72,52 +64,46 @@ public class HibernateXmlMappingGenerator extends Debug
 		}
 		catch (InstantiationException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		catch (IllegalAccessException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		tableNames = new NameTable<ClassDescriptor>() {
-			@Override
-			public String createName(ClassDescriptor obj)
-			{
-				return dbNameGenerator.createTableName(obj);
-			}
-		};
-		columnNames = new NameTable<FieldDescriptor>() {
-			@Override
-			public String createName(FieldDescriptor obj)
-			{
-				return dbNameGenerator.createColumnName(obj);
-			}
-		};
 	}
 
-	protected String getAssociationTableName(ClassDescriptor cd, FieldDescriptor fd)
-	{
-		return tableNames.get(cd) + ASSOCIATION_TABLE_SEP + columnNames.get(fd);
-	}
-
-	protected String getAssociationTableColumnName(ClassDescriptor cd)
-	{
-		return tableNames.get(cd) + "_id";
-	}
-
-	public List<String> generateMappings(File hbmDir, TranslationScope tscope, Map<String, String> idFieldNameByClass)
+	/**
+	 * the entry method for generating native hibernate mappings from a translation scope.
+	 * 
+	 * @param hbmDir
+	 *          the destination dir of generated hibernate mapping files. each class (entity) will
+	 *          have one corresponding mapping file.
+	 * @param translationScope
+	 *          the translation scope from which we want to generate hibernate mapping files.
+	 * @param idFieldNameByClass
+	 *          the map from class (qualified) names to ORM ID field names. ORM ID field will be used
+	 *          as the primary key in the database tables. currently, this id field must be
+	 *          <i>surrogate id</i> and managed by the database service (no writes allowed on this
+	 *          field, but reads are ok). only "root" classes need to be in this map (inherited
+	 *          classes will use the ORM ID field in the base class).
+	 *          <p>
+	 *          NOTE that this map might be modified during the generating process as a cache.
+	 * @return a list of configurations you should add to your hibernate config file (typically,
+	 *         hibernate.cfg.xml).
+	 * @throws FileNotFoundException
+	 * @throws SIMPLTranslationException
+	 */
+	public List<String> generateMappings(File hbmDir, TranslationScope translationScope, Map<String, String> idFieldNameByClass)
 			throws FileNotFoundException, SIMPLTranslationException
 	{
 		PropertiesAndDirectories.createDirsAsNeeded(hbmDir);
 
-		this.translationScope = tscope;
+		this.translationScope = translationScope;
 		this.idFieldNameByClass = idFieldNameByClass;
 
 		List<String> mappingImports = new ArrayList<String>();
 
-		for (ClassDescriptor cd : tscope.getClassDescriptors())
+		for (ClassDescriptor cd : translationScope.getClassDescriptors())
 		{
 			HibernateMapping mapping = new HibernateMapping();
 			mapping.setMappingPackageName(cd.getDescribedClassPackageName());
@@ -127,7 +113,7 @@ public class HibernateXmlMappingGenerator extends Debug
 				mapping.getMappedClasses().put(currentClass.getName(), currentClass);
 				allMapping.put(currentClass.getName(), mapping);
 			}
-			columnNames.clear();
+			this.dbNameGenerator.clearCache();
 		}
 
 		for (HibernateMapping mapping : allMapping.values())
@@ -168,7 +154,7 @@ public class HibernateXmlMappingGenerator extends Debug
 			thatClass = new HibernateJoinedSubclass(superCd.getDescribedClassName(), new HibernateKey(idColName));
 		}
 		thatClass.setName(cd.getDescribedClassName());
-		thatClass.setTable(tableNames.get(cd));
+		thatClass.setTable(dbNameGenerator.getTableName(cd));
 
 		thatClass.setProperties(new HashMapArrayList<String, HibernateFieldBase>());
 		for (Object fdObj : cd.getDeclaredFieldDescriptorsByFieldName().values())
@@ -187,7 +173,7 @@ public class HibernateXmlMappingGenerator extends Debug
 	protected String findIdColName(ClassDescriptor cd)
 	{
 		String idFieldName = findIdFieldName(cd);
-		return dbNameGenerator.createColumnName(idFieldName);
+		return dbNameGenerator.getColumnName(idFieldName);
 	}
 
 	protected String findIdFieldName(ClassDescriptor cd)
@@ -195,7 +181,7 @@ public class HibernateXmlMappingGenerator extends Debug
 		if (cd == null)
 			return null;
 		else if (this.idFieldNameByClass == null)
-			return DEFAULT_ORM_ID_FIELD_NAME;
+			return DbNameGenerator.DEFAULT_ORM_ID_FIELD_NAME;
 		else if (this.idFieldNameByClass.containsKey(cd.getDescribedClassName()))
 			return this.idFieldNameByClass.get(cd.getDescribedClassName());
 		else
@@ -237,8 +223,11 @@ public class HibernateXmlMappingGenerator extends Debug
 	{
 		HibernateProperty prop = new HibernateProperty();
 		prop.setName(fd.getName());
-		prop.setColumn(columnNames.get(fd));
+		prop.setColumn(dbNameGenerator.getColumnName(fd));
 		prop.setType(fd.getScalarType().getJavaTypeName());
+		
+		// TODO index?
+		
 		return prop;
 	}
 
@@ -253,7 +242,7 @@ public class HibernateXmlMappingGenerator extends Debug
 
 		HibernateComposite comp = new HibernateComposite();
 		comp.setName(fd.getName());
-		comp.setColumn(columnNames.get(fd));
+		comp.setColumn(dbNameGenerator.getColumnName(fd));
 		comp.setCompositeClassName(elementCd.getDescribedClassName());
 		return comp;
 	}
@@ -269,9 +258,9 @@ public class HibernateXmlMappingGenerator extends Debug
 
 		HibernateCollection coll = new HibernateCollection();
 		coll.setName(fd.getName());
-		coll.setTable(getAssociationTableName(cd, fd));
+		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
 		coll.setKey(new HibernateKey(findIdColName(cd)));
-		coll.setManyToMany(new HibernateManyToMany(getAssociationTableColumnName(elementCd), elementCd.getDescribedClassName()));
+		coll.setManyToMany(new HibernateManyToMany(dbNameGenerator.getAssociationTableColumnName(elementCd), elementCd.getDescribedClassName()));
 
 		// FIXME set reverse mapping?
 		// String theOtherTableName = tableNames.get(elementCd);
@@ -287,9 +276,9 @@ public class HibernateXmlMappingGenerator extends Debug
 	{
 		HibernateCollection coll = new HibernateCollection();
 		coll.setName(fd.getName());
-		coll.setTable(getAssociationTableName(cd, fd));
-		coll.setKey(new HibernateKey(getAssociationTableColumnName(cd)));
-		coll.setElement(new HibernateCollectionScalar(SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getJavaTypeName()));
+		coll.setTable(dbNameGenerator.getAssociationTableName(cd, fd));
+		coll.setKey(new HibernateKey(dbNameGenerator.getAssociationTableColumnName(cd)));
+		coll.setElement(new HibernateCollectionScalar(DbNameGenerator.SCALAR_COLLECTION_VALUE_COLUMN_NAME, fd.getScalarType().getJavaTypeName()));
 		return coll;
 	}
 
