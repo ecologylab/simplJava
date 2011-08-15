@@ -1978,18 +1978,18 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 	 * @return
 	 * @throws SIMPLTranslationException
 	 */
-	ElementState constructChildElementState(ElementState parent, String tagName,
+	Object constructChildElementState(ElementState parent, String tagName,
 			Attributes attributes, TranslationContext graphContext) throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: polymorphClassDescriptors.get(tagName);
-		ElementState result = null;
+		Object result = null;
 		if (childClassDescriptor != null)
 		{
 			result = getInstance(attributes, childClassDescriptor, graphContext);
-
-			if (result != null)
-				result.setupInParent(parent, childClassDescriptor);
+//
+//			if (result != null)
+//				result.setupInParent(parent, childClassDescriptor);
 		}
 		return result;
 	}
@@ -2002,10 +2002,10 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return childClassDescriptor;
 	}
 
-	private ElementState getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
+	private Object getInstance(Attributes attributes, ClassDescriptor childClassDescriptor,
 			TranslationContext graphContext) throws SIMPLTranslationException
 	{
-		ElementState result;
+		Object result;
 
 		if (TranslationScope.graphSwitch == GRAPH_SWITCH.ON)
 		{
@@ -2024,23 +2024,23 @@ public class FieldDescriptor extends DescriptorBase implements FieldTypes, Mappa
 		return result;
 	}
 
-	ElementState constructChildElementState(ElementState parent, String tagName)
+	Object constructChildElementState(ElementState parent, String tagName)
 			throws SIMPLTranslationException
 	{
 		ClassDescriptor childClassDescriptor = !isPolymorphic() ? elementClassDescriptor
 				: polymorphClassDescriptors.get(tagName);
-		ElementState result = null;
+		Object result = null;
 		if (childClassDescriptor != null)
 		{
 			result = getInstance(childClassDescriptor);
 
-			if (result != null)
-				result.setupInParent(parent, childClassDescriptor);
+//			if (result != null)
+//				result.setupInParent(parent, childClassDescriptor);
 		}
 		return result;
 	}
 
-	private ElementState getInstance(ClassDescriptor childClassDescriptor)
+	private Object getInstance(ClassDescriptor childClassDescriptor)
 			throws SIMPLTranslationException
 	{
 
